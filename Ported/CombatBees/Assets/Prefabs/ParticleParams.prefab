@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4266043336091862319}
   - component: {fileID: 4266043336091862318}
   m_Layer: 0
-  m_Name: ParticleParams 1
+  m_Name: ParticleParams
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,5 +44,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bloodPrefab: {fileID: 5894109487834519187, guid: 4267f29e68c80ce458f5800ee7cd18ee, type: 3}
+  minBloodSize: 0.5
+  maxBloodSize: 1
   flashPrefab: {fileID: 2475056751703157025, guid: 554376d76c1e8b34cb96fc1ad8050e98, type: 3}
+  minFlashSize: 0.5
+  maxFlashSize: 1
   speedStretch: 0.25

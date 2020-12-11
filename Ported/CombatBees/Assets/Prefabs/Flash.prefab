@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8371282557014458167}
   - component: {fileID: 2174970015405015729}
   - component: {fileID: 1135006027039663039}
+  - component: {fileID: 8431848287559838115}
   m_Layer: 0
   m_Name: Flash
   m_TagString: Untagged
@@ -81,3 +82,17 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8431848287559838115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2475056751703157025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92f3cea277d10064c9c5ec56da1441c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particleType: 1
+  life: 0

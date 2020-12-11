@@ -24,7 +24,7 @@ public struct ParticleType : IComponentData
     public enum Type
     {
         Blood = 0,
-        SpawnFlash = 1
+        Flash = 1
     };
 }
 

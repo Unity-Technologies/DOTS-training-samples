@@ -47,7 +47,7 @@ public class ParticleSpawnerSystem : SystemBase
                         lifeDuration = random.NextFloat(3f, 5f);
                         ecb.AddComponent(particle, new LifeDuration { vel = lifeDuration });
 
-                        size = random.NextFloat(.1f, .2f);
+                        size = random.NextFloat(particleParams.minBloodSize, particleParams.minBloodSize);
                         ecb.AddComponent(particle, new NonUniformScale { Value = new float3(size, size, size) });
 
                         Color color = UnityEngine.Random.ColorHSV(-.05f, .05f, .75f, 1f, .3f, .8f);
@@ -67,7 +67,7 @@ public class ParticleSpawnerSystem : SystemBase
                         lifeDuration = random.NextFloat(.25f, .5f);
                         ecb.AddComponent(particle, new LifeDuration { vel = lifeDuration });
 
-                        size = random.NextFloat(1f, 2f);
+                        size = random.NextFloat(particleParams.minFlashSize, particleParams.maxFlashSize);
                         ecb.AddComponent(particle, new NonUniformScale { Value = new float3(size, size, size) });
 
                         baseColor = new float4(1f, 1f, 1f, 1f);
@@ -76,6 +76,8 @@ public class ParticleSpawnerSystem : SystemBase
 
                     ecb.SetComponent<Translation>(particle, new Translation { Value = pos.Value });
                 }
+
+                ecb.DestroyEntity(spawnerEntity);
 
             }).Run();
         ecb.Playback(EntityManager);

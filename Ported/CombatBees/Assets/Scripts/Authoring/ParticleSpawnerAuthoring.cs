@@ -25,7 +25,7 @@ public class ParticleSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntit
             velocityJitter = this.velocityJitter
         };
 
-        dstManager.AddComponent<ParticleSpawner>(entity);
+        dstManager.AddComponentData<ParticleSpawner>(entity, spawner);
     }
     
     /*
