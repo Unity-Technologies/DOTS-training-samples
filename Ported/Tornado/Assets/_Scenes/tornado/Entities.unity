@@ -156,15 +156,15 @@ MonoBehaviour:
   Damping: 0.012
   Friction: 0.4
   BreakResistance: 0.55
-  TornadoForce: 0
+  TornadoForce: 0.02
   TornadoMaxForceDistance: 30
   TornadoHeight: 50
   TornadoUpForce: 1.4
   TornadoInwardForce: 9
   SpinRate: 37
   SpeedUpward: 6
-  CameraDistance: 25
-  CameraPositionOffset: 3
+  CameraDistance: 35
+  CameraPositionOffset: 7
   CameraLookAtOffset: 10
   CameraPositionDamping: 0.05
 --- !u!4 &54384628
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParticlePrefab: {fileID: 6353756492411041238, guid: 21570f8b5ff174c4ba25c567b55f5064,
     type: 3}
-  ParticleCount: 1
+  ParticleCount: 500
 --- !u!4 &1506842126
 Transform:
   m_ObjectHideFlags: 0
