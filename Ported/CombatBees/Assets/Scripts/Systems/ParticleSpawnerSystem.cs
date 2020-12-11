@@ -59,6 +59,7 @@ public class ParticleSpawnerSystem : SystemBase
                     }
                     else
                     {
+                        Debug.Log("Spawn flash!");
                         particle = ecb.Instantiate(particleParams.flashPrefab);
 
                         velocity = random.NextFloat3() * 5f;
@@ -70,7 +71,7 @@ public class ParticleSpawnerSystem : SystemBase
                         size = random.NextFloat(particleParams.minFlashSize, particleParams.maxFlashSize);
                         ecb.AddComponent(particle, new NonUniformScale { Value = new float3(size, size, size) });
 
-                        baseColor = new float4(1f, 1f, 1f, 1f);
+                        baseColor = new float4(0.9f, 0.9f, 0.9f, 1f);
                         ecb.AddComponent(particle, new URPMaterialPropertyBaseColor { Value = baseColor });
                     }
 
