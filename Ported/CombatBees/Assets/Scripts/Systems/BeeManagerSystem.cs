@@ -277,96 +277,102 @@ public class BeeManagerSystem : SystemBase
             .WithNone<TargetBee>()
             .ForEach((Entity beeEntity, ref Velocity velocity, in BeeTeam beeTeam, in TargetResource targetRes, in Translation pos) =>
             {
-                // resource has no holder
-                if (HasComponent<HolderBee>(targetRes.res) == false)
+                if (HasComponent<Dead>(targetRes.res) == false)
                 {
-                    // Get latest buffer
-                    bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
-                    stackHeights = bufferFromEntity[bufferEntity];
+                    // resource has no holder
+                    if (HasComponent<HolderBee>(targetRes.res) == false)
+                    {
+                        // Get latest buffer
+                        bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                        stackHeights = bufferFromEntity[bufferEntity];
 
-                    // resource dead or not top of the stack
-                    if (HasComponent<Dead>(targetRes.res))
-                    {
-                        ecb2.RemoveComponent<TargetResource>(beeEntity);
-                    }
-                    else
-                    {
-                        bool dead = HasComponent<Dead>(targetRes.res);
-                        bool stacked = HasComponent<Stacked>(targetRes.res);
-                        int gridX = GetComponent<GridX>(targetRes.res).gridX;
-                        int gridY = GetComponent<GridY>(targetRes.res).gridY;
-                        int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
-                        
-                        if (Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked) == false)
+                        // resource dead or not top of the stack
+                        if (HasComponent<Dead>(targetRes.res))
                         {
                             ecb2.RemoveComponent<TargetResource>(beeEntity);
                         }
                         else
                         {
-                            var delta = GetComponent<Translation>(targetRes.res).Value - pos.Value;
-                            float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                            if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
-                            {
-                                velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
-                            }
-                            // Grab source
-                            else if (stacked)
-                            {
-                                //Debug.Log("add holder bee!!!!!!!!!!!!!!!!!!!!!!");
-                                //var tempPos = GetComponent<Translation>(targetRes.res);
-                                //Debug.Log("temp resource pos = " + tempPos.Value);
-                                ecb2.AddComponent<HolderBee>(targetRes.res, new HolderBee { holder = beeEntity });
-                                ecb2.RemoveComponent<Stacked>(targetRes.res);
+                            bool dead = HasComponent<Dead>(targetRes.res);
+                            bool stacked = HasComponent<Stacked>(targetRes.res);
+                            int gridX = GetComponent<GridX>(targetRes.res).gridX;
+                            int gridY = GetComponent<GridY>(targetRes.res).gridY;
+                            int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
 
-                                // Get latest buffer
-                                bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
-                                stackHeights = bufferFromEntity[bufferEntity];
-                                Utils.UpdateStackHeights(resGridParams, stackHeights, gridX, gridY, stacked, -1);
-                            }
-
-                        }
-                    }
-                }
-                // resource has holder
-                else
-                {
-                    Entity holder = GetComponent<HolderBee>(targetRes.res).holder;
-                    if (holder == beeEntity)
-                    {
-                        int team = (int)beeTeam.team;
-                        float3 targetPos = new float3(-field.size.x * .45f + field.size.x * .9f * team, 0f, pos.Value.z);
-                        float3 delta = targetPos - pos.Value;
-                        float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-
-                        // make sure dist is non zero
-                        if (dist > 0)
-                        {
-                            velocity.vel += delta * (beeParams.carryForce * deltaTime / dist);
-                            
-                            if (dist < 1f)
+                            if (Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked) == false)
                             {
-                                ecb2.RemoveComponent<HolderBee>(targetRes.res);
                                 ecb2.RemoveComponent<TargetResource>(beeEntity);
                             }
                             else
                             {
-                                ecb2.AddComponent<IsHoldingResource>(beeEntity);
+                                var delta = GetComponent<Translation>(targetRes.res).Value - pos.Value;
+                                float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                                if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
+                                {
+                                    velocity.vel += delta * (beeParams.chaseForce * deltaTime / math.sqrt(sqrDist));
+                                }
+                                // Grab source
+                                else if (stacked)
+                                {
+                                    //Debug.Log("add holder bee!!!!!!!!!!!!!!!!!!!!!!");
+                                    //var tempPos = GetComponent<Translation>(targetRes.res);
+                                    //Debug.Log("temp resource pos = " + tempPos.Value);
+                                    ecb2.AddComponent<HolderBee>(targetRes.res, new HolderBee { holder = beeEntity });
+                                    ecb2.RemoveComponent<Stacked>(targetRes.res);
+
+                                    // Get latest buffer
+                                    bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
+                                    stackHeights = bufferFromEntity[bufferEntity];
+                                    Utils.UpdateStackHeights(resGridParams, stackHeights, gridX, gridY, stacked, -1);
+                                }
+
                             }
                         }
                     }
+                    // resource has holder
                     else
                     {
-                        BeeTeam resHolderTeam = GetComponent<BeeTeam>(holder);
-                        if(resHolderTeam.team != beeTeam.team)
+                        Entity holder = GetComponent<HolderBee>(targetRes.res).holder;
+                        if (HasComponent<Dead>(holder) == false)
                         {
-                            if (HasComponent<TargetBee>(beeEntity) == false)
+                            if (holder == beeEntity)
                             {
-                                ecb2.AddComponent<TargetBee>(beeEntity, new TargetBee { bee = holder });
+                                int team = (int)beeTeam.team;
+                                float3 targetPos = new float3(-field.size.x * .45f + field.size.x * .9f * team, 0f, pos.Value.z);
+                                float3 delta = targetPos - pos.Value;
+                                float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+
+                                // make sure dist is non zero
+                                if (dist > 0)
+                                {
+                                    velocity.vel += delta * (beeParams.carryForce * deltaTime / dist);
+
+                                    if (dist < 1f)
+                                    {
+                                        ecb2.RemoveComponent<HolderBee>(targetRes.res);
+                                        ecb2.RemoveComponent<TargetResource>(beeEntity);
+                                    }
+                                    else
+                                    {
+                                        ecb2.AddComponent<IsHoldingResource>(beeEntity);
+                                    }
+                                }
                             }
-                        }
-                        else
-                        {
-                            ecb2.RemoveComponent<TargetResource>(beeEntity);
+                            else
+                            {
+                                BeeTeam resHolderTeam = GetComponent<BeeTeam>(holder);
+                                if (resHolderTeam.team != beeTeam.team)
+                                {
+                                    if (HasComponent<TargetBee>(beeEntity) == false)
+                                    {
+                                        ecb2.AddComponent<TargetBee>(beeEntity, new TargetBee { bee = holder });
+                                    }
+                                }
+                                else
+                                {
+                                    ecb2.RemoveComponent<TargetResource>(beeEntity);
+                                }
+                            }
                         }
                     }
                 }
@@ -442,8 +448,8 @@ public class BeeManagerSystem : SystemBase
                 if (math.abs(pos.Value.x) > field.size.x * .5f)
                 {
                     pos.Value.x = field.size.x * .5f * math.sign(pos.Value.x);
-                    //velocity.vel.x *= -.5f;
-                    velocity.vel.x *= -20f;
+                    velocity.vel.x *= -.5f;
+                    //velocity.vel.x *= -20f;
                     velocity.vel.y *= .8f;
                     velocity.vel.z *= .8f;
                 }
@@ -451,8 +457,8 @@ public class BeeManagerSystem : SystemBase
                 if (math.abs(pos.Value.z) > field.size.z * .5f)
                 {
                     pos.Value.z = field.size.z * .5f * math.sign(pos.Value.z);
-                    //velocity.vel.z *= -.5f;
-                    velocity.vel.z *= -20f;
+                    velocity.vel.z *= -.5f;
+                    //velocity.vel.z *= -20f;
                     velocity.vel.x *= .8f;
                     velocity.vel.y *= .8f;
                 }
@@ -466,8 +472,8 @@ public class BeeManagerSystem : SystemBase
                 if (math.abs(pos.Value.y) > field.size.y * .5f - resModifier - size * .5f)
                 {
                     pos.Value.y = (field.size.y * .5f - resModifier - size * .5f) * math.sign(pos.Value.y);
-                    //velocity.vel.y *= -.5f;
-                    velocity.vel.y *= -20f;
+                    velocity.vel.y *= -.5f;
+                    //velocity.vel.y *= -20f;
                     velocity.vel.x *= .8f;
                     velocity.vel.z *= .8f;
                 }

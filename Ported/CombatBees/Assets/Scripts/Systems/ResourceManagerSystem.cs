@@ -64,7 +64,7 @@ public class ResourceManagerSystem : SystemBase
             .WithAll<Dead>()
             .ForEach((Entity resEntity, ref DeathTimer deathTimer) =>
             {
-                deathTimer.dTimer -= 5 * deltaTime;
+                deathTimer.dTimer -= 5f * deltaTime;
                 if (deathTimer.dTimer < 0f)
                 {
                     ecb0.DestroyEntity(resEntity);
