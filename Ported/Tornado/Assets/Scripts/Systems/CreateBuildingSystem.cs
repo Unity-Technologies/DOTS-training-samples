@@ -56,6 +56,7 @@ public class CreateBuildingSystem : SystemBase
        {
            var height = random.NextInt(minHeight, maxHeight);
            var baseSize = random.NextInt(3, maxBasePoints);
+           var heightPower = random.NextFloat(1.5f, 5f);
 
            var sizeList = new NativeArray<int>(baseSize, Allocator.Temp);
            for (int i = 0; i < baseSize; i++)
@@ -64,7 +65,13 @@ public class CreateBuildingSystem : SystemBase
                {
                    sizeList[i] = height;
                }
-               sizeList[i] = (int)math.ceil(height / math.pow(2.0f, i-2));
+               else
+               {
+                   float f = i - 2.0f;
+                   f /= baseSize - 2.0f;
+                   f = 1 - f;
+                   sizeList[i] = (int)math.lerp(minHeight, height, math.pow(f, heightPower) );
+               }
            }
 
            var pos = buildingConstructionData.position;
@@ -146,6 +153,7 @@ public class CreateBuildingSystem : SystemBase
         Enabled = false;
     }
 
+    //Spiral position on hex grid, from https://stackoverflow.com/a/39780112
     static float2 GetHexPosition( int i )
     {
         var o = new float2(0);
