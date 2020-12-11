@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ParticleManager : MonoBehaviour {
@@ -13,12 +14,13 @@ public class ParticleManager : MonoBehaviour {
 	float[] radiusMults;
 
 	public int particlesCount = 1000;
+	Vector4[] colors;
 
 	private void Start() {
 		points = new Vector3[particlesCount];
 		matrices = new Matrix4x4[particlesCount];
 		radiusMults = new float[particlesCount];
-		Vector4[] colors = new Vector4[particlesCount];
+		colors = new Vector4[particlesCount];
 
 		for (int i=0;i<points.Length;i++) {
 			Vector3 pos = new Vector3(Random.Range(-50f,50f),Random.Range(0f,50f),Random.Range(-50f,50f));
@@ -50,6 +52,22 @@ public class ParticleManager : MonoBehaviour {
 			matrices[i] = matrix;
 		}
 
-		Graphics.DrawMeshInstanced(particleMesh,0,particleMaterial,matrices,matrices.Length,matProps);
+		var chunkCount = 1023;
+
+		for (int i = 0; i < matrices.Length; i += chunkCount)
+		{
+			var tmpMatrices = matrices.Where((m, idx) =>
+			{
+				return idx >= i && idx < (i + chunkCount);
+			}).ToArray();
+
+			var tmpMatProps = new MaterialPropertyBlock();
+			var tmpColors = colors.Where((c, idx) => {
+				return idx >= i && idx < (i + chunkCount);
+			}).ToArray();
+			tmpMatProps.SetVectorArray("_BaseColor", tmpColors);
+
+			Graphics.DrawMeshInstanced(particleMesh, 0, particleMaterial, tmpMatrices, tmpMatrices.Length);
+		}
 	}
 }
