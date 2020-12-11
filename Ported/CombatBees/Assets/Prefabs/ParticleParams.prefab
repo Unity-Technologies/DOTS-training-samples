@@ -44,9 +44,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bloodPrefab: {fileID: 5894109487834519187, guid: 4267f29e68c80ce458f5800ee7cd18ee, type: 3}
-  minBloodSize: 0.5
-  maxBloodSize: 1
+  minBloodSize: 0.15
+  maxBloodSize: 0.3
+  numberOfBloodParticles: 6
   flashPrefab: {fileID: 2475056751703157025, guid: 554376d76c1e8b34cb96fc1ad8050e98, type: 3}
-  minFlashSize: 0.5
-  maxFlashSize: 1
-  speedStretch: 0.25
+  minFlashSize: 1
+  maxFlashSize: 2
+  numberOfFlashParticles: 5
+  speedStretch: 0.1

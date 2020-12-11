@@ -59,7 +59,7 @@ public class ParticleSpawnerSystem : SystemBase
                     }
                     else
                     {
-                        Debug.Log("Spawn flash!");
+                        //Debug.Log("Spawn flash!");
                         particle = ecb.Instantiate(particleParams.flashPrefab);
 
                         velocity = random.NextFloat3() * 5f;

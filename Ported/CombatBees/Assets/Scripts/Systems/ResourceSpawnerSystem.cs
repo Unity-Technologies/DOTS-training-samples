@@ -26,7 +26,10 @@ public class ResourceSpawnerSystem : SystemBase
                     float3 pos;
                     if (spawner.isPosRandom)
                     {
-                        pos = Utils.GetRandomPosition(resGridParams, field, random.NextFloat());
+                        //pos = Utils.GetRandomPosition(resGridParams, field, random.NextFloat());
+                        pos.x = resGridParams.minGridPos.x * .25f + random.NextFloat() * field.size.x * .25f;
+                        pos.y = random.NextFloat() * 10f;
+                        pos.z = resGridParams.minGridPos.y + random.NextFloat() * field.size.z;
                         ecb.SetComponent(bee, new Translation { Value = pos });
                     }
                     else

@@ -28,37 +28,40 @@ public class ParticleManagerSystem : SystemBase
             .WithAll<ParticleType>()
             .WithNone<Stuck>()
             .ForEach((Entity particleEntity, ref Velocity velocity, ref Translation pos,
-                        ref NonUniformScale scale) =>
+                        ref NonUniformScale scale, in ParticleType particleType) =>
             {
                 velocity.vel += math.up() * (field.gravity * deltaTime);
                 pos.Value += velocity.vel * deltaTime;
 
-                float splat;
-                if(math.abs(pos.Value.x) > field.size.x * .5f)
+                if (particleType.type == ParticleType.Type.Blood)
                 {
-                    pos.Value.x = field.size.x * .5f * math.sign(pos.Value.x);
-                    splat = math.abs(pos.Value.x * .3f) + 1f;
-                    scale.Value.y *= splat;
-                    scale.Value.z *= splat;
-                    ecb.AddComponent<Stuck>(particleEntity);
-                }
+                    float splat;
+                    if (math.abs(pos.Value.x) > field.size.x * .5f)
+                    {
+                        pos.Value.x = field.size.x * .5f * math.sign(pos.Value.x);
+                        splat = math.abs(pos.Value.x * .3f) + 1f;
+                        scale.Value.y *= splat;
+                        scale.Value.z *= splat;
+                        ecb.AddComponent<Stuck>(particleEntity);
+                    }
 
-                if (math.abs(pos.Value.y) > field.size.y * .5f)
-                {
-                    pos.Value.y = field.size.y * .5f * math.sign(pos.Value.y);
-                    splat = math.abs(pos.Value.y * .3f) + 1f;
-                    scale.Value.x *= splat;
-                    scale.Value.z *= splat;
-                    ecb.AddComponent<Stuck>(particleEntity);
-                }
+                    if (math.abs(pos.Value.y) > field.size.y * .5f)
+                    {
+                        pos.Value.y = field.size.y * .5f * math.sign(pos.Value.y);
+                        splat = math.abs(pos.Value.y * .3f) + 1f;
+                        scale.Value.x *= splat;
+                        scale.Value.z *= splat;
+                        ecb.AddComponent<Stuck>(particleEntity);
+                    }
 
-                if (math.abs(pos.Value.z) > field.size.z * .5f)
-                {
-                    pos.Value.z = field.size.z * .5f * math.sign(pos.Value.z);
-                    splat = math.abs(pos.Value.z * .3f) + 1f;
-                    scale.Value.x *= splat;
-                    scale.Value.y *= splat;
-                    ecb.AddComponent<Stuck>(particleEntity);
+                    if (math.abs(pos.Value.z) > field.size.z * .5f)
+                    {
+                        pos.Value.z = field.size.z * .5f * math.sign(pos.Value.z);
+                        splat = math.abs(pos.Value.z * .3f) + 1f;
+                        scale.Value.x *= splat;
+                        scale.Value.y *= splat;
+                        ecb.AddComponent<Stuck>(particleEntity);
+                    }
                 }
 
             }).Run();

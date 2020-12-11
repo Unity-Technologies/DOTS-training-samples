@@ -31,6 +31,7 @@ public class BeeManagerSystem : SystemBase
         var beeParams = GetSingleton<BeeControlParams>();
         var field = GetSingleton<FieldAuthoring>();
         var resParams = GetSingleton<ResourceParams>();
+        var particleParams = GetSingleton<ParticleParams>();
         var resGridParams = GetSingleton<ResourceGridParams>();
         var bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
         var bufferEntity = GetSingletonEntity<ResourceParams>();
@@ -242,6 +243,17 @@ public class BeeManagerSystem : SystemBase
                                 {
                                     //////////////////////////// ToDo, spawn blood particle
                                     //ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
+                                    var spawnerEntity = ecb1.CreateEntity();
+                                    var particleSpawner = new ParticleSpawner
+                                    {
+                                        type = ParticleType.Type.Blood,
+                                        count = 6,
+                                        velocity = velocity.vel * .35f,
+                                        velocityJitter = 2f
+                                    };
+                                    ecb1.AddComponent<Translation>(spawnerEntity, pos);
+                                    ecb1.AddComponent<ParticleSpawner>(spawnerEntity, particleSpawner);
+
                                     ecb1.AddComponent<Dead>(targetBee.bee);
                                     Velocity targetVelocity = GetComponent<Velocity>(targetBee.bee);
                                     ecb1.SetComponent<Velocity>(targetBee.bee, new Velocity { vel = targetVelocity.vel * .5f });
@@ -377,6 +389,16 @@ public class BeeManagerSystem : SystemBase
                     //////////////////////////// ToDo
                     // Spawn blood particle
                     //ParticleManager.SpawnParticle(bee.position, ParticleType.Blood, Vector3.zero);
+                    var spawnerEntity = ecb3.CreateEntity();
+                    var particleSpawner = new ParticleSpawner
+                    {
+                        type = ParticleType.Type.Blood,
+                        count = 1,
+                        velocity = float3.zero,
+                        velocityJitter = 6f
+                    };
+                    ecb3.AddComponent<Translation>(spawnerEntity, pos);
+                    ecb3.AddComponent<ParticleSpawner>(spawnerEntity, particleSpawner);
                 }
 
                 velocity.vel.y += field.gravity * deltaTime;

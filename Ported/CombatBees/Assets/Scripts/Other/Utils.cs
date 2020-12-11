@@ -34,7 +34,7 @@ public static class Utils
         }
     }
 
-
+    /*
     public static float3 GetRandomPosition(ResourceGridParams resGridParams, FieldAuthoring field, float randomValue)
     {
         float3 pos;
@@ -44,7 +44,7 @@ public static class Utils
 
         return pos;
     }
-
+    */
 
     public static float3 NearestSnappedPos(ResourceGridParams resGridParams, float3 pos)
     {

@@ -26,6 +26,7 @@ public class ResourceManagerSystem : SystemBase
         var beeParams = GetSingleton<BeeControlParams>();
         var field = GetSingleton<FieldAuthoring>();
         var resParams = GetSingleton<ResourceParams>();
+        var particleParams = GetSingleton<ParticleParams>();
         var resGridParams = GetSingleton<ResourceGridParams>();
         var bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
         var bufferEntity = GetSingletonEntity<ResourceParams>();
@@ -191,6 +192,16 @@ public class ResourceManagerSystem : SystemBase
 
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
+                        var spawnerEntity = ecb1.CreateEntity();
+                        var particleSpawner = new ParticleSpawner
+                        {
+                            type = ParticleType.Type.Flash,
+                            count = particleParams.numberOfFlashParticles,
+                            velocity = float3.zero,
+                            velocityJitter = 6f
+                        };
+                        ecb1.AddComponent<Translation>(spawnerEntity, pos);
+                        ecb1.AddComponent<ParticleSpawner>(spawnerEntity, particleSpawner);
 
                         ecb1.AddComponent<Dead>(resEntity);
                         // destory later to avoid race condition in BeeManagerSystem

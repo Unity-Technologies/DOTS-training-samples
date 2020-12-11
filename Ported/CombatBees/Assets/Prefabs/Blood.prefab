@@ -95,4 +95,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particleType: 0
-  life: 1
+  life: 0.5

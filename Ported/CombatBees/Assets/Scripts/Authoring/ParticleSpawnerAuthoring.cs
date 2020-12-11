@@ -42,8 +42,8 @@ public struct ParticleSpawner : IComponentData
 {
     //public Entity bloodPrefab;
     //public Entity flashPrefab;
-    public int count;
     public ParticleType.Type type;
+    public int count;
     public float3 velocity;
     public float velocityJitter;
 }

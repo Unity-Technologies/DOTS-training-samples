@@ -505,12 +505,16 @@ PrefabInstance:
       value: ParticleParams
       objectReference: {fileID: 0}
     - target: {fileID: 4266043336091862318, guid: da4b72c25af12f74fb3c6966199dabcf, type: 3}
-      propertyPath: minBloodSize
+      propertyPath: minFlashSize
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4266043336091862318, guid: da4b72c25af12f74fb3c6966199dabcf, type: 3}
-      propertyPath: maxBloodSize
+      propertyPath: maxFlashSize
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266043336091862318, guid: da4b72c25af12f74fb3c6966199dabcf, type: 3}
+      propertyPath: numberOfFlashParticles
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4266043336091862319, guid: da4b72c25af12f74fb3c6966199dabcf, type: 3}
       propertyPath: m_LocalPosition.x
