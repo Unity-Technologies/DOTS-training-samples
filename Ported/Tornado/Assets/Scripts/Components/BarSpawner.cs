@@ -13,4 +13,6 @@ public struct BarSpawner : IComponentData
     public int maxHeight;
     public int maxBasePoints;
     public float horizontalSpacingFactor;
+
+    public float buildingsSpacing;
 }

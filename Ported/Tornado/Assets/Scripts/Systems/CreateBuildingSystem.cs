@@ -25,6 +25,7 @@ public class CreateBuildingSystem : SystemBase
         var maxHeight = spawner.maxHeight;
         var maxBasePoints = spawner.maxBasePoints;
         var horizontalSpacingFactor = spawner.horizontalSpacingFactor;
+        var buildingsSpacing = spawner.buildingsSpacing;
 
         // buildings
 
@@ -33,7 +34,12 @@ public class CreateBuildingSystem : SystemBase
             var newBuildingEntity = ecb.CreateEntity();
             var newBuildingConstructionData = new BuildingConstructionData();
             newBuildingConstructionData.height = random.NextInt(minHeight, maxHeight);
-            newBuildingConstructionData.position = new float3(random.NextFloat(-45f, 45f), 0f, random.NextFloat(-45f, 45f));
+            float3 pos = new float3(0);
+            pos.xz = GetHexPosition(i);
+            pos.xz += random.NextFloat2Direction() * random.NextFloat() * -0.5f;
+            pos.xz *= buildingsSpacing;
+
+            newBuildingConstructionData.position = pos;
             newBuildingConstructionData.spacing = 2f;
 
             ecb.AddComponent(newBuildingEntity, newBuildingConstructionData);
