@@ -39,7 +39,7 @@ public class BarSpawningSystem : SystemBase
 
         Random random = new Random(1234);
 
-        var buildings = query.ToEntityArray(Allocator.Temp);
+        var buildings = query.ToEntityArray(Allocator.TempJob);
 
         foreach (var buildingEntity in buildings)
         {
@@ -53,6 +53,8 @@ public class BarSpawningSystem : SystemBase
                 bufferConstraint[i] = constraint;
             }
         }
+
+        buildings.Dispose();
 
         Entities.WithAll<Building>().ForEach((Entity entity) =>
         {

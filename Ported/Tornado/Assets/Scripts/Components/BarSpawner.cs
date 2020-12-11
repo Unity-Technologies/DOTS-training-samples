@@ -9,5 +9,8 @@ public struct BarSpawner : IComponentData
 {
     public Entity barPrefab;
     public int buildingsCount;
-    public int groundDetailsCount;
+    public int minHeight;
+    public int maxHeight;
+    public int maxBasePoints;
+    public float horizontalSpacingFactor;
 }
