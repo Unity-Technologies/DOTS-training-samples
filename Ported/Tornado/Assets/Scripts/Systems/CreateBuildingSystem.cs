@@ -141,26 +141,6 @@ public class CreateBuildingSystem : SystemBase
 
         ecb.Dispose();
 
-        
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        Entities.WithAll<Building>().ForEach((in DynamicBuffer<NodeBuildingData> nodesList) =>
-        {
-            for (int i = 0; i < nodesList.Length; i++)
-            {
-                var node = GetComponent<Node>(nodesList[i].nodeEntity);
-
-                if (node.neighborCount <= 0)
-                {
-                    ecb.DestroyEntity(nodesList[i].nodeEntity);
-                }
-            }
-        }).Run();
-
-        ecb.Playback(EntityManager);
-        
-        ecb.Dispose();
-
         System.GC.Collect();
 
         Enabled = false;
