@@ -7,7 +7,6 @@ public class ParticleSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntit
 {
     public GameObject ParticlePrefab;
 
-    [Range(0, 1000)]
     public int ParticleCount;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
