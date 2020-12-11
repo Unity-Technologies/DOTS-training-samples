@@ -265,49 +265,32 @@ public class BeeManagerSystem : SystemBase
             .WithNone<TargetBee>()
             .ForEach((Entity beeEntity, ref Velocity velocity, in BeeTeam beeTeam, in TargetResource targetRes, in Translation pos) =>
             {
-                Debug.Log("here 1");
                 // resource has no holder
                 if (HasComponent<HolderBee>(targetRes.res) == false)
                 {
-                    Debug.Log("here 5");
                     // Get latest buffer
                     bufferFromEntity = GetBufferFromEntity<StackHeightParams>();
                     stackHeights = bufferFromEntity[bufferEntity];
 
-                    Debug.Log("here 8");
-                    if(HasComponent<TargetResource>(beeEntity))
-                    {
-                        Debug.Log("has resource");
-                    }
-
-                    Debug.Log("here 10");
                     // resource dead or not top of the stack
                     if (HasComponent<Dead>(targetRes.res))
                     {
                         ecb2.RemoveComponent<TargetResource>(beeEntity);
-                        Debug.Log("here 15");
                     }
                     else
                     {
                         bool dead = HasComponent<Dead>(targetRes.res);
-                        Debug.Log("here 15.1");
                         bool stacked = HasComponent<Stacked>(targetRes.res);
-                        Debug.Log("here 15.2");
                         int gridX = GetComponent<GridX>(targetRes.res).gridX;
-                        Debug.Log("here 15.3");
                         int gridY = GetComponent<GridY>(targetRes.res).gridY;
-                        Debug.Log("here 15.4");
                         int stackIndex = GetComponent<StackIndex>(targetRes.res).index;
-                        Debug.Log("here 15.5");
                         
                         if (Utils.IsTopOfStack(resGridParams, stackHeights, gridX, gridY, stackIndex, stacked) == false)
                         {
                             ecb2.RemoveComponent<TargetResource>(beeEntity);
-                            Debug.Log("here 20");
                         }
                         else
                         {
-                            Debug.Log("here 25");
                             var delta = GetComponent<Translation>(targetRes.res).Value - pos.Value;
                             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                             if (sqrDist > beeParams.grabDistance * beeParams.grabDistance)
@@ -317,7 +300,6 @@ public class BeeManagerSystem : SystemBase
                             // Grab source
                             else if (stacked)
                             {
-                                Debug.Log("here 30");
                                 //Debug.Log("add holder bee!!!!!!!!!!!!!!!!!!!!!!");
                                 //var tempPos = GetComponent<Translation>(targetRes.res);
                                 //Debug.Log("temp resource pos = " + tempPos.Value);
@@ -336,7 +318,6 @@ public class BeeManagerSystem : SystemBase
                 // resource has holder
                 else
                 {
-                    Debug.Log("here 35");
                     Entity holder = GetComponent<HolderBee>(targetRes.res).holder;
                     if (holder == beeEntity)
                     {
@@ -344,8 +325,6 @@ public class BeeManagerSystem : SystemBase
                         float3 targetPos = new float3(-field.size.x * .45f + field.size.x * .9f * team, 0f, pos.Value.z);
                         float3 delta = targetPos - pos.Value;
                         float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-
-                        Debug.Log("here 40");
 
                         // make sure dist is non zero
                         if (dist > 0)
@@ -365,7 +344,6 @@ public class BeeManagerSystem : SystemBase
                     }
                     else
                     {
-                        Debug.Log("here 50");
                         BeeTeam resHolderTeam = GetComponent<BeeTeam>(holder);
                         if(resHolderTeam.team != beeTeam.team)
                         {
@@ -404,10 +382,8 @@ public class BeeManagerSystem : SystemBase
                 velocity.vel.y += field.gravity * deltaTime;
                 //deathTimer.dTimer -= deltaTime / 10f;
                 deathTimer.dTimer -= 10f * deltaTime;
-                Debug.Log("bee dead, deathTimer.dTimer = " + deathTimer.dTimer);
                 if (deathTimer.dTimer < 0f)
                 {
-                    Debug.Log("bee should disappear!!!");
                     ecb3.DestroyEntity(beeEntity);
                 }
 

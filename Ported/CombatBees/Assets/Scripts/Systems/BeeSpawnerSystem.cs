@@ -19,7 +19,6 @@ public class BeeSpawnerSystem : SystemBase
             //.ForEach((Entity spawnerEntity, ref BeeSpawner spawner, in Translation spawnerPos) =>
             .ForEach((Entity spawnerEntity, ref BeeSpawner spawner) =>
             {
-                Debug.Log("beespawner working, cout = !!" + spawner.count);
                 for (int i = 0; i < spawner.count; i++)
                 {
                     //var bee = ecb.Instantiate(spawner.beePrefab);

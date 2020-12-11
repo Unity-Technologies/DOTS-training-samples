@@ -165,31 +165,6 @@ public class ResourceManagerSystem : SystemBase
                     pos.Value.y = floorY;
                     if(math.abs(pos.Value.x) > field.size.x * .4f)
                     {
-                        Debug.Log("reach the destiny");
-
-                        /*
-                        Entity beeSpawnerPrefab;
-                        if(pos.Value.x < 0f)
-                        {
-                            beeSpawnerPrefab = beeParams.blueSpawnerPrefab;
-                        }
-                        else
-                        {
-                            beeSpawnerPrefab = beeParams.yellowSpawnerPrefab;
-                        }
-
-                        var newSpawner = ecb1.Instantiate(beeSpawnerPrefab);
-                        var beeSpawner = new BeeSpawner
-                        {
-                            beePrefab = beeSpawnerPrefab,
-                            count = resParams.beesPerResource,
-                            maxSpawnSpeed = beeParams.maxSpawnSpeed
-                        };
-
-                        ecb1.SetComponent<Translation>(newSpawner, pos);
-                        ecb1.SetComponent(newSpawner, beeSpawner);
-                        */
-
                         Entity newSpawner = ecb1.CreateEntity();
                         BeeSpawner beeSpawner;
                         if(pos.Value.x < 0f)
@@ -213,9 +188,6 @@ public class ResourceManagerSystem : SystemBase
 
                         ecb1.AddComponent<Translation>(newSpawner, pos);
                         ecb1.AddComponent(newSpawner, beeSpawner);
-
-
-                        Debug.Log("spawner instantiated!!");
 
                         //////////////////////////// ToDo, spawn Falash particle
                         //ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
