@@ -112,9 +112,9 @@ Feel free to copy assets and code snippets from the originals into your ports. T
    </ul>
 </details>
 
----
-
 ![Factory](_imgs/Factory.png?raw=true)
+
+---
 
 <details>
   <summary><strong>Highway Racers</strong>: Simulate traffic on a 4-lane highway.
