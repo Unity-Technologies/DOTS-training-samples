@@ -9,7 +9,9 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ## Sample Gallery
 
-*Expand the arrows for more details.*
+*Expand the arrows for more details about each sample.*
+
+---
 
 <details>
   <summary><strong>Ant Pheromones</strong>: Ants look for food and spread pheromones to influence the pathing of other ants</summary>
@@ -30,6 +32,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Ant Pheromones](_imgs/AntPhermones.gif?raw=true)
  
+---
+ 
 <details>
   <summary><strong>Auto Farmers</strong>: Farmers gather and sell resources to expand their farm.</summary>
   
@@ -48,6 +52,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
  
 ![Auto Farmers](_imgs/AutoFarmers.png?raw=true)
+ 
+---
  
  <details>
    <summary><strong>Bucket Brigade</strong>: Firefighters pass buckets along a chain to extinguish a fire.
@@ -71,6 +77,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Bucket Brigade](_imgs/BucketBrigade.png?raw=true)
 
+---
+
 <details>
   <summary><strong>Combat Bees</strong>: Two bee hives battle for resources and survival.
   </summary>
@@ -89,7 +97,9 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
 
 ![Combat Bees](_imgs/CombatBees.gif?raw=true)
- 
+
+---
+
 <details>
   <summary><strong>Factory</strong>: Robots transport resources along lanes to crafters.
   </summary>
@@ -103,6 +113,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>Keyboard controls allow the user to reset the simulation.</li>
    </ul>
 </details>
+
+---
 
 ![Factory](_imgs/Factory.png?raw=true)
 
@@ -123,6 +135,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Highway Racers](_imgs/HighwayRacers.gif?raw=true)
 
+---
+
 <details>
   <summary><strong>Jump The Gun</strong>: A ball jumps through a blocky landscape and avoids cannonballs.
   </summary>
@@ -139,6 +153,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
 
 ![Jump The Gun](_imgs/JumpTheGun.gif?raw=true)
+
+---
 
 <details>
   <summary><strong>LabRat</strong>: Place arrows on the board to route the most rats into your home base.
@@ -160,6 +176,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Lab Rat](_imgs/LabRat.gif?raw=true)
 
+---
+
 <details>
   <summary><strong>Magnetic Roads</strong>: Cars drive along 3D generated splines in all orientations.
   </summary>
@@ -176,6 +194,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Magnetic Roads](_imgs/MagneticRoads.gif?raw=true)   
 
+---
+
 <details>
   <summary><strong>Metro</strong>: Metro train transport commuters from station to station.
   </summary>
@@ -189,7 +209,9 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
 
 ![Metro](_imgs/Metro.gif?raw=true)
- 
+
+---
+
 <details>
   <summary><strong>Stack Interchange</strong>: Cars drive through a stack interchange.
   </summary>
@@ -207,6 +229,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
 
 ![Stack Interchange](_imgs/StackInterchange.png?raw=true)
+
+---
 
 <details>
   <summary><strong>Thrower Arms</strong>: Mechanical arms throw rocks at tin cans.
@@ -227,6 +251,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Thrower Arms](_imgs/ThrowerArms.gif?raw=true)
 
+---
+
 <details>
   <summary><strong>Tornado</strong>: A tornado devastates a construction site.
   </summary>
@@ -241,6 +267,8 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 </details>
 
 ![Tornado](_imgs/Tornado.gif?raw=true)
+
+---
 
 <details>
   <summary><strong>Zombie Maze</strong>: A circle picks up capsules in a maze infested with zombies.
@@ -259,5 +287,6 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 ![Zombie Maze](_imgs/ZombieMaze.png?raw=true)
 
+---
 
 [Deprecated samples](deprecated.md)
