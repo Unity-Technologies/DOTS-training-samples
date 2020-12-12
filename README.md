@@ -3,9 +3,9 @@ Under the 'Originals' directory, you'll find small simulations/games implemented
 1. Clone this repository.
 2. Make a new branch for your sample port.
 3. Create a new Unity Project and place it under the 'Ported' directory, *e.g* /Ported/AutoFarmers/
-4. Configure the project for DOTS
+4. Configure the project for DOTS.
 
-Feel free to copy assets and code snippets from the originals into your ports. The focus of this exercise is to familiarize yourself with the DOTS API and to practice data-oriented design principles!
+Feel free to copy assets and code snippets from the originals into your ports. The focus of this exercise is to familiarize yourself with the DOTS API and to practice Data-oriented Design principles!
 
 ## Sample Gallery
 
