@@ -11,8 +11,6 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 
 *Expand the arrows for more details about each sample.*
 
----
-
 <details>
   <summary><strong>Ant Pheromones</strong>: Ants look for food and spread pheromones to influence the pathing of other ants</summary>
   
