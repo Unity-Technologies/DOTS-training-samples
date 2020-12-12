@@ -5,7 +5,7 @@ Under the 'Originals' directory, you'll find small simulations/games implemented
 3. Create a new Unity Project and place it under the 'Ported' directory, *e.g/Ported/AutoFarmers/
 4. Configure the project for DOTS
 
-Feel free to copy assets and code snippts from the orignials into your ports. The focus of this exercise is to familiarize yourself with the DOTS API and to practice data-oriented design principles!
+Feel free to copy assets and code snippets from the originals into your ports. The focus of this exercise is to familiarize yourself with the DOTS API and to practice data-oriented design principles!
 
 ## Sample Gallery
 
@@ -64,7 +64,7 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
 <li>When a team's water source is exhausted, it repositions the line to the next closest water.</li>
 <li>When repositioning, a worker will not resume its normal behavior until it has reached its new position.</li>
 <li>In the moment between a worker placing a bucket on the ground and the next picking it up, the line might reposition, in which case the bucket will be left on the ground.</li>
-<li>OPTIONAL: A configured small number of omniworkers pick up the nearest bucket, fill it at the nearest water source, and dump it on the nearest fire.</li>
+<li>OPTIONAL: A small configured number of 'omniworkers' (black) are not part of any team. An omniworker picks up the nearest bucket, fills it at the nearest water source, and dumps it on the nearest fire.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
    </ul>
 </details>
@@ -77,12 +77,14 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
     
    <ul>
 <li>Resources (green discs) spawn in the middle. Yellow bees spawn in the yellow base. Blue bees spawn in the blue base.</li>
+<li>Resources spawned at the same location will stack on top of each other.</li>
 <li>Bees pick up resources and drop them in their base.</li>
 <li>When a resource hits the ground of a base, it explodes, spawning several bees of that base's color.</li>
 <li>Bees not carrying resources may attack and destroy enemy bees carrying resources.</li>
 <li>A destroyed bee emmits bee fragments and blood splatters, and the resource falls to the ground. Blood splatters on surfaces shrink to nothing over time.</li>
 <li>Each bee's displayed scale oscilates along all three axes, but this is just a visual effect. Collisions are not affected.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
+<li>Pointer clicks spawn additional resources at the point clicked (determined by casting a ray from the cursor).</li>
    </ul>
 </details>
 
@@ -126,10 +128,10 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
   </summary>
 
 <ul>
-<li>The ball bounces between columns to reach the column under the mouse cursor. (This requires computing the appropriate trajectory for each bounce.)</li>
+<li>The ball bounces from column to adjacent column towards the mouse cursor. (This requires computing the appropriate trajectory for each bounce.) The movement is clamped to the edges of the playing field.</li>
 <li>On init, the cannons spawn on random columns. The cannons always turn to face the player's ball.</li>
 <li>Periodically, each cannon fires a cannon ball along a trajectory that will intersect the player's ball (at its current position) but not hit any columns in between.</li>
-<li>When a cannon ball hits the top of a column, the impact pushes the column down.</li>
+<li>When a cannon ball hits the top of a column, the impact pushes the column down (but not below the minimum height).</li>
 <li>The game is over when a cannon ball hits the player's ball.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
    </ul>  
@@ -143,12 +145,11 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
   </summary>
     
    <ul>
-<li></li>
-<li>Mice spawn at frequent, randomized intervals in the top and bottom corners. The top mice head down. The bottom mice  head up.</li>
+<li>Mice spawn at frequent, randomized intervals in the top and bottom corners. The top mice head down. The bottom mice head up.</li>
 <li>At start of play, walls are randomly placed between grid cells.</li>
 <li>Cats and mice travel on the grid, changing direction when they hit a wall or travel over an arrow.</li>
 <li>Cats spawn in random squares. When a cat and mouse intersect, the mouse is eaten.</li>
-<li>When a mouse hits a player's 'home base' (one of the four dots placed near the center of the grid), the mouse disappers, and the player is awarded a point.</li>
+<li>When a mouse hits a player's 'home base' (one of the four dots placed near the center of the grid), the mouse disappears, and the player is awarded a point.</li>
 <li>Players can place arrows in cells of the board. The green player places green arrows, the red player places red arrows, etc. A player cannot place their arrows in a cell occupied by an arrow of another player.</li>
 <li>Once a player has three arrows on the board, their next placed arrow removes their oldest arrow on the board.</li>
 <li>Only one player is human. The AI players just place their arrows randomly at random intervals.</li>
@@ -164,7 +165,7 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
   </summary>
     
    <ul>
-<li>Cars drive in two lanes on both sides of the rode. Cars always drive in the right lane.</li>
+<li>Cars drive in two lanes on both sides of the road. Cars always drive in the right lane.</li>
 <li>The cars all drive at the same speed. Cars will brake before hitting the car in front of them.</li>
 <li>Intersections join two or three road segments, but never four. Some intersecionts are dead ends: they connect to only one road segment.</li>
 <li>At three-way intersections, each car randomly chooses whether to go left, right, or straight.</li>
@@ -194,7 +195,7 @@ Feel free to copy assets and code snippts from the orignials into your ports. Th
   </summary>
    
    <ul>
-   <li>At random intervals, cars spawn in at the edge of the straight roads. Cars despawn when they run off the edge of the straight roads.</li>
+   <li>At random intervals, cars spawn at the edge of the straight roads. Cars despawn when they run off the edge of the straight roads.</li>
    <li>Cars merging onto a new road should yield for cars on the road.</li>
    <li>Each road has two lanes. Cars in both lanes of a road travel in the same direction.</li>
    <li>Cars stay in their lanes through their whole trip, <em>e.g.</em> a car in the left lane will travel in the left lane on all roads.</li>

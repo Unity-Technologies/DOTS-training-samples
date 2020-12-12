@@ -1,6 +1,6 @@
 ## Deprecated Samples
 
-The following samples have proven to be poor exercises, but we list them here for completeness.
+The following samples have proven to be poor exercises because they are too simple, too complicated, or too confusing. We list them here for completeness.
 
  * Cliff Divers (Difficulty 1): Dramatic shots of people diving down a cliff.
 
