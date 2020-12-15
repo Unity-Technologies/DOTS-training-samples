@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 public struct BoardElement : IBufferElementData
@@ -82,14 +83,11 @@ public class FireSystem : SystemBase
 					heatValue += board[neighborCoord.y*xDim + neighborCoord.x];
 				}
 
-				//need to do this by T
-				// heatValue = Math.Min(1.0f, heatValue);
-
 				newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 			}
 		}).Schedule();
 		
-		Entities.WithReadOnly(newHeat).ForEach((ref Translation translation, in FireCell fireCell) =>
+		Entities.WithReadOnly(newHeat).ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
 			{
 				var index = fireCell.coord.y * xDim + fireCell.coord.x;
 				float3 newTranslation = translation.Value;
@@ -97,6 +95,18 @@ public class FireSystem : SystemBase
 				newTranslation.y = newHeat[index];
 				newTranslation.z = fireCell.coord.y;
 				translation.Value = newTranslation;
+				if (newHeat[index] < 0.01f)
+				{
+					fireColor.Value = new float4(0, 1, 0, 1);
+				}
+				else if (newHeat[index] < 0.5f)
+				{
+					fireColor.Value = new float4(0.5f, 0, 0, 1);
+				}
+				else 
+				{
+					fireColor.Value = new float4(1, 0, 0, 1);
+				}
 			}
 		).Schedule();
 
