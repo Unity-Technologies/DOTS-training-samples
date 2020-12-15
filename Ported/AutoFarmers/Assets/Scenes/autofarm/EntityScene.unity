@@ -156,6 +156,11 @@ MonoBehaviour:
   GridSize:
     x: 10
     y: 10
+  TileSize:
+    x: 1
+    y: 1
+  Attempts: 3
+  RockPrefab: {fileID: 7589082013100929997, guid: 453778183302b544e9f68430490e6426, type: 3}
 --- !u!4 &450580069
 Transform:
   m_ObjectHideFlags: 0
