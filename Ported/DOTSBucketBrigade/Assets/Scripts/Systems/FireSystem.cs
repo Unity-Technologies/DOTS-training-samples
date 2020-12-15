@@ -40,10 +40,16 @@ public class FireSystem : SystemBase
 			boardCells[i] = 0.0f;
 		}
 
-		//temp for visualizing the fire.
+		//start the fires.
 		for (int i = 0; i < FireSimConfig.numFireStarters; ++i)
 		{
 			boardCells[fireRandom.Next(0, boardCells.Length)] = 1.0f;
+		}
+
+		//set the water sources.
+		for (int i = 0; i < FireSimConfig.numWaterSources; ++i)
+		{
+			boardCells[fireRandom.Next(0, boardCells.Length)] = -0.5f;
 		}
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
@@ -68,6 +74,7 @@ public class FireSystem : SystemBase
 
 		var currentDeltaTime = Time.DeltaTime;
 
+		float4 waterColor = new float4(FireSimConfig.color_watersource.r, FireSimConfig.color_watersource.g, FireSimConfig.color_watersource.b, FireSimConfig.color_watersource.a);
 		float4 groundColor = new float4(FireSimConfig.color_ground.r, FireSimConfig.color_ground.g, FireSimConfig.color_ground.b, FireSimConfig.color_ground.a);
 		float4 fireLowColor = new float4(FireSimConfig.color_fire_low.r, FireSimConfig.color_fire_low.g, FireSimConfig.color_fire_low.b, FireSimConfig.color_fire_low.a);
 		float4 fireHighColor = new float4(FireSimConfig.color_fire_high.r, FireSimConfig.color_fire_high.g, FireSimConfig.color_fire_high.b, FireSimConfig.color_fire_high.a);
@@ -76,22 +83,38 @@ public class FireSystem : SystemBase
 		{
 			for (int i=0; i<board.Length; ++i)
 			{
-				float heatValue = 0; 
-				int2 coord = new int2(i % xDim, i/xDim);
-				for (int j=0; j<8; j++)
+				if (board[i] < -0.1f) // if the cell is water, don't burn it
 				{
-					var neighbor = neighborOffsets[j];
-					int2 neighborCoord = coord + neighbor;
-					if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
-					    math.any(neighborCoord < int2.zero))
+					newHeat[i] = board[i]; // was going to have the water slowly dry out + 0.00001f;
+				}
+				else
+				{
+					bool waterAdjacent = false;
+					float heatValue = 0;
+					int2 coord = new int2(i % xDim, i / xDim);
+					for (int j = 0; j < 8; j++)
 					{
-						continue;
+						var neighbor = neighborOffsets[j];
+						int2 neighborCoord = coord + neighbor;
+						if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
+							math.any(neighborCoord < int2.zero))
+						{
+							continue;
+						}
+
+						float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
+						if (desiredHeatDelta > -0.01f)
+						{
+							heatValue += desiredHeatDelta;
+						}
+						else
+						{
+							waterAdjacent = true;
+						}
 					}
 
-					heatValue += board[neighborCoord.y*xDim + neighborCoord.x];
+					if (!waterAdjacent) newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 				}
-
-				newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 			}
 		}).Schedule();
 		
@@ -103,18 +126,11 @@ public class FireSystem : SystemBase
 				newTranslation.y = newHeat[index];
 				newTranslation.z = fireCell.coord.y;
 				translation.Value = newTranslation;
-				if (newHeat[index] < 0.01f)
-				{
-					fireColor.Value = groundColor;
-				}
-				else if (newHeat[index] < 0.5f)
-				{
-					fireColor.Value = fireLowColor;
-				}
-				else 
-				{
-					fireColor.Value = fireHighColor;
-				}
+
+				if (newHeat[index] > FireSimConfig.flashPoint) { fireColor.Value = fireHighColor; }
+				else if (newHeat[index] > FireSimConfig.fireThreshold) { fireColor.Value = fireLowColor; }
+				else if (newHeat[index] < -0.1f) { fireColor.Value = waterColor; }
+				else fireColor.Value = groundColor;
 			}
 		).Schedule();
 
