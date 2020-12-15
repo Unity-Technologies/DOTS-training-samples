@@ -23,7 +23,8 @@ public class MouseRaycaster : MonoBehaviour {
 
 		isMouseTouchingField = false;
 		for (int i=0;i<3;i++) {
-			for (int j=-1;j<=1;j+=2) {
+			for (int j=-1;j<=1;
+				j+=2) {
 				Vector3 wallCenter = new Vector3();
 				wallCenter[i] = Field.size[i] * .5f*j;
 				Plane plane = new Plane(-wallCenter,wallCenter);

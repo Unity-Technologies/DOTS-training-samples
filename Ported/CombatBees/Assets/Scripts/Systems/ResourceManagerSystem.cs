@@ -57,6 +57,7 @@ public class ResourceManagerSystem : SystemBase
 
         /* --------------------------------------------------------------------------------- */
 
+        /*
         var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
         Entities
             .WithName("Resource_Is_Dead")
@@ -73,6 +74,7 @@ public class ResourceManagerSystem : SystemBase
             }).Run();
         ecb0.Playback(EntityManager);
         ecb0.Dispose();
+        */
 
         /* --------------------------------------------------------------------------------- */
 
@@ -242,5 +244,35 @@ public class ResourceManagerSystem : SystemBase
             }).ScheduleParallel();
 
 
+    }
+}
+
+
+[UpdateAfter(typeof(BeeSpawnerSystem))]
+[UpdateAfter(typeof(ResourceSpawnerSystem))]
+[UpdateAfter(typeof(BeeManagerSystem))]
+[UpdateAfter(typeof(ResourceManagerSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
+public class ResourceDeathSystem : SystemBase
+{
+    protected override void OnUpdate()
+    {
+        float deltaTime = Time.fixedDeltaTime;
+        var ecb0 = new EntityCommandBuffer(Allocator.TempJob);
+        Entities
+            .WithName("Resource_Is_Dead")
+            .WithAll<StackIndex>()
+            .WithAll<Dead>()
+            .ForEach((Entity resEntity, ref DeathTimer deathTimer) =>
+            {
+                deathTimer.dTimer -= 5f * deltaTime;
+                if (deathTimer.dTimer < 0f)
+                {
+                    ecb0.DestroyEntity(resEntity);
+                }
+
+            }).Run();
+        ecb0.Playback(EntityManager);
+        ecb0.Dispose();
     }
 }

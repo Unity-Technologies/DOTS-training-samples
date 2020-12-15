@@ -201,7 +201,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2723985088818268476, guid: 398ef8d807761ea4f971fe216b5b4c3e, type: 3}
       propertyPath: initialBeeCount
-      value: 50
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 5060646259758727191, guid: 398ef8d807761ea4f971fe216b5b4c3e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -656,6 +656,10 @@ PrefabInstance:
     - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
       propertyPath: carryForce
       value: 230
+      objectReference: {fileID: 0}
+    - target: {fileID: 6706287706261233431, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
+      propertyPath: aggression
+      value: 0.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81d7369e331d27c47ac014ae27061c4a, type: 3}
