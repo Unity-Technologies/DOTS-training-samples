@@ -24,13 +24,16 @@ public class InitilizationSystem : SystemBase
                 for (int i = 0; i < init.antCount; i++)
                 {
                     var ant = ecb.Instantiate(init.antPrefab);
-                    var translation = new Translation{Value = new float3(64 + random.NextFloat(-10,10),64 + random.NextFloat(-10,10), 0)};
+                    var translation = new Translation{Value = new float3( 64,64, 0)};
                     ecb.SetComponent(ant, translation);
                     
-                    
-                    
-                    
+                    ecb.SetComponent(ant, new Heading
+                    {
+                        heading = new float2( random.NextFloat(0,359), random.NextFloat(0,359)) 
+                    });
                 }
             }).Run();
+        
+        ecb.Playback(EntityManager);
     }
 }
