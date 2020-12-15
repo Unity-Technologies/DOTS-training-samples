@@ -10,19 +10,11 @@ public class FireSimConfigAuthoring : MonoBehaviour, IConvertGameObjectToEntity,
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        for (int x=0; x<FireSimConfig.xDim; x++)
-        {
-            for (int y = 0; y < FireSimConfig.yDim; y++)
-            {
-                int2 coord = new int2(x, y); 
-                Entity cellEntity = conversionSystem.GetPrimaryEntity(m_FirePrefab); // instantiation
-                dstManager.AddComponentData(cellEntity, 
-                    new FireCell
-                    {
-                        coord=coord
-                    });
-            }
-        }
+	    dstManager.AddComponentData(entity,
+					new FireCellSpawner
+					{
+						Prefab = conversionSystem.GetPrimaryEntity(m_FirePrefab)
+					});
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
