@@ -12,6 +12,8 @@ public class TileSpawnerAuthoring : MonoBehaviour
     public float2 TileSize;
     public int Attempts;
     public GameObject RockPrefab;
+    public int StoreCount;
+    public GameObject SiloPrefab;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -21,6 +23,7 @@ public class TileSpawnerAuthoring : MonoBehaviour
         // in this case prefabs that live in the assets folder.
         referencedPrefabs.Add(TilePrefab);
         referencedPrefabs.Add(RockPrefab);
+        referencedPrefabs.Add(SiloPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -37,6 +40,8 @@ public class TileSpawnerAuthoring : MonoBehaviour
             TileSize = TileSize,
             Attempts = Attempts,
             RockPrefab = conversionSystem.GetPrimaryEntity(RockPrefab),
+            StoreCount = StoreCount,
+            SiloPrefab = conversionSystem.GetPrimaryEntity(SiloPrefab),
         });
     }
 }

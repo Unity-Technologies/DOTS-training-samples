@@ -11,4 +11,6 @@ public struct TileSpawner : IComponentData
     public float2 TileSize;
     public int Attempts;
     public Entity RockPrefab;
+    public int StoreCount;
+    public Entity SiloPrefab;
 }

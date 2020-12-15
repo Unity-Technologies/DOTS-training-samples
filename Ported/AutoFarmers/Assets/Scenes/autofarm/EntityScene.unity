@@ -154,13 +154,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 4413885211744687342, guid: b88e12928edc9214096f607fd29b069b, type: 3}
   GridSize:
-    x: 10
-    y: 10
+    x: 60
+    y: 60
   TileSize:
     x: 1
     y: 1
-  Attempts: 3
+  Attempts: 2000
   RockPrefab: {fileID: 7589082013100929997, guid: 453778183302b544e9f68430490e6426, type: 3}
+  StoreCount: 50
+  SiloPrefab: {fileID: 4798580231540818858, guid: 607f691cb80224844a4b33a1e003bfdd, type: 3}
 --- !u!4 &450580069
 Transform:
   m_ObjectHideFlags: 0
