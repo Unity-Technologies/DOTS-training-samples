@@ -1,5 +1,8 @@
+using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public struct BoardElement : IBufferElementData
 {
@@ -21,42 +24,73 @@ public struct BoardElement : IBufferElementData
 public class FireSystem : SystemBase
 {
 	Entity m_BoardEntity;
-	
+	NativeArray<int2> m_NeighborOffsets;
+
 	protected override void OnCreate()
 	{
 		m_BoardEntity = EntityManager.CreateEntity();
 		DynamicBuffer<BoardElement> boardCells = EntityManager.AddBuffer<BoardElement>(m_BoardEntity);
 		boardCells.EnsureCapacity(FireSimConfig.xDim * FireSimConfig.yDim);
 
-		for (int i=0; i<boardCells.Length; ++i)
+		for (int i = 0; i < boardCells.Length; ++i)
 		{
 			boardCells[i] = 0.0f;
 		}
-	}
-	
-	unsafe protected override void OnUpdate()
-	{
-		var xDim = FireSimConfig.xDim;
-		var yDim = FireSimConfig.yDim;
 
-		int2* neighborOffsets = stackalloc []
-		{
-			new int2(+0, -1),
+		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
+		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
 			new int2(+1, -1),
 			new int2(+1, +0),
 			new int2(+1, +1),
 			new int2(+0, +1),
 			new int2(-1, +1),
 			new int2(-1, +0),
-			new int2(-1, -1)
-		};
-		
+			new int2(-1, -1)}, m_NeighborOffsets);
+	}
+	
+	protected override void OnUpdate()
+	{
+		var xDim = FireSimConfig.xDim;
+		var yDim = FireSimConfig.yDim;
+
+		var neighborOffsets = m_NeighborOffsets;
+		var newHeat = new NativeArray<float>(xDim*yDim, Allocator.TempJob);
+		var heatTransferRate = FireSimConfig.heatTransferRate;
+
 		Entities.ForEach((ref DynamicBuffer<BoardElement> board) =>
 		{
 			for (int i=0; i<board.Length; ++i)
 			{
-				
+				float heatValue = board[i];
+				int2 coord = new int2(i % xDim, i/xDim);
+				for (int j=0; j<8; j++)
+				{
+					var neighbor = neighborOffsets[j];
+					int2 neighborCoord = coord + neighbor;
+					if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
+					    math.any(neighborCoord < int2.zero))
+					{
+						continue;
+					}
+
+					heatValue += board[neighborCoord.y*xDim + neighborCoord.x];
+				}
+
+				board[i] = heatTransferRate * heatValue;
+				newHeat[i] = heatTransferRate * heatValue;
 			}
 		}).Schedule();
+		
+		Entities.WithReadOnly(newHeat).ForEach((ref Translation translation, in FireCell fireCell) =>
+			{
+				var index = fireCell.coord.y * xDim + fireCell.coord.x;
+				float3 newTranslation = translation.Value;
+				newTranslation.x = fireCell.coord.x; 
+				newTranslation.y = newHeat[index];
+				newTranslation.z = fireCell.coord.y;
+				translation.Value = newTranslation;
+			}
+		).Schedule();
+		Dependency = newHeat.Dispose(Dependency);
 	}
 }
