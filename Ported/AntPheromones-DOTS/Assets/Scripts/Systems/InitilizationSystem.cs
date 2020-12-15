@@ -29,7 +29,7 @@ public class InitilizationSystem : SystemBase
                     
                     ecb.SetComponent(ant, new Heading
                     {
-                        heading = new float2( random.NextFloat(0,359), random.NextFloat(0,359)) 
+                        heading = new float2( random.NextFloat(-1,1), random.NextFloat(-1, 1)) 
                     });
                 }
             }).Run();
