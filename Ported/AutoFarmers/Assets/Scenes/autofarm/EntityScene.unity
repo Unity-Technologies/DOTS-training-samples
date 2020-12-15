@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 450580069}
   - component: {fileID: 450580068}
-  - component: {fileID: 450580070}
   m_Layer: 0
   m_Name: TileSpawnerAuthoring
   m_TagString: Untagged
@@ -178,17 +177,47 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &450580070
+--- !u!1 &1011956588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1011956589}
+  - component: {fileID: 1011956590}
+  m_Layer: 0
+  m_Name: ScoreKeeper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1011956589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011956588}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1011956590
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 450580067}
+  m_GameObject: {fileID: 1011956588}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 244d9ef819f440a5ab90919dc8fecd67, type: 3}
+  m_Script: {fileID: 11500000, guid: 66cdfad6775320648839f6547772d5f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FarmerPrefab: {fileID: 5518926152186183660, guid: 6322ef192131a3943adfb638389adb24, type: 3}
-  FarmerIntialCount: 1
+  Value: 0
