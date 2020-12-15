@@ -9,10 +9,12 @@ public class FireSimConfig : MonoBehaviour
 	static public float flashPoint = 0.5f;
 	static public float fireThreshold = 0.2f;
 
+    static public int numFireStarters = 10;
+
     static public Color color_ground = Color.green;
-    static public Color color_fire_low = Color.magenta;
+    static public Color color_fire_low = new Color(0.5f, 0, 0);
     static public Color color_fire_high = Color.red;
-    static public Color color_bucket_empty = new Color(0,0,100);
+    static public Color color_bucket_empty = new Color(0,0,0.5f);
     static public Color color_bucket_full = Color.blue;
     static public Color color_role_scooper = Color.yellow;
     static public Color color_role_thrower = Color.white;

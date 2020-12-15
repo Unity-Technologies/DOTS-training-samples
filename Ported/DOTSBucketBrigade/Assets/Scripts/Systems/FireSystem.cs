@@ -29,6 +29,8 @@ public class FireSystem : SystemBase
 
 	protected override void OnCreate()
 	{
+		System.Random fireRandom = new System.Random(1234);
+
 		m_BoardEntity = EntityManager.CreateEntity();
 		DynamicBuffer<BoardElement> boardCells = EntityManager.AddBuffer<BoardElement>(m_BoardEntity);
 		boardCells.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
@@ -39,7 +41,10 @@ public class FireSystem : SystemBase
 		}
 
 		//temp for visualizing the fire.
-		boardCells[3] = 1.0f;
+		for (int i = 0; i < FireSimConfig.numFireStarters; ++i)
+		{
+			boardCells[fireRandom.Next(0, boardCells.Length)] = 1.0f;
+		}
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
 		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
@@ -63,6 +68,9 @@ public class FireSystem : SystemBase
 
 		var currentDeltaTime = Time.DeltaTime;
 
+		float4 groundColor = new float4(FireSimConfig.color_ground.r, FireSimConfig.color_ground.g, FireSimConfig.color_ground.b, FireSimConfig.color_ground.a);
+		float4 fireLowColor = new float4(FireSimConfig.color_fire_low.r, FireSimConfig.color_fire_low.g, FireSimConfig.color_fire_low.b, FireSimConfig.color_fire_low.a);
+		float4 fireHighColor = new float4(FireSimConfig.color_fire_high.r, FireSimConfig.color_fire_high.g, FireSimConfig.color_fire_high.b, FireSimConfig.color_fire_high.a);
 
 		Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
 		{
@@ -97,15 +105,15 @@ public class FireSystem : SystemBase
 				translation.Value = newTranslation;
 				if (newHeat[index] < 0.01f)
 				{
-					fireColor.Value = new float4(0, 1, 0, 1);
+					fireColor.Value = groundColor;
 				}
 				else if (newHeat[index] < 0.5f)
 				{
-					fireColor.Value = new float4(0.5f, 0, 0, 1);
+					fireColor.Value = fireLowColor;
 				}
 				else 
 				{
-					fireColor.Value = new float4(1, 0, 0, 1);
+					fireColor.Value = fireHighColor;
 				}
 			}
 		).Schedule();
