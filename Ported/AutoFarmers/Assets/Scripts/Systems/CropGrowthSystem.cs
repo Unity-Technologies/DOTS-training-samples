@@ -11,8 +11,6 @@ public class CropGrowthSystem : SystemBase
         Entities
             .ForEach((Entity entity, ref CropGrowth crop) =>
             {
-                Debug.Log("In Entities.ForEach");
-
                 Debug.Log("In Crop Growth Loop");
                 if (crop.GrowthValue < 25)
                 {
