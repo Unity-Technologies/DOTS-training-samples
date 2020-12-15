@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -9,18 +10,24 @@ public class FarmCreator : SystemBase
 {
     protected override void OnUpdate()
     {
+
+
+        var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
+            
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = new Unity.Mathematics.Random(1234);
         Entities
             .ForEach((Entity entity, in TileSpawner spawner) =>
             {
-
+                var tileBuffer = tileBufferAccessor[spawner.Settings];
+                
                 int gridLinearSize = spawner.GridSize.x * spawner.GridSize.y;
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
 
                 NativeArray<Entity> tiles = new NativeArray<Entity>(gridLinearSize, Allocator.Temp);
+                
                 for (int i = 0; i < spawner.GridSize.x; ++i)
                 {
                     for (int j = 0; j < spawner.GridSize.y; ++j)
@@ -39,31 +46,32 @@ public class FarmCreator : SystemBase
                 }
 
                 int spawnedStores = 0;
-                NativeArray<bool> stores = new NativeArray<bool>(gridLinearSize, Allocator.Temp);
+                // NativeArray<bool> stores = new NativeArray<bool>(gridLinearSize, Allocator.Temp);
                 while (spawnedStores < spawner.StoreCount)
                 {
                     int x = random.NextInt(0, spawner.GridSize.x);
                     int y = random.NextInt(0, spawner.GridSize.y);
                     var storePosition = new Vector2Int(x, y);
 
-                    if (stores[storePosition.x + storePosition.y * spawner.GridSize.x])
+                    var linearIndex = storePosition.x + storePosition.y * spawner.GridSize.x;
+                    
+                    if ( tileBuffer[linearIndex].Value == TileStates.Store )//stores[storePosition.x + storePosition.y * spawner.GridSize.x])
                         continue;
 
                     var instance = ecb.Instantiate(spawner.SiloPrefab);
                     var translation = new Translation { Value = new float3((x + 0.5f) * spawner.TileSize.x, 0, (y + 0.5f) * spawner.TileSize.y) };
                     ecb.SetComponent(instance, translation);
 
-                    var linearIndex = storePosition.x + storePosition.y * spawner.GridSize.x;
-                    stores[linearIndex] = true;
+                    // var linearIndex = storePosition.x + storePosition.y * spawner.GridSize.x;
+                    tileBuffer[linearIndex] = new TileState { Value = TileStates.Store };
+                    Debug.Log(tileBuffer[linearIndex].Value);
 
                     var store = new Store { };
                     ecb.AddComponent(tiles[linearIndex], store);
                     spawnedStores++;
                 }
-
-
-                int spawnedCount = 0;
-                NativeArray<RectInt> spawnedRocks = new NativeArray<RectInt>(spawner.Attempts, Allocator.Temp);
+                
+                // NativeArray<RectInt> spawnedRocks = new NativeArray<RectInt>(spawner.Attempts, Allocator.Temp);
 
                 for (int i = 0; i < spawner.Attempts; i++)
                 {
@@ -71,19 +79,15 @@ public class FarmCreator : SystemBase
                     var height = random.NextInt(1, 4);
                     var rockX = random.NextInt(0, spawner.GridSize.x - width);
                     var rockY = random.NextInt(0, spawner.GridSize.y - height);
-                    var rect = new RectInt(rockX, rockY, width, height);
 
                     bool blocked = false;
-                    for (int j = 0; j < spawnedCount; j++)
-                    {
-                        blocked |= spawnedRocks[j].Overlaps(rect);
-                    }
 
                     for (int j = 0; j < width; j++)
                     {
                         for (int k = 0; k < height; k++)
                         {
-                            blocked |= stores[(rockX + j) + (rockY + k) * spawner.GridSize.x];
+                            var tileValue = tileBuffer[(rockX + j) + (rockY + k) * spawner.GridSize.x].Value;
+                            blocked |= tileValue == TileStates.Rock || tileValue == TileStates.Store;
                         }
                     }
 
@@ -100,14 +104,15 @@ public class FarmCreator : SystemBase
                     ecb.AddComponent(instance, position);
                     ecb.AddComponent(instance, scale);
                     ecb.AddComponent(instance, size);
-                    spawnedRocks[spawnedCount] = rect;
-                    spawnedCount++;
-
-                    for (int j = rockX; j < rockX + width; j++)
+                    
+                    for (int j = 0; j < width; j++)
                     {
-                        for (int k = rockY; k < rockY + height; k++)
+                        for (int k = 0; k < height; k++)
                         {
-                            var linearIndex = j + k * spawner.GridSize.x;
+                            var linearIndex = (rockX + j) + (rockY + k) * spawner.GridSize.x;
+                            
+                            tileBuffer[linearIndex] = new TileState { Value = TileStates.Rock};
+                            
                             var rock = new Rock { };
                             ecb.AddComponent(tiles[linearIndex], rock);
                         }

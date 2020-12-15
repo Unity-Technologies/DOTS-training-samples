@@ -30,6 +30,16 @@ public class TileSpawnerAuthoring : MonoBehaviour
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
+
+        var settingsEntity = conversionSystem.CreateAdditionalEntity(this);
+        dstManager.AddComponentData(settingsEntity, new Settings
+        {
+            // ...
+        });
+
+        var tileBuffer = dstManager.AddBuffer<TileState>(settingsEntity);
+        tileBuffer.Length = GridSize.x * GridSize.y;
+
         // GetPrimaryEntity fetches the entity that resulted from the conversion of
         // the given GameObject, but of course this GameObject needs to be part of
         // the conversion, that's why DeclareReferencedPrefabs is important here.
@@ -42,6 +52,7 @@ public class TileSpawnerAuthoring : MonoBehaviour
             RockPrefab = conversionSystem.GetPrimaryEntity(RockPrefab),
             StoreCount = StoreCount,
             SiloPrefab = conversionSystem.GetPrimaryEntity(SiloPrefab),
+            Settings = settingsEntity
         });
     }
 }
