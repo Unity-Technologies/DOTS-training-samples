@@ -20,6 +20,7 @@ public class FarmCreator : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
 
+                NativeArray<Entity> tiles = new NativeArray<Entity>(gridLinearSize, Allocator.Temp);
                 for (int i = 0; i < spawner.GridSize.x; ++i)
                 {
                     for (int j = 0; j < spawner.GridSize.y; ++j)
@@ -31,6 +32,9 @@ public class FarmCreator : SystemBase
 
                         ecb.SetComponent(instance, translation);
                         ecb.AddComponent(instance, size);
+
+                        var linearIndex = i + j * spawner.GridSize.x;
+                        tiles[linearIndex] = instance;
                     }
                 }
 
@@ -48,7 +52,12 @@ public class FarmCreator : SystemBase
                     var instance = ecb.Instantiate(spawner.SiloPrefab);
                     var translation = new Translation { Value = new float3((x + 0.5f) * spawner.TileSize.x, 0, (y + 0.5f) * spawner.TileSize.y) };
                     ecb.SetComponent(instance, translation);
-                    stores[storePosition.x + storePosition.y * spawner.GridSize.x] = true;
+
+                    var linearIndex = storePosition.x + storePosition.y * spawner.GridSize.x;
+                    stores[linearIndex] = true;
+
+                    var store = new Store { };
+                    ecb.AddComponent(tiles[linearIndex], store);
                     spawnedStores++;
                 }
 
@@ -93,6 +102,16 @@ public class FarmCreator : SystemBase
                     ecb.AddComponent(instance, size);
                     spawnedRocks[spawnedCount] = rect;
                     spawnedCount++;
+
+                    for (int j = rockX; j < rockX + width; j++)
+                    {
+                        for (int k = rockY; k < rockY + height; k++)
+                        {
+                            var linearIndex = j + k * spawner.GridSize.x;
+                            var rock = new Rock { };
+                            ecb.AddComponent(tiles[linearIndex], rock);
+                        }
+                    }
                 }
             }).Run();
 
