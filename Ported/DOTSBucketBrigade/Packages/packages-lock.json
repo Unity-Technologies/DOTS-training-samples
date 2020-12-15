@@ -144,6 +144,16 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.platforms.macos": {
+      "version": "0.9.0-preview.9",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.platforms": "0.9.0-preview.9",
+        "com.unity.platforms.desktop": "0.9.0-preview.9"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.platforms.windows": {
       "version": "0.9.0-preview.9",
       "depth": 0,
