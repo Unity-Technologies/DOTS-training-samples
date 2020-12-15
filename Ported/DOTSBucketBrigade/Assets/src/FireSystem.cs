@@ -30,12 +30,15 @@ public class FireSystem : SystemBase
 	{
 		m_BoardEntity = EntityManager.CreateEntity();
 		DynamicBuffer<BoardElement> boardCells = EntityManager.AddBuffer<BoardElement>(m_BoardEntity);
-		boardCells.EnsureCapacity(FireSimConfig.xDim * FireSimConfig.yDim);
-
+		boardCells.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
+		
 		for (int i = 0; i < boardCells.Length; ++i)
 		{
 			boardCells[i] = 0.0f;
 		}
+
+		//temp for visualizing the fire.
+		boardCells[3] = 1.0f;
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
 		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
@@ -57,7 +60,7 @@ public class FireSystem : SystemBase
 		var newHeat = new NativeArray<float>(xDim*yDim, Allocator.TempJob);
 		var heatTransferRate = FireSimConfig.heatTransferRate;
 
-		Entities.ForEach((ref DynamicBuffer<BoardElement> board) =>
+		Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
 		{
 			for (int i=0; i<board.Length; ++i)
 			{
@@ -76,7 +79,8 @@ public class FireSystem : SystemBase
 					heatValue += board[neighborCoord.y*xDim + neighborCoord.x];
 				}
 
-				board[i] = heatTransferRate * heatValue;
+				heatValue = Math.Min(1.0f, heatValue);
+
 				newHeat[i] = heatTransferRate * heatValue;
 			}
 		}).Schedule();
@@ -91,6 +95,15 @@ public class FireSystem : SystemBase
 				translation.Value = newTranslation;
 			}
 		).Schedule();
+
+		Entities.ForEach((ref DynamicBuffer<BoardElement> board) =>
+		{
+			for (int i = 0; i < board.Length; ++i)
+			{
+				// board[i] = newHeat[i];
+			}
+		}).Schedule();
+
 		Dependency = newHeat.Dispose(Dependency);
 	}
 }
