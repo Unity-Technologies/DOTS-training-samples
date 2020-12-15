@@ -7,7 +7,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Random = Unity.Mathematics.Random;
 
-public class AntMovimentSystem : SystemBase
+public class AntMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {

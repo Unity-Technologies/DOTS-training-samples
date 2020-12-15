@@ -20,6 +20,8 @@ public class TimeManagementSystem : SystemBase
         if (Input.GetKeyDown(KeyCode.Alpha7)) timeMultiplier.SimulationSpeed = 7;
         if (Input.GetKeyDown(KeyCode.Alpha8)) timeMultiplier.SimulationSpeed = 8;
         if (Input.GetKeyDown(KeyCode.Alpha9)) timeMultiplier.SimulationSpeed = 9;
+        
+        if (Input.GetKeyDown(KeyCode.R)) timeMultiplier.SimulationSpeed = 9;
 
         SetComponent(systemSpeed, timeMultiplier);
     }
