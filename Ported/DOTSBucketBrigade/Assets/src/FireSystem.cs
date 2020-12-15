@@ -60,11 +60,14 @@ public class FireSystem : SystemBase
 		var newHeat = new NativeArray<float>(xDim*yDim, Allocator.TempJob);
 		var heatTransferRate = FireSimConfig.heatTransferRate;
 
+		var currentDeltaTime = Time.DeltaTime;
+
+
 		Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
 		{
 			for (int i=0; i<board.Length; ++i)
 			{
-				float heatValue = board[i];
+				float heatValue = 0; 
 				int2 coord = new int2(i % xDim, i/xDim);
 				for (int j=0; j<8; j++)
 				{
@@ -79,9 +82,10 @@ public class FireSystem : SystemBase
 					heatValue += board[neighborCoord.y*xDim + neighborCoord.x];
 				}
 
-				heatValue = Math.Min(1.0f, heatValue);
+				//need to do this by T
+				// heatValue = Math.Min(1.0f, heatValue);
 
-				newHeat[i] = heatTransferRate * heatValue;
+				newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 			}
 		}).Schedule();
 		
@@ -100,7 +104,7 @@ public class FireSystem : SystemBase
 		{
 			for (int i = 0; i < board.Length; ++i)
 			{
-				// board[i] = newHeat[i];
+				board[i] = newHeat[i];
 			}
 		}).Schedule();
 
