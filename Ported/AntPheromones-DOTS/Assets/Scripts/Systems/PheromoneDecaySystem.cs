@@ -21,7 +21,7 @@ public class PheromoneDecaySystem : SystemBase
             {
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength - 100f};
+                pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength -10f};
             }
         }).Schedule(Dependency);
     }

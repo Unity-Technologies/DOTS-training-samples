@@ -22,17 +22,14 @@ public class PheromoneTrackingSystem : SystemBase
         {
             var translations = batchInChunk.GetNativeArray(translationType);
             
-            /*for (int i = 0; i < batchInChunk.Count; i++)
+            for (int i = 0; i < batchInChunk.Count; i++)
             {
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
                 pheromoneGrid[0] = new Pheromones{pheromoneStrength = currentStrength + 10f};
-            }*/
+            }
             
-            float currentStrength = pheromoneGrid[0].pheromoneStrength;
-                
-            pheromoneGrid[0] = new Pheromones{pheromoneStrength = currentStrength + 10f};
         }
     }
 
