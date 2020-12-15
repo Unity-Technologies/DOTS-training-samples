@@ -1,55 +1,76 @@
-﻿Shader "Custom/Plant" {
-	Properties {
-		_Color ("Color", Color) = (1,1,1,1)
-		_MainTex ("Albedo (RGB)", 2D) = "white" {}
-		_Glossiness ("Smoothness", Range(0,1)) = 0.5
-		_Metallic ("Metallic", Range(0,1)) = 0.0
-	}
-	SubShader {
-		Tags { "RenderType"="Opaque" }
-		LOD 200
+﻿Shader "Custom/Plant" 
+{
+    Properties
+    {
+       [NoScaleOffset] _BaseMap("Texture2D", 2D) = "white" {}
+       _BaseColor("Color", Color) = (1,1,1,1)
+    }
+        SubShader
+       {
+           Tags { "RenderPipeline" = "UniversalPipeline" "RenderType" = "Opaque" }
 
-		CGPROGRAM
-		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows vertex:vert addshadow
+           Pass
+           {
+               Name "Lit"
+               // indicate that our pass is the "base" pass in forward
+               // rendering pipeline. It gets ambient and main directional
+               // light data set up; light direction in _WorldSpaceLightPos0
+               // and color in _LightColor0
+               Tags{"LightMode" = "UniversalForward"}
+               HLSLPROGRAM
+               #pragma vertex vert
+               #pragma fragment frag
+               #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
 
-		// Use shader model 3.0 target, to get nicer looking lighting
-		#pragma target 3.0
+               struct Attributes
+               {
+                   float4 vertex           : POSITION;
+                   float3 normal           : NORMAL;
+                   float2 uv               : TEXCOORD0;
+               };
 
-		sampler2D _MainTex;
+               struct Varyings
+               {
+                   float2 uv               : TEXCOORD0;
+                   float4 vertex           : SV_POSITION;
+                   half4 color             : COLOR;
+               };
 
-		struct Input {
-			float2 uv_MainTex;
-			fixed4 color:COLOR;
-		};
+               UNITY_INSTANCING_BUFFER_START(Props)
+                   UNITY_DEFINE_INSTANCED_PROP(half, _Growth)
+               UNITY_INSTANCING_BUFFER_END(Props)
 
-		half _Glossiness;
-		half _Metallic;
-		fixed4 _Color;
+               Varyings vert(Attributes input)
+               {
+                   half t = sqrt(UNITY_ACCESS_INSTANCED_PROP(Props, _Growth));
+                   float4 v = input.vertex;
+                   v.y *= t;
+                   v.xz *= smoothstep(0, 1, t * t * t * t * t) * .9f + .1f;
 
-		// Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-		// See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-		// #pragma instancing_options assumeuniformscaling
-		UNITY_INSTANCING_BUFFER_START(Props)
-			UNITY_DEFINE_INSTANCED_PROP(half, _Growth)
-		UNITY_INSTANCING_BUFFER_END(Props)
+                   Varyings o;
 
-		void vert (inout appdata_full v) {
-			half t = sqrt(UNITY_ACCESS_INSTANCED_PROP(Props, _Growth));
-			v.vertex.y*=t;
-			v.vertex.xz*=smoothstep(0,1,t*t*t*t*t)*.9f+.1f;
-		}
+                   VertexPositionInputs vertexInput = GetVertexPositionInputs(v.xyz);
+                   o.vertex = vertexInput.positionCS;
 
-		void surf (Input IN, inout SurfaceOutputStandard o) {
-			// Albedo comes from a texture tinted by color
-			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color * IN.color;
-			o.Albedo = c.rgb;
-			// Metallic and smoothness come from slider variables
-			o.Metallic = _Metallic;
-			o.Smoothness = _Glossiness;
-			o.Alpha = c.a;
-		}
-		ENDCG
-	}
-	FallBack "Diffuse"
+                   VertexNormalInputs normalInputs = GetVertexNormalInputs(input.normal);
+                   half3 worldNormal = normalInputs.normalWS;
+                   // dot product between normal and light direction for
+                   // standard diffuse (Lambert) lighting
+                   half normalLight = max(0, dot(worldNormal, _MainLightPosition.xyz));
+                   // factor in the light color
+                   o.color = normalLight * (_MainLightColor);
+                   o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                   return o;
+               }
+
+               half4 frag(Varyings input) : SV_Target
+               {
+                   half4 col = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+                   col *= _BaseColor;
+                   col *= input.color;
+                   return col;
+               }
+               ENDHLSL
+           }
+       }
 }
