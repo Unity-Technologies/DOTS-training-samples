@@ -10,14 +10,12 @@ using UnityEngine;
 
 public class PheromoneDecaySystem : SystemBase
 {
-    public struct BufferJobExample: IJob
+    protected override void OnUpdate()
     {
-        public BufferTypeHandle<Pheromones> pheromonesType;
+        Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
+        DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
 
-        [NativeDisableContainerSafetyRestriction]
-        public DynamicBuffer<Pheromones> pheromoneGrid;
-        
-        public void Execute()
+        Dependency = Job.WithCode(() =>
         {
             for (int i = 0; i < pheromoneGrid.Length; i++)
             {
@@ -25,23 +23,6 @@ public class PheromoneDecaySystem : SystemBase
                 
                 pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength - 100f};
             }
-        }
-    }
-
-    protected override void OnUpdate()
-    {
-        Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
-        DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
-        
-        BufferTypeHandle<Pheromones> pheromoneBufferType = GetBufferTypeHandle<Pheromones>();
-
-        BufferJobExample job = new BufferJobExample
-        {
-            pheromonesType = pheromoneBufferType,
-            pheromoneGrid = pheromoneGrid,
-
-        };
-
-        Dependency = job.Schedule(Dependency);
+        }).Schedule(Dependency);
     }
 }
