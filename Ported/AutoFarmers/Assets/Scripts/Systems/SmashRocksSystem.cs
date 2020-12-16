@@ -7,11 +7,11 @@ public class SmashRocksSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
 
-        Entities.WithAll<Farmer>().WithNone<Searching>()
+        /*Entities.WithAll<Farmer>().WithNone<Searching>()
             .ForEach((Entity entity, ref SmashRocks smashRocks) =>
             {
                 var rock = EntityManager.GetComponentData<Rock>(smashRocks.TargetRock);
                 rock.Health -= 0.1f * deltaTime;
-            }).WithoutBurst().Run();
+            }).WithoutBurst().Run();*/
     }
 }

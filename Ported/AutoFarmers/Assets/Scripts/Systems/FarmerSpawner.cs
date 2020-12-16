@@ -24,7 +24,7 @@ public class FarmerSpawnerSystem : SystemBase
             var instance = ecb.Instantiate(spawner.FarmerPrefab);
             ecb.AddComponent(instance, new Farmer());
             ecb.AddComponent(instance, new Velocity());
-            ecb.AddComponent(instance, new Path());
+            
             ecb.AddBuffer<PathNode>(instance);
         }
         spawner.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
