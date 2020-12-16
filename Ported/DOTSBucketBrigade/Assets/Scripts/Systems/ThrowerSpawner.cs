@@ -8,6 +8,7 @@ using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Rendering;
 
 public struct ThrowerSpawner : IComponentData
 {
@@ -17,12 +18,12 @@ public struct ThrowerSpawner : IComponentData
 public class ThrowerSpawnerSystem : SystemBase
 {
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
-    
+
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
-    
+
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
@@ -31,7 +32,7 @@ public class ThrowerSpawnerSystem : SystemBase
         var yDim = FireSimConfig.yDim;
         var maxTeams = FireSimConfig.maxTeams;
         int kJitter = 10;
-        
+
         uint seed0 = (uint)Environment.TickCount;
         uint seed1 = (uint)(Time.DeltaTime*100000);
         uint kSeed = seed0 ^ seed1;
@@ -65,9 +66,10 @@ public class ThrowerSpawnerSystem : SystemBase
                         midpoint + new int2(random.NextInt(-kJitter, kJitter), random.NextInt(-kJitter, kJitter))
                     };
 #endif
-            
+
                     Entity throwerEntity = ecb.Instantiate(throwerSpawner.Prefab);
-                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { TeamIndex = i, Coord = poss[i&3] });
+                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3] });
+                    ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
                 }
             }
         }).Run();
