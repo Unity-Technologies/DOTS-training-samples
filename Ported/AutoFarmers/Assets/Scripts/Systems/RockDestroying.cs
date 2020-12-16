@@ -8,7 +8,15 @@ public class RockDestroying : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var tileBufferAccessor = GetBufferFromEntity<TileState>();
+        
+        // var settingsEntity = GetSingletonEntity<Settings>();
+        // var settings = GetComponentDataFromEntity<Settings>()[settingsEntity];
+        
+        var settings = GetSingleton<CommonSettings>();
+        var data = GetSingletonEntity<CommonData>();
+        
+        
+        var tileBuffer = GetBufferFromEntity<TileState>()[data];
         
         Entities.ForEach((Entity entity, ref Rock rock, ref NonUniformScale nonUniformScale) =>
             {
@@ -16,11 +24,13 @@ public class RockDestroying : SystemBase
                 if (rock.Health <= 0)
                 {
                     ecb.DestroyEntity(entity);
-                    for (int i = rock.Position.x; i < rock.Position.x + rock.Size.x; i++)
+                    for (int x = rock.Position.x; x < rock.Position.x + rock.Size.x; x++)
                     {
-                        for (int j = rock.Position.y; j < rock.Position.y + rock.Size.y; j++)
+                        for (int y = rock.Position.y; y < rock.Position.y + rock.Size.y; y++)
                         {
-                            //tileBufferAccessor[]
+                            var linearIndex = x + y * settings.GridSize.x;
+                            tileBuffer[linearIndex] = new TileState { Value = ETileState.Empty};
+                            //var state = tileBuffer[linearIndex].Value;
                         }
                     }
                 }

@@ -119,7 +119,7 @@ public class FarmInitializeSystem : SystemBase
                     ecb.AddComponent(instance, new Farmer());
                     ecb.AddComponent(instance, new Velocity());
                     
-                    //if (i == 0)
+                    if (i == 0)
                         ecb.AddComponent(instance, new CameraTarget());
 
                     ecb.AddBuffer<PathNode>(instance);

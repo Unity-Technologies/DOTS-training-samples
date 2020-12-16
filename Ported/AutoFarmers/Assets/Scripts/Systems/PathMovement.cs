@@ -26,7 +26,7 @@ public class PathMovement : SystemBase
                 {
                     for (int i = 0; i < pathNodes.Length - 1; i++)
                     {
-                        //Debug.DrawLine(new Vector3(path.xPositions[i] + .5f, .5f, path.yPositions[i] + .5f), new Vector3(path.xPositions[i + 1] + .5f, .5f, path.yPositions[i + 1] + .5f), Color.red);
+                        Debug.DrawLine(new Vector3(pathNodes[i].Value.x + .5f, .5f, pathNodes[i].Value.y + .5f), new Vector3(pathNodes[i + 1].Value.x + .5f, .5f, pathNodes[i + 1].Value.y + .5f), Color.red);
                     }
 
                     var targetPosition = pathNodes[pathNodes.Length - 1].Value;
