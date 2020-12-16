@@ -10,16 +10,18 @@ public class InitializationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public GameObject obstaclePrefab;
     public GameObject goalPrefab;
     public GameObject homePrefab;
+    public GameObject boardPrefab;
     
     public void Convert(Entity entity, EntityManager entityManager, GameObjectConversionSystem conversionSystem)
     {
         entityManager.AddComponentData(entity, new Init()
         {
-            antPrefab = conversionSystem.GetPrimaryEntity(antPrefab),
             antCount = antCount,
+            antPrefab = conversionSystem.GetPrimaryEntity(antPrefab),
             obstaclePrefab = conversionSystem.GetPrimaryEntity(obstaclePrefab),
             goalPrefab = conversionSystem.GetPrimaryEntity(goalPrefab),
-            homePrefab = conversionSystem.GetPrimaryEntity(homePrefab)
+            homePrefab = conversionSystem.GetPrimaryEntity(homePrefab),
+            boardPrefab = conversionSystem.GetPrimaryEntity(boardPrefab)
         });
     }
 
@@ -29,5 +31,6 @@ public class InitializationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         referencedPrefabs.Add(obstaclePrefab);
         referencedPrefabs.Add(goalPrefab);
         referencedPrefabs.Add(homePrefab);
+        referencedPrefabs.Add(boardPrefab);
     }
 }

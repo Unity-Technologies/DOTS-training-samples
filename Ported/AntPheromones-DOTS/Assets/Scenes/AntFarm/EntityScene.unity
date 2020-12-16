@@ -158,6 +158,7 @@ MonoBehaviour:
   obstaclePrefab: {fileID: 7021344995882452339, guid: 941b3031b0f07fd4195dbf4f94fb1847, type: 3}
   goalPrefab: {fileID: 6529539321082914166, guid: 60a82d83fcf674e41b96fd0f92e36ec7, type: 3}
   homePrefab: {fileID: 2771118013311475877, guid: acae5b6a344b8554db34ce02dda594f0, type: 3}
+  boardPrefab: {fileID: 7520659262180973489, guid: 6c1e8442c880dc1439d0f080aa91f64e, type: 3}
 --- !u!4 &571168696
 Transform:
   m_ObjectHideFlags: 0

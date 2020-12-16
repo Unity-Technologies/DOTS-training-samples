@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public class InitializationSystem : SystemBase
@@ -14,6 +15,10 @@ public class InitializationSystem : SystemBase
         var center = new Translation{ Value = new float3(64, 64, 0) };
         var minRange = new float2(-1,-1);
         var maxRange = new float2(1,1);
+        var bottomLeftFood = new Translation {Value = new float3(10, 10, 0)};
+        var topLeftFood = new Translation {Value = new float3(10, 118, 0)};
+        var bottomRightFood = new Translation {Value = new float3(118, 10, 0)};
+        var topRightFood = new Translation {Value = new float3(118, 118, 0)};
         
         Entities
             .ForEach((Entity entity, in Init init) =>
@@ -21,6 +26,8 @@ public class InitializationSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 // Create Board
+                var board = ecb.Instantiate(init.boardPrefab);
+                ecb.SetComponent(board, center);
                 
                 // Create Ants
                 for (var i = 0; i < init.antCount; i++)
@@ -35,12 +42,30 @@ public class InitializationSystem : SystemBase
                 }
                 
                 // Create Home
-                
-                
+                var home = ecb.Instantiate(init.homePrefab);
+                ecb.SetComponent(home, center);
+
                 // Create Food
-                
+                var randomFoodPosIndex = random.NextInt(0, 4);
+                var food = ecb.Instantiate(init.goalPrefab);
+                switch (randomFoodPosIndex)
+                {
+                    case 0:
+                        ecb.SetComponent(food, bottomLeftFood);
+                        break;
+                    case 1:
+                        ecb.SetComponent(food, topLeftFood);
+                        break;
+                    case 2:
+                        ecb.SetComponent(food, bottomRightFood);
+                        break;
+                    case 3:
+                        ecb.SetComponent(food, topRightFood);
+                        break;
+                }
+
                 // Create Obstacles
-                
+
             }).Run();
 
         ecb.Playback(EntityManager);
