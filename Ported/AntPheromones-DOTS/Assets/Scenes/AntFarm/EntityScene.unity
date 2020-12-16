@@ -197,7 +197,7 @@ GameObject:
   - component: {fileID: 925183436}
   - component: {fileID: 925183438}
   m_Layer: 0
-  m_Name: PhromoneGrid
+  m_Name: PheromoneGrid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

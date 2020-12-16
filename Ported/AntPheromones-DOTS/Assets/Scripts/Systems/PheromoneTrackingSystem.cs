@@ -27,7 +27,7 @@ public class PheromoneTrackingSystem : SystemBase
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[0] = new Pheromones{pheromoneStrength = currentStrength + 10f};
+                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = currentStrength + 10f};
             }
             
         }

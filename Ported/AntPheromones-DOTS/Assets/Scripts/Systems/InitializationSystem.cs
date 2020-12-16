@@ -7,8 +7,10 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-public class InitilizationSystem : SystemBase
+public class InitializationSystem : SystemBase
 {
+    
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
