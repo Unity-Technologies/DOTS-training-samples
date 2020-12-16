@@ -105,18 +105,10 @@ public class ThrowerSystem : SystemBase
                     }
                 }
 
-                // jiv fixme: instead of warping to target, walk there
                 newThrowerCoords[i] = minTarget;
             }
         }
     };
-
-
-    protected override void OnDestroy()
-    {
-        m_Throwers.Dispose();
-        m_NeighborOffsets.Dispose();
-    }
 
     protected override void OnCreate()
     {
@@ -130,6 +122,12 @@ public class ThrowerSystem : SystemBase
                 new int2(-1, +1),
                 new int2(-1, +0),
                 new int2(-1, -1)}, Allocator.Persistent);
+    }
+
+    protected override void OnDestroy()
+    {
+        m_Throwers.Dispose();
+        m_NeighborOffsets.Dispose();
     }
 
     protected override void OnUpdate()
