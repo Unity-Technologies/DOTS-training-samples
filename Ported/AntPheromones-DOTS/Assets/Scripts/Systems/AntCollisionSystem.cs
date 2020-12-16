@@ -26,11 +26,6 @@ public class AntCollisionSystem : SystemBase
                 //
                 //     var antToCollider = translation.Value - obstacleTranslation.Value;
                 //     var sqrMag = antToCollider.x * antToCollider.x + antToCollider.y * antToCollider.y;
-                //     // var sqrMag = Vector2.SqrMagnitude(new Vector2(antToCollider.x, antToCollider.y));
-                //     // if (i == 0)
-                //     // {
-                //     //     Debug.Log(obstacleRadius.radius);
-                //     // }
                 //
                 //     if (sqrMag <= (obstacleRadius.radius * obstacleRadius.radius))
                 //     {
