@@ -13,31 +13,30 @@ public class AntCollisionSystem : SystemBase
         const float repulseSteerWeight = 0.05f;
         const float originalDirectionWeight = 1.0f - repulseSteerWeight;
 
-        var antEntities = GetEntityQuery(typeof(Ant)).ToEntityArray(Allocator.Temp);
-        
-        Entities
-            .WithAll<Collider>()
-            .ForEach((in Translation translation, in Radius radius) =>
-            {
-                for (int i = 0; i < antEntities.Length; ++i)
-                {
-                    var antTranslation = GetComponent<Translation>(antEntities[i]);
-                    var antHeading = GetComponent<Heading>(antEntities[i]);
-
-                    var antToCollider = translation.Value - antTranslation.Value;
-                    var sqrMag = Vector3.SqrMagnitude(antToCollider);
-
-                    if (sqrMag <= (radius.radius * radius.radius))
-                    {
-                        // Collided! Reverse the heading
-                        // antHeading.heading = new Heading{ heading = new float2(antHeading.heading.x * -1, antHeading.heading.y * -1)};
-                    }
-                    
-                    
-                }
-                
-                float2 repulseDirection = new float();
-                // heading.heading = math.normalize((heading.heading * originalDirectionWeight) + (repulseDirection * repulseSteerWeight)); 
-            }).ScheduleParallel();
+        // var obstacleEntities = GetEntityQuery(typeof(Obstacle)).ToEntityArray(Allocator.Temp);
+        //
+        // Entities
+        //     .WithAll<Ant>()
+        //     .ForEach((ref Heading heading, in Translation translation) =>
+        //     {
+        //         for (int i = 0; i < obstacleEntities.Length; ++i)
+        //         {
+        //             var obstacleTranslation = GetComponent<Translation>(obstacleEntities[i]);
+        //             var obstacleRadius = GetComponent<Radius>(obstacleEntities[i]);
+        //
+        //             var antToCollider = translation.Value - obstacleTranslation.Value;
+        //             var sqrMag = Vector3.SqrMagnitude(antToCollider);
+        //
+        //             if (sqrMag <= (obstacleRadius.radius * obstacleRadius.radius))
+        //             {
+        //                 // Collided! Reverse the heading
+        //                 heading.heading = new float2(heading.heading.x * -1, heading.heading.y * -1);
+        //                 Debug.Log("Collided!");
+        //             }
+        //         }
+        //         
+        //         // float2 repulseDirection = new float();
+        //         // heading.heading = math.normalize((heading.heading * originalDirectionWeight) + (repulseDirection * repulseSteerWeight)); 
+        //     }).Run();
     }
 }
