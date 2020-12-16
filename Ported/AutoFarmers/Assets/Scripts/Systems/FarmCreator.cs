@@ -34,7 +34,7 @@ public class FarmCreator : SystemBase
                     {
                         var instance = ecb.Instantiate(spawner.TilePrefab);
                         
-                        var translation = new Translation { Value = new float3(i * spawner.TileSize.x, 0, j * spawner.TileSize.y) };
+                        var translation = new Translation { Value = new float3(i * spawner.TileSize.x, -1f, j * spawner.TileSize.y) };
                         var size = new Size { Value = spawner.TileSize };
 
                         ecb.SetComponent(instance, translation);
@@ -97,7 +97,7 @@ public class FarmCreator : SystemBase
                     var instance = ecb.Instantiate(spawner.RockPrefab);
                     var position = new RectPosition { Value = new int2(rockX, rockY) };
                     var size = new RectSize { Value = new int2(width, height) };
-                    var translation = new Translation { Value = new float3(rockX * spawner.TileSize.x + width * 0.5f * spawner.TileSize.x, 0, rockY * spawner.TileSize.y + height * 0.5f * spawner.TileSize.y) };
+                    var translation = new Translation { Value = new float3(rockX * spawner.TileSize.x + width * 0.5f * spawner.TileSize.x, -0.5f, rockY * spawner.TileSize.y + height * 0.5f * spawner.TileSize.y) };
                     var scale = new NonUniformScale { Value = new float3(spawner.TileSize.x * (width - 0.5f), 1, spawner.TileSize.y * (height - 0.5f)) };
 
                     ecb.SetComponent(instance, translation);
