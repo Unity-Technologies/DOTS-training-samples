@@ -7,11 +7,13 @@ using Unity.Mathematics;
 public struct TileSpawner : IComponentData
 {
     public Entity TilePrefab;
-    public int2 GridSize;
-    public float2 TileSize;
-    public int Attempts;
     public Entity RockPrefab;
-    public int StoreCount;
     public Entity SiloPrefab;
     public Entity Settings;
+    
+    public int2 GridSize;
+    public float2 TileSize;
+    
+    public int Attempts;
+    public int StoreCount;
 }

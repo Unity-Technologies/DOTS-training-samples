@@ -46,7 +46,6 @@ public class FarmCreator : SystemBase
                 }
 
                 int spawnedStores = 0;
-                // NativeArray<bool> stores = new NativeArray<bool>(gridLinearSize, Allocator.Temp);
                 while (spawnedStores < spawner.StoreCount)
                 {
                     int x = random.NextInt(0, spawner.GridSize.x);
@@ -62,16 +61,12 @@ public class FarmCreator : SystemBase
                     var translation = new Translation { Value = new float3((x + 0.5f) * spawner.TileSize.x, 0, (y + 0.5f) * spawner.TileSize.y) };
                     ecb.SetComponent(instance, translation);
 
-                    // var linearIndex = storePosition.x + storePosition.y * spawner.GridSize.x;
                     tileBuffer[linearIndex] = new TileState { Value = TileStates.Store };
-                    Debug.Log(tileBuffer[linearIndex].Value);
 
                     var store = new Store { };
                     ecb.AddComponent(tiles[linearIndex], store);
                     spawnedStores++;
                 }
-                
-                // NativeArray<RectInt> spawnedRocks = new NativeArray<RectInt>(spawner.Attempts, Allocator.Temp);
 
                 for (int i = 0; i < spawner.Attempts; i++)
                 {
@@ -111,7 +106,10 @@ public class FarmCreator : SystemBase
                         {
                             var linearIndex = (rockX + j) + (rockY + k) * spawner.GridSize.x;
                             
-                            tileBuffer[linearIndex] = new TileState { Value = TileStates.Rock};
+                            tileBuffer[linearIndex] = new TileState
+                            {
+                                Value = TileStates.Rock
+                            };
                             
                             var rock = new Rock { };
                             ecb.AddComponent(tiles[linearIndex], rock);
