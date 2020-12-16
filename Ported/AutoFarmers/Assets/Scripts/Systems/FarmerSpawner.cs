@@ -7,46 +7,38 @@ public class FarmerSpawnerSystem : SystemBase
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;
 
-    private static bool s_FirstFarmerSpawned;
-
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<FarmerSpawner>();
+        RequireSingletonForUpdate<CommonData>();
     }
 
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var spawnerEntity = GetSingletonEntity<FarmerSpawner>();
-        var spawner = EntityManager.GetComponentData<FarmerSpawner>(spawnerEntity);
 
-        var amountToSpawn = Mathf.FloorToInt(spawner.FarmerCounter / k_PlantsToSpawnfarmer);
+        var data = GetSingleton<CommonData>();
+        var settings = GetSingleton<CommonSettings>();
+
+        var amountToSpawn = Mathf.FloorToInt(data.FarmerCounter / k_PlantsToSpawnfarmer);
         for (int i = 0; i < amountToSpawn; ++i)
         {
-            var instance = ecb.Instantiate(spawner.FarmerPrefab);
+            var instance = ecb.Instantiate(settings.FarmerPrefab);
             ecb.AddComponent(instance, new Farmer());
             ecb.AddComponent(instance, new Velocity());
-
-            if (!s_FirstFarmerSpawned)
-            {
-                s_FirstFarmerSpawned = true;
-                ecb.AddComponent(instance, new CameraTarget());
-            }
-
             ecb.AddBuffer<PathNode>(instance);
         }
-        spawner.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
+        data.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
 
-        amountToSpawn = Mathf.FloorToInt(spawner.DroneCounter / k_PlantsToSpawnDrone);
+        amountToSpawn = Mathf.FloorToInt(data.DroneCounter / k_PlantsToSpawnDrone);
         for (int i = 0; i < amountToSpawn; ++i)
         {
-            var instance = ecb.Instantiate(spawner.DronePrefab);
+            var instance = ecb.Instantiate(settings.DronePrefab);
             ecb.AddComponent(instance, new Drone());
             ecb.AddComponent(instance, new Velocity());
         }
-        spawner.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
+        data.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
 
-        SetSingleton(spawner);
+        SetSingleton(data);
         ecb.Playback(EntityManager);
     }
 }

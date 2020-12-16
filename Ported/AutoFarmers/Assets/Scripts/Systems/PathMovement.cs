@@ -8,17 +8,16 @@ public class PathMovement : SystemBase
 {
     protected override void OnUpdate()
     {
-        var pathBuffers = this.GetBufferFromEntity<PathNode>();
-
-        var settingsEntity = GetSingletonEntity<Settings>();
-        var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
-        var settings = GetComponentDataFromEntity<Settings>()[settingsEntity];
+        var settings = GetSingleton<CommonSettings>();
+        var data = GetSingletonEntity<CommonData>();
+        
+        var pathBuffers = GetBufferFromEntity<PathNode>();
+        var tileBuffer = GetBufferFromEntity<TileState>()[data];
 
         Entities
             .ForEach((Entity entity, ref Velocity velocity, in Translation translation) =>
             {
                 var pathNodes = pathBuffers[entity];
-                var tileBuffer = tileBufferAccessor[settingsEntity];
 
                 var farmerPosition = new int2((int)math.floor(translation.Value.x), 
                                            (int)math.floor(translation.Value.z));
@@ -44,7 +43,7 @@ public class PathMovement : SystemBase
                             isBlocked |= true;
                         }
                         var nextTileState = tileBuffer[targetPosition.x + targetPosition.y * settings.GridSize.x].Value;
-                        if (nextTileState == TileStates.Rock)
+                        if (nextTileState == ETileState.Rock)
                         {
                             isBlocked |= true;
                         }
@@ -52,7 +51,7 @@ public class PathMovement : SystemBase
                         if (!isBlocked)
                         {
                             float offset = .5f;
-                            if (nextTileState == TileStates.Grown)
+                            if (nextTileState == ETileState.Grown)
                             {
                                 offset = .01f;
                             }

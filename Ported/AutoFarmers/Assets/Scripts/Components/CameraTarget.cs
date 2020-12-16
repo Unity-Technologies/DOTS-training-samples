@@ -1,5 +1,3 @@
 ﻿using Unity.Entities;
 
-public struct CameraTarget : IComponentData
-{
-}
+public struct CameraTarget : IComponentData {}

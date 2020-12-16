@@ -7,9 +7,9 @@ public class InputSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var settings = GetSingleton<CommonSettings>();
+        
         var pathBuffers = this.GetBufferFromEntity<PathNode>();
-        var settingsEntity = GetSingletonEntity<Settings>();
-        var settings = GetComponentDataFromEntity<Settings>()[settingsEntity];
 
         Entities.WithAll<Farmer>()
            .ForEach((Entity entity, ref Velocity speed, in Translation translation) =>

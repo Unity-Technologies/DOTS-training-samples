@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Burst.Intrinsics;
+using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,13 +10,14 @@ public class TillGroundSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var settingsEntity = GetSingletonEntity<Settings>();
-        var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
-        var pathBufferAccessor = this.GetBufferFromEntity<PathNode>();
+
+        var settings = GetSingleton<CommonSettings>();
+        var data = GetSingletonEntity<CommonData>();
+        
+        var tileBuffer = GetBufferFromEntity<TileState>()[data];
+        var pathBuffers = GetBufferFromEntity<PathNode>();
 
         var random = new Unity.Mathematics.Random(1234);
-
-        var settings = GetComponentDataFromEntity<Settings>()[settingsEntity];
 
         Entities
            .WithAll<Farmer>()
@@ -23,8 +25,6 @@ public class TillGroundSystem : SystemBase
            .WithNone<TillArea>()
            .ForEach((Entity entity, in Translation translation) =>
            {
-               var tileBuffer = tileBufferAccessor[settingsEntity];
-
                int width = random.NextInt(1, 8);
                int height = random.NextInt(1, 8);
                int minX = Mathf.FloorToInt(translation.Value.x) + random.NextInt(-10, 10 - width);
@@ -42,7 +42,7 @@ public class TillGroundSystem : SystemBase
                        var linearIndex = x + y * settings.GridSize.x;
                        var state = tileBuffer[linearIndex].Value;
 
-                       if(state != TileStates.Empty && state != TileStates.Tilled)
+                       if(state != ETileState.Empty && state != ETileState.Tilled)
                        {
                            blocked = true;
                            break;
@@ -75,8 +75,7 @@ public class TillGroundSystem : SystemBase
            .WithAll<Farmer>()
            .ForEach((Entity entity, in TillArea tillArea, in Translation translation) =>
            {
-               var pathBuffer = pathBufferAccessor[entity];
-               var tileBuffer = tileBufferAccessor[settingsEntity];
+               var pathBuffer = pathBuffers[entity];
                var maxX = tillArea.Position.x + tillArea.Size.x;
                var maxY = tillArea.Position.y + tillArea.Size.y;
 
@@ -86,9 +85,9 @@ public class TillGroundSystem : SystemBase
                Debug.DrawLine(new Vector3(tillArea.Position.x, .1f, maxY + 1f), new Vector3(tillArea.Position.x, .1f, tillArea.Position.y), Color.green);
 
                var farmerLinearIndex = Mathf.FloorToInt(translation.Value.x) + Mathf.FloorToInt(translation.Value.y) * settings.GridSize.x;
-               if(tileBuffer[farmerLinearIndex].Value == TileStates.Empty)
+               if(tileBuffer[farmerLinearIndex].Value == ETileState.Empty)
                {
-                   tileBuffer[farmerLinearIndex] = new TileState { Value = TileStates.Tilled };
+                   tileBuffer[farmerLinearIndex] = new TileState { Value = ETileState.Tilled };
                    //ecb.RemoveComponent(entity, typeof(Path));
                    // todo till the farms ground
                    // Farm.TillGround(tileX, tileY);
