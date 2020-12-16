@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.Rendering;
 
-public class HomeSteeringSystem : SystemBase
+public class AntHomeSteeringSystem : SystemBase
 {
     protected override void OnUpdate()
     {

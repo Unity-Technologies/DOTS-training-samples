@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.Rendering;
 
-public class FoodSteeringSystem : SystemBase
+public class AntFoodSteeringSystem : SystemBase
 {
     protected override void OnUpdate()
     {
