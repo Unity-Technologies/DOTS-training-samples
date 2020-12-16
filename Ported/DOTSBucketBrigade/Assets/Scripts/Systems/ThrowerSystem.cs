@@ -51,7 +51,7 @@ public class ThrowerSystem : SystemBase
                             int neighborIndex = neighborCoord.y * xDim + neighborCoord.x;
                             if (fireSimBoard[neighborIndex] >= fireThreshold)
                             {
-                                fireLine.AddNoResize(neighborCoord);
+                                fireLine.AddNoResize(linearCoord);
 #if BB_DEBUG_FLAGS
                                 debugFlags[i] = 1;
 #endif
