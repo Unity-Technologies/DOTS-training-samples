@@ -13,6 +13,7 @@ public class FireSimConfig : MonoBehaviour
     static public int numWaterSources = 5;
 
     static public int maxTeams = 2;
+    static public float throwerSpeed = 2.0f;
 
     static public Color color_ground = Color.green;
     static public Color color_watersource = Color.blue; // new Color(0, 0, 0.5f);

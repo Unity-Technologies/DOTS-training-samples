@@ -68,7 +68,7 @@ public class ThrowerSpawnerSystem : SystemBase
 #endif
 
                     Entity throwerEntity = ecb.Instantiate(throwerSpawner.Prefab);
-                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3] });
+                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3], TargetCoord = poss[i&3], GridPosition = new float2(poss[i&3]) });
                     ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
                 }
             }
