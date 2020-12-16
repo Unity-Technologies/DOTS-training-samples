@@ -7,6 +7,8 @@ public class FarmerSpawnerSystem : SystemBase
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;
 
+    private static bool s_FirstFarmerSpawned;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<FarmerSpawner>();
@@ -24,7 +26,13 @@ public class FarmerSpawnerSystem : SystemBase
             var instance = ecb.Instantiate(spawner.FarmerPrefab);
             ecb.AddComponent(instance, new Farmer());
             ecb.AddComponent(instance, new Velocity());
-            
+
+            if (!s_FirstFarmerSpawned)
+            {
+                s_FirstFarmerSpawned = true;
+                ecb.AddComponent(instance, new CameraTarget());
+            }
+
             ecb.AddBuffer<PathNode>(instance);
         }
         spawner.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
