@@ -88,6 +88,7 @@ public class InitializationSystem : SystemBase
                                 64f + math.sin(angle) * ringRadius, 0)
                         };
                         ecb.SetComponent(obstacle, translation);
+                        ecb.SetComponent(obstacle, new Radius{radius = 5});
                     }
                 }
 
