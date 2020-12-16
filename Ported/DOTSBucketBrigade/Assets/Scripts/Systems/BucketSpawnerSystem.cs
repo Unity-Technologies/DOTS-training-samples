@@ -9,12 +9,12 @@ using Random = Unity.Mathematics.Random;
 public class BucketSpawnerSystem : SystemBase
 {
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
-    
+
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
-	
+
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
@@ -26,16 +26,19 @@ public class BucketSpawnerSystem : SystemBase
         Entities.ForEach((Entity entity, in BucketSpawner bucketSpawner) =>
         {
             ecb.DestroyEntity(entity);
-			
+
             for (int i=0; i<nBuckets; ++i)
             {
                 float2 bucketCoord = random.NextFloat2(dim);
                 Entity bucketEntity = ecb.Instantiate(bucketSpawner.Prefab);
+                ecb.AddComponent<Bucket>(bucketEntity, new Bucket());
+                ecb.AddComponent<BucketOwner>(bucketEntity, new BucketOwner() {Value = 0});
+                ecb.AddComponent<WaterLevel>(bucketEntity, new WaterLevel {Value = 0});
                 ecb.AddComponent<Position>(bucketEntity, new Position
                 {
                     coord = bucketCoord
                 });
-                
+
                 // TODO: Reevaluate whether it is necessary to add the translation to position
                 // once we have the bucket system in place
                 // TODO: adjust the y-value as the prefabs origins/pivot points change (bucket, ground prefabs)
