@@ -12,13 +12,15 @@ public class PheromoneTrackingSystem : SystemBase
 {
     public struct BufferJobExample: IJobEntityBatch
     {
-        public BufferTypeHandle<Pheromones> pheromonesType;
-        [ReadOnly]
-        public ComponentTypeHandle<Translation> translationType;
+        //public BufferTypeHandle<Pheromones> pheromonesType;
         [NativeDisableContainerSafetyRestriction]
         public DynamicBuffer<Pheromones> pheromoneGrid;
-
+        
+        [ReadOnly]
+        public ComponentTypeHandle<Translation> translationType;
+        
         public float pheromoneApplicationRate;
+        public float deltaTime;
         
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -29,13 +31,8 @@ public class PheromoneTrackingSystem : SystemBase
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = currentStrength + pheromoneApplicationRate};
-
-
-                float currentStrengthAtZero = pheromoneGrid[0].pheromoneStrength;
-                pheromoneGrid[0] = new Pheromones{pheromoneStrength = currentStrengthAtZero + pheromoneApplicationRate};
+                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 100f)};
             }
-            
         }
     }
 
@@ -51,12 +48,17 @@ public class PheromoneTrackingSystem : SystemBase
         Entity pheromoneApplicationEntity = GetSingletonEntity<PheromoneApplicationRate>();
         float pheromoneApplicationRate = EntityManager.GetComponentData<PheromoneApplicationRate>(pheromoneApplicationEntity).pheromoneApplicationRate;
 
+        float time = Time.DeltaTime;
+        float timeMultiplier = GetSingleton<TimeMultiplier>().SimulationSpeed;
+        float scaledTime = time * timeMultiplier;
+
         BufferJobExample job = new BufferJobExample
         {
-            pheromonesType = pheromoneBufferType,
+            //pheromonesType = pheromoneBufferType,
             pheromoneGrid = pheromoneGrid,
             translationType = translationType,
-            pheromoneApplicationRate = pheromoneApplicationRate
+            pheromoneApplicationRate = pheromoneApplicationRate,
+            deltaTime = scaledTime
         };
 
         Dependency = job.Schedule(query, Dependency);

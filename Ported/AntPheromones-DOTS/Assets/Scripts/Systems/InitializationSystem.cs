@@ -26,7 +26,7 @@ public class InitializationSystem : SystemBase
                 for (int i = 0; i < init.antCount; i++)
                 {
                     var ant = ecb.Instantiate(init.antPrefab);
-                    var translation = new Translation{Value = new float3( 64,64, 0)};
+                    var translation = new Translation{Value = new float3(64,64, 0)};
                     ecb.SetComponent(ant, translation);
                     
                     ecb.SetComponent(ant, new Heading

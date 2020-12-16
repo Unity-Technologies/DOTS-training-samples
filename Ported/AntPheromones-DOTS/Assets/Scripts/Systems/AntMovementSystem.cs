@@ -12,9 +12,7 @@ public class AntMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         float time = Time.DeltaTime;
-
         float timeMultiplier = GetSingleton<TimeMultiplier>().SimulationSpeed;
-
         float scaledTime = time * timeMultiplier;
         
         Entities.WithAll<Ant>().ForEach((ref Translation translation, ref Rotation rotation, in Heading heading) =>

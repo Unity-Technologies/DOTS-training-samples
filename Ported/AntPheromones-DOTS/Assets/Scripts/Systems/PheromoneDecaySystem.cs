@@ -12,6 +12,10 @@ public class PheromoneDecaySystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        float time = Time.DeltaTime;
+        float timeMultiplier = GetSingleton<TimeMultiplier>().SimulationSpeed;
+        float scaledTime = time * timeMultiplier;
+        
         Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
         DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
         
@@ -24,7 +28,7 @@ public class PheromoneDecaySystem : SystemBase
             {
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength -pheromoneDecayRate};
+                pheromoneGrid[i] = new Pheromones{pheromoneStrength = math.max(0f, currentStrength - (pheromoneDecayRate * scaledTime))};
             }
         }).Schedule(Dependency);
     }
