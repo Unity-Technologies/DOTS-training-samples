@@ -12,7 +12,6 @@ public class FarmerSpawnerSystem : SystemBase
         RequireSingletonForUpdate<FarmerSpawner>();
     }
 
-
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -23,6 +22,8 @@ public class FarmerSpawnerSystem : SystemBase
         for (int i = 0; i < amountToSpawn; ++i)
         {
             var instance = ecb.Instantiate(spawner.FarmerPrefab);
+            ecb.AddComponent(instance, new Farmer());
+            ecb.AddComponent(instance, new Velocity());
         }
         spawner.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
 
@@ -30,8 +31,12 @@ public class FarmerSpawnerSystem : SystemBase
         for (int i = 0; i < amountToSpawn; ++i)
         {
             var instance = ecb.Instantiate(spawner.DronePrefab);
+            ecb.AddComponent(instance, new Drone());
+            ecb.AddComponent(instance, new Velocity());
         }
         spawner.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
+
+
 
         SetSingleton(spawner);
         ecb.Playback(EntityManager);
