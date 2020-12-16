@@ -68,11 +68,13 @@ public class FireSystem : SystemBase
 			boardCells[fireRandom.Next(0, boardCells.Length)] = 1.0f;
 		}
 
-		//set the water sources.
+		//set the water sources within the grid - unneeded once rivers exist
+		/*
 		for (int i = 0; i < FireSimConfig.numWaterSources; ++i)
 		{
 			boardCells[fireRandom.Next(0, boardCells.Length)] = -0.5f;
 		}
+		*/
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
 		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
@@ -117,13 +119,15 @@ public class FireSystem : SystemBase
 		{
 			for (int i=0; i<board.Length; ++i)
 			{
+				/* - not counting for water now
 				if (board[i] < -0.1f) // if the cell is water, don't burn it
 				{
 					newHeat[i] = board[i]; // was going to have the water slowly dry out + 0.00001f;
 				}
 				else
 				{
-					bool waterAdjacent = false;
+				*/
+					//bool waterAdjacent = false;
 					float heatValue = 0;
 					int2 coord = new int2(i % xDim, i / xDim);
 					for (int j = 0; j < 8; j++)
@@ -137,18 +141,19 @@ public class FireSystem : SystemBase
 						}
 
 						float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
-						if (desiredHeatDelta > -0.01f)
-						{
+						//if (desiredHeatDelta > -0.01f)
+						//{
 							heatValue += desiredHeatDelta;
-						}
-						else
-						{
-							waterAdjacent = true;
-						}
+						//}
+						//else
+						//{
+						//	waterAdjacent = true;
+						//}
 					}
 
-					if (!waterAdjacent) newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
-				}
+					//if (!waterAdjacent) 
+					newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
+				//}
 			}
 		}).Schedule();
 

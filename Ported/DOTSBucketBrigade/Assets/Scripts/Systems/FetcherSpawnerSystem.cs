@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
@@ -8,14 +8,13 @@ using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.Rendering;
 
-public struct ThrowerSpawner : IComponentData
+public struct FetcherSpawner : IComponentData
 {
     public Entity Prefab;
 }
 
-public class ThrowerSpawnerSystem : SystemBase
+public class FetcherSpawnerSystem : SystemBase
 {
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
 
@@ -37,7 +36,7 @@ public class ThrowerSpawnerSystem : SystemBase
         uint seed1 = (uint)(Time.DeltaTime*100000);
         uint kSeed = seed0 ^ seed1;
 
-        Entities.ForEach((Entity entity, in ThrowerSpawner throwerSpawner) =>
+        Entities.ForEach((Entity entity, in FetcherSpawner fetcherSpawner) =>
         {
             ecb.DestroyEntity(entity);
 
@@ -67,9 +66,10 @@ public class ThrowerSpawnerSystem : SystemBase
                     };
 #endif
 
-                    Entity throwerEntity = ecb.Instantiate(throwerSpawner.Prefab);
-                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3] });
-                    ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
+                    Entity fetcherEntity = ecb.Instantiate(fetcherSpawner.Prefab);
+                    ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
+                    ecb.AddComponent<Position>(fetcherEntity, new Position {coord = poss[i&3]});
+                    ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
                 }
             }
         }).Run();
