@@ -35,6 +35,8 @@ public class FireCellSpawnerSystem : SystemBase
 			
 			Entity fireCell = ecb.Instantiate(fireCellSpawner.Prefab);
 			ecb.AddComponent<FireCell>(new FireCell { coord = fireCellSpawner.coord });
-		}).Run();
+		}).Schedule();
+
+		m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 	}
 }

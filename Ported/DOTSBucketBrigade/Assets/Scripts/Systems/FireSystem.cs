@@ -62,7 +62,12 @@ public class FireSystem : SystemBase
 			new int2(-1, +0),
 			new int2(-1, -1)}, m_NeighborOffsets);
 	}
-	
+
+	protected override void OnDestroy()
+	{
+		m_NeighborOffsets.Dispose();
+	}
+
 	protected override void OnUpdate()
 	{
 		var xDim = FireSimConfig.xDim;
@@ -118,7 +123,9 @@ public class FireSystem : SystemBase
 			}
 		}).Schedule();
 		
-		Entities.WithReadOnly(newHeat).ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
+		Entities
+			.WithReadOnly(newHeat)
+			.ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
 			{
 				var index = fireCell.coord.y * xDim + fireCell.coord.x;
 				float3 newTranslation = translation.Value;
@@ -134,14 +141,14 @@ public class FireSystem : SystemBase
 			}
 		).Schedule();
 
-		Entities.ForEach((ref DynamicBuffer<BoardElement> board) =>
+		Entities
+			.WithDisposeOnCompletion(newHeat)
+			.ForEach((ref DynamicBuffer<BoardElement> board) =>
 		{
 			for (int i = 0; i < board.Length; ++i)
 			{
 				board[i] = newHeat[i];
 			}
 		}).Schedule();
-
-		Dependency = newHeat.Dispose(Dependency);
 	}
 }
