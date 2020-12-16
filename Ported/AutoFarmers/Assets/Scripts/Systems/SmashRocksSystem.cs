@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-[UpdateAfter(typeof(FarmerIntentionhSystem))]
+[UpdateAfter(typeof(FarmerIntentionSystem))]
 public class SmashRocksSystem : SystemBase
 {
     protected override void OnUpdate()
