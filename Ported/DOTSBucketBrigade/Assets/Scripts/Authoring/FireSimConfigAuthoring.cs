@@ -8,7 +8,6 @@ using UnityEngine;
 public class FireSimConfigAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject m_FirePrefab;
-    public GameObject m_ThrowerPrefab;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -17,16 +16,10 @@ public class FireSimConfigAuthoring : MonoBehaviour, IConvertGameObjectToEntity,
                     {
                         Prefab = conversionSystem.GetPrimaryEntity(m_FirePrefab)
                     });
-
-        dstManager.AddComponentData<ThrowerSpawner>(entity, new ThrowerSpawner
-        {
-            Prefab = conversionSystem.GetPrimaryEntity(m_ThrowerPrefab)
-        });
     }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(m_FirePrefab);
-        referencedPrefabs.Add(m_ThrowerPrefab);
     }
 }

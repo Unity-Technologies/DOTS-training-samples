@@ -181,6 +181,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_WaterPrefab: {fileID: 4663976096814041374, guid: 1a20a0c7b67cdf94893896ca2c863d80, type: 3}
+--- !u!1 &1369923280
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1369923282}
+  - component: {fileID: 1369923281}
+  m_Layer: 0
+  m_Name: BotSetup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1369923281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369923280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05137778bc4504e438f30c6382af02dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ThrowerPrefab: {fileID: 7374459445173674308, guid: 48cd0f2cbca312f47b129ec812f9e75b, type: 3}
+  m_FetcherPrefab: {fileID: 7374459445173674308, guid: 8ad20f002889a44ba91d667f66383046, type: 3}
+--- !u!4 &1369923282
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1369923280}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 20.823479, y: -6.792446, z: 18.707863}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1964625809
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,7 +256,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FirePrefab: {fileID: 127973635118049671, guid: bb12a102c750b4f18806cafe8fdb486e, type: 3}
-  m_ThrowerPrefab: {fileID: 7374459445173674308, guid: 48cd0f2cbca312f47b129ec812f9e75b, type: 3}
 --- !u!4 &1964625811
 Transform:
   m_ObjectHideFlags: 0
