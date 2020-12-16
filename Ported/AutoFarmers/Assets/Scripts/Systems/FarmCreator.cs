@@ -1,17 +1,13 @@
-﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FarmCreator : SystemBase
 {
     protected override void OnUpdate()
     {
-
-
         var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
             
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -99,6 +95,7 @@ public class FarmCreator : SystemBase
                     ecb.AddComponent(instance, position);
                     ecb.AddComponent(instance, scale);
                     ecb.AddComponent(instance, size);
+                    ecb.AddComponent(instance, new Rock {Health = 5, Position = new int2(rockX, rockY), Size = new int2(width, height)});
                     
                     for (int j = 0; j < width; j++)
                     {
@@ -110,9 +107,6 @@ public class FarmCreator : SystemBase
                             {
                                 Value = TileStates.Rock
                             };
-                            
-                            var rock = new Rock { };
-                            ecb.AddComponent(tiles[linearIndex], rock);
                         }
                     }
                 }
