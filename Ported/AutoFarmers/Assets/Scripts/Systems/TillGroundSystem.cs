@@ -65,7 +65,7 @@ public class TillGroundSystem : SystemBase
                {
                    if (random.NextFloat() < 0.2f)
                    {
-                       ecb.RemoveComponent(entity, typeof(TillGround));
+                       ecb.RemoveComponent<TillGround>(entity);
                    }
                }
 
@@ -108,8 +108,8 @@ public class TillGroundSystem : SystemBase
                        }
                        else
                        {
-                           ecb.RemoveComponent(entity, typeof(TillArea));
-                           ecb.RemoveComponent(entity, typeof(TillGround));
+                           ecb.RemoveComponent<TillArea>(entity);
+                           ecb.RemoveComponent<TillGround>(entity);
                        }
                    }
                }
