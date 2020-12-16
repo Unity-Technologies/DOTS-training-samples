@@ -7,9 +7,9 @@ public class MovementSystem : SystemBase
     {
         var deltaTime = Time.DeltaTime;
         Entities
-            .ForEach((Entity entity, ref Translation translation, in Velocity speed) =>
+            .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
             {
-                translation.Value += speed.Value * deltaTime;
+                translation.Value += velocity.Value * deltaTime;
             }).Run();
     }
 }

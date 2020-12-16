@@ -95,7 +95,7 @@ public class FarmCreator : SystemBase
                     ecb.AddComponent(instance, position);
                     ecb.AddComponent(instance, scale);
                     ecb.AddComponent(instance, size);
-                    ecb.AddComponent(instance, new Rock {Health = 5, Position = new int2(rockX, rockY), Size = new int2(width, height)});
+                    ecb.AddComponent(instance, new Rock {Health = 1, Position = new int2(rockX, rockY), Size = new int2(width, height)});
                     
                     for (int j = 0; j < width; j++)
                     {

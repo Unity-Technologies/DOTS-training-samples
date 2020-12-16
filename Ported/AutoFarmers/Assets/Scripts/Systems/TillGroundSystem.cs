@@ -73,7 +73,7 @@ public class TillGroundSystem : SystemBase
 
         Entities
            .WithAll<Farmer>()
-           .ForEach((Entity entity, ref Path path, in TillArea tillArea, in Translation translation) =>
+           .ForEach((Entity entity, in TillArea tillArea, in Translation translation) =>
            {
                var pathBuffer = pathBufferAccessor[entity];
                var tileBuffer = tileBufferAccessor[settingsEntity];
@@ -96,7 +96,7 @@ public class TillGroundSystem : SystemBase
                }
                else
                {
-                   if (path.Index == pathBuffer.Length)
+                   /*if (path.Index == pathBuffer.Length)
                    {
                        // TODO : Search for tillable tile in the tiling zone
                        var nextTile = -1; // Pathing.SearchForOne(tileX, tileY, 25, Pathing.IsNavigableDefault, Pathing.IsTillable, tillingZone);
@@ -111,7 +111,7 @@ public class TillGroundSystem : SystemBase
                            ecb.RemoveComponent<TillArea>(entity);
                            ecb.RemoveComponent<TillGround>(entity);
                        }
-                   }
+                   }*/
                }
 
            }).Run();
