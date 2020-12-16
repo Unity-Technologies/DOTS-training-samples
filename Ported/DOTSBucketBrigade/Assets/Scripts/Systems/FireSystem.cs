@@ -122,6 +122,9 @@ public class FireSystem : SystemBase
 				}
 			}
 		}).Schedule();
+
+		var flashPoint = FireSimConfig.flashPoint;
+		var fireThreshold = FireSimConfig.fireThreshold;
 		
 		Entities
 			.WithReadOnly(newHeat)
@@ -134,8 +137,8 @@ public class FireSystem : SystemBase
 				newTranslation.z = fireCell.coord.y;
 				translation.Value = newTranslation;
 
-				if (newHeat[index] > FireSimConfig.flashPoint) { fireColor.Value = fireHighColor; }
-				else if (newHeat[index] > FireSimConfig.fireThreshold) { fireColor.Value = fireLowColor; }
+				if (newHeat[index] > flashPoint) { fireColor.Value = fireHighColor; }
+				else if (newHeat[index] > fireThreshold) { fireColor.Value = fireLowColor; }
 				else if (newHeat[index] < -0.1f) { fireColor.Value = waterColor; }
 				else fireColor.Value = groundColor;
 			}
