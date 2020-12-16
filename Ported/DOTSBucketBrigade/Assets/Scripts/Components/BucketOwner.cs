@@ -35,4 +35,9 @@ public struct BucketOwner : IComponentData
         }
         return false;
     }
+
+    public void SetBucketOwner(int cohortIndex, bool isFetcher)
+    {
+        Value = (cohortIndex + 1) * (isFetcher ? -1 : 1);
+    }
 }
