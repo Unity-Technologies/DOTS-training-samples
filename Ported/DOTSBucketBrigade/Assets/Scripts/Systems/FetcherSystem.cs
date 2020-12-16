@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class FetcherSystem : SystemBase
@@ -10,8 +13,9 @@ public class FetcherSystem : SystemBase
     {
         Entities
             .WithAll<Fetcher>()
-            .ForEach((ref Position position) =>
+            .ForEach((Entity entity, ref Position position, ref Translation translation) =>
             {
+                translation.Value = new float3(position.coord.x, 0.9f, position.coord.y);
             })
             .Schedule();
     }
