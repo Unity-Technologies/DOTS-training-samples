@@ -60,4 +60,38 @@ public class MovementSystem : SystemBase
                 translation.Value += velocity.Value * deltaTime;
             }).Run();
     }
+
+    public static float MoveTowards(float current, float target, float maxDelta)
+    {
+        if (math.abs(target - current) <= maxDelta)
+            return target;
+        return current + math.sign(target - current) * maxDelta;
+    }
+
+    public static float2 MoveTowards(float2 current, float2 target, float maxDistanceDelta)
+    {
+        // avoid vector ops because current scripting backends are terrible at inlining
+        float toVector_x = target.x - current.x;
+        float toVector_y = target.y - current.y;
+        float sqDist = toVector_x * toVector_x + toVector_y * toVector_y;
+        if (sqDist == 0 || (maxDistanceDelta >= 0 && sqDist <= maxDistanceDelta * maxDistanceDelta))
+            return target;
+        float dist = (float)math.sqrt(sqDist);
+        return new float2(current.x + toVector_x / dist * maxDistanceDelta, current.y + toVector_y / dist * maxDistanceDelta);
+    }
+
+    public static float3 MoveTowards(float3 current, float3 target, float maxDistanceDelta)
+    {
+        // avoid vector ops because current scripting backends are terrible at inlining
+        float toVector_x = target.x - current.x;
+        float toVector_y = target.y - current.y;
+        float toVector_z = target.z - current.z;
+        float sqdist = toVector_x * toVector_x + toVector_y * toVector_y + toVector_z * toVector_z;
+        if (sqdist == 0 || (maxDistanceDelta >= 0 && sqdist <= maxDistanceDelta * maxDistanceDelta))
+            return target;
+        var dist = (float)math.sqrt(sqdist);
+        return new float3(current.x + toVector_x / dist * maxDistanceDelta,
+            current.y + toVector_y / dist * maxDistanceDelta,
+            current.z + toVector_z / dist * maxDistanceDelta);
+    }
 }
