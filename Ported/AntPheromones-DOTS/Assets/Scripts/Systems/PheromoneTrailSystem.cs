@@ -13,11 +13,12 @@ public class PheromoneTrailSystem : SystemBase
         Entity trailTextureEntity = GetSingletonEntity<TrailTexture>();
         TrailTexture trailTexture = EntityManager.GetComponentData<TrailTexture>(trailTextureEntity);
 
+        
         Color[] pixels = trailTexture.texture.GetPixels();
         
         for (int i = 0; i < pheromoneGrid.Length; i++)
         {
-           pixels[i] = new Color( math.clamp(pheromoneGrid[i].pheromoneStrength * 100, 0, 1), 0.5f, 0.5f);
+           pixels[i] = new Color(pheromoneGrid[i].pheromoneStrength, 0.5f, 0.5f);
         }
         
         trailTexture.texture.SetPixels(pixels);

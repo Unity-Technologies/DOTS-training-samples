@@ -32,7 +32,7 @@ public class PheromoneTrackingSystem : SystemBase
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * boardWidth))  ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 100f)};
+                pheromoneGrid[ (((int)translation.Value.y)*boardWidth) + ((int) translation.Value.x) ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 1f)};
             }
         }
     }
@@ -54,8 +54,6 @@ public class PheromoneTrackingSystem : SystemBase
         float timeMultiplier = GetSingleton<TimeMultiplier>().SimulationSpeed;
         float scaledTime = time * timeMultiplier;
         
-        
-
         BufferJobExample job = new BufferJobExample
         {
             //pheromonesType = pheromoneBufferType,

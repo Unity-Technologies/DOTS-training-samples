@@ -97,7 +97,7 @@ Material:
     - _QueueOffset: 0
     - _ReceiveShadows: 0
     - _SampleGI: 0
-    - _Smoothness: 0.325
+    - _Smoothness: 0.29
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 0
     - _SrcBlend: 1
