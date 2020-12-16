@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public class FarmerIntentionhSystem : SystemBase
+public class FarmerIntentionSystem : SystemBase
 {
     protected override void OnUpdate()
     {

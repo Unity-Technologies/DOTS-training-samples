@@ -38,8 +38,6 @@ public class FarmerSpawnerSystem : SystemBase
         }
         spawner.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
 
-
-
         SetSingleton(spawner);
         ecb.Playback(EntityManager);
     }
