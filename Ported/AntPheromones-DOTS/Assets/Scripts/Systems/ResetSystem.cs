@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+
 public class ResetSystem : SystemBase
 {
     private EndSimulationEntityCommandBufferSystem _endSimulationSystem;
@@ -50,7 +51,6 @@ public class ResetSystem : SystemBase
                         float obstacleRadius = 1.25f;
                         int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
                         int gapAngle = random.NextInt(0, 300);
-                        Debug.Log(gapAngle);
                         int gapSize = random.NextInt(30, 60);
                         for (int j = 0; j < maxCount; j++) 
                         {
