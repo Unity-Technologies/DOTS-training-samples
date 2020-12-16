@@ -13,6 +13,8 @@ p?
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
 
+EditorUserSettings.asset
+
 # Visual Studio cache directory
 .vs/
 
