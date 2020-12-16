@@ -55,8 +55,7 @@ public class PathMovement : SystemBase
                             {
                                 offset = .01f;
                             }
-                            var delta = (new float2(targetPosition.x + offset, targetPosition.y + offset)) - farmerPosition;
-                            velocity.Value = math.normalize(new float3(delta.x, 0, delta.y)) * 3;
+                            velocity.Value = new float3(targetPosition.x + offset, 0, targetPosition.y + offset);
                         }
                     }
                 }
