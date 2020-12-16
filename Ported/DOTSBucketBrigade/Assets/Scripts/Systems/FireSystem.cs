@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Unity.Jobs;
 
 public struct BoardElement : IBufferElementData
 {
@@ -22,6 +23,21 @@ public struct BoardElement : IBufferElementData
 	}
 }
 
+public struct BoardDebugElement : IBufferElementData
+{
+	public uint Value;
+
+	public static implicit operator uint(BoardDebugElement e)
+	{
+		return e.Value;
+	}
+
+	public static implicit operator BoardDebugElement (uint e)
+	{
+		return new BoardDebugElement { Value = e };
+	}
+}
+
 public class FireSystem : SystemBase
 {
 	Entity m_BoardEntity;
@@ -30,8 +46,14 @@ public class FireSystem : SystemBase
 	protected override void OnCreate()
 	{
 		System.Random fireRandom = new System.Random(1234);
-
+		
 		m_BoardEntity = EntityManager.CreateEntity();
+#if BB_DEBUG_FLAGS
+		DynamicBuffer<BoardDebugElement> boardDebugFlags = EntityManager.AddBuffer<BoardDebugElement>(m_BoardEntity);
+		boardDebugFlags.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
+		for (int i=0; i<boardDebugFlags.Length; ++i)
+			boardDebugFlags[i] = 0U;
+#endif
 		DynamicBuffer<BoardElement> boardCells = EntityManager.AddBuffer<BoardElement>(m_BoardEntity);
 		boardCells.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
 		
@@ -84,6 +106,13 @@ public class FireSystem : SystemBase
 		float4 fireLowColor = new float4(FireSimConfig.color_fire_low.r, FireSimConfig.color_fire_low.g, FireSimConfig.color_fire_low.b, FireSimConfig.color_fire_low.a);
 		float4 fireHighColor = new float4(FireSimConfig.color_fire_high.r, FireSimConfig.color_fire_high.g, FireSimConfig.color_fire_high.b, FireSimConfig.color_fire_high.a);
 
+
+#if BB_DEBUG_FLAGS
+		var lookup = GetBufferFromEntity<BoardDebugElement>();
+		DynamicBuffer<BoardDebugElement> boardDebugElementBuffer = lookup[m_BoardEntity];
+		NativeArray<uint> debugFlags = boardDebugElementBuffer.Reinterpret<uint>().AsNativeArray(); // jiv fixme should probably use a SingleEntity, but really this should be Blob data
+#endif
+
 		Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
 		{
 			for (int i=0; i<board.Length; ++i)
@@ -125,7 +154,7 @@ public class FireSystem : SystemBase
 
 		var flashPoint = FireSimConfig.flashPoint;
 		var fireThreshold = FireSimConfig.fireThreshold;
-		
+
 		Entities
 			.WithReadOnly(newHeat)
 			.ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
@@ -141,6 +170,13 @@ public class FireSystem : SystemBase
 				else if (newHeat[index] > fireThreshold) { fireColor.Value = fireLowColor; }
 				else if (newHeat[index] < -0.1f) { fireColor.Value = waterColor; }
 				else fireColor.Value = groundColor;
+
+#if BB_DEBUG_FLAGS
+				if (debugFlags[index] != 0)
+				{
+					fireColor.Value = new float4(1,0,1,1);
+				}
+#endif
 			}
 		).Schedule();
 
@@ -153,5 +189,15 @@ public class FireSystem : SystemBase
 				board[i] = newHeat[i];
 			}
 		}).Schedule();
+
+#if BB_DEBUG_FLAGS
+		MemsetNativeArray<uint> memsetNativeArray = new MemsetNativeArray<uint>
+		{
+			Source = debugFlags,
+			Value = 0
+		};
+		
+		Dependency = memsetNativeArray.Schedule(debugFlags.Length, 64, Dependency);
+#endif
 	}
 }

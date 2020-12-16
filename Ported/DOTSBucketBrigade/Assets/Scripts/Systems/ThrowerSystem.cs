@@ -18,12 +18,47 @@ public class ThrowerSystem : SystemBase
     {
         [ReadOnly]
         public NativeArray<float> fireSimBoard;
+        [ReadOnly]
+        public NativeArray<int2> neighborOffsets;
+        [ReadOnly]
+        public int xDim;
+        [ReadOnly]
+        public int yDim;
+        [ReadOnly]
+        public float fireThreshold;
         public NativeList<int>.ParallelWriter fireLine;
+#if BB_DEBUG_FLAGS
+        public NativeArray<uint> debugFlags;
+#endif
 
         public void Execute(int startIndex, int count)
         {
             for (int i=startIndex,n=startIndex+count; i<n; ++i)
             {
+                float heatValue = fireSimBoard[i];
+                if (heatValue < fireThreshold)
+                {
+                    int2 linearCoord = new int2(i%xDim, i/xDim);
+
+                    bool found = false;
+                    for (int j=0; !found && j<neighborOffsets.Length; ++j)
+                    {
+                        int2 neighborCoord = linearCoord + neighborOffsets[j];
+                        if (math.all(neighborCoord < new int2(xDim, yDim)) && math.all(neighborCoord >= int2.zero))
+                        {
+                            int neighborIndex = neighborCoord.y * xDim + neighborCoord.x;
+                            found = fireSimBoard[neighborIndex] >= fireThreshold;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        fireLine.AddNoResize(i);
+#if BB_DEBUG_FLAGS
+                        debugFlags[i] = 1;
+#endif
+                    }
+                }
             }
         }
     };
@@ -78,14 +113,21 @@ public class ThrowerSystem : SystemBase
         NativeArray<int2> throwerCoords = m_Throwers;
         NativeArray<int2> newThrowerCoords = new NativeArray<int2>(throwerCoords.Length, Allocator.TempJob);
 
-        Entities.WithoutBurst().ForEach((in DynamicBuffer<BoardElement> board) =>
+        Entities.WithoutBurst().ForEach((ref DynamicBuffer<BoardDebugElement> boardDebugFlags, in DynamicBuffer<BoardElement> board) =>
         {
             NativeList<int> fireLine = new NativeList<int>(board.Length, Allocator.TempJob);
 
             FindFireLineJob findFireLineJob = new FindFireLineJob
             {
                 fireSimBoard = board.Reinterpret<float>().AsNativeArray(),
-                fireLine = fireLine.AsParallelWriter()
+                fireLine = fireLine.AsParallelWriter(),
+                neighborOffsets = m_NeighborOffsets,
+                xDim = FireSimConfig.xDim,
+                yDim = FireSimConfig.yDim,
+                fireThreshold = FireSimConfig.fireThreshold,
+#if BB_DEBUG_FLAGS
+                debugFlags = boardDebugFlags.Reinterpret<uint>().AsNativeArray()
+#endif
             };
 
             JobHandle fireLineHandle = findFireLineJob.ScheduleBatch(board.Length, board.Length/SystemInfo.processorCount-1, Dependency);
@@ -102,7 +144,9 @@ public class ThrowerSystem : SystemBase
                 destThrowerCoords = throwerCoords
             };
 
-            Dependency = copyNewTargetJob.Schedule(findNewTargetJob.Schedule(fireLineHandle));
+            JobHandle copyNewTargetJobHandle = copyNewTargetJob.Schedule(findNewTargetJob.Schedule(fireLineHandle));
+            Dependency = JobHandle.CombineDependencies(Dependency, copyNewTargetJobHandle);
+
             fireLine.Dispose(Dependency);
         }).Run();
 
