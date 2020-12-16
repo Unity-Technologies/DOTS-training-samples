@@ -24,15 +24,23 @@ public class ResetSystem : SystemBase
                     heading.heading = math.normalize(random.NextFloat2(minRange, maxRange));
                     translation.Value = center.Value;
                 }).Run();
+            
+            // Reset Obstacles
+
+            // Reset Food
+            
+            // Reset Pheremones
+            Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
+            DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
+        
+            Dependency = Job.WithCode(() =>
+                {
+                    for (int i = 0; i < pheromoneGrid.Length; i++)
+                    {
+                        pheromoneGrid[i] = new Pheromones {pheromoneStrength = 0f};
+                    }
+                }
+            ).Schedule(Dependency);
         }
-        
-        
-        
-        // Reset Obstacles
-
-        // Reset Food
-
-        // Reset Pheremones
-        
     }
 }
