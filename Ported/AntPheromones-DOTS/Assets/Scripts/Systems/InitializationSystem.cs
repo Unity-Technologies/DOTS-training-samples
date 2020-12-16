@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -69,12 +70,18 @@ public class InitializationSystem : SystemBase
                 {
                     float ringRadius = (i / (3 + 1f)) * (128 * 0.5f);
                     float circumference = ringRadius * 2f * math.PI;
-                    float obstacleRadius = 0.25f;
+                    float obstacleRadius = 1.25f;
                     int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
                     int offset = random.NextInt(0, maxCount);
+                    int gapAngle = random.NextInt(0, 300);
+                    int gapSize = random.NextInt(30, 60);
                     for (int j = 0; j < maxCount; j++) 
                     {
-                        float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+                        float angle = (j) / (float)maxCount * (2f * Mathf.PI);
+                        if (angle * Mathf.Rad2Deg >= gapAngle && angle * Mathf.Rad2Deg < gapAngle + gapSize)
+                        {
+                            continue;
+                        }
                         var obstacle =  ecb.Instantiate(init.obstaclePrefab);
                         var translation = new Translation
                         {
