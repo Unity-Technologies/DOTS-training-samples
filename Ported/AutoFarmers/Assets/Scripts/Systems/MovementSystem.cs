@@ -6,6 +6,8 @@ using Unity.Mathematics;
 
 public class MovementSystem : SystemBase
 {
+    const float ySpeed = 2f;
+    const float xzSpeed = 6f;
     static float3 destination;
 
     protected void SetDestination()
@@ -38,23 +40,9 @@ public class MovementSystem : SystemBase
                 // translate drone to new place
                 if (translation.Value.x != destination.x && translation.Value.z != destination.z)
                 {
-                    // this can be simplified
-                    if (translation.Value.x > destination.x)
-                    {
-                        translation.Value.x--;
-                    }
-                    else if (translation.Value.x < destination.x)
-                    {
-                        translation.Value.x++;
-                    }
-                    if (translation.Value.z > destination.z)
-                    {
-                        translation.Value.z--;
-                    }
-                    else if (translation.Value.z < destination.z)
-                    {
-                        translation.Value.z++;
-                    }
+                    translation.Value.x = Mathf.MoveTowards(translation.Value.x, destination.x, xzSpeed * deltaTime);
+                    translation.Value.y = Mathf.MoveTowards(translation.Value.y, destination.y, ySpeed * deltaTime);
+                    translation.Value.z = Mathf.MoveTowards(translation.Value.z, destination.z, xzSpeed * deltaTime);
                 }
                 else
                 {
