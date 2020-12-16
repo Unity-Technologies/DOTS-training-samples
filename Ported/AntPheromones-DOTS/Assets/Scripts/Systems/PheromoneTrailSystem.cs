@@ -12,7 +12,6 @@ public class PheromoneTrailSystem : SystemBase
         
         Entity trailTextureEntity = GetSingletonEntity<TrailTexture>();
         TrailTexture trailTexture = EntityManager.GetComponentData<TrailTexture>(trailTextureEntity);
-
         
         Color[] pixels = trailTexture.texture.GetPixels();
         

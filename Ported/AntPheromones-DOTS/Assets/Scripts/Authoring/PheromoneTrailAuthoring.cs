@@ -13,7 +13,7 @@ public class PheromoneTrailAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         texturePheromone.wrapMode = TextureWrapMode.Mirror;
 
         material.mainTexture = texturePheromone;
-        
+
         TrailTexture trailTexture = new TrailTexture
         {
             texture = texturePheromone

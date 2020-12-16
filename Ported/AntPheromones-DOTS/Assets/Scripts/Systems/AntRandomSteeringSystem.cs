@@ -11,7 +11,7 @@ public class AntRandomSteeringSystem : SystemBase
     {
         var random = new Random(6541);
 
-        const float randomSteerWeight = 0.2f;
+        const float randomSteerWeight = 0.005f;
         const float originalDirectionWeight = 1.0f - randomSteerWeight;
         
         var minRange = new float2(-1,-1);
@@ -22,7 +22,7 @@ public class AntRandomSteeringSystem : SystemBase
             .ForEach((ref Heading heading) =>
             {
                 var randomDirection = math.normalize(random.NextFloat2(minRange, maxRange));
-                heading.heading = math.normalize(heading.heading * originalDirectionWeight) + (randomDirection * randomSteerWeight); 
+                heading.heading = (math.normalize(heading.heading) * originalDirectionWeight) + (randomDirection * randomSteerWeight); 
             }).ScheduleParallel();
     }
 }
