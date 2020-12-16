@@ -13,6 +13,7 @@ public class ObstacleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Translation>(entity);
         dstManager.AddComponent<Obstacle>(entity);
         dstManager.AddComponent<Radius>(entity);
+        dstManager.RemoveComponent<Rotation>(entity);
     }
 }
 
