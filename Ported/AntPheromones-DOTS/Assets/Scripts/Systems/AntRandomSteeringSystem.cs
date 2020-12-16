@@ -9,20 +9,20 @@ public class AntRandomSteeringSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        float time = Time.DeltaTime;
-        
         var random = new Random(6541);
+
+        const float randomSteerWeight = 0.2f;
+        const float originalDirectionWeight = 1.0f - randomSteerWeight;
         
-        float randomnessScale = 0.2f;
-        
-        float2 minRange = new float2(-1,-1);
-        float2 maxRange = new float2(1,1);
+        var minRange = new float2(-1,-1);
+        var maxRange = new float2(1,1);
 
         Entities
             .WithAll<Ant>()
             .ForEach((ref Heading heading) =>
             {
-                heading.heading = math.normalize(heading.heading + (random.NextFloat2(minRange, maxRange) * randomnessScale)) ;
+                var randomDirection = math.normalize(random.NextFloat2(minRange, maxRange));
+                heading.heading = math.normalize(heading.heading * originalDirectionWeight) + (randomDirection * randomSteerWeight); 
             }).ScheduleParallel();
     }
 }

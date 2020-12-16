@@ -6,9 +6,10 @@ using UnityEngine;
 
 public struct Init : IComponentData
 {
-	public Entity antPrefab;
 	public int antCount;
+	public Entity antPrefab;
 	public Entity obstaclePrefab;
 	public Entity goalPrefab;
 	public Entity homePrefab;
+	public Entity boardPrefab;
 }

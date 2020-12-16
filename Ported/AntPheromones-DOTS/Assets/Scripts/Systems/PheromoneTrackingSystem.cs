@@ -21,6 +21,7 @@ public class PheromoneTrackingSystem : SystemBase
         
         public float pheromoneApplicationRate;
         public float deltaTime;
+        public int boardWidth;
         
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -31,7 +32,7 @@ public class PheromoneTrackingSystem : SystemBase
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 100f)};
+                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * boardWidth))  ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 100f)};
             }
         }
     }
@@ -40,6 +41,7 @@ public class PheromoneTrackingSystem : SystemBase
     {
         Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
         DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
+        int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
 
         EntityQuery query = GetEntityQuery(typeof(Translation), typeof(Ant));
         BufferTypeHandle<Pheromones> pheromoneBufferType = GetBufferTypeHandle<Pheromones>();
@@ -51,6 +53,8 @@ public class PheromoneTrackingSystem : SystemBase
         float time = Time.DeltaTime;
         float timeMultiplier = GetSingleton<TimeMultiplier>().SimulationSpeed;
         float scaledTime = time * timeMultiplier;
+        
+        
 
         BufferJobExample job = new BufferJobExample
         {
@@ -58,7 +62,8 @@ public class PheromoneTrackingSystem : SystemBase
             pheromoneGrid = pheromoneGrid,
             translationType = translationType,
             pheromoneApplicationRate = pheromoneApplicationRate,
-            deltaTime = scaledTime
+            deltaTime = scaledTime,
+            boardWidth = boardWidth
         };
 
         Dependency = job.Schedule(query, Dependency);

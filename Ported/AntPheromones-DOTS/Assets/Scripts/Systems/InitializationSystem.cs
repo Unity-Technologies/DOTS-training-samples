@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -9,33 +7,88 @@ using Random = Unity.Mathematics.Random;
 
 public class InitializationSystem : SystemBase
 {
-    
-    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         var random = new Random(6541);
+        var center = new Translation{ Value = new float3(64, 64, 0) };
+        var minRange = new float2(-1,-1);
+        var maxRange = new float2(1,1);
+        var bottomLeftFood = new Translation {Value = new float3(10, 10, 0)};
+        var topLeftFood = new Translation {Value = new float3(10, 118, 0)};
+        var bottomRightFood = new Translation {Value = new float3(118, 10, 0)};
+        var topRightFood = new Translation {Value = new float3(118, 118, 0)};
         
         Entities
             .ForEach((Entity entity, in Init init) =>
             {
-                
                 ecb.DestroyEntity(entity);
 
-                for (int i = 0; i < init.antCount; i++)
+                // Create Board
+                var board = ecb.Instantiate(init.boardPrefab);
+                ecb.SetComponent(board, center);
+                
+                // Create Ants
+                for (var i = 0; i < init.antCount; i++)
                 {
                     var ant = ecb.Instantiate(init.antPrefab);
-                    var translation = new Translation{Value = new float3(64,64, 0)};
-                    ecb.SetComponent(ant, translation);
+                    ecb.SetComponent(ant, center);
                     
                     ecb.SetComponent(ant, new Heading
                     {
-                        heading = math.normalize(new float2( random.NextFloat(-1,1), random.NextFloat(-1, 1)))
+                        heading = math.normalize(random.NextFloat2(minRange, maxRange))
                     });
                 }
+                
+                // Create Home
+                var home = ecb.Instantiate(init.homePrefab);
+                ecb.SetComponent(home, center);
+
+                // Create Food
+                var randomFoodPosIndex = random.NextInt(0, 4);
+                var food = ecb.Instantiate(init.goalPrefab);
+                switch (randomFoodPosIndex)
+                {
+                    case 0:
+                        ecb.SetComponent(food, bottomLeftFood);
+                        break;
+                    case 1:
+                        ecb.SetComponent(food, topLeftFood);
+                        break;
+                    case 2:
+                        ecb.SetComponent(food, bottomRightFood);
+                        break;
+                    case 3:
+                        ecb.SetComponent(food, topRightFood);
+                        break;
+                }
+
+                // Create Obstacles
+                for (int i = 1; i <= 3; i++)
+                {
+                    float ringRadius = (i / (3 + 1f)) * (128 * 0.5f);
+                    float circumference = ringRadius * 2f * math.PI;
+                    float obstacleRadius = 0.25f;
+                    int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
+                    int offset = random.NextInt(0, maxCount);
+                    for (int j = 0; j < maxCount; j++) 
+                    {
+                        float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+                        var obstacle =  ecb.Instantiate(init.obstaclePrefab);
+                        var translation = new Translation
+                        {
+                            Value = new float3(64f + math.cos(angle) * ringRadius,
+                                64f + math.sin(angle) * ringRadius, 0)
+                        };
+                        ecb.SetComponent(obstacle, translation);
+                    }
+                }
+
             }).Run();
-        
+
         ecb.Playback(EntityManager);
+        
+        ecb.Dispose();
     }
 }

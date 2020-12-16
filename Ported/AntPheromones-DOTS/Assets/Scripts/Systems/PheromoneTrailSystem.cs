@@ -17,7 +17,7 @@ public class PheromoneTrailSystem : SystemBase
         
         for (int i = 0; i < pheromoneGrid.Length; i++)
         {
-           pixels[i] = Color.white * pheromoneGrid[i].pheromoneStrength;
+           pixels[i] = new Color( math.clamp(pheromoneGrid[i].pheromoneStrength * 100, 0, 1), 0.5f, 0.5f);
         }
         
         trailTexture.texture.SetPixels(pixels);
