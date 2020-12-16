@@ -14,6 +14,8 @@ public class TileSpawnerAuthoring : MonoBehaviour
     public GameObject RockPrefab;
     public int StoreCount;
     public GameObject SiloPrefab;
+    public float3 CameraOffset;
+    public float CameraDamping;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -35,6 +37,8 @@ public class TileSpawnerAuthoring : MonoBehaviour
         dstManager.AddComponentData(settingsEntity, new Settings
         {
             GridSize = GridSize,
+            CameraOffset = CameraOffset,
+            CameraDamping = CameraDamping
         });
 
         var tileBuffer = dstManager.AddBuffer<TileState>(settingsEntity);

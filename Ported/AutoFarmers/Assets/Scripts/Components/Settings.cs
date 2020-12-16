@@ -3,7 +3,9 @@ using Unity.Mathematics;
 
 public struct Settings : IComponentData
 {
-    public int2 GridSize;
+    public int2   GridSize;
+    public float3 CameraOffset;
+    public float  CameraDamping;
 }
 
 public enum TileStates
