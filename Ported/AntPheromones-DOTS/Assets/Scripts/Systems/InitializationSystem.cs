@@ -65,6 +65,25 @@ public class InitializationSystem : SystemBase
                 }
 
                 // Create Obstacles
+                for (int i = 1; i <= 3; i++)
+                {
+                    float ringRadius = (i / (3 + 1f)) * (128 * 0.5f);
+                    float circumference = ringRadius * 2f * math.PI;
+                    float obstacleRadius = 0.25f;
+                    int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
+                    int offset = random.NextInt(0, maxCount);
+                    for (int j = 0; j < maxCount; j++) 
+                    {
+                        float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
+                        var obstacle =  ecb.Instantiate(init.obstaclePrefab);
+                        var translation = new Translation
+                        {
+                            Value = new float3(64f + math.cos(angle) * ringRadius,
+                                64f + math.sin(angle) * ringRadius, 0)
+                        };
+                        ecb.SetComponent(obstacle, translation);
+                    }
+                }
 
             }).Run();
 
