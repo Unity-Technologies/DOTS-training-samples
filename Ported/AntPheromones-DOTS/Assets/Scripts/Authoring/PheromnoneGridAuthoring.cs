@@ -20,5 +20,7 @@ public class PheromnoneGridAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 pheromoneBuffer.Add(new Pheromones {pheromoneStrength = 0});
             }
         }
+
+        dstManager.AddComponentData(entity, new Board {BoardHeight = gridY, BoardWidth = gridX});
     }
 }

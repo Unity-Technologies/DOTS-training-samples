@@ -5,5 +5,6 @@ using UnityEngine;
 
 public struct Board : IComponentData
 {
-	public int BoardSize;
+	public int BoardWidth;
+	public int BoardHeight;
 }
