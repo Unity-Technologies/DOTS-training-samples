@@ -197,6 +197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FirePrefab: {fileID: 127973635118049671, guid: bb12a102c750b4f18806cafe8fdb486e, type: 3}
+  m_ThrowerPrefab: {fileID: 7374459445173674308, guid: 48cd0f2cbca312f47b129ec812f9e75b, type: 3}
 --- !u!4 &1964625811
 Transform:
   m_ObjectHideFlags: 0
