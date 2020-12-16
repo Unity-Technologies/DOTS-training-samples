@@ -14,6 +14,9 @@ public class PheromoneDecaySystem : SystemBase
     {
         Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
         DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
+        
+        Entity pheromoneDecayEntity = GetSingletonEntity<PheromoneDecayRate>();
+        float pheromoneDecayRate = EntityManager.GetComponentData<PheromoneDecayRate>(pheromoneDecayEntity).pheromoneDecayRate;
 
         Dependency = Job.WithCode(() =>
         {
@@ -21,7 +24,7 @@ public class PheromoneDecaySystem : SystemBase
             {
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength -10f};
+                pheromoneGrid[i] = new Pheromones{pheromoneStrength = currentStrength -pheromoneDecayRate};
             }
         }).Schedule(Dependency);
     }

@@ -17,6 +17,8 @@ public class PheromoneTrackingSystem : SystemBase
         public ComponentTypeHandle<Translation> translationType;
         [NativeDisableContainerSafetyRestriction]
         public DynamicBuffer<Pheromones> pheromoneGrid;
+
+        public float pheromoneApplicationRate;
         
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
@@ -27,7 +29,11 @@ public class PheromoneTrackingSystem : SystemBase
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
                 
-                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = currentStrength + 10f};
+                pheromoneGrid[(int) (translation.Value.x + (translation.Value.y * 128))  ] = new Pheromones{pheromoneStrength = currentStrength + pheromoneApplicationRate};
+
+
+                float currentStrengthAtZero = pheromoneGrid[0].pheromoneStrength;
+                pheromoneGrid[0] = new Pheromones{pheromoneStrength = currentStrengthAtZero + pheromoneApplicationRate};
             }
             
         }
@@ -42,11 +48,15 @@ public class PheromoneTrackingSystem : SystemBase
         BufferTypeHandle<Pheromones> pheromoneBufferType = GetBufferTypeHandle<Pheromones>();
         ComponentTypeHandle<Translation> translationType = GetComponentTypeHandle<Translation>(true);
 
+        Entity pheromoneApplicationEntity = GetSingletonEntity<PheromoneApplicationRate>();
+        float pheromoneApplicationRate = EntityManager.GetComponentData<PheromoneApplicationRate>(pheromoneApplicationEntity).pheromoneApplicationRate;
+
         BufferJobExample job = new BufferJobExample
         {
             pheromonesType = pheromoneBufferType,
             pheromoneGrid = pheromoneGrid,
-            translationType = translationType
+            translationType = translationType,
+            pheromoneApplicationRate = pheromoneApplicationRate
         };
 
         Dependency = job.Schedule(query, Dependency);
