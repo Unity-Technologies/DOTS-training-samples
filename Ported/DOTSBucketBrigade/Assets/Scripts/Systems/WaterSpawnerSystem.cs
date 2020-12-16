@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -20,12 +20,13 @@ public class WaterSpawnerSystem : SystemBase
     {
         EntityCommandBuffer ecb = mEntityCommmandBufferSystem.CreateCommandBuffer();
 
-        //float2 dim = new float2(FireSimConfig.xDim, FireSimConfig.yDim) - 1;
         int xDim = FireSimConfig.xDim;
         int yDim = FireSimConfig.yDim;
+        float lowOffset = -5.5f; //store offsets to adjust position of water sources, based on prefab of 10x10
+        float highOffset = 4.5f; 
 
         int nWaterSources = WaterConfig.nWaterSources;
-        Random random = new Random(1234); // (uint)Time.DeltaTime + 1);
+        Random random = new Random((uint)Time.DeltaTime + 1);
 
         Entities.ForEach((Entity entity, in WaterSpawner waterSpawner) =>
         {
@@ -33,7 +34,7 @@ public class WaterSpawnerSystem : SystemBase
 
             for (int i=0; i < nWaterSources; ++i)
             {
-                float2 waterCoord; // = random.NextFloat2(dim);
+                float2 waterCoord;
                 Entity waterEntity = ecb.Instantiate(waterSpawner.Prefab);
 
                 // water sources will appear outside the grid, so we first need to determine the dimensions of the grid so we know the edges
@@ -45,12 +46,12 @@ public class WaterSpawnerSystem : SystemBase
                 if (nSide > 1) //nSide = 2/3 = top/bottom
                 {
                     waterCoord.x = random.NextInt(xDim);
-                    waterCoord.y = (nSide == 2) ? -5.5f : yDim + 4.5f;
+                    waterCoord.y = (nSide == 2) ? lowOffset : yDim + highOffset;
 
                 }
                 else //nSide = 0/1 = left/right
                 {
-                    waterCoord.x = (nSide == 0) ? -5.5f : xDim + 4.5f;
+                    waterCoord.x = (nSide == 0) ? lowOffset : xDim + highOffset;
                     waterCoord.y = random.NextInt(yDim);
                 }
 
@@ -58,6 +59,7 @@ public class WaterSpawnerSystem : SystemBase
 
                 var newTranslation = new Translation { Value = new float3(waterCoord.x, -1.0f, waterCoord.y) };
                 ecb.SetComponent(waterEntity, newTranslation);
+
             }
 
         }).Schedule();
