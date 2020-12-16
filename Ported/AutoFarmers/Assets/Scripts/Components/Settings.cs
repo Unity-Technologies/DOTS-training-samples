@@ -1,8 +1,9 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 public struct Settings : IComponentData
 {
-    
+    public int2 GridSize;
 }
 
 public enum TileStates

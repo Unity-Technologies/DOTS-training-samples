@@ -34,7 +34,7 @@ public class TileSpawnerAuthoring : MonoBehaviour
         var settingsEntity = conversionSystem.CreateAdditionalEntity(this);
         dstManager.AddComponentData(settingsEntity, new Settings
         {
-            // ...
+            GridSize = GridSize,
         });
 
         var tileBuffer = dstManager.AddBuffer<TileState>(settingsEntity);
