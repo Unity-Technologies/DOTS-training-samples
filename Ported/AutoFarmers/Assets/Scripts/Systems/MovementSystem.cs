@@ -8,6 +8,7 @@ public class MovementSystem : SystemBase
 {
     const float ySpeed = 2f;
     const float xzSpeed = 6f;
+    const float k_walkSpeed = 3f;
     static float3 destination;
 
     protected void SetDestination()
@@ -57,7 +58,7 @@ public class MovementSystem : SystemBase
         Entities
             .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
             {
-                translation.Value += velocity.Value * deltaTime;
+                translation.Value = MoveTowards(translation.Value, velocity.Value, k_walkSpeed * deltaTime);
             }).Run();
     }
 
