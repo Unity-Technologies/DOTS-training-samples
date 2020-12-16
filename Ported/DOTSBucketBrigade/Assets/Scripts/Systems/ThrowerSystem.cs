@@ -10,9 +10,8 @@ using Unity.Burst;
 
 public class ThrowerSystem : SystemBase
 {
-    public GameObject m_ThrowerPrefab;
     public NativeArray<int2> m_Throwers;
-    public NativeArray<int2> m_NeighborOffsets;
+    protected NativeArray<int2> m_NeighborOffsets;
 
     [BurstCompile]
     struct FindFireLineJob : IJobParallelForBatch
