@@ -51,13 +51,13 @@ public class SettingsAuthoring : MonoBehaviour
             FarmerPrefab = conversionSystem.GetPrimaryEntity(FarmerPrefab),
             DronePrefab  = conversionSystem.GetPrimaryEntity(DronePrefab),
             
-            GridSize = GridSize,
-            TileSize = TileSize,
+            GridSize          = GridSize,
+            TileSize          = TileSize,
             RockSpawnAttempts = RockSpawnAttempts,
-            StoreSpawnCount = StoreSpawnCount,
+            StoreSpawnCount   = StoreSpawnCount,
             
-            CameraOffset = CameraOffset,
-            CameraDamping = CameraDamping
+            CameraOffset      = CameraOffset,
+            CameraDamping     = CameraDamping
         });
         
         // Common Data (Available at Runtime)
