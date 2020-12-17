@@ -6,6 +6,6 @@ public struct MovingBot : IComponentData
 {
     public float2 StartPosition;
     public float2 TargetPosition;
-    public float StartTime;
+    public double StartTime;
     public int NewStateOnArrival;
 }
