@@ -18,6 +18,11 @@ public struct BucketOwner : IComponentData
         return math.abs(Value) - 1;
     }
 
+    public bool IsAssigned()
+    {
+        return Value != 0;
+    }
+
     bool BelongsToFetcher()
     {
         if (Value < 0)
@@ -34,5 +39,10 @@ public struct BucketOwner : IComponentData
             return true;
         }
         return false;
+    }
+
+    public void SetBucketOwner(int cohortIndex, bool isFetcher)
+    {
+        Value = (cohortIndex + 1) * (isFetcher ? -1 : 1);
     }
 }
