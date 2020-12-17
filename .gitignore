@@ -13,7 +13,7 @@ p?
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
 
-EditorUserSettings.asset
+Ported/DOTSBucketBrigade/UserSettings/EditorUserSettings.asset
 
 # Visual Studio cache directory
 .vs/
