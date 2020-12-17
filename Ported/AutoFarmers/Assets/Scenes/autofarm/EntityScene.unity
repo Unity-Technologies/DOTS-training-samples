@@ -165,6 +165,7 @@ MonoBehaviour:
     y: 1
   RockSpawnAttempts: 2000
   StoreSpawnCount: 5
+  Testing_PlantCount: 0
   InitialFarmersCount: 15
   CameraViewAngle:
     x: 45
@@ -173,7 +174,7 @@ MonoBehaviour:
   CameraMouseSensitivity: 4000
   MoneyForDrones: 50
   moveSmooth: 0.1
-  carrySmooth: 0.05
+  carrySmooth: 0.005
   DebugMode: 1
 --- !u!4 &450580069
 Transform:
