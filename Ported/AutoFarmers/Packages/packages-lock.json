@@ -135,6 +135,25 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.platforms.desktop": {
+      "version": "0.9.0-preview.9",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.platforms": "0.9.0-preview.9"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.platforms.windows": {
+      "version": "0.9.0-preview.9",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.platforms": "0.9.0-preview.9",
+        "com.unity.platforms.desktop": "0.9.0-preview.9"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.properties": {
       "version": "1.5.0-preview",
       "depth": 1,
