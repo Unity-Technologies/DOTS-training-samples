@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -22,6 +23,16 @@ public class SettingsAuthoring : MonoBehaviour
     
     public float3 CameraOffset;
     public float  CameraDamping;
+
+    public void OnEnable()
+    {
+        OnValidate();
+    }
+
+    public void OnValidate()
+    {
+        InitialFarmersCount = Mathf.Max(InitialFarmersCount, 1);
+    }
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
