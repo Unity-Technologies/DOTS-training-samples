@@ -23,7 +23,7 @@ public class SmashRockIntentionSystem : SystemBase
 
         Entities.WithAll<Farmer>()
             .ForEach(
-                (Entity entity, ref Velocity speed, ref SmashRockIntention smashRocks, in Translation translation) =>
+                (Entity entity, ref SmashRockIntention smashRocks, in Translation translation) =>
                 {
                     var pathNodes = pathBuffers[entity];
                     var farmerPosition = new int2((int) math.floor(translation.Value.x),

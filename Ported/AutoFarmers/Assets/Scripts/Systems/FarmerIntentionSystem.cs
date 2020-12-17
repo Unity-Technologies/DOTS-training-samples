@@ -4,11 +4,17 @@ using Unity.Mathematics;
 
 public class FarmerIntentionSystem : SystemBase
 {
+    Random random;
+
+    protected override void OnCreate()
+    {
+        random = new Random(1234);
+    }
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var random = new Unity.Mathematics.Random(1234);
+        var localRandom = random;
         Entities
             .WithAll<Farmer>()
             .WithNone<SmashRockIntention>()
@@ -17,23 +23,24 @@ public class FarmerIntentionSystem : SystemBase
             .WithNone<SellPlantIntention>()
             .ForEach((Entity entity) =>
             {
-                switch(random.NextInt(0, 4))
+                switch(localRandom.NextInt(0, 2))
                 {
                     case 0:
                         ecb.AddComponent(entity, new SmashRockIntention());
                         break;
                     case 1:
-                        ecb.AddComponent(entity, new TillGroundIntention());
+                        ecb.AddComponent(entity, new TillGroundIntention { Rect = default });
                         break;
-                    case 2:
-                        ecb.AddComponent(entity, new PlantCropIntention());
-                        break;
-                    case 3:
-                        ecb.AddComponent(entity, new SellPlantIntention());
-                        break;
+                    //case 2:
+                    //    ecb.AddComponent(entity, new PlantCropIntention());
+                    //    break;
+                    //case 3:
+                    //    ecb.AddComponent(entity, new SellPlantIntention());
+                    //    break;
                 }
             }).Run();
 
+        random = localRandom;
         ecb.Playback(EntityManager);
     }
 }

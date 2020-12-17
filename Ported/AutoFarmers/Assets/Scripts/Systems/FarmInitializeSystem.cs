@@ -7,6 +7,7 @@ using UnityEngine;
 using Unity.Rendering;
 using UnityEngine.Rendering;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FarmInitializeSystem : SystemBase
 {
     protected override void OnCreate()
@@ -17,14 +18,13 @@ public class FarmInitializeSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
         var commonSettings = GetSingleton<CommonSettings>();
         
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
-            
+
         var random = new Unity.Mathematics.Random(1234);
-        
+
         Entities
             .ForEach((Entity entity, in InitializationSettings initializationSettings) =>
             {
@@ -148,7 +148,9 @@ public class FarmInitializeSystem : SystemBase
                     
                     // Add a camera to the last spawned farmer.
                     if (initialFarmerCount == 0)
+                    {
                         ecb.AddComponent(farmerInstance, new CameraTarget());
+                    }
                 }
                 tiles.Dispose();
                 /*
@@ -181,5 +183,6 @@ public class FarmInitializeSystem : SystemBase
             }).Run();
 
         ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

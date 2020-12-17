@@ -71,7 +71,6 @@ public class SpawnerSystem : SystemBase
     {
         var instance = Add(ecb, prefab, position);
         ecb.AddComponent(instance, new Farmer());
-        ecb.AddComponent(instance, new Velocity());
         ecb.AddBuffer<PathNode>(instance);
         return instance;
     }
@@ -92,7 +91,6 @@ public class SpawnerSystem : SystemBase
             storePosition = new int2((int)math.floor(position.x), (int)math.floor(position.z)),
         });
         
-        ecb.AddComponent(instance, new Velocity());
         ecb.AddBuffer<PathNode>(instance);
         return instance;
     }

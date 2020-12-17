@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(FarmInitializeSystem))]
+
 public class PathMovement : SystemBase
 {
     NativeArray<int> visitedTiles;
@@ -23,8 +23,9 @@ public class PathMovement : SystemBase
     int mapHeight;
 
 	RectInt fullMapZone;
+	const float k_walkSpeed = 3f;
 
-    protected override void OnCreate()
+	protected override void OnCreate()
     {
         activeTiles = new NativeList<int>(Allocator.Persistent);
         nextTiles = new NativeList<int>(Allocator.Persistent);
@@ -68,9 +69,11 @@ public class PathMovement : SystemBase
         
         var pathBuffers = GetBufferFromEntity<PathNode>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
+		var deltaTime = Time.DeltaTime;
 
-        Entities
-            .ForEach((Entity entity, ref Velocity velocity, in Translation translation) =>
+		Entities
+			.WithAll<Farmer>()
+            .ForEach((Entity entity, ref Translation translation) =>
             {
                 var pathNodes = pathBuffers[entity];
 
@@ -84,20 +87,20 @@ public class PathMovement : SystemBase
                         Debug.DrawLine(new Vector3(pathNodes[i].Value.x + .5f, .5f, pathNodes[i].Value.y + .5f), new Vector3(pathNodes[i + 1].Value.x + .5f, .5f, pathNodes[i + 1].Value.y + .5f), Color.red);
                     }
 
-                    var targetPosition = pathNodes[pathNodes.Length - 1].Value;
+                    var nextTile = pathNodes[pathNodes.Length - 1].Value;
 
-                    if (farmerPosition.x == targetPosition.x && farmerPosition.y == targetPosition.y)
+                    if (farmerPosition.x == nextTile.x && farmerPosition.y == nextTile.y)
                     {
                         pathNodes.RemoveAt(pathNodes.Length - 1);
                     }
                     else
                     {
                         bool isBlocked = false;
-                        if (targetPosition.x < 0 || targetPosition.y < 0 || targetPosition.x >= settings.GridSize.x || targetPosition.y >= settings.GridSize.y)
+                        if (nextTile.x < 0 || nextTile.y < 0 || nextTile.x >= settings.GridSize.x || nextTile.y >= settings.GridSize.y)
                         {
                             isBlocked |= true;
                         }
-                        var nextTileState = tileBuffer[targetPosition.x + targetPosition.y * settings.GridSize.x].Value;
+                        var nextTileState = tileBuffer[nextTile.x + nextTile.y * settings.GridSize.x].Value;
                         if (nextTileState == ETileState.Rock)
                         {
                             isBlocked |= true;
@@ -109,14 +112,11 @@ public class PathMovement : SystemBase
                             if (nextTileState == ETileState.Grown)
                             {
                                 offset = .01f;
-                            }
-                            velocity.Value = new float3(targetPosition.x + offset, 0, targetPosition.y + offset);
+							}
+							float3 targetPos = new float3(nextTile.x + offset, 0.0f, nextTile.y + offset);
+							translation.Value = DroneMovement.MoveTowards(translation.Value, targetPos, k_walkSpeed * deltaTime);
                         }
                     }
-                }
-                else 
-                {
-                    velocity.Value = 0;
                 }
             }).Run();
     }
