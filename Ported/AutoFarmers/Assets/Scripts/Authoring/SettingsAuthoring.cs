@@ -26,6 +26,13 @@ public class SettingsAuthoring : MonoBehaviour
     public float  CameraViewDistance;
     public float  CameraMouseSensitivity;
 
+    public int MoneyForDrones = 100;
+    [Range(0f, 1f)]
+    public float moveSmooth;
+    [Range(0f, 1f)]
+    public float carrySmooth;
+    public bool DebugMode = false;
+
     public void OnEnable()
     {
         OnValidate();
@@ -79,6 +86,16 @@ public class SettingsAuthoring : MonoBehaviour
         var dataEntity = conversionSystem.CreateAdditionalEntity(this);
         
         dstManager.AddComponent<CommonData>(dataEntity);
+
+        if (DebugMode) 
+        {
+            dstManager.SetComponentData(dataEntity, new CommonData
+            {
+                MoneyForDrones = MoneyForDrones,
+                MoveSmoothForDrones = moveSmooth,
+            });
+        }
+        
 
         var tileBuffer = dstManager.AddBuffer<TileState>(dataEntity);
         tileBuffer.Length = GridSize.x * GridSize.y;

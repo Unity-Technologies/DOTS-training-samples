@@ -18,22 +18,38 @@ public class SpawnerSystem : SystemBase
         var data = GetSingleton<CommonData>();
         var settings = GetSingleton<CommonSettings>();
 
-        var amountToSpawn = Mathf.FloorToInt(data.FarmerCounter / k_PlantsToSpawnfarmer);
+        var amountToSpawn = (int)math.floor(data.FarmerCounter / k_PlantsToSpawnfarmer);
         for (int i = 0; i < amountToSpawn; ++i)
         {
             AddFarmer(ecb, settings.FarmerPrefab, new int3(0, 0, 0));
         }
         data.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
 
-        amountToSpawn = Mathf.FloorToInt(data.DroneCounter / k_PlantsToSpawnDrone);
-        for (int i = 0; i < amountToSpawn; ++i)
+        var random = new Unity.Mathematics.Random(1234);
+        if (data.MoneyForDrones >= 50)
         {
-            var instance = ecb.Instantiate(settings.DronePrefab);
-            ecb.AddComponent(instance, new Drone());
-            ecb.AddComponent(instance, new Velocity());
-        }
-        data.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
+            for (int i = 0; i < 5; i++)
+            {
+                int x = 10;
+                int y = 10;
+                var position = new float3(x + .5f, 0f, y + .5f);
+                var instance = ecb.Instantiate(settings.DronePrefab);
+                ecb.AddComponent(instance, new Drone
+                {
+                    smoothPosition = position,
+                    hoverHeight = random.NextFloat(2, 3),
+                    storePosition = new int2(x, y),
+                    moveSmooth = data.MoveSmoothForDrones
+                });
+                
+                
+                //ecb.SetComponent(instance, new Translation { Value = position });
+                ecb.AddComponent(instance, new Velocity());
+                ecb.AddBuffer<PathNode>(instance);
+            }
 
+            data.MoneyForDrones -= 50;
+        }
         SetSingleton(data);
         
         ecb.Playback(EntityManager);
