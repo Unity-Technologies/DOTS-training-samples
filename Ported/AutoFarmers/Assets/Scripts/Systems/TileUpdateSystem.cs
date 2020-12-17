@@ -38,7 +38,7 @@ public class TileUpdateSystem : SystemBase
 
                 if (tileState != ETileState.Tilled)
                 {
-                    ecb.RemoveComponent<EmptyTile>(entity);
+                    ecb.RemoveComponent<TilledTile>(entity);
                     SetTileComponent(ecb, entity, tileState);   
                 }
             }).Run();
@@ -52,7 +52,7 @@ public class TileUpdateSystem : SystemBase
 
                 if (tileState != ETileState.Seeded)
                 {
-                    ecb.RemoveComponent<EmptyTile>(entity);
+                    ecb.RemoveComponent<SeededTile>(entity);
                     SetTileComponent(ecb, entity, tileState);   
                 }
             }).Run();
@@ -66,7 +66,7 @@ public class TileUpdateSystem : SystemBase
 
                 if (tileState != ETileState.Grown)
                 {
-                    ecb.RemoveComponent<EmptyTile>(entity);
+                    ecb.RemoveComponent<GrownTile>(entity);
                     SetTileComponent(ecb, entity, tileState);   
                 }
             }).Run();
@@ -80,7 +80,7 @@ public class TileUpdateSystem : SystemBase
 
                 if (tileState != ETileState.Store)
                 {
-                    ecb.RemoveComponent<EmptyTile>(entity);
+                    ecb.RemoveComponent<StoreTile>(entity);
                     SetTileComponent(ecb, entity, tileState);   
                 }
             }).Run();
@@ -94,7 +94,7 @@ public class TileUpdateSystem : SystemBase
 
                 if (tileState != ETileState.Rock)
                 {
-                    ecb.RemoveComponent<EmptyTile>(entity);
+                    ecb.RemoveComponent<RockTile>(entity);
                     SetTileComponent(ecb, entity, tileState);   
                 }
             }).Run();
