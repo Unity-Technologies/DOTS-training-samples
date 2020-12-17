@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Mathematics;
 
 public class FireSimConfig : MonoBehaviour
 {
@@ -14,6 +15,12 @@ public class FireSimConfig : MonoBehaviour
 
     static public int maxTeams = 2;
     static public float throwerSpeed = 2.0f;
+
+    static public int numEmptyBots = 10;
+    static public int numFullBots = 10;
+
+    static public float4 emptyBotColor = new float4(0,0,0.5f,1f);
+    static public float4 fullBotColor = new float4(0,0,1f,1f);
 
     static public Color color_ground = Color.green;
     static public Color color_watersource = Color.blue; // new Color(0, 0, 0.5f);

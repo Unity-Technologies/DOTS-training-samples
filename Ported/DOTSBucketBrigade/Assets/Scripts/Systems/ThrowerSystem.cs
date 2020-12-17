@@ -12,7 +12,7 @@ using Unity.Collections.LowLevel.Unsafe;
 [UpdateBefore(typeof(FireSystem))]
 public class ThrowerSystem : SystemBase
 {
-    public NativeArray<int2> m_Throwers;
+    static public NativeArray<int2> m_Throwers;
     protected NativeArray<int2> m_NeighborOffsets;
 
     [BurstCompile]

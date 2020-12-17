@@ -212,6 +212,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ThrowerPrefab: {fileID: 7374459445173674308, guid: 48cd0f2cbca312f47b129ec812f9e75b, type: 3}
   m_FetcherPrefab: {fileID: 7374459445173674308, guid: 8ad20f002889a44ba91d667f66383046, type: 3}
+  m_BotPrefab: {fileID: 6326341978707056566, guid: 714892aae48d03f44915be37fba44a6a, type: 3}
 --- !u!4 &1369923282
 Transform:
   m_ObjectHideFlags: 0

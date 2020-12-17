@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
@@ -46,7 +46,6 @@ public class FetcherSpawnerSystem : SystemBase
             for (int i=0; i<maxTeams; ++i)
             {
                 unsafe {
-#if false
                     // jiv fixme: locate at water sources
                     int2* poss = stackalloc int2[]
                     {
@@ -55,16 +54,6 @@ public class FetcherSpawnerSystem : SystemBase
                         new int2(xDim-1, 0),
                         new int2(0,      0)
                     };
-#else
-                    // distribute randomly around center
-                    int2* poss = stackalloc int2[]
-                    {
-                        midpoint + new int2(random.NextInt(-kJitter, kJitter), random.NextInt(-kJitter, kJitter)),
-                        midpoint + new int2(random.NextInt(-kJitter, kJitter), random.NextInt(-kJitter, kJitter)),
-                        midpoint + new int2(random.NextInt(-kJitter, kJitter), random.NextInt(-kJitter, kJitter)),
-                        midpoint + new int2(random.NextInt(-kJitter, kJitter), random.NextInt(-kJitter, kJitter))
-                    };
-#endif
 
                     Entity fetcherEntity = ecb.Instantiate(fetcherSpawner.Prefab);
                     ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
