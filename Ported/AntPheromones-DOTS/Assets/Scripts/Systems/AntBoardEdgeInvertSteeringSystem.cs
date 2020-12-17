@@ -9,7 +9,7 @@ public class AntBoardEdgeInvertSteeringSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
+        /*Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
         Board board = EntityManager.GetComponentData<Board>(pheromoneEntity);
 
         Entities
@@ -40,7 +40,7 @@ public class AntBoardEdgeInvertSteeringSystem : SystemBase
                     heading.heading = new float2(heading.heading.x, -heading.heading.y);
                 }
 
-            }).Schedule();
+            }).Schedule();*/
         
     }
 }
