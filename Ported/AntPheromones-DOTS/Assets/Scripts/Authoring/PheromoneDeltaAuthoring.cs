@@ -7,8 +7,7 @@ public class PheromoneDeltaAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
 	public float pheromoneApplicationRate;
 	public float pheromoneDecayRate;
-
-
+	
 	public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
 	{
 		dstManager.AddComponentData(entity, new PheromoneDecayRate {pheromoneDecayRate = pheromoneDecayRate});
