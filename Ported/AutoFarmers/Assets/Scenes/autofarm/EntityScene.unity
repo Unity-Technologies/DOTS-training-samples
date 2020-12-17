@@ -163,8 +163,9 @@ MonoBehaviour:
   TileSize:
     x: 1
     y: 1
-  Attempts: 3
-  StoreCount: 50
+  RockSpawnAttempts: 30
+  StoreSpawnCount: 5
+  InitialFarmersCount: 1
   CameraOffset:
     x: 0
     y: 4
