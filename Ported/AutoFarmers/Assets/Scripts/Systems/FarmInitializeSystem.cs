@@ -109,7 +109,7 @@ public class FarmInitializeSystem : SystemBase
 
                     Vector2 center2D = rect.center;
 
-                    var translation = new Translation { Value = new float3(center2D.x - .5f, depth * .5f, center2D.y - .5f) };
+                    var translation = new Translation { Value = new float3(center2D.x - .5f, depth * .5f - 1, center2D.y - .5f) };
                     var scale = new NonUniformScale { Value = new float3(rect.width - .5f, depth, rect.height - .5f) };
 
                     ecb.SetComponent(instance, translation);
