@@ -28,25 +28,18 @@ public class PlantGenerator : SystemBase
 	{
 		var commonSettings = GetSingleton<CommonSettings>();
 		Entities.WithAll<Plant>()
-			.ForEach((Entity entity, ref Plant plant, ref Crop crop, in RenderMesh mesh) =>
+			.ForEach((Entity entity, ref Plant plant, in RenderMesh mesh) =>
 			{
-				if (crop.CurrentGrowth == 0) // Plant.Init()
+				Vector3 worldPos = new Vector3(plant.Position.x + .5f, 0f, plant.Position.y + .5f);
+				matrix = Matrix4x4.TRS(worldPos, rotation, Vector3.one);
+
+				var linearIndex = plant.Position.x + plant.Position.y * commonSettings.GridSize.x;
+				var newMesh = GenerateMesh(linearIndex);
+
+                if (newMesh)
                 {
-					Vector3 worldPos = new Vector3(plant.Position.x + .5f, 0f, plant.Position.y + .5f);
-					matrix = Matrix4x4.TRS(worldPos, rotation, Vector3.one);
-
-					var linearIndex = plant.Position.x + plant.Position.y * commonSettings.GridSize.x;
-					var newMesh = GenerateMesh(linearIndex);
-
-					if (newMesh)
-					{
-						mesh.mesh.vertices = newMesh.vertices;
-						mesh.mesh.triangles = newMesh.triangles;
-					}
-				}
-                else // I'm a growing boy!
-                {
-
+                    mesh.mesh.vertices = newMesh.vertices;
+                    mesh.mesh.triangles = newMesh.triangles;
                 }
 			}).WithoutBurst().Run();
 
