@@ -151,6 +151,9 @@ public class InitializationSystem : SystemBase
             for (int dist = 1; dist < boardWidth; dist++)
             {
                 float2 posToCheck = new float2(start.Value.x, start.Value.y) + (angle * dist);
+                
+                if (posToCheck.x > 127 || posToCheck.y > 127 || posToCheck.x <0 || posToCheck.y <0) break;
+                
                 int indexInLineOfSightGrid = (((int) posToCheck.y) * 128) + ((int) posToCheck.x);
                 if (obstacleGrid[indexInLineOfSightGrid].present) 
                     break;
