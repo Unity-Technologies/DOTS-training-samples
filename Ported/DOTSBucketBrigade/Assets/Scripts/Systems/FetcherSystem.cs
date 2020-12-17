@@ -74,6 +74,7 @@ public class FetcherSystem : SystemBase
                     if (assignedFetcherEntities[minDistanceIndex] == Entity.Null)
                     {
                         ecb.AddComponent<AssignedBucket>(entity, new AssignedBucket {Value = bucketEntities[minDistanceIndex]});
+                        ecb.SetComponent<Bucket>(entity, new Bucket {LinearT = 0.0f});
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
                         assignedFetcherEntities[minDistanceIndex] = entity;
                     }

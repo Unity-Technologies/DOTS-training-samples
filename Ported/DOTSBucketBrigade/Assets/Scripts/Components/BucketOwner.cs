@@ -13,7 +13,7 @@ public struct BucketOwner : IComponentData
     // Negative values: the bucket belongs to the fetcher within the cohort
     public int Value;
 
-    int AsCohortIndex()
+    public int AsCohortIndex()
     {
         return math.abs(Value) - 1;
     }
@@ -44,5 +44,12 @@ public struct BucketOwner : IComponentData
     public void SetBucketOwner(int cohortIndex, bool isFetcher)
     {
         Value = (cohortIndex + 1) * (isFetcher ? -1 : 1);
+    }
+
+    static public BucketOwner CreateBucketOwner(int cohortIndex)
+    {
+        BucketOwner owner = new BucketOwner();
+        owner.SetBucketOwner(cohortIndex, false);
+        return owner;
     }
 }
