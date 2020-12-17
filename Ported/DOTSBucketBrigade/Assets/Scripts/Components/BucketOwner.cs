@@ -45,4 +45,11 @@ public struct BucketOwner : IComponentData
     {
         Value = (cohortIndex + 1) * (isFetcher ? -1 : 1);
     }
+
+    static public BucketOwner CreateBucketOwner(int cohortIndex)
+    {
+        BucketOwner owner = new BucketOwner();
+        owner.SetBucketOwner(cohortIndex, false);
+        return owner;
+    }
 }

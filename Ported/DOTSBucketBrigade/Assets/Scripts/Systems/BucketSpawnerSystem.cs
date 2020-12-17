@@ -9,6 +9,7 @@ using Random = Unity.Mathematics.Random;
 public class BucketSpawnerSystem : SystemBase
 {
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
+    static public Entity s_BucketPrefabEntity;
 
     protected override void OnCreate()
     {
@@ -24,7 +25,7 @@ public class BucketSpawnerSystem : SystemBase
         //Random random = new Random((uint) Time.ElapsedTime + 1);
         Random random = new Random((uint)System.Environment.TickCount);
 
-        Entities.ForEach((Entity entity, in BucketSpawner bucketSpawner) =>
+        Entities.WithoutBurst().ForEach((Entity entity, in BucketSpawner bucketSpawner) =>
         {
             ecb.DestroyEntity(entity);
 
@@ -47,7 +48,9 @@ public class BucketSpawnerSystem : SystemBase
                 ecb.SetComponent(bucketEntity, newTranslation);
 
             }
-        }).Schedule();
+
+            s_BucketPrefabEntity = bucketSpawner.Prefab;
+        }).Run();
 
         m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

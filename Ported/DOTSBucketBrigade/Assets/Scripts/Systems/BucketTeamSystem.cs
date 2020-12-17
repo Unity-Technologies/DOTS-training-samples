@@ -34,7 +34,7 @@ public struct SplayParams
 public class BucketTeamSystem : SystemBase
 {
     [BurstCompile]
-    static void UpdateTranslation(ref Translation translation, float2 start, float2 end, float t, float bias, SplayParams splayParams)
+    static public void UpdateTranslation(out Translation translation, float2 start, float2 end, float t, float bias, SplayParams splayParams)
     {
         float splayMin = splayParams.SplayMin;
         float splayMax = splayParams.SplayMax;
@@ -132,7 +132,7 @@ public class BucketTeamSystem : SystemBase
                 float2 start = fetcherCoords[teamIndex.Value];
                 float t = (1.0f + bucketEmptyBot.Index) * rMaxBucketEmpty;
 
-                UpdateTranslation(ref translation, start, end, t, 1.0f, splayParams);
+                UpdateTranslation(out translation, start, end, t, 1.0f, splayParams);
             }).Schedule();
 
         Entities
@@ -143,7 +143,7 @@ public class BucketTeamSystem : SystemBase
                 float2 end = throwerCoords[teamIndex.Value];
                 float2 start = fetcherCoords[teamIndex.Value];
                 float t = (1.0f + bucketFullBot.Index) * rMaxBucketFull;
-                UpdateTranslation(ref translation, start, end, t, -1.0f, splayParams);
+                UpdateTranslation(out translation, start, end, t, -1.0f, splayParams);
             }).Schedule();
 #endif
 
