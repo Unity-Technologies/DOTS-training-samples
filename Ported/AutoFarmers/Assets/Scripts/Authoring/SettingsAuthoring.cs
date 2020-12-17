@@ -19,6 +19,7 @@ public class SettingsAuthoring : MonoBehaviour
     
     public int RockSpawnAttempts;
     public int StoreSpawnCount;
+    public int Testing_PlantCount;
     public int InitialFarmersCount;
 
     public float2 CameraViewAngle;
@@ -67,7 +68,8 @@ public class SettingsAuthoring : MonoBehaviour
             TileSize          = TileSize,
             RockSpawnAttempts = RockSpawnAttempts,
             StoreSpawnCount   = StoreSpawnCount,
-            
+            Testing_PlantCount = Testing_PlantCount,
+
             CameraViewAngle        = CameraViewAngle,
             CameraViewDistance     = CameraViewDistance,
             CameraMouseSensitivity = CameraMouseSensitivity,

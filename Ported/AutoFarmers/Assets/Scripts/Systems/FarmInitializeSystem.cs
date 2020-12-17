@@ -4,6 +4,8 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
+using Unity.Rendering;
+using UnityEngine.Rendering;
 
 public class FarmInitializeSystem : SystemBase
 {
@@ -142,6 +144,33 @@ public class FarmInitializeSystem : SystemBase
                     if (initialFarmerCount == 0)
                         ecb.AddComponent(farmerInstance, new CameraTarget());
                 }
+                /*
+                // Plants TEST - DELETE WHEN TILLED SYSTEM UP
+                var spawnedPlants = 0;
+                while (spawnedPlants < commonSettings.Testing_PlantCount)
+                {
+                    int x = random.NextInt(0, commonSettings.GridSize.x);
+                    int y = random.NextInt(0, commonSettings.GridSize.y);
+                    var plantPosition = new Vector2Int(x, y);
+
+                    var linearIndex = plantPosition.x + plantPosition.y * commonSettings.GridSize.x;
+
+                    if (tileBuffer[linearIndex].Value != ETileState.Empty)
+                        continue;
+
+                    var instance = ecb.CreateEntity();
+                    var translation = new Translation { Value = new float3((x + 0.5f) * commonSettings.TileSize.x, 0, (y + 0.5f) * commonSettings.TileSize.y) };
+                    ecb.SetComponent(instance, translation);
+
+                    
+                    // Trying to attach the mesh to the entity
+                    //ecb.SetSharedComponent(instance, new RenderMesh {}); 
+                    //ecb.SetComponent(instance, new RenderBounds());
+
+                    var plant = new Plant { Position = new int2(x, y) };
+                    ecb.AddComponent(tiles[linearIndex], plant);
+                    spawnedPlants++;
+                }*/
             }).Run();
 
         ecb.Playback(EntityManager);
