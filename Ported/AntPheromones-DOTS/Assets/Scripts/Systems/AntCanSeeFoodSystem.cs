@@ -10,8 +10,12 @@ public class AntCanSeeFoodSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entity homeEntity = GetSingletonEntity<Home>();
-        Translation homeTranslation= EntityManager.GetComponentData<Translation>(homeEntity);
+        Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
+        DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
+        int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
+
+        Entity lineOfSightEntity = GetSingletonEntity<LineOfSightBufferElement>();
+        DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid = EntityManager.GetBuffer<LineOfSightBufferElement>(lineOfSightEntity);
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
@@ -19,10 +23,7 @@ public class AntCanSeeFoodSystem : SystemBase
             .WithAll<Ant>()
             .ForEach((Entity resEntity, in Translation translation) =>
             {
-                var antFromHome = translation.Value - homeTranslation.Value;
-                var sqrMag = antFromHome.x * antFromHome.x + antFromHome.y * antFromHome.y;
-
-                if (sqrMag >= 2800) //approximation of 52 sqaured - 52 being the distance to getting outside the outer ring
+                if (lineOfSightGrid[(((int) translation.Value.y) * boardWidth) + ((int) translation.Value.x)].present)
                 {
                     ecb.AddComponent<CanSeeFood>(resEntity);
                 }

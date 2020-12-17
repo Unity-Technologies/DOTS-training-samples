@@ -23,7 +23,7 @@ public class LineOfSightRenderingSystem : SystemBase
         {
             if (!lineOfSightGrid[i].present)
                 continue;
-            pixels[i] = new Color(0f, 1f, 0f);
+            pixels[i] = new Color(0f, 1f, 0f, 0.2f);
         }
         
         trailTexture.texture.SetPixels(pixels);
