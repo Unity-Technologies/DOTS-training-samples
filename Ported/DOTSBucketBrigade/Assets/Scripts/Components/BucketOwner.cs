@@ -46,8 +46,3 @@ public struct BucketOwner : IComponentData
         Value = (cohortIndex + 1) * (isFetcher ? -1 : 1);
     }
 }
-
-public struct BucketLinearPosition : IComponentData
-{
-    public float T;
-}

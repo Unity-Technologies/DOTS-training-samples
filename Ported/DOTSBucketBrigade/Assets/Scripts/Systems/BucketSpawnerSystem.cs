@@ -32,9 +32,8 @@ public class BucketSpawnerSystem : SystemBase
             {
                 float2 bucketCoord = random.NextFloat2(dim);
                 Entity bucketEntity = ecb.Instantiate(bucketSpawner.Prefab);
-                ecb.AddComponent<Bucket>(bucketEntity, new Bucket());
+                ecb.AddComponent<Bucket>(bucketEntity, new Bucket { LinearT = -1.0f });
                 ecb.AddComponent<BucketOwner>(bucketEntity, new BucketOwner() {Value = 0});
-                ecb.AddComponent<BucketLinearPosition>(bucketEntity, new BucketLinearPosition() {T = -1.0f});
                 ecb.AddComponent<WaterLevel>(bucketEntity, new WaterLevel {Value = 0});
                 ecb.AddComponent<Position>(bucketEntity, new Position
                 {
