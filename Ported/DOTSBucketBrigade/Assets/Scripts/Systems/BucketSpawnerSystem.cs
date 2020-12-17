@@ -21,7 +21,8 @@ public class BucketSpawnerSystem : SystemBase
 
         float2 dim = new float2(FireSimConfig.xDim, FireSimConfig.yDim) - 1;
         int nBuckets = BucketConfig.nBuckets;
-        Random random = new Random((uint) Time.ElapsedTime + 1);
+        //Random random = new Random((uint) Time.ElapsedTime + 1);
+        Random random = new Random((uint)System.Environment.TickCount);
 
         Entities.ForEach((Entity entity, in BucketSpawner bucketSpawner) =>
         {

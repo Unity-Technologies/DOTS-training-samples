@@ -28,7 +28,7 @@ public class WaterSpawnerSystem : SystemBase
         int nWaterSources = WaterConfig.nWaterSources;
         float capacity = WaterConfig.maxCapacity;
 
-        Random random = new Random((uint)Time.ElapsedTime + 1);
+        Random random = new Random((uint)System.Environment.TickCount);
 
         Entities.ForEach((Entity entity, in WaterSpawner waterSpawner) =>
         {
