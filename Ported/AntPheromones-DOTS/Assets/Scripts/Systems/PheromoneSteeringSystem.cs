@@ -21,7 +21,7 @@ public class PheromoneSteeringSystem : SystemBase
 		int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
 		int boardHeight = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardHeight;
 		
-		const float pheromoneSteerWeight = 0.1f;
+		const float pheromoneSteerWeight = 0.25f;
 		const float originalDirectionWeight = 1.0f - pheromoneSteerWeight;
 		
 		Entities
