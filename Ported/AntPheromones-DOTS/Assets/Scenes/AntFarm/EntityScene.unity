@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   antPrefab: {fileID: 36749753474145983, guid: 94f5a8bad3cbacd4aa729fcb1f08c8f0, type: 3}
-  antCount: 10000
+  antCount: 25
   obstaclePrefab: {fileID: 7021344995882452339, guid: 941b3031b0f07fd4195dbf4f94fb1847, type: 3}
   goalPrefab: {fileID: 6529539321082914166, guid: 60a82d83fcf674e41b96fd0f92e36ec7, type: 3}
   homePrefab: {fileID: 2771118013311475877, guid: acae5b6a344b8554db34ce02dda594f0, type: 3}
@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e556db84a96be944901b501c8831eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pheromoneApplicationRate: 100
+  pheromoneApplicationRate: 10
   pheromoneDecayRate: 0.035
 --- !u!4 &1064282505
 Transform:
@@ -290,6 +290,53 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1551018787
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1551018788}
+  - component: {fileID: 1551018789}
+  m_Layer: 0
+  m_Name: AntMovementParameters
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1551018788
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551018787}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 57.814754, y: 65.56195, z: -83.33737}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1551018789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551018787}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc1d6cd7cfdc56848903a8cd1b320b89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  randomWeight: 0.05
+  pheromoneWeight: 0.1
+  goalWeight: 0.25
+  homeWeight: 0.25
 --- !u!1 &1653104574
 GameObject:
   m_ObjectHideFlags: 0

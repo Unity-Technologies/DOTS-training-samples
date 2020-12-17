@@ -22,7 +22,7 @@ public class AntCanSeeFoodSystem : SystemBase
                 var antFromHome = translation.Value - homeTranslation.Value;
                 var sqrMag = antFromHome.x * antFromHome.x + antFromHome.y * antFromHome.y;
 
-                if (sqrMag >= 2700) //approximation of 52 sqaured - 52 being the distance to getting outside the outer ring
+                if (sqrMag >= 2800) //approximation of 52 sqaured - 52 being the distance to getting outside the outer ring
                 {
                     ecb.AddComponent<CanSeeFood>(resEntity);
                 }

@@ -15,7 +15,7 @@ public class AntRandomSteeringSystem : SystemBase
         
         var random = new Random(6541);
 
-        const float randomSteerWeight = 0.2f;
+        const float randomSteerWeight = 0.05f;
         const float originalDirectionWeight = 1.0f - randomSteerWeight;
         
         var minRange = new float2(-1,-1);
