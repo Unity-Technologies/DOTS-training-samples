@@ -47,6 +47,8 @@ public class BucketSystem : SystemBase
         float bucketSpeed = FireSimConfig.kBucketSpeed;
 
         Entities
+            .WithNativeDisableContainerSafetyRestriction(fetcherCoords)
+            .WithNativeDisableContainerSafetyRestriction(throwerCoords)
             .ForEach((ref Position position, ref Bucket bucket, in BucketOwner bucketOwner, in WaterLevel waterLevel) =>
             {
                 if (bucketOwner.IsAssigned())
@@ -56,15 +58,29 @@ public class BucketSystem : SystemBase
 
                     Translation translation;
                     BucketTeamSystem.UpdateTranslation(out translation, fetcherCoords[teamIndex], throwerCoords[teamIndex], bucket.LinearT, bias, splayParams);
-
-                    // jiv fixme: split this into separate system so we can handle t >= 1.0f
-                    // jiv fixme: we shouldn't be progressing in linear t time, because t interpolates the line length
-                    //            and this will result in higher velocity for longer lines.  We should progress in constant
-                    //            arc length.
-                    bucket.LinearT += currentDeltaTime * bucketSpeed;
                     position.coord = new float2(translation.Value.x, translation.Value.z);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((ref Bucket bucket, in BucketOwner bucketOwner, in WaterLevel waterLevel) =>
+            {
+                if (bucketOwner.IsAssigned())
+                {
+                    float direction = waterLevel.Value < 0.5f ? -1.0f : 1.0f; // full -> forward, empty -> back
+                    bucket.LinearT += direction * currentDeltaTime * bucketSpeed;
+                }
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((ref Bucket bucket, ref BucketOwner bucketOwner) =>
+            {
+                if (bucketOwner.IsAssigned())
+                {
+                    if (bucket.LinearT < 0.0f || bucket.LinearT > 1.0f)
+                        bucketOwner.Value = 0;
+                }
+            }).ScheduleParallel();
 
         Entities
             .WithAll<Bucket>()
