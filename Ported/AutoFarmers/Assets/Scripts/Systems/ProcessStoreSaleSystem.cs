@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(FarmInitializeSystem))]
-public class SpawnerSystem : SystemBase
+public class ProcessStoreSaleSystem : SystemBase
 {
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;

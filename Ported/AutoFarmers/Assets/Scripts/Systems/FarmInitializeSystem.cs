@@ -73,7 +73,7 @@ public class FarmInitializeSystem : SystemBase
 
                     tileBuffer[linearIndex] = new TileState { Value = ETileState.Store };
 
-                    var store = new Store { };
+                    var store = new StoreTile { };
                     ecb.AddComponent(tiles[linearIndex], store);
                     spawnedStores++;
                 }
@@ -143,7 +143,7 @@ public class FarmInitializeSystem : SystemBase
                     if (tileBuffer[linearIndex].Value == ETileState.Rock)
                         continue;
                     
-                    var farmerInstance = SpawnerSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
+                    var farmerInstance = ProcessStoreSaleSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
                     initialFarmerCount--;
                     
                     // Add a camera to the last spawned farmer.
