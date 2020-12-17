@@ -41,6 +41,7 @@ public class FarmInitializeSystem : SystemBase
 
                         var linearIndex = i + j * commonSettings.GridSize.x;
                         tiles[linearIndex] = instance;
+                        tileBuffer[linearIndex] = new TileState { Value = ETileState.Empty };
                     }
                 }
 

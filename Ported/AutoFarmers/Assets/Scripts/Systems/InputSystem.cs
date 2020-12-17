@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(PathMovement))]
 public class InputSystem : SystemBase 
 {
     protected override void OnUpdate()
