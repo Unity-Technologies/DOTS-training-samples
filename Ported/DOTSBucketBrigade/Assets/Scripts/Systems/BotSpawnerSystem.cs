@@ -41,8 +41,8 @@ public class FetcherSpawnerSystem : SystemBase
         var numBucketEmpty = FireSimConfig.numEmptyBots;
         var numBucketFull = FireSimConfig.numFullBots;
 
-        float4 fullBotColor = FireSimConfig.emptyBotColor;
-        float4 emptyBotColor = FireSimConfig.fullBotColor;
+        float4 fullBotColor = VisualConfig.kEmptyBotColor;
+        float4 emptyBotColor = VisualConfig.kFullBotColor;
 
         Entities.ForEach((Entity entity, in BotSpawner botSpawner) =>
         {
