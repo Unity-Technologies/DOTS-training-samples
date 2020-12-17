@@ -92,4 +92,81 @@ public static class Utils
         }
         return -1;
     }
+
+    public static bool MouseRayTrace(Camera camera, FieldAuthoring field, out float3 pos)
+    {
+        bool isMouseTouchingField = false;
+        Vector3 hitPoint = new Vector3();
+
+        Ray mouseRay = camera.ScreenPointToRay(Input.mousePosition);
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = -1; j <= 1; j += 2)
+            {
+                Vector3 wallCenter = new Vector3();
+                Vector3 size = new Vector3();
+                if(i == 0)
+                {
+                    size[i] = field.size.x;
+                }
+                else if(i == 1)
+                {
+                    size[i] = field.size.y;
+                }
+                else
+                {
+                    size[i] = field.size.z;
+                }
+
+                wallCenter[i] = size[i] * .5f * j;
+                Plane plane = new Plane(-wallCenter, wallCenter);
+                float hitDistance;
+                if (Vector3.Dot(plane.normal, mouseRay.direction) < 0f)
+                {
+                    if (plane.Raycast(mouseRay, out hitDistance))
+                    {
+                        hitPoint = mouseRay.GetPoint(hitDistance);
+                        bool insideField = true;
+                        for (int k = 0; k < 3; k++)
+                        {
+                            if (Mathf.Abs(hitPoint[k]) > size[k] * .5f + .01f)
+                            {
+                                insideField = false;
+                                break;
+                            }
+                        }
+                        if (insideField)
+                        {
+                            isMouseTouchingField = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isMouseTouchingField)
+            {
+                break;
+            }
+        }
+
+        pos = new float3(hitPoint[0], hitPoint[1], hitPoint[2]);
+
+        return isMouseTouchingField;
+    }
+
+    /*
+    
+		if (isMouseTouchingField) {
+			marker.position = worldMousePosition;
+			if (marker.gameObject.activeSelf == false) {
+				marker.gameObject.SetActive(true);
+			}
+		} else {
+			if (marker.gameObject.activeSelf) {
+				marker.gameObject.SetActive(false);
+			}
+		}
+	}
+    
+    */
 }

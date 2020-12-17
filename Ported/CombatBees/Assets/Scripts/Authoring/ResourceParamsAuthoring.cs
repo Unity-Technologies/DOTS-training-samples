@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using System;
 using Unity.Collections;
+using System.Collections.Generic;
 
 /*
 [GenerateAuthoringComponent]
@@ -17,13 +18,19 @@ public struct ResourceParamsAuthoring : IComponentData
 */
 
 
-public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
+public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-	// authoring fields go here
+	public GameObject resourcePrefab;
 	public float resourceSize;
 	public float snapStiffness;
 	public float carryStiffness;
 	public int beesPerResource;
+
+	public int maxGeneratedByMouseClick;
+	public float spawnRate;
+	//public float spawnTimer;
+
+	public GameObject markerPrefab;
 
 	//public GameObject field;
 
@@ -31,10 +38,15 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
 		ResourceParams resParams = new ResourceParams
 		{
+			resPrefab = conversionSystem.GetPrimaryEntity(this.resourcePrefab),
 			resourceSize = this.resourceSize,
 			snapStiffness = this.snapStiffness,
 			carryStiffness = this.carryStiffness,
-			beesPerResource = this.beesPerResource
+			beesPerResource = this.beesPerResource,
+			maxGeneratedByMouseClick = this.maxGeneratedByMouseClick,
+			spawnRate = this.spawnRate,
+			//spawnTimer = this.spawnRate,
+			markerPrefab = conversionSystem.GetPrimaryEntity(this.markerPrefab)
 		};
 
 		dstManager.AddComponentData<ResourceParams>(entity, resParams);
@@ -81,17 +93,25 @@ public class ResourceParamsAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 			}
         }
 	}
+
+	public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+		referencedPrefabs.Add(this.markerPrefab);
+		referencedPrefabs.Add(this.resourcePrefab);
+    }
 }
 
 public struct ResourceParams : IComponentData
 {
+	public Entity resPrefab;
 	public float resourceSize;
 	public float snapStiffness;
 	public float carryStiffness;
-	//public float spawnRate;
-	//float spawnTimer = 0f;
 	public int beesPerResource;
-	//public int startResourceCount;
+	public int maxGeneratedByMouseClick;
+	public float spawnRate;
+	//public float spawnTimer;
+	public Entity markerPrefab;
 }
 
 public struct ResourceGridParams : IComponentData

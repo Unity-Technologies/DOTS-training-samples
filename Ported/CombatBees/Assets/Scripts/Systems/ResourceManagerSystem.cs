@@ -8,6 +8,7 @@ using UnityEngine;
 
 [UpdateAfter(typeof(BeeSpawnerSystem))]
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
+[UpdateAfter(typeof(BeeManagerSystem))]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public class ResourceManagerSystem : SystemBase
 {
@@ -276,3 +277,91 @@ public class ResourceDeathSystem : SystemBase
         ecb0.Dispose();
     }
 }
+
+[UpdateAfter(typeof(BeeSpawnerSystem))]
+[UpdateAfter(typeof(ResourceSpawnerSystem))]
+[UpdateAfter(typeof(BeeManagerSystem))]
+[UpdateAfter(typeof(ResourceManagerSystem))]
+[UpdateBefore(typeof(TransformSystemGroup))]
+public class MouseRayCasterSystem : SystemBase
+{
+    Camera camera;
+    Entity marker;
+
+    private EntityCommandBufferSystem ECBSystem;
+
+    static bool init = false;
+
+    protected override void OnCreate()
+    {
+        ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    protected override void OnUpdate()
+    {
+        /*
+        var resParams = GetSingleton<ResourceParams>();
+
+        var field = GetSingleton<FieldAuthoring>();
+        int numRes = 0;
+        float spawnRate = resParams.spawnRate;
+        float spawnTimer = 0;
+
+        ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = ECBSystem.CreateCommandBuffer();
+
+        if(init == false)
+        {
+            marker = ecb.Instantiate(resParams.markerPrefab);
+            ecb.AddComponent<Disabled>(marker);
+
+            camera = Camera.main;
+            init = true;
+        }
+
+        bool markerActive = Utils.MouseRayTrace(camera, field, out float3 pos);
+        if (markerActive)
+        {
+            if (HasComponent<Disabled>(marker))
+            {
+                ecb.RemoveComponent<Disabled>(marker);
+            }
+
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                spawnTimer += Time.DeltaTime;
+                while ((numRes < resParams.maxGeneratedByMouseClick) && (spawnTimer > 1f / spawnRate))
+                {
+                    spawnTimer -= 1f / spawnRate;
+                    numRes++;
+                    //SpawnResource(MouseRaycaster.worldMousePosition);
+                }
+            }
+        }
+        else
+        {
+            if (HasComponent<Disabled>(marker) == false)
+            {
+                ecb.AddComponent<Disabled>(marker);
+            }
+        }
+        
+        if(numRes > 0)
+        {
+            var spawnerEntity = ecb.CreateEntity();
+            var resSpawner = new ResourceSpawner
+            {
+                count = numRes,
+                isPosRandom = false
+            };
+            ecb.AddComponent(spawnerEntity, resSpawner);
+            ecb.AddComponent(spawnerEntity, new Translation { Value = pos });
+        }
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        */
+    }
+}
+
+
