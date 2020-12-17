@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 
 public class TileUpdateSystem : SystemBase
 {
@@ -14,19 +15,15 @@ public class TileUpdateSystem : SystemBase
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
         
-        // NOTE: We can't turn this into a generic method. :( 
+        // NOTE: We can't turn this into a generic method. :(
         Entities
            .WithAll<EmptyTile>()
            .ForEach((Entity entity, in Translation translation) =>
            {
                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                var tileState = tileBuffer[index].Value;
-
-               if (tileState != ETileState.Empty)
-               {
-                   ecb.RemoveComponent<EmptyTile>(entity);
-                   SetTileComponent(ecb, entity, tileState);   
-               }
+               ecb.RemoveComponent<EmptyTile>(entity);
+               SetTileComponent(ecb, entity, tileState);   
            }).Run();
         
         Entities
@@ -35,12 +32,8 @@ public class TileUpdateSystem : SystemBase
             {
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                 var tileState = tileBuffer[index].Value;
-
-                if (tileState != ETileState.Tilled)
-                {
-                    ecb.RemoveComponent<TilledTile>(entity);
-                    SetTileComponent(ecb, entity, tileState);   
-                }
+                ecb.RemoveComponent<TilledTile>(entity);
+                SetTileComponent(ecb, entity, tileState);   
             }).Run();
         
         Entities
@@ -49,12 +42,8 @@ public class TileUpdateSystem : SystemBase
             {
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                 var tileState = tileBuffer[index].Value;
-
-                if (tileState != ETileState.Seeded)
-                {
-                    ecb.RemoveComponent<SeededTile>(entity);
-                    SetTileComponent(ecb, entity, tileState);   
-                }
+                ecb.RemoveComponent<SeededTile>(entity);
+                SetTileComponent(ecb, entity, tileState);   
             }).Run();
         
         Entities
@@ -63,12 +52,8 @@ public class TileUpdateSystem : SystemBase
             {
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                 var tileState = tileBuffer[index].Value;
-
-                if (tileState != ETileState.Grown)
-                {
-                    ecb.RemoveComponent<GrownTile>(entity);
-                    SetTileComponent(ecb, entity, tileState);   
-                }
+                ecb.RemoveComponent<GrownTile>(entity);
+                SetTileComponent(ecb, entity, tileState);   
             }).Run();
         
         Entities
@@ -77,27 +62,21 @@ public class TileUpdateSystem : SystemBase
             {
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                 var tileState = tileBuffer[index].Value;
-
-                if (tileState != ETileState.Store)
-                {
-                    ecb.RemoveComponent<StoreTile>(entity);
-                    SetTileComponent(ecb, entity, tileState);   
-                }
+                ecb.RemoveComponent<StoreTile>(entity);
+                SetTileComponent(ecb, entity, tileState);   
             }).Run();
-        
+            
         Entities
             .WithAll<RockTile>()
             .ForEach((Entity entity, in Translation translation) =>
             {
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
                 var tileState = tileBuffer[index].Value;
-
-                if (tileState != ETileState.Rock)
-                {
-                    ecb.RemoveComponent<RockTile>(entity);
-                    SetTileComponent(ecb, entity, tileState);   
-                }
+                ecb.RemoveComponent<RockTile>(entity);
+                SetTileComponent(ecb, entity, tileState);
             }).Run();
+        
+        ecb.Playback(EntityManager);
     }
 
     static int PositionToTileIndex(float3 position, int gridDimension)

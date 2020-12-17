@@ -47,6 +47,7 @@ public class FarmInitializeSystem : SystemBase
                         ecb.SetComponent(instance, translation);
                         ecb.AddComponent(instance, size);
                         ecb.AddComponent(instance, new Tile());
+                        ecb.AddComponent(instance, new EmptyTile());
 
                         var linearIndex = i + j * commonSettings.GridSize.x;
                         tiles[linearIndex] = instance;
@@ -124,6 +125,8 @@ public class FarmInitializeSystem : SystemBase
                         {
                             var linearIndex = (rockX + j) + (rockY + k) * commonSettings.GridSize.x;
                             tileBuffer[linearIndex] = new TileState{ Value = ETileState.Rock };
+                            
+                            ecb.AddComponent(tiles[linearIndex], new RockTile());
                         }
                     }
                 }
