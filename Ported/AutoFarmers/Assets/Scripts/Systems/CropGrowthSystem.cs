@@ -14,7 +14,7 @@ public class CropGrowthSystem : SystemBase
             .ForEach((Entity entity, ref Crop crop, ref Scale scale) =>
             {
                 scale.Value += crop.GrowthRate * deltaTime;
-                if (scale.Value >= crop.FullGrouthValue)
+                if (scale.Value >= crop.FullGrowthValue)
                 {
                     ecb.RemoveComponent<Crop>(entity);
                     ecb.AddComponent<Plant>(entity);
