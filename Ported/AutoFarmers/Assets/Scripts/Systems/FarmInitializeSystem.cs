@@ -129,8 +129,9 @@ public class FarmInitializeSystem : SystemBase
                         random.NextInt(commonSettings.GridSize.x)
                     );
                     
-                    // TODO: Test for valid tile.
-                    if (false)
+                    // Test if the spawn tile is valid.
+                    var linearIndex = farmerPosition.x + farmerPosition.z * commonSettings.GridSize.x;
+                    if (tileBuffer[linearIndex].Value == ETileState.Rock)
                         continue;
                     
                     var farmerInstance = SpawnerSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
