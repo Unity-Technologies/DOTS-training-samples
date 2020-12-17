@@ -21,7 +21,11 @@ public class InitializationSystem : SystemBase
         var bottomRightFood = new Translation {Value = new float3(118, 10, 0)};
         var topRightFood = new Translation {Value = new float3(118, 118, 0)};
         
+        Entity obstacleEntity = GetSingletonEntity<ObstacleBufferElement>();
+        DynamicBuffer<ObstacleBufferElement> obstacleGrid = EntityManager.GetBuffer<ObstacleBufferElement>(obstacleEntity);
+        
         Entities
+            // .WithoutBurst()
             .ForEach((Entity entity, in Init init) =>
             {
                 ecb.DestroyEntity(entity);
@@ -66,31 +70,43 @@ public class InitializationSystem : SystemBase
                 }
 
                 // Create Obstacles
+                
                 for (int i = 1; i <= 3; i++)
                 {
                     float ringRadius = (i / (3 + 1f)) * (128 * 0.5f);
                     float circumference = ringRadius * 2f * math.PI;
-                    float obstacleRadius = 1.25f;
+                    float obstacleRadius = 1;
                     int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
                     int gapAngle = random.NextInt(0, 300);
                     int gapSize = random.NextInt(30, 60);
-                    for (int j = 0; j < maxCount; j++) 
+                    for (int j = 0; j < maxCount; j++)
                     {
-                        float angle = (j) / (float)maxCount * (2f * Mathf.PI);
+                        float angle = (j) / (float) maxCount * (2f * Mathf.PI);
                         if (angle * Mathf.Rad2Deg >= gapAngle && angle * Mathf.Rad2Deg < gapAngle + gapSize)
                         {
                             continue;
                         }
-                        var obstacle =  ecb.Instantiate(init.obstaclePrefab);
+
+                        var obstacle = ecb.Instantiate(init.obstaclePrefab);
                         var translation = new Translation
                         {
                             Value = new float3(64f + math.cos(angle) * ringRadius,
                                 64f + math.sin(angle) * ringRadius, 0)
                         };
+                        int indexInObstacleGrid = (((int) translation.Value.y) * 128) + ((int) translation.Value.x);
+                        
+                        obstacleGrid[indexInObstacleGrid] = new ObstacleBufferElement {present = true};
+                        
                         ecb.SetComponent(obstacle, translation);
                         ecb.SetComponent(obstacle, new Radius{radius = 4});
+                        
                     }
+                    
                 }
+                
+                // create a camera that sees only the obstacles, 
+                // the output texture should match the grid
+                
 
             }).Run();
 
