@@ -1,4 +1,4 @@
 ﻿using Unity.Entities;
 
-public struct FetcherWaterSource : IComponentData
+public struct FetcherFindWaterSource : IComponentData
 { }
