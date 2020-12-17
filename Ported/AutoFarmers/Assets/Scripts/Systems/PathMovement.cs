@@ -145,12 +145,12 @@ public class PathMovement : SystemBase
         x = hash % mapWidth;
     }
 
-	public ETileState FindNearbyRock(int x, int y, int range, DynamicBuffer<TileState> tiles, DynamicBuffer<PathNode> outputPath)
+	public int FindNearbyRock(int x, int y, int range, DynamicBuffer<TileState> tiles, DynamicBuffer<PathNode> outputPath)
 	{
 		int rockPosHash = SearchForOne(x, y, range, tiles, defaultNavigation, isRock, fullMapZone);
 		if (rockPosHash == -1)
 		{
-			return ETileState.Empty;
+			return -1; //ETileState.Empty;
 		}
 		else
 		{
@@ -160,7 +160,8 @@ public class PathMovement : SystemBase
 			{
 				AssignLatestPath(outputPath, rockX, rockY);
 			}
-			return tiles[Hash(rockX, rockY)].Value;
+
+			return Hash(rockX, rockY); //tiles[Hash(rockX, rockY)].Value;
 		}
 	}
 
