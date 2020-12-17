@@ -15,11 +15,12 @@ public struct CommonSettings : IComponentData
     public Entity DronePrefab;
     
     public int2   GridSize;
-    public float2 TileSize;
     
     public int RockSpawnAttempts;
     public int StoreSpawnCount;
+    public int Testing_PlantCount;
     
-    public float3 CameraOffset;
-    public float  CameraDamping;
+    public float2 CameraViewAngle;
+    public float  CameraViewDistance;
+    public float  CameraMouseSensitivity;
 }

@@ -4,6 +4,8 @@ public struct CommonData : IComponentData
 {
     public int FarmerCounter;
     public int DroneCounter;
+    public int MoneyForDrones;
+    public float MoveSmoothForDrones;
 }
 
 public enum ETileState
@@ -14,9 +16,4 @@ public enum ETileState
     Tilled,
     Seeded,
     Grown
-}
-
-public struct TileState : IBufferElementData
-{
-    public ETileState Value;
 }

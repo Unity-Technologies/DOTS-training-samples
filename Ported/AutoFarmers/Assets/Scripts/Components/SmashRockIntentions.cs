@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct SmashRocks : IComponentData
+public struct SmashRockIntentions : IComponentData
 {
     public Entity TargetRock;
 }

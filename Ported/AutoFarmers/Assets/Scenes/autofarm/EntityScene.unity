@@ -163,14 +163,18 @@ MonoBehaviour:
   TileSize:
     x: 1
     y: 1
-  RockSpawnAttempts: 30
+  RockSpawnAttempts: 2000
   StoreSpawnCount: 5
-  InitialFarmersCount: 1
-  CameraOffset:
-    x: 0
-    y: 4
-    z: -7
-  CameraDamping: 0.005
+  InitialFarmersCount: 15
+  CameraViewAngle:
+    x: 45
+    y: 30
+  CameraViewDistance: 10
+  CameraMouseSensitivity: 4000
+  MoneyForDrones: 50
+  moveSmooth: 0.1
+  carrySmooth: 0.05
+  DebugMode: 1
 --- !u!4 &450580069
 Transform:
   m_ObjectHideFlags: 0

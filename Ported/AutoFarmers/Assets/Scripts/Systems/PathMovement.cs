@@ -13,8 +13,9 @@ public class PathMovement : SystemBase
     NativeList<int> nextTiles;
     NativeList<int> outputTiles;
 
-    NativeArray<ETileState> defaultNativation;
-	NativeArray<ETileState> rock;
+    public NativeArray<ETileState> defaultNavigation;
+	public NativeArray<ETileState> isRock;
+	public NativeArray<ETileState> isTillable;
 
 	NativeArray<int2> dirs;
 
@@ -35,16 +36,19 @@ public class PathMovement : SystemBase
         dirs[2] = new int2(0, 1);
         dirs[3] = new int2(0, -1);
 
-        defaultNativation = new NativeArray<ETileState>(5, Allocator.Persistent);
-		defaultNativation[0] = ETileState.Empty;
-		defaultNativation[1] = ETileState.Grown;
-		defaultNativation[2] = ETileState.Seeded;
-		defaultNativation[3] = ETileState.Store;
-		defaultNativation[4] = ETileState.Tilled;
+        defaultNavigation = new NativeArray<ETileState>(5, Allocator.Persistent);
+		defaultNavigation[0] = ETileState.Empty;
+		defaultNavigation[1] = ETileState.Grown;
+		defaultNavigation[2] = ETileState.Seeded;
+		defaultNavigation[3] = ETileState.Store;
+		defaultNavigation[4] = ETileState.Tilled;
 
-        rock = new NativeArray<ETileState>(1, Allocator.Persistent);
-        rock[0] = ETileState.Rock;
-    }
+        isRock = new NativeArray<ETileState>(1, Allocator.Persistent);
+        isRock[0] = ETileState.Rock;
+
+		isTillable = new NativeArray<ETileState>(1, Allocator.Persistent);
+		isTillable[0] = ETileState.Empty;
+	}
 
 
     protected override void OnUpdate()
@@ -124,8 +128,9 @@ public class PathMovement : SystemBase
 		nextTiles.Dispose();
 		outputTiles.Dispose();
 
-		defaultNativation.Dispose();
-		rock.Dispose();
+		defaultNavigation.Dispose();
+		isRock.Dispose();
+		isTillable.Dispose();
 
 		dirs.Dispose();
 	}
@@ -137,12 +142,12 @@ public class PathMovement : SystemBase
     public void Unhash(int hash, out int x, out int y)
     {
         y = hash / mapWidth;
-        x = hash % mapHeight;
+        x = hash % mapWidth;
     }
 
 	public ETileState FindNearbyRock(int x, int y, int range, DynamicBuffer<TileState> tiles, DynamicBuffer<PathNode> outputPath)
 	{
-		int rockPosHash = SearchForOne(x, y, range, tiles, defaultNativation, rock, fullMapZone);
+		int rockPosHash = SearchForOne(x, y, range, tiles, defaultNavigation, isRock, fullMapZone);
 		if (rockPosHash == -1)
 		{
 			return ETileState.Empty;
@@ -161,7 +166,7 @@ public class PathMovement : SystemBase
 
 	public void WalkTo(int x, int y, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> match, DynamicBuffer<PathNode> outputPath)
 	{
-		int storePosHash = SearchForOne(x, y, range, tiles, defaultNativation, match, fullMapZone);
+		int storePosHash = SearchForOne(x, y, range, tiles, defaultNavigation, match, fullMapZone);
 		if (storePosHash != -1)
 		{
 			int storeX, storeY;

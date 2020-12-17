@@ -2,10 +2,18 @@
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
+using Unity.Rendering;
+using UnityEngine.Rendering;
 
 public class FarmInitializeSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<CommonData>();
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -33,11 +41,12 @@ public class FarmInitializeSystem : SystemBase
                     {
                         var instance = ecb.Instantiate(initializationSettings.TilePrefab);
                         
-                        var translation = new Translation { Value = new float3(i * commonSettings.TileSize.x, -1f, j * commonSettings.TileSize.y) };
-                        var size = new Size { Value = commonSettings.TileSize };
+                        var translation = new Translation { Value = new float3(i, -1f, j) };
+                        var size = new Size { Value = new int2(1,1) };
 
                         ecb.SetComponent(instance, translation);
                         ecb.AddComponent(instance, size);
+                        ecb.AddComponent(instance, new Tile());
 
                         var linearIndex = i + j * commonSettings.GridSize.x;
                         tiles[linearIndex] = instance;
@@ -59,7 +68,7 @@ public class FarmInitializeSystem : SystemBase
                         continue;
 
                     var instance = ecb.Instantiate(initializationSettings.SiloPrefab);
-                    var translation = new Translation { Value = new float3((x + 0.5f) * commonSettings.TileSize.x, 0, (y + 0.5f) * commonSettings.TileSize.y) };
+                    var translation = new Translation { Value = new float3(x, 0, y) };
                     ecb.SetComponent(instance, translation);
 
                     tileBuffer[linearIndex] = new TileState { Value = ETileState.Store };
@@ -94,8 +103,14 @@ public class FarmInitializeSystem : SystemBase
                     var instance = ecb.Instantiate(initializationSettings.RockPrefab);
                     var position = new RectPosition { Value = new int2(rockX, rockY) };
                     var size = new RectSize { Value = new int2(width, height) };
-                    var translation = new Translation { Value = new float3(rockX * commonSettings.TileSize.x + width * 0.5f * commonSettings.TileSize.x, -0.5f, rockY * commonSettings.TileSize.y + height * 0.5f * commonSettings.TileSize.y) };
-                    var scale = new NonUniformScale { Value = new float3(commonSettings.TileSize.x * (width - 0.5f), 1, commonSettings.TileSize.y * (height - 0.5f)) };
+
+                    var rect = new RectInt(rockX, rockY, width, height);
+                    var depth = random.NextFloat(.4f, .8f);
+
+                    Vector2 center2D = rect.center;
+
+                    var translation = new Translation { Value = new float3(center2D.x - .5f, depth * .5f, center2D.y - .5f) };
+                    var scale = new NonUniformScale { Value = new float3(rect.width - .5f, depth, rect.height - .5f) };
 
                     ecb.SetComponent(instance, translation);
                     ecb.AddComponent(instance, position);
@@ -113,18 +128,56 @@ public class FarmInitializeSystem : SystemBase
                     }
                 }
                 
-                // Initial Farmers
-                for (int i = 0; i < initializationSettings.InitialFarmersCount; i++)
+                // Randomly spawn initial farmers on valid tiles.
+                var initialFarmerCount = initializationSettings.InitialFarmersCount;
+                while (initialFarmerCount > 0)
                 {
-                    var instance = ecb.Instantiate(commonSettings.FarmerPrefab);
-                    ecb.AddComponent(instance, new Farmer());
-                    ecb.AddComponent(instance, new Velocity());
+                    int3 farmerPosition = new int3(
+                        random.NextInt(commonSettings.GridSize.x), 
+                        0,
+                        random.NextInt(commonSettings.GridSize.x)
+                    );
                     
-                    if (i == 0)
-                        ecb.AddComponent(instance, new CameraTarget());
-
-                    ecb.AddBuffer<PathNode>(instance);
+                    // Test if the spawn tile is valid.
+                    var linearIndex = farmerPosition.x + farmerPosition.z * commonSettings.GridSize.x;
+                    if (tileBuffer[linearIndex].Value == ETileState.Rock)
+                        continue;
+                    
+                    var farmerInstance = SpawnerSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
+                    initialFarmerCount--;
+                    
+                    // Add a camera to the last spawned farmer.
+                    if (initialFarmerCount == 0)
+                        ecb.AddComponent(farmerInstance, new CameraTarget());
                 }
+                tiles.Dispose();
+                /*
+                // Plants TEST - DELETE WHEN TILLED SYSTEM UP
+                var spawnedPlants = 0;
+                while (spawnedPlants < commonSettings.Testing_PlantCount)
+                {
+                    int x = random.NextInt(0, commonSettings.GridSize.x);
+                    int y = random.NextInt(0, commonSettings.GridSize.y);
+                    var plantPosition = new Vector2Int(x, y);
+
+                    var linearIndex = plantPosition.x + plantPosition.y * commonSettings.GridSize.x;
+
+                    if (tileBuffer[linearIndex].Value != ETileState.Empty)
+                        continue;
+
+                    var instance = ecb.CreateEntity();
+                    var translation = new Translation { Value = new float3((x + 0.5f) * commonSettings.TileSize.x, 0, (y + 0.5f) * commonSettings.TileSize.y) };
+                    ecb.SetComponent(instance, translation);
+
+                    
+                    // Trying to attach the mesh to the entity
+                    //ecb.SetSharedComponent(instance, new RenderMesh {}); 
+                    //ecb.SetComponent(instance, new RenderBounds());
+
+                    var plant = new Plant { Position = new int2(x, y) };
+                    ecb.AddComponent(tiles[linearIndex], plant);
+                    spawnedPlants++;
+                }*/
             }).Run();
 
         ecb.Playback(EntityManager);
