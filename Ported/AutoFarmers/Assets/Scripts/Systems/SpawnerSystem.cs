@@ -34,16 +34,19 @@ public class SpawnerSystem : SystemBase
                 int y = 10;
                 var position = new float3(x + .5f, 0f, y + .5f);
                 var instance = ecb.Instantiate(settings.DronePrefab);
+                ecb.SetComponent(instance, new Translation { Value = position });
                 ecb.AddComponent(instance, new Drone
                 {
                     smoothPosition = position,
-                    hoverHeight = random.NextFloat(2, 3),
-                    storePosition = new int2(x, y),
                     moveSmooth = data.MoveSmoothForDrones
                 });
-                
-                
-                //ecb.SetComponent(instance, new Translation { Value = position });
+
+                ecb.AddComponent(instance, new DroneCheckPoints
+                {
+                    hoverHeight = random.NextFloat(2, 3),
+                    storePosition = new int2(x, y),
+                });
+
                 ecb.AddComponent(instance, new Velocity());
                 ecb.AddBuffer<PathNode>(instance);
             }

@@ -17,24 +17,18 @@ public class MovementSystem : SystemBase
 
         Entities
             .WithAll<Drone>()
-            .ForEach((Entity entity, ref Translation translation, ref Drone drone, ref LocalToWorld localToWorld) =>
+            .ForEach((Entity entity, ref Translation translation, ref Drone drone, ref DroneCheckPoints checkPoints, ref Rotation rotation) =>
             {
                 // translate drone to new place
-                if (translation.Value.x != drone.destination.x && translation.Value.z != drone.destination.z)
+                if (translation.Value.x != checkPoints.destination.x && translation.Value.z != checkPoints.destination.z)
                 {
-                    float moveSmoothing = 1f - math.pow(drone.moveSmooth, deltaTime);
+                    var moveSmoothing = 1f - math.pow(drone.moveSmooth, deltaTime);
                     drone.smoothPosition = math.lerp(drone.smoothPosition, translation.Value, moveSmoothing);
 
                     var tilt = new float3(translation.Value.x - drone.smoothPosition.x, 2f, translation.Value.z - drone.smoothPosition.z);
-                    var matrix = float4x4.TRS(drone.smoothPosition, FromToRotation(math.up(), tilt), new float3(.35f, .08f, .35f));
-
-                    localToWorld.Value = matrix;
-
-                    translation.Value = MoveTowards(translation.Value, drone.destination, xzSpeed * deltaTime);
-                    translation.Value.y = MoveTowards(translation.Value.y, drone.destination.y, ySpeed * deltaTime);
-
-                    
-                    //ecb.SetComponent(entity, new LocalToWorld {Value = matrix });
+                    rotation.Value = FromToRotation(math.up(), tilt);
+                    translation.Value = MoveTowards(translation.Value, checkPoints.destination, xzSpeed * deltaTime);
+                    translation.Value.y = MoveTowards(translation.Value.y, checkPoints.destination.y, ySpeed * deltaTime);
                 }
                 else
                 {
@@ -49,7 +43,7 @@ public class MovementSystem : SystemBase
                     int x = random.NextInt(0, settings.GridSize.x);
                     int y = random.NextInt(0, settings.GridSize.y);
                     // each drone has the same destination right now - this should be an array with indexes to handle many drone bois
-                    drone.destination = new float3(x, 1f, y);
+                    checkPoints.destination = new float3(x, 1f, y);
                 }
 
             }).Run();
