@@ -422,7 +422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf98cf855d800b144a5ac6d3d2bdf19e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartingSimulationSpeed: 10
+  StartingSimulationSpeed: 20
 --- !u!4 &2081995145
 Transform:
   m_ObjectHideFlags: 0

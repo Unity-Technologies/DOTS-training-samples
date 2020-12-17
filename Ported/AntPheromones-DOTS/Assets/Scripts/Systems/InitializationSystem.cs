@@ -12,7 +12,7 @@ public class InitializationSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
-        var random = new Random(6541);
+        var random = new Random(2465);
         var center = new Translation{ Value = new float3(64, 64, 0) };
         var minRange = new float2(-1,-1);
         var maxRange = new float2(1,1);
