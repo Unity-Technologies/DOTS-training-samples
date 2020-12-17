@@ -10,11 +10,18 @@ using UnityEngine;
 
 public class FetcherSystem : SystemBase
 {
-    private EntityQuery m_FetcherQuery;
+    private EntityQuery m_BucketQuery;
+    EntityCommandBufferSystem m_EntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
 
     // Update is called once per frame
     protected override void OnUpdate()
     {
+        EntityCommandBuffer ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
 
         // Assign a bucket to each fetcher
         Entities
@@ -25,35 +32,35 @@ public class FetcherSystem : SystemBase
             })
             .Schedule();
 
-        var fetcherPositions = m_FetcherQuery.ToComponentDataArray<Position>(Allocator.TempJob);
-        var fetcherTranslations = m_FetcherQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        var fetcherTeams = m_FetcherQuery.ToComponentDataArray<TeamIndex>(Allocator.TempJob);
+        var bucketPositions = m_BucketQuery.ToComponentDataArray<Position>(Allocator.TempJob);
+        var bucketOwners = m_BucketQuery.ToComponentDataArray<BucketOwner>(Allocator.TempJob);
+        var bucketEntities = m_BucketQuery.ToEntityArray(Allocator.TempJob);
 
-        // For each fetcher, bucket entity that was assigned to it
-        var assignedBucketEntities = new NativeArray<Entity>(FireSimConfig.maxTeams, Allocator.TempJob);
+        // For each bucket, fetcher entity that it is assigned to
+        var assignedFetcherEntities = new NativeArray<Entity>(BucketConfig.nBuckets, Allocator.TempJob);
 
-        for (var i=0; i<FireSimConfig.maxTeams; i++)
+        for (var i=0; i<assignedFetcherEntities.Length; i++)
         {
-            assignedBucketEntities[i] = Entity.Null;
+            assignedFetcherEntities[i] = Entity.Null;
         }
 
         // Assign buckets to the fetchers
         Entities
-            .WithAll<Bucket>()
-            .WithDisposeOnCompletion(fetcherTeams)
-            .ForEach((Entity entity, ref BucketOwner bucketOwner, in Position position) =>
+            .WithAll<Fetcher>()
+            .WithNone<AssignedBucket>()
+            .WithReadOnly(bucketPositions)
+            .WithDisposeOnCompletion(bucketPositions)
+            .WithDisposeOnCompletion(bucketEntities)
+            .WithDisposeOnCompletion(assignedFetcherEntities)
+            .ForEach((Entity entity, in Position position, in TeamIndex teamIndex) =>
             {
-                if (bucketOwner.IsAssigned())
-                {
-                    return;
-                }
                 float minDistance = float.MaxValue;
                 int minDistanceIndex = -1;
-                for (var i=0; i<fetcherPositions.Length; i++)
+                for (var i=0; i<bucketPositions.Length; i++)
                 {
-                    if (assignedBucketEntities[i] == Entity.Null)
+                    if (assignedFetcherEntities[i] == Entity.Null)
                     {
-                        var newMinDistance = GetSquaredDistance(fetcherPositions[i], position);
+                        var newMinDistance = GetSquaredDistance(bucketPositions[i], position);
                         if (newMinDistance < minDistance)
                         {
                             minDistance = newMinDistance;
@@ -64,10 +71,11 @@ public class FetcherSystem : SystemBase
 
                 if (minDistanceIndex != -1)
                 {
-                    if (assignedBucketEntities[minDistanceIndex] == Entity.Null)
+                    if (assignedFetcherEntities[minDistanceIndex] == Entity.Null)
                     {
-                        bucketOwner.SetBucketOwner(fetcherTeams[minDistanceIndex].Value, true);
-                        assignedBucketEntities[minDistanceIndex] = entity;
+                        ecb.AddComponent<AssignedBucket>(entity, new AssignedBucket {Value = bucketEntities[minDistanceIndex]});
+                        bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
+                        assignedFetcherEntities[minDistanceIndex] = entity;
                     }
                 }
 
@@ -80,21 +88,16 @@ public class FetcherSystem : SystemBase
             .Schedule();
 
         Entities
-            .WithAll<Fetcher, TeamIndex>()
-            .WithStoreEntityQueryInField(ref m_FetcherQuery)
-            .WithReadOnly(fetcherPositions)
-            .WithReadOnly(fetcherTranslations)
-            .WithReadOnly(assignedBucketEntities)
-            .WithDisposeOnCompletion(fetcherPositions)
-            .WithDisposeOnCompletion(fetcherTranslations)
-            .WithDisposeOnCompletion(assignedBucketEntities)
-            .ForEach((int entityInQueryIndex, ref Position position, ref Translation translation,
-                ref Entity assignedBucket) =>
+            .WithAll<Bucket, TeamIndex>()
+            .WithStoreEntityQueryInField(ref m_BucketQuery)
+            .WithReadOnly(bucketOwners)
+            .WithDisposeOnCompletion(bucketOwners)
+            .ForEach((int entityInQueryIndex, ref BucketOwner bucketOwner, in Position position) =>
             {
-                position = fetcherPositions[entityInQueryIndex];
-                translation = fetcherTranslations[entityInQueryIndex];
-                assignedBucket = assignedBucketEntities[entityInQueryIndex];
+                bucketOwner.Value = bucketOwners[entityInQueryIndex].Value;
             })
             .Schedule();
+
+        m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

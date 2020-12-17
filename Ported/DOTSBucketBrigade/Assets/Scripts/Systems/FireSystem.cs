@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Jobs;
+using Random = Unity.Mathematics.Random;
 
 public struct BoardElement : IBufferElementData
 {
@@ -45,9 +46,11 @@ public class FireSystem : SystemBase
 
 	protected override void OnCreate()
 	{
-		System.Random fireRandom = new System.Random(1234);
-		
-		m_BoardEntity = EntityManager.CreateEntity();
+		//System.Random fireRandom = new System.Random(1234);
+        Random fireRandom = new Random((uint)System.Environment.TickCount);
+
+
+        m_BoardEntity = EntityManager.CreateEntity();
 #if BB_DEBUG_FLAGS
 		DynamicBuffer<BoardDebugElement> boardDebugFlags = EntityManager.AddBuffer<BoardDebugElement>(m_BoardEntity);
 		boardDebugFlags.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
@@ -65,7 +68,7 @@ public class FireSystem : SystemBase
 		//start the fires.
 		for (int i = 0; i < FireSimConfig.numFireStarters; ++i)
 		{
-			boardCells[fireRandom.Next(0, boardCells.Length)] = 1.0f;
+			boardCells[fireRandom.NextInt(0, boardCells.Length)] = 1.0f;
 		}
 
 		//set the water sources within the grid - unneeded once rivers exist
