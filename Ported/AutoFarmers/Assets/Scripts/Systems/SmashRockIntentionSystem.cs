@@ -20,75 +20,68 @@ public class SmashRockIntentionSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         int2 resultRockPosition = int2.zero;
-        bool foundRock = false;
-        Entity targetRock = Entity.Null;
-
-        //Testing
-        // var rocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.Temp);
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     Debug.Log("SmashRock added");
-        //     Entities.WithAll<Farmer>()
-        //         .ForEach((Entity entity, ref SmashRocks smashRocks) => { smashRocks.TargetRock = rocks[0]; })
-        //         .WithoutBurst().Run();
-        // }
-
 
         Entities.WithAll<Farmer>()
-            .ForEach((Entity entity, ref Velocity speed, ref SmashRocks smashRocks, in Translation translation) =>
-            {
-                var pathNodes = pathBuffers[entity];
-                var farmerPosition = new int2((int) math.floor(translation.Value.x),
-                    (int) math.floor(translation.Value.z));
+            .ForEach(
+                (Entity entity, ref Velocity speed, ref SmashRockIntention smashRocks, in Translation translation) =>
+                {
+                    var pathNodes = pathBuffers[entity];
+                    var farmerPosition = new int2((int) math.floor(translation.Value.x),
+                        (int) math.floor(translation.Value.z));
 
-                if (pathNodes.Length == 0)
-                {
-                    var result = pathMovement.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer,
-                        pathNodes);
-                    // if (result == -1)
-                    // {
-                    //     //If the result is Empty we don't have any nearby rock.
-                    //     //TODO: Increase the range or change the Intention if there is no rock left in the board
-                    //     ecb.RemoveComponent<SmashRocks>(entity);
-                    //     foundRock = false;
-                    // }
-                    // else
-                    // {
-                    //     pathMovement.Unhash(result, out resultRockPosition.x, out resultRockPosition.y);
-                    //     foundRock = true;
-                    // }
-                }
-            }).WithoutBurst().Run();
-
-        if (foundRock)
-        {
-            Entities.ForEach((Entity entity, in Rock rock) =>
-            {
-                var rect = new RectInt(new Vector2Int(rock.Position.x, rock.Position.y), new Vector2Int(rock.Size.x, rock.Size.y));
-                if (rect.Contains(new Vector2Int(resultRockPosition.x, resultRockPosition.y)))
-                {
-                    targetRock = entity;
-                }
-            }).Run();
-            
-            Entities.WithAll<Farmer>().WithNone<Searching>()
-                .ForEach((Entity entity, ref SmashRocks smashRocks) =>
-                {
-                    if (entityManager.Exists(targetRock))
+                    if (pathNodes.Length == 0)
                     {
-                        smashRocks.TargetRock = targetRock;
-                        var rock = GetComponent<Rock>(smashRocks.TargetRock);
-                        var health = rock.Health - (0.5f * deltaTime);
-                        ecb.SetComponent(smashRocks.TargetRock, new Rock {Health = health, Position = rock.Position, Size = rock.Size});
-
-                        if (rock.Health <= 0)
+                        var result = pathMovement.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer,
+                            pathNodes);
+                        if (result == -1)
                         {
-                            ecb.RemoveComponent<SmashRocks>(entity);
+                            //If the result is Empty we don't have any nearby rock.
+                            //TODO: Increase the range or change the Intention if there is no rock left in the board
+                            ecb.RemoveComponent<SmashRockIntention>(entity);
+                        }
+                        else
+                        {
+                            pathMovement.Unhash(result, out resultRockPosition.x, out resultRockPosition.y);
+                            var targetRock = PositionToRock(resultRockPosition);
+                            smashRocks.TargetRock = targetRock;
                         }
                     }
-                }).Run();
-        }
+                }).WithoutBurst().Run();
+        
+        Entities.WithAll<Farmer>().WithNone<Searching>()
+            .ForEach((Entity entity, ref SmashRockIntention smashRocks) =>
+            {
+                if (entityManager.Exists(smashRocks.TargetRock))
+                {
+                    var rock = GetComponent<Rock>(smashRocks.TargetRock);
+                    rock.Health -= 0.5f * deltaTime;
+                    ecb.SetComponent(smashRocks.TargetRock, rock);
+
+                    if (rock.Health <= 0)
+                    {
+                        ecb.RemoveComponent<SmashRockIntention>(entity);
+                    }
+                }
+            }).Run();
+
 
         ecb.Playback(EntityManager);
     }
+
+    private Entity PositionToRock(int2 rockPosition)
+    {
+        var entityRocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.Temp);
+        foreach (var entityRock in entityRocks)
+        {
+            var rock = GetComponent<Rock>(entityRock);
+            var rect = new RectInt(new Vector2Int(rock.Position.x, rock.Position.y),
+                new Vector2Int(rock.Size.x, rock.Size.y));
+            if (rect.Contains(new Vector2Int(rockPosition.x, rockPosition.y)))
+            {
+                return entityRock;
+            }
+        }
+        return Entity.Null;
+    }
+    
 }
