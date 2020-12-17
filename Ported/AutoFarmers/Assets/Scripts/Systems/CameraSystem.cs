@@ -1,31 +1,35 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateAfter(typeof(FarmInitializeSystem))]
 public class CameraSystem : SystemBase
 {
-    private static bool k_SnapCameraOnFirstUpdate = true;
-    
+    private bool m_IsFirstUpdate = true;
+    private float2 m_ViewAngles = float2.zero;
+
     protected override void OnUpdate()
     {
-        var settings = GetSingleton<CommonSettings>();
-        
-        var target = GetSingletonEntity<CameraTarget>();
-        var targetTranslation = GetComponent<Translation>(target);
-        
         var camera = this.GetSingleton<GameObjectRefs>().Camera;
-        
-        var cameraPosition = new float3(camera.transform.position);
-        
-        var damping = settings.CameraDamping;
-        if (k_SnapCameraOnFirstUpdate)
+        var settings = GetSingleton<CommonSettings>();
+        var target = GetSingletonEntity<CameraTarget>();
+
+        if (m_IsFirstUpdate)
         {
-            k_SnapCameraOnFirstUpdate = false;
-            damping = 1f;
+            m_IsFirstUpdate = false;
+            m_ViewAngles = settings.CameraViewAngle;
+            camera.transform.rotation = Quaternion.Euler(m_ViewAngles.y, m_ViewAngles.x, 0f);
         }
 
-        camera.transform.position = math.lerp(cameraPosition, targetTranslation.Value + settings.CameraOffset, damping);
-        camera.transform.LookAt(math.lerp(cameraPosition, targetTranslation.Value, damping));
+        // Port of the original camera behavior.
+        var targetPosition = GetComponent<Translation>(target).Value;
+        m_ViewAngles.x += Input.GetAxis("Mouse X") * settings.CameraMouseSensitivity / Screen.height;
+        m_ViewAngles.y -= Input.GetAxis("Mouse Y") * settings.CameraMouseSensitivity / Screen.height;
+        m_ViewAngles.y = Mathf.Clamp(m_ViewAngles.y,7f,80f);
+        m_ViewAngles.x -= Mathf.Floor(m_ViewAngles.x / 360f) * 360f;
+        
+        camera.transform.rotation = Quaternion.Euler(m_ViewAngles.y,m_ViewAngles.x,0f);
+        camera.transform.position = targetPosition - new float3(camera.transform.forward) * settings.CameraViewDistance;
     }
 }

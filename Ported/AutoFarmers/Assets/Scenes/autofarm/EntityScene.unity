@@ -163,9 +163,14 @@ MonoBehaviour:
   TileSize:
     x: 1
     y: 1
-  RockSpawnAttempts: 30
+  RockSpawnAttempts: 5
   StoreSpawnCount: 5
-  InitialFarmersCount: 1
+  InitialFarmersCount: 15
+  CameraViewAngle:
+    x: 45
+    y: 30
+  CameraViewDistance: 10
+  CameraMouseSensitivity: 4000
   CameraOffset:
     x: 0
     y: 4

@@ -20,6 +20,7 @@ public struct CommonSettings : IComponentData
     public int RockSpawnAttempts;
     public int StoreSpawnCount;
     
-    public float3 CameraOffset;
-    public float  CameraDamping;
+    public float2 CameraViewAngle;
+    public float  CameraViewDistance;
+    public float  CameraMouseSensitivity;
 }

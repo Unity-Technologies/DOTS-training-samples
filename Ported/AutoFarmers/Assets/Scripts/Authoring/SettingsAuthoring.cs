@@ -20,9 +20,10 @@ public class SettingsAuthoring : MonoBehaviour
     public int RockSpawnAttempts;
     public int StoreSpawnCount;
     public int InitialFarmersCount;
-    
-    public float3 CameraOffset;
-    public float  CameraDamping;
+
+    public float2 CameraViewAngle;
+    public float  CameraViewDistance;
+    public float  CameraMouseSensitivity;
 
     public void OnEnable()
     {
@@ -67,8 +68,9 @@ public class SettingsAuthoring : MonoBehaviour
             RockSpawnAttempts = RockSpawnAttempts,
             StoreSpawnCount   = StoreSpawnCount,
             
-            CameraOffset      = CameraOffset,
-            CameraDamping     = CameraDamping
+            CameraViewAngle        = CameraViewAngle,
+            CameraViewDistance     = CameraViewDistance,
+            CameraMouseSensitivity = CameraMouseSensitivity,
         });
         
         // Common Data (Available at Runtime)
