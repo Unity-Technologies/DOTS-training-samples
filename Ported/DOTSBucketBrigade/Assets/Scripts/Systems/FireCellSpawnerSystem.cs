@@ -20,7 +20,7 @@ public class FireCellSpawnerSystem : SystemBase
 
 		int xDim = FireSimConfig.xDim;
 		int yDim = FireSimConfig.yDim;
-		float4 groundColor = new float4(FireSimConfig.color_ground.r, FireSimConfig.color_ground.g, FireSimConfig.color_ground.b, FireSimConfig.color_ground.a);
+        float4 groundColor = FireSimConfig.color_ground; //new float4(FireSimConfig.color_ground.r, FireSimConfig.color_ground.g, FireSimConfig.color_ground.b, FireSimConfig.color_ground.a);
 
 		Entities.ForEach((Entity entity, in FireCellSpawner fireCellSpawner) =>
 		{
