@@ -11,17 +11,16 @@ public class SpawnerSystem : SystemBase
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;
 
-    private static Unity.Mathematics.Random m_Random;
-    
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<CommonData>();
-        m_Random = new Unity.Mathematics.Random(51212);
     }
 
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        var random = new Unity.Mathematics.Random(51212);
 
         var data = GetSingleton<CommonData>();
         var settings = GetSingleton<CommonSettings>();
@@ -47,12 +46,11 @@ public class SpawnerSystem : SystemBase
                 }
                 
                 // Spawn drones if within budget.
-                if (data.DroneMoney >= settings.DroneCost &&
-                    data.DroneCounter < settings.MaxDrones)
+                if (data.DroneMoney >= settings.DroneCost)
                 {
-                    for (int i = 0; i < 5; i++)
+                    for (int i = 0; i < 5 && data.DroneCounter < settings.MaxDrones; i++)
                     {
-                        AddDrone(ecb, settings.DronePrefab, translation.Value, m_Random.NextFloat(2, 3));
+                        AddDrone(ecb, settings.DronePrefab, translation.Value, random.NextFloat(2, 3));
                         data.DroneCounter++;
                     }
                     data.DroneMoney -= settings.DroneCost;
