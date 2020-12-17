@@ -11,19 +11,11 @@ public class BotConfigAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDe
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity,
-            new FetcherSpawner
+            new BotSpawner
             {
-                Prefab = conversionSystem.GetPrimaryEntity(m_FetcherPrefab)
-            });
-        dstManager.AddComponentData(entity,
-            new ThrowerSpawner
-            {
-                Prefab = conversionSystem.GetPrimaryEntity(m_ThrowerPrefab)
-            });
-        dstManager.AddComponentData(entity,
-            new BucketTeamSpawner
-            {
-                Prefab = conversionSystem.GetPrimaryEntity(m_BotPrefab)
+                FetcherPrefab = conversionSystem.GetPrimaryEntity(m_FetcherPrefab),
+                ThrowerPrefab = conversionSystem.GetPrimaryEntity(m_ThrowerPrefab),
+                BotPrefab = conversionSystem.GetPrimaryEntity(m_BotPrefab)
             });
     }
 

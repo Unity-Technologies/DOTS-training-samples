@@ -9,9 +9,11 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 
-public struct FetcherSpawner : IComponentData
+public struct BotSpawner : IComponentData
 {
-    public Entity Prefab;
+    public Entity FetcherPrefab;
+    public Entity ThrowerPrefab;
+    public Entity BotPrefab;
 }
 
 public class FetcherSpawnerSystem : SystemBase
@@ -36,7 +38,13 @@ public class FetcherSpawnerSystem : SystemBase
         uint seed1 = (uint)(Time.DeltaTime*100000);
         uint kSeed = seed0 ^ seed1;
 
-        Entities.ForEach((Entity entity, in FetcherSpawner fetcherSpawner) =>
+        var numBucketEmpty = FireSimConfig.numEmptyBots;
+        var numBucketFull = FireSimConfig.numFullBots;
+
+        float4 fullBotColor = FireSimConfig.emptyBotColor;
+        float4 emptyBotColor = FireSimConfig.fullBotColor;
+
+        Entities.ForEach((Entity entity, in BotSpawner botSpawner) =>
         {
             ecb.DestroyEntity(entity);
 
@@ -55,10 +63,30 @@ public class FetcherSpawnerSystem : SystemBase
                         new int2(0,      0)
                     };
 
-                    Entity fetcherEntity = ecb.Instantiate(fetcherSpawner.Prefab);
+                    Entity fetcherEntity = ecb.Instantiate(botSpawner.FetcherPrefab);
                     ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
                     ecb.AddComponent<Position>(fetcherEntity, new Position {coord = poss[i&3]});
                     ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
+
+                    Entity throwerEntity = ecb.Instantiate(botSpawner.BotPrefab);
+                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3], TargetCoord = poss[i&3], GridPosition = new float2(poss[i&3]) });
+                    ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
+                }
+
+                for (int j=0; j<numBucketEmpty; ++j)
+                {
+                    Entity bb1 = ecb.Instantiate(botSpawner.BotPrefab);
+                    ecb.AddComponent<BucketEmptyBot>(bb1, new BucketEmptyBot { Index = j, Position = float2.zero });
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(bb1, new URPMaterialPropertyBaseColor { Value = emptyBotColor });
+                    ecb.AddComponent(bb1, new TeamIndex {Value = i});
+                }
+
+                for (int j=0; j<numBucketFull; ++j)
+                {
+                    Entity bb0 = ecb.Instantiate(botSpawner.BotPrefab);
+                    ecb.AddComponent<BucketFullBot>(bb0,  new BucketFullBot  { Index = j, Position = float2.zero });
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(bb0, new URPMaterialPropertyBaseColor { Value = fullBotColor });
+                    ecb.AddComponent(bb0, new TeamIndex {Value = i});
                 }
             }
         }).Run();
