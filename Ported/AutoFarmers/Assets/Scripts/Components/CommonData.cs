@@ -2,8 +2,8 @@
 
 public struct CommonData : IComponentData
 {
-    public int FarmerCounter;
-    public int DroneCounter;
+    public int FarmerCount;
+    public int DroneCount;
 }
 
 public enum ETileState
