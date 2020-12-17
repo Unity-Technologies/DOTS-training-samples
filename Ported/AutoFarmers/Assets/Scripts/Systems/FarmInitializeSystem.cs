@@ -41,11 +41,12 @@ public class FarmInitializeSystem : SystemBase
                     {
                         var instance = ecb.Instantiate(initializationSettings.TilePrefab);
                         
-                        var translation = new Translation { Value = new float3(i * commonSettings.TileSize.x, -1f, j * commonSettings.TileSize.y) };
-                        var size = new Size { Value = commonSettings.TileSize };
+                        var translation = new Translation { Value = new float3(i, -1f, j) };
+                        var size = new Size { Value = new int2(1,1) };
 
                         ecb.SetComponent(instance, translation);
                         ecb.AddComponent(instance, size);
+                        ecb.AddComponent(instance, new Tile());
 
                         var linearIndex = i + j * commonSettings.GridSize.x;
                         tiles[linearIndex] = instance;
@@ -67,7 +68,7 @@ public class FarmInitializeSystem : SystemBase
                         continue;
 
                     var instance = ecb.Instantiate(initializationSettings.SiloPrefab);
-                    var translation = new Translation { Value = new float3((x + 0.5f) * commonSettings.TileSize.x, 0, (y + 0.5f) * commonSettings.TileSize.y) };
+                    var translation = new Translation { Value = new float3(x, 0, y) };
                     ecb.SetComponent(instance, translation);
 
                     tileBuffer[linearIndex] = new TileState { Value = ETileState.Store };
@@ -102,8 +103,14 @@ public class FarmInitializeSystem : SystemBase
                     var instance = ecb.Instantiate(initializationSettings.RockPrefab);
                     var position = new RectPosition { Value = new int2(rockX, rockY) };
                     var size = new RectSize { Value = new int2(width, height) };
-                    var translation = new Translation { Value = new float3(rockX * commonSettings.TileSize.x + width * 0.5f * commonSettings.TileSize.x, -0.5f, rockY * commonSettings.TileSize.y + height * 0.5f * commonSettings.TileSize.y) };
-                    var scale = new NonUniformScale { Value = new float3(commonSettings.TileSize.x * (width - 0.5f), 1, commonSettings.TileSize.y * (height - 0.5f)) };
+
+                    var rect = new RectInt(rockX, rockY, width, height);
+                    var depth = random.NextFloat(.4f, .8f);
+
+                    Vector2 center2D = rect.center;
+
+                    var translation = new Translation { Value = new float3(center2D.x - .5f, depth * .5f, center2D.y - .5f) };
+                    var scale = new NonUniformScale { Value = new float3(rect.width - .5f, depth, rect.height - .5f) };
 
                     ecb.SetComponent(instance, translation);
                     ecb.AddComponent(instance, position);
@@ -137,13 +144,13 @@ public class FarmInitializeSystem : SystemBase
                         continue;
                     
                     var farmerInstance = SpawnerSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
-
                     initialFarmerCount--;
                     
                     // Add a camera to the last spawned farmer.
                     if (initialFarmerCount == 0)
                         ecb.AddComponent(farmerInstance, new CameraTarget());
                 }
+                tiles.Dispose();
                 /*
                 // Plants TEST - DELETE WHEN TILLED SYSTEM UP
                 var spawnedPlants = 0;

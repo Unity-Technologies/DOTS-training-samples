@@ -23,33 +23,38 @@ public class SpawnerSystem : SystemBase
         var data = GetSingleton<CommonData>();
         var settings = GetSingleton<CommonSettings>();
 
-        // Farmer spawning rule:
-        // When enough resources have been collected into a silo, a new farmer spawns from the silo.
-        Entities
-            .WithAll<Store>()
-            .ForEach((Entity entity, ref StoreResourceCount resourceCount, in Translation translation) =>
-            {
-                // 1) If the silo's resource counter is beyond the threshold
-                if (resourceCount.Value >= 5)
-                {
-                    // 2) Reset the silo's counter
-                    resourceCount.Value = 0;
-                    
-                    // 3) Add a drone on the silo location for every Nth farmer.
-                    if (data.FarmerCount % 5 == 0)
-                    {
-                        data.DroneCount++;
-                        AddDrone(ecb, settings.DronePrefab, new int3(translation.Value));
-                    }
-                    // 4) Otherwise add a farmer.
-                    else
-                    {
-                        data.FarmerCount++;
-                        AddFarmer(ecb, settings.FarmerPrefab, new int3(translation.Value));
-                    }
-                }
-            }).Run(); // TODO: Parallel
+        var amountToSpawn = (int)math.floor(data.FarmerCounter / k_PlantsToSpawnfarmer);
+        for (int i = 0; i < amountToSpawn; ++i)
+        {
+            AddFarmer(ecb, settings.FarmerPrefab, new int3(0, 0, 0));
+        }
+        data.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
 
+        var random = new Unity.Mathematics.Random(1234);
+        if (data.MoneyForDrones >= 50)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                int x = 10;
+                int y = 10;
+                var position = new float3(x + .5f, 0f, y + .5f);
+                var instance = ecb.Instantiate(settings.DronePrefab);
+                ecb.AddComponent(instance, new Drone
+                {
+                    smoothPosition = position,
+                    hoverHeight = random.NextFloat(2, 3),
+                    storePosition = new int2(x, y),
+                    moveSmooth = data.MoveSmoothForDrones
+                });
+                
+                
+                //ecb.SetComponent(instance, new Translation { Value = position });
+                ecb.AddComponent(instance, new Velocity());
+                ecb.AddBuffer<PathNode>(instance);
+            }
+
+            data.MoneyForDrones -= 50;
+        }
         SetSingleton(data);
         ecb.Playback(EntityManager);
     }

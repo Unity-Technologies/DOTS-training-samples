@@ -11,25 +11,25 @@ public class FarmerIntentionSystem : SystemBase
         var random = new Unity.Mathematics.Random(1234);
         Entities
             .WithAll<Farmer>()
-            .WithNone<SmashRocks>()
-            .WithNone<TillGround>()
-            .WithNone<PlantCrop>()
-            .WithNone<SellPlant>()
+            .WithNone<SmashRockIntentions>()
+            .WithNone<TillGroundIntention>()
+            .WithNone<PlantCropIntention>()
+            .WithNone<SellPlantIntention>()
             .ForEach((Entity entity) =>
             {
                 switch(random.NextInt(0, 4))
                 {
                     case 0:
-                        ecb.AddComponent(entity, new SmashRocks());
+                        ecb.AddComponent(entity, new SmashRockIntentions());
                         break;
                     case 1:
-                        ecb.AddComponent(entity, new TillGround());
+                        ecb.AddComponent(entity, new TillGroundIntention());
                         break;
                     case 2:
-                        ecb.AddComponent(entity, new PlantCrop());
+                        ecb.AddComponent(entity, new PlantCropIntention());
                         break;
                     case 3:
-                        ecb.AddComponent(entity, new SellPlant());
+                        ecb.AddComponent(entity, new SellPlantIntention());
                         break;
                 }
             }).Run();

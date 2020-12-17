@@ -1,65 +1,66 @@
 ﻿using Unity.Entities;
-using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine;
 using Unity.Mathematics;
+using Unity.Collections;
 
 public class MovementSystem : SystemBase
 {
     const float ySpeed = 2f;
     const float xzSpeed = 6f;
     const float k_walkSpeed = 3f;
-    static float3 destination;
-
-    protected void SetDestination()
-    {
-        var settings = GetSingleton<CommonSettings>();
-        
-        // will need the tile state later
-        // var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
-
-        // generate a random destination to act as placeholder crop
-        int x = UnityEngine.Random.Range(0, settings.GridSize.x);
-        int y = UnityEngine.Random.Range(0, settings.GridSize.y);
-        // each drone has the same destination right now - this should be an array with indexes to handle many drone bois
-        destination = new float3(x, 1f, y);
-    }
-
-    protected override void OnStartRunning()
-    {
-        base.OnStartRunning();
-        SetDestination();
-    }
 
     protected override void OnUpdate()
     {
+        var settings = GetSingleton<CommonSettings>();
         var deltaTime = Time.DeltaTime;
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+
         Entities
             .WithAll<Drone>()
-            .ForEach((Entity entity, ref Translation translation, ref Drone drone) =>
+            .ForEach((Entity entity, ref Translation translation, ref Drone drone, ref LocalToWorld localToWorld) =>
             {
                 // translate drone to new place
-                if (translation.Value.x != destination.x && translation.Value.z != destination.z)
+                if (translation.Value.x != drone.destination.x && translation.Value.z != drone.destination.z)
                 {
-                    translation.Value.x = Mathf.MoveTowards(translation.Value.x, destination.x, xzSpeed * deltaTime);
-                    translation.Value.y = Mathf.MoveTowards(translation.Value.y, destination.y, ySpeed * deltaTime);
-                    translation.Value.z = Mathf.MoveTowards(translation.Value.z, destination.z, xzSpeed * deltaTime);
+                    float moveSmoothing = 1f - math.pow(drone.moveSmooth, deltaTime);
+                    drone.smoothPosition = math.lerp(drone.smoothPosition, translation.Value, moveSmoothing);
+
+                    var tilt = new float3(translation.Value.x - drone.smoothPosition.x, 2f, translation.Value.z - drone.smoothPosition.z);
+                    var matrix = float4x4.TRS(drone.smoothPosition, FromToRotation(math.up(), tilt), new float3(.35f, .08f, .35f));
+
+                    localToWorld.Value = matrix;
+
+                    translation.Value = MoveTowards(translation.Value, drone.destination, xzSpeed * deltaTime);
+                    translation.Value.y = MoveTowards(translation.Value.y, drone.destination.y, ySpeed * deltaTime);
+
+                    
+                    //ecb.SetComponent(entity, new LocalToWorld {Value = matrix });
                 }
                 else
                 {
                     // We have arrived - adjust the current height on the Y
 
-                    // set new dest
-                    SetDestination();
+                    // set new destination
+
+                    // will need the tile state later
+                    // var tileBufferAccessor = this.GetBufferFromEntity<TileState>();
+                    var random = new Random(1234);
+                    // generate a random destination to act as placeholder crop
+                    int x = random.NextInt(0, settings.GridSize.x);
+                    int y = random.NextInt(0, settings.GridSize.y);
+                    // each drone has the same destination right now - this should be an array with indexes to handle many drone bois
+                    drone.destination = new float3(x, 1f, y);
                 }
 
-            }).WithoutBurst().Run();
+            }).Run();
 
         Entities
             .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
             {
                 translation.Value = MoveTowards(translation.Value, velocity.Value, k_walkSpeed * deltaTime);
             }).Run();
+
+        ecb.Playback(EntityManager);
     }
 
     public static float MoveTowards(float current, float target, float maxDelta)
@@ -95,4 +96,10 @@ public class MovementSystem : SystemBase
             current.y + toVector_y / dist * maxDistanceDelta,
             current.z + toVector_z / dist * maxDistanceDelta);
     }
+
+    public static quaternion FromToRotation(float3 from, float3 to)
+     => quaternion.AxisAngle(
+         angle: math.acos(math.clamp(math.dot(math.normalize(from), math.normalize(to)), -1f, 1f)),
+         axis: math.normalize(math.cross(from, to))
+     );
 }

@@ -1,11 +1,11 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
-public struct TillGround : IComponentData 
+public struct TillGroundIntention : IComponentData 
 {
 }
 public struct TillArea : IComponentData
 {
-    public int2 Position;
-    public int2 Size;
+    public RectInt Rect;
 }
