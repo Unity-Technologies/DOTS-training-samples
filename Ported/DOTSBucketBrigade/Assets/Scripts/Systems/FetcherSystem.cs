@@ -29,28 +29,46 @@ public class FetcherSystem : SystemBase
         var fetcherTranslations = m_FetcherQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var fetcherTeams = m_FetcherQuery.ToComponentDataArray<TeamIndex>(Allocator.TempJob);
 
-        // var fetcherEntities = m_FetcherQuery.ToEntityArray(Allocator.TempJob);
+        // For each fetcher, bucket entity that was assigned to it
+        var assignedBucketEntities = new NativeArray<Entity>(FireSimConfig.maxTeams, Allocator.TempJob);
+
+        for (var i=0; i<FireSimConfig.maxTeams; i++)
+        {
+            assignedBucketEntities[i] = Entity.Null;
+        }
 
         // Assign buckets to the fetchers
         Entities
             .WithAll<Bucket>()
+            .WithDisposeOnCompletion(fetcherTeams)
             .ForEach((Entity entity, ref BucketOwner bucketOwner, in Position position) =>
             {
+                if (bucketOwner.IsAssigned())
+                {
+                    return;
+                }
                 float minDistance = float.MaxValue;
                 int minDistanceIndex = -1;
                 for (var i=0; i<fetcherPositions.Length; i++)
                 {
-                    var newMinDistance = GetSquaredDistance(fetcherPositions[i], position);
-                    if (newMinDistance < minDistance)
+                    if (assignedBucketEntities[i] == Entity.Null)
                     {
-                        minDistance = newMinDistance;
-                        minDistanceIndex = i;
+                        var newMinDistance = GetSquaredDistance(fetcherPositions[i], position);
+                        if (newMinDistance < minDistance)
+                        {
+                            minDistance = newMinDistance;
+                            minDistanceIndex = i;
+                        }
                     }
                 }
 
                 if (minDistanceIndex != -1)
                 {
-                    bucketOwner.SetBucketOwner(fetcherTeams[minDistanceIndex].Value, true);
+                    if (assignedBucketEntities[minDistanceIndex] == Entity.Null)
+                    {
+                        bucketOwner.SetBucketOwner(fetcherTeams[minDistanceIndex].Value, true);
+                        assignedBucketEntities[minDistanceIndex] = entity;
+                    }
                 }
 
                 float GetSquaredDistance(Position position1, Position position2)
@@ -62,15 +80,20 @@ public class FetcherSystem : SystemBase
             .Schedule();
 
         Entities
-            .WithAll<Fetcher>()
+            .WithAll<Fetcher, TeamIndex>()
             .WithStoreEntityQueryInField(ref m_FetcherQuery)
+            .WithReadOnly(fetcherPositions)
+            .WithReadOnly(fetcherTranslations)
+            .WithReadOnly(assignedBucketEntities)
             .WithDisposeOnCompletion(fetcherPositions)
             .WithDisposeOnCompletion(fetcherTranslations)
-            // .WithDisposeOnCompletion(fetcherTeams)
-            .ForEach((int entityInQueryIndex, ref Position position, ref Translation translation) =>
+            .WithDisposeOnCompletion(assignedBucketEntities)
+            .ForEach((int entityInQueryIndex, ref Position position, ref Translation translation,
+                ref Entity assignedBucket) =>
             {
                 position = fetcherPositions[entityInQueryIndex];
                 translation = fetcherTranslations[entityInQueryIndex];
+                assignedBucket = assignedBucketEntities[entityInQueryIndex];
             })
             .Schedule();
     }

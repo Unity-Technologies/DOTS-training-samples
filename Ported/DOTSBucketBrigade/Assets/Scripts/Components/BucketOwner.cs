@@ -18,6 +18,11 @@ public struct BucketOwner : IComponentData
         return math.abs(Value) - 1;
     }
 
+    public bool IsAssigned()
+    {
+        return Value != 0;
+    }
+
     bool BelongsToFetcher()
     {
         if (Value < 0)
