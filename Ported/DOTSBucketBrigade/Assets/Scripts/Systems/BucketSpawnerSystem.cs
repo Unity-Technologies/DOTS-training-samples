@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -21,7 +21,8 @@ public class BucketSpawnerSystem : SystemBase
 
         float2 dim = new float2(FireSimConfig.xDim, FireSimConfig.yDim) - 1;
         int nBuckets = BucketConfig.nBuckets;
-        Random random = new Random((uint) Time.ElapsedTime + 1);
+        //Random random = new Random((uint) Time.ElapsedTime + 1);
+        Random random = new Random((uint)System.Environment.TickCount);
 
         Entities.ForEach((Entity entity, in BucketSpawner bucketSpawner) =>
         {
@@ -33,6 +34,7 @@ public class BucketSpawnerSystem : SystemBase
                 Entity bucketEntity = ecb.Instantiate(bucketSpawner.Prefab);
                 ecb.AddComponent<Bucket>(bucketEntity, new Bucket());
                 ecb.AddComponent<BucketOwner>(bucketEntity, new BucketOwner() {Value = 0});
+                ecb.AddComponent<BucketLinearPosition>(bucketEntity, new BucketLinearPosition() {T = -1.0f});
                 ecb.AddComponent<WaterLevel>(bucketEntity, new WaterLevel {Value = 0});
                 ecb.AddComponent<Position>(bucketEntity, new Position
                 {

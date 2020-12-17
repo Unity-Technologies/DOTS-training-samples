@@ -32,7 +32,6 @@ public class FetcherSpawnerSystem : SystemBase
         var xDim = FireSimConfig.xDim;
         var yDim = FireSimConfig.yDim;
         var maxTeams = FireSimConfig.maxTeams;
-        int kJitter = 10;
 
         uint seed0 = (uint)Environment.TickCount;
         uint seed1 = (uint)(Time.DeltaTime*100000);
