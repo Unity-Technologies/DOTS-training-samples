@@ -23,12 +23,12 @@ public class FetcherSpawnerSystem : SystemBase
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<WaterSourceVolume>()));
+        RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<BotSpawner>()));
     }
 
     protected override void OnUpdate()
     {
-        EntityCommandBuffer ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
-
         var xDim = FireSimConfig.xDim;
         var yDim = FireSimConfig.yDim;
         var maxTeams = FireSimConfig.maxTeams;
@@ -43,7 +43,20 @@ public class FetcherSpawnerSystem : SystemBase
         float4 fullBotColor = VisualConfig.kEmptyBotColor;
         float4 emptyBotColor = VisualConfig.kFullBotColor;
 
-        Entities.ForEach((Entity entity, in BotSpawner botSpawner) =>
+        int nWaterSources = WaterConfig.nWaterSources;
+
+        NativeArray<int2> waterCoords = new NativeArray<int2>(nWaterSources, Allocator.TempJob);
+        Entities
+            .ForEach((Entity entity, int entityInQueryIndex, in WaterSourceVolume waterSourceVolume, in Position position) =>
+        {
+            waterCoords[entityInQueryIndex] = new int2(position.coord);
+        }).Run();
+
+        EntityCommandBuffer ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+
+        Entities
+            .WithDisposeOnCompletion(waterCoords)
+            .ForEach((Entity entity, in BotSpawner botSpawner) =>
         {
             ecb.DestroyEntity(entity);
 
@@ -52,25 +65,21 @@ public class FetcherSpawnerSystem : SystemBase
 
             for (int i=0; i<maxTeams; ++i)
             {
-                unsafe {
-                    // jiv fixme: locate at water sources
-                    int2* poss = stackalloc int2[]
-                    {
-                        new int2(0,      yDim-1),
-                        new int2(xDim-1, yDim-1),
-                        new int2(xDim-1, 0),
-                        new int2(0,      0)
-                    };
+                int2 waterSourceCoord = waterCoords[i % nWaterSources];
 
-                    Entity fetcherEntity = ecb.Instantiate(botSpawner.FetcherPrefab);
-                    ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
-                    ecb.AddComponent<Position>(fetcherEntity, new Position {coord = poss[i&3]});
-                    ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
+                Entity fetcherEntity = ecb.Instantiate(botSpawner.FetcherPrefab);
+                ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
+                ecb.AddComponent<Position>(fetcherEntity, new Position {coord = waterSourceCoord});
+                ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
 
-                    Entity throwerEntity = ecb.Instantiate(botSpawner.BotPrefab);
-                    ecb.AddComponent<Thrower>(throwerEntity, new Thrower { Coord = poss[i&3], TargetCoord = poss[i&3], GridPosition = new float2(poss[i&3]) });
-                    ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
-                }
+                Entity throwerEntity = ecb.Instantiate(botSpawner.BotPrefab);
+                ecb.AddComponent<Thrower>(throwerEntity, new Thrower
+                {
+                    Coord = waterSourceCoord,
+                    TargetCoord = waterSourceCoord,
+                    GridPosition = new float2(waterSourceCoord)
+                });
+                ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
 
                 for (int j=0; j<numBucketEmpty; ++j)
                 {
