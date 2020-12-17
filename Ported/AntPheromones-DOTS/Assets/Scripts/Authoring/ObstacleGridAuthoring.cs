@@ -20,6 +20,5 @@ public class ObstacleGridAuthoring : MonoBehaviour, IConvertGameObjectToEntity
                 obstacleBuffer.Add(new ObstacleBufferElement {present = false});
             }
         }
-        // dstManager.AddComponentData(entity, new Board {BoardHeight = gridY, BoardWidth = gridX});
     }
 }

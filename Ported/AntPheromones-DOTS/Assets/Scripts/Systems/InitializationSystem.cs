@@ -24,6 +24,7 @@ public class InitializationSystem : SystemBase
         Entity obstacleEntity = GetSingletonEntity<ObstacleBufferElement>();
         DynamicBuffer<ObstacleBufferElement> obstacleGrid = EntityManager.GetBuffer<ObstacleBufferElement>(obstacleEntity);
         
+        
         Entities
             // .WithoutBurst()
             .ForEach((Entity entity, in Init init) =>
@@ -70,7 +71,6 @@ public class InitializationSystem : SystemBase
                 }
 
                 // Create Obstacles
-                
                 for (int i = 1; i <= 3; i++)
                 {
                     float ringRadius = (i / (3 + 1f)) * (128 * 0.5f);
@@ -93,10 +93,29 @@ public class InitializationSystem : SystemBase
                             Value = new float3(64f + math.cos(angle) * ringRadius,
                                 64f + math.sin(angle) * ringRadius, 0)
                         };
+                        
                         int indexInObstacleGrid = (((int) translation.Value.y) * 128) + ((int) translation.Value.x);
                         
                         obstacleGrid[indexInObstacleGrid] = new ObstacleBufferElement {present = true};
-                        
+                        int boardWidth = 128;
+                            
+                        int up = indexInObstacleGrid + boardWidth;
+                        obstacleGrid[up] = new ObstacleBufferElement {present = true};
+                        int down = indexInObstacleGrid - boardWidth;
+                        obstacleGrid[down] = new ObstacleBufferElement {present = true};
+                        int upRight = indexInObstacleGrid + boardWidth +1;
+                        obstacleGrid[upRight] = new ObstacleBufferElement {present = true};
+                        int upLeft = indexInObstacleGrid + boardWidth -1;
+                        obstacleGrid[upLeft] = new ObstacleBufferElement {present = true};
+                        int downRight = indexInObstacleGrid - boardWidth +1;
+                        obstacleGrid[downRight] = new ObstacleBufferElement {present = true};
+                        int downLeft = indexInObstacleGrid - boardWidth -1;
+                        obstacleGrid[downLeft] = new ObstacleBufferElement {present = true};
+                        int right = indexInObstacleGrid + 1;
+                        obstacleGrid[right] = new ObstacleBufferElement {present = true};
+                        int left = indexInObstacleGrid - 1;
+                        obstacleGrid[left] = new ObstacleBufferElement {present = true};
+
                         ecb.SetComponent(obstacle, translation);
                         ecb.SetComponent(obstacle, new Radius{radius = 4});
                         
