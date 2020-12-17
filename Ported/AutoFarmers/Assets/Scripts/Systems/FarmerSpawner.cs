@@ -1,16 +1,15 @@
-﻿using UnityEngine;
+﻿using Unity.Burst.Intrinsics;
+using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 
-public class FarmerSpawnerSystem : SystemBase
+[UpdateAfter(typeof(FarmInitializeSystem))]
+public class SpawnerSystem : SystemBase
 {
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;
-
-    protected override void OnCreate()
-    {
-        RequireSingletonForUpdate<CommonData>();
-    }
 
     protected override void OnUpdate()
     {
@@ -22,10 +21,7 @@ public class FarmerSpawnerSystem : SystemBase
         var amountToSpawn = Mathf.FloorToInt(data.FarmerCounter / k_PlantsToSpawnfarmer);
         for (int i = 0; i < amountToSpawn; ++i)
         {
-            var instance = ecb.Instantiate(settings.FarmerPrefab);
-            ecb.AddComponent(instance, new Farmer());
-            ecb.AddComponent(instance, new Velocity());
-            ecb.AddBuffer<PathNode>(instance);
+            AddFarmer(ecb, settings.FarmerPrefab, new int3(0, 0, 0));
         }
         data.FarmerCounter -= amountToSpawn * k_PlantsToSpawnfarmer;
 
@@ -39,6 +35,26 @@ public class FarmerSpawnerSystem : SystemBase
         data.DroneCounter -= amountToSpawn * k_PlantsToSpawnDrone;
 
         SetSingleton(data);
+        
         ecb.Playback(EntityManager);
+    }
+
+    private static Entity Add(EntityCommandBuffer ecb, Entity prefab, int3 position)
+    {
+        var instance = ecb.Instantiate(prefab);
+        
+        var translation = new Translation { Value = new float3(position) };
+        ecb.SetComponent(instance, translation);
+
+        return instance;
+    }
+
+    public static Entity AddFarmer(EntityCommandBuffer ecb, Entity prefab, int3 position)
+    {
+        var instance = Add(ecb, prefab, position);
+        ecb.AddComponent(instance, new Farmer());
+        ecb.AddComponent(instance, new Velocity());
+        ecb.AddBuffer<PathNode>(instance);
+        return instance;
     }
 }

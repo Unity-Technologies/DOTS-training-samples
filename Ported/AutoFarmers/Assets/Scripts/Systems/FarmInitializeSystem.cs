@@ -2,10 +2,16 @@
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 public class FarmInitializeSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<CommonData>();
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -113,17 +119,27 @@ public class FarmInitializeSystem : SystemBase
                     }
                 }
                 
-                // Initial Farmers
-                for (int i = 0; i < initializationSettings.InitialFarmersCount; i++)
+                // Randomly spawn initial farmers on valid tiles.
+                var initialFarmerCount = initializationSettings.InitialFarmersCount;
+                while (initialFarmerCount > 0)
                 {
-                    var instance = ecb.Instantiate(commonSettings.FarmerPrefab);
-                    ecb.AddComponent(instance, new Farmer());
-                    ecb.AddComponent(instance, new Velocity());
+                    int3 farmerPosition = new int3(
+                        random.NextInt(commonSettings.GridSize.x), 
+                        0,
+                        random.NextInt(commonSettings.GridSize.x)
+                    );
                     
-                    if (i == 0)
-                        ecb.AddComponent(instance, new CameraTarget());
+                    // TODO: Test for valid tile.
+                    if (false)
+                        continue;
+                    
+                    var farmerInstance = SpawnerSystem.AddFarmer(ecb, commonSettings.FarmerPrefab, farmerPosition);
 
-                    ecb.AddBuffer<PathNode>(instance);
+                    initialFarmerCount--;
+                    
+                    // Add a camera to the last spawned farmer.
+                    if (initialFarmerCount == 0)
+                        ecb.AddComponent(farmerInstance, new CameraTarget());
                 }
             }).Run();
 
