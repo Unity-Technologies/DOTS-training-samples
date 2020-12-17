@@ -11,7 +11,7 @@ public class SpawnerSystem : SystemBase
     private const int k_PlantsToSpawnfarmer = 10;
     private const int k_PlantsToSpawnDrone = 50;
 
-    private Unity.Mathematics.Random m_Random;
+    private static Unity.Mathematics.Random m_Random;
     
     protected override void OnCreate()
     {
@@ -52,14 +52,12 @@ public class SpawnerSystem : SystemBase
                 {
                     for (int i = 0; i < 5; i++)
                     {
-                        var position = new float3(translation.Value.x + .5f, 0f, translation.Value.z + .5f);
-                        
-                        AddDrone(ecb, settings.DronePrefab, position);
+                        AddDrone(ecb, settings.DronePrefab, translation.Value, m_Random.NextFloat(2, 3));
                         data.DroneCounter++;
                     }
                     data.DroneMoney -= settings.DroneCost;
                 }
-            }).Run(); // TODO: Parallel
+            }).Run();
 
         SetSingleton(data);
         
@@ -85,7 +83,7 @@ public class SpawnerSystem : SystemBase
         return instance;
     }
 
-    public static Entity AddDrone(EntityCommandBuffer ecb, Entity prefab, float3 position)
+    public static Entity AddDrone(EntityCommandBuffer ecb, Entity prefab, float3 position, float hoverHeight)
     {
         var instance = ecb.Instantiate(prefab);
         
@@ -95,6 +93,12 @@ public class SpawnerSystem : SystemBase
             // hoverHeight = m_Random.NextFloat(2, 3),
             // storePosition = new int2(x, y),
             // moveSmooth = data.MoveSmoothForDrones
+        });
+        
+        ecb.AddComponent(instance, new DroneCheckPoints
+        {
+            hoverHeight = hoverHeight,
+            storePosition = new int2((int)math.floor(position.x), (int)math.floor(position.z)),
         });
         
         ecb.AddComponent(instance, new Velocity());

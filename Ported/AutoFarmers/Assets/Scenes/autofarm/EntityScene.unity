@@ -167,6 +167,10 @@ MonoBehaviour:
   StoreSpawnCount: 5
   Testing_PlantCount: 0
   InitialFarmersCount: 15
+  FarmerCost: 10
+  DroneCost: 50
+  MaxFarmers: 5000
+  MaxDrones: 5000
   CameraViewAngle:
     x: 45
     y: 30
