@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(AssignTillRect))]
 public class TillGroundSystem : SystemBase
 {
     protected override void OnUpdate()
