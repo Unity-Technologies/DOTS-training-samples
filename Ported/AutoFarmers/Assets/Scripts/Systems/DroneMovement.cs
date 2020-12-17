@@ -3,11 +3,10 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
 
-public class MovementSystem : SystemBase
+public class DroneMovement : SystemBase
 {
     const float ySpeed = 2f;
     const float xzSpeed = 6f;
-    const float k_walkSpeed = 3f;
 
     protected override void OnUpdate()
     {
@@ -48,11 +47,11 @@ public class MovementSystem : SystemBase
 
             }).Run();
 
-        Entities
-            .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
-            {
-                translation.Value = MoveTowards(translation.Value, velocity.Value, k_walkSpeed * deltaTime);
-            }).Run();
+        //Entities
+        //    .ForEach((Entity entity, ref Translation translation, in Velocity velocity) =>
+        //    {
+        //        translation.Value = MoveTowards(translation.Value, velocity.Value, k_walkSpeed * deltaTime);
+        //    }).Run();
 
         ecb.Playback(EntityManager);
     }

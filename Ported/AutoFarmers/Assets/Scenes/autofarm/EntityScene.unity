@@ -163,9 +163,9 @@ MonoBehaviour:
   TileSize:
     x: 1
     y: 1
-  RockSpawnAttempts: 2000
+  RockSpawnAttempts: 50
   StoreSpawnCount: 5
-  Testing_PlantCount: 0
+  Testing_PlantCount: 5
   InitialFarmersCount: 15
   FarmerCost: 10
   DroneCost: 50

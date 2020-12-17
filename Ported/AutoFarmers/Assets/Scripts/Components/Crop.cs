@@ -4,5 +4,5 @@
 public struct Crop : IComponentData
 {
     public float GrowthRate;
-    public float FullGrouthValue;
+    public float FullGrowthValue;
 }

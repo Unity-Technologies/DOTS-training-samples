@@ -3,12 +3,16 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(FarmInitializeSystem))]
+
 public class CameraSystem : SystemBase
 {
     private bool m_IsFirstUpdate = true;
     private float2 m_ViewAngles = float2.zero;
 
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<CameraTarget>();
+    }
     protected override void OnUpdate()
     {
         var camera = this.GetSingleton<GameObjectRefs>().Camera;

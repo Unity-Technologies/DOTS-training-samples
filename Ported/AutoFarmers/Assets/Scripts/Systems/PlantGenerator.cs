@@ -1,33 +1,58 @@
 ﻿using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class PlantGenerator : SystemBase
 {
-	/*
 	//public Random random;
 	public static Dictionary<int, Mesh> meshLookup;
+	public Matrix4x4 matrix;
+	public Quaternion rotation;
+
 	protected override void OnCreate()
-    {
+	{
 		base.OnCreate();
 		//random = new Random(1234);
-    }*/
+		if (meshLookup == null)
+		{
+			meshLookup = new Dictionary<int, Mesh>();
+		}
+	}
 
-    protected override void OnUpdate()
-    {
+
+	protected override void OnUpdate()
+	{
 		var commonSettings = GetSingleton<CommonSettings>();
-		Entities
-            .ForEach((Entity entity, in Plant plant) =>
-            {
-				//var linearIndex = plant.Position.x + plant.Position.y * commonSettings.GridSize.x;
-				//var Mesh = GenerateMesh(linearIndex);
+		Entities.WithAll<Plant>()
+			.ForEach((Entity entity, ref Plant plant, in RenderMesh mesh) =>
+			{
+				Vector3 worldPos = new Vector3(plant.Position.x + .5f, 0f, plant.Position.y + .5f);
+				matrix = Matrix4x4.TRS(worldPos, rotation, Vector3.one);
+
+				var linearIndex = plant.Position.x + plant.Position.y * commonSettings.GridSize.x;
+				var newMesh = GenerateMesh(linearIndex);
+
+                if (newMesh)
+                {
+                    mesh.mesh.vertices = newMesh.vertices;
+                    mesh.mesh.triangles = newMesh.triangles;
+                }
 			}).WithoutBurst().Run();
+
     }
-	/*
-	Mesh GenerateMesh(int seed)
+
+	public void EaseToWorldPosition(float x, float y, float z, float smooth)
+	{
+		matrix.m03 += (x - matrix.m03) * smooth * 3f;
+		matrix.m13 += (y - matrix.m13) * smooth * 3f;
+		matrix.m23 += (z - matrix.m23) * smooth * 3f;
+
+	}
+		Mesh GenerateMesh(int seed)
 	{
 		Random.State oldRandState = Random.state;
 		Random.InitState(seed);
@@ -108,5 +133,4 @@ public class PlantGenerator : SystemBase
 		Random.state = oldRandState;
 		return outputMesh;
 	}
-	*/
 }

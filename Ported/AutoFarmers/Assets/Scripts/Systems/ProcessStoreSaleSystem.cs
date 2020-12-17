@@ -1,6 +1,4 @@
-﻿using Unity.Burst.Intrinsics;
-using UnityEngine;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -8,9 +6,6 @@ using Unity.Transforms;
 [UpdateAfter(typeof(FarmInitializeSystem))]
 public class ProcessStoreSaleSystem : SystemBase
 {
-    private const int k_PlantsToSpawnfarmer = 10;
-    private const int k_PlantsToSpawnDrone = 50;
-
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<CommonData>();
@@ -50,7 +45,7 @@ public class ProcessStoreSaleSystem : SystemBase
                 {
                     for (int i = 0; i < 5 && data.DroneCounter < settings.MaxDrones; i++)
                     {
-                        AddDrone(ecb, settings.DronePrefab, translation.Value, random.NextFloat(2, 3));
+                        AddDrone(ecb, settings.DronePrefab, translation.Value, random.NextFloat(2, 3), data.MoveSmoothForDrones);
                         data.DroneCounter++;
                     }
                     data.DroneMoney -= settings.DroneCost;
@@ -76,21 +71,18 @@ public class ProcessStoreSaleSystem : SystemBase
     {
         var instance = Add(ecb, prefab, position);
         ecb.AddComponent(instance, new Farmer());
-        ecb.AddComponent(instance, new Velocity());
         ecb.AddBuffer<PathNode>(instance);
         return instance;
     }
 
-    public static Entity AddDrone(EntityCommandBuffer ecb, Entity prefab, float3 position, float hoverHeight)
+    public static Entity AddDrone(EntityCommandBuffer ecb, Entity prefab, float3 position, float hoverHeight, float moveSmooth)
     {
         var instance = ecb.Instantiate(prefab);
         
         ecb.AddComponent(instance, new Drone
         {
-            // smoothPosition = position,
-            // hoverHeight = m_Random.NextFloat(2, 3),
-            // storePosition = new int2(x, y),
-            // moveSmooth = data.MoveSmoothForDrones
+            smoothPosition = position,
+            moveSmooth = moveSmooth
         });
         
         ecb.AddComponent(instance, new DroneCheckPoints
@@ -99,7 +91,6 @@ public class ProcessStoreSaleSystem : SystemBase
             storePosition = new int2((int)math.floor(position.x), (int)math.floor(position.z)),
         });
         
-        ecb.AddComponent(instance, new Velocity());
         ecb.AddBuffer<PathNode>(instance);
         return instance;
     }
