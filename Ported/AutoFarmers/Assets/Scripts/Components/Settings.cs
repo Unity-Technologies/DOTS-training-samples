@@ -15,7 +15,6 @@ public struct CommonSettings : IComponentData
     public Entity DronePrefab;
     
     public int2   GridSize;
-    public float2 TileSize;
     
     public int RockSpawnAttempts;
     public int StoreSpawnCount;

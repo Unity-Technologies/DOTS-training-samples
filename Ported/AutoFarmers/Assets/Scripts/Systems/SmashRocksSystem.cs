@@ -16,14 +16,14 @@ public class SmashRocksSystem : SystemBase
         {
             Debug.Log("SmashRock added");
             Entities.WithAll<Farmer>()
-                .ForEach((Entity entity, ref SmashRocks smashRocks) => { smashRocks.TargetRock = rocks[0]; })
+                .ForEach((Entity entity, ref SmashRockIntentions smashRocks) => { smashRocks.TargetRock = rocks[0]; })
                 .WithoutBurst().Run();
         }
 
         var entityManager = EntityManager;
 
         Entities.WithAll<Farmer>().WithNone<Searching>()
-            .ForEach((Entity entity, in SmashRocks smashRocks) =>
+            .ForEach((Entity entity, in SmashRockIntentions smashRocks) =>
             {
                 if (entityManager.Exists(smashRocks.TargetRock))
                 {
@@ -35,7 +35,7 @@ public class SmashRocksSystem : SystemBase
     
                     if (rock.Health <= 0)
                     {
-                        ecb.RemoveComponent<SmashRocks>(entity);
+                        ecb.RemoveComponent<SmashRockIntentions>(entity);
                     }
                 }
             }).Run();

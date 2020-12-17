@@ -15,8 +15,3 @@ public enum ETileState
     Seeded,
     Grown
 }
-
-public struct TileState : IBufferElementData
-{
-    public ETileState Value;
-}

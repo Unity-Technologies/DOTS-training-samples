@@ -64,7 +64,6 @@ public class SettingsAuthoring : MonoBehaviour
             DronePrefab  = conversionSystem.GetPrimaryEntity(DronePrefab),
             
             GridSize          = GridSize,
-            TileSize          = TileSize,
             RockSpawnAttempts = RockSpawnAttempts,
             StoreSpawnCount   = StoreSpawnCount,
             
