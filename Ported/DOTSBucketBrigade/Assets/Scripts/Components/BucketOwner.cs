@@ -13,7 +13,7 @@ public struct BucketOwner : IComponentData
     // Negative values: the bucket belongs to the fetcher within the cohort
     public int Value;
 
-    int AsCohortIndex()
+    public int AsCohortIndex()
     {
         return math.abs(Value) - 1;
     }
