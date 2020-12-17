@@ -8,14 +8,8 @@ public class RockDestroying : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
-        // var settingsEntity = GetSingletonEntity<Settings>();
-        // var settings = GetComponentDataFromEntity<Settings>()[settingsEntity];
-        
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
-        
-        
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
         
         Entities.ForEach((Entity entity, ref Rock rock, ref NonUniformScale nonUniformScale) =>
