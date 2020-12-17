@@ -16,13 +16,16 @@ public class PathMovement : SystemBase
     public NativeArray<ETileState> defaultNavigation;
 	public NativeArray<ETileState> isRock;
 	public NativeArray<ETileState> isTillable;
+	public NativeArray<ETileState> isReadyToPlant;
+	public NativeArray<ETileState> isStore;
+	public NativeArray<ETileState> isPlant;
 
 	NativeArray<int2> dirs;
 
     int mapWidth;
     int mapHeight;
 
-	RectInt fullMapZone;
+	public RectInt fullMapZone;
 	const float k_walkSpeed = 3f;
 
 	protected override void OnCreate()
@@ -49,6 +52,12 @@ public class PathMovement : SystemBase
 
 		isTillable = new NativeArray<ETileState>(1, Allocator.Persistent);
 		isTillable[0] = ETileState.Empty;
+
+		isStore = new NativeArray<ETileState>(1, Allocator.Persistent);
+		isStore[0] = ETileState.Store;
+
+		isReadyToPlant = new NativeArray<ETileState>(1, Allocator.Persistent);
+		isReadyToPlant[0] = ETileState.Tilled;
 	}
 
 
@@ -131,6 +140,10 @@ public class PathMovement : SystemBase
 		defaultNavigation.Dispose();
 		isRock.Dispose();
 		isTillable.Dispose();
+
+		isReadyToPlant.Dispose();
+		isStore.Dispose();
+		isPlant.Dispose();
 
 		dirs.Dispose();
 	}

@@ -23,7 +23,7 @@ public class FarmerIntentionSystem : SystemBase
             .WithNone<SellPlantIntention>()
             .ForEach((Entity entity) =>
             {
-                switch(localRandom.NextInt(0, 2))
+                switch(localRandom.NextInt(0, 3))
                 {
                     case 0:
                         ecb.AddComponent(entity, new SmashRockIntention());
@@ -31,9 +31,9 @@ public class FarmerIntentionSystem : SystemBase
                     case 1:
                         ecb.AddComponent(entity, new TillGroundIntention { Rect = default });
                         break;
-                    //case 2:
-                    //    ecb.AddComponent(entity, new PlantCropIntention());
-                    //    break;
+                    case 2:
+                        ecb.AddComponent(entity, new PlantCropIntention());
+                        break;
                     //case 3:
                     //    ecb.AddComponent(entity, new SellPlantIntention());
                     //    break;
