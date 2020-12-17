@@ -18,6 +18,7 @@ public struct CommonSettings : IComponentData
     
     public int RockSpawnAttempts;
     public int StoreSpawnCount;
+    public int Testing_PlantCount;
     
     public float2 CameraViewAngle;
     public float  CameraViewDistance;
