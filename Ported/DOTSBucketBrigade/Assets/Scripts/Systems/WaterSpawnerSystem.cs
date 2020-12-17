@@ -26,7 +26,9 @@ public class WaterSpawnerSystem : SystemBase
         float highOffset = 4.5f; 
 
         int nWaterSources = WaterConfig.nWaterSources;
-        Random random = new Random((uint)Time.DeltaTime + 1);
+        float capacity = WaterConfig.maxCapacity;
+
+        Random random = new Random((uint)Time.ElapsedTime + 1);
 
         Entities.ForEach((Entity entity, in WaterSpawner waterSpawner) =>
         {
@@ -56,6 +58,8 @@ public class WaterSpawnerSystem : SystemBase
                 }
 
                 ecb.AddComponent<Position>(waterEntity, new Position { coord = waterCoord });
+                // add capacity (max value) and volume (current value)
+                ecb.AddComponent<WaterSourceVolume>(waterEntity, new WaterSourceVolume { Value = capacity });
 
                 var newTranslation = new Translation { Value = new float3(waterCoord.x, -1.0f, waterCoord.y) };
                 ecb.SetComponent(waterEntity, newTranslation);
