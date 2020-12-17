@@ -22,6 +22,11 @@ public class SettingsAuthoring : MonoBehaviour
     public int Testing_PlantCount;
     public int InitialFarmersCount;
 
+    public int FarmerCost;
+    public int DroneCost;
+    public int MaxFarmers;
+    public int MaxDrones;
+
     public float2 CameraViewAngle;
     public float  CameraViewDistance;
     public float  CameraMouseSensitivity;
@@ -75,6 +80,12 @@ public class SettingsAuthoring : MonoBehaviour
             RockSpawnAttempts = RockSpawnAttempts,
             StoreSpawnCount   = StoreSpawnCount,
             Testing_PlantCount = Testing_PlantCount,
+            
+            FarmerCost = FarmerCost,
+            DroneCost = DroneCost,
+            
+            MaxFarmers = MaxFarmers,
+            MaxDrones = MaxDrones,
 
             CameraViewAngle        = CameraViewAngle,
             CameraViewDistance     = CameraViewDistance,
@@ -90,7 +101,7 @@ public class SettingsAuthoring : MonoBehaviour
         {
             dstManager.SetComponentData(dataEntity, new CommonData
             {
-                MoneyForDrones = MoneyForDrones,
+                DroneMoney = MoneyForDrones,
                 MoveSmoothForDrones = moveSmooth,
             });
         }
