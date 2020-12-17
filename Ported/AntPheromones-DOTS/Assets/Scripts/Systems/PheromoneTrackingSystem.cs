@@ -31,8 +31,10 @@ public class PheromoneTrackingSystem : SystemBase
             {
                 var translation = translations[i];
                 float currentStrength = pheromoneGrid[i].pheromoneStrength;
-                
-                pheromoneGrid[ (((int)translation.Value.y)*boardWidth) + ((int) translation.Value.x) ] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 1f)};
+
+                int pheromoneGridIndex = math.clamp((((int) translation.Value.y) * boardWidth) + ((int) translation.Value.x), 0, 16383);
+
+                pheromoneGrid[pheromoneGridIndex] = new Pheromones{pheromoneStrength = math.min(currentStrength + (pheromoneApplicationRate * deltaTime), 1f)};
             }
         }
     }
