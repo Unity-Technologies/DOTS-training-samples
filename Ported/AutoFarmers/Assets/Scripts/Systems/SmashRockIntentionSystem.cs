@@ -47,19 +47,23 @@ public class SmashRockIntentionSystem : SystemBase
                         }
                     }
                 }).WithoutBurst().Run();
-        
+
         Entities.WithAll<Farmer>().WithNone<Searching>()
             .ForEach((Entity entity, ref SmashRockIntention smashRocks) =>
             {
                 if (entityManager.Exists(smashRocks.TargetRock))
                 {
-                    var rock = GetComponent<Rock>(smashRocks.TargetRock);
-                    rock.Health -= 0.5f * deltaTime;
-                    ecb.SetComponent(smashRocks.TargetRock, rock);
-
-                    if (rock.Health <= 0)
+                    var pathNodes = pathBuffers[entity];
+                    if (pathNodes.Length == 1)
                     {
-                        ecb.RemoveComponent<SmashRockIntention>(entity);
+                        var rock = GetComponent<Rock>(smashRocks.TargetRock);
+                        rock.Health -= 1f * deltaTime;
+                        ecb.SetComponent(smashRocks.TargetRock, rock);
+
+                        if (rock.Health <= 0)
+                        {
+                            ecb.RemoveComponent<SmashRockIntention>(entity);
+                        }
                     }
                 }
             }).Run();
@@ -81,7 +85,7 @@ public class SmashRockIntentionSystem : SystemBase
                 return entityRock;
             }
         }
+
         return Entity.Null;
     }
-    
 }
