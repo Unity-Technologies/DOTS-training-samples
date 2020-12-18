@@ -60,12 +60,12 @@ public class FetcherGotoWaterSourceSystem : SystemBase
             }
 
             //Start moving the bot towards the water source
+            ecb.RemoveComponent<FetcherFindWaterSource>(entity);
             ecb.AddComponent(entity, new MovingBot
             {
                 StartPosition = position.coord,
                 TargetPosition = waterSourcePositions[minDistanceIndex].coord,
                 StartTime = elapsedTime,
-                TagComponentToRemoveOnArrival = ComponentType.ReadWrite<FetcherFindWaterSource>(),
                 TagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFillingBucket>()
             });
         }).Schedule();
