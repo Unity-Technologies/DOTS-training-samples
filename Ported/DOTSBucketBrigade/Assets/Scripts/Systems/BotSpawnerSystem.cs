@@ -71,6 +71,7 @@ public class FetcherSpawnerSystem : SystemBase
                 ecb.AddComponent<Fetcher>(fetcherEntity, new Fetcher {});
                 ecb.AddComponent<Position>(fetcherEntity, new Position {coord = waterSourceCoord});
                 ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
+                ecb.AddComponent<FetcherFindBucket>(fetcherEntity, new FetcherFindBucket {});
 
                 Entity throwerEntity = ecb.Instantiate(botSpawner.BotPrefab);
                 ecb.AddComponent<Thrower>(throwerEntity, new Thrower

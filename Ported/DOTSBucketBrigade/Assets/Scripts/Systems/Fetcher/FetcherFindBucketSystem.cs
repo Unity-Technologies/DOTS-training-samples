@@ -8,7 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public class FetcherSystem : SystemBase
+public class FetcherFindBucketSystem : SystemBase
 {
     private EntityQuery m_BucketQuery;
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
@@ -44,6 +44,10 @@ public class FetcherSystem : SystemBase
             assignedFetcherEntities[i] = Entity.Null;
         }
 
+        ComponentType tagComponentToRemoveOnArrival = ComponentType.ReadWrite<FetcherFindBucket>();
+        ComponentType tagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherMoving>();
+        var startTime = Time.ElapsedTime;
+
         // Assign buckets to the fetchers
         Entities
             .WithAll<Fetcher, FetcherFindBucket>()
@@ -75,6 +79,14 @@ public class FetcherSystem : SystemBase
                     {
                         ecb.AddComponent<AssignedBucket>(entity, new AssignedBucket {Value = bucketEntities[minDistanceIndex]});
                         ecb.SetComponent<Bucket>(entity, new Bucket {LinearT = 0.0f});
+                        ecb.SetComponent<MovingBot>(entity, new MovingBot
+                        {
+                            StartPosition = position.coord,
+                            TargetPosition = bucketPositions[minDistanceIndex].coord,
+                            StartTime = startTime,
+                            TagComponentToAddOnArrival = tagComponentToAddOnArrival,
+                            TagComponentToRemoveOnArrival = tagComponentToRemoveOnArrival
+                        });
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
                         assignedFetcherEntities[minDistanceIndex] = entity;
                     }
