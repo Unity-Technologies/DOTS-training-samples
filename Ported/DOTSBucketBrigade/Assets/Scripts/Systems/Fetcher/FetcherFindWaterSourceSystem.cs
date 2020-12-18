@@ -1,7 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 
-public class FetcherGotoWaterSourceSystem : SystemBase
+public class FetcherFindWaterSourceSystem : SystemBase
 {
     private EntityQuery _waterSourceQuery;
     private EntityCommandBufferSystem _ecbSystem;

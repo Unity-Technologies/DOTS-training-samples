@@ -78,13 +78,13 @@ public class FetcherFindBucketSystem : SystemBase
                     if (assignedFetcherEntities[minDistanceIndex] == Entity.Null)
                     {
                         ecb.AddComponent<AssignedBucket>(entity, new AssignedBucket {Value = bucketEntities[minDistanceIndex]});
+                        ecb.RemoveComponent<FetcherFindBucket>(entity);
                         ecb.AddComponent<MovingBot>(entity, new MovingBot
                         {
                             StartPosition = position.coord,
                             TargetPosition = bucketPositions[minDistanceIndex].coord,
                             StartTime = startTime,
-                            TagComponentToAddOnArrival = tagComponentToAddOnArrival,
-                            TagComponentToRemoveOnArrival = tagComponentToRemoveOnArrival
+                            TagComponentToAddOnArrival = tagComponentToAddOnArrival
                         });
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
                         assignedFetcherEntities[minDistanceIndex] = entity;
