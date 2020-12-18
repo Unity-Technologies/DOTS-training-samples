@@ -24,6 +24,7 @@ public struct BoardElement : IBufferElementData
 	}
 }
 
+#if BB_DEBUG_FLAGS
 public struct BoardDebugElement : IBufferElementData
 {
 	public uint Value;
@@ -38,6 +39,7 @@ public struct BoardDebugElement : IBufferElementData
 		return new BoardDebugElement { Value = e };
 	}
 }
+#endif
 
 public class FireSystem : SystemBase
 {
