@@ -58,6 +58,9 @@ public class PathMovement : SystemBase
 
 		isReadyToPlant = new NativeArray<ETileState>(1, Allocator.Persistent);
 		isReadyToPlant[0] = ETileState.Tilled;
+
+		isPlant = new NativeArray<ETileState>(1, Allocator.Persistent);
+		isPlant[0] = ETileState.Seeded;
 	}
 
 
