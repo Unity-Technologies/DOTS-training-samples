@@ -66,8 +66,9 @@ public class PathSystem : SystemBase
         NativeArray<int> visitedTiles;
         int rockPosHash = SearchForOne(x, y, range, tiles, navigable, match, fullMapZone, fullMapZone, out visitedTiles);
         if (rockPosHash == -1)
-        {
-            return -1; //ETileState.Empty;
+		{
+			visitedTiles.Dispose();
+			return -1; //ETileState.Empty;
         }
         else
         {
@@ -77,8 +78,9 @@ public class PathSystem : SystemBase
             {
                 AssignLatestPath(outputPath, rockX, rockY, fullMapZone, visitedTiles);
             }
+			visitedTiles.Dispose();
 
-            return Hash(rockX, rockY, fullMapZone); //tiles[Hash(rockX, rockY)].Value;
+			return Hash(rockX, rockY, fullMapZone); //tiles[Hash(rockX, rockY)].Value;
         }
     }
 
@@ -107,6 +109,7 @@ public class PathSystem : SystemBase
 		var outputTiles = Search(startX, startY, range, tiles, navigable, match, requiredZone, fullMapZone, out visitedtiles, 1);
 		if (outputTiles.Length == 0)
 		{
+			outputTiles.Dispose();
 			return -1;
 		}
 		else
@@ -119,7 +122,7 @@ public class PathSystem : SystemBase
 
 	public static NativeList<int> Search(int startX, int startY, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, RectInt requiredZone, RectInt fullMapZone, out NativeArray<int> visitedTiles, int maxResultCount = 0)
 	{
-		var dirs = new NativeArray<int2>(4, Allocator.Persistent);
+		var dirs = new NativeArray<int2>(4, Allocator.Temp);
 		dirs[0] = new int2(1, 0);
 		dirs[1] = new int2(-1, 0);
 		dirs[2] = new int2(0, 1);
@@ -211,7 +214,7 @@ public class PathSystem : SystemBase
 
 	public static void AssignLatestPath(DynamicBuffer<PathNode> target, int endX, int endY, RectInt fullMapZone, NativeArray<int> visitedTiles)
 	{
-		var dirs = new NativeArray<int2>(4, Allocator.Persistent);
+		var dirs = new NativeArray<int2>(4, Allocator.Temp);
 		dirs[0] = new int2(1, 0);
 		dirs[1] = new int2(-1, 0);
 		dirs[2] = new int2(0, 1);

@@ -7,9 +7,18 @@ using UnityEngine;
 [UpdateAfter(typeof(FarmerIntentionSystem))]
 public class SmashRockIntentionSystem : SystemBase
 {
+    EndSimulationEntityCommandBufferSystem m_ECB;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        m_ECB = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = m_ECB.CreateCommandBuffer();
 
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
@@ -18,15 +27,19 @@ public class SmashRockIntentionSystem : SystemBase
         var isRock = PathSystem.isRock;
         var defaultNavigation = PathSystem.defaultNavigation;
         var fullMapZone = new RectInt(0, 0, settings.GridSize.x, settings.GridSize.y);
-        var entityRocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.Temp);
-        var rocks = GetEntityQuery(typeof(Rock)).ToComponentDataArray<Rock>(Allocator.Temp);
+        var entityRocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.TempJob);
+        var rocks = GetEntityQuery(typeof(Rock)).ToComponentDataArray<Rock>(Allocator.TempJob);
 
         var entityManager = EntityManager;
         var deltaTime = Time.DeltaTime;
 
         int2 resultRockPosition = int2.zero;
 
-        Entities.WithAll<Farmer>()
+        Dependency = Entities.WithAll<Farmer>()
+            .WithReadOnly(entityRocks)
+            .WithReadOnly(rocks)
+            .WithDisposeOnCompletion(entityRocks)
+            .WithDisposeOnCompletion(rocks)
             .ForEach(
                 (Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SmashRockIntention smashRocks, in Translation translation) =>
                 {
@@ -58,17 +71,14 @@ public class SmashRockIntentionSystem : SystemBase
                             smashRocks.TargetRock = targetRock;
                         }
                     }
-                }).Run();
+                }).Schedule(Dependency);
 
-        rocks.Dispose();
-        entityRocks.Dispose();
-
-        Entities
+        Dependency = Entities
             .WithAll<Farmer>()
             .WithNone<Searching>()
-            .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SmashRockIntention smashRocks) =>
+            .ForEach((Entity entity, in DynamicBuffer<PathNode> pathNodes, in SmashRockIntention smashRocks) =>
             {
-                if (entityManager.Exists(smashRocks.TargetRock))
+                if (smashRocks.TargetRock != Entity.Null)
                 {
                     if (pathNodes.Length == 1)
                     {
@@ -85,10 +95,9 @@ public class SmashRockIntentionSystem : SystemBase
                         }
                     }
                 }
-            }).Run();
+            }).Schedule(Dependency);
 
-
-        ecb.Playback(EntityManager);
+        m_ECB.AddJobHandleForProducer(Dependency);
     }
 
 }
