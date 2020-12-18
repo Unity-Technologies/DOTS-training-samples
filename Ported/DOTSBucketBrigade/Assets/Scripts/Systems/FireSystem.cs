@@ -24,6 +24,21 @@ public struct BoardElement : IBufferElementData
 	}
 }
 
+public struct DouseElement : IBufferElementData
+{
+	public int Value;
+
+	public static implicit operator int(DouseElement e)
+	{
+		return e.Value;
+	}
+
+	public static implicit operator DouseElement (int e)
+	{
+		return new DouseElement { Value = e };
+	}
+}
+
 #if BB_DEBUG_FLAGS
 public struct BoardDebugElement : IBufferElementData
 {
@@ -86,7 +101,7 @@ struct HeatJob : IJobParallelFor
         newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 
         // introduce a tiny bit of randomness for flames
-        if (newHeat[i] > 0.8f) 
+        if (newHeat[i] > 0.8f)
         {
             Random fireRandom = new Random(randomSeed + (uint)i);
             newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
@@ -124,6 +139,9 @@ public class FireSystem : SystemBase
 		{
 			boardCells[fireRandom.NextInt(0, boardCells.Length)] = 1.0f;
 		}
+
+        // jiv fixme: should be hashset
+		DynamicBuffer<DouseElement> douseCells = EntityManager.AddBuffer<DouseElement>(m_BoardEntity);
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
 		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
@@ -182,36 +200,16 @@ public class FireSystem : SystemBase
 
         Dependency = heatJob.Schedule(board.Length, 2048, Dependency);
 
-        //      Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
-        //{
-        //    for (int i = 0; i < board.Length; ++i)
-        //    {
-        //        float heatValue = 0;
-        //        int2 coord = new int2(i % xDim, i / xDim);
-        //        for (int j = 0; j < 8; j++)
-        //        {
-        //            var neighbor = neighborOffsets[j];
-        //            int2 neighborCoord = coord + neighbor;
-        //            if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
-        //                math.any(neighborCoord < int2.zero))
-        //            {
-        //                continue;
-        //            }
-
-        //            float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
-
-
-        //            heatValue += desiredHeatDelta;
-
-        //        }
-
-        //        newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
-
-        //              // introduce a tiny bit of randomness for flames
-        //              if (newHeat[i] > 0.8f) //if (board[coord.y * xDim + coord.x] > 0.5f)
-        //                  newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
-        //    }
-        //}).Schedule();
+        // douse fire
+        Entities
+            .ForEach((ref DynamicBuffer<DouseElement> douseElement) =>
+            {
+                for (int i=0; i<douseElement.Length; ++i)
+                {
+                    newHeat[douseElement[i]] = 0.0f;
+                }
+                douseElement.Clear();
+            }).Schedule();
 
         var flashPoint = FireSimConfig.flashPoint;
 		var fireThreshold = FireSimConfig.fireThreshold;

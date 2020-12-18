@@ -16,7 +16,7 @@ public class FireSimConfig : MonoBehaviour
 
     static public int maxTeams = 5;
     static public float throwerSpeed = 2.0f;
-    static public float kBucketSpeed = 1.0f / 16.0f;
+    static public float kBucketSpeed = 1.0f / 2.0f;
     static public float kBotSpeed = 1.0f;
 
     static public int numEmptyBots = 10;

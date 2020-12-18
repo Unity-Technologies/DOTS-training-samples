@@ -13,11 +13,31 @@ using UnityEngine.Rendering;
 [BurstCompile]
 public class BucketSystem : SystemBase
 {
+    EntityCommandBufferSystem m_EntityCommandBufferSystem;
+	NativeArray<int2> m_NeighborOffsets;
+
     protected override void OnCreate()
     {
         RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<Fetcher>()));
         RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<Thrower>()));
         RequireForUpdate(GetEntityQuery(ComponentType.ReadOnly<Bucket>()));
+
+        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
+		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
+			new int2(+1, -1),
+			new int2(+1, +0),
+			new int2(+1, +1),
+			new int2(+0, +1),
+			new int2(-1, +1),
+			new int2(-1, +0),
+			new int2(-1, -1)}, m_NeighborOffsets);
+    }
+
+    protected override void OnDestroy()
+    {
+		m_NeighborOffsets.Dispose();
     }
 
     protected override void OnUpdate()
@@ -68,13 +88,39 @@ public class BucketSystem : SystemBase
                 }
             }).ScheduleParallel();
 
+        var boardEntity = GetSingletonEntity<BoardElement>();
+        var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+		var neighborOffsets = m_NeighborOffsets;
+        var xDim = FireSimConfig.xDim;
+		var yDim = FireSimConfig.yDim;
+
         Entities
-            .ForEach((ref Bucket bucket, ref BucketOwner bucketOwner) =>
+            .WithReadOnly(neighborOffsets)
+            .ForEach((int entityInQueryIndex, ref Bucket bucket, ref BucketOwner bucketOwner, in Position position) =>
             {
                 if (bucketOwner.IsAssigned())
                 {
                     if (bucket.LinearT < 0.0f || bucket.LinearT > 1.0f)
+                    {
+                        // unassign
                         bucketOwner.Value = 0;
+
+                        // append this cell
+                        int2 coord = new int2(position.coord);
+                        int xc = math.max(math.min(coord.x, xDim-1), 0);
+                        int yc = math.max(math.min(coord.y, yDim-1), 0);
+                        int index = yc * xDim + xc;
+                        ecb.AppendToBuffer<DouseElement>(entityInQueryIndex, boardEntity, new DouseElement { Value = index });
+
+                        for (int i=0; i<8; ++i)
+                        {
+                            int2 neighborCoord = coord + neighborOffsets[i];
+                            int nxc = math.max(math.min(neighborCoord.x, xDim-1), 0);
+                            int nyc = math.max(math.min(neighborCoord.y, yDim-1), 0);
+                            int neighborIndex = nyc * xDim + nxc;
+                            ecb.AppendToBuffer<DouseElement>(entityInQueryIndex, boardEntity, new DouseElement { Value = neighborIndex });
+                        }
+                    }
                 }
             }).ScheduleParallel();
 
