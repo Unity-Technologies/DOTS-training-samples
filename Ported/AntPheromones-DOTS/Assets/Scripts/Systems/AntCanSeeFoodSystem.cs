@@ -20,6 +20,7 @@ public class AntCanSeeFoodSystem : SystemBase
         
         Entities
             .WithAll<Ant>()
+            .WithNone<HasFood, CanSeeFood>()
             .ForEach((Entity resEntity, in Translation translation) =>
             {
                 if (lineOfSightGrid[(((int) translation.Value.y) * boardWidth) + ((int) translation.Value.x)].present)

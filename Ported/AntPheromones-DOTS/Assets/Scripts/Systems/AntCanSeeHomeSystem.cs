@@ -16,7 +16,6 @@ public class AntCanSeeHomeSystem : SystemBase
         Entity homeLineOfSightEntity = GetSingletonEntity<HomeLineOfSightBufferElement>();
         DynamicBuffer<HomeLineOfSightBufferElement> lineOfSightGrid = EntityManager.GetBuffer<HomeLineOfSightBufferElement>(homeLineOfSightEntity);
 
-
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
         Entities

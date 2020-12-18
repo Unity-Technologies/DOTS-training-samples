@@ -16,7 +16,8 @@ public class AntReachedFoodSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
         Entities
-            .WithAll<Ant>()
+            .WithAll<Ant, CanSeeFood>()
+            .WithNone<HasFood>()
             .ForEach((Entity resEntity, ref Heading heading, ref Translation translation) =>
             {
                 var antFromHome = translation.Value - goalTranslation.Value;
