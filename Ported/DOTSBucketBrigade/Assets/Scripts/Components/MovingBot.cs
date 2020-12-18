@@ -7,6 +7,6 @@ public struct MovingBot : IComponentData
     public float2 StartPosition;
     public float2 TargetPosition;
     public double StartTime;
-    public Type TagComponentToRemoveOnArrival;
-    public Type TagComponentToAddOnArrival;
+    public ComponentType TagComponentToRemoveOnArrival;
+    public ComponentType TagComponentToAddOnArrival;
 }
