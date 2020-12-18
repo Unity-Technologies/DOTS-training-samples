@@ -7,6 +7,12 @@ public class HomeLineOfSightRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+        if (!antMovementParameters.debug) 
+            return;
+        
         Entity lineOfSightEntity = GetSingletonEntity<HomeLineOfSightBufferElement>();
         DynamicBuffer<HomeLineOfSightBufferElement> lineOfSightGrid =
             EntityManager.GetBuffer<HomeLineOfSightBufferElement>(lineOfSightEntity);

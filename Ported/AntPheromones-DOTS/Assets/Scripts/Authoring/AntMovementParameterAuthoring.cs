@@ -9,7 +9,8 @@ public class AntMovementParameterAuthoring : MonoBehaviour, IConvertGameObjectTo
     public float pheromoneWeight;
     public float goalWeight;
     public float homeWeight;
-
+    public bool debug;
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new AntMovementParameters
@@ -17,7 +18,8 @@ public class AntMovementParameterAuthoring : MonoBehaviour, IConvertGameObjectTo
             randomWeight = randomWeight,
             pheromoneWeight = pheromoneWeight,
             goalWeight = goalWeight,
-            homeWeight = homeWeight
+            homeWeight = homeWeight,
+            debug = debug
         });
     }
 }

@@ -7,6 +7,12 @@ public class ObstacleRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+        if (!antMovementParameters.debug) 
+            return;
+
         Entity obstacleEntity = GetSingletonEntity<ObstacleBufferElement>();
         DynamicBuffer<ObstacleBufferElement> obstacleGrid = EntityManager.GetBuffer<ObstacleBufferElement>(obstacleEntity);
         

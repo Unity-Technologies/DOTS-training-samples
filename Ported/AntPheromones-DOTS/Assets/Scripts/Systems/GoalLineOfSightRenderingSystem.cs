@@ -7,6 +7,12 @@ public class GoalLineOfSightRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+        if (!antMovementParameters.debug) 
+            return;
+
         Entity lineOfSightEntity = GetSingletonEntity<GoalLineOfSightBufferElement>();
         DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid =
             EntityManager.GetBuffer<GoalLineOfSightBufferElement>(lineOfSightEntity);

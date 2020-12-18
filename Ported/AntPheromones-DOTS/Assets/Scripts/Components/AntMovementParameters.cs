@@ -9,4 +9,5 @@ public struct AntMovementParameters : IComponentData
 	public float pheromoneWeight;
 	public float goalWeight;
 	public float homeWeight;
+	public bool debug;
 }
