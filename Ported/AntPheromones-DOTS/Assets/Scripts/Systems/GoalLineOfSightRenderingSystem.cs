@@ -3,16 +3,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class LineOfSightRenderingSystem : SystemBase
+public class GoalLineOfSightRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        // Entity obstacleEntity = GetSingletonEntity<ObstacleBufferElement>();
-        // DynamicBuffer<ObstacleBufferElement> obstacleGrid = EntityManager.GetBuffer<ObstacleBufferElement>(obstacleEntity);
-        //
-        Entity lineOfSightEntity = GetSingletonEntity<LineOfSightBufferElement>();
-        DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid =
-            EntityManager.GetBuffer<LineOfSightBufferElement>(lineOfSightEntity);
+        Entity lineOfSightEntity = GetSingletonEntity<GoalLineOfSightBufferElement>();
+        DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid =
+            EntityManager.GetBuffer<GoalLineOfSightBufferElement>(lineOfSightEntity);
         
         Entity trailTextureEntity = GetSingletonEntity<TrailTexture>();
         TrailTexture trailTexture = EntityManager.GetComponentData<TrailTexture>(trailTextureEntity);

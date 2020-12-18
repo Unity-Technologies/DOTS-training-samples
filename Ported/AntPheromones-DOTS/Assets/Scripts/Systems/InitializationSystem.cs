@@ -25,9 +25,9 @@ public class InitializationSystem : SystemBase
         DynamicBuffer<ObstacleBufferElement> obstacleGrid =
             EntityManager.GetBuffer<ObstacleBufferElement>(obstacleEntity);
 
-        Entity lineOfSightEntity = GetSingletonEntity<LineOfSightBufferElement>();
-        DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid =
-            EntityManager.GetBuffer<LineOfSightBufferElement>(lineOfSightEntity);
+        Entity lineOfSightEntity = GetSingletonEntity<GoalLineOfSightBufferElement>();
+        DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid =
+            EntityManager.GetBuffer<GoalLineOfSightBufferElement>(lineOfSightEntity);
 
         Entity homeLineOfSightEntity = GetSingletonEntity<HomeLineOfSightBufferElement>();
         DynamicBuffer<HomeLineOfSightBufferElement> homeLineOfSightGrid =
@@ -142,7 +142,7 @@ public class InitializationSystem : SystemBase
     }
 
     public static void UpdateLineInDirection(Translation start, DynamicBuffer<ObstacleBufferElement> obstacleGrid,
-        DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid, int boardWidth)
+        DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid, int boardWidth)
     {
         int[] lineIndices = new int[boardWidth];
         for (int i = 0; i < 360; i++)
@@ -157,7 +157,7 @@ public class InitializationSystem : SystemBase
                 int indexInLineOfSightGrid = (((int) posToCheck.y) * 128) + ((int) posToCheck.x);
                 if (obstacleGrid[indexInLineOfSightGrid].present) 
                     break;
-                lineOfSightGrid[indexInLineOfSightGrid] = new LineOfSightBufferElement {present = true};
+                lineOfSightGrid[indexInLineOfSightGrid] = new GoalLineOfSightBufferElement {present = true};
             }
         }
     }

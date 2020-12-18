@@ -14,8 +14,8 @@ public class AntCanSeeFoodSystem : SystemBase
         DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
         int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
 
-        Entity lineOfSightEntity = GetSingletonEntity<LineOfSightBufferElement>();
-        DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid = EntityManager.GetBuffer<LineOfSightBufferElement>(lineOfSightEntity);
+        Entity lineOfSightEntity = GetSingletonEntity<GoalLineOfSightBufferElement>();
+        DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid = EntityManager.GetBuffer<GoalLineOfSightBufferElement>(lineOfSightEntity);
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
