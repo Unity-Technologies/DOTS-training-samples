@@ -78,8 +78,7 @@ public class FetcherFindBucketSystem : SystemBase
                     if (assignedFetcherEntities[minDistanceIndex] == Entity.Null)
                     {
                         ecb.AddComponent<AssignedBucket>(entity, new AssignedBucket {Value = bucketEntities[minDistanceIndex]});
-                        ecb.SetComponent<Bucket>(entity, new Bucket {LinearT = 0.0f});
-                        ecb.SetComponent<MovingBot>(entity, new MovingBot
+                        ecb.AddComponent<MovingBot>(entity, new MovingBot
                         {
                             StartPosition = position.coord,
                             TargetPosition = bucketPositions[minDistanceIndex].coord,
@@ -101,13 +100,14 @@ public class FetcherFindBucketSystem : SystemBase
             .Schedule();
 
         Entities
-            .WithAll<Bucket, TeamIndex>()
+            .WithAll<Bucket>()
             .WithStoreEntityQueryInField(ref m_BucketQuery)
             .WithReadOnly(bucketOwners)
             .WithDisposeOnCompletion(bucketOwners)
-            .ForEach((int entityInQueryIndex, ref BucketOwner bucketOwner, in Position position) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in Position position) =>
             {
                 bucketOwner.Value = bucketOwners[entityInQueryIndex].Value;
+                ecb.SetComponent<Bucket>(entity, new Bucket {LinearT = 0.0f});
             })
             .Schedule();
 
