@@ -69,20 +69,9 @@ public class BucketTeamSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        NativeArray<float2> throwerCoords = new NativeArray<float2>(FireSimConfig.maxTeams, Allocator.TempJob);
-        NativeArray<float2> fetcherCoords = new NativeArray<float2>(FireSimConfig.maxTeams, Allocator.TempJob);
-        NativeArray<float2> teamDirection = new NativeArray<float2>(FireSimConfig.maxTeams, Allocator.TempJob);
-
-        Entities.WithAll<Fetcher>().ForEach((in Position position, in TeamIndex teamIndex) =>
-        {
-            fetcherCoords[teamIndex.Value] = position.coord;
-        }).Run();
-
-        Entities.WithAll<Thrower>().ForEach((in Thrower thrower, in TeamIndex teamIndex) =>
-        {
-            throwerCoords[teamIndex.Value] = thrower.GridPosition;
-            teamDirection[teamIndex.Value] = thrower.GridPosition - fetcherCoords[teamIndex.Value];
-        }).Run();
+        NativeArray<float2> throwerCoords = BucketTeamCollectInfoSystem.s_ThrowerCoords;
+        NativeArray<float2> fetcherCoords = BucketTeamCollectInfoSystem.s_FetcherCoords;
+        NativeArray<float2> teamDirection = BucketTeamCollectInfoSystem.s_TeamDirection;
 
         float rMaxBucketEmpty = 1.0f / (1.0f+FireSimConfig.numEmptyBots);
         float rMaxBucketFull = 1.0f / (1.0f+FireSimConfig.numFullBots);
@@ -156,9 +145,5 @@ public class BucketTeamSystem : SystemBase
                 UpdateTranslation(out translation, start, end, dir, t, -1.0f, splayParams);
             }).Schedule();
 #endif
-
-        throwerCoords.Dispose(Dependency);
-        fetcherCoords.Dispose(Dependency);
-        teamDirection.Dispose(Dependency);
     }
 }

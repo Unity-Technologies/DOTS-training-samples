@@ -22,18 +22,9 @@ public class BucketSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        NativeArray<float2> throwerCoords = new NativeArray<float2>(FireSimConfig.maxTeams, Allocator.TempJob);
-        NativeArray<float2> fetcherCoords = new NativeArray<float2>(FireSimConfig.maxTeams, Allocator.TempJob);
-
-        Entities.WithAll<Fetcher>().ForEach((in Position position, in TeamIndex teamIndex) =>
-        {
-            fetcherCoords[teamIndex.Value] = position.coord;
-        }).Run();
-
-        Entities.WithAll<Thrower>().ForEach((in Thrower thrower, in TeamIndex teamIndex) =>
-        {
-            throwerCoords[teamIndex.Value] = thrower.GridPosition;
-        }).Run();
+        NativeArray<float2> throwerCoords = BucketTeamCollectInfoSystem.s_ThrowerCoords;
+        NativeArray<float2> fetcherCoords = BucketTeamCollectInfoSystem.s_FetcherCoords;
+        NativeArray<float2> teamDirection = BucketTeamCollectInfoSystem.s_TeamDirection;
 
         SplayParams splayParams = new SplayParams
         {
@@ -47,15 +38,19 @@ public class BucketSystem : SystemBase
         float bucketSpeed = FireSimConfig.kBucketSpeed;
 
         Entities
+            .WithReadOnly(fetcherCoords)
+            .WithReadOnly(throwerCoords)
+            .WithReadOnly(teamDirection)
             .WithNativeDisableContainerSafetyRestriction(fetcherCoords)
             .WithNativeDisableContainerSafetyRestriction(throwerCoords)
+            .WithNativeDisableContainerSafetyRestriction(teamDirection)
             .ForEach((ref Position position, ref Bucket bucket, in BucketOwner bucketOwner, in WaterLevel waterLevel) =>
             {
                 if (bucketOwner.IsAssigned())
                 {
                     int teamIndex = bucketOwner.AsCohortIndex();
                     float bias = waterLevel.Value < 0.5f ? 1.0f : -1.0f; // empty buckets carried by empty bot who is biased to +1
-                    float2 dir = throwerCoords[teamIndex] - fetcherCoords[teamIndex];
+                    float2 dir = teamDirection[teamIndex];
 
                     Translation translation;
                     BucketTeamSystem.UpdateTranslation(out translation, fetcherCoords[teamIndex], throwerCoords[teamIndex], dir, bucket.LinearT, bias, splayParams);
@@ -89,8 +84,5 @@ public class BucketSystem : SystemBase
             {
                 translation.Value = new float3(position.coord.x, 1.0f, position.coord.y);
             }).Schedule();
-
-        Dependency = fetcherCoords.Dispose(Dependency);
-        Dependency = throwerCoords.Dispose(Dependency);
     }
 }
