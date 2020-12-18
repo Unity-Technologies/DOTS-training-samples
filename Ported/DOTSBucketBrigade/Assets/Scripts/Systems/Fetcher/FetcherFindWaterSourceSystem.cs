@@ -26,6 +26,8 @@ public class FetcherFindWaterSourceSystem : SystemBase
 
         var elapsedTime = Time.ElapsedTime;
 
+        var movingFetchers = new NativeArray<MovingBot>(FireSimConfig.maxTeams, Allocator.TempJob);
+        var movingBucketEntities = new NativeArray<Entity>(FireSimConfig.maxTeams, Allocator.TempJob);
         Entities
             .WithAll<Fetcher, FetcherFindWaterSource>()
             .WithDisposeOnCompletion(waterSourceEntities)
@@ -72,7 +74,42 @@ public class FetcherFindWaterSourceSystem : SystemBase
                 TagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFillingBucket>()
             };
             ecb.AddComponent(entity, movingBot);
+            movingFetchers[entityInQueryIndex] = movingBot;
+            movingBucketEntities[entityInQueryIndex] = assignedBucket.Value;
         }).Schedule();
+
+        Entities
+            .WithAll<Bucket>()
+            .WithDisposeOnCompletion(movingFetchers)
+            .WithDisposeOnCompletion(movingBucketEntities)
+            .ForEach((Entity entity, in BucketOwner bucketOwner, in Translation translation) =>
+            {
+                if (!bucketOwner.IsAssigned())
+                    return;
+
+                var movingBucketIndex = -1;
+                for (var i = 0; i < movingBucketEntities.Length; ++i)
+                {
+                    if (movingBucketEntities[i] == entity)
+                    {
+                        movingBucketIndex = i;
+                        break;
+                    }
+                }
+
+                if (movingBucketIndex != -1)
+                {
+                    var movingFetcher = movingFetchers[movingBucketIndex];
+                    var bucketMovingBot = new MovingBot
+                    {
+                        StartPosition = new float3(movingFetcher.StartPosition.x, 1.2f, movingFetcher.StartPosition.z),
+                        TargetPosition = new float3(movingFetcher.TargetPosition.x, 1.2f, movingFetcher.TargetPosition.z),
+                        StartTime = movingFetcher.StartTime,
+                        TagComponentToAddOnArrival = null
+                    };
+                    ecb.AddComponent<MovingBot>(entity, bucketMovingBot);
+                }
+            }).Schedule();
 
         _ecbSystem.AddJobHandleForProducer(Dependency);
     }
