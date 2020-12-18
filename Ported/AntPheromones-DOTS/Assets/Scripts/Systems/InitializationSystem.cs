@@ -97,29 +97,9 @@ public class InitializationSystem : SystemBase
                             Value = new float3(64f + math.cos(angle) * ringRadius,
                                 64f + math.sin(angle) * ringRadius, 0)
                         };
-
-                        int indexInObstacleGrid = (((int) translation.Value.y) * 128) + ((int) translation.Value.x);
-
-                        obstacleGrid[indexInObstacleGrid] = new ObstacleBufferElement {present = true};
-                        int boardWidth = 128;
-
-                        int up = indexInObstacleGrid + boardWidth;
-                        obstacleGrid[up] = new ObstacleBufferElement {present = true};
-                        int down = indexInObstacleGrid - boardWidth;
-                        obstacleGrid[down] = new ObstacleBufferElement {present = true};
-                        int upRight = indexInObstacleGrid + boardWidth + 1;
-                        obstacleGrid[upRight] = new ObstacleBufferElement {present = true};
-                        int upLeft = indexInObstacleGrid + boardWidth - 1;
-                        obstacleGrid[upLeft] = new ObstacleBufferElement {present = true};
-                        int downRight = indexInObstacleGrid - boardWidth + 1;
-                        obstacleGrid[downRight] = new ObstacleBufferElement {present = true};
-                        int downLeft = indexInObstacleGrid - boardWidth - 1;
-                        obstacleGrid[downLeft] = new ObstacleBufferElement {present = true};
-                        int right = indexInObstacleGrid + 1;
-                        obstacleGrid[right] = new ObstacleBufferElement {present = true};
-                        int left = indexInObstacleGrid - 1;
-                        obstacleGrid[left] = new ObstacleBufferElement {present = true};
-
+                        
+                        CreateObstacle(translation.Value.x, translation.Value.y, obstacleGrid);
+                        
                         ecb.SetComponent(obstacle, translation);
                         ecb.SetComponent(obstacle, new Radius {radius = 4});
                     }
@@ -139,7 +119,23 @@ public class InitializationSystem : SystemBase
         ecb.Dispose();
     }
 
-    
+    private void CreateObstacle(float xCenter, float yCenter, DynamicBuffer<ObstacleBufferElement> obstacleGrid)
+    {
+        int boardWidth = 128;
+        float maxRadius = 2.0f;
+        
+        for (float radius = 0.01f; radius < maxRadius; radius += 0.01f)
+        {
+            for (float angle2 = 0f; angle2 < 2*3.14f; angle2 += 0.1f) {
+              float x = radius * math.cos(angle2);
+              float y = radius * math.sin(angle2);
+              
+              int indexInObstacleGrid = (((int) (yCenter + y) * boardWidth) + ((int) (xCenter + x)));
+              
+              obstacleGrid[indexInObstacleGrid] = new ObstacleBufferElement {present = true};
+            }    
+        }
+    }
     
     public static void UpdateLineInDirection(Translation start, DynamicBuffer<ObstacleBufferElement> obstacleGrid,
         DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid, int boardWidth)
