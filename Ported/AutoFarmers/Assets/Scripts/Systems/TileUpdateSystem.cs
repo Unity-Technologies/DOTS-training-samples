@@ -30,69 +30,7 @@ public class TileUpdateSystem : SystemBase
                 }
                 
             }).Run();
-        
-        // NOTE: We can't turn this into a generic method. :(
-        /*
-        Entities
-           .WithAll<EmptyTile>()
-           .ForEach((Entity entity, in Translation translation) =>
-           {
-               var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-               var tileState = tileBuffer[index].Value;
-               ecb.RemoveComponent<EmptyTile>(entity);
-               SetTileComponent(ecb, entity, tileState);   
-           }).Run();
-        
-        Entities
-            .WithAll<TilledTile>()
-            .ForEach((Entity entity, in Translation translation) =>
-            {
-                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var tileState = tileBuffer[index].Value;
-                ecb.RemoveComponent<TilledTile>(entity);
-                SetTileComponent(ecb, entity, tileState);   
-            }).Run();
-        
-        Entities
-            .WithAll<SeededTile>()
-            .ForEach((Entity entity, in Translation translation) =>
-            {
-                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var tileState = tileBuffer[index].Value;
-                ecb.RemoveComponent<SeededTile>(entity);
-                SetTileComponent(ecb, entity, tileState);   
-            }).Run();
-        
-        Entities
-            .WithAll<GrownTile>()
-            .ForEach((Entity entity, in Translation translation) =>
-            {
-                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var tileState = tileBuffer[index].Value;
-                ecb.RemoveComponent<GrownTile>(entity);
-                SetTileComponent(ecb, entity, tileState);   
-            }).Run();
-        
-        Entities
-            .WithAll<StoreTile>()
-            .ForEach((Entity entity, in Translation translation) =>
-            {
-                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var tileState = tileBuffer[index].Value;
-                ecb.RemoveComponent<StoreTile>(entity);
-                SetTileComponent(ecb, entity, tileState);   
-            }).Run();
-            
-        Entities
-            .WithAll<RockTile>()
-            .ForEach((Entity entity, in Translation translation) =>
-            {
-                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var tileState = tileBuffer[index].Value;
-                ecb.RemoveComponent<RockTile>(entity);
-                SetTileComponent(ecb, entity, tileState);
-            }).Run();*/
-        
+
         ecb.Playback(EntityManager);
     }
 

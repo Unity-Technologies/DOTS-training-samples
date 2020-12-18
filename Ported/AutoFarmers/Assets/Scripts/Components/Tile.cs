@@ -22,14 +22,14 @@ public struct Tile : IComponentData
     public ETileState State;
 }
 
-public struct EmptyTile : IComponentData {}
+public struct EmptyTile  : IComponentData {}
 
-public struct GrownTile : IComponentData {}
+public struct GrownTile  : IComponentData {}
 
-public struct RockTile : IComponentData {}
+public struct RockTile   : IComponentData {}
 
 public struct SeededTile : IComponentData {}
 
-public struct StoreTile : IComponentData {}
+public struct StoreTile  : IComponentData {}
 
 public struct TilledTile : IComponentData {}
