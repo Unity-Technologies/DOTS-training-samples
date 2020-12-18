@@ -60,21 +60,27 @@ public class InitializationSystem : SystemBase
                 ecb.SetComponent(home, center);
 
                 // Create Food
-                var randomFoodPosIndex = 0;// random.NextInt(0, 4);
+                var randomFoodPosIndex = random.NextInt(0, 4);
                 var food = ecb.Instantiate(init.goalPrefab);
+
+                Translation foodPos = new Translation {Value = new float3(10, 10, 0)};
                 switch (randomFoodPosIndex)
                 {
                     case 0:
                         ecb.SetComponent(food, bottomLeftFood);
+                        foodPos = bottomLeftFood;
                         break;
                     case 1:
                         ecb.SetComponent(food, topLeftFood);
+                        foodPos = topLeftFood;
                         break;
                     case 2:
                         ecb.SetComponent(food, bottomRightFood);
+                        foodPos = bottomRightFood;
                         break;
                     case 3:
                         ecb.SetComponent(food, topRightFood);
+                        foodPos = topRightFood;
                         break;
                 }
 
@@ -108,9 +114,9 @@ public class InitializationSystem : SystemBase
                         ecb.SetComponent(obstacle, new Radius {radius = 4});
                     }
                 }
-                
+
                 // create Food LineOfSight grid
-                UpdateLineInDirection(bottomLeftFood, obstacleGrid, lineOfSightGrid, 128);
+                UpdateLineInDirection(foodPos, obstacleGrid, lineOfSightGrid, 128);
                 
                 // create Home LineOfSight Grid
                 UpdateHomeLineInDirection(center, obstacleGrid, homeLineOfSightGrid, 128);
@@ -143,9 +149,9 @@ public class InitializationSystem : SystemBase
         DynamicBuffer<GoalLineOfSightBufferElement> lineOfSightGrid, int boardWidth)
     {
         int[] lineIndices = new int[boardWidth];
-        for (int i = 0; i < 360; i++)
+        for (int i = 0; i < 3600; i++)
         {
-            float2 angle = new float2( math.cos(i),  math.sin(i));
+            float2 angle = new float2( math.cos(i/10f),  math.sin(i/10f));
             for (int dist = 1; dist < boardWidth; dist++)
             {
                 float2 posToCheck = new float2(start.Value.x, start.Value.y) + (angle * dist);
