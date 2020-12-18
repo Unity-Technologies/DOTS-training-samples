@@ -7,9 +7,18 @@ using Unity.Transforms;
 
 public class TillGroundSystem : SystemBase
 {
+    private EndSimulationEntityCommandBufferSystem m_ECB;
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        m_ECB = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = m_ECB.CreateCommandBuffer();
 
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
@@ -22,7 +31,7 @@ public class TillGroundSystem : SystemBase
         var isTillable = PathSystem.isTillable;
         var fullMapZone = new RectInt(0, 0, settings.GridSize.x, settings.GridSize.y);
 
-        Entities
+        Dependency = Entities
            .WithAll<Farmer>()
            .ForEach((Entity entity, ref TillGroundIntention tillGround, in Translation translation) =>
            {
@@ -118,8 +127,8 @@ public class TillGroundSystem : SystemBase
                }
             
 
-           }).Run();
+           }).Schedule(Dependency);
 
-        ecb.Playback(EntityManager);
+        m_ECB.AddJobHandleForProducer(Dependency);
     }
 }
