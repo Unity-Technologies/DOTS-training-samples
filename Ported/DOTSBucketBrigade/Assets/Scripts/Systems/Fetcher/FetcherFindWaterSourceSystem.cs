@@ -1,5 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 public class FetcherFindWaterSourceSystem : SystemBase
 {
@@ -9,7 +11,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        _waterSourceQuery = GetEntityQuery(typeof(WaterSourceVolume), typeof(Position));
+        _waterSourceQuery = GetEntityQuery(typeof(WaterSourceVolume), typeof(Translation));
         _ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -20,22 +22,25 @@ public class FetcherFindWaterSourceSystem : SystemBase
         //Find all valid water volumes
         var waterSourceEntities = _waterSourceQuery.ToEntityArray(Allocator.TempJob);
         var waterSourceVolumes = _waterSourceQuery.ToComponentDataArray<WaterSourceVolume>(Allocator.TempJob);
-        var waterSourcePositions = _waterSourceQuery.ToComponentDataArray<Position>(Allocator.TempJob);
+        var waterSourceTranslations = _waterSourceQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         var elapsedTime = Time.ElapsedTime;
 
+        var movingFetchers = new NativeArray<MovingBot>(FireSimConfig.maxTeams, Allocator.TempJob);
+        var movingBucketEntities = new NativeArray<Entity>(FireSimConfig.maxTeams, Allocator.TempJob);
         Entities
             .WithAll<Fetcher, FetcherFindWaterSource>()
             .WithDisposeOnCompletion(waterSourceEntities)
             .WithDisposeOnCompletion(waterSourceVolumes)
-            .WithDisposeOnCompletion(waterSourcePositions)
-            .ForEach((Entity entity, in Position position) =>
+            .WithDisposeOnCompletion(waterSourceTranslations)
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in AssignedBucket assignedBucket) =>
         {
             //Find the closest water source with water remaining
-            float GetDistanceSquared(Position pos1, Position pos2)
+            float GetDistanceSquared(Translation pos1, Translation pos2)
             {
-                return (pos1.coord.x - pos2.coord.x) * (pos1.coord.x - pos2.coord.x) +
-                       (pos1.coord.y - pos2.coord.y) * (pos1.coord.y - pos2.coord.y);
+                return (pos1.Value.x - pos2.Value.x) * (pos1.Value.x - pos2.Value.x) +
+                       (pos1.Value.y - pos2.Value.y) * (pos1.Value.y - pos2.Value.y) +
+                       (pos1.Value.z - pos2.Value.z) * (pos1.Value.z - pos2.Value.z);
             }
 
             var minDistance = float.MaxValue;
@@ -45,7 +50,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
                 if (waterSourceVolumes[i].Value <= 0)
                     continue;
 
-                var distance = GetDistanceSquared(position, waterSourcePositions[i]);
+                var distance = GetDistanceSquared(translation, waterSourceTranslations[i]);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -61,14 +66,50 @@ public class FetcherFindWaterSourceSystem : SystemBase
 
             //Start moving the bot towards the water source
             ecb.RemoveComponent<FetcherFindWaterSource>(entity);
-            ecb.AddComponent(entity, new MovingBot
+            var movingBot = new MovingBot
             {
-                StartPosition = position.coord,
-                TargetPosition = waterSourcePositions[minDistanceIndex].coord,
+                StartPosition = translation.Value,
+                TargetPosition = waterSourceTranslations[minDistanceIndex].Value,
                 StartTime = elapsedTime,
                 TagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFillingBucket>()
-            });
+            };
+            ecb.AddComponent(entity, movingBot);
+            movingFetchers[entityInQueryIndex] = movingBot;
+            movingBucketEntities[entityInQueryIndex] = assignedBucket.Value;
         }).Schedule();
+
+        Entities
+            .WithAll<Bucket>()
+            .WithDisposeOnCompletion(movingFetchers)
+            .WithDisposeOnCompletion(movingBucketEntities)
+            .ForEach((Entity entity, in BucketOwner bucketOwner, in Translation translation) =>
+            {
+                if (!bucketOwner.IsAssigned())
+                    return;
+
+                var movingBucketIndex = -1;
+                for (var i = 0; i < movingBucketEntities.Length; ++i)
+                {
+                    if (movingBucketEntities[i] == entity)
+                    {
+                        movingBucketIndex = i;
+                        break;
+                    }
+                }
+
+                if (movingBucketIndex != -1)
+                {
+                    var movingFetcher = movingFetchers[movingBucketIndex];
+                    var bucketMovingBot = new MovingBot
+                    {
+                        StartPosition = new float3(movingFetcher.StartPosition.x, 1.2f, movingFetcher.StartPosition.z),
+                        TargetPosition = new float3(movingFetcher.TargetPosition.x, 1.2f, movingFetcher.TargetPosition.z),
+                        StartTime = movingFetcher.StartTime,
+                        TagComponentToAddOnArrival = null
+                    };
+                    ecb.AddComponent<MovingBot>(entity, bucketMovingBot);
+                }
+            }).Schedule();
 
         _ecbSystem.AddJobHandleForProducer(Dependency);
     }
