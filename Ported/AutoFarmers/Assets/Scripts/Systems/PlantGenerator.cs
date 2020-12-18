@@ -3,84 +3,76 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEditor;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class PlantGenerator : SystemBase
 {
-	//public Random random;
 	public static Dictionary<int, Mesh> meshLookup;
-	public Matrix4x4 matrix;
-	public Quaternion rotation;
 
 	protected override void OnCreate()
 	{
 		base.OnCreate();
-		//random = new Random(1234);
 		if (meshLookup == null)
 		{
 			meshLookup = new Dictionary<int, Mesh>();
 		}
 	}
 
-
 	protected override void OnUpdate()
 	{
 		var commonSettings = GetSingleton<CommonSettings>();
-		
-		Entities.WithAll<Plant>()
-			.ForEach((Entity entity, ref Plant plant, in RenderMesh mesh) =>
-			{
-				Vector3 worldPos = new Vector3(plant.Position.x + .5f, 0f, plant.Position.y + .5f);
-				matrix = Matrix4x4.TRS(worldPos, rotation, Vector3.one);
+		var insideUnitSphere = (float3)UnityEngine.Random.insideUnitSphere;
 
-				var linearIndex = plant.Position.x + plant.Position.y * commonSettings.GridSize.x;
-				var newMesh = GenerateMesh(linearIndex);
+		/*Entities.WithAll<Plant>()
+			.ForEach((Entity entity, in RenderMesh mesh, in Translation position, in Rotation rotation) =>
+			{
+				float3 worldPos = new float3(position.Value.x + .5f, 0f, position.Value.y + .5f);
+				var matrix = float4x4.TRS(worldPos, rotation.Value, new float3(1));
+
+				var linearIndex = position.Value.x + position.Value.y * commonSettings.GridSize.x;
+				var newMesh = GenerateMesh((int)linearIndex);
 
                 if (newMesh)
                 {
                     mesh.mesh.vertices = newMesh.vertices;
                     mesh.mesh.triangles = newMesh.triangles;
                 }
-			}).WithoutBurst().Run();
+			}).WithoutBurst().Run();*/
     }
 
-	public void EaseToWorldPosition(float x, float y, float z, float smooth)
+	//[MenuItem("APIExamples/SaveAssets")]
+	public static Mesh GenerateMesh(int seed)
 	{
-		matrix.m03 += (x - matrix.m03) * smooth * 3f;
-		matrix.m13 += (y - matrix.m13) * smooth * 3f;
-		matrix.m23 += (z - matrix.m23) * smooth * 3f;
-
-	}
-		Mesh GenerateMesh(int seed)
-	{
-		Random.State oldRandState = Random.state;
-		Random.InitState(seed);
+		//var seed = System.DateTime.UtcNow.Millisecond;
+		var random = new Unity.Mathematics.Random((uint)seed);
+		var oldRandState = random.state;
+		random.InitState((uint)seed);
 
 		List<Vector3> vertices = new List<Vector3>();
 		List<int> triangles = new List<int>();
 		List<Color> colors = new List<Color>();
-		List<Vector2> uv = new List<Vector2>();
+		List<float2> uv = new List<float2>();
 
-		Color color1 = Random.ColorHSV(0f, 1f, .5f, .8f, .25f, .9f);
-		Color color2 = Random.ColorHSV(0f, 1f, .5f, .8f, .25f, .9f);
+		Color color1 = new Color(0f, 1f, .5f, .8f);
+		Color color2 = new Color(0f, 1f, .5f, .8f);
 
-		float height = Random.Range(.4f, 1.4f);
+		float height = random.NextFloat(.4f, 1.4f);
 
-		float angle = Random.value * Mathf.PI * 2f;
-		float armLength1 = Random.value * .4f + .1f;
-		float armLength2 = Random.value * .4f + .1f;
-		float armRaise1 = Random.value * .3f;
-		float armRaise2 = Random.value * .6f - .3f;
-		float armWidth1 = Random.value * .5f + .2f;
-		float armWidth2 = Random.value * .5f + .2f;
-		float armJitter1 = Random.value * .3f;
-		float armJitter2 = Random.value * .3f;
-		float stalkWaveStr = Random.value * .5f;
-		float stalkWaveFreq = Random.Range(.25f, 1f);
-		float stalkWaveOffset = Random.value * Mathf.PI * 2f;
+		float angle = random.NextFloat() * math.PI * 2f;
+		float armLength1 = random.NextFloat() * .4f + .1f;
+		float armLength2 = random.NextFloat() * .4f + .1f;
+		float armRaise1 = random.NextFloat() * .3f;
+		float armRaise2 = random.NextFloat() * .6f - .3f;
+		float armWidth1 = random.NextFloat() * .5f + .2f;
+		float armWidth2 = random.NextFloat() * .5f + .2f;
+		float armJitter1 = random.NextFloat() * .3f;
+		float armJitter2 = random.NextFloat() * .3f;
+		float stalkWaveStr = random.NextFloat() * .5f;
+		float stalkWaveFreq = random.NextFloat(.25f, 1f);
+		float stalkWaveOffset = random.NextFloat() * math.PI * 2f;
 
-		int triCount = Random.Range(15, 35);
+		int triCount = random.NextInt(15, 35);
 
 		for (int i = 0; i < triCount; i++)
 		{
@@ -102,24 +94,24 @@ public class PlantGenerator : SystemBase
 			float stalkWave = Mathf.Sin(t * stalkWaveFreq * 2f * Mathf.PI + stalkWaveOffset) * stalkWaveStr;
 
 			float y = t * height;
-			vertices.Add(new Vector3(stalkWave, y, 0f));
-			Vector3 armPos = new Vector3(stalkWave + Mathf.Cos(angle) * armLength, y + armRaise, Mathf.Sin(angle) * armLength);
-			vertices.Add(armPos + Random.insideUnitSphere * armJitter);
-			armPos = new Vector3(stalkWave + Mathf.Cos(angle + armWidth) * armLength, y + armRaise, Mathf.Sin(angle + armWidth) * armLength);
-			vertices.Add(armPos + Random.insideUnitSphere * armJitter);
+			vertices.Add(new float3(stalkWave, y, 0f));
+			var armPos = new float3(stalkWave + math.cos(angle) * armLength, y + armRaise, math.sin(angle) * armLength);
+			vertices.Add(armPos + (float3)UnityEngine.Random.insideUnitSphere * armJitter);
+			armPos = new float3(stalkWave + math.cos(angle + armWidth) * armLength, y + armRaise, math.sin(angle + armWidth) * armLength);
+			vertices.Add(armPos + (float3)UnityEngine.Random.insideUnitSphere * armJitter);
 
 			colors.Add(color1);
 			colors.Add(color2);
 			colors.Add(color2);
-			uv.Add(Vector2.zero);
-			uv.Add(Vector2.right);
-			uv.Add(Vector2.right);
+			uv.Add(float2.zero);
+			uv.Add(new float2(1,0));
+			uv.Add(new float2(1,0));
 
 			// golden angle in radians
 			angle += 2.4f;
 		}
 
-		Mesh outputMesh = new Mesh();
+		var outputMesh = new Mesh();
 		outputMesh.name = "Generated Plant (" + seed + ")";
 
 		outputMesh.SetVertices(vertices);
@@ -127,10 +119,9 @@ public class PlantGenerator : SystemBase
 		outputMesh.SetTriangles(triangles, 0);
 		outputMesh.RecalculateNormals();
 
-		meshLookup.Add(seed, outputMesh);
+		random.state = oldRandState;
 
-		//Farm.RegisterSeed(seed);
-		Random.state = oldRandState;
 		return outputMesh;
+		//AssetDatabase.CreateAsset(outputMesh, "Assets/Meshes/plantmesh" + seed + ".mesh" );
 	}
 }
