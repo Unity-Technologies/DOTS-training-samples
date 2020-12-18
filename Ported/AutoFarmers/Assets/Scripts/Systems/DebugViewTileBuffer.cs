@@ -22,13 +22,14 @@ public class DebugViewTileBuffer : SystemBase
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
 
-        var tileBuffer = GetBufferFromEntity<TileState>(true)[data];
+        var tileBufferHandler = GetBufferFromEntity<TileState>(true);
 
         Dependency = Entities
             .WithAll<Tile>()
-            .WithReadOnly(tileBuffer)
+            .WithReadOnly(tileBufferHandler)
             .ForEach((Entity entity, ref URPMaterialPropertyBaseColor baseColor, in Translation translation) =>
             {
+                var tileBuffer = tileBufferHandler[data];
                 var tilePos = new int2((int)math.floor(translation.Value.x), (int)math.floor(translation.Value.z));
                 var tileIndex = tilePos.x + tilePos.y * settings.GridSize.x;
                 switch (tileBuffer[tileIndex].Value)

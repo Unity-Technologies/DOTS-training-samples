@@ -80,6 +80,7 @@ public class TillGroundSystem : SystemBase
            }).ScheduleParallel(Dependency);
 
         m_ECB.AddJobHandleForProducer(Dependency);
+
         var ecb = m_ECB.CreateCommandBuffer();
 
         Dependency = Entities
