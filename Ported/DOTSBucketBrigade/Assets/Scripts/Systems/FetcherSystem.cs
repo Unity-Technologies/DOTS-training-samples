@@ -46,7 +46,7 @@ public class FetcherSystem : SystemBase
 
         // Assign buckets to the fetchers
         Entities
-            .WithAll<Fetcher>()
+            .WithAll<Fetcher, FetcherFindBucket>()
             .WithNone<AssignedBucket>()
             .WithReadOnly(bucketPositions)
             .WithDisposeOnCompletion(bucketPositions)
