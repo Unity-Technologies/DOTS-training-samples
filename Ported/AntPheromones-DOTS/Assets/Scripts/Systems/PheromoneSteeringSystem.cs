@@ -30,6 +30,7 @@ public class PheromoneSteeringSystem : SystemBase
 		
 		Entities
 			.WithAll<Ant>()
+			.WithReadOnly(pheromoneGrid)
 			.ForEach((ref Heading heading, in Translation translation) =>
 			{
 				float pheromoneStrengthUp = 0;
@@ -72,6 +73,6 @@ public class PheromoneSteeringSystem : SystemBase
 
 				heading.heading = math.normalize((heading.heading * originalDirectionWeight) + (aggregatePheromoneStrengthHeading * (pheromoneSteerWeight * scaledTime)));
 
-			}).Schedule();
+			}).ScheduleParallel();
 	}
 }

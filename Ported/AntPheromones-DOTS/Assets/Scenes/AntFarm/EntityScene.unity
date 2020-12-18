@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   antPrefab: {fileID: 36749753474145983, guid: 94f5a8bad3cbacd4aa729fcb1f08c8f0, type: 3}
-  antCount: 1000
+  antCount: 10000
   obstaclePrefab: {fileID: 7021344995882452339, guid: 941b3031b0f07fd4195dbf4f94fb1847, type: 3}
   goalPrefab: {fileID: 6529539321082914166, guid: 60a82d83fcf674e41b96fd0f92e36ec7, type: 3}
   homePrefab: {fileID: 2771118013311475877, guid: acae5b6a344b8554db34ce02dda594f0, type: 3}
@@ -319,8 +319,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e556db84a96be944901b501c8831eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pheromoneApplicationRate: 10
-  pheromoneDecayRate: 0.01
+  pheromoneApplicationRate: 4
+  pheromoneDecayRate: 0.025
 --- !u!4 &1064282505
 Transform:
   m_ObjectHideFlags: 0
@@ -409,10 +409,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc1d6cd7cfdc56848903a8cd1b320b89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomWeight: 0.05
-  pheromoneWeight: 0.1
-  goalWeight: 0.15
-  homeWeight: 0.15
+  randomWeight: 0.001
+  pheromoneWeight: 1
+  goalWeight: 0.1
+  homeWeight: 0.1
   debug: 1
 --- !u!4 &1359031872
 Transform:

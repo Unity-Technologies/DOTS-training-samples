@@ -10,8 +10,12 @@ public class AntCanSeeHomeSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entity homeEntity = GetSingletonEntity<Home>();
-        Translation homeTranslation= EntityManager.GetComponentData<Translation>(homeEntity);
+        Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
+        int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
+
+        Entity homeLineOfSightEntity = GetSingletonEntity<HomeLineOfSightBufferElement>();
+        DynamicBuffer<HomeLineOfSightBufferElement> lineOfSightGrid = EntityManager.GetBuffer<HomeLineOfSightBufferElement>(homeLineOfSightEntity);
+
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
@@ -19,16 +23,13 @@ public class AntCanSeeHomeSystem : SystemBase
             .WithAll<Ant, HasFood>()
             .ForEach((Entity resEntity, in Translation translation) =>
             {
-                var antFromHome = translation.Value - homeTranslation.Value;
-                var sqrMag = antFromHome.x * antFromHome.x + antFromHome.y * antFromHome.y;
-
-                if (sqrMag <= 25)
+                if (lineOfSightGrid[(((int) translation.Value.y) * boardWidth) + ((int) translation.Value.x)].present)
                 {
                     ecb.AddComponent<CanSeeHome>(resEntity);
                 }
                 
             }).Run();
-        
+
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

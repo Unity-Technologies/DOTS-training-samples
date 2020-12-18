@@ -11,7 +11,6 @@ public class AntCanSeeFoodSystem : SystemBase
     protected override void OnUpdate()
     {
         Entity pheromoneEntity = GetSingletonEntity<Pheromones>();
-        DynamicBuffer<Pheromones> pheromoneGrid = EntityManager.GetBuffer<Pheromones>(pheromoneEntity);
         int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
 
         Entity lineOfSightEntity = GetSingletonEntity<GoalLineOfSightBufferElement>();

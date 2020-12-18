@@ -91,12 +91,18 @@ public class InitializationSystem : SystemBase
                     float circumference = ringRadius * 2f * math.PI;
                     float obstacleRadius = 1;
                     int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius));
-                    int gapAngle = random.NextInt(0, 300);
+                    int firstGapAngle = random.NextInt(0, 50);
                     int gapSize = random.NextInt(30, 60);
+                    int secondGapAngle = firstGapAngle + 180;
                     for (int j = 0; j < maxCount; j++)
                     {
                         float angle = (j) / (float) maxCount * (2f * Mathf.PI);
-                        if (angle * Mathf.Rad2Deg >= gapAngle && angle * Mathf.Rad2Deg < gapAngle + gapSize)
+                        if (angle * Mathf.Rad2Deg >= firstGapAngle && angle * Mathf.Rad2Deg < firstGapAngle + gapSize)
+                        {
+                            continue;
+                        }
+                        
+                        if (angle * Mathf.Rad2Deg >= secondGapAngle && angle * Mathf.Rad2Deg < secondGapAngle + gapSize)
                         {
                             continue;
                         }
@@ -170,9 +176,9 @@ public class InitializationSystem : SystemBase
         DynamicBuffer<HomeLineOfSightBufferElement> lineOfSightGrid, int boardWidth)
     {
         int[] lineIndices = new int[boardWidth];
-        for (int i = 0; i < 360; i++)
+        for (int i = 0; i < 3600; i++)
         {
-            float2 angle = new float2( math.cos(i),  math.sin(i));
+            float2 angle = new float2( math.cos(i/10f),  math.sin(i/10f));
             for (int dist = 1; dist < boardWidth; dist++)
             {
                 float2 posToCheck = new float2(start.Value.x, start.Value.y) + (angle * dist);
