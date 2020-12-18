@@ -24,6 +24,21 @@ public struct BoardElement : IBufferElementData
 	}
 }
 
+public struct DouseElement : IBufferElementData
+{
+	public int Value;
+
+	public static implicit operator int(DouseElement e)
+	{
+		return e.Value;
+	}
+
+	public static implicit operator DouseElement (int e)
+	{
+		return new DouseElement { Value = e };
+	}
+}
+
 #if BB_DEBUG_FLAGS
 public struct BoardDebugElement : IBufferElementData
 {
@@ -71,6 +86,9 @@ public class FireSystem : SystemBase
 		{
 			boardCells[fireRandom.NextInt(0, boardCells.Length)] = 1.0f;
 		}
+
+        // jiv fixme: should be hashset
+		DynamicBuffer<DouseElement> douseCells = EntityManager.AddBuffer<DouseElement>(m_BoardEntity);
 
 		m_NeighborOffsets = new NativeArray<int2>(8, Allocator.Persistent);
 		NativeArray<int2>.Copy(new [] {new int2(+0, -1),
@@ -146,6 +164,17 @@ public class FireSystem : SystemBase
                     newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
             }
         }).Schedule();
+
+        // douse fire
+        Entities
+            .ForEach((ref DynamicBuffer<DouseElement> douseElement) =>
+            {
+                for (int i=0; i<douseElement.Length; ++i)
+                {
+                    newHeat[douseElement[i]] = 0.0f;
+                }
+                douseElement.Clear();
+            }).Schedule();
 
 		var flashPoint = FireSimConfig.flashPoint;
 		var fireThreshold = FireSimConfig.fireThreshold;

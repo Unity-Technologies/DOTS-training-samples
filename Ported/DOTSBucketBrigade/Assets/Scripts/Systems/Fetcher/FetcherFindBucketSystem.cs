@@ -89,6 +89,7 @@ public class FetcherFindBucketSystem : SystemBase
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
                         assignedFetcherEntities[minDistanceIndex] = entity;
                         ecb.SetComponent<Bucket>(bucketEntities[minDistanceIndex], new Bucket {LinearT = 0.0f});
+                        ecb.SetComponent<WaterLevel>(bucketEntities[minDistanceIndex], new WaterLevel { Value = 1.0f });
                     }
                 }
 
