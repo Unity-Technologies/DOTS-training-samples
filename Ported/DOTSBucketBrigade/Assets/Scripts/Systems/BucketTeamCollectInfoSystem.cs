@@ -15,6 +15,7 @@ struct BucketTeamCollectInfoSingleton : IComponentData
 };
 
 [BurstCompile]
+[UpdateBefore(typeof(FireSystem))]
 public class BucketTeamCollectInfoSystem : SystemBase
 {
     Entity m_Singleton;
