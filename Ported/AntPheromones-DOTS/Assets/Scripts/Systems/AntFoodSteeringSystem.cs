@@ -13,9 +13,13 @@ public class AntFoodSteeringSystem : SystemBase
         Entity goalEntity = GetSingletonEntity<Goal>();
         Translation goalTranslation= EntityManager.GetComponentData<Translation>(goalEntity);
         float2 goalPos = new float2(goalTranslation.Value.x, goalTranslation.Value.y);
-        
-        const float goalSteerWeight = 0.5f;
-        const float originalDirectionWeight = 1.0f - goalSteerWeight;
+
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+
+        float goalSteerWeight = antMovementParameters.goalWeight;
+        float originalDirectionWeight = 1.0f - goalSteerWeight;
         
         Entities
             .WithAll<Ant, CanSeeFood>()

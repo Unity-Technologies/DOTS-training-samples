@@ -15,8 +15,12 @@ public class AntRandomSteeringSystem : SystemBase
         
         var random = new Random(6541);
 
-        const float randomSteerWeight = 0.05f;
-        const float originalDirectionWeight = 1.0f - randomSteerWeight;
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+
+        float randomSteerWeight = antMovementParameters.randomWeight;
+        float originalDirectionWeight = 1.0f - randomSteerWeight;
         
         var minRange = new float2(-1,-1);
         var maxRange = new float2(1,1);

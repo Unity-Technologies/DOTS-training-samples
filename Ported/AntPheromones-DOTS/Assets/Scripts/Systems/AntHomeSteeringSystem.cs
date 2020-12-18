@@ -14,8 +14,12 @@ public class AntHomeSteeringSystem : SystemBase
         Translation homeTranslation= EntityManager.GetComponentData<Translation>(homeEntity);
         float2 homePos = new float2(homeTranslation.Value.x, homeTranslation.Value.y);
         
-        const float homeSteerWeight = 0.5f;
-        const float originalDirectionWeight = 1.0f - homeSteerWeight;
+        Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+        AntMovementParameters antMovementParameters =
+            EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+        
+        float homeSteerWeight = antMovementParameters.homeWeight;
+        float originalDirectionWeight = 1.0f - homeSteerWeight;
         
         Entities
             .WithAll<Ant, CanSeeHome, HasFood>()
