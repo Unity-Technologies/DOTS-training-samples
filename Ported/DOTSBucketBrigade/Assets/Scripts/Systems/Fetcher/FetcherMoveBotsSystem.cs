@@ -30,7 +30,7 @@ public class FetcherMoveBotsSystem : SystemBase
                     return (vector.x * vector.x) + (vector.y * vector.y);
                 }
 
-                var timeDiff = (float)(elapsedTime - movingBot.StartTime);
+                var timeDiff = (float) (elapsedTime - movingBot.StartTime);
                 var distanceForTime = timeDiff * BotUnitsPerSecond;
 
                 var fullDistance = movingBot.TargetPosition - movingBot.StartPosition;
@@ -44,6 +44,7 @@ public class FetcherMoveBotsSystem : SystemBase
 
                 if (t >= 1)
                 {
+                    ecb.RemoveComponent<MovingBot>(entity);
                     ecb.RemoveComponent(entity, movingBot.TagComponentToRemoveOnArrival);
                     ecb.AddComponent(entity, movingBot.TagComponentToAddOnArrival);
                 }
