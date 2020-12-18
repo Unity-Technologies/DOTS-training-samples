@@ -83,6 +83,7 @@ public class FetcherFindBucketSystem : SystemBase
                             StartPosition = translation.Value,
                             TargetPosition = bucketTranslations[minDistanceIndex].Value,
                             StartTime = startTime,
+                            HasTagComponentToAddOnArrival = true,
                             TagComponentToAddOnArrival = tagComponentToAddOnArrival
                         });
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);

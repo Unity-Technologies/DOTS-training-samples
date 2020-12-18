@@ -71,6 +71,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
                 StartPosition = translation.Value,
                 TargetPosition = waterSourceTranslations[minDistanceIndex].Value,
                 StartTime = elapsedTime,
+                HasTagComponentToAddOnArrival = true,
                 TagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFillingBucket>()
             };
             ecb.AddComponent(entity, movingBot);
@@ -105,7 +106,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
                         StartPosition = new float3(movingFetcher.StartPosition.x, 1.2f, movingFetcher.StartPosition.z),
                         TargetPosition = new float3(movingFetcher.TargetPosition.x, 1.2f, movingFetcher.TargetPosition.z),
                         StartTime = movingFetcher.StartTime,
-                        TagComponentToAddOnArrival = null
+                        HasTagComponentToAddOnArrival = false
                     };
                     ecb.AddComponent<MovingBot>(entity, bucketMovingBot);
                 }

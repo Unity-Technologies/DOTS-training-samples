@@ -45,7 +45,7 @@ public class FetcherMoveBotsSystem : SystemBase
                 if (t >= 1)
                 {
                     ecb.RemoveComponent<MovingBot>(entity);
-                    if (movingBot.TagComponentToAddOnArrival != null)
+                    if (movingBot.HasTagComponentToAddOnArrival)
                         ecb.AddComponent(entity, movingBot.TagComponentToAddOnArrival);
                 }
             }).Schedule();
