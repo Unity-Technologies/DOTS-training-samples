@@ -39,6 +39,59 @@ public struct BoardDebugElement : IBufferElementData
 	}
 }
 
+struct HeatJob : IJobParallelFor
+{
+    [ReadOnly]
+    public NativeArray<int2> neighborOffsets;
+
+    [ReadOnly]
+    public float currentDeltaTime;
+
+    [ReadOnly]
+    public int2 dims;
+
+    [ReadOnly]
+    public float heatTransferRate;
+
+    [ReadOnly]
+    public uint randomSeed;
+
+    [ReadOnly]
+    public DynamicBuffer<BoardElement> board;
+
+    public NativeArray<float> newHeat;
+
+    public void Execute(int i)
+    {
+        // do the thing
+        float heatValue = 0;
+        int2 coord = new int2(i % dims.x, i / dims.x);
+
+        for (int j = 0; j < 8; j++)
+        {
+            var neighbor = neighborOffsets[j];
+            int2 neighborCoord = coord + neighbor;
+            if (math.any(neighborCoord >= new int2(dims.x, dims.y)) ||
+                math.any(neighborCoord < int2.zero))
+            {
+                continue;
+            }
+
+            float desiredHeatDelta = board[neighborCoord.y * dims.x + neighborCoord.x];
+            heatValue += desiredHeatDelta;
+        }
+
+        newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
+
+        // introduce a tiny bit of randomness for flames
+        if (newHeat[i] > 0.8f) 
+        {
+            Random fireRandom = new Random(randomSeed + (uint)i);
+            newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
+        }
+    }
+}
+
 public class FireSystem : SystemBase
 {
 	Entity m_BoardEntity;
@@ -113,39 +166,52 @@ public class FireSystem : SystemBase
 		DynamicBuffer<BoardDebugElement> boardDebugElementBuffer = lookup[m_BoardEntity];
 		NativeArray<uint> debugFlags = boardDebugElementBuffer.Reinterpret<uint>().AsNativeArray(); // jiv fixme should probably use a SingleEntity, but really this should be Blob data
 #endif
+        DynamicBuffer<BoardElement> board = GetBuffer<BoardElement>(GetSingletonEntity<BoardElement>());
+        var heatJob = new HeatJob
+        {
+            randomSeed = (uint)System.Environment.TickCount,
+            board = board,
+            currentDeltaTime = Time.DeltaTime,
+            dims = new int2(xDim, yDim),
+            heatTransferRate = heatTransferRate,
+            neighborOffsets = m_NeighborOffsets,
+            newHeat = newHeat
+        };
 
-        Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
-		{
-			for (int i=0; i<board.Length; ++i)
-			{
-				float heatValue = 0;
-				int2 coord = new int2(i % xDim, i / xDim);
-				for (int j = 0; j < 8; j++)
-				{
-					var neighbor = neighborOffsets[j];
-					int2 neighborCoord = coord + neighbor;
-					if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
-						math.any(neighborCoord < int2.zero))
-					{
-						continue;
-					}
+        Dependency = heatJob.Schedule(board.Length, 2048, Dependency);
 
-					float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
+        //      Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
+        //{
+        //    for (int i = 0; i < board.Length; ++i)
+        //    {
+        //        float heatValue = 0;
+        //        int2 coord = new int2(i % xDim, i / xDim);
+        //        for (int j = 0; j < 8; j++)
+        //        {
+        //            var neighbor = neighborOffsets[j];
+        //            int2 neighborCoord = coord + neighbor;
+        //            if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
+        //                math.any(neighborCoord < int2.zero))
+        //            {
+        //                continue;
+        //            }
+
+        //            float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
 
 
-                    heatValue += desiredHeatDelta;
+        //            heatValue += desiredHeatDelta;
 
-				}
+        //        }
 
-				newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
+        //        newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
 
-                // introduce a tiny bit of randomness for flames
-                if (newHeat[i] > 0.8f) //if (board[coord.y * xDim + coord.x] > 0.5f)
-                    newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
-            }
-        }).Schedule();
+        //              // introduce a tiny bit of randomness for flames
+        //              if (newHeat[i] > 0.8f) //if (board[coord.y * xDim + coord.x] > 0.5f)
+        //                  newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
+        //    }
+        //}).Schedule();
 
-		var flashPoint = FireSimConfig.flashPoint;
+        var flashPoint = FireSimConfig.flashPoint;
 		var fireThreshold = FireSimConfig.fireThreshold;
 
 		Entities
@@ -186,11 +252,11 @@ public class FireSystem : SystemBase
 
 		Entities
 			.WithDisposeOnCompletion(newHeat)
-			.ForEach((ref DynamicBuffer<BoardElement> board) =>
+			.ForEach((ref DynamicBuffer<BoardElement> boardBuffer) =>
 		{
-			for (int i = 0; i < board.Length; ++i)
+			for (int i = 0; i < boardBuffer.Length; ++i)
 			{
-				board[i] = newHeat[i];
+				boardBuffer[i] = newHeat[i];
 			}
 		}).Schedule();
 
