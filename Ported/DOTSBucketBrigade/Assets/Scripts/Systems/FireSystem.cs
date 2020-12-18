@@ -211,37 +211,6 @@ public class FireSystem : SystemBase
                 douseElement.Clear();
             }).Schedule();
 
-        //      Entities.ForEach((in DynamicBuffer<BoardElement> board) =>
-        //{
-        //    for (int i = 0; i < board.Length; ++i)
-        //    {
-        //        float heatValue = 0;
-        //        int2 coord = new int2(i % xDim, i / xDim);
-        //        for (int j = 0; j < 8; j++)
-        //        {
-        //            var neighbor = neighborOffsets[j];
-        //            int2 neighborCoord = coord + neighbor;
-        //            if (math.any(neighborCoord >= new int2(xDim, yDim)) ||
-        //                math.any(neighborCoord < int2.zero))
-        //            {
-        //                continue;
-        //            }
-
-        //            float desiredHeatDelta = board[neighborCoord.y * xDim + neighborCoord.x];
-
-
-        //            heatValue += desiredHeatDelta;
-
-        //        }
-
-        //        newHeat[i] = Math.Min(1.0f, board[i] + (heatTransferRate * heatValue * currentDeltaTime));
-
-        //              // introduce a tiny bit of randomness for flames
-        //              if (newHeat[i] > 0.8f) //if (board[coord.y * xDim + coord.x] > 0.5f)
-        //                  newHeat[i] -= fireRandom.NextFloat(0.0f, 0.15f);
-        //    }
-        //}).Schedule();
-
         var flashPoint = FireSimConfig.flashPoint;
 		var fireThreshold = FireSimConfig.fireThreshold;
 
