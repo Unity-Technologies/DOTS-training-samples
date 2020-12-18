@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateAfter(typeof(FarmerIntentionSystem))]
 public class PlantSystem : SystemBase
@@ -14,8 +15,11 @@ public class PlantSystem : SystemBase
 
 		var tileBuffer = GetBufferFromEntity<TileState>()[data];
         var pathBuffers = GetBufferFromEntity<PathNode>();
-        var pathMovement = World.GetExistingSystem<PathMovement>();
-        var random = new Random(1234);
+        var random = new Unity.Mathematics.Random(1234);
+		var isStore = PathSystem.isStore;
+		var isReadyToPlant = PathSystem.isReadyToPlant;
+		var defaultNavigation = PathSystem.defaultNavigation;
+		var fullMapZone = new RectInt(0, 0, settings.GridSize.x, settings.GridSize.y);
 
 		Entities
            .WithAll<Farmer>()
@@ -34,7 +38,7 @@ public class PlantSystem : SystemBase
 				   }
 				   else if (pathNodes.Length == 0)
 				   {
-					   pathMovement.WalkTo(farmerPosition.x, farmerPosition.y, 40, tileBuffer, pathMovement.isStore, pathNodes);
+					   PathSystem.WalkTo(farmerPosition.x, farmerPosition.y, 40, tileBuffer, defaultNavigation, isStore, pathNodes, fullMapZone);
 					   if (pathNodes.Length == 0)
 					   {
 						   ecb.RemoveComponent<PlantCropIntention>(entity);
@@ -56,23 +60,25 @@ public class PlantSystem : SystemBase
 					   }
 					   else
 					   {
-						   int tileHash = pathMovement.SearchForOne(farmerPosition.x, farmerPosition.y, 25, tileBuffer,pathMovement.defaultNavigation, pathMovement.isReadyToPlant, pathMovement.fullMapZone);
+						   NativeArray<int> visitedTiles;
+						   int tileHash = PathSystem.SearchForOne(farmerPosition.x, farmerPosition.y, 25, tileBuffer,defaultNavigation, isReadyToPlant, fullMapZone, fullMapZone, out visitedTiles);
 						   if (tileHash != -1)
 						   {
 							   int tileX, tileY;
-							   pathMovement.Unhash(tileHash, out tileX, out tileY);
-							   pathMovement.AssignLatestPath(pathNodes, tileX, tileY);
+							   PathSystem.Unhash(tileHash, fullMapZone, out tileX, out tileY);
+							   PathSystem.AssignLatestPath(pathNodes, tileX, tileY, fullMapZone, visitedTiles);
 						   }
 						   else
 						   {
 							   ecb.RemoveComponent<PlantCropIntention>(entity);
 						   }
+						   visitedTiles.Dispose();
 					   }
 				   }
 			   }
 
 
-		   }).WithoutBurst().Run();
+		   }).Run();
 
         ecb.Playback(EntityManager);
     }

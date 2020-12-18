@@ -16,9 +16,11 @@ public class TillGroundSystem : SystemBase
         
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
         var pathBuffers = GetBufferFromEntity<PathNode>();
-        var pathMovement = World.GetExistingSystem<PathMovement>();
         var random = new Unity.Mathematics.Random(1234);
 
+        var defaultNavigation = PathSystem.defaultNavigation;
+        var isTillable = PathSystem.isTillable;
+        var fullMapZone = new RectInt(0, 0, settings.GridSize.x, settings.GridSize.y);
 
         Entities
            .WithAll<Farmer>()
@@ -78,19 +80,19 @@ public class TillGroundSystem : SystemBase
                    var farmerPosition = new int2(Mathf.FloorToInt(translation.Value.x), Mathf.FloorToInt(translation.Value.z));
                    var farmerLinearIndex = farmerPosition.x + farmerPosition.y * settings.GridSize.x;
 
-                   bool isTillable = false;
+                   bool groundTillable = false;
                    if (tileBuffer[farmerLinearIndex].Value == ETileState.Empty)
                    {
                        if (farmerPosition.x >= tillingZone.xMin && farmerPosition.x <= tillingZone.xMax)
                        {
                            if (farmerPosition.y >= tillingZone.yMin && farmerPosition.y <= tillingZone.yMax)
                            {
-                               isTillable = true;
+                               groundTillable = true;
                            }
                        }
                    }
 
-                   if (isTillable)
+                   if (groundTillable)
                    {
                        pathBuffer.Clear();
                        tileBuffer[farmerLinearIndex] = new TileState { Value = ETileState.Tilled };
@@ -99,12 +101,13 @@ public class TillGroundSystem : SystemBase
                    {
                        if (pathBuffer.Length == 0)
                        {
-                           int tileHash = pathMovement.SearchForOne(farmerPosition.x, farmerPosition.y, 600, tileBuffer, pathMovement.defaultNavigation, pathMovement.isTillable, tillingZone);
+                           NativeArray<int> visitedtiles;
+                           int tileHash = PathSystem.SearchForOne(farmerPosition.x, farmerPosition.y, 600, tileBuffer, defaultNavigation, isTillable, tillingZone, fullMapZone, out visitedtiles);
                            if (tileHash != -1)
                            {
                                int tileX, tileY;
-                               pathMovement.Unhash(tileHash, out tileX, out tileY);
-                               pathMovement.AssignLatestPath(pathBuffer, tileX, tileY);
+                               PathSystem.Unhash(tileHash, fullMapZone, out tileX, out tileY);
+                               PathSystem.AssignLatestPath(pathBuffer, tileX, tileY, fullMapZone, visitedtiles);
                            }
                            else
                            {
@@ -115,7 +118,7 @@ public class TillGroundSystem : SystemBase
                }
             
 
-           }).WithoutBurst().Run();
+           }).Run();
 
         ecb.Playback(EntityManager);
     }

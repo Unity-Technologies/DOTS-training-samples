@@ -13,8 +13,13 @@ public class SmashRockIntentionSystem : SystemBase
 
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
-        var pathBuffers = this.GetBufferFromEntity<PathNode>();
-        var pathMovement = World.GetExistingSystem<PathMovement>();
+
+        var settings = GetSingleton<CommonSettings>();
+        var isRock = PathSystem.isRock;
+        var defaultNavigation = PathSystem.defaultNavigation;
+        var fullMapZone = new RectInt(0, 0, settings.GridSize.x, settings.GridSize.y);
+        var entityRocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.Temp);
+        var rocks = GetEntityQuery(typeof(Rock)).ToComponentDataArray<Rock>(Allocator.Temp);
 
         var entityManager = EntityManager;
         var deltaTime = Time.DeltaTime;
@@ -23,16 +28,13 @@ public class SmashRockIntentionSystem : SystemBase
 
         Entities.WithAll<Farmer>()
             .ForEach(
-                (Entity entity, ref SmashRockIntention smashRocks, in Translation translation) =>
+                (Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SmashRockIntention smashRocks, in Translation translation) =>
                 {
-                    var pathNodes = pathBuffers[entity];
-                    var farmerPosition = new int2((int) math.floor(translation.Value.x),
-                        (int) math.floor(translation.Value.z));
+                    var farmerPosition = new int2((int) math.floor(translation.Value.x), (int) math.floor(translation.Value.z));
 
                     if (pathNodes.Length == 0)
                     {
-                        var result = pathMovement.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer,
-                            pathNodes);
+                        var result = PathSystem.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer, defaultNavigation, isRock, pathNodes, fullMapZone);
                         if (result == -1)
                         {
                             //If the result is Empty we don't have any nearby rock.
@@ -41,19 +43,33 @@ public class SmashRockIntentionSystem : SystemBase
                         }
                         else
                         {
-                            pathMovement.Unhash(result, out resultRockPosition.x, out resultRockPosition.y);
-                            var targetRock = PositionToRock(resultRockPosition);
+                            PathSystem.Unhash(result, fullMapZone, out resultRockPosition.x, out resultRockPosition.y);
+                            var targetRock = Entity.Null;
+
+                            for (int i = 0; i < entityRocks.Length; i++)
+                            {
+                                var rock = rocks[i];
+                                var rect = new RectInt(new Vector2Int(rock.Position.x, rock.Position.y), new Vector2Int(rock.Size.x, rock.Size.y));
+                                if (rect.Contains(new Vector2Int(resultRockPosition.x, resultRockPosition.y)))
+                                {
+                                    targetRock = entityRocks[i];
+                                }
+                            }
                             smashRocks.TargetRock = targetRock;
                         }
                     }
-                }).WithoutBurst().Run();
+                }).Run();
 
-        Entities.WithAll<Farmer>().WithNone<Searching>()
-            .ForEach((Entity entity, ref SmashRockIntention smashRocks) =>
+        rocks.Dispose();
+        entityRocks.Dispose();
+
+        Entities
+            .WithAll<Farmer>()
+            .WithNone<Searching>()
+            .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SmashRockIntention smashRocks) =>
             {
                 if (entityManager.Exists(smashRocks.TargetRock))
                 {
-                    var pathNodes = pathBuffers[entity];
                     if (pathNodes.Length == 1)
                     {
                         var rock = GetComponent<Rock>(smashRocks.TargetRock);
@@ -72,20 +88,4 @@ public class SmashRockIntentionSystem : SystemBase
         ecb.Playback(EntityManager);
     }
 
-    private Entity PositionToRock(int2 rockPosition)
-    {
-        var entityRocks = GetEntityQuery(typeof(Rock)).ToEntityArray(Allocator.Temp);
-        foreach (var entityRock in entityRocks)
-        {
-            var rock = GetComponent<Rock>(entityRock);
-            var rect = new RectInt(new Vector2Int(rock.Position.x, rock.Position.y),
-                new Vector2Int(rock.Size.x, rock.Size.y));
-            if (rect.Contains(new Vector2Int(rockPosition.x, rockPosition.y)))
-            {
-                return entityRock;
-            }
-        }
-
-        return Entity.Null;
-    }
 }
