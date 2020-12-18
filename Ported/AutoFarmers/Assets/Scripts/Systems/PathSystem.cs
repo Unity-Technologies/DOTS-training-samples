@@ -61,7 +61,7 @@ public class PathSystem : SystemBase
 		x = hash % fullMapZone.width;
 	}
 
-    public static int FindNearbyRock(int x, int y, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, DynamicBuffer<PathNode> outputPath, RectInt fullMapZone)
+    public static int FindNearbyRock(int x, int y, int range, NativeArray<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, DynamicBuffer<PathNode> outputPath, RectInt fullMapZone)
     {
         NativeArray<int> visitedTiles;
         int rockPosHash = SearchForOne(x, y, range, tiles, navigable, match, fullMapZone, fullMapZone, out visitedTiles);
@@ -84,7 +84,7 @@ public class PathSystem : SystemBase
         }
     }
 
-    public static int WalkTo(int x, int y, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, DynamicBuffer<PathNode> outputPath, RectInt fullMapZone)
+    public static int WalkTo(int x, int y, int range, NativeArray<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, DynamicBuffer<PathNode> outputPath, RectInt fullMapZone)
 	{
 		NativeArray<int> visitedTiles;
 
@@ -104,7 +104,7 @@ public class PathSystem : SystemBase
 		return -1;
 	}
 
-	public static int SearchForOne(int startX, int startY, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, RectInt requiredZone, RectInt fullMapZone, out NativeArray<int> visitedtiles)
+	public static int SearchForOne(int startX, int startY, int range, NativeArray<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, RectInt requiredZone, RectInt fullMapZone, out NativeArray<int> visitedtiles)
 	{
 		var outputTiles = Search(startX, startY, range, tiles, navigable, match, requiredZone, fullMapZone, out visitedtiles, 1);
 		if (outputTiles.Length == 0)
@@ -120,7 +120,7 @@ public class PathSystem : SystemBase
 		}
 	}
 
-	public static NativeList<int> Search(int startX, int startY, int range, DynamicBuffer<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, RectInt requiredZone, RectInt fullMapZone, out NativeArray<int> visitedTiles, int maxResultCount = 0)
+	public static NativeList<int> Search(int startX, int startY, int range, NativeArray<TileState> tiles, NativeArray<ETileState> navigable, NativeArray<ETileState> match, RectInt requiredZone, RectInt fullMapZone, out NativeArray<int> visitedTiles, int maxResultCount = 0)
 	{
 		var dirs = new NativeArray<int2>(4, Allocator.Temp);
 		dirs[0] = new int2(1, 0);

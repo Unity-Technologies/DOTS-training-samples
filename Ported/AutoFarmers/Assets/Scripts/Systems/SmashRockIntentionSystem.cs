@@ -18,7 +18,7 @@ public class SmashRockIntentionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECB.CreateCommandBuffer();
+        var ecbParallel = m_ECB.CreateCommandBuffer().AsParallelWriter();
 
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
@@ -36,23 +36,26 @@ public class SmashRockIntentionSystem : SystemBase
         int2 resultRockPosition = int2.zero;
 
         Dependency = Entities.WithAll<Farmer>()
+            .WithReadOnly(isRock)
+            .WithReadOnly(defaultNavigation)
+            .WithReadOnly(tileBuffer)
             .WithReadOnly(entityRocks)
             .WithReadOnly(rocks)
             .WithDisposeOnCompletion(entityRocks)
             .WithDisposeOnCompletion(rocks)
             .ForEach(
-                (Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SmashRockIntention smashRocks, in Translation translation) =>
+                (Entity entity, int entityInQueryIndex, ref DynamicBuffer <PathNode> pathNodes, ref SmashRockIntention smashRocks, in Translation translation) =>
                 {
                     var farmerPosition = new int2((int) math.floor(translation.Value.x), (int) math.floor(translation.Value.z));
 
                     if (pathNodes.Length == 0)
                     {
-                        var result = PathSystem.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer, defaultNavigation, isRock, pathNodes, fullMapZone);
+                        var result = PathSystem.FindNearbyRock(farmerPosition.x, farmerPosition.y, 3600, tileBuffer.AsNativeArray(), defaultNavigation, isRock, pathNodes, fullMapZone);
                         if (result == -1)
                         {
                             //If the result is Empty we don't have any nearby rock.
                             //TODO: Increase the range or change the Intention if there is no rock left in the board
-                            ecb.RemoveComponent<SmashRockIntention>(entity);
+                            ecbParallel.RemoveComponent<SmashRockIntention>(entityInQueryIndex, entity);
                         }
                         else
                         {
@@ -71,7 +74,11 @@ public class SmashRockIntentionSystem : SystemBase
                             smashRocks.TargetRock = targetRock;
                         }
                     }
-                }).Schedule(Dependency);
+                }).ScheduleParallel(Dependency);
+
+        m_ECB.AddJobHandleForProducer(Dependency);
+
+        var ecb = m_ECB.CreateCommandBuffer();
 
         Dependency = Entities
             .WithAll<Farmer>()

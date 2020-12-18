@@ -42,9 +42,9 @@ public class FarmerIntentionSystem : SystemBase
                     case 2:
                         ecb.AddComponent(entityInQueryIndex, entity, new PlantCropIntention());
                         break;
-                    //case 3:
-                    //    ecb.AddComponent(entity, new SellPlantIntention());
-                    //    break;
+                        //case 3:
+                        //    ecb.AddComponent(entity, new SellPlantIntention());
+                        //    break;
                 }
             }).ScheduleParallel(Dependency);
 

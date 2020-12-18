@@ -13,7 +13,7 @@ public class TillGroundSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-
+        GetEntityQuery(typeof(TileState));
         m_ECB = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -86,6 +86,8 @@ public class TillGroundSystem : SystemBase
         Dependency = Entities
            .WithAll<Farmer>()
            .WithAll<TillGroundIntention>()
+           .WithReadOnly(isTillable)
+           .WithReadOnly(defaultNavigation)
            .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathBuffer, in TillArea tillGround, in Translation translation) =>
            {
                var tillingZone = tillGround.Rect;
@@ -120,7 +122,7 @@ public class TillGroundSystem : SystemBase
                    if (pathBuffer.Length == 0)
                    {
                        NativeArray<int> visitedtiles;
-                       int tileHash = PathSystem.SearchForOne(farmerPosition.x, farmerPosition.y, 600, tileBuffer, defaultNavigation, isTillable, tillingZone, fullMapZone, out visitedtiles);
+                       int tileHash = PathSystem.SearchForOne(farmerPosition.x, farmerPosition.y, 600, tileBuffer.AsNativeArray(), defaultNavigation, isTillable, tillingZone, fullMapZone, out visitedtiles);
                        if (tileHash != -1)
                        {
                            int tileX, tileY;
@@ -136,5 +138,6 @@ public class TillGroundSystem : SystemBase
            }).Schedule(Dependency);
 
         m_ECB.AddJobHandleForProducer(Dependency);
+        Dependency.Complete();
     }
 }
