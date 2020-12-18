@@ -58,7 +58,7 @@ public class FireSystem : SystemBase
 #endif
 		DynamicBuffer<BoardElement> boardCells = EntityManager.AddBuffer<BoardElement>(m_BoardEntity);
 		boardCells.ResizeUninitialized(FireSimConfig.xDim * FireSimConfig.yDim);
-		
+
 		for (int i = 0; i < boardCells.Length; ++i)
 		{
 			boardCells[i] = 0.0f;
@@ -99,9 +99,9 @@ public class FireSystem : SystemBase
 
 		var currentDeltaTime = Time.DeltaTime;
 
-        float4 waterColor = FireSimConfig.color_watersource; 
-        float4 groundColor = FireSimConfig.color_ground; 
-        float4 fireLowColor = FireSimConfig.color_fire_low; 
+        float4 waterColor = FireSimConfig.color_watersource;
+        float4 groundColor = FireSimConfig.color_ground;
+        float4 fireLowColor = FireSimConfig.color_fire_low;
         float4 fireHighColor = FireSimConfig.color_fire_high;
         float4 fireHighColor1 = FireSimConfig.color_fire_high1;
         float4 fireHighColor2 = FireSimConfig.color_fire_high2;
@@ -152,23 +152,28 @@ public class FireSystem : SystemBase
 			.WithReadOnly(newHeat)
 			.ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
 			{
+                float4 colorLerp(float4 from, float4 to, float t)
+                {
+                    return from + (to - from) * t;
+                }
+
 				var index = fireCell.coord.y * xDim + fireCell.coord.x;
 				float3 newTranslation = translation.Value;
-				newTranslation.x = fireCell.coord.x; 
+				newTranslation.x = fireCell.coord.x;
 				newTranslation.y = newHeat[index];
 				newTranslation.z = fireCell.coord.y;
 				translation.Value = newTranslation;
 
-                if (newHeat[index] > flashPoint) {
-                    if (newHeat[index] > 0.5f && newHeat[index] < 0.6f) fireColor.Value = fireHighColor4;
-                    else if (newHeat[index] > 0.6f && newHeat[index] < 0.7f) fireColor.Value = fireHighColor3;
-                    else if (newHeat[index] > 0.7f && newHeat[index] < 0.8f) fireColor.Value = fireHighColor2;
-                    else if (newHeat[index] > 0.8f && newHeat[index] < 0.9f) fireColor.Value = fireHighColor1;
-                    else fireColor.Value = fireHighColor;
-                }
-                else if (newHeat[index] > fireThreshold) { fireColor.Value = fireLowColor; }
-				else if (newHeat[index] < -0.1f) { fireColor.Value = waterColor; }
-				else fireColor.Value = groundColor;
+                fireColor.Value = colorLerp(groundColor, fireHighColor4, newHeat[index]);
+                 var h = newHeat[index];
+                 if (h < 0) fireColor.Value = waterColor;
+                 else if (h < fireThreshold) fireColor.Value = colorLerp(groundColor, fireLowColor, h / fireThreshold);
+                 else if (h < 0.5f) fireColor.Value = colorLerp(fireLowColor, fireHighColor, (h - fireThreshold) / 0.3f);
+                 else if (h < 0.6f) fireColor.Value = colorLerp(fireHighColor, fireHighColor1, (h - 0.5f) / 0.1f);
+                 else if (h < 0.7f) fireColor.Value = colorLerp(fireHighColor1, fireHighColor2, (h - 0.6f) / 0.1f);
+                 else if (h < 0.8f) fireColor.Value = colorLerp(fireHighColor2, fireHighColor3, (h - 0.7f) / 0.1f);
+                 else if (h < 0.9f) fireColor.Value = colorLerp(fireHighColor3, fireHighColor4, (h - 0.8f) / 0.1f);
+                 else fireColor.Value = fireHighColor4;
 
 #if BB_DEBUG_FLAGS
 				if (debugFlags[index] != 0)
@@ -176,7 +181,7 @@ public class FireSystem : SystemBase
 					fireColor.Value = new float4(1,0,1,1);
 				}
 #endif
-			}
+            }
 		).Schedule();
 
 		Entities
@@ -195,7 +200,7 @@ public class FireSystem : SystemBase
 			Source = debugFlags,
 			Value = 0
 		};
-		
+
 		Dependency = memsetNativeArray.Schedule(debugFlags.Length, 64, Dependency);
 #endif
 	}
