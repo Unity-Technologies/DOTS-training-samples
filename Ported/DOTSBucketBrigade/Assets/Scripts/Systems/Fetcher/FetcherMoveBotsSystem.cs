@@ -25,9 +25,9 @@ public class FetcherMoveBotsSystem : SystemBase
             .WithAll<Fetcher>()
             .ForEach((Entity entity, ref Position position, ref Translation translation, in MovingBot movingBot) =>
             {
-                float GetLengthSq(float2 vector)
+                float GetLengthSq(float3 vector)
                 {
-                    return (vector.x * vector.x) + (vector.y * vector.y);
+                    return (vector.x * vector.x) + (vector.y * vector.y) + (vector.z * vector.z);
                 }
 
                 var timeDiff = (float) (elapsedTime - movingBot.StartTime);
@@ -36,16 +36,17 @@ public class FetcherMoveBotsSystem : SystemBase
                 var fullDistance = movingBot.TargetPosition - movingBot.StartPosition;
                 var t = distanceForTime / math.sqrt(GetLengthSq(fullDistance));
 
-                var distanceSoFar = new float2(fullDistance.x * t, fullDistance.y * t);
+                var distanceSoFar = new float3(fullDistance.x * t, fullDistance.y * t, fullDistance.z * t);
                 var finalPos = movingBot.StartPosition + distanceSoFar;
 
-                position.coord = finalPos;
-                translation.Value = new float3(finalPos.x, 0.9f, finalPos.y);
+                position.coord = new float2(finalPos.x, finalPos.z);
+                translation.Value = finalPos;
 
                 if (t >= 1)
                 {
                     ecb.RemoveComponent<MovingBot>(entity);
-                    ecb.AddComponent(entity, movingBot.TagComponentToAddOnArrival);
+                    if (movingBot.TagComponentToAddOnArrival != null)
+                        ecb.AddComponent(entity, movingBot.TagComponentToAddOnArrival);
                 }
             }).Schedule();
 

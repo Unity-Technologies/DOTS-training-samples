@@ -32,7 +32,7 @@ public class FetcherFindBucketSystem : SystemBase
             })
             .Schedule();
 
-        var bucketPositions = m_BucketQuery.ToComponentDataArray<Position>(Allocator.TempJob);
+        var bucketTranslations = m_BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var bucketOwners = m_BucketQuery.ToComponentDataArray<BucketOwner>(Allocator.TempJob);
         var bucketEntities = m_BucketQuery.ToEntityArray(Allocator.TempJob);
 
@@ -52,19 +52,19 @@ public class FetcherFindBucketSystem : SystemBase
         Entities
             .WithAll<Fetcher, FetcherFindBucket>()
             .WithNone<AssignedBucket>()
-            .WithReadOnly(bucketPositions)
-            .WithDisposeOnCompletion(bucketPositions)
+            .WithReadOnly(bucketTranslations)
+            .WithDisposeOnCompletion(bucketTranslations)
             .WithDisposeOnCompletion(bucketEntities)
             .WithDisposeOnCompletion(assignedFetcherEntities)
-            .ForEach((Entity entity, in Position position, in TeamIndex teamIndex) =>
+            .ForEach((Entity entity, in Translation translation, in TeamIndex teamIndex) =>
             {
                 float minDistance = float.MaxValue;
                 int minDistanceIndex = -1;
-                for (var i=0; i<bucketPositions.Length; i++)
+                for (var i=0; i<bucketTranslations.Length; i++)
                 {
                     if (assignedFetcherEntities[i] == Entity.Null)
                     {
-                        var newMinDistance = GetSquaredDistance(bucketPositions[i], position);
+                        var newMinDistance = GetSquaredDistance(bucketTranslations[i], translation);
                         if (newMinDistance < minDistance)
                         {
                             minDistance = newMinDistance;
@@ -81,8 +81,8 @@ public class FetcherFindBucketSystem : SystemBase
                         ecb.RemoveComponent<FetcherFindBucket>(entity);
                         ecb.AddComponent<MovingBot>(entity, new MovingBot
                         {
-                            StartPosition = position.coord,
-                            TargetPosition = bucketPositions[minDistanceIndex].coord,
+                            StartPosition = translation.Value,
+                            TargetPosition = bucketTranslations[minDistanceIndex].Value,
                             StartTime = startTime,
                             TagComponentToAddOnArrival = tagComponentToAddOnArrival
                         });
@@ -92,10 +92,11 @@ public class FetcherFindBucketSystem : SystemBase
                     }
                 }
 
-                float GetSquaredDistance(Position position1, Position position2)
+                float GetSquaredDistance(Translation position1, Translation position2)
                 {
-                    return (position2.coord.x - position1.coord.x) * (position2.coord.x - position1.coord.x) +
-                           (position2.coord.y - position1.coord.y) * (position2.coord.y - position1.coord.y);
+                    return (position2.Value.x - position1.Value.x) * (position2.Value.x - position1.Value.x) +
+                           (position2.Value.y - position1.Value.y) * (position2.Value.y - position1.Value.y) +
+                           (position2.Value.z - position1.Value.z) * (position2.Value.z - position1.Value.z);
                 }
             })
             .Schedule();
@@ -105,7 +106,7 @@ public class FetcherFindBucketSystem : SystemBase
             .WithStoreEntityQueryInField(ref m_BucketQuery)
             .WithReadOnly(bucketOwners)
             .WithDisposeOnCompletion(bucketOwners)
-            .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in Position position) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in Translation translation) =>
             {
                 bucketOwner.Value = bucketOwners[entityInQueryIndex].Value;
             })
