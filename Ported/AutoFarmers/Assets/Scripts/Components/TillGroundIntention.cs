@@ -4,5 +4,10 @@ using UnityEngine;
 
 public struct TillGroundIntention : IComponentData
 {
+
+}
+
+public struct TillArea : IComponentData
+{
     public RectInt Rect;
 }

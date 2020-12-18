@@ -37,7 +37,7 @@ public class FarmerIntentionSystem : SystemBase
                         ecb.AddComponent(entityInQueryIndex, entity, new SmashRockIntention());
                         break;
                     case 1:
-                        ecb.AddComponent(entityInQueryIndex, entity, new TillGroundIntention { Rect = default });
+                        ecb.AddComponent(entityInQueryIndex, entity, new TillGroundIntention());
                         break;
                     case 2:
                         ecb.AddComponent(entityInQueryIndex, entity, new PlantCropIntention());

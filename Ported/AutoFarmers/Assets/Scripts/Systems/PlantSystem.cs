@@ -14,7 +14,6 @@ public class PlantSystem : SystemBase
         var data = GetSingletonEntity<CommonData>();
 
 		var tileBuffer = GetBufferFromEntity<TileState>()[data];
-        var pathBuffers = GetBufferFromEntity<PathNode>();
         var random = new Unity.Mathematics.Random(1234);
 		var isStore = PathSystem.isStore;
 		var isReadyToPlant = PathSystem.isReadyToPlant;
@@ -23,10 +22,9 @@ public class PlantSystem : SystemBase
 
 		Entities
            .WithAll<Farmer>()
-           .ForEach((Entity entity, ref PlantCropIntention planCropIntention, in Translation translation) =>
+           .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref PlantCropIntention planCropIntention, in Translation translation) =>
            {
 			   var farmerPosition = new int2((int)math.floor(translation.Value.x), (int)math.floor(translation.Value.z));
-			   var pathNodes = pathBuffers[entity];
 			   var farmerLinearIndex = farmerPosition.x + farmerPosition.y * settings.GridSize.x;
 			   var state = tileBuffer[farmerLinearIndex].Value;
 

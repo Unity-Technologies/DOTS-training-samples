@@ -16,16 +16,13 @@ public class PathMovement : SystemBase
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
         
-        var pathBuffers = GetBufferFromEntity<PathNode>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
 		var deltaTime = Time.DeltaTime;
 
 		Entities
 			.WithAll<Farmer>()
-            .ForEach((Entity entity, ref Translation translation) =>
+            .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref Translation translation) =>
             {
-                var pathNodes = pathBuffers[entity];
-
                 var farmerPosition = new int2((int)math.floor(translation.Value.x), 
                                            (int)math.floor(translation.Value.z));
 

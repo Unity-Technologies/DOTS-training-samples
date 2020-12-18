@@ -13,7 +13,6 @@ public class SellPlantIntentionSystem : SystemBase
 
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
-        var pathBuffers = this.GetBufferFromEntity<PathNode>();
         var pathMovement = World.GetExistingSystem<PathMovement>();
 
         var entityManager = EntityManager;
@@ -23,9 +22,8 @@ public class SellPlantIntentionSystem : SystemBase
 
         Entities.WithAll<Farmer>()
             .ForEach(
-                (Entity entity, ref SellPlantIntention sellPlantIntention, in Translation translation) =>
+                (Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SellPlantIntention sellPlantIntention, in Translation translation) =>
                 {
-                    var pathNodes = pathBuffers[entity];
                     var farmerPosition = new int2((int) math.floor(translation.Value.x),
                         (int) math.floor(translation.Value.z));
 
@@ -48,11 +46,10 @@ public class SellPlantIntentionSystem : SystemBase
                 }).WithoutBurst().Run();
 
         Entities.WithAll<Farmer>().WithNone<Searching>()
-            .ForEach((Entity entity, ref SellPlantIntention sellPlantIntention) =>
+            .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathNodes, ref SellPlantIntention sellPlantIntention) =>
             {
                 if (entityManager.Exists(sellPlantIntention.TargetPlant))
                 {
-                    var pathNodes = pathBuffers[entity];
                     if (pathNodes.Length == 1)
                     {
                         var plant = GetComponent<Plant>(sellPlantIntention.TargetPlant);
