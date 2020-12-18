@@ -22,7 +22,7 @@ public class FetcherMoveBotsSystem : SystemBase
         var elapsedTime = Time.ElapsedTime;
 
         Entities
-            .WithAll<Fetcher, FetcherMoving>()
+            .WithAll<Fetcher>()
             .ForEach((Entity entity, ref Position position, ref Translation translation, in MovingBot movingBot) =>
             {
                 float GetLengthSq(float2 vector)
