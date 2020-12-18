@@ -72,13 +72,16 @@ public class SmashRockIntentionSystem : SystemBase
                 {
                     if (pathNodes.Length == 1)
                     {
-                        var rock = GetComponent<Rock>(smashRocks.TargetRock);
-                        rock.Health -= 1f * deltaTime;
-                        ecb.SetComponent(smashRocks.TargetRock, rock);
-
-                        if (rock.Health <= 0)
+                        if (HasComponent<Rock>(smashRocks.TargetRock))
                         {
-                            ecb.RemoveComponent<SmashRockIntention>(entity);
+                            var rock = GetComponent<Rock>(smashRocks.TargetRock);
+                            rock.Health -= 1f * deltaTime;
+                            ecb.SetComponent(smashRocks.TargetRock, rock);
+
+                            if (rock.Health <= 0)
+                            {
+                                ecb.RemoveComponent<SmashRockIntention>(entity);
+                            }
                         }
                     }
                 }

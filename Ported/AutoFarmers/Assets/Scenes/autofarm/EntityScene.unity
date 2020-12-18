@@ -157,6 +157,7 @@ MonoBehaviour:
   SiloPrefab: {fileID: 4798580231540818858, guid: 607f691cb80224844a4b33a1e003bfdd, type: 3}
   FarmerPrefab: {fileID: 5518926152186183660, guid: 6322ef192131a3943adfb638389adb24, type: 3}
   DronePrefab: {fileID: 9187648125757366127, guid: a0f03dd2983f44949af28d8f8a06961f, type: 3}
+  PlantPrefab: {fileID: 9187648125757366127, guid: 65d60d013fd621e43b3ff1af132bfcaf, type: 3}
   GridSize:
     x: 60
     y: 60

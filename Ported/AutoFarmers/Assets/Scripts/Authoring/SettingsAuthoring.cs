@@ -13,6 +13,7 @@ public class SettingsAuthoring : MonoBehaviour
     public GameObject SiloPrefab;
     public GameObject FarmerPrefab;
     public GameObject DronePrefab;
+    public GameObject PlantPrefab;
     
     public int2   GridSize;
     public float2 TileSize;
@@ -55,6 +56,7 @@ public class SettingsAuthoring : MonoBehaviour
         referencedPrefabs.Add(SiloPrefab);
         referencedPrefabs.Add(FarmerPrefab);
         referencedPrefabs.Add(DronePrefab);
+        referencedPrefabs.Add(PlantPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager
@@ -75,6 +77,7 @@ public class SettingsAuthoring : MonoBehaviour
         {
             FarmerPrefab = conversionSystem.GetPrimaryEntity(FarmerPrefab),
             DronePrefab  = conversionSystem.GetPrimaryEntity(DronePrefab),
+            PlantPrefab  = conversionSystem.GetPrimaryEntity(PlantPrefab),
             
             GridSize          = GridSize,
             RockSpawnAttempts = RockSpawnAttempts,

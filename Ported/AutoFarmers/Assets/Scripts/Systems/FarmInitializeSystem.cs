@@ -2,10 +2,7 @@
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
-using Unity.Rendering;
 using UnityEngine;
-using Unity.Rendering;
-using UnityEngine.Rendering;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FarmInitializeSystem : SystemBase

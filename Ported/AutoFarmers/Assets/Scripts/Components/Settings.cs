@@ -13,6 +13,7 @@ public struct CommonSettings : IComponentData
 {
     public Entity FarmerPrefab;
     public Entity DronePrefab;
+    public Entity PlantPrefab;
     
     public int2   GridSize;
     
