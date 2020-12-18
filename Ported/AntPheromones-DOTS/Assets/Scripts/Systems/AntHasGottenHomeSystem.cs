@@ -17,7 +17,7 @@ public class AntHasGottenHomeSystem : SystemBase
         
         Entities
             .WithAll<Ant, HasFood, CanSeeHome>()
-            .ForEach((Entity resEntity, ref Heading heading, in Translation translation) =>
+            .ForEach((Entity resEntity, ref Heading heading, ref Translation translation) =>
             {
                 var antFromHome = translation.Value - goalTranslation.Value;
                 var sqrMag = antFromHome.x * antFromHome.x + antFromHome.y * antFromHome.y;
@@ -27,6 +27,9 @@ public class AntHasGottenHomeSystem : SystemBase
                     ecb.RemoveComponent<HasFood>(resEntity);
                     ecb.RemoveComponent<CanSeeHome>(resEntity);
                     heading.heading = -heading.heading;
+                    
+                    translation.Value.x += heading.heading.x;    //step back one whole unit
+                    translation.Value.y += heading.heading.y;
                 }
                 
             }).Run();
