@@ -3,18 +3,18 @@ using Unity.Mathematics;
 
 public class FireSimConfig : MonoBehaviour
 {
-	static public int xDim = 50;
-	static public int yDim = 50;
+	static public int xDim = 370;
+	static public int yDim = 370;
     static public float heatTransferRate = 0.05f;
 	static public int heatRadius = 1;
 	static public float flashPoint = 0.5f;
 	static public float fireThreshold = 0.2f;
 
-    static public int numFireStarters = 10;
+    static public int numFireStarters = 20;
     static public int numWaterSources = 5;
     static public float bucketFillRate = 0.02f;
 
-    static public int maxTeams = 2;
+    static public int maxTeams = 5;
     static public float throwerSpeed = 2.0f;
     static public float kBucketSpeed = 1.0f / 16.0f;
 
