@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Jobs;
 using Random = Unity.Mathematics.Random;
+using Unity.Burst;
 
 public struct BoardElement : IBufferElementData
 {
@@ -56,6 +57,7 @@ public struct BoardDebugElement : IBufferElementData
 }
 #endif
 
+[BurstCompile]
 struct HeatJob : IJobParallelFor
 {
     [ReadOnly]
