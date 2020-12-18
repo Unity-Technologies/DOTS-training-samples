@@ -52,7 +52,7 @@ public class ProcessStoreSaleSystem : SystemBase
                 }
             }).Run();
 
-        SetSingleton(data);
+        SetSingleton(data);    
         
         ecb.Playback(EntityManager);
     }

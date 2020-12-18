@@ -6,41 +6,50 @@ public class FarmerIntentionSystem : SystemBase
 {
     Random random;
 
+    private EndSimulationEntityCommandBufferSystem m_ECB;
+    
     protected override void OnCreate()
     {
+        base.OnCreate();
+
         random = new Random(1234);
+        
+        m_ECB = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
+    
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = m_ECB.CreateCommandBuffer().AsParallelWriter();
 
         var localRandom = random;
-        Entities
+        
+        Dependency = Entities
             .WithAll<Farmer>()
             .WithNone<SmashRockIntention>()
             .WithNone<TillGroundIntention>()
             .WithNone<PlantCropIntention>()
             .WithNone<SellPlantIntention>()
-            .ForEach((Entity entity) =>
+            .ForEach((Entity entity,  int entityInQueryIndex) =>
             {
                 switch(localRandom.NextInt(0, 3))
                 {
                     case 0:
-                        ecb.AddComponent(entity, new SmashRockIntention());
+                        ecb.AddComponent(entityInQueryIndex, entity, new SmashRockIntention());
                         break;
                     case 1:
-                        ecb.AddComponent(entity, new TillGroundIntention { Rect = default });
+                        ecb.AddComponent(entityInQueryIndex, entity, new TillGroundIntention { Rect = default });
                         break;
                     case 2:
-                        ecb.AddComponent(entity, new PlantCropIntention());
+                        ecb.AddComponent(entityInQueryIndex, entity, new PlantCropIntention());
                         break;
                     //case 3:
                     //    ecb.AddComponent(entity, new SellPlantIntention());
                     //    break;
                 }
-            }).Run();
+            }).ScheduleParallel(Dependency);
 
         random = localRandom;
-        ecb.Playback(EntityManager);
+        
+        m_ECB.AddJobHandleForProducer(Dependency);
     }
 }

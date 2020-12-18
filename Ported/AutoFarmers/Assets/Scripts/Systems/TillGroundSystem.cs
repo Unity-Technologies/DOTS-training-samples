@@ -19,7 +19,7 @@ public class TillGroundSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = m_ECB.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_ECB.CreateCommandBuffer();
 
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
@@ -33,8 +33,7 @@ public class TillGroundSystem : SystemBase
 
         Dependency = Entities
            .WithAll<Farmer>()
-           .WithNativeDisableContainerSafetyRestriction(tileBuffer)
-           .ForEach((Entity entity, int entityInQueryIndex, ref DynamicBuffer<PathNode> pathBuffer, ref TillGroundIntention tillGround, in Translation translation) =>
+           .ForEach((Entity entity, ref DynamicBuffer<PathNode> pathBuffer, ref TillGroundIntention tillGround, in Translation translation) =>
            {
                var tillingZone = tillGround.Rect;
                if (tillingZone.Equals(default))
@@ -75,7 +74,7 @@ public class TillGroundSystem : SystemBase
                    {
                        if (random.NextFloat() < 0.2f)
                        {
-                           ecb.RemoveComponent<TillGroundIntention>(entityInQueryIndex, entity);
+                           ecb.RemoveComponent<TillGroundIntention>(entity);
                        }
                    }
                }
@@ -120,14 +119,14 @@ public class TillGroundSystem : SystemBase
                            }
                            else
                            {
-                               ecb.RemoveComponent<TillGroundIntention>(entityInQueryIndex, entity);
+                               ecb.RemoveComponent<TillGroundIntention>(entity);
                            }
                        }
                    }
                }
             
 
-           }).ScheduleParallel(Dependency);
+           }).Schedule(Dependency);
 
         m_ECB.AddJobHandleForProducer(Dependency);
     }
