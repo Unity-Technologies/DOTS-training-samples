@@ -8,7 +8,6 @@ using UnityEngine;
 
 [UpdateAfter(typeof(BeeSpawnerSystem))]
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
-[UpdateAfter(typeof(BeeManagerSystem))]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public class ResourceManagerSystem : SystemBase
 {

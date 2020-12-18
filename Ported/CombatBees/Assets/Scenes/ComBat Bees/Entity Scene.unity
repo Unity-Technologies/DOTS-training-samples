@@ -377,22 +377,6 @@ PrefabInstance:
       propertyPath: beesPerResource
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 8937502316945631393, guid: 82d027605080b394eb49ecba270586dc, type: 3}
-      propertyPath: markerPrefab
-      value: 
-      objectReference: {fileID: 2364697003375603468, guid: 08cd1182d4bd42249997f6ae90dab493, type: 3}
-    - target: {fileID: 8937502316945631393, guid: 82d027605080b394eb49ecba270586dc, type: 3}
-      propertyPath: maxGeneratedByMouseClick
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 8937502316945631393, guid: 82d027605080b394eb49ecba270586dc, type: 3}
-      propertyPath: spawnRate
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 8937502316945631393, guid: 82d027605080b394eb49ecba270586dc, type: 3}
-      propertyPath: resourcePrefab
-      value: 
-      objectReference: {fileID: 6999041084705451249, guid: 6dda662662da321439f5c1a7189d8ccb, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82d027605080b394eb49ecba270586dc, type: 3}
 --- !u!1001 &1309541389
@@ -462,10 +446,6 @@ PrefabInstance:
     - target: {fileID: 2006952486809591344, guid: cadb850fa45d8d54ba290024bf5bbb0d, type: 3}
       propertyPath: startResourceCount
       value: 500
-      objectReference: {fileID: 0}
-    - target: {fileID: 2006952486809591344, guid: cadb850fa45d8d54ba290024bf5bbb0d, type: 3}
-      propertyPath: maxResourceGeneratedByMouseClick
-      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2006952486809591345, guid: cadb850fa45d8d54ba290024bf5bbb0d, type: 3}
       propertyPath: m_LocalPosition.x
