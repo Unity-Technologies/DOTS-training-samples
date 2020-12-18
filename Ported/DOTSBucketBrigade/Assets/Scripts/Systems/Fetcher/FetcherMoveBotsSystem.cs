@@ -5,7 +5,7 @@ using Unity.Transforms;
 
 public class FetcherMoveBotsSystem : SystemBase
 {
-    private const float BotUnitsPerSecond = 5f;
+    private const float BotUnitsPerSecond = 2f;
     private const float BotSecondsPerUnit = 1 / BotUnitsPerSecond;
 
     private EntityCommandBufferSystem _ecbSystem;
@@ -34,7 +34,7 @@ public class FetcherMoveBotsSystem : SystemBase
                 var distanceForTime = timeDiff * BotUnitsPerSecond;
 
                 var fullDistance = movingBot.TargetPosition - movingBot.StartPosition;
-                var t = distanceForTime * distanceForTime / GetLengthSq(fullDistance);
+                var t = distanceForTime / math.sqrt(GetLengthSq(fullDistance));
 
                 var distanceSoFar = new float2(fullDistance.x * t, fullDistance.y * t);
                 var finalPos = movingBot.StartPosition + distanceSoFar;
