@@ -60,10 +60,6 @@ public class WaterSpawnerSystem : SystemBase
                 ecb.AddComponent<Position>(waterEntity, new Position { coord = waterCoord });
                 // add capacity (max value) and volume (current value)
                 ecb.AddComponent<WaterSourceVolume>(waterEntity, new WaterSourceVolume { Value = capacity });
-
-                var newTranslation = new Translation { Value = new float3(waterCoord.x, -1.0f, waterCoord.y) };
-                ecb.SetComponent(waterEntity, newTranslation);
-
             }
 
         }).Schedule();

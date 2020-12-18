@@ -177,7 +177,7 @@ public class ThrowerSystem : SystemBase
         float throwerSpeed = FireSimConfig.throwerSpeed;
 
         // update render (and cached) coordinates
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Thrower thrower) =>
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref LocalToWorld localToWorld, ref Thrower thrower) =>
         {
             // take a step toward target
             int2 dir0   = thrower.TargetCoord - thrower.Coord;
@@ -191,7 +191,7 @@ public class ThrowerSystem : SystemBase
             }
 
             // copy to render data
-            translation.Value = new float3(thrower.GridPosition.x, 1.0f, thrower.GridPosition.y);
+            localToWorld.Value.c3 = new float4(thrower.GridPosition.x, 1.0f, thrower.GridPosition.y, localToWorld.Value.c3.w);
 
             // update new target
             thrower.TargetCoord = newThrowerCoords[entityInQueryIndex];

@@ -218,7 +218,7 @@ public class FireSystem : SystemBase
 
 		Entities
 			.WithReadOnly(newHeat)
-			.ForEach((ref Translation translation, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
+			.ForEach((ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor fireColor, in FireCell fireCell) =>
 			{
                 float4 colorLerp(float4 from, float4 to, float t)
                 {
@@ -226,11 +226,12 @@ public class FireSystem : SystemBase
                 }
 
 				var index = fireCell.coord.y * xDim + fireCell.coord.x;
-				float3 newTranslation = translation.Value;
+				float4 newTranslation = localToWorld.Value.c3;
 				newTranslation.x = fireCell.coord.x;
 				newTranslation.y = newHeat[index];
 				newTranslation.z = fireCell.coord.y;
-				translation.Value = newTranslation;
+                newTranslation.w = localToWorld.Value.c3.w;
+				localToWorld.Value.c3 = newTranslation;
 
                 fireColor.Value = colorLerp(groundColor, fireHighColor4, newHeat[index]);
                  var h = newHeat[index];

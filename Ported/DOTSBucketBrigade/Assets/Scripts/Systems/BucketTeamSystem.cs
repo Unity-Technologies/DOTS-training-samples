@@ -37,7 +37,7 @@ public struct SplayParams
 public class BucketTeamSystem : SystemBase
 {
     [BurstCompile]
-    static public void UpdateTranslation(out Translation translation, float2 start, float2 end, float2 dir, float t, float bias, SplayParams splayParams)
+    static public void UpdateTranslation(out float3 translation, float2 start, float2 end, float2 dir, float t, float bias, SplayParams splayParams)
     {
         float splayMin = splayParams.SplayMin;
         float splayMax = splayParams.SplayMax;
@@ -64,7 +64,7 @@ public class BucketTeamSystem : SystemBase
             pos += bias * splayFactor * xdir2d * (1.0f + math.min(t0, -t0));
         }
 
-        translation.Value = new float3(pos.x, 1.0f, pos.y);
+        translation = new float3(pos.x, 1.0f, pos.y);
     }
 
     protected override void OnUpdate()
@@ -121,7 +121,7 @@ public class BucketTeamSystem : SystemBase
             .WithReadOnly(throwerCoords)
             .WithReadOnly(fetcherCoords)
             .WithReadOnly(teamDirection)
-            .ForEach((ref Translation translation, in BucketEmptyBot bucketEmptyBot, in TeamIndex teamIndex) =>
+            .ForEach((ref LocalToWorld localToWorld, in BucketEmptyBot bucketEmptyBot, in TeamIndex teamIndex) =>
             {
                 float2 end = throwerCoords[teamIndex.Value];
                 float2 start = fetcherCoords[teamIndex.Value];
@@ -129,20 +129,24 @@ public class BucketTeamSystem : SystemBase
 
                 float t = (1.0f + bucketEmptyBot.Index) * rMaxBucketEmpty;
 
+                float3 translation;
                 UpdateTranslation(out translation, start, end, dir, t, 1.0f, splayParams);
+                localToWorld.Value.c3 = new float4(translation, localToWorld.Value.c3.w);
             }).Schedule();
 
         Entities
             .WithReadOnly(throwerCoords)
             .WithReadOnly(fetcherCoords)
             .WithReadOnly(teamDirection)
-            .ForEach((ref Translation translation, in BucketFullBot bucketFullBot, in TeamIndex teamIndex) =>
+            .ForEach((ref LocalToWorld localToWorld, in BucketFullBot bucketFullBot, in TeamIndex teamIndex) =>
             {
                 float2 end = throwerCoords[teamIndex.Value];
                 float2 start = fetcherCoords[teamIndex.Value];
                 float2 dir = teamDirection[teamIndex.Value];
                 float t = (1.0f + bucketFullBot.Index) * rMaxBucketFull;
+                float3 translation;
                 UpdateTranslation(out translation, start, end, dir, t, -1.0f, splayParams);
+                localToWorld.Value.c3 = new float4(translation, localToWorld.Value.c3.w);
             }).Schedule();
 #endif
     }

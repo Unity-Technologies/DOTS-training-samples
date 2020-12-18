@@ -21,7 +21,6 @@ public class DebugCreateBucket : MonoBehaviour
         entityManager.AddComponentData(entity, BucketOwner.CreateBucketOwner(team) );
         entityManager.AddComponentData(entity, new WaterLevel  { Value = bucketState == BucketState.kFull ? 1.0f : 0.0f });
         entityManager.AddComponentData(entity, new Position());
-        entityManager.AddComponentData(entity, new Translation());
     }
 
     public void SpawnBucketFull()

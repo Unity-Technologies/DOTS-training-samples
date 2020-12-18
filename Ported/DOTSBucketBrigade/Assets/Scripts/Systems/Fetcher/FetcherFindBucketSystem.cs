@@ -26,13 +26,13 @@ public class FetcherFindBucketSystem : SystemBase
         // Assign a bucket to each fetcher
         Entities
             .WithAll<Fetcher>()
-            .ForEach((Entity entity, ref Position position, ref Translation translation) =>
+            .ForEach((Entity entity, ref Position position, ref LocalToWorld localToWorld) =>
             {
-                translation.Value = new float3(position.coord.x, 0.9f, position.coord.y);
+                localToWorld.Value.c3 = new float4(position.coord.x, 0.9f, position.coord.y, localToWorld.Value.c3.w);
             })
             .Schedule();
 
-        var bucketTranslations = m_BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var bucketLocalToWorlds = m_BucketQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
         var bucketOwners = m_BucketQuery.ToComponentDataArray<BucketOwner>(Allocator.TempJob);
         var bucketEntities = m_BucketQuery.ToEntityArray(Allocator.TempJob);
 
@@ -51,19 +51,19 @@ public class FetcherFindBucketSystem : SystemBase
         Entities
             .WithAll<Fetcher, FetcherFindBucket>()
             .WithNone<AssignedBucket>()
-            .WithReadOnly(bucketTranslations)
-            .WithDisposeOnCompletion(bucketTranslations)
+            .WithReadOnly(bucketLocalToWorlds)
+            .WithDisposeOnCompletion(bucketLocalToWorlds)
             .WithDisposeOnCompletion(bucketEntities)
             .WithDisposeOnCompletion(assignedFetcherEntities)
-            .ForEach((Entity entity, in Translation translation, in TeamIndex teamIndex) =>
+            .ForEach((Entity entity, in LocalToWorld localToWorld, in TeamIndex teamIndex) =>
             {
                 float minDistance = float.MaxValue;
                 int minDistanceIndex = -1;
-                for (var i=0; i<bucketTranslations.Length; i++)
+                for (var i=0; i<bucketLocalToWorlds.Length; i++)
                 {
                     if (assignedFetcherEntities[i] == Entity.Null)
                     {
-                        var newMinDistance = GetSquaredDistance(bucketTranslations[i], translation);
+                        var newMinDistance = GetSquaredDistance(bucketLocalToWorlds[i].Value.c3.xyz, localToWorld.Value.c3.xyz);
                         if (newMinDistance < minDistance)
                         {
                             minDistance = newMinDistance;
@@ -80,8 +80,8 @@ public class FetcherFindBucketSystem : SystemBase
                         ecb.RemoveComponent<FetcherFindBucket>(entity);
                         ecb.AddComponent<MovingBot>(entity, new MovingBot
                         {
-                            StartPosition = translation.Value,
-                            TargetPosition = bucketTranslations[minDistanceIndex].Value,
+                            StartPosition = localToWorld.Value.c3.xyz,
+                            TargetPosition = bucketLocalToWorlds[minDistanceIndex].Value.c3.xyz,
                             StartTime = startTime,
                             HasTagComponentToAddOnArrival = true,
                             TagComponentToAddOnArrival = tagComponentToAddOnArrival
@@ -92,11 +92,11 @@ public class FetcherFindBucketSystem : SystemBase
                     }
                 }
 
-                float GetSquaredDistance(Translation position1, Translation position2)
+                float GetSquaredDistance(float3 position1, float3 position2)
                 {
-                    return (position2.Value.x - position1.Value.x) * (position2.Value.x - position1.Value.x) +
-                           (position2.Value.y - position1.Value.y) * (position2.Value.y - position1.Value.y) +
-                           (position2.Value.z - position1.Value.z) * (position2.Value.z - position1.Value.z);
+                    return (position2.x - position1.x) * (position2.x - position1.x) +
+                           (position2.y - position1.y) * (position2.y - position1.y) +
+                           (position2.z - position1.z) * (position2.z - position1.z);
                 }
             })
             .Schedule();
@@ -106,7 +106,7 @@ public class FetcherFindBucketSystem : SystemBase
             .WithStoreEntityQueryInField(ref m_BucketQuery)
             .WithReadOnly(bucketOwners)
             .WithDisposeOnCompletion(bucketOwners)
-            .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in LocalToWorld localToWorld) =>
             {
                 bucketOwner.Value = bucketOwners[entityInQueryIndex].Value;
             })

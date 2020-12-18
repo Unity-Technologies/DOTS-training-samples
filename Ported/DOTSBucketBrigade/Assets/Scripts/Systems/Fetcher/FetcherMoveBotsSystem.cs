@@ -23,7 +23,7 @@ public class FetcherMoveBotsSystem : SystemBase
 
         Entities
             .WithAll<Fetcher>()
-            .ForEach((Entity entity, ref Position position, ref Translation translation, in MovingBot movingBot) =>
+            .ForEach((Entity entity, ref Position position, ref LocalToWorld localToWorld, in MovingBot movingBot) =>
             {
                 float GetLengthSq(float3 vector)
                 {
@@ -40,7 +40,8 @@ public class FetcherMoveBotsSystem : SystemBase
                 var finalPos = movingBot.StartPosition + distanceSoFar;
 
                 position.coord = new float2(finalPos.x, finalPos.z);
-                translation.Value = finalPos;
+
+                localToWorld.Value.c3 = new float4(finalPos, localToWorld.Value.c3.w);
 
                 if (t >= 1)
                 {

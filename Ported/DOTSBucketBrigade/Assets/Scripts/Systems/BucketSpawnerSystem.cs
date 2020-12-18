@@ -40,13 +40,6 @@ public class BucketSpawnerSystem : SystemBase
                 {
                     coord = bucketCoord
                 });
-
-                // TODO: Reevaluate whether it is necessary to add the translation to position
-                // once we have the bucket system in place
-                // TODO: adjust the y-value as the prefabs origins/pivot points change (bucket, ground prefabs)
-                var newTranslation = new Translation {Value = new float3(bucketCoord.x, 0.5f, bucketCoord.y)};
-                ecb.SetComponent(bucketEntity, newTranslation);
-
             }
 
             s_BucketPrefabEntity = bucketSpawner.Prefab;

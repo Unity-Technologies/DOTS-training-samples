@@ -72,6 +72,7 @@ public class FetcherSpawnerSystem : SystemBase
                 ecb.AddComponent<Position>(fetcherEntity, new Position {coord = waterSourceCoord});
                 ecb.AddComponent<TeamIndex>(fetcherEntity, new TeamIndex {Value = i});
                 ecb.AddComponent<FetcherFindBucket>(fetcherEntity, new FetcherFindBucket {});
+                ecb.RemoveComponent<Translation>(fetcherEntity);
 
                 Entity throwerEntity = ecb.Instantiate(botSpawner.BotPrefab);
                 ecb.AddComponent<Thrower>(throwerEntity, new Thrower
@@ -81,6 +82,7 @@ public class FetcherSpawnerSystem : SystemBase
                     GridPosition = new float2(waterSourceCoord)
                 });
                 ecb.AddComponent(throwerEntity, new TeamIndex {Value = i});
+                ecb.RemoveComponent<Translation>(throwerEntity);
 
                 for (int j=0; j<numBucketEmpty; ++j)
                 {
@@ -88,6 +90,7 @@ public class FetcherSpawnerSystem : SystemBase
                     ecb.AddComponent<BucketEmptyBot>(bb1, new BucketEmptyBot { Index = j, Position = float2.zero });
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(bb1, new URPMaterialPropertyBaseColor { Value = emptyBotColor });
                     ecb.AddComponent(bb1, new TeamIndex {Value = i});
+                    ecb.RemoveComponent<Translation>(bb1);
                 }
 
                 for (int j=0; j<numBucketFull; ++j)
@@ -96,6 +99,7 @@ public class FetcherSpawnerSystem : SystemBase
                     ecb.AddComponent<BucketFullBot>(bb0,  new BucketFullBot  { Index = j, Position = float2.zero });
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(bb0, new URPMaterialPropertyBaseColor { Value = fullBotColor });
                     ecb.AddComponent(bb0, new TeamIndex {Value = i});
+                    ecb.RemoveComponent<Translation>(bb0);
                 }
             }
         }).Run();

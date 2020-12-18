@@ -52,9 +52,9 @@ public class BucketSystem : SystemBase
                     float bias = waterLevel.Value < 0.5f ? 1.0f : -1.0f; // empty buckets carried by empty bot who is biased to +1
                     float2 dir = teamDirection[teamIndex];
 
-                    Translation translation;
-                    BucketTeamSystem.UpdateTranslation(out translation, fetcherCoords[teamIndex], throwerCoords[teamIndex], dir, bucket.LinearT, bias, splayParams);
-                    position.coord = new float2(translation.Value.x, translation.Value.z);
+                    float3 pos;
+                    BucketTeamSystem.UpdateTranslation(out pos, fetcherCoords[teamIndex], throwerCoords[teamIndex], dir, bucket.LinearT, bias, splayParams);
+                    position.coord = new float2(pos.x, pos.z);
                 }
             }).ScheduleParallel();
 
@@ -80,9 +80,9 @@ public class BucketSystem : SystemBase
 
         Entities
             .WithAll<Bucket>()
-            .ForEach((ref Translation translation, in Position position) =>
+            .ForEach((ref LocalToWorld localToWorld, in Position position) =>
             {
-                translation.Value = new float3(position.coord.x, 1.0f, position.coord.y);
+                localToWorld.Value.c3 = new float4(position.coord.x, 1.0f, position.coord.y, localToWorld.Value.c3.w);
             }).Schedule();
     }
 }

@@ -11,7 +11,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        _waterSourceQuery = GetEntityQuery(typeof(WaterSourceVolume), typeof(Translation));
+        _waterSourceQuery = GetEntityQuery(typeof(WaterSourceVolume), typeof(LocalToWorld));
         _ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -22,7 +22,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
         //Find all valid water volumes
         var waterSourceEntities = _waterSourceQuery.ToEntityArray(Allocator.TempJob);
         var waterSourceVolumes = _waterSourceQuery.ToComponentDataArray<WaterSourceVolume>(Allocator.TempJob);
-        var waterSourceTranslations = _waterSourceQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var waterSourceLocalToWorlds = _waterSourceQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
 
         var elapsedTime = Time.ElapsedTime;
 
@@ -32,15 +32,15 @@ public class FetcherFindWaterSourceSystem : SystemBase
             .WithAll<Fetcher, FetcherFindWaterSource>()
             .WithDisposeOnCompletion(waterSourceEntities)
             .WithDisposeOnCompletion(waterSourceVolumes)
-            .WithDisposeOnCompletion(waterSourceTranslations)
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in AssignedBucket assignedBucket) =>
+            .WithDisposeOnCompletion(waterSourceLocalToWorlds)
+            .ForEach((Entity entity, int entityInQueryIndex, in LocalToWorld localToWorld, in AssignedBucket assignedBucket) =>
         {
             //Find the closest water source with water remaining
-            float GetDistanceSquared(Translation pos1, Translation pos2)
+            float GetDistanceSquared(float3 pos1, float3 pos2)
             {
-                return (pos1.Value.x - pos2.Value.x) * (pos1.Value.x - pos2.Value.x) +
-                       (pos1.Value.y - pos2.Value.y) * (pos1.Value.y - pos2.Value.y) +
-                       (pos1.Value.z - pos2.Value.z) * (pos1.Value.z - pos2.Value.z);
+                return (pos1.x - pos2.x) * (pos1.x - pos2.x) +
+                       (pos1.y - pos2.y) * (pos1.y - pos2.y) +
+                       (pos1.z - pos2.z) * (pos1.z - pos2.z);
             }
 
             var minDistance = float.MaxValue;
@@ -50,7 +50,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
                 if (waterSourceVolumes[i].Value <= 0)
                     continue;
 
-                var distance = GetDistanceSquared(translation, waterSourceTranslations[i]);
+                var distance = GetDistanceSquared(localToWorld.Value.c3.xyz, waterSourceLocalToWorlds[i].Value.c3.xyz);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -68,8 +68,8 @@ public class FetcherFindWaterSourceSystem : SystemBase
             ecb.RemoveComponent<FetcherFindWaterSource>(entity);
             var movingBot = new MovingBot
             {
-                StartPosition = translation.Value,
-                TargetPosition = waterSourceTranslations[minDistanceIndex].Value,
+                StartPosition = localToWorld.Value.c3.xyz,
+                TargetPosition = waterSourceLocalToWorlds[minDistanceIndex].Value.c3.xyz,
                 StartTime = elapsedTime,
                 HasTagComponentToAddOnArrival = true,
                 TagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFillingBucket>()
@@ -83,7 +83,7 @@ public class FetcherFindWaterSourceSystem : SystemBase
             .WithAll<Bucket>()
             .WithDisposeOnCompletion(movingFetchers)
             .WithDisposeOnCompletion(movingBucketEntities)
-            .ForEach((Entity entity, in BucketOwner bucketOwner, in Translation translation) =>
+            .ForEach((Entity entity, in BucketOwner bucketOwner, in LocalToWorld localToWorld) =>
             {
                 if (!bucketOwner.IsAssigned())
                     return;
