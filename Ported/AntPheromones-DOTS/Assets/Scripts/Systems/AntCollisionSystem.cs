@@ -6,6 +6,12 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(AntMovementSystem))]
+[UpdateBefore(typeof(PheromoneSteeringSystem))]
+[UpdateBefore(typeof(AntFoodSteeringSystem))]
+[UpdateBefore(typeof(AntHomeSteeringSystem))]
+[UpdateBefore(typeof(AntRandomSteeringSystem))]
+[UpdateBefore(typeof(AntBoardEdgeInvertSteeringSystem))]
 public class AntCollisionSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -24,6 +30,7 @@ public class AntCollisionSystem : SystemBase
         const float originalDirectionWeight = 1.0f - repulsionWeight;
         
         Entities
+            .WithReadOnly(obstacleGrid)
             .WithAll<Ant>()
             .ForEach((ref Heading heading, ref Translation translation) =>
             {
@@ -33,12 +40,14 @@ public class AntCollisionSystem : SystemBase
                 if (obstacleGrid[indexInObstacleGrid].present)
                 {
                     //Find a safe place go
-                    heading.heading = -heading.heading;
                     int safeIndex = FindSafeSpot(obstacleGrid, indexInObstacleGrid, boardWidth);
 
+                    //int safeIndex = FindSafeSpotViaHeading(obstacleGrid, translation, heading, boardWidth);
+
                     translation.Value = new float3( safeIndex % boardWidth, safeIndex/boardWidth , 0);
+                    
+                    heading.heading = -heading.heading;
                 }
-                
                 
                 // for (int i = 0; i < obstacleEntities.Length; ++i)
                 // {
@@ -57,7 +66,23 @@ public class AntCollisionSystem : SystemBase
                 
                 // float2 repulseDirection = new float();
                 // heading.heading = math.normalize((heading.heading * originalDirectionWeight) + (repulseDirection * repulseSteerWeight)); 
-            }).Schedule();
+            }).ScheduleParallel();
+    }
+    
+    public static int FindSafeSpotViaHeading(DynamicBuffer<ObstacleBufferElement> obstacleGrid, Translation translation, Heading heading, int boardWidth)
+    {
+        float granularityOfSearch = 0.1f; //one tenth a grid space
+        for (int i = 1; i < 100; i++)
+        {
+            float2 scaledHeading = heading.heading * granularityOfSearch * i;
+            float2 stepBack =  new float2(translation.Value.x - scaledHeading.x, translation.Value.y - scaledHeading.y);
+
+            int indexToCheck = (((int) stepBack.y) * boardWidth) + ((int) stepBack.x);
+            if (!obstacleGrid[indexToCheck].present) return indexToCheck;
+        }
+        
+        Debug.Log("Something went very wrong");
+        return 8000;
     }
 
     public static int FindSafeSpot(DynamicBuffer<ObstacleBufferElement> obstacleGrid, int indexInObstacleGrid, int boardWidth)

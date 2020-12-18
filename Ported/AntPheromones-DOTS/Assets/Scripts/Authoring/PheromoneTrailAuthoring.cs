@@ -19,7 +19,6 @@ public class PheromoneTrailAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             texture = texturePheromone
         };
         
-        dstManager.AddComponent<Pheromone>(entity);
         dstManager.AddComponentData(entity, trailTexture);
     }
 }

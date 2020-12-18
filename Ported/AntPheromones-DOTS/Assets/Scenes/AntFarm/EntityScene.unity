@@ -319,8 +319,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e556db84a96be944901b501c8831eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pheromoneApplicationRate: 100
-  pheromoneDecayRate: 0.035
+  pheromoneApplicationRate: 10
+  pheromoneDecayRate: 0.01
 --- !u!4 &1064282505
 Transform:
   m_ObjectHideFlags: 0
@@ -410,9 +410,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   randomWeight: 0.05
-  pheromoneWeight: 0.2
-  goalWeight: 0.5
-  homeWeight: 0.5
+  pheromoneWeight: 0.1
+  goalWeight: 0.15
+  homeWeight: 0.15
+  debug: 1
 --- !u!4 &1359031872
 Transform:
   m_ObjectHideFlags: 0

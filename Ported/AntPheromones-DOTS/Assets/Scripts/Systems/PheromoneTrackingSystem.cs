@@ -10,6 +10,7 @@ using UnityEngine;
 
 public class PheromoneTrackingSystem : SystemBase
 {
+    [BurstCompatible]
     public struct BufferJobExample: IJobEntityBatch
     {
         //public BufferTypeHandle<Pheromones> pheromonesType;
@@ -66,6 +67,6 @@ public class PheromoneTrackingSystem : SystemBase
             boardWidth = boardWidth
         };
 
-        Dependency = job.Schedule(query, Dependency);
+        Dependency = job.ScheduleParallel(query, 1, Dependency);
     }
 }
