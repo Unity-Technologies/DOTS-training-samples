@@ -25,6 +25,8 @@ public class TileUpdateSystem : SystemBase
                 {
                     RemoveTileComponent(ecb, entity, tile.State);
                     SetTileComponent(ecb, entity, currentTileState);   
+                    
+                    tile.State = currentTileState;
                 }
                 
             }).Run();
