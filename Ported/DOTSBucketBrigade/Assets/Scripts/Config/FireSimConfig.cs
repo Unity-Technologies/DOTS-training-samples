@@ -3,8 +3,8 @@ using Unity.Mathematics;
 
 public class FireSimConfig : MonoBehaviour
 {
-	static public int xDim = 370;
-	static public int yDim = 370;
+	static public int xDim = 300;
+	static public int yDim = 300;
     static public float heatTransferRate = 0.05f;
 	static public int heatRadius = 1;
 	static public float flashPoint = 0.5f;
