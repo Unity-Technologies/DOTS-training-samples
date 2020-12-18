@@ -45,7 +45,7 @@ public class FetcherFindBucketSystem : SystemBase
         }
 
         ComponentType tagComponentToRemoveOnArrival = ComponentType.ReadWrite<FetcherFindBucket>();
-        ComponentType tagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherMoving>();
+        ComponentType tagComponentToAddOnArrival = ComponentType.ReadWrite<FetcherFindWaterSource>();
         var startTime = Time.ElapsedTime;
 
         // Assign buckets to the fetchers
