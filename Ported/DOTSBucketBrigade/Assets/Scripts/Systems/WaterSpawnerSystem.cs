@@ -23,7 +23,7 @@ public class WaterSpawnerSystem : SystemBase
         int xDim = FireSimConfig.xDim;
         int yDim = FireSimConfig.yDim;
         float lowOffset = -5.5f; //store offsets to adjust position of water sources, based on prefab of 10x10
-        float highOffset = 4.5f; 
+        float highOffset = 4.5f;
 
         int nWaterSources = WaterConfig.nWaterSources;
         float capacity = WaterConfig.maxCapacity;
@@ -40,7 +40,7 @@ public class WaterSpawnerSystem : SystemBase
                 Entity waterEntity = ecb.Instantiate(waterSpawner.Prefab);
 
                 // water sources will appear outside the grid, so we first need to determine the dimensions of the grid so we know the edges
-                // water edge will be adjacent, but in a random location. 
+                // water edge will be adjacent, but in a random location.
                 // Get a side for the water to be on - random(4)
                 // Get the adjacent X/Y based on side
                 // Random the other X/Y based on dim length
@@ -60,6 +60,9 @@ public class WaterSpawnerSystem : SystemBase
                 ecb.AddComponent<Position>(waterEntity, new Position { coord = waterCoord });
                 // add capacity (max value) and volume (current value)
                 ecb.AddComponent<WaterSourceVolume>(waterEntity, new WaterSourceVolume { Value = capacity });
+
+                var newTranslation = new Translation { Value = new float3(waterCoord.x, -1.0f, waterCoord.y) };
+                ecb.SetComponent(waterEntity, newTranslation);
             }
 
         }).Schedule();
