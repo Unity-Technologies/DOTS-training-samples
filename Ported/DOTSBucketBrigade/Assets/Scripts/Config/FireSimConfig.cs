@@ -12,6 +12,7 @@ public class FireSimConfig : MonoBehaviour
 
     static public int numFireStarters = 10;
     static public int numWaterSources = 5;
+    static public float bucketFillRate = 0.02f;
 
     static public int maxTeams = 2;
     static public float throwerSpeed = 2.0f;
