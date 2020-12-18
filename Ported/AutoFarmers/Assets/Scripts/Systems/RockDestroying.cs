@@ -24,7 +24,6 @@ public class RockDestroying : SystemBase
                         {
                             var linearIndex = x + y * settings.GridSize.x;
                             tileBuffer[linearIndex] = new TileState { Value = ETileState.Empty};
-                            //var state = tileBuffer[linearIndex].Value;
                         }
                     }
                 }
