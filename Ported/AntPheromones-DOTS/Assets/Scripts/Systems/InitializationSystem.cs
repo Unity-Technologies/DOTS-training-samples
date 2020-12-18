@@ -29,6 +29,10 @@ public class InitializationSystem : SystemBase
         DynamicBuffer<LineOfSightBufferElement> lineOfSightGrid =
             EntityManager.GetBuffer<LineOfSightBufferElement>(lineOfSightEntity);
 
+        Entity homeLineOfSightEntity = GetSingletonEntity<HomeLineOfSightBufferElement>();
+        DynamicBuffer<HomeLineOfSightBufferElement> homeLineOfSightGrid =
+            EntityManager.GetBuffer<HomeLineOfSightBufferElement>(homeLineOfSightEntity);
+        
         Entities
             .WithoutBurst()
             .ForEach((Entity entity, in Init init) =>
@@ -97,21 +101,19 @@ public class InitializationSystem : SystemBase
                             Value = new float3(64f + math.cos(angle) * ringRadius,
                                 64f + math.sin(angle) * ringRadius, 0)
                         };
-                        
+
                         CreateObstacle(translation.Value.x, translation.Value.y, obstacleGrid);
-                        
+
                         ecb.SetComponent(obstacle, translation);
                         ecb.SetComponent(obstacle, new Radius {radius = 4});
                     }
                 }
                 
-                // create LineOfSight grid
+                // create Food LineOfSight grid
                 UpdateLineInDirection(bottomLeftFood, obstacleGrid, lineOfSightGrid, 128);
-                // int indexInLineOfSightGrid = (((int) bottomLeftFood.Value.y) * 128) + ((int) bottomLeftFood.Value.x);
-                // foreach (int index in GetLineInDirection(0, obstacleGrid, 128, indexInLineOfSightGrid))
-                //     lineOfSightGrid[index] = new LineOfSightBufferElement {present = true};
-
-
+                
+                // create Home LineOfSight Grid
+                UpdateHomeLineInDirection(center, obstacleGrid, homeLineOfSightGrid, 128);
             }).Run();
 
         ecb.Playback(EntityManager);
@@ -156,9 +158,27 @@ public class InitializationSystem : SystemBase
                 lineOfSightGrid[indexInLineOfSightGrid] = new LineOfSightBufferElement {present = true};
             }
         }
-       
-        
-            
+    }
+    
+    public static void UpdateHomeLineInDirection(Translation start, DynamicBuffer<ObstacleBufferElement> obstacleGrid,
+        DynamicBuffer<HomeLineOfSightBufferElement> lineOfSightGrid, int boardWidth)
+    {
+        int[] lineIndices = new int[boardWidth];
+        for (int i = 0; i < 360; i++)
+        {
+            float2 angle = new float2( math.cos(i),  math.sin(i));
+            for (int dist = 1; dist < boardWidth; dist++)
+            {
+                float2 posToCheck = new float2(start.Value.x, start.Value.y) + (angle * dist);
+                
+                if (posToCheck.x > 127 || posToCheck.y > 127 || posToCheck.x <0 || posToCheck.y <0) break;
+                
+                int indexInLineOfSightGrid = (((int) posToCheck.y) * 128) + ((int) posToCheck.x);
+                if (obstacleGrid[indexInLineOfSightGrid].present) 
+                    break;
+                lineOfSightGrid[indexInLineOfSightGrid] = new HomeLineOfSightBufferElement {present = true};
+            }
+        }
     }
 }
 

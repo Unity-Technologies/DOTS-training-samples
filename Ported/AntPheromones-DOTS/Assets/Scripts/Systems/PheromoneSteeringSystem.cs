@@ -21,8 +21,12 @@ public class PheromoneSteeringSystem : SystemBase
 		int boardWidth = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardWidth;
 		int boardHeight = EntityManager.GetComponentData<Board>(pheromoneEntity).BoardHeight;
 		
-		const float pheromoneSteerWeight = 0.10f;
-		const float originalDirectionWeight = 1.0f - pheromoneSteerWeight;
+		Entity antMovementParametersEntity = GetSingletonEntity<AntMovementParameters>();
+		AntMovementParameters antMovementParameters =
+			EntityManager.GetComponentData<AntMovementParameters>(antMovementParametersEntity);
+
+		float pheromoneSteerWeight = antMovementParameters.pheromoneWeight;
+		float originalDirectionWeight = 1.0f - pheromoneSteerWeight;
 		
 		Entities
 			.WithAll<Ant>()
