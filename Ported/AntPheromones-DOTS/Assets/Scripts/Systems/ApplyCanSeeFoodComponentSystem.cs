@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public class AntCanSeeFoodSystem : SystemBase
+public class ApplyCanSeeFoodComponentSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -21,15 +20,14 @@ public class AntCanSeeFoodSystem : SystemBase
         Entities
             .WithAll<Ant>()
             .WithNone<HasFood, CanSeeFood>()
-            .WithReadOnly(lineOfSightGrid)
-            .ForEach((ref Ant ant, in Translation translation) =>
+            .ForEach((Entity resEntity, ref Ant ant) =>
             {
-                if (lineOfSightGrid[(((int) translation.Value.y) * boardWidth) + ((int) translation.Value.x)].present)
+                if (ant.shouldGetLineOfSight)
                 {
-                    ant.shouldGetLineOfSight = true;
+                    ecb.AddComponent<CanSeeFood>(resEntity);
+                    ant.shouldGetLineOfSight = false;
                 }
-                
-            }).ScheduleParallel();
+            }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

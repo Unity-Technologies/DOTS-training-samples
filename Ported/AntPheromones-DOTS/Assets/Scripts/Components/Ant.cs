@@ -5,4 +5,5 @@ using UnityEngine;
 
 public struct Ant : IComponentData
 {
+	public bool shouldGetLineOfSight;
 }
