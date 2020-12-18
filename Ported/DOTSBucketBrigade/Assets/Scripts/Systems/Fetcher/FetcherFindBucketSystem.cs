@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -88,6 +88,7 @@ public class FetcherFindBucketSystem : SystemBase
                         });
                         bucketOwners[minDistanceIndex].SetBucketOwner(teamIndex.Value, true);
                         assignedFetcherEntities[minDistanceIndex] = entity;
+                        ecb.SetComponent<Bucket>(bucketEntities[minDistanceIndex], new Bucket {LinearT = 0.0f});
                     }
                 }
 
@@ -107,7 +108,6 @@ public class FetcherFindBucketSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref BucketOwner bucketOwner, in Position position) =>
             {
                 bucketOwner.Value = bucketOwners[entityInQueryIndex].Value;
-                ecb.SetComponent<Bucket>(entity, new Bucket {LinearT = 0.0f});
             })
             .Schedule();
 
