@@ -27,6 +27,7 @@ public class PlantGenerator : SystemBase
 	protected override void OnUpdate()
 	{
 		var commonSettings = GetSingleton<CommonSettings>();
+		
 		Entities.WithAll<Plant>()
 			.ForEach((Entity entity, ref Plant plant, in RenderMesh mesh) =>
 			{
@@ -42,7 +43,6 @@ public class PlantGenerator : SystemBase
                     mesh.mesh.triangles = newMesh.triangles;
                 }
 			}).WithoutBurst().Run();
-
     }
 
 	public void EaseToWorldPosition(float x, float y, float z, float smooth)

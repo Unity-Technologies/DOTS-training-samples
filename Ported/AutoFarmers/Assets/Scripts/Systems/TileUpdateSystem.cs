@@ -15,7 +15,22 @@ public class TileUpdateSystem : SystemBase
         var data = GetSingletonEntity<CommonData>();
         var tileBuffer = GetBufferFromEntity<TileState>()[data];
         
+        Entities
+            .ForEach((Entity entity, ref Tile tile, in Translation translation) =>
+            {
+                var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
+                var currentTileState = tileBuffer[index].Value;
+
+                if (tile.State != currentTileState)
+                {
+                    RemoveTileComponent(ecb, entity, tile.State);
+                    SetTileComponent(ecb, entity, currentTileState);   
+                }
+                
+            }).Run();
+        
         // NOTE: We can't turn this into a generic method. :(
+        /*
         Entities
            .WithAll<EmptyTile>()
            .ForEach((Entity entity, in Translation translation) =>
@@ -74,7 +89,7 @@ public class TileUpdateSystem : SystemBase
                 var tileState = tileBuffer[index].Value;
                 ecb.RemoveComponent<RockTile>(entity);
                 SetTileComponent(ecb, entity, tileState);
-            }).Run();
+            }).Run();*/
         
         ecb.Playback(EntityManager);
     }
@@ -83,6 +98,31 @@ public class TileUpdateSystem : SystemBase
     {
         var tilePos = new int2((int)math.floor(position.x), (int)math.floor(position.z));
         return tilePos.x + tilePos.y * gridDimension;
+    }
+    
+    static void RemoveTileComponent(EntityCommandBuffer ecb, Entity entity, ETileState state)
+    {
+        switch (state)
+        {
+            case ETileState.Empty:
+                ecb.RemoveComponent<EmptyTile>(entity);
+                break;
+            case ETileState.Tilled:    
+                ecb.RemoveComponent<TilledTile>(entity);
+                break;
+            case ETileState.Store:
+                ecb.RemoveComponent<StoreTile>(entity);
+                break;
+            case ETileState.Rock:
+                ecb.RemoveComponent<RockTile>(entity);
+                break;
+            case ETileState.Seeded:
+                ecb.RemoveComponent<SeededTile>(entity);
+                break;
+            case ETileState.Grown:
+                ecb.RemoveComponent<GrownTile>(entity);
+                break;
+        }
     }
 
     static void SetTileComponent(EntityCommandBuffer ecb, Entity entity, ETileState state)

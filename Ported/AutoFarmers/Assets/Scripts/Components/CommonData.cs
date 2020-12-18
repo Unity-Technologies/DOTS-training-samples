@@ -10,13 +10,3 @@ public struct CommonData : IComponentData
     
     public float MoveSmoothForDrones;
 }
-
-public enum ETileState
-{
-    Empty,
-    Store,
-    Rock,
-    Tilled,
-    Seeded,
-    Grown
-}
