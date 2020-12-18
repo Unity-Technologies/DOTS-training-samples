@@ -6,32 +6,31 @@ using Unity.Rendering;
 using UnityEngine;
 using Unity.Jobs;
 
-public class TileUpdateSystem : JobComponentSystem
+public class TileUpdateSystem : SystemBase
 {
-    EndSimulationEntityCommandBufferSystem m_EndSimulationEcbSystem;
+    EndSimulationEntityCommandBufferSystem m_ECB;
+    
     protected override void OnCreate()
     {
         base.OnCreate();
-        // Find the ECB system once and store it for later usage
-        m_EndSimulationEcbSystem = World
-            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        
+        m_ECB = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    protected override void OnUpdate()
     {
-        var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_ECB.CreateCommandBuffer().AsParallelWriter();
 
         var settings = GetSingleton<CommonSettings>();
         var data = GetSingletonEntity<CommonData>();
-        var tileBuffer = GetBufferFromEntity<TileState>(true);
+        var tileBuffer = GetBufferFromEntity<TileState>(true)[data];
 
-        var jobHandle = Entities
+        Dependency = Entities
             .WithReadOnly(tileBuffer)
             .ForEach((Entity entity, int entityInQueryIndex, ref Tile tile, in Translation translation) =>
             {
-                var tiles = tileBuffer[data];
                 var index = PositionToTileIndex(translation.Value, settings.GridSize.x);
-                var currentTileState = tiles[index].Value;
+                var currentTileState = tileBuffer[index].Value;
 
                 if (tile.State != currentTileState)
                 {
@@ -41,10 +40,9 @@ public class TileUpdateSystem : JobComponentSystem
                     tile.State = currentTileState;
                 }
                 
-            }).Schedule(inputDeps);
-        // Make sure that the ECB system knows about our job
-        m_EndSimulationEcbSystem.AddJobHandleForProducer(jobHandle);
-        return default;
+            }).ScheduleParallel(Dependency);
+        
+        m_ECB.AddJobHandleForProducer(Dependency);
     }
 
     static int PositionToTileIndex(float3 position, int gridDimension)
