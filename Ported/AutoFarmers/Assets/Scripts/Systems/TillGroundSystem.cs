@@ -19,7 +19,6 @@ public class TillGroundSystem : SystemBase
         var pathMovement = World.GetExistingSystem<PathMovement>();
         var random = new Unity.Mathematics.Random(1234);
 
-
         Entities
            .WithAll<Farmer>()
            .ForEach((Entity entity, ref TillGroundIntention tillGround, in Translation translation) =>
