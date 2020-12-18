@@ -55,9 +55,10 @@ public class BucketSystem : SystemBase
                 {
                     int teamIndex = bucketOwner.AsCohortIndex();
                     float bias = waterLevel.Value < 0.5f ? 1.0f : -1.0f; // empty buckets carried by empty bot who is biased to +1
+                    float2 dir = throwerCoords[teamIndex] - fetcherCoords[teamIndex];
 
                     Translation translation;
-                    BucketTeamSystem.UpdateTranslation(out translation, fetcherCoords[teamIndex], throwerCoords[teamIndex], bucket.LinearT, bias, splayParams);
+                    BucketTeamSystem.UpdateTranslation(out translation, fetcherCoords[teamIndex], throwerCoords[teamIndex], dir, bucket.LinearT, bias, splayParams);
                     position.coord = new float2(translation.Value.x, translation.Value.z);
                 }
             }).ScheduleParallel();
