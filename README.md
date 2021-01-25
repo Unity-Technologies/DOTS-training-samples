@@ -12,7 +12,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 *Expand the arrows for more details about each sample.*
 
 <details>
-  <summary><strong>Ant Pheromones</strong>: Ants look for food and spread pheromones to influence the pathing of other ants</summary>
+  <summary><strong>Ant Pheromones</strong>: Ants look for food and spread pheromones to influence the pathing of other ants.<br><i>Click here for details</i></summary>
   
   <ul>
 <li>Ants bring food from the source (green spot) to the destination (red spot).</li>
@@ -33,7 +33,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
  
 <details>
-  <summary><strong>Auto Farmers</strong>: Farmers gather and sell resources to expand their farm.</summary>
+  <summary><strong>Auto Farmers</strong>: Farmers gather and sell resources to expand their farm.<br><i>Click here for details</i></summary>
   
    <ul>
 <li>On start, a single farmer (the green cylinders) spawns.</li>
@@ -54,8 +54,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
  
  <details>
-   <summary><strong>Bucket Brigade</strong>: Firefighters pass buckets along a chain to extinguish a fire.
-   </summary>
+   <summary><strong>Bucket Brigade</strong>: Firefighters pass buckets along a chain to extinguish a fire.<br><i>Click here for details</i></summary>
      
    <ul>
 <li>Each cell of the grid has a temperature from 0.0 to 1.0. Cells above 0.2 are on fire and transmit heat to their neighbors. The color and height of a fire cell reflects its temperature. (For visual effect, a fire cell's height randomly oscilates a small amount, but this does not reflect its actual temperature.)</li>
@@ -78,8 +77,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Combat Bees</strong>: Two bee hives battle for resources and survival.
-  </summary>
+  <summary><strong>Combat Bees</strong>: Two bee hives battle for resources and survival.<br><i>Click here for details</i></summary>
     
    <ul>
 <li>Resources (green discs) spawn in the middle. Yellow bees spawn in the yellow base. Blue bees spawn in the blue base.</li>
@@ -99,8 +97,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Factory</strong>: Robots transport resources along lanes to crafters.
-  </summary>
+  <summary><strong>Factory</strong>: Robots transport resources along lanes to crafters.<br><i>Click here for details</i></summary>
   
    <ul>
 <li>Users can click to add a cluster of several additional bots. Users can also click on tiles of the grid to clear them or to add walls (grey tile), add a resource (purple tile), add a crafter (green tile), add green lines, or add purple lines.</li>
@@ -117,8 +114,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Highway Racers</strong>: Simulate traffic on a 4-lane highway.
-  </summary>
+  <summary><strong>Highway Racers</strong>: Simulate traffic on a 4-lane highway.<br><i>Click here for details</i></summary>
   
   <ul>
 <li>Each car has a random cruising speed, a random overtake speed, a random overtake distance, and a random overtake time (each within a fixed min/max range).</li>
@@ -136,8 +132,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Jump The Gun</strong>: A ball jumps through a blocky landscape and avoids cannonballs.
-  </summary>
+  <summary><strong>Jump The Gun</strong>: A ball jumps through a blocky landscape and avoids cannonballs.<br><i>Click here for details</i></summary>
 
 <ul>
 <li>The ball bounces from column to adjacent column towards the mouse cursor. (This requires computing the appropriate trajectory for each bounce.) The movement is clamped to the edges of the playing field.</li>
@@ -155,8 +150,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>LabRat</strong>: Place arrows on the board to route the most rats into your home base.
-  </summary>
+  <summary><strong>LabRat</strong>: Place arrows on the board to route the most rats into your home base.<br><i>Click here for details</i></summary>
     
    <ul>
 <li>Mice spawn at frequent, randomized intervals in the top and bottom corners. The top mice head down. The bottom mice head up.</li>
@@ -177,8 +171,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Magnetic Roads</strong>: Cars drive along 3D generated splines in all orientations.
-  </summary>
+  <summary><strong>Magnetic Roads</strong>: Cars drive along 3D generated splines in all orientations.<br><i>Click here for details</i></summary>
     
    <ul>
 <li>Cars drive in two lanes on both sides of the road. Cars always drive in the right lane.</li>
@@ -195,8 +188,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Metro</strong>: Metro train transport commuters from station to station.
-  </summary>
+  <summary><strong>Metro</strong>: Metro train transport commuters from station to station.<br><i>Click here for details</i></summary>
     
    <ul>
    <li>The trains move on a fixed schedule. Passengers should not enter or exit the train if they do not have time to get in position before the train moves.</li>
@@ -211,8 +203,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Stack Interchange</strong>: Cars drive through a stack interchange.
-  </summary>
+  <summary><strong>Stack Interchange</strong>: Cars drive through a stack interchange.<br><i>Click here for details</i></summary>
    
    <ul>
    <li>At random intervals, cars spawn at the edge of the straight roads. Cars despawn when they run off the edge of the straight roads.</li>
@@ -231,8 +222,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Thrower Arms</strong>: Mechanical arms throw rocks at tin cans.
-  </summary>
+  <summary><strong>Thrower Arms</strong>: Mechanical arms throw rocks at tin cans.<br><i>Click here for details</i></summary>
    
    <ul>
    <li>The arms and hands are animated by inverse kinematics.</li>
@@ -252,8 +242,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Tornado</strong>: A tornado devastates a construction site.
-  </summary>
+  <summary><strong>Tornado</strong>: A tornado devastates a construction site.<br><i>Click here for details</i></summary>
   
    <ul>
    <li>A tornado travels along the ground in a figure 8 pattern.</li>
@@ -269,8 +258,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>Zombie Maze</strong>: A circle picks up capsules in a maze infested with zombies.
-  </summary>
+  <summary><strong>Zombie Maze</strong>: A circle picks up capsules in a maze infested with zombies.<br><i>Click here for details</i></summary>
   
    <ul>
    <li>A player (yellow cube) and zombies (green cubes) move along the grid of the board.</li>
