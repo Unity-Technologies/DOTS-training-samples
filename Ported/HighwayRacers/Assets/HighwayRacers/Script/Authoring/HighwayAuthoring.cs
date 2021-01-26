@@ -18,7 +18,7 @@ public class HighwayAuthoring : MonoBehaviour
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Highway()
+        dstManager.AddComponentData(entity, new HighwayPrefabs()
         {
             StraightPiecePrefab = conversionSystem.GetPrimaryEntity(StraightPiecePrefab),
             CurvePiecePrefab = conversionSystem.GetPrimaryEntity(CurvePiecePrefab),

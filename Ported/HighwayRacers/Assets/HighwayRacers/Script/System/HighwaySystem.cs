@@ -26,7 +26,7 @@ public class HighwaySystem : SystemBase
         var random = new Random(1234);
 
         Entities
-            .ForEach((Entity entity, in Highway highway) =>
+            .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
                 ecb.DestroyEntity(entity);
 
@@ -72,6 +72,8 @@ public class HighwaySystem : SystemBase
                         ecb.SetComponent(instance, new Rotation() { Value = pieceRot });
                         
                         ecb.SetComponent(instance, new HighwayPiece(){});
+                        
+                        //ecb.SetComponent();
                         
                         //TODO : depends on lane
                         // ecb.SetComponent(instance, new CurvePiece()
