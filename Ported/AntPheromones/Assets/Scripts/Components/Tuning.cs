@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public class Tuning : IComponentData
+public struct Tuning : IComponentData
 {
 	public float Speed;
 }

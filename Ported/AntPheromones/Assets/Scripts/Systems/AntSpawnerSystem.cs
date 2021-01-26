@@ -18,6 +18,7 @@ public class AntSpawnerSystem : SystemBase
         var random = new Unity.Mathematics.Random(1234);
 
         Entities
+            .WithAll<AntSpawner>()
             .ForEach((Entity entity, in AntSpawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
@@ -30,7 +31,7 @@ public class AntSpawnerSystem : SystemBase
                     var translation = new Translation { Value = new float3(-5.0f+random.NextFloat()*10.0f, 0, 0) };
                     ecb.SetComponent(instance, translation);
                 }
-            }).WithoutBurst().Run();        // why is WithoutBurst needed but wasn't for the samples?
+            }).Run();
 
         ecb.Playback(EntityManager);
     }

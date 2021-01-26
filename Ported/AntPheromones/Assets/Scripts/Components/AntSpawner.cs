@@ -1,7 +1,7 @@
 ﻿
 using Unity.Entities;
 
-public class AntSpawner : IComponentData
+public struct AntSpawner : IComponentData
 {
 	public Entity AntPrefab;
 	public int AntCount;
