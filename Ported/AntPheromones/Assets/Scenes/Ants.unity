@@ -188,21 +188,9 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 393111731447787596, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
-      propertyPath: m_SquareResolution
-      value: 128
-      objectReference: {fileID: 0}
-    - target: {fileID: 393111731447787596, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
-      propertyPath: AllowPheromoneDynamicBuffer
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2895873556881739482, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_Name
       value: PheromonePrefab
-      objectReference: {fileID: 0}
-    - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_LocalPosition.x
@@ -217,10 +205,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
@@ -231,6 +215,14 @@ PrefabInstance:
     - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_RootOrder
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4168212413752230315, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

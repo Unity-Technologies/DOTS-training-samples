@@ -139,10 +139,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24a741a6b6c58e045b060bca65dbf828, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RandomizePheromones: 0
+  _randomizePheromones: 0
+  _allowPheromoneDynamicBuffer: 1
   m_Mat: {fileID: 2100000, guid: fe22ef51d23143343855e6b6c3127419, type: 2}
-  m_SquareResolution: 1024
-  AllowPheromoneDynamicBuffer: 0
 --- !u!1 &2895873556881739482
 GameObject:
   m_ObjectHideFlags: 0
