@@ -8,7 +8,6 @@ public class SpawnerAuthoring : MonoBehaviour
 {
     public int CarCount;
     public GameObject CarPrefab;
-    [Range(0, 1)] public float CarFrequency;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -30,7 +29,6 @@ public class SpawnerAuthoring : MonoBehaviour
         {
             CarCount = CarCount,
             CarPrefab = conversionSystem.GetPrimaryEntity(CarPrefab),
-            CarFrequency = CarFrequency
         });
     }
 }

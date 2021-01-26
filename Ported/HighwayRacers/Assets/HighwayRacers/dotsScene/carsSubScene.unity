@@ -166,7 +166,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fb71d4d96845124eafc19e0448c5a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CarCount: 10
+  CarCount: 100
   CarPrefab: {fileID: 6846494969764447940, guid: 12141feb78c95d74093c7e4ea1c10b0c,
     type: 3}
-  CarFrequency: 0.526
