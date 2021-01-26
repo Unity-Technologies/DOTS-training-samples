@@ -24,14 +24,15 @@ public class BeeMoveToTargetSystem : SystemBase
         Entities
             .WithName("BeeMovement")
             .WithAll<BeeTag>()
+            .WithNone<CarriedResource>()
             .ForEach((Entity e, ref Translation translation, in MoveTarget moveTarget, in TargetPosition t, in MoveSpeed speed) =>
             {
                 var directionVector = t.Value - translation.Value;
                 var distanceSquared = math.lengthsq(directionVector);
                 if (distanceSquared < 1)
                 {
-                    ecb.SetComponent(e, new CarriedResource() {Value = moveTarget.Value});
-                    ecb.SetComponent(moveTarget.Value, new CarrierBee() {Value = e});
+                    ecb.AddComponent(e, new CarriedResource() {Value = moveTarget.Value});
+                    ecb.AddComponent(moveTarget.Value, new CarrierBee() {Value = e});
                 }
                 else
                 {
@@ -39,6 +40,6 @@ public class BeeMoveToTargetSystem : SystemBase
                     translation.Value += destVector * deltaTime * speed.Value;
                 }
 
-            }).Run();
+            }).Run(); //TODO: Change to schedule parallel (EntityQueryIndex)
     }
 }

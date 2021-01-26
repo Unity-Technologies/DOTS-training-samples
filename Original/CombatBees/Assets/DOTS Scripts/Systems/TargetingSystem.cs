@@ -8,17 +8,15 @@ public class TargetingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var allTranslations = GetComponentDataFromEntity<Translation>(true);
-
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
             .WithName("Targeting")
             .ForEach((ref TargetPosition targetPos, in MoveTarget t) =>
             {
-                var targetTranslation = allTranslations[t.Value];
+                var targetTranslation = GetComponent<Translation>(t.Value);
                 targetPos.Value = targetTranslation.Value;
 
-            }).Run();
+            }).ScheduleParallel();
     }
 }
