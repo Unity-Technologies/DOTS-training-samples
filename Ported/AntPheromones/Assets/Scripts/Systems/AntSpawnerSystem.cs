@@ -9,14 +9,16 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 
-public class SpawnerSystem : SystemBase
+public class AntSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        var random = new Unity.Mathematics.Random(1234);
+
         Entities
-            .ForEach((Entity entity, in AntSpawnerEntity spawner) =>
+            .ForEach((Entity entity, in AntSpawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
@@ -25,7 +27,7 @@ public class SpawnerSystem : SystemBase
                 for (int i = 0; i < spawner.AntCount; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.AntPrefab);
-                    var translation = new Translation { Value = new float3(0, 0, 0) };
+                    var translation = new Translation { Value = new float3(-5.0f+random.NextFloat()*10.0f, 0, 0) };
                     ecb.SetComponent(instance, translation);
                 }
             }).WithoutBurst().Run();        // why is WithoutBurst needed but wasn't for the samples?

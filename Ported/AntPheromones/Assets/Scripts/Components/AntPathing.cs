@@ -1,6 +1,6 @@
 ﻿
 using Unity.Entities;
 
-public class AntPathing : IComponentData
+public struct AntPathing : IComponentData
 {
 }

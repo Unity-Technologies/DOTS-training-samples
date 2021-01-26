@@ -26,7 +26,7 @@ public class AntSpawnerAuthoring : MonoBehaviour
         // GetPrimaryEntity fetches the entity that resulted from the conversion of
         // the given GameObject, but of course this GameObject needs to be part of
         // the conversion, that's why DeclareReferencedPrefabs is important here.
-        dstManager.AddComponentData(entity, new AntSpawnerEntity
+        dstManager.AddComponentData(entity, new AntSpawner
         {
             AntPrefab = conversionSystem.GetPrimaryEntity(AntPrefab),
             AntCount = AntCount,

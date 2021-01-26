@@ -10,5 +10,6 @@ public class AntAuthoring : MonoBehaviour
 		, GameObjectConversionSystem conversionSystem)
 	{
 		dstManager.AddComponent<AntPathing>(entity);
+		dstManager.AddComponent<AntHeading>(entity);
 	}
 }
