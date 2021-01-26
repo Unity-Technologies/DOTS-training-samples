@@ -42,6 +42,7 @@ public class HighwaySystem : SystemBase
         float straightPieceLength = tInfoComp.SegmentLength;
         float cornerRadius = tInfoComp.CornerRadius;
         float trackSize = tInfoComp.TrackSize;
+        
         // deleter the TrackInfo so this only runs at init
         ecb.DestroyEntity(tInfo);
 
