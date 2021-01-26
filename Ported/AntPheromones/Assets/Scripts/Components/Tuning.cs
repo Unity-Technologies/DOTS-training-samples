@@ -6,4 +6,5 @@ public struct Tuning : IComponentData
 	public float Speed;
 	public float AntAngleRange;
 	public int PheromoneBuffer;
+	public float PheromoneDecayStrength;
 }

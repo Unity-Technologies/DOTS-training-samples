@@ -19,7 +19,7 @@ public class PheromoneInitSystem : SystemBase
 
         pheromoneBuffer.Capacity = tuning.PheromoneBuffer * tuning.PheromoneBuffer;
         pheromoneBuffer.Length = tuning.PheromoneBuffer * tuning.PheromoneBuffer;
-
+        
         EntityManager.DestroyEntity(pheromoneInitEntity);
     }
 }
