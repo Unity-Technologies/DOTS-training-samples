@@ -7,4 +7,5 @@ using Unity.Entities;
 public struct Tuning : IComponentData
 {
 	public float Speed;
+	public float AntAngleRange;
 }

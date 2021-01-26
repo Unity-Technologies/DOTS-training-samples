@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 2
+  AntAngleRange: 10
 --- !u!4 &44136463
 Transform:
   m_ObjectHideFlags: 0
