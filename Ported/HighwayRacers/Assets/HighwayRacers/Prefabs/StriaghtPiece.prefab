@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4913377197419762}
   - component: {fileID: 114535691879769550}
+  - component: {fileID: 7087178691812863575}
   m_Layer: 0
   m_Name: StriaghtPiece
   m_TagString: Untagged
@@ -47,6 +48,18 @@ MonoBehaviour:
   baseLength: 6
   baseScaleY: 6
   meshTransform: {fileID: 4014555346923356}
+--- !u!114 &7087178691812863575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852285047314088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92ffb2cf27e3c3249a1dc9d2d2fe23f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1981717590906132
 GameObject:
   m_ObjectHideFlags: 0

@@ -29,65 +29,8 @@ public class HighwaySystem : SystemBase
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
                 ecb.DestroyEntity(entity);
-
-                var lane0Length = 250;
-                if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
-                {
-                    Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
-                    return;
-                }
-                
-                float straightPieceLength = (lane0Length - CURVE_LANE0_RADIUS * 4) / 4;
-    
-                Vector3 pos = Vector3.zero;
-                float rot = 0;
-    
-                for (int i = 0; i < 8; i++)
-                {
-                    if (i % 2 == 0)
-                    {
-                        // straight piece
-                        var instance = ecb.Instantiate(highway.StraightPiecePrefab);
-                        ecb.SetComponent(instance, new Translation() { Value = pos });
-
-                        var pieceRot = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
-                        ecb.SetComponent(instance, new Rotation() { Value = pieceRot });
-                        ecb.SetComponent(instance, new HighwayPiece() { });
-                        ecb.SetComponent(instance, new StraightPiece()
-                        {
-                            Length = straightPieceLength,
-                            baseLength = 6,
-                            baseScaleY = 6
-                        });
-                        
-                        pos += pieceRot * new Vector3(0, 0, straightPieceLength);
-                    }
-                    else
-                    {
-                        // curve piece
-                        var instance = ecb.Instantiate(highway.CurvePiecePrefab);
-                        ecb.SetComponent(instance, new Translation() { Value = pos });
-                        
-                        var pieceRot = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
-                        ecb.SetComponent(instance, new Rotation() { Value = pieceRot });
-                        
-                        ecb.SetComponent(instance, new HighwayPiece(){});
-                        
-                        //ecb.SetComponent();
-                        
-                        //TODO : depends on lane
-                        // ecb.SetComponent(instance, new CurvePiece()
-                        // {
-                        //     Lengths = new []
-                        //     {
-                        //         
-                        //     }
-                        // });
-                        
-                        pos += pieceRot * new Vector3(MID_RADIUS, 0, MID_RADIUS);
-                        rot = Mathf.PI / 2 * (i / 2 + 1);
-                    }
-                }
+                ecb.Instantiate(highway.CurvePiecePrefab);
+                ecb.Instantiate(highway.StraightPiecePrefab);
             }).WithoutBurst().Run();
 
         ecb.Playback(EntityManager);
