@@ -36,9 +36,7 @@ public class PheromoneRendering : MonoBehaviour
     {
         if(m_RandomizePheromones)
         {
-            //m_RandomizePheromones = false;
             GenerateRandomData();
-            //SetMap();
             SetPheromoneArray(m_PheromoneArray);
         }
     }
@@ -47,8 +45,6 @@ public class PheromoneRendering : MonoBehaviour
     {
         CheckTextureInit();
 
-        Debug.Log(byteArray);
-        Debug.Log(m_VisTexture);
         m_VisTexture.SetPixelData(byteArray, 0, 0);
         m_VisTexture.Apply();
     }
