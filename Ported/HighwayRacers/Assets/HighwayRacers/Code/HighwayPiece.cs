@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HighwayRacers
+namespace HighwayRacersOldCode
 {
 
     public class HighwayPiece : MonoBehaviour

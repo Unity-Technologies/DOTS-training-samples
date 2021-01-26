@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace HighwayRacers {
+namespace HighwayRacersOldCode {
 
 	public class PauseButton : MonoBehaviour {
 
