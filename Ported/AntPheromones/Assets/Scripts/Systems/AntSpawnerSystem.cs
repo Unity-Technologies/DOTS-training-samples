@@ -28,7 +28,10 @@ public class AntSpawnerSystem : SystemBase
                 for (int i = 0; i < spawner.AntCount; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.AntPrefab);
-                    var translation = new Translation { Value = new float3(-5.0f+random.NextFloat()*10.0f, 0, 0) };
+                    var translation = new Translation { Value = new float3(0, 0, 0) };
+                    var heading = new AntHeading { Degrees = random.NextFloat() * 360f };
+
+                    ecb.SetComponent(instance, heading);
                     ecb.SetComponent(instance, translation);
                 }
             }).Run();

@@ -13,6 +13,7 @@ public class AntPathingSystem : SystemBase
 	protected override void OnCreate()
 	{
 		base.OnCreate();
+		RequireSingletonForUpdate<Tuning>();
 		_random = new Unity.Mathematics.Random(1234);
 	}
 
