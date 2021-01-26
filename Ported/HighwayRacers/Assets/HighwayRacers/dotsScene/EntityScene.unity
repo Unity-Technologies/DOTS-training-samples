@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 339421326}
   - component: {fileID: 339421325}
+  - component: {fileID: 339421327}
   m_Layer: 0
   m_Name: Highway
   m_TagString: Untagged
@@ -170,3 +171,16 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &339421327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 339421324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7fc21d64a299b47886162b6d89b00d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackSize: 10

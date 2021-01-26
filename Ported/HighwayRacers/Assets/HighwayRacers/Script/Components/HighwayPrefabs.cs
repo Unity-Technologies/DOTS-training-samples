@@ -5,4 +5,5 @@ public class HighwayPrefabs : IComponentData
 {
     public Entity StraightPiecePrefab;
     public Entity CurvePiecePrefab;
+    public float TrackSize;
 }

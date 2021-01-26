@@ -9,7 +9,8 @@ public class HighwayAuthoring : MonoBehaviour
 {
     public GameObject StraightPiecePrefab;
     public GameObject CurvePiecePrefab;
-
+    
+    
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(StraightPiecePrefab);
@@ -23,5 +24,7 @@ public class HighwayAuthoring : MonoBehaviour
             StraightPiecePrefab = conversionSystem.GetPrimaryEntity(StraightPiecePrefab),
             CurvePiecePrefab = conversionSystem.GetPrimaryEntity(CurvePiecePrefab),
         });
+
+    
     }
 }
