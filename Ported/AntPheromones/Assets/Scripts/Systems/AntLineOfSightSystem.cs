@@ -25,7 +25,6 @@ public class AntLineOfSightSystem : SystemBase
 					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
 
 					AntLineOfSight antLos = new AntLineOfSight() { DegreesToFood = degs };
-					Debug.Log($"degs = {degs}");
 					ecb.AddComponent<AntLineOfSight>(entity,antLos);
 				}
 			}).Run();
