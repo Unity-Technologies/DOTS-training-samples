@@ -11,5 +11,6 @@ public class AntAuthoring : MonoBehaviour
 	{
 		dstManager.AddComponent<AntPathing>(entity);
 		dstManager.AddComponent<AntHeading>(entity);
+		dstManager.AddComponent<AntTarget>(entity);
 	}
 }
