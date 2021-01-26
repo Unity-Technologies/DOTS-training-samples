@@ -10,17 +10,18 @@ using UnityEngine;
 public class CarMovementSystem : SystemBase
 {
 // todo We use a circle for now, needs to be rounded box
-    public float TrackRadius = 10;
+    public float TrackRadius = 20;
     public float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*Mathf.PI;
+    private const float RoundedCorner = 5.0f;
 
     static float2 RoundedRectangle(float angle, float radius)
     {
-        float t = (angle % 1.0f) * 8.0f;
+        float t = angle;
         float a = radius;
         float b = radius;
-        float r = 0.01f;
+        float r = RoundedCorner;
         float x = 0;
         float y = 0;
         if(t <= 1)
@@ -87,18 +88,27 @@ public class CarMovementSystem : SystemBase
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
                 float laneRadius = (trackRadius + (movement.Lane * laneWidth));
-                movement.Offset = math.clamp(movement.Offset + movement.Velocity * deltaTime, 0, 1);
 
                 float angle = movement.Offset * CircleRadians;
-                float x = trackOrigin.x + math.cos(angle) * laneRadius;
-                float z = trackOrigin.z + math.sin(angle) * laneRadius;
+                float pt = (angle % 1.0f) * 8.0f;
+                bool isStraightLineSegment = ((int)pt%2)==0;
+                float v = movement.Velocity;
+                
+                float roundedCornerLength = (math.PI * RoundedCorner * RoundedCorner);
+                if(!isStraightLineSegment)
+                    v *= (roundedCornerLength/(trackRadius - movement.Lane));
+
+                float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
+                float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
 //float2 transXZ = new float2(x,z);
 
-                float2 transXZ = RoundedRectangle(angle, laneRadius);
+                float2 transXZ = RoundedRectangle(pt, laneRadius);
 
                 translation.Value.x = transXZ.x;
                 translation.Value.y = trackOrigin.y;
                 translation.Value.z = transXZ.y;
+
+                movement.Offset += v * deltaTime;
 
                 rotation.Value = quaternion.EulerYXZ(0, math.degrees(angle),0);
 
