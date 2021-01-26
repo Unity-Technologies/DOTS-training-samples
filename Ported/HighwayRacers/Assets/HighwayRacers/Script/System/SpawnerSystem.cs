@@ -15,6 +15,7 @@ public class SpawnerSystem : SystemBase
         // we'll initialize it with a constant. (In release, we'd want a seed that
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
+        const int laneCount = 4;
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
@@ -25,32 +26,21 @@ public class SpawnerSystem : SystemBase
 
                 for (int i = 0; i < spawner.CarCount; ++i)
                 {
-                    var instance = ecb.Instantiate(spawner.CarPrefab);
-                    var translation = new Translation {Value = new float3(0, 0, i)};
-                    ecb.SetComponent(instance, translation);
+                    var vehicle = ecb.Instantiate(spawner.CarPrefab);
+                    var translation = new Translation {Value = new float3(0, 0, 0)};
+                    ecb.SetComponent(vehicle, translation);
 
-                    for (int j = 0; j < 100; ++j)
+                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
                     {
-                        if (random.NextFloat() < spawner.CarFrequency)
-                        {
-                            var vehicle = ecb.Instantiate(spawner.CarPrefab);
+                        Value = random.NextFloat4()
+                    });
 
-                            ecb.SetComponent(vehicle, new Translation
-                            {
-                                Value = new float3(0, 0, i)
-                            });
-
-                            ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-                            {
-                                Value = random.NextFloat4()
-                            });
-
-                            ecb.SetComponent(vehicle, new CarMovement
-                            {
-                                Offset = j
-                            });
-                        }
-                    }
+                    ecb.SetComponent(vehicle, new CarMovement
+                    {
+                        Offset = (float)i / spawner.CarCount,
+                        Lane = i % laneCount,
+                        Velocity = 0.1f 
+                    });
                 }
             }).Run();
 
