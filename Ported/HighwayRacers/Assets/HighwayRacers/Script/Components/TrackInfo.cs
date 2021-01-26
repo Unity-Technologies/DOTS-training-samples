@@ -6,4 +6,7 @@ using UnityEngine;
 public struct TrackInfo : IComponentData
 {
     public float TrackSize;
+    public float SegmentLength;
+    public float CornerRadius;
+
 }

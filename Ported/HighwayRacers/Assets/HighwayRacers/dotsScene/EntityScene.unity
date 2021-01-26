@@ -184,3 +184,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TrackSize: 128
+  SegmentLength: 6
+  CornerRadius: 33
