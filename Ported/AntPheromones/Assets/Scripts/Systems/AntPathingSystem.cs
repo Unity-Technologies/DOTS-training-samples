@@ -26,20 +26,58 @@ public class AntPathingSystem : SystemBase
 		float angleRange = tuning.AntAngleRange;
 		Unity.Mathematics.Random random = new Unity.Mathematics.Random(_random.NextUInt());
 
+		// no line of sight, pick a direction
 		Entities.
 			WithAll<AntPathing>().
-			ForEach((ref AntHeading heading, ref Translation translation, ref Rotation rotation) =>
+			WithNone<AntLineOfSight>().
+			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
 			float headingOffset = -(angleRange / 2) + (random.NextFloat() * (angleRange));
 
 			heading.Degrees += headingOffset;
 			float rads = Mathf.Deg2Rad * heading.Degrees;
 
-			translation.Value.x += speed * Mathf.Sin(rads);
-			translation.Value.y += speed * Mathf.Cos(rads);
-			
+			target.Target.x = translation.Value.x + speed * Mathf.Sin(rads);
+			target.Target.y = translation.Value.y + speed * Mathf.Cos(rads);
+
 			rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 
+		}).ScheduleParallel();
+
+		// has line of sight, straight path to food
+		Entities.
+			WithAll<AntLineOfSight>().
+			WithNone<HasFood>().
+			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
+			{
+				float rads = Mathf.Deg2Rad * antLos.DegreesToFood;
+
+				translation.Value.x = translation.Value.x + speed * Mathf.Sin(rads);
+				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
+
+				rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
+			}).ScheduleParallel();
+
+		// TODO wall collision tests - only if no line of sight
+		/*
+		Entities.
+			WithAll<AntPathing>().
+			WithNone<AntLineOfSight>().
+			ForEach((ref Translation translation, in AntTarget target) =>
+			{
+				translation.Value.x = target.Target.x;
+				translation.Value.y = target.Target.y;
+			}).ScheduleParallel();
+		*/
+
+		// copy target into translation
+		Entities.
+			WithAll<AntPathing>().
+			WithNone<AntLineOfSight>().
+			ForEach((ref Translation translation, in AntTarget target)=>
+		{
+			translation.Value.x = target.Target.x;
+			translation.Value.y = target.Target.y;
 		}).ScheduleParallel();
 	}
 }

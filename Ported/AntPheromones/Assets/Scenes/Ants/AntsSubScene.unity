@@ -198,7 +198,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 5232674747128490960, guid: 98d976bbe2768b24dba59f89451de1c4, type: 3}
-  AntCount: 10
+  AntCount: 3
 --- !u!4 &1013175233
 Transform:
   m_ObjectHideFlags: 0
