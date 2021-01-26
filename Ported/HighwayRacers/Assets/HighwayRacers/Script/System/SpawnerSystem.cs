@@ -38,8 +38,8 @@ public class SpawnerSystem : SystemBase
                     ecb.SetComponent(vehicle, new CarMovement
                     {
                         Offset = (float)i / spawner.CarCount,
-                        Lane = i % laneCount,
-                        Velocity = 0.1f 
+                        Lane = 0,/*i % laneCount*/
+                        Velocity = 0.01f 
                     });
                 }
             }).Run();

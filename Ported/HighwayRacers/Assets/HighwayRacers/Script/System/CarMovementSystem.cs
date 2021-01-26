@@ -20,7 +20,7 @@ public class CarMovementSystem : SystemBase
         float t = (angle % 1.0f) * 8.0f;
         float a = radius;
         float b = radius;
-        float r = 3.0f;
+        float r = 0.01f;
         float x = 0;
         float y = 0;
         if(t <= 1)
@@ -84,13 +84,14 @@ public class CarMovementSystem : SystemBase
         // be processed by the Entities.ForEach, this is useful when we don't care
         // about the contents of a component, only its presence.
         Entities
-            .ForEach((ref Translation translation, ref CarMovement movement) =>
+            .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
                 float laneRadius = (trackRadius + (movement.Lane * laneWidth));
-                movement.Offset += movement.Velocity * deltaTime;
+                movement.Offset = math.clamp(movement.Offset + movement.Velocity * deltaTime, 0, 1);
+
                 float angle = movement.Offset * CircleRadians;
-                float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
-                float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
+                float x = trackOrigin.x + math.cos(angle) * laneRadius;
+                float z = trackOrigin.z + math.sin(angle) * laneRadius;
 //float2 transXZ = new float2(x,z);
 
                 float2 transXZ = RoundedRectangle(angle, laneRadius);
@@ -98,6 +99,9 @@ public class CarMovementSystem : SystemBase
                 translation.Value.x = transXZ.x;
                 translation.Value.y = trackOrigin.y;
                 translation.Value.z = transXZ.y;
+
+                rotation.Value = quaternion.EulerYXZ(0, math.degrees(angle),0);
+
             }).ScheduleParallel();
     }
 }
