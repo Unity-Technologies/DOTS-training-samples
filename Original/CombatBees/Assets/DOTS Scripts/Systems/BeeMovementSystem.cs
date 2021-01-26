@@ -15,31 +15,33 @@ public class BeeMoveToTargetSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var allTranslations = GetComponentDataFromEntity<Translation>(true);
         var deltaTime = Time.DeltaTime;
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
-            .WithName("BeeMovement")
+            .WithName("BeeMovementToTarget")
+            .WithoutBurst()
             .WithAll<BeeTag>()
             .WithNone<CarriedResource>()
-            .ForEach((Entity e, ref Translation translation, in MoveTarget moveTarget, in TargetPosition t, in MoveSpeed speed) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetPosition t, in MoveSpeed speed) =>
             {
                 var directionVector = t.Value - translation.Value;
-                var distanceSquared = math.lengthsq(directionVector);
-                if (distanceSquared < 1)
-                {
-                    ecb.AddComponent(e, new CarriedResource() {Value = moveTarget.Value});
-                    ecb.AddComponent(moveTarget.Value, new CarrierBee() {Value = e});
-                }
-                else
-                {
-                    var destVector = math.normalize(directionVector);
-                    translation.Value += destVector * deltaTime * speed.Value;
-                }
+                var destVector = math.normalize(directionVector);
+                translation.Value += destVector * deltaTime * speed.Value;
 
-            }).Run(); //TODO: Change to schedule parallel (EntityQueryIndex)
+            }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
+        
+        // Entities
+        //     .WithName("BeeMovementToBase")
+        //     .WithoutBurst()
+        //     .WithAll<BeeTag, CarriedResource>()
+        //     .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetPosition t, in MoveSpeed speed) =>
+        //     {
+        //         var directionVector = translation.Value - translation.Value;
+        //         var destVector = math.normalize(directionVector);
+        //         translation.Value += destVector * deltaTime * speed.Value;
+        //
+        //     }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
     }
 }

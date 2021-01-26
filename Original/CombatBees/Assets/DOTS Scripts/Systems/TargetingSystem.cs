@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Transforms;
-using Unity.Mathematics;
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
@@ -14,9 +13,7 @@ public class TargetingSystem : SystemBase
             .WithName("Targeting")
             .ForEach((ref TargetPosition targetPos, in MoveTarget t) =>
             {
-                var targetTranslation = GetComponent<Translation>(t.Value);
-                targetPos.Value = targetTranslation.Value;
-
+                targetPos.Value = GetComponent<Translation>(t.Value).Value;
             }).ScheduleParallel();
     }
 }
