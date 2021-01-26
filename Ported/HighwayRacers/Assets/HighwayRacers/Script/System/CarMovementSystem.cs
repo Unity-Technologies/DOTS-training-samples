@@ -15,6 +15,57 @@ public class CarMovementSystem : SystemBase
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*Mathf.PI;
 
+    static float2 RoundedRectangle(float angle, float radius)
+    {
+        float t = (angle % 1.0f) * 8.0f;
+        float a = radius;
+        float b = radius;
+        float r = 3.0f;
+        float x = 0;
+        float y = 0;
+        if(t <= 1)
+        {
+            x = a;
+            y = -(b - r) * (2.0f * t - 1.0f);
+        }
+        else if(t > 1 && t <= 2)
+        {
+            x =  a - r + r * math.cos(0.5f * math.PI * (t - 1.0f));
+            y = -b + r - r * math.sin(0.5f * math.PI * (t - 1.0f));
+        }
+        else if(t > 2 && t <= 3)
+        {
+            x = -(a - r)*(2.0f * t - 5.0f);
+            y = -b;
+        }
+        else if(t > 3 && t <= 4)
+        {
+            x = -a + r - r * math.sin(0.5f * math.PI * (t - 3.0f));
+            y = -b + r - r * math.cos(0.5f * math.PI * (t - 3.0f));
+        }
+        else if(t > 4 && t <= 5)
+        {
+            x = -a;
+            y = (b - r) * (2.0f * t - 9.0f);
+        }
+        else if(t > 5 && t <= 6)
+        {
+            x = -a + r - r * math.cos(0.5f * math.PI * (t - 5.0f));
+            y =  b - r + r * math.sin(0.5f * math.PI * (t - 5.0f));
+        }
+        else if(t > 6 && t <= 7)
+        {
+            x = (a - r) * (2.0f * t - 13.0f);
+            y = b;
+        }
+        else if(t > 7 && t <= 8)
+        {
+            x = a - r + r * math.sin(0.5f * math.PI * (t - 7.0f));
+            y = b - r + r * math.cos(0.5f * math.PI * (t - 7.0f));
+        }
+        return new float2(x,y);
+    }
+
     protected override void OnUpdate()
     {
         // Time is a field of SystemBase, and SystemBase is a class. This prevents
@@ -40,10 +91,13 @@ public class CarMovementSystem : SystemBase
                 float angle = movement.Offset * CircleRadians;
                 float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
                 float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
+//float2 transXZ = new float2(x,z);
 
-                translation.Value.x = x;
+                float2 transXZ = RoundedRectangle(angle, laneRadius);
+
+                translation.Value.x = transXZ.x;
                 translation.Value.y = trackOrigin.y;
-                translation.Value.z = z;
+                translation.Value.z = transXZ.y;
             }).ScheduleParallel();
     }
 }
