@@ -38,7 +38,7 @@ public class PickupSystem : SystemBase
                     t.Value = float3.zero;
                 }
                 
-            }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
+            }).ScheduleParallel();
             
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
