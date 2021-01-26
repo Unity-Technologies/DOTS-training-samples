@@ -53,6 +53,15 @@ public class SpawningSystem : SystemBase
                 }
             }
 
+            for (int i = 0; i < s.NumberOfFood; ++i)
+            {
+                var newFood = ecb.Instantiate(s.FoodPrefab);
+                ecb.SetComponent(newFood, new Translation
+                {
+                    Value = random.NextFloat3(s.FoodSpawnBox.Min, s.FoodSpawnBox.Max),
+                });
+            }
+
             ecb.RemoveComponent<InitializationSpawner>(e);
         }).Run();
         

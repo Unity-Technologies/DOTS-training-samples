@@ -1,9 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using Unity.Entities;
+using Unity.Mathematics;
 
 public struct InitializationSpawner : IComponentData
 {
-    public int NumberOfBees;
     public Entity BeePrefab;
+    public int NumberOfBees;
+    
+    public Entity FoodPrefab;
+    public int NumberOfFood;
+    public AABB FoodSpawnBox;
 }
