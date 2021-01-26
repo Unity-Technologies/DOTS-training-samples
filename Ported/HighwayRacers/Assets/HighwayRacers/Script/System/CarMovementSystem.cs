@@ -90,7 +90,7 @@ public class CarMovementSystem : SystemBase
                 float laneRadius = (trackRadius + (movement.Lane * laneWidth));
 
                 float angle = movement.Offset * CircleRadians;
-                float pt = (angle % 1.0f) * 8.0f;
+                float pt = (movement.Offset % 1.0f) * 8.0f;
                 bool isStraightLineSegment = ((int)pt%2)==0;
                 float v = movement.Velocity;
                 
@@ -110,7 +110,7 @@ public class CarMovementSystem : SystemBase
 
                 movement.Offset += v * deltaTime;
 
-                rotation.Value = quaternion.EulerYXZ(0, math.degrees(angle),0);
+                rotation.Value = quaternion.EulerYXZ(0, math.degrees(pt * math.PI)/192.0f + 90.0f,0);
 
             }).ScheduleParallel();
     }
