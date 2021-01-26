@@ -183,4 +183,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd7fc21d64a299b47886162b6d89b00d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackSize: 10
+  TrackSize: 128

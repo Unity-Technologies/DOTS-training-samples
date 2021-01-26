@@ -15,6 +15,7 @@ public class HighwaySystem : SystemBase
     public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
     public const float MIN_DIST_BETWEEN_CARS = .7f;
 
+    public const float SegmentLenght = 6f;
 
     protected override void OnCreate()
     {
@@ -41,22 +42,124 @@ public class HighwaySystem : SystemBase
         ecb.DestroyEntity(tInfo);
 
         
+        
+         // if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
+         //            {
+         //                Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
+         //                return;
+         //            }
+         //
+        	// 		int tempNumCars = numCars;
+        	// 		if (lane0Length < this.lane0Length) {
+        	// 			ClearCars();
+        	// 		}
+         //
+         //            float straightPieceLength = (lane0Length - CURVE_LANE0_RADIUS * 4) / 4;
+         //
+         //            Vector3 pos = Vector3.zero;
+         //            float rot = 0;
+         //
+         //            for (int i = 0; i < 8; i++)
+         //            {
+         //                if (i % 2 == 0)
+         //                {
+         //                    // straight piece
+         //                    if (pieces[i] == null)
+         //                    {
+         //                        pieces[i] = Instantiate(straightPiecePrefab, transform).GetComponent<StraightPiece>();
+         //                    }
+         //                    StraightPiece straightPiece = pieces[i] as StraightPiece;
+         //                    straightPiece.SetStartPosition(pos);
+         //                    straightPiece.startRotation = rot;
+         //                    straightPiece.SetLength(straightPieceLength);
+         //
+         //                    pos += straightPiece.startRotationQ * new Vector3(0, 0, straightPieceLength);
+         //                }
+         //                else
+         //                {
+         //                    // curve piece
+         //                    if (pieces[i] == null)
+         //                    {
+         //                        pieces[i] = Instantiate(curvePiecePrefab, transform).GetComponent<CurvePiece>();
+         //                    }
+         //                    CurvePiece curvePiece = pieces[i] as CurvePiece;
+         //                    curvePiece.SetStartPosition(pos);
+         //                    curvePiece.startRotation = rot;
+         //
+         //                    pos += curvePiece.startRotationQ * new Vector3(MID_RADIUS, 0, MID_RADIUS);
+         //                    rot = Mathf.PI / 2 * (i / 2 + 1);
+         //                }
+         //            }
+
+
+        float straightPieceLength = 6.0f;//(trackSize - CURVE_LANE0_RADIUS * 4) / 4;
+        
+    
+         
         Entities
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
                 ecb.DestroyEntity(entity);
                 var instance = ecb.Instantiate(highway.CurvePiecePrefab);
-                
-                for (int i = 0; i < 100; i++)
-                {
-                    var inst = ecb.Instantiate(highway.StraightPiecePrefab);
 
-                    var tranlation = new Translation
+                // vertical sides
+
+
+                float halfOffset = trackSize * 0.5f;
+                
+                int segmentCount = Mathf.RoundToInt(trackSize / SegmentLenght);
+                float stretch = trackSize / (segmentCount * SegmentLenght);
+
+                for (int i = 0; i < segmentCount; i++)
+                {
+                    var sp = ecb.Instantiate(highway.StraightPiecePrefab);
+                    var trans = new Translation
                     {
-                        Value = new float3(i * trackSize , 0, 0)
+                        Value = new float3(halfOffset, 0, straightPieceLength * stretch * i - halfOffset)
                     };
-                    ecb.SetComponent(inst,tranlation);
+
+                    var scl = new NonUniformScale{
+                            Value = new float3(1.0f, 1.0f, stretch)
+                    };
+                    ecb.SetComponent(sp, trans);
+;                   ecb.AddComponent(sp, scl);
+
+                    var sp2 = ecb.Instantiate(highway.StraightPiecePrefab);
+                    var trans2 = new Translation
+                    {
+                        Value = new float3(halfOffset * -1, 0, straightPieceLength * stretch * i - halfOffset)
+                    };
+                    ecb.SetComponent(sp2, trans2);
+                    ecb.AddComponent(sp2, scl);
+
+                    var rot = new Rotation {
+                        Value = Quaternion.AngleAxis(90, Vector3.up)
+                    };
+                    
+                    var sp3 = ecb.Instantiate(highway.StraightPiecePrefab);
+                    var trans3 = new Translation
+                    {
+                        Value = new float3( straightPieceLength * stretch * i -halfOffset, 0, halfOffset * -1)
+                    };
+                    ecb.SetComponent(sp3, trans3);
+                    ecb.SetComponent(sp3, rot);
+                    ecb.AddComponent(sp3, scl);
+                    
+                    
+                    var sp4 = ecb.Instantiate(highway.StraightPiecePrefab);
+                    var trans4 = new Translation
+                    {
+                        Value = new float3( straightPieceLength * stretch * i - halfOffset, 0, halfOffset)
+                    };
+                    ecb.SetComponent(sp4, trans4);
+                    ecb.SetComponent(sp4, rot);
+                    ecb.AddComponent(sp4, scl);
+
+                    
+// learning note: the Add is needed bacause there is no 
+                    // scale component by defaul
                 }
+                
             }).WithoutBurst().Run();
 
         ecb.Playback(EntityManager);
