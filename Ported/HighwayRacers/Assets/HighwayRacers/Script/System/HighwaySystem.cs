@@ -15,8 +15,12 @@ public class HighwaySystem : SystemBase
     public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
     public const float MIN_DIST_BETWEEN_CARS = .7f;
 
-    
-    
+
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<TrackInfo>();
+    }
+
     protected override void OnUpdate()
     {
         
