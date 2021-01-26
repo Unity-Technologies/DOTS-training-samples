@@ -4,14 +4,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class InitializationSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    public GameObject BeePrefab;
-    [Range(0, 10000)] public int NumberOfBees;
+    public AABB Team1Zone;
+    public AABB Team2Zone;
     
+    public GameObject BeePrefab;
     public GameObject FoodPrefab;
-    [Range(0, 10000)] public int NumberOfFood;
-    public AABB FoodSpawnBox;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -19,13 +18,12 @@ public class InitializationSpawnerAuthoring : MonoBehaviour, IConvertGameObjectT
         {
             return;
         }
-        dstManager.AddComponentData(entity, new InitializationSpawner()
+        dstManager.AddComponentData(entity, new SpawnZones()
         {
+            Team1Zone = Team1Zone,
+            Team2Zone = Team2Zone,
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
-            NumberOfBees = NumberOfBees,
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
-            NumberOfFood = NumberOfFood,
-            FoodSpawnBox = FoodSpawnBox,
         });
     }
 

@@ -227,8 +227,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1542635298}
-  - component: {fileID: 1542635297}
   - component: {fileID: 1542635299}
+  - component: {fileID: 1542635297}
   m_Layer: 0
   m_Name: Singleton
   m_TagString: Untagged
@@ -245,26 +245,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 1542635296}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66a6c2f4f9b7a27419c6acc9d1d255ae, type: 3}
+  m_Script: {fileID: 11500000, guid: 2352d8c08d7d2164a967291ab1062a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Team1Zone:
+  NumberOfBees: 10
+  NumberOfFood: 50
+  FoodSpawnBox:
     Center:
-      x: -35
-      y: 10
+      x: 0
+      y: 1
       z: 0
     Extents:
       x: 10
-      y: 10
-      z: 10
-  Team2Zone:
-    Center:
-      x: 35
-      y: 10
-      z: 0
-    Extents:
-      x: 10
-      y: 10
+      y: 0
       z: 10
 --- !u!4 &1542635298
 Transform:
@@ -292,21 +285,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b05a48ef12468e4d9b0f958ca271500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeePrefab: {fileID: 6833128816080627883, guid: fca2f1d80e5f5a74da13652d1440d878,
-    type: 3}
-  NumberOfBees: 10
-  FoodPrefab: {fileID: 6333375275169382450, guid: 28ef09ba2ee5f614d92887ad1867c031,
-    type: 3}
-  NumberOfFood: 50
-  FoodSpawnBox:
+  Team1Zone:
     Center:
-      x: 0
-      y: 1.01
+      x: -35
+      y: 10
       z: 0
     Extents:
       x: 10
-      y: 0
+      y: 10
       z: 10
+  Team2Zone:
+    Center:
+      x: 35
+      y: 10
+      z: 0
+    Extents:
+      x: 10
+      y: 10
+      z: 10
+  BeePrefab: {fileID: 6833128816080627883, guid: fca2f1d80e5f5a74da13652d1440d878,
+    type: 3}
+  FoodPrefab: {fileID: 6333375275169382450, guid: 28ef09ba2ee5f614d92887ad1867c031,
+    type: 3}
 --- !u!1 &1845146485
 GameObject:
   m_ObjectHideFlags: 0

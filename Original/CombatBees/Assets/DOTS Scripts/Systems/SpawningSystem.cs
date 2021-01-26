@@ -28,7 +28,7 @@ public class SpawningSystem : SystemBase
             for (int i = 0; i < s.NumberOfBees; ++i)
             {
                 {
-                    var newBee = ecb.Instantiate(s.BeePrefab);
+                    var newBee = ecb.Instantiate(zones.BeePrefab);
                     ecb.SetComponent(newBee, new Translation
                     {
                         Value = random.NextFloat3(zones.Team1Zone.Min, zones.Team1Zone.Max),
@@ -40,7 +40,7 @@ public class SpawningSystem : SystemBase
                     });
                 }
                 {
-                    var newBee = ecb.Instantiate(s.BeePrefab);
+                    var newBee = ecb.Instantiate(zones.BeePrefab);
                     ecb.SetComponent(newBee, new Translation
                     {
                         Value = random.NextFloat3(zones.Team2Zone.Min, zones.Team2Zone.Max),
@@ -55,7 +55,7 @@ public class SpawningSystem : SystemBase
 
             for (int i = 0; i < s.NumberOfFood; ++i)
             {
-                var newFood = ecb.Instantiate(s.FoodPrefab);
+                var newFood = ecb.Instantiate(zones.FoodPrefab);
                 ecb.SetComponent(newFood, new Translation
                 {
                     Value = random.NextFloat3(s.FoodSpawnBox.Min, s.FoodSpawnBox.Max),
