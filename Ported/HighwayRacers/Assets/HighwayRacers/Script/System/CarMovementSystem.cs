@@ -9,7 +9,6 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-// todo We use a circle for now, needs to be rounded box
     public float TrackRadius = 20;
     public float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
@@ -109,15 +108,15 @@ public class CarMovementSystem : SystemBase
 
                 float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
                 float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
-//float2 transXZ = new float2(x,z);
 
-                float3 transXZA = MapToRoundedCorners((movement.Offset % 1.0f), laneRadius);
+                float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
                 translation.Value.x = transXZA.x;
                 translation.Value.y = trackOrigin.y;
                 translation.Value.z = transXZA.y;
 
                 movement.Offset += v * deltaTime;
+                movement.Offset = movement.Offset % 1.0f;
 
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
