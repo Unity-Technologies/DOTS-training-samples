@@ -60,12 +60,13 @@ public class HighwaySystem : SystemBase
         float cornerOffset = cornerRadius;
         int segmentCount = Mathf.RoundToInt(straightLen / straightPieceLength);
         float stretch = straightLen / (segmentCount * straightPieceLength);
-
+        
         
         // layout the straight segments as 4 lines of instances
         Entities
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
+                //ecb.DestroyEntity(entity);
                 // layout straight segments
                 for (int i = 0; i < segmentCount; i++)
                 {
@@ -79,7 +80,7 @@ public class HighwaySystem : SystemBase
                             Value = new float3(1.0f, 1.0f, stretch)
                     };
                     ecb.SetComponent(sp, trans);
-;                   ecb.AddComponent(sp, scl);
+                    ecb.AddComponent(sp, scl);
 
                     var sp2 = ecb.Instantiate(highway.StraightPiecePrefab);
                     var trans2 = new Translation
@@ -161,6 +162,7 @@ public class HighwaySystem : SystemBase
                 
             }).WithoutBurst().Run();
 
+        
         ecb.Playback(EntityManager);
     }
     
