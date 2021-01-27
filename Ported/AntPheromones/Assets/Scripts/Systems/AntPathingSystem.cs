@@ -30,6 +30,7 @@ public class AntPathingSystem : SystemBase
 		DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
 		var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
 
+		float seekAhead = 1f;
 		float speed = tuning.Speed * Time.DeltaTime;
 		float angleRange = tuning.AntAngleRange;
 		Unity.Mathematics.Random random = new Unity.Mathematics.Random(_random.NextUInt());
@@ -48,27 +49,27 @@ public class AntPathingSystem : SystemBase
 			// calculate all targets left, right, fwd with weighting
 			float degreesLeft = heading.Degrees - headingOffset;
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
-			float2 targetLeft = new float2(translation.Value.x + speed * Mathf.Sin(radsLeft), translation.Value.y + speed * Mathf.Cos(radsLeft));
-			xIndex = (int)math.floor(((targetLeft.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((targetLeft.y / tuning.WorldSize) + tuning.WorldOffset.y));
+			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
+			xIndex = (int)math.floor(((seekLeft.x / tuning.WorldSize) + tuning.WorldOffset.x));
+			yIndex = (int)math.ceil(((seekLeft.y / tuning.WorldSize) + tuning.WorldOffset.y));
 			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
 			pValue = (float)(pheromoneBuffer[gridIndex]/255f);
 			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
-			float2 targetRight = new float2(translation.Value.x + speed * Mathf.Sin(radsRight), translation.Value.y + speed * Mathf.Cos(radsRight));
-			xIndex = (int)math.floor(((targetRight.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((targetRight.y / tuning.WorldSize) + tuning.WorldOffset.y));
+			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
+			xIndex = (int)math.floor(((seekRight.x / tuning.WorldSize) + tuning.WorldOffset.x));
+			yIndex = (int)math.ceil(((seekRight.y / tuning.WorldSize) + tuning.WorldOffset.y));
 			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
-			float2 targetFwd = new float2(translation.Value.x + speed * Mathf.Sin(radsFwd), translation.Value.y + speed * Mathf.Cos(radsFwd));
-			xIndex = (int)math.floor(((targetFwd.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((targetFwd.y / tuning.WorldSize) + tuning.WorldOffset.y));
+			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
+			xIndex = (int)math.floor(((seekFwd.x / tuning.WorldSize) + tuning.WorldOffset.x));
+			yIndex = (int)math.ceil(((seekFwd.y / tuning.WorldSize) + tuning.WorldOffset.y));
 			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightFwd = tuning.MinAngleWeight + tuning.AntFwdWeighting + tuning.PheromoneWeighting * pValue;
@@ -76,25 +77,23 @@ public class AntPathingSystem : SystemBase
 			float totalWeight = weightLeft + weightRight + weightFwd;
 			float randomWeight = random.NextFloat() * totalWeight;
 
-			//Debug.Log($"Weights = {weightLeft} {weightFwd} {weightRight}");
-
-			// select random weighted target
+			// select random weighted target, reproject ahead the move distance
 			float rads = 0;
 			if (randomWeight < weightLeft)
 			{
-				target.Target = targetLeft;
+				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsLeft), translation.Value.y + speed * Mathf.Cos(radsLeft));
 				heading.Degrees = degreesLeft;
 				rads = radsLeft;
 			} 
 			else if (randomWeight < weightLeft + weightRight)
 			{
-				target.Target = targetRight;
+				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsRight), translation.Value.y + speed * Mathf.Cos(radsRight));
 				heading.Degrees = degreesRight;
 				rads = radsRight;
 			}
 			else
 			{
-				target.Target = targetFwd;
+				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsFwd), translation.Value.y + speed * Mathf.Cos(radsFwd));
 				heading.Degrees = degreesFwd;
 				rads = radsFwd;
 			}

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8925793196636370136
+--- !u!1 &7125357026658752623
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8925793196636370138}
-  - component: {fileID: 8925793196636370139}
+  - component: {fileID: 3902314788826293661}
+  - component: {fileID: 8502653941959296774}
   m_Layer: 0
-  m_Name: Tuning
+  m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8925793196636370138
+--- !u!4 &3902314788826293661
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8925793196636370136}
+  m_GameObject: {fileID: 7125357026658752623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -31,32 +31,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8925793196636370139
+--- !u!114 &8502653941959296774
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8925793196636370136}
+  m_GameObject: {fileID: 7125357026658752623}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: faed854c54571fa44b754231e5812d86, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d50574916dfef243b4d7226dd611728, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 2
-  AntAngleRange: 15
-  MinAngleWeight: 1
-  PheromoneWeighting: 10
-  AntFwdWeighting: 3
-  PheromoneBuffer: 128
-  PheromoneDecayStrength: 0.00065
-  Resolution: 128
-  WorldSize: 1
-  WorldOffset:
-    x: -64
-    y: 64
-  DecayPeriod: 0.1
-  DecayValue: 1
-  PheromoneDropPeriod: 0.05
-  PheromoneDropValue: 10
-  AntFoodPrefab: {fileID: 3862630643324839571, guid: c444ffe64e994ce45a3c45869d8b6719, type: 3}
+  dimensions:
+    x: 128
+    y: 128
+  homePrefab: {fileID: 7836310719315439679, guid: 3d3cd3c58da11f64d91422c160481c07, type: 3}
+  homeRadius: 1
+  homeColor: {r: 1, g: 0.5, b: 0, a: 1}
+  foodPrefab: {fileID: 4575441225819313824, guid: 28570ed47d06cd448af5f1e52a9ddd4e, type: 3}
+  foodRadius: 1
+  foodColor: {r: 0, g: 0, b: 1, a: 1}
+  obstaclePrefab: {fileID: 6029067864508030420, guid: 31c482f412afd7747b12f3f0e2a8aa40, type: 3}
+  obstacleRadius: 1
+  obstacleColor: {r: 0.707, g: 0.5, b: 0.707, a: 1}
+  numberOfRings: 3
+  openingDegrees: 30
