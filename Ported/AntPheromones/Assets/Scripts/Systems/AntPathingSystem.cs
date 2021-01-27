@@ -44,13 +44,12 @@ public class AntPathingSystem : SystemBase
 
 		}).ScheduleParallel();
 
-		// has line of sight, straight path to food
+		// has line of sight, straight path to goal
 		Entities.
 			WithAll<AntLineOfSight>().
-			WithNone<HasFood>().
 			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
 			{
-				float rads = Mathf.Deg2Rad * antLos.DegreesToFood;
+				float rads = Mathf.Deg2Rad * antLos.DegreesToGoal;
 
 				translation.Value.x = translation.Value.x + speed * Mathf.Sin(rads);
 				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
@@ -70,7 +69,7 @@ public class AntPathingSystem : SystemBase
 			}).ScheduleParallel();
 		*/
 
-		// copy target into translation
+		// copy target into translation.  we have already done this if we have LineOfSight because we ignore collision tests
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().

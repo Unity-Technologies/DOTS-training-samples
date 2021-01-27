@@ -12,35 +12,43 @@ public class AntLineOfSightSystem : SystemBase
     {
 		EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
+		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithNone<HasFood>().
 			ForEach((Entity entity, in Translation translation) =>
 			{
-				if (translation.Value.y > TempFood.LOSY)
+				if (translation.Value.y > TempFood.FOOD_LOS_Y)
 				{
-					float dx = TempFood.POSX - translation.Value.x;
-					float dy = TempFood.POSY - translation.Value.y;
+					float dx = TempFood.FOODPOSX - translation.Value.x;
+					float dy = TempFood.FOODPOSY - translation.Value.y;
 					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
 
-					AntLineOfSight antLos = new AntLineOfSight() { DegreesToFood = degs };
+					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
 					ecb.AddComponent<AntLineOfSight>(entity,antLos);
 				}
 			}).Run();
 
-#if false   // don't think we need to test for lost LOS
+		// test line of sight to home
 		Entities.
 			WithAll<AntPathing>().
-			WithAll<AntLineOfSight>().
+			WithAll<HasFood>().
+			WithNone<AntLineOfSight>().
 			ForEach((Entity entity, in Translation translation) =>
 			{
-				if (translation.Value.y < TempFood.LOSY)
+				if (translation.Value.y < TempFood.HOME_LOS_Y)
 				{
-					ecb.RemoveComponent<AntLineOfSight>(entity);
+					float dx = 0 - translation.Value.x;
+					float dy = 0 - translation.Value.y;
+					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
+
+					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
+					ecb.AddComponent<AntLineOfSight>(entity, antLos);
 				}
 			}).Run();
-#endif
+
+
 
 		ecb.Playback(EntityManager);
 	}
