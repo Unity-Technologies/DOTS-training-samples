@@ -9,7 +9,7 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-    public float TrackRadius = 20;
+    public float TrackSize = 20;
     public float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*Mathf.PI;
@@ -73,7 +73,7 @@ public class CarMovementSystem : SystemBase
         // variable. This local variable can then be used in the job.
         float deltaTime = Time.DeltaTime;
 
-        float trackRadius = TrackRadius;
+        float trackSize = TrackSize;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
 
@@ -86,7 +86,7 @@ public class CarMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
-                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
+                float laneRadius = (trackSize + (movement.Lane * laneWidth));
 
                 float angle = movement.Offset * CircleRadians;
                 float pt = (movement.Offset % 1.0f) * 8.0f;
@@ -95,7 +95,7 @@ public class CarMovementSystem : SystemBase
                 
                 float roundedCornerLength = (math.PI * RoundedCorner * RoundedCorner);
                 if(!isStraightLineSegment)
-                    v *= (roundedCornerLength/(trackRadius - movement.Lane));
+                    v *= (roundedCornerLength/(trackSize - movement.Lane));
 
                 float2 transXZ = RoundedRectangle(pt, laneRadius);
 
