@@ -71,7 +71,7 @@ GameObject:
   - component: {fileID: 4014555346923356}
   - component: {fileID: 33127189292817784}
   - component: {fileID: 23852615691494508}
-  - component: {fileID: 6283303137148608710}
+  - component: {fileID: 6656091233159892509}
   m_Layer: 0
   m_Name: HighwayQuad
   m_TagString: Untagged
@@ -142,7 +142,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6283303137148608710
+--- !u!114 &6656091233159892509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -151,7 +151,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1981717590906132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ConversionMode: 0

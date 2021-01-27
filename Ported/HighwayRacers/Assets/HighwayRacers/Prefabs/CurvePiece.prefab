@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4541319707523654}
   - component: {fileID: 33169414783176094}
   - component: {fileID: 23104939264015212}
+  - component: {fileID: 4536575998714422992}
   m_Layer: 0
   m_Name: HighwayQuad (7)
   m_TagString: Untagged
@@ -81,6 +82,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4536575998714422992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1020243400260468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1184367740326576
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,6 +105,7 @@ GameObject:
   - component: {fileID: 4075245773208200}
   - component: {fileID: 33572158857032672}
   - component: {fileID: 23116780756937132}
+  - component: {fileID: 146954564522076200}
   m_Layer: 0
   m_Name: HighwayQuad (5)
   m_TagString: Untagged
@@ -162,6 +176,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &146954564522076200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1184367740326576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1194374486969068
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,6 +253,7 @@ GameObject:
   - component: {fileID: 4804317480649684}
   - component: {fileID: 33937781452392432}
   - component: {fileID: 23850777555133190}
+  - component: {fileID: 1165525083030520903}
   m_Layer: 0
   m_Name: HighwayQuad (6)
   m_TagString: Untagged
@@ -297,6 +324,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1165525083030520903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1302140272471038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1493683509886862
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,6 +347,7 @@ GameObject:
   - component: {fileID: 4923556146344070}
   - component: {fileID: 33773323178340604}
   - component: {fileID: 23063354360669666}
+  - component: {fileID: 7563334744545618630}
   m_Layer: 0
   m_Name: HighwayQuad (1)
   m_TagString: Untagged
@@ -378,6 +418,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7563334744545618630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493683509886862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1585822472955674
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +441,7 @@ GameObject:
   - component: {fileID: 4937831656529684}
   - component: {fileID: 33421627886138680}
   - component: {fileID: 23803191210406102}
+  - component: {fileID: 1731004766075278836}
   m_Layer: 0
   m_Name: HighwayQuad (9)
   m_TagString: Untagged
@@ -459,6 +512,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1731004766075278836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1585822472955674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1693499562088946
 GameObject:
   m_ObjectHideFlags: 0
@@ -470,6 +535,7 @@ GameObject:
   - component: {fileID: 4251288634640514}
   - component: {fileID: 33865521459623268}
   - component: {fileID: 23617978362844226}
+  - component: {fileID: 8324020314836342821}
   m_Layer: 0
   m_Name: HighwayQuad (4)
   m_TagString: Untagged
@@ -540,6 +606,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8324020314836342821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693499562088946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1850951405470162
 GameObject:
   m_ObjectHideFlags: 0
@@ -549,6 +627,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4326523970658458}
+  - component: {fileID: 3022822230919039279}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -570,6 +649,18 @@ Transform:
   m_Father: {fileID: 4350610878244032}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3022822230919039279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850951405470162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1853069597607248
 GameObject:
   m_ObjectHideFlags: 0
@@ -581,6 +672,7 @@ GameObject:
   - component: {fileID: 4208304949503752}
   - component: {fileID: 33411191130123508}
   - component: {fileID: 23735225184657168}
+  - component: {fileID: 3232001682205652144}
   m_Layer: 0
   m_Name: HighwayQuad (2)
   m_TagString: Untagged
@@ -651,6 +743,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3232001682205652144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853069597607248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1930790025452126
 GameObject:
   m_ObjectHideFlags: 0
@@ -662,6 +766,7 @@ GameObject:
   - component: {fileID: 4160069190107718}
   - component: {fileID: 33007793544469904}
   - component: {fileID: 23751757470082636}
+  - component: {fileID: 6203150014019502253}
   m_Layer: 0
   m_Name: HighwayQuad (8)
   m_TagString: Untagged
@@ -732,6 +837,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6203150014019502253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930790025452126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1942555347911374
 GameObject:
   m_ObjectHideFlags: 0
@@ -743,6 +860,7 @@ GameObject:
   - component: {fileID: 4392617013172548}
   - component: {fileID: 33899572204359920}
   - component: {fileID: 23396648927071746}
+  - component: {fileID: 2247081366664318284}
   m_Layer: 0
   m_Name: HighwayQuad (3)
   m_TagString: Untagged
@@ -813,6 +931,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2247081366664318284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942555347911374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1984439865391504
 GameObject:
   m_ObjectHideFlags: 0
@@ -824,6 +954,7 @@ GameObject:
   - component: {fileID: 4596317023270916}
   - component: {fileID: 33196665023357620}
   - component: {fileID: 23632039047989636}
+  - component: {fileID: 5086356031203787192}
   m_Layer: 0
   m_Name: HighwayQuad (10)
   m_TagString: Untagged
@@ -894,3 +1025,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5086356031203787192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984439865391504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 632664763a5d4f11bdca2f9381b6a4f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
