@@ -46,7 +46,7 @@ MonoBehaviour:
   Speed: 2
   AntAngleRange: 15
   MinAngleWeight: 1
-  PheromoneWeighting: 2
+  PheromoneWeighting: 10
   AntFwdWeighting: 3
   PheromoneBuffer: 128
   PheromoneDecayStrength: 0.00065
