@@ -30,17 +30,5 @@ public class BeeMoveToTargetSystem : SystemBase
                 translation.Value += destVector * deltaTime * speed.Value;
 
             }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
-
-        //Entities
-        //    .WithName("BeeMovementToBase")
-        //    .WithoutBurst()
-        //    .WithAll<BeeTag, CarriedResource>()
-        //    .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetPosition t, in MoveSpeed speed) =>
-        //    {
-        //        var directionVector = float3.zero - translation.Value;
-        //        var destVector = math.normalize(directionVector);
-        //        translation.Value += destVector * deltaTime * speed.Value;
-
-        //    }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
     }
 }
