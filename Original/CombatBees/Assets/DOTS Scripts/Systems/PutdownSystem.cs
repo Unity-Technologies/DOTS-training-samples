@@ -12,34 +12,30 @@ public class PutdownSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb1 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
-        // Entities.ForEach is a job generator, the lambda it contains will be turned
-        // into a proper IJob by IL post processing.
-
         ///////////////////////////////
         // Remove Bee's components.
         ///////////////////////////////
+        var ecb1 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         Entities
             .WithName("Putdown")
             .WithoutBurst()
-            .WithAll<BeeTag, CarriedResource>()
+            .WithAll<BeeTag, CarriedFood>()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation selfTranslation, ref TargetPosition targetPos, in MoveTarget moveTarget) =>
             {
                 if (MathUtil.IsWithinDistance(1.0f, targetPos.Value, selfTranslation.Value))
                 {
-                    ecb1.RemoveComponent<CarriedResource>(entityInQueryIndex, e);
+                    ecb1.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
                     ecb1.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     targetPos.Value = float3.zero;
                 }
             }).ScheduleParallel();
 
 
-        var ecb2 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         ///////////////////////////////
         // Remove food's tag component...
         ///////////////////////////////
+        var ecb2 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         Entities
             .WithName("Putdown2")
             .WithoutBurst()
@@ -49,7 +45,6 @@ public class PutdownSystem : SystemBase
                 if (MathUtil.IsWithinDistance(1.0f, targetPos.Value, selfTranslation.Value))
                 {
                     ecb2.RemoveComponent<CarrierBee>(entityInQueryIndex, e);
-                    //ecb2.AddComponent(entityInQueryIndex, e, new Gravity());
                 }
             }).ScheduleParallel();
 

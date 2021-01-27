@@ -1,7 +1,7 @@
 ﻿using Unity.Entities; 
 
 [GenerateAuthoringComponent]
-public struct CarriedResource : IComponentData
+public struct CarriedFood : IComponentData
 {
     public Entity Value;
 }
