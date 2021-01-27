@@ -5,14 +5,14 @@ using Unity.Transforms;
 // updating every frame.
 [UpdateBefore(typeof(PickupSystem))]
 [UpdateBefore(typeof(BeeMoveToTargetSystem))]
-public class TargetingSystem : SystemBase
+public class TargetingTrackingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
-            .WithName("Targeting")
+            .WithName("TargetTracking")
             .ForEach((ref TargetPosition targetPos, in MoveTarget t) =>
             {
                 targetPos.Value = GetComponent<Translation>(t.Value).Value;

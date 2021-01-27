@@ -6,13 +6,6 @@ using Unity.Mathematics;
 // updating every frame.
 public class BeeMoveToTargetSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
-    
-    protected override void OnCreate()
-    {
-        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;

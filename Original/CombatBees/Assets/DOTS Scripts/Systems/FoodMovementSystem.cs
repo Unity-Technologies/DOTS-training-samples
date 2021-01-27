@@ -31,10 +31,8 @@ public class FoodMovementSystem : SystemBase
             .WithName("FreeFoodMovementSystem")
             .WithAll<FoodTag>()
             .WithNone<CarrierBee>()
-            .ForEach((Entity e, ref Translation t) =>
-            {
-                if (t.Value.y > 0)
-                {
+            .ForEach((Entity e, ref Translation t) => {
+                if (t.Value.y > 0) {
                     t.Value += fall;
                 }
                 
