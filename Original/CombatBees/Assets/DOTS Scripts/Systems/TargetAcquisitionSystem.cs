@@ -27,7 +27,7 @@ public class TargetAcquisitionSystem : SystemBase
             },
             None = new ComponentType[]
             {
-                typeof(CarriedResource),
+                typeof(CarriedFood),
             },
         };
 
@@ -48,7 +48,7 @@ public class TargetAcquisitionSystem : SystemBase
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
         var random = m_Random;
         Entities
-            .WithNone<CarriedResource, MoveTarget, TargetPosition>()
+            .WithNone<CarriedFood, MoveTarget, TargetPosition>()
             .WithAll<BeeTag>()
             .ForEach((Entity e) =>
             {
