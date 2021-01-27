@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using HighwayRacers.Script.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -50,6 +51,8 @@ public class SpawnerSystem : SystemBase
                         Lane = i % laneCount,
                         Velocity = random.NextFloat(0.035f, 0.075f),
                     });
+                    
+                    ecb.SetComponent(vehicle, new NormalState() { });
                 }
             }).Run();
 

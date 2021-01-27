@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using HighwayRacers.Script.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
 using UnityEngine;
@@ -22,5 +23,10 @@ public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
         dstManager.AddComponent<PropagateColor>(entity);
         dstManager.AddComponent<CarMovement>(entity);
+        
+        dstManager.AddComponent<NormalState>(entity);
+        dstManager.AddComponent<MergeLeftState>(entity);
+        dstManager.AddComponent<OvertakeState>(entity);
+        dstManager.AddComponent<MergeRightState>(entity);
     }
 }
