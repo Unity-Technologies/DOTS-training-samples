@@ -9,11 +9,17 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-    public float TrackSize = 20;
-    public float LaneWidth = 2;
-    public float3 TrackOrigin = new float3(0,0,0);
+    private float LaneWidth = 2;
+    private float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*Mathf.PI;
     private const float RoundedCorner = 5.0f;
+
+    private TrackOccupancySystem m_TrackOccupancySystem;
+
+    protected override void OnCreate()
+    {
+        m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
+    }
 
     static float2 RoundedRectangle(float angle, float radius)
     {
@@ -73,7 +79,7 @@ public class CarMovementSystem : SystemBase
         // variable. This local variable can then be used in the job.
         float deltaTime = Time.DeltaTime;
 
-        float trackSize = TrackSize;
+        float trackSize = m_TrackOccupancySystem.TrackSize;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
 
