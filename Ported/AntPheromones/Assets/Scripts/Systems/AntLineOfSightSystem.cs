@@ -8,10 +8,18 @@ using Unity.Transforms;
 
 public class AntLineOfSightSystem : SystemBase
 {
+	private EntityCommandBufferSystem bufferSystem;
+	protected override void OnCreate()
+	{
+		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+	}
+	
     protected override void OnUpdate()
     {
-		EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+	    var ecb = bufferSystem.CreateCommandBuffer();
 
+	    var ecbWriter = ecb.AsParallelWriter();
+	    
 		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
@@ -26,9 +34,9 @@ public class AntLineOfSightSystem : SystemBase
 					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
 
 					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
-					ecb.AddComponent<AntLineOfSight>(entity,antLos);
+					ecbWriter.AddComponent<AntLineOfSight>(0,entity,antLos);
 				}
-			}).Run();
+			}).ScheduleParallel();
 
 		// test line of sight to home
 		Entities.
@@ -44,11 +52,10 @@ public class AntLineOfSightSystem : SystemBase
 					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
 
 					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
-					ecb.AddComponent<AntLineOfSight>(entity, antLos);
+					ecbWriter.AddComponent<AntLineOfSight>(0,entity, antLos);
 				}
-			}).Run();
+			}).ScheduleParallel();
 
-		ecb.Playback(EntityManager);
-		ecb.Dispose();
+		bufferSystem.AddJobHandleForProducer(Dependency);
 	}
 }
