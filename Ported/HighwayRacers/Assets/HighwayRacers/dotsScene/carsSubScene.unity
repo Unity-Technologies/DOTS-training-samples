@@ -169,3 +169,66 @@ MonoBehaviour:
   CarCount: 100
   CarPrefab: {fileID: 6846494969764447940, guid: 12141feb78c95d74093c7e4ea1c10b0c,
     type: 3}
+--- !u!1 &2143815038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2143815041}
+  - component: {fileID: 2143815040}
+  - component: {fileID: 2143815039}
+  m_Layer: 0
+  m_Name: Highway
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2143815039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2143815038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7fc21d64a299b47886162b6d89b00d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackSize: 128
+  SegmentLength: 6
+  CornerRadius: 31.46
+--- !u!114 &2143815040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2143815038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9215a3d19f93af4080ce1bdce2b080e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StraightPiecePrefab: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
+    type: 3}
+  CurvePiecePrefab: {fileID: 1194374486969068, guid: 8c21c0c39d0b2bd42ba1faffb9a8825b,
+    type: 3}
+--- !u!4 &2143815041
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2143815038}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -1,5 +1,4 @@
 ﻿using System;
-using HighwayRacersOldCode;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
