@@ -16,11 +16,12 @@ public class FoodMovementSystem : SystemBase
             .WithName("CarriedFoodMovementSystem")
             //.WithNativeDisableParallelForRestriction(allTranslations)
             .WithAll<FoodTag, CarrierBee>()
-            .ForEach((Entity e, in CarrierBee b) =>
+            .ForEach((Entity e, ref PhysicsData physicsData, in CarrierBee b) =>
             {
                 var beePosition = allTranslations[b.Value];
                 var foodPos = allTranslations[e];
                 foodPos.Value = beePosition.Value + new float3(0f, -0.5f, 0f);
+                physicsData.v = 0;
                 allTranslations[e] = foodPos;
 
             }).Run();
