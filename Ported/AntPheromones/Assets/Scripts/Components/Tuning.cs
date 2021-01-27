@@ -14,4 +14,5 @@ public struct Tuning : IComponentData
 	public float WorldSize;
 	public float2 WorldOffset;
 	public float AntPheromoneStrength;
+	public Entity AntFoodPrefab;
 }
