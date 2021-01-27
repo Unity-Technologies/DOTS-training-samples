@@ -11,6 +11,8 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     
     public GameObject BeePrefab;
     public GameObject FoodPrefab;
+    
+    [Range(0, 100)] public int BeesPerFood;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -24,6 +26,7 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
             Team2Zone = Team2Zone,
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
+            BeesPerFood = BeesPerFood,
         });
     }
 

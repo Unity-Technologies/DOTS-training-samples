@@ -11,4 +11,6 @@ public struct SpawnZones : IComponentData
     
     public Entity BeePrefab;
     public Entity FoodPrefab;
+
+    public int BeesPerFood;
 }

@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -36,6 +37,8 @@ public class FoodMovementSystem : SystemBase
                 if (t.Value.y > 0)
                 {
                     t.Value += fall;
+                    if (t.Value.y < 0)
+                        t.Value.y = 0;
                 }
                 
             }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
