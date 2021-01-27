@@ -16,7 +16,7 @@ public class ClickSpawnSystem : SystemBase
     protected override void OnUpdate()
     {
         var zones = GetSingleton<SpawnZones>();
-        if ( Input.GetMouseButtonDown (0)){ 
+        if ( Input.GetMouseButton(0)){ 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); 
             if ( Physics.Raycast (ray, out var hit, 100.0f)) {
                 var newFood = EntityManager.Instantiate(zones.FoodPrefab);

@@ -11,7 +11,7 @@ public class FoodMovementSystem : SystemBase
     {
         var allTranslations = GetComponentDataFromEntity<Translation>();
         var deltaTime = Time.DeltaTime;
-        var fall = new float3(0f, -1f, 0f) * deltaTime;
+        var fall = new float3(0f, -5f, 0f) * deltaTime;
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
