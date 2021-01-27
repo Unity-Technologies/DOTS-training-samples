@@ -23,14 +23,13 @@ public class PickupSystem : SystemBase
         // into a proper IJob by IL post processing.
         Entities
             .WithName("Pickup")
-            .WithoutBurst()
             .WithAll<BeeTag>()
-            .WithNone<CarriedResource>()
+            .WithNone<CarriedFood>()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
                 if (MathUtil.IsWithinDistance(1.0f, t.Value, translation.Value))
                 {
-                    ecb.AddComponent(entityInQueryIndex, e, new CarriedResource() {Value = moveTarget.Value});
+                    ecb.AddComponent(entityInQueryIndex, e, new CarriedFood() {Value = moveTarget.Value});
                     ecb.AddComponent(entityInQueryIndex, moveTarget.Value, new CarrierBee() {Value = e});
                     ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     t.Value = float3.zero;
