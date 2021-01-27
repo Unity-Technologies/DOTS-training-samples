@@ -98,10 +98,6 @@ public class CarMovementSystem : SystemBase
                 if(!isStraightLineSegment)
                     v *= (roundedCornerLength/(trackRadius - movement.Lane));
 
-                float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
-                float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
-//float2 transXZ = new float2(x,z);
-
                 float2 transXZ = RoundedRectangle(pt, laneRadius);
 
                 translation.Value.x = transXZ.x;
