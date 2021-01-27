@@ -10,7 +10,7 @@ public class AntLineOfSightSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-		EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+		EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
 
 		// test line of sight to food
 		Entities.
@@ -48,8 +48,7 @@ public class AntLineOfSightSystem : SystemBase
 				}
 			}).Run();
 
-
-
 		ecb.Playback(EntityManager);
+		ecb.Dispose();
 	}
 }
