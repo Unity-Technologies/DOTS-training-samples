@@ -28,9 +28,7 @@ public class PickupSystem : SystemBase
             .WithNone<CarriedResource>()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
-                var directionVector = t.Value - translation.Value;
-                var distanceSquared = math.lengthsq(directionVector);
-                if (distanceSquared < 1)
+                if (MathUtil.IsWithinDistance(1.0f, t.Value, translation.Value))
                 {
                     ecb.AddComponent(entityInQueryIndex, e, new CarriedResource() {Value = moveTarget.Value});
                     ecb.AddComponent(entityInQueryIndex, moveTarget.Value, new CarrierBee() {Value = e});
