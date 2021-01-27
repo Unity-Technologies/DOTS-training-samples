@@ -28,7 +28,7 @@
                 .WithAll<FoodTag>()
                 .WithNone<CarrierBee>()
                 .WithStoreEntityQueryInField(ref m_Query)
-                .ForEach((Entity e, ref Translation t) =>
+                .ForEach((Entity e, int entityInQueryIndex, ref Translation t) =>
                 {
                     if (t.Value.y <= 0)
                     {
@@ -36,37 +36,37 @@
                         {
                             for (int i = 0; i < zones.BeesPerFood; ++i)
                             {
-                                var newBee = ecb.Instantiate(e.Index, zones.BeePrefab);
-                                ecb.SetComponent(e.Index, newBee, new Translation
+                                var newBee = ecb.Instantiate(entityInQueryIndex, zones.BeePrefab);
+                                ecb.SetComponent(entityInQueryIndex, newBee, new Translation
                                 {
                                     Value = random.NextFloat3(zones.Team1Zone.Min, zones.Team1Zone.Max),
                                 });
-                                ecb.AddComponent<Team1>(e.Index, newBee);
-                                ecb.AddComponent(e.Index, newBee, new URPMaterialPropertyBaseColor
+                                ecb.AddComponent<Team1>(entityInQueryIndex, newBee);
+                                ecb.AddComponent(entityInQueryIndex, newBee, new URPMaterialPropertyBaseColor
                                 {
                                     Value = new float4(1, 1, 0, 1),
                                 });
                             }
                             
-                            ecb.DestroyEntity(e.Index, e);
+                            ecb.DestroyEntity(entityInQueryIndex, e);
                         } 
                         if (zones.Team2Zone.Contains(t.Value))
                         {
                             for (int i = 0; i < zones.BeesPerFood; ++i)
                             {
-                                var newBee = ecb.Instantiate(e.Index, zones.BeePrefab);
-                                ecb.SetComponent(e.Index, newBee, new Translation
+                                var newBee = ecb.Instantiate(entityInQueryIndex, zones.BeePrefab);
+                                ecb.SetComponent(entityInQueryIndex, newBee, new Translation
                                 {
                                     Value = random.NextFloat3(zones.Team2Zone.Min, zones.Team2Zone.Max),
                                 });
-                                ecb.AddComponent<Team1>(e.Index, newBee);
-                                ecb.AddComponent(e.Index, newBee, new URPMaterialPropertyBaseColor
+                                ecb.AddComponent<Team1>(entityInQueryIndex, newBee);
+                                ecb.AddComponent(entityInQueryIndex, newBee, new URPMaterialPropertyBaseColor
                                 {
                                     Value = new float4(0, 1, 1, 1),
                                 });
                             }
 
-                            ecb.DestroyEntity(e.Index, e);
+                            ecb.DestroyEntity(entityInQueryIndex, e);
                         }
                     }
 
