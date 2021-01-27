@@ -188,6 +188,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 393111730273535292, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 393111730273535292, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 393111730273535292, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 393111730273535292, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 21.35
+      objectReference: {fileID: 0}
     - target: {fileID: 2895873556881739482, guid: 11e8b126ebfcd8241a28f48621303baf, type: 3}
       propertyPath: m_Name
       value: PheromonePrefab
@@ -354,8 +370,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 64
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

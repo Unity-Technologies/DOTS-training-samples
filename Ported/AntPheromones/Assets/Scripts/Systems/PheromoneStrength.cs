@@ -11,7 +11,7 @@ using Unity.Entities;
 [InternalBufferCapacity(8)]
 public struct PheromoneStrength : IBufferElementData
 {
-    public static implicit operator float(PheromoneStrength e) { return e.Value; }
-    public static implicit operator PheromoneStrength(float e) { return new PheromoneStrength { Value = e }; }
-    public float Value;
+    public static implicit operator byte(PheromoneStrength e) { return e.Value; }
+    public static implicit operator PheromoneStrength(byte e) { return new PheromoneStrength { Value = e }; }
+    public byte Value;
 }

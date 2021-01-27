@@ -70,15 +70,17 @@ public class PheromoneRendering : MonoBehaviour
         {
             CheckTextureInit();
 
-            // OPTIMIZATION: Can we set the Dynamic Buffer to use bytes instead of floats, and just pass it directly through to SetPixelData? (SetPixelData didn't like the fact that pheromoneBuffer type wasn't implicit?)
-            byte[] newByteArray = new byte[pheromoneBuffer.Length];
+            //// OPTIMIZATION: Can we set the Dynamic Buffer to use bytes instead of floats, and just pass it directly through to SetPixelData? (SetPixelData didn't like the fact that pheromoneBuffer type wasn't implicit?)
+            //byte[] newByteArray = new byte[pheromoneBuffer.Length];
 
-            for (int i = 0; i < pheromoneBuffer.Length; i++)
-            {
-                newByteArray[i] = (byte)pheromoneBuffer[i];
-            }
+            //for (int i = 0; i < pheromoneBuffer.Length; i++)
+            //{
+            //    newByteArray[i] = (byte)pheromoneBuffer[i];
+            //}
 
-            m_VisTexture.SetPixelData(newByteArray, 0, 0);
+            //m_VisTexture.SetPixelData(newByteArray, 0, 0);
+
+            m_VisTexture.SetPixelData(pheromoneBuffer.AsNativeArray(), 0, 0);
 
             m_VisTexture.Apply();
         }

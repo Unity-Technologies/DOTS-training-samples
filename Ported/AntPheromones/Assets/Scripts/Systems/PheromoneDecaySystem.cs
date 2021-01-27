@@ -11,8 +11,9 @@ public class PheromoneDecaySystem : SystemBase
     protected override void OnUpdate()
     {
         var time = Time.DeltaTime;
-        var decayStrength = GetSingleton<Tuning>().PheromoneDecayStrength;
-        
+        var decayStrength = GetSingleton<Tuning>().PheromoneDecayStrength * time;
+
+
         Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
         DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
         
@@ -24,10 +25,10 @@ public class PheromoneDecaySystem : SystemBase
                 {
                     if (pheromoneBuffer[i].Value > 0)
                     {
-                        var strength = pheromoneBuffer[i];
-                        strength.Value -= time * decayStrength;
-                        strength.Value = math.max(strength.Value, 0);
-                        pheromoneBuffer[i] = strength;
+                        var strength = (float)pheromoneBuffer[i].Value;
+                        strength -= decayStrength;
+                        strength = math.max(strength, 0);
+                        pheromoneBuffer[i] = (byte)strength;
                     }   
                 }
             }).Schedule();

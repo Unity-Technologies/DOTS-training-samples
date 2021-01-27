@@ -12,5 +12,5 @@ public struct Tuning : IComponentData
 	public int Resolution;
 	public float WorldSize;
 	public float2 WorldOffset;
-
+	public float AntPheromoneStrength;
 }

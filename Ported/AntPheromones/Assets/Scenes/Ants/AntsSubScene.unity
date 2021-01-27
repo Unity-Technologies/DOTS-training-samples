@@ -155,12 +155,13 @@ MonoBehaviour:
   Speed: 2
   AntAngleRange: 10
   PheromoneBuffer: 128
-  PheromoneDecayStrength: 0
+  PheromoneDecayStrength: 100
   Resolution: 128
-  WorldSize: 0.1
+  WorldSize: 1
   WorldOffset:
-    x: 0
-    y: 0
+    x: -64
+    y: 64
+  AntPheromoneStrength: 255
 --- !u!4 &44136463
 Transform:
   m_ObjectHideFlags: 0
