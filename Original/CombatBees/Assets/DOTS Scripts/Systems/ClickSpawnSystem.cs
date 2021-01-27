@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class ClickSpawnSystem : SystemBase
 {
+    private float m_SpawnDelay = 0.1f;
+    private float m_SpawnCounter;
     float m_SpawnOffset = 2;
     protected override void OnCreate()
     {
@@ -16,14 +18,21 @@ public class ClickSpawnSystem : SystemBase
     protected override void OnUpdate()
     {
         var zones = GetSingleton<SpawnZones>();
-        if ( Input.GetMouseButton(0)){ 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); 
-            if ( Physics.Raycast (ray, out var hit, 100.0f)) {
-                var newFood = EntityManager.Instantiate(zones.FoodPrefab);
-                EntityManager.SetComponentData(newFood, new Translation
+        m_SpawnCounter -= Time.DeltaTime;
+        if ( Input.GetMouseButton(0))
+        {
+            if (m_SpawnCounter < 0)
+            {
+                m_SpawnCounter = m_SpawnDelay;
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out var hit, 100.0f))
                 {
-                    Value = hit.point + hit.normal * m_SpawnOffset,
-                });
+                    var newFood = EntityManager.Instantiate(zones.FoodPrefab);
+                    EntityManager.SetComponentData(newFood, new Translation
+                    {
+                        Value = hit.point + hit.normal * m_SpawnOffset,
+                    });
+                }
             }
         } 
     }
