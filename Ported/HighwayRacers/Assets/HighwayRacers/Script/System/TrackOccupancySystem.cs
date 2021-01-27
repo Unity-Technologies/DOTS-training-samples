@@ -21,16 +21,17 @@ public class TrackOccupancySystem : SystemBase
     public readonly float TrackSize = 20;
     public readonly uint LaneCount = 4;
 // todo the '64' needs to be the number of tiles we want to subdivide each lane (length of car + circumference of lane?)
-    public readonly uint TilesPerLane = 64;
+    public static readonly uint TilesPerLane = 64;
+    public static bool[,] Occupancy = new bool[4,TilesPerLane]; 
 
-    unsafe void ResetBuffer(ref DynamicBuffer<LaneOccupancy> buffer)
-    {
-        buffer.ResizeUninitialized( (int)TilesPerLane);
-        int size = UnsafeUtility.SizeOf<LaneOccupancy>();
-        UnsafeUtility.MemSet(buffer.GetUnsafePtr(),
-        0,
-        buffer.Length * UnsafeUtility.SizeOf<bool>());
-    }
+    //unsafe void ResetBuffer(ref DynamicBuffer<LaneOccupancy> buffer)
+    //{
+    //    buffer.ResizeUninitialized( (int)TilesPerLane);
+    //    int size = UnsafeUtility.SizeOf<LaneOccupancy>();
+    //    UnsafeUtility.MemSet(buffer.GetUnsafePtr(),
+    //    0,
+    //    buffer.Length * UnsafeUtility.SizeOf<bool>());
+    //}
 
     protected override void OnCreate()
     {
@@ -39,7 +40,7 @@ public class TrackOccupancySystem : SystemBase
             var entity = EntityManager.CreateEntity(typeof(LaneOccupancy));
             EntityManager.SetName(entity, "Lane" + i);
             DynamicBuffer<LaneOccupancy> buffer = EntityManager.AddBuffer<LaneOccupancy>(entity);
-            ResetBuffer(ref buffer);
+            //ResetBuffer(ref buffer);
         }
     }
 
@@ -55,16 +56,20 @@ public class TrackOccupancySystem : SystemBase
 //      two cars merging into the same lane.
 
         // Reset the occupancy for each lane to 0 for all tiles
-        var lanes = GetEntityQuery(typeof(LaneOccupancy)).ToEntityArray(Allocator.TempJob);
-        var buffers = new NativeArray<DynamicBuffer<LaneOccupancy>>(lanes.Length, Allocator.Temp);
-
-        for(int i=0; i<lanes.Length; i++)
+//        UnsafeUtility.MemSet(Occupancy, 0, UnsafeUtility.SizeOf<bool>()); 
+        for(int i = 0; i < LaneCount; ++i)
         {
-// todo is this a copy or a reference (we need a reference)
-            var buffer = EntityManager.GetBuffer<LaneOccupancy>(lanes[i]);
-            buffers[i] = buffer;
-            ResetBuffer(ref buffer);
+            for(int j = 0; j < TilesPerLane; ++j)
+            {
+                Occupancy[i,j] = false;
+            }
         }
+
+        //Entities
+        //    .ForEach((Entity lane, DynamicBuffer<LaneOccupancy> buffer) =>
+        //    {
+        //    ResetBuffer(ref buffer);
+        //    }).WithoutBurst().Run();
 
         uint tilesPerLane = TilesPerLane;
 
@@ -72,17 +77,24 @@ public class TrackOccupancySystem : SystemBase
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
                 float trackPos = movement.Offset;
+                int myLane = (int)movement.Lane;
                 int myTile = (int) (trackPos * tilesPerLane);
+                Occupancy[myLane, myTile] = true;
+                
+                //Entities
+                //    .ForEach((Entity lane, DynamicBuffer<LaneOccupancy> buffer) =>
+                //    {
+                //        buffer.ElementAt(myTile).Occupied = true;
+                //    }).ScheduleParallel();
 
-                var buffer = buffers[(int)movement.Lane];
-                var occ = buffer[myTile];
-                occ.Occupied = true;
-                buffer[myTile] = occ;
-                buffers[(int)movement.Lane] = buffer;
+                //var lanes = EntityManager.GetBuffer<LaneOccupancy>(vehicle);
+                //var myLane = lanes[(int)movement.Lane];
+// todo not sure how we set a value in the buffer?
+                //buffers[myTile];
 
             })
-                .WithDisposeOnCompletion(lanes)
-                .WithDisposeOnCompletion(buffers)
+//.WithDisposeOnCompletion(lanes)
+//.WithDisposeOnCompletion(buffers)
                 .ScheduleParallel();
 
 /*
