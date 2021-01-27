@@ -1,11 +1,12 @@
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
 using Unity.Transforms;
 using Unity.Mathematics;
-using UnityEngine;
+
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
+[UpdateBefore(typeof(TargetAcquisitionSystem))]
+[UpdateBefore(typeof(TargetingValidationSystem))]
 public class PickupSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;

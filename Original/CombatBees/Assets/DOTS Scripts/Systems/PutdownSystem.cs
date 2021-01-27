@@ -1,21 +1,18 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 public class PutdownSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
-    protected override void OnCreate()
-    {
-        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-
     protected override void OnUpdate()
     {
         ///////////////////////////////
         // Remove Bee's components.
         ///////////////////////////////
-        var ecb1 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var origECB = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = origECB.AsParallelWriter();
+        
         Entities
             .WithName("Putdown")
             .WithoutBurst()
@@ -25,18 +22,20 @@ public class PutdownSystem : SystemBase
                 if (MathUtil.IsWithinDistance(1.0f, targetPos.Value, selfTranslation.Value))
                 {
                     //Clear bee and food links to each other
-                    ecb1.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
-                    ecb1.RemoveComponent<CarrierBee>(entityInQueryIndex, food.Value);
+                    ecb.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
+                    ecb.RemoveComponent<CarrierBee>(entityInQueryIndex, food.Value);
                     
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
-                    ecb1.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
-                    ecb1.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
+                    ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
+                    ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
                     
-                    ecb1.DestroyEntity(entityInQueryIndex, food.Value);
+                    ecb.DestroyEntity(entityInQueryIndex, food.Value);
                 }
             }).Schedule();
-
-        CommandBufferSystem.AddJobHandleForProducer(Dependency);
+        
+        Dependency.Complete();
+        origECB.Playback(EntityManager);
+        origECB.Dispose();
     }
 }
 
