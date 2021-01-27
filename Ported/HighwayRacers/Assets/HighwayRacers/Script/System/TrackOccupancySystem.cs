@@ -6,6 +6,7 @@
 public class TrackOccupancySystem : SystemBase
 {
     public float TrackSize = 20;
+    public uint LaneCount = 4;
 
     protected override void OnUpdate()
     {

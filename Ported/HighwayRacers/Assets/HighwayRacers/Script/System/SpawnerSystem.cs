@@ -8,6 +8,12 @@ using Unity.Transforms;
 public class SpawnerSystem : SystemBase
 {
     private EntityQuery RequirePropagation;
+    private TrackOccupancySystem m_TrackOccupancySystem;
+
+    protected override void OnCreate()
+    {
+        m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
+    }
 
     protected override void OnUpdate()
     {
@@ -18,7 +24,7 @@ public class SpawnerSystem : SystemBase
         // we'll initialize it with a constant. (In release, we'd want a seed that
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
-        const int laneCount = 4;
+        uint laneCount = m_TrackOccupancySystem.LaneCount;
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
@@ -27,7 +33,7 @@ public class SpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
 
-                for (int i = 0; i < spawner.CarCount; ++i)
+                for (uint i = 0; i < spawner.CarCount; ++i)
                 {
                     var vehicle = ecb.Instantiate(spawner.CarPrefab);
                     var translation = new Translation {Value = new float3(0, 0, 0)};
@@ -41,7 +47,7 @@ public class SpawnerSystem : SystemBase
                     ecb.SetComponent(vehicle, new CarMovement
                     {
                         Offset = (float)i / spawner.CarCount,
-                        Lane = i % 4,
+                        Lane = i % laneCount,
                         Velocity = random.NextFloat(0.015f, 0.03f),
                     });
                 }
