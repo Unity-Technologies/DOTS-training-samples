@@ -22,6 +22,7 @@ public class TargetAcquisitionSystem : SystemBase
             None = new ComponentType[]
             {
                 typeof(CarrierBee),
+                typeof(IntentionallyDroppedFoodTag)
             },
         };
 
