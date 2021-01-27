@@ -48,7 +48,7 @@ public class SpawnerSystem : SystemBase
                     {
                         Offset = (float)i / spawner.CarCount,
                         Lane = i % laneCount,
-                        Velocity = random.NextFloat(0.015f, 0.03f),
+                        Velocity = random.NextFloat(0.035f, 0.075f),
                     });
                 }
             }).Run();
