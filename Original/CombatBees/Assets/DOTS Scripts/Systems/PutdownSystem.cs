@@ -23,12 +23,12 @@ public class PutdownSystem : SystemBase
         Entities
             .WithName("Putdown")
             .WithoutBurst()
-            .WithAll<BeeTag, CarriedResource>()
+            .WithAll<BeeTag, CarriedFood>()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation selfTranslation, ref TargetPosition targetPos, in MoveTarget moveTarget) =>
             {
                 if (MathUtil.IsWithinDistance(1.0f, targetPos.Value, selfTranslation.Value))
                 {
-                    ecb1.RemoveComponent<CarriedResource>(entityInQueryIndex, e);
+                    ecb1.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
                     ecb1.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     targetPos.Value = float3.zero;
                 }
