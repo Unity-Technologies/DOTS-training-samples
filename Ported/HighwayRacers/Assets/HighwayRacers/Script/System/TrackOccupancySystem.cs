@@ -73,9 +73,12 @@ public class TrackOccupancySystem : SystemBase
             {
                 float trackPos = movement.Offset;
                 int myTile = (int) (trackPos * tilesPerLane);
-                var myLane = lanes[(int)movement.Lane];
-// todo not sure how we set a value in the buffer?
-                buffers[myTile] = true;
+
+                var buffer = buffers[(int)movement.Lane];
+                var occ = buffer[myTile];
+                occ.Occupied = true;
+                buffer[myTile] = occ;
+                buffers[(int)movement.Lane] = buffer;
 
             })
                 .WithDisposeOnCompletion(lanes)
