@@ -45,7 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Speed: 2
   AntAngleRange: 15
-  AntFwdWeighting: 2
+  MinAngleWeight: 1
+  PheromoneWeighting: 2
+  AntFwdWeighting: 3
   PheromoneBuffer: 128
   PheromoneDecayStrength: 0.00065
   Resolution: 128
@@ -53,5 +55,8 @@ MonoBehaviour:
   WorldOffset:
     x: -64
     y: 64
-  AntPheromoneStrength: 0.0001
+  DecayPeriod: 0.1
+  DecayValue: 1
+  PheromoneDropPeriod: 0.05
+  PheromoneDropValue: 10
   AntFoodPrefab: {fileID: 3862630643324839571, guid: c444ffe64e994ce45a3c45869d8b6719, type: 3}
