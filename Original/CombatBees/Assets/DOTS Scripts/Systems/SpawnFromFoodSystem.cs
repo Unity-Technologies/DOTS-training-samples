@@ -55,7 +55,7 @@ public class SpawnFromFoodSystem : SystemBase
                             {
                                 Value = random.NextFloat3(zones.Team2Zone.Min, zones.Team2Zone.Max),
                             });
-                            ecb.AddComponent<Team1>(newBee);
+                            ecb.AddComponent<Team2>(newBee);
                             ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
                             {
                                 Value = new float4(0, 1, 1, 1),
