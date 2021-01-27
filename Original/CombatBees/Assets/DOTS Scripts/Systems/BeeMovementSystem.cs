@@ -8,20 +8,17 @@ public class BeeMoveToTargetSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var deltaTime = Time.DeltaTime;
-
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
             .WithName("BeeMovementToTarget")
             .WithoutBurst()
             .WithAll<BeeTag>()
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetPosition t, in MoveSpeed speed) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref PhysicsData physicsData, in Translation translation, in TargetPosition t, in MoveSpeed speed) =>
             {
                 var directionVector = t.Value - translation.Value;
                 var destVector = math.normalize(directionVector);
-                translation.Value += destVector * deltaTime * speed.Value;
-
+                physicsData.a += destVector * speed.Value;
             }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
     }
 }
