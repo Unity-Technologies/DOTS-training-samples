@@ -2,7 +2,6 @@ using Unity.Entities;
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
-[UpdateBefore(typeof(PickupSystem))]
 [UpdateBefore(typeof(BeeMoveToTargetSystem))]
 public class TargetingValidationSystem : SystemBase
 {

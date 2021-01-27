@@ -58,7 +58,7 @@ public class TargetAcquisitionSystem : SystemBase
                     ecb.AddComponent<TargetPosition>(e);
                 }
 
-            }).ScheduleParallel();
+            }).Schedule();
         
         m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
