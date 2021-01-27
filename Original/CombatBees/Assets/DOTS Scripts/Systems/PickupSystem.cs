@@ -31,6 +31,7 @@ public class PickupSystem : SystemBase
                 {
                     ecb.AddComponent(entityInQueryIndex, e, new CarriedFood() {Value = moveTarget.Value});
                     ecb.AddComponent(entityInQueryIndex, moveTarget.Value, new CarrierBee() {Value = e});
+                    //ecb.RemoveComponent<PhysicsData>(entityInQueryIndex, moveTarget.Value);
                     ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     t.Value = float3.zero;
                 }

@@ -11,7 +11,7 @@ public class FoodMovementSystem : SystemBase
     {
         var allTranslations = GetComponentDataFromEntity<Translation>();
         var deltaTime = Time.DeltaTime;
-        var fall = new float3(0f, -1f, 0f) * deltaTime;
+        var gravity = new float3(0f, -30f, 0f);
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -32,13 +32,9 @@ public class FoodMovementSystem : SystemBase
             .WithName("FreeFoodMovementSystem")
             .WithAll<FoodTag>()
             .WithNone<CarrierBee>()
-            .ForEach((Entity e, ref Translation t) => {
-                if (t.Value.y > 0) {
-                    t.Value += fall;
-                    if (t.Value.y < 0)
-                        t.Value.y = 0;
-                }
-                
+            .ForEach((Entity e, ref Translation t, ref PhysicsData physicsData) =>
+            {
+                physicsData.a += gravity;
             }).ScheduleParallel(); //TODO: Change to schedule parallel (EntityQueryIndex)
     }
 }
