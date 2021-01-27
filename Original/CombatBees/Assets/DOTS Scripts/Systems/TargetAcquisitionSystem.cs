@@ -11,15 +11,14 @@ using Random = Unity.Mathematics.Random;
 public class TargetAcquisitionSystem : SystemBase
 {
     EntityCommandBufferSystem m_EntityCommandBufferSystem;
-    EntityQuery m_AvailableResourcesQuery;
+    EntityQuery m_AvailableFoodQuery;
     Random m_Random;
-    NativeArray<Entity> m_AvailableFood;
 
     protected override void OnCreate()
     {
         m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        var availableResourcesQueryDescription = new EntityQueryDesc
+        var availableFoodQueryDescription = new EntityQueryDesc
         {
             All = new ComponentType[]
             {
@@ -31,25 +30,21 @@ public class TargetAcquisitionSystem : SystemBase
             },
         };
 
-        m_AvailableResourcesQuery = GetEntityQuery(availableResourcesQueryDescription);
+        m_AvailableFoodQuery = GetEntityQuery(availableFoodQueryDescription);
         m_Random = new Random(1234);
     }
 
     protected override void OnUpdate()
     {
-        if (m_AvailableFood.IsCreated)
-        {
-            m_AvailableFood.Dispose();
-        }
         // Let's get all resources that are not currently carried
-        m_AvailableFood = m_AvailableResourcesQuery.ToEntityArray(Allocator.TempJob);
-        var availableFood = m_AvailableFood;
+        var availableFood = m_AvailableFoodQuery.ToEntityArray(Allocator.TempJob);
         
         var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
         var random = m_Random;
         Entities
             .WithNone<CarriedFood, MoveTarget, TargetPosition>()
             .WithAll<BeeTag>()
+            .WithDisposeOnCompletion(availableFood)
             .ForEach((Entity e) =>
             {
                 if (availableFood.Length != 0)
@@ -66,13 +61,5 @@ public class TargetAcquisitionSystem : SystemBase
             }).Schedule();
         
         m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-    }
-
-    protected override void OnDestroy()
-    {
-        if (m_AvailableFood.IsCreated)
-        {
-            m_AvailableFood.Dispose();
-        }
     }
 }
