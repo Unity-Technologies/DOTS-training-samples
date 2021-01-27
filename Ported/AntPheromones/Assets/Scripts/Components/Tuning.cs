@@ -22,4 +22,6 @@ public struct Tuning : IComponentData
 
 	public float PheromoneDropPeriod;
 	public int PheromoneDropValue;
+
+	public Entity AntFoodPrefab;
 }

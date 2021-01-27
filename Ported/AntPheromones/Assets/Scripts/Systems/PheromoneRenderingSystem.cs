@@ -5,7 +5,6 @@ using Unity.Entities;
 
 public class PheromoneRenderingSystem : SystemBase
 {
-    //OnCreate requirecomponent
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<PheromoneStrength>();
