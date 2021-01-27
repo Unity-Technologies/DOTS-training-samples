@@ -9,67 +9,77 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-    private float LaneWidth = 2;
-    private float3 TrackOrigin = new float3(0,0,0);
+// todo We use a circle for now, needs to be rounded box
+    public float TrackRadius = 20;
+    public float LaneWidth = 2;
+    public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*Mathf.PI;
-    private const float RoundedCorner = 5.0f;
+    private const float RoundedCorner = 0.2f;
 
-    private TrackOccupancySystem m_TrackOccupancySystem;
-
-    protected override void OnCreate()
+    static float3 MapToRoundedCorners(float t, float radius)
     {
-        m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
-    }
+        float R = RoundedCorner;
+        float straight = 1.0f - 2.0f * R;
+        float curved = (2.0f * Mathf.PI * R) * 0.25f;
+        float total = straight + curved;
+        float tls = Mathf.Clamp01(straight/total);
+        float tlr = Mathf.Clamp01(curved/total);
 
-    static float2 RoundedRectangle(float angle, float radius)
-    {
-        float t = angle;
-        float a = radius;
-        float b = radius;
-        float r = RoundedCorner;
+        int q = (int)(t * 4.0f);
+
         float x = 0;
         float y = 0;
-        if(t <= 1)
+        float a = 0;
+
+        if(q == 0)
         {
-            x = a;
-            y = -(b - r) * (2.0f * t - 1.0f);
+            float n = t * 4.0f;
+            x = R;
+            y = Mathf.Lerp(R, 1.0f - R, Mathf.Clamp01(n/tls));
+
+            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
+            x -= Mathf.Cos(a) * R;
+            y += Mathf.Sin(a) * R;
         }
-        else if(t > 1 && t <= 2)
+        else if(q == 1)
         {
-            x =  a - r + r * math.cos(0.5f * math.PI * (t - 1.0f));
-            y = -b + r - r * math.sin(0.5f * math.PI * (t - 1.0f));
+            float n = (t - 0.25f) * 4.0f;
+            y = 1.0f - R;
+            x = Mathf.Lerp(R, 1.0f - R, Mathf.Clamp01(n/tls));
+
+            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
+            y += Mathf.Cos(a) * R;
+            x += Mathf.Sin(a) * R;
+            a += Mathf.PI/2.0f;
         }
-        else if(t > 2 && t <= 3)
+        else if(q == 2)
         {
-            x = -(a - r)*(2.0f * t - 5.0f);
-            y = -b;
+            float n = (t - 0.5f) * 4.0f;
+            x = 1.0f - R;
+            y = Mathf.Lerp(1.0f - R, R, Mathf.Clamp01(n/tls));
+
+            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
+            x += Mathf.Cos(a) * R;
+            y -= Mathf.Sin(a) * R;
+            a -= Mathf.PI;
         }
-        else if(t > 3 && t <= 4)
+        else
         {
-            x = -a + r - r * math.sin(0.5f * math.PI * (t - 3.0f));
-            y = -b + r - r * math.cos(0.5f * math.PI * (t - 3.0f));
+            float n = (t - 0.75f) * 4.0f;
+            y = R;
+            x = Mathf.Lerp(1.0f - R, R, Mathf.Clamp01(n/tls));
+
+            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
+            y -= Mathf.Cos(a) * R;
+            x -= Mathf.Sin(a) * R;
+            a -= Mathf.PI/2.0f;
         }
-        else if(t > 4 && t <= 5)
-        {
-            x = -a;
-            y = (b - r) * (2.0f * t - 9.0f);
-        }
-        else if(t > 5 && t <= 6)
-        {
-            x = -a + r - r * math.cos(0.5f * math.PI * (t - 5.0f));
-            y =  b - r + r * math.sin(0.5f * math.PI * (t - 5.0f));
-        }
-        else if(t > 6 && t <= 7)
-        {
-            x = (a - r) * (2.0f * t - 13.0f);
-            y = b;
-        }
-        else if(t > 7 && t <= 8)
-        {
-            x = a - r + r * math.sin(0.5f * math.PI * (t - 7.0f));
-            y = b - r + r * math.cos(0.5f * math.PI * (t - 7.0f));
-        }
-        return new float2(x,y);
+
+        x -= 0.5f;
+        y -= 0.5f;
+        x *= radius;
+        y *= radius;
+        return new float3(x,y,a);
     }
 
     protected override void OnUpdate()
@@ -79,7 +89,7 @@ public class CarMovementSystem : SystemBase
         // variable. This local variable can then be used in the job.
         float deltaTime = Time.DeltaTime;
 
-        float trackSize = m_TrackOccupancySystem.TrackSize;
+        float trackRadius = TrackRadius;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
 
@@ -92,26 +102,24 @@ public class CarMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
-                float laneRadius = (trackSize + (movement.Lane * laneWidth));
+                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
 
                 float angle = movement.Offset * CircleRadians;
-                float pt = (movement.Offset % 1.0f) * 8.0f;
-                bool isStraightLineSegment = ((int)pt%2)==0;
                 float v = movement.Velocity;
-                
-                float roundedCornerLength = (math.PI * RoundedCorner * RoundedCorner);
-                if(!isStraightLineSegment)
-                    v *= (roundedCornerLength/(trackSize - movement.Lane));
 
-                float2 transXZ = RoundedRectangle(pt, laneRadius);
+                float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
+                float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
+//float2 transXZ = new float2(x,z);
 
-                translation.Value.x = transXZ.x;
+                float3 transXZA = MapToRoundedCorners((movement.Offset % 1.0f), laneRadius);
+
+                translation.Value.x = transXZA.x;
                 translation.Value.y = trackOrigin.y;
-                translation.Value.z = transXZ.y;
+                translation.Value.z = transXZA.y;
 
                 movement.Offset += v * deltaTime;
 
-                rotation.Value = quaternion.EulerYXZ(0, math.degrees(pt * math.PI)/192.0f + 90.0f,0);
+                rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
             }).ScheduleParallel();
     }
