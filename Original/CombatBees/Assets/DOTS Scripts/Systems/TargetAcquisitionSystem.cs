@@ -1,23 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 /// <summary>
 /// Assigns tasks to bees without one
 /// </summary>
+[UpdateAfter(typeof(TargetingValidationSystem))]
 public class TargetAcquisitionSystem : SystemBase
 {
-    EntityCommandBufferSystem m_EntityCommandBufferSystem;
     EntityQuery m_AvailableFoodQuery;
     Random m_Random;
 
     protected override void OnCreate()
     {
-        m_EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-
         var availableFoodQueryDescription = new EntityQueryDesc
         {
             All = new ComponentType[]
@@ -37,9 +32,9 @@ public class TargetAcquisitionSystem : SystemBase
     protected override void OnUpdate()
     {
         // Let's get all resources that are not currently carried
-        var availableFood = m_AvailableFoodQuery.ToEntityArray(Allocator.TempJob);
+        var availableFood = m_AvailableFoodQuery.ToEntityArray(Allocator.Temp);
         
-        var ecb = m_EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = m_Random;
         Entities
             .WithNone<CarriedFood, MoveTarget, TargetPosition>()
@@ -58,8 +53,9 @@ public class TargetAcquisitionSystem : SystemBase
                     ecb.AddComponent<TargetPosition>(e);
                 }
 
-            }).Schedule();
-        
-        m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+            }).Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

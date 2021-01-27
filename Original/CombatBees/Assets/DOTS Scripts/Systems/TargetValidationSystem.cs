@@ -1,20 +1,11 @@
 using Unity.Entities;
 
-// Any type inheriting from SystemBase will be registered as a system and will start
-// updating every frame.
-[UpdateBefore(typeof(BeeMoveToTargetSystem))]
+[UpdateAfter(typeof(ClickSpawnSystem))]
 public class TargetingValidationSystem : SystemBase
-{
-    private EntityCommandBufferSystem CommandBufferSystem;
-    
-    protected override void OnCreate()
-    {
-        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-    
+{    
     protected override void OnUpdate()
     {
-        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);//.CreateCommandBuffer();//.AsParallelWriter();
         var carriedFood = GetComponentDataFromEntity<CarrierBee>(true);
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -23,15 +14,21 @@ public class TargetingValidationSystem : SystemBase
             .WithoutBurst()
             .WithReadOnly(carriedFood)
             .WithAll<MoveTarget>()
-            .ForEach((Entity e, int entityInQueryIndex, ref MoveTarget targetFood) => {
-                if (carriedFood.HasComponent(targetFood.Value))
+            .ForEach((Entity e, ref MoveTarget targetFood) => 
+            {
+                Entity targetEntity = targetFood.Value;
+                
+                if(!EntityManager.Exists(targetEntity) || // if previously destroyed
+                    carriedFood.HasComponent(targetEntity)) // if carried by another bee
                 {
-                    ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
-                    ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
-                    ecb.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
+                    ecb.RemoveComponent<MoveTarget>( e);
+                    ecb.RemoveComponent<TargetPosition>( e);
+                    ecb.RemoveComponent<CarriedFood>( e);
                 }
-            }).ScheduleParallel();
+            }).Run();
         
-        CommandBufferSystem.AddJobHandleForProducer(Dependency);
+        ecb.Playback(EntityManager);
+
+        ecb.Dispose();
     }
 }

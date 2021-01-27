@@ -3,8 +3,8 @@ using Unity.Transforms;
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
-[UpdateBefore(typeof(PickupSystem))]
-[UpdateBefore(typeof(BeeMoveToTargetSystem))]
+[UpdateAfter(typeof(TargetAcquisitionSystem))]
+
 public class TargetingTrackingSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -16,6 +16,6 @@ public class TargetingTrackingSystem : SystemBase
             .ForEach((ref TargetPosition targetPos, in MoveTarget t) =>
             {
                 targetPos.Value = GetComponent<Translation>(t.Value).Value;
-            }).ScheduleParallel();
+            }).Run();
     }
 }
