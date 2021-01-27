@@ -11,9 +11,15 @@ using Unity.Transforms;
 
 public class AntSpawnerSystem : SystemBase
 {
+    private EntityCommandBufferSystem bufferSystem;
+    protected override void OnCreate()
+    {
+        bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = bufferSystem.CreateCommandBuffer();
 
         var random = new Unity.Mathematics.Random(1234);
 
@@ -34,8 +40,8 @@ public class AntSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, heading);
                     ecb.SetComponent(instance, translation);
                 }
-            }).Run();
+            }).Schedule();
 
-        ecb.Playback(EntityManager);
+        bufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

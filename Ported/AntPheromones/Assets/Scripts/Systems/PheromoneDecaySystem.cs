@@ -1,4 +1,8 @@
-﻿using Unity.Entities;
+﻿using System.Runtime.CompilerServices;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 
 public class PheromoneDecaySystem : SystemBase
@@ -13,24 +17,36 @@ public class PheromoneDecaySystem : SystemBase
         var time = Time.DeltaTime;
         var decayStrength = GetSingleton<Tuning>().PheromoneDecayStrength * time;
 
-
-        Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
+        var pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
         DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
+
+        var bufferAsNativeArray = pheromoneBuffer.AsNativeArray();
         
-        Entities
-            .WithAll<PheromoneStrength>()
-            .ForEach((Entity entity) =>
-            {
-                for (int i = 0; i < pheromoneBuffer.Length; ++i)
-                {
-                    if (pheromoneBuffer[i].Value > 0)
-                    {
-                        var strength = (float)pheromoneBuffer[i].Value;
-                        strength -= decayStrength;
-                        strength = math.max(strength, 0);
-                        pheromoneBuffer[i] = (byte)strength;
-                    }   
-                }
-            }).Schedule();
+        var job = new DecayJob(bufferAsNativeArray, decayStrength);
+        Dependency = job.Schedule(pheromoneBuffer.Length, 100, Dependency);
+    }
+    
+    [BurstCompile]
+    private struct DecayJob : IJobParallelFor
+    {
+        private NativeArray<PheromoneStrength> pheromoneBuffer;
+        private float decayStrength;
+        
+        public DecayJob(NativeArray<PheromoneStrength> pheromoneBuffer, float decayStrength)
+        {
+            this.pheromoneBuffer = pheromoneBuffer;
+            this.decayStrength = decayStrength;
+        }
+    
+        public void Execute(int index)
+        {
+            if (pheromoneBuffer[index].Value <= 0) return;
+            
+            var strength = (float)pheromoneBuffer[index].Value;
+            strength -= decayStrength;
+            strength = math.max(strength, 0);
+            pheromoneBuffer[index] = (byte)strength;
+        }
     }
 }
+
