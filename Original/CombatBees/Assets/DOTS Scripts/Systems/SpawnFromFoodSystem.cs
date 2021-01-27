@@ -28,9 +28,9 @@
                 .WithAll<FoodTag>()
                 .WithNone<CarrierBee>()
                 .WithStoreEntityQueryInField(ref m_Query)
-                .ForEach((Entity e, int entityInQueryIndex, ref Translation t) =>
+                .ForEach((Entity e, int entityInQueryIndex, in PhysicsData d, in Translation t) =>
                 {
-                    if (t.Value.y <= 0)
+                    if (t.Value.y <= d.floor)
                     {
                         if (zones.Team1Zone.Contains(t.Value))
                         {
