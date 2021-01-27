@@ -7,36 +7,35 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using Unity.Mathematics;
+using UnityEngine.UI;
 
 [AlwaysUpdateSystem]
 public class HighwaySystem : SystemBase
 {
-    private TrackUI TrackUIInstance;
-    private int LastTrackSize = -1;
-
+    private Slider TerrainSlider;
+    private float LastTrackSize = -1f;
     private float straightPieceLength = -1f;
     private float cornerRadius = -1f;
-
+    private EntityQuery ToBeDeleted;
     
     protected override void OnCreate()
     {
         var trackUIGO = GameObject.FindWithTag("TrackUI");
-        TrackUIInstance = trackUIGO.GetComponent<TrackUI>();
-
-        // RequireSingletonForUpdate<TrackInfo>();
+        TerrainSlider = trackUIGO.GetComponent<Slider>();
+        // tracks previously generated peices for regeneration
+        ToBeDeleted = GetEntityQuery(typeof(HighwayPiece));
     }
-
-
+    
     protected override void OnUpdate()
     {
 
-        if (LastTrackSize == TrackUIInstance.GetTrackSize())
+        if (LastTrackSize == TerrainSlider.value)
         {
             return;
         }
         else
         {
-            LastTrackSize = TrackUIInstance.GetTrackSize();
+            LastTrackSize = TerrainSlider.value;
             Debug.Log("Track Size Changed");
         }
 
@@ -49,24 +48,29 @@ public class HighwaySystem : SystemBase
         {
             var tInfo = GetSingletonEntity<TrackInfo>();
             var tInfoComp = GetComponent<TrackInfo>(tInfo);
+            
+            // these could really be constants but it's good
+            // to make them data driven
             straightPieceLength = tInfoComp.SegmentLength;
             cornerRadius = tInfoComp.CornerRadius;
         }
 
         // construction params
-        float trackSize = (float) LastTrackSize;
+        float trackSize = LastTrackSize;
         float straightLen = trackSize - (2 * cornerRadius);
         float halfOffset = trackSize * 0.5f;
         float cornerOffset = cornerRadius;
         int segmentCount = Mathf.RoundToInt(straightLen / straightPieceLength);
         float stretch = straightLen / (segmentCount * straightPieceLength);
         
+        // Delete the pre-existing track
+        EntityManager.DestroyEntity(ToBeDeleted);
         
         // layout the straight segments as 4 lines of instances
         Entities
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
-                //ecb.DestroyEntity(entity);
+                var hp = new HighwayPiece(); 
                 // layout straight segments
                 for (int i = 0; i < segmentCount; i++)
                 {
@@ -81,6 +85,7 @@ public class HighwaySystem : SystemBase
                     };
                     ecb.SetComponent(sp, trans);
                     ecb.AddComponent(sp, scl);
+                    ecb.AddComponent(sp, hp);
 
                     var sp2 = ecb.Instantiate(highway.StraightPiecePrefab);
                     var trans2 = new Translation
@@ -89,6 +94,8 @@ public class HighwaySystem : SystemBase
                     };
                     ecb.SetComponent(sp2, trans2);
                     ecb.AddComponent(sp2, scl);
+                    ecb.AddComponent(sp2, hp);
+
 
                     var rot = new Rotation {
                         Value = Quaternion.AngleAxis(90, Vector3.up)
@@ -102,7 +109,8 @@ public class HighwaySystem : SystemBase
                     ecb.SetComponent(sp3, trans3);
                     ecb.SetComponent(sp3, rot);
                     ecb.AddComponent(sp3, scl);
-                    
+                    ecb.AddComponent(sp3, hp);
+
                     
                     var sp4 = ecb.Instantiate(highway.StraightPiecePrefab);
                     var trans4 = new Translation
@@ -112,6 +120,7 @@ public class HighwaySystem : SystemBase
                     ecb.SetComponent(sp4, trans4);
                     ecb.SetComponent(sp4, rot);
                     ecb.AddComponent(sp4, scl);
+                    ecb.AddComponent(sp4, hp);
 
                 }
                 
@@ -127,6 +136,8 @@ public class HighwaySystem : SystemBase
                     Value = Quaternion.AngleAxis(-90, Vector3.up)
                 };
                 ecb.SetComponent(c1, c1r);
+                ecb.AddComponent(c1, hp);
+
                 
                 var c2 = ecb.Instantiate(highway.CurvePiecePrefab);
                 var c2t = new Translation
@@ -134,6 +145,8 @@ public class HighwaySystem : SystemBase
                     Value = new float3(-1 * halfOffset, 0, 1 * halfOffset -cornerRadius)
                 };
                 ecb.SetComponent(c2, c2t);
+                ecb.AddComponent(c2, hp);
+
    
                 var c3 = ecb.Instantiate(highway.CurvePiecePrefab);
                 var c3t = new Translation
@@ -147,6 +160,8 @@ public class HighwaySystem : SystemBase
                     Value = Quaternion.AngleAxis(90, Vector3.up)
                 };
                 ecb.SetComponent(c3, c3r);
+                ecb.AddComponent(c3, hp);
+
 
                 var c4 = ecb.Instantiate(highway.CurvePiecePrefab);
                 var c4t = new Translation
@@ -159,6 +174,8 @@ public class HighwaySystem : SystemBase
                     Value = Quaternion.AngleAxis(180, Vector3.up)
                 };
                 ecb.SetComponent(c4, c4r);
+                ecb.AddComponent(c4, hp);
+
                 
             }).WithoutBurst().Run();
 

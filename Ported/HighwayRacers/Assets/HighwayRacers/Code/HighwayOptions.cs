@@ -33,12 +33,12 @@ namespace HighwayRacersOldCode
 			public void UpdateSliderValues(){
 				
 				numCarsSlider.minValue = 0;
-				numCarsSlider.maxValue = Game.instance.maxNumCars;
-				highwaySizeSlider.minValue = Mathf.Ceil(Highway.MIN_HIGHWAY_LANE0_LENGTH);
-				highwaySizeSlider.maxValue = Game.instance.highwayMaxSize;
+				numCarsSlider.maxValue = 1024;
+				highwaySizeSlider.minValue = 128;
+				highwaySizeSlider.maxValue = 4096;
 
-				numCarsSlider.value = Highway.instance.numCars;
-				highwaySizeSlider.value = Highway.instance.lane0Length;
+				numCarsSlider.value = 128;
+				highwaySizeSlider.value = 128;
 
 			}
 
