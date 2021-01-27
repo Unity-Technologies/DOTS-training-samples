@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class ClickSpawnSystem : SystemBase
 {
-    private float m_SpawnDelay = 0.1f;
+    private float m_SpawnDelay = 0f;
     private float m_SpawnCounter;
     float m_SpawnOffset = 2;
     protected override void OnCreate()

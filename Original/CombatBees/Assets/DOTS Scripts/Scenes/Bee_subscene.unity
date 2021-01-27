@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 1542635298}
   - component: {fileID: 1542635299}
   - component: {fileID: 1542635297}
+  - component: {fileID: 1542635300}
   m_Layer: 0
   m_Name: Singleton
   m_TagString: Untagged
@@ -153,8 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2352d8c08d7d2164a967291ab1062a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfBees: 10
-  NumberOfFood: 50
+  NumberOfBees: 1
+  NumberOfFood: 2
   FoodSpawnBox:
     Center:
       x: 0
@@ -213,3 +214,16 @@ MonoBehaviour:
   FoodPrefab: {fileID: 6222909234540938678, guid: 11831e596b47e5741a1e0273884a75f1,
     type: 3}
   BeesPerFood: 8
+--- !u!114 &1542635300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542635296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d57ece74b9b54f2190cfd4854705cf89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RandomSeed: 1234

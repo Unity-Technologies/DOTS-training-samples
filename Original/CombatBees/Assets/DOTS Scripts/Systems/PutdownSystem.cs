@@ -27,8 +27,6 @@ public class PutdownSystem : SystemBase
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
                     ecb.RemoveComponent<MoveTarget>( e);
                     ecb.RemoveComponent<TargetPosition>( e);
-                    
-                    ecb.DestroyEntity(food.Value);
                 }
             }).Run();
         
