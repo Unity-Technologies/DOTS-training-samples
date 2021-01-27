@@ -14,7 +14,7 @@ public class FoodTesterSystem : SystemBase
 
 		Entities.
 			WithAll<AntPathing>().
-			WithAll<AntLineOfSight>().
+			WithAll<LineOfSightFood>().
 			WithNone<HasFood>().
 			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
 			{
@@ -24,7 +24,7 @@ public class FoodTesterSystem : SystemBase
 				if (Mathf.Abs(dx) < TempFood.GOALDIST && Mathf.Abs(dy) < TempFood.GOALDIST)
 				{
 					ecb.AddComponent<HasFood>(entity);
-					ecb.RemoveComponent<AntLineOfSight>(entity);
+					ecb.RemoveComponent<LineOfSightFood>(entity);
 					antHeading.Degrees += 180.0f;
 				}
 			}).Run();

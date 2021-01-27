@@ -29,7 +29,7 @@ public class AntPathingSystem : SystemBase
 		// no line of sight, pick a direction
 		Entities.
 			WithAll<AntPathing>().
-			WithNone<AntLineOfSight>().
+			WithNone<LineOfSightFood>().
 			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
 			float headingOffset = -(angleRange / 2) + (random.NextFloat() * (angleRange));
@@ -46,9 +46,9 @@ public class AntPathingSystem : SystemBase
 
 		// has line of sight, straight path to food
 		Entities.
-			WithAll<AntLineOfSight>().
+			WithAll<LineOfSightFood>().
 			WithNone<HasFood>().
-			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
+			ForEach((ref Translation translation, ref Rotation rotation, in LineOfSightFood antLos) =>
 			{
 				float rads = Mathf.Deg2Rad * antLos.DegreesToFood;
 
@@ -73,7 +73,7 @@ public class AntPathingSystem : SystemBase
 		// copy target into translation
 		Entities.
 			WithAll<AntPathing>().
-			WithNone<AntLineOfSight>().
+			WithNone<LineOfSightFood>().
 			ForEach((ref Translation translation, in AntTarget target)=>
 		{
 			translation.Value.x = target.Target.x;
