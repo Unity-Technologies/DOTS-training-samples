@@ -4,8 +4,8 @@ using UnityEngine;
 
 public struct TempFood
 {
-	public const float POSX = 0.0f;
-	public const float POSY = 8.0f;
-	public const float LOSY = 3.0f;
-	public const float GOALDIST = 0.1f;
+	public const float POSX = 50.0f;
+	public const float POSY = 50.0f;
+	public const float LOSY = 30.0f;
+	public const float GOALDIST = 1f;
 }
