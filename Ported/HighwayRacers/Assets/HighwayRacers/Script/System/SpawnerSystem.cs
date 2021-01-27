@@ -7,6 +7,73 @@ using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
+
+  static float3 MapToRoundedCorners(float t, float radius)
+    {
+        float R = CarMovementSystem.RoundedCorner;
+        float straight = 1.0f - 2.0f * R;
+        float curved = (2.0f * math.PI * R) * 0.25f;
+        float total = straight + curved;
+        float tls = math.saturate(straight/total);
+        float tlr = math.saturate(curved/total);
+
+        int q = (int)(t * 4.0f);
+
+        float x = 0;
+        float y = 0;
+        float a = 0;
+
+        if(q == 0)
+        {
+            float n = t * 4.0f;
+            x = R;
+            y = math.lerp(R, 1.0f - R, math.saturate(n/tls));
+
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            x -= math.cos(a) * R;
+            y += math.sin(a) * R;
+        }
+        else if(q == 1)
+        {
+            float n = (t - 0.25f) * 4.0f;
+            y = 1.0f - R;
+            x = math.lerp(R, 1.0f - R, math.saturate(n/tls));
+
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            y += math.cos(a) * R;
+            x += math.sin(a) * R;
+            a += math.PI/2.0f;
+        }
+        else if(q == 2)
+        {
+            float n = (t - 0.5f) * 4.0f;
+            x = 1.0f - R;
+            y = math.lerp(1.0f - R, R, math.saturate(n/tls));
+
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            x += math.cos(a) * R;
+            y -= math.sin(a) * R;
+            a -= math.PI;
+        }
+        else
+        {
+            float n = (t - 0.75f) * 4.0f;
+            y = R;
+            x = math.lerp(1.0f - R, R, math.saturate(n/tls));
+
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            y -= math.cos(a) * R;
+            x -= math.sin(a) * R;
+            a -= math.PI/2.0f;
+        }
+
+        x -= 0.5f;
+        y -= 0.5f;
+        x *= radius;
+        y *= radius;
+        return new float3(x,y,a);
+    }
+
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
 
@@ -25,6 +92,32 @@ public class SpawnerSystem : SystemBase
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
         uint laneCount = m_TrackOccupancySystem.LaneCount;
+        uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
+
+        Entities
+            .ForEach((Entity entity, in Spawner spawner) =>
+            {
+                for (uint i = 0; i < tilesPerLane; ++i)
+                {
+                    var tile = ecb.Instantiate(spawner.TilePrefab);
+
+                    float t = (float)i/(float)tilesPerLane;
+                    float3 spawnPosition = MapToRoundedCorners(t, CarMovementSystem.TrackRadius);
+                    var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
+                    ecb.SetComponent(tile, translation);
+
+                    ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
+                    {
+                        Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
+                    });
+
+                    ecb.SetComponent(tile, new TileDebugColor
+                    {
+                        tileId = i
+                    });
+
+                }
+            }).Run();
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>

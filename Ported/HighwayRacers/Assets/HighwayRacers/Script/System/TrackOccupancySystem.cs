@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
+using Unity.Rendering;
 
 public struct LaneOccupancy : IBufferElementData
 {
@@ -96,6 +97,17 @@ public class TrackOccupancySystem : SystemBase
 //.WithDisposeOnCompletion(lanes)
 //.WithDisposeOnCompletion(buffers)
                 .ScheduleParallel();
+
+        Entities
+            .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
+            {
+                if(Occupancy[0,tileDebugColor.tileId] == true)
+                    tileDebugMat.Value = new Unity.Mathematics.float4(1.0f,0.0f,0.0f,1);
+                else
+                    tileDebugMat.Value = new Unity.Mathematics.float4(0.5f,0.5f,0.5f,1);
+            })
+            .ScheduleParallel();
+
 
 /*
 var buffer = EntityManager.GetBuffer<ReferencedBiomes>(layer);

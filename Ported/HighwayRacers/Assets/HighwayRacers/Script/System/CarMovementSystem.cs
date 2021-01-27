@@ -9,20 +9,21 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-    public float TrackRadius = 20;
+    public static float TrackRadius = 20;
     public float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
-    private const float CircleRadians = 2*Mathf.PI;
-    private const float RoundedCorner = 0.2f;
+    private const float CircleRadians = 2*math.PI;
+    
+    public static float RoundedCorner = 0.2f;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {
-        float R = RoundedCorner;
+        float R = CarMovementSystem.RoundedCorner;
         float straight = 1.0f - 2.0f * R;
-        float curved = (2.0f * Mathf.PI * R) * 0.25f;
+        float curved = (2.0f * math.PI * R) * 0.25f;
         float total = straight + curved;
-        float tls = Mathf.Clamp01(straight/total);
-        float tlr = Mathf.Clamp01(curved/total);
+        float tls = math.saturate(straight/total);
+        float tlr = math.saturate(curved/total);
 
         int q = (int)(t * 4.0f);
 
@@ -34,44 +35,44 @@ public class CarMovementSystem : SystemBase
         {
             float n = t * 4.0f;
             x = R;
-            y = Mathf.Lerp(R, 1.0f - R, Mathf.Clamp01(n/tls));
+            y = math.lerp(R, 1.0f - R, math.saturate(n/tls));
 
-            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
-            x -= Mathf.Cos(a) * R;
-            y += Mathf.Sin(a) * R;
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            x -= math.cos(a) * R;
+            y += math.sin(a) * R;
         }
         else if(q == 1)
         {
             float n = (t - 0.25f) * 4.0f;
             y = 1.0f - R;
-            x = Mathf.Lerp(R, 1.0f - R, Mathf.Clamp01(n/tls));
+            x = math.lerp(R, 1.0f - R, math.saturate(n/tls));
 
-            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
-            y += Mathf.Cos(a) * R;
-            x += Mathf.Sin(a) * R;
-            a += Mathf.PI/2.0f;
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            y += math.cos(a) * R;
+            x += math.sin(a) * R;
+            a += math.PI/2.0f;
         }
         else if(q == 2)
         {
             float n = (t - 0.5f) * 4.0f;
             x = 1.0f - R;
-            y = Mathf.Lerp(1.0f - R, R, Mathf.Clamp01(n/tls));
+            y = math.lerp(1.0f - R, R, math.saturate(n/tls));
 
-            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
-            x += Mathf.Cos(a) * R;
-            y -= Mathf.Sin(a) * R;
-            a -= Mathf.PI;
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            x += math.cos(a) * R;
+            y -= math.sin(a) * R;
+            a -= math.PI;
         }
         else
         {
             float n = (t - 0.75f) * 4.0f;
             y = R;
-            x = Mathf.Lerp(1.0f - R, R, Mathf.Clamp01(n/tls));
+            x = math.lerp(1.0f - R, R, math.saturate(n/tls));
 
-            a = 0.5f * Mathf.PI * Mathf.Clamp01((n - tls)/tlr);
-            y -= Mathf.Cos(a) * R;
-            x -= Mathf.Sin(a) * R;
-            a -= Mathf.PI/2.0f;
+            a = 0.5f * math.PI * math.saturate((n - tls)/tlr);
+            y -= math.cos(a) * R;
+            x -= math.sin(a) * R;
+            a -= math.PI/2.0f;
         }
 
         x -= 0.5f;
@@ -106,8 +107,8 @@ public class CarMovementSystem : SystemBase
                 float angle = movement.Offset * CircleRadians;
                 float v = movement.Velocity;
 
-                float x = trackOrigin.x + Mathf.Cos(angle) * laneRadius;
-                float z = trackOrigin.z + Mathf.Sin(angle) * laneRadius;
+                float x = trackOrigin.x + math.cos(angle) * laneRadius;
+                float z = trackOrigin.z + math.sin(angle) * laneRadius;
 
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
