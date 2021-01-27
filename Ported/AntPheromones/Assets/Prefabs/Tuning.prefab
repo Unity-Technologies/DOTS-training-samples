@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 2
-  AntAngleRange: 10
+  AntAngleRange: 15
+  AntFwdWeighting: 2
   PheromoneBuffer: 128
   PheromoneDecayStrength: 0.00065
   Resolution: 128
