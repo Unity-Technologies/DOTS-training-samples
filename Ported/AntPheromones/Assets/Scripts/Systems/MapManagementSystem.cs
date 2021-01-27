@@ -70,7 +70,13 @@ public class MapManagementSystem : SystemBase
 
         if (sinside && !einside)
         {
-            at = ClosestIntersection(0, 0, math.length(ring.offsets) - ring.halfThickness, start, end);
+            float R = math.length(ring.offsets);
+
+            at = ClosestIntersection(0, 0, R - ring.halfThickness, start, end);
+
+            float2 P = math.normalize(at);
+            float dot = math.dot(P, new float2(0, 1));
+            float acos = math.acos(dot);
 
             return true;
         }
