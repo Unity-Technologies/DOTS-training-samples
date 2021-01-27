@@ -8,7 +8,7 @@ public class FoodMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var allTranslations = GetComponentDataFromEntity<Translation>(false);
+        var allTranslations = GetComponentDataFromEntity<Translation>();
         var deltaTime = Time.DeltaTime;
         var fall = new float3(0f, -1f, 0f) * deltaTime;
 

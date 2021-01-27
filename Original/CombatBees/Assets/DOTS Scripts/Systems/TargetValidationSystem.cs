@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Transforms;
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
@@ -17,14 +16,15 @@ public class TargetingValidationSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var carriedResources = GetComponentDataFromEntity<CarrierBee>(false);
+        var carriedFood = GetComponentDataFromEntity<CarrierBee>(true);
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
             .WithName("TargetValidation")
+            .WithReadOnly(carriedFood)
             .WithAll<CarriedFood>()
             .ForEach((Entity e, int entityInQueryIndex, ref CarriedFood food) => {
-                if (carriedResources.HasComponent(food.Value)) {
+                if (carriedFood.HasComponent(food.Value)) {
                     ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
                 }
