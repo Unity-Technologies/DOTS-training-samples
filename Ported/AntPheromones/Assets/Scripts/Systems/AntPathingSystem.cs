@@ -32,13 +32,47 @@ public class AntPathingSystem : SystemBase
 			WithNone<AntLineOfSight>().
 			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
-			float headingOffset = -(angleRange / 2) + (random.NextFloat() * (angleRange));
+			float headingOffset = random.NextFloat() * (angleRange);
 
-			heading.Degrees += headingOffset;
-			float rads = Mathf.Deg2Rad * heading.Degrees;
+			// calculate all targets left, right, fwd with weighting
+			float degreesLeft = heading.Degrees - headingOffset;
+			float radsLeft = Mathf.Deg2Rad * degreesLeft;
+			float2 targetLeft = new float2(translation.Value.x + speed * Mathf.Sin(radsLeft), translation.Value.y + speed * Mathf.Cos(radsLeft));
+			float weightLeft = 1f;
 
-			target.Target.x = translation.Value.x + speed * Mathf.Sin(rads);
-			target.Target.y = translation.Value.y + speed * Mathf.Cos(rads);
+			float degreesRight = heading.Degrees + headingOffset;
+			float radsRight = Mathf.Deg2Rad * degreesRight;
+			float2 targetRight = new float2(translation.Value.x + speed * Mathf.Sin(radsRight), translation.Value.y + speed * Mathf.Cos(radsRight));
+			float weightRight = 1f;
+
+			float degreesFwd = heading.Degrees;
+			float radsFwd = Mathf.Deg2Rad * degreesFwd;
+			float2 targetFwd = new float2(translation.Value.x + speed * Mathf.Sin(radsFwd), translation.Value.y + speed * Mathf.Cos(radsFwd));
+			float weightFwd = 1f * tuning.AntFwdWeighting;
+
+			float totalWeight = weightLeft + weightRight + weightFwd;
+			float randomWeight = random.NextFloat() * totalWeight;
+
+			// select random weighted target
+			float rads = 0;
+			if (randomWeight < weightLeft)
+			{
+				target.Target = targetLeft;
+				heading.Degrees = degreesLeft;
+				rads = radsLeft;
+			} 
+			else if (randomWeight < weightLeft + weightRight)
+			{
+				target.Target = targetRight;
+				heading.Degrees = degreesRight;
+				rads = radsRight;
+			}
+			else
+			{
+				target.Target = targetFwd;
+				heading.Degrees = degreesFwd;
+				rads = radsFwd;
+			}
 
 			rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 
