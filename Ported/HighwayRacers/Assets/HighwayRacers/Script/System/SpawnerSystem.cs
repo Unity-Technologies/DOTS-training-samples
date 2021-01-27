@@ -1,11 +1,14 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
+    private EntityQuery RequirePropagation;
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -45,5 +48,29 @@ public class SpawnerSystem : SystemBase
             }).Run();
 
         ecb.Playback(EntityManager);
+        
+        // Propagate color from parent to child entities
+        // We do this every frame because we change the color of the cars
+
+        // A "ComponentDataFromEntity" allows random access to a component type from a job.
+        // This much slower than accessing the components from the current entity via the
+        // lambda parameters.
+        var cdfe = GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
+
+        Entities
+            // Random access to components for writing can be a race condition.
+            // Here, we know for sure that prefabs don't share their entities.
+            // So explicitly request to disable the safety system on the CDFE.
+            .WithNativeDisableContainerSafetyRestriction(cdfe)
+            .WithStoreEntityQueryInField(ref RequirePropagation)
+            .WithAll<PropagateColor>()
+            .ForEach((in DynamicBuffer<LinkedEntityGroup> group
+                , in URPMaterialPropertyBaseColor color) =>
+            {
+                for (int i = 1; i < group.Length; ++i)
+                {
+                    cdfe[group[i].Value] = color;
+                }
+            }).ScheduleParallel();
     }
 }

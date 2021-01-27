@@ -20,6 +20,7 @@ public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         // We could have used AddComponent in the loop above, but as a general rule in
         // DOTS, doing a batch of things at once is more efficient.
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
+        dstManager.AddComponent<PropagateColor>(entity);
         dstManager.AddComponent<CarMovement>(entity);
     }
 }
