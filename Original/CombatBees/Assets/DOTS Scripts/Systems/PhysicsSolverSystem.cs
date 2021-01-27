@@ -16,8 +16,8 @@ public class PhysicsSolverSystem : SystemBase
             .WithName("PhysicsSolverSystem")
             .ForEach((Entity e, ref Translation t, ref PhysicsData d) =>
             {
-                d.v *= (1 - d.damping);
                 d.v += d.a * dt;
+                d.v *= (1 - d.damping);
                 d.a = 0;
                 t.Value += d.v * dt;
 
