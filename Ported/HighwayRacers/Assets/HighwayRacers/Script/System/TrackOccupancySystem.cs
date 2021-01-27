@@ -101,7 +101,7 @@ public class TrackOccupancySystem : SystemBase
         Entities
             .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
             {
-                if(Occupancy[0,tileDebugColor.tileId] == true)
+                if(Occupancy[tileDebugColor.laneId, tileDebugColor.tileId] == true)
                     tileDebugMat.Value = new Unity.Mathematics.float4(1.0f,0.0f,0.0f,1);
                 else
                     tileDebugMat.Value = new Unity.Mathematics.float4(0.5f,0.5f,0.5f,1);

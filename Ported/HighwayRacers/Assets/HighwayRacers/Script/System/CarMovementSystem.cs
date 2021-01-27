@@ -10,7 +10,7 @@ using UnityEngine;
 public class CarMovementSystem : SystemBase
 {
     public static float TrackRadius = 20;
-    public float LaneWidth = 2;
+    public static float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
     

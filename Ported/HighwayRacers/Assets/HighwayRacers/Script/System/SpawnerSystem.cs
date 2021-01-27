@@ -97,25 +97,31 @@ public class SpawnerSystem : SystemBase
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
-                for (uint i = 0; i < tilesPerLane; ++i)
+                for (uint j = 0; j < laneCount; ++j)
                 {
-                    var tile = ecb.Instantiate(spawner.TilePrefab);
-
-                    float t = (float)i/(float)tilesPerLane;
-                    float3 spawnPosition = MapToRoundedCorners(t, CarMovementSystem.TrackRadius);
-                    var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
-                    ecb.SetComponent(tile, translation);
-
-                    ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
+                    for (uint i = 0; i < tilesPerLane; ++i)
                     {
-                        Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
-                    });
+                        var tile = ecb.Instantiate(spawner.TilePrefab);
 
-                    ecb.SetComponent(tile, new TileDebugColor
-                    {
-                        tileId = i
-                    });
+                        float laneRadius = (CarMovementSystem.TrackRadius + (j * CarMovementSystem.LaneWidth));
 
+                        float t = (float)i/(float)tilesPerLane;
+                        float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
+                        var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
+                        ecb.SetComponent(tile, translation);
+
+                        ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
+                        {
+                            Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
+                        });
+
+                        ecb.SetComponent(tile, new TileDebugColor
+                        {
+                            laneId = j,
+                            tileId = i
+                        });
+
+                    }
                 }
             }).Run();
 
