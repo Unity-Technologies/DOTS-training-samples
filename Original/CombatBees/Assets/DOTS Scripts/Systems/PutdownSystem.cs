@@ -41,7 +41,7 @@ public class PutdownSystem : SystemBase
         // Remove food's tag component...
         ///////////////////////////////
         Entities
-            .WithName("Putdown")
+            .WithName("Putdown2")
             .WithoutBurst()
             .WithAll<FoodTag, CarrierBee>()
             .ForEach((Entity e, int entityInQueryIndex, ref Translation selfTranslation, ref TargetPosition targetPos, in MoveTarget moveTarget) =>
