@@ -8,6 +8,8 @@ using Unity.Transforms;
 
 public class AntPheromoneDropSystem : SystemBase
 {
+    float _timeElapsed = 0;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<PheromoneStrength>();
@@ -16,7 +18,17 @@ public class AntPheromoneDropSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Tuning tuning = this.GetSingleton<Tuning>();
+        var time = Time.DeltaTime;
+        _timeElapsed += Time.DeltaTime;
+
+        var tuning = GetSingleton<Tuning>();
+
+        if (_timeElapsed < tuning.PheromoneDropPeriod)
+        {
+            return;
+        }
+
+        _timeElapsed = 0;
 
         Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
 
@@ -35,9 +47,11 @@ public class AntPheromoneDropSystem : SystemBase
                 int yIndex = (int)math.ceil(((translation.Value.y / tuning.WorldSize) + tuning.WorldOffset.y));
                 int index = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
 
-                // Set our randomly selected index value to something
-                float currentAmount = math.max(pheromoneBuffer[index] + tuning.AntPheromoneStrength, 255);
-                pheromoneBuffer[index] = (byte)currentAmount;// tuning.AntPheromoneStrength;
+                // Set our randomly selected index value to something 
+                int pVal = pheromoneBuffer[index].Value;
+                int newValue = pVal + tuning.PheromoneDropValue;
+                newValue = Math.Min(newValue, 255);
+                pheromoneBuffer[index] = (byte)newValue;
             }).ScheduleParallel();
 
     }
