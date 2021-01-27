@@ -13,4 +13,5 @@ public struct SpawnZones : IComponentData
     public Entity FoodPrefab;
 
     public int BeesPerFood;
+    public float FlightJitter;
 }
