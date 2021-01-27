@@ -8,14 +8,16 @@ using Unity.Transforms;
 
 public class GoalTesterSystem : SystemBase
 {
+	private EntityCommandBufferSystem bufferSystem;
     protected override void OnCreate()
     {
 		RequireSingletonForUpdate<Tuning>();
+		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
 
     protected override void OnUpdate()
     {
-		EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+	    var ecb = bufferSystem.CreateCommandBuffer();
 
 		Tuning tuning = this.GetSingleton<Tuning>();
 
@@ -40,9 +42,8 @@ public class GoalTesterSystem : SystemBase
                     ecb.AddComponent(antFoodEntity, new Parent { Value = entity });
                     ecb.AddComponent<LocalToParent>(antFoodEntity);
 					ecb.AddComponent(entity, new AntFoodEntityTracker { AntFoodEntity = antFoodEntity });
-
-                }
-			}).Run();
+				}
+			}).Schedule();
 
 		// test if ant has reached food
 		Entities.
@@ -64,9 +65,8 @@ public class GoalTesterSystem : SystemBase
 					ecb.DestroyEntity(antFoodTracking.AntFoodEntity);
 					ecb.RemoveComponent<AntFoodEntityTracker>(entity);
 				}
-			}).Run();
+			}).Schedule();
 
-		ecb.Playback(EntityManager);
-
-	}
+		bufferSystem.AddJobHandleForProducer(Dependency);
+    }
 }
