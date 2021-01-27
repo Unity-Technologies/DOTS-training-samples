@@ -21,12 +21,15 @@ public class TargetingValidationSystem : SystemBase
         // into a proper IJob by IL post processing.
         Entities
             .WithName("TargetValidation")
+            .WithoutBurst()
             .WithReadOnly(carriedFood)
-            .WithAll<CarriedFood>()
-            .ForEach((Entity e, int entityInQueryIndex, ref CarriedFood food) => {
-                if (carriedFood.HasComponent(food.Value)) {
+            .WithAll<MoveTarget>()
+            .ForEach((Entity e, int entityInQueryIndex, ref MoveTarget targetFood) => {
+                if (carriedFood.HasComponent(targetFood.Value))
+                {
                     ecb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
                     ecb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
+                    ecb.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
                 }
             }).ScheduleParallel();
         
