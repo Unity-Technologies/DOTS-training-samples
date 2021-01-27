@@ -155,13 +155,13 @@ MonoBehaviour:
   Speed: 2
   AntAngleRange: 10
   PheromoneBuffer: 128
-  PheromoneDecayStrength: 100
+  PheromoneDecayStrength: 0.00065
   Resolution: 128
   WorldSize: 1
   WorldOffset:
     x: -64
     y: 64
-  AntPheromoneStrength: 255
+  AntPheromoneStrength: 0.0001
 --- !u!4 &44136463
 Transform:
   m_ObjectHideFlags: 0
@@ -205,8 +205,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a25943dc65e2be64cb66f4c806705b64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AntPrefab: {fileID: 5232674747128490960, guid: 98d976bbe2768b24dba59f89451de1c4, type: 3}
-  AntCount: 3
+  AntPrefab: {fileID: 3862630643324839571, guid: 97f8ef60d06bd4345a50ac5fa9529987, type: 3}
+  AntCount: 128
 --- !u!4 &1013175233
 Transform:
   m_ObjectHideFlags: 0

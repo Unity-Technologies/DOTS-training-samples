@@ -9,20 +9,21 @@ public class PheromoneRendering : MonoBehaviour
     [SerializeField] private bool _allowPheromoneDynamicBuffer = false;
 
     [Header("Map Properties")]
-    [SerializeField] private Material m_Mat = null;
+    [SerializeField] private Material _groundMat = null;
+    [SerializeField] private Texture2D _defaultOverlayTexture = null;
     [SerializeField] public static int _resolution = 128;
     [SerializeField] public static float _worldSize = 128;
     [SerializeField] public static float2 _worldOffset = 128;
 
     // Private Variables
-    Texture2D m_VisTexture = null;
-    byte[] m_PheromoneArray = null;
+    Texture2D _pheromoneTexture = null;
+    byte[] _pheromoneArray = null;
 
 
     #region // MonoBehaviour Events
     private void Start()
     {
-        m_PheromoneArray = new byte[_resolution * _resolution];
+        _pheromoneArray = new byte[_resolution * _resolution];
     }
 
     private void Update()
@@ -30,14 +31,14 @@ public class PheromoneRendering : MonoBehaviour
         if(_randomizePheromones)
         {
             GenerateRandomData();
-            SetPheromoneArray(m_PheromoneArray);
+            SetPheromoneArray(_pheromoneArray);
         }
     }
 
     private void OnDisable()
     {
-        if (m_VisTexture == null) return;
-        Texture2D.Destroy(m_VisTexture);
+        if (_pheromoneTexture == null) return;
+        Texture2D.Destroy(_pheromoneTexture);
     }
     #endregion
 
@@ -45,9 +46,9 @@ public class PheromoneRendering : MonoBehaviour
     #region // MonoBehaviour Random Data Generation
     private void GenerateRandomData()
     {
-        for (int i = 0; i < m_PheromoneArray.Length; i++)
+        for (int i = 0; i < _pheromoneArray.Length; i++)
         {
-            m_PheromoneArray[i] = (byte)UnityEngine.Random.Range(0, 255);
+            _pheromoneArray[i] = (byte)UnityEngine.Random.Range(0, 255);
         }
     }
 
@@ -56,8 +57,8 @@ public class PheromoneRendering : MonoBehaviour
     {
         CheckTextureInit();
 
-        m_VisTexture.SetPixelData(byteArray, 0, 0);
-        m_VisTexture.Apply();
+        _pheromoneTexture.SetPixelData(byteArray, 0, 0);
+        _pheromoneTexture.Apply();
     }
 
     #endregion
@@ -70,36 +71,31 @@ public class PheromoneRendering : MonoBehaviour
         {
             CheckTextureInit();
 
-            //// OPTIMIZATION: Can we set the Dynamic Buffer to use bytes instead of floats, and just pass it directly through to SetPixelData? (SetPixelData didn't like the fact that pheromoneBuffer type wasn't implicit?)
-            //byte[] newByteArray = new byte[pheromoneBuffer.Length];
+            _pheromoneTexture.SetPixelData(pheromoneBuffer.AsNativeArray(), 0, 0);
 
-            //for (int i = 0; i < pheromoneBuffer.Length; i++)
-            //{
-            //    newByteArray[i] = (byte)pheromoneBuffer[i];
-            //}
-
-            //m_VisTexture.SetPixelData(newByteArray, 0, 0);
-
-            m_VisTexture.SetPixelData(pheromoneBuffer.AsNativeArray(), 0, 0);
-
-            m_VisTexture.Apply();
+            _pheromoneTexture.Apply();
         }
     }
 
     // Initialize the texture
     public void CheckTextureInit()
     {
-        if(m_VisTexture != null && m_VisTexture.width != _resolution)
+        if(_pheromoneTexture != null && _pheromoneTexture.width != _resolution)
         {
-            Texture2D.Destroy(m_VisTexture);
-            m_VisTexture = null;
+            Texture2D.Destroy(_pheromoneTexture);
+            _pheromoneTexture = null;
         }
 
-        if (m_VisTexture == null)
+        if (_pheromoneTexture == null)
         {
-            m_VisTexture = new Texture2D(_resolution, _resolution, TextureFormat.R8, mipChain: false, linear: true);
+            _pheromoneTexture = new Texture2D(_resolution, _resolution, TextureFormat.R8, mipChain: false, linear: true);
         }
 
-        m_Mat.mainTexture =m_VisTexture;
+        _groundMat.SetTexture("_TEX_Overlay", _pheromoneTexture);
+    }
+
+    public void OnDestroy()
+    {
+        _groundMat.SetTexture("_TEX_Overlay", _defaultOverlayTexture);
     }
 }

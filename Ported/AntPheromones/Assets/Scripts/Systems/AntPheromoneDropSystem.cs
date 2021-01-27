@@ -31,8 +31,8 @@ public class AntPheromoneDropSystem : SystemBase
             .WithNativeDisableParallelForRestriction(pheromoneBuffer)
             .ForEach((Entity entity, in Translation translation) =>
             {
-                int xIndex = (int)((translation.Value.x / tuning.WorldSize) + tuning.WorldOffset.x);
-                int yIndex = (int)((translation.Value.y / tuning.WorldSize) + tuning.WorldOffset.y);
+                int xIndex = (int)math.floor(((translation.Value.x / tuning.WorldSize) + tuning.WorldOffset.x));
+                int yIndex = (int)math.ceil(((translation.Value.y / tuning.WorldSize) + tuning.WorldOffset.y));
                 int index = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
 
                 // Set our randomly selected index value to something
