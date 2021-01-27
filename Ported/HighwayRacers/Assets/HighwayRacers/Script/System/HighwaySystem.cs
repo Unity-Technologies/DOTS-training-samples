@@ -7,61 +7,65 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using Unity.Mathematics;
+
+[AlwaysUpdateSystem]
 public class HighwaySystem : SystemBase
 {
-    public const int NUM_LANES = 4;
-    public const float LANE_SPACING = 1.9f;
-    public const float MID_RADIUS = 31.46f;
-    public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
-    public const float MIN_HIGHWAY_LANE0_LENGTH = CURVE_LANE0_RADIUS * 4;
-    public const float MIN_DIST_BETWEEN_CARS = .7f;
+    private TrackUI TrackUIInstance;
+    private int LastTrackSize = -1;
 
+    private float straightPieceLength = -1f;
+    private float cornerRadius = -1f;
 
+    
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<TrackInfo>();
+        var trackUIGO = GameObject.FindWithTag("TrackUI");
+        TrackUIInstance = trackUIGO.GetComponent<TrackUI>();
+
+        // RequireSingletonForUpdate<TrackInfo>();
     }
+
 
     protected override void OnUpdate()
     {
-        
-        
+
+        if (LastTrackSize == TrackUIInstance.GetTrackSize())
+        {
+            return;
+        }
+        else
+        {
+            LastTrackSize = TrackUIInstance.GetTrackSize();
+            Debug.Log("Track Size Changed");
+        }
+
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        // The PRNG (pseudorandom number generator) from Unity.Mathematics is a struct
-        // and can be used in jobs. For simplicity and debuggability in development,
-        // we'll initialize it with a constant. (In release, we'd want a seed that
-        // randomly varies, such as the time from the user's system clock.)
-        var random = new Random(1234);
+        // lazy man's sentinel value
+        // in unset (= first time) grab the setup data from the
+        // trackInfo
+        if (straightPieceLength < 0)
+        {
+            var tInfo = GetSingletonEntity<TrackInfo>();
+            var tInfoComp = GetComponent<TrackInfo>(tInfo);
+            straightPieceLength = tInfoComp.SegmentLength;
+            cornerRadius = tInfoComp.CornerRadius;
+        }
 
-
-        var tInfo = GetSingletonEntity<TrackInfo>();
-        var tInfoComp = GetComponent<TrackInfo>(tInfo);
-        
-        // collect the track info
-        float straightPieceLength = tInfoComp.SegmentLength;
-        float cornerRadius = tInfoComp.CornerRadius;
-        float trackSize = tInfoComp.TrackSize;
-        
-        // deleter the TrackInfo so this only runs at init
-        ecb.DestroyEntity(tInfo);
-
-        // length between the corner radii
+        // construction params
+        float trackSize = (float) LastTrackSize;
         float straightLen = trackSize - (2 * cornerRadius);
-         
+        float halfOffset = trackSize * 0.5f;
+        float cornerOffset = cornerRadius;
+        int segmentCount = Mathf.RoundToInt(straightLen / straightPieceLength);
+        float stretch = straightLen / (segmentCount * straightPieceLength);
+
         
         // layout the straight segments as 4 lines of instances
         Entities
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
-                // this probably wants to go if we need to rebuild this on the fly
-                ecb.DestroyEntity(entity);
-
-                float halfOffset = trackSize * 0.5f;
-                float cornerOffset = cornerRadius;
-                int segmentCount = Mathf.RoundToInt(straightLen / straightPieceLength);
-                float stretch = straightLen / (segmentCount * straightPieceLength);
-
                 // layout straight segments
                 for (int i = 0; i < segmentCount; i++)
                 {
