@@ -9,7 +9,6 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-// todo We use a circle for now, needs to be rounded box
     public float TrackRadius = 20;
     public float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
