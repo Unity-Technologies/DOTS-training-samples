@@ -2,12 +2,21 @@
 using Unity.Entities;
 using UnityEngine;
 
+public enum DriverProfile
+{
+    European = 0,
+    American = 1,
+    Random
+}
+
 public class SpawnerAuthoring : MonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
     public int CarCount;
     public GameObject CarPrefab;
+    public GameObject TilePrefab;
+    public DriverProfile DriverProfile = DriverProfile.Random;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -16,6 +25,7 @@ public class SpawnerAuthoring : MonoBehaviour
         // This function allows us to inject extra GameObjects,
         // in this case prefabs that live in the assets folder.
         referencedPrefabs.Add(CarPrefab);
+        referencedPrefabs.Add(TilePrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -29,6 +39,8 @@ public class SpawnerAuthoring : MonoBehaviour
         {
             CarCount = CarCount,
             CarPrefab = conversionSystem.GetPrimaryEntity(CarPrefab),
+            TilePrefab = conversionSystem.GetPrimaryEntity(TilePrefab),
+            DriverProfile = DriverProfile
         });
     }
 }

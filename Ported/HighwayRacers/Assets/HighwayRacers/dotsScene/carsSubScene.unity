@@ -169,6 +169,9 @@ MonoBehaviour:
   CarCount: 100
   CarPrefab: {fileID: 6846494969764447940, guid: 12141feb78c95d74093c7e4ea1c10b0c,
     type: 3}
+  TilePrefab: {fileID: 2671280468409618023, guid: 42169e8d6e7f1ff439d9986e513241c3,
+    type: 3}
+  DriverProfile: 2
 --- !u!1 &2143815038
 GameObject:
   m_ObjectHideFlags: 0
