@@ -95,7 +95,6 @@ public class CarMovementSystem : SystemBase
     {
         Frame++;
         float deltaTime = Time.DeltaTime;
-
         float trackRadius = TrackRadius;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
@@ -108,6 +107,11 @@ public class CarMovementSystem : SystemBase
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
 // todo DOTS? access array directly, because we don't know how to do this in DOTS
+// IBufferElementData was recommended, but we couldn't get it to work (see older
+// version of TrackOccupancySystem)
+
+                // Limit cars from switching lanes to frequently
+                movement.LaneSwitchCounter -= deltaTime;
 
                 // Get occupancy of nearby tiles
                 int myTile = TrackOccupancySystem.GetMyTile(movement.Offset);
@@ -115,7 +119,10 @@ public class CarMovementSystem : SystemBase
                 int prevTile = (int) (math.max(myTile-1, 0) % tilesPerLane);
                 bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
 
+                // Make a random decision to switch lanes when blocked
                 bool randomlySwitchLanes = random.NextInt(0, 100) > 33;
+
+                // Decide to switch lanes
                 if (nextIsOccupied && movement.LaneSwitchCounter <= 0 && randomlySwitchLanes)
                 {
                     // To avoid having two cars merge into the same lane, we allow
@@ -145,20 +152,24 @@ public class CarMovementSystem : SystemBase
                         }
                     }
                 }
-                
-                movement.LaneSwitchCounter -= deltaTime;
 
-                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
+                // All cars move at the minimum required speed on the highway.
+                // (We don't want cars to stop if the tile in front is occupied)
                 float v = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
+
+                // Map car's 'Offset' in lane to XZ coords on track's rounded-rect
+                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
                 translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
                 translation.Value.y = trackOrigin.y;
                 translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
 
+                // Move car forward on its track
                 movement.Offset += v * deltaTime;
                 movement.Offset = movement.Offset % 1.0f;
 
+                // Rotate based on where it is on the rounded rect
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
             }).ScheduleParallel();
