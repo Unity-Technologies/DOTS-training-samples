@@ -11,6 +11,6 @@ public class LifetimeShrinkSystem: SystemBase
             .ForEach((ref NonUniformScale scale, in Lifetime lifetime) =>
             {
                 scale.Value = new float3(lifetime.NormalizedTimeRemaining);
-            }).Run();
+            }).ScheduleParallel();
     }
 }
