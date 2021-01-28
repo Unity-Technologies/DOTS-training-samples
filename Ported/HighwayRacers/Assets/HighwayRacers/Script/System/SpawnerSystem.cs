@@ -163,8 +163,8 @@ public class SpawnerSystem : SystemBase
 
                     ecb.SetComponent(vehicle, new CarMovement
                     {
-// todo here we ar enot smart enough. Two cars might end up in the same tile.
-// This means they can drive through each other.
+                        // todo here we ar enot smart enough. Two cars might end up in the same tile.
+                        // This means they can drive through each other.
                         Offset = (float)i / spawner.CarCount,
                         Lane = i % laneCount,
                         Velocity = random.NextFloat(minimumVelocity, 0.075f),
