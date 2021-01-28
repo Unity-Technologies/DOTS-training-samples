@@ -106,7 +106,6 @@ public class AntPathingSystem : SystemBase
 		}).ScheduleParallel();
 
 		// has line of sight, straight path to goal
-/*
 		Entities.
 			WithAll<AntLineOfSight>().
 			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
@@ -118,7 +117,6 @@ public class AntPathingSystem : SystemBase
 
 				rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 			}).ScheduleParallel();
-*/
 
 		var ringEntity = GetSingletonEntity<RingElement>();
 		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
