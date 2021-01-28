@@ -97,5 +97,7 @@ public class PheromoneRendering : MonoBehaviour
     public void OnDestroy()
     {
         _groundMat.SetTexture("_TEX_Overlay", _defaultOverlayTexture);
+
+        Shader.SetGlobalFloat("_OffsetSpeedMultiplier", 1f);
     }
 }
