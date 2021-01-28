@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 public class SpawnFromFoodSystem : SystemBase
 {
@@ -17,7 +18,6 @@ public class SpawnFromFoodSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
-        var random = new Random(5678);
         var zones = GetSingleton<SpawnZones>();
         var physicsData = EntityManager.GetComponentData<PhysicsData>(zones.BeePrefab);
         Entities
@@ -41,7 +41,8 @@ public class SpawnFromFoodSystem : SystemBase
                                 Value = t.Value,
                             });
                             var newPhysics = physicsData;
-                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
+                            newPhysics.a = UnityEngine.Random.insideUnitSphere + Vector3.up;
+                            newPhysics.a *= speed;
                             ecb.SetComponent(newBee, newPhysics);
                             ecb.AddComponent<Team1>(newBee);
                             ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor

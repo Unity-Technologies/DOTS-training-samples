@@ -4,11 +4,6 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class PhysicsSolverSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-    }
-
     protected override void OnUpdate()
     {
         var dt = Time.DeltaTime;

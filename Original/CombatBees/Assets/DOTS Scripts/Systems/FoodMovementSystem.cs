@@ -25,14 +25,5 @@ public class FoodMovementSystem : SystemBase
                 allTranslations[e] = foodPos;
 
             }).Run();
-        
-        Entities
-            .WithName("FreeFoodMovementSystem")
-            .WithAll<FoodTag>()
-            .WithNone<CarrierBee>()
-            .ForEach((Entity e, ref Translation t, ref PhysicsData physicsData) =>
-            {
-                physicsData.a += gravity;
-            }).Run();
     }
 }

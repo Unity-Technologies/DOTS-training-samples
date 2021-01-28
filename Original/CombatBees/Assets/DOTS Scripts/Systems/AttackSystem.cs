@@ -16,10 +16,11 @@ public class AttackSystem : SystemBase
             .WithAll<BeeTag, AttackingBeeTag>()
             .ForEach((Entity e, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
-                if (MathUtil.IsWithinDistance(0.1f, t.Value, translation.Value))
+                if (MathUtil.IsWithinDistance(0.5f, t.Value, translation.Value))
                 {
-                    //We're close enough to the bee we want to attack. So destroy it. 
-                    ecb.DestroyEntity(moveTarget.Value);
+                    //We're close enough to the bee we want to attack. So turn it into a corpse.
+                    ecb.RemoveComponent<BeeTag>(moveTarget.Value);
+                    ecb.AddComponent<BeeCorpseTag>(moveTarget.Value);
 
                     //Keep in mind you have to also have the targeted bee drop whatever food it's carrying. Or rather,
                     //have the food recognize it's not being picked up anymore.
