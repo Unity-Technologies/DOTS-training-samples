@@ -187,7 +187,6 @@ public class CarMovementSystem : SystemBase
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
             })
-            .WithDisposeOnCompletion(readOccupancy)
             .ScheduleParallel();
     }
 }

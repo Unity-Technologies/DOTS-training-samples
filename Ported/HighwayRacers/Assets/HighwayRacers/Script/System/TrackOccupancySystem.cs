@@ -107,7 +107,6 @@ public class TrackOccupancySystem : SystemBase
                     else
                         tileDebugMat.Value = new Unity.Mathematics.float4(1.0f,0.0f,0.0f,1);
                 })
-                .WithDisposeOnCompletion(writeBuffer)
                 .ScheduleParallel();
         }
     }
