@@ -107,6 +107,11 @@ public class SpawnerSystem : SystemBase
 
                         float t = (float)i/(float)tilesPerLane;
                         float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
+
+                        spawnPosition.x += (CarMovementSystem.TrackRadius)/2.0f + 2.75f;
+                        spawnPosition.y += (CarMovementSystem.TrackRadius)/4.0f - 6.0f;
+
+
                         var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
                         ecb.SetComponent(tile, translation);
 

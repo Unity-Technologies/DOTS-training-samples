@@ -9,14 +9,12 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-// todo Burst compiler complains if this is not readonly
-    public readonly static float TrackRadius = 20;
-    public readonly static float LaneWidth = 2;
+    public static float TrackRadius = 91.0f;
+    public static float LaneWidth = 3.75f;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
-
-// todo Burst compiler complains if this is not readonly
-    public readonly static float RoundedCorner = 0.2f;
+    
+    public static float RoundedCorner = 0.29f;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {
@@ -94,7 +92,6 @@ public class CarMovementSystem : SystemBase
         float trackRadius = TrackRadius;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
-        uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -115,20 +112,12 @@ public class CarMovementSystem : SystemBase
 
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
-                translation.Value.x = transXZA.x;
+                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
                 translation.Value.y = trackOrigin.y;
-                translation.Value.z = transXZA.y;
+                translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
 
-// todo access array directly, because we don't know how to do this in DOTS
-                // Look one tile ahead, if it is occupied, stop moving
-                int myTile = (int) (movement.Offset * tilesPerLane);
-                int nextTile = (int) ((myTile+1) % tilesPerLane);
-                bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
-                if (!nextIsOccupied)
-                {
-                    movement.Offset += v * deltaTime;
-                    movement.Offset = movement.Offset % 1.0f;
-                }
+                movement.Offset += v * deltaTime;
+                movement.Offset = movement.Offset % 1.0f;
 
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
