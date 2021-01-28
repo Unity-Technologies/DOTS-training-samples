@@ -21,8 +21,11 @@ public class GoalTesterSystem : SystemBase
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
 		Tuning tuning = this.GetSingleton<Tuning>();
+
 		float2 foodPos = this.GetSingleton<Map>().foodLocation;
 		float foodRadius = this.GetSingleton<Map>().foodRadius;
+		float2 homePos = new float2(0, 0);
+		float homeRadius = this.GetSingleton<Map>().foodRadius;
 
 		// test if ant has reached food
 		Entities.
@@ -48,17 +51,17 @@ public class GoalTesterSystem : SystemBase
 				}
 			}).Schedule();
 
-		// test if ant has reached food
+		// test if ant has reached home
 		Entities.
 			WithAll<AntPathing>().
 			WithAll<AntLineOfSight>().
 			WithAll<HasFood>().
 			ForEach((Entity entity, ref AntHeading antHeading, ref AntFoodEntityTracker antFoodTracking, in Translation translation) =>
 			{
-				float dx = 0 - translation.Value.x;
-				float dy = 0 - translation.Value.y;
+				float2 ant2Home = new float2(homePos.x - translation.Value.x, homePos.y - translation.Value.y);
+				float dist = math.length(ant2Home);
 
-				if (Mathf.Abs(dx) < TempFood.GOALDIST && Mathf.Abs(dy) < TempFood.GOALDIST)
+				if (dist < homeRadius)
 				{
 					ecb.RemoveComponent<HasFood>(entity);
 					ecb.RemoveComponent<AntLineOfSight>(entity);
