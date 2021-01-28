@@ -20,12 +20,7 @@ public class TargetingValidationSystem : SystemBase
                 if(!HasComponent<FoodTag>(targetEntity) || // if previously destroyed
                     HasComponent<CarrierBee>(targetEntity)) // if carried by another bee
                 {
-                    pEcb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
-                    pEcb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
-                    pEcb.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
-                    
-                    pEcb.RemoveComponent<FetchingFoodTag>(entityInQueryIndex, e);
-                    pEcb.RemoveComponent<AttackingBeeTag>(entityInQueryIndex, e);
+                    pEcb.AddComponent<BeeWithInvalidtarget>(entityInQueryIndex, e);
                 }
             }).ScheduleParallel();
         

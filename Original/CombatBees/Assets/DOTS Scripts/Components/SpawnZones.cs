@@ -13,6 +13,7 @@ public struct SpawnZones : IComponentData
     
     public Entity BeePrefab;
     public Entity FoodPrefab;
+    public Entity BloodPrefab;
 
     public int BeesPerFood;
     public float FlightJitter;
