@@ -130,5 +130,8 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  floor: 0
+  kineticEnergyPreserved:
+    x: 0.8
+    y: 0.8
+    z: 0.8
   damping: 0.1

@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
+    public AABB LevelBounds;
     public AABB Team1Zone;
     public AABB Team2Zone;
     
@@ -23,6 +24,7 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
         }
         dstManager.AddComponentData(entity, new SpawnZones()
         {
+            LevelBounds = LevelBounds,
             Team1Zone = Team1Zone,
             Team2Zone = Team2Zone,
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),

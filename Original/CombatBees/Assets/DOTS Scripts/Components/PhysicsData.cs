@@ -7,7 +7,7 @@ public struct PhysicsData : IComponentData
 {
     public float3 a;
     public float3 v;
-    public float floor;
+    public float3 kineticEnergyPreserved;
     [Range(0f,1f)] 
     public float damping;
 }
