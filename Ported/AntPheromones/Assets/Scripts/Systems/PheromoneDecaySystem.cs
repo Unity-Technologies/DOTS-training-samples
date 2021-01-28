@@ -62,7 +62,7 @@ public class PheromoneDecaySystem : SystemBase
 
             int pVal = pheromoneBuffer[index].Value;
             int newValue = pVal - decayValue;
-            newValue = Math.Min(newValue, 255);
+            newValue = Math.Max(newValue, 0);
             pheromoneBuffer[index] = (byte)newValue;
         }
     }
