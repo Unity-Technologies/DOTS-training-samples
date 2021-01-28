@@ -1,31 +1,39 @@
 ﻿using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
+using Unity.Mathematics;
+using UnityEngine;
 
 public class BloodSplatSystem: SystemBase
 {
     protected override void OnUpdate()
     {
         var time = Time.ElapsedTime;
+        float floorHeight = GetSingleton<SpawnZones>().LevelBounds.Min.y;
         
         Entities
             .WithAll<BloodTag>()
             .WithNone<GroundedTime>()
             .WithoutBurst()
             .WithStructuralChanges()
-            .ForEach((Entity e, in PhysicsData data) =>
+            .ForEach((Entity e, in PhysicsData data, in Translation translation) =>
             {
-                EntityManager.AddComponentData(e, new GroundedTime
+                if (translation.Value.y <= floorHeight + 0.001f)
                 {
-                    Time = time,
-                });
+                    EntityManager.AddComponentData(e, new GroundedTime
+                    {
+                        Time = time,
+                    });
+                }
             }).Run();
             
         Entities
             .WithAll<BloodTag>()
-            .ForEach((ref URPMaterialPropertySmoothness smoothness, in GroundedTime groundedTime) =>
+            .WithoutBurst()
+            .ForEach((ref URPPropertyLifetime smoothness, in GroundedTime groundedTime) =>
             {
-                smoothness.Value = (float) (time - groundedTime.Time);
+                float newVal = 1.0f - ((float)(time - groundedTime.Time));
+                smoothness.Value = math.clamp(newVal, 0, 1.0f);
             }).Run();
     }
 }
