@@ -119,17 +119,26 @@ public class CarMovementSystem : SystemBase
                 int prevTile = (int) (math.max(myTile-1, 0) % tilesPerLane);
                 bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
 
+                // If car is an European driver and it is blocking a car behind it, the driver
+                // will attempt to switch to a more inner lane.
+                // If the driver is American, it will exercise its constitutional rights and stay in its lane.
+                bool favorInnerLane = false;
+                if (movement.Profile == DriverProfile.European)
+                {
+                    favorInnerLane = TrackOccupancySystem.ReadOccupancy[movement.Lane, prevTile];
+                }
+
                 // Make a random decision to switch lanes when blocked
                 bool randomlySwitchLanes = random.NextInt(0, 100) > 33;
 
                 // Decide to switch lanes
-                if (nextIsOccupied && movement.LaneSwitchCounter <= 0 && randomlySwitchLanes)
+                if ((nextIsOccupied || favorInnerLane) && movement.LaneSwitchCounter <= 0 && randomlySwitchLanes)
                 {
                     // To avoid having two cars merge into the same lane, we allow
                     // mergers to the right at even frames and merges to the left at odd frames.
                     int sideLane = (int) movement.Lane;
                     bool isEven = theFrame % 2 == 0;
-                    if (isEven) 
+                    if (isEven && !favorInnerLane)
                     {
                         sideLane = sideLane+1 < laneCount ? sideLane+1 : (int)movement.Lane;
                     }

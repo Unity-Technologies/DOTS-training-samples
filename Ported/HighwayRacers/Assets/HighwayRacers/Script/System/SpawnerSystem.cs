@@ -153,6 +153,14 @@ if (false)
                         Value = random.NextFloat4()
                     });
 
+                    // If the driver profile is set to random, pick one of
+                    // the profiles for the new car.
+                    DriverProfile profile = spawner.DriverProfile;
+                    if (profile == DriverProfile.Random)
+                    {
+                        profile = random.NextBool() ? DriverProfile.American : DriverProfile.European;
+                    }
+
                     ecb.SetComponent(vehicle, new CarMovement
                     {
 // todo here we ar enot smart enough. Two cars might end up in the same tile.
@@ -160,6 +168,8 @@ if (false)
                         Offset = (float)i / spawner.CarCount,
                         Lane = i % laneCount,
                         Velocity = random.NextFloat(MinimumVelocity, 0.075f),
+                        LaneSwitchCounter = 0,
+                        Profile = profile
                     });
                 }
             }).Run();
