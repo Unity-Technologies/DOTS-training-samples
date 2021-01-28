@@ -53,27 +53,21 @@ public class AntPathingSystem : SystemBase
 			float degreesLeft = heading.Degrees - headingOffset;
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
 			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
-			xIndex = (int)math.floor(((seekLeft.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekLeft.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex]/255f);
 			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
 			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
-			xIndex = (int)math.floor(((seekRight.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekRight.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
 			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
-			xIndex = (int)math.floor(((seekFwd.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekFwd.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightFwd = tuning.MinAngleWeight + tuning.AntFwdWeighting + tuning.PheromoneWeighting * pValue;
 
