@@ -19,8 +19,26 @@ public class TrackOccupancySystem : SystemBase
 
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
 
-    public static bool[,] Occupancy = new bool[4,TilesPerLane];
-    public static bool[,] ReadOccupancy = new bool[4,TilesPerLane]; 
+    private static uint Frame = 0;
+
+    public static bool[,] GetReadOccupancy()
+    {
+        if (Frame % 2 == 0) 
+            return OccupancyA;
+        else
+            return OccupancyB;
+    }
+
+    public static bool[,] GetWriteOccupancy()
+    {
+        if (Frame % 2 == 0) 
+            return OccupancyB;
+        else
+            return OccupancyA;
+    }
+
+    private static bool[,] OccupancyA = new bool[4,TilesPerLane];
+    private static bool[,] OccupancyB = new bool[4,TilesPerLane]; 
 
     static public int GetMyTile(float carOffset)
     {
@@ -29,15 +47,14 @@ public class TrackOccupancySystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // Copy the occupancy before resetting so that CarMovementSystem can read it.
-        ReadOccupancy = Occupancy.Clone() as bool[,];
+        Frame++;
 
         // Reset the occupancy for each lane to 0 for all tiles
         for(int i = 0; i < LaneCount; ++i)
         {
             for(int j = 0; j < TilesPerLane; ++j)
             {
-                Occupancy[i,j] = false;
+                GetWriteOccupancy()[i,j] = false;
             }
         }
 
@@ -48,14 +65,14 @@ public class TrackOccupancySystem : SystemBase
             {
                 int myLane = (int)movement.Lane;
                 int myTile = GetMyTile(movement.Offset);
-                Occupancy[myLane, myTile] = true;
+                GetWriteOccupancy()[myLane, myTile] = true;
             })
                 .ScheduleParallel();
 
         Entities
             .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
             {
-                if(Occupancy[tileDebugColor.laneId, tileDebugColor.tileId] == true)
+                if(GetWriteOccupancy()[tileDebugColor.laneId, tileDebugColor.tileId] == true)
                     tileDebugMat.Value = new Unity.Mathematics.float4(1.0f,0.0f,0.0f,1);
                 else
                     tileDebugMat.Value = new Unity.Mathematics.float4(0.5f,0.5f,0.5f,1);
