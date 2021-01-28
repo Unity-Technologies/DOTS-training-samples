@@ -166,8 +166,14 @@ public class CarMovementSystem : SystemBase
                 // (We don't want cars to stop if the tile in front is occupied)
                 float v = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
 
+                // LaneOffset is the physical lane position of the car while Lane
+                // is the lane the car wants to be in. Let's make progress to
+                // merge towards that lane
+
+                movement.LaneOffset = movement.LaneOffset + ((float)movement.Lane - movement.LaneOffset) * deltaTime * 2.0f;
+
                 // Map car's 'Offset' in lane to XZ coords on track's rounded-rect
-                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
+                float laneRadius = (trackRadius + (movement.LaneOffset * laneWidth));
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
                 translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;

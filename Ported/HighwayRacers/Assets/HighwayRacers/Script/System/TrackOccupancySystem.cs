@@ -14,11 +14,10 @@ public class TrackOccupancySystem : SystemBase
 {
     // todo both these are readonly for now since we are not dealing with them changing in various systems
     // We would need to recompute the lane tiles, respawn cars etc.
-    public readonly float TrackSize = 20;
+    //public readonly float TrackSize = 20;
     public readonly uint LaneCount = 4;
 
-// todo should be based on length of car + circumference of lane + total cars
-    public static readonly uint TilesPerLane = 256;
+    public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
 
     public static bool[,] Occupancy = new bool[4,TilesPerLane];
     public static bool[,] ReadOccupancy = new bool[4,TilesPerLane]; 
@@ -30,15 +29,6 @@ public class TrackOccupancySystem : SystemBase
 
     protected override void OnUpdate()
     {
-// todo read the current 'Offset' and 'Lane' of each vehicle entitiy.
-// todo based on that determine the 'tiles' that the car is in and block that tile for other cars.
-// todo store this data on '4' "Lane" enitities that use a DynamicBuffer in its component?
-// todo for cars NOT switching lanes, we only have to check our lane and the 'tile' in front our current tile.
-// todo we can use last frames 'tile' information in "CarMovementSystem"
-// todo cars that are going slower than desired (blocked) want to switch lanes and need to check the lane to the right
-//      or to the left. We will alternative right and left every other frame so we don't ahve to worry about
-//      two cars merging into the same lane.
-
         // Copy the occupancy before resetting so that CarMovementSystem can read it.
         ReadOccupancy = Occupancy.Clone() as bool[,];
 
