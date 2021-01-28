@@ -1,9 +1,16 @@
-﻿using Unity.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using HighwayRacers;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using UnityEngine.AI;
+using Random = Unity.Mathematics.Random;
 
 public class SpawnerSystem : SystemBase
 {
@@ -15,6 +22,9 @@ public class SpawnerSystem : SystemBase
         m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
     }
 
+ 
+    
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -26,6 +36,26 @@ public class SpawnerSystem : SystemBase
         var random = new Random(1234);
         uint laneCount = m_TrackOccupancySystem.LaneCount;
 
+        // todo - get this from outside
+        int carCount = 256;
+        int[] laneTotals = new int[laneCount];
+
+        // roughly distribute the total care count between lanes
+        int avgDistrib = Mathf.RoundToInt(carCount / laneCount);
+        int lowDistrib = avgDistrib / 2;
+        int highDistrib = 3 * avgDistrib / 2;
+        int allocated = 0;
+        
+        for (int j = 0; j < laneCount - 1; j++)
+        {
+            int thischunk = random.NextInt(lowDistrib, highDistrib);
+            allocated += thischunk;
+            laneTotals[j] = thischunk;
+        }
+        laneTotals[laneCount - 1] = carCount - allocated;
+        
+        
+
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
@@ -33,25 +63,55 @@ public class SpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
 
-                for (uint i = 0; i < spawner.CarCount; ++i)
+                for (int lane = 0; lane < laneCount; lane++)
                 {
-                    var vehicle = ecb.Instantiate(spawner.CarPrefab);
-                    var translation = new Translation {Value = new float3(0, 0, 0)};
-                    ecb.SetComponent(vehicle, translation);
+                    int carsMax = laneTotals[lane];
+                    Entity[] carsInList = new Entity[carsMax];
 
-                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
+                    // create the cars from head to tail in this lane
+                    // ranging from 0.75 to 0.25 in offset
+                    // will this need to be scaled to accommodate different track sizes
+                    float head = 0.75f;
+                    float stride = -1f / (carsMax * 2f);
+                    
+                    for (int ctr = 0; ctr < carsMax; ctr ++)
                     {
-                        Value = random.NextFloat4()
-                    });
+                        Entity currentEnt;
+                        carsInList[ctr] = currentEnt = ecb.Instantiate(spawner.CarPrefab);
+                        
+                        var translation = new Translation {Value = new float3(0, 0, 0)};
+                        ecb.SetComponent(currentEnt, translation);
 
-                    ecb.SetComponent(vehicle, new CarMovement
+                        ecb.SetComponent(currentEnt, new URPMaterialPropertyBaseColor
+                        {
+                            Value = random.NextFloat4()
+                        });
+                        
+                        head += stride;
+                        
+                        ecb.SetComponent(currentEnt, new CarMovement
+                        {
+                            Offset =  head,
+                            Lane = Convert.ToUInt32(lane),
+                            Velocity = random.NextFloat(0.015f, 0.03f),
+                        });
+                    }
+                    
+                    // now set up the linked list
+                    for (int eachEnt = 0; eachEnt < carsMax; eachEnt++)
                     {
-                        Offset = (float)i / spawner.CarCount,
-                        Lane = i % laneCount,
-                        Velocity = random.NextFloat(0.015f, 0.03f),
-                    });
+                        int ahead = (eachEnt + carsMax - 1) % carsMax;
+                        int behind = (eachEnt + carsMax + 1) % carsMax;
+                        ecb.SetComponent(carsInList[eachEnt], new LinkedListLane
+                        {
+                            Behind = carsInList[behind],
+                            Ahead = carsInList[ahead]
+                        });
+                    }
+
                 }
-            }).Run();
+              
+            }).WithoutBurst().Run();
 
         ecb.Playback(EntityManager);
         

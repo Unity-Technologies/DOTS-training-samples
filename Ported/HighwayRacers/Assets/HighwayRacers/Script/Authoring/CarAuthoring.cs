@@ -22,5 +22,6 @@ public class CarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
         dstManager.AddComponent<PropagateColor>(entity);
         dstManager.AddComponent<CarMovement>(entity);
+        dstManager.AddComponent<LinkedListLane>(entity);
     }
 }
