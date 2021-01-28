@@ -5,16 +5,22 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(BeeMovementSystem))]
 public class AttackSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SpawnZones>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var spawnZones = GetSingleton<SpawnZones>();
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
             .WithName("Attack")
             .WithAll<BeeTag, AttackingBeeTag>()
-            .ForEach((Entity e, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
+            .ForEach((Entity e, ref Translation translation, ref TargetPosition t, ref RandomComponent rng, in MoveTarget moveTarget, in PhysicsData physics) =>
             {
                 if (MathUtil.IsWithinDistance(0.5f, t.Value, translation.Value))
                 {
@@ -35,6 +41,19 @@ public class AttackSystem : SystemBase
                     ecb.RemoveComponent<AttackingBeeTag>(e);
                     ecb.RemoveComponent<MoveTarget>(e);
                     ecb.RemoveComponent<TargetPosition>(e);
+                    
+                    
+                    // Create a blood droplet
+                    var blood = ecb.Instantiate(spawnZones.BloodPrefab);
+                    ecb.AddComponent(blood, Lifetime.FromTimeRemaining(rng.Value.NextFloat(5, 15)));
+                    ecb.SetComponent(blood, translation);
+                    ecb.SetComponent(blood, new PhysicsData
+                    {
+                        a = new float3(),
+                        v = physics.v,
+                        damping = 0,
+                        kineticEnergyPreserved = new float3(),
+                    });
                 }
             }).Run();
 

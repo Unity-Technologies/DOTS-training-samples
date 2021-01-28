@@ -12,6 +12,7 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     
     public GameObject BeePrefab;
     public GameObject FoodPrefab;
+    public GameObject BloodPrefab;
     
     [Range(0, 100)] public int BeesPerFood;
     [Range(0, 1000)] public float FlightJitter;
@@ -29,6 +30,7 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
             Team2Zone = Team2Zone,
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
+            BloodPrefab = conversionSystem.GetPrimaryEntity(BloodPrefab),
             BeesPerFood = BeesPerFood,
             FlightJitter = FlightJitter,
         });
@@ -38,5 +40,6 @@ public class SpawnZonesAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     {
         referencedPrefabs.Add(BeePrefab);
         referencedPrefabs.Add(FoodPrefab);
+        referencedPrefabs.Add(BloodPrefab);
     }
 }
