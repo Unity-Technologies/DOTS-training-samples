@@ -9,6 +9,7 @@ public class BeeRandomInitializationSystem: SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var random = GetSingleton<Randomizer>();
         Entities
             .WithNone<RandomComponent>()
             .WithAll<BeeTag>()
@@ -16,11 +17,11 @@ public class BeeRandomInitializationSystem: SystemBase
             {
                 ecb.AddComponent(e, new RandomComponent
                 {
-                    // TODO: Seed correctly
-                    Value = new Random(1234),
+                    Value = new Random(random.Random.NextUInt()),
                 });
             }).Run();
         
+        SetSingleton(random);
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
