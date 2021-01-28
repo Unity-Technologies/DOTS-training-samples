@@ -10,11 +10,11 @@ using UnityEngine;
 public class CarMovementSystem : SystemBase
 {
 // todo Burst compiler complains if this is not readonly
-    public static float TrackRadius = 91.0f;
-    public static float LaneWidth = 3.75f;
+    public readonly static float TrackRadius = 91.0f;
+    public readonly static float LaneWidth = 3.75f;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
-    public static float RoundedCorner = 0.29f;
+    public readonly static float RoundedCorner = 0.29f;
     private uint frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
@@ -115,27 +115,14 @@ public class CarMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
-                movement.LaneSwitchCounter -= deltaTime;
-
-                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
-                float v = movement.Velocity;
-                float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
-
-                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
-                translation.Value.y = trackOrigin.y;
-                translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
-
 // todo access array directly, because we don't know how to do this in DOTS
                 // Look one tile ahead, if it is occupied, stop moving
-                int myTile = (int) (movement.Offset * tilesPerLane);
+// todo myTile calc must match with what is in TrackOccupanySystem
+                int myTile = (int)((movement.Offset * tilesPerLane) + 0.5f) % (int)tilesPerLane;
                 int nextTile = (int) ((myTile+1) % tilesPerLane);
                 bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
-                if (!nextIsOccupied)
-                {
-                    movement.Offset += v * deltaTime;
-                    movement.Offset = movement.Offset % 1.0f;
-                }
-                else if (movement.LaneSwitchCounter <= 0)
+
+                if (nextIsOccupied && movement.LaneSwitchCounter <= 0)
                 {
                     // To avoid having two cars merge into the same lane, we allow
                     // mergers to the right at even frames and merges to the left at odd frames.
@@ -160,6 +147,19 @@ public class CarMovementSystem : SystemBase
                         }
                     }
                 }
+                
+                movement.LaneSwitchCounter -= deltaTime;
+
+                float laneRadius = (trackRadius + (movement.Lane * laneWidth));
+                float v = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
+                float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
+
+                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
+                translation.Value.y = trackOrigin.y;
+                translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
+
+                movement.Offset += v * deltaTime;
+                movement.Offset = movement.Offset % 1.0f;
 
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 

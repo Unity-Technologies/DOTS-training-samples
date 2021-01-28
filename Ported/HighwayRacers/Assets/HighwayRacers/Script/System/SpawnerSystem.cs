@@ -74,6 +74,7 @@ public class SpawnerSystem : SystemBase
         return new float3(x,y,a);
     }
 
+    public static float MinimumVelocity = 0.035f;
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
 
@@ -94,6 +95,9 @@ public class SpawnerSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
 
+// tile debugging
+if (false)
+{
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
@@ -129,6 +133,7 @@ public class SpawnerSystem : SystemBase
                     }
                 }
             }).Run();
+}
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
@@ -150,9 +155,11 @@ public class SpawnerSystem : SystemBase
 
                     ecb.SetComponent(vehicle, new CarMovement
                     {
+// todo here we ar enot smart enough. Two cars might end up in the same tile.
+// This means they can drive through each other.
                         Offset = (float)i / spawner.CarCount,
                         Lane = i % laneCount,
-                        Velocity = random.NextFloat(0.035f, 0.075f),
+                        Velocity = random.NextFloat(MinimumVelocity, 0.075f),
                     });
                 }
             }).Run();
