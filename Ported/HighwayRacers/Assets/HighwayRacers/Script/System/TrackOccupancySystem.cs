@@ -17,7 +17,6 @@ public class TrackOccupancySystem : SystemBase
     //public readonly float TrackSize = 20;
     public readonly uint LaneCount = 4;
 
-// todo should be based on length of car + circumference of lane + total cars
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
 
     public static bool[,] Occupancy = new bool[4,TilesPerLane];
