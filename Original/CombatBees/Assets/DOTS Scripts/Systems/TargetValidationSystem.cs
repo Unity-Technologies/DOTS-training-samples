@@ -23,7 +23,7 @@ public class TargetingValidationSystem : SystemBase
                     ecb.RemoveComponent<TargetPosition>( e);
                     ecb.RemoveComponent<CarriedFood>( e);
                     
-                    ecb.RemoveComponent<FetchingFodTag>( e);
+                    ecb.RemoveComponent<FetchingFoodTag>( e);
                     ecb.RemoveComponent<AttackingBeeTag>( e);
                 }
             }).Run();
