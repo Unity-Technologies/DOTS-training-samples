@@ -20,9 +20,9 @@ public class AttackSystem : SystemBase
         Entities
             .WithName("Attack")
             .WithAll<BeeTag, AttackingBeeTag>()
-            .ForEach((Entity e, ref Translation translation, ref TargetPosition t, ref RandomComponent rng, in MoveTarget moveTarget, in PhysicsData physics) =>
+            .ForEach((Entity e, ref Translation translation, ref TargetPosition t, ref RandomComponent rng, ref PhysicsData physics, in AttackData attackData, in MoveTarget moveTarget) =>
             {
-                if (MathUtil.IsWithinDistance(0.5f, t.Value, translation.Value))
+                if (MathUtil.IsWithinDistance(attackData.Distance, t.Value, translation.Value))
                 {
                     //We're close enough to the bee we want to attack. So turn it into a corpse.
                     ecb.RemoveComponent<BeeTag>(moveTarget.Value);
@@ -58,6 +58,12 @@ public class AttackSystem : SystemBase
                             kineticEnergyPreserved = new float3(),
                         });
                     }
+                }
+                else
+                {
+                    var direction = t.Value - translation.Value;
+                    var norm = math.normalize(direction);
+                    physics.a += norm * attackData.Force;
                 }
             }).Run();
 
