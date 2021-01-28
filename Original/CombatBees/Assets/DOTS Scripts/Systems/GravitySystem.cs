@@ -12,7 +12,7 @@ public class GravitySystem : SystemBase
 
         Entities
             .WithName("GravitySystem")
-            .WithAny<FoodTag, BeeCorpseTag>()
+            .WithAny<FoodTag, BeeCorpseTag, BloodTag>()
             .WithNone<CarrierBee>()
             .ForEach((Entity e, ref Translation t, ref PhysicsData physicsData) =>
             {

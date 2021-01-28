@@ -154,8 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2352d8c08d7d2164a967291ab1062a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfBees: 1
-  NumberOfFood: 2
+  NumberOfBees: 5
+  NumberOfFood: 0
   FoodSpawnBox:
     Center:
       x: 0
@@ -221,6 +221,8 @@ MonoBehaviour:
   BeePrefab: {fileID: 6833128816080627883, guid: fca2f1d80e5f5a74da13652d1440d878,
     type: 3}
   FoodPrefab: {fileID: 6222909234540938678, guid: 11831e596b47e5741a1e0273884a75f1,
+    type: 3}
+  BloodPrefab: {fileID: 6621517595032345775, guid: c89377a09aea78948906054acd188adc,
     type: 3}
   BeesPerFood: 8
   FlightJitter: 90
