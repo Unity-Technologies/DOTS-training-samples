@@ -107,6 +107,7 @@ public class CarMovementSystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(readOccupancy)
+            .WithNativeDisableContainerSafetyRestriction(readOccupancy)
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
                 // Limit cars from switching lanes to frequently

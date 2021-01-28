@@ -84,6 +84,7 @@ public class TrackOccupancySystem : SystemBase
 
         Entities
             .WithNativeDisableParallelForRestriction(writeBuffer)
+            .WithNativeDisableContainerSafetyRestriction(writeBuffer)
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
                 int myLane = (int)movement.Lane;
@@ -96,6 +97,7 @@ public class TrackOccupancySystem : SystemBase
         {
             Entities
                 .WithNativeDisableParallelForRestriction(writeBuffer)
+                .WithNativeDisableContainerSafetyRestriction(writeBuffer)
                 .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
                 {
                     byte tiles = writeBuffer[(int)tileDebugColor.tileId].Occupied;
