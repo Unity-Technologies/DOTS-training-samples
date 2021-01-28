@@ -134,7 +134,7 @@ public class CarMovementSystem : SystemBase
                 bool randomlySwitchLanes = random.NextInt(0, 100) > 33;
 
                 // Decide to switch lanes
-                if ((nextIsOccupied || favorInnerLane) && movement.LaneSwitchCounter <= 0 && randomlySwitchLanes)
+                if ((nextIsOccupied || favorInnerLane) /*&& movement.LaneSwitchCounter <= 0 && randomlySwitchLanes*/)
                 {
                     // To avoid having two cars merge into the same lane, we allow
                     // mergers to the right at even frames and merges to the left at odd frames.
@@ -156,7 +156,8 @@ public class CarMovementSystem : SystemBase
                         bool nextSideIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, sideLane, nextTile);
                         bool prevSideIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, sideLane, prevTile);
                         
-                        if (!sideIsOccupied && !nextSideIsOccupied && !prevSideIsOccupied)
+                        bool finishedChangingLane = math.abs(movement.LaneOffset - movement.Lane) < 0.05;
+                        if (!sideIsOccupied && !nextSideIsOccupied && !prevSideIsOccupied && finishedChangingLane)
                         {
                             movement.Lane = (uint) sideLane;
                             movement.LaneSwitchCounter = random.NextFloat(5, 10);
@@ -172,7 +173,7 @@ public class CarMovementSystem : SystemBase
                 // is the lane the car wants to be in. Let's make progress to
                 // merge towards that lane
 
-                movement.LaneOffset = movement.LaneOffset + ((float)movement.Lane - movement.LaneOffset) * deltaTime * 2.0f;
+                movement.LaneOffset = movement.LaneOffset + ((float)movement.Lane - movement.LaneOffset) * deltaTime * 5.0f;
 
                 // Map car's 'Offset' in lane to XZ coords on track's rounded-rect
                 float laneRadius = (trackRadius + (movement.LaneOffset * laneWidth));
