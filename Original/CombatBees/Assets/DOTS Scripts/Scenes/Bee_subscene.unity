@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2352d8c08d7d2164a967291ab1062a82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfBees: 5
+  NumberOfBees: 300
   NumberOfFood: 0
   FoodSpawnBox:
     Center:
