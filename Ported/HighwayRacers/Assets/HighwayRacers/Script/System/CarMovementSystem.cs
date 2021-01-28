@@ -9,12 +9,14 @@ using UnityEngine;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
-    public static float TrackRadius = 20;
-    public static float LaneWidth = 2;
+// todo Burst compiler complains if this is not readonly
+    public readonly static float TrackRadius = 20;
+    public readonly static float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
-    
-    public static float RoundedCorner = 0.2f;
+
+// todo Burst compiler complains if this is not readonly
+    public readonly static float RoundedCorner = 0.2f;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {

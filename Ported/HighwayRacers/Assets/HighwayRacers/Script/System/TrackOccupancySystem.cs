@@ -25,15 +25,6 @@ public class TrackOccupancySystem : SystemBase
     public static readonly uint TilesPerLane = 64;
     public static bool[,] Occupancy = new bool[4,TilesPerLane]; 
 
-    //unsafe void ResetBuffer(ref DynamicBuffer<LaneOccupancy> buffer)
-    //{
-    //    buffer.ResizeUninitialized( (int)TilesPerLane);
-    //    int size = UnsafeUtility.SizeOf<LaneOccupancy>();
-    //    UnsafeUtility.MemSet(buffer.GetUnsafePtr(),
-    //    0,
-    //    buffer.Length * UnsafeUtility.SizeOf<bool>());
-    //}
-
     protected override void OnCreate()
     {
         for (uint i=0; i<LaneCount; i++)
@@ -57,7 +48,6 @@ public class TrackOccupancySystem : SystemBase
 //      two cars merging into the same lane.
 
         // Reset the occupancy for each lane to 0 for all tiles
-//        UnsafeUtility.MemSet(Occupancy, 0, UnsafeUtility.SizeOf<bool>()); 
         for(int i = 0; i < LaneCount; ++i)
         {
             for(int j = 0; j < TilesPerLane; ++j)
@@ -65,12 +55,6 @@ public class TrackOccupancySystem : SystemBase
                 Occupancy[i,j] = false;
             }
         }
-
-        //Entities
-        //    .ForEach((Entity lane, DynamicBuffer<LaneOccupancy> buffer) =>
-        //    {
-        //    ResetBuffer(ref buffer);
-        //    }).WithoutBurst().Run();
 
         uint tilesPerLane = TilesPerLane;
 
@@ -81,21 +65,7 @@ public class TrackOccupancySystem : SystemBase
                 int myLane = (int)movement.Lane;
                 int myTile = (int) (trackPos * tilesPerLane);
                 Occupancy[myLane, myTile] = true;
-                
-                //Entities
-                //    .ForEach((Entity lane, DynamicBuffer<LaneOccupancy> buffer) =>
-                //    {
-                //        buffer.ElementAt(myTile).Occupied = true;
-                //    }).ScheduleParallel();
-
-                //var lanes = EntityManager.GetBuffer<LaneOccupancy>(vehicle);
-                //var myLane = lanes[(int)movement.Lane];
-// todo not sure how we set a value in the buffer?
-                //buffers[myTile];
-
             })
-//.WithDisposeOnCompletion(lanes)
-//.WithDisposeOnCompletion(buffers)
                 .ScheduleParallel();
 
         Entities
@@ -107,20 +77,5 @@ public class TrackOccupancySystem : SystemBase
                     tileDebugMat.Value = new Unity.Mathematics.float4(0.5f,0.5f,0.5f,1);
             })
             .ScheduleParallel();
-
-
-/*
-var buffer = EntityManager.GetBuffer<ReferencedBiomes>(layer);
-foreach (var element in buffer)
-{
-    var biomeID = element.BiomeID;
-    if (!biomeIds.Contains(biomeID) &&
-        m_BiomeIdToEntityAndContentHash.TryGetValue(biomeID, out var entityAndContentHash))
-    {
-        biomeIds.Add(biomeID);
-        biomeEntities.Add(new EntityAndHash { Entity = entityAndContentHash.Entity, BiomeID = biomeID });
-    }
-}
-*/
     }
 }
