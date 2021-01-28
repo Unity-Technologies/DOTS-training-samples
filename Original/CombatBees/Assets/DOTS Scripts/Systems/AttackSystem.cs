@@ -44,16 +44,20 @@ public class AttackSystem : SystemBase
                     
                     
                     // Create a blood droplet
-                    var blood = ecb.Instantiate(spawnZones.BloodPrefab);
-                    ecb.AddComponent(blood, Lifetime.FromTimeRemaining(rng.Value.NextFloat(5, 15)));
-                    ecb.SetComponent(blood, translation);
-                    ecb.SetComponent(blood, new PhysicsData
+                    var numberOfBloodDrops = rng.Value.NextInt(2, 5);
+                    for (int i = 0; i < numberOfBloodDrops; ++i)
                     {
-                        a = new float3(),
-                        v = physics.v,
-                        damping = 0,
-                        kineticEnergyPreserved = new float3(),
-                    });
+                        var blood = ecb.Instantiate(spawnZones.BloodPrefab);
+                        ecb.AddComponent(blood, Lifetime.FromTimeRemaining(rng.Value.NextFloat(5, 15)));
+                        ecb.SetComponent(blood, translation);
+                        ecb.SetComponent(blood, new PhysicsData
+                        {
+                            a = new float3(),
+                            v = physics.v + rng.Value.NextFloat3(new float3(math.length(physics.v) / 3)),
+                            damping = 0,
+                            kineticEnergyPreserved = new float3(),
+                        });
+                    }
                 }
             }).Run();
 
