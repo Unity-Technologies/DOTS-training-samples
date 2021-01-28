@@ -64,13 +64,12 @@ public class RoundRect
 
     public void Interpolate(in float coord, out float3 pos, out float yaw)
     {
-
-        float R = _curved / _size;
-        float straight = _size;
-        float curved = (2.0f * math.PI * _radius) * 0.25f;
-        float total = straight + curved;
-        float tls = math.saturate(straight/total);
-        float tlr = math.saturate(curved/total);
+        //float curved = _curved;
+        float R =  _curved / _size;
+        //float straight = _straight;
+        float total = _straight + _curved;
+        float tls = math.saturate(_straight/total);
+        float tlr = math.saturate(_curved/total);
 
         int q = (int)(coord * 4.0f);
 
@@ -129,7 +128,7 @@ public class RoundRect
         
         pos.x = x;
         pos.z = y;
-        pos.y = math.frac(coord); // to prevent zfighting
+        pos.y = math.frac(coord) * .01f; // to prevent zfighting
         yaw = a;
     }
 
