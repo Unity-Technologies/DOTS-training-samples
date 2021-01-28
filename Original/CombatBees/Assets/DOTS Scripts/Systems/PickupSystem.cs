@@ -28,7 +28,7 @@ public class PickupSystem : SystemBase
             .WithNone<CarriedFood>()
             .ForEach((Entity e, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
-                if (MathUtil.IsWithinDistance(1.0f, t.Value, translation.Value))
+                if (MathUtil.IsWithinDistance(1.0f, t.Value, translation.Value) && HasComponent<FoodTag>(moveTarget.Value))
                 {
                     ecb.AddComponent( e, new CarriedFood() {Value = moveTarget.Value});
                     ecb.AddComponent( moveTarget.Value, new CarrierBee() {Value = e});
