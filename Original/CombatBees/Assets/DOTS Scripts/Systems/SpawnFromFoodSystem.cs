@@ -19,15 +19,18 @@ public class SpawnFromFoodSystem : SystemBase
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         var random = new Random(5678);
         var zones = GetSingleton<SpawnZones>();
+        var physicsData = EntityManager.GetComponentData<PhysicsData>(zones.BeePrefab);
         Entities
             .WithName("SpawnFromFood")
             .WithAll<FoodTag>()
             .WithNone<CarrierBee>()
+            .WithoutBurst()
             .WithStoreEntityQueryInField(ref m_Query)
             .ForEach((Entity e, in PhysicsData d, in Translation t) =>
             {
                 if (t.Value.y <= d.floor)
                 {
+                    const float speed = 2500;
                     if (zones.Team1Zone.Contains(t.Value))
                     {
                         for (int i = 0; i < zones.BeesPerFood; ++i)
@@ -35,8 +38,11 @@ public class SpawnFromFoodSystem : SystemBase
                             var newBee = ecb.Instantiate(zones.BeePrefab);
                             ecb.SetComponent(newBee, new Translation
                             {
-                                Value = random.NextFloat3(zones.Team1Zone.Min, zones.Team1Zone.Max),
+                                Value = t.Value,
                             });
+                            var newPhysics = physicsData;
+                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
+                            ecb.SetComponent(newBee, newPhysics);
                             ecb.AddComponent<Team1>(newBee);
                             ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
                             {
@@ -53,8 +59,11 @@ public class SpawnFromFoodSystem : SystemBase
                             var newBee = ecb.Instantiate(zones.BeePrefab);
                             ecb.SetComponent(newBee, new Translation
                             {
-                                Value = random.NextFloat3(zones.Team2Zone.Min, zones.Team2Zone.Max),
+                                Value = t.Value,
                             });
+                            var newPhysics = physicsData;
+                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
+                            ecb.SetComponent(newBee, newPhysics);
                             ecb.AddComponent<Team2>(newBee);
                             ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
                             {
