@@ -170,7 +170,7 @@ public class CarMovementSystem : SystemBase
                 // is the lane the car wants to be in. Let's make progress to
                 // merge towards that lane
 
-                movement.LaneOffset = movement.LaneOffset + ((float)movement.Lane - movement.LaneOffset) * deltaTime * 4.0f;
+                movement.LaneOffset = movement.LaneOffset + ((float)movement.Lane - movement.LaneOffset) * deltaTime * 2.0f;
 
                 // Map car's 'Offset' in lane to XZ coords on track's rounded-rect
                 float laneRadius = (trackRadius + (movement.LaneOffset * laneWidth));
