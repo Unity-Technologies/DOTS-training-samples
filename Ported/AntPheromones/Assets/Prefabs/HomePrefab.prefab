@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 4401510940928256053}
   - component: {fileID: 32429039591018035}
   - component: {fileID: 4526099706414383071}
-  - component: {fileID: 8867173051703919853}
   m_Layer: 0
-  m_Name: Home
+  m_Name: HomePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -82,17 +81,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8867173051703919853
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7836310719315439679}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5a6c1fcb8035f442be53ea29f49b079, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  color: {r: 1, g: 0.49803922, b: 0, a: 0}
-  radius: 1

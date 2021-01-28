@@ -19,12 +19,9 @@ public class AntSpawnerSystem : SystemBase
 
         Entities
             .WithAll<AntSpawner>()
+            .WithNone<Initialized>()
             .ForEach((Entity entity, in AntSpawner spawner) =>
             {
-                // Destroying the current entity is a classic ECS pattern,
-                // when something should only be processed once then forgotten.
-                ecb.DestroyEntity(entity);
-
                 for (int i = 0; i < spawner.AntCount; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.AntPrefab);
@@ -34,8 +31,15 @@ public class AntSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, heading);
                     ecb.SetComponent(instance, translation);
                 }
+                
+                ecb.AddComponent<Initialized>(entity);
             }).Schedule();
 
         bufferSystem.AddJobHandleForProducer(Dependency);
     }
+}
+
+public struct Initialized : IComponentData
+{
+    
 }

@@ -5,13 +5,13 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-public class MapManagementSystem : SystemBase
+public class WorldResetSystem : SystemBase
 {
     EntityQuery destroyMapSpawnedEntities;
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<Map>();
+        RequireSingletonForUpdate<ObstacleBuilder>();
 
         destroyMapSpawnedEntities = GetEntityQuery(new EntityQueryDesc
         {
@@ -29,10 +29,35 @@ public class MapManagementSystem : SystemBase
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            EntityManager.DestroyEntity(destroyMapSpawnedEntities);
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.TempJob);
+            
+            var pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
+            var pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
+            
+            for (int i = 0; i < pheromoneBuffer.Length; i++)
+            {
+                pheromoneBuffer[i] = 0;
+            }
+            
+            ecb.DestroyEntity(destroyMapSpawnedEntities);
 
-            Entity mapEntity = GetSingletonEntity<Map>();
-            EntityManager.AddComponentData<MapBuilder>(mapEntity, new MapBuilder());
+            // Can't be part of Query as it has linked entity reference
+            Entities
+                .WithAll<AntPathing>()
+                .ForEach((Entity entity) =>
+                {
+                    ecb.DestroyEntity(entity);
+                }).Run();
+            
+           Entities
+               .WithAll<Initialized>()
+               .ForEach((Entity entity) =>
+               {
+                   ecb.RemoveComponent<Initialized>(entity);
+               }).Run();
+            
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
 

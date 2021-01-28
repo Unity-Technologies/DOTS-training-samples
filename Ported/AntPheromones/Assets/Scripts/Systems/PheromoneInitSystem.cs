@@ -7,6 +7,7 @@ public class PheromoneInitSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<PheromoneInit>();
+        RequireSingletonForUpdate<Tuning>();
     }
 
     protected override void OnUpdate()
