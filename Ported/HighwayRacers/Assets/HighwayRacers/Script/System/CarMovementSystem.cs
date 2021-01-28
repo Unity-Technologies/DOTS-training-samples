@@ -93,10 +93,6 @@ public class CarMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         frame++;
-
-        // Time is a field of SystemBase, and SystemBase is a class. This prevents
-        // using it in a job, so we have to fetch ElapsedTime and store it in a local
-        // variable. This local variable can then be used in the job.
         float deltaTime = Time.DeltaTime;
 
         float trackRadius = TrackRadius;
@@ -106,12 +102,6 @@ public class CarMovementSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint theFrame = frame;
 
-        // Entities.ForEach is a job generator, the lambda it contains will be turned
-        // into a proper IJob by IL post processing.
-        //
-        // WithAll requires the presence of certain component types on all entities to
-        // be processed by the Entities.ForEach, this is useful when we don't care
-        // about the contents of a component, only its presence.
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
@@ -134,7 +124,7 @@ public class CarMovementSystem : SystemBase
                     }
                     else
                     {
-                        sideLane = sideLane-1 > 0 ? sideLane-1 : (int)movement.Lane;
+                        sideLane = sideLane-1 >= 0 ? sideLane-1 : (int)movement.Lane;
                     }
                     
                     if (sideLane != movement.Lane)
