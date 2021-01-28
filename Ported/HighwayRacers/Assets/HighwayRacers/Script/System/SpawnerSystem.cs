@@ -96,6 +96,8 @@ public class SpawnerSystem : SystemBase
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         float minimumVelocity = MinimumVelocity;
 
+        float4 americanColors = new float4(1,0,0,1);
+
 //tile debugging
 if (false)
 {
@@ -149,11 +151,6 @@ if (false)
                     var translation = new Translation {Value = new float3(0, 0, 0)};
                     ecb.SetComponent(vehicle, translation);
 
-                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-                    {
-                        Value = random.NextFloat4()
-                    });
-
                     // If the driver profile is set to random, pick one of
                     // the profiles for the new car.
                     DriverProfile profile = spawner.DriverProfile;
@@ -161,6 +158,17 @@ if (false)
                     {
                         profile = random.NextBool() ? DriverProfile.American : DriverProfile.European;
                     }
+                    
+                    float4 carColor = random.NextFloat4();
+                    if (profile == DriverProfile.American)
+                    {
+                        carColor = americanColors;
+                    }
+                    
+                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
+                    {
+                        Value = carColor
+                    });
 
                     uint currentLane = i % laneCount;
                     ecb.SetComponent(vehicle, new CarMovement
