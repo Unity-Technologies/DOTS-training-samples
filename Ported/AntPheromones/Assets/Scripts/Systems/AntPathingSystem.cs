@@ -36,7 +36,7 @@ public class AntPathingSystem : SystemBase
 		ObstacleBuilder map = this.GetSingleton<ObstacleBuilder>();
 		float2 mapSize = new float2(map.dimensions.x / 2, map.dimensions.y / 2);
 
-		float seekAhead = 1f;
+		float seekAhead = 2f;
 		float speed = tuning.Speed * time;
 		float angleRange = tuning.AntAngleRange;
 		Unity.Mathematics.Random random = new Unity.Mathematics.Random(_random.NextUInt());
@@ -48,7 +48,9 @@ public class AntPathingSystem : SystemBase
 			WithReadOnly(pheromoneBuffer).
 			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
-			int xIndex, yIndex, gridIndex;
+			float2 myPos = new float2(translation.Value.x, translation.Value.y);
+			int myGrid = MapCoordinateSystem.PositionToIndex(myPos, tuning);
+
 			float pValue;
 
 			float headingOffset = random.NextFloat() * (angleRange);
@@ -57,26 +59,28 @@ public class AntPathingSystem : SystemBase
 			float degreesLeft = heading.Degrees - headingOffset;
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
 			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
-			gridIndex = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
-			pValue = (float)(pheromoneBuffer[gridIndex]/255f);
+			int gridLeft = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
+			pValue = ((float)pheromoneBuffer[gridLeft])/255f;
 			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
 			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
-			gridIndex = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
-			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
+			int gridRight = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
+			pValue = ((float)pheromoneBuffer[gridRight]) / 255f;
 			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
 			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
-			gridIndex = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
-			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
-			float weightFwd = tuning.MinAngleWeight + tuning.AntFwdWeighting + tuning.PheromoneWeighting * pValue;
+			int gridFwd = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
+			pValue = ((float)pheromoneBuffer[gridFwd]) / 255f;
+			float weightFwd = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue) * tuning.AntFwdWeighting;
 
 			float totalWeight = weightLeft + weightRight + weightFwd;
 			float randomWeight = random.NextFloat() * totalWeight;
+
+			//Debug.Log($"Weights = {myGrid} / {gridLeft} {gridFwd} {gridRight} / {weightLeft} {weightFwd} {weightRight} - random = {randomWeight}");				
 
 			// select random weighted target, reproject ahead the move distance
 			float rads = 0;
@@ -85,18 +89,21 @@ public class AntPathingSystem : SystemBase
 				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsLeft), translation.Value.y + speed * Mathf.Cos(radsLeft));
 				heading.Degrees = degreesLeft;
 				rads = radsLeft;
+				//Debug.Log("LEFT");
 			} 
 			else if (randomWeight < weightLeft + weightRight)
 			{
 				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsRight), translation.Value.y + speed * Mathf.Cos(radsRight));
 				heading.Degrees = degreesRight;
 				rads = radsRight;
+				//Debug.Log("RIGHT");
 			}
 			else
 			{
 				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsFwd), translation.Value.y + speed * Mathf.Cos(radsFwd));
 				heading.Degrees = degreesFwd;
 				rads = radsFwd;
+				//Debug.Log("FWD");
 			}
 
 			heading.Degrees = heading.Degrees % 360;
@@ -108,9 +115,10 @@ public class AntPathingSystem : SystemBase
 		// has line of sight, straight path to goal
 		Entities.
 			WithAll<AntLineOfSight>().
-			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
+			WithAll<AntHeading>().
+			ForEach((ref Translation translation, ref Rotation rotation, in AntHeading antHeading) =>
 			{
-				float rads = Mathf.Deg2Rad * antLos.DegreesToGoal;
+				float rads = Mathf.Deg2Rad * antHeading.Degrees;
 
 				translation.Value.x = translation.Value.x + speed * Mathf.Sin(rads);
 				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
@@ -156,7 +164,6 @@ public class AntPathingSystem : SystemBase
 				}
 				else
 				{
-
 					// test if we're colliding with any rings
 					for (int i = 0; i < rings.Length; i++)
 					{

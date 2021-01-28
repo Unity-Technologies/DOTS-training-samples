@@ -34,8 +34,9 @@ public class AntLineOfSightSystem : SystemBase
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithNone<HasFood>().
+			WithAll<AntHeading>().
 			WithReadOnly(rings).
-			ForEach((Entity entity, in Translation translation) =>
+			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
 			{
 				bool hasLOS = true;
 
@@ -55,9 +56,8 @@ public class AntLineOfSightSystem : SystemBase
 
 				if (hasLOS)
 				{
-					float degs = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x-antPos.x, foodPos.y-antPos.y);
-					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
-					ecbWriter.AddComponent<AntLineOfSight>(0,entity,antLos);
+					antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x-antPos.x, foodPos.y-antPos.y);
+					ecbWriter.AddComponent<AntLineOfSight>(0,entity);
 				}
 			}).ScheduleParallel();
 
@@ -66,8 +66,9 @@ public class AntLineOfSightSystem : SystemBase
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithAll<HasFood>().
+			WithAll<AntHeading>().
 			WithReadOnly(rings).
-			ForEach((Entity entity, in Translation translation) =>
+			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
 			{
 				bool hasLOS = true;
 
@@ -87,9 +88,8 @@ public class AntLineOfSightSystem : SystemBase
 
 				if (hasLOS)
 				{
-					float degs = Mathf.Rad2Deg * Mathf.Atan2(homePos.x - antPos.x, homePos.y - antPos.y);
-					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
-					ecbWriter.AddComponent<AntLineOfSight>(0, entity, antLos);
+					antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(homePos.x - antPos.x, homePos.y - antPos.y);
+					ecbWriter.AddComponent<AntLineOfSight>(0, entity);
 				}
 			}).ScheduleParallel();
 

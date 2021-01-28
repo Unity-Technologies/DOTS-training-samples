@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 
+[GenerateAuthoringComponent]
 public struct AntLineOfSight : IComponentData
 {
-	public float DegreesToGoal;
 }
