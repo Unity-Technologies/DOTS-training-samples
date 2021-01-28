@@ -214,6 +214,7 @@ MonoBehaviour:
   FoodPrefab: {fileID: 6222909234540938678, guid: 11831e596b47e5741a1e0273884a75f1,
     type: 3}
   BeesPerFood: 8
+  FlightJitter: 90
 --- !u!114 &1542635300
 MonoBehaviour:
   m_ObjectHideFlags: 0
