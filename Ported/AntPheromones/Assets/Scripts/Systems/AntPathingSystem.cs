@@ -99,6 +99,8 @@ public class AntPathingSystem : SystemBase
 				rads = radsFwd;
 			}
 
+			heading.Degrees = heading.Degrees % 360;
+
 			rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 
 		}).ScheduleParallel();
@@ -127,28 +129,30 @@ public class AntPathingSystem : SystemBase
 			ForEach((ref AntTarget target, ref AntHeading heading, in Translation translation) =>
 			{
 				bool didCollide = false;
-				float2 normal;
+				bool reflectNormal = false;
+				float2 normal = float2.zero;
+				float2 outVector = float2.zero;
 
 				// test if we're outside the map
 				if (target.Target.x >= mapSize.x)
 				{
 					didCollide = true;
-					normal = new float2(-1f, 0);
+					outVector = new float2(-(target.Target.x - translation.Value.x), target.Target.y - translation.Value.y);
 				}
 				else if (target.Target.x <= -mapSize.x)
 				{
 					didCollide = true;
-					normal = new float2(1f, 0);
+					outVector = new float2(-(target.Target.x - translation.Value.x), target.Target.y - translation.Value.y);
 				}
 				else if (target.Target.y >= mapSize.y)
 				{
 					didCollide = true;
-					normal = new float2(0, -1f);
+					outVector = new float2(target.Target.x - translation.Value.x, -(target.Target.y - translation.Value.y));
 				}
 				else if (target.Target.y <= -mapSize.y)
 				{
 					didCollide = true;
-					normal = new float2(0f, 1);
+					outVector = new float2(target.Target.x - translation.Value.x, -(target.Target.y - translation.Value.y));
 				}
 				else
 				{
@@ -159,11 +163,21 @@ public class AntPathingSystem : SystemBase
 						RingElement ring = rings[i];
 
 						float2 startPos = new float2(translation.Value.x, translation.Value.y);
-						float2 collisionPos;
 
-						if (WorldResetSystem.DoesPathCollideWithRing(ring, startPos, target.Target, out collisionPos))
+						if (WorldResetSystem.DoesPathCollideWithRing(ring, startPos, target.Target, out float2 collisionPos, out bool outWards))
 						{
 							didCollide = true;
+							reflectNormal = true;
+
+							if (outWards)
+							{
+								normal = -math.normalize(collisionPos);
+							}
+							else
+							{
+								normal = math.normalize(collisionPos);
+							}
+
 							break;
 						}
 					}
@@ -172,11 +186,19 @@ public class AntPathingSystem : SystemBase
 				// handle collision
 				if (didCollide)
 				{
-					// reset target position
+					if (reflectNormal)
+					{
+						float2 vIn = new float2(target.Target.x - translation.Value.x, target.Target.y - translation.Value.y);
+						vIn = math.normalize(vIn);
+
+						outVector = vIn - 2 * math.dot(vIn, normal) * normal;
+					}
+
+					heading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(outVector.x, outVector.y);
+
+					// reset target to previous position
 					target.Target.x = translation.Value.x;
 					target.Target.y = translation.Value.y;
-
-					heading.Degrees += 180f;
 				}
 			}).ScheduleParallel();
 

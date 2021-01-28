@@ -119,7 +119,7 @@ public class WorldResetSystem : SystemBase
         return false;
     }
 
-    public static bool DoesPathCollideWithRing(RingElement ring, float2 start, float2 end, out float2 at)
+    public static bool DoesPathCollideWithRing(RingElement ring, float2 start, float2 end, out float2 at, out bool outwards)
     {
         bool sinside = IsPointInsideRing(ring, start);
         bool einside = IsPointInsideRing(ring, end);
@@ -127,14 +127,17 @@ public class WorldResetSystem : SystemBase
         if (sinside && !einside)
         {
             at = ClosestIntersection(0, 0, math.length(ring.offsets) - ring.halfThickness, start, end);
+            outwards = true;
             return !IsWithinOpening(ring, at);
         }
         else if (!sinside && einside)
         {
             at = ClosestIntersection(0, 0, math.length(ring.offsets) + ring.halfThickness, start, end);
+            outwards = false;
             return !IsWithinOpening(ring, at);
         }
 
+        outwards = false;
         at = default(float2);
 
         return false;

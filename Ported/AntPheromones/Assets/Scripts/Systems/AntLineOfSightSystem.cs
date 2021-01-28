@@ -46,7 +46,7 @@ public class AntLineOfSightSystem : SystemBase
 				{
 					RingElement ring = rings[i];
 
-					if (WorldResetSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos))
+					if (WorldResetSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos, out bool outWards))
 					{
 						hasLOS = false;
 						break;
@@ -78,7 +78,7 @@ public class AntLineOfSightSystem : SystemBase
 				{
 					RingElement ring = rings[i];
 
-					if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos))
+					if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos, out bool outWards))
 					{
 						hasLOS = false;
 						break;
