@@ -22,7 +22,7 @@ public class TrackOccupancySystem : SystemBase
     // todo both these are readonly for now since we are not dealing with them changing in various systems
     // We would need to recompute the lane tiles, respawn cars etc.
     public readonly uint LaneCount = 4;
-    public static readonly bool ShowDebugTiles = false;
+    public static readonly bool ShowDebugTiles = true;
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
     private CarMovementSystem m_CarMovementSystem;
 

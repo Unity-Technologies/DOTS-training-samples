@@ -170,6 +170,7 @@ public class SpawnerSystem : SystemBase
                     });
 
                     uint currentLane = i % laneCount;
+                    float trackCirconf = ((CarMovementSystem.TrackRadius/2.0f) * 4.0f)/182.0f;
                     ecb.SetComponent(vehicle, new CarMovement
                     {
                         // todo here we ar enot smart enough. Two cars might end up in the same tile.
@@ -177,7 +178,7 @@ public class SpawnerSystem : SystemBase
                         Offset = (float)i / spawner.CarCount,
                         Lane = currentLane,
                         LaneOffset = (float)currentLane,
-                        Velocity = random.NextFloat(minimumVelocity, 0.075f),
+                        Velocity = random.NextFloat(minimumVelocity, 0.075f)/trackCirconf,
                         LaneSwitchCounter = 0,
                         Profile = profile
                     });
