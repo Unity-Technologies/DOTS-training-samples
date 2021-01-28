@@ -18,6 +18,7 @@ public class AntPathingSystem : SystemBase
 		RequireSingletonForUpdate<Tuning>();
 		RequireSingletonForUpdate<RingElement>();
 		RequireSingletonForUpdate<GameTime>();
+		RequireSingletonForUpdate<ObstacleBuilder>();
 
 		_random = new Unity.Mathematics.Random(1234);
 	}
@@ -31,6 +32,9 @@ public class AntPathingSystem : SystemBase
 		Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
 		DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
 		var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
+
+		ObstacleBuilder map = this.GetSingleton<ObstacleBuilder>();
+		float2 mapSize = new float2(map.dimensions.x / 2, map.dimensions.y / 2);
 
 		float seekAhead = 1f;
 		float speed = tuning.Speed * time;
@@ -122,24 +126,57 @@ public class AntPathingSystem : SystemBase
 			WithReadOnly(rings).
 			ForEach((ref AntTarget target, ref AntHeading heading, in Translation translation) =>
 			{
-				// test if we're colliding with any rings
-				for (int i=0; i < rings.Length; i++)
+				bool didCollide = false;
+				float2 normal;
+
+				// test if we're outside the map
+				if (target.Target.x >= mapSize.x)
 				{
-					RingElement ring = rings[i];
+					didCollide = true;
+					normal = new float2(-1f, 0);
+				}
+				else if (target.Target.x <= -mapSize.x)
+				{
+					didCollide = true;
+					normal = new float2(1f, 0);
+				}
+				else if (target.Target.y >= mapSize.y)
+				{
+					didCollide = true;
+					normal = new float2(0, -1f);
+				}
+				else if (target.Target.y <= -mapSize.y)
+				{
+					didCollide = true;
+					normal = new float2(0f, 1);
+				}
+				else
+				{
 
-					float2 startPos = new float2(translation.Value.x, translation.Value.y);
-					float2 collisionPos;
-
-					if (WorldResetSystem.DoesPathCollideWithRing(ring,startPos,target.Target,out collisionPos))
+					// test if we're colliding with any rings
+					for (int i = 0; i < rings.Length; i++)
 					{
-						// reset target position
-						target.Target.x = translation.Value.x;
-						target.Target.y = translation.Value.y;
+						RingElement ring = rings[i];
 
-						heading.Degrees += 180f;						
+						float2 startPos = new float2(translation.Value.x, translation.Value.y);
+						float2 collisionPos;
 
-						break;
+						if (WorldResetSystem.DoesPathCollideWithRing(ring, startPos, target.Target, out collisionPos))
+						{
+							didCollide = true;
+							break;
+						}
 					}
+				}
+
+				// handle collision
+				if (didCollide)
+				{
+					// reset target position
+					target.Target.x = translation.Value.x;
+					target.Target.y = translation.Value.y;
+
+					heading.Degrees += 180f;
 				}
 			}).ScheduleParallel();
 
