@@ -10,30 +10,32 @@ public class BloodSplatSystem: SystemBase
     {
         var time = Time.ElapsedTime;
         float floorHeight = GetSingleton<SpawnZones>().LevelBounds.Min.y;
-        
+
+        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         Entities
             .WithAll<BloodTag>()
             .WithNone<GroundedTime>()
-            .WithoutBurst()
-            .WithStructuralChanges()
-            .ForEach((Entity e, in PhysicsData data, in Translation translation) =>
+            .ForEach((Entity e, ref RandomComponent rng, in PhysicsData data, in Translation translation) =>
             {
                 if (translation.Value.y <= floorHeight + 0.001f)
                 {
-                    EntityManager.AddComponentData(e, new GroundedTime
+                    ecb.AddComponent(e, Lifetime.FromTimeRemaining(rng.Value.NextFloat(0.5f,1.2f)));
+
+                    ecb.AddComponent(e, new GroundedTime
                     {
                         Time = time,
                     });
                 }
             }).Run();
-            
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+
+
         Entities
             .WithAll<BloodTag>()
-            .WithoutBurst()
-            .ForEach((ref URPPropertyLifetime smoothness, in GroundedTime groundedTime) =>
+            .ForEach((ref URPPropertyLifetime shaderPropLifetime, in Lifetime actualLifetime) =>
             {
-                float newVal = 1.0f - ((float)(time - groundedTime.Time));
-                smoothness.Value = math.clamp(newVal, 0, 1.0f);
+                shaderPropLifetime.Value = actualLifetime.NormalizedTimeRemaining;
             }).Run();
     }
 }
