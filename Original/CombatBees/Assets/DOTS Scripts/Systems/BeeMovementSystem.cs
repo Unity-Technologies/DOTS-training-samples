@@ -19,8 +19,15 @@ public class BeeMovementSystem : SystemBase
                 var destVector = math.normalize(directionVector);
                 physicsData.a += destVector * speed.Value;
 
+            }).Run();
+        
+        Entities
+            .WithName("BeeJitter")
+            .WithAll<BeeTag>()
+            .ForEach((Entity EntityManager, ref PhysicsData physicsData) =>
+        {
                 float3 jitter = UnityEngine.Random.insideUnitSphere * zones.FlightJitter;
                 physicsData.a += jitter;
-            }).Run();
+        }).Run();
     }
 }
