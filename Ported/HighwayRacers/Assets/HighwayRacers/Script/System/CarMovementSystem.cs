@@ -10,16 +10,14 @@ using UnityEngine;
 public class CarMovementSystem : SystemBase
 {
 // todo Burst compiler complains if this is not readonly
-    public readonly static float TrackRadius = 20;
-    public readonly static float LaneWidth = 2;
+    public static float TrackRadius = 91.0f;
+    public static float LaneWidth = 3.75f;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
+    public static float RoundedCorner = 0.29f;
     private uint frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
-
-// todo Burst compiler complains if this is not readonly
-    public readonly static float RoundedCorner = 0.2f;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {
@@ -123,9 +121,9 @@ public class CarMovementSystem : SystemBase
                 float v = movement.Velocity;
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
-                translation.Value.x = transXZA.x;
+                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
                 translation.Value.y = trackOrigin.y;
-                translation.Value.z = transXZA.y;
+                translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
 
 // todo access array directly, because we don't know how to do this in DOTS
                 // Look one tile ahead, if it is occupied, stop moving
@@ -159,7 +157,6 @@ public class CarMovementSystem : SystemBase
                         {
                             movement.Lane = (uint) sideLane;
                             movement.LaneSwitchCounter = 5;
-    // todo could move forward here too
                         }
                     }
                 }

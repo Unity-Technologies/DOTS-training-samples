@@ -50,7 +50,7 @@ public class TrackOccupancySystem : SystemBase
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
                 int myLane = (int)movement.Lane;
-                int myTile = (int) (movement.Offset * tilesPerLane + 0.5f);
+                int myTile = (int) (movement.Offset * tilesPerLane);
                 Occupancy[myLane, myTile] = true;
             })
                 .ScheduleParallel();
