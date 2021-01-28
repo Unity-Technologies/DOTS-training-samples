@@ -128,28 +128,115 @@ public class WorldResetSystem : SystemBase
         return false;
     }
 
+    public static float2 OffsetPointByRadius(float2 a, float2 b, float r)
+    {
+        float2 dir = b - a;
+        float msq = math.lengthsq(dir);
+        if (math.abs(math.pow(r, 2)) < msq)
+        {
+            dir = math.normalize(dir);
+            float m = math.sqrt(msq);
+
+            return a + dir * m - r;
+        }
+
+        return a;
+    }
+
+    static bool IsPointInCircle(float2 point, float2 center, float radius)
+    {
+        float2 line = point - center;
+        float msq = math.lengthsq(line);
+
+        return msq < math.pow(radius, 2);
+    }
+
     public static bool DoesPathCollideWithRing(RingElement ring, float2 start, float2 end, out float2 at, out bool outwards)
     {
-        bool sinside = IsPointInsideRing(ring, start);
-        bool einside = IsPointInsideRing(ring, end);
+        outwards = math.lengthsq(start) < math.lengthsq(end);
 
-        if (sinside && !einside)
+        int n = FindLineCircleIntersections(0, 0, ring.offsets.x, start, end, out float2 i0, out float2 i1);
+        switch (n)
         {
-            at = ClosestIntersection(0, 0, ring.offsets.x - ring.halfThickness, start, end);
-            outwards = true;
-            return !IsWithinOpening(ring, at);
-        }
-        else if (!sinside && einside)
-        {
-            at = ClosestIntersection(0, 0, ring.offsets.x + ring.halfThickness, start, end);
-            outwards = false;
-            return !IsWithinOpening(ring, at);
+            case 1:
+                {
+                    if (IsPointInCircle(start, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    {
+                        if (!IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                        {
+                            at = OffsetPointByRadius(start, i0, ring.halfThickness);
+
+                            if (!IsWithinOpening(ring, at))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else if (IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    {
+                        at = OffsetPointByRadius(start, i0, ring.halfThickness);
+
+                        if (!IsWithinOpening(ring, at))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                break;
+            case 2:
+                {
+                    if (IsPointInCircle(start, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    {
+                        if (!IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                        {
+                            float d0 = math.distancesq(i0, start);
+                            float d1 = math.distancesq(i1, start);
+                            at = OffsetPointByRadius(start, d0 < d1 ? i0 : i1, ring.halfThickness);
+
+                            if (!IsWithinOpening(ring, at))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else if (IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    {
+                        float d0 = math.distancesq(i0, start);
+                        float d1 = math.distancesq(i1, start);
+                        at = OffsetPointByRadius(start, d0 < d1 ? i0 : i1, ring.halfThickness);
+
+                        if (!IsWithinOpening(ring, at))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                break;
         }
 
-        outwards = false;
-        at = default(float2);
-
+        at = end;
         return false;
+
+        //bool sinside = IsPointInsideRing(ring, start);
+        //bool einside = IsPointInsideRing(ring, end);
+
+        //if (sinside && !einside)
+        //{
+        //    at = ClosestIntersection(0, 0, ring.offsets.x - ring.halfThickness, start, end);
+        //    outwards = true;
+        //    return !IsWithinOpening(ring, at);
+        //}
+        //else if (!sinside && einside)
+        //{
+        //    at = ClosestIntersection(0, 0, ring.offsets.x + ring.halfThickness, start, end);
+        //    outwards = false;
+        //    return !IsWithinOpening(ring, at);
+        //}
+
+        //outwards = false;
+        //at = default(float2);
+
+        //return false;
     }
 
     // https://stackoverflow.com/questions/23016676/line-segment-and-circle-intersection
@@ -173,7 +260,7 @@ public class WorldResetSystem : SystemBase
                 return intersection2;
         }
 
-        return default(float2); // no intersections at all
+        return lineEnd;
     }
 
     private static int FindLineCircleIntersections(float cx, float cy, float radius, float2 point1, float2 point2, out float2 intersection1, out float2 intersection2)
