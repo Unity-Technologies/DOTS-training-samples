@@ -21,6 +21,7 @@ public class AttackSystem : SystemBase
                     //We're close enough to the bee we want to attack. So turn it into a corpse.
                     ecb.RemoveComponent<BeeTag>(moveTarget.Value);
                     ecb.AddComponent<BeeCorpseTag>(moveTarget.Value);
+                    ecb.AddComponent(moveTarget.Value, Lifetime.FromTimeRemaining(5));
 
                     //Keep in mind you have to also have the targeted bee drop whatever food it's carrying. Or rather,
                     //have the food recognize it's not being picked up anymore.
