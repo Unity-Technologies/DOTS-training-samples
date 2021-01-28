@@ -24,7 +24,7 @@ public class TrackOccupancySystem : SystemBase
     public readonly uint LaneCount = 4;
     public static readonly bool ShowDebugTiles = false;
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
-    private static uint Frame = 0;
+    private CarMovementSystem m_CarMovementSystem;
 
     public DynamicBuffer<LaneOccupancy> GetReadBuffer(uint frame)
     {
@@ -66,6 +66,8 @@ public class TrackOccupancySystem : SystemBase
 
     protected override void OnCreate()
     {
+        m_CarMovementSystem = World.GetExistingSystem<CarMovementSystem>();
+
         var readEntity = EntityManager.CreateEntity(typeof(LaneOccupancy));
         DynamicBuffer<LaneOccupancy> readBuffer = EntityManager.AddBuffer<LaneOccupancy>(readEntity);
         ResetBuffer(ref readBuffer);
@@ -77,10 +79,8 @@ public class TrackOccupancySystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Frame++;
-
         // Reset the write occupancy for each lane to 0 for all tiles
-        var writeBuffer = GetWriteBuffer(Frame);
+        var writeBuffer = GetWriteBuffer(m_CarMovementSystem.Frame);
         ResetBuffer(ref writeBuffer);
 
         Entities

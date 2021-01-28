@@ -14,10 +14,12 @@ public class CarMovementSystem : SystemBase
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
     public readonly static float RoundedCorner = 0.29f;
-    private uint Frame = 0;
+    private uint _Frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
     Random Random;
+
+    public uint Frame => _Frame;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {
@@ -93,17 +95,18 @@ public class CarMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        Frame++;
+        _Frame++;
+
         float deltaTime = Time.DeltaTime;
         float trackRadius = TrackRadius;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         uint laneCount = m_TrackOccupancySystem.LaneCount;
-        uint theFrame = Frame;
+        uint theFrame = _Frame;
         var random = Random;
 
-        var readOccupancy = m_TrackOccupancySystem.GetReadBuffer(Frame);
+        var readOccupancy = m_TrackOccupancySystem.GetReadBuffer(_Frame);
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(readOccupancy)
