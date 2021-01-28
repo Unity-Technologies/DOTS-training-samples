@@ -45,6 +45,8 @@ public class FoodBuilderSystem : SystemBase
                     Value = foodBuilder.foodColor
                 });
                 ecb.AddComponent(foodEntity,new Food());
+                
+                ecb.SetComponent(entity,foodBuilder);
             }
         }).Run();
 

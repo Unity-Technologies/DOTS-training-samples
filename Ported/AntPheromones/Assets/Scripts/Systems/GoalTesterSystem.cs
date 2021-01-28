@@ -12,7 +12,7 @@ public class GoalTesterSystem : SystemBase
     protected override void OnCreate()
     {
 		RequireSingletonForUpdate<Tuning>();
-		RequireSingletonForUpdate<Map>();
+		RequireSingletonForUpdate<FoodBuilder>();
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
 
@@ -21,8 +21,8 @@ public class GoalTesterSystem : SystemBase
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
 		Tuning tuning = this.GetSingleton<Tuning>();
-		float2 foodPos = this.GetSingleton<Map>().foodLocation;
-		float foodRadius = this.GetSingleton<Map>().foodRadius;
+		float2 foodPos = this.GetSingleton<FoodBuilder>().foodLocation;
+		float foodRadius = this.GetSingleton<FoodBuilder>().foodRadius;
 
 		// test if ant has reached food
 		Entities.

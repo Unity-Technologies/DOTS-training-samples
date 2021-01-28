@@ -130,7 +130,7 @@ public class AntPathingSystem : SystemBase
 					float2 startPos = new float2(translation.Value.x, translation.Value.y);
 					float2 collisionPos;
 
-					if (MapManagementSystem.DoesPathCollideWithRing(ring,startPos,target.Target,out collisionPos))
+					if (WorldResetSystem.DoesPathCollideWithRing(ring,startPos,target.Target,out collisionPos))
 					{
 						// reset target position
 						target.Target.x = translation.Value.x;

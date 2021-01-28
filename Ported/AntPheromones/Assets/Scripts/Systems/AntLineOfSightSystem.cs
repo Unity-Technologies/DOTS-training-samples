@@ -11,7 +11,7 @@ public class AntLineOfSightSystem : SystemBase
 	private EntityCommandBufferSystem bufferSystem;
 	protected override void OnCreate()
 	{
-		RequireSingletonForUpdate<Map>();
+		RequireSingletonForUpdate<FoodBuilder>();
 		RequireSingletonForUpdate<RingElement>();
 
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -26,7 +26,7 @@ public class AntLineOfSightSystem : SystemBase
 		var ringEntity = GetSingletonEntity<RingElement>();
 		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
 
-		float2 foodPos = GetSingleton<Map>().foodLocation;
+		float2 foodPos = GetSingleton<FoodBuilder>().foodLocation;
 		float2 homePos = new float2(0, 0);
 
 		// test line of sight to food
@@ -46,7 +46,7 @@ public class AntLineOfSightSystem : SystemBase
 				{
 					RingElement ring = rings[i];
 
-					if (MapManagementSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos))
+					if (WorldResetSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos))
 					{
 						hasLOS = false;
 						break;
@@ -78,7 +78,7 @@ public class AntLineOfSightSystem : SystemBase
 				{
 					RingElement ring = rings[i];
 
-					if (MapManagementSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos))
+					if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos))
 					{
 						hasLOS = false;
 						break;
