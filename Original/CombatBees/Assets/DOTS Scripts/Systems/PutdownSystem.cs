@@ -12,22 +12,23 @@ public class PutdownSystem : SystemBase
         // Remove Bee's components.
         ///////////////////////////////
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var allPhysics = GetComponentDataFromEntity<PhysicsData>(false);
 
         Entities
             .WithName("Putdown")
             .WithoutBurst()
             .WithAll<BeeTag>()
-            .ForEach((Entity e, ref Translation selfTranslation, ref TargetPosition targetPos, in CarriedFood food) =>
+            .ForEach((Entity e, ref Translation selfTranslation, ref TargetPosition targetPos, in PhysicsData physics, in CarriedFood food) =>
             {
-                if (MathUtil.IsWithinDistance(0.1f, targetPos.Value, selfTranslation.Value))
+                if (MathUtil.IsWithinDistance(2.0f, targetPos.Value, selfTranslation.Value))
                 {
                     //Clear bee and food links to each other
-                    ecb.RemoveComponent<CarriedFood>( e);
+                    ecb.RemoveComponent<CarriedFood>(e);
                     ecb.RemoveComponent<CarrierBee>(food.Value);
                     
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
-                    ecb.RemoveComponent<MoveTarget>( e);
-                    ecb.RemoveComponent<TargetPosition>( e);
+                    ecb.RemoveComponent<MoveTarget>(e);
+                    ecb.RemoveComponent<TargetPosition>(e);
 
                     //We're checking here, since the food entity could have been destroyed by the FoodForBee system. 
                     //Had to disable burst for that reason here, though.  
@@ -35,9 +36,13 @@ public class PutdownSystem : SystemBase
                     {
                         //Mark food as intentionally dropped, so that no other bees are told to pick it up. 
                         ecb.AddComponent<IntentionallyDroppedFoodTag>(food.Value);
+                        if (allPhysics.HasComponent(food.Value))
+                        {
+                            var foodPhysics = allPhysics[food.Value];
+                            foodPhysics.v = physics.v;
+                            allPhysics[food.Value] = foodPhysics;
+                        }
                     }
-                    
-                    
                 }
             }).Run();
         
