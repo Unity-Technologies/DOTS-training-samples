@@ -6,4 +6,5 @@ public struct CarMovement : IComponentData
     public float Offset;
     public uint Lane;
     public float Velocity;
+    public float LaneSwitchCounter;
 }

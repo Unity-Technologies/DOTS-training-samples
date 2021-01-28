@@ -14,6 +14,9 @@ public class CarMovementSystem : SystemBase
     public readonly static float LaneWidth = 2;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
+    private uint frame = 0;
+
+    private TrackOccupancySystem m_TrackOccupancySystem;
 
 // todo Burst compiler complains if this is not readonly
     public readonly static float RoundedCorner = 0.2f;
@@ -84,8 +87,15 @@ public class CarMovementSystem : SystemBase
         return new float3(x,y,a);
     }
 
+    protected override void OnCreate()
+    {
+        m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
+    }
+
     protected override void OnUpdate()
     {
+        frame++;
+
         // Time is a field of SystemBase, and SystemBase is a class. This prevents
         // using it in a job, so we have to fetch ElapsedTime and store it in a local
         // variable. This local variable can then be used in the job.
@@ -95,6 +105,8 @@ public class CarMovementSystem : SystemBase
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
+        uint laneCount = m_TrackOccupancySystem.LaneCount;
+        uint theFrame = frame;
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -105,14 +117,10 @@ public class CarMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
+                movement.LaneSwitchCounter -= deltaTime;
+
                 float laneRadius = (trackRadius + (movement.Lane * laneWidth));
-
-                float angle = movement.Offset * CircleRadians;
                 float v = movement.Velocity;
-
-                float x = trackOrigin.x + math.cos(angle) * laneRadius;
-                float z = trackOrigin.z + math.sin(angle) * laneRadius;
-
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
                 translation.Value.x = transXZA.x;
@@ -128,6 +136,32 @@ public class CarMovementSystem : SystemBase
                 {
                     movement.Offset += v * deltaTime;
                     movement.Offset = movement.Offset % 1.0f;
+                }
+                else if (movement.LaneSwitchCounter <= 0)
+                {
+                    // To avoid having two cars merge into the same lane, we allow
+                    // mergers to the right at even frames and merges to the left at odd frames.
+                    int sideLane = (int) movement.Lane;
+                    bool isEven = theFrame % 2 == 0;
+                    if (isEven) 
+                    {
+                        sideLane = sideLane+1 < laneCount ? sideLane+1 : (int)movement.Lane;
+                    }
+                    else
+                    {
+                        sideLane = sideLane-1 > 0 ? sideLane-1 : (int)movement.Lane;
+                    }
+                    
+                    if (sideLane != movement.Lane)
+                    {
+                        bool nextSideIsOccupied = TrackOccupancySystem.ReadOccupancy[sideLane, nextTile];
+                        if (!nextSideIsOccupied)
+                        {
+                            movement.Lane = (uint) sideLane;
+                            movement.LaneSwitchCounter = 5;
+    // todo could move forward here too
+                        }
+                    }
                 }
 
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
