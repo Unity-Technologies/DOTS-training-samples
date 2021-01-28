@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6467557704692000409, guid: 6a6bac00098128a42a1e745e98b69131, type: 3}
+      propertyPath: homeRadius
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6731704017215675795, guid: 6a6bac00098128a42a1e745e98b69131, type: 3}
       propertyPath: m_Name
       value: HomeBuilder
@@ -522,7 +526,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6127105790295742027, guid: c8ac3fd18e6cd8047b82143bec9cfa31, type: 3}
       propertyPath: numFood
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c8ac3fd18e6cd8047b82143bec9cfa31, type: 3}
