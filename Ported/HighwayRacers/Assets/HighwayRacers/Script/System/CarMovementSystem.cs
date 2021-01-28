@@ -106,7 +106,6 @@ public class CarMovementSystem : SystemBase
         var readOccupancy = m_TrackOccupancySystem.GetReadBuffer();
 
         Entities
-            .WithNativeDisableParallelForRestriction(readOccupancy)
             .WithNativeDisableContainerSafetyRestriction(readOccupancy)
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {

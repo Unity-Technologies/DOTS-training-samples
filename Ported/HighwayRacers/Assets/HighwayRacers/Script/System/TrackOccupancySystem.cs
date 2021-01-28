@@ -83,7 +83,6 @@ public class TrackOccupancySystem : SystemBase
         var writeBuffer = GetWriteBuffer();
 
         Entities
-            .WithNativeDisableParallelForRestriction(writeBuffer)
             .WithNativeDisableContainerSafetyRestriction(writeBuffer)
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
@@ -96,7 +95,6 @@ public class TrackOccupancySystem : SystemBase
         if (ShowDebugTiles)
         {
             Entities
-                .WithNativeDisableParallelForRestriction(writeBuffer)
                 .WithNativeDisableContainerSafetyRestriction(writeBuffer)
                 .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
                 {
