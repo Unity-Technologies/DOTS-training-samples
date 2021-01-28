@@ -16,8 +16,9 @@ public class AntPathingSystem : SystemBase
 		
 		RequireSingletonForUpdate<PheromoneStrength>();
 		RequireSingletonForUpdate<Tuning>();
+		RequireSingletonForUpdate<RingElement>();
 		RequireSingletonForUpdate<GameTime>();
-		
+
 		_random = new Unity.Mathematics.Random(1234);
 	}
 
@@ -40,6 +41,7 @@ public class AntPathingSystem : SystemBase
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
+			WithReadOnly(pheromoneBuffer).
 			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
 			int xIndex, yIndex, gridIndex;
@@ -51,27 +53,21 @@ public class AntPathingSystem : SystemBase
 			float degreesLeft = heading.Degrees - headingOffset;
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
 			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
-			xIndex = (int)math.floor(((seekLeft.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekLeft.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex]/255f);
 			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
 			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
-			xIndex = (int)math.floor(((seekRight.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekRight.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
 			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
-			xIndex = (int)math.floor(((seekFwd.x / tuning.WorldSize) + tuning.WorldOffset.x));
-			yIndex = (int)math.ceil(((seekFwd.y / tuning.WorldSize) + tuning.WorldOffset.y));
-			gridIndex = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+			gridIndex = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
 			pValue = (float)(pheromoneBuffer[gridIndex] / 255f);
 			float weightFwd = tuning.MinAngleWeight + tuning.AntFwdWeighting + tuning.PheromoneWeighting * pValue;
 
@@ -101,7 +97,7 @@ public class AntPathingSystem : SystemBase
 
 			rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 
-		}).Run();
+		}).ScheduleParallel();
 
 		// has line of sight, straight path to goal
 		Entities.
@@ -114,19 +110,38 @@ public class AntPathingSystem : SystemBase
 				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
 
 				rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
-			}).Run();
+			}).ScheduleParallel();
 
-		// TODO wall collision tests - only if no line of sight
-		/*
+		var ringEntity = GetSingletonEntity<RingElement>();
+		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
+
+		// wall collision tests - only if no line of sight
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
-			ForEach((ref Translation translation, in AntTarget target) =>
+			WithReadOnly(rings).
+			ForEach((ref AntTarget target, ref AntHeading heading, in Translation translation) =>
 			{
-				translation.Value.x = target.Target.x;
-				translation.Value.y = target.Target.y;
+				// test if we're colliding with any rings
+				for (int i=0; i < rings.Length; i++)
+				{
+					RingElement ring = rings[i];
+
+					float2 startPos = new float2(translation.Value.x, translation.Value.y);
+					float2 collisionPos;
+
+					if (MapManagementSystem.DoesPathCollideWithRing(ring,startPos,target.Target,out collisionPos))
+					{
+						// reset target position
+						target.Target.x = translation.Value.x;
+						target.Target.y = translation.Value.y;
+
+						heading.Degrees += 180f;						
+
+						break;
+					}
+				}
 			}).ScheduleParallel();
-		*/
 
 		// copy target into translation.  we have already done this if we have LineOfSight because we ignore collision tests
 		Entities.
@@ -136,6 +151,6 @@ public class AntPathingSystem : SystemBase
 		{
 			translation.Value.x = target.Target.x;
 			translation.Value.y = target.Target.y;
-		}).Run();
+		}).ScheduleParallel();
 	}
 }

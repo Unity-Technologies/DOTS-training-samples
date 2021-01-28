@@ -17,6 +17,7 @@ public class AntPheromoneDropSystem : SystemBase
         RequireSingletonForUpdate<GameTime>();
     }
 
+
     protected override void OnUpdate()
     {
         _timeElapsed += GetSingleton<GameTime>().DeltaTime;;
@@ -43,15 +44,13 @@ public class AntPheromoneDropSystem : SystemBase
             .WithNativeDisableParallelForRestriction(pheromoneBuffer)
             .ForEach((Entity entity, in Translation translation) =>
             {
-                int xIndex = (int)math.floor(((translation.Value.x / tuning.WorldSize) + tuning.WorldOffset.x));
-                int yIndex = (int)math.ceil(((translation.Value.y / tuning.WorldSize) + tuning.WorldOffset.y));
-                int index = (int)math.clamp((yIndex * tuning.Resolution) + xIndex, 0, (tuning.Resolution * tuning.Resolution) - 1);
+                int gridIndex = MapCoordinateSystem.PositionToIndex( new float2(translation.Value.x, translation.Value.y), tuning);
 
                 // Set our randomly selected index value to something 
-                int pVal = pheromoneBuffer[index].Value;
+                int pVal = pheromoneBuffer[gridIndex].Value;
                 int newValue = pVal + tuning.PheromoneDropValue;
                 newValue = Math.Min(newValue, 255);
-                pheromoneBuffer[index] = (byte)newValue;
+                pheromoneBuffer[gridIndex] = (byte)newValue;
             }).ScheduleParallel();
 
     }

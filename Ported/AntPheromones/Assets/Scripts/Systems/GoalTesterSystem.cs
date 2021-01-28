@@ -12,6 +12,7 @@ public class GoalTesterSystem : SystemBase
     protected override void OnCreate()
     {
 		RequireSingletonForUpdate<Tuning>();
+		RequireSingletonForUpdate<Map>();
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
 
@@ -20,6 +21,8 @@ public class GoalTesterSystem : SystemBase
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
 		Tuning tuning = this.GetSingleton<Tuning>();
+		float2 foodPos = this.GetSingleton<Map>().foodLocation;
+		float foodRadius = this.GetSingleton<Map>().foodRadius;
 
 		// test if ant has reached food
 		Entities.
@@ -28,10 +31,10 @@ public class GoalTesterSystem : SystemBase
 			WithNone<HasFood>().
 			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
 			{
-				float dx = TempFood.FOODPOSX - translation.Value.x;
-				float dy = TempFood.FOODPOSY - translation.Value.y;
+				float2 ant2Food = new float2(foodPos.x - translation.Value.x, foodPos.y - translation.Value.y);
+				float dist = math.length(ant2Food);
 
-				if (Mathf.Abs(dx) < TempFood.GOALDIST && Mathf.Abs(dy) < TempFood.GOALDIST)
+				if (dist < foodRadius)
 				{
 					ecb.AddComponent<HasFood>(entity);
 					ecb.RemoveComponent<AntLineOfSight>(entity);

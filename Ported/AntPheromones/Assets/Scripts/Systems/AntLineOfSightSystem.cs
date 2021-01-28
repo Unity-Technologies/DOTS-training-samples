@@ -11,6 +11,9 @@ public class AntLineOfSightSystem : SystemBase
 	private EntityCommandBufferSystem bufferSystem;
 	protected override void OnCreate()
 	{
+		RequireSingletonForUpdate<Map>();
+		RequireSingletonForUpdate<RingElement>();
+
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
 	
@@ -19,20 +22,40 @@ public class AntLineOfSightSystem : SystemBase
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
 	    var ecbWriter = ecb.AsParallelWriter();
-	    
+
+		var ringEntity = GetSingletonEntity<RingElement>();
+		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
+
+		float2 foodPos = GetSingleton<Map>().foodLocation;
+		float2 homePos = new float2(0, 0);
+
 		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithNone<HasFood>().
+			WithReadOnly(rings).
 			ForEach((Entity entity, in Translation translation) =>
 			{
-				if (translation.Value.y > TempFood.FOOD_LOS_Y)
-				{
-					float dx = TempFood.FOODPOSX - translation.Value.x;
-					float dy = TempFood.FOODPOSY - translation.Value.y;
-					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
+				bool hasLOS = true;
 
+				float2 antPos = new float2(translation.Value.x, translation.Value.y);
+				float2 collisionPos;
+
+				for (int i=0; i < rings.Length;i++)
+				{
+					RingElement ring = rings[i];
+
+					if (MapManagementSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos))
+					{
+						hasLOS = false;
+						break;
+					}
+				}
+
+				if (hasLOS)
+				{
+					float degs = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x-antPos.x, foodPos.y-antPos.y);
 					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
 					ecbWriter.AddComponent<AntLineOfSight>(0,entity,antLos);
 				}
@@ -41,18 +64,32 @@ public class AntLineOfSightSystem : SystemBase
 		// test line of sight to home
 		Entities.
 			WithAll<AntPathing>().
-			WithAll<HasFood>().
 			WithNone<AntLineOfSight>().
+			WithAll<HasFood>().
+			WithReadOnly(rings).
 			ForEach((Entity entity, in Translation translation) =>
 			{
-				if (translation.Value.y < TempFood.HOME_LOS_Y)
-				{
-					float dx = 0 - translation.Value.x;
-					float dy = 0 - translation.Value.y;
-					float degs = Mathf.Rad2Deg * Mathf.Atan2(dx, dy);
+				bool hasLOS = true;
 
+				float2 antPos = new float2(translation.Value.x, translation.Value.y);
+				float2 collisionPos;
+
+				for (int i = 0; i < rings.Length; i++)
+				{
+					RingElement ring = rings[i];
+
+					if (MapManagementSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos))
+					{
+						hasLOS = false;
+						break;
+					}
+				}
+
+				if (hasLOS)
+				{
+					float degs = Mathf.Rad2Deg * Mathf.Atan2(homePos.x - antPos.x, homePos.y - antPos.y);
 					AntLineOfSight antLos = new AntLineOfSight() { DegreesToGoal = degs };
-					ecbWriter.AddComponent<AntLineOfSight>(0,entity, antLos);
+					ecbWriter.AddComponent<AntLineOfSight>(0, entity, antLos);
 				}
 			}).ScheduleParallel();
 
