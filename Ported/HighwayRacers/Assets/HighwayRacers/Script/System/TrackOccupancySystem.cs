@@ -30,15 +30,6 @@ public class TrackOccupancySystem : SystemBase
 
     protected override void OnUpdate()
     {
-// todo read the current 'Offset' and 'Lane' of each vehicle entitiy.
-// todo based on that determine the 'tiles' that the car is in and block that tile for other cars.
-// todo store this data on '4' "Lane" enitities that use a DynamicBuffer in its component?
-// todo for cars NOT switching lanes, we only have to check our lane and the 'tile' in front our current tile.
-// todo we can use last frames 'tile' information in "CarMovementSystem"
-// todo cars that are going slower than desired (blocked) want to switch lanes and need to check the lane to the right
-//      or to the left. We will alternative right and left every other frame so we don't ahve to worry about
-//      two cars merging into the same lane.
-
         // Copy the occupancy before resetting so that CarMovementSystem can read it.
         ReadOccupancy = Occupancy.Clone() as bool[,];
 
