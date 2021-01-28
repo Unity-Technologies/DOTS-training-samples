@@ -13,7 +13,7 @@ public class BeeMovementSystem : SystemBase
         Entities
             .WithName("BeeMovementToTarget")
             .WithAll<BeeTag>()
-            .ForEach((Entity e, int entityInQueryIndex, ref PhysicsData physicsData, in Translation translation, in TargetPosition t, in MoveSpeed speed) =>
+            .ForEach((Entity e, ref PhysicsData physicsData, in Translation translation, in TargetPosition t, in MoveSpeed speed) =>
             {
                 var directionVector = t.Value - translation.Value;
                 var destVector = math.normalize(directionVector);

@@ -19,7 +19,7 @@ public class PutdownSystem : SystemBase
             .WithAll<BeeTag>()
             .ForEach((Entity e, ref Translation selfTranslation, ref TargetPosition targetPos, in CarriedFood food) =>
             {
-                if (MathUtil.IsWithinDistance(0.001f, targetPos.Value, selfTranslation.Value))
+                if (MathUtil.IsWithinDistance(0.1f, targetPos.Value, selfTranslation.Value))
                 {
                     //Clear bee and food links to each other
                     ecb.RemoveComponent<CarriedFood>( e);
