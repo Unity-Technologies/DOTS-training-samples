@@ -22,23 +22,23 @@ public class TrackOccupancySystem : SystemBase
     // todo both these are readonly for now since we are not dealing with them changing in various systems
     // We would need to recompute the lane tiles, respawn cars etc.
     public readonly uint LaneCount = 4;
-    public static readonly bool ShowDebugTiles = false;
+    public static readonly bool ShowDebugTiles = true;
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
     private static uint Frame = 0;
 
-    public DynamicBuffer<LaneOccupancy> GetReadBuffer()
+    public DynamicBuffer<LaneOccupancy> GetReadBuffer(uint frame)
     {
         var occupancyEntities = GetEntityQuery(typeof(LaneOccupancy)).ToEntityArray(Allocator.Temp);
-        if (Frame % 2 == 0)
+        if (frame % 2 == 0)
             return EntityManager.GetBuffer<LaneOccupancy>(occupancyEntities[0]);
         else
             return EntityManager.GetBuffer<LaneOccupancy>(occupancyEntities[1]);
     }
 
-    public DynamicBuffer<LaneOccupancy> GetWriteBuffer()
+    public DynamicBuffer<LaneOccupancy> GetWriteBuffer(uint frame)
     {
         var occupancyEntities = GetEntityQuery(typeof(LaneOccupancy)).ToEntityArray(Allocator.Temp);
-        if (Frame % 2 == 0)
+        if (frame % 2 == 0)
             return EntityManager.GetBuffer<LaneOccupancy>(occupancyEntities[1]);
         else
             return EntityManager.GetBuffer<LaneOccupancy>(occupancyEntities[0]);
@@ -80,7 +80,7 @@ public class TrackOccupancySystem : SystemBase
         Frame++;
 
         // Reset the write occupancy for each lane to 0 for all tiles
-        var writeBuffer = GetWriteBuffer();
+        var writeBuffer = GetWriteBuffer(Frame);
         ResetBuffer(ref writeBuffer);
 
         Entities

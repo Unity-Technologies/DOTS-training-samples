@@ -103,7 +103,7 @@ public class CarMovementSystem : SystemBase
         uint theFrame = Frame;
         var random = Random;
 
-        var readOccupancy = m_TrackOccupancySystem.GetReadBuffer();
+        var readOccupancy = m_TrackOccupancySystem.GetReadBuffer(Frame);
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(readOccupancy)
