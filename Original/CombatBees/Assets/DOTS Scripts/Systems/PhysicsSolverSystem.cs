@@ -27,13 +27,42 @@ public class PhysicsSolverSystem : SystemBase
                 d.a = 0;
                 t.Value += d.v * dt;
 
+                if (t.Value.x > zones.LevelBounds.Max.x)
+                {
+                    t.Value.x = zones.LevelBounds.Max.x;
+                    d.v = d.kineticEnergyPreserved * d.v;
+                    d.v.x = -d.v.x;
+                }
+                if (t.Value.x < zones.LevelBounds.Min.x)
+                {
+                    t.Value.x = zones.LevelBounds.Min.x;
+                    d.v = d.kineticEnergyPreserved * d.v;
+                    d.v.x = -d.v.x;
+                }
+                if (t.Value.y > zones.LevelBounds.Max.y)
+                {
+                    t.Value.y = zones.LevelBounds.Max.y;
+                    d.v = d.kineticEnergyPreserved * d.v;
+                    d.v.y = -d.v.y;
+                }
                 if (t.Value.y < zones.LevelBounds.Min.y)
                 {
                     t.Value.y = zones.LevelBounds.Min.y;
                     d.v = d.kineticEnergyPreserved * d.v;
                     d.v.y = -d.v.y;
                 }
-
+                if (t.Value.z > zones.LevelBounds.Max.z)
+                {
+                    t.Value.z = zones.LevelBounds.Max.z;
+                    d.v = d.kineticEnergyPreserved * d.v;
+                    d.v.z = -d.v.z;
+                }
+                if (t.Value.z < zones.LevelBounds.Min.z)
+                {
+                    t.Value.z = zones.LevelBounds.Min.z;
+                    d.v = d.kineticEnergyPreserved * d.v;
+                    d.v.z = -d.v.z;
+                }
             }).ScheduleParallel();
     }
 }
