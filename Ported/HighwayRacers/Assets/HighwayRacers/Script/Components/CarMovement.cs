@@ -5,6 +5,7 @@ public struct CarMovement : IComponentData
     // Car offset is in 0-1 space where 0.5 means half-way down the track
     public float Offset;
     public uint Lane;
+    public float LaneOffset;
     public float Velocity;
     public float LaneSwitchCounter;
     public DriverProfile Profile;
