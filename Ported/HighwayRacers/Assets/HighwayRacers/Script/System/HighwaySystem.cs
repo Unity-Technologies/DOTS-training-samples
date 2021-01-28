@@ -82,16 +82,16 @@ public class HighwaySystem : SystemBase
         // Delete the pre-existing track
         EntityManager.DestroyEntity(ToBeDeleted);
 
-        // layout the straight segments as 4 lines of instances
+        int SegmentCount = Mathf.CeilToInt(_rect.Perimeter / _straightPieceLength) * 4;
+        
         Entities
             .WithoutBurst()
             .ForEach((Entity entity, in HighwayPrefabs hw) =>
             {
-               
-                int Deleteme = Mathf.RoundToInt(512);
-                for (int i = 0; i < Deleteme; i++)
+                
+                for (int i = 0; i < SegmentCount; i++)
                 {
-                    float d = i / 512.0f;
+                    float d = i / (SegmentCount * 1f);
                     var seg = ecb.Instantiate(hw.StraightPiecePrefab);
 
                     float3 pos = new float3();

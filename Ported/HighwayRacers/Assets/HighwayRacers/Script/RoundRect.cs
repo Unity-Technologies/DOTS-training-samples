@@ -126,8 +126,13 @@ public class RoundRect
         
         pos.x = x;
         pos.z = y;
-        pos.y = 0;
+        pos.y = math.frac(coord); // to prevent zfighting
         yaw = a;
     }
 
+    public void InterpolateRealDist(in float realDistance, out float3 pos, out float yaw)
+    {
+        float normalized = math.frac(realDistance / _perimeter);
+        Interpolate(normalized, out pos, out yaw);
+    }
 }
