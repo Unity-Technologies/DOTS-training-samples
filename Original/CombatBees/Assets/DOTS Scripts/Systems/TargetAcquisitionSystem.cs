@@ -13,7 +13,6 @@ public class TargetAcquisitionSystem : SystemBase
     EntityQuery m_AvailableFoodQuery;
     EntityQuery m_Team1BeesQuery;
     EntityQuery m_Team2BeesQuery;
-    Random m_Random;
 
     protected override void OnCreate()
     {
@@ -33,7 +32,6 @@ public class TargetAcquisitionSystem : SystemBase
         m_AvailableFoodQuery = GetEntityQuery(availableFoodQueryDescription);
         m_Team1BeesQuery = GetEntityQuery(typeof(BeeTag), typeof(Team1));
         m_Team2BeesQuery = GetEntityQuery(typeof(BeeTag), typeof(Team2));
-        m_Random = new Random(1234);
     }
 
     protected override void OnUpdate()
@@ -44,15 +42,15 @@ public class TargetAcquisitionSystem : SystemBase
         var team2Bees = m_Team2BeesQuery.ToEntityArray(Allocator.Temp);
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var random = m_Random;
         if (availableFood.Length > 0 || team2Bees.Length > 0)
         {
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
+                .WithNone<FetchingFodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team1>()
-                .ForEach((Entity e) =>
+                .ForEach((Entity e, ref RandomComponent random) =>
                 {
-                    AcquireTarget(e, ecb, random, availableFood, team2Bees);
+                    AcquireTarget(e, ecb, ref random.Value, availableFood, team2Bees);
                 }).Run();
         }
         
@@ -60,21 +58,23 @@ public class TargetAcquisitionSystem : SystemBase
         {
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
+                .WithNone<FetchingFodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team2>()
-                .ForEach((Entity e) =>
+                .ForEach((Entity e, ref RandomComponent random) =>
                 {
-                    AcquireTarget(e, ecb, random, availableFood, team1Bees);
+                    AcquireTarget(e, ecb, ref random.Value, availableFood, team1Bees);
                 }).Run();
         }
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
         team1Bees.Dispose();
         team2Bees.Dispose();
         availableFood.Dispose();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
-    static void AcquireTarget(Entity bee, EntityCommandBuffer ecb, Random random, NativeArray<Entity> availableFood, NativeArray<Entity> targetBees)
+    static void AcquireTarget(Entity bee, EntityCommandBuffer ecb, ref Random random, NativeArray<Entity> availableFood, NativeArray<Entity> targetBees)
     {
         var targetIndex = random.NextInt(availableFood.Length + targetBees.Length);
         Entity target;
