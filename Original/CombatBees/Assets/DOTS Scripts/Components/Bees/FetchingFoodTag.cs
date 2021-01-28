@@ -3,6 +3,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public struct FetchingFodTag : IComponentData
+public struct FetchingFoodTag : IComponentData
 {
 }

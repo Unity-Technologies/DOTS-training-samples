@@ -46,7 +46,7 @@ public class TargetAcquisitionSystem : SystemBase
         {
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
-                .WithNone<FetchingFodTag, AttackingBeeTag>()
+                .WithNone<FetchingFoodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team1>()
                 .ForEach((Entity e, ref RandomComponent random) =>
                 {
@@ -58,7 +58,7 @@ public class TargetAcquisitionSystem : SystemBase
         {
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
-                .WithNone<FetchingFodTag, AttackingBeeTag>()
+                .WithNone<FetchingFoodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team2>()
                 .ForEach((Entity e, ref RandomComponent random) =>
                 {
@@ -81,7 +81,7 @@ public class TargetAcquisitionSystem : SystemBase
         if (targetIndex < availableFood.Length)
         {
             target = availableFood[targetIndex];
-            ecb.AddComponent<FetchingFodTag>(bee);
+            ecb.AddComponent<FetchingFoodTag>(bee);
         }
         else
         {

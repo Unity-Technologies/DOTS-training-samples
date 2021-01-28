@@ -24,7 +24,7 @@ public class PickupSystem : SystemBase
         // into a proper IJob by IL post processing.
         Entities
             .WithName("Pickup")
-            .WithAll<BeeTag, FetchingFodTag>()
+            .WithAll<BeeTag, FetchingFoodTag>()
             .WithNone<CarriedFood>()
             .ForEach((Entity e, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
@@ -34,7 +34,7 @@ public class PickupSystem : SystemBase
                     ecb.AddComponent( moveTarget.Value, new CarrierBee() {Value = e});
 
                     ecb.RemoveComponent<MoveTarget>( e);
-                    ecb.RemoveComponent<FetchingFodTag>( e);
+                    ecb.RemoveComponent<FetchingFoodTag>( e);
                     AABB zone;
                     if (HasComponent<Team1>(e))
                     {
