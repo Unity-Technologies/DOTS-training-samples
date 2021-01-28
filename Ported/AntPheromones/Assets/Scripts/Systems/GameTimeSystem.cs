@@ -21,6 +21,7 @@ public class GameTimeSystem : SystemBase
                 if (Input.GetKeyDown(KeyCode.Alpha9)) { gameTime.CurrentStep = 10000; }
                 
                 gameTime.DeltaTime =  deltaTime * gameTime.CurrentStep;
+                Shader.SetGlobalFloat("_OffsetSpeedMultiplier", gameTime.CurrentStep);
             }).Run();
     }
 }
