@@ -30,7 +30,7 @@ public class SpawnFromFoodSystem : SystemBase
             {
                 if (t.Value.y <= zones.LevelBounds.Min.y)
                 {
-                    const float speed = 2500;
+                    const float speed = 5000;
                     if (zones.Team1Zone.Contains(t.Value))
                     {
                         for (int i = 0; i < zones.BeesPerFood; ++i)
@@ -41,8 +41,7 @@ public class SpawnFromFoodSystem : SystemBase
                                 Value = t.Value,
                             });
                             var newPhysics = physicsData;
-                            newPhysics.a = UnityEngine.Random.insideUnitSphere + Vector3.up;
-                            newPhysics.a *= speed;
+                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
                             ecb.SetComponent(newBee, newPhysics);
                             ecb.AddComponent<Team1>(newBee);
                             ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
