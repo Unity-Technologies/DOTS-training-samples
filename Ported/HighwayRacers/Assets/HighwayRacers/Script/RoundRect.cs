@@ -13,6 +13,8 @@ using Random = Unity.Mathematics.Random;
 
 public class RoundRect
 {
+    private static RoundRect _Singleton;
+    
     private float _perimeter;
     private float _straight;
     private float _curved;
@@ -50,6 +52,7 @@ public class RoundRect
     {
         Size = size;
         Radius = radius;
+        _Singleton = this;
     }
 
     private void UpdatePerimeter()
@@ -135,4 +138,17 @@ public class RoundRect
         float normalized = math.frac(realDistance / _perimeter);
         Interpolate(normalized, out pos, out yaw);
     }
+
+    public static void InterpolateRoundRect(in float coord, out float3 pos, out float yaw)
+    {
+        if (_Singleton == null)
+        {
+            _Singleton = new RoundRect(64, 16);
+        }
+
+        _Singleton.Interpolate(in coord, out pos,out yaw);
+    }
+    
+
+    
 }

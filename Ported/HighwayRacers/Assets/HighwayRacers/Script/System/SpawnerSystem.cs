@@ -9,8 +9,8 @@ public class SpawnerSystem : SystemBase
 {
 
   static float3 MapToRoundedCorners(float t, float radius)
-    {
-        float R = CarMovementSystem.RoundedCorner;
+  {
+      float R = 0.29f;
         float straight = 1.0f - 2.0f * R;
         float curved = (2.0f * math.PI * R) * 0.25f;
         float total = straight + curved;
@@ -97,44 +97,44 @@ public class SpawnerSystem : SystemBase
         float minimumVelocity = MinimumVelocity;
 
 //tile debugging
-if (false)
-{
-        Entities
-            .ForEach((Entity entity, in Spawner spawner) =>
-            {
-                for (uint j = 0; j < laneCount; ++j)
-                {
-                    for (uint i = 0; i < tilesPerLane; ++i)
-                    {
-                        var tile = ecb.Instantiate(spawner.TilePrefab);
-
-                        float laneRadius = (CarMovementSystem.TrackRadius + (j * CarMovementSystem.LaneWidth));
-
-                        float t = (float)i/(float)tilesPerLane;
-                        float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
-
-                        spawnPosition.x += (CarMovementSystem.TrackRadius)/2.0f + 2.75f;
-                        spawnPosition.y += (CarMovementSystem.TrackRadius)/4.0f - 6.0f;
-
-
-                        var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
-                        ecb.SetComponent(tile, translation);
-
-                        ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
-                        {
-                            Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
-                        });
-
-                        ecb.SetComponent(tile, new TileDebugColor
-                        {
-                            laneId = j,
-                            tileId = i
-                        });
-
-                    }
-                }
-            }).Run();
-}
+// if (false)
+// {
+//         Entities
+//             .ForEach((Entity entity, in Spawner spawner) =>
+//             {
+//                 for (uint j = 0; j < laneCount; ++j)
+//                 {
+//                     for (uint i = 0; i < tilesPerLane; ++i)
+//                     {
+//                         var tile = ecb.Instantiate(spawner.TilePrefab);
+//
+//                         float laneRadius = (CarMovementSystem.TrackRadius + (j * CarMovementSystem.LaneWidth));
+//
+//                         float t = (float)i/(float)tilesPerLane;
+//                         float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
+//
+//                         spawnPosition.x += (CarMovementSystem.TrackRadius)/2.0f + 2.75f;
+//                         spawnPosition.y += (CarMovementSystem.TrackRadius)/4.0f - 6.0f;
+//
+//
+//                         var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
+//                         ecb.SetComponent(tile, translation);
+//
+//                         ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
+//                         {
+//                             Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
+//                         });
+//
+//                         ecb.SetComponent(tile, new TileDebugColor
+//                         {
+//                             laneId = j,
+//                             tileId = i
+//                         });
+//
+//                     }
+//                 }
+//             }).Run();
+// }
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>

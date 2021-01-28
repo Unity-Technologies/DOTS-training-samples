@@ -43,7 +43,7 @@ public class UIValues : MonoBehaviour
         return  new TrackSettings
         {
             TrackSize = TrackSizeSlider.value,
-            CornerRadius = Mathf.Min(CornerRadiusSlider.value, TrackSizeSlider.value / 5f),
+            CornerRadius = Mathf.Min(CornerRadiusSlider.value, TrackSizeSlider.value / 4f),
             CarCount = Mathf.RoundToInt(CarCountSlider.value),
             DriverRatio = DriverTypeSlider.value,
             Iteration = Iteration
