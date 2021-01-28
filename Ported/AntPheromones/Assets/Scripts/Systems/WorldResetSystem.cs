@@ -129,7 +129,7 @@ public class WorldResetSystem : SystemBase
         else if (!sinside && einside)
         {
             at = ClosestIntersection(0, 0, math.length(ring.offsets) + ring.halfThickness, start, end);
-            return IsWithinOpening(ring, at);
+            return !IsWithinOpening(ring, at);
         }
 
         at = default(float2);
