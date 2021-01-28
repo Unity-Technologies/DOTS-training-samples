@@ -95,8 +95,9 @@ public class SpawnerSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         float minimumVelocity = MinimumVelocity;
-// tile debugging
-//if (false)
+
+//tile debugging
+if (false)
 {
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
