@@ -141,6 +141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _randomizePheromones: 0
   _allowPheromoneDynamicBuffer: 1
+  _groundMesh: {fileID: 393111730273535294}
   _groundMat: {fileID: 2100000, guid: fe22ef51d23143343855e6b6c3127419, type: 2}
   _defaultOverlayTexture: {fileID: 2800000, guid: d46ce70956f55c140be8a8da5e322b2c, type: 3}
 --- !u!1 &2895873556881739482

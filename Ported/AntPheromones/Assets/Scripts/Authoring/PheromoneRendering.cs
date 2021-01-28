@@ -9,13 +9,14 @@ public class PheromoneRendering : MonoBehaviour
     [SerializeField] private bool _allowPheromoneDynamicBuffer = false;
 
     [Header("Map Properties")]
+    [SerializeField] private MeshRenderer _groundMesh = null;
     [SerializeField] private Material _groundMat = null;
-    [SerializeField] private Texture2D _defaultOverlayTexture = null;
     [SerializeField] public static int _resolution = 128;
     [SerializeField] public static float _worldSize = 128;
     [SerializeField] public static float2 _worldOffset = 128;
 
     // Private Variables
+    Material _pheromoneMaterial = null;
     Texture2D _pheromoneTexture = null;
     byte[] _pheromoneArray = null;
 
@@ -80,6 +81,12 @@ public class PheromoneRendering : MonoBehaviour
     // Initialize the texture
     public void CheckTextureInit()
     {
+        if(_pheromoneMaterial == null)
+        {
+            _pheromoneMaterial = new Material(_groundMat);
+            _groundMesh.material = _pheromoneMaterial;
+        }
+
         if(_pheromoneTexture != null && _pheromoneTexture.width != _resolution)
         {
             Texture2D.Destroy(_pheromoneTexture);
@@ -91,13 +98,11 @@ public class PheromoneRendering : MonoBehaviour
             _pheromoneTexture = new Texture2D(_resolution, _resolution, TextureFormat.R8, mipChain: false, linear: true);
         }
 
-        _groundMat.SetTexture("_TEX_Overlay", _pheromoneTexture);
+        _pheromoneMaterial.SetTexture("_TEX_Overlay", _pheromoneTexture);
     }
 
     public void OnDestroy()
     {
-        _groundMat.SetTexture("_TEX_Overlay", _defaultOverlayTexture);
-
         Shader.SetGlobalFloat("_OffsetSpeedMultiplier", 1f);
     }
 }
