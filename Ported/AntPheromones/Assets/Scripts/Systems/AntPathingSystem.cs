@@ -108,9 +108,10 @@ public class AntPathingSystem : SystemBase
 		// has line of sight, straight path to goal
 		Entities.
 			WithAll<AntLineOfSight>().
-			ForEach((ref Translation translation, ref Rotation rotation, in AntLineOfSight antLos) =>
+			WithAll<AntHeading>().
+			ForEach((ref Translation translation, ref Rotation rotation, in AntHeading antHeading) =>
 			{
-				float rads = Mathf.Deg2Rad * antLos.DegreesToGoal;
+				float rads = Mathf.Deg2Rad * antHeading.Degrees;
 
 				translation.Value.x = translation.Value.x + speed * Mathf.Sin(rads);
 				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
@@ -156,7 +157,6 @@ public class AntPathingSystem : SystemBase
 				}
 				else
 				{
-
 					// test if we're colliding with any rings
 					for (int i = 0; i < rings.Length; i++)
 					{
