@@ -16,10 +16,17 @@ public class TrackOccupancySystem : SystemBase
     // We would need to recompute the lane tiles, respawn cars etc.
     public readonly float TrackSize = 20;
     public readonly uint LaneCount = 4;
-// todo the '256' needs to be the number of tiles we want to subdivide each lane (length of car + circumference of lane?)
+
+// todo should be based on length of car + circumference of lane + total cars
     public static readonly uint TilesPerLane = 256;
+
     public static bool[,] Occupancy = new bool[4,TilesPerLane];
     public static bool[,] ReadOccupancy = new bool[4,TilesPerLane]; 
+
+    static public int GetMyTile(float carOffset)
+    {
+        return (int)((carOffset * TilesPerLane) + 0.5f) % (int)TilesPerLane;
+    }
 
     protected override void OnUpdate()
     {
@@ -50,7 +57,7 @@ public class TrackOccupancySystem : SystemBase
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
                 int myLane = (int)movement.Lane;
-                int myTile = (int)((movement.Offset * tilesPerLane) + 0.5f) % (int)tilesPerLane;
+                int myTile = GetMyTile(movement.Offset);
                 Occupancy[myLane, myTile] = true;
             })
                 .ScheduleParallel();

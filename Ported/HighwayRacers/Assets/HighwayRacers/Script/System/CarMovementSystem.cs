@@ -107,10 +107,10 @@ public class CarMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
-// todo access array directly, because we don't know how to do this in DOTS
-                // Look one tile ahead, if it is occupied, stop moving
-// todo myTile calc must match with what is in TrackOccupanySystem
-                int myTile = (int)((movement.Offset * tilesPerLane) + 0.5f) % (int)tilesPerLane;
+// todo DOTS? access array directly, because we don't know how to do this in DOTS
+
+                // Get occupancy of nearby tiles
+                int myTile = TrackOccupancySystem.GetMyTile(movement.Offset);
                 int nextTile = (int) ((myTile+1) % tilesPerLane);
                 int prevTile = (int) (math.max(myTile-1, 0) % tilesPerLane);
                 bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
