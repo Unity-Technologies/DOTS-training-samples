@@ -16,6 +16,6 @@ public class TargetingTrackingSystem : SystemBase
             .ForEach((ref TargetPosition targetPos, in MoveTarget t) =>
             {
                 targetPos.Value = GetComponent<Translation>(t.Value).Value;
-            }).Run();
+            }).ScheduleParallel();
     }
 }
