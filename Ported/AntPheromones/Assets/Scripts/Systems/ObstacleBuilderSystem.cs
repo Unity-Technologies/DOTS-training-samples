@@ -41,19 +41,19 @@ public class ObstacleBuilderSystem : SystemBase
                     case 1:
                         {
                             float endAngle = startingAngle + openingRadians;
-                            endAngle = (endAngle) % (math.PI * 2.0F);
+                            endAngle = endAngle % (math.PI * 2.0F);
                             ring.opening0.angles = new float2(startingAngle, endAngle);
                         }
                         break;
                     case 2:
                         {
                             float endAngle = startingAngle + openingRadians;
-                            endAngle = (endAngle) % (math.PI * 2.0F);
-                            ring.opening0.angles = new float2(startingAngle, startingAngle + openingRadians);
+                            endAngle = endAngle % (math.PI * 2.0F);
+                            ring.opening0.angles = new float2(startingAngle, endAngle);
                             startingAngle = (startingAngle + math.PI) % (math.PI * 2.0F);
                             endAngle = startingAngle + openingRadians;
-                            endAngle = (endAngle) % (math.PI * 2.0F);
-                            ring.opening1.angles = new float2(startingAngle, startingAngle + openingRadians);
+                            endAngle = endAngle % (math.PI * 2.0F);
+                            ring.opening1.angles = new float2(startingAngle, endAngle);
                         }
                         break;
                 }
@@ -64,14 +64,20 @@ public class ObstacleBuilderSystem : SystemBase
 
                 for (int i = 0; i < count; ++i)
                 {
-                    float yaw = math.saturate(((float)i + 1.0F) / (float)count) * math.PI * 2.0F;
+                    float t = (float)i / (float)count;
+                    float cir = math.PI * 2.0F;
+                    float yOffset = math.PI / 2.0F;
+                    float yaw = ((t * cir) + yOffset) % cir;
+
+                    float2 xy = new float2(math.cos(yaw), math.sin(yaw));
 
                     bool spawn = true;
                     switch (ring.numberOfOpenings)
                     {
                         case 1:
                             {
-                                spawn = !WorldResetSystem.IsBetween(ring.opening0.angles, yaw);
+                                float rot = WorldResetSystem.GetAngleFromorigin(xy);
+                                spawn = !WorldResetSystem.IsBetween(ring.opening0.angles, rot);
                             }
                             break;
                         case 2:
@@ -86,9 +92,7 @@ public class ObstacleBuilderSystem : SystemBase
                     if (spawn)
                     {
                         Entity obstacle = ecb.Instantiate(obstacleBuilder.obstaclePrefab);
-                        float x = math.cos(yaw);
-                        float y = math.sin(yaw);
-                        Translation translation = new Translation { Value = new float3(math.cos(yaw) * ring.offsets.x, math.sin(yaw) * ring.offsets.y, 0) };
+                        Translation translation = new Translation { Value = new float3(xy.x * ring.offsets.x, xy.y * ring.offsets.y, 0) };
 
                         ecb.SetComponent<Translation>(obstacle, translation);
                         ecb.AddComponent<Obstacle>(obstacle, new Obstacle());
@@ -96,8 +100,6 @@ public class ObstacleBuilderSystem : SystemBase
                     }
                 }
             }
-
-            //ecb.SetComponent(entity, obstacleBuilder);
         }).Run();
 
         ecb.Playback(EntityManager);

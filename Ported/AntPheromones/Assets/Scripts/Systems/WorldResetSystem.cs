@@ -64,9 +64,20 @@ public class WorldResetSystem : SystemBase
         }
     }
 
+    public static float GetAngleFromorigin(float2 point)
+    {
+        point = math.normalize(point);
+
+        float dot = math.dot(point, new float2(1, 0));
+        float acos = math.acos(dot);
+
+        float rot = 0 < math.dot(point, new float2(0, 1)) ? acos : (math.PI * 2.0F) - acos;
+
+        return rot;
+    }
+
     public static bool IsPointInsideRing(RingElement ring, float2 point)
     {
-        //if (ring.offsets.x - ring.halfThickness > math.abs(point.x) && ring.offsets.y - ring.halfThickness > math.abs(point.y))
         if (ring.offsets.x-ring.halfThickness >= math.length(point))
         {
             return true;
@@ -94,10 +105,8 @@ public class WorldResetSystem : SystemBase
 
     public static bool IsWithinOpening(RingElement ring, float2 point)
     {
-        float2 P = math.normalize(point);
-        float dot = math.dot(P, new float2(0, 1));
+        float yaw = GetAngleFromorigin(point);
 
-        float yaw = 0 > point.x ? math.acos(dot) * -math.PI : math.acos(dot) * math.PI;
         switch (ring.numberOfOpenings)
         {
             case 1:
@@ -126,13 +135,13 @@ public class WorldResetSystem : SystemBase
 
         if (sinside && !einside)
         {
-            at = ClosestIntersection(0, 0, math.length(ring.offsets) - ring.halfThickness, start, end);
+            at = ClosestIntersection(0, 0, ring.offsets.x - ring.halfThickness, start, end);
             outwards = true;
             return !IsWithinOpening(ring, at);
         }
         else if (!sinside && einside)
         {
-            at = ClosestIntersection(0, 0, math.length(ring.offsets) + ring.halfThickness, start, end);
+            at = ClosestIntersection(0, 0, ring.offsets.x + ring.halfThickness, start, end);
             outwards = false;
             return !IsWithinOpening(ring, at);
         }
