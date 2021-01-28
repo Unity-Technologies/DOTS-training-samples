@@ -6,27 +6,28 @@ public class TargetingValidationSystem : SystemBase
 {    
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);//.CreateCommandBuffer();//.AsParallelWriter();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var pEcb = ecb.AsParallelWriter();
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
         Entities
             .WithName("TargetValidation")
             .WithAll<MoveTarget>()
-            .ForEach((Entity e, ref MoveTarget targetFood) => 
+            .ForEach((Entity e, int entityInQueryIndex, ref MoveTarget targetFood) => 
             {
                 Entity targetEntity = targetFood.Value;
                 
                 if(!HasComponent<FoodTag>(targetEntity) || // if previously destroyed
                     HasComponent<CarrierBee>(targetEntity)) // if carried by another bee
                 {
-                    ecb.RemoveComponent<MoveTarget>( e);
-                    ecb.RemoveComponent<TargetPosition>( e);
-                    ecb.RemoveComponent<CarriedFood>( e);
+                    pEcb.RemoveComponent<MoveTarget>(entityInQueryIndex, e);
+                    pEcb.RemoveComponent<TargetPosition>(entityInQueryIndex, e);
+                    pEcb.RemoveComponent<CarriedFood>(entityInQueryIndex, e);
                     
-                    ecb.RemoveComponent<FetchingFoodTag>( e);
-                    ecb.RemoveComponent<AttackingBeeTag>( e);
+                    pEcb.RemoveComponent<FetchingFoodTag>(entityInQueryIndex, e);
+                    pEcb.RemoveComponent<AttackingBeeTag>(entityInQueryIndex, e);
                 }
-            }).Run();
+            }).ScheduleParallel();
         
         Dependency.Complete();
         ecb.Playback(EntityManager);
