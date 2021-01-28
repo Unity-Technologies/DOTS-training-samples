@@ -15,15 +15,19 @@ public class HomeBuilderSystem : SystemBase
             .WithNone<Initialized>()
             .ForEach((Entity entity, HomeBuilder homeBuilder) =>
             {
-                Entity home = ecb.Instantiate(homeBuilder.homePrefab);
+                Entity homeEntity = ecb.Instantiate(homeBuilder.homePrefab);
                 Translation homeTranslation = new Translation { Value = new float3() };
                 
-                ecb.SetComponent(home, homeTranslation);
-                ecb.AddComponent(home, new URPMaterialPropertyBaseColor
+                ecb.SetComponent(homeEntity, homeTranslation);
+                ecb.AddComponent(homeEntity, new URPMaterialPropertyBaseColor
                 {
                     Value = homeBuilder.homeColor
                 });
+                ecb.AddComponent<Home>(homeEntity);
+                
+                ecb.AddComponent(entity,new Initialized());
             }).Run();
         
+        ecb.Playback(EntityManager);
     }
 }
