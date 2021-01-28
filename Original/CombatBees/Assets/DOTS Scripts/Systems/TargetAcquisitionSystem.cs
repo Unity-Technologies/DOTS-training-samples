@@ -1,7 +1,9 @@
 ﻿using Packages.Rider.Editor.UnitTesting;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class TargetAcquisitionSystem : SystemBase
     EntityQuery m_AvailableFoodQuery;
     EntityQuery m_Team1BeesQuery;
     EntityQuery m_Team2BeesQuery;
+    private EntityCommandBufferSystem ecbs;
 
     protected override void OnCreate()
     {
@@ -32,49 +35,56 @@ public class TargetAcquisitionSystem : SystemBase
         m_AvailableFoodQuery = GetEntityQuery(availableFoodQueryDescription);
         m_Team1BeesQuery = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Team1>());
         m_Team2BeesQuery = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Team2>());
+        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         // Let's get all resources that are not currently carried
-        var availableFood = m_AvailableFoodQuery.ToEntityArray(Allocator.Temp);
-        var team1Bees = m_Team1BeesQuery.ToEntityArray(Allocator.Temp);
-        var team2Bees = m_Team2BeesQuery.ToEntityArray(Allocator.Temp);
-        
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var availableFood = m_AvailableFoodQuery.ToEntityArray(Allocator.TempJob);
+        var team1Bees = m_Team1BeesQuery.ToEntityArray(Allocator.TempJob);
+        var team2Bees = m_Team2BeesQuery.ToEntityArray(Allocator.TempJob);
+
         if (availableFood.Length > 0 || team2Bees.Length > 0)
         {
+            var pecb = ecbs.CreateCommandBuffer().AsParallelWriter();
+
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
                 .WithNone<FetchingFoodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team1>()
-                .ForEach((Entity e, ref RandomComponent random) =>
+                .WithReadOnly(availableFood)
+                .WithReadOnly(team2Bees)
+                .ForEach((Entity e, int entityInQueryIndex, ref RandomComponent random) =>
                 {
-                    AcquireTarget(e, ecb, ref random.Value, availableFood, team2Bees);
-                }).Run();
+                    AcquireTarget(e, entityInQueryIndex, pecb, ref random.Value, availableFood, team2Bees);
+                }).ScheduleParallel();
         }
-        
+
         if (availableFood.Length > 0 || team1Bees.Length > 0)
         {
+            var pecb = ecbs.CreateCommandBuffer().AsParallelWriter();
+
             Entities
                 .WithNone<CarriedFood, MoveTarget, TargetPosition>()
                 .WithNone<FetchingFoodTag, AttackingBeeTag>()
                 .WithAll<BeeTag, Team2>()
-                .ForEach((Entity e, ref RandomComponent random) =>
+                .WithReadOnly(availableFood)
+                .WithReadOnly(team1Bees)
+                .ForEach((Entity e, int entityInQueryIndex, ref RandomComponent random) =>
                 {
-                    AcquireTarget(e, ecb, ref random.Value, availableFood, team1Bees);
-                }).Run();
+                    AcquireTarget(e, entityInQueryIndex, pecb, ref random.Value, availableFood, team1Bees);
+                }).ScheduleParallel();
         }
 
-        team1Bees.Dispose();
-        team2Bees.Dispose();
-        availableFood.Dispose();
-        
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        team1Bees.Dispose(Dependency);
+        team2Bees.Dispose(Dependency);
+        availableFood.Dispose(Dependency);
+
+        ecbs.AddJobHandleForProducer(Dependency);
     }
 
-    static void AcquireTarget(Entity bee, EntityCommandBuffer ecb, ref Random random, NativeArray<Entity> availableFood, NativeArray<Entity> targetBees)
+    static void AcquireTarget(Entity bee, int entityInQueryIndex, EntityCommandBuffer.ParallelWriter ecb, ref Random random, NativeArray<Entity> availableFood, NativeArray<Entity> targetBees)
     {
         var targetIndex = random.NextInt(availableFood.Length + targetBees.Length);
         Entity target;
@@ -90,9 +100,9 @@ public class TargetAcquisitionSystem : SystemBase
             target = targetBees[targetIndex - availableFood.Length];
         }
         
-        ecb.AddComponent(bee, types);
+        ecb.AddComponent(entityInQueryIndex, bee, types);
 
-        ecb.SetComponent(bee, new MoveTarget
+        ecb.SetComponent(entityInQueryIndex, bee, new MoveTarget
         {
             Value = target,
         });
