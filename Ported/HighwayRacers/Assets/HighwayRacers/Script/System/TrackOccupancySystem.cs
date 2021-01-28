@@ -7,11 +7,6 @@ using Unity.Jobs;
 using UnityEngine;
 using Unity.Rendering;
 
-public struct LaneOccupancy : IBufferElementData
-{
-    public bool Occupied;
-}
-
 // Update the track-tile occupancy after CarMovementSystem so that we have the latest car offsets.
 // CarMovementSystem will use last frame's tile knowledge to avoid collisions.
 [UpdateAfter(typeof(CarMovementSystem))]
@@ -23,18 +18,8 @@ public class TrackOccupancySystem : SystemBase
     public readonly uint LaneCount = 4;
 // todo the '64' needs to be the number of tiles we want to subdivide each lane (length of car + circumference of lane?)
     public static readonly uint TilesPerLane = 64;
-    public static bool[,] Occupancy = new bool[4,TilesPerLane]; 
-
-    protected override void OnCreate()
-    {
-        for (uint i=0; i<LaneCount; i++)
-        {
-            var entity = EntityManager.CreateEntity(typeof(LaneOccupancy));
-            EntityManager.SetName(entity, "Lane" + i);
-            DynamicBuffer<LaneOccupancy> buffer = EntityManager.AddBuffer<LaneOccupancy>(entity);
-            //ResetBuffer(ref buffer);
-        }
-    }
+    public static bool[,] Occupancy = new bool[4,TilesPerLane];
+    public static bool[,] ReadOccupancy = new bool[4,TilesPerLane]; 
 
     protected override void OnUpdate()
     {
@@ -46,6 +31,9 @@ public class TrackOccupancySystem : SystemBase
 // todo cars that are going slower than desired (blocked) want to switch lanes and need to check the lane to the right
 //      or to the left. We will alternative right and left every other frame so we don't ahve to worry about
 //      two cars merging into the same lane.
+
+        // Copy the occupancy before resetting so that CarMovementSystem can read it.
+        ReadOccupancy = Occupancy.Clone() as bool[,];
 
         // Reset the occupancy for each lane to 0 for all tiles
         for(int i = 0; i < LaneCount; ++i)
@@ -61,9 +49,8 @@ public class TrackOccupancySystem : SystemBase
         Entities
             .ForEach((Entity vehicle, ref CarMovement movement) =>
             {
-                float trackPos = movement.Offset;
                 int myLane = (int)movement.Lane;
-                int myTile = (int) (trackPos * tilesPerLane);
+                int myTile = (int) (movement.Offset * tilesPerLane);
                 Occupancy[myLane, myTile] = true;
             })
                 .ScheduleParallel();

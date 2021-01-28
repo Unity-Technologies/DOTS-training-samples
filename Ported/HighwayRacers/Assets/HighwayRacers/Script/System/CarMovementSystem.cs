@@ -94,6 +94,7 @@ public class CarMovementSystem : SystemBase
         float trackRadius = TrackRadius;
         float3 trackOrigin = TrackOrigin;
         float laneWidth = LaneWidth;
+        uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -118,8 +119,16 @@ public class CarMovementSystem : SystemBase
                 translation.Value.y = trackOrigin.y;
                 translation.Value.z = transXZA.y;
 
-                movement.Offset += v * deltaTime;
-                movement.Offset = movement.Offset % 1.0f;
+// todo access array directly, because we don't know how to do this in DOTS
+                // Look one tile ahead, if it is occupied, stop moving
+                int myTile = (int) (movement.Offset * tilesPerLane);
+                int nextTile = (int) ((myTile+1) % tilesPerLane);
+                bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
+                if (!nextIsOccupied)
+                {
+                    movement.Offset += v * deltaTime;
+                    movement.Offset = movement.Offset % 1.0f;
+                }
 
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
