@@ -225,7 +225,7 @@ MonoBehaviour:
   BloodPrefab: {fileID: 6621517595032345775, guid: c89377a09aea78948906054acd188adc,
     type: 3}
   BeesPerFood: 8
-  FlightJitter: 90
+  FlightJitter: 200
 --- !u!114 &1542635300
 MonoBehaviour:
   m_ObjectHideFlags: 0
