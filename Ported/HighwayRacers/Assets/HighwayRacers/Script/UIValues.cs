@@ -22,7 +22,7 @@ public  struct TrackSettings
 public class UIValues : MonoBehaviour
 {
     
-    public static UIValues Singleton;
+    protected static UIValues Singleton;
     
     public Slider TrackSizeSlider;
     public Slider CornerRadiusSlider;
@@ -43,7 +43,7 @@ public class UIValues : MonoBehaviour
         return  new TrackSettings
         {
             TrackSize = TrackSizeSlider.value,
-            CornerRadius = CornerRadiusSlider.value,
+            CornerRadius = Mathf.Min(CornerRadiusSlider.value, TrackSizeSlider.value / 5f),
             CarCount = Mathf.RoundToInt(CarCountSlider.value),
             DriverRatio = DriverTypeSlider.value,
             Iteration = Iteration
@@ -52,11 +52,23 @@ public class UIValues : MonoBehaviour
 
     public static int GetModified()
     {
+        if (UIValues.Singleton == null)
+        {
+            return -1;
+        }
         return UIValues.Singleton.Iteration;
     }
 
     public static TrackSettings GetTrackSettings()
     {
+        if (UIValues.Singleton == null)
+        {
+            return new TrackSettings
+            {
+                TrackSize = 1, CornerRadius = 1, CarCount = 1, DriverRatio = 0.5f, Iteration = -1
+            };
+        }
+        
         return UIValues.Singleton.CurrentTrackSettings();
     }
     
