@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 // Any type inheriting from SystemBase will be registered as a system and will start
 // updating every frame.
@@ -15,9 +14,10 @@ public class CarMovementSystem : SystemBase
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
     public readonly static float RoundedCorner = 0.29f;
-    private uint frame = 0;
+    private uint Frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
+    Random Random;
 
     static float3 MapToRoundedCorners(float t, float radius)
     {
@@ -88,11 +88,12 @@ public class CarMovementSystem : SystemBase
     protected override void OnCreate()
     {
         m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
+        Random = new Random(1234);
     }
 
     protected override void OnUpdate()
     {
-        frame++;
+        Frame++;
         float deltaTime = Time.DeltaTime;
 
         float trackRadius = TrackRadius;
@@ -100,7 +101,8 @@ public class CarMovementSystem : SystemBase
         float laneWidth = LaneWidth;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         uint laneCount = m_TrackOccupancySystem.LaneCount;
-        uint theFrame = frame;
+        uint theFrame = Frame;
+        var random = Random;
 
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
@@ -110,9 +112,11 @@ public class CarMovementSystem : SystemBase
 // todo myTile calc must match with what is in TrackOccupanySystem
                 int myTile = (int)((movement.Offset * tilesPerLane) + 0.5f) % (int)tilesPerLane;
                 int nextTile = (int) ((myTile+1) % tilesPerLane);
+                int prevTile = (int) (math.max(myTile-1, 0) % tilesPerLane);
                 bool nextIsOccupied = TrackOccupancySystem.ReadOccupancy[movement.Lane, nextTile];
 
-                if (nextIsOccupied && movement.LaneSwitchCounter <= 0)
+                bool randomlySwitchLanes = random.NextInt(0, 100) > 33;
+                if (nextIsOccupied && movement.LaneSwitchCounter <= 0 && randomlySwitchLanes)
                 {
                     // To avoid having two cars merge into the same lane, we allow
                     // mergers to the right at even frames and merges to the left at odd frames.
@@ -129,11 +133,15 @@ public class CarMovementSystem : SystemBase
                     
                     if (sideLane != movement.Lane)
                     {
+                        // Require 3 un-occupied slots for switching lanes
+                        bool sideIsOccupied = TrackOccupancySystem.ReadOccupancy[sideLane, myTile];
                         bool nextSideIsOccupied = TrackOccupancySystem.ReadOccupancy[sideLane, nextTile];
-                        if (!nextSideIsOccupied)
+                        bool prevSideIsOccupied = TrackOccupancySystem.ReadOccupancy[sideLane, prevTile];
+                        
+                        if (!sideIsOccupied && !nextSideIsOccupied && !prevSideIsOccupied)
                         {
                             movement.Lane = (uint) sideLane;
-                            movement.LaneSwitchCounter = 5;
+                            movement.LaneSwitchCounter = random.NextFloat(5, 10);
                         }
                     }
                 }
