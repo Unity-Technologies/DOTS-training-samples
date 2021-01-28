@@ -17,12 +17,12 @@ public class PheromoneDecaySystem : SystemBase
         //sys.Timestep = 0.1f;
         RequireSingletonForUpdate<PheromoneStrength>();
         RequireSingletonForUpdate<Tuning>();
+        RequireSingletonForUpdate<GameTime>();
     }
     
     protected override void OnUpdate()
     {
-        var time = Time.DeltaTime;
-        _timeElapsed += Time.DeltaTime;
+        _timeElapsed += GetSingleton<GameTime>().DeltaTime;
 
         var tuning = GetSingleton<Tuning>();
 

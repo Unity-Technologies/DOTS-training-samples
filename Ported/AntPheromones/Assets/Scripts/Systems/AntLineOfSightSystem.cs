@@ -11,22 +11,33 @@ public class AntLineOfSightSystem : SystemBase
 	private EntityCommandBufferSystem bufferSystem;
 	protected override void OnCreate()
 	{
+		RequireSingletonForUpdate<Food>();
+		RequireSingletonForUpdate<Home>();
+		RequireSingletonForUpdate<RingElement>();
+
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
 	
     protected override void OnUpdate()
     {
+		return;
+
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
 	    var ecbWriter = ecb.AsParallelWriter();
-	    
+
+		var ringEntity = GetSingletonEntity<RingElement>();
+		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
+    
 		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithNone<HasFood>().
+			WithReadOnly(rings).
 			ForEach((Entity entity, in Translation translation) =>
 			{
+				int x = rings.Capacity;
 				if (translation.Value.y > TempFood.FOOD_LOS_Y)
 				{
 					float dx = TempFood.FOODPOSX - translation.Value.x;

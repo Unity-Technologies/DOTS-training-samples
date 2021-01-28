@@ -17,13 +17,14 @@ public class AntPathingSystem : SystemBase
 		RequireSingletonForUpdate<PheromoneStrength>();
 		RequireSingletonForUpdate<Tuning>();
 		RequireSingletonForUpdate<RingElement>();
+		RequireSingletonForUpdate<GameTime>();
 
 		_random = new Unity.Mathematics.Random(1234);
 	}
 
 	protected override void OnUpdate()
 	{
-		var time = Time.DeltaTime;
+		var time = GetSingleton<GameTime>().DeltaTime;
 
 		Tuning tuning = this.GetSingleton<Tuning>();
 
@@ -32,7 +33,7 @@ public class AntPathingSystem : SystemBase
 		var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
 
 		float seekAhead = 1f;
-		float speed = tuning.Speed * Time.DeltaTime;
+		float speed = tuning.Speed * time;
 		float angleRange = tuning.AntAngleRange;
 		Unity.Mathematics.Random random = new Unity.Mathematics.Random(_random.NextUInt());
 

@@ -64,6 +64,33 @@ public class MapManagementSystem : SystemBase
         }
     }
 
+    public static bool IsWithinOpening(RingElement ring, float2 point)
+    {
+        float2 P = math.normalize(point);
+        float dot = math.dot(P, new float2(0, 1));
+
+        float yaw = 0 > point.x ? math.acos(dot) * -math.PI : math.acos(dot) * math.PI;
+        switch (ring.numberOfOpenings)
+        {
+            case 1:
+                {
+                    if (IsBetween(ring.opening0.angles, yaw))
+                        return true;
+                }
+                break;
+            case 2:
+                {
+                    if (IsBetween(ring.opening0.angles, yaw))
+                        return true;
+                    else if (IsBetween(ring.opening1.angles, yaw))
+                        return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
     public static bool DoesPathCollideWithRing(RingElement ring, float2 start, float2 end, out float2 at)
     {
         bool sinside = IsPointInsideRing(ring, start);
@@ -72,14 +99,12 @@ public class MapManagementSystem : SystemBase
         if (sinside && !einside)
         {
             at = ClosestIntersection(0, 0, math.length(ring.offsets) - ring.halfThickness, start, end);
-
-            return true;
+            return !IsWithinOpening(ring, at);
         }
         else if (!sinside && einside)
         {
             at = ClosestIntersection(0, 0, math.length(ring.offsets) + ring.halfThickness, start, end);
-
-            return true;
+            return IsWithinOpening(ring, at);
         }
 
         at = default(float2);

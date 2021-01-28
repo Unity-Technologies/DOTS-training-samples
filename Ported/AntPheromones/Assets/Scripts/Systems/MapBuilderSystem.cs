@@ -125,6 +125,8 @@ public class MapBuilderSystem : SystemBase
             {
                 Value = map.homeColor
             });
+
+            ecb.SetComponent(mapEntity, map);
         }).Run();
 
         ecb.Playback(EntityManager);
