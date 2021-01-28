@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class HighwayAuthoring : MonoBehaviour
@@ -19,12 +21,15 @@ public class HighwayAuthoring : MonoBehaviour
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        var straightEntity = conversionSystem.GetPrimaryEntity(StraightPiecePrefab);
+        var curvedEntity = conversionSystem.GetPrimaryEntity(CurvePiecePrefab);
+        
         dstManager.AddComponentData(entity, new HighwayPrefabs()
         {
-            StraightPiecePrefab = conversionSystem.GetPrimaryEntity(StraightPiecePrefab),
-            CurvePiecePrefab = conversionSystem.GetPrimaryEntity(CurvePiecePrefab),
+            StraightPiecePrefab = straightEntity,
+            CurvePiecePrefab = curvedEntity,
         });
 
-    
+        dstManager.AddComponent<NonUniformScale>(straightEntity);
     }
 }
