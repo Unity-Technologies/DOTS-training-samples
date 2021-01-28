@@ -38,7 +38,8 @@ public class MapManagementSystem : SystemBase
 
     public static bool IsPointInsideRing(RingElement ring, float2 point)
     {
-        if (ring.offsets.x - ring.halfThickness > point.x && ring.offsets.y - ring.halfThickness > point.y)
+        //if (ring.offsets.x - ring.halfThickness > math.abs(point.x) && ring.offsets.y - ring.halfThickness > math.abs(point.y))
+        if (ring.offsets.x-ring.halfThickness > math.length(point))
         {
             return true;
         }
