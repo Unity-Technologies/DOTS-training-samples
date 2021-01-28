@@ -96,7 +96,7 @@ public class SpawnerSystem : SystemBase
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
 
 // tile debugging
-if (false)
+//if (false)
 {
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>

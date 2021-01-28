@@ -14,11 +14,11 @@ public class TrackOccupancySystem : SystemBase
 {
     // todo both these are readonly for now since we are not dealing with them changing in various systems
     // We would need to recompute the lane tiles, respawn cars etc.
-    public readonly float TrackSize = 20;
+    //public readonly float TrackSize = 20;
     public readonly uint LaneCount = 4;
 
 // todo should be based on length of car + circumference of lane + total cars
-    public static readonly uint TilesPerLane = 256;
+    public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
 
     public static bool[,] Occupancy = new bool[4,TilesPerLane];
     public static bool[,] ReadOccupancy = new bool[4,TilesPerLane]; 
