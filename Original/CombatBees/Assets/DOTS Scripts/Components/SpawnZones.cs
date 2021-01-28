@@ -6,6 +6,8 @@ using UnityEngine;
 
 public struct SpawnZones : IComponentData
 {
+    public AABB LevelBounds;
+    
     public AABB Team1Zone;
     public AABB Team2Zone;
     

@@ -28,7 +28,7 @@ public class SpawnFromFoodSystem : SystemBase
             .WithStoreEntityQueryInField(ref m_Query)
             .ForEach((Entity e, in PhysicsData d, in Translation t) =>
             {
-                if (t.Value.y <= d.floor)
+                if (t.Value.y <= zones.LevelBounds.Min.y)
                 {
                     const float speed = 2500;
                     if (zones.Team1Zone.Contains(t.Value))
