@@ -81,6 +81,7 @@ public class TrackOccupancySystem : SystemBase
 
         // Reset the write occupancy for each lane to 0 for all tiles
         var writeBuffer = GetWriteBuffer();
+        ResetBuffer(ref writeBuffer);
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(writeBuffer)
