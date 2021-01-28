@@ -8,13 +8,17 @@ public class PickupSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<SpawnZones>();
-        RequireSingletonForUpdate<Randomizer>();
     }
 
     protected override void OnUpdate()
     {
         var zones = GetSingleton<SpawnZones>();
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        
+        //This won't allow parallel scheduling. To do so we need to place a random number generator component in each bee,
+        //and then initialize that generator uniquely for each spawned bee.
+        var randomSeed = (uint) ((Time.DeltaTime + Time.ElapsedTime) * 10000000);
+        var random = Random.CreateFromIndex(randomSeed);
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -22,7 +26,6 @@ public class PickupSystem : SystemBase
             .WithName("Pickup")
             .WithAll<BeeTag>()
             .WithNone<CarriedFood>()
-            .WithoutBurst()
             .ForEach((Entity e, ref Translation translation, ref TargetPosition t, in MoveTarget moveTarget) =>
             {
                 if (MathUtil.IsWithinDistance(1.0f, t.Value, translation.Value))
@@ -31,13 +34,13 @@ public class PickupSystem : SystemBase
                     ecb.AddComponent( moveTarget.Value, new CarrierBee() {Value = e});
 
                     ecb.RemoveComponent<MoveTarget>( e);
-                    var random = GetSingleton<Randomizer>();
+                    
                     AABB zone;
-                    if (EntityManager.HasComponent<Team1>(e))
+                    if (HasComponent<Team1>(e))
                     {
                         zone = zones.Team1Zone;
                     }
-                    else if (EntityManager.HasComponent<Team2>(e))
+                    else if (HasComponent<Team2>(e))
                     {
                         zone = zones.Team2Zone;
                     }
@@ -45,8 +48,8 @@ public class PickupSystem : SystemBase
                     {
                         zone = new AABB();
                     }
-                    t.Value = random.Random.NextFloat3(zone.Min, zone.Max);
-                    SetSingleton(random);
+                    
+                    t.Value = random.NextFloat3(zone.Min, zone.Max);
                 }
                 
             }).Run();
