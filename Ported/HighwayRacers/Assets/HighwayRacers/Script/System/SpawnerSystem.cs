@@ -74,7 +74,7 @@ public class SpawnerSystem : SystemBase
         return new float3(x,y,a);
     }
 
-    public static float MinimumVelocity = 0.035f;
+    public static readonly float MinimumVelocity = 0.035f;
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
 
@@ -94,7 +94,7 @@ public class SpawnerSystem : SystemBase
         var random = new Random(1234);
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
-
+        float minimumVelocity = MinimumVelocity;
 // tile debugging
 //if (false)
 {
@@ -167,7 +167,7 @@ public class SpawnerSystem : SystemBase
 // This means they can drive through each other.
                         Offset = (float)i / spawner.CarCount,
                         Lane = i % laneCount,
-                        Velocity = random.NextFloat(MinimumVelocity, 0.075f),
+                        Velocity = random.NextFloat(minimumVelocity, 0.075f),
                         LaneSwitchCounter = 0,
                         Profile = profile
                     });
