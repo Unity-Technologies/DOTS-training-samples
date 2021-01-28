@@ -20,7 +20,7 @@ public class TargetAcquisitionSystem : SystemBase
         {
             All = new ComponentType[]
             {
-                typeof(FoodTag),
+                ComponentType.ReadOnly<FoodTag>(),
             },
             None = new ComponentType[]
             {
@@ -30,8 +30,8 @@ public class TargetAcquisitionSystem : SystemBase
         };
 
         m_AvailableFoodQuery = GetEntityQuery(availableFoodQueryDescription);
-        m_Team1BeesQuery = GetEntityQuery(typeof(BeeTag), typeof(Team1));
-        m_Team2BeesQuery = GetEntityQuery(typeof(BeeTag), typeof(Team2));
+        m_Team1BeesQuery = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Team1>());
+        m_Team2BeesQuery = GetEntityQuery(ComponentType.ReadOnly<BeeTag>(), ComponentType.ReadOnly<Team2>());
     }
 
     protected override void OnUpdate()
