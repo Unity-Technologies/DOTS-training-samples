@@ -1,14 +1,10 @@
-﻿using System;
-
-using UnityEngine;
-
+﻿using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
 public class WorldResetSystem : SystemBase
 {
     EntityQuery destroyMapSpawnedEntities;
-
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<ObstacleBuilder>();
@@ -41,15 +37,22 @@ public class WorldResetSystem : SystemBase
             
             ecb.DestroyEntity(destroyMapSpawnedEntities);
 
-            // Can't be part of Query as it has linked entity reference
+            //Can't be part of Query as it has linked entity reference
+            Entities
+                .WithAll<AntFoodEntityTracker>()
+                .ForEach((Entity entity, AntFoodEntityTracker antFoodEntityTracker) =>
+                {
+                    ecb.DestroyEntity(antFoodEntityTracker.AntFoodEntity);
+                }).Run();
+            
             Entities
                 .WithAll<AntPathing>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.DestroyEntity(entity);
                 }).Run();
-            
-           Entities
+
+            Entities
                .WithAll<Initialized>()
                .ForEach((Entity entity) =>
                {
