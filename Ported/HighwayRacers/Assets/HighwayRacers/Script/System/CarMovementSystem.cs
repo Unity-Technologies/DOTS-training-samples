@@ -103,14 +103,12 @@ public class CarMovementSystem : SystemBase
         uint theFrame = Frame;
         var random = Random;
 
+        var readOccupancy = m_TrackOccupancySystem.GetReadBuffer();
+
         Entities
+            .WithNativeDisableParallelForRestriction(readOccupancy)
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
             {
-// todo DOTS? access array directly, because we don't know how to do this in DOTS
-// IBufferElementData was recommended, but we couldn't get it to work (see older
-// version of TrackOccupancySystem)
-                var readOccupancy = TrackOccupancySystem.GetReadOccupancy();
-
                 // Limit cars from switching lanes to frequently
                 movement.LaneSwitchCounter -= deltaTime;
 
@@ -118,7 +116,7 @@ public class CarMovementSystem : SystemBase
                 int myTile = TrackOccupancySystem.GetMyTile(movement.Offset);
                 int nextTile = (int) ((myTile+1) % tilesPerLane);
                 int prevTile = (int) (math.max(myTile-1, 0) % tilesPerLane);
-                bool nextIsOccupied = readOccupancy[movement.Lane, nextTile];
+                bool nextIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, (int)movement.Lane, nextTile);
 
                 // If car is an European driver and it is blocking a car behind it, the driver
                 // will attempt to switch to a more inner lane.
@@ -126,7 +124,7 @@ public class CarMovementSystem : SystemBase
                 bool favorInnerLane = false;
                 if (movement.Profile == DriverProfile.European)
                 {
-                    favorInnerLane = readOccupancy[movement.Lane, prevTile];
+                    favorInnerLane = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, (int)movement.Lane, prevTile);
                 }
 
                 // Make a random decision to switch lanes when blocked
@@ -151,9 +149,9 @@ public class CarMovementSystem : SystemBase
                     if (sideLane != movement.Lane)
                     {
                         // Require 3 un-occupied slots for switching lanes
-                        bool sideIsOccupied = readOccupancy[sideLane, myTile];
-                        bool nextSideIsOccupied = readOccupancy[sideLane, nextTile];
-                        bool prevSideIsOccupied = readOccupancy[sideLane, prevTile];
+                        bool sideIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, sideLane, myTile);
+                        bool nextSideIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, sideLane, nextTile);
+                        bool prevSideIsOccupied = TrackOccupancySystem.IsTileOccupied(ref readOccupancy, sideLane, prevTile);
                         
                         if (!sideIsOccupied && !nextSideIsOccupied && !prevSideIsOccupied)
                         {
@@ -188,6 +186,8 @@ public class CarMovementSystem : SystemBase
                 // Rotate based on where it is on the rounded rect
                 rotation.Value = quaternion.EulerYXZ(0, transXZA.z, 0);
 
-            }).ScheduleParallel();
+            })
+            .WithDisposeOnCompletion(readOccupancy)
+            .ScheduleParallel();
     }
 }
