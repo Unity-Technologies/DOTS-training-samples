@@ -15,18 +15,29 @@ public class PutdownSystem : SystemBase
 
         Entities
             .WithName("Putdown")
+            .WithoutBurst()
             .WithAll<BeeTag>()
             .ForEach((Entity e, ref Translation selfTranslation, ref TargetPosition targetPos, in CarriedFood food) =>
             {
-                if (MathUtil.IsWithinDistance(1.0f, targetPos.Value, selfTranslation.Value))
+                if (MathUtil.IsWithinDistance(0.001f, targetPos.Value, selfTranslation.Value))
                 {
                     //Clear bee and food links to each other
                     ecb.RemoveComponent<CarriedFood>( e);
-                    ecb.RemoveComponent<CarrierBee>( food.Value);
+                    ecb.RemoveComponent<CarrierBee>(food.Value);
                     
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
                     ecb.RemoveComponent<MoveTarget>( e);
                     ecb.RemoveComponent<TargetPosition>( e);
+
+                    //We're checking here, since the food entity could have been destroyed by the FoodForBee system. 
+                    //Had to disable burst for that reason here, though.  
+                    if (EntityManager.Exists(food.Value))
+                    {
+                        //Mark food as intentionally dropped, so that no other bees are told to pick it up. 
+                        ecb.AddComponent<IntentionallyDroppedFoodTag>(food.Value);
+                    }
+                    
+                    
                 }
             }).Run();
         
