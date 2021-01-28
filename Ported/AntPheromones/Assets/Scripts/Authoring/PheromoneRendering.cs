@@ -96,6 +96,7 @@ public class PheromoneRendering : MonoBehaviour
         if (_pheromoneTexture == null)
         {
             _pheromoneTexture = new Texture2D(_resolution, _resolution, TextureFormat.R8, mipChain: false, linear: true);
+            _pheromoneTexture.wrapMode = TextureWrapMode.Clamp;
         }
 
         _pheromoneMaterial.SetTexture("_TEX_Overlay", _pheromoneTexture);
