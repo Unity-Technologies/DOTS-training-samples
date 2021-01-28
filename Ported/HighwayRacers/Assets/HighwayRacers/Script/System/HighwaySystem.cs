@@ -11,6 +11,14 @@ using UnityEngine.UI;
 [AlwaysUpdateSystem]
 public class HighwaySystem : SystemBase
 {
+    // TODO : to use in CarMovementSystem
+    public const int NUM_LANES = 4;
+    public const float LANE_SPACING = 1.9f;
+    public const float STRAIGHT_PIECE_LENGTH = 6.0f;
+    public const float MID_RADIUS = 31.46f;
+    public const float CURVE_LANE0_RADIUS = MID_RADIUS - LANE_SPACING * (NUM_LANES - 1) / 2f;
+    public static float TrackSize;
+    
     private Slider TerrainSlider;
     private float LastTrackSize = -1f;
     private float straightPieceLength = -1f;
@@ -55,9 +63,9 @@ public class HighwaySystem : SystemBase
         }
 
         // construction params
-        float trackSize = LastTrackSize;
-        float straightLen = trackSize - (2 * cornerRadius);
-        float halfOffset = trackSize * 0.5f;
+        TrackSize = LastTrackSize;
+        float straightLen = TrackSize - (2 * cornerRadius);
+        float halfOffset = TrackSize * 0.5f;
         float cornerOffset = cornerRadius;
         int segmentCount = Mathf.RoundToInt(straightLen / straightPieceLength);
         float stretch = straightLen / (segmentCount * straightPieceLength);
@@ -69,111 +77,56 @@ public class HighwaySystem : SystemBase
         Entities
             .ForEach((Entity entity, in HighwayPrefabs highway) =>
             {
-                var hp = new HighwayPiece(); 
-                // layout straight segments
-                for (int i = 0; i < segmentCount; i++)
+                float lane0Length = 250;
+                float straightPieceLength = (lane0Length - CURVE_LANE0_RADIUS * 4) / 4;
+                
+                Vector3 pos = Vector3.zero;
+                float rot = 0;
+
+                for (int i = 0; i < 8; i++)
                 {
-                    var sp = ecb.Instantiate(highway.StraightPiecePrefab);
-                    var trans = new Translation
+                    if (i % 2 == 0)
                     {
-                        Value = new float3(halfOffset, 0, straightPieceLength * stretch * i - halfOffset + cornerOffset)
-                    };
+                        // straight piece
+                        var rotQ = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
+                        var straight = ecb.Instantiate(highway.StraightPiecePrefab);
+                        ecb.SetComponent(straight, new Translation()
+                        {
+                            Value = new float3(pos.x, pos.y, pos.z) 
+                        });
 
-                    var scl = new NonUniformScale{
-                            Value = new float3(1.0f, 1.0f, stretch)
-                    };
-                    ecb.SetComponent(sp, trans);
-                    ecb.AddComponent(sp, scl);
-                    ecb.AddComponent(sp, hp);
-
-                    var sp2 = ecb.Instantiate(highway.StraightPiecePrefab);
-                    var trans2 = new Translation
+                        ecb.SetComponent(straight, new Rotation()
+                        {
+                            Value = rotQ
+                        });
+                        
+                        ecb.SetComponent(straight, new NonUniformScale()
+                        {
+                            Value = new float3(1, 1, straightPieceLength/STRAIGHT_PIECE_LENGTH)
+                        });
+                        
+                        pos += rotQ * new Vector3(0, 0, straightPieceLength);
+                    }
+                    else
                     {
-                        Value = new float3(halfOffset * -1, 0, straightPieceLength * stretch * i - halfOffset + cornerOffset)
-                    };
-                    ecb.SetComponent(sp2, trans2);
-                    ecb.AddComponent(sp2, scl);
-                    ecb.AddComponent(sp2, hp);
+                        // curve piece
+                        var curved = ecb.Instantiate(highway.CurvePiecePrefab);
+                        ecb.SetComponent(curved, new Translation()
+                        {
+                            Value = pos 
+                        });
 
-
-                    var rot = new Rotation {
-                        Value = Quaternion.AngleAxis(90, Vector3.up)
-                    };
-                    
-                    var sp3 = ecb.Instantiate(highway.StraightPiecePrefab);
-                    var trans3 = new Translation
-                    {
-                        Value = new float3( straightPieceLength * stretch * i -halfOffset + cornerOffset, 0, halfOffset * -1)
-                    };
-                    ecb.SetComponent(sp3, trans3);
-                    ecb.SetComponent(sp3, rot);
-                    ecb.AddComponent(sp3, scl);
-                    ecb.AddComponent(sp3, hp);
-
-                    
-                    var sp4 = ecb.Instantiate(highway.StraightPiecePrefab);
-                    var trans4 = new Translation
-                    {
-                        Value = new float3( straightPieceLength * stretch * i - halfOffset +cornerOffset, 0, halfOffset)
-                    };
-                    ecb.SetComponent(sp4, trans4);
-                    ecb.SetComponent(sp4, rot);
-                    ecb.AddComponent(sp4, scl);
-                    ecb.AddComponent(sp4, hp);
-
+                        var rotQ = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
+                        ecb.SetComponent(curved, new Rotation()
+                        {
+                            Value = rotQ
+                        });
+                        
+                        pos += rotQ * new Vector3(MID_RADIUS, 0, MID_RADIUS);
+                        rot = Mathf.PI / 2 * (i / 2 + 1);
+                    }
                 }
                 
-                // corners.  This would be nicer if done with a proper pivot offset
-                var c1 = ecb.Instantiate(highway.CurvePiecePrefab);
-                var c1t = new Translation
-                {
-                    Value = new float3(-1 * halfOffset + cornerRadius, 0, -1 * halfOffset)
-                };
-                ecb.SetComponent(c1, c1t);
-                var c1r = new Rotation
-                {
-                    Value = Quaternion.AngleAxis(-90, Vector3.up)
-                };
-                ecb.SetComponent(c1, c1r);
-                ecb.AddComponent(c1, hp);
-
-                
-                var c2 = ecb.Instantiate(highway.CurvePiecePrefab);
-                var c2t = new Translation
-                {
-                    Value = new float3(-1 * halfOffset, 0, 1 * halfOffset -cornerRadius)
-                };
-                ecb.SetComponent(c2, c2t);
-                ecb.AddComponent(c2, hp);
-
-   
-                var c3 = ecb.Instantiate(highway.CurvePiecePrefab);
-                var c3t = new Translation
-                {
-                    Value = new float3(1 * halfOffset - cornerRadius, 0, 1 * halfOffset )
-                };
-                
-                ecb.SetComponent(c3, c3t);
-                var c3r = new Rotation
-                {
-                    Value = Quaternion.AngleAxis(90, Vector3.up)
-                };
-                ecb.SetComponent(c3, c3r);
-                ecb.AddComponent(c3, hp);
-
-
-                var c4 = ecb.Instantiate(highway.CurvePiecePrefab);
-                var c4t = new Translation
-                {
-                    Value = new float3(1* halfOffset, 0, -1 * halfOffset + cornerRadius)
-                };
-                ecb.SetComponent(c4, c4t);
-                var c4r = new Rotation
-                {
-                    Value = Quaternion.AngleAxis(180, Vector3.up)
-                };
-                ecb.SetComponent(c4, c4r);
-                ecb.AddComponent(c4, hp);
 
                 
             }).WithoutBurst().Run();
