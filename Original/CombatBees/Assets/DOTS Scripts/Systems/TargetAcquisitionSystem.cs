@@ -78,21 +78,23 @@ public class TargetAcquisitionSystem : SystemBase
     {
         var targetIndex = random.NextInt(availableFood.Length + targetBees.Length);
         Entity target;
+        ComponentTypes types;
         if (targetIndex < availableFood.Length)
         {
+            types = new ComponentTypes(ComponentType.ReadOnly<MoveTarget>(), ComponentType.ReadOnly<TargetPosition>(), ComponentType.ReadOnly<FetchingFoodTag>());
             target = availableFood[targetIndex];
-            ecb.AddComponent<FetchingFoodTag>(bee);
         }
         else
         {
+            types = new ComponentTypes(ComponentType.ReadOnly<MoveTarget>(), ComponentType.ReadOnly<TargetPosition>(), ComponentType.ReadOnly<AttackingBeeTag>());
             target = targetBees[targetIndex - availableFood.Length];
-            ecb.AddComponent<AttackingBeeTag>(bee);
         }
         
-        ecb.AddComponent(bee, new MoveTarget
+        ecb.AddComponent(bee, types);
+
+        ecb.SetComponent(bee, new MoveTarget
         {
             Value = target,
         });
-        ecb.AddComponent<TargetPosition>(bee);
     }
 }
