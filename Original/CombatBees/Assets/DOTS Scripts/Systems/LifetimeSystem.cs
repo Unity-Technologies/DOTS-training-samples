@@ -10,17 +10,21 @@ public class LifetimeSystem: SystemBase
         Entities.ForEach((ref Lifetime lifetime) =>
         {
             lifetime.NormalizedTimeRemaining -= lifetime.NormalizedDecaySpeed * deltaTime;
-        }).Run();
+        }).ScheduleParallel();
 
+        
         // Clean all dead entities
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.ForEach((Entity e, in Lifetime lifetime) =>
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var pEcb = ecb.AsParallelWriter();
+        Entities.ForEach((Entity e, int entityInQueryIndex, in Lifetime lifetime) =>
         {
             if (lifetime.NormalizedTimeRemaining < 0)
             {
-                ecb.DestroyEntity(e);
+                pEcb.DestroyEntity(entityInQueryIndex, e);
             }
-        }).Run();
+        }).ScheduleParallel();
+        
+        Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
