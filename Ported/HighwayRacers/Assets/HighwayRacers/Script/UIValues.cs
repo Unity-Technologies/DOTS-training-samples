@@ -34,8 +34,8 @@ public class UIValues : MonoBehaviour
     public void SetModified()
     {
         
-        float scaled = math.pow(CarCountSlider.value, 9);
-        CarCount = Mathf.FloorToInt(math.lerp(40, 600000, scaled));
+        float scaled = math.pow(CarCountSlider.value, 4);
+        CarCount = Mathf.FloorToInt(math.lerp(40, 500000, scaled));
 
 
         Iteration++;
