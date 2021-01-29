@@ -19,7 +19,7 @@ public class BeeMovementSystem : SystemBase
                 var destVector = math.normalize(directionVector);
                 physicsData.a += destVector * speed.Value;
 
-            }).Run();
+            }).ScheduleParallel();
         
         Entities
             .WithName("BeeJitter")
