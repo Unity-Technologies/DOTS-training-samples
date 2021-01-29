@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 20
+  MaxLosDistSq: 1600
   AntAngleRange: 20
   MinAngleWeight: 1
   PheromoneWeighting: 100

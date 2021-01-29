@@ -7,6 +7,7 @@ using UnityEngine;
 public struct Tuning : IComponentData
 {
 	public float Speed;
+	public float MaxLosDistSq;
 	public float AntAngleRange;
 	public float MinAngleWeight;
 	public float PheromoneWeighting;

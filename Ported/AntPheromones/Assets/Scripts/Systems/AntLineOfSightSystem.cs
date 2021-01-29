@@ -13,6 +13,7 @@ public class AntLineOfSightSystem : SystemBase
 	{
 		RequireSingletonForUpdate<FoodBuilder>();
 		RequireSingletonForUpdate<RingElement>();
+		RequireSingletonForUpdate<Tuning>();
 
 		bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 	}
@@ -29,6 +30,8 @@ public class AntLineOfSightSystem : SystemBase
 		float2 foodPos = GetSingleton<FoodBuilder>().foodLocation;
 		float2 homePos = new float2(0, 0);
 
+		float maxLosDistSq = GetSingleton<Tuning>().MaxLosDistSq;
+
 		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
@@ -43,21 +46,25 @@ public class AntLineOfSightSystem : SystemBase
 				float2 antPos = new float2(translation.Value.x, translation.Value.y);
 				float2 collisionPos;
 
-				for (int i=0; i < rings.Length;i++)
+				float distSq = math.lengthsq(antPos - foodPos);
+				if (distSq < maxLosDistSq)
 				{
-					RingElement ring = rings[i];
-
-					if (WorldResetSystem.DoesPathCollideWithRing(ring,antPos,foodPos,out collisionPos, out bool outWards))
+					for (int i = 0; i < rings.Length; i++)
 					{
-						hasLOS = false;
-						break;
-					}
-				}
+						RingElement ring = rings[i];
 
-				if (hasLOS)
-				{
-					antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x-antPos.x, foodPos.y-antPos.y);
-					ecbWriter.AddComponent<AntLineOfSight>(0,entity);
+						if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, foodPos, out collisionPos, out bool outWards))
+						{
+							hasLOS = false;
+							break;
+						}
+					}
+
+					if (hasLOS)
+					{
+						antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x - antPos.x, foodPos.y - antPos.y);
+						ecbWriter.AddComponent<AntLineOfSight>(0, entity);
+					}
 				}
 			}).ScheduleParallel();
 
