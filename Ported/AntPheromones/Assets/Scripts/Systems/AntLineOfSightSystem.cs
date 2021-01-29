@@ -7,7 +7,6 @@ using Unity.Mathematics;
 using Unity.Properties;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(AntSpawnerSystem))]
 public class AntLineOfSightSystem : SystemBase
 {
 	private EntityCommandBufferSystem bufferSystem;

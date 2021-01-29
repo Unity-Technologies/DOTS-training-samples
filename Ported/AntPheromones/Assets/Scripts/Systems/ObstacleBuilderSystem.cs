@@ -10,12 +10,12 @@ public class ObstacleBuilderSystem : SystemBase
     {
         Unity.Mathematics.Random rand = new Unity.Mathematics.Random((uint)math.max(DateTime.Now.Millisecond, 1));
 
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp); 
 
         Entities
             .WithAll<ObstacleBuilder>()
             .WithNone<Initialized>()
-            .ForEach((Entity entity, ObstacleBuilder obstacleBuilder) =>
+            .ForEach((Entity entity,in ObstacleBuilder obstacleBuilder) =>
         {
             ecb.AddComponent<Initialized>(entity);
 

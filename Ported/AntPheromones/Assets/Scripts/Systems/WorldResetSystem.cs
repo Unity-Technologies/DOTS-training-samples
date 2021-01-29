@@ -40,7 +40,7 @@ public class WorldResetSystem : SystemBase
             //Can't be part of Query as it has linked entity reference
             Entities
                 .WithAll<AntFoodEntityTracker>()
-                .ForEach((Entity entity, AntFoodEntityTracker antFoodEntityTracker) =>
+                .ForEach((Entity entity,in AntFoodEntityTracker antFoodEntityTracker) =>
                 {
                     ecb.DestroyEntity(antFoodEntityTracker.AntFoodEntity);
                 }).Run();
