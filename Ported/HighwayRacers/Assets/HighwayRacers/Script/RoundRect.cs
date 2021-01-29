@@ -14,6 +14,18 @@ using Random = Unity.Mathematics.Random;
 public class RoundRect
 {
     private static RoundRect _Singleton;
+    public static RoundRect Instance
+    {
+        get
+        {
+            if (_Singleton == null)
+            {
+                _Singleton = new RoundRect(128, 32);
+            }
+
+            return _Singleton;
+        }
+    }
     
     private float _perimeter;
     private float _straight;
@@ -49,11 +61,10 @@ public class RoundRect
     }
     
     
-    public RoundRect(float size, float radius)
+    private RoundRect(float size, float radius)
     {
         Size = size;
         Radius = radius;
-        _Singleton = this;
     }
 
     private void UpdatePerimeter()
@@ -63,12 +74,34 @@ public class RoundRect
         _perimeter = 4 * (_straight + _curved);
     }
 
-    public void Interpolate(in float coord, out float3 pos, out float yaw)
+    public RectData GetRectData()
     {
-        float R =  _curved / _size;
-        float total = _straight + _curved;
-        float tls = math.saturate(_straight/total);
-        float tlr = math.saturate(_curved/total);
+        return new RectData()
+        {
+            Size = _size,
+            Straight = _straight,
+            Curved = _curved,
+            Perimeter = _perimeter,
+            Radius = _radius,
+        };
+    }
+    
+    public struct RectData
+    {
+        public float Size;
+        public float Straight;
+        public float Curved;
+        public float Perimeter;
+        public float Radius;
+    }
+    
+    
+    public static void Interpolate(in float coord, in RectData rectData, out float3 pos, out float yaw)
+    {
+        float R =  rectData.Curved / rectData.Size;
+        float total = rectData.Straight + rectData.Curved;
+        float tls = math.saturate(rectData.Straight/total);
+        float tlr = math.saturate(rectData.Curved/total);
 
         int q = (int)(coord * 4.0f);
 
@@ -122,8 +155,8 @@ public class RoundRect
 
         x -= 0.5f;
         y -= 0.5f;
-        x *= _size;
-        y *= _size;
+        x *= rectData.Size;
+        y *= rectData.Size;
         
         pos.x = x;
         pos.z = y;
@@ -131,33 +164,18 @@ public class RoundRect
         yaw = a;
     }
 
-    public void InterpolateRealDist(in float realDistance, out float3 pos, out float yaw)
+    static void InterpolateRealDist(in float realDistance, in RectData rectData, out float3 pos, out float yaw)
     {
         // the divisor here is effectively a global speed multiplier
         // the 4 is eyeballed
-        float normalized = realDistance / (_perimeter / 4f);
+        float normalized = realDistance / (rectData.Perimeter / 4f);
         
-        Interpolate(normalized % 1f, out pos, out yaw);
+        Interpolate(normalized % 1f, rectData, out pos, out yaw);
     }
 
-    public static void InterpolateRoundRect(in float coord, out float3 pos, out float yaw)
+    public static void InterpolateRoundRectRealDist(in float coord, in RectData rectData, out float3 pos, out float yaw)
     {
-        if (_Singleton == null)
-        {
-            _Singleton = new RoundRect(64, 16);
-        }
-
-        _Singleton.Interpolate(in coord, out pos,out yaw);
-    }
-
-    public static void InterpolateRoundRectRealDist(in float coord, out float3 pos, out float yaw)
-    {
-        if (_Singleton == null)
-        {
-            _Singleton = new RoundRect(64, 16);
-        }
-
-        _Singleton.InterpolateRealDist(in coord, out pos,out yaw);
+        InterpolateRealDist(in coord, in rectData, out pos,out yaw);
     }
 
 

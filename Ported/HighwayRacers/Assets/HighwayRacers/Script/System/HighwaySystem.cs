@@ -32,7 +32,7 @@ public class HighwaySystem : SystemBase
     
     protected override void OnCreate()
     {
-        TrackRect = new RoundRect(128, 32);
+        TrackRect = RoundRect.Instance;
         
         CurrentTrackSettings = UIValues.GetTrackSettings();
         
@@ -83,6 +83,7 @@ public class HighwaySystem : SystemBase
         EntityManager.DestroyEntity(ToBeDeleted);
 
         int SegmentCount = Mathf.CeilToInt(_rect.Perimeter / _straightPieceLength) * 4;
+        RoundRect.RectData rectData = RoundRect.Instance.GetRectData();
         
         Entities
             .WithoutBurst()
@@ -96,7 +97,7 @@ public class HighwaySystem : SystemBase
 
                     float3 pos = new float3();
                     float yaw = 0;
-                    _rect.Interpolate(d, out pos, out yaw );
+                    RoundRect.Interpolate(d, rectData, out pos, out yaw );
                     var trans = new Translation
                     {
                         Value =  pos

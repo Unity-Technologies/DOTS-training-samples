@@ -15,7 +15,6 @@ public class CarMovementSystem : SystemBase
     public readonly static float TrackRadius = derrivedTrackRadius - HighwayRacers.Highway.LANE_SPACING * 3.0f;
     public readonly static float LaneWidth = HighwayRacers.Highway.LANE_SPACING * 2.0f;
     public float3 TrackOrigin = new float3(0,0,0);
-    public readonly static float RoundedCorner = (1.0f - straightPieceLength/(straightPieceLength + HighwayRacers.Highway.MID_RADIUS * 2.0f)) * 0.5f;
     private uint _Frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
@@ -43,6 +42,8 @@ public class CarMovementSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint theFrame = _Frame;
         var random = Random;
+
+        RoundRect.RectData rectData = RoundRect.Instance.GetRectData();
         
         var readOccupancy = m_TrackOccupancySystem.GetReadBuffer(_Frame);
 
@@ -51,7 +52,6 @@ public class CarMovementSystem : SystemBase
         float4 europeanColors = SpawnerSystem.EuropeanColors;
 
         Entities
-            .WithoutBurst()
             .WithNativeDisableContainerSafetyRestriction(readOccupancy)
             .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement, ref URPMaterialPropertyBaseColor baseColor) =>
             {
@@ -130,7 +130,7 @@ public class CarMovementSystem : SystemBase
 				
                 float3 transXZA;
                 float transYaw;
-                RoundRect.InterpolateRoundRectRealDist(movement.Offset * 50, out transXZA, out transYaw);
+                RoundRect.InterpolateRoundRectRealDist(movement.Offset * 50, rectData, out transXZA, out transYaw);
     
                 quaternion yawQuat = quaternion.AxisAngle(Vector3.up, transYaw);
                 float cx = math.cos(transYaw + 1);
