@@ -1,10 +1,6 @@
-﻿using System;
-using System.Linq;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Jobs;
-using UnityEngine;
 using Unity.Rendering;
 
 public struct LaneOccupancy : IBufferElementData
