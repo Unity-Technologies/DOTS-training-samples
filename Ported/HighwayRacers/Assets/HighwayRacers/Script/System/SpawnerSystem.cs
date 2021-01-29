@@ -1,12 +1,14 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
+    public static float4 LowVelocityColor = new float4(1,0,0,1);
+    public static float4 AmericanColors = new float4(0,1,0,1);
+    public static float4 EuropeanColors = new float4(0,0,1,1);
 
   static float3 MapToRoundedCorners(float t, float radius)
   {
@@ -74,7 +76,9 @@ public class SpawnerSystem : SystemBase
         return new float3(x,y,a);
     }
 
-    public static readonly float MinimumVelocity = 0.035f;
+    public static readonly float TrackCirconference = ((CarMovementSystem.TrackRadius/2.0f) * 4.0f)/182.0f;
+    public static readonly float MinimumVelocity = 0.035f/TrackCirconference;
+    public static readonly float MaximumVelocity = 0.075f/TrackCirconference;
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
 
@@ -95,52 +99,56 @@ public class SpawnerSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         float minimumVelocity = MinimumVelocity;
+        float maximumVelocity = MaximumVelocity;
 
-//tile debugging
-// if (false)
-// {
-//         Entities
-//             .ForEach((Entity entity, in Spawner spawner) =>
-//             {
-//                 for (uint j = 0; j < laneCount; ++j)
-//                 {
-//                     for (uint i = 0; i < tilesPerLane; ++i)
-//                     {
-//                         var tile = ecb.Instantiate(spawner.TilePrefab);
-//
-//                         float laneRadius = (CarMovementSystem.TrackRadius + (j * CarMovementSystem.LaneWidth));
-//
-//                         float t = (float)i/(float)tilesPerLane;
-//                         float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
-//
-//                         spawnPosition.x += (CarMovementSystem.TrackRadius)/2.0f + 2.75f;
-//                         spawnPosition.y += (CarMovementSystem.TrackRadius)/4.0f - 6.0f;
-//
-//
-//                         var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
-//                         ecb.SetComponent(tile, translation);
-//
-//                         ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
-//                         {
-//                             Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
-//                         });
-//
-//                         ecb.SetComponent(tile, new TileDebugColor
-//                         {
-//                             laneId = j,
-//                             tileId = i
-//                         });
-//
-//                     }
-//                 }
-//             }).Run();
-// }
+        float4 americanColors = AmericanColors;
+        float4 europeanColors = EuropeanColors;
+
+        if (TrackOccupancySystem.ShowDebugTiles)
+        {
+            Entities
+                .ForEach((Entity entity, in Spawner spawner) =>
+                {
+                    for (uint j = 0; j < laneCount; ++j)
+                    {
+                        for (uint i = 0; i < tilesPerLane; ++i)
+                        {
+                            var tile = ecb.Instantiate(spawner.TilePrefab);
+
+                            float laneRadius = (CarMovementSystem.TrackRadius + (j * CarMovementSystem.LaneWidth));
+
+                            float t = (float)i/(float)tilesPerLane;
+                            float3 spawnPosition = MapToRoundedCorners(t, laneRadius);
+
+                            spawnPosition.x += (CarMovementSystem.TrackRadius)/2.0f + 2.75f;
+                            spawnPosition.y += (CarMovementSystem.TrackRadius)/4.0f - 6.0f;
+
+
+                            var translation = new Translation {Value = new float3(spawnPosition.x, 0, spawnPosition.y)};
+                            ecb.SetComponent(tile, translation);
+
+                            ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
+                            {
+                                Value = new float4(0.5f, 0.5f, 0.5f, 1.0f)
+                            });
+
+                            ecb.SetComponent(tile, new TileDebugColor
+                            {
+                                laneId = j,
+                                tileId = i
+                            });
+
+                        }
+                    }
+                }).Run();
+        }
 
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
+                // This ensures we only spawn cars once since there will be no 'Spawner' entity left in the scene.
                 ecb.DestroyEntity(entity);
 
                 for (uint i = 0; i < spawner.CarCount; ++i)
@@ -149,11 +157,6 @@ public class SpawnerSystem : SystemBase
                     var translation = new Translation {Value = new float3(0, 0, 0)};
                     ecb.SetComponent(vehicle, translation);
 
-                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-                    {
-                        Value = random.NextFloat4()
-                    });
-
                     // If the driver profile is set to random, pick one of
                     // the profiles for the new car.
                     DriverProfile profile = spawner.DriverProfile;
@@ -161,8 +164,16 @@ public class SpawnerSystem : SystemBase
                     {
                         profile = random.NextBool() ? DriverProfile.American : DriverProfile.European;
                     }
+                    
+                    float4 carColor = profile == DriverProfile.American ? americanColors : europeanColors;
+                    
+                    ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
+                    {
+                        Value = carColor
+                    });
 
                     uint currentLane = i % laneCount;
+                    float velocity = random.NextFloat(minimumVelocity, maximumVelocity);
                     ecb.SetComponent(vehicle, new CarMovement
                     {
                         // todo here we ar enot smart enough. Two cars might end up in the same tile.
@@ -170,37 +181,15 @@ public class SpawnerSystem : SystemBase
                         Offset = (float)i / spawner.CarCount,
                         Lane = currentLane,
                         LaneOffset = (float)currentLane,
-                        Velocity = random.NextFloat(minimumVelocity, 0.075f),
+                        Velocity = velocity,
+                        CurrentVelocity = velocity,
                         LaneSwitchCounter = 0,
                         Profile = profile
                     });
+
                 }
             }).Run();
 
         ecb.Playback(EntityManager);
-        
-        // Propagate color from parent to child entities
-        // We do this every frame because we change the color of the cars
-
-        // A "ComponentDataFromEntity" allows random access to a component type from a job.
-        // This much slower than accessing the components from the current entity via the
-        // lambda parameters.
-        var cdfe = GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
-
-        Entities
-            // Random access to components for writing can be a race condition.
-            // Here, we know for sure that prefabs don't share their entities.
-            // So explicitly request to disable the safety system on the CDFE.
-            .WithNativeDisableContainerSafetyRestriction(cdfe)
-            .WithStoreEntityQueryInField(ref RequirePropagation)
-            .WithAll<PropagateColor>()
-            .ForEach((in DynamicBuffer<LinkedEntityGroup> group
-                , in URPMaterialPropertyBaseColor color) =>
-            {
-                for (int i = 1; i < group.Length; ++i)
-                {
-                    cdfe[group[i].Value] = color;
-                }
-            }).ScheduleParallel();
     }
 }
