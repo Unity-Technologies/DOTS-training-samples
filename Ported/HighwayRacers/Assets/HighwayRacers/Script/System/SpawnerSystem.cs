@@ -82,6 +82,7 @@ public class SpawnerSystem : SystemBase
     protected override void OnCreate()
     {
         m_TrackOccupancySystem = World.GetExistingSystem<TrackOccupancySystem>();
+        propagateColor = true;
     }
 
     protected override void OnUpdate()
