@@ -22,7 +22,7 @@ public class TrackOccupancySystem : SystemBase
     // todo both these are readonly for now since we are not dealing with them changing in various systems
     // We would need to recompute the lane tiles, respawn cars etc.
     public readonly uint LaneCount = 4;
-    public static readonly bool ShowDebugTiles = true;
+    public static readonly bool ShowDebugTiles = false;
     public static readonly uint TilesPerLane = (uint)((CarMovementSystem.TrackRadius/2.0f) * 4.0f);
     private CarMovementSystem m_CarMovementSystem;
 
@@ -85,7 +85,7 @@ public class TrackOccupancySystem : SystemBase
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(writeBuffer)
-            .ForEach((Entity vehicle, ref CarMovement movement) =>
+            .ForEach((Entity vehicle, in CarMovement movement) =>
             {
                 int myLane = (int)movement.Lane;
                 int myTile = GetMyTile(movement.Offset);
@@ -97,7 +97,7 @@ public class TrackOccupancySystem : SystemBase
         {
             Entities
                 .WithNativeDisableContainerSafetyRestriction(writeBuffer)
-                .ForEach((Entity tileEntity, ref TileDebugColor tileDebugColor, ref URPMaterialPropertyBaseColor tileDebugMat) =>
+                .ForEach((Entity tileEntity, ref URPMaterialPropertyBaseColor tileDebugMat, in TileDebugColor tileDebugColor) =>
                 {
                     byte tiles = writeBuffer[(int)tileDebugColor.tileId].Occupied;
                     byte lane = (byte) (1 << (int)tileDebugColor.laneId);
