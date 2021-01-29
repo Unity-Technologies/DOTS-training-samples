@@ -28,7 +28,6 @@ public class PutdownSystem : SystemBase
 
         Entities
             .WithName("Putdown")
-            .WithoutBurst()
             .WithAll<BeeTag>()
             .ForEach((Entity e, ref Translation selfTranslation, ref TargetPosition targetPos, in PhysicsData physics, in CarriedFood food) =>
             {
@@ -42,7 +41,7 @@ public class PutdownSystem : SystemBase
 
                     //We're checking here, since the food entity could have been destroyed by the FoodForBee system. 
                     //Had to disable burst for that reason here, though.  
-                    if (EntityManager.Exists(food.Value))
+                    if (HasComponent<FoodTag>(food.Value))
                     {
                         //Mark food as intentionally dropped, so that no other bees are told to pick it up. 
                         //ecb.AddComponent<IntentionallyDroppedFoodTag>(food.Value);
