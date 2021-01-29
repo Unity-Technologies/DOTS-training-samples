@@ -1,8 +1,10 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class SpawnFromFoodSystem : SystemBase
 {
@@ -19,12 +21,13 @@ public class SpawnFromFoodSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         var zones = GetSingleton<SpawnZones>();
-        var physicsData = EntityManager.GetComponentData<PhysicsData>(zones.BeePrefab);
+        var physicsTeam1Data = EntityManager.GetComponentData<PhysicsData>(zones.BeeTeam1Prefab);
+        var physicsTeam2Data = EntityManager.GetComponentData<PhysicsData>(zones.BeeTeam2Prefab);
+        var random = new Random((uint)UnityEngine.Random.Range(0, Int32.MaxValue));
         Entities
             .WithName("SpawnFromFood")
             .WithAll<FoodTag>()
             .WithNone<CarrierBee>()
-            .WithoutBurst()
             .WithStoreEntityQueryInField(ref m_Query)
             .ForEach((Entity e, in PhysicsData d, in Translation t) =>
             {
@@ -35,19 +38,14 @@ public class SpawnFromFoodSystem : SystemBase
                     {
                         for (int i = 0; i < zones.BeesPerFood; ++i)
                         {
-                            var newBee = ecb.Instantiate(zones.BeePrefab);
+                            var newBee = ecb.Instantiate(zones.BeeTeam1Prefab);
                             ecb.SetComponent(newBee, new Translation
                             {
                                 Value = t.Value,
                             });
-                            var newPhysics = physicsData;
-                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
+                            var newPhysics = physicsTeam1Data;
+                            newPhysics.a = random.NextFloat3Direction() * random.NextFloat() * speed;
                             ecb.SetComponent(newBee, newPhysics);
-                            ecb.AddComponent<Team1>(newBee);
-                            ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
-                            {
-                                Value = new float4(1, 1, 0, 1),
-                            });
                         }
 
                         ecb.DestroyEntity(e);
@@ -56,19 +54,14 @@ public class SpawnFromFoodSystem : SystemBase
                     {
                         for (int i = 0; i < zones.BeesPerFood; ++i)
                         {
-                            var newBee = ecb.Instantiate(zones.BeePrefab);
+                            var newBee = ecb.Instantiate(zones.BeeTeam2Prefab);
                             ecb.SetComponent(newBee, new Translation
                             {
                                 Value = t.Value,
                             });
-                            var newPhysics = physicsData;
-                            newPhysics.a = UnityEngine.Random.insideUnitSphere * speed;
+                            var newPhysics = physicsTeam2Data;
+                            newPhysics.a = random.NextFloat3Direction() * random.NextFloat() * speed;
                             ecb.SetComponent(newBee, newPhysics);
-                            ecb.AddComponent<Team2>(newBee);
-                            ecb.AddComponent(newBee, new URPMaterialPropertyBaseColor
-                            {
-                                Value = new float4(0, 1, 1, 1),
-                            });
                         }
 
                         ecb.DestroyEntity(e);

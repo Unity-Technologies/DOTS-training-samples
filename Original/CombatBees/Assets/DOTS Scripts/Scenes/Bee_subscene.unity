@@ -218,7 +218,9 @@ MonoBehaviour:
       x: 10
       y: 10
       z: 10
-  BeePrefab: {fileID: 6833128816080627883, guid: fca2f1d80e5f5a74da13652d1440d878,
+  BeeTeam1Prefab: {fileID: 1225067254102441266, guid: 29b40b73ea188de41a56376c46e1043c,
+    type: 3}
+  BeeTeam2Prefab: {fileID: 3154369530134206374, guid: e40e739d218a9244da52ea491238c7b6,
     type: 3}
   FoodPrefab: {fileID: 6222909234540938678, guid: 11831e596b47e5741a1e0273884a75f1,
     type: 3}
