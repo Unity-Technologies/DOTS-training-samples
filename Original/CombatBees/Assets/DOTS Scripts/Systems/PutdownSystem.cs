@@ -6,13 +6,25 @@ using Unity.Transforms;
 [UpdateAfter(typeof(PickupSystem))]
 public class PutdownSystem : SystemBase
 {
+    private ComponentTypes typesToRemoveFromCarrier;
+
+    protected override void OnCreate()
+    {
+        ComponentType[] types = new ComponentType[]
+        {
+            ComponentType.ReadOnly<MoveTarget>(),
+            ComponentType.ReadOnly<TargetPosition>(),
+            ComponentType.ReadOnly<CarriedFood>(),
+        };
+
+        typesToRemoveFromCarrier = new ComponentTypes(types);
+    }
+
     protected override void OnUpdate()
     {
-        ///////////////////////////////
-        // Remove Bee's components.
-        ///////////////////////////////
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var allPhysics = GetComponentDataFromEntity<PhysicsData>(false);
+        var typesToRemoveFromCarrier = this.typesToRemoveFromCarrier;
 
         Entities
             .WithName("Putdown")
@@ -22,13 +34,11 @@ public class PutdownSystem : SystemBase
             {
                 if (MathUtil.IsWithinDistance(2.0f, targetPos.Value, selfTranslation.Value))
                 {
-                    //Clear bee and food links to each other
-                    ecb.RemoveComponent<CarriedFood>(e);
+                    //Clear link from food to bee
                     ecb.RemoveComponent<CarrierBee>(food.Value);
-                    
+
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
-                    ecb.RemoveComponent<MoveTarget>(e);
-                    ecb.RemoveComponent<TargetPosition>(e);
+                    ecb.RemoveComponent(e, typesToRemoveFromCarrier);
 
                     //We're checking here, since the food entity could have been destroyed by the FoodForBee system. 
                     //Had to disable burst for that reason here, though.  
