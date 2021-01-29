@@ -74,7 +74,9 @@ public class SpawnerSystem : SystemBase
         return new float3(x,y,a);
     }
 
-    public static readonly float MinimumVelocity = 0.035f;
+    public static readonly float TrackCirconference = ((CarMovementSystem.TrackRadius/2.0f) * 4.0f)/182.0f;
+    public static readonly float MinimumVelocity = 0.035f/TrackCirconference;
+    public static readonly float MaximumVelocity = 0.075f/TrackCirconference;
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
     static bool propagateColor = true;
@@ -97,6 +99,7 @@ public class SpawnerSystem : SystemBase
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         float minimumVelocity = MinimumVelocity;
+        float maximumVelocity = MaximumVelocity;
 
         float4 americanColors = new float4(1,0,0,1);
 
@@ -172,7 +175,6 @@ public class SpawnerSystem : SystemBase
                     });
 
                     uint currentLane = i % laneCount;
-                    float trackCirconf = ((CarMovementSystem.TrackRadius/2.0f) * 4.0f)/182.0f;
                     ecb.SetComponent(vehicle, new CarMovement
                     {
                         // todo here we ar enot smart enough. Two cars might end up in the same tile.
@@ -180,7 +182,7 @@ public class SpawnerSystem : SystemBase
                         Offset = (float)i / spawner.CarCount,
                         Lane = currentLane,
                         LaneOffset = (float)currentLane,
-                        Velocity = random.NextFloat(minimumVelocity, 0.075f)/trackCirconf,
+                        Velocity = random.NextFloat(minimumVelocity, maximumVelocity),
                         LaneSwitchCounter = 0,
                         Profile = profile
                     });
