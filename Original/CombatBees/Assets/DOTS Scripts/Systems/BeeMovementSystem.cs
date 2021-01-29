@@ -24,10 +24,10 @@ public class BeeMovementSystem : SystemBase
         Entities
             .WithName("BeeJitter")
             .WithAll<BeeTag>()
-            .ForEach((Entity EntityManager, ref PhysicsData physicsData) =>
-        {
-                float3 jitter = UnityEngine.Random.insideUnitSphere * zones.FlightJitter;
+            .ForEach((ref PhysicsData physicsData, ref RandomComponent random) =>
+            {
+                var jitter = random.Value.NextFloat3Direction() * random.Value.NextFloat() * zones.FlightJitter;
                 physicsData.a += jitter;
-        }).Run();
+        }).ScheduleParallel();
     }
 }
