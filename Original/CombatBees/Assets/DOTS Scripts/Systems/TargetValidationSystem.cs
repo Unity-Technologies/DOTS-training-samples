@@ -35,8 +35,6 @@ public class TargetingValidationSystem : SystemBase
                         pEcb.AddComponent<BeeWithInvalidtarget>(entityInQueryIndex, e);
                     }
                 }
-                
-                
             }).ScheduleParallel();
         
         Dependency.Complete();

@@ -27,7 +27,6 @@ public class BloodSplatSystem: SystemBase
                 if (translation.Value.y <= floorHeight + 0.001f)
                 {
                     ecb.AddComponent(entityInQueryIndex, e, Lifetime.FromTimeRemaining(rng.Value.NextFloat(2f,4f)));
-
                     ecb.AddComponent(entityInQueryIndex, e, new GroundedTime
                     {
                         Time = time,
