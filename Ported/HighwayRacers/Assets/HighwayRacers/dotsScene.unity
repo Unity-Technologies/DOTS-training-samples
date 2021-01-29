@@ -502,6 +502,16 @@ PrefabInstance:
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: FollowCam, Assembly-CSharp
       objectReference: {fileID: 0}
+    - target: {fileID: 748017040594419877, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 504
+      objectReference: {fileID: 0}
+    - target: {fileID: 961999811369772027, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 504
+      objectReference: {fileID: 0}
     - target: {fileID: 2691883838990641544, guid: 660430f7739b1424ca864eabe52e7924,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -536,6 +546,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4504804570830190515, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 5800091492094627496, guid: 660430f7739b1424ca864eabe52e7924,
         type: 3}
@@ -621,6 +636,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6370948262449629561, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 6370948262529923204, guid: 660430f7739b1424ca864eabe52e7924,
         type: 3}
@@ -747,10 +767,30 @@ PrefabInstance:
       propertyPath: m_MinValue
       value: 32
       objectReference: {fileID: 0}
+    - target: {fileID: 6370948263034901534, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 7003160825908424983, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 500
+      objectReference: {fileID: 0}
     - target: {fileID: 7223728608091549798, guid: 660430f7739b1424ca864eabe52e7924,
         type: 3}
       propertyPath: m_MinValue
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7645360209082824008, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 504
+      objectReference: {fileID: 0}
+    - target: {fileID: 7975950240271869276, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 504
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 660430f7739b1424ca864eabe52e7924, type: 3}
