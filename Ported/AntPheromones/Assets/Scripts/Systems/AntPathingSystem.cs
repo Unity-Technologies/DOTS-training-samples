@@ -58,22 +58,58 @@ public class AntPathingSystem : SystemBase
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
 			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
 			int gridLeft = CoordinateUtilities.PositionToIndex(seekLeft, tuning);
-			pValue = ((float)pheromoneBuffer[gridLeft])/255f;
-			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
+			float pValueLeft = ((float)pheromoneBuffer[gridLeft])/255f;
+			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValueLeft;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
 			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
 			int gridRight = CoordinateUtilities.PositionToIndex(seekRight, tuning);
-			pValue = ((float)pheromoneBuffer[gridRight]) / 255f;
-			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
+			float pValueRight = ((float)pheromoneBuffer[gridRight]) / 255f;
+			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValueRight;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
 			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
 			int gridFwd = CoordinateUtilities.PositionToIndex(seekFwd, tuning);
-			pValue = ((float)pheromoneBuffer[gridFwd]) / 255f;
-			float weightFwd = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue) * tuning.AntFwdWeighting;
+			float pValueFwd = ((float)pheromoneBuffer[gridFwd]) / 255f;
+			float weightFwd = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValueFwd) * tuning.AntFwdWeighting;
+
+			if (pValueFwd>0)
+			{
+				if (pValueLeft<=0)
+				{
+					weightLeft = 0;
+				}
+				if (pValueRight<=0)
+				{
+					weightRight = 0;
+				}
+			}
+
+			if (pValueLeft > 0)
+			{
+				if (pValueFwd <= 0)
+				{
+					weightFwd = 0;
+				}
+				if (pValueRight <= 0)
+				{
+					weightRight = 0;
+				}
+			}
+
+			if (pValueRight > 0)
+			{
+				if (pValueLeft <= 0)
+				{
+					weightLeft = 0;
+				}
+				if (pValueFwd <= 0)
+				{
+					weightFwd = 0;
+				}
+			}
 
 			float totalWeight = weightLeft + weightRight + weightFwd;
 			float randomWeight = random.NextFloat() * totalWeight;

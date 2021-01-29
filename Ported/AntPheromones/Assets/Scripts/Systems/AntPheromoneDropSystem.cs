@@ -44,9 +44,11 @@ public class AntPheromoneDropSystem : SystemBase
             {
                 int gridIndex = CoordinateUtilities.PositionToIndex( new float2(translation.Value.x, translation.Value.y), tuning);
 
+                bool hasLos = HasComponent<AntLineOfSight>(entity);
+
                 // Set our randomly selected index value to something 
                 int pVal = pheromoneBuffer[gridIndex].Value;
-                int newValue = pVal + tuning.PheromoneDropValue;
+                int newValue = pVal + (hasLos ? tuning.PheromoneDropValueLOS : tuning.PheromoneDropValue);
                 newValue = Math.Min(newValue, 255);
                 pheromoneBuffer[gridIndex] = (byte)newValue;
             }).ScheduleParallel();
