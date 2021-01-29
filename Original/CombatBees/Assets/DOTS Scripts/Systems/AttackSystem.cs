@@ -67,6 +67,13 @@ public class AttackSystem : SystemBase
                             damping = 0,
                             kineticEnergyPreserved = new float3(),
                         });
+                        // This is kind of a hack. We add a lifetime component that will never run out so that we can
+                        // avoid structural changes later on (when the blood hits the floor)
+                        ecb.AddComponent(entityInQueryIndex, blood, new Lifetime
+                        {
+                            NormalizedTimeRemaining = 1,
+                            NormalizedDecaySpeed = 0,
+                        });
                     }
                 }
                 else
