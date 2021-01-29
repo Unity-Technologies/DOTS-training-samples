@@ -48,6 +48,7 @@ public class RoundRect
         get => _perimeter;
     }
     
+    
     public RoundRect(float size, float radius)
     {
         Size = size;
@@ -64,9 +65,7 @@ public class RoundRect
 
     public void Interpolate(in float coord, out float3 pos, out float yaw)
     {
-        //float curved = _curved;
         float R =  _curved / _size;
-        //float straight = _straight;
         float total = _straight + _curved;
         float tls = math.saturate(_straight/total);
         float tlr = math.saturate(_curved/total);
@@ -134,8 +133,10 @@ public class RoundRect
 
     public void InterpolateRealDist(in float realDistance, out float3 pos, out float yaw)
     {
-        float normalized = math.frac(realDistance / _perimeter);
-        Interpolate(normalized, out pos, out yaw);
+
+        float normalized = realDistance / _perimeter;
+        
+        Interpolate(normalized % 1f, out pos, out yaw);
     }
 
     public static void InterpolateRoundRect(in float coord, out float3 pos, out float yaw)
@@ -147,7 +148,18 @@ public class RoundRect
 
         _Singleton.Interpolate(in coord, out pos,out yaw);
     }
-    
+
+    public static void InterpolateRoundRectRealDist(in float coord, out float3 pos, out float yaw)
+    {
+        if (_Singleton == null)
+        {
+            _Singleton = new RoundRect(64, 16);
+        }
+
+        _Singleton.InterpolateRealDist(in coord, out pos,out yaw);
+    }
+
+
 
     
 }

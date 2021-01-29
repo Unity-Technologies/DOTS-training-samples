@@ -115,7 +115,7 @@ public class CarMovementSystem : SystemBase
                 //float laneRadius = (trackRadius + (movement.LaneOffset * laneWidth));
                 float3 transXZA;
                 float transYaw;
-                RoundRect.InterpolateRoundRect(movement.Offset, out transXZA, out transYaw);
+                RoundRect.InterpolateRoundRectRealDist(movement.Offset * 50, out transXZA, out transYaw);
     
                 quaternion yawQuat = quaternion.AxisAngle(Vector3.up, transYaw);
                 float cx = math.cos(transYaw + 1);
@@ -128,7 +128,7 @@ public class CarMovementSystem : SystemBase
                 
                 // Move car forward on its track
                 movement.Offset += v * deltaTime;
-                movement.Offset = movement.Offset % 1.0f;
+                //movement.Offset = movement.Offset % 1.0f;
 
                 // Rotate based on where it is on the rounded rect
                 rotation.Value = quaternion.AxisAngle(Vector3.up, transYaw);
