@@ -154,89 +154,228 @@ public class WorldResetSystem : SystemBase
     public static bool DoesPathCollideWithRing(RingElement ring, float2 start, float2 end, out float2 at, out bool outwards)
     {
         outwards = math.lengthsq(start) < math.lengthsq(end);
+        return CollideWithRing(ring, start, end, out at);
+    }
 
-        int n = FindLineCircleIntersections(0, 0, ring.offsets.x, start, end, out float2 i0, out float2 i1);
-        switch (n)
+    public static bool CollideWithRing(RingElement ring, float2 a, float2 b, out float2 at)
+    {
+        if (Inside(ring, a)) // starting off inside the ring
         {
-            case 1:
+            if (!Inside(ring, b)) // end point is outside the ring
+            {
+                int count = Intersections(ring.offsets.x, a, b, out float2 i0, out float2 i1);
+                switch (count)
                 {
-                    if (IsPointInCircle(start, new float2(0, 0), ring.offsets.x - ring.halfThickness))
-                    {
-                        if (!IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    case 1:
                         {
-                            at = OffsetPointByRadius(start, i0, ring.halfThickness);
-
-                            if (!IsWithinOpening(ring, at))
+                            if (OnPath(a, b, i0))
                             {
+                                if (InOpening(ring, i0))
+                                {
+                                    at = b;
+                                    return false;
+                                }
+                                else
+                                {
+                                    at = OffsetPath(a, i0, ring.halfThickness);
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                at = b;
+                                return false;
+                            }
+                        }
+                    case 2:
+                        {
+                            if (OnPath(a, b, i0))
+                            {
+                                if (OnPath(a, b, i1))
+                                {
+                                    float2 point = ClosestPoint(a, i0, i1);
+
+                                    if (InOpening(ring, point))
+                                    {
+                                        at = b;
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        at = OffsetPath(a, point, ring.halfThickness);
+                                        return true;
+                                    }
+                                }
+                                else // if (!OnPath(a, b, i1))
+                                {
+                                    if (InOpening(ring, i0))
+                                    {
+                                        at = b;
+                                        return false;
+                                    }
+                                    else
+                                    {
+                                        at = OffsetPath(a, i0, ring.halfThickness);
+                                        return true;
+                                    }
+                                }
+                            }
+                            else if (OnPath(a, b, i1)) // && !OnPath(a, b, i0))
+                            {
+                                if (InOpening(ring, i1))
+                                {
+                                    at = b;
+                                    return false;
+                                }
+                                else
+                                {
+                                    at = OffsetPath(a, i1, ring.halfThickness);
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                at = b;
+                                return false;
+                            }
+                        }
+                    default:
+                        {
+                            throw new System.Exception("WorldResetSystem.CollideWithRing() - inside->outside miss error.");
+                        }
+                }
+            }
+            else // Both points are inside the ring so ignore.
+            {
+                at = b;
+                return false;
+            }
+        }
+        else // if (Outside(ring, a))
+        {
+            int count = Intersections(ring.offsets.x, a, b, out float2 i0, out float2 i1);
+            switch (count)
+            {
+                case 1:
+                    {
+                        if (OnPath(a, b, i0))
+                        {
+                            if (InOpening(ring, i0))
+                            {
+                                at = b;
+                                return false;
+                            }
+                            else
+                            {
+                                at = OffsetPath(a, i0, ring.halfThickness);
                                 return true;
                             }
                         }
-                    }
-                    else if (IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
-                    {
-                        at = OffsetPointByRadius(start, i0, ring.halfThickness);
-
-                        if (!IsWithinOpening(ring, at))
+                        else
                         {
+                            at = b;
+                            return false;
+                        }
+                    }
+                case 2:
+                    {
+                        bool hit0 = OnPath(a, b, i0) && !InOpening(ring, i0);
+                        bool hit1 = OnPath(a, b, i1) && !InOpening(ring, i1);
+                        if (hit0 && hit1)
+                        {
+                            float2 point = ClosestPoint(a, i0, i1);
+                            at = OffsetPath(a, point, ring.halfThickness);
                             return true;
                         }
+                        else if (hit0)
+                        {
+                            at = OffsetPath(a, i0, ring.halfThickness);
+                            return true;
+                        }
+                        else if (hit1)
+                        {
+                            at = OffsetPath(a, i1, ring.halfThickness);
+                            return true;
+                        }
+                        else
+                        {
+                            at = b;
+                            return false;
+                        }
+                    }
+                default:
+                    {
+                        at = b;
+                        return false;
+                    }
+            }
+        }
+    }
+
+    static bool InOpening(RingElement ring, float2 point)
+    {
+        float rot = WorldResetSystem.GetAngleFromorigin(point);
+        switch (ring.numberOfOpenings)
+        {
+            case 1:
+                {
+                    if (IsBetween(ring.opening0.angles, rot))
+                    {
+                        return true;
                     }
                 }
                 break;
             case 2:
                 {
-                    if (IsPointInCircle(start, new float2(0, 0), ring.offsets.x - ring.halfThickness))
+                    if (IsBetween(ring.opening0.angles, rot))
                     {
-                        if (!IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
-                        {
-                            float d0 = math.distancesq(i0, start);
-                            float d1 = math.distancesq(i1, start);
-                            at = OffsetPointByRadius(start, d0 < d1 ? i0 : i1, ring.halfThickness);
-
-                            if (!IsWithinOpening(ring, at))
-                            {
-                                return true;
-                            }
-                        }
+                        return true;
                     }
-                    else if (IsPointInCircle(end, new float2(0, 0), ring.offsets.x - ring.halfThickness))
-                    {
-                        float d0 = math.distancesq(i0, start);
-                        float d1 = math.distancesq(i1, start);
-                        at = OffsetPointByRadius(start, d0 < d1 ? i0 : i1, ring.halfThickness);
 
-                        if (!IsWithinOpening(ring, at))
-                        {
-                            return true;
-                        }
+                    if (IsBetween(ring.opening1.angles, rot))
+                    {
+                        return true;
                     }
                 }
                 break;
         }
 
-        at = end;
         return false;
+    }
 
-        //bool sinside = IsPointInsideRing(ring, start);
-        //bool einside = IsPointInsideRing(ring, end);
+    static float2 OffsetPath(float2 a, float2 b, float offset)
+    {
+        float2 ab = b - a;
+        if (math.pow(offset, 2) < math.lengthsq(ab))
+        {
+            float m = math.length(ab) - offset;
+            return a + math.normalize(ab) * m;
+        }
 
-        //if (sinside && !einside)
-        //{
-        //    at = ClosestIntersection(0, 0, ring.offsets.x - ring.halfThickness, start, end);
-        //    outwards = true;
-        //    return !IsWithinOpening(ring, at);
-        //}
-        //else if (!sinside && einside)
-        //{
-        //    at = ClosestIntersection(0, 0, ring.offsets.x + ring.halfThickness, start, end);
-        //    outwards = false;
-        //    return !IsWithinOpening(ring, at);
-        //}
+        return a;
+    }
 
-        //outwards = false;
-        //at = default(float2);
+    static float2 ClosestPoint(float2 a, float2 point0, float2 point1)
+    {
+        return math.lengthsq(point0 - a) < math.lengthsq(point1 - a) ? point0 : point1;
+    }
 
-        //return false;
+    static bool OnPath(float2 a, float2 b, float2 point)
+    {
+        float2 ab = b - a;
+        float2 aPoint = point - a;
+
+        if (0 < math.dot(ab, aPoint))
+        {
+            return math.lengthsq(ab) > math.lengthsq(aPoint);
+        }
+
+        return false;
+    }
+
+    static bool Inside(RingElement ring, float2 point)
+    {
+        return math.lengthsq(point) <= math.pow(ring.offsets.x, 2.0F);
     }
 
     // https://stackoverflow.com/questions/23016676/line-segment-and-circle-intersection
@@ -263,7 +402,12 @@ public class WorldResetSystem : SystemBase
         return lineEnd;
     }
 
-    private static int FindLineCircleIntersections(float cx, float cy, float radius, float2 point1, float2 point2, out float2 intersection1, out float2 intersection2)
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    static int Intersections(float radius, float2 point1, float2 point2, out float2 intersection1, out float2 intersection2)
+    {
+        return FindLineCircleIntersections(0, 0, radius, point1, point2, out intersection1, out intersection2);
+    }
+    static int FindLineCircleIntersections(float cx, float cy, float radius, float2 point1, float2 point2, out float2 intersection1, out float2 intersection2)
     {
         float dx, dy, A, B, C, det, t;
 
