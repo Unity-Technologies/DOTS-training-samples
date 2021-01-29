@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using NUnit.Framework;
 using TMPro;
+using Unity.Mathematics;
 using UnityEditor.Build.Pipeline;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -26,29 +27,37 @@ public class UIValues : MonoBehaviour
     public Slider TrackSizeSlider;
     public Slider CornerRadiusSlider;
     public Slider CarCountSlider;
-
+    public Text DisplayText;
     
     protected int Iteration;
-
+    protected int CarCount = 40;
     public void SetModified()
     {
+        
+        float scaled = math.pow(CarCountSlider.value, 9);
+        CarCount = Mathf.FloorToInt(math.lerp(40, 600000, scaled));
+
+
         Iteration++;
-        Debug.Log(UIValues.Singleton);
+        DisplayText.text = CarCount.ToString();
     }
 
 
     public TrackSettings CurrentTrackSettings()
     {
+  
         return new TrackSettings
         {
             TrackSize = TrackSizeSlider.value,
             CornerRadius = Mathf.Min(CornerRadiusSlider.value, TrackSizeSlider.value / 4f),
-            CarCount = Mathf.RoundToInt(CarCountSlider.value),
+            CarCount = CarCount,
             DriverRatio = 1,  // this would be nice to change interactively, but too late
             Iteration = Iteration
         };
     }
 
+    
+    
     public static int GetModified()
     {
         if (UIValues.Singleton == null)
