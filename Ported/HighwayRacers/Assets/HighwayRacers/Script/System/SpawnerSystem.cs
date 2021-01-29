@@ -1,11 +1,14 @@
-﻿using Unity.Collections;
+﻿using NUnit.Framework.Constraints;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+
 public class SpawnerSystem : SystemBase
 {
+
     public static float4 LowVelocityColor = new float4(1,0,0,1);
     public static float4 AmericanColors = new float4(0,1,0,1);
     public static float4 EuropeanColors = new float4(0,0,1,1);
@@ -79,8 +82,11 @@ public class SpawnerSystem : SystemBase
     public static readonly float TrackCirconference = ((CarMovementSystem.TrackRadius/2.0f) * 4.0f)/182.0f;
     public static readonly float MinimumVelocity = 0.035f/TrackCirconference;
     public static readonly float MaximumVelocity = 0.075f/TrackCirconference;
+
     private EntityQuery RequirePropagation;
     private TrackOccupancySystem m_TrackOccupancySystem;
+    private TrackSettings CurrentTrackSettings;
+    private int CurrentSpawnCount;
 
     protected override void OnCreate()
     {
@@ -89,17 +95,56 @@ public class SpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        // Propagate color from parent to child entities
+        // We do this every frame because we change the color of the cars
 
-        // The PRNG (pseudorandom number generator) from Unity.Mathematics is a struct
-        // and can be used in jobs. For simplicity and debuggability in development,
-        // we'll initialize it with a constant. (In release, we'd want a seed that
-        // randomly varies, such as the time from the user's system clock.)
+        // A "ComponentDataFromEntity" allows random access to a component type from a job.
+        // This much slower than accessing the components from the current entity via the
+        // lambda parameters.
+        var cdfe = GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
+
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        Entities
+            // Random access to components for writing can be a race condition.
+            // Here, we know for sure that prefabs don't share their entities.
+            // So explicitly request to disable the safety system on the CDFE.
+            .WithNativeDisableContainerSafetyRestriction(cdfe)
+            .WithStoreEntityQueryInField(ref RequirePropagation)
+            .ForEach((in DynamicBuffer<LinkedEntityGroup> group
+                , in URPMaterialPropertyBaseColor color) =>
+            {
+                for (int i = 1; i < group.Length; ++i)
+                {
+                    cdfe[group[i].Value] = color;
+                }
+            }).ScheduleParallel();
+
+
+        // The code below only runs when the UI updates
+
+
+        if (UIValues.GetModified() == CurrentTrackSettings.Iteration && CurrentTrackSettings.Iteration > 0)
+        {
+            return;
+        }
+
+        CurrentTrackSettings = UIValues.GetTrackSettings();
+        if (CurrentSpawnCount == CurrentTrackSettings.CarCount)
+        {
+            return;
+        }
+
+        CurrentSpawnCount = CurrentTrackSettings.CarCount;
+        
+        var carCount = CurrentSpawnCount;
+
         var random = new Random(1234);
         uint laneCount = m_TrackOccupancySystem.LaneCount;
         uint tilesPerLane = TrackOccupancySystem.TilesPerLane;
         float minimumVelocity = MinimumVelocity;
         float maximumVelocity = MaximumVelocity;
+
 
         float4 americanColors = AmericanColors;
         float4 europeanColors = EuropeanColors;
@@ -148,10 +193,8 @@ public class SpawnerSystem : SystemBase
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
-                // This ensures we only spawn cars once since there will be no 'Spawner' entity left in the scene.
-                ecb.DestroyEntity(entity);
 
-                for (uint i = 0; i < spawner.CarCount; ++i)
+                for (uint i = 0; i < carCount; ++i)
                 {
                     var vehicle = ecb.Instantiate(spawner.CarPrefab);
                     var translation = new Translation {Value = new float3(0, 0, 0)};
@@ -178,8 +221,9 @@ public class SpawnerSystem : SystemBase
                     {
                         // todo here we ar enot smart enough. Two cars might end up in the same tile.
                         // This means they can drive through each other.
-                        Offset = (float)i / spawner.CarCount,
+                        Offset = (float) i / spawner.CarCount,
                         Lane = currentLane,
+
                         LaneOffset = (float)currentLane,
                         Velocity = velocity,
                         CurrentVelocity = velocity,

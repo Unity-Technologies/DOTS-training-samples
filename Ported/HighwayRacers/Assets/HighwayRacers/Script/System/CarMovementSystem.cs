@@ -143,7 +143,7 @@ public class CarMovementSystem : SystemBase
                 
                 // Move car forward on its track
                 movement.Offset += movement.CurrentVelocity * deltaTime;
-                movement.Offset = movement.Offset % 1.0f;
+
 
                 // Rotate based on where it is on the rounded rect
                 rotation.Value = quaternion.AxisAngle(Vector3.up, transYaw);

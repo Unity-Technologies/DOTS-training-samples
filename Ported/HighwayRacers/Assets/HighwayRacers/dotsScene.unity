@@ -123,6 +123,24 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &489193283 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6722007808755759883, guid: 660430f7739b1424ca864eabe52e7924,
+    type: 3}
+  m_PrefabInstance: {fileID: 1955580748}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &489193287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489193283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3af4c32e901a75240b671f4de4948542, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!850595691 &511778311
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -459,6 +477,31 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 704638167180049655, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: m_IsOn
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 704638167180049655, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 704638167180049655, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 489193287}
+    - target: {fileID: 704638167180049655, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetFPV
+      objectReference: {fileID: 0}
+    - target: {fileID: 704638167180049655, guid: 660430f7739b1424ca864eabe52e7924,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: FollowCam, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 2691883838990641544, guid: 660430f7739b1424ca864eabe52e7924,
         type: 3}
       propertyPath: m_AnchorMax.x
