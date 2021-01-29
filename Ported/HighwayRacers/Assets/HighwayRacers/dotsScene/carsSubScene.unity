@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fb71d4d96845124eafc19e0448c5a93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CarCount: 700000
+  CarCount: 100
   CarPrefab: {fileID: 795790965114652379, guid: d23657833e865b64db1ac08213a863e0,
     type: 3}
   TilePrefab: {fileID: 2671280468409618023, guid: 42169e8d6e7f1ff439d9986e513241c3,
