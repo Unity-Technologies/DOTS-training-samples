@@ -2,19 +2,22 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(FoodBuilderSystem))]
 public class AntSpawnerSystem : SystemBase
 {
     private EntityCommandBufferSystem bufferSystem;
     protected override void OnCreate()
     {
         bufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<FoodBuilder>();
     }
 
     protected override void OnUpdate()
     {
         var ecb = bufferSystem.CreateCommandBuffer();
 
+        float2 foodPos = this.GetSingleton<FoodBuilder>().foodLocation;
         var random = new Unity.Mathematics.Random(1234);
 
         Entities
@@ -30,6 +33,7 @@ public class AntSpawnerSystem : SystemBase
 
                     ecb.SetComponent(instance, heading);
                     ecb.SetComponent(instance, translation);
+                    ecb.AddComponent(instance, new CurrentTarget(){Value = foodPos});
                 }
                 
                 ecb.AddComponent<Initialized>(entity);

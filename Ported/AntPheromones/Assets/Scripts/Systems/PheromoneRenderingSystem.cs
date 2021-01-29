@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public class PheromoneRenderingSystem : SystemBase
 {
     protected override void OnCreate()

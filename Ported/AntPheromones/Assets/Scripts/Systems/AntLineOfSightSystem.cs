@@ -4,8 +4,10 @@ using Unity.Core;
 using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Properties;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(AntSpawnerSystem))]
 public class AntLineOfSightSystem : SystemBase
 {
 	private EntityCommandBufferSystem bufferSystem;
@@ -27,79 +29,35 @@ public class AntLineOfSightSystem : SystemBase
 		var ringEntity = GetSingletonEntity<RingElement>();
 		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
 
-		float2 foodPos = GetSingleton<FoodBuilder>().foodLocation;
-		float2 homePos = new float2(0, 0);
-
-		float maxLosDistSq = GetSingleton<Tuning>().MaxLosDistSq;
-
-		// test line of sight to food
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
-			WithNone<HasFood>().
-			WithAll<AntHeading>().
 			WithReadOnly(rings).
-			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
+			ForEach((Entity entity, ref AntHeading antHeading,in CurrentTarget currentTarget, in Translation translation) =>
 			{
 				bool hasLOS = true;
-
+		
 				float2 antPos = new float2(translation.Value.x, translation.Value.y);
 				float2 collisionPos;
-
-				float distSq = math.lengthsq(antPos - foodPos);
-				if (distSq < maxLosDistSq)
-				{
-					for (int i = 0; i < rings.Length; i++)
-					{
-						RingElement ring = rings[i];
-
-						if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, foodPos, out collisionPos, out bool outWards))
-						{
-							hasLOS = false;
-							break;
-						}
-					}
-
-					if (hasLOS)
-					{
-						antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(foodPos.x - antPos.x, foodPos.y - antPos.y);
-						ecbWriter.AddComponent<AntLineOfSight>(0, entity);
-					}
-				}
-			}).ScheduleParallel();
-
-		// test line of sight to home
-		Entities.
-			WithAll<AntPathing>().
-			WithNone<AntLineOfSight>().
-			WithAll<HasFood>().
-			WithAll<AntHeading>().
-			WithReadOnly(rings).
-			ForEach((Entity entity, ref AntHeading antHeading, in Translation translation) =>
-			{
-				bool hasLOS = true;
-
-				float2 antPos = new float2(translation.Value.x, translation.Value.y);
-				float2 collisionPos;
-
+		
 				for (int i = 0; i < rings.Length; i++)
 				{
 					RingElement ring = rings[i];
-
-					if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, homePos, out collisionPos, out bool outWards))
+		
+					if (WorldResetSystem.DoesPathCollideWithRing(ring, antPos, currentTarget.Value, out collisionPos, out bool outWards))
 					{
 						hasLOS = false;
 						break;
 					}
 				}
-
+		
 				if (hasLOS)
 				{
-					antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(homePos.x - antPos.x, homePos.y - antPos.y);
+					antHeading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(currentTarget.Value.x - antPos.x, currentTarget.Value.y - antPos.y);
 					ecbWriter.AddComponent<AntLineOfSight>(0, entity);
 				}
 			}).ScheduleParallel();
-
+		
 		bufferSystem.AddJobHandleForProducer(Dependency);
 	}
 }

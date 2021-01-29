@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using System;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(PheromoneDecaySystem))]
 public class AntPheromoneDropSystem : SystemBase
 {
     float _timeElapsed = 0;
@@ -32,10 +33,7 @@ public class AntPheromoneDropSystem : SystemBase
         _timeElapsed = 0;
 
         Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
-
         DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
-
-        var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
 
         // Warning - We disabled the safety check!
         // Two ants on the same position will not be able to write to the same index on the buffer

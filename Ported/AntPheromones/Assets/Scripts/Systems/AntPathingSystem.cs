@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Properties;
 
+[UpdateBefore(typeof(AntLineOfSightSystem))]
 public class AntPathingSystem : SystemBase
 {
 	Unity.Mathematics.Random _random;
@@ -31,7 +33,6 @@ public class AntPathingSystem : SystemBase
 
 		Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
 		DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
-		var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
 
 		ObstacleBuilder map = this.GetSingleton<ObstacleBuilder>();
 		float2 mapSize = new float2(map.dimensions.x / 2, map.dimensions.y / 2);
@@ -208,7 +209,7 @@ public class AntPathingSystem : SystemBase
 					target.Target.y = translation.Value.y;
 				}
 			}).ScheduleParallel();
-
+		
 		// copy target into translation.  we have already done this if we have LineOfSight because we ignore collision tests
 		Entities.
 			WithAll<AntPathing>().
@@ -218,5 +219,6 @@ public class AntPathingSystem : SystemBase
 			translation.Value.x = target.Target.x;
 			translation.Value.y = target.Target.y;
 		}).ScheduleParallel();
+		
 	}
 }

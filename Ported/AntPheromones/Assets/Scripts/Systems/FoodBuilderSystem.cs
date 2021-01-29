@@ -7,6 +7,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FoodBuilderSystem : SystemBase
 {
     protected override void OnCreate()
