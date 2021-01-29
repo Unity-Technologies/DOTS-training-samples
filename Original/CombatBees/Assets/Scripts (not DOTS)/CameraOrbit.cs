@@ -14,7 +14,7 @@ public class CameraOrbit : MonoBehaviour {
 	float smoothViewDist;
 
 	void Start () {
-		viewDist = 70f;
+		viewDist = 50f;
 		smoothViewDist = viewDist;
 	}
 	
