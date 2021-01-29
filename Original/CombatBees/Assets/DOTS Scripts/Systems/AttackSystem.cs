@@ -6,6 +6,7 @@ using Unity.Mathematics;
 public class AttackSystem : SystemBase
 {
     private ComponentTypes typesToRemoveFromAttacker;
+    private EntityCommandBufferSystem ecbs;
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<SpawnZones>();
@@ -18,11 +19,12 @@ public class AttackSystem : SystemBase
         };
 
         typesToRemoveFromAttacker = new ComponentTypes(types);
+        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
         var spawnZones = GetSingleton<SpawnZones>();
         var typesToRemoveFromAttacker = this.typesToRemoveFromAttacker;
 
@@ -31,34 +33,34 @@ public class AttackSystem : SystemBase
         Entities
             .WithName("Attack")
             .WithAll<BeeTag, AttackingBeeTag>()
-            .ForEach((Entity e, ref Translation translation, ref TargetPosition t, ref RandomComponent rng, ref PhysicsData physics, in AttackData attackData, in MoveTarget moveTarget) =>
+            .ForEach((Entity e, int entityInQueryIndex,ref Translation translation, ref TargetPosition t, ref RandomComponent rng, ref PhysicsData physics, in AttackData attackData, in MoveTarget moveTarget) =>
             {
                 if (MathUtil.IsWithinDistance(attackData.Distance, t.Value, translation.Value))
                 {
                     //We're close enough to the bee we want to attack. So turn it into a corpse.
-                    ecb.RemoveComponent<BeeTag>(moveTarget.Value);
-                    ecb.AddComponent<BeeCorpseTag>(moveTarget.Value);
-                    ecb.AddComponent(moveTarget.Value, Lifetime.FromTimeRemaining(5));
+                    ecb.RemoveComponent<BeeTag>(entityInQueryIndex, moveTarget.Value);
+                    ecb.AddComponent<BeeCorpseTag>(entityInQueryIndex, moveTarget.Value);
+                    ecb.AddComponent(entityInQueryIndex, moveTarget.Value, Lifetime.FromTimeRemaining(5));
 
                     //Keep in mind you have to also have the targeted bee drop whatever food it's carrying. Or rather,
                     //have the food recognize it's not being picked up anymore.
                     if (HasComponent<CarriedFood>(moveTarget.Value))
                     {
                         var carriedFood = GetComponent<CarriedFood>(moveTarget.Value).Value;
-                        ecb.RemoveComponent<CarrierBee>(carriedFood);
+                        ecb.RemoveComponent<CarrierBee>(entityInQueryIndex, carriedFood);
                     }
 
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
-                    ecb.RemoveComponent(e, typesToRemoveFromAttacker);
+                    ecb.RemoveComponent(entityInQueryIndex, e, typesToRemoveFromAttacker);
 
                     // Create a blood droplet
                     var numberOfBloodDrops = rng.Value.NextInt(2, 5);
                     for (int i = 0; i < numberOfBloodDrops; ++i)
                     {
-                        var blood = ecb.Instantiate(spawnZones.BloodPrefab);
-                        ecb.AddComponent(blood, new RandomComponent() { Value = new Random(rng.Value.NextUInt()) });
-                        ecb.SetComponent(blood, translation);
-                        ecb.SetComponent(blood, new PhysicsData
+                        var blood = ecb.Instantiate(entityInQueryIndex, spawnZones.BloodPrefab);
+                        ecb.AddComponent(entityInQueryIndex, blood, new RandomComponent() { Value = new Random(rng.Value.NextUInt()) });
+                        ecb.SetComponent(entityInQueryIndex, blood, translation);
+                        ecb.SetComponent(entityInQueryIndex, blood, new PhysicsData
                         {
                             a = new float3(),
                             v = physics.v + rng.Value.NextFloat3(new float3(math.length(physics.v) / 3)),
@@ -73,9 +75,6 @@ public class AttackSystem : SystemBase
                     var norm = math.normalize(direction);
                     physics.a += norm * attackData.Force;
                 }
-            }).Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            }).ScheduleParallel();
     }
 }
