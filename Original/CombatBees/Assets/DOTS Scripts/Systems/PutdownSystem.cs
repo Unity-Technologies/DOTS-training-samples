@@ -35,7 +35,7 @@ public class PutdownSystem : SystemBase
                     if (EntityManager.Exists(food.Value))
                     {
                         //Mark food as intentionally dropped, so that no other bees are told to pick it up. 
-                        ecb.AddComponent<IntentionallyDroppedFoodTag>(food.Value);
+                        //ecb.AddComponent<IntentionallyDroppedFoodTag>(food.Value);
                         if (allPhysics.HasComponent(food.Value))
                         {
                             var foodPhysics = allPhysics[food.Value];
