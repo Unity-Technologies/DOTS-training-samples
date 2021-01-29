@@ -54,7 +54,7 @@ public class AttackSystem : SystemBase
                     ecb.RemoveComponent(entityInQueryIndex, e, typesToRemoveFromAttacker);
 
                     // Create a blood droplet
-                    var numberOfBloodDrops = rng.Value.NextInt(2, 5);
+                    var numberOfBloodDrops = rng.Value.NextInt(1, 4);
                     for (int i = 0; i < numberOfBloodDrops; ++i)
                     {
                         var blood = ecb.Instantiate(entityInQueryIndex, spawnZones.BloodPrefab);

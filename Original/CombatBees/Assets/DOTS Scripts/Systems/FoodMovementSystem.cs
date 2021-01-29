@@ -6,21 +6,36 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(TargetingTrackingSystem))]
 public class FoodMovementSystem : SystemBase
 {
+    private EntityCommandBufferSystem ecbs;
+    
+    protected override void OnCreate()
+    {
+        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var allTranslations = GetComponentDataFromEntity<Translation>();
-
+        var pecb = ecbs.CreateCommandBuffer().AsParallelWriter();
+        
         Entities
-            .WithName("CarriedFoodMovementSystem")
-            .WithNativeDisableParallelForRestriction(allTranslations)
+            .WithName("FoodMovementSystem")
             .WithAll<FoodTag, CarrierBee>()
-            .ForEach((Entity e, ref PhysicsData physicsData, in CarrierBee b) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref PhysicsData physicsData, in CarrierBee b) =>
             {
-                var beePosition = allTranslations[b.Value];
-                var foodPos = allTranslations[e];
-                foodPos.Value = beePosition.Value + new float3(0f, -1f, 0f);
-                physicsData.v = 0;
-                allTranslations[e] = foodPos;
+                if (HasComponent<Translation>(b.Value))
+                {
+                    var beePosition = GetComponent<Translation>(b.Value);
+                    physicsData.v = 0;
+                    pecb.SetComponent(entityInQueryIndex, e, new Translation()
+                    {
+                        Value = beePosition.Value + new float3(0f, -1f, 0f)
+                    });
+                }
+                else
+                {
+                    //If the bee carrying us doesn't exist, it means it's dead. So we have to drop again. 
+                    pecb.RemoveComponent<CarrierBee>(entityInQueryIndex, e);
+                }
 
             }).ScheduleParallel();
     }
