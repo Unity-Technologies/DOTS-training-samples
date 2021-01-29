@@ -42,7 +42,7 @@ public class AntPheromoneDropSystem : SystemBase
             .WithNativeDisableParallelForRestriction(pheromoneBuffer)
             .ForEach((Entity entity, in Translation translation) =>
             {
-                int gridIndex = MapCoordinateSystem.PositionToIndex( new float2(translation.Value.x, translation.Value.y), tuning);
+                int gridIndex = CoordinateUtilities.PositionToIndex( new float2(translation.Value.x, translation.Value.y), tuning);
 
                 // Set our randomly selected index value to something 
                 int pVal = pheromoneBuffer[gridIndex].Value;

@@ -49,9 +49,6 @@ public class AntPathingSystem : SystemBase
 			WithReadOnly(pheromoneBuffer).
 			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
 		{
-			float2 myPos = new float2(translation.Value.x, translation.Value.y);
-			int myGrid = MapCoordinateSystem.PositionToIndex(myPos, tuning);
-
 			float pValue;
 
 			float headingOffset = random.NextFloat() * (angleRange);
@@ -60,21 +57,21 @@ public class AntPathingSystem : SystemBase
 			float degreesLeft = heading.Degrees - headingOffset;
 			float radsLeft = Mathf.Deg2Rad * degreesLeft;
 			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
-			int gridLeft = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
+			int gridLeft = CoordinateUtilities.PositionToIndex(seekLeft, tuning);
 			pValue = ((float)pheromoneBuffer[gridLeft])/255f;
 			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesRight = heading.Degrees + headingOffset;
 			float radsRight = Mathf.Deg2Rad * degreesRight;
 			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
-			int gridRight = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
+			int gridRight = CoordinateUtilities.PositionToIndex(seekRight, tuning);
 			pValue = ((float)pheromoneBuffer[gridRight]) / 255f;
 			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
 
 			float degreesFwd = heading.Degrees;
 			float radsFwd = Mathf.Deg2Rad * degreesFwd;
 			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
-			int gridFwd = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
+			int gridFwd = CoordinateUtilities.PositionToIndex(seekFwd, tuning);
 			pValue = ((float)pheromoneBuffer[gridFwd]) / 255f;
 			float weightFwd = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue) * tuning.AntFwdWeighting;
 
