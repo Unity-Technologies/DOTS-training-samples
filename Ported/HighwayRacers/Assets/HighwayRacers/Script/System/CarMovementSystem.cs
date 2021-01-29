@@ -1,12 +1,10 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
-// Any type inheriting from SystemBase will be registered as a system and will start
-// updating every frame.
 public class CarMovementSystem : SystemBase
 {
-
     public const float straightPieceLength = (HighwayRacers.Highway.LANE0_LENGTH - HighwayRacers.Highway.CURVE_LANE0_RADIUS * 4) / 4;
     public const float derrivedTrackRadius = straightPieceLength + HighwayRacers.Highway.MID_RADIUS * 2.0f;
 
@@ -110,11 +108,15 @@ public class CarMovementSystem : SystemBase
 
         var readOccupancy = m_TrackOccupancySystem.GetReadBuffer(_Frame);
 
+        float4 lowVelocityColor = SpawnerSystem.LowVelocityColor;
+        float4 americanColors = SpawnerSystem.AmericanColors;
+        float4 europeanColors = SpawnerSystem.EuropeanColors;
+
         Entities
             .WithNativeDisableContainerSafetyRestriction(readOccupancy)
-            .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement) =>
+            .ForEach((ref Translation translation, ref Rotation rotation, ref CarMovement movement, ref URPMaterialPropertyBaseColor baseColor) =>
             {
-                // Limit cars from switching lanes to frequently
+                // Limit cars from switching lanes too frequently
                 movement.LaneSwitchCounter -= deltaTime;
 
                 // Get occupancy of nearby tiles
@@ -169,7 +171,13 @@ public class CarMovementSystem : SystemBase
 
                 // All cars move at the minimum required speed on the highway.
                 // (We don't want cars to stop if the tile in front is occupied)
-                float v = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
+                movement.CurrentVelocity = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
+
+                // Turn cars red the longer they cannot reach their desired speed
+                if (movement.CurrentVelocity < movement.Velocity)
+                    baseColor.Value = math.lerp(baseColor.Value, lowVelocityColor, deltaTime);
+                else
+                    baseColor.Value = baseColor.Value = math.lerp(baseColor.Value, movement.Profile == DriverProfile.American ? americanColors : europeanColors, deltaTime);
 
                 // LaneOffset is the physical lane position of the car while Lane
                 // is the lane the car wants to be in. Let's make progress to
@@ -186,7 +194,7 @@ public class CarMovementSystem : SystemBase
                 translation.Value.z = transXZA.y + (TrackRadius)/2.0f - HighwayRacers.Highway.MID_RADIUS + HighwayRacers.Highway.LANE_SPACING * 1.5f;
 
                 // Move car forward on its track
-                movement.Offset += v * deltaTime;
+                movement.Offset += movement.CurrentVelocity * deltaTime;
                 movement.Offset = movement.Offset % 1.0f;
 
                 // Rotate based on where it is on the rounded rect

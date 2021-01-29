@@ -6,6 +6,9 @@ using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
+    public static float4 LowVelocityColor = new float4(1,0,0,1);
+    public static float4 AmericanColors = new float4(0,1,0,1);
+    public static float4 EuropeanColors = new float4(0,0,1,1);
 
   static float3 MapToRoundedCorners(float t, float radius)
     {
@@ -98,7 +101,8 @@ public class SpawnerSystem : SystemBase
         float minimumVelocity = MinimumVelocity;
         float maximumVelocity = MaximumVelocity;
 
-        float4 americanColors = new float4(1,0,0,1);
+        float4 americanColors = AmericanColors;
+        float4 europeanColors = EuropeanColors;
 
         if (TrackOccupancySystem.ShowDebugTiles)
         {
@@ -144,6 +148,7 @@ public class SpawnerSystem : SystemBase
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
+                // This ensures we only spawn cars once since there will be no 'Spawner' entity left in the scene.
                 ecb.DestroyEntity(entity);
 
                 for (uint i = 0; i < spawner.CarCount; ++i)
@@ -160,11 +165,7 @@ public class SpawnerSystem : SystemBase
                         profile = random.NextBool() ? DriverProfile.American : DriverProfile.European;
                     }
                     
-                    float4 carColor = random.NextFloat4();
-                    if (profile == DriverProfile.American)
-                    {
-                        carColor = americanColors;
-                    }
+                    float4 carColor = profile == DriverProfile.American ? americanColors : europeanColors;
                     
                     ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
                     {

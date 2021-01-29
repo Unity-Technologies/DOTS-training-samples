@@ -16,6 +16,7 @@ public class SpawnerAuthoring : MonoBehaviour
     public int CarCount;
     public GameObject CarPrefab;
     public GameObject TilePrefab;
+    [Tooltip("European cars are green. American cars are blue")]
     public DriverProfile DriverProfile = DriverProfile.Random;
 
     // This function is required by IDeclareReferencedPrefabs
