@@ -5,14 +5,16 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using System;
+using UnityEngine;
 
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+//[UpdateAfter(typeof(AntPheromoneDropSystem))]
 public class PheromoneDecaySystem : SystemBase
 {
     float _timeElapsed = 0;
 
     protected override void OnCreate()
     {
+        Debug.Log("OnCreate");
         //var sys = World.GetExistingSystem<FixedStepSimulationSystemGroup>();
         //sys.Timestep = 0.1f;
         RequireSingletonForUpdate<PheromoneStrength>();

@@ -296,6 +296,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ObstacleBuilder
       objectReference: {fileID: 0}
+    - target: {fileID: 8502653941959296774, guid: ce6169c7ab264884faf479bc9fbf5c73, type: 3}
+      propertyPath: obstacleRadius
+      value: 0.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ce6169c7ab264884faf479bc9fbf5c73, type: 3}
 --- !u!1001 &5316568138664931846
@@ -365,6 +369,10 @@ PrefabInstance:
     - target: {fileID: 5884946129727149955, guid: f09d61af5e59a2a40aa3ff2c722f768b, type: 3}
       propertyPath: m_Name
       value: AntSpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 5884946129727150076, guid: f09d61af5e59a2a40aa3ff2c722f768b, type: 3}
+      propertyPath: AntCount
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5884946129727150077, guid: f09d61af5e59a2a40aa3ff2c722f768b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -466,6 +474,10 @@ PrefabInstance:
     - target: {fileID: 8925793196636370138, guid: 707c0f44e96484e48865d9fa017e0fa2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8925793196636370139, guid: 707c0f44e96484e48865d9fa017e0fa2, type: 3}
+      propertyPath: Speed
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 707c0f44e96484e48865d9fa017e0fa2, type: 3}

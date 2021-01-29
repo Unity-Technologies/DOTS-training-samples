@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
+[UpdateInGroup( typeof(InitializationSystemGroup))]
 public class AntSpawnerSystem : SystemBase
 {
     private EntityCommandBufferSystem bufferSystem;

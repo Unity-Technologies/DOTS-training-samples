@@ -1,11 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Properties;
+using Random = Unity.Mathematics.Random;
 
+//[UpdateBefore(typeof(AntPheromoneDropSystem))]
 public class AntPathingSystem : SystemBase
 {
 	Unity.Mathematics.Random _random;
@@ -31,7 +35,6 @@ public class AntPathingSystem : SystemBase
 
 		Entity pheromoneEntity = GetSingletonEntity<PheromoneStrength>();
 		DynamicBuffer<PheromoneStrength> pheromoneBuffer = GetBuffer<PheromoneStrength>(pheromoneEntity);
-		var pheromoneRenderingRef = this.GetSingleton<GameObjectRefs>().PheromoneRenderingRef;
 
 		ObstacleBuilder map = this.GetSingleton<ObstacleBuilder>();
 		float2 mapSize = new float2(map.dimensions.x / 2, map.dimensions.y / 2);
@@ -39,70 +42,130 @@ public class AntPathingSystem : SystemBase
 		float seekAhead = 2f;
 		float speed = tuning.Speed * time;
 		float angleRange = tuning.AntAngleRange;
-		Unity.Mathematics.Random random = new Unity.Mathematics.Random(_random.NextUInt());
+		Random random = new Random(_random.NextUInt());
 
-		// no line of sight, pick a direction
+		
+		//Debug.Log($"angleRange {angleRange}");
+		//Debug.Log($"seekAhead {seekAhead}");
+		// Debug.Log($"speed {speed}");
+		
+		float headingOffset = random.NextFloat() * (angleRange);
+		Debug.Log($"headingOffset {headingOffset}");
+		var jobHandleA = new JobHandle();
+		var jobHandleB = new JobHandle();
+		var jobHandleC = new JobHandle();
+		
+		//Left
+		Entities.
+			WithAll<AntPathing>().
+			WithNone<AntLineOfSight>().
+			WithNativeDisableContainerSafetyRestriction(pheromoneBuffer).
+			ForEach((ref WeightLeft weight, in Translation translation,in AntHeading heading) =>
+		{
+			weight.Degrees = heading.Degrees - headingOffset;
+			weight.Rads = math.radians(weight.Degrees);
+			var seek = new float2(translation.Value.x + seekAhead * math.sin(weight.Rads), translation.Value.y + seekAhead * math.cos(weight.Rads));
+			int grid = MapCoordinateSystem.PositionToIndex(seek, tuning);
+			var pValue = (pheromoneBuffer[grid])/255f;
+			weight.Weight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
+		
+			//Debug.Log($"1 angleRange {angleRange}");
+			Debug.Log($"inside headingOffset {headingOffset}");
+			// Debug.Log($"1headingOffset {headingOffset}");
+			// Debug.Log($"1weight.Degrees {weight.Degrees}");
+			// Debug.Log($"1weight.Rads {weight.Rads}");
+			// Debug.Log($"1seek {seek}");
+			// Debug.Log($"1grid {grid}");
+			// Debug.Log($"1pValue {pValue}");
+			// Debug.Log($"1weight.Weight {weight.Weight}");
+		}).ScheduleParallel();
+
+		//Right
 		Entities.
 			WithAll<AntPathing>().
 			WithNone<AntLineOfSight>().
 			WithReadOnly(pheromoneBuffer).
-			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation, in Translation translation) =>
+			ForEach((ref WeightRight weight, in Translation translation,in AntHeading heading) =>
+			{
+				weight.Degrees = heading.Degrees + headingOffset;
+				weight.Rads = math.radians(weight.Degrees);
+				var seek = new float2(translation.Value.x + seekAhead * math.sin(weight.Rads), translation.Value.y + seekAhead * math.cos(weight.Rads));
+				int grid = MapCoordinateSystem.PositionToIndex(seek, tuning);
+				var pValue = (pheromoneBuffer[grid])/255f;
+				weight.Weight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
+				//
+				// Debug.Log($"2angleRange {angleRange}");
+				// Debug.Log($"2seekAhead {seekAhead}");
+				// Debug.Log($"2headingOffset {headingOffset}");
+				// Debug.Log($"2weight.Degrees {weight.Degrees}");
+				// Debug.Log($"2weight.Rads {weight.Rads}");
+				// Debug.Log($"2seek {seek}");
+				// Debug.Log($"2grid {grid}");
+				// Debug.Log($"2pValue {pValue}");
+				// Debug.Log($"2weight.Weight {weight.Weight}");
+			}).ScheduleParallel();
+
+		// Forward
+		Entities.
+			WithAll<AntPathing>().
+			WithNone<AntLineOfSight>().
+			WithReadOnly(pheromoneBuffer).
+			ForEach((ref WeightForward weight, in Translation translation,in AntHeading heading) =>
+			{
+				weight.Degrees = heading.Degrees;
+				weight.Rads = math.radians(heading.Degrees);
+				var seek = new float2(translation.Value.x + seekAhead * math.sin(weight.Rads), translation.Value.y + seekAhead * math.cos(weight.Rads));
+				int grid = MapCoordinateSystem.PositionToIndex(seek, tuning);
+				var pValue = (pheromoneBuffer[grid])/255f;
+				weight.Weight = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue) * 3;
+				
+				
+				// Debug.Log($"3angleRange {angleRange}");
+				// Debug.Log($"3seekAhead {seekAhead}");
+				// Debug.Log($"3weight.Degrees {weight.Degrees}");
+				// Debug.Log($"3weight.Rads {weight.Rads}");
+				// Debug.Log($"3seek {seek}");
+				// Debug.Log($"3grid {grid}");
+				// Debug.Log($"3pValue {pValue}");
+				// Debug.Log($"3weight.Weight {weight.Weight}");
+			}).ScheduleParallel();
+
+		//Dependency = JobHandle.CombineDependencies(jobHandleA, jobHandleB, jobHandleC);
+		
+		Entities.
+			WithAll<AntPathing>().
+			WithNone<AntLineOfSight>().
+			ForEach((ref AntHeading heading, ref AntTarget target, ref Rotation rotation,
+				in WeightForward forward, in WeightLeft left, in WeightRight right, in Translation translation) =>
 		{
-			float2 myPos = new float2(translation.Value.x, translation.Value.y);
-			int myGrid = MapCoordinateSystem.PositionToIndex(myPos, tuning);
 
-			float pValue;
-
-			float headingOffset = random.NextFloat() * (angleRange);
-
-			// calculate all targets left, right, fwd with weighting
-			float degreesLeft = heading.Degrees - headingOffset;
-			float radsLeft = Mathf.Deg2Rad * degreesLeft;
-			float2 seekLeft = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsLeft), translation.Value.y + seekAhead * Mathf.Cos(radsLeft));
-			int gridLeft = MapCoordinateSystem.PositionToIndex(seekLeft, tuning);
-			pValue = ((float)pheromoneBuffer[gridLeft])/255f;
-			float weightLeft = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
-
-			float degreesRight = heading.Degrees + headingOffset;
-			float radsRight = Mathf.Deg2Rad * degreesRight;
-			float2 seekRight = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsRight), translation.Value.y + seekAhead * Mathf.Cos(radsRight));
-			int gridRight = MapCoordinateSystem.PositionToIndex(seekRight, tuning);
-			pValue = ((float)pheromoneBuffer[gridRight]) / 255f;
-			float weightRight = tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue;
-
-			float degreesFwd = heading.Degrees;
-			float radsFwd = Mathf.Deg2Rad * degreesFwd;
-			float2 seekFwd = new float2(translation.Value.x + seekAhead * Mathf.Sin(radsFwd), translation.Value.y + seekAhead * Mathf.Cos(radsFwd));
-			int gridFwd = MapCoordinateSystem.PositionToIndex(seekFwd, tuning);
-			pValue = ((float)pheromoneBuffer[gridFwd]) / 255f;
-			float weightFwd = (tuning.MinAngleWeight + tuning.PheromoneWeighting * pValue) * tuning.AntFwdWeighting;
-
-			float totalWeight = weightLeft + weightRight + weightFwd;
+			float totalWeight = left.Weight + right.Weight + forward.Weight;
 			float randomWeight = random.NextFloat() * totalWeight;
-
+			
+			//Debug.Log($"Left = {left.Weight} right = {right.Weight}, forward = {forward.Weight}" );
 			//Debug.Log($"Weights = {myGrid} / {gridLeft} {gridFwd} {gridRight} / {weightLeft} {weightFwd} {weightRight} - random = {randomWeight}");				
 
 			// select random weighted target, reproject ahead the move distance
 			float rads = 0;
-			if (randomWeight < weightLeft)
+			if (randomWeight <  left.Weight)
 			{
-				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsLeft), translation.Value.y + speed * Mathf.Cos(radsLeft));
-				heading.Degrees = degreesLeft;
-				rads = radsLeft;
+				target.Target = new float2(translation.Value.x + speed * math.sin(left.Rads), translation.Value.y + speed * math.cos(left.Rads));
+				heading.Degrees = left.Degrees;
+				rads = left.Rads;
 				//Debug.Log("LEFT");
 			} 
-			else if (randomWeight < weightLeft + weightRight)
+			else if (randomWeight <  left.Weight + right.Weight)
 			{
-				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsRight), translation.Value.y + speed * Mathf.Cos(radsRight));
-				heading.Degrees = degreesRight;
-				rads = radsRight;
+				target.Target = new float2(translation.Value.x + speed * math.sin(right.Rads), translation.Value.y + speed * math.cos(right.Rads));
+				heading.Degrees = right.Degrees;
+				rads = right.Rads;
 				//Debug.Log("RIGHT");
 			}
 			else
 			{
-				target.Target = new float2(translation.Value.x + speed * Mathf.Sin(radsFwd), translation.Value.y + speed * Mathf.Cos(radsFwd));
-				heading.Degrees = degreesFwd;
-				rads = radsFwd;
+				target.Target = new float2(translation.Value.x + speed * math.sin(forward.Rads), translation.Value.y + speed * math.cos(forward.Rads));
+				heading.Degrees = forward.Degrees;
+				rads = forward.Rads;
 				//Debug.Log("FWD");
 			}
 
@@ -110,25 +173,25 @@ public class AntPathingSystem : SystemBase
 
 			rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
 
-		}).ScheduleParallel();
-
+		}).Schedule();
+		
 		// has line of sight, straight path to goal
 		Entities.
 			WithAll<AntLineOfSight>().
 			WithAll<AntHeading>().
 			ForEach((ref Translation translation, ref Rotation rotation, in AntHeading antHeading) =>
 			{
-				float rads = Mathf.Deg2Rad * antHeading.Degrees;
-
-				translation.Value.x = translation.Value.x + speed * Mathf.Sin(rads);
-				translation.Value.y = translation.Value.y + speed * Mathf.Cos(rads);
-
+				float rads = math.radians(antHeading.Degrees);
+		
+				translation.Value.x = translation.Value.x + speed * math.sin(rads);
+				translation.Value.y = translation.Value.y + speed * math.cos(rads);
+		
 				rotation.Value = quaternion.EulerXYZ(0, 0, -rads);
-			}).ScheduleParallel();
-
+			}).Schedule();
+		
 		var ringEntity = GetSingletonEntity<RingElement>();
 		DynamicBuffer<RingElement> rings = GetBuffer<RingElement>(ringEntity);
-
+		
 		// wall collision tests - only if no line of sight
 		Entities.
 			WithAll<AntPathing>().
@@ -140,7 +203,7 @@ public class AntPathingSystem : SystemBase
 				bool reflectNormal = false;
 				float2 normal = float2.zero;
 				float2 outVector = float2.zero;
-
+		
 				// test if we're outside the map
 				if (target.Target.x >= mapSize.x)
 				{
@@ -168,14 +231,14 @@ public class AntPathingSystem : SystemBase
 					for (int i = 0; i < rings.Length; i++)
 					{
 						RingElement ring = rings[i];
-
+		
 						float2 startPos = new float2(translation.Value.x, translation.Value.y);
-
+		
 						if (WorldResetSystem.DoesPathCollideWithRing(ring, startPos, target.Target, out float2 collisionPos, out bool outWards))
 						{
 							didCollide = true;
 							reflectNormal = true;
-
+		
 							if (outWards)
 							{
 								normal = -math.normalize(collisionPos);
@@ -184,12 +247,12 @@ public class AntPathingSystem : SystemBase
 							{
 								normal = math.normalize(collisionPos);
 							}
-
+		
 							break;
 						}
 					}
 				}
-
+		
 				// handle collision
 				if (didCollide)
 				{
@@ -197,18 +260,18 @@ public class AntPathingSystem : SystemBase
 					{
 						float2 vIn = new float2(target.Target.x - translation.Value.x, target.Target.y - translation.Value.y);
 						vIn = math.normalize(vIn);
-
+		
 						outVector = vIn - 2 * math.dot(vIn, normal) * normal;
 					}
-
-					heading.Degrees = Mathf.Rad2Deg * Mathf.Atan2(outVector.x, outVector.y);
-
+		
+					heading.Degrees = math.radians(math.atan2(outVector.x, outVector.y));
+		
 					// reset target to previous position
 					target.Target.x = translation.Value.x;
 					target.Target.y = translation.Value.y;
 				}
-			}).ScheduleParallel();
-
+			}).Schedule();
+		
 		// copy target into translation.  we have already done this if we have LineOfSight because we ignore collision tests
 		Entities.
 			WithAll<AntPathing>().
@@ -217,6 +280,40 @@ public class AntPathingSystem : SystemBase
 		{
 			translation.Value.x = target.Target.x;
 			translation.Value.y = target.Target.y;
-		}).ScheduleParallel();
+		}).Schedule();
+	}
+	
+	[BurstCompile]
+	private struct GetLeftWeightJob : IJobParallelFor
+	{
+		public Random Random;
+		public float AngleRange;
+		public Tuning Tuning;
+		public float SeekAhead;
+
+		public NativeArray<WeightLeft> WeightLefts;
+		public NativeArray<AntHeading> Headings;
+		public NativeArray<Translation> Translations;
+		
+		private NativeArray<PheromoneStrength> PheromoneBuffer;
+		
+		public void Execute(int index)
+		{
+			WeightLeft weight = WeightLefts[index];
+			AntHeading heading = Headings[index];
+			Translation translation = Translations[index];
+			
+			float headingOffset = Random.NextFloat() * (AngleRange);
+			weight.Degrees = heading.Degrees - headingOffset;
+			weight.Rads = Mathf.Deg2Rad * weight.Degrees;
+			var seek = new float2(translation.Value.x + SeekAhead * Mathf.Sin(weight.Rads), translation.Value.y + SeekAhead * Mathf.Cos(weight.Rads));
+			int grid = MapCoordinateSystem.PositionToIndex(seek, Tuning);
+			var pValue = (PheromoneBuffer[grid])/255f;
+			weight.Weight = Tuning.MinAngleWeight + Tuning.PheromoneWeighting * pValue;
+
+			WeightLefts[index] = weight;
+			Headings[index] = heading;
+			Translations[index] = translation;
+		}
 	}
 }

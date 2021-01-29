@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Rendering;
 
+[UpdateInGroup( typeof(InitializationSystemGroup))]
 public class ObstacleBuilderSystem : SystemBase
 { 
     protected override void OnUpdate()

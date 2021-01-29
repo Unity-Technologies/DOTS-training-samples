@@ -4,12 +4,8 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-public class MapCoordinateSystem : SystemBase
+public struct MapCoordinateSystem 
 {
-    protected override void OnUpdate()
-    {
-    }
-
     public static int PositionToIndex(float2 positionXY, Tuning tuning)
     {
         int xIndex = (int)math.floor(((positionXY.x / tuning.WorldSize) + tuning.WorldOffset.x));

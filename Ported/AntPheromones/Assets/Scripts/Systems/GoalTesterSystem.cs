@@ -21,6 +21,8 @@ public class GoalTesterSystem : SystemBase
     {
 	    var ecb = bufferSystem.CreateCommandBuffer();
 
+	    var ecbWriter = ecb.AsParallelWriter();
+	    
 		Tuning tuning = this.GetSingleton<Tuning>();
 
 		float2 foodPos = this.GetSingleton<FoodBuilder>().foodLocation;
@@ -42,17 +44,17 @@ public class GoalTesterSystem : SystemBase
 
 				if (dist < foodRadius)
 				{
-					ecb.AddComponent<HasFood>(entity);
-					ecb.RemoveComponent<AntLineOfSight>(entity);
+					ecbWriter.AddComponent<HasFood>(0,entity);
+					ecbWriter.RemoveComponent<AntLineOfSight>(0,entity);
 					antHeading.Degrees += 180.0f;
 
 					// Instantiate the Food entity and add the tracking component to our ant
-					Entity antFoodEntity = ecb.Instantiate(tuning.AntFoodPrefab);
-                    ecb.AddComponent(antFoodEntity, new Parent { Value = entity });
-                    ecb.AddComponent<LocalToParent>(antFoodEntity);
-					ecb.AddComponent(entity, new AntFoodEntityTracker { AntFoodEntity = antFoodEntity });
+					Entity antFoodEntity = ecbWriter.Instantiate(0,tuning.AntFoodPrefab);
+					ecbWriter.AddComponent(0,antFoodEntity, new Parent { Value = entity });
+					ecbWriter.AddComponent<LocalToParent>(0,antFoodEntity);
+					ecbWriter.AddComponent(0,entity, new AntFoodEntityTracker { AntFoodEntity = antFoodEntity });
 				}
-			}).Schedule();
+			}).ScheduleParallel();
 
 		// test if ant has reached home
 		Entities.
@@ -66,15 +68,15 @@ public class GoalTesterSystem : SystemBase
 
 				if (dist < homeRadius)
 				{
-					ecb.RemoveComponent<HasFood>(entity);
-					ecb.RemoveComponent<AntLineOfSight>(entity);
+					ecbWriter.RemoveComponent<HasFood>(0,entity);
+					ecbWriter.RemoveComponent<AntLineOfSight>(0,entity);
 					antHeading.Degrees += 180.0f;
 
 					// Destroy Food entity and remove the tracking component from our ant
-					ecb.DestroyEntity(antFoodTracking.AntFoodEntity);
-					ecb.RemoveComponent<AntFoodEntityTracker>(entity);
+					ecbWriter.DestroyEntity(0,antFoodTracking.AntFoodEntity);
+					ecbWriter.RemoveComponent<AntFoodEntityTracker>(0,entity);
 				}
-			}).Schedule();
+			}).ScheduleParallel();
 
 		bufferSystem.AddJobHandleForProducer(Dependency);
     }
