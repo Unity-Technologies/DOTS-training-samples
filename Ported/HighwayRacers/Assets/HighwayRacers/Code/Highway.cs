@@ -11,6 +11,7 @@ namespace HighwayRacers
     public class Highway : MonoBehaviour
     {
 
+        public const float LANE0_LENGTH = 250;
         public const int NUM_LANES = 4;
         public const float LANE_SPACING = 1.9f;
         public const float MID_RADIUS = 31.46f;
@@ -501,7 +502,7 @@ namespace HighwayRacers
 
         private void Start()
         {
-			CreateHighway(250);
+			CreateHighway(LANE0_LENGTH);
         }
 
         private void Update()

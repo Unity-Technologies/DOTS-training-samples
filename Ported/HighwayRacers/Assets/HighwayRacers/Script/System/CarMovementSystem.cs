@@ -8,12 +8,16 @@ using Unity.Transforms;
 // updating every frame.
 public class CarMovementSystem : SystemBase
 {
+
+    public const float straightPieceLength = (HighwayRacers.Highway.LANE0_LENGTH - HighwayRacers.Highway.CURVE_LANE0_RADIUS * 4) / 4;
+    public const float derrivedTrackRadius = straightPieceLength + HighwayRacers.Highway.MID_RADIUS * 2.0f;
+
 // todo Burst compiler complains if this is not readonly
-    public readonly static float TrackRadius = 91.0f;
-    public readonly static float LaneWidth = 3.75f;
+    public readonly static float TrackRadius = derrivedTrackRadius - HighwayRacers.Highway.LANE_SPACING * 3.0f;
+    public readonly static float LaneWidth = HighwayRacers.Highway.LANE_SPACING * 2.0f;
     public float3 TrackOrigin = new float3(0,0,0);
     private const float CircleRadians = 2*math.PI;
-    public readonly static float RoundedCorner = 0.29f;
+    public readonly static float RoundedCorner = (1.0f - straightPieceLength/(straightPieceLength + HighwayRacers.Highway.MID_RADIUS * 2.0f)) * 0.5f;
     private uint _Frame = 0;
 
     private TrackOccupancySystem m_TrackOccupancySystem;
@@ -179,9 +183,9 @@ public class CarMovementSystem : SystemBase
                 float laneRadius = (trackRadius + (movement.LaneOffset * laneWidth));
                 float3 transXZA = MapToRoundedCorners((movement.Offset), laneRadius);
 
-                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + 2.75f;
+                translation.Value.x = transXZA.x + (TrackRadius)/2.0f + HighwayRacers.Highway.LANE_SPACING * 1.5f;
                 translation.Value.y = trackOrigin.y;
-                translation.Value.z = transXZA.y + (TrackRadius)/4.0f - 6.0f;
+                translation.Value.z = transXZA.y + (TrackRadius)/2.0f - HighwayRacers.Highway.MID_RADIUS + HighwayRacers.Highway.LANE_SPACING * 1.5f;
 
                 // Move car forward on its track
                 movement.Offset += v * deltaTime;
