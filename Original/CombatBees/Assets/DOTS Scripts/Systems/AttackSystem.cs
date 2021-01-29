@@ -5,15 +5,26 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(BeeMovementSystem))]
 public class AttackSystem : SystemBase
 {
+    private ComponentTypes typesToRemoveFromAttacker;
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<SpawnZones>();
+        
+        ComponentType[] types = new ComponentType[]
+        {
+            ComponentType.ReadOnly<MoveTarget>(),
+            ComponentType.ReadOnly<TargetPosition>(),
+            ComponentType.ReadOnly<AttackingBeeTag>(),
+        };
+
+        typesToRemoveFromAttacker = new ComponentTypes(types);
     }
 
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
         var spawnZones = GetSingleton<SpawnZones>();
+        var typesToRemoveFromAttacker = this.typesToRemoveFromAttacker;
 
         // Entities.ForEach is a job generator, the lambda it contains will be turned
         // into a proper IJob by IL post processing.
@@ -38,11 +49,8 @@ public class AttackSystem : SystemBase
                     }
 
                     //Remove targeting info from bee so that target acquisition system picks up this bee. 
-                    ecb.RemoveComponent<AttackingBeeTag>(e);
-                    ecb.RemoveComponent<MoveTarget>(e);
-                    ecb.RemoveComponent<TargetPosition>(e);
-                    
-                    
+                    ecb.RemoveComponent(e, typesToRemoveFromAttacker);
+
                     // Create a blood droplet
                     var numberOfBloodDrops = rng.Value.NextInt(2, 5);
                     for (int i = 0; i < numberOfBloodDrops; ++i)

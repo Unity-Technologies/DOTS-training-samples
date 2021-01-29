@@ -34,8 +34,6 @@ public class BloodSplatSystem: SystemBase
                     });
                 }
             }).ScheduleParallel();
-        
-
 
         Entities
             .WithName("BloodFadeSystem")
