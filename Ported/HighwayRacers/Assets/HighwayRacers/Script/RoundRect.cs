@@ -133,8 +133,9 @@ public class RoundRect
 
     public void InterpolateRealDist(in float realDistance, out float3 pos, out float yaw)
     {
-
-        float normalized = realDistance / _perimeter;
+        // the divisor here is effectively a global speed multiplier
+        // the 4 is eyeballed
+        float normalized = realDistance / (_perimeter / 4f);
         
         Interpolate(normalized % 1f, out pos, out yaw);
     }
