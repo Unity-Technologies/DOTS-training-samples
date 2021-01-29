@@ -188,6 +188,14 @@ public class SpawnerSystem : SystemBase
                 }).Run();
         }
 
+        
+        Entities.ForEach((Entity e, in CarMovement cm) =>
+        {
+            ecb.DestroyEntity(e);
+        }).Run();
+            
+        
+        
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
