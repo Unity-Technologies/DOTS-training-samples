@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 
 // TODO: Split into 2 components
+[GenerateAuthoringComponent]
 public struct Lifetime : IComponentData
 {
     public float NormalizedTimeRemaining;

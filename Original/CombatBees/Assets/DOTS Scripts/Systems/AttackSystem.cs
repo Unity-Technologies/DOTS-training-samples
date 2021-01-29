@@ -40,7 +40,7 @@ public class AttackSystem : SystemBase
                     //We're close enough to the bee we want to attack. So turn it into a corpse.
                     ecb.RemoveComponent<BeeTag>(entityInQueryIndex, moveTarget.Value);
                     ecb.AddComponent<BeeCorpseTag>(entityInQueryIndex, moveTarget.Value);
-                    ecb.AddComponent(entityInQueryIndex, moveTarget.Value, Lifetime.FromTimeRemaining(5));
+                    ecb.SetComponent(entityInQueryIndex, moveTarget.Value, Lifetime.FromTimeRemaining(5));
 
                     //Keep in mind you have to also have the targeted bee drop whatever food it's carrying. Or rather,
                     //have the food recognize it's not being picked up anymore.
@@ -58,7 +58,7 @@ public class AttackSystem : SystemBase
                     for (int i = 0; i < numberOfBloodDrops; ++i)
                     {
                         var blood = ecb.Instantiate(entityInQueryIndex, spawnZones.BloodPrefab);
-                        ecb.AddComponent(entityInQueryIndex, blood, new RandomComponent() { Value = new Random(rng.Value.NextUInt()) });
+                        ecb.SetComponent(entityInQueryIndex, blood, new RandomComponent() { Value = new Random(rng.Value.NextUInt()) });
                         ecb.SetComponent(entityInQueryIndex, blood, translation);
                         ecb.SetComponent(entityInQueryIndex, blood, new PhysicsData
                         {
@@ -66,13 +66,6 @@ public class AttackSystem : SystemBase
                             v = physics.v + rng.Value.NextFloat3(new float3(math.length(physics.v) / 3)),
                             damping = 0,
                             kineticEnergyPreserved = new float3(),
-                        });
-                        // This is kind of a hack. We add a lifetime component that will never run out so that we can
-                        // avoid structural changes later on (when the blood hits the floor)
-                        ecb.AddComponent(entityInQueryIndex, blood, new Lifetime
-                        {
-                            NormalizedTimeRemaining = 1,
-                            NormalizedDecaySpeed = 0,
                         });
                     }
                 }

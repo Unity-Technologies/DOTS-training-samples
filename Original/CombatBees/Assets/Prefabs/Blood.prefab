@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 6621517595032345772}
   - component: {fileID: 6621517595032345768}
   - component: {fileID: -4520106898741946923}
+  - component: {fileID: 6180220890288435711}
+  - component: {fileID: -2533937071470349719}
   m_Layer: 0
   m_Name: Blood
   m_TagString: Untagged
@@ -134,3 +136,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 1
+--- !u!114 &6180220890288435711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6621517595032345775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 857e84ca606c45918094c28fe46cc5d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    state: 0
+--- !u!114 &-2533937071470349719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6621517595032345775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50283fe6cc410004e80676ae66cefa69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NormalizedTimeRemaining: 1
+  NormalizedDecaySpeed: 0
