@@ -16,6 +16,7 @@ public class TargetAcquisitionSystem : SystemBase
     EntityQuery m_Team1BeesQuery;
     EntityQuery m_Team2BeesQuery;
     private EntityCommandBufferSystem ecbs;
+    private int teamToCheck = 1;
 
     protected override void OnCreate()
     {
@@ -45,7 +46,7 @@ public class TargetAcquisitionSystem : SystemBase
         var team1Bees = m_Team1BeesQuery.ToEntityArray(Allocator.TempJob);
         var team2Bees = m_Team2BeesQuery.ToEntityArray(Allocator.TempJob);
 
-        if (availableFood.Length > 0 || team2Bees.Length > 0)
+        if (teamToCheck == 1 && (availableFood.Length > 0 || team2Bees.Length > 0))
         {
             var pecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
@@ -59,9 +60,11 @@ public class TargetAcquisitionSystem : SystemBase
                 {
                     AcquireTarget(e, entityInQueryIndex, pecb, ref random.Value, availableFood, team2Bees);
                 }).ScheduleParallel();
+
+            teamToCheck = 2;
         }
 
-        if (availableFood.Length > 0 || team1Bees.Length > 0)
+        if (teamToCheck == 2 && (availableFood.Length > 0 || team1Bees.Length > 0))
         {
             var pecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
@@ -75,6 +78,8 @@ public class TargetAcquisitionSystem : SystemBase
                 {
                     AcquireTarget(e, entityInQueryIndex, pecb, ref random.Value, availableFood, team1Bees);
                 }).ScheduleParallel();
+
+            teamToCheck = 1;
         }
 
         team1Bees.Dispose(Dependency);
