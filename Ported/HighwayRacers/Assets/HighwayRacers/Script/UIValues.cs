@@ -26,8 +26,8 @@ public class UIValues : MonoBehaviour
     public Slider TrackSizeSlider;
     public Slider CornerRadiusSlider;
     public Slider CarCountSlider;
-    public Slider DriverTypeSlider;
 
+    
     protected int Iteration;
 
     public void SetModified()
@@ -44,7 +44,7 @@ public class UIValues : MonoBehaviour
             TrackSize = TrackSizeSlider.value,
             CornerRadius = Mathf.Min(CornerRadiusSlider.value, TrackSizeSlider.value / 4f),
             CarCount = Mathf.RoundToInt(CarCountSlider.value),
-            DriverRatio = DriverTypeSlider.value,
+            DriverRatio = 1,  // this would be nice to change interactively, but too late
             Iteration = Iteration
         };
     }
