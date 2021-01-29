@@ -7,13 +7,11 @@ using UnityEngine;
 public struct Tuning : IComponentData
 {
 	public float Speed;
-	public float MaxLosDistSq;
 	public float AntAngleRange;
 	public float MinAngleWeight;
 	public float PheromoneWeighting;
 	public float AntFwdWeighting;
 	public int PheromoneBuffer;
-	public float PheromoneDecayStrength;
 	public int Resolution;
 	public float WorldSize;
 	public float2 WorldOffset;
