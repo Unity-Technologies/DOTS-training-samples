@@ -171,13 +171,15 @@ public class CarMovementSystem : SystemBase
 
                 // All cars move at the minimum required speed on the highway.
                 // (We don't want cars to stop if the tile in front is occupied)
-                movement.CurrentVelocity = nextIsOccupied ? SpawnerSystem.MinimumVelocity : movement.Velocity;
+                // We lerp velocity changes over time so it looks like the car accelerates.
+                movement.CurrentVelocity = nextIsOccupied ? SpawnerSystem.MinimumVelocity : math.lerp(movement.CurrentVelocity, movement.Velocity, deltaTime*2);
 
                 // Turn cars red the longer they cannot reach their desired speed
-                if (movement.CurrentVelocity < movement.Velocity)
+                // We lerp this over time so we don't flicker.
+                if (movement.CurrentVelocity < movement.Velocity - 0.001f)
                     baseColor.Value = math.lerp(baseColor.Value, lowVelocityColor, deltaTime);
                 else
-                    baseColor.Value = baseColor.Value = math.lerp(baseColor.Value, movement.Profile == DriverProfile.American ? americanColors : europeanColors, deltaTime);
+                    baseColor.Value = baseColor.Value = math.lerp(baseColor.Value, movement.Profile == DriverProfile.American ? americanColors : europeanColors, deltaTime*2);
 
                 // LaneOffset is the physical lane position of the car while Lane
                 // is the lane the car wants to be in. Let's make progress to
