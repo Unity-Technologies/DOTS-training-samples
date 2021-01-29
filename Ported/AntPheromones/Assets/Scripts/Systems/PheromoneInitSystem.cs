@@ -2,8 +2,6 @@
 
 public class PheromoneInitSystem : SystemBase
 {
-    private int _bufferSize = 128;
-
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<PheromoneInit>();

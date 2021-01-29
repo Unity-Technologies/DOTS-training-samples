@@ -6,7 +6,6 @@ using Unity.Mathematics;
 using System;
 using Unity.Transforms;
 
-[UpdateBefore(typeof(PheromoneDecaySystem))]
 public class AntPheromoneDropSystem : SystemBase
 {
     float _timeElapsed = 0;

@@ -27,7 +27,7 @@ public class FoodBuilderSystem : SystemBase
         Entities
             .WithAll<FoodBuilder>()
             .WithNone<Initialized>()
-            .ForEach((Entity entity, FoodBuilder foodBuilder) =>
+            .ForEach((Entity entity,ref FoodBuilder foodBuilder) =>
         {
             ecb.AddComponent<Initialized>(entity);
 
@@ -47,7 +47,7 @@ public class FoodBuilderSystem : SystemBase
                 });
                 ecb.AddComponent(foodEntity,new Food());
                 
-                ecb.SetComponent(entity,foodBuilder);
+                //ecb.SetComponent(entity,foodBuilder);
             }
         }).Run();
 

@@ -14,7 +14,7 @@ public class HomeBuilderSystem : SystemBase
         Entities
             .WithAll<HomeBuilder>()
             .WithNone<Initialized>()
-            .ForEach((Entity entity, HomeBuilder homeBuilder) =>
+            .ForEach((Entity entity,in HomeBuilder homeBuilder) =>
             {
                 Entity homeEntity = ecb.Instantiate(homeBuilder.homePrefab);
                 Translation homeTranslation = new Translation { Value = new float3() };
