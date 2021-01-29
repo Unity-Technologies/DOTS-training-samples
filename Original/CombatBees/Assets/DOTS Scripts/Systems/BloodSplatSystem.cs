@@ -19,7 +19,7 @@ public class BloodSplatSystem: SystemBase
             {
                 if (translation.Value.y <= floorHeight + 0.001f)
                 {
-                    ecb.AddComponent(e, Lifetime.FromTimeRemaining(rng.Value.NextFloat(0.5f,1.2f)));
+                    ecb.AddComponent(e, Lifetime.FromTimeRemaining(rng.Value.NextFloat(2f,4f)));
 
                     ecb.AddComponent(e, new GroundedTime
                     {
