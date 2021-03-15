@@ -84,11 +84,13 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>Resources spawned at the same location will stack on top of each other.</li>
 <li>Bees pick up resources and drop them in their base.</li>
 <li>When a resource hits the ground of a base, it explodes, spawning several bees of that base's color.</li>
-<li>Bees not carrying resources may attack and destroy enemy bees carrying resources.</li>
-<li>A destroyed bee emmits bee fragments and blood splatters, and the resource falls to the ground. Blood splatters on surfaces shrink to nothing over time.</li>
-<li>Each bee's displayed scale oscilates along all three axes, but this is just a visual effect. Collisions are not affected.</li>
+<li>Bees not carrying resources may attack and destroy enemy bees.</li>
+<li>A destroyed bee emits bee fragments and blood splatters, and the resource eventually carried falls to the ground.</li>
+<li>Blood splatters on surfaces shrink to nothing over time.</li>
+<li>Each bee's displayed scale oscillates along all three axes, but this is just a visual effect. Collisions are not affected.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
-<li>Pointer clicks spawn additional resources at the point clicked (determined by casting a ray from the cursor).</li>
+<li>Left mouse clicks spawn additional resources at the point clicked (determined by casting a ray from the cursor).</li>
+<li>The camera can be controlled with the mouse (hold down right button to rotate, use mouse wheel to zoom). </li>
    </ul>
 </details>
 
