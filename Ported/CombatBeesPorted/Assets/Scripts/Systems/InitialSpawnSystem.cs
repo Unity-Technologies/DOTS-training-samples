@@ -21,6 +21,8 @@ public class InitialSpawnSystem : SystemBase
                 {
                     var foodEntity = commandBuffer.Instantiate(gameConfig.FoodPrefab);
                     commandBuffer.SetComponent(foodEntity, new Translation() { Value = (random.NextFloat3Direction() * distance * new float3(1, 0, 1)) + new float3(0,.25f,0)});
+                    commandBuffer.AddComponent(foodEntity, new Force() {});
+                    commandBuffer.AddComponent(foodEntity, new Velocity() {});
                 }
                 
                 commandBuffer.DestroyEntity(entity);

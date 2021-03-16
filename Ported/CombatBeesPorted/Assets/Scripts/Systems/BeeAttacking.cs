@@ -26,8 +26,23 @@ public class BeeAttacking: SystemBase
                     var delta = GetComponent<Translation>(beeAttacking.TargetBee).Value - position.Value;                
                     force.Value += math.normalize(delta);
                     if(  math.length(delta) < 1 ) {
+                        // remove PossessedBy
+                        if(HasComponent<BringingFoodBack>(beeEntity)) {
+                            var food = GetComponent<FoodTarget>(beeEntity).Value;
+                            commandBuffer.RemoveComponent<PossessedBy>(food);
+                        }
+                        // bee is not attacking go to iddle state
                         commandBuffer.RemoveComponent<Attacking>(beeEntity);
+
+                        // set bee dead
                         commandBuffer.RemoveComponent<Bee>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<BringingFoodBack>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<TeamA>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<TeamB>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<Team>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<GoingForFood>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<Team>(beeAttacking.TargetBee);
+                        commandBuffer.RemoveComponent<FoodTarget>(beeAttacking.TargetBee);
                     }
                 } else {
                     // dead or entity is invalid

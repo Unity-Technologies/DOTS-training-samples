@@ -18,7 +18,7 @@ public class GravitySystem: SystemBase
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));
         Entities
             .WithNone<Bee>()
-            .ForEach((ref Force force, in Velocity velocity) =>
+            .ForEach((ref Force force) =>
             {                
                 force.Value += new float3{x=0,y=-1,z=0};
             }).Schedule();

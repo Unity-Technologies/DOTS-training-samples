@@ -33,14 +33,13 @@ public class BeeBehavior: SystemBase
             .WithNone<GoingForFood,Attacking,BringingFoodBack>()
             .ForEach((Entity entity, in Bee bee, in Translation translation, in Team team) =>
             {
-                if(random.NextBool())
+                if(random.NextBool())                
                 {
                     int foodCount = foodEntities.Length;
                     if (foodCount == 0)
                         return;
                     commandBuffer.AddComponent<GoingForFood>(entity);
-                    commandBuffer.AddComponent<FoodTarget>(entity);
-                    commandBuffer.SetComponent(entity,new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)]});
+                    commandBuffer.AddComponent<FoodTarget>(entity, new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)] } );
                 } else {
                     var enemyTeam = !team.index;
                     // go for attack
@@ -48,6 +47,7 @@ public class BeeBehavior: SystemBase
                     float minDistance = 0xFFFFFF;
                     Entity enemyBee = Entity.Null;
                     foreach(Entity anotherBee in allBees) {
+                        //if( !HasComponent<Team>(anotherBee) ) continue;
                         if( GetComponent<Team>(anotherBee).index != enemyTeam) continue;
                         float distance = math.distance(GetComponent<Translation>(anotherBee).Value,translation.Value);
                         if(distance<minDistance) {
