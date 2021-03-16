@@ -60,19 +60,18 @@ public class ArmSpawnerSystem : SystemBase
                     translation.y += spawner.m_ArmJointLength + spawner.m_ArmJointSpacing;
 
                     // Fingers
-                    var fingerJointLengths = new float[]
-                    {
-                        spawner.m_Finger0JointLength,
-                        spawner.m_Finger1JointLength,
-                        spawner.m_Finger2JointLength,
-                        spawner.m_Finger3JointLength,
-                    };
-                    var fingerJoints = new Entity[15];
+                    var fingerJointLengths = new NativeArray<float>(4, Unity.Collections.Allocator.Temp);
+                    fingerJointLengths[0] = spawner.m_Finger0JointLength;
+                    fingerJointLengths[1] = spawner.m_Finger1JointLength;
+                    fingerJointLengths[2] = spawner.m_Finger2JointLength;
+                    fingerJointLengths[3] = spawner.m_Finger3JointLength;
+                    
+                    var fingerJoints = new NativeArray<Entity>(15, Unity.Collections.Allocator.Temp);
 
                     float offset = -1.5f * spawner.m_FingerSpacing;
                     var fingerScale = new float3(spawner.m_FingerJointThickness, 0.0f, spawner.m_FingerJointThickness);
                     
-                    for (uint j = 0; j < fingerJointLengths.Length; ++j)
+                    for (int j = 0; j < fingerJointLengths.Length; ++j)
                     {
                         var fingerTranslation = new float3();
                         fingerTranslation.x = translation.x + offset;
@@ -82,7 +81,7 @@ public class ArmSpawnerSystem : SystemBase
                         fingerScale.y = fingerJointLengths[j];
                     
                         // Joints per finger
-                        for (uint k = 0; k < 3; ++k)
+                        for (int k = 0; k < 3; ++k)
                         {
                             var joint = ecb.Instantiate(spawner.m_JointPrefab);
                             ecb.SetComponent(joint,
@@ -107,7 +106,7 @@ public class ArmSpawnerSystem : SystemBase
                     thumbTranslation.y = translation.y;
                     thumbTranslation.z = translation.z;
                     var thumbScale = new float3(spawner.m_ThumbJointLength, spawner.m_ThumbJointThickness, spawner.m_ThumbJointThickness);
-                    for (uint j = 0; j < 3; ++j)
+                    for (int j = 0; j < 3; ++j)
                     {
                         var joint = ecb.Instantiate(spawner.m_JointPrefab);
                         ecb.SetComponent(joint,
