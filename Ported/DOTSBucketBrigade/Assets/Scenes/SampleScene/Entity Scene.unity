@@ -123,3 +123,57 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &952993702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 952993704}
+  - component: {fileID: 952993703}
+  m_Layer: 0
+  m_Name: Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &952993703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952993702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a5d30bcb463412995547f9b9bddc96d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GridSize: 50
+  BucketChainCount: 2
+  BucketerRadius: 5
+  WorkerCountPerChain: 30
+  InitialFireInstances: 5
+  InitialBucketCount: 20
+  WaterSourceCount: 4
+  CellPrefab: {fileID: 8099812332993144321, guid: e64ea7ab6165d49758ad4519b7536e57, type: 3}
+  BucketPrefab: {fileID: 738073579713388129, guid: 8c5186ec08f314922897e68b642d4e8a, type: 3}
+  BotPrefab: {fileID: 7024119090899209250, guid: 34b6ac46b41494987bc2b68d9fdcd833, type: 3}
+  WaterPrefab: {fileID: 4012617587521480932, guid: 0684ee17601964ed290087d4fa592b07, type: 3}
+--- !u!4 &952993704
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 952993702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

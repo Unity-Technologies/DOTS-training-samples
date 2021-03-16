@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[GenerateAuthoringComponent]
 public struct InitCounts : IComponentData
 {
     public int GridSize;
@@ -15,4 +16,8 @@ public struct InitCounts : IComponentData
     public int InitialFireInstances;
     public int InitialBucketCount;
     public int WaterSourceCount;
+    public Entity CellPrefab;
+    public Entity BucketPrefab;
+    public Entity BotPrefab;
+    public Entity WaterPrefab;
 }
