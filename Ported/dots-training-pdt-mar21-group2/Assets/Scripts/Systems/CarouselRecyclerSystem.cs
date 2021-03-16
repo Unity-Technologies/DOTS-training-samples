@@ -19,12 +19,13 @@ public static class RandomExtensions
 
 public class CarouselRecyclerSystem : SystemBase
 {
-    static Random random = new Random(1234);
+    static Random s_Random = new Random(1234);
     
     protected override void OnUpdate()
     {
         var worldBounds = GetSingleton<WorldBounds>();
-
+        var random = s_Random;
+        
         Entities
             .WithAll<Rock>()
             .ForEach((Entity entity, ref Translation translation) =>
@@ -43,6 +44,8 @@ public class CarouselRecyclerSystem : SystemBase
                 {
                     translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
                 }
-            }).Run(); 
+            }).Run();
+
+        s_Random = random;
     }
 }
