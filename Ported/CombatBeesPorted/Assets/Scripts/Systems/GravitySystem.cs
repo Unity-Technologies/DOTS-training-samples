@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,7 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public class BeeIdling: SystemBase
+public class GravitySystem: SystemBase
 {
     protected override void OnUpdate()
     {
@@ -17,13 +17,10 @@ public class BeeIdling: SystemBase
         //var vector = random.NextFloat3Direction();
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));
         Entities
-            .WithNone<GoingForFood,Attacking,BringingFoodBack>()
-            .WithoutBurst() // TODO remove in final version, keep for reference to random
-            .ForEach((ref Force force, in Velocity velocity, in Bee bee) =>
+            .WithNone<Bee>()
+            .ForEach((ref Force force, in Velocity velocity) =>
             {                
-                force.Value += random.NextFloat3Direction();
-                //if( worldBound.Value.Contains(translation.Value))
-                     
+                force.Value += new float3{x=0,y=-1,z=0};
             }).Schedule();
     }
 }
