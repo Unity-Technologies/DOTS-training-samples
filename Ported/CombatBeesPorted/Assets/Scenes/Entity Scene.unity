@@ -123,3 +123,135 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &367603554
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2834462092342607697, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_Name
+      value: Bee_TeamA
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.4222717
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 20.26567
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2834462092342607708, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+--- !u!4 &367603555
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655234834}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.10145366, y: 0.41382742, z: 22.029228}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &581928815
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 581928817}
+  - component: {fileID: 581928816}
+  m_Layer: 0
+  m_Name: GameConfig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &581928816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 581928815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5bf8f14c7f34f51a22e7b64fecc2f7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BeeTeamAPrefab: {fileID: 2834462092342607697, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
+  BeeTeamBPrefab: {fileID: 2834462092342607697, guid: d709cffb8c69e0e4f8d1ece853220320, type: 3}
+--- !u!4 &581928817
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 581928815}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.10145366, y: 0.41382742, z: 22.029228}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1655234834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 367603555}
+  m_Layer: 0
+  m_Name: TestBeeSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1

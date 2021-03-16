@@ -15,7 +15,7 @@ public class MoveSystem: SystemBase
         Entities
             .ForEach((ref Translation translation, ref Force force, ref Velocity velocity) =>
             {
-                velocity.Value = velocity.Value * 0.8f + force.Value;
+                velocity.Value = velocity.Value * 1f + force.Value;
                 force.Value = float3.zero;
 
                 translation.Value += velocity.Value * deltaTime;
