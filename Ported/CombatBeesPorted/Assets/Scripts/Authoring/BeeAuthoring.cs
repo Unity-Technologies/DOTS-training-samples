@@ -8,11 +8,13 @@ namespace Components
     {
         public int TeamIndex = 0;
         
+        public Vector3 initVelocity;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponent<Bee>(entity);
             dstManager.AddComponent<Force>(entity);
-            dstManager.AddComponentData(entity, new Velocity() { Value = new float3(2, 3, 4)});
+            dstManager.AddComponentData(entity, new Velocity() { Value = initVelocity});
             
             dstManager.AddComponentData(entity, new Team() { index = TeamIndex == 0});
 
