@@ -11,6 +11,6 @@ public struct WorldBounds : IComponentData
     {
         return position.x < 0.0f ||
                position.x > Width ||
-               position.z < Ground;
+               position.y < Ground;
     }
 }
