@@ -56,7 +56,7 @@ public class Metro : MonoBehaviour
     [HideInInspector] public MetroLine[] metroLines;
 
     [HideInInspector] public List<Commuter> commuters;
-    [HideInInspector] private Platform[] allPlatforms;
+    [HideInInspector] public Platform[] allPlatforms;
 
     public static string GetLine_NAME_FromIndex(int _index)
     {

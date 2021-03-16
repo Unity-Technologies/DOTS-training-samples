@@ -100,22 +100,6 @@ public class Commuter : MonoBehaviour
     {
     }
 
-    void Add_WalkToOppositePlatform(Platform _A, Platform _B)
-    {
-        route_TaskList.Enqueue(new CommuterTask(CommuterState.WALK)
-        {
-            startPlatform = _A,
-            endPlatform = _B,
-            destinations = new Vector3[]
-            {
-                _A.walkway_FRONT_CROSS.nav_START.transform.position,
-                _A.walkway_FRONT_CROSS.nav_END.transform.position,
-                _B.walkway_BACK_CROSS.nav_END.transform.position,
-                _B.walkway_BACK_CROSS.nav_START.transform.position
-            }
-        });
-    }
-
     void SetupRoute()
     {
         route_TaskList = Metro.INSTANCE.ShortestRoute(currentPlatform, FinalDestination);
