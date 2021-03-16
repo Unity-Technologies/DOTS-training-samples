@@ -24,7 +24,7 @@ public class HeatRenderingSystem : SystemBase
         int counter = 0;
         
         Entities
-            .WithAll<Heat>()
+            .WithAll<Cell>()
             .WithReadOnly(heatMap)
             .ForEach((Entity entity, ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color) =>
             {

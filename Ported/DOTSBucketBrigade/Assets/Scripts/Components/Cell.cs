@@ -6,6 +6,6 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct Heat : IComponentData
+public struct Cell : IComponentData
 {
 }

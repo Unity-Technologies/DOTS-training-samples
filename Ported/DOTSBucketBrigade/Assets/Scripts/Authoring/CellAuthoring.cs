@@ -11,7 +11,7 @@ public class CellAuthoring : MonoBehaviour
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData<Heat>(entity, new Heat() 
+        dstManager.AddComponentData<Cell>(entity, new Cell() 
         {
         });
         dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor()
