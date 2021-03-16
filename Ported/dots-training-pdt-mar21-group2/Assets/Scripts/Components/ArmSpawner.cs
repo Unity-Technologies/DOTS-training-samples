@@ -6,10 +6,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public class SpawnerSystem : SystemBase
+public struct Spawner : IComponentData
 {
-    protected override void OnUpdate()
-    {
-        
-    }
+    public Entity ArmPrefab;
+    public uint ArmCount;
 }
