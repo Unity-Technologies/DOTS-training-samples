@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class SpawnerSystem : SystemBase
@@ -46,6 +47,27 @@ public class SpawnerSystem : SystemBase
                         i++;
                     }
                 }
+
+                for (int buckets = 0; buckets < initCounts.InitialBucketCount; buckets++)
+                {
+                    var instance = ecb.Instantiate(initCounts.BucketPrefab);
+                    var translation = new Translation 
+                    { 
+                        Value = new float3(Random.Range(1,initCounts.GridSize-1), 0.0f, Random.Range(1,initCounts.GridSize-1)) 
+                    };
+                    ecb.SetComponent(instance, translation);
+                }
+                
+                for (int waters = 0; waters < initCounts.WaterSourceCount; waters++)
+                {
+                    var instance = ecb.Instantiate(initCounts.WaterPrefab);
+                    var translation = new Translation 
+                    { 
+                        Value = new float3(Random.Range(1.0f,initCounts.GridSize-1.0f), 0.0f, Random.Range(-6.0f, -2.0f)) 
+                    };
+                    ecb.SetComponent(instance, translation);
+                }
+                
             }).Run();
 
         ecb.Playback(EntityManager);
