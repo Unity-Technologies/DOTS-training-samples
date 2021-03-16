@@ -35,9 +35,10 @@ public class CarouselRecyclerSystem : SystemBase
             .WithAll<Rock>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
-                if (worldBounds.IsOutOfBounds(translation.Value))
+                if (Utils.WorldIsOutOfBounds(translation.Value, worldBounds.Width, worldBounds.Ground))
                 {
                     //translation.Value = random.NextCarouselPosition(worldBounds, 5.0f);
+                    random.InitState((uint)(0x123456 * entity.Index));
                     Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 5.0f) };
                     ecbParaWriterRock.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
                     ecbParaWriterRock.RemoveComponent<Falling>(entityInQueryIndex, entity);
@@ -49,9 +50,10 @@ public class CarouselRecyclerSystem : SystemBase
             .WithAll<Can>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
-                if (worldBounds.IsOutOfBounds(translation.Value))
+                if (Utils.WorldIsOutOfBounds(translation.Value, worldBounds.Width, worldBounds.Ground))
                 {
                     //translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
+                    random.InitState((uint) (0x123456 * entity.Index));
                     Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f) };
                     ecbParaWriterCan.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
                     ecbParaWriterCan.RemoveComponent<Falling>(entityInQueryIndex, entity);
