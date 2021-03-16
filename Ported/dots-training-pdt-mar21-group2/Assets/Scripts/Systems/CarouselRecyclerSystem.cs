@@ -20,32 +20,47 @@ public static class RandomExtensions
 public class CarouselRecyclerSystem : SystemBase
 {
     static Random s_Random = new Random(1234);
-    
+
     protected override void OnUpdate()
     {
         var worldBounds = GetSingleton<WorldBounds>();
         var random = s_Random;
-        
-        Entities
-            .WithAll<Rock>()
-            .ForEach((Entity entity, ref Translation translation) =>
-            {
-                if (worldBounds.IsOutOfBounds(translation.Value))
-                {
-                    translation.Value = random.NextCarouselPosition(worldBounds, 5.0f);
-                }
-            }).Run(); 
-        
-        Entities
-            .WithAll<Can>()
-            .ForEach((Entity entity, ref Translation translation) =>
-            {
-                if (worldBounds.IsOutOfBounds(translation.Value))
-                {
-                    translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
-                }
-            }).Run();
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        EntityCommandBuffer ecbRock = sys.CreateCommandBuffer();
+        EntityCommandBuffer ecbCan = sys.CreateCommandBuffer();
+        var ecbParaWriterRock = ecbRock.AsParallelWriter();
+        var ecbParaWriterCan = ecbCan.AsParallelWriter();
 
+        var jobA = Entities
+            .WithAll<Rock>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                if (worldBounds.IsOutOfBounds(translation.Value))
+                {
+                    //translation.Value = random.NextCarouselPosition(worldBounds, 5.0f);
+                    Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 5.0f) };
+                    ecbParaWriterRock.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
+                    ecbParaWriterRock.RemoveComponent<Falling>(entityInQueryIndex, entity);
+                    ecbParaWriterRock.AddComponent<Available>(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel(Dependency); 
+        
+        var jobB = Entities
+            .WithAll<Can>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                if (worldBounds.IsOutOfBounds(translation.Value))
+                {
+                    //translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
+                    Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f) };
+                    ecbParaWriterCan.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
+                    ecbParaWriterCan.RemoveComponent<Falling>(entityInQueryIndex, entity);
+                    ecbParaWriterCan.AddComponent<Available>(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel(Dependency);
+
+        Dependency = Unity.Jobs.JobHandle.CombineDependencies(jobA, jobB);
+        sys.AddJobHandleForProducer(Dependency);
         s_Random = random;
     }
 }

@@ -26,6 +26,7 @@ public class CarouselSpawnerSystem : SystemBase
                     {
                         Value = outOfBoundsPosition
                     });
+                    ecb.AddComponent(instance, new Available());
                 }
             }).Run();
 
