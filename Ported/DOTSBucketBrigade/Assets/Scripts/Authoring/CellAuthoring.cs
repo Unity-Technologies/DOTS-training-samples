@@ -13,7 +13,6 @@ public class CellAuthoring : MonoBehaviour
     {
         dstManager.AddComponentData<Heat>(entity, new Heat() 
         {
-            Value = 0.0f
         });
         dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor()
         {

@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5d30bcb463412995547f9b9bddc96d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSize: 50
+  GridSize: 25
   BucketChainCount: 2
   BucketerRadius: 5
   WorkerCountPerChain: 30
