@@ -6,7 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct Spawner : IComponentData
+public struct ArmSpawner : IComponentData
 {
     public Entity ArmPrefab;
     public uint ArmCount;

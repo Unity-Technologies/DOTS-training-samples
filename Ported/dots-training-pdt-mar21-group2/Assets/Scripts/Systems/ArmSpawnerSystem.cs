@@ -6,14 +6,14 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public class SpawnerSystem : SystemBase
+public class ArmSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
-            .ForEach((Entity entity, in Spawner spawner) =>
+            .ForEach((Entity entity, in ArmSpawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.

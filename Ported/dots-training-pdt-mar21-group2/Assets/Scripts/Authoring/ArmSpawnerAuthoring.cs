@@ -6,7 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public class SpawnerAuthoring : MonoBehaviour
+public class ArmSpawnerAuthoring : MonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
@@ -29,7 +29,7 @@ public class SpawnerAuthoring : MonoBehaviour
         // GetPrimaryEntity fetches the entity that resulted from the conversion of
         // the given GameObject, but of course this GameObject needs to be part of
         // the conversion, that's why DeclareReferencedPrefabs is important here.
-        dstManager.AddComponentData(entity, new Spawner
+        dstManager.AddComponentData(entity, new ArmSpawner
         {
             ArmPrefab = conversionSystem.GetPrimaryEntity(ArmPrefab),
             ArmCount = ArmCount,
