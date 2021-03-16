@@ -240,6 +240,29 @@ public class MetroLine
 
         return result;
     }
+    
+    public int Get_NextPlatformIndex(float _currentPosition, int _platformIndex)
+    {
+        //Platform result = null;
+        int totalPoints = bezierPath.points.Count;
+        int currentRegionIndex = Get_RegionIndex(_currentPosition);
+
+        // walk along the points and return the next END we encounter
+        for (int i = 0; i < totalPoints; i++)
+        {
+            int testIndex = (currentRegionIndex + i) % totalPoints;
+            // is TEST INDEX a platform end?
+            for (int j = 0; j < platforms.Count; j++)
+            {
+                if (platforms[j].point_platform_START.index == testIndex && _platformIndex != j)
+                {
+                    return j;
+                }
+            }
+        }
+
+        return -1;
+    }
 
     public bool Has_ConnectionToMetroLine(MetroLine _targetLine)
     {
