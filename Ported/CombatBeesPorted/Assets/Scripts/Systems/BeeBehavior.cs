@@ -8,18 +8,22 @@ using Unity.Transforms;
 public class BeeBehavior: SystemBase
 {
     private EntityQueryDesc allBeesQueryDesc; 
+    private EntityQuery FoodQuery;
     protected override void OnCreate()
+    {
+        FoodQuery=GetEntityQuery(ComponentType.ReadOnly<Food>());
+        allBeesQueryDesc = new EntityQueryDesc
         {
-            allBeesQueryDesc = new EntityQueryDesc
-            {
-                All = new ComponentType[] {typeof(Bee)} //, ComponentType.ReadOnly<WorldRenderBounds>()
-            };
-        }
+            All = new ComponentType[] {typeof(Bee)} //, ComponentType.ReadOnly<WorldRenderBounds>()
+        };
+
+    }
 
     protected override void OnUpdate()
     {
 
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var foodEntities=FoodQuery.ToEntityArray(Allocator.Temp);
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));                
 
         EntityQuery allBeesQuery = GetEntityQuery(allBeesQueryDesc);
@@ -27,11 +31,16 @@ public class BeeBehavior: SystemBase
 
         Entities
             .WithNone<GoingForFood,Attacking,BringingFoodBack>()
-            .ForEach((in Entity beeEntity, in Bee bee, in Translation translation, in Team team) =>
+            .ForEach((Entity entity, in Bee bee, in Translation translation, in Team team) =>
             {
-                if(random.NextBool()) {
-                    // go for food                    
-
+                if(random.NextBool())
+                {
+                    int foodCount = foodEntities.Length;
+                    if (foodCount == 0)
+                        return;
+                    commandBuffer.AddComponent<GoingForFood>(entity);
+                    commandBuffer.AddComponent<FoodTarget>(entity);
+                    commandBuffer.SetComponent(entity,new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)]});
                 } else {
                     var enemyTeam = !team.index;
                     // go for attack
@@ -48,7 +57,7 @@ public class BeeBehavior: SystemBase
                     }
                     // add Attacking component 
                     if(enemyBee != Entity.Null) {
-                        commandBuffer.AddComponent(beeEntity,new Attacking() { TargetBee = enemyBee });
+                        commandBuffer.AddComponent(entity,new Attacking() { TargetBee = enemyBee });
                     }                    
                 }
             }).Run();
