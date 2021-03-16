@@ -22,15 +22,15 @@ public class CarouselRecyclerSystem : SystemBase
     protected override void OnUpdate()
     {
         var worldBounds = GetSingleton<WorldBounds>();
-        var random = new Random(1234); 
-        
+        var random = new Random(1234);
+
         Entities
             .WithAll<Rock>()
             .ForEach((Entity entity, ref Translation translation) =>
             {
                 if (worldBounds.IsOutOfBounds(translation.Value))
                 {
-                    translation.Value = random.NextCarouselPosition(worldBounds);
+                    translation.Value = random.NextCarouselPosition(worldBounds, 5.0f);
                 }
             }).Run(); 
         
@@ -40,8 +40,8 @@ public class CarouselRecyclerSystem : SystemBase
             {
                 if (worldBounds.IsOutOfBounds(translation.Value))
                 {
-                    translation.Value = random.NextCarouselPosition(worldBounds, 10.0f, 10.0f, 20.0f);
+                    translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
                 }
-            }).Run();
+            }).Run(); 
     }
 }

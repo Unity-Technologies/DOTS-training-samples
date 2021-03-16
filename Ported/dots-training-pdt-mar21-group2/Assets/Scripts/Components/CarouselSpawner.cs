@@ -7,6 +7,5 @@ using Unity.Mathematics;
 public struct CarouselSpawner : IComponentData
 {
     public Entity SpawnPrefab;
-    public float Distance;
     public float Frequency;
 }

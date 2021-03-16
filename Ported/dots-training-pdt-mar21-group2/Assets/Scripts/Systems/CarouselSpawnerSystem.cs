@@ -8,6 +8,7 @@ public class CarouselSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var worldBounds = GetSingleton<WorldBounds>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var outOfBoundsPosition = new float3(-10.0f, 0.0f, 0.0f);
 
@@ -17,7 +18,7 @@ public class CarouselSpawnerSystem : SystemBase
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
-                var spawnCount = (int) (spawner.Distance * spawner.Frequency);
+                var spawnCount = (int) (worldBounds.Width * spawner.Frequency);
                 for (var i = 0; i < spawnCount; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.SpawnPrefab);
