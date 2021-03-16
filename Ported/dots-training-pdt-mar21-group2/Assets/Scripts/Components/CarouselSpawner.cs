@@ -4,7 +4,9 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent, Serializable]
-// Rock Component used to tag an Entity has a Rock
-public struct Rock : IComponentData
+public struct CarouselSpawner : IComponentData
 {
+    public Entity SpawnPrefab;
+    public float Distance;
+    public float Frequency;
 }
