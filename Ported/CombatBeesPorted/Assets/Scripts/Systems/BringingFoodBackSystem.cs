@@ -24,7 +24,7 @@ public class BringingFoodBackSystem:SystemBase
                     commandBuffer.RemoveComponent<BringingFoodBack>(entity);
                     commandBuffer.RemoveComponent<FoodTarget>(entity);
                     commandBuffer.RemoveComponent<PossessedBy>(foodTarget.Value);
-                    commandBuffer.DestroyEntity(foodTarget.Value);
+                    //commandBuffer.DestroyEntity(foodTarget.Value);
                     return;
                 }
                 force.Value += math.normalize(targetMoveVector)*carryingSpeed;

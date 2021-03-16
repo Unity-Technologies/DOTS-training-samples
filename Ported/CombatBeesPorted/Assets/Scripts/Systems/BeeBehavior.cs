@@ -33,7 +33,8 @@ public class BeeBehavior: SystemBase
             .WithNone<GoingForFood,Attacking,BringingFoodBack>()
             .ForEach((Entity entity, in Bee bee, in Translation translation, in Team team) =>
             {
-                if(random.NextBool())                
+                int r = random.NextInt() % 100;
+                if(r < 98)                
                 {
                     int foodCount = foodEntities.Length;
                     if (foodCount == 0)
