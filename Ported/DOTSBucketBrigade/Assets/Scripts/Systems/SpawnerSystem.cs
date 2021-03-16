@@ -24,7 +24,6 @@ public class SpawnerSystem : SystemBase
                 heatMap.Length = initCounts.GridSize * initCounts.GridSize;
                 ecb.DestroyEntity(entity);
 
-                int fireCount = 0;
                 int i = 0;
                 
                 for (int row = 0; row < initCounts.GridSize; ++row)
@@ -38,11 +37,6 @@ public class SpawnerSystem : SystemBase
                         };
                         heatMap[i] = new HeatMap {Value = 0.0f};
                         
-                        if (fireCount < 5)
-                        {
-                            heatMap[i] = new HeatMap {Value = 1.0f};
-                            fireCount++;
-                        }
                         ecb.SetComponent(instance, translation);
                         i++;
                     }
@@ -68,6 +62,12 @@ public class SpawnerSystem : SystemBase
                     ecb.SetComponent(instance, translation);
                 }
                 
+                Unity.Mathematics.Random fireRandomizer = new Unity.Mathematics.Random(1234);
+                for (int fireCount = 0; fireCount < initCounts.InitialFireInstances; ++fireCount)
+                {
+                    int fireIndex = fireRandomizer.NextInt(initCounts.GridSize * initCounts.GridSize);
+                    heatMap[fireIndex] = new HeatMap {Value = 1.0f};
+                }
             }).Run();
 
         ecb.Playback(EntityManager);
