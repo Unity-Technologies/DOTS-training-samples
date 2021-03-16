@@ -19,10 +19,11 @@ public static class RandomExtensions
 
 public class CarouselRecyclerSystem : SystemBase
 {
+    static Random random = new Random(1234);
+    
     protected override void OnUpdate()
     {
         var worldBounds = GetSingleton<WorldBounds>();
-        var random = new Random(1234);
 
         Entities
             .WithAll<Rock>()
