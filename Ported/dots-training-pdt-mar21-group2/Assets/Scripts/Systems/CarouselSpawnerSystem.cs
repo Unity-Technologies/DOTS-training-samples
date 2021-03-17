@@ -26,13 +26,6 @@ public class CarouselSpawnerSystem : SystemBase
                     {
                         Value = outOfBoundsPosition
                     });
-                    ecb.AddComponent(instance, new Available());
-                    if (HasComponent<Rock>(spawner.SpawnPrefab))
-                    {
-                        ecb.AddComponent<Scale>(instance, new Scale {Value = 1.0f});
-                    }
-                    // TODO(sandy): random scale
-                    // TODO(sandy): add support for target scale for growing during spawn
                 }
             }).Run();
 

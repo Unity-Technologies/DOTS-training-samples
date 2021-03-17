@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Assertions;
 using Unity.Collections;
@@ -6,6 +7,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public class RockCollisionSystem : SystemBase
 {
@@ -36,6 +38,7 @@ public class RockCollisionSystem : SystemBase
         var ecbParaWriter = ecb.AsParallelWriter();
 
         var random = s_Random;
+        var seed = random.NextUInt();
 
         // Only apply the collision check on falling rocks (has been thrown)
         Entities.WithAll<Falling, Rock>()
@@ -45,7 +48,7 @@ public class RockCollisionSystem : SystemBase
             .WithDisposeOnCompletion(canTranslations)
             .ForEach((Entity entity, int entityInQueryIndex, ref Velocity rockVelocity, in Translation rockTranslation,
                     in Scale rockScale) =>
-                RockCansCollision(ref ecbParaWriter, entityInQueryIndex, ref random, rockTranslation, rockScale,
+                RockCansCollision(ref ecbParaWriter, entityInQueryIndex, ref random, seed, rockTranslation, rockScale,
                     ref rockVelocity, canEntities, canTranslations))
             .ScheduleParallel();
 
@@ -61,9 +64,11 @@ public class RockCollisionSystem : SystemBase
     }
 
     static void RockCansCollision(ref EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, ref Random random,
-        in Translation rockTranslation, in Scale rockScale, ref Velocity rockVelocity,
+        uint seed, in Translation rockTranslation, in Scale rockScale, ref Velocity rockVelocity,
         in NativeArray<Entity> canEntities, in NativeArray<Translation> canTranslations)
     {
+        random.InitState(seed * ((uint) entityInQueryIndex + 0x12345678));
+
         // Demo is not physically accurate, collision resolution is done by assigning random velocities
 
         // Rock has a radius of 0.5

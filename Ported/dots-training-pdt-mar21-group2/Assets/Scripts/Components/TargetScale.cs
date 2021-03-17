@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct CurrentScale : IComponentData
+public struct TargetScale : IComponentData
 {
     public float Value;
 }
