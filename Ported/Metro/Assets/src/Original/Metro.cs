@@ -164,6 +164,8 @@ public class Metro : MonoBehaviour
                     }
                 }
             }
+
+            _PA.globalIndex = i;
         }
 
         foreach (Platform _P in allPlatforms)

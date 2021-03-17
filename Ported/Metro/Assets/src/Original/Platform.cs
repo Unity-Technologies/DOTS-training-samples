@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Platform : MonoBehaviour
 {
-    public int carriageCount, platformIndex;
+    public int carriageCount, platformIndex, globalIndex;
     public MetroLine parentMetroLine;
     public List<Walkway> walkways;
     public Walkway walkway_FRONT_CROSS, walkway_BACK_CROSS;

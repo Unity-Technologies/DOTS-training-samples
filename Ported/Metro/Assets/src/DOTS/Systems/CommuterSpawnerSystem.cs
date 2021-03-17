@@ -17,7 +17,7 @@ namespace src.DOTS.Systems
             Entities.WithoutBurst().ForEach((Entity entity, in CommuterSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-
+                
                 for (int i = 0; i < spawner.amountToSpawn; i++)
                 {
                     var from = GetRandomPlatform(metro.metro, ref random);
@@ -26,27 +26,13 @@ namespace src.DOTS.Systems
                     var commuter = ecb.Instantiate(spawner.commuterPrefab);
                     ecb.SetComponent(commuter, new Translation {Value = from.queuePoints[0].transform.position });
 
+                    
+                    // TODO: move to switching platform system
                     ecb.AddBuffer<PathData>(commuter);
-                    ecb.AppendToBuffer(commuter, new PathData
+                    ecb.AddComponent<SwitchingPlatformTag>(commuter, new SwitchingPlatformTag()
                     {
-                        point = from.walkway_BACK_CROSS.nav_START.transform.position
-                    });
-                    ecb.AppendToBuffer(commuter, new PathData
-                    {
-                        point = from.walkway_BACK_CROSS.nav_END.transform.position
-                    });
-                    ecb.AppendToBuffer(commuter, new PathData
-                    {
-                        point = to.walkway_FRONT_CROSS.nav_END.transform.position
-                    });
-                    ecb.AppendToBuffer(commuter, new PathData
-                    {
-                        point = to.walkway_FRONT_CROSS.nav_START.transform.position
-                    });
-                    ecb.AddComponent<SwitchingPlatformTag>(commuter);
-                    ecb.AddComponent(commuter, new CurrentPathTarget
-                    {
-                        currentIndex = 0,
+                        platformFrom = from.globalIndex,
+                        platformTo = to.globalIndex
                     });
                 }
             }).Run();
