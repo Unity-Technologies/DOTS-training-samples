@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using src.DOTS.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -37,6 +39,8 @@ public class MetroBlobAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             lineArrayBuilder[i].FirstPlatform = currentPlatform;
             lineArrayBuilder[i].PlatformCount = generated.platforms.Length;
             currentPlatform += generated.platforms.Length;
+
+            lineArrayBuilder[i].Distance = generated.distance;
             
             platforms.AddRange(generated.platforms);
         }
@@ -52,31 +56,5 @@ public class MetroBlobAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
         var blobContainer = new MetroBlobContaner {Blob = result};
         dstManager.AddComponentData(entity, blobContainer);
-        
-        // Debug.Log(result.Value.Lines.Length);
-        //
-        // ref var metro = ref result.Value;
-        // for (var index = 0; index < metro.Lines.Length; index++)
-        // {
-        //     Debug.Log($"{metro.Lines[index].FirstPlatform} {metro.Lines[index].PlatformCount}");
-        //     
-        //     ref var points = ref metro.Lines[index].Path;
-        //     for (var i = 0; i < points.Length; i++)
-        //     {
-        //         Debug.Log(points[i].location);
-        //     }
-        // }
-
-        // Call methods on 'dstManager' to create runtime components on 'entity' here. Remember that:
-        //
-        // * You can add more than one component to the entity. It's also OK to not add any at all.
-        //
-        // * If you want to create more than one entity from the data in this class, use the 'conversionSystem'
-        //   to do it, instead of adding entities through 'dstManager' directly.
-        //
-        // For example,
-        //   dstManager.AddComponentData(entity, new Unity.Transforms.Scale { Value = scale });
-
-
     }
 }

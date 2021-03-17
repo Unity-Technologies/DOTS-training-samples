@@ -5,7 +5,7 @@ using UnityEngine;
 
 public static class BlobCreationUtilities
 {
-    public static (LinePoint[] linePoints, PlatformBlob[] platforms) Create_RailPath(List<RailMarker> _outboundPoints)
+    public static (LinePoint[] linePoints, PlatformBlob[] platforms, float distance) Create_RailPath(List<RailMarker> _outboundPoints)
     {
         List<PlatformBlob> platformBlobs = new List<PlatformBlob>();
         
@@ -71,10 +71,6 @@ public static class BlobCreationUtilities
         }
 
         bezierPath.MeasurePath();
-        
-        // TODO Probably relevant if we need to factor in carriage length
-        // carriageLength_onRail = Get_distanceAsRailProportion(TrainCarriage.CARRIAGE_LENGTH) +
-        //                         Get_distanceAsRailProportion(TrainCarriage.CARRIAGE_SPACING);
 
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
@@ -114,20 +110,7 @@ public static class BlobCreationUtilities
         //
         // speedRatio = bezierPath.GetPathDistance() * maxTrainSpeed;
         
-        // TODO Now, let's lay the rail meshes
-//         float _DIST = 0f;
-//         Metro _M = Metro.INSTANCE;
-//         while (_DIST < bezierPath.GetPathDistance())
-//         {
-//             float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST);
-//             Vector3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR);
-//             Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR);
-//             GameObject _RAIL = (GameObject) Metro.Instantiate(_M.prefab_rail);
-// //            _RAIL.GetComponent<Renderer>().material.color = lineColour;
-//             _RAIL.transform.position = _RAIL_POS;
-//             _RAIL.transform.LookAt(_RAIL_POS - _RAIL_ROT);
-//             _DIST += Metro.RAIL_SPACING;
-//         }
+        
 
 
         PlatformBlob AddPlatform(int _index_platform_START, int _index_platform_END)
@@ -167,6 +150,7 @@ public static class BlobCreationUtilities
             };
         }
 
-        return (linePoints.ToArray(), platformBlobs.ToArray());
+        return (linePoints.ToArray(), platformBlobs.ToArray(), bezierPath.GetPathDistance());
     }
+    
 }

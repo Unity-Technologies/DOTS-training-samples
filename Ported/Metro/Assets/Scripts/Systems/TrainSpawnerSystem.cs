@@ -10,38 +10,34 @@ public class TrainSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        // Assign values to local variables captured in your job here, so that it has
-        // everything it needs to do its work when it runs later.
-        // For example,
-        //     float deltaTime = Time.DeltaTime;
-
-        // This declares a new kind of job, which is a unit of work to do.
-        // The job is declared as an Entities.ForEach with the target components as parameters,
-        // meaning it will process all entities in the world that have both
-        // Translation and Rotation components. Change it to process the component
-        // types you want.
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var metro = this.GetSingleton<GameObjectRefs>().metro;
-        
-        /*Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) => {
-            // Implement the work to perform for each entity here.
-            // You should only access data that is local or that is a
-            // field on this job. Note that the 'rotation' parameter is
-            // marked as 'in', which means it cannot be modified,
-            // but allows this job to run in parallel with other jobs
-            // that want to read Rotation component data.
-            // For example,
-            //     translation.Value += math.mul(rotation.Value, new float3(0, 0, 1)) * deltaTime;
+        var metroBlob = this.GetSingleton<MetroBlobContaner>();
+
+        Entities.WithoutBurst().ForEach((Entity entity, ref TrainSpawner trainSpawner) =>
+        {
             ecb.DestroyEntity(entity);
-            MetroLine _ML = metro.metroLines[0];
-            float trainSpacing = 1f / _ML.maxTrains;
-            for (int trainIndex = 0; trainIndex < _ML.maxTrains; trainIndex++)
+            for (int i = 0; i < metroBlob.Blob.Value.Lines.Length; i++)
             {
-                _ML.AddTrain(trainIndex, trainIndex * trainSpacing);
+                float _DIST = 0f;
+                while (_DIST < metroBlob.Blob.Value.Lines[i].Distance)
+                {
+                    float _DIST_AS_RAIL_FACTOR = _DIST / metroBlob.Blob.Value.Lines[i].Distance;
+                    float3 _RAIL_POS = BezierUtilities.Get_Position(_DIST_AS_RAIL_FACTOR, ref metroBlob.Blob.Value.Lines[i]);
+                    float3 _RAIL_ROT = BezierUtilities.Get_NormalAtPosition(_DIST_AS_RAIL_FACTOR, ref metroBlob.Blob.Value.Lines[i]);
+                    
+                    var railEntity = ecb.Instantiate(trainSpawner.RailPrefab);
+                    ecb.AddComponent(railEntity, new Rotation(){Value = 
+                        quaternion.LookRotation(_RAIL_ROT, new float3(0.0f, 1.0f, 0.0f)) });
+                    ecb.AddComponent(railEntity, new Translation(){Value = _RAIL_POS});
+                    
+                    _DIST += Metro.RAIL_SPACING;
+                }
             }
-        }).Run();*/
-        
+        }).Run();
+
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
+    
+    
 }

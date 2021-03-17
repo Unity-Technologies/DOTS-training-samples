@@ -3,10 +3,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[Serializable]
+[GenerateAuthoringComponent]
 public struct TrainSpawner : IComponentData
 {
     public Entity CarriagePrefab;
-
+    public Entity RailPrefab;
 
 }

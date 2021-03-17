@@ -18,6 +18,7 @@ public struct MetroLineBlob
     public BlobArray<LinePoint> Path;
     public int FirstPlatform;
     public int PlatformCount;
+    public float Distance;
 }
 
 public struct LinePoint

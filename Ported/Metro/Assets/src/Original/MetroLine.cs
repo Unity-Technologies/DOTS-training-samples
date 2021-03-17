@@ -151,19 +151,19 @@ public class MetroLine
         speedRatio = bezierPath.GetPathDistance() * maxTrainSpeed;
         
         // Now, let's lay the rail meshes
-        float _DIST = 0f;
-        Metro _M = Metro.INSTANCE;
-        while (_DIST < bezierPath.GetPathDistance())
-        {
-            float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST);
-            Vector3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR);
-            Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR);
-            GameObject _RAIL = (GameObject) Metro.Instantiate(_M.prefab_rail);
-//            _RAIL.GetComponent<Renderer>().material.color = lineColour;
-            _RAIL.transform.position = _RAIL_POS;
-            _RAIL.transform.LookAt(_RAIL_POS - _RAIL_ROT);
-            _DIST += Metro.RAIL_SPACING;
-        }
+//         float _DIST = 0f;
+//         Metro _M = Metro.INSTANCE;
+//         while (_DIST < bezierPath.GetPathDistance())
+//         {
+//             float _DIST_AS_RAIL_FACTOR = Get_distanceAsRailProportion(_DIST);
+//             Vector3 _RAIL_POS = Get_PositionOnRail(_DIST_AS_RAIL_FACTOR);
+//             Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR);
+//             GameObject _RAIL = (GameObject) Metro.Instantiate(_M.prefab_rail);
+// //            _RAIL.GetComponent<Renderer>().material.color = lineColour;
+//             _RAIL.transform.position = _RAIL_POS;
+//             _RAIL.transform.LookAt(_RAIL_POS - _RAIL_ROT);
+//             _DIST += Metro.RAIL_SPACING;
+//         }
 
     }
 
