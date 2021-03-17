@@ -166,4 +166,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba5f2eb1ff3440e2810c871323d4d987, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CommuterPrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc, type: 3}
+  m_CommuterPrefab: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4, type: 3}
+  amountToSpawn: 100
