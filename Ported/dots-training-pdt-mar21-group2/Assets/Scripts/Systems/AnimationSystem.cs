@@ -131,6 +131,25 @@ public class AnimationSystem : SystemBase
                 }
             }).Run();
         
+        Entities
+            .WithAll<HandThrowingRock>()
+            .ForEach((Entity entity, ref Timer timer,
+                ref TimerDuration timerDuration,
+                in TargetRock targetRock) =>
+            {
+                if (timer.Value <= 0.0f)
+                {
+                    ecb.SetComponent(targetRock.RockEntity, new Velocity()
+                    {
+                        Value = new float3(0.0f, 12.0f, 24.0f)
+                    });
+                    ecb.AddComponent<Falling>(targetRock.RockEntity);
+
+                    ecb.RemoveComponent<HandThrowingRock>(entity);
+                    ecb.AddComponent<HandIdle>(entity);
+                }
+            }).Run();
+        
         sys.AddJobHandleForProducer(Dependency);
         
     }

@@ -41,6 +41,10 @@ public class CarouselRecyclerSystem : SystemBase
                     random.InitState((uint)(0x123456 * entity.Index));
                     Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 5.0f) };
                     ecbParaWriterRock.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
+                    ecbParaWriterRock.SetComponent(entityInQueryIndex, entity, new Velocity()
+                    {
+                        Value = new float3(1.0f, 0.0f, 0.0f)
+                    });
                     ecbParaWriterRock.RemoveComponent<Falling>(entityInQueryIndex, entity);
                     ecbParaWriterRock.AddComponent<Available>(entityInQueryIndex, entity);
                 }

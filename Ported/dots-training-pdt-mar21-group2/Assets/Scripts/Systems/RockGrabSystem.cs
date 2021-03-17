@@ -56,9 +56,6 @@ public class RockGrabSystem : SystemBase
                         };
                         // ...and in the future
                         ecb.RemoveComponent<Available>(targetRock.RockEntity);
-
-                        // just a hack for now : we just stop the rock
-                        ecb.RemoveComponent<Velocity>(targetRock.RockEntity);
                     }
                     else
                     {
