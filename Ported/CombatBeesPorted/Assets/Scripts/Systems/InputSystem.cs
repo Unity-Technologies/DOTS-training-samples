@@ -29,7 +29,6 @@ public class InputSystem : SystemBase
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             var boundsComponent = GetComponent<SpawnBounds>(spawnBoundsArray[0]);
-
             
             float3 planeFloor = new float3(0, boundsComponent.Center.y - boundsComponent.Extents.y, 0);
             if (new Plane(Vector3.up, planeFloor + 1f).Raycast(ray, out var hit))
@@ -51,12 +50,12 @@ public class InputSystem : SystemBase
                     commandBuffer.AddComponent(foodEntity, new Velocity() { });
                     commandBuffer.Playback(EntityManager);
                     commandBuffer.Dispose();
-                }
-
-                
+                }      
 
             }
            
         }
+
+        
     }
 }
