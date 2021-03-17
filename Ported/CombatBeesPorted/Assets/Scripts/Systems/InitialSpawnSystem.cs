@@ -10,7 +10,7 @@ public class InitialSpawnSystem : SystemBase
     {
         var gameConfig = GetSingleton<GameConfiguration>();
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        var random = new Random((uint)(Time.DeltaTime * 10000)+1);
+        var random = new Random((uint)(Time.ElapsedTime * 10000)+1);
 
         var distance = 10f;
 
@@ -24,6 +24,15 @@ public class InitialSpawnSystem : SystemBase
                     commandBuffer.AddComponent(foodEntity, new Force() {});
                     commandBuffer.AddComponent(foodEntity, new Velocity() {});
                 }
+
+                var TeamABeeSpawner=commandBuffer.CreateEntity();
+                commandBuffer.AddComponent(TeamABeeSpawner,new BeeSpawnConfiguration(){Count = config.FoodCount});
+                commandBuffer.AddComponent(TeamABeeSpawner,new TeamA());
+                commandBuffer.AddComponent(TeamABeeSpawner,new Translation(){Value = new float3(-gameConfig.HivePosition,0,0) });
+                var TeamBBeeSpawner=commandBuffer.CreateEntity();
+                commandBuffer.AddComponent(TeamBBeeSpawner,new BeeSpawnConfiguration(){Count = config.FoodCount});
+                commandBuffer.AddComponent(TeamBBeeSpawner,new TeamB());
+                commandBuffer.AddComponent(TeamBBeeSpawner,new Translation(){Value = new float3(gameConfig.HivePosition,0,0) });
                 
                 commandBuffer.DestroyEntity(entity);
             }).Run();

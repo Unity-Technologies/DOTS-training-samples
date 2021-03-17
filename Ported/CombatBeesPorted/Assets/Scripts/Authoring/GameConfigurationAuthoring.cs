@@ -13,6 +13,7 @@ namespace Components
         public GameObject BeeTeamBPrefab;
         public GameObject FoodPrefab;
         public float HivePosition=40;
+        public int BeeSpawnPerCollectedFood=5;
         
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
         {
@@ -28,7 +29,8 @@ namespace Components
                 BeeTeamAPrefab = conversionSystem.GetPrimaryEntity(BeeTeamAPrefab),
                 BeeTeamBPrefab = conversionSystem.GetPrimaryEntity(BeeTeamBPrefab),
                 FoodPrefab =  conversionSystem.GetPrimaryEntity(FoodPrefab),
-                HivePosition = HivePosition
+                HivePosition = HivePosition,
+                BeeSpawnPerCollectedFood = BeeSpawnPerCollectedFood
             });
             var teamASpawnArea= conversionSystem.CreateAdditionalEntity(this);
             var nonUniformScale=dstManager.GetComponentData<NonUniformScale>(entity);

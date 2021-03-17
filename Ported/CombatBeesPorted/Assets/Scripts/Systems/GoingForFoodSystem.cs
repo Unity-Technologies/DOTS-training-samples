@@ -11,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 public class GoingForFoodSystem:SystemBase
 {
     private EntityQuery boundsQuery;
+    private const float boundsPadding=0.8f;
     protected override void OnCreate()
     {
 
@@ -56,14 +57,13 @@ public class GoingForFoodSystem:SystemBase
                 if (math.length(targetMoveVector) <= pickDistance)
                 {
                     var boundsComponent = GetComponent<SpawnBounds>(spawnBoundsArray[0]);
-                    float randomFloat = random.NextFloat(0f,1f);
-
-                    float randomTargetX = math.lerp(boundsComponent.Center.x - boundsComponent.Extents.x,boundsComponent.Center.x + boundsComponent.Extents.x,randomFloat);
-
-                    float randomTargetY = random.NextFloat(boundsComponent.Center.y - boundsComponent.Extents.y, boundsComponent.Center.y + boundsComponent.Extents.y);
-                    float randomTargetZ = random.NextFloat(boundsComponent.Center.z - boundsComponent.Extents.z, boundsComponent.Center.z + boundsComponent.Extents.z);
+                    float extentsX = boundsComponent.Extents.x - boundsPadding;
+                    float extentsY = boundsComponent.Extents.y - boundsPadding*2.5f; //Double padding on Y axis do bees don't try to bring food too close to ceiling or floor.
+                    float extentsZ = boundsComponent.Extents.z - boundsPadding;
+                    float randomTargetX = random.NextFloat(boundsComponent.Center.x - extentsX, boundsComponent.Center.x + extentsX);
+                    float randomTargetY = random.NextFloat(boundsComponent.Center.y - extentsY, boundsComponent.Center.y + extentsY);
+                    float randomTargetZ = random.NextFloat(boundsComponent.Center.z - extentsZ, boundsComponent.Center.z + extentsZ);
                     float3 randomTarget=new float3((team.index?-1:1)* randomTargetX,randomTargetY,randomTargetZ);
-
                     commandBuffer.RemoveComponent<GoingForFood>(entity);
                     commandBuffer.AddComponent<BringingFoodBack>(entity);
                     commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = randomTarget});

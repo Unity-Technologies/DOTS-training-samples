@@ -7,4 +7,5 @@ public struct GameConfiguration: IComponentData
     public Entity BeeTeamBPrefab;
     public Entity FoodPrefab;
     public float HivePosition;
+    public int BeeSpawnPerCollectedFood;
 }

@@ -21,6 +21,7 @@ public class BeeSpawnFromFoodSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var gameConfig = GetSingleton<GameConfiguration>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
@@ -35,7 +36,7 @@ public class BeeSpawnFromFoodSystem : SystemBase
                     return;
                 
                 var beeSpawnerEntity = ecb.CreateEntity();
-                ecb.AddComponent(beeSpawnerEntity,new BeeSpawnConfiguration(){Count = 5});
+                ecb.AddComponent(beeSpawnerEntity,new BeeSpawnConfiguration(){Count = gameConfig.BeeSpawnPerCollectedFood});
                 ecb.AddComponent(beeSpawnerEntity,new Translation(){Value = translation.Value+new float3(0,0.5f,0)});
                 if(team)
                     ecb.AddComponent(beeSpawnerEntity,new TeamA());
