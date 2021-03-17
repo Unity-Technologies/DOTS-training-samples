@@ -56,14 +56,9 @@ public class GoingForFoodSystem:SystemBase
                 if (math.length(targetMoveVector) <= pickDistance)
                 {
                     var boundsComponent = GetComponent<SpawnBounds>(spawnBoundsArray[0]);
-                    //Debug.Log("boundsComponentCenter="+boundsComponent.Center);
-                    //Debug.Log("boundsComponentExtents="+boundsComponent.Extents);
-                    Debug.Log("Min="+(boundsComponent.Center.x - boundsComponent.Extents.x)+" - Max="+ (boundsComponent.Center.x + boundsComponent.Extents.x));
                     float randomFloat = random.NextFloat(0f,1f);
-                    Debug.Log("randomFloat="+randomFloat);
 
                     float randomTargetX = math.lerp(boundsComponent.Center.x - boundsComponent.Extents.x,boundsComponent.Center.x + boundsComponent.Extents.x,randomFloat);
-                    Debug.Log("randomTargetX="+randomTargetX);
 
                     float randomTargetY = random.NextFloat(boundsComponent.Center.y - boundsComponent.Extents.y, boundsComponent.Center.y + boundsComponent.Extents.y);
                     float randomTargetZ = random.NextFloat(boundsComponent.Center.z - boundsComponent.Extents.z, boundsComponent.Center.z + boundsComponent.Extents.z);
