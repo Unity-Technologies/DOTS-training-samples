@@ -3,8 +3,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[Serializable]
-public struct AngularMomentum : IComponentData
+[GenerateAuthoringComponent, Serializable]
+public struct AngularVelocity : IComponentData
 {
     public float3 Value;    
 }

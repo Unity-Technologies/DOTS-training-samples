@@ -12,6 +12,14 @@ public class MovementSystem : SystemBase
     {
         float deltaTime = Time.DeltaTime;
 
+        // rotate
+        Entities
+            .ForEach((ref Rotation rotation, in AngularVelocity velocity) =>
+            {
+                rotation.Value = Quaternion.AngleAxis(math.length(velocity.Value) * deltaTime, velocity.Value) *
+                                 rotation.Value;
+            }).ScheduleParallel();
+
         var applyAcceleration = Entities
             .WithAll<Falling>()
             .ForEach((ref Velocity velocity) =>
