@@ -22,8 +22,10 @@ public class RockGrabSystem : SystemBase
     protected override void OnUpdate()
     {
         var availableRocks = GetComponentDataFromEntity<Available>();
-        
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        var ecb = sys.CreateCommandBuffer();
         
         // Job can't be in parallel! Since it needs to solve race conditions between
         // arms trying to reach for the same rock
@@ -52,9 +54,8 @@ public class RockGrabSystem : SystemBase
                     ecb.AddComponent<HandIdle>(entity);
                 }
 
-            }).Run();
+            }).Schedule();
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        sys.AddJobHandleForProducer(Dependency);
     }
 }
