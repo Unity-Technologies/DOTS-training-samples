@@ -28,7 +28,7 @@ namespace src.DOTS.Systems
             // the queuing tag is added as soon as we switch platforms and start moving, make sure we are done moving (WalkingTag) before processing the queue 
             Entities.WithStoreEntityQueryInField(ref query).WithoutBurst().WithAll<QueueingToEmbarkTag>().WithNone<WalkingTag>().ForEach((
                 ref Translation translation,
-                in SwitchingPlatformData platformData,
+                ref SwitchingPlatformData platformData,
                 in Entity commuter
                 ) =>
             {
@@ -44,6 +44,12 @@ namespace src.DOTS.Systems
                 ecb.AddComponent<WalkingTag>(commuter);
                 ecb.AddComponent<SwitchingPlatformTag>(commuter);
                 ecb.RemoveComponent<QueueingToEmbarkTag>(commuter);
+                
+                int targetPlatform = platformData.platformFrom;
+
+                // HACK: for now switch the platforms like this so it just goes back to the platform it came from
+                platformData.platformFrom = currentPlatform;
+                platformData.platformTo = targetPlatform;
 
             }).Run();
             
