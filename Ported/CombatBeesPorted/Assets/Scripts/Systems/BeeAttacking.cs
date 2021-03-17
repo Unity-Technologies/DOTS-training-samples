@@ -43,6 +43,9 @@ public class BeeAttacking: SystemBase
                         commandBuffer.RemoveComponent<GoingForFood>(beeAttacking.TargetBee);
                         commandBuffer.RemoveComponent<Team>(beeAttacking.TargetBee);
                         commandBuffer.RemoveComponent<FoodTarget>(beeAttacking.TargetBee);
+                        
+                        commandBuffer.AddComponent<Scale>(beeAttacking.TargetBee, new Scale() { Value = 1 });
+                        commandBuffer.AddComponent<ShrinkAndDestroy>(beeAttacking.TargetBee, new ShrinkAndDestroy(){ age = -2f, lifetime = 5f});
                     }
                 } else {
                     // dead or entity is invalid
