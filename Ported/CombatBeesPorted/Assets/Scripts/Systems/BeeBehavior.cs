@@ -11,7 +11,7 @@ public class BeeBehavior: SystemBase
     private EntityQuery FoodQuery;
     protected override void OnCreate()
     {
-        FoodQuery=GetEntityQuery(ComponentType.ReadOnly<Food>());
+        FoodQuery=GetEntityQuery(ComponentType.ReadOnly<Food>(),ComponentType.ReadOnly<Grounded>());
         allBeesQueryDesc = new EntityQueryDesc
         {
             All = new ComponentType[] {typeof(Bee)} //, ComponentType.ReadOnly<WorldRenderBounds>()

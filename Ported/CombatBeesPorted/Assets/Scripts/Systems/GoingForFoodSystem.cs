@@ -17,7 +17,13 @@ public class GoingForFoodSystem:SystemBase
             .ForEach((Entity entity, ref Force force,in GoingForFood goingForFood,in FoodTarget foodTarget,in Translation beeTranslation, in Team team) =>
             {
                 var targetFood = foodTarget.Value;
-                if (HasComponent<PossessedBy>(targetFood))
+                if(!HasComponent<LocalToWorld>(targetFood))
+                {
+                    commandBuffer.RemoveComponent<GoingForFood>(entity);
+                    commandBuffer.RemoveComponent<FoodTarget>(entity);
+                    return;
+                }
+                else if (HasComponent<PossessedBy>(targetFood))
                 {
                     commandBuffer.RemoveComponent<GoingForFood>(entity);
                     commandBuffer.RemoveComponent<FoodTarget>(entity);
@@ -29,7 +35,7 @@ public class GoingForFoodSystem:SystemBase
                 {
                     commandBuffer.RemoveComponent<GoingForFood>(entity);
                     commandBuffer.AddComponent<BringingFoodBack>(entity);
-                    commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = new float3((team.index?-1:1)*50,beeTranslation.Value.y+10,beeTranslation.Value.z)});
+                    commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = new float3((team.index?-1:1)*45,beeTranslation.Value.y+10,beeTranslation.Value.z)});
                     commandBuffer.AddComponent<PossessedBy>(targetFood);
                     commandBuffer.SetComponent(targetFood,new PossessedBy(){Bee = entity});
                     return;
