@@ -12,7 +12,6 @@ public class ArmSpawnerAuthoring : MonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public GameObject m_ArmPrefab;
-    [Range(0, 1000)] public uint m_ArmCount;
     public GameObject m_JointPrefab;
     public GameObject m_JointBoxPrefab;
     public float m_ArmSeparation = 1.0f;
@@ -50,7 +49,6 @@ public class ArmSpawnerAuthoring : MonoBehaviour
         dstManager.AddComponentData(entity, new ArmSpawner
         {
             m_ArmPrefab = conversionSystem.GetPrimaryEntity(m_ArmPrefab),
-            m_ArmCount = m_ArmCount,
             m_JointPrefab = conversionSystem.GetPrimaryEntity(m_JointPrefab),
             m_JointBoxPrefab = conversionSystem.GetPrimaryEntity(m_JointBoxPrefab),
             m_ArmSeparation = m_ArmSeparation,

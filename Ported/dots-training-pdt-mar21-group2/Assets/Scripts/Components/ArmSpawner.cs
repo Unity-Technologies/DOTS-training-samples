@@ -9,7 +9,6 @@ using UnityEngine;
 public struct ArmSpawner : IComponentData
 {
     public Entity m_ArmPrefab;
-    public uint m_ArmCount;
     public Entity m_JointPrefab;
     public Entity m_JointBoxPrefab;
 

@@ -31,6 +31,7 @@ public class ArmSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var worldBounds = GetSingleton<WorldBounds>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
@@ -39,8 +40,10 @@ public class ArmSpawnerSystem : SystemBase
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
+                
+                var armCount = (int) (worldBounds.Width / spawner.m_ArmSeparation);
 
-                for (uint i = 0; i < spawner.m_ArmCount; ++i)
+                for (uint i = 0; i < armCount; ++i)
                 {
                     // Current position of arm, start at root
                     var rootTranslation = new float3(i * spawner.m_ArmSeparation, 0, 0);
