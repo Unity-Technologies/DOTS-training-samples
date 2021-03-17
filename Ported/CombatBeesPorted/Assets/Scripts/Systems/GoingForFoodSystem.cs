@@ -8,7 +8,7 @@ using Unity.Transforms;
 
 public class GoingForFoodSystem:SystemBase
 {
-    private const float pickDistance = 0.2f;
+    private const float pickDistance = 0.5f;
     protected override void OnUpdate()
     {
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
