@@ -9,6 +9,13 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent, Serializable]
 public struct SimulationParameters : IComponentData
 {
+    // Can carousel
     public float CanScrollSpeed;
+    public float CanScrollDepth;
+    public float CanScrollMinHeight;
+    public float CanScrollMaxHeight;
+    
+    // Rock carousel
     public float RockScrollSpeed;
+    public float RockScrollDepth;
 }

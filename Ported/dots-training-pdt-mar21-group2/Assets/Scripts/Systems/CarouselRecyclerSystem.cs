@@ -40,7 +40,10 @@ public class CarouselRecyclerSystem : SystemBase
                 {
                     //translation.Value = random.NextCarouselPosition(worldBounds, 5.0f);
                     random.InitState((uint)(0x123456 * entity.Index));
-                    Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 5.0f) };
+                    Translation newTranslation = new Translation
+                    {
+                        Value = random.NextCarouselPosition(worldBounds, parameters.RockScrollDepth)
+                    };
                     ecbParaWriterRock.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
                     ecbParaWriterRock.SetComponent(entityInQueryIndex, entity, new Velocity()
                     {
@@ -59,7 +62,13 @@ public class CarouselRecyclerSystem : SystemBase
                 {
                     //translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
                     random.InitState((uint) (0x123456 * entity.Index));
-                    Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f) };
+                    Translation newTranslation = new Translation
+                    {
+                        Value = random.NextCarouselPosition(worldBounds, 
+                            parameters.CanScrollDepth,
+                            parameters.CanScrollMinHeight,
+                            parameters.CanScrollMaxHeight)
+                    };
                     ecbParaWriterCan.SetComponent(entityInQueryIndex, entity, new Velocity()
                     {
                         Value = new float3(parameters.CanScrollSpeed, 0.0f, 0.0f)
