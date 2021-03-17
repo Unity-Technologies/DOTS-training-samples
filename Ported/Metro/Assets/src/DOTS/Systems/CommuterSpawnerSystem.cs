@@ -29,7 +29,8 @@ namespace src.DOTS.Systems
                     
                     // TODO: move to switching platform system
                     ecb.AddBuffer<PathData>(commuter);
-                    ecb.AddComponent<SwitchingPlatformTag>(commuter, new SwitchingPlatformTag()
+                    ecb.AddComponent<SwitchingPlatformTag>(commuter);
+                    ecb.AddComponent<SwitchingPlatformData>(commuter, new SwitchingPlatformData()
                     {
                         platformFrom = from.globalIndex,
                         platformTo = to.globalIndex

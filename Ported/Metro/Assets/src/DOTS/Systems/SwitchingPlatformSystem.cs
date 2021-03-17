@@ -9,7 +9,7 @@ namespace src.DOTS.Systems
     public class SwitchingPlatformSystem : SystemBase
     {
         private EntityCommandBufferSystem CommandBufferSystem;
-        const float m_D = 1f;
+        private EntityQuery query;
 
         protected override void OnCreate()
         {
@@ -21,21 +21,18 @@ namespace src.DOTS.Systems
         {
             var metro = this.GetSingleton<GameObjectRefs>();
             var ecb = CommandBufferSystem.CreateCommandBuffer();
+            var ecbTags = CommandBufferSystem.CreateCommandBuffer();
 
-            Entities.WithoutBurst().ForEach((in SwitchingPlatformTag switchingPlatformTag, in Entity commuter) =>
+            Entities.WithStoreEntityQueryInField(ref query).WithoutBurst().WithAll<SwitchingPlatformTag>().WithNone<WalkingTag>().ForEach((in SwitchingPlatformData switchingPlatformData, in Entity commuter) =>
             {
                 
-                var from = metro.metro.allPlatforms[switchingPlatformTag.platformFrom];
-                var to = metro.metro.allPlatforms[switchingPlatformTag.platformTo];
+                var from = metro.metro.allPlatforms[switchingPlatformData.platformFrom];
+                var to = metro.metro.allPlatforms[switchingPlatformData.platformTo];
                 
-                
+                // inserting in reverse order
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = from.walkway_BACK_CROSS.nav_START.transform.position
-                });
-                ecb.AppendToBuffer(commuter, new PathData
-                {
-                    point = from.walkway_BACK_CROSS.nav_END.transform.position
+                    point = to.walkway_FRONT_CROSS.nav_START.transform.position
                 });
                 ecb.AppendToBuffer(commuter, new PathData
                 {
@@ -43,23 +40,25 @@ namespace src.DOTS.Systems
                 });
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = to.walkway_FRONT_CROSS.nav_START.transform.position
+                    point = from.walkway_BACK_CROSS.nav_END.transform.position
                 });
-                ecb.AddComponent(commuter, new CurrentPathTarget
+                ecb.AppendToBuffer(commuter, new PathData
                 {
-                    currentIndex = 0,
+                    point = from.walkway_BACK_CROSS.nav_START.transform.position
                 });
                 
-                
+                ecb.AddComponent<WalkingTag>(commuter);
+                ecb.AddComponent<QueueingToEmbarkTag>(commuter);
                 ecb.RemoveComponent<SwitchingPlatformTag>(commuter);
                 
-                //int targetPlatform = platformTag.platformTo;
-                //ecb.AddComponent<QueueingToEmbarkTag>(commuter, new QueueingToEmbarkTag()
-                //{
-                //    platform = targetPlatform,
-                //});
-                
             }).Run();
+
+            // sync version
+            //EntityManager.RemoveComponent<SwitchingPlatformTag>(query);
+            
+            //ecbTags.RemoveComponent<SwitchingPlatformTag>(query);
+            //ecbTags.AddComponent<QueueingToEmbarkTag>(query);
+            //ecbTags.AddComponent<WalkingTag>(query);
         }
     }
 }

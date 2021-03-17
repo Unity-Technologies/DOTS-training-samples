@@ -1,3 +1,4 @@
+using System.Linq;
 using src.DOTS.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -24,32 +25,35 @@ namespace src.DOTS.Systems
             var deltaTime = Time.DeltaTime;
             var ecb = CommandBufferSystem.CreateCommandBuffer();
 
-            Entities.WithoutBurst().ForEach((
+            Entities.WithoutBurst().WithAll<WalkingTag>().ForEach((
                 ref Translation translation,
-                ref CurrentPathTarget currentPathTarget,
                 ref DynamicBuffer<PathData> pathData,
                 in Entity commuter) =>
             {
-                if (math.distancesq(translation.Value, pathData[currentPathTarget.currentIndex].point) < m_D * deltaTime * m_D * deltaTime)
-                {
-                    translation.Value = pathData[currentPathTarget.currentIndex].point;
-                    currentPathTarget.currentIndex++;
-                    
-                    // TODO: move to switching platform system
-                    if (currentPathTarget.currentIndex > pathData.Length)
-                    {
-                        //ecb.RemoveComponent<SwitchingPlatformTag>(commuter);
-                        
-                        ecb.RemoveComponent<CurrentPathTarget>(commuter);
+                int lastIndex = pathData.Length - 1;
 
-                        pathData.Clear();
+                //if (lastIndex < 0)
+                  //  return;
+                
+                PathData currentNavPoint = pathData[lastIndex];
+                
+                if (math.distancesq(translation.Value, currentNavPoint.point) < m_D * deltaTime * m_D * deltaTime)
+                {
+                    translation.Value = currentNavPoint.point;
+                    
+                    pathData.RemoveAt(lastIndex);
+
+                    if (lastIndex == 0)
+                    {
+                        ecb.RemoveComponent<WalkingTag>(commuter);
                     }
+
                     return;
                 }
                 
                 //TODO: pop the last NavPoint instead of checking against max length
                 
-                var distance = pathData[currentPathTarget.currentIndex].point - translation.Value;
+                var distance = currentNavPoint.point - translation.Value;
                 var direction = math.normalize(distance);
                 translation.Value += direction * m_D * deltaTime;
             }).Run();
