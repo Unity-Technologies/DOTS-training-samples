@@ -23,7 +23,7 @@ public class GoingForFoodSystem:SystemBase
 
     }
 
-    private const float pickDistance = 0.5f;
+    private const float pickDistance = 1f;
     protected override void OnUpdate()
     {
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);

@@ -11,10 +11,17 @@ public class VelocityRotationSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
-            .ForEach((Entity entity,ref Rotation Rotation, in Translation translation, in Velocity velocity, in Bee bee) =>
+            .WithAny<Bee>() // & Particle
+            .WithNone<Grounded>()
+            .ForEach((Entity entity,ref Rotation Rotation, in Velocity velocity) =>
             {
-                //float3 lookDirection = math.normalize(translation.Value + velocity.Value);
-                Quaternion targetRotation=Quaternion.LookRotation(math.normalize(velocity.Value),float3.zero );
+                float3 forward = math.normalize(velocity.Value);
+                float3 right = math.normalize(math.cross(new float3(0,1,0), forward));
+                float3 up = math.cross(forward, right);
+                
+                // rotation looks a pretty bad when velocity is changing rapidly (idling). consider softer idling or storing last rotation.
+                // swap up and forward if model is rotated to face X or Z
+                Quaternion targetRotation = Quaternion.LookRotation(up,forward);
 
                 Rotation.Value = targetRotation;
 
