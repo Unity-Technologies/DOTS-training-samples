@@ -89,6 +89,8 @@ public struct ProjectileSelectionJob : IJobEntityBatch
                 
                 Ecb.RemoveComponent<HandIdle>(batchIndex, entity);
                 Ecb.AddComponent(batchIndex, entity, new HandGrabbingRock());
+                Ecb.SetComponent(batchIndex, entity, new Timer() {Value = 1.0f});
+                Ecb.SetComponent(batchIndex, entity, new TimerDuration() {Value = 1.0f});
             }
         }
     }

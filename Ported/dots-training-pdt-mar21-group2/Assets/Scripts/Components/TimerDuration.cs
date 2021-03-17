@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent, Serializable]
-public struct Timer : IComponentData
+public struct TimerDuration : IComponentData
 {
     public float Value;
 }

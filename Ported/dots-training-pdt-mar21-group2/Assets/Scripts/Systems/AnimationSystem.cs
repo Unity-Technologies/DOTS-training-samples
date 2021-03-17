@@ -6,49 +6,50 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+
 public class AnimationSystem : SystemBase
 {
-    private float m_Rotation = 0.0f;
-    private bool m_Reverse = false;
-    
+  
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
-        if (m_Reverse)
-        {
-            deltaTime *= -1.0f;
-        }
-        float rotationX = m_Rotation;
+        
         var rotations = GetComponentDataFromEntity<Rotation>();
+        var translations = GetComponentDataFromEntity<Translation>();
+        var localToWorlds = GetComponentDataFromEntity<LocalToWorld>();
+        
         Entities
-            .ForEach((ref Arm arm) =>
+            .WithNone<HandIdle>()
+            .ForEach((Entity entity, ref Arm arm, 
+                ref Timer timer, 
+                ref AnimStartPosition startPosition, 
+                in TimerDuration timerDuration,
+                in TargetPosition targetPosition) =>
             {
-                var joints = new NativeArray<Entity>(11, Unity.Collections.Allocator.Temp);
-                
-                joints[0] = arm.m_ThumbJoint0;
-                joints[1] = arm.m_ThumbJoint1;
-                joints[2] = arm.m_ThumbJoint2;
-                joints[3] = arm.m_Finger0Joint1;
-                joints[4] = arm.m_Finger0Joint2;
-                joints[5] = arm.m_Finger1Joint1;
-                joints[6] = arm.m_Finger1Joint2;
-                joints[7] = arm.m_Finger2Joint1;
-                joints[8] = arm.m_Finger2Joint2;
-                joints[9] = arm.m_Finger3Joint1;
-                joints[10] = arm.m_Finger3Joint2;
-
-                foreach (var joint in joints)
+                if (timer.Value > 0.0f)
                 {
-                    var rotation = rotations[joint];
-                    rotation.Value = math.mul(quaternion.RotateX(deltaTime), rotation.Value);
-                    rotations[joint] = rotation;
+                    var humerusMatrix = localToWorlds[arm.m_Humerus];
+                    if (timer.Value >= timerDuration.Value)
+                    {
+                        startPosition.Value = humerusMatrix.Position + humerusMatrix.Up * 3.0f;
+                    }
+
+                    timer.Value -= deltaTime;
+
+                    var progression = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
+                    var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, progression);
+
+                    var pos = translations[entity].Value;
+                    var targetDir = math.normalize(handTargetPos - pos);
+
+                    rotations[arm.m_Humerus] = new Rotation()
+                    {
+                        Value = math.mul(quaternion.LookRotation(targetDir, new float3(0.0f, 1.0f, 0.0f)),
+                            quaternion.RotateX(math.PI * 0.5f))
+                    };
+                    
                 }
             }).Run();
-
-        m_Rotation += deltaTime;
-        if (m_Rotation < 0.0f || m_Rotation > Mathf.PI * 0.5f)
-        {
-            m_Reverse = !m_Reverse;
-        }
+        
     }
 }

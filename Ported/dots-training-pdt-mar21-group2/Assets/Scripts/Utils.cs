@@ -21,7 +21,7 @@ struct Utils
         ComponentDataFromEntity<Translation> translations, 
         out Entity nearestRock)
     {
-        const float grabDist = 5.1f;
+        const float grabDist = 6.0f;
         const float grabDistSq = grabDist * grabDist;
         
         foreach(var rockEntity in availableRocks)
@@ -38,5 +38,14 @@ struct Utils
 
         nearestRock = default;
         return false;
+    }
+
+    static public quaternion FromToRotation(float3 from, float3 to)
+    {
+        float3 half = math.normalize(from + to);
+        var xyz = math.cross(from, half);
+        var w = math.dot(from, half);
+
+        return new quaternion(xyz.x, xyz.y, xyz.z, w);
     }
 }

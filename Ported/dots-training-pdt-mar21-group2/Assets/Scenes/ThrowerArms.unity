@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnPrefab: {fileID: 3970799777029296580, guid: 2dfdefdf4323483419b56323618cea0a, type: 3}
-  Frequency: 0.1
+  Frequency: 1
 --- !u!4 &351910232
 Transform:
   m_ObjectHideFlags: 0
