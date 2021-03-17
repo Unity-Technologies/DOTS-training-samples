@@ -117,6 +117,7 @@ public class AnimationSystem : SystemBase
                 }
             }).Run();
         
+        
         Entities
             .WithAll<HandWindingUp>()
             .ForEach((Entity entity, ref Timer timer,
@@ -124,8 +125,11 @@ public class AnimationSystem : SystemBase
             {
                 if (timer.Value <= 0.0f)
                 {
+                    // Go to Throwing state
+                    
                     timer = new Timer() {Value = 1.0f};
                     timerDuration = new TimerDuration() {Value = 1.0f};
+                    
                     ecb.RemoveComponent<HandWindingUp>(entity);
                     ecb.AddComponent<HandThrowingRock>(entity);
                 }
@@ -135,16 +139,20 @@ public class AnimationSystem : SystemBase
             .WithAll<HandThrowingRock>()
             .ForEach((Entity entity, ref Timer timer,
                 ref TimerDuration timerDuration,
-                in TargetRock targetRock) =>
+                ref TargetRock targetRock) =>
             {
                 if (timer.Value <= 0.0f)
                 {
                     ecb.SetComponent(targetRock.RockEntity, new Velocity()
                     {
-                        Value = new float3(0.0f, 12.0f, 24.0f)
+                        Value = new float3(0.0f, 12.0f, 240.0f)
                     });
                     ecb.AddComponent<Falling>(targetRock.RockEntity);
+                    
+                    // reset target
+                    targetRock.RockEntity = new Entity();
 
+                    // Go to Idle state
                     ecb.RemoveComponent<HandThrowingRock>(entity);
                     ecb.AddComponent<HandIdle>(entity);
                 }
