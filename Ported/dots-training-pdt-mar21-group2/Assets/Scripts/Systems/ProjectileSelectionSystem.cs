@@ -16,15 +16,10 @@ using UnityEngine;
 /// </summary>
 public class ProjectileSelectionSystem : SystemBase
 {
-    private EntityQuery m_IdleHandsQuery;
     private EntityQuery m_AvailableRocksQuery;
 
     protected override void OnCreate()
     {
-        m_IdleHandsQuery = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<HandIdle>(),
-            ComponentType.ReadWrite<TargetRock>(),
-            ComponentType.ReadOnly<Translation>());
-        
         m_AvailableRocksQuery = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Rock>(),
             ComponentType.ReadOnly<Available>());
     }
@@ -32,66 +27,35 @@ public class ProjectileSelectionSystem : SystemBase
     protected override void OnUpdate()
     {
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        EntityCommandBuffer ecb = sys.CreateCommandBuffer();
+        var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         
         var availableRocks = m_AvailableRocksQuery.ToEntityArray(Allocator.TempJob);
         var translations = GetComponentDataFromEntity<Translation>();
-
-        Dependency = new ProjectileSelectionJob()
-        {
-            Ecb = ecb.AsParallelWriter(),
-            EntityTypeHandle = GetEntityTypeHandle(),
-            TranslationTypeHandle = GetComponentTypeHandle<Translation>(),
-            TargetRockTypeHandle = GetComponentTypeHandle<TargetRock>(),
-            Translations = GetComponentDataFromEntity<Translation>(),
-            AvailableRocks = availableRocks
-        }.ScheduleParallel(m_IdleHandsQuery, 1, Dependency);
         
-        sys.AddJobHandleForProducer(Dependency);
-    }
-}
-
-
-[BurstCompile]
-public struct ProjectileSelectionJob : IJobEntityBatch
-{
-    //[NativeDisableParallelForRestriction]
-    public EntityCommandBuffer.ParallelWriter Ecb;
-    
-    // handles for entities in the chunk only
-    [ReadOnly] public EntityTypeHandle EntityTypeHandle;
-    [ReadOnly] public ComponentTypeHandle<Translation> TranslationTypeHandle;
-    public ComponentTypeHandle<TargetRock> TargetRockTypeHandle;
-    
-    // Translations of all entities in the world
-    [ReadOnly] public ComponentDataFromEntity<Translation> Translations;
-    
-    [DeallocateOnJobCompletion, ReadOnly] 
-    public NativeArray<Entity> AvailableRocks;
-
-    public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
-    {
-        var entitiesInBatch = batchInChunk.GetNativeArray(EntityTypeHandle);
-        var translationsInBatch = batchInChunk.GetNativeArray(TranslationTypeHandle);
-        var targetRocksInBatch = batchInChunk.GetNativeArray(TargetRockTypeHandle);
-
-        for (var i = 0; i < batchInChunk.Count; ++i)
+        Dependency = Entities
+            .WithDisposeOnCompletion(availableRocks)
+            .WithReadOnly(availableRocks)
+            .WithReadOnly(translations)
+            .WithAll<HandIdle>()
+            .ForEach((Entity entity, int entityInQueryIndex,
+                ref TargetRock targetRock,
+                in Translation translation) =>
         {
-            var entity = entitiesInBatch[i];
-            var translation = translationsInBatch[i];
-
-            if (Utils.FindNearestRock(translation, AvailableRocks, Translations, out Entity nearestRock))
+            if (Utils.FindNearestRock(translation, availableRocks, translations, out Entity nearestRock))
             {
-                targetRocksInBatch[i] = new TargetRock()
+                targetRock = new TargetRock()
                 {
                     RockEntity = nearestRock
                 };
                 
-                Ecb.RemoveComponent<HandIdle>(batchIndex, entity);
-                Ecb.AddComponent(batchIndex, entity, new HandGrabbingRock());
-                Ecb.SetComponent(batchIndex, entity, new Timer() {Value = 1.0f});
-                Ecb.SetComponent(batchIndex, entity, new TimerDuration() {Value = 1.0f});
+                // Go to grab rock state
+                ecb.RemoveComponent<HandIdle>(entityInQueryIndex, entity);
+                ecb.AddComponent<HandGrabbingRock>(entityInQueryIndex, entity);
+                ecb.SetComponent(entityInQueryIndex, entity, new Timer() {Value = 1.0f});
+                ecb.SetComponent(entityInQueryIndex, entity, new TimerDuration() {Value = 1.0f});
             }
-        }
+        }).ScheduleParallel(Dependency);
+        
+        sys.AddJobHandleForProducer(Dependency);
     }
 }
