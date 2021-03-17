@@ -23,6 +23,7 @@ public class CarouselRecyclerSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var parameters = GetSingleton<SimulationParameters>();
         var worldBounds = GetSingleton<WorldBounds>();
         var random = s_Random;
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -43,7 +44,7 @@ public class CarouselRecyclerSystem : SystemBase
                     ecbParaWriterRock.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
                     ecbParaWriterRock.SetComponent(entityInQueryIndex, entity, new Velocity()
                     {
-                        Value = new float3(1.0f, 0.0f, 0.0f)
+                        Value = new float3(parameters.RockScrollSpeed, 0.0f, 0.0f)
                     });
                     ecbParaWriterRock.RemoveComponent<Falling>(entityInQueryIndex, entity);
                     ecbParaWriterRock.AddComponent<Available>(entityInQueryIndex, entity);
@@ -59,6 +60,10 @@ public class CarouselRecyclerSystem : SystemBase
                     //translation.Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f);
                     random.InitState((uint) (0x123456 * entity.Index));
                     Translation newTranslation = new Translation { Value = random.NextCarouselPosition(worldBounds, 60.0f, 10.0f, 20.0f) };
+                    ecbParaWriterCan.SetComponent(entityInQueryIndex, entity, new Velocity()
+                    {
+                        Value = new float3(parameters.CanScrollSpeed, 0.0f, 0.0f)
+                    });
                     ecbParaWriterCan.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
                     ecbParaWriterCan.RemoveComponent<Falling>(entityInQueryIndex, entity);
                     ecbParaWriterCan.AddComponent<Available>(entityInQueryIndex, entity);
