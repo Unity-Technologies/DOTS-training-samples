@@ -5,9 +5,30 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ArmSpawnerSystem : SystemBase
 {
+    static Entity CreateJoint(ref EntityCommandBuffer ecb, in Entity jointBase, in Entity meshBase, float3 position,
+        float length, float thickness)
+    {
+        // Joint without scaling
+        var joint = ecb.Instantiate(jointBase);
+        ecb.SetComponent(joint, new Translation {Value = position});
+        ecb.AddComponent<ArmJoint>(joint);
+        ecb.AddComponent<LocalToWorld>(joint); // Needed for children
+
+        // Mesh with scaling and translation
+        var mesh = ecb.Instantiate(meshBase);
+        ecb.SetComponent(mesh, new Translation {Value = new float3(0.0f, length * 0.5f, 0.0f)});
+        ecb.AddComponent(mesh, new NonUniformScale {Value = new float3(thickness, length, thickness)});
+        ecb.AddComponent<LocalToWorld>(mesh); // Needed for parent
+        ecb.AddComponent<LocalToParent>(mesh); // Needed for parent
+        ecb.AddComponent(mesh, new Parent {Value = joint});
+
+        return joint;
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -22,11 +43,11 @@ public class ArmSpawnerSystem : SystemBase
                 for (uint i = 0; i < spawner.m_ArmCount; ++i)
                 {
                     // Current position of arm, start at root
-                    var translation = new float3(i * spawner.m_ArmSeparation, 0, 0);
+                    var rootTranslation = new float3(i * spawner.m_ArmSeparation, 0, 0);
 
                     // Entity of the arm
                     var instance = ecb.Instantiate(spawner.m_ArmPrefab);
-                    ecb.SetComponent(instance, new Translation {Value = translation});
+                    ecb.SetComponent(instance, new Translation {Value = rootTranslation});
 
                     // Joint entities of the arm
                     var armScale = new NonUniformScale
@@ -34,30 +55,18 @@ public class ArmSpawnerSystem : SystemBase
                         Value = new float3(spawner.m_ArmJointThickness, spawner.m_ArmJointLength,
                             spawner.m_ArmJointThickness)
                     };
-                    
+
                     // Humerus
-                    var humerusTranslation = new Translation
-                    {
-                        Value = new float3(translation.x, translation.y + 0.5f * spawner.m_ArmJointLength,
-                            translation.z)
-                    };
-                    var humerus = ecb.Instantiate(spawner.m_JointPrefab);
-                    ecb.SetComponent(humerus, humerusTranslation);
-                    ecb.AddComponent(humerus, armScale);
-                    ecb.AddComponent<ArmJoint>(humerus);
-                    translation.y += spawner.m_ArmJointLength + spawner.m_ArmJointSpacing;
+                    var relativeTranslation = float3.zero;
+                    var humerus = CreateJoint(ref ecb, spawner.m_JointPrefab, spawner.m_JointBoxPrefab, relativeTranslation,
+                        spawner.m_ArmJointLength, spawner.m_ArmJointThickness);
 
                     // Forearm
-                    var forearmTranslation = new Translation
-                    {
-                        Value = new float3(translation.x, translation.y + 0.5f * spawner.m_ArmJointLength,
-                            translation.z)
-                    };
-                    var forearm = ecb.Instantiate(spawner.m_JointPrefab);
-                    ecb.SetComponent(forearm, forearmTranslation);
-                    ecb.AddComponent(forearm, armScale);
-                    ecb.AddComponent<ArmJoint>(forearm);
-                    translation.y += spawner.m_ArmJointLength + spawner.m_ArmJointSpacing;
+                    relativeTranslation = new float3(0.0f, spawner.m_ArmJointLength + spawner.m_ArmJointSpacing, 0.0f);
+                    var forearm = CreateJoint(ref ecb, spawner.m_JointPrefab, spawner.m_JointBoxPrefab, relativeTranslation,
+                        spawner.m_ArmJointLength, spawner.m_ArmJointThickness);
+                    ecb.AddComponent<LocalToParent>(forearm); // Needed for parent
+                    ecb.AddComponent(forearm, new Parent {Value = humerus});
 
                     // Fingers
                     var fingerJointLengths = new NativeArray<float>(4, Unity.Collections.Allocator.Temp);
@@ -65,61 +74,44 @@ public class ArmSpawnerSystem : SystemBase
                     fingerJointLengths[1] = spawner.m_Finger1JointLength;
                     fingerJointLengths[2] = spawner.m_Finger2JointLength;
                     fingerJointLengths[3] = spawner.m_Finger3JointLength;
-                    
+
                     var fingerJoints = new NativeArray<Entity>(15, Unity.Collections.Allocator.Temp);
 
                     float offset = -1.5f * spawner.m_FingerSpacing;
-                    var fingerScale = new float3(spawner.m_FingerJointThickness, 0.0f, spawner.m_FingerJointThickness);
-                    
                     for (int j = 0; j < fingerJointLengths.Length; ++j)
                     {
-                        var fingerTranslation = new float3();
-                        fingerTranslation.x = translation.x + offset;
-                        fingerTranslation.y = translation.y;
-                        fingerTranslation.z = translation.z;
-                    
-                        fingerScale.y = fingerJointLengths[j];
-                    
+                        relativeTranslation = new float3(offset, spawner.m_ArmJointLength + spawner.m_ArmJointSpacing, 0.0f);
+
                         // Joints per finger
                         for (int k = 0; k < 3; ++k)
                         {
-                            var joint = ecb.Instantiate(spawner.m_JointPrefab);
-                            ecb.SetComponent(joint,
-                                new Translation
-                                {
-                                    Value = new float3(fingerTranslation.x,
-                                        fingerTranslation.y + 0.5f * fingerJointLengths[j], fingerTranslation.z)
-                                });
-                            ecb.AddComponent(joint, new NonUniformScale {Value = fingerScale});
-                            ecb.AddComponent<ArmJoint>(joint);
-                    
+                            var joint = CreateJoint(ref ecb, spawner.m_JointPrefab, spawner.m_JointBoxPrefab, relativeTranslation,
+                                fingerJointLengths[j], spawner.m_FingerJointThickness);
+                            ecb.AddComponent<LocalToParent>(joint); // Needed for parent
+                            ecb.AddComponent(joint, new Parent {Value = k == 0 ? forearm : fingerJoints[j * 3 + k - 1]});
+                            relativeTranslation = new float3(0.0f,  fingerJointLengths[j], 0.0f);
+                            
                             fingerJoints[j * 3 + k] = joint;
-                            fingerTranslation.y += fingerJointLengths[j];
                         }
-                    
+
                         offset += spawner.m_FingerJointSpacing + spawner.m_FingerSpacing;
                     }
-                    
+
                     // The thumb
-                    float3 thumbTranslation;
-                    thumbTranslation.x = translation.x - spawner.m_FingerSpacing;
-                    thumbTranslation.y = translation.y;
-                    thumbTranslation.z = translation.z;
-                    var thumbScale = new float3(spawner.m_ThumbJointLength, spawner.m_ThumbJointThickness, spawner.m_ThumbJointThickness);
+                    relativeTranslation = new float3(0.5f * spawner.m_ArmJointThickness, spawner.m_ArmJointLength + spawner.m_ArmJointSpacing, 0.0f);
                     for (int j = 0; j < 3; ++j)
                     {
-                        var joint = ecb.Instantiate(spawner.m_JointPrefab);
-                        ecb.SetComponent(joint,
-                            new Translation
-                            {
-                                Value = new float3(thumbTranslation.x - 0.5f * spawner.m_ThumbJointLength,
-                                    thumbTranslation.y, thumbTranslation.z)
-                            });
-                        ecb.AddComponent(joint, new NonUniformScale {Value = thumbScale});
-                        ecb.AddComponent<ArmJoint>(joint);
-                    
+                        var joint = CreateJoint(ref ecb, spawner.m_JointPrefab, spawner.m_JointBoxPrefab, relativeTranslation,
+                            spawner.m_ThumbJointLength, spawner.m_ThumbJointThickness);
+                        if (j == 0)
+                        {
+                            ecb.AddComponent(joint, new Rotation {Value = quaternion.EulerZXY(Mathf.PI * -0.5f, 0.0f, Mathf.PI * -0.5f)});
+                        }
+                        ecb.AddComponent<LocalToParent>(joint); // Needed for parent
+                        ecb.AddComponent(joint, new Parent {Value = j == 0 ? forearm : fingerJoints[12 + j - 1]});
+                        relativeTranslation = new float3(0.0f, spawner.m_ThumbJointLength, 0.0f);
+
                         fingerJoints[12 + j] = joint;
-                        thumbTranslation.x -= spawner.m_ThumbJointLength;
                     }
 
                     // Add the joints with the arm component

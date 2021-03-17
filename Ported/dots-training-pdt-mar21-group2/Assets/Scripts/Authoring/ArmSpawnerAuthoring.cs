@@ -14,6 +14,7 @@ public class ArmSpawnerAuthoring : MonoBehaviour
     public GameObject m_ArmPrefab;
     [Range(0, 1000)] public uint m_ArmCount;
     public GameObject m_JointPrefab;
+    public GameObject m_JointBoxPrefab;
     public float m_ArmSeparation = 1.0f;
     public float m_ArmJointLength = 1.0f;
     public float m_ArmJointThickness = 0.15f;
@@ -36,6 +37,7 @@ public class ArmSpawnerAuthoring : MonoBehaviour
         // in this case prefabs that live in the assets folder.
         referencedPrefabs.Add(m_ArmPrefab);
         referencedPrefabs.Add(m_JointPrefab);
+        referencedPrefabs.Add(m_JointBoxPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -50,6 +52,7 @@ public class ArmSpawnerAuthoring : MonoBehaviour
             m_ArmPrefab = conversionSystem.GetPrimaryEntity(m_ArmPrefab),
             m_ArmCount = m_ArmCount,
             m_JointPrefab = conversionSystem.GetPrimaryEntity(m_JointPrefab),
+            m_JointBoxPrefab = conversionSystem.GetPrimaryEntity(m_JointBoxPrefab),
             m_ArmSeparation = m_ArmSeparation,
             m_ArmJointLength = m_ArmJointLength,
             m_ArmJointThickness = m_ArmJointThickness,
