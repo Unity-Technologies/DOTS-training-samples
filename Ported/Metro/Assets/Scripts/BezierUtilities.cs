@@ -75,4 +75,32 @@ public static class BezierUtilities
         float3 _ahead = Get_Position((_position + 0.0001f) % 1f, ref metroLine);
         return (_ahead - _current) / math.distance(_ahead, _current);
     }
+    
+    public static int Get_RegionIndex(float _proportion, ref MetroLineBlob metroLine)
+    {
+        return GetRegionIndex(metroLine.Distance * _proportion, ref metroLine.Path);
+    }
+
+    public static int Get_NextPlatformIndex(float position, int platformIndex, ref MetroBlob metro, int lineIndex)
+    {
+        ref var metroLine = ref metro.Lines[lineIndex];
+        int totalPoints = metroLine.Path.Length;
+        int currentRegionIndex = Get_RegionIndex(position, ref metroLine);
+
+        // walk along the points and return the next END we encounter
+        for (int i = 0; i < totalPoints; i++)
+        {
+            int testIndex = (currentRegionIndex + i) % totalPoints;
+            // is TEST INDEX a platform end?
+            for (int j = metroLine.FirstPlatform; j < metroLine.PlatformCount + metroLine.FirstPlatform; j++)
+            {
+                if (metro.Platforms[j].PlatformStartIndex == testIndex && platformIndex != j)
+                {
+                    return j;
+                }
+            }
+        }
+
+        return -1;
+    }
 }
