@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 
 public class GoingForFoodSystem:SystemBase
@@ -14,7 +16,7 @@ public class GoingForFoodSystem:SystemBase
 
         var boundsQueryDesc = new EntityQueryDesc
         {
-            All = new ComponentType[] { typeof(Bounds2D) },
+            All = new ComponentType[] { typeof(SpawnBounds) },
             Any = new ComponentType[] { typeof(TeamA), typeof(TeamB) }
         };
         boundsQuery = GetEntityQuery(boundsQueryDesc);
@@ -26,7 +28,7 @@ public class GoingForFoodSystem:SystemBase
     {
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
         var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.Temp);
-        var random = new Random((uint)(Time.DeltaTime * 10000) + 1);
+        var random = new Random((uint)(Time.ElapsedTime * 10000) + 1);
 
         Entities
             .ForEach((Entity entity, ref Force force,in GoingForFood goingForFood,in FoodTarget foodTarget,in Translation beeTranslation, in Team team) =>
@@ -47,20 +49,29 @@ public class GoingForFoodSystem:SystemBase
                 var targetTranslation = GetComponent<Translation>(targetFood);
                 var targetMoveVector = targetTranslation.Value - beeTranslation.Value;
 
-                var boundsComponent = GetComponent<Bounds2D>(spawnBoundsArray[0]);
-
-                var distance = math.abs(boundsComponent.Center.x);
-
-                float minX = (boundsComponent.Center.x - boundsComponent.Extents.x);
-                float maxX  = (boundsComponent.Center.x + boundsComponent.Extents.x);
+                
 
                 //float3 randomDest = random.NextFloat3()
 
                 if (math.length(targetMoveVector) <= pickDistance)
                 {
+                    var boundsComponent = GetComponent<SpawnBounds>(spawnBoundsArray[0]);
+                    //Debug.Log("boundsComponentCenter="+boundsComponent.Center);
+                    //Debug.Log("boundsComponentExtents="+boundsComponent.Extents);
+                    Debug.Log("Min="+(boundsComponent.Center.x - boundsComponent.Extents.x)+" - Max="+ (boundsComponent.Center.x + boundsComponent.Extents.x));
+                    float randomFloat = random.NextFloat(0f,1f);
+                    Debug.Log("randomFloat="+randomFloat);
+
+                    float randomTargetX = math.lerp(boundsComponent.Center.x - boundsComponent.Extents.x,boundsComponent.Center.x + boundsComponent.Extents.x,randomFloat);
+                    Debug.Log("randomTargetX="+randomTargetX);
+
+                    float randomTargetY = random.NextFloat(boundsComponent.Center.y - boundsComponent.Extents.y, boundsComponent.Center.y + boundsComponent.Extents.y);
+                    float randomTargetZ = random.NextFloat(boundsComponent.Center.z - boundsComponent.Extents.z, boundsComponent.Center.z + boundsComponent.Extents.z);
+                    float3 randomTarget=new float3((team.index?-1:1)* randomTargetX,randomTargetY,randomTargetZ);
+
                     commandBuffer.RemoveComponent<GoingForFood>(entity);
                     commandBuffer.AddComponent<BringingFoodBack>(entity);
-                    commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = new float3((team.index?-1:1)* random.NextFloat(minX, maxX), beeTranslation.Value.y+10,beeTranslation.Value.z)});
+                    commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = randomTarget});
                     commandBuffer.AddComponent<PossessedBy>(targetFood);
                     commandBuffer.SetComponent(targetFood,new PossessedBy(){Bee = entity});
                     return;

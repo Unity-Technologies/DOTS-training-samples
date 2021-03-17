@@ -12,7 +12,7 @@ public class BeeSpawnerSystem: SystemBase
 
         var gameConfig = GetSingleton<GameConfiguration>();
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        var random = new Random((uint)(Time.DeltaTime * 10000)+1);
+        var random = new Random((uint)(Time.ElapsedTime * 10000)+1);
         var speed = 2f;
         
         Entities

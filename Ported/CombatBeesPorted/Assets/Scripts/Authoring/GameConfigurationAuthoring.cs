@@ -32,19 +32,19 @@ namespace Components
             });
             var teamASpawnArea= conversionSystem.CreateAdditionalEntity(this);
             var nonUniformScale=dstManager.GetComponentData<NonUniformScale>(entity);
-            float2 extents = new float2((nonUniformScale.Value.x / 2 - HivePosition)/2, nonUniformScale.Value.z / 2);
-            dstManager.AddComponentData(teamASpawnArea,new Bounds2D()
+            float3 extents = new float3((nonUniformScale.Value.x / 2 - HivePosition)/2, nonUniformScale.Value.y / 2,nonUniformScale.Value.z / 2);
+            dstManager.AddComponentData(teamASpawnArea,new SpawnBounds()
             {
                 Extents = extents,
-                Center = new float2(nonUniformScale.Value.x/2-extents.x,0)
+                Center = new float3(nonUniformScale.Value.x/2-extents.x,0,0)
             });
             dstManager.AddComponentData(teamASpawnArea,new TeamA());
             
             var teamBSpawnArea= conversionSystem.CreateAdditionalEntity(this);
-            dstManager.AddComponentData(teamBSpawnArea,new Bounds2D()
+            dstManager.AddComponentData(teamBSpawnArea,new SpawnBounds()
             {
                 Extents = extents,
-                Center = new float2((nonUniformScale.Value.x/2-extents.x)*-1,0)
+                Center = new float3((nonUniformScale.Value.x/2-extents.x)*-1,0,0)
             });
             dstManager.AddComponentData(teamBSpawnArea,new TeamB());
         }
