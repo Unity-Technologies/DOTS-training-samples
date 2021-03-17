@@ -63,7 +63,7 @@ public class GoingForFoodSystem:SystemBase
                     float randomTargetX = random.NextFloat(boundsComponent.Center.x - extentsX, boundsComponent.Center.x + extentsX);
                     float randomTargetY = random.NextFloat(boundsComponent.Center.y - extentsY, boundsComponent.Center.y + extentsY);
                     float randomTargetZ = random.NextFloat(boundsComponent.Center.z - extentsZ, boundsComponent.Center.z + extentsZ);
-                    float3 randomTarget=new float3((team.index?-1:1)* randomTargetX,randomTargetY,randomTargetZ);
+                    float3 randomTarget=new float3((team.index?1:-1)* randomTargetX,randomTargetY,randomTargetZ);
                     commandBuffer.RemoveComponent<GoingForFood>(entity);
                     commandBuffer.AddComponent<BringingFoodBack>(entity);
                     commandBuffer.SetComponent(entity,new BringingFoodBack(){TargetPosition = randomTarget});
