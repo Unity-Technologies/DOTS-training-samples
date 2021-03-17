@@ -60,6 +60,8 @@ public class ArmSpawnerSystem : SystemBase
                     var relativeTranslation = float3.zero;
                     var humerus = CreateJoint(ref ecb, spawner.m_JointPrefab, spawner.m_JointBoxPrefab, relativeTranslation,
                         spawner.m_ArmJointLength, spawner.m_ArmJointThickness);
+                    ecb.AddComponent<LocalToParent>(humerus); // Needed for parent
+                    ecb.AddComponent(humerus, new Parent {Value = instance});
 
                     // Forearm
                     relativeTranslation = new float3(0.0f, spawner.m_ArmJointLength + spawner.m_ArmJointSpacing, 0.0f);

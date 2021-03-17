@@ -598,6 +598,7 @@ MonoBehaviour:
   m_ArmPrefab: {fileID: 4911087294137840428, guid: 401b18dcd6c9d7a42a6dc2085b70c713, type: 3}
   m_ArmCount: 100
   m_JointPrefab: {fileID: 1271912022958580133, guid: 1ea21b3b9fb9a774a8728ff035a8a7c9, type: 3}
+  m_JointBoxPrefab: {fileID: 1271912022958580133, guid: 8376b782341067041b1196e424bd37eb, type: 3}
   m_ArmSeparation: 1
   m_ArmJointLength: 1
   m_ArmJointThickness: 0.15
