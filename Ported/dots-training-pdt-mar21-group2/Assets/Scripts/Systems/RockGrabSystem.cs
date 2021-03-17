@@ -34,34 +34,31 @@ public class RockGrabSystem : SystemBase
             .WithAll<HandGrabbingRock>()
             .ForEach((Entity entity, in TargetRock targetRock, in Timer timer) =>
             {
-                if (timer.Value <= 0.0f)
+                if (!availableRocks.HasComponent(targetRock.RockEntity) ||
+                    availableRocks[targetRock.RockEntity].JustPicked)
                 {
-                    // leave grabbing state
+                    // grab failed, we must try again
+                    ecb.AddComponent<HandIdle>(entity);
+                }
+                else if (timer.Value <= 0.0f)
+                {
+                    // grab successful, time to throw
                     ecb.RemoveComponent<HandGrabbingRock>(entity);
+                    ecb.AddComponent<HandWindingUp>(entity);
+                    
+                    ecb.SetComponent(entity, new Timer() {Value = 1.0f});
+                    ecb.SetComponent(entity, new TimerDuration(){ Value = 1.0f});
 
-                    if (availableRocks.HasComponent(targetRock.RockEntity) &&
-                        !availableRocks[targetRock.RockEntity].JustPicked)
+                    // exclusive ownership of the rock, it can't be grabbed anymore
+                    // by other arms...
+                    // ...in the current foreach loop
+                    availableRocks[targetRock.RockEntity] = new Available()
                     {
-                        // grab successful, time to throw
-                        ecb.AddComponent<HandWindingUp>(entity);
-                        ecb.SetComponent(entity, new Timer() {Value = 1.0f});
-                        ecb.SetComponent(entity, new TimerDuration(){ Value = 1.0f});
+                        JustPicked = true
+                    };
+                    // ...and in the future
+                    ecb.RemoveComponent<Available>(targetRock.RockEntity);
 
-                        // exclusive ownership of the rock, it can't be grabbed anymore
-                        // by other arms...
-                        // ...in the current foreach loop
-                        availableRocks[targetRock.RockEntity] = new Available()
-                        {
-                            JustPicked = true
-                        };
-                        // ...and in the future
-                        ecb.RemoveComponent<Available>(targetRock.RockEntity);
-                    }
-                    else
-                    {
-                        // grab failed, we must try again
-                        ecb.AddComponent<HandIdle>(entity);
-                    }
                 }
 
             }).Schedule(Dependency);
