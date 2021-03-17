@@ -48,7 +48,7 @@ namespace src.DOTS.Systems
                 });
                 
                 ecb.AddComponent<WalkingTag>(commuter);
-                ecb.AddComponent<QueueingToEmbarkTag>(commuter);
+                ecb.AddComponent<LookingForQueueTag>(commuter);
                 ecb.RemoveComponent<SwitchingPlatformTag>(commuter);
                 
             }).Run();

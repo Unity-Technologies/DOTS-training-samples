@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace src.DOTS.Components
 {
-    public struct QueueingToEmbarkTag : IComponentData
+    public struct LookingForQueueTag : IComponentData
     {
     }
 }
