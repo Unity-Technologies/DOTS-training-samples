@@ -24,10 +24,11 @@ public class AnimationSystem : SystemBase
         
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
-        var ecb = sys.CreateCommandBuffer();
+        var ecb = sys.CreateCommandBuffer().AsParallelWriter();
 
-        Entities
+        Dependency = Entities
             .WithAll<HandWindingUp>()
+            .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
                 in TimerDuration timerDuration) =>
             {
@@ -41,10 +42,11 @@ public class AnimationSystem : SystemBase
                             -6.0f)
                     };
                 }
-            }).Run();
-        
-        Entities
+            }).ScheduleParallel(Dependency);
+
+        Dependency = Entities
             .WithAll<HandThrowingRock>()
+            .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
                 in TimerDuration timerDuration) =>
             {
@@ -58,17 +60,23 @@ public class AnimationSystem : SystemBase
                             6.0f)
                     };
                 }
-            }).Run();
+            }).ScheduleParallel(Dependency);
         
-        Entities
+        Dependency = Entities
             .WithAll<HandGrabbingRock>()
+            .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer, in TargetRock targetRock) =>
             {
                 targetPosition.Value = translations[targetRock.RockEntity].Value;
-            }).Run();
+            }).ScheduleParallel(Dependency);
 
-        Entities
+        Dependency = Entities
             .WithNone<HandIdle>()
+            .WithNativeDisableContainerSafetyRestriction(translations)
+            .WithNativeDisableContainerSafetyRestriction(rotations)
+            .WithReadOnly(localToWorlds)
+            .WithReadOnly(handsWindingUp)
+            .WithReadOnly(handsThrowingRock)
             .ForEach((Entity entity, ref Arm arm, 
                 ref Timer timer, 
                 ref AnimStartPosition startPosition, 
@@ -115,12 +123,11 @@ public class AnimationSystem : SystemBase
                         };
                     }
                 }
-            }).Run();
-        
-        
-        Entities
+            }).ScheduleParallel(Dependency);
+
+        Dependency = Entities
             .WithAll<HandWindingUp>()
-            .ForEach((Entity entity, ref Timer timer,
+            .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
                 ref TimerDuration timerDuration) =>
             {
                 if (timer.Value <= 0.0f)
@@ -129,36 +136,35 @@ public class AnimationSystem : SystemBase
                     
                     timer = new Timer() {Value = 1.0f};
                     timerDuration = new TimerDuration() {Value = 1.0f};
-                    
-                    ecb.RemoveComponent<HandWindingUp>(entity);
-                    ecb.AddComponent<HandThrowingRock>(entity);
+
+                    ecb.RemoveComponent<HandWindingUp>(entityInQueryIndex, entity);
+                    ecb.AddComponent<HandThrowingRock>(entityInQueryIndex, entity);
                 }
-            }).Run();
+            }).ScheduleParallel(Dependency);
         
-        Entities
+        Dependency = Entities
             .WithAll<HandThrowingRock>()
-            .ForEach((Entity entity, ref Timer timer,
+            .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
                 ref TimerDuration timerDuration,
                 ref TargetRock targetRock) =>
             {
                 if (timer.Value <= 0.0f)
                 {
-                    ecb.SetComponent(targetRock.RockEntity, new Velocity()
+                    ecb.SetComponent(entityInQueryIndex, targetRock.RockEntity, new Velocity()
                     {
                         Value = new float3(0.0f, 12.0f, 240.0f)
                     });
-                    ecb.AddComponent<Falling>(targetRock.RockEntity);
+                    ecb.AddComponent<Falling>(entityInQueryIndex, targetRock.RockEntity);
                     
                     // reset target
                     targetRock.RockEntity = new Entity();
 
                     // Go to Idle state
-                    ecb.RemoveComponent<HandThrowingRock>(entity);
-                    ecb.AddComponent<HandIdle>(entity);
+                    ecb.RemoveComponent<HandThrowingRock>(entityInQueryIndex, entity);
+                    ecb.AddComponent<HandIdle>(entityInQueryIndex, entity);
                 }
-            }).Run();
+            }).ScheduleParallel(Dependency);
         
         sys.AddJobHandleForProducer(Dependency);
-        
     }
 }
