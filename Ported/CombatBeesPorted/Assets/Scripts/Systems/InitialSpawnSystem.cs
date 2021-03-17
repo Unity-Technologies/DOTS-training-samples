@@ -26,11 +26,11 @@ public class InitialSpawnSystem : SystemBase
                 }
 
                 var TeamABeeSpawner=commandBuffer.CreateEntity();
-                commandBuffer.AddComponent(TeamABeeSpawner,new BeeSpawnConfiguration(){Count = config.FoodCount});
+                commandBuffer.AddComponent(TeamABeeSpawner,new BeeSpawnConfiguration(){Count = config.BeeCount});
                 commandBuffer.AddComponent(TeamABeeSpawner,new TeamA());
                 commandBuffer.AddComponent(TeamABeeSpawner,new Translation(){Value = new float3(-gameConfig.HivePosition,0,0) });
                 var TeamBBeeSpawner=commandBuffer.CreateEntity();
-                commandBuffer.AddComponent(TeamBBeeSpawner,new BeeSpawnConfiguration(){Count = config.FoodCount});
+                commandBuffer.AddComponent(TeamBBeeSpawner,new BeeSpawnConfiguration(){Count = config.BeeCount});
                 commandBuffer.AddComponent(TeamBBeeSpawner,new TeamB());
                 commandBuffer.AddComponent(TeamBBeeSpawner,new Translation(){Value = new float3(gameConfig.HivePosition,0,0) });
                 
