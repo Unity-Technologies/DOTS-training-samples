@@ -6,6 +6,9 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+/// <summary>
+/// System that will attribute a rock to an hand
+/// </summary>
 public class RockGrabSystem : SystemBase
 {
     private EntityQuery m_AvailableRocksQuery;
@@ -22,15 +25,22 @@ public class RockGrabSystem : SystemBase
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
+        // Job can't be in parallel! Since it needs to solve race conditions between
+        // arms trying to reach for the same rock
         Entities
             .WithAll<HandGrabbingRock>()
             .ForEach((Entity entity, ref TargetRock targetRock) =>
             {
+                // leave grabbing state
                 ecb.RemoveComponent<HandGrabbingRock>(entity);
                 
                 if (availableRocks.HasComponent(targetRock.RockEntity))
                 {
-                    // grab successful
+                    // grab successful, time to throw
+                    ecb.AddComponent<HandThrowingRock>(entity);
+                    
+                    // exclusive ownership of the rock, it can't be grabbed anymore
+                    // by other arms
                     ecb.RemoveComponent<Available>(targetRock.RockEntity);
                     
                     // just a hack for now : we just stop the rock
