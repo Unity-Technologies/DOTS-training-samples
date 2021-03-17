@@ -3,8 +3,11 @@ using Unity.Mathematics;
 
 public struct Bounds2D: IComponentData
 {
-    public float2 Center => Position + Size / 2;
+    public float2 Center;
+    public float2 Extents;
     
-    public float2 Position;
-    public float2 Size;
+    public bool Contains(float2 position)
+    {
+        return position.x<Center.x+Extents.x && position.x>Center.x-Extents.x && position.y<Center.y+Extents.y && position.y>Center.y-Extents.y;
+    }
 }

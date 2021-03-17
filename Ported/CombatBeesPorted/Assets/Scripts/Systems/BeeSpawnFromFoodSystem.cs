@@ -9,6 +9,16 @@ using UnityEngine.UIElements;
 
 public class BeeSpawnFromFoodSystem : SystemBase
 {
+    private EntityQueryDesc boundsQuery;
+    protected override void OnCreate()
+    {
+        boundsQuery= new EntityQueryDesc
+        {
+            All = new ComponentType[] {typeof(Bounds2D)},
+            Any = new ComponentType[] {typeof(TeamA),typeof(TeamB)}
+        };
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);

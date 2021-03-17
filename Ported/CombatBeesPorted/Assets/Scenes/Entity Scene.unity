@@ -214,12 +214,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 72567334}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5bf8f14c7f34f51a22e7b64fecc2f7e, type: 3}
+  m_Script: {fileID: 11500000, guid: 83649d45ec8c94647914b5c2b967db08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   BeeTeamAPrefab: {fileID: 2834462092342607697, guid: 140d5e5abdcc72b46b20b6e0c50176cc, type: 3}
   BeeTeamBPrefab: {fileID: 2834462092342607697, guid: d709cffb8c69e0e4f8d1ece853220320, type: 3}
   FoodPrefab: {fileID: 4851503486642271140, guid: 5c4bcfa6070205841bfebfe7b6f2a30a, type: 3}
+  HivePosition: 40
 --- !u!1 &82665064
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +251,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BeeCount: 0
-  FoodCount: 100
+  FoodCount: 40
 --- !u!4 &82665066
 Transform:
   m_ObjectHideFlags: 0
@@ -321,7 +322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f435d986061941e4b383af2eb8c57bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Count: 100
+  Count: 5
 --- !u!4 &933096763
 Transform:
   m_ObjectHideFlags: 0
@@ -378,4 +379,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f435d986061941e4b383af2eb8c57bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Count: 100
+  Count: 5
