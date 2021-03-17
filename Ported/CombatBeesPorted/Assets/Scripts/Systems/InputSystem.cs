@@ -34,7 +34,7 @@ public class InputSystem : SystemBase
             if (new Plane(Vector3.up, planeFloor + 1f).Raycast(ray, out var hit))
             {
                 var foodEntity = commandBuffer.Instantiate(gameConfig.FoodPrefab);
-                if (GetComponent<SpawnBounds>(spawnBoundsArray[0]).Contains( ray.GetPoint(hit)))
+                if (GetComponent<SpawnBounds>(spawnBoundsArray[0]).ContainsPoint( ray.GetPoint(hit)))
                 {                    
                     commandBuffer.SetComponent(foodEntity, new Translation() { Value = ray.GetPoint(hit) });
                     commandBuffer.AddComponent(foodEntity, new Force() { });
@@ -43,7 +43,7 @@ public class InputSystem : SystemBase
                     commandBuffer.Dispose();
 
                 }
-                else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).Contains(ray.GetPoint(hit)))
+                else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).ContainsPoint(ray.GetPoint(hit)))
                 {
                     commandBuffer.SetComponent(foodEntity, new Translation() { Value = ray.GetPoint(hit) });
                     commandBuffer.AddComponent(foodEntity, new Force() { });

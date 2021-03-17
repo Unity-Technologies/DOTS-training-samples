@@ -9,41 +9,45 @@ using UnityEngine.UIElements;
 
 public class BeeSpawnFromFoodSystem : SystemBase
 {
-    private EntityQueryDesc boundsQuery;
+    private EntityQuery boundsQuery;
     protected override void OnCreate()
     {
-        boundsQuery= new EntityQueryDesc
+        var boundsQueryDesc= new EntityQueryDesc
         {
             All = new ComponentType[] {typeof(SpawnBounds)},
             Any = new ComponentType[] {typeof(TeamA),typeof(TeamB)}
         };
+        boundsQuery = GetEntityQuery(boundsQueryDesc);
     }
 
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfiguration>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
+        var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.Temp);
         Entities
             .WithChangeFilter<Grounded>()
             .ForEach((Entity entity,in Translation translation,in Food food,in Grounded grounded) =>
             {
-                bool team =true;
+                if (GetComponent<SpawnBounds>(spawnBoundsArray[0]).ContainsPoint(new float3(translation.Value.x,translation.Value.y ,translation.Value.z)))
+                {
+                    var beeSpawnerEntity = ecb.CreateEntity();
+                    ecb.AddComponent(beeSpawnerEntity, new BeeSpawnConfiguration() { Count = gameConfig.BeeSpawnPerCollectedFood });
+                    ecb.AddComponent(beeSpawnerEntity, new Translation() { Value = translation.Value + new float3(0, 0.5f, 0) });
+               
+                    ecb.AddComponent(beeSpawnerEntity, new TeamB());
+                    ecb.DestroyEntity(entity);
+                }
 
-                if (translation.Value.x > 40)
-                    team = false;
-                else if(translation.Value.x > -40)  
-                    return;
-                
-                var beeSpawnerEntity = ecb.CreateEntity();
-                ecb.AddComponent(beeSpawnerEntity,new BeeSpawnConfiguration(){Count = gameConfig.BeeSpawnPerCollectedFood});
-                ecb.AddComponent(beeSpawnerEntity,new Translation(){Value = translation.Value+new float3(0,0.5f,0)});
-                if(team)
-                    ecb.AddComponent(beeSpawnerEntity,new TeamA());
-                else
-                    ecb.AddComponent(beeSpawnerEntity,new TeamB());
+                else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).ContainsPoint(new float3(translation.Value.x,translation.Value.y ,translation.Value.z)))
+                {
+                    var beeSpawnerEntity = ecb.CreateEntity();
+                    ecb.AddComponent(beeSpawnerEntity, new BeeSpawnConfiguration() { Count = 5 });
+                    ecb.AddComponent(beeSpawnerEntity, new Translation() { Value = translation.Value + new float3(0, 0.5f, 0) });
 
-                ecb.DestroyEntity(entity);
+                    ecb.AddComponent(beeSpawnerEntity, new TeamA());
+                    ecb.DestroyEntity(entity);
+                }
             }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
