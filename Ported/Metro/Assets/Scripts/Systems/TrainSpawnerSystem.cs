@@ -16,6 +16,8 @@ public class TrainSpawnerSystem : SystemBase
         Entities.WithoutBurst().ForEach((Entity entity, ref TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
+            
+            // Spawning rails
             for (int i = 0; i < metroBlob.Blob.Value.Lines.Length; i++)
             {
                 float _DIST = 0f;
@@ -33,11 +35,46 @@ public class TrainSpawnerSystem : SystemBase
                     _DIST += Metro.RAIL_SPACING;
                 }
             }
+
+            // Spawning Trains
+            for (int i = 0; i < metroBlob.Blob.Value.Lines.Length; i++)
+            // for (int i = 0; i < 1; i++)
+            {
+                Entity firstTrain = ecb.Instantiate(trainSpawner.CarriagePrefab);
+                Entity previousTrain = firstTrain;
+                
+                ref var line = ref metroBlob.Blob.Value.Lines[i];
+                for (int j = line.Path.Length - 1; j > 0; j--)
+                // for (int j = 5; j > 1; j--)
+                {
+                    ref var point = ref line.Path[j];
+            
+                    var trainEntity = ecb.Instantiate(trainSpawner.CarriagePrefab);
+                    ecb.SetComponent(trainEntity, new Carriage()
+                    {
+                        num = j,
+                        NextTrain = previousTrain,
+                        LaneIndex = i,
+                        NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(point.distanceAlongPath, -1, ref metroBlob.Blob.Value, i),
+                        PositionAlongTrack = point.distanceAlongPath
+                    });
+            
+                    previousTrain = trainEntity;
+                }
+                
+                ecb.SetComponent(firstTrain, new Carriage()
+                {
+                    num = 0,
+                    NextTrain = previousTrain,
+                    LaneIndex = i,
+                    NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(line.Path[0].distanceAlongPath, -1, ref metroBlob.Blob.Value, i),
+                    PositionAlongTrack = line.Path[0].distanceAlongPath
+                });
+            }
+            
         }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
-    
-    
 }

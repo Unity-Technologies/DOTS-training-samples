@@ -8,6 +8,8 @@ using Unity.Transforms;
 
 public class TrainMovementSystem : SystemBase
 {
+    private const float k_MaxDistance = 0.05f;
+    
     private EndSimulationEntityCommandBufferSystem m_EndSimulationSystem;
     protected override void OnCreate()
     {
@@ -17,25 +19,33 @@ public class TrainMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        //var metro = this.GetSingleton<GameObjectRefs>().metro;
         var metroBlob = this.GetSingleton<MetroBlobContaner>();
         var ecb = m_EndSimulationSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities
-            .WithNone<TrainWaiting>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Carriage carriage) => 
-            {
+        var carriageFromEntity = GetComponentDataFromEntity<Carriage>(true);
 
+        Entities
+            .WithNativeDisableContainerSafetyRestriction(carriageFromEntity)
+            .WithReadOnly(carriageFromEntity)
+            .WithNone<TrainWaiting>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref Carriage carriage) => 
+            {
                 ref var trainLine = ref metroBlob.Blob.Value.Lines[carriage.LaneIndex];
 
+                // var nextTrainCarriage = GetComponent<Carriage>(carriage.NextTrain);
+                var nextTrainCarriage = carriageFromEntity[carriage.NextTrain];
+                var allowedDistance = carriage.PositionAlongTrack + k_MaxDistance;
+
                 translation.Value = BezierUtilities.Get_Position(carriage.PositionAlongTrack, ref trainLine);
+                rotation.Value = quaternion.LookRotation(BezierUtilities.Get_NormalAtPosition(carriage.PositionAlongTrack, ref trainLine), new float3(0, 1, 0));
+                
                 if (BezierUtilities.Get_RegionIndex(carriage.PositionAlongTrack, ref trainLine) == 
                     metroBlob.Blob.Value.Platforms[carriage.NextPlatformIndex].PlatformStartIndex )
                 {
                     var waiting = new TrainWaiting() {RemainingTime = 5.0f};
                     ecb.AddComponent<TrainWaiting>(entityInQueryIndex, entity, waiting);
                 }
-                else
+                else if (nextTrainCarriage.PositionAlongTrack > allowedDistance)
                 {
                     carriage.PositionAlongTrack += 0.001f;
                     carriage.PositionAlongTrack %= 1;
