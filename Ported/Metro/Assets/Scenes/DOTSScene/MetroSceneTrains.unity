@@ -123,6 +123,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &1232922846
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1232922849}
+  - component: {fileID: 1232922848}
+  m_Layer: 0
+  m_Name: MetroBlobContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1232922848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232922846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7f71c15f730b43e6a22a394e77771cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LineMarkers:
+  - {fileID: 275510465044065803, guid: b14142a97bb6b4b179c93291a16f1e83, type: 3}
+  - {fileID: 1810906004107223700, guid: ee005881fe8c8474e8d03d71322db061, type: 3}
+  - {fileID: 6420920365421020562, guid: 9bbcae6f749084f8e80ddc33544104ec, type: 3}
+  - {fileID: 4086870815988299896, guid: 8c76a4a27a01344a6b0bef35071308fd, type: 3}
+--- !u!4 &1232922849
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1232922846}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -590.9531, y: 156.03851, z: 143.61557}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1615948518
 GameObject:
   m_ObjectHideFlags: 0
@@ -156,6 +204,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PositionAlongTrack: 0
   LaneIndex: 0
+  NextPlatformIndex: 0
+  NextPlatformPosition: 0
 --- !u!23 &1615948520
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -217,5 +267,5 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
