@@ -12,7 +12,7 @@ public class CarouselSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var outOfBoundsPosition = new float3(-10.0f, 0.0f, 0.0f);
 
-            Entities
+        Entities
             .ForEach((Entity entity, in CarouselSpawner spawner) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
@@ -27,10 +27,16 @@ public class CarouselSpawnerSystem : SystemBase
                         Value = outOfBoundsPosition
                     });
                     ecb.AddComponent(instance, new Available());
+                    if (HasComponent<Rock>(spawner.SpawnPrefab))
+                    {
+                        ecb.AddComponent<Scale>(instance, new Scale {Value = 1.0f});
+                    }
+                    // TODO(sandy): random scale
+                    // TODO(sandy): add support for target scale for growing during spawn
                 }
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
-    } 
+    }
 }
