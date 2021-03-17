@@ -40,6 +40,8 @@ public class InputSystem : SystemBase
                     commandBuffer.SetComponent(foodEntity, new Translation() { Value = ray.GetPoint(hit) });
                     commandBuffer.AddComponent(foodEntity, new Force() { });
                     commandBuffer.AddComponent(foodEntity, new Velocity() { });
+                    commandBuffer.Playback(EntityManager);
+                    commandBuffer.Dispose();
 
                 }
                 else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).Contains(ray.GetPoint(hit)))
@@ -47,10 +49,11 @@ public class InputSystem : SystemBase
                     commandBuffer.SetComponent(foodEntity, new Translation() { Value = ray.GetPoint(hit) });
                     commandBuffer.AddComponent(foodEntity, new Force() { });
                     commandBuffer.AddComponent(foodEntity, new Velocity() { });
+                    commandBuffer.Playback(EntityManager);
+                    commandBuffer.Dispose();
                 }
 
-                commandBuffer.Playback(EntityManager);
-                commandBuffer.Dispose();
+                
 
             }
            
