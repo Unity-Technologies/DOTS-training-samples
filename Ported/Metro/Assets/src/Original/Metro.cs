@@ -99,7 +99,7 @@ public class Metro : MonoBehaviour
         BEZIER_HANDLE_REACH = Bezier_HandleReach;
         BEZIER_PLATFORM_OFFSET = Bezier_PlatformOffset;
         SetupMetroLines();
-        SetupTrains();
+        // SetupTrains();
         SetupCommuters();
     }
 

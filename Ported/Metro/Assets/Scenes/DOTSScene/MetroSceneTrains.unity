@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CarriagePrefab: {fileID: 1005656507454012, guid: f9f01486787d14bccae68c6b34cac474, type: 3}
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  TrainsPerLine: 8
 --- !u!4 &394573697
 Transform:
   m_ObjectHideFlags: 0

@@ -8,5 +8,6 @@ public struct TrainSpawner : IComponentData
 {
     public Entity CarriagePrefab;
     public Entity RailPrefab;
-
+    
+    public int TrainsPerLine;
 }

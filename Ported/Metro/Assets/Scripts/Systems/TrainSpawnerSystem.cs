@@ -38,37 +38,34 @@ public class TrainSpawnerSystem : SystemBase
 
             // Spawning Trains
             for (int i = 0; i < metroBlob.Blob.Value.Lines.Length; i++)
-            // for (int i = 0; i < 1; i++)
             {
                 Entity firstTrain = ecb.Instantiate(trainSpawner.CarriagePrefab);
                 Entity previousTrain = firstTrain;
-                
-                ref var line = ref metroBlob.Blob.Value.Lines[i];
-                for (int j = line.Path.Length - 1; j > 0; j--)
-                // for (int j = 5; j > 1; j--)
+
+                var distanceBetweenTrains = 1f / trainSpawner.TrainsPerLine;
+                var position = 1f - distanceBetweenTrains;
+
+                while (position > 0)
                 {
-                    ref var point = ref line.Path[j];
-            
                     var trainEntity = ecb.Instantiate(trainSpawner.CarriagePrefab);
                     ecb.SetComponent(trainEntity, new Carriage()
                     {
-                        num = j,
                         NextTrain = previousTrain,
                         LaneIndex = i,
-                        NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(point.distanceAlongPath, -1, ref metroBlob.Blob.Value, i),
-                        PositionAlongTrack = point.distanceAlongPath
+                        NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(position, -1, ref metroBlob.Blob.Value, i),
+                        PositionAlongTrack = position
                     });
             
                     previousTrain = trainEntity;
+                    position -= distanceBetweenTrains;
                 }
                 
                 ecb.SetComponent(firstTrain, new Carriage()
                 {
-                    num = 0,
                     NextTrain = previousTrain,
                     LaneIndex = i,
-                    NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(line.Path[0].distanceAlongPath, -1, ref metroBlob.Blob.Value, i),
-                    PositionAlongTrack = line.Path[0].distanceAlongPath
+                    NextPlatformIndex = BezierUtilities.Get_NextPlatformIndex(0, -1, ref metroBlob.Blob.Value, i),
+                    PositionAlongTrack = 0
                 });
             }
             
