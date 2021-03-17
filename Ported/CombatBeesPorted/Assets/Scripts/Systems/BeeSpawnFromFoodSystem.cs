@@ -42,7 +42,7 @@ public class BeeSpawnFromFoodSystem : SystemBase
                 else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).ContainsPoint(new float3(translation.Value.x,translation.Value.y ,translation.Value.z)))
                 {
                     var beeSpawnerEntity = ecb.CreateEntity();
-                    ecb.AddComponent(beeSpawnerEntity, new BeeSpawnConfiguration() { Count = 5 });
+                    ecb.AddComponent(beeSpawnerEntity, new BeeSpawnConfiguration() { Count = gameConfig.BeeSpawnPerCollectedFood });
                     ecb.AddComponent(beeSpawnerEntity, new Translation() { Value = translation.Value + new float3(0, 0.5f, 0) });
 
                     ecb.AddComponent(beeSpawnerEntity, new TeamA());
