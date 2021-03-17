@@ -162,6 +162,7 @@ MonoBehaviour:
   CellPrefab: {fileID: 8099812332993144321, guid: e64ea7ab6165d49758ad4519b7536e57, type: 3}
   BucketPrefab: {fileID: 738073579713388129, guid: 8c5186ec08f314922897e68b642d4e8a, type: 3}
   BotPrefab: {fileID: 7024119090899209250, guid: 34b6ac46b41494987bc2b68d9fdcd833, type: 3}
+  FetcherPrefab: {fileID: 7024119090899209250, guid: 18c92768a71b64442b16d3d9a36c3122, type: 3}
   WaterPrefab: {fileID: 4012617587521480932, guid: 0684ee17601964ed290087d4fa592b07, type: 3}
 --- !u!4 &952993704
 Transform:

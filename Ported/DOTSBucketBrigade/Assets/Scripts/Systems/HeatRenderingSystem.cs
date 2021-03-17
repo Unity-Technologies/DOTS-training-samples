@@ -10,7 +10,7 @@ using UnityEngine;
 public class HeatRenderingSystem : SystemBase
 {
     private static readonly float4 RED = new float4(1.0f, 0.0f, 0.0f, 1.0f);
-    private static readonly float4 GREEN = new float4(0.0f, 1.0f, 0.0f, 1.0f);
+    private static readonly float4 GREEN = new float4(1.0f, 0.99f, 0.51f, 1.0f);
         
     protected override void OnCreate()
     {

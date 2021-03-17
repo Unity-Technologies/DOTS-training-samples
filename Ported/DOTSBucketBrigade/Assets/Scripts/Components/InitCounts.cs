@@ -19,5 +19,6 @@ public struct InitCounts : IComponentData
     public Entity CellPrefab;
     public Entity BucketPrefab;
     public Entity BotPrefab;
+    public Entity FetcherPrefab;
     public Entity WaterPrefab;
 }

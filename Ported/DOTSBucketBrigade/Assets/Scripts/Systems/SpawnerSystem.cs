@@ -61,8 +61,64 @@ public class SpawnerSystem : SystemBase
                     };
                     ecb.SetComponent(instance, translation);
                 }
+
+                for (int bucketGroups = 0; bucketGroups < initCounts.BucketChainCount; bucketGroups++)
+                {
+                    var location = new float3(Random.Range(1, initCounts.GridSize - 1), 0.0f,
+                        Random.Range(1, initCounts.GridSize - 1));
+                    var fetcher = ecb.Instantiate(initCounts.FetcherPrefab);
+                    var fetcherTranslation = new Translation
+                    {
+                        Value = location
+                    };
+                    ecb.SetComponent(fetcher, fetcherTranslation);
+
+                    var halfChain = initCounts.WorkerCountPerChain / 2;
+                    Entity previousBot = default;
+                    for (int bucketers = 0; bucketers < halfChain; bucketers++)
+                    {
+                        var bot = ecb.Instantiate(initCounts.BotPrefab);
+                        var translation = new Translation
+                        {
+                            Value = location
+                        };
+                        ecb.SetComponent(bot, translation);
+                        if (previousBot != Entity.Null)
+                        {
+                            ecb.SetComponent(previousBot, new NextPerson {Value = bot});
+                        }
+                        ecb.AddComponent<EmptyBucketer>(bot);
+                        if (bucketers == halfChain - 1)
+                        {
+                            ecb.AddComponent<LastInLine>(bot);
+                        }
+                        previousBot = bot;
+                    }
+
+                    previousBot = default;
+                    for (int bucketers = 0; bucketers < halfChain; bucketers++)
+                    {
+                        var bot = ecb.Instantiate(initCounts.BotPrefab);
+                        var translation = new Translation
+                        {
+                            Value = location
+                        };
+                        ecb.SetComponent(bot, translation);
+                        if (previousBot != Entity.Null)
+                        {
+                            ecb.SetComponent(previousBot, new NextPerson {Value = bot});
+                        }
+                        ecb.AddComponent<FullBucketer>(bot);
+                        if (bucketers == halfChain - 1)
+                        {
+                            ecb.AddComponent<LastInLine>(bot);
+                        }
+                        previousBot = bot;
+                    }
+
+                }
                 
-                Unity.Mathematics.Random fireRandomizer = new Unity.Mathematics.Random(1234);
+                Unity.Mathematics.Random fireRandomizer = new Unity.Mathematics.Random((uint) Random.Range(1, heatMap.Length));
                 for (int fireCount = 0; fireCount < initCounts.InitialFireInstances; ++fireCount)
                 {
                     int fireIndex = fireRandomizer.NextInt(initCounts.GridSize * initCounts.GridSize);
