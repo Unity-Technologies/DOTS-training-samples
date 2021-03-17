@@ -48,8 +48,13 @@ MonoBehaviour:
   CanScrollDepth: 40
   CanScrollMinHeight: 10
   CanScrollMaxHeight: 20
+  CanMinSize: 1
+  CanMaxSize: 1
   RockScrollSpeed: 1
   RockScrollDepth: 5
+  RockMinSize: 0.4
+  RockMaxSize: 1
+  ScaleUpTime: 0.5
 --- !u!114 &7843449952640990015
 MonoBehaviour:
   m_ObjectHideFlags: 0
