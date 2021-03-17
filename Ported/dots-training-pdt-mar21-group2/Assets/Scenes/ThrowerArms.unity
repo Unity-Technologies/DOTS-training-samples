@@ -599,19 +599,19 @@ MonoBehaviour:
   m_ArmCount: 100
   m_JointPrefab: {fileID: 1271912022958580133, guid: 1ea21b3b9fb9a774a8728ff035a8a7c9, type: 3}
   m_JointBoxPrefab: {fileID: 1271912022958580133, guid: 8376b782341067041b1196e424bd37eb, type: 3}
-  m_ArmSeparation: 1
-  m_ArmJointLength: 1
-  m_ArmJointThickness: 0.15
+  m_ArmSeparation: 3
+  m_ArmJointLength: 3
+  m_ArmJointThickness: 0.45
   m_ArmJointSpacing: 0
-  m_FingerSpacing: 0.08
+  m_FingerSpacing: 0.24
   m_FingerJointSpacing: 0
-  m_ThumbJointThickness: 0.06
-  m_ThumbJointLength: 0.13
-  m_FingerJointThickness: 0.05
-  m_Finger0JointLength: 0.2
-  m_Finger1JointLength: 0.22
-  m_Finger2JointLength: 0.2
-  m_Finger3JointLength: 0.16
+  m_ThumbJointThickness: 0.18
+  m_ThumbJointLength: 0.39
+  m_FingerJointThickness: 0.15
+  m_Finger0JointLength: 0.6
+  m_Finger1JointLength: 0.66
+  m_Finger2JointLength: 0.6
+  m_Finger3JointLength: 0.48
 --- !u!4 &1945593822
 Transform:
   m_ObjectHideFlags: 0

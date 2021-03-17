@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1461775794169436441}
   - component: {fileID: 3728453339262280794}
   - component: {fileID: 7008266792691860981}
+  - component: {fileID: 533869851}
   m_Layer: 0
   m_Name: Arm
   m_TagString: Untagged
@@ -57,3 +58,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RockEntity: {fileID: 0}
+--- !u!114 &533869851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4911087294137840428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b587936df3396244930c2b526dbf61b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
