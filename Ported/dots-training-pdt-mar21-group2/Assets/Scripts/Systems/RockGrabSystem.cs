@@ -28,17 +28,9 @@ public class RockGrabSystem : SystemBase
 
         var ecb = sys.CreateCommandBuffer();
         
-        // TODO write a IJobEntityJob with readonly translations
-        var updateTargetPositionsJob = Entities
-            .WithAll<HandGrabbingRock>()
-            .ForEach((Entity entity, ref TargetPosition targetPosition, in TargetRock targetRock, in Timer timer) =>
-            {
-                targetPosition.Value = translations[targetRock.RockEntity].Value;
-            }).Schedule(Dependency);
-        
         // Job can't be in parallel! Since it needs to solve race conditions between
         // arms trying to reach for the same rock
-        var grabRocksJob = Entities
+        Dependency = Entities
             .WithAll<HandGrabbingRock>()
             .ForEach((Entity entity, in TargetRock targetRock, in Timer timer) =>
             {
@@ -51,7 +43,9 @@ public class RockGrabSystem : SystemBase
                         !availableRocks[targetRock.RockEntity].JustPicked)
                     {
                         // grab successful, time to throw
-                        ecb.AddComponent<HandThrowingRock>(entity);
+                        ecb.AddComponent<HandWindingUp>(entity);
+                        ecb.SetComponent(entity, new Timer() {Value = 1.0f});
+                        ecb.SetComponent(entity, new TimerDuration(){ Value = 1.0f});
 
                         // exclusive ownership of the rock, it can't be grabbed anymore
                         // by other arms...
@@ -75,7 +69,6 @@ public class RockGrabSystem : SystemBase
 
             }).Schedule(Dependency);
 
-        Dependency = Unity.Jobs.JobHandle.CombineDependencies(updateTargetPositionsJob, grabRocksJob);
         sys.AddJobHandleForProducer(Dependency);
     }
 }
