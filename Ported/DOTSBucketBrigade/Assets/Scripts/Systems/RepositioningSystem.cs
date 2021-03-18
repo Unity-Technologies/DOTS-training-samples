@@ -37,7 +37,7 @@ public class RepositioningSystem : SystemBase
                 {
                     SetComponent<TargetPosition>(nextFullBucketer, new TargetPosition { Value = nextTarget });
                     nextFullBucketer = GetComponent<NextPerson>(nextFullBucketer).Value;
-                    nextTarget += increment;
+                    nextTarget -= increment;
                 }
 
             }).Run();
