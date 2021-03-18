@@ -11,8 +11,7 @@ public class InputSystem : SystemBase
     private EntityQuery boundsQuery;
     private EntityQuery allWithForceQuery;
     protected override void OnCreate()
-    {
-        
+    { 
         var boundsQueryDesc = new EntityQueryDesc
         {
             All = new ComponentType[] { typeof(SpawnBounds) },
@@ -36,21 +35,15 @@ public class InputSystem : SystemBase
         if (Input.GetKeyDown(KeyCode.R))
         {
             commandBuffer.DestroyEntitiesForEntityQuery(allWithForceQuery);
-
             var initConfig = commandBuffer.CreateEntity();
             commandBuffer.AddComponent(initConfig, new InitialSpawnConfiguration() { BeeCount = gameConfig.BeeCount, FoodCount = gameConfig.FoodCount });
-
             commandBuffer.Playback(EntityManager);
             commandBuffer.Dispose();
-
-
         }
    
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            
-            
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);      
             float3 planeFloor = new float3(0, boundsComponent.Center.y - boundsComponent.Extents.y, 0);
             if (new Plane(Vector3.up, planeFloor + 1f).Raycast(ray, out var hit))
             {
@@ -63,11 +56,8 @@ public class InputSystem : SystemBase
                     commandBuffer.AddComponent(foodEntity, new Velocity() { });
                     commandBuffer.Playback(EntityManager);
                     commandBuffer.Dispose();
-
                 } 
             }   
-        }
-
-        
+        }   
     }
 }
