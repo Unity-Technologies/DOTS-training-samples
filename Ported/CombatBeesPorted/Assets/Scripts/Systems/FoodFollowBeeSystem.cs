@@ -21,7 +21,7 @@ public class FoodFollowBeeSystem: SystemBase
                 {
                     commandBuffer.RemoveComponent<PossessedBy>(entity); // Hack to remove food attached to dead bee
                 }
-                foodTranslation.Value = translationFromEntity[possessedBy.Bee].Value+new float3(0,-1,0);
+                foodTranslation.Value = translationFromEntity[possessedBy.Bee].Value+new float3(0,-0.70f,0);
             }).Run();
         
         commandBuffer.Playback(EntityManager);

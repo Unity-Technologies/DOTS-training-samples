@@ -35,7 +35,7 @@ public class MoveSystem: SystemBase
             //.WithoutBurst() // TODO remove in final version, keep for Debug.Log
             .ForEach((Entity entity, ref Translation translation, ref Force force, ref Velocity velocity, in WorldRenderBounds entityBounds) =>
             {
-                velocity.Value = velocity.Value * 0.95f + force.Value;
+                velocity.Value = velocity.Value * 0.99f + force.Value*0.17f;
                 force.Value = float3.zero;
 
                 translation.Value += velocity.Value * deltaTime;

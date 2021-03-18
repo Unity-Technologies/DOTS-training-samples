@@ -46,7 +46,7 @@ public class GoingForFoodSystem:SystemBase
                     commandBuffer.RemoveComponent<FoodTarget>(entity);
                     return;
                 }
-                var targetTranslation = GetComponent<Translation>(targetFood).Value+new float3(0,1,0);
+                var targetTranslation = GetComponent<Translation>(targetFood).Value+new float3(0,0.70f,0);
                 var targetMoveVector = targetTranslation - beeTranslation.Value;
 
                 

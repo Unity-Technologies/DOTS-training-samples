@@ -21,7 +21,7 @@ public class BeeIdling: SystemBase
             .WithoutBurst() // TODO remove in final version, keep for reference to random
             .ForEach((ref Force force, in Velocity velocity, in Bee bee) =>
             {                
-                force.Value += random.NextFloat3Direction();
+                force.Value += random.NextFloat3Direction()*4f;
                 //if( worldBound.Value.Contains(translation.Value))
                      
             }).Schedule();

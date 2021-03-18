@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class BeeAttacking: SystemBase
 {
+    private const float beeAttackChaseDistance = 10;
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
@@ -23,9 +24,14 @@ public class BeeAttacking: SystemBase
             {                   
                 //check beeAttacking is still a valid entity and have a bee component
                 if(HasComponent<Bee>(beeAttacking.TargetBee)) {                    
-                    var delta = GetComponent<Translation>(beeAttacking.TargetBee).Value - position.Value;                
+                    var delta = GetComponent<Translation>(beeAttacking.TargetBee).Value - position.Value; 
+                    var deltaLength = math.length(delta);
                     force.Value += math.normalize(delta);
-                    if(  math.length(delta) < 1 ) {
+                    if ( deltaLength< beeAttackChaseDistance)
+                    {
+                        force.Value += (1-deltaLength/beeAttackChaseDistance) * math.normalize(delta)*5f;
+                    }
+                    if( deltaLength < 1 ) {
                         // remove PossessedBy
                         if(HasComponent<BringingFoodBack>(beeEntity)) {
                             var food = GetComponent<FoodTarget>(beeEntity).Value;
