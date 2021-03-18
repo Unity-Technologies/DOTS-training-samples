@@ -65,6 +65,6 @@ public class RepositioningSystem : SystemBase
 
                 }
 
-            }).Run();
+            }).Schedule();
     }
 }

@@ -55,6 +55,6 @@ public class FindClosestWaterSystem : SystemBase
                 }
 
                 nearest.Value = nearestWaterLocation;
-            }).Run();
+            }).Schedule();
     }
 }
