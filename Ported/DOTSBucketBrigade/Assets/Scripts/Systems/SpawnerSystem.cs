@@ -22,8 +22,6 @@ public class SpawnerSystem : SystemBase
             .ForEach((Entity entity, in InitCounts initCounts) =>
             {
                 heatMap.Length = initCounts.GridSize * initCounts.GridSize;
-                ecb.DestroyEntity(entity);
-
                 int i = 0;
                 
                 for (int row = 0; row < initCounts.GridSize; ++row)
