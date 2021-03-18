@@ -37,6 +37,8 @@ public class BeeSpawnFromFoodSystem : SystemBase
                
                     ecb.AddComponent(beeSpawnerEntity, new TeamB());
                     ecb.DestroyEntity(entity);
+                    
+                    ecb.AddComponent<DustSpawnConfiguration>(beeSpawnerEntity, new DustSpawnConfiguration() { Count = 5, Direction =  new float3(1f,1f,1f)});
                 }
 
                 else if (GetComponent<SpawnBounds>(spawnBoundsArray[1]).ContainsPoint(new float3(translation.Value.x,translation.Value.y ,translation.Value.z)))
@@ -47,6 +49,8 @@ public class BeeSpawnFromFoodSystem : SystemBase
 
                     ecb.AddComponent(beeSpawnerEntity, new TeamA());
                     ecb.DestroyEntity(entity);
+                    
+                    ecb.AddComponent<DustSpawnConfiguration>(beeSpawnerEntity, new DustSpawnConfiguration() { Count = 5, Direction =  new float3(1f,1f,1f)});
                 }
             }).Run();
         ecb.Playback(EntityManager);

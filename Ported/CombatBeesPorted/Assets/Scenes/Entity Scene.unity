@@ -221,6 +221,7 @@ MonoBehaviour:
   BeeTeamBPrefab: {fileID: 2834462092342607697, guid: d709cffb8c69e0e4f8d1ece853220320, type: 3}
   FoodPrefab: {fileID: 4851503486642271140, guid: 5c4bcfa6070205841bfebfe7b6f2a30a, type: 3}
   BloodDropletPrefab: {fileID: 4851503486642271140, guid: 2312140e2dc89450da1876b6a9514d53, type: 3}
+  DustPrefab: {fileID: 2319055788189133520, guid: 664cf1c8bcd983440a1c6a91bc7f7e27, type: 3}
   HivePosition: 40
   BeeCount: 50
   FoodCount: 50
