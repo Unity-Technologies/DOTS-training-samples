@@ -11,7 +11,7 @@ public class VelocityRotationSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
-            .WithAny<Bee>() // & Particle
+            .WithAny<VelocityScale>() // Hijacking VelocityScale because we probably won't want rotation on anything else
             .WithNone<Grounded>()
             .ForEach((Entity entity,ref Rotation Rotation, in Velocity velocity) =>
             {

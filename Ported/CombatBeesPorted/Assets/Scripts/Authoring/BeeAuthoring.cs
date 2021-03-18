@@ -14,9 +14,12 @@ namespace Components
         {
             dstManager.AddComponent<Bee>(entity);
             dstManager.AddComponent<Force>(entity);
+            dstManager.AddComponent<VelocityScale>(entity);
             dstManager.AddComponentData(entity, new Velocity() { Value = initVelocity});
             
             dstManager.AddComponentData(entity, new Team() { index = TeamIndex == 0});
+
+            dstManager.AddComponentData(entity, new InitialScale() {Value = gameObject.transform.localScale});
 
             if (TeamIndex == 0)
                 dstManager.AddComponent<TeamA>(entity);

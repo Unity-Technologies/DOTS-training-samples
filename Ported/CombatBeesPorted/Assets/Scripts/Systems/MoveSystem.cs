@@ -39,7 +39,7 @@ public class MoveSystem: SystemBase
                 force.Value = float3.zero;
 
                 translation.Value += velocity.Value * deltaTime;
-
+                
                 float3 entitySize = entityBounds.Value.Size * 0.5f;
                 
                 if (translation.Value.x - entitySize.x < worldBound.Value.Min.x && velocity.Value.x < 0 ) {
