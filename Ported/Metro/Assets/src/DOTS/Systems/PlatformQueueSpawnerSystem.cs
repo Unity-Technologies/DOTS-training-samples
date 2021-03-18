@@ -24,8 +24,9 @@ namespace src.DOTS.Systems
                     var queue = ecb.CreateEntity();
                     ecb.AddComponent(queue, new PlatformQueue
                     {
-                        platformIndex = i
+                        platformIndex = i,
                     });
+                    ecb.AddComponent<FirstQueuePassenger>(queue, new FirstQueuePassenger(){ passenger = Entity.Null});
                     
                     float3 queuePoint = blob.Blob.Value.Platforms[i].queuePoint;
                     

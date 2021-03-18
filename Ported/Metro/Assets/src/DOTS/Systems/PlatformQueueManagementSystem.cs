@@ -65,7 +65,7 @@ namespace src.DOTS.Systems
                     {
                         
                         ecb.RemoveComponent<LookingForQueueTag>(commuters[i]);
-
+                        
                         // add to list
                         ecb.AppendToBuffer(queue, new CommuterQueueData
                         {
@@ -79,51 +79,49 @@ namespace src.DOTS.Systems
             
             
             var allWalkingTags = GetComponentDataFromEntity<WalkingTag>(true);
+            var allWaitingTrains = GetComponentDataFromEntity<TrainWaiting>(true);
             var ecb2 = CommandBufferSystem.CreateCommandBuffer();
-            
+
             Entities.WithReadOnly(allWalkingTags).ForEach((
                 ref DynamicBuffer<CommuterQueueData> commuterQueue,
+                ref PlatformQueue queueInfo,
+                ref FirstQueuePassenger firstPassenger, 
                 in Entity queue,
-                in Translation queuePos, 
-                in PlatformQueue queueInfo
+                in Translation queuePos
+                
             ) =>
             {
                 float3 dir = new float3(0.0f, 0.0f, 1.0f);
                 float spacing = 0.5f;
-                if (embarkingTimer > 0 && commuterQueue.Length > 0)
+                
+               for (int i = 0; i < commuterQueue.Length; ++i)
+               {
+                   if (!allWalkingTags.HasComponent(commuterQueue[i].entity))
+                   {
+                       ecb2.AddComponent<WalkingTag>(commuterQueue[i].entity);
+                       ecb2.AppendToBuffer(commuterQueue[i].entity, new PathData
+                       {
+                           point = queuePos.Value + dir * i * spacing
+                       });
+                       
+                   }
+               }
+                 
+                if (firstPassenger.passenger == Entity.Null)
                 {
-                    if (!allWalkingTags.HasComponent(commuterQueue[0].entity))
+                    if(commuterQueue.Length > 0)
                     {
-                        //send to train
+                        if (!allWalkingTags.HasComponent(commuterQueue[0].entity))
+                        {
+                            firstPassenger.passenger = commuterQueue[0].entity;
+                            commuterQueue.RemoveAt(0);
+                        }
+                    }
+                }
 
-                        ecb2.AddComponent<WalkingTag>(commuterQueue[0].entity);
-                        ecb2.AppendToBuffer(commuterQueue[0].entity, new PathData
-                        {
-                            point = new float3(0.0f, 10.0f, 0.0f) // TODO: get the actual train position
-                        });
-                        commuterQueue.RemoveAt(0);
-                    }
-                }
-                
-                for (int i = 0; i < commuterQueue.Length; ++i)
-                {
-                    if (!allWalkingTags.HasComponent(commuterQueue[i].entity))
-                    {
-                        ecb2.AddComponent<WalkingTag>(commuterQueue[i].entity);
-                        ecb2.AppendToBuffer(commuterQueue[i].entity, new PathData
-                        {
-                            point = queuePos.Value + dir * i * spacing
-                        });
-                    }
-                }
-                
-                
-                
             }).Schedule();
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-            
         }
     }
 }

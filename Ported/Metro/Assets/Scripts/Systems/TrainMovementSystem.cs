@@ -25,7 +25,7 @@ public class TrainMovementSystem : SystemBase
         var ecb = m_EndSimulationSystem.CreateCommandBuffer().AsParallelWriter();
 
         var carriageFromEntity = GetComponentDataFromEntity<Carriage>(true);
-
+        
         Entities
             .WithReadOnly(carriageFromEntity)
             .ForEach((ref NextCarriage nextCarriage, in Carriage carriage) =>
@@ -48,8 +48,12 @@ public class TrainMovementSystem : SystemBase
                 if (BezierUtilities.Get_RegionIndex(carriage.PositionAlongTrack, ref trainLine) == 
                     metroBlob.Blob.Value.Platforms[carriage.NextPlatformIndex].PlatformStartIndex )
                 {
-                    var waiting = new TrainWaiting {RemainingTime = k_TrainStopTime};
+                    
+
+                    var waiting = new TrainWaiting {RemainingTime = k_TrainStopTime, platformEntity = Entity.Null};
                     ecb.AddComponent(entityInQueryIndex, entity, waiting);
+                    
+                    
                 }
                 else if (math.distance(realPosition, nextTrainRealPosition) > k_MaxDistance)
                 {
