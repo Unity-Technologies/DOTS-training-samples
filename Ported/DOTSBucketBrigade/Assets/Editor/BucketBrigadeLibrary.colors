@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12323, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: BucketBrigadeLibrary
+  m_EditorClassIdentifier: 
+  m_Presets:
+  - m_Name: 
+    m_Color: {r: 0, g: 0.62122846, b: 1, a: 1}
+  - m_Name: 
+    m_Color: {r: 0.48885423, g: 0.7924528, b: 0.45977217, a: 0}
+  - m_Name: 
+    m_Color: {r: 1, g: 0.9884242, b: 0.514151, a: 0}
+  - m_Name: 
+    m_Color: {r: 1, g: 0, b: 0, a: 0}
+  - m_Name: 
+    m_Color: {r: 0, g: 1, b: 0.1510973, a: 0}
+  - m_Name: 
+    m_Color: {r: 0.7729952, g: 0.9245283, b: 0.73700607, a: 0}
+  - m_Name: 
+    m_Color: {r: 0.9339623, g: 0.7533375, b: 0.92552185, a: 0}
+  - m_Name: 
+    m_Color: {r: 1, g: 0.4764151, b: 0.93548465, a: 0}
+  - m_Name: 
+    m_Color: {r: 0, g: 0, b: 0, a: 0}
+  - m_Name: 
+    m_Color: {r: 1, g: 0.41037738, b: 0.45895237, a: 0}
+  - m_Name: 
+    m_Color: {r: 0, g: 0.9797907, b: 1, a: 0}
