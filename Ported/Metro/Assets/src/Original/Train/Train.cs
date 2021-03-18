@@ -117,138 +117,138 @@ public class Train
         }
     }
 
-    public void Update()
-    {
-        switch (state)
-        {
-            case TrainState.EN_ROUTE:
-                float trainAhead_stopPoint = trainAheadOfMe.currentPosition;
-                if (trainAheadOfMe.trainIndex < trainIndex)
-                {
-                    trainAhead_stopPoint += 1f;
-                }
-
-                float distanceToTrainAhead = Mathf.Abs(trainAhead_stopPoint - currentPosition);
-                if (distanceToTrainAhead > 0.05f || parentLine.maxTrains == 1)
-                {
-                    if (speed <= parentLine.maxTrainSpeed)
-                    {
-                        speed += accelerationStrength;
-                    }
-                }
-                else
-                {
-//                    Debug.Log(trainIndex + " : stopped behind " + trainAheadOfMe.trainIndex + ",  dist = " + distanceToTrainAhead);
-                    speed *= 0.85f;
-                }
-
-
-
-                if (parentLine.Get_RegionIndex(currentPosition) == nextPlatform.point_platform_START.index)
-                {
-                    ChangeState(TrainState.ARRIVING);
-                }
-
-                break;
-            case TrainState.ARRIVING:
-
-                float _platform_start = nextPlatform.point_platform_START.distanceAlongPath;
-                float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
-                float _platform_length = _platform_end - _platform_start;
-                float arrivalProgress = (parentLine.Get_proportionAsDistance(currentPosition) - _platform_start) /
-                                        _platform_length;
-                arrivalProgress = 1f - Mathf.Cos(arrivalProgress * Mathf.PI * 0.5f);
-                speed = speed_on_platform_arrival * (1f - arrivalProgress);
-
-                if (arrivalProgress >= Metro.PLATFORM_ARRIVAL_THRESHOLD)
-                {
-                    ChangeState(TrainState.DOORS_OPEN);
-                }
-
-                break;
-            case TrainState.DOORS_OPEN:
-
-                if (Timer.TimerReachedZero(ref stateDelay))
-                {
-                    bool allReady = true;
-                    foreach (TrainCarriage _CARRIAGE in carriages)
-                    {
-                        if (!_CARRIAGE.Doors_OPEN())
-                        {
-                            allReady = false;
-                        }
-                    }
-
-                    if (allReady)
-                    {
-                        ChangeState(TrainState.UNLOADING);
-                    }
-                }
-
-                break;
-            case TrainState.UNLOADING:
-                if (trainIndex == 0)
-                {
-//                    Debug.Log("still to DISEMBARK: " + passengers_to_DISEMBARK.Count);
-                }
-
-                if (passengers_to_DISEMBARK.Count == 0)
-                {
-                    ChangeState(TrainState.LOADING);
-                }
-
-                break;
-            case TrainState.LOADING:
-
-                if (trainIndex == 0)
-                {
-//                    Debug.Log("still to EMBARK: " + passengers_to_EMBARK.Count);
-                }
-                if (passengers_to_EMBARK.Count == 0)
-                {
-                    ChangeState(TrainState.DOORS_CLOSE);
-                }
-
-
-                break;
-            case TrainState.DOORS_CLOSE:
-                if (Timer.TimerReachedZero(ref stateDelay))
-                {
-                    bool allReady = true;
-                    foreach (TrainCarriage _CARRIAGE in carriages)
-                    {
-                        if (!_CARRIAGE.Doors_CLOSED())
-                        {
-                            allReady = false;
-                        }
-                    }
-
-                    if (allReady)
-                    {
-                        ChangeState(TrainState.DEPARTING);
-                    }
-                }
-
-                break;
-            case TrainState.DEPARTING:
-                // slight delay
-                // Determine next platform / station we'll be stopping at
-                // get list of passengers who wish to depart at the next stop
-                if (Timer.TimerReachedZero(ref stateDelay))
-                {
-                    ChangeState(TrainState.EN_ROUTE);
-                }
-
-                break;
-            case TrainState.EMERGENCY_STOP:
-                break;
-        }
-
-        currentPosition = ((currentPosition += speed) % 1f);
-        isOutbound = currentPosition <= 0.5f;
-        speed *= railFriction;
-        UpdateCarriages();
-    }
+//     public void Update()
+//     {
+//         switch (state)
+//         {
+//             case TrainState.EN_ROUTE:
+//                 float trainAhead_stopPoint = trainAheadOfMe.currentPosition;
+//                 if (trainAheadOfMe.trainIndex < trainIndex)
+//                 {
+//                     trainAhead_stopPoint += 1f;
+//                 }
+//
+//                 float distanceToTrainAhead = Mathf.Abs(trainAhead_stopPoint - currentPosition);
+//                 if (distanceToTrainAhead > 0.05f || parentLine.maxTrains == 1)
+//                 {
+//                     if (speed <= parentLine.maxTrainSpeed)
+//                     {
+//                         speed += accelerationStrength;
+//                     }
+//                 }
+//                 else
+//                 {
+// //                    Debug.Log(trainIndex + " : stopped behind " + trainAheadOfMe.trainIndex + ",  dist = " + distanceToTrainAhead);
+//                     speed *= 0.85f;
+//                 }
+//
+//
+//
+//                 if (parentLine.Get_RegionIndex(currentPosition) == nextPlatform.point_platform_START.index)
+//                 {
+//                     ChangeState(TrainState.ARRIVING);
+//                 }
+//
+//                 break;
+//             case TrainState.ARRIVING:
+//
+//                 float _platform_start = nextPlatform.point_platform_START.distanceAlongPath;
+//                 float _platform_end = nextPlatform.point_platform_END.distanceAlongPath;
+//                 float _platform_length = _platform_end - _platform_start;
+//                 float arrivalProgress = (parentLine.Get_proportionAsDistance(currentPosition) - _platform_start) /
+//                                         _platform_length;
+//                 arrivalProgress = 1f - Mathf.Cos(arrivalProgress * Mathf.PI * 0.5f);
+//                 speed = speed_on_platform_arrival * (1f - arrivalProgress);
+//
+//                 if (arrivalProgress >= Metro.PLATFORM_ARRIVAL_THRESHOLD)
+//                 {
+//                     ChangeState(TrainState.DOORS_OPEN);
+//                 }
+//
+//                 break;
+//             case TrainState.DOORS_OPEN:
+//
+//                 if (Timer.TimerReachedZero(ref stateDelay))
+//                 {
+//                     bool allReady = true;
+//                     foreach (TrainCarriage _CARRIAGE in carriages)
+//                     {
+//                         if (!_CARRIAGE.Doors_OPEN())
+//                         {
+//                             allReady = false;
+//                         }
+//                     }
+//
+//                     if (allReady)
+//                     {
+//                         ChangeState(TrainState.UNLOADING);
+//                     }
+//                 }
+//
+//                 break;
+//             case TrainState.UNLOADING:
+//                 if (trainIndex == 0)
+//                 {
+// //                    Debug.Log("still to DISEMBARK: " + passengers_to_DISEMBARK.Count);
+//                 }
+//
+//                 if (passengers_to_DISEMBARK.Count == 0)
+//                 {
+//                     ChangeState(TrainState.LOADING);
+//                 }
+//
+//                 break;
+//             case TrainState.LOADING:
+//
+//                 if (trainIndex == 0)
+//                 {
+// //                    Debug.Log("still to EMBARK: " + passengers_to_EMBARK.Count);
+//                 }
+//                 if (passengers_to_EMBARK.Count == 0)
+//                 {
+//                     ChangeState(TrainState.DOORS_CLOSE);
+//                 }
+//
+//
+//                 break;
+//             case TrainState.DOORS_CLOSE:
+//                 if (Timer.TimerReachedZero(ref stateDelay))
+//                 {
+//                     bool allReady = true;
+//                     foreach (TrainCarriage _CARRIAGE in carriages)
+//                     {
+//                         if (!_CARRIAGE.Doors_CLOSED())
+//                         {
+//                             allReady = false;
+//                         }
+//                     }
+//
+//                     if (allReady)
+//                     {
+//                         ChangeState(TrainState.DEPARTING);
+//                     }
+//                 }
+//
+//                 break;
+//             case TrainState.DEPARTING:
+//                 // slight delay
+//                 // Determine next platform / station we'll be stopping at
+//                 // get list of passengers who wish to depart at the next stop
+//                 if (Timer.TimerReachedZero(ref stateDelay))
+//                 {
+//                     ChangeState(TrainState.EN_ROUTE);
+//                 }
+//
+//                 break;
+//             case TrainState.EMERGENCY_STOP:
+//                 break;
+//         }
+//
+//         currentPosition = ((currentPosition += speed) % 1f);
+//         isOutbound = currentPosition <= 0.5f;
+//         speed *= railFriction;
+//         UpdateCarriages();
+//     }
 
     void UpdateCarriages()
     {

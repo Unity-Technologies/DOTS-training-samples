@@ -6,7 +6,6 @@ namespace src.DOTS.Components
     [GenerateAuthoringComponent]
     public class GameObjectRefs : IComponentData
     {
-        public Metro metro;
         public Camera camera;
     }
 }

@@ -11,28 +11,28 @@ namespace src.DOTS.Systems
         protected override void OnUpdate()
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            var metro = this.GetSingleton<GameObjectRefs>();
+            var blob = this.GetSingleton<MetroBlobContainer>();
 
             Entities.WithoutBurst().ForEach((Entity entity, in PlatformQueueSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
 
-                Platform[] platforms = metro.metro.allPlatforms;
+                ref BlobArray<PlatformBlob> platforms = ref blob.Blob.Value.Platforms;
 
                 for (int i = 0; i < platforms.Length; ++i)
                 {
                     var queue = ecb.CreateEntity();
-                    ecb.AddComponent<PlatformQueue>(queue, new PlatformQueue()
+                    ecb.AddComponent(queue, new PlatformQueue
                     {
                         platformIndex = i
                     });
                     
-                    CommuterNavPoint queuePoint = metro.metro.allPlatforms[i].queuePoints[0];
+                    float3 queuePoint = blob.Blob.Value.Platforms[i].queuePoint;
                     
                     
-                    ecb.AddComponent<Translation>(queue, new Translation()
+                    ecb.AddComponent(queue, new Translation()
                     {
-                        Value = queuePoint.transform.position
+                        Value = queuePoint
                     });
                     ecb.AddBuffer<CommuterQueueData>(queue);
                 }

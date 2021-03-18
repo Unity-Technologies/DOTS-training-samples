@@ -12,6 +12,7 @@ namespace src.DOTS.Systems
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             var metro = this.GetSingleton<GameObjectRefs>();
+            MetroBlobContainer blob = this.GetSingleton<MetroBlobContainer>();
             var random = new Random(12345);
 
             Entities.WithoutBurst().ForEach((Entity entity, in CommuterSpawner spawner) =>
@@ -20,24 +21,24 @@ namespace src.DOTS.Systems
                 
                 for (int i = 0; i < spawner.amountToSpawn; i++)
                 {
-                    var from = GetRandomPlatform(metro.metro, ref random);
-                    var to = from.adjacentPlatforms[0];
+                    ref var valuePlatforms = ref blob.Blob.Value.Platforms;
+                    var from = GetRandomPlatform(ref valuePlatforms, ref random);
+                    var to = valuePlatforms[from.oppositePlatformIndex];
 
-                    float3 p0 = from.queuePoints[0].transform.position;
-                    float3 p1 = from.queuePoints[2].transform.position;
+                    float3 p0 = from.queuePoint;
+                    float3 p1 = valuePlatforms[from.oppositePlatformIndex].queuePoint;
                     float t = random.NextFloat();
                     
                     var commuter = ecb.Instantiate(spawner.commuterPrefab);
                     ecb.SetComponent(commuter, new Translation {Value =  p0 * (1.0f - t) + p1 * t });
 
-                    
                     // TODO: move to switching platform system
                     ecb.AddBuffer<PathData>(commuter);
                     ecb.AddComponent<SwitchingPlatformTag>(commuter);
-                    ecb.AddComponent<SwitchingPlatformData>(commuter, new SwitchingPlatformData()
+                    ecb.AddComponent(commuter, new SwitchingPlatformData
                     {
-                        platformFrom = from.globalIndex,
-                        platformTo = to.globalIndex
+                        platformFrom = from.platformIndex,
+                        platformTo = to.platformIndex
                     });
                 }
             }).Run();
@@ -46,10 +47,10 @@ namespace src.DOTS.Systems
             ecb.Dispose();
         }
 
-        static Platform GetRandomPlatform(Metro metro, ref Random random)
+        static PlatformBlob GetRandomPlatform(ref BlobArray<PlatformBlob> platforms, ref Random random)
         {
-            int _PLATFORM_INDEX = (int) math.floor(random.NextFloat(0f, metro.allPlatforms.Length));
-            return metro.allPlatforms[_PLATFORM_INDEX];
+            var index = (int) math.floor(random.NextFloat(0f, platforms.Length));
+            return platforms[index];
         }
     }
 }

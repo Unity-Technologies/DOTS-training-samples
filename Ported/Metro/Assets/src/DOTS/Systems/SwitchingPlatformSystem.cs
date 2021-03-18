@@ -20,37 +20,40 @@ namespace src.DOTS.Systems
         protected override void OnUpdate()
         {
             var metro = this.GetSingleton<GameObjectRefs>();
+            var blob = this.GetSingleton<MetroBlobContainer>();
             var ecb = CommandBufferSystem.CreateCommandBuffer();
-            var ecbTags = CommandBufferSystem.CreateCommandBuffer();
 
-            Entities.WithStoreEntityQueryInField(ref query).WithoutBurst().WithAll<SwitchingPlatformTag>().WithNone<WalkingTag>().ForEach((in SwitchingPlatformData switchingPlatformData, in Entity commuter) =>
+            Entities.WithStoreEntityQueryInField(ref query).WithoutBurst()
+                .WithAll<SwitchingPlatformTag>()
+                .WithNone<WalkingTag>()
+                .ForEach((
+                    in SwitchingPlatformData switchingPlatformData,
+                    in Entity commuter) =>
             {
-                
-                var from = metro.metro.allPlatforms[switchingPlatformData.platformFrom];
-                var to = metro.metro.allPlatforms[switchingPlatformData.platformTo];
-                
+                var from = blob.Blob.Value.Platforms[switchingPlatformData.platformFrom];
+                var to = blob.Blob.Value.Platforms[switchingPlatformData.platformTo];
+
                 // inserting in reverse order
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = to.walkway_FRONT_CROSS.nav_START.transform.position
+                    point = to.walkway.frontStart
                 });
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = to.walkway_FRONT_CROSS.nav_END.transform.position
+                    point = to.walkway.frontEnd
                 });
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = from.walkway_BACK_CROSS.nav_END.transform.position
+                    point = from.walkway.backEnd
                 });
                 ecb.AppendToBuffer(commuter, new PathData
                 {
-                    point = from.walkway_BACK_CROSS.nav_START.transform.position
+                    point = from.walkway.backStart
                 });
-                
+
                 ecb.AddComponent<WalkingTag>(commuter);
                 ecb.AddComponent<LookingForQueueTag>(commuter);
                 ecb.RemoveComponent<SwitchingPlatformTag>(commuter);
-                
             }).Run();
 
             // sync version

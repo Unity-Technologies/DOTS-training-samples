@@ -43,11 +43,9 @@ namespace src.DOTS.Systems
 
             NativeArray<Entity> commuters = query.ToEntityArray(Allocator.TempJob);
             NativeArray<SwitchingPlatformData> commuterPlatformData = query.ToComponentDataArray<SwitchingPlatformData>(Allocator.TempJob);
-            
-            
-            var metro = this.GetSingleton<GameObjectRefs>();
-            
-            var deltaTime = Time.DeltaTime;
+
+            var blob = this.GetSingleton<MetroBlobContainer>();
+
             var ecb = CommandBufferSystem.CreateCommandBuffer();
 
             // the queuing tag is added as soon as we switch platforms and start moving, make sure we are done moving (WalkingTag) before processing the queue 
@@ -69,7 +67,7 @@ namespace src.DOTS.Systems
                         ecb.RemoveComponent<LookingForQueueTag>(commuters[i]);
 
                         // add to list
-                        ecb.AppendToBuffer<CommuterQueueData>(queue, new CommuterQueueData()
+                        ecb.AppendToBuffer(queue, new CommuterQueueData
                         {
                             entity = commuters[i]
                         });

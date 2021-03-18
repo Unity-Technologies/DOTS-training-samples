@@ -115,27 +115,27 @@ public class MetroLine
 
         // now that the rails have been laid - let's put the platforms on
         int totalPoints = bezierPath.points.Count;
-        for (int i = 1; i < _outboundPoints.Count; i++)
-        {
-            int _plat_END = i;
-            int _plat_START = i - 1;
-            if (_outboundPoints[_plat_END].railMarkerType == RailMarkerType.PLATFORM_END &&
-                _outboundPoints[_plat_START].railMarkerType == RailMarkerType.PLATFORM_START)
-            {
-                Platform _ouboundPlatform = AddPlatform(_plat_START, _plat_END);
-                // now add an opposite platform!
-                int opposite_START = totalPoints - (i + 1);
-                int opposite_END = totalPoints - i;
-                Platform _oppositePlatform = AddPlatform(opposite_START, opposite_END);
-                _oppositePlatform.transform.eulerAngles =
-                    _ouboundPlatform.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f);
-                ;
-
-                // pair these platforms as opposites
-                _ouboundPlatform.PairWithOppositePlatform(_oppositePlatform);
-                _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
-            }
-        }
+        // for (int i = 1; i < _outboundPoints.Count; i++)
+        // {
+        //     int _plat_END = i;
+        //     int _plat_START = i - 1;
+        //     if (_outboundPoints[_plat_END].railMarkerType == RailMarkerType.PLATFORM_END &&
+        //         _outboundPoints[_plat_START].railMarkerType == RailMarkerType.PLATFORM_START)
+        //     {
+        //         Platform _ouboundPlatform = AddPlatform(_plat_START, _plat_END);
+        //         // now add an opposite platform!
+        //         int opposite_START = totalPoints - (i + 1);
+        //         int opposite_END = totalPoints - i;
+        //         Platform _oppositePlatform = AddPlatform(opposite_START, opposite_END);
+        //         _oppositePlatform.transform.eulerAngles =
+        //             _ouboundPlatform.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f);
+        //         ;
+        //
+        //         // pair these platforms as opposites
+        //         _ouboundPlatform.PairWithOppositePlatform(_oppositePlatform);
+        //         _oppositePlatform.PairWithOppositePlatform(_ouboundPlatform);
+        //     }
+        // }
 
         var sortedPlatforms = from _PLATFORM in platforms
             orderby _PLATFORM.point_platform_START.index
@@ -185,13 +185,13 @@ public class MetroLine
         trains.Add(new Train(_trainIndex, metroLine_index, _position, carriagesPerTrain));
     }
 
-    public void UpdateTrains()
-    {
-        foreach (Train _t in trains)
-        {
-            _t.Update();
-        }
-    }
+    // public void UpdateTrains()
+    // {
+    //     foreach (Train _t in trains)
+    //     {
+    //         _t.Update();
+    //     }
+    // }
 
     public Vector3 Get_PositionOnRail(float _pos)
     {

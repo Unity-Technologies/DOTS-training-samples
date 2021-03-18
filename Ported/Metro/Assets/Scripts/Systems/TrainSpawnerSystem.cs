@@ -1,9 +1,11 @@
-﻿using src.DOTS.Components;
+﻿using Components;
+using src.DOTS.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 public class TrainSpawnerSystem : SystemBase
@@ -11,7 +13,7 @@ public class TrainSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var metroBlob = this.GetSingleton<MetroBlobContaner>();
+        var metroBlob = this.GetSingleton<MetroBlobContainer>();
 
         Entities.WithoutBurst().ForEach((Entity entity, ref TrainSpawner trainSpawner) =>
         {
@@ -69,6 +71,38 @@ public class TrainSpawnerSystem : SystemBase
                 });
             }
             
+        }).Run();
+        
+        Entities.WithoutBurst().ForEach((Entity entity, ref TrainSpawner trainSpawner) =>
+        {
+            for (int i = 0; i < metroBlob.Blob.Value.Platforms.Length; i++)
+            {
+                var valuePlatform = metroBlob.Blob.Value.Platforms[i];
+                var platformEntity = ecb.Instantiate(trainSpawner.PlatformPrefab);
+
+                ecb.SetComponent(platformEntity, new Translation { Value = valuePlatform.position} );
+                ecb.SetComponent(platformEntity, new Rotation { Value = valuePlatform.rotation} );
+                // ecb.AddComponent(platformEntity, new PropagateColor
+                // {
+                //     color = new float4(0, 1, 0, 1),
+                // });
+                //ecb.AddComponent(platformEntity, new URPMaterialPropertyBaseColor { Value = new float4(0, 1, 0, 1f)} );
+
+                var trainEntity = ecb.Instantiate(trainSpawner.Sphere);
+                ecb.SetComponent(trainEntity, new Translation { Value =  valuePlatform.queuePoint});
+                
+                var a = ecb.Instantiate(trainSpawner.Sphere);
+                ecb.SetComponent(a, new Translation { Value =  valuePlatform.walkway.frontStart});
+                
+                var b = ecb.Instantiate(trainSpawner.Sphere);
+                ecb.SetComponent(b, new Translation { Value =  valuePlatform.walkway.frontEnd});
+                
+                var c = ecb.Instantiate(trainSpawner.Sphere);
+                ecb.SetComponent(c, new Translation { Value =  valuePlatform.walkway.backStart});
+
+                var d = ecb.Instantiate(trainSpawner.Sphere);
+                ecb.SetComponent(d, new Translation { Value =  valuePlatform.walkway.backEnd});
+            }
         }).Run();
 
         ecb.Playback(EntityManager);

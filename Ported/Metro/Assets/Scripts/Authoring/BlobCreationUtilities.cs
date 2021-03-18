@@ -1,11 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class BlobCreationUtilities
 {
-    public static (LinePoint[] linePoints, PlatformBlob[] platforms, float distance) Create_RailPath(List<RailMarker> _outboundPoints)
+    public static (LinePoint[] linePoints, PlatformBlob[] platforms, float distance) Create_RailPath(
+        List<RailMarker> _outboundPoints,
+        GameObject platformPrefab)
     {
         List<PlatformBlob> platformBlobs = new List<PlatformBlob>();
         
@@ -81,12 +84,14 @@ public static class BlobCreationUtilities
             if (_outboundPoints[_plat_END].railMarkerType == RailMarkerType.PLATFORM_END &&
                 _outboundPoints[_plat_START].railMarkerType == RailMarkerType.PLATFORM_START)
             {
-                PlatformBlob _ouboundPlatform = AddPlatform(_plat_START, _plat_END);
+                int _ouboundPlatform = AddPlatform(_plat_START, _plat_END, bezierPath.points[_plat_END]);
                 // now add an opposite platform!
                 int opposite_START = totalPoints - (i + 1);
                 int opposite_END = totalPoints - i;
-                PlatformBlob _oppositePlatform = AddPlatform(opposite_START, opposite_END);
-                
+                int _oppositePlatform = AddPlatform(opposite_START, opposite_END, bezierPath.points[opposite_END]);
+                UpdateOppositePlatformIndex(platformBlobs, _ouboundPlatform, _oppositePlatform);
+                UpdateOppositePlatformIndex(platformBlobs, _oppositePlatform, _ouboundPlatform);
+
                 // TODO We need to spawn the Entity version of the prefab somewhere here skipping
                 // _oppositePlatform.transform.eulerAngles =
                 //     _ouboundPlatform.transform.rotation.eulerAngles + new Vector3(0f, 180f, 0f);
@@ -100,26 +105,45 @@ public static class BlobCreationUtilities
 
         var sortedPlatforms = from _PLATFORM in platformBlobs orderby _PLATFORM.PlatformStartIndex select _PLATFORM;
         platformBlobs = sortedPlatforms.ToList();
-        
-        // for (int i = 0; i < platforms.Count; i++)
-        // {
-        //     Platform _P = platforms[i];
-        //     _P.platformIndex = i;
-        //     _P.nextPlatform = platforms[(i + 1) % platforms.Count];
-        // }
-        //
+
         // speedRatio = bezierPath.GetPathDistance() * maxTrainSpeed;
         
         
 
 
-        PlatformBlob AddPlatform(int _index_platform_START, int _index_platform_END)
+        int AddPlatform(int _index_platform_START, int _index_platform_END, BezierPoint bezierPathPoint)
         {
-            var platform = new PlatformBlob {PlatformStartIndex = _index_platform_START, PlatformEndIndex = _index_platform_END};
+            var location = bezierPathPoint.location;
+            var transform = platformPrefab.GetComponent<Transform>();
+            transform.position = location;
+            transform.LookAt(bezierPath.GetPoint_PerpendicularOffset(bezierPathPoint, -3f));
+
+            Walkway[] walkways = platformPrefab.GetComponentsInChildren<Walkway>();
+            var front = walkways[0];
+            var back = walkways[1];
+            var walkway = new WalkwayBlob
+            {
+                frontStart = front.nav_START.position,
+                frontEnd = front.nav_END.position,
+                backStart = back.nav_START.position,
+                backEnd = back.nav_END.position,
+            };
+
+            Platform platformData = platformPrefab.GetComponentInChildren<Platform>();
+            var platform = new PlatformBlob
+            {
+                PlatformStartIndex = _index_platform_START,
+                PlatformEndIndex = _index_platform_END,
+                ID = platformBlobs.Count,
+                position = transform.position,
+                rotation = transform.rotation,
+                queuePoint = platformData.queuePoints[0].transform.position, // TODO: This needs to be rotated. Look at MetroLine.AddPlatform
+                walkway = walkway,
+            };
             platformBlobs.Add(platform);
-            return platform;
+            return platformBlobs.Count - 1;
         }
-        
+
         // TODO Very Important bits that instantiate platform models, skipping for now
         // Platform AddPlatform(int _index_platform_START, int _index_platform_END)
         // {
@@ -152,5 +176,11 @@ public static class BlobCreationUtilities
 
         return (linePoints.ToArray(), platformBlobs.ToArray(), bezierPath.GetPathDistance());
     }
-    
+
+    static void UpdateOppositePlatformIndex(List<PlatformBlob> platformBlobs, int _ouboundPlatform, int _oppositePlatform)
+    {
+        var platformBlob = platformBlobs[_ouboundPlatform];
+        platformBlob.oppositePlatformIndex = _oppositePlatform;
+        platformBlobs[_ouboundPlatform] = platformBlob;
+    }
 }

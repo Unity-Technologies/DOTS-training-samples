@@ -21,7 +21,7 @@ public class TrainMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        var metroBlob = this.GetSingleton<MetroBlobContaner>();
+        var metroBlob = this.GetSingleton<MetroBlobContainer>();
         var ecb = m_EndSimulationSystem.CreateCommandBuffer().AsParallelWriter();
 
         var carriageFromEntity = GetComponentDataFromEntity<Carriage>(true);

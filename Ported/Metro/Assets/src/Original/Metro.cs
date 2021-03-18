@@ -188,7 +188,7 @@ public class Metro : MonoBehaviour
         {
             if (metroLines[i] != null)
             {
-                metroLines[i].UpdateTrains();
+                //metroLines[i].UpdateTrains();
             }
         }
     }
