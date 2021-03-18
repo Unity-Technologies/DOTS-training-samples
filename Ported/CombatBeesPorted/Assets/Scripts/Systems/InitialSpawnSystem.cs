@@ -3,9 +3,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public class InitialSpawnSystem : SystemBase
 {
+    private static readonly int HivePosition = Shader.PropertyToID("_HivePosition");
+
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfiguration>();
@@ -13,7 +17,8 @@ public class InitialSpawnSystem : SystemBase
         var random = new Random((uint)(Time.ElapsedTime * 10000)+1);
 
         var distance = 10f;
-
+        
+        Shader.SetGlobalFloat(HivePosition,gameConfig.HivePosition);
         Entities
             .ForEach((in Entity entity, in InitialSpawnConfiguration config) =>
             {
