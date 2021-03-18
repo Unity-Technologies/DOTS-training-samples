@@ -23,7 +23,7 @@ public class HeatRenderingSystem : SystemBase
         Entity heatMapEntity = GetSingletonEntity<HeatMapTag>();
         DynamicBuffer<HeatMap> heatMap = GetBuffer<HeatMap>(heatMapEntity);
         int counter = 0;
-        float flashPoint = 0.5f;
+        float flashPoint = 0.2f;
 
         Entities
             .WithAll<Cell>()
@@ -31,7 +31,7 @@ public class HeatRenderingSystem : SystemBase
             .ForEach((Entity entity, ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color) =>
             {
                 var heat = heatMap[counter].Value;
-
+                
                 if (heat < flashPoint)
                 {
                     color = new URPMaterialPropertyBaseColor { Value = CELL_NEUTRAL_COLOUR };

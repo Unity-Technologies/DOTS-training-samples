@@ -16,6 +16,7 @@ public class FirePropagationSystem : SystemBase
     static public readonly float FireSimUpdateRate = 0.1f;
     static public readonly float HeatTransferRate = 0.003f;
     static public readonly int HeatRadius = 1;
+    static public readonly float flashPoint = 0.2f;
 
     private double _timeUntilFireUpdate;
     
@@ -107,7 +108,7 @@ public struct HeatMapPropagationJob : IJob
                         {
                             int neighbourIndex = (currentRow * GridSize) + currentColumn;
                             ;
-                            if (HeatMapBufferArray[neighbourIndex].Value > 0.2f)
+                            if (HeatMapBufferArray[neighbourIndex].Value > FirePropagationSystem.flashPoint)
                             {
                                 tempChange += HeatMapBufferArray[neighbourIndex].Value *
                                               FirePropagationSystem.HeatTransferRate;
