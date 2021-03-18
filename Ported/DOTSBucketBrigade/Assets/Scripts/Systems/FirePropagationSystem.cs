@@ -41,7 +41,8 @@ public class FirePropagationSystem : SystemBase
                 .ForEach((ref DynamicBuffer<HeatMap> heatMapBuffer) =>
                 {
                     NativeArray<HeatMap> heatMapBufferArray = heatMapBuffer.ToNativeArray(Allocator.TempJob);
-                    int cpuCount = SystemInfo.processorCount;
+                    //int cpuCount = SystemInfo.processorCount;
+                    int cpuCount = 10;
                     int segLength = heatMapBuffer.Length / cpuCount;
                     if (heatMapBuffer.Length % cpuCount > 0)
                     {
