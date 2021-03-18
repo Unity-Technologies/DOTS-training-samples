@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ddcafbf2800a5d4891b73ac2a976e9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0
+  Value: 1
 --- !u!114 &1928265979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3df97ba4073e6fb4c9bbda766b80d8e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 5
+  Value: 1
 --- !u!114 &1928265978
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -51,6 +51,7 @@ public class ArmSpawnerSystem : SystemBase
                     // Entity of the arm
                     var instance = ecb.Instantiate(spawner.m_ArmPrefab);
                     ecb.SetComponent(instance, new Translation {Value = rootTranslation});
+                    ecb.AddComponent<HandIdle>(instance);
 
                     // Joint entities of the arm
                     var armScale = new NonUniformScale

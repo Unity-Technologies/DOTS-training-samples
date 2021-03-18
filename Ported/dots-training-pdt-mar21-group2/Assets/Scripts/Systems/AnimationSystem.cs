@@ -20,12 +20,27 @@ public class AnimationSystem : SystemBase
         
         var handsWindingUp = GetComponentDataFromEntity<HandWindingUp>();
         var handsThrowingRock = GetComponentDataFromEntity<HandThrowingRock>();
+        var handsIdle = GetComponentDataFromEntity<HandIdle>();
+        var handsLookingForACan = GetComponentDataFromEntity<HandLookingForACan>();
         
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         
         var parameters = GetSingleton<SimulationParameters>();
+        
+        // Initialize hand target position when idle
+        Dependency = Entities
+            .WithAny<HandIdle, HandLookingForACan>()
+            .ForEach((Entity entity, ref TargetPosition targetPosition,
+                in Translation translation) =>
+            {
+                targetPosition = new TargetPosition()
+                {
+                    Value = translation.Value + new float3(0.0f, 1.0f, 1.0f) * parameters.ArmJointLength * 0.85f
+                };
+            }).ScheduleParallel(Dependency);
+ 
 
         // Initialize hand target position when winding-up
         Dependency = Entities
@@ -81,12 +96,13 @@ public class AnimationSystem : SystemBase
 
         // Update animation
         Dependency = Entities
-            .WithNone<HandIdle>()
             .WithNativeDisableContainerSafetyRestriction(translations)
             .WithNativeDisableContainerSafetyRestriction(rotations)
             .WithReadOnly(localToWorlds)
             .WithReadOnly(handsWindingUp)
             .WithReadOnly(handsThrowingRock)
+            .WithReadOnly(handsIdle)
+            .WithReadOnly(handsLookingForACan)
             .ForEach((Entity entity,
                 ref Arm arm, 
                 ref Timer timer, 
@@ -100,6 +116,8 @@ public class AnimationSystem : SystemBase
                 {
                     var isThrowing = handsThrowingRock.HasComponent(entity);
                     var isWindingUp = handsWindingUp.HasComponent(entity);
+                    var isIdle = handsIdle.HasComponent(entity);
+                    var isLookingForACan = handsLookingForACan.HasComponent(entity);
 
                     if (Utils.DidAnimJustStarted(timer, timerDuration))
                     {
@@ -122,19 +140,27 @@ public class AnimationSystem : SystemBase
                     // Orient arm toward target
                     var armRoot = translations[entity].Value;
                     var forward = math.normalize(handTargetPos - armRoot);
-                    var moveDirection = targetPosition.Value - startPosition.Value;
-                    if (isWindingUp)
+
+                    var up = new float3();
+                    if (isIdle || isLookingForACan)
                     {
-                        moveDirection = -moveDirection;
+                        up = new float3(0.0f, 1.0f, 0.0f);
+                    }
+                    else
+                    {
+                        var moveDirection = targetPosition.Value - startPosition.Value;
+                        if (isWindingUp)
+                        {
+                            moveDirection = -moveDirection;
+                        }
+                        
+                        var right = math.cross(moveDirection, forward);
+                        right.y = right.y * 0.15f; // Keep hand quite horizontal
+                        up = math.cross(right, forward);
                     }
 
-                    var right = math.cross(moveDirection, forward);
-                    right.y = right.y * 0.15f; // Keep hand quite horizontal
-                                     
                     var currentUp = -localToWorlds[arm.m_Humerus].Forward;
-                    var up = math.cross(right, forward);
-                    float lerpSpeed = 1.0f / timerDuration.Value;
-                    up = math.lerp(currentUp, up, lerpSpeed * deltaTime);
+                    up = math.lerp(currentUp, up, normalizedTime);
 
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
 
