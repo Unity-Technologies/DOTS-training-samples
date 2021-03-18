@@ -8,8 +8,9 @@ using Unity.Transforms;
 
 public class TrainMovementSystem : SystemBase
 {
-    private const float k_MaxDistance = 0.02f;
+    private const float k_MaxDistance = 5f;
     private const float k_TrainSpeed = 15;
+    private const float k_TrainStopTime = 2;
     
     private EndSimulationEntityCommandBufferSystem m_EndSimulationSystem;
     protected override void OnCreate()
@@ -40,16 +41,19 @@ public class TrainMovementSystem : SystemBase
                 ref var trainLine = ref metroBlob.Blob.Value.Lines[carriage.LaneIndex];
                 translation.Value = BezierUtilities.Get_Position(carriage.PositionAlongTrack, ref trainLine);
                 rotation.Value = quaternion.LookRotation(BezierUtilities.Get_NormalAtPosition(carriage.PositionAlongTrack, ref trainLine), new float3(0, 1, 0));
+
+                var realPosition = trainLine.Distance * carriage.PositionAlongTrack;
+                var nextTrainRealPosition = nextCarriage.Position * trainLine.Distance;
                 
                 if (BezierUtilities.Get_RegionIndex(carriage.PositionAlongTrack, ref trainLine) == 
                     metroBlob.Blob.Value.Platforms[carriage.NextPlatformIndex].PlatformStartIndex )
                 {
-                    var waiting = new TrainWaiting {RemainingTime = 5.0f};
+                    var waiting = new TrainWaiting {RemainingTime = k_TrainStopTime};
                     ecb.AddComponent(entityInQueryIndex, entity, waiting);
                 }
-                else if (math.distance(nextCarriage.Position, carriage.PositionAlongTrack) > k_MaxDistance)
+                else if (math.distance(realPosition, nextTrainRealPosition) > k_MaxDistance)
                 {
-                    carriage.PositionAlongTrack = (trainLine.Distance * carriage.PositionAlongTrack + k_TrainSpeed * deltaTime) / trainLine.Distance;
+                    carriage.PositionAlongTrack = (realPosition + k_TrainSpeed * deltaTime) / trainLine.Distance;
                     carriage.PositionAlongTrack %= 1;
                 }
             }).ScheduleParallel();
