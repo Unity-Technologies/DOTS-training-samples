@@ -8,5 +8,5 @@ using UnityEngine;
 
 public struct TargetPosition : IComponentData
 {
-    public float2 Value;
+    public float3 Value;
 }
