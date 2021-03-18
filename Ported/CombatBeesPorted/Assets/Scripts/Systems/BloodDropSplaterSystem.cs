@@ -27,15 +27,9 @@ public class BloodDropSplaterSystem: SystemBase
 
                 if (!bounds.Contains(translation.Value))
                 {
-
-
                     var normal = translation.Value / bounds.Extents;
                     var outsideNormal = new float3(new int3(normal));
 
-                    Debug.Log(normal + "\n" + outsideNormal);
-                    
-                    
-                    // commandBuffer.DestroyEntity(entity);
                     commandBuffer.RemoveComponent<BloodDroplet>(entity);
                     commandBuffer.RemoveComponent<Force>(entity);
                     commandBuffer.RemoveComponent<Velocity>(entity);
