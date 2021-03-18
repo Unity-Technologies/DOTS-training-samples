@@ -20,41 +20,45 @@ namespace src.DOTS.Systems
         protected override void OnUpdate()
         {
             var blob = this.GetSingleton<MetroBlobContainer>();
-            var ecb = CommandBufferSystem.CreateCommandBuffer();
+            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Entities.WithStoreEntityQueryInField(ref query).WithoutBurst()
+            Entities.WithStoreEntityQueryInField(ref query)
                 .WithAll<SwitchingPlatformTag>()
                 .WithNone<WalkingTag>()
                 .ForEach((
-                    in SwitchingPlatformData switchingPlatformData,
-                    in Entity commuter) =>
+                    Entity commuter,
+                    int entityInQueryIndex,
+                    in SwitchingPlatformData switchingPlatformData
+                    ) =>
             {
                 var from = blob.Blob.Value.Platforms[switchingPlatformData.platformFrom];
                 var to = blob.Blob.Value.Platforms[switchingPlatformData.platformTo];
 
                 // inserting in reverse order
-                ecb.AppendToBuffer(commuter, new PathData
+                ecb.AppendToBuffer(entityInQueryIndex, commuter, new PathData
                 {
                     point = to.walkway.frontStart
                 });
-                ecb.AppendToBuffer(commuter, new PathData
+                ecb.AppendToBuffer(entityInQueryIndex, commuter, new PathData
                 {
                     point = to.walkway.frontEnd
                 });
-                ecb.AppendToBuffer(commuter, new PathData
+                ecb.AppendToBuffer(entityInQueryIndex, commuter, new PathData
                 {
                     point = from.walkway.backEnd
                 });
-                ecb.AppendToBuffer(commuter, new PathData
+                ecb.AppendToBuffer(entityInQueryIndex, commuter, new PathData
                 {
                     point = from.walkway.backStart
                 });
 
-                ecb.AddComponent<WalkingTag>(commuter);
-                ecb.AddComponent<LookingForQueueTag>(commuter);
-                ecb.RemoveComponent<SwitchingPlatformTag>(commuter);
-            }).Run();
-
+                ecb.AddComponent<WalkingTag>(entityInQueryIndex, commuter);
+                ecb.AddComponent<LookingForQueueTag>(entityInQueryIndex, commuter);
+                ecb.RemoveComponent<SwitchingPlatformTag>(entityInQueryIndex, commuter);
+            }).ScheduleParallel();
+            
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
+            
             // sync version
             //EntityManager.RemoveComponent<SwitchingPlatformTag>(query);
             

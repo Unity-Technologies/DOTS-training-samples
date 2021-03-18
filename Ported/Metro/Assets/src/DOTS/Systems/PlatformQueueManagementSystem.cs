@@ -46,12 +46,13 @@ namespace src.DOTS.Systems
 
             var blob = this.GetSingleton<MetroBlobContainer>();
 
-            var ecb = CommandBufferSystem.CreateCommandBuffer();
+            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             // the queuing tag is added as soon as we switch platforms and start moving, make sure we are done moving (WalkingTag) before processing the queue 
             Entities.WithReadOnly(commuters).
             WithReadOnly(commuterPlatformData).ForEach((
-                in Entity queue,
+                Entity queue,
+                int entityInQueryIndex,
                 in Translation queueTranslation, 
                 in PlatformQueue queueInfo
                 ) =>
@@ -64,29 +65,30 @@ namespace src.DOTS.Systems
                     if (commuterPlatformData[i].platformTo == platformIndex)
                     {
                         
-                        ecb.RemoveComponent<LookingForQueueTag>(commuters[i]);
+                        ecb.RemoveComponent<LookingForQueueTag>(entityInQueryIndex, commuters[i]);
                         
                         // add to list
-                        ecb.AppendToBuffer(queue, new CommuterQueueData
+                        ecb.AppendToBuffer(entityInQueryIndex, queue, new CommuterQueueData
                         {
                             entity = commuters[i]
                         });
                         
                     }
                 }
-            }).WithDisposeOnCompletion(commuters).WithDisposeOnCompletion(commuterPlatformData).Run();
+            }).WithDisposeOnCompletion(commuters).WithDisposeOnCompletion(commuterPlatformData).ScheduleParallel();
 
             
             
             var allWalkingTags = GetComponentDataFromEntity<WalkingTag>(true);
             var allWaitingTrains = GetComponentDataFromEntity<TrainWaiting>(true);
-            var ecb2 = CommandBufferSystem.CreateCommandBuffer();
+            var ecb2 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities.WithReadOnly(allWalkingTags).ForEach((
+                Entity queue,
+                int entityInQueryIndex,
                 ref DynamicBuffer<CommuterQueueData> commuterQueue,
                 ref PlatformQueue queueInfo,
-                ref FirstQueuePassenger firstPassenger, 
-                in Entity queue,
+                ref FirstQueuePassenger firstPassenger,
                 in Translation queuePos
                 
             ) =>
@@ -98,8 +100,8 @@ namespace src.DOTS.Systems
                {
                    if (!allWalkingTags.HasComponent(commuterQueue[i].entity))
                    {
-                       ecb2.AddComponent<WalkingTag>(commuterQueue[i].entity);
-                       ecb2.AppendToBuffer(commuterQueue[i].entity, new PathData
+                       ecb2.AddComponent<WalkingTag>(entityInQueryIndex, commuterQueue[i].entity);
+                       ecb2.AppendToBuffer(entityInQueryIndex, commuterQueue[i].entity, new PathData
                        {
                            point = queuePos.Value + dir * i * spacing
                        });
@@ -119,7 +121,7 @@ namespace src.DOTS.Systems
                     }
                 }
 
-            }).Schedule();
+            }).ScheduleParallel();
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
