@@ -17,7 +17,7 @@ namespace src.DOTS.Systems
         }
         protected override void OnUpdate()
         {
-            
+            var metroBlob = this.GetSingleton<MetroBlobContainer>();
 
         var carriageFromEntity = GetComponentDataFromEntity<Carriage>(true);
         var ecb = m_EndSimulationSystem.CreateCommandBuffer().AsParallelWriter();
@@ -38,7 +38,7 @@ namespace src.DOTS.Systems
             .WithNativeDisableParallelForRestriction(movingFromEntity)
             .WithReadOnly(allPlatformQueuePositions)
             .WithReadOnly(platformEntities)
-            .ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, ref DynamicBuffer<CommuterQueueData> commuterQueue, in Translation translation) => 
+            .ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, ref DynamicBuffer<CommuterQueueData> commuterQueue, in Translation translation, in Carriage carriage) => 
         {
            if(trainWaiting.platformEntity == Entity.Null)
            {
@@ -68,11 +68,36 @@ namespace src.DOTS.Systems
                     ecb.RemoveComponent<Parent>(entityInQueryIndex, ent);
                     ecb.RemoveComponent<LocalToParent>(entityInQueryIndex, ent);
                     ecb.AddComponent<SwitchingPlatformTag>(entityInQueryIndex, ent);
+                    ecb.SetComponent(entityInQueryIndex, ent, new SwitchingPlatformData()
+                    {
+                        platformFrom = carriage.NextPlatformIndex,
+                        platformTo = metroBlob.Blob.Value.Platforms[carriage.NextPlatformIndex].oppositePlatformIndex
+                    });
                     
                     ecb.SetComponent(entityInQueryIndex, ent, new Translation() { Value = allPlatformQueuePositions[destinationPlatform].Value + new float3(i * 0.01f, 0.0f, 0.0f)});
                 }
                 commuterQueue.Clear();
                 
+                
+                // ref var valuePlatforms = ref metroBlob.Blob.Value.Platforms;
+                // var from = CommuterSpawnerSystem.GetRandomPlatform(ref valuePlatforms, ref random);
+                // var to = valuePlatforms[from.oppositePlatformIndex];
+                //
+                // float3 p0 = from.queuePoint;
+                // float3 p1 = valuePlatforms[from.oppositePlatformIndex].queuePoint;
+                // float t = random.NextFloat();
+                //     
+                // var commuter = ecb.Instantiate(spawner.commuterPrefab);
+                // ecb.SetComponent(commuter, new Translation {Value =  p0 * (1.0f - t) + p1 * t });
+                //
+                // // TODO: move to switching platform system
+                // ecb.AddBuffer<PathData>(commuter);
+                // ecb.AddComponent<SwitchingPlatformTag>(commuter);
+                // ecb.AddComponent(commuter, new SwitchingPlatformData
+                // {
+                //     platformFrom = from.platformIndex,
+                //     platformTo = to.platformIndex
+                // });
            }
            else
            {

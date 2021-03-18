@@ -156,7 +156,7 @@ MonoBehaviour:
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
   Sphere: {fileID: 6453706384227902831, guid: 196313b46b65ec848b1b0baf8df6ee3d, type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a, type: 3}
-  TrainsPerLine: 50
+  TrainsPerLine: 100
 --- !u!4 &1737831
 Transform:
   m_ObjectHideFlags: 0
@@ -307,4 +307,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_CommuterPrefab: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4, type: 3}
-  amountToSpawn: 500
+  amountToSpawn: 100000

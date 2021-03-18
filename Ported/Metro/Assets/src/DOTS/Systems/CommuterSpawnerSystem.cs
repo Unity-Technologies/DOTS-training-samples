@@ -46,7 +46,7 @@ namespace src.DOTS.Systems
             ecb.Dispose();
         }
 
-        static PlatformBlob GetRandomPlatform(ref BlobArray<PlatformBlob> platforms, ref Random random)
+        public static PlatformBlob GetRandomPlatform(ref BlobArray<PlatformBlob> platforms, ref Random random)
         {
             var index = (int) math.floor(random.NextFloat(0f, platforms.Length));
             return platforms[index];

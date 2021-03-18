@@ -10,7 +10,7 @@ namespace src.DOTS.Systems
     public class WalkingSystem : SystemBase
     {
         private EntityCommandBufferSystem CommandBufferSystem;
-        const float m_D = 2f;
+        const float m_D = 10f;
 
         protected override void OnCreate()
         {
