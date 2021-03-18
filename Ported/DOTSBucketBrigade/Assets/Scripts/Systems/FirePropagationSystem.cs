@@ -36,37 +36,33 @@ public class FirePropagationSystem : SystemBase
             int gridSize = GetSingleton<InitCounts>().GridSize;
             JobHandle combinedDependencies = default;
             JobHandle dep = Dependency;
-            
-            Entities
-                .ForEach((ref DynamicBuffer<HeatMap> heatMapBuffer) =>
+
+            Entity heatMapEntity = GetSingletonEntity<HeatMapTag>();
+            DynamicBuffer<HeatMap> heatMapBuffer = GetBuffer<HeatMap>(heatMapEntity);
+            NativeArray<HeatMap> heatMapBufferArray = heatMapBuffer.ToNativeArray(Allocator.TempJob);
+            int cpuCount = 10;
+            int segLength = heatMapBuffer.Length / cpuCount;
+            if (heatMapBuffer.Length % cpuCount > 0)
+            {
+                ++segLength;
+            }
+
+            for (int i = 0; i < cpuCount; ++i)
+            {
+                HeatMapPropagationJob propagateJob = new HeatMapPropagationJob()
                 {
-                    NativeArray<HeatMap> heatMapBufferArray = heatMapBuffer.ToNativeArray(Allocator.TempJob);
-                    //int cpuCount = SystemInfo.processorCount;
-                    int cpuCount = 10;
-                    int segLength = heatMapBuffer.Length / cpuCount;
-                    if (heatMapBuffer.Length % cpuCount > 0)
-                    {
-                        ++segLength;
-                    }
-                    
-                    for (int i = 0; i < cpuCount; ++i)
-                    {
-                        HeatMapPropagationJob propagateJob = new HeatMapPropagationJob()
-                        {
-                            StartIndex = segLength * i,
-                            EndIndex = math.min(segLength * i + segLength - 1, heatMapBuffer.Length - 1),
-                            GridSize = gridSize,
-                            HeatMapBufferArray = heatMapBufferArray,
-                            HeatMapBuffer = heatMapBuffer   
-                        };           
-                        
-                        combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(dep), combinedDependencies);
-                    }
+                    StartIndex = segLength * i,
+                    EndIndex = math.min(segLength * i + segLength - 1, heatMapBuffer.Length - 1),
+                    GridSize = gridSize,
+                    HeatMapBufferArray = heatMapBufferArray,
+                    HeatMapBuffer = heatMapBuffer
+                };
 
-                    heatMapBufferArray.Dispose(combinedDependencies);
+                combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(dep), combinedDependencies);
+            }
+
+            heatMapBufferArray.Dispose(combinedDependencies);
  
-                }).Run();
-
             Dependency = combinedDependencies;
         }
     }
