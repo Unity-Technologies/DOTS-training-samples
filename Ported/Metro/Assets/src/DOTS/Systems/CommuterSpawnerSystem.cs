@@ -23,8 +23,12 @@ namespace src.DOTS.Systems
                     var from = GetRandomPlatform(metro.metro, ref random);
                     var to = from.adjacentPlatforms[0];
 
+                    float3 p0 = from.queuePoints[0].transform.position;
+                    float3 p1 = from.queuePoints[2].transform.position;
+                    float t = random.NextFloat();
+                    
                     var commuter = ecb.Instantiate(spawner.commuterPrefab);
-                    ecb.SetComponent(commuter, new Translation {Value = from.queuePoints[0].transform.position });
+                    ecb.SetComponent(commuter, new Translation {Value =  p0 * (1.0f - t) + p1 * t });
 
                     
                     // TODO: move to switching platform system

@@ -26,6 +26,14 @@ namespace src.DOTS.Systems
                     {
                         platformIndex = i
                     });
+                    
+                    CommuterNavPoint queuePoint = metro.metro.allPlatforms[i].queuePoints[0];
+                    
+                    
+                    ecb.AddComponent<Translation>(queue, new Translation()
+                    {
+                        Value = queuePoint.transform.position
+                    });
                     ecb.AddBuffer<CommuterQueueData>(queue);
                 }
 
