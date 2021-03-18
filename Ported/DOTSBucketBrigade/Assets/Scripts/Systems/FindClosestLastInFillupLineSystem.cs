@@ -36,7 +36,7 @@ public class FindClosestLastInFillupLineSystem : SystemBase
                 if (bucketId.Value != Entity.Null)
                 {
                     var bucketVol = GetComponent<Volume>(bucketId.Value);
-                    if (bucketVol.Value < 0.01f)
+                    if (bucketVol.Value < 1.0f)
                     {
                         int minIndex = linebucketerPositions.Length;
                         var minDist = float.MaxValue;
