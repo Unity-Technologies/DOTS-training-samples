@@ -32,18 +32,20 @@ public class AnimationSystem : SystemBase
             .WithAll<HandWindingUp>()
             .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
-                in TimerDuration timerDuration) =>
+                in TimerDuration timerDuration,
+                in Translation translation,
+                in TargetCan targetCan) =>
             {
-                if (Utils.DidAnimJustStarted(timer, timerDuration))
+                var canPosition = translations[targetCan.Value];
+                float3 windUpOffset = translation.Value - canPosition.Value;
+                windUpOffset.y = 0.0f;
+                windUpOffset = math.normalize(windUpOffset) * parameters.ArmJointLength * 1.75f;
+                windUpOffset.y = parameters.ArmJointLength * 0.75f;
+                
+                targetPosition = new TargetPosition()
                 {
-                    targetPosition = new TargetPosition()
-                    {
-                        Value = translations[entity].Value + new float3(
-                            0.0f,
-                            parameters.ArmJointLength,
-                            -parameters.ArmJointLength * 1.5f)
-                    };
-                }
+                    Value = translations[entity].Value + windUpOffset
+                };
             }).ScheduleParallel(Dependency);
 
         // Initialize hand target position when throwing
@@ -51,18 +53,19 @@ public class AnimationSystem : SystemBase
             .WithAll<HandThrowingRock>()
             .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
-                in TimerDuration timerDuration) =>
+                in TimerDuration timerDuration,
+                in Translation translation,
+                in TargetCan targetCan) =>
             {
-                if (Utils.DidAnimJustStarted(timer, timerDuration))
+                var canPosition = translations[targetCan.Value];
+                float3 throwOffset = canPosition.Value - translation.Value;
+                throwOffset.y *= 10.0f;
+                throwOffset = math.normalize(throwOffset) * parameters.ArmJointLength * 1.85f;
+
+                targetPosition = new TargetPosition()
                 {
-                    targetPosition = new TargetPosition()
-                    {
-                        Value = translations[entity].Value + new float3(
-                            0.0f,
-                            6.0f,
-                            6.0f)
-                    };
-                }
+                    Value = translations[entity].Value + throwOffset
+                };
             }).ScheduleParallel(Dependency);
         
         
@@ -84,18 +87,20 @@ public class AnimationSystem : SystemBase
             .WithReadOnly(localToWorlds)
             .WithReadOnly(handsWindingUp)
             .WithReadOnly(handsThrowingRock)
-            .ForEach((Entity entity, ref Arm arm, 
+            .ForEach((Entity entity,
+                ref Arm arm, 
                 ref Timer timer, 
                 ref AnimStartPosition startPosition, 
-                ref TargetPosition targetPosition,
+                in TargetPosition targetPosition,
                 in TimerDuration timerDuration,
-                in TargetRock targetRock) =>
+                in TargetRock targetRock
+                ) =>
             {
                 if (Utils.IsPlayingAnimation(timer))
                 {
                     var isThrowing = handsThrowingRock.HasComponent(entity);
                     var isWindingUp = handsWindingUp.HasComponent(entity);
-                    
+
                     if (Utils.DidAnimJustStarted(timer, timerDuration))
                     {
                         // when anim start playing, we initialize start position with the current hand position
@@ -119,11 +124,12 @@ public class AnimationSystem : SystemBase
                     }
 
                     var right = math.cross(moveDirection, forward);
-                    right.y = right.y * 0.25f; // Keep hand quite horizontal
+                    right.y = right.y * 0.15f; // Keep hand quite horizontal
                                      
                     var currentUp = -localToWorlds[arm.m_Humerus].Forward;
                     var up = math.cross(right, forward);
-                    up = math.lerp(currentUp, up, deltaTime);
+                    float lerpSpeed = 2.0f / timerDuration.Value;
+                    up = math.lerp(currentUp, up, lerpSpeed * deltaTime);
 
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
 
@@ -161,7 +167,7 @@ public class AnimationSystem : SystemBase
                 if (Utils.DidAnimJustFinished(timer))
                 {
                     // Go to Throwing state
-                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity);
+                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity, 0.3f);
                 }
             }).ScheduleParallel(Dependency);
         
@@ -175,6 +181,7 @@ public class AnimationSystem : SystemBase
                 {
                     // reset target
                     ecb.SetComponent(entityInQueryIndex, entity, new TargetRock());
+                    ecb.SetComponent(entityInQueryIndex, entity, new TargetCan());
                     
                     // Go to Idle state
                     Utils.GoToState<HandThrowingRock, HandIdle>(ecb, entityInQueryIndex, entity);

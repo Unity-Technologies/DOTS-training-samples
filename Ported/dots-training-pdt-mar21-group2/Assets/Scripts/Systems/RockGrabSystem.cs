@@ -57,6 +57,12 @@ public class RockGrabSystem : SystemBase
                     };
                     // ...and in the future
                     ecb.RemoveComponent<Available>(targetRock.RockEntity);
+                    
+                    // stop the rock
+                    ecb.SetComponent(targetRock.RockEntity, new Velocity()
+                    {
+                        Value = float3.zero
+                    });
 
                 }
 

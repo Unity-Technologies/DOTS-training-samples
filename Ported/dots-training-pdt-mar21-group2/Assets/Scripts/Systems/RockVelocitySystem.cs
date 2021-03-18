@@ -80,7 +80,6 @@ public class RockVelocitySystem : SystemBase
                     }
                     ecbParaWriter.SetComponent<Velocity>(entityInQueryIndex, targetRock.RockEntity, new Velocity { Value = rockVelocity });
                     ecbParaWriter.AddComponent<Falling>(entityInQueryIndex, targetRock.RockEntity);
-                    targetCan.Value = Entity.Null;
                 }
             }).ScheduleParallel();
 
