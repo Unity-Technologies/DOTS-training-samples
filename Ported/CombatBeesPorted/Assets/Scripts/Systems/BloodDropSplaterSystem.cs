@@ -9,7 +9,8 @@ public class BloodDropSplaterSystem: SystemBase
 {
     protected override void OnUpdate()
     {
-        var random = new Unity.Mathematics.Random(0x123456);
+        
+        var random = new Unity.Mathematics.Random((uint)(Time.ElapsedTime * 10000)+1);
         
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
         
@@ -19,24 +20,37 @@ public class BloodDropSplaterSystem: SystemBase
         
         Entities
             .WithAll<BloodDroplet>()
-            .ForEach((Entity entity, in Translation translation) =>
+            .ForEach((Entity entity, in Translation translation, in WorldRenderBounds entityBounds) =>
             {
 
                 var bounds = worldBound.Value;
-                bounds.Extents -= new float3(0.5f, 0.5f, 0.5f);
+
+                var entitySize = entityBounds.Value.Size;
+                var max = math.max(math.max(entitySize.x, entitySize.y), entitySize.z);
+                
+                bounds.Extents -= new float3(0.1f, 0.1f, 0.1f) + max/2f;
 
                 if (!bounds.Contains(translation.Value))
                 {
                     var normal = translation.Value / bounds.Extents;
                     var outsideNormal = new float3(new int3(normal));
 
+                    if (outsideNormal.y != 0)
+                    {
+                        commandBuffer.RemoveComponent<Force>(entity);
+                        commandBuffer.RemoveComponent<Velocity>(entity);
+                    }
+                    else
+                    {
+                        commandBuffer.SetComponent(entity, new Velocity() { Value = float3.zero } );
+                        commandBuffer.SetComponent(entity, new Force() { Value = float3.zero } );
+                    }
+
                     commandBuffer.RemoveComponent<BloodDroplet>(entity);
-                    commandBuffer.RemoveComponent<Force>(entity);
-                    commandBuffer.RemoveComponent<Velocity>(entity);
                     commandBuffer.RemoveComponent<InitialScale>(entity);
                     
                     commandBuffer.SetComponent<Rotation>(entity, new Rotation());
-                    commandBuffer.SetComponent<NonUniformScale>(entity, new NonUniformScale(){ Value = new float3(0.3f) + (new float3(1, 1, 1) - math.abs(outsideNormal))*random.NextFloat(0.5f, 4f)});
+                    commandBuffer.SetComponent<NonUniformScale>(entity, new NonUniformScale(){ Value = new float3(0.2f) + (new float3(1, 1, 1) - math.abs(outsideNormal))*random.NextFloat(0.0f, 4f)});
                     commandBuffer.AddComponent<ShrinkAndDestroy>(entity, new ShrinkAndDestroy() { lifetime = 1f, age = -2f });
                 }
             }).Run();

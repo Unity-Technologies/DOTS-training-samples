@@ -41,19 +41,25 @@ public class MoveSystem: SystemBase
                 translation.Value += velocity.Value * deltaTime;
                 
                 float3 entitySize = entityBounds.Value.Size * 0.5f;
+
+                var bounciness = 1f;
+                if (HasComponent<Bounciness>(entity))
+                {
+                    bounciness = GetComponent<Bounciness>(entity).Value;
+                }
                 
                 if (translation.Value.x - entitySize.x < worldBound.Value.Min.x && velocity.Value.x < 0 ) {
                     translation.Value.x = worldBound.Value.Min.x + entitySize.x;
-                    velocity.Value.x *= -1;
+                    velocity.Value.x *= -bounciness;
                 }
                 if (translation.Value.x + entitySize.x > worldBound.Value.Max.x && velocity.Value.x > 0 ) {
                     translation.Value.x = worldBound.Value.Max.x - entitySize.x;
-                    velocity.Value.x *= -1;
+                    velocity.Value.x *= -bounciness;
                 }
                 if (translation.Value.y - entitySize.y < worldBound.Value.Min.y && velocity.Value.y < 0 ) {
                     // ground
                     translation.Value.y = worldBound.Value.Min.y + entitySize.y;
-                    velocity.Value.y *= -1;
+                    velocity.Value.y *= -bounciness;
                     if(!HasComponent<Grounded>(entity)) commandBuffer.AddComponent<Grounded>(entity,new Grounded());
                 } else {
                     // in air
@@ -61,15 +67,15 @@ public class MoveSystem: SystemBase
                 }
                 if (translation.Value.y + entitySize.x > worldBound.Value.Max.y && velocity.Value.y > 0 ) {
                     translation.Value.y = worldBound.Value.Max.y - entitySize.y;
-                    velocity.Value.y *= -1;                    
+                    velocity.Value.y *= -bounciness;                    
                 }
                 if (translation.Value.z - entitySize.z < worldBound.Value.Min.z && velocity.Value.z < 0 ) {
                     translation.Value.z = worldBound.Value.Min.z + entitySize.z;
-                    velocity.Value.z *= -1;
+                    velocity.Value.z *= -bounciness;
                 }
                 if (translation.Value.z + entitySize.z > worldBound.Value.Max.z && velocity.Value.z > 0 ) {
                     translation.Value.z = worldBound.Value.Max.z - entitySize.z;
-                    velocity.Value.z *= -1;
+                    velocity.Value.z *= -bounciness;
                 }
             }).Schedule();
 

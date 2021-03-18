@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(MoveSystem))]
 public class FoodFollowBeeSystem: SystemBase
 {
     
@@ -17,10 +18,10 @@ public class FoodFollowBeeSystem: SystemBase
         Entities
             .ForEach((Entity entity,ref Translation foodTranslation, in Food food,in PossessedBy possessedBy) =>
             {
-                if (!HasComponent<Bee>(possessedBy.Bee))
-                {
-                    commandBuffer.RemoveComponent<PossessedBy>(entity); // Hack to remove food attached to dead bee
-                }
+                // if (!HasComponent<Bee>(possessedBy.Bee))
+                // {
+                //     commandBuffer.RemoveComponent<PossessedBy>(entity); // Hack to remove food attached to dead bee
+                // }
                 foodTranslation.Value = translationFromEntity[possessedBy.Bee].Value+new float3(0,-0.70f,0);
             }).Run();
         

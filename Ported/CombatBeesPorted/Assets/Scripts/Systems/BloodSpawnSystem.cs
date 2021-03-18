@@ -24,7 +24,7 @@ public class BloodSpawnSystem: SystemBase
                     commandBuffer.SetComponent(bloodEntity, translation);
 
                     var variation = random.NextFloat3(configuration.Direction) * 2f;
-                    commandBuffer.SetComponent(bloodEntity, new Force() { Value = (configuration.Direction + variation) * 30f });
+                    commandBuffer.SetComponent(bloodEntity, new Force() { Value = (configuration.Direction + variation) * 100f });
                     commandBuffer.AddComponent<ShrinkAndDestroy>(bloodEntity, new ShrinkAndDestroy() { lifetime = 4f, age = -2f });
                 }
                 
