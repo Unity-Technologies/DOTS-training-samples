@@ -46,8 +46,10 @@ namespace src.DOTS.Systems
                 int destinationPlatform = 0;
                 for (int i = 0; i < allPlatformQueues.Length; ++i)
                 {
-                    if (math.lengthsq(translation.Value - allPlatformQueuePositions[i].Value) < distance)
+                    float lenSqr = math.lengthsq(translation.Value - allPlatformQueuePositions[i].Value);
+                    if ( lenSqr< distance)
                     {
+                        distance = lenSqr;
                         destinationPlatform = i;
                     }
                 }
