@@ -26,7 +26,7 @@ public class TargetSelectionSystem : SystemBase
         var ecbParaWriter = ecb.AsParallelWriter();
 
         Entities
-            .WithAll<HandWindingUp>()
+            .WithAll<HandLookingForACan>()
             .WithReadOnly(translations)
             .WithReadOnly(availableCans)
             .WithDisposeOnCompletion(availableCans)
@@ -36,6 +36,8 @@ public class TargetSelectionSystem : SystemBase
                 {
                     if (Utils.FindNearestCan(translation, availableCans, translations, out Entity nearestCan))
                     {
+                        Utils.GoToState<HandLookingForACan, HandWindingUp>(ecbParaWriter, entityInQueryIndex, entity);
+                        
                         targetCan.Value = nearestCan;
                         ecbParaWriter.RemoveComponent<Available>(entityInQueryIndex, nearestCan);
                     }
