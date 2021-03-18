@@ -32,7 +32,11 @@ namespace src.DOTS.Systems
         NativeArray<Translation> allPlatformQueuePositions = platformQuery.ToComponentDataArray<Translation>(Allocator.TempJob); //Temp hack, written in 1985
         var firstPassengerFromEntity = GetComponentDataFromEntity<FirstQueuePassenger>(false);
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, in Translation translation) => 
+        Entities
+            .WithNativeDisableParallelForRestriction(firstPassengerFromEntity)
+            .WithReadOnly(allPlatformQueuePositions)
+            .WithReadOnly(platformEntities)
+            .ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, in Translation translation) => 
         {
            if(trainWaiting.platformEntity == Entity.Null)
            {
@@ -63,7 +67,11 @@ namespace src.DOTS.Systems
                //
            }
 
-        }).ScheduleParallel();
+        })
+            .WithDisposeOnCompletion(platformEntities)
+            .WithDisposeOnCompletion(allPlatformQueues)
+            .WithDisposeOnCompletion(allPlatformQueuePositions)
+            .ScheduleParallel();
         
         m_EndSimulationSystem.AddJobHandleForProducer(this.Dependency);
         }

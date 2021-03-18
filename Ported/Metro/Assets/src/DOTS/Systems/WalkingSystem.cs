@@ -21,18 +21,17 @@ namespace src.DOTS.Systems
         protected override void OnUpdate()
         {
             var deltaTime = Time.DeltaTime;
-            var ecb = CommandBufferSystem.CreateCommandBuffer();
+            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Entities.WithoutBurst().WithAll<WalkingTag>().ForEach((
+            Entities.WithAll<WalkingTag>().ForEach((
+                Entity commuter, 
+                int entityInQueryIndex,
                 ref Translation translation,
-                ref DynamicBuffer<PathData> pathData,
-                in Entity commuter) =>
+                ref DynamicBuffer<PathData> pathData
+                ) =>
             {
                 int lastIndex = pathData.Length - 1;
 
-                //if (lastIndex < 0)
-                  //  return;
-                
                 PathData currentNavPoint = pathData[lastIndex];
                 
                 if (math.distancesq(translation.Value, currentNavPoint.point) < m_D * deltaTime * m_D * deltaTime)
@@ -43,18 +42,18 @@ namespace src.DOTS.Systems
 
                     if (lastIndex == 0)
                     {
-                        ecb.RemoveComponent<WalkingTag>(commuter);
+                        ecb.RemoveComponent<WalkingTag>(entityInQueryIndex, commuter);
                     }
 
                     return;
                 }
-                
-                //TODO: pop the last NavPoint instead of checking against max length
-                
+
                 var distance = currentNavPoint.point - translation.Value;
                 var direction = math.normalize(distance);
                 translation.Value += direction * m_D * deltaTime;
-            }).Run();
+            }).ScheduleParallel();
+            
+            CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
         }
     }
 }
