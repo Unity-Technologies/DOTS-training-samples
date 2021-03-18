@@ -22,8 +22,6 @@ namespace src.DOTS.Systems
             // TODO: ot needed anymore, remove it
             return;
             
-            var metro = this.GetSingleton<GameObjectRefs>();
-            
             var deltaTime = Time.DeltaTime;
             var ecb = CommandBufferSystem.CreateCommandBuffer();
             var ecbTags = CommandBufferSystem.CreateCommandBuffer();

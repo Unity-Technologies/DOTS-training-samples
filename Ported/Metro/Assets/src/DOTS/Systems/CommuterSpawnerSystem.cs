@@ -11,7 +11,6 @@ namespace src.DOTS.Systems
         protected override void OnUpdate()
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            var metro = this.GetSingleton<GameObjectRefs>();
             MetroBlobContainer blob = this.GetSingleton<MetroBlobContainer>();
             var random = new Random(12345);
 

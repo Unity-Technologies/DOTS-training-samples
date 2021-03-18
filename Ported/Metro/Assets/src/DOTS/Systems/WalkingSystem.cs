@@ -20,8 +20,6 @@ namespace src.DOTS.Systems
 
         protected override void OnUpdate()
         {
-            var metro = this.GetSingleton<GameObjectRefs>();
-            
             var deltaTime = Time.DeltaTime;
             var ecb = CommandBufferSystem.CreateCommandBuffer();
 

@@ -19,7 +19,6 @@ namespace src.DOTS.Systems
 
         protected override void OnUpdate()
         {
-            var metro = this.GetSingleton<GameObjectRefs>();
             var blob = this.GetSingleton<MetroBlobContainer>();
             var ecb = CommandBufferSystem.CreateCommandBuffer();
 
