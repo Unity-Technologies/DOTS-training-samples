@@ -28,7 +28,6 @@ public class MovementSystem : SystemBase
             }).ScheduleParallel(Dependency);
 
         var move = Entities
-            .WithAny<Available, Falling, CameraRef>()
             .ForEach((ref Translation translation, in Velocity velocity) =>
             {
                 translation.Value += velocity.Value * deltaTime;

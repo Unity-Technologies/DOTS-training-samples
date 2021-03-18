@@ -39,6 +39,10 @@ public class TargetSelectionSystem : SystemBase
                         targetCan.Value = nearestCan;
                         ecbParaWriter.RemoveComponent<Available>(entityInQueryIndex, nearestCan);
                     }
+                    else
+                    {
+                        targetCan.Value = Entity.Null;
+                    }
                 }
             }).ScheduleParallel();
 

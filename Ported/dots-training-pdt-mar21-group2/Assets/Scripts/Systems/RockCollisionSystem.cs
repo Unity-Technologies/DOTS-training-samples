@@ -21,7 +21,7 @@ public class RockCollisionSystem : SystemBase
         desc.All = new ComponentType[]
         {
             ComponentType.ReadOnly(typeof(Can)), ComponentType.ReadOnly(typeof(Translation)),
-            ComponentType.ReadOnly(typeof(Velocity)), ComponentType.ReadOnly(typeof(AngularVelocity))
+            ComponentType.ReadOnly(typeof(Velocity))
         };
         desc.None = new ComponentType[] {ComponentType.ReadOnly(typeof(Falling))};
 
@@ -90,6 +90,7 @@ public class RockCollisionSystem : SystemBase
                 ecb.RemoveComponent<Available>(entityInQueryIndex, canEntities[i]);
                 ecb.AddComponent<Falling>(entityInQueryIndex, canEntities[i]);
                 ecb.SetComponent(entityInQueryIndex, canEntities[i], new Velocity {Value = rockVelocity.Value});
+                ecb.AddComponent<AngularVelocity>(entityInQueryIndex, canEntities[i]);
                 ecb.SetComponent(entityInQueryIndex, canEntities[i], new AngularVelocity
                     {Value = math.length(rockVelocity.Value) * random.NextFloat3(-20.0f, 20.0f)});
             }
@@ -97,7 +98,7 @@ public class RockCollisionSystem : SystemBase
 
         if (rockHit)
         {
-            rockVelocity.Value = random.NextFloat3(1.5f, 1.5f);
+            rockVelocity.Value = random.NextFloat3(-1.5f, 1.5f);
         }
     }
 }

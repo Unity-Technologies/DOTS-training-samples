@@ -142,18 +142,10 @@ public class AnimationSystem : SystemBase
         Dependency = Entities
             .WithAll<HandThrowingRock>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
-                ref TimerDuration timerDuration,
-                in TargetRock targetRock) =>
+                ref TimerDuration timerDuration) =>
             {
                 if (Utils.DidAnimJustFinished(timer))
                 {
-                    // throw rock
-                    ecb.SetComponent(entityInQueryIndex, targetRock.RockEntity, new Velocity()
-                    {
-                        Value = new float3(0.0f, 12.0f, 240.0f)
-                    });
-                    ecb.AddComponent<Falling>(entityInQueryIndex, targetRock.RockEntity);
-                    
                     // reset target
                     ecb.SetComponent(entityInQueryIndex, entity, new TargetRock());
                     
