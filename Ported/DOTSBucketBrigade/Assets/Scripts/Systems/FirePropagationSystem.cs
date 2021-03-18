@@ -40,7 +40,7 @@ public class FirePropagationSystem : SystemBase
             Entity heatMapEntity = GetSingletonEntity<HeatMapTag>();
             DynamicBuffer<HeatMap> heatMapBuffer = GetBuffer<HeatMap>(heatMapEntity);
             NativeArray<HeatMap> heatMapBufferArray = heatMapBuffer.ToNativeArray(Allocator.TempJob);
-            int cpuCount = 10;
+            int cpuCount = System.Environment.ProcessorCount;
             int segLength = heatMapBuffer.Length / cpuCount;
             if (heatMapBuffer.Length % cpuCount > 0)
             {
