@@ -43,7 +43,7 @@ public class CarouselRecyclerSystem : SystemBase
             .WithAll<Rock>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
                 Respawn(ref ecbParaWriterRock, entityInQueryIndex, ref random, seed, entity, translation, worldBounds,
-                    new float3(1.0f, 0.0f, 0.0f), parameters.RockMinSize, parameters.RockMaxSize,
+                    new float3(parameters.RockScrollSpeed, 0.0f, 0.0f), parameters.RockMinSize, parameters.RockMaxSize,
                     parameters.RockScrollDepth))
             .ScheduleParallel(Dependency);
 
@@ -51,7 +51,7 @@ public class CarouselRecyclerSystem : SystemBase
             .WithAll<Can>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
                 Respawn(ref ecbParaWriterCan, entityInQueryIndex, ref random, seed, entity, translation, worldBounds,
-                    new float3(-10.0f, 0.0f, 0.0f), parameters.CanMinSize, parameters.CanMaxSize,
+                    new float3(parameters.CanScrollSpeed, 0.0f, 0.0f), parameters.CanMinSize, parameters.CanMaxSize,
                     parameters.CanScrollDepth, parameters.CanScrollMinHeight, parameters.CanScrollMaxHeight))
             .ScheduleParallel(Dependency);
 
