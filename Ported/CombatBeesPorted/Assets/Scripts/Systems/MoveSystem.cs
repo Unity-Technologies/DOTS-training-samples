@@ -53,8 +53,21 @@ public class MoveSystem: SystemBase
                 if (translation.Value.y - entitySize.y < worldBound.Value.Min.y && velocity.Value.y < 0 ) {
                     // ground
                     translation.Value.y = worldBound.Value.Min.y + entitySize.y;
-                    velocity.Value.y *= -1;
-                    if(!HasComponent<Grounded>(entity)) commandBuffer.AddComponent<Grounded>(entity,new Grounded());
+                    if (math.abs(velocity.Value.y) < 1)
+                    {
+                        velocity.Value.y = 0;
+                        velocity.Value.x *= 0.9f;
+                        velocity.Value.z *= 0.9f;
+                    }
+                    else
+                    {
+                        velocity.Value.y *= -0.7f;
+                        velocity.Value.x *= 0.9f;
+                        velocity.Value.z *= 0.9f;
+                    }
+                    if(math.lengthsq(velocity.Value)<0.1f)
+                        velocity.Value=float3.zero;
+                    if(!HasComponent<Grounded>(entity)){ commandBuffer.AddComponent<Grounded>(entity,new Grounded());}
                 } else {
                     // in air
                     if(HasComponent<Grounded>(entity)) commandBuffer.RemoveComponent<Grounded>(entity);
@@ -71,6 +84,7 @@ public class MoveSystem: SystemBase
                     translation.Value.z = worldBound.Value.Max.z - entitySize.z;
                     velocity.Value.z *= -1;
                 }
+                
             }).Schedule();
 
         endSim.AddJobHandleForProducer(Dependency);   

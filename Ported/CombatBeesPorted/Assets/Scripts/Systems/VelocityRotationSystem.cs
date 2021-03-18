@@ -15,6 +15,8 @@ public class VelocityRotationSystem : SystemBase
             .WithNone<Grounded>()
             .ForEach((Entity entity,ref Rotation Rotation, in Velocity velocity) =>
             {
+                if (math.lengthsq(velocity.Value) <1f)
+                    return;
                 float3 forward = math.normalize(velocity.Value);
                 float3 right = math.normalize(math.cross(new float3(0,1,0), forward));
                 float3 up = math.cross(forward, right);
