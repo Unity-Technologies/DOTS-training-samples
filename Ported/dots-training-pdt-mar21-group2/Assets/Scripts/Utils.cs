@@ -40,6 +40,30 @@ struct Utils
         return false;
     }
 
+    static public bool FindNearestCan(
+        Translation armTranslation,
+        NativeArray<Entity> availableCans,
+        ComponentDataFromEntity<Translation> translations,
+        out Entity nearestCan)
+    {
+        bool retVal = false;
+        nearestCan = default;
+        float curentDistance = float.MaxValue;
+        foreach (var canEntity in availableCans)
+        {
+            var canTranslation = translations[canEntity];
+            var distSq = math.distancesq(armTranslation.Value, canTranslation.Value);
+
+
+            if (distSq < curentDistance)
+            {
+                nearestCan = canEntity;
+                retVal = true;
+            }
+        }
+        return retVal;
+    }
+
     static public quaternion FromToRotation(float3 from, float3 to)
     {
         float3 half = math.normalize(from + to);
