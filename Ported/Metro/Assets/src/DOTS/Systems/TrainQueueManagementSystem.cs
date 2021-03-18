@@ -31,12 +31,14 @@ namespace src.DOTS.Systems
         NativeArray<PlatformQueue> allPlatformQueues = platformQuery.ToComponentDataArray<PlatformQueue>(Allocator.TempJob);
         NativeArray<Translation> allPlatformQueuePositions = platformQuery.ToComponentDataArray<Translation>(Allocator.TempJob); //Temp hack, written in 1985
         var firstPassengerFromEntity = GetComponentDataFromEntity<FirstQueuePassenger>(false);
-
+        var movingFromEntity = GetComponentDataFromEntity<WalkingTag>(false);
+        
         Entities
             .WithNativeDisableParallelForRestriction(firstPassengerFromEntity)
+            .WithNativeDisableParallelForRestriction(movingFromEntity)
             .WithReadOnly(allPlatformQueuePositions)
             .WithReadOnly(platformEntities)
-            .ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, in Translation translation) => 
+            .ForEach((Entity entity, int entityInQueryIndex, ref TrainWaiting trainWaiting, ref DynamicBuffer<CommuterQueueData> commuterQueue, in Translation translation) => 
         {
            if(trainWaiting.platformEntity == Entity.Null)
            {
@@ -56,15 +58,36 @@ namespace src.DOTS.Systems
                 
                 //HACK
                 trainWaiting.platformEntity = platformEntities[destinationPlatform];
-
-
+                
+                
+                //Everyone, out!
+                for (int i = 0; i < commuterQueue.Length; ++i)
+                {
+                    Entity ent = commuterQueue[i].entity;
+                        
+                    ecb.RemoveComponent<Parent>(entityInQueryIndex, ent);
+                    ecb.RemoveComponent<LocalToParent>(entityInQueryIndex, ent);
+                    ecb.AddComponent<SwitchingPlatformTag>(entityInQueryIndex, ent);
+                    
+                    ecb.SetComponent(entityInQueryIndex, ent, new Translation() { Value = allPlatformQueuePositions[destinationPlatform].Value + new float3(i * 0.01f, 0.0f, 0.0f)});
+                }
+                commuterQueue.Clear();
+                
            }
            else
            {
                //move player to position
                FirstQueuePassenger passengerToPickUp = firstPassengerFromEntity[trainWaiting.platformEntity];
                //ecb.AddComponent<SwitchingPlatformTag>(entityInQueryIndex, passengerToPickUp.passenger);
-               passengerToPickUp.passenger = Entity.Null;
+               if (passengerToPickUp.passenger != Entity.Null && !movingFromEntity.HasComponent(passengerToPickUp.passenger))
+               {
+                   commuterQueue.Add(new CommuterQueueData{ entity = passengerToPickUp.passenger});
+                   ecb.AddComponent<Parent>(entityInQueryIndex, passengerToPickUp.passenger, new Parent() {Value = entity});
+                   ecb.AddComponent<LocalToParent>(entityInQueryIndex, passengerToPickUp.passenger);
+                   ecb.SetComponent(entityInQueryIndex, passengerToPickUp.passenger, new Translation() {Value = new float3(0.0f, 0.0f, 0.0f)});
+                   ecb.SetComponent(entityInQueryIndex, trainWaiting.platformEntity, new FirstQueuePassenger() {passenger = Entity.Null});
+               }
+               
         
                //
            }

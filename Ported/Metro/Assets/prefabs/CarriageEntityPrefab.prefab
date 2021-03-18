@@ -110,6 +110,7 @@ GameObject:
   - component: {fileID: 4059157056928284}
   - component: {fileID: -7052517314196512013}
   - component: {fileID: 4490337489966694796}
+  - component: {fileID: -5916500751774923494}
   m_Layer: 0
   m_Name: CarriageEntityPrefab
   m_TagString: Untagged
@@ -161,6 +162,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Position: 0
+--- !u!114 &-5916500751774923494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005656507454012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7563b7b64c6944c2a9f1a9664067186c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1074676382496112
 GameObject:
   m_ObjectHideFlags: 0
