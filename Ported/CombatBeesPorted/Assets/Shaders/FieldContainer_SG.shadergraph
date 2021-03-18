@@ -519,7 +519,7 @@
     "m_Name": "HivePosition",
     "m_DefaultReferenceName": "Vector1_07b80fec7a0c454abe5bd17daaf4b83d",
     "m_OverrideReferenceName": "_HivePosition",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_Precision": 0,
     "m_GPUInstanced": false,
     "m_Hidden": false,

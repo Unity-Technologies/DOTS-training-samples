@@ -8,7 +8,7 @@ using Unity.Transforms;
 
 public class BringingFoodBackSystem:SystemBase
 {
-    private const float dropDistance = 0.2f;
+    private const float dropDistance = 1f;
     private const float carryingSpeed = 0.5f;
     protected override void OnUpdate()
     {

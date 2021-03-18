@@ -15,17 +15,20 @@ public class ShrinkAndDestroySystem: SystemBase
         var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
         
         Entities
-            .ForEach((Entity entity, ref ShrinkAndDestroy shrinkAndDestroy, ref Scale scale) =>
+            .ForEach((Entity entity, ref ShrinkAndDestroy shrinkAndDestroy, ref NonUniformScale scale) =>
             {
-                shrinkAndDestroy.age += deltaTime;
-
-                if (shrinkAndDestroy.age > shrinkAndDestroy.lifetime)
+                if (HasComponent<InitialScale>(entity))
                 {
-                    commandBuffer.DestroyEntity(entity);
-                }
+                    shrinkAndDestroy.age += deltaTime;
 
-                var scaleCof = 1.0f - math.clamp(shrinkAndDestroy.age / shrinkAndDestroy.lifetime, 0, 1);
-                scale.Value *= scaleCof;
+                    if (shrinkAndDestroy.age > shrinkAndDestroy.lifetime)
+                    {
+                        commandBuffer.DestroyEntity(entity);
+                    }
+
+                    var scaleCof = 1.0f - math.clamp(shrinkAndDestroy.age / shrinkAndDestroy.lifetime, 0, 1);
+                    scale.Value *= scaleCof;
+                }
             }).Run();
         
         commandBuffer.Playback(EntityManager);

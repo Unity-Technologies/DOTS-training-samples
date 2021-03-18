@@ -8,4 +8,5 @@ public struct GameConfiguration: IComponentData
     public Entity FoodPrefab;
     public Entity BloodDropletPrefab;
     public float HivePosition;
+    public int BeeSpawnPerCollectedFood;
 }
