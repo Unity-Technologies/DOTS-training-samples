@@ -12,8 +12,6 @@ public struct ArmSpawner : IComponentData
     public Entity m_JointPrefab;
     public Entity m_JointBoxPrefab;
 
-    public float m_ArmSeparation;
-
     public float m_ArmJointSpacing;
     public float m_ArmJointLength;
     public float m_ArmJointThickness;

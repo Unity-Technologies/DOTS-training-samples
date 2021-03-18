@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9781fb82e62149439c4486023c49178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ArmSeparation: 1
   CanScrollSpeed: -5
   CanScrollDepth: 40
   CanScrollMinHeight: 10
@@ -55,6 +56,19 @@ MonoBehaviour:
   RockMinSize: 0.4
   RockMaxSize: 1
   ScaleUpTime: 0.5
+  CameraSwayTiltDuration: 19.618
+  CameraTiltAmount: 20
+  CameraTiltOffset: 5
+  CameraSpinDuration: 16
+  CameraSpinAmount: 30
+  CameraZoomDuration: 30
+  CameraMinCamDist: 5
+  CameraMaxCamDist: 20
+  CameraSwayXDuration: 40
+  CameraPosOffset:
+    x: 0
+    y: 1
+    z: 0
 --- !u!114 &7843449952640990015
 MonoBehaviour:
   m_ObjectHideFlags: 0

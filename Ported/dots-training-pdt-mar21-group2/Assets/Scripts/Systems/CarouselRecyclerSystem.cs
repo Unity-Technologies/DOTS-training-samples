@@ -78,7 +78,9 @@ public class CarouselRecyclerSystem : SystemBase
                 {Value = random.NextCarouselPosition(worldBounds, depth, minHeight, maxHeight)};
             ecb.SetComponent<Translation>(entityInQueryIndex, entity, newTranslation);
             ecb.SetComponent(entityInQueryIndex, entity, new Velocity() {Value = baseVelocity});
+            ecb.SetComponent(entityInQueryIndex, entity, new Rotation() { Value = quaternion.identity });
             ecb.RemoveComponent<Falling>(entityInQueryIndex, entity);
+            ecb.RemoveComponent<AngularVelocity>(entityInQueryIndex, entity);
             ecb.AddComponent<Available>(entityInQueryIndex, entity);
             ecb.AddComponent(entityInQueryIndex, entity, new Scale {Value = 0.0f});
             ecb.AddComponent(entityInQueryIndex, entity,
