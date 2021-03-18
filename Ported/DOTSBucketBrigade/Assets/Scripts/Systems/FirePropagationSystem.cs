@@ -58,7 +58,7 @@ public class FirePropagationSystem : SystemBase
                             HeatMapBuffer = heatMapBuffer   
                         };           
                         
-                        combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(dep), combinedDependencies);
+                        combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(), combinedDependencies);
                     }
 
                     heatMapBufferArray.Dispose(combinedDependencies);
@@ -83,20 +83,25 @@ public struct HeatMapPropagationJob : IJob
         for (int cellIndex = StartIndex; cellIndex <= EndIndex; ++cellIndex)
         {
             float tempChange = 0.0f;
-            int cellRowIndex = (int) math.floor((float) cellIndex / GridSize);
+            int cellRowIndex = cellIndex / GridSize;
             int cellColIndex = cellIndex % GridSize;
 
             for (int rowIndex = -FirePropagationSystem.HeatRadius;
                 rowIndex <= FirePropagationSystem.HeatRadius;
                 rowIndex++)
             {
-                int currentRow = cellIndex - rowIndex;
+                int currentRow = cellRowIndex + rowIndex;
                 if (currentRow >= 0 && currentRow < GridSize)
                 {
                     for (int columnIndex = -FirePropagationSystem.HeatRadius;
                         columnIndex <= FirePropagationSystem.HeatRadius;
                         columnIndex++)
                     {
+                        if (rowIndex == 0 && columnIndex == 0)
+                        {
+                            continue;
+                        }
+                        
                         int currentColumn = cellColIndex + columnIndex;
                         if (currentColumn >= 0 && currentColumn < GridSize)
                         {
@@ -106,6 +111,8 @@ public struct HeatMapPropagationJob : IJob
                             {
                                 tempChange += HeatMapBufferArray[neighbourIndex].Value *
                                               FirePropagationSystem.HeatTransferRate;
+                                
+                                Debug.LogError("Propagated cell: " + cellIndex.ToString() + "; (" + rowIndex.ToString() + "," + columnIndex.ToString() + ")");
                             }
                         }
                     }
