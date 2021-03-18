@@ -128,8 +128,11 @@ struct Utils
     {
         var worldBounds = system.GetSingleton<WorldBounds>();
         var parameters = system.GetSingleton<SimulationParameters>();
+        
+        // add margin to make sure arm won't try to grab for rock that will be recycled soon
+        var margin = parameters.ArmSeparation * 4.0f;
 
-        return (uint) (worldBounds.Width / parameters.ArmSeparation);
+        return (uint) ((worldBounds.Width - margin) / parameters.ArmSeparation);
     }
 
     public static float GetArmRowWidth(SystemBase system)

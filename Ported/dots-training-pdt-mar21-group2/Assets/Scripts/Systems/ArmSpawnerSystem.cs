@@ -43,10 +43,6 @@ public class ArmSpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
 
-                // add margin to make sure arm won't try to grab for rock that will be recycled soon
-                var margin = spawner.m_ArmJointLength * 4.0f;
-                var armCount = (int) ((worldBounds.Width - margin) / spawner.m_ArmSeparation);
-                
                 for (uint i = 0; i < armCount; ++i)
                 {
                     // Current position of arm, start at root
