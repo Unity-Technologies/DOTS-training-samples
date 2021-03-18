@@ -56,6 +56,6 @@ public class FindClosestFireSystem : SystemBase
                 }
 
                 nearest.Value = nearestFireLocation;
-            }).Run();
+            }).Schedule();
     }
 }
