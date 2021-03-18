@@ -15,7 +15,8 @@ public class VelocityRotationSystem : SystemBase
             .WithNone<Grounded>()
             .ForEach((Entity entity,ref Rotation Rotation, in Velocity velocity) =>
             {
-                if (math.lengthsq(velocity.Value) <1f)
+                
+                if (velocity.Value.Equals(float3.zero))
                     return;
                 float3 forward = math.normalize(velocity.Value);
                 float3 right = math.normalize(math.cross(new float3(0,1,0), forward));
@@ -23,7 +24,7 @@ public class VelocityRotationSystem : SystemBase
                 
                 // rotation looks a pretty bad when velocity is changing rapidly (idling). consider softer idling or storing last rotation.
                 // swap up and forward if model is rotated to face X or Z
-                Quaternion targetRotation = Quaternion.LookRotation(up,forward);
+                Quaternion targetRotation = quaternion.LookRotation(up,forward);
 
                 Rotation.Value = targetRotation;
 
