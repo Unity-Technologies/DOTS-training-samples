@@ -5,5 +5,5 @@ using UnityEngine;
 // Way to get managed Camera
 public class CameraRef : IComponentData
 {
-    public Camera Camera;
+    public Transform m_CameraContainer;
 }

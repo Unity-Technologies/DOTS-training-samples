@@ -31,8 +31,10 @@ public class ArmSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var worldBounds = GetSingleton<WorldBounds>();
+        var parameters = GetSingleton<SimulationParameters>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        var armCount = Utils.GetArmCount(this);
 
         Entities
             .ForEach((Entity entity, in ArmSpawner spawner) =>
@@ -41,12 +43,10 @@ public class ArmSpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
                 
-                var armCount = (int) (worldBounds.Width / spawner.m_ArmSeparation);
-
                 for (uint i = 0; i < armCount; ++i)
                 {
                     // Current position of arm, start at root
-                    var rootTranslation = new float3(i * spawner.m_ArmSeparation, 0, 0);
+                    var rootTranslation = new float3(i * parameters.ArmSeparation, 0, 0);
 
                     // Entity of the arm
                     var instance = ecb.Instantiate(spawner.m_ArmPrefab);

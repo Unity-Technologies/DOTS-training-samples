@@ -9,6 +9,9 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent, Serializable]
 public struct SimulationParameters : IComponentData
 {
+    // Hands
+    public float ArmSeparation;
+
     // Can carousel
     public float CanScrollSpeed;
     public float CanScrollDepth;
@@ -16,7 +19,7 @@ public struct SimulationParameters : IComponentData
     public float CanScrollMaxHeight;
     public float CanMinSize;
     public float CanMaxSize;
-    
+
     // Rock carousel
     public float RockScrollSpeed;
     public float RockScrollDepth;
@@ -25,4 +28,16 @@ public struct SimulationParameters : IComponentData
 
     /// Time it takes from spawning to being fully scaled up, in seconds
     public float ScaleUpTime;
+
+    // Camera
+    public float CameraSwayTiltDuration;
+    public float CameraTiltAmount;
+    public float CameraTiltOffset;
+    public float CameraSpinDuration;
+    public float CameraSpinAmount;
+    public float CameraZoomDuration;
+    public float CameraMinCamDist;
+    public float CameraMaxCamDist;
+    public float CameraSwayXDuration;
+    public float3 CameraPosOffset;
 }
