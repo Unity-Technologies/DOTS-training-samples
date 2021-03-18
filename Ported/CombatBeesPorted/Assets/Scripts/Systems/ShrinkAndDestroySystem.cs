@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
-[UpdateBefore(typeof(MoveSystem))]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ShrinkAndDestroySystem: SystemBase
 {
     

@@ -35,9 +35,11 @@ public class BeeAttacking: SystemBase
                         // remove PossessedBy
                         if(HasComponent<BringingFoodBack>(beeAttacking.TargetBee)) {
                             var food = GetComponent<FoodTarget>(beeAttacking.TargetBee).Value;
-                            commandBuffer.RemoveComponent<PossessedBy>(food);
-                            
-                            commandBuffer.SetComponent(food, GetComponent<Velocity>(beeAttacking.TargetBee));
+                            if (HasComponent<PossessedBy>(food))
+                            {
+                                commandBuffer.RemoveComponent<PossessedBy>(food);
+                                commandBuffer.SetComponent(food, GetComponent<Velocity>(beeAttacking.TargetBee));
+                            }
                         }
                         // bee is not attacking go to iddle state
                         commandBuffer.RemoveComponent<Attacking>(beeEntity);
