@@ -28,13 +28,11 @@ public class FillBucketSystem : SystemBase
         var ecb = sys.CreateCommandBuffer();
         var waterLocations = waterQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var waterVolume = waterQuery.ToComponentDataArray<Volume>(Allocator.TempJob);
-        var waterIds = waterQuery.ToEntityArray(Allocator.TempJob);
 
         Dependency =
             Entities
             .WithDisposeOnCompletion(waterLocations)
             .WithDisposeOnCompletion(waterVolume)
-            //.WithDisposeOnCompletion(waterIds)
             .WithAll<BucketFetcher, CarryingBucket>()
             .ForEach((Entity entity, ref BucketID bucketId, ref TargetPosition waterLocation, in Translation position) =>
             {
@@ -59,7 +57,6 @@ public class FillBucketSystem : SystemBase
                             // Fill bucket and deplete source
                             ecb.SetComponent(bucketId.Value, new Volume() { Value = bucketVol + 0.01f });
                             float waterSourceVol = waterVolume[currentWaterSource].Value - 0.01f;
-                            //ecb.SetComponent(waterIds[currentWaterSource], new Volume(){ Value = waterSourceVol});
                         }
                     }
                     else
