@@ -13,13 +13,12 @@ public class MoveToSystem : SystemBase
         Entities
             .ForEach((Entity entity, ref Translation translation, in TargetPosition target, in Speed speed) =>
             {
-                var xdiff = Mathf.Abs(translation.Value.x - target.Value.x);
-                var zdiff = Mathf.Abs(translation.Value.z - target.Value.y);
-                if (xdiff >= 0.01f || zdiff >= 0.01f)
+                var diff = translation.Value - target.Value;
+                if (Mathf.Abs(diff.x) >= 0.01f || Mathf.Abs(diff.z) >= 0.01f)
                 {
                     translation.Value.x = Mathf.MoveTowards(translation.Value.x, target.Value.x, speed.Value.x);
-                    translation.Value.z = Mathf.MoveTowards(translation.Value.z, target.Value.y, speed.Value.y);
+                    translation.Value.z = Mathf.MoveTowards(translation.Value.z, target.Value.z, speed.Value.z);
                 } 
-            }).Run();
+            }).ScheduleParallel();
     }
 }

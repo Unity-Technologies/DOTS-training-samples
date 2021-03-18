@@ -8,5 +8,5 @@ using UnityEngine;
 
 public struct Speed : IComponentData
 {
-    public float2 Value;
+    public float3 Value;
 }
