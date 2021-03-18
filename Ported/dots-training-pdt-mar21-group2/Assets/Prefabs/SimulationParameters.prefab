@@ -45,6 +45,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ArmSeparation: 1
+  ArmJointLength: 3
+  ArmJointSpacing: 0
   CanScrollSpeed: -5
   CanScrollDepth: 40
   CanScrollMinHeight: 10

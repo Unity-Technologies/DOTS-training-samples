@@ -11,6 +11,8 @@ public struct SimulationParameters : IComponentData
 {
     // Hands
     public float ArmSeparation;
+    public float ArmJointLength;
+    public float ArmJointSpacing;
 
     // Can carousel
     public float CanScrollSpeed;

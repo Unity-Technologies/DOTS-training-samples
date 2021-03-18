@@ -139,4 +139,16 @@ struct Utils
     {
         return system.GetSingleton<SimulationParameters>().ArmSeparation * GetArmCount(system);
     }
+
+    public static void ExtendIK(float armLen, float forearmLen, float reach, out float armAngle, out float forearmAngle)
+    {
+        reach = math.min(reach, armLen + forearmLen);
+        
+        float a2 = armLen * armLen;
+        float f2 = forearmLen * forearmLen;
+        float r2 = reach * reach;
+
+        armAngle = math.acos((a2 + r2 - f2) / (2.0f * armLen * reach));
+        forearmAngle = math.acos((a2 + f2 - r2) / (2.0f * armLen * forearmLen)) - math.PI;
+    }
 }

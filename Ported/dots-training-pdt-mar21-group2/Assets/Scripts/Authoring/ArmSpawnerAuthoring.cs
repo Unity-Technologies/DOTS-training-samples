@@ -14,9 +14,7 @@ public class ArmSpawnerAuthoring : MonoBehaviour
     public GameObject m_ArmPrefab;
     public GameObject m_JointPrefab;
     public GameObject m_JointBoxPrefab;
-    public float m_ArmJointLength = 1.0f;
     public float m_ArmJointThickness = 0.15f;
-    public float m_ArmJointSpacing = 0.0f;
     public float m_FingerSpacing = 0.08f;
     public float m_FingerJointSpacing = 0.0f;
     public float m_ThumbJointThickness = 0.06f;
@@ -50,9 +48,7 @@ public class ArmSpawnerAuthoring : MonoBehaviour
             m_ArmPrefab = conversionSystem.GetPrimaryEntity(m_ArmPrefab),
             m_JointPrefab = conversionSystem.GetPrimaryEntity(m_JointPrefab),
             m_JointBoxPrefab = conversionSystem.GetPrimaryEntity(m_JointBoxPrefab),
-            m_ArmJointLength = m_ArmJointLength,
             m_ArmJointThickness = m_ArmJointThickness,
-            m_ArmJointSpacing = m_ArmJointSpacing,
             m_FingerSpacing = m_FingerSpacing,
             m_FingerJointSpacing = m_FingerJointSpacing,
             m_ThumbJointThickness = m_ThumbJointThickness,

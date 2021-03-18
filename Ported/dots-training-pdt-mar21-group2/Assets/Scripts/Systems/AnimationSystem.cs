@@ -24,6 +24,8 @@ public class AnimationSystem : SystemBase
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
+        
+        var parameters = GetSingleton<SimulationParameters>();
 
         // Initialize hand target position when winding-up
         Dependency = Entities
@@ -124,10 +126,19 @@ public class AnimationSystem : SystemBase
                     up = math.lerp(currentUp, up, deltaTime);
 
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
+
+                    float limbLength = parameters.ArmJointLength + parameters.ArmJointSpacing;
+                    Utils.ExtendIK(limbLength, limbLength, math.distance(handTargetPos, armRoot),
+                        out float armAngle, out float forearmAngle);
                     
                     rotations[arm.m_Humerus] = new Rotation()
                     {
-                        Value = rotation
+                        Value = math.mul(rotation, quaternion.RotateX(-armAngle))
+                    };
+                    
+                    rotations[arm.m_Forearm] = new Rotation()
+                    {
+                        Value = quaternion.RotateX(-forearmAngle)
                     };
                     
                     if (isWindingUp || isThrowing)
