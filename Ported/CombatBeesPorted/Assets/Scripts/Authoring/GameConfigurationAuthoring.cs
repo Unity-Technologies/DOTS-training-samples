@@ -13,6 +13,8 @@ namespace Components
         public GameObject BeeTeamBPrefab;
         public GameObject FoodPrefab;
         public float HivePosition=40;
+        public int BeeCount = 50;
+        public int FoodCount = 50;
         public int BeeSpawnPerCollectedFood=5;
         private static readonly int HivePositionShaderProperty = Shader.PropertyToID("_HivePosition");
 
@@ -29,9 +31,11 @@ namespace Components
             {
                 BeeTeamAPrefab = conversionSystem.GetPrimaryEntity(BeeTeamAPrefab),
                 BeeTeamBPrefab = conversionSystem.GetPrimaryEntity(BeeTeamBPrefab),
-                FoodPrefab =  conversionSystem.GetPrimaryEntity(FoodPrefab),
+                FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
                 HivePosition = HivePosition,
-                BeeSpawnPerCollectedFood = BeeSpawnPerCollectedFood
+                BeeSpawnPerCollectedFood = BeeSpawnPerCollectedFood,
+                BeeCount = BeeCount,
+                FoodCount = FoodCount
             });
             var teamASpawnArea= conversionSystem.CreateAdditionalEntity(this);
             var nonUniformScale=dstManager.GetComponentData<NonUniformScale>(entity);
