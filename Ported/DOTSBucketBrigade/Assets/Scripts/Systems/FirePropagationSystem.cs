@@ -59,7 +59,7 @@ public class FirePropagationSystem : SystemBase
                             HeatMapBuffer = heatMapBuffer   
                         };           
                         
-                        combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(), combinedDependencies);
+                        combinedDependencies = JobHandle.CombineDependencies(propagateJob.Schedule(dep), combinedDependencies);
                     }
 
                     heatMapBufferArray.Dispose(combinedDependencies);
@@ -112,8 +112,6 @@ public struct HeatMapPropagationJob : IJob
                             {
                                 tempChange += HeatMapBufferArray[neighbourIndex].Value *
                                               FirePropagationSystem.HeatTransferRate;
-                                
-                                Debug.LogError("Propagated cell: " + cellIndex.ToString() + "; (" + rowIndex.ToString() + "," + columnIndex.ToString() + ")");
                             }
                         }
                     }
