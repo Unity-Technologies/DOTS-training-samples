@@ -45,8 +45,8 @@ public class RockGrabSystem : SystemBase
                 }
                 else if (Utils.DidAnimJustFinished(timer))
                 {
-                    // grab successful, time to throw
-                    Utils.GoToState<HandGrabbingRock, HandWindingUp>(ecb, entity);
+                    // grab successful, time to look for a can to throw that rock
+                    Utils.GoToState<HandGrabbingRock, HandLookingForACan>(ecb, entity);
 
                     // exclusive ownership of the rock, it can't be grabbed anymore
                     // by other arms...

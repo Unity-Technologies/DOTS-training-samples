@@ -40,8 +40,8 @@ public class AnimationSystem : SystemBase
                     {
                         Value = translations[entity].Value + new float3(
                             0.0f,
-                            3.0f,
-                            -6.0f)
+                            parameters.ArmJointLength,
+                            -parameters.ArmJointLength * 1.5f)
                     };
                 }
             }).ScheduleParallel(Dependency);
