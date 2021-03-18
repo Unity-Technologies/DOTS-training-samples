@@ -72,7 +72,7 @@ struct Utils
         {
             return new quaternion(1.0f, 0.0f, 0.0f, 0.0f);
         }
-        
+
         half = math.normalize(half);
         var xyz = math.cross(from, half);
         var w = math.dot(from, half);
@@ -128,7 +128,7 @@ struct Utils
     {
         var worldBounds = system.GetSingleton<WorldBounds>();
         var parameters = system.GetSingleton<SimulationParameters>();
-        
+
         // add margin to make sure arm won't try to grab for rock that will be recycled soon
         var margin = parameters.ArmSeparation * 4.0f;
 
@@ -143,12 +143,29 @@ struct Utils
     public static void ExtendIK(float armLen, float forearmLen, float reach, out float armAngle, out float forearmAngle)
     {
         reach = math.min(reach, armLen + forearmLen);
-        
+
         float a2 = armLen * armLen;
         float f2 = forearmLen * forearmLen;
         float r2 = reach * reach;
 
         armAngle = math.acos((a2 + r2 - f2) / (2.0f * armLen * reach));
         forearmAngle = math.acos((a2 + f2 - r2) / (2.0f * armLen * forearmLen)) - math.PI;
+    }
+
+    public static AABB GetCanCarouselAABB(SystemBase system)
+    {
+        // Cans have a 1 radius bounding sphere
+        const float canRadius = 1.0f;
+
+        var worldBounds = system.GetSingleton<WorldBounds>();
+        var parameters = system.GetSingleton<SimulationParameters>();
+        var mm = new MinMaxAABB
+        {
+            Min = new float3(worldBounds.Width * -0.5f, parameters.CanScrollMinHeight, parameters.CanScrollDepth) -
+                  new float3(canRadius),
+            Max = new float3(worldBounds.Width * 0.5f, parameters.CanScrollMaxHeight, parameters.CanScrollDepth) +
+                  new float3(canRadius),
+        };
+        return mm;
     }
 }
