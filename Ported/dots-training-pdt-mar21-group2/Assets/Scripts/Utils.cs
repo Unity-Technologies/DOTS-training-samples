@@ -48,4 +48,46 @@ struct Utils
 
         return new quaternion(xyz.x, xyz.y, xyz.z, w);
     }
+    
+    static public void GoToState<TFromState, TToState>(EntityCommandBuffer ecb, 
+        Entity entity,
+        float duration = 1.0f)
+        where TFromState : unmanaged, IComponentData
+        where TToState : unmanaged, IComponentData
+    {
+        ecb.RemoveComponent<TFromState>(entity);
+        ecb.AddComponent(entity, new TToState());
+        
+        ecb.SetComponent(entity, new Timer() {Value = duration});
+        ecb.SetComponent(entity, new TimerDuration() {Value = duration}); 
+    }
+    
+    static public void GoToState<TFromState, TToState>(EntityCommandBuffer.ParallelWriter ecb, 
+        int entityInQueryIndex,
+        Entity entity,
+        float duration = 1.0f)
+        where TFromState : unmanaged, IComponentData
+        where TToState : unmanaged, IComponentData
+    {
+        ecb.RemoveComponent<TFromState>(entityInQueryIndex, entity);
+        ecb.AddComponent(entityInQueryIndex, entity, new TToState());
+        
+        ecb.SetComponent(entityInQueryIndex, entity, new Timer() {Value = duration});
+        ecb.SetComponent(entityInQueryIndex, entity, new TimerDuration() {Value = duration});
+    }
+
+    static public bool DidAnimJustStarted(Timer timer, TimerDuration timerDuration)
+    {
+        return timer.Value >= timerDuration.Value;
+    }
+    
+    static public bool DidAnimJustFinished(Timer timer)
+    {
+        return timer.Value <= 0.0f;
+    }
+    
+    static public bool IsPlayingAnimation(Timer timer)
+    {
+        return timer.Value > 0.0f;
+    }
 }

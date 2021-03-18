@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 /// <summary>
-/// System that will attribute a rock to an hand
+/// System that will try to attribute a rock to every hand asking for it
 /// </summary>
 public class RockGrabSystem : SystemBase
 {
@@ -37,17 +37,16 @@ public class RockGrabSystem : SystemBase
                 if (!availableRocks.HasComponent(targetRock.RockEntity) ||
                     availableRocks[targetRock.RockEntity].JustPicked)
                 {
-                    // grab failed, we must try again
-                    ecb.AddComponent<HandIdle>(entity);
+                    // grab failed, we must try again : go to Idle
+                    Utils.GoToState<HandGrabbingRock, HandIdle>(ecb, entity);
+                    
+                    // reset target
+                    ecb.SetComponent<TargetRock>(entity, new TargetRock());
                 }
-                else if (timer.Value <= 0.0f)
+                else if (Utils.DidAnimJustFinished(timer))
                 {
                     // grab successful, time to throw
-                    ecb.RemoveComponent<HandGrabbingRock>(entity);
-                    ecb.AddComponent<HandWindingUp>(entity);
-                    
-                    ecb.SetComponent(entity, new Timer() {Value = 1.0f});
-                    ecb.SetComponent(entity, new TimerDuration(){ Value = 1.0f});
+                    Utils.GoToState<HandGrabbingRock, HandWindingUp>(ecb, entity);
 
                     // exclusive ownership of the rock, it can't be grabbed anymore
                     // by other arms...

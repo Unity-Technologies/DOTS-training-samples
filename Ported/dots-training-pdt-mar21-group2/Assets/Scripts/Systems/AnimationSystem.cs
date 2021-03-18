@@ -18,7 +18,6 @@ public class AnimationSystem : SystemBase
         var translations = GetComponentDataFromEntity<Translation>();
         var localToWorlds = GetComponentDataFromEntity<LocalToWorld>();
         
-        // var handsGrabbingRock = GetComponentDataFromEntity<HandGrabbingRock>();
         var handsWindingUp = GetComponentDataFromEntity<HandWindingUp>();
         var handsThrowingRock = GetComponentDataFromEntity<HandThrowingRock>();
         
@@ -26,13 +25,14 @@ public class AnimationSystem : SystemBase
 
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
 
+        // Initialize hand target position when windind-up
         Dependency = Entities
             .WithAll<HandWindingUp>()
             .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
                 in TimerDuration timerDuration) =>
             {
-                if (timer.Value >= timerDuration.Value)
+                if (Utils.DidAnimJustStarted(timer, timerDuration))
                 {
                     targetPosition = new TargetPosition()
                     {
@@ -44,13 +44,14 @@ public class AnimationSystem : SystemBase
                 }
             }).ScheduleParallel(Dependency);
 
+        // Initialize hand target position when throwing
         Dependency = Entities
             .WithAll<HandThrowingRock>()
             .WithReadOnly(translations)
             .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer,
                 in TimerDuration timerDuration) =>
             {
-                if (timer.Value >= timerDuration.Value)
+                if (Utils.DidAnimJustStarted(timer, timerDuration))
                 {
                     targetPosition = new TargetPosition()
                     {
@@ -62,6 +63,8 @@ public class AnimationSystem : SystemBase
                 }
             }).ScheduleParallel(Dependency);
         
+        
+        // Hand moves toward the rock when trying to grab it
         Dependency = Entities
             .WithAll<HandGrabbingRock>()
             .WithReadOnly(translations)
@@ -70,6 +73,7 @@ public class AnimationSystem : SystemBase
                 targetPosition.Value = translations[targetRock.RockEntity].Value;
             }).ScheduleParallel(Dependency);
 
+        // Update animation
         Dependency = Entities
             .WithNone<HandIdle>()
             .WithNativeDisableContainerSafetyRestriction(translations)
@@ -84,36 +88,32 @@ public class AnimationSystem : SystemBase
                 in TimerDuration timerDuration,
                 in TargetRock targetRock) =>
             {
-                if (timer.Value > 0.0f)
+                if (Utils.IsPlayingAnimation(timer))
                 {
-                    // var isThrowing = handsThrowingRock.HasComponent(entity);
-                    
-                    if (timer.Value >= timerDuration.Value)
+                    if (Utils.DidAnimJustStarted(timer, timerDuration))
                     {
+                        // when anim start playing, we initialize start position with the current hand position
                         var forearmMatrix = localToWorlds[arm.m_Forearm];
                         startPosition.Value = forearmMatrix.Position + forearmMatrix.Up * 3.0f;
-                        
                     }
 
+                    // tick animation timer
                     timer.Value -= deltaTime;
-                    
-                    // if (handsGrabbingRock.HasComponent(entity))
-                    // {
-                    //     targetPosition.Value = translations[targetRock.RockEntity].Value;
-                    // }
 
-                    var progression = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
-                    var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, progression);
+                    var normalizedTime = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
+                    var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, normalizedTime);
 
-                    var pos = translations[entity].Value;
-                    var targetDir = math.normalize(handTargetPos - pos);
+                    var armRoot = translations[entity].Value;
+                    var targetDir = math.normalize(handTargetPos - armRoot);
 
                     rotations[arm.m_Humerus] = new Rotation()
                     {
-                        Value = math.mul(quaternion.LookRotation(targetDir, new float3(0.0f, 1.0f, 0.0f)),
+                        Value = math.mul(
+                            quaternion.LookRotation(targetDir, new float3(0.0f, 1.0f, 0.0f)),
                             quaternion.RotateX(math.PI * 0.5f))
                     };
                     
+                    // Update rock position to stick to the hand when it's grabbed
                     if (handsThrowingRock.HasComponent(entity) ||
                         handsWindingUp.HasComponent(entity))
                     {
@@ -125,31 +125,29 @@ public class AnimationSystem : SystemBase
                 }
             }).ScheduleParallel(Dependency);
 
+        // Transition from wind-up -> throw when animation is finished
         Dependency = Entities
             .WithAll<HandWindingUp>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
                 ref TimerDuration timerDuration) =>
             {
-                if (timer.Value <= 0.0f)
+                if (Utils.DidAnimJustFinished(timer))
                 {
                     // Go to Throwing state
-                    
-                    timer = new Timer() {Value = 1.0f};
-                    timerDuration = new TimerDuration() {Value = 1.0f};
-
-                    ecb.RemoveComponent<HandWindingUp>(entityInQueryIndex, entity);
-                    ecb.AddComponent<HandThrowingRock>(entityInQueryIndex, entity);
+                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity);
                 }
             }).ScheduleParallel(Dependency);
         
+        // Throw rock when throw animation is finished
         Dependency = Entities
             .WithAll<HandThrowingRock>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
                 ref TimerDuration timerDuration,
-                ref TargetRock targetRock) =>
+                in TargetRock targetRock) =>
             {
-                if (timer.Value <= 0.0f)
+                if (Utils.DidAnimJustFinished(timer))
                 {
+                    // throw rock
                     ecb.SetComponent(entityInQueryIndex, targetRock.RockEntity, new Velocity()
                     {
                         Value = new float3(0.0f, 12.0f, 240.0f)
@@ -157,11 +155,10 @@ public class AnimationSystem : SystemBase
                     ecb.AddComponent<Falling>(entityInQueryIndex, targetRock.RockEntity);
                     
                     // reset target
-                    targetRock.RockEntity = new Entity();
-
+                    ecb.SetComponent(entityInQueryIndex, entity, new TargetRock());
+                    
                     // Go to Idle state
-                    ecb.RemoveComponent<HandThrowingRock>(entityInQueryIndex, entity);
-                    ecb.AddComponent<HandIdle>(entityInQueryIndex, entity);
+                    Utils.GoToState<HandThrowingRock, HandIdle>(ecb, entityInQueryIndex, entity);
                 }
             }).ScheduleParallel(Dependency);
         
