@@ -12,6 +12,7 @@ namespace Components
         public GameObject BeeTeamAPrefab;
         public GameObject BeeTeamBPrefab;
         public GameObject FoodPrefab;
+        public GameObject BloodDropletPrefab;
         public float HivePosition=40;
         
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -19,6 +20,7 @@ namespace Components
             referencedPrefabs.Add(BeeTeamAPrefab);
             referencedPrefabs.Add(BeeTeamBPrefab);
             referencedPrefabs.Add(FoodPrefab);
+            referencedPrefabs.Add(BloodDropletPrefab);
         }
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -28,6 +30,7 @@ namespace Components
                 BeeTeamAPrefab = conversionSystem.GetPrimaryEntity(BeeTeamAPrefab),
                 BeeTeamBPrefab = conversionSystem.GetPrimaryEntity(BeeTeamBPrefab),
                 FoodPrefab =  conversionSystem.GetPrimaryEntity(FoodPrefab),
+                BloodDropletPrefab = conversionSystem.GetPrimaryEntity(BloodDropletPrefab),
                 HivePosition = HivePosition
             });
             var teamASpawnArea= conversionSystem.CreateAdditionalEntity(this);

@@ -46,6 +46,7 @@ public class BeeAttacking: SystemBase
                         
                         commandBuffer.AddComponent<Scale>(beeAttacking.TargetBee, new Scale() { Value = 1 });
                         commandBuffer.AddComponent<ShrinkAndDestroy>(beeAttacking.TargetBee, new ShrinkAndDestroy(){ age = -2f, lifetime = 5f});
+                        commandBuffer.AddComponent<BloodSpawnConfiguration>(beeAttacking.TargetBee, new BloodSpawnConfiguration() { Count = 10, Direction =  math.normalize(delta)});
                     }
                 } else {
                     // dead or entity is invalid
