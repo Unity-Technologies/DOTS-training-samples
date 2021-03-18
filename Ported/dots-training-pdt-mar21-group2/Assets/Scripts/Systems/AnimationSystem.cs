@@ -60,7 +60,7 @@ public class AnimationSystem : SystemBase
                 var canPosition = translations[targetCan.Value];
                 float3 throwOffset = canPosition.Value - translation.Value;
                 throwOffset.y *= 10.0f;
-                throwOffset = math.normalize(throwOffset) * parameters.ArmJointLength * 1.85f;
+                throwOffset = math.normalize(throwOffset) * parameters.ArmJointLength * 1.95f;
 
                 targetPosition = new TargetPosition()
                 {
@@ -112,6 +112,11 @@ public class AnimationSystem : SystemBase
                     timer.Value -= deltaTime;
 
                     var normalizedTime = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
+                    normalizedTime = Utils.CubicInterpolation(normalizedTime);
+                    if (isThrowing)
+                    {
+                        normalizedTime = Utils.CubicInterpolation(normalizedTime);
+                    }
                     var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, normalizedTime);
                     
                     // Orient arm toward target
@@ -128,7 +133,7 @@ public class AnimationSystem : SystemBase
                                      
                     var currentUp = -localToWorlds[arm.m_Humerus].Forward;
                     var up = math.cross(right, forward);
-                    float lerpSpeed = 2.0f / timerDuration.Value;
+                    float lerpSpeed = 1.0f / timerDuration.Value;
                     up = math.lerp(currentUp, up, lerpSpeed * deltaTime);
 
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
@@ -167,7 +172,7 @@ public class AnimationSystem : SystemBase
                 if (Utils.DidAnimJustFinished(timer))
                 {
                     // Go to Throwing state
-                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity, 0.3f);
+                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity, 0.4f);
                 }
             }).ScheduleParallel(Dependency);
         

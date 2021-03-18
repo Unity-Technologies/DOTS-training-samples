@@ -151,4 +151,11 @@ struct Utils
         armAngle = math.acos((a2 + r2 - f2) / (2.0f * armLen * reach));
         forearmAngle = math.acos((a2 + f2 - r2) / (2.0f * armLen * forearmLen)) - math.PI;
     }
+
+    public static float CubicInterpolation(float t)
+    {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        return -2.0f * t3 + 3.0f * t2;
+    }
 }
