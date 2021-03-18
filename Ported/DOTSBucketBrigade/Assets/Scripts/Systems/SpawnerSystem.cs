@@ -52,10 +52,32 @@ public class SpawnerSystem : SystemBase
                 
                 for (int waters = 0; waters < initCounts.WaterSourceCount; waters++)
                 {
+                    int side = Random.Range(0, 4);     
                     var instance = ecb.Instantiate(initCounts.WaterPrefab);
+                    float x, z;
+                    switch (side)
+                    {
+                        case 0:
+                            x = Random.Range(1.0f, initCounts.GridSize - 2.0f);
+                            z = Random.Range(-6.0f, -2.0f);
+                            break;
+                        case 1:
+                            x = Random.Range(1.0f, initCounts.GridSize - 2.0f);
+                            z = Random.Range(initCounts.GridSize + 2.0f, initCounts.GridSize + 6.0f);
+                            break;
+                        case 2:
+                            x = Random.Range(-6.0f, -2.0f);
+                            z = Random.Range(1.0f, initCounts.GridSize - 2.0f);
+                            break;
+                        default:
+                            x = Random.Range(initCounts.GridSize + 2.0f, initCounts.GridSize + 6.0f);
+                            z = Random.Range(1.0f, initCounts.GridSize - 2.0f);
+                            break;
+                    }
+                    
                     var translation = new Translation 
                     { 
-                        Value = new float3(Random.Range(1.0f,initCounts.GridSize-1.0f), 0.0f, Random.Range(-6.0f, -2.0f)) 
+                        Value = new float3(x, 0.0f, z)
                     };
                     ecb.SetComponent(instance, translation);
                 }
