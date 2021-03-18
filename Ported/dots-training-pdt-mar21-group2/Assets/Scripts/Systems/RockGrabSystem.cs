@@ -59,11 +59,7 @@ public class RockGrabSystem : SystemBase
                     ecb.RemoveComponent<Available>(targetRock.RockEntity);
                     
                     // stop the rock
-                    ecb.SetComponent(targetRock.RockEntity, new Velocity()
-                    {
-                        Value = float3.zero
-                    });
-
+                    ecb.AddComponent<Grabbed>(targetRock.RockEntity);
                 }
 
             }).Schedule(Dependency);

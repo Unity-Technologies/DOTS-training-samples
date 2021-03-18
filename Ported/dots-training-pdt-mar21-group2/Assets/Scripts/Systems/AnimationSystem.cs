@@ -175,14 +175,18 @@ public class AnimationSystem : SystemBase
         Dependency = Entities
             .WithAll<HandThrowingRock>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Timer timer,
-                ref TimerDuration timerDuration) =>
+                ref TimerDuration timerDuration,
+                in TargetRock targetRock) =>
             {
                 if (Utils.DidAnimJustFinished(timer))
                 {
+                    // release rock
+                    ecb.RemoveComponent<Grabbed>(entityInQueryIndex, targetRock.RockEntity);
+                    
                     // reset target
                     ecb.SetComponent(entityInQueryIndex, entity, new TargetRock());
                     ecb.SetComponent(entityInQueryIndex, entity, new TargetCan());
-                    
+
                     // Go to Idle state
                     Utils.GoToState<HandThrowingRock, HandIdle>(ecb, entityInQueryIndex, entity);
                 }

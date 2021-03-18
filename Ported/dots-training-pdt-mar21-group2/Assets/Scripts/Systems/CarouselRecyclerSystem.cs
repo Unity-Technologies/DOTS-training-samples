@@ -11,8 +11,10 @@ public static class RandomExtensions
     public static float3 NextCarouselPosition(ref this Random random,
         WorldBounds worldBounds, float depth = 0.0f, float minHeight = 0.0f, float maxHeight = 0.0f)
     {
+        var margin = 0.25f;
+        
         return new float3(
-            random.NextFloat(worldBounds.Width),
+            random.NextFloat(margin, worldBounds.Width - margin),
             random.NextFloat(minHeight, maxHeight),
             depth);
     }
@@ -41,6 +43,7 @@ public class CarouselRecyclerSystem : SystemBase
 
         var jobA = Entities
             .WithAll<Rock>()
+            .WithNone<Grabbed>() // if rock is grabbed, we must not try to unspawn it from the arm's hand
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
                 Respawn(ref ecbParaWriterRock, entityInQueryIndex, ref random, seed, entity, translation, worldBounds,
                     new float3(parameters.RockScrollSpeed, 0.0f, 0.0f), parameters.RockMinSize, parameters.RockMaxSize,

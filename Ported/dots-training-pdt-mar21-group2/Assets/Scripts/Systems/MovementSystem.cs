@@ -28,6 +28,7 @@ public class MovementSystem : SystemBase
             }).ScheduleParallel(Dependency);
 
         var move = Entities
+            .WithNone<Grabbed>() // grabbed entities are not concerned by velocity    
             .ForEach((ref Translation translation, in Velocity velocity) =>
             {
                 translation.Value += velocity.Value * deltaTime;
