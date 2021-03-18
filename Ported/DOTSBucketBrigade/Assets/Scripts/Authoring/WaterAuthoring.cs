@@ -8,13 +8,14 @@ using UnityEngine;
 public class WaterAuthoring : MonoBehaviour
     ,IConvertGameObjectToEntity
 {
+    private static readonly float4 WATER_COLOUR = new float4(0.0f, 0.62122846f, 1.0f, 1.0f);
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<River>(entity);
         dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor()
         {
-            Value = new float4(0.0f, 0.0f, 1.0f, 1.0f)
+            Value = WATER_COLOUR
         });
         dstManager.AddComponentData(entity, new Volume()
         {
