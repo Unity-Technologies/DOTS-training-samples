@@ -40,8 +40,10 @@ public class ArmSpawnerSystem : SystemBase
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
-                
-                var armCount = (int) (worldBounds.Width / spawner.m_ArmSeparation);
+
+                // add margin to make sure arm won't try to grab for rock that will be recycled soon
+                var margin = spawner.m_ArmJointLength * 4.0f;
+                var armCount = (int) ((worldBounds.Width - margin) / spawner.m_ArmSeparation);
 
                 for (uint i = 0; i < armCount; ++i)
                 {

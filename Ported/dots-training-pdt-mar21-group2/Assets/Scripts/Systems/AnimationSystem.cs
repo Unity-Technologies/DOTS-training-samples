@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -25,7 +25,7 @@ public class AnimationSystem : SystemBase
 
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
 
-        // Initialize hand target position when windind-up
+        // Initialize hand target position when winding-up
         Dependency = Entities
             .WithAll<HandWindingUp>()
             .WithReadOnly(translations)
@@ -68,9 +68,10 @@ public class AnimationSystem : SystemBase
         Dependency = Entities
             .WithAll<HandGrabbingRock>()
             .WithReadOnly(translations)
-            .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer, in TargetRock targetRock) =>
+            .ForEach((Entity entity, ref TargetPosition targetPosition, in Timer timer, in TargetRock targetRock, in Translation translation) =>
             {
                 targetPosition.Value = translations[targetRock.RockEntity].Value;
+
             }).ScheduleParallel(Dependency);
 
         // Update animation
@@ -90,6 +91,9 @@ public class AnimationSystem : SystemBase
             {
                 if (Utils.IsPlayingAnimation(timer))
                 {
+                    var isThrowing = handsThrowingRock.HasComponent(entity);
+                    var isWindingUp = handsWindingUp.HasComponent(entity);
+                    
                     if (Utils.DidAnimJustStarted(timer, timerDuration))
                     {
                         // when anim start playing, we initialize start position with the current hand position
@@ -102,21 +106,33 @@ public class AnimationSystem : SystemBase
 
                     var normalizedTime = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
                     var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, normalizedTime);
-
+                    
+                    // Orient arm toward target
                     var armRoot = translations[entity].Value;
-                    var targetDir = math.normalize(handTargetPos - armRoot);
+                    var forward = math.normalize(handTargetPos - armRoot);
+                    var moveDirection = targetPosition.Value - startPosition.Value;
+                    if (isWindingUp)
+                    {
+                        moveDirection = -moveDirection;
+                    }
 
+                    var right = math.cross(moveDirection, forward);
+                    right.y = right.y * 0.25f; // Keep hand quite horizontal
+                                     
+                    var currentUp = -localToWorlds[arm.m_Humerus].Forward;
+                    var up = math.cross(right, forward);
+                    up = math.lerp(currentUp, up, deltaTime);
+
+                    var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
+                    
                     rotations[arm.m_Humerus] = new Rotation()
                     {
-                        Value = math.mul(
-                            quaternion.LookRotation(targetDir, new float3(0.0f, 1.0f, 0.0f)),
-                            quaternion.RotateX(math.PI * 0.5f))
+                        Value = rotation
                     };
                     
-                    // Update rock position to stick to the hand when it's grabbed
-                    if (handsThrowingRock.HasComponent(entity) ||
-                        handsWindingUp.HasComponent(entity))
+                    if (isWindingUp || isThrowing)
                     {
+                        // Update rock position to stick to the hand when it's grabbed
                         translations[targetRock.RockEntity] = new Translation()
                         {
                             Value = handTargetPos

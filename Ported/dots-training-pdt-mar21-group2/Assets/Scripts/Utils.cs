@@ -42,11 +42,19 @@ struct Utils
 
     static public quaternion FromToRotation(float3 from, float3 to)
     {
-        float3 half = math.normalize(from + to);
+        float3 half = from + to;
+        if (math.lengthsq(half) < 0.01f)
+        {
+            return new quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+        }
+        
+        half = math.normalize(half);
         var xyz = math.cross(from, half);
         var w = math.dot(from, half);
 
-        return new quaternion(xyz.x, xyz.y, xyz.z, w);
+        var rot = new quaternion(xyz.x, xyz.y, xyz.z, w);
+        rot.value = math.normalize(rot.value);
+        return rot;
     }
     
     static public void GoToState<TFromState, TToState>(EntityCommandBuffer ecb, 
