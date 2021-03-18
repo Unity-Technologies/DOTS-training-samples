@@ -9,4 +9,6 @@ public struct GameConfiguration: IComponentData
     public Entity BloodDropletPrefab;
     public float HivePosition;
     public int BeeSpawnPerCollectedFood;
+    public int BeeCount;
+    public int FoodCount;
 }
