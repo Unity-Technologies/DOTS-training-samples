@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -12,17 +13,18 @@ public class FetchBucketSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
         Entities
-            .WithAll<BucketFetcher,CarryingBucket>()
-            .WithNone<TargetPosition>()
-            .ForEach((Entity entity, ref BucketID bucketId) =>
+            .WithAll<BucketFetcher>()
+            .WithNone<CarryingBucket>()
+            .ForEach((Entity entity, ref TargetPosition targetPos, in BucketID bucketId) =>
             {
                 if (bucketId.Value != Entity.Null)
                 {
                     var targetBucketPos = GetComponent<Translation>(bucketId.Value);
-                    ecb.AddComponent(entity, new TargetPosition(){ Value = targetBucketPos.Value});
+                    if (!targetPos.Value.Equals(targetBucketPos.Value))
+                    {
+                        targetPos.Value = targetBucketPos.Value;
+                    }
                 }
             }).Run();
     }

@@ -31,10 +31,9 @@ public class FindEmptyBucketSystem : SystemBase
             .WithDisposeOnCompletion(bucketVolumes)
             .WithDisposeOnCompletion(bucketIDs)
             .WithAll<BucketFetcher>()
-            .ForEach((Entity entity, ref Translation pos, ref Speed speed) =>
+            .WithNone<CarryingBucket>()
+            .ForEach((Entity entity, ref BucketID bucketId, in Translation pos, in Speed speed) =>
             {
-                var bucketId = GetComponent<BucketID>(entity);
-                
                 // get new bucket target
                 if(bucketId.Value == Entity.Null)
                 {
@@ -54,7 +53,7 @@ public class FindEmptyBucketSystem : SystemBase
                     }
 
                     if(minIndex != bucketPositions.Length)
-                        SetComponent(entity,new BucketID(){ Value = bucketIDs[minIndex] });
+                        bucketId.Value = bucketIDs[minIndex];
                 }
             }).Run();
     }

@@ -11,6 +11,7 @@ using UnityEngine.UIElements;
 public class PickupBucketSystem : SystemBase
 {
     private EntityQuery bucketQuery;
+    private EndSimulationEntityCommandBufferSystem sys;
 
     protected override void OnCreate()
     {
@@ -18,28 +19,29 @@ public class PickupBucketSystem : SystemBase
             typeof(Bucket),
             typeof(Volume),
             typeof(Translation));
+        sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = sys.CreateCommandBuffer();
         
-        Entities
-            .WithAll<BucketFetcher, TargetPosition>()
+        Dependency = Entities
+            .WithAll<BucketFetcher>()
             .WithNone<CarryingBucket>()
-            .ForEach((Entity entity, ref BucketID bucketId) =>
+            .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, in Translation position) =>
             {
                 if (bucketId.Value != Entity.Null)
                 {
                     var targetBucketPos = GetComponent<Translation>(bucketId.Value);
-                    var pos = GetComponent<Translation>(entity);
-                    if (math.distance(targetBucketPos.Value.x, pos.Value.x) < 0.001f &&
-                        math.distance(targetBucketPos.Value.z, pos.Value.z) < 0.001f)
+                    var distx = math.distance(targetBucketPos.Value.x, position.Value.x);
+                    var distz = math.distance(targetBucketPos.Value.z, position.Value.z);
+                    if (distx < 0.1f && distz < 0.1f)
                     {
-                        ecb.AddComponent(entity, new CarryingBucket());
-                        //ecb.SetComponent(entity,new TargetPosition());// change to water source
+                        ecb.AddComponent<CarryingBucket>(entity);
                     }
                 }
-            }).Run();
+            }).Schedule(Dependency);
+        sys.AddJobHandleForProducer(Dependency);
     }
 }

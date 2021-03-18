@@ -5,35 +5,43 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class FillBucketSystem : SystemBase
 {
-    private EntityQuery bucketQuery;
+    private EndSimulationEntityCommandBufferSystem sys;
 
     protected override void OnCreate()
     {
-        bucketQuery = GetEntityQuery(
-            typeof(Bucket),
-            typeof(Volume),
-            typeof(Translation));
+        sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = sys.CreateCommandBuffer();
         
-        Entities
-            .WithAll<BucketFetcher, CarryingBucket, TargetPosition>()
-            .ForEach((Entity entity, ref BucketID bucketId) =>
+        Dependency = Entities
+            .WithAll<BucketFetcher, CarryingBucket>()
+            .ForEach((Entity entity, ref BucketID bucketId, in TargetPosition waterLocation, in Translation position) =>
             {
-                var targetWaterPos = GetComponent<Translation>(bucketId.Value); //todo change to water source
-                var pos = GetComponent<Translation>(entity);
-                if (math.distance(targetWaterPos.Value.x,pos.Value.x) < 0.001f && math.distance(targetWaterPos.Value.z, pos.Value.z) < 0.001f)
+                if (math.distance(waterLocation.Value.x,position.Value.x) < 0.001f && math.distance(waterLocation.Value.z, position.Value.z) < 0.001f)
                 {
-                    
+                    var bucketVol = GetComponent<Volume>(bucketId.Value).Value;
+                    // todo only fill when sure we are on water source
+                    if (bucketVol < 1.0f)
+                    {
+                        ecb.SetComponent(bucketId.Value, new Volume(){ Value = bucketVol + 0.01f});
+                    }
+                    else
+                    {
+                        ecb.RemoveComponent<CarryingBucket>(entity);
+                        bucketId.Value = Entity.Null;
+                        // todo: change bucket y to 0
+                    }
                 }
-            }).Run();
+            }).Schedule(Dependency);
+        sys.AddJobHandleForProducer(Dependency);
     }
 }

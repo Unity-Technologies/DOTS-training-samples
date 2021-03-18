@@ -15,7 +15,7 @@ public class BotRenderingSystem : SystemBase
 
     private static readonly float4 BOT_PASS_FULL_COLOUR = new float4(0.7729952f, 0.9245283f, 0.73700607f, 1.0f);
     private static readonly float4 BOT_THROW_COLOUR = new float4(1.0f, 0.4764151f, 0.9354846f, 1.0f);
-    private static readonly float4 BOT_FETCHER_COLOR = new float4(0.0f, 1.0f, 0.0f, 1.0f);
+    private static readonly float4 BOT_FETCHER_COLOR = new float4(1.0f, 0.0f, 1.0f, 1.0f);
 
     //private static readonly float4 BOT_OMNIBOT = new float4(0.0f, 0.0f, 0.0f, 1.0f); Unused???
 

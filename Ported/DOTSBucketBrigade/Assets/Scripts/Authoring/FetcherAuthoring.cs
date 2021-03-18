@@ -24,5 +24,9 @@ public class FetcherAuthoring : MonoBehaviour
         });
 
         dstManager.AddComponent<BucketID>(entity);
+        dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor()
+        {
+            Value = new float4(1.0f, 0.0f, 1.0f, 1.0f)
+        });
     }
 }
