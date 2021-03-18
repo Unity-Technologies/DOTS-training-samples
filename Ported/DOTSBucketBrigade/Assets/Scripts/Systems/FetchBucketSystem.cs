@@ -22,7 +22,7 @@ public class FetchBucketSystem : SystemBase
                 if (bucketId.Value != Entity.Null)
                 {
                     var targetBucketPos = GetComponent<Translation>(bucketId.Value);
-                    ecb.AddComponent(entity, new TargetPosition(){ Value = new float2(targetBucketPos.Value.x,targetBucketPos.Value.z)});
+                    ecb.AddComponent(entity, new TargetPosition(){ Value = targetBucketPos.Value});
                 }
             }).Run();
     }
