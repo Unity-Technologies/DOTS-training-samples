@@ -15,7 +15,7 @@ public class FetcherAuthoring : MonoBehaviour
         dstManager.AddComponent<BucketFetcher>(entity);
         dstManager.AddComponentData(entity, new Speed()
         {
-            Value = new float3(0.05f, 0.0f, 0.05f)
+            Value = new float3(0.1f, 0.0f, 0.1f)
         });
 
         dstManager.AddComponentData(entity, new TargetPosition()
