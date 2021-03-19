@@ -29,11 +29,10 @@ public class PickupBucketLineSystem : SystemBase
         Dependency = Entities
             .WithAny<EmptyBucketer, FullBucketer>()
             .WithNone<CarryingBucket>()
-            .ForEach((Entity entity, ref TargetPosition targetPosition, ref PlaceInLine placeInLine,ref BucketID bucketId, in PassedBucketId passedBucketId , in Translation position, in Radius radius) =>
+            .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, in PassedBucketId passedBucketId , in Translation position, in Radius radius) =>
             {
                 if (bucketId.Value != Entity.Null && passedBucketId.Value != bucketId.Value)
                 {
-                    placeInLine.Value = position.Value;
                     ecb.AddComponent<CarryingBucket>(entity);
                     ecb.SetComponent<Translation>(bucketId.Value, position);
                 }

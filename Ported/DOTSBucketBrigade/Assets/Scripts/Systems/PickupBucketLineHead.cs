@@ -50,7 +50,6 @@ public class PickupBucketLineHead : SystemBase
                                 ecb.SetComponent(line.FullHead, new BucketID() {Value = bucketIDs[i]});
                                 ecb.SetComponent(line.FullHead, new PassedBucketId() {Value = bucketIDs[i]});
                                 ecb.AddComponent<CarryingBucket>(line.FullHead);
-                                ecb.SetComponent(line.FullHead, new PlaceInLine(){Value = position.Value});
                                 break;
                             }
                         }

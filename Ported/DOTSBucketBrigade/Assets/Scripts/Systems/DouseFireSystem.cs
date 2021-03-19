@@ -35,7 +35,7 @@ public class DouseFireSystem : SystemBase
             .WithAll<FullBucketer>()
             .WithAll<LastInLine>()
             .WithAll<CarryingBucket>()
-            .ForEach((Entity entity, ref BucketID bucketId, in CurrentLine currentLine, in Translation position) =>
+            .ForEach((Entity entity, ref BucketID bucketId, in Translation position) =>
             {
                 // Douse fire
                 var fireIndex = (int)position.Value.x * gridSize + (int)position.Value.z;
@@ -49,10 +49,9 @@ public class DouseFireSystem : SystemBase
                 };
                 douseJob.Schedule();
 
-                SetComponent(bucketId.Value, new Volume(){ Value = 0.0f });
+                ecb.SetComponent(bucketId.Value, new Volume(){ Value = 0.0f });
                 
                 // Drop bucket
-                //ecb.AddComponent<Reposition>(currentLine.Value);
                 ecb.RemoveComponent<CarryingBucket>(entity);
 
             }).Run();
