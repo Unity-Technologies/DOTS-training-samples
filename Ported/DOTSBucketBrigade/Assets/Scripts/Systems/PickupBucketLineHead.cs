@@ -36,18 +36,23 @@ public class PickupBucketLineHead : SystemBase
             .WithDisposeOnCompletion(bucketPositions)
             .ForEach((Entity entity, in Line line) =>
             {
-                Translation position = GetComponent<Translation>(line.FullHead);
-                Radius radius = GetComponent<Radius>(line.FullHead);
-                Entity fullBucket;
-                for (int i = 0; i < bucketPositions.Length; i++)
+                var lastPassedBucket = GetComponent<PassedBucketId>(line.FullHead);
+                var bucketId = GetComponent<BucketID>(line.FullHead);
+                if (!HasComponent<CarryingBucket>(line.FullHead))
                 {
-                    if (bucketVolumes[i].Value >= 1.0f)
+                    Translation position = GetComponent<Translation>(line.FullHead);
+                    Radius radius = GetComponent<Radius>(line.FullHead);
+                    for (int i = 0; i < bucketPositions.Length; i++)
                     {
-                        if (math.distance(bucketPositions[i].Value, position.Value) <= 50)//radius.Value)
+                        if (bucketVolumes[i].Value >= 1.0f && bucketIDs[i] != lastPassedBucket.Value)
                         {
-                            ecb.AddComponent<CarryingBucket>(line.FullHead);
-                            ecb.SetComponent(line.FullHead,new BucketID(){ Value = bucketIDs[i] });
-                            break;
+                            if (math.distance(bucketPositions[i].Value, position.Value) <= 10)//radius.Value)
+                            {
+                                ecb.AddComponent<CarryingBucket>(line.FullHead);
+                                ecb.SetComponent(line.FullHead, new BucketID() {Value = bucketIDs[i]});
+                                ecb.SetComponent(line.FullHead, new PassedBucketId() {Value = bucketIDs[i]});
+                                break;
+                            }
                         }
                     }
                 }

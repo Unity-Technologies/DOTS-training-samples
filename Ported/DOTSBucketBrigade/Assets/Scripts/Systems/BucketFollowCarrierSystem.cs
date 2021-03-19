@@ -29,7 +29,8 @@ public class BucketFollowCarrierSystem: SystemBase
                 if (bucketId.Value != Entity.Null)
                 {
                     var bucketPos = new float3(position.Value);
-                    bucketPos.z += 2.0f;
+                    bucketPos.z += 5.0f;
+                    bucketPos.x += 5.0f;
                     ecb.SetComponent(bucketId.Value, new Translation() {Value = position.Value});
                 }
             }).Schedule(Dependency);

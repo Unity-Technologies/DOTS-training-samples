@@ -30,9 +30,9 @@ public class PickupBucketLineSystem : SystemBase
             .WithAll<EmptyBucketer>()
             .WithAll<FullBucketer>()
             .WithNone<CarryingBucket>()
-            .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, in Translation position, in Radius radius) =>
+            .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, in PassedBucketId passedBucketId , in Translation position, in Radius radius) =>
             {
-                if (bucketId.Value != Entity.Null)
+                if (bucketId.Value != Entity.Null && passedBucketId.Value != bucketId.Value)
                 {
                     var targetBucketPos = GetComponent<Translation>(bucketId.Value);
                     var distx = math.distance(targetBucketPos.Value.x, position.Value.x);
