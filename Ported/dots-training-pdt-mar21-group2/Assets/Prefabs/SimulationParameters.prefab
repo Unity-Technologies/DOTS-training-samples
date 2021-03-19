@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9781fb82e62149439c4486023c49178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ArmSeparation: 5
+  ArmSeparation: 3
   ArmJointLength: 3
   ArmJointSpacing: 0
   CanScrollSpeed: -5
