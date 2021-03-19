@@ -29,6 +29,6 @@ public class VelocityRotationSystem : SystemBase
                 Rotation.Value = targetRotation;
 
             })
-            .ScheduleParallel();
+            .Run();
     }
 }

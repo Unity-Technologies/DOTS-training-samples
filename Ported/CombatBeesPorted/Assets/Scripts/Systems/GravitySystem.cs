@@ -12,8 +12,6 @@ public class GravitySystem: SystemBase
     {
         var deltaTime = Time.DeltaTime;
         
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
         //var vector = random.NextFloat3Direction();
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));
         Entities
@@ -21,6 +19,6 @@ public class GravitySystem: SystemBase
             .ForEach((ref Force force) =>
             {                
                 force.Value += new float3{x=0,y=-1,z=0};
-            }).Schedule();
+            }).Run();
     }
 }

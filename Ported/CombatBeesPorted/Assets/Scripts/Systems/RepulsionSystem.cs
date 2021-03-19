@@ -32,21 +32,27 @@ public class RepulsionSystem: SystemBase
         const float maxRepulsionRadius = 4.0f;
         const float posPartitionK = maxRepulsionRadius * 2.0f / 3.0f;
 
-        NativeHashMap<int,AverageBeePos> partitions = new NativeHashMap<int, AverageBeePos>((int)math.sqrt(allBeesQuery.CalculateEntityCount()),Allocator.TempJob);
+        int beesCount = allBeesQuery.CalculateEntityCount();
+        NativeHashMap<int,AverageBeePos> partitions = new NativeHashMap<int, AverageBeePos>((int)math.sqrt(beesCount),Allocator.TempJob);
+
+        var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));     
+        float keepPercent = math.max(2000,math.sqrt(beesCount) / beesCount);
         Entities
             .WithNone<Attacking>()
             .WithAll<Bee>()
             .ForEach((in Translation translation) =>
             {
-                var partIndex = translation.Value * posPartitionK;
-                int index =  (int)partIndex.x + ((int)partIndex.y)*1024 + ((int)partIndex.z)*1024*1024;
-                var avgBeePos = new AverageBeePos();
-                if(partitions.TryGetValue(index, out avgBeePos)) {
-                    avgBeePos.count += 1;
-                    avgBeePos.position += translation.Value;
-                    partitions[index] = avgBeePos;
-                } else {
-                    partitions[index] = new AverageBeePos() {count=1, position=translation.Value};
+                if(random.NextFloat(1.0f) <keepPercent) {
+                    var partIndex = translation.Value * posPartitionK;
+                    int index =  (int)partIndex.x + ((int)partIndex.y)*1024 + ((int)partIndex.z)*1024*1024;
+                    var avgBeePos = new AverageBeePos();
+                    if(partitions.TryGetValue(index, out avgBeePos)) {
+                        avgBeePos.count += 1;
+                        avgBeePos.position += translation.Value;
+                        partitions[index] = avgBeePos;
+                    } else {
+                        partitions[index] = new AverageBeePos() {count=1, position=translation.Value};
+                    }
                 }
             }).Run();
 

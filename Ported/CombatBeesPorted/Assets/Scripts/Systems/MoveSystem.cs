@@ -32,7 +32,6 @@ public class MoveSystem: SystemBase
         var commandBuffer = endSim.CreateCommandBuffer();
 
         Entities
-            //.WithoutBurst() // TODO remove in final version, keep for Debug.Log
             .ForEach((Entity entity, ref Translation translation, ref Force force, ref Velocity velocity, in WorldRenderBounds entityBounds) =>
             {
                 velocity.Value = velocity.Value * 0.99f + force.Value*0.17f;
@@ -82,7 +81,7 @@ public class MoveSystem: SystemBase
                     velocity.Value.z *= -bounciness;
                 }
                 
-            }).Schedule();
+            }).Run();
 
         endSim.AddJobHandleForProducer(Dependency);   
     }

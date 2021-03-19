@@ -19,7 +19,6 @@ public class BeeAttacking: SystemBase
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));
         Entities
             .WithAll<Bee>()
-            .WithoutBurst() // TODO remove in final version, keep for reference to random
             .ForEach((Entity beeEntity, ref Force force, in Translation position, in Attacking beeAttacking) =>
             {                   
                 //check beeAttacking is still a valid entity and have a bee component
