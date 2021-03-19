@@ -19,7 +19,7 @@ public class BotAuthoring : MonoBehaviour
 
         dstManager.AddComponentData(entity, new Speed()
         {
-            Value = new float3(0.2f, 0.0f, 0.2f)
+            Value = new float3(0.05f, 0.0f, 0.05f)
         });
 
         dstManager.AddComponentData(entity, new TargetPosition()

@@ -29,18 +29,33 @@ public class PassBucketSystem : SystemBase
         Dependency = Entities
             .WithAny<EmptyBucketer, FullBucketer>()
             .WithAll<CarryingBucket>()
-            .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, 
-                ref PassedBucketId passedBucketId, in NextPerson nextPerson) =>
-            {
-                if (nextPerson.Value != Entity.Null)
+            .ForEach((Entity entity, ref TargetPosition targetPosition, ref PlaceInLine placeInLine, ref BucketID bucketId, 
+                    ref PassedBucketId passedBucketId, in Translation position, in Radius radius, in NextPerson nextPerson) =>
                 {
-                    ecb.SetComponent(nextPerson.Value, new BucketID() {Value = bucketId.Value});
-                    passedBucketId.Value = bucketId.Value;
-                    bucketId.Value = Entity.Null;
-                    ecb.RemoveComponent<CarryingBucket>(entity);
-                }
+                    if (nextPerson.Value != Entity.Null)
+                    {
+                        var nextPersonLoc = GetComponent<Translation>(nextPerson.Value);
+                        var distx = math.distance(nextPersonLoc.Value.x, position.Value.x);
+                        var distz = math.distance(nextPersonLoc.Value.z, position.Value.z);
+                        // If next person is close enough, pass my bucket
+                        if ((distx < 0.000001 && distz < 0.000001))
+                        {
+                            ecb.SetComponent(nextPerson.Value, new BucketID() {Value = bucketId.Value});
+                            passedBucketId.Value = bucketId.Value;
+                            bucketId.Value = Entity.Null;
+                            ecb.RemoveComponent<CarryingBucket>(entity);
+                            // return to where I was before I moved to pass bucket
+                            ecb.SetComponent(entity, new TargetPosition() {Value = placeInLine.Value});
+                        }
+                        else
+                        {
+                            // move closer to person
+                            if(nextPersonLoc.Value.x > 0.01 && nextPersonLoc.Value.z > 0.01)
+                                targetPosition.Value = nextPersonLoc.Value;
+                        }
+                    }
 
-            }).Schedule(Dependency);
+                }).Schedule(Dependency);
         sys.AddJobHandleForProducer(Dependency);
     }
 }

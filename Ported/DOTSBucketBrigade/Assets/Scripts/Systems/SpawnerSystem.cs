@@ -97,6 +97,7 @@ public class SpawnerSystem : SystemBase
                     var halfChain = initCounts.WorkerCountPerChain / 2;
                     Entity previousBot = default;
                     line.HalfCount = halfChain;
+                    var lineEntity = ecb.CreateEntity();
                     for (int bucketers = 0; bucketers < halfChain; bucketers++)
                     {
                         var bot = ecb.Instantiate(initCounts.BotPrefab);
@@ -118,6 +119,8 @@ public class SpawnerSystem : SystemBase
                         if (bucketers == halfChain - 1)
                         {
                             ecb.AddComponent<LastInLine>(bot);
+                            ecb.AddComponent<CurrentLine>(bot);
+                            ecb.SetComponent(bot,new CurrentLine(){Value = lineEntity});
                             line.EmptyTail = bot;
                         }
                         previousBot = bot;
@@ -144,13 +147,15 @@ public class SpawnerSystem : SystemBase
                         if (bucketers == halfChain - 1)
                         {
                             ecb.AddComponent<LastInLine>(bot);
+                            ecb.AddComponent<CurrentLine>(bot);
+                            ecb.SetComponent<CurrentLine>(bot, new CurrentLine() {Value = lineEntity});
                             line.FullTail = bot;
                         }
                         previousBot = bot;
                     }
-                    var lineEntity = ecb.CreateEntity();
                     ecb.AddComponent<Line>(lineEntity);
                     ecb.SetComponent<Line>(lineEntity, line);
+                    ecb.AddComponent<Reposition>(lineEntity);
                 }
                 
                 Unity.Mathematics.Random fireRandomizer = new Unity.Mathematics.Random((uint) Random.Range(1, heatMap.Length));

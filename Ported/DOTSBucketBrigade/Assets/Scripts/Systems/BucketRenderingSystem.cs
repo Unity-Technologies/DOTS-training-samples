@@ -37,14 +37,14 @@ public class BucketRenderingSystem : SystemBase
                 else if (volume.Value > 0.0f & volume.Value <= 0.01f)
                 {
                     color = new URPMaterialPropertyBaseColor { Value = WATER_COLOUR };
-                    float fillingBucketScale = 0.25f;
+                    float fillingBucketScale = 0.05f;
                     scale.Value = new float3(fillingBucketScale, fillingBucketScale, fillingBucketScale);
                 }
                 else if (volume.Value > 0.01f & volume.Value <= 1)
                 {
                     color = new URPMaterialPropertyBaseColor { Value = math.lerp(WATER_COLOUR, BUCKET_FULL_COLOUR, volume.Value) };
-                    float fillingBucketScale = 0.25f;
-                    float filledBucketScale = 0.75f;
+                    float fillingBucketScale = 0.05f;
+                    float filledBucketScale = 0.3f;
                     scale.Value = new float3(math.lerp(fillingBucketScale, filledBucketScale, volume.Value), math.lerp(fillingBucketScale, filledBucketScale, volume.Value), math.lerp(fillingBucketScale, filledBucketScale, volume.Value));
                 }
 
