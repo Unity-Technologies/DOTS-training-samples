@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Unity.Collections.LowLevel.Unsafe;
 
 struct BucketInfo {
     public float3 position;
@@ -29,8 +30,6 @@ public class BeeBehavior: SystemBase
     protected override void OnUpdate()
     {
         var commandBuffer = endSim.CreateCommandBuffer();
-        //endSim.AddJobHandleForProducer(Dependency);
-        //.WithDisposeOnCompletion(commandBuffer)
 
         var foodEntities = FoodQuery.ToEntityArray(Allocator.TempJob);
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));                
@@ -39,8 +38,10 @@ public class BeeBehavior: SystemBase
 
         const float partitionSize = 10.0f;
         int totalBeesCount = allBeesQuery.CalculateEntityCount();
-        NativeHashMap<int,BucketInfo> partitionsA = new NativeHashMap<int, BucketInfo>( (int)math.sqrt(totalBeesCount), Allocator.TempJob);
-        NativeHashMap<int,BucketInfo> partitionsB = new NativeHashMap<int, BucketInfo>( (int)math.sqrt(totalBeesCount), Allocator.TempJob);
+        
+        
+        UnsafeHashMap<int,BucketInfo> partitionsA = new UnsafeHashMap<int, BucketInfo>( (int)math.sqrt(totalBeesCount), Allocator.TempJob);
+        UnsafeHashMap<int,BucketInfo> partitionsB = new UnsafeHashMap<int, BucketInfo>( (int)math.sqrt(totalBeesCount), Allocator.TempJob);
         Entities
             .WithNone<Attacking>()
             .WithAll<Bee>()
@@ -88,9 +89,6 @@ public class BeeBehavior: SystemBase
             .ForEach((Entity entity, in Translation translation, in Team team) =>
             {
                 int r = random.NextInt() % 100;
-                bool a = partitionsA.IsEmpty;
-                bool b = partitionsB.IsEmpty;
-                var l = foodEntities.Length;
                 if(r < 50) {}
                 else if(r < 98)                
                 {
@@ -101,7 +99,7 @@ public class BeeBehavior: SystemBase
                     commandBuffer.AddComponent<FoodTarget>(entity, new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)] } );
                 } else {
                     var bucketEnum = (team.index==false) ? partitionsB.GetEnumerator() : partitionsA.GetEnumerator();
-
+                    
                     // go for attack
                     // find nearest enemy bee
                     float minDistance = 0xFFFFFF;
@@ -116,7 +114,7 @@ public class BeeBehavior: SystemBase
                     // add Attacking component 
                     if(enemyBee != Entity.Null) {
                         commandBuffer.AddComponent(entity,new Attacking() { TargetBee = enemyBee });
-                    }                    
+                    }
                 }
             }).Schedule();
         
