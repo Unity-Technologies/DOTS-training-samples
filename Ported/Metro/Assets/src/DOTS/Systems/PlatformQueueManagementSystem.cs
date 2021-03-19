@@ -80,40 +80,56 @@ namespace src.DOTS.Systems
             
             
             var allWalkingTags = GetComponentDataFromEntity<WalkingTag>(true);
+            var allCommuterTranslations = GetComponentDataFromEntity<Translation>(false);
             var allWaitingTrains = GetComponentDataFromEntity<TrainWaiting>(true);
             var ecb2 = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            
+            var deltaTime = Time.DeltaTime;
 
-            Entities.WithReadOnly(allWalkingTags).ForEach((
+            Entities
+                .WithNativeDisableParallelForRestriction(allCommuterTranslations)
+                .WithNativeDisableContainerSafetyRestriction(allCommuterTranslations)
+                // .WithReadOnly(allCommuterTranslations)
+                .ForEach((
                 Entity queue,
                 int entityInQueryIndex,
                 ref DynamicBuffer<CommuterQueueData> commuterQueue,
                 ref PlatformQueue queueInfo,
                 ref FirstQueuePassenger firstPassenger,
                 in Translation queuePos
-                
             ) =>
             {
                 float3 dir = new float3(0.0f, 0.0f, 1.0f);
                 float spacing = 0.5f;
+
+                var firstPassengerIsReady = false;
                 
-               for (int i = 0; i < commuterQueue.Length; ++i)
-               {
-                   if (!allWalkingTags.HasComponent(commuterQueue[i].entity))
-                   {
-                       ecb2.AddComponent<WalkingTag>(entityInQueryIndex, commuterQueue[i].entity);
-                       ecb2.AppendToBuffer(entityInQueryIndex, commuterQueue[i].entity, new PathData
-                       {
-                           point = queuePos.Value + dir * i * spacing
-                       });
-                       
-                   }
-               }
-                 
+                
+                for (int i = 0; i < commuterQueue.Length; ++i)
+                {
+
+                    var newPos = queuePos.Value + dir * i * spacing;
+                    var commuterTranslation = allCommuterTranslations[commuterQueue[i].entity];
+                    var passengerNeedsToMove = math.distancesq(commuterTranslation.Value, newPos) > 0.2;
+                    
+                    if (passengerNeedsToMove)
+                    {
+                        var distance = newPos - commuterTranslation.Value;
+                        var direction = math.normalize(distance);
+                        commuterTranslation.Value += direction * WalkingSystem.m_D * deltaTime;
+                        allCommuterTranslations[commuterQueue[i].entity] = commuterTranslation;
+                        // ecb2.SetComponent(entityInQueryIndex, commuterQueue[i].entity, commuterTranslation);
+                    }
+                    
+                    if (i == 0)
+                        firstPassengerIsReady = !passengerNeedsToMove;
+                }
+                
                 if (firstPassenger.passenger == Entity.Null)
                 {
-                    if(commuterQueue.Length > 0)
+                    if (commuterQueue.Length > 0)
                     {
-                        if (!allWalkingTags.HasComponent(commuterQueue[0].entity))
+                        if (firstPassengerIsReady)
                         {
                             firstPassenger.passenger = commuterQueue[0].entity;
                             commuterQueue.RemoveAt(0);

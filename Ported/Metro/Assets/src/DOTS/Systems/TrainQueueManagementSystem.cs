@@ -77,40 +77,20 @@ namespace src.DOTS.Systems
                     ecb.SetComponent(entityInQueryIndex, ent, new Translation() { Value = allPlatformQueuePositions[destinationPlatform].Value + new float3(i * 0.01f, 0.0f, 0.0f)});
                 }
                 commuterQueue.Clear();
-                
-                
-                // ref var valuePlatforms = ref metroBlob.Blob.Value.Platforms;
-                // var from = CommuterSpawnerSystem.GetRandomPlatform(ref valuePlatforms, ref random);
-                // var to = valuePlatforms[from.oppositePlatformIndex];
-                //
-                // float3 p0 = from.queuePoint;
-                // float3 p1 = valuePlatforms[from.oppositePlatformIndex].queuePoint;
-                // float t = random.NextFloat();
-                //     
-                // var commuter = ecb.Instantiate(spawner.commuterPrefab);
-                // ecb.SetComponent(commuter, new Translation {Value =  p0 * (1.0f - t) + p1 * t });
-                //
-                // // TODO: move to switching platform system
-                // ecb.AddBuffer<PathData>(commuter);
-                // ecb.AddComponent<SwitchingPlatformTag>(commuter);
-                // ecb.AddComponent(commuter, new SwitchingPlatformData
-                // {
-                //     platformFrom = from.platformIndex,
-                //     platformTo = to.platformIndex
-                // });
            }
            else
            {
                //move player to position
                FirstQueuePassenger passengerToPickUp = firstPassengerFromEntity[trainWaiting.platformEntity];
                //ecb.AddComponent<SwitchingPlatformTag>(entityInQueryIndex, passengerToPickUp.passenger);
-               if (passengerToPickUp.passenger != Entity.Null && !movingFromEntity.HasComponent(passengerToPickUp.passenger))
+               if (trainWaiting.PassengersToTake > 0 && passengerToPickUp.passenger != Entity.Null && !movingFromEntity.HasComponent(passengerToPickUp.passenger))
                {
                    commuterQueue.Add(new CommuterQueueData{ entity = passengerToPickUp.passenger});
                    ecb.AddComponent<Parent>(entityInQueryIndex, passengerToPickUp.passenger, new Parent() {Value = entity});
                    ecb.AddComponent<LocalToParent>(entityInQueryIndex, passengerToPickUp.passenger);
                    ecb.SetComponent(entityInQueryIndex, passengerToPickUp.passenger, new Translation() {Value = new float3(0.0f, 0.0f, 0.0f)});
                    ecb.SetComponent(entityInQueryIndex, trainWaiting.platformEntity, new FirstQueuePassenger() {passenger = Entity.Null});
+                   trainWaiting.PassengersToTake--;
                }
                
         

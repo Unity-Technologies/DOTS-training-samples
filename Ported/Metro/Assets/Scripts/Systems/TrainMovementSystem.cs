@@ -50,7 +50,7 @@ public class TrainMovementSystem : SystemBase
                 {
                     
 
-                    var waiting = new TrainWaiting {RemainingTime = k_TrainStopTime, platformEntity = Entity.Null};
+                    var waiting = new TrainWaiting {RemainingTime = k_TrainStopTime, PassengersToTake = 1, platformEntity = Entity.Null};
                     ecb.AddComponent(entityInQueryIndex, entity, waiting);
                     
                     

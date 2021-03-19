@@ -7,6 +7,7 @@ using Unity.Mathematics;
 public struct TrainWaiting : IComponentData
 {
     public float RemainingTime;
+    public int PassengersToTake;
     public Entity platformEntity; 
 
 }
