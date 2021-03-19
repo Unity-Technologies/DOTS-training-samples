@@ -9,11 +9,20 @@ using UnityEngine;
 public class BeeAttacking: SystemBase
 {
     private const float beeAttackChaseDistance = 10;
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
+        var commandBuffer = endSim.CreateCommandBuffer();
+        //endSim.AddJobHandleForProducer(Dependency);
+        //.WithDisposeOnCompletion(commandBuffer)
         var deltaTime = Time.DeltaTime;
-        
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
         
         //var vector = random.NextFloat3Direction();
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));
@@ -63,9 +72,8 @@ public class BeeAttacking: SystemBase
                     // dead or entity is invalid
                     commandBuffer.RemoveComponent<Attacking>(beeEntity);                    
                 }
-            }).Run();
+            }).Schedule();
 
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

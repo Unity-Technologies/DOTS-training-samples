@@ -21,61 +21,18 @@ public class BeeBehavior: SystemBase
         {
             All = new ComponentType[] {typeof(Bee)} //, ComponentType.ReadOnly<WorldRenderBounds>()
         };
-
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
     
-    /*protected override void OnUpdate()
-    {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        var foodEntities = FoodQuery.ToEntityArray(Allocator.Temp);
-        var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));                
-
-        EntityQuery allBeesQuery = GetEntityQuery(allBeesQueryDesc);
-        NativeArray<Entity> allBees = allBeesQuery.ToEntityArray(Allocator.Temp);
-
-        Entities
-            .WithNone<GoingForFood,Attacking,BringingFoodBack>()
-            .ForEach((Entity entity, in Bee bee, in Translation translation, in Team team) =>
-            {
-                int r = random.NextInt() % 100;
-                if(r < 98)                
-                {
-                    int foodCount = foodEntities.Length;
-                    if (foodCount == 0)
-                        return;
-                    commandBuffer.AddComponent<GoingForFood>(entity);
-                    commandBuffer.AddComponent<FoodTarget>(entity, new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)] } );
-                } else {
-                    var enemyTeam = !team.index;
-                    // go for attack
-                    // find nearest enemy bee
-                    float minDistance = 0xFFFFFF;
-                    Entity enemyBee = Entity.Null;
-                    foreach(Entity anotherBee in allBees) {
-                        //if( !HasComponent<Team>(anotherBee) ) continue;
-                        if( GetComponent<Team>(anotherBee).index != enemyTeam) continue;
-                        float distance = math.distance(GetComponent<Translation>(anotherBee).Value,translation.Value);
-                        if(distance<minDistance) {
-                            minDistance = distance;
-                            enemyBee = anotherBee;
-                        }
-                    }
-                    // add Attacking component 
-                    if(enemyBee != Entity.Null) {
-                        commandBuffer.AddComponent(entity,new Attacking() { TargetBee = enemyBee });
-                    }                    
-                }
-            }).Run();
-        
-        
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
-    }*/
+    EndSimulationEntityCommandBufferSystem endSim;    
 
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        var foodEntities = FoodQuery.ToEntityArray(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
+        //endSim.AddJobHandleForProducer(Dependency);
+        //.WithDisposeOnCompletion(commandBuffer)
+
+        var foodEntities = FoodQuery.ToEntityArray(Allocator.TempJob);
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));                
 
         EntityQuery allBeesQuery = GetEntityQuery(allBeesQueryDesc);
@@ -121,15 +78,19 @@ public class BeeBehavior: SystemBase
                             )};
                     }
                 }
-            }).Run();        
+            }).Schedule();        
 
         Entities
             .WithNone<GoingForFood,Attacking,BringingFoodBack>()
             .WithDisposeOnCompletion(partitionsA)
             .WithDisposeOnCompletion(partitionsB)
+            .WithDisposeOnCompletion(foodEntities)
             .ForEach((Entity entity, in Translation translation, in Team team) =>
             {
                 int r = random.NextInt() % 100;
+                bool a = partitionsA.IsEmpty;
+                bool b = partitionsB.IsEmpty;
+                var l = foodEntities.Length;
                 if(r < 50) {}
                 else if(r < 98)                
                 {
@@ -157,10 +118,9 @@ public class BeeBehavior: SystemBase
                         commandBuffer.AddComponent(entity,new Attacking() { TargetBee = enemyBee });
                     }                    
                 }
-            }).Run();
+            }).Schedule();
         
+        endSim.AddJobHandleForProducer(Dependency);
         
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
     }
 }
