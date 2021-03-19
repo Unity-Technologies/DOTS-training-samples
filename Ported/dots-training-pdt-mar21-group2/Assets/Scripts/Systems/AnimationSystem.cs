@@ -16,19 +16,22 @@ public class AnimationSystem : SystemBase
         
         var rotations = GetComponentDataFromEntity<Rotation>();
         var translations = GetComponentDataFromEntity<Translation>();
+        var scales = GetComponentDataFromEntity<Scale>();
         var localToWorlds = GetComponentDataFromEntity<LocalToWorld>();
         
         var handsWindingUp = GetComponentDataFromEntity<HandWindingUp>();
         var handsThrowingRock = GetComponentDataFromEntity<HandThrowingRock>();
         var handsIdle = GetComponentDataFromEntity<HandIdle>();
         var handsLookingForACan = GetComponentDataFromEntity<HandLookingForACan>();
+        var handsGrabbingRock = GetComponentDataFromEntity<HandGrabbingRock>();
         
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         
         var parameters = GetSingleton<SimulationParameters>();
-        
+        var canSpeed = parameters.CanScrollSpeed;
+
         // Initialize hand target position when idle
         Dependency = Entities
             .WithAny<HandIdle, HandLookingForACan>()
@@ -52,6 +55,7 @@ public class AnimationSystem : SystemBase
                 in TargetCan targetCan) =>
             {
                 var canPosition = translations[targetCan.Value];
+                canPosition.Value.x += 3.0f * canSpeed;
                 float3 windUpOffset = translation.Value - canPosition.Value;
                 windUpOffset.y = 0.0f;
                 windUpOffset = math.normalize(windUpOffset) * parameters.ArmJointLength * 1.75f;
@@ -73,6 +77,7 @@ public class AnimationSystem : SystemBase
                 in TargetCan targetCan) =>
             {
                 var canPosition = translations[targetCan.Value];
+                canPosition.Value.x += 3.0f * canSpeed;
                 float3 throwOffset = canPosition.Value - translation.Value;
                 throwOffset.y *= 10.0f;
                 throwOffset = math.normalize(throwOffset) * parameters.ArmJointLength * 1.95f;
@@ -98,15 +103,18 @@ public class AnimationSystem : SystemBase
         Dependency = Entities
             .WithNativeDisableContainerSafetyRestriction(translations)
             .WithNativeDisableContainerSafetyRestriction(rotations)
+            .WithReadOnly(scales)
             .WithReadOnly(localToWorlds)
             .WithReadOnly(handsWindingUp)
             .WithReadOnly(handsThrowingRock)
+            .WithReadOnly(handsGrabbingRock)
             .WithReadOnly(handsIdle)
             .WithReadOnly(handsLookingForACan)
             .ForEach((Entity entity,
                 ref Arm arm, 
                 ref Timer timer, 
-                ref AnimStartPosition startPosition, 
+                ref HandStrength handStrength,
+                ref AnimStartPosition startPosition,
                 in TargetPosition targetPosition,
                 in TimerDuration timerDuration,
                 in TargetRock targetRock
@@ -114,28 +122,43 @@ public class AnimationSystem : SystemBase
             {
                 if (Utils.IsPlayingAnimation(timer))
                 {
+
+                    
                     var isThrowing = handsThrowingRock.HasComponent(entity);
                     var isWindingUp = handsWindingUp.HasComponent(entity);
                     var isIdle = handsIdle.HasComponent(entity);
                     var isLookingForACan = handsLookingForACan.HasComponent(entity);
+                    var isGrabbing = handsGrabbingRock.HasComponent(entity);
+                    
+                    var socketOffset = 0.05f;
+
+                    var rockSize = 0.0f;
+                    if (!isIdle)
+                    {
+                        rockSize = scales[targetRock.RockEntity].Value;
+                        socketOffset += rockSize * 0.5f;
+                    }
 
                     if (Utils.DidAnimJustStarted(timer, timerDuration))
                     {
                         // when anim start playing, we initialize start position with the current hand position
                         var forearmMatrix = localToWorlds[arm.m_Forearm];
-                        startPosition.Value = forearmMatrix.Position + forearmMatrix.Up * 3.0f;
+                        startPosition.Value = forearmMatrix.Position + forearmMatrix.Up * (parameters.ArmJointLength + socketOffset);
+                        startPosition.StartHandStrength = handStrength.Value;
                     }
 
                     // tick animation timer
                     timer.Value -= deltaTime;
 
-                    var normalizedTime = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
-                    normalizedTime = Utils.CubicInterpolation(normalizedTime);
+                    var linearTime = 1.0f - math.clamp(timer.Value / timerDuration.Value, 0.0f, 1.0f);
+                    var normalizedTime = Utils.CubicInterpolation(linearTime);
                     if (isThrowing)
                     {
                         normalizedTime = Utils.CubicInterpolation(normalizedTime);
                     }
-                    var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, normalizedTime);
+
+                    var reachFactor = isGrabbing ? math.clamp(linearTime / 0.8f, 0.0f, 1.0f) : linearTime;
+                    var handTargetPos = math.lerp(startPosition.Value, targetPosition.Value, reachFactor);
                     
                     // Orient arm toward target
                     var armRoot = translations[entity].Value;
@@ -143,8 +166,9 @@ public class AnimationSystem : SystemBase
                     var up = new float3(0.0f, forward.z, -forward.y);
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
 
+                    
                     float limbLength = parameters.ArmJointLength + parameters.ArmJointSpacing;
-                    Utils.ExtendIK(limbLength, limbLength, math.distance(handTargetPos, armRoot),
+                    Utils.ExtendIK(limbLength, limbLength + socketOffset, math.distance(handTargetPos, armRoot),
                         out float armAngle, out float forearmAngle);
                     
                     rotations[arm.m_Humerus] = new Rotation()
@@ -165,6 +189,131 @@ public class AnimationSystem : SystemBase
                             Value = handTargetPos
                         };
                     }
+
+                    float GetGrabStrength()
+                    {
+                        if (rockSize <= 0.7f)
+                        {
+                            return math.lerp(1.65f, 1.4f,
+                                (rockSize - 0.4f) / 0.3f);
+                        }
+                        else
+                        {
+                            return math.lerp(1.4f, 1.2f,
+                                (rockSize - 0.7f) / 0.3f);
+                        }
+                    }
+
+                    // Hand animation
+                    if (isIdle)
+                    {
+                        handStrength.Value = math.lerp(startPosition.StartHandStrength, 0.7f, 
+                            math.clamp(normalizedTime / 0.6f, 0.0f, 1.0f));
+                    }
+                    else if (isGrabbing)
+                    {
+                        if (normalizedTime <= 0.2f)
+                        {
+                            handStrength.Value = math.lerp(startPosition.StartHandStrength, 0.3f,
+                                normalizedTime / 0.2f);
+                        }
+                        else if (normalizedTime <= 0.8f)
+                        {
+                            handStrength.Value = 0.3f;
+                        }
+                        else
+                        {
+                            handStrength.Value = math.lerp(0.3f, GetGrabStrength(),
+                                (normalizedTime - 0.8f) / 0.2f);
+                        }
+                    }
+                    else if (isThrowing)
+                    {
+                        if (normalizedTime <= 0.7f)
+                        {
+                            handStrength.Value = GetGrabStrength();
+                        }
+                        else
+                        {
+                            handStrength.Value = math.lerp(GetGrabStrength(), 0.05f,
+                                (normalizedTime - 0.7f) / 0.3f);
+                        }
+                    }
+                    else //if (isWindingUp || isLookingForACan)
+                    {
+                        handStrength.Value = GetGrabStrength();
+                    }
+
+                    float strength = handStrength.Value;
+                    var baseAngle = -1.0f - 0.2f * strength;
+
+                    var baseFoldRot = quaternion.RotateX(baseAngle);
+                    var foldRot = quaternion.RotateX(strength);
+                    
+                    rotations[arm.m_Finger0Joint0] = new Rotation()
+                    {
+                        Value = baseFoldRot
+                    };
+                    rotations[arm.m_Finger0Joint1] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    rotations[arm.m_Finger0Joint2] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    
+                    rotations[arm.m_Finger1Joint0] = new Rotation()
+                    {
+                        Value = baseFoldRot
+                    };
+                    rotations[arm.m_Finger1Joint1] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    rotations[arm.m_Finger1Joint2] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    
+                    rotations[arm.m_Finger2Joint0] = new Rotation()
+                    {
+                        Value = baseFoldRot
+                    };
+                    rotations[arm.m_Finger2Joint1] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    rotations[arm.m_Finger2Joint2] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    
+                    rotations[arm.m_Finger3Joint0] = new Rotation()
+                    {
+                        Value = baseFoldRot
+                    };
+                    rotations[arm.m_Finger3Joint1] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    rotations[arm.m_Finger3Joint2] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    
+                    rotations[arm.m_ThumbJoint0] = new Rotation()
+                    {
+                        Value = math.mul(quaternion.RotateY(-1.6f), baseFoldRot)
+                    };
+                    rotations[arm.m_ThumbJoint1] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
+                    rotations[arm.m_ThumbJoint2] = new Rotation()
+                    {
+                        Value = foldRot
+                    };
                 }
             }).ScheduleParallel(Dependency);
 
@@ -177,7 +326,7 @@ public class AnimationSystem : SystemBase
                 if (Utils.DidAnimJustFinished(timer))
                 {
                     // Go to Throwing state
-                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity, 0.4f);
+                    Utils.GoToState<HandWindingUp, HandThrowingRock>(ecb, entityInQueryIndex, entity, 0.2f);
                 }
             }).ScheduleParallel(Dependency);
         

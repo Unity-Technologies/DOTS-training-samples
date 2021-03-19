@@ -170,9 +170,9 @@ struct Utils
         var parameters = system.GetSingleton<SimulationParameters>();
         var mm = new MinMaxAABB
         {
-            Min = new float3(worldBounds.Width * -0.5f, parameters.CanScrollMinHeight, parameters.CanScrollDepth) -
+            Min = new float3(0.0f, parameters.CanScrollMinHeight, parameters.CanScrollDepth) -
                   new float3(canRadius),
-            Max = new float3(worldBounds.Width * 0.5f, parameters.CanScrollMaxHeight, parameters.CanScrollDepth) +
+            Max = new float3(worldBounds.Width, parameters.CanScrollMaxHeight, parameters.CanScrollDepth) +
                   new float3(canRadius),
         };
         return mm;

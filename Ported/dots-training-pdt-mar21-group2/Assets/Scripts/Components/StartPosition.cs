@@ -10,4 +10,5 @@ using Unity.Mathematics;
 public struct AnimStartPosition : IComponentData
 {
     public float3 Value;
+    public float StartHandStrength;
 }
