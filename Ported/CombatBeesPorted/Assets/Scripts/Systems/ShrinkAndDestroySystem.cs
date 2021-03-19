@@ -9,11 +9,18 @@ using Unity.Transforms;
 public class ShrinkAndDestroySystem: SystemBase
 {
     
+    EndInitializationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        endSim = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
 
-        var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
+        var commandBuffer = endSim.CreateCommandBuffer();
         
         Entities
             .ForEach((Entity entity, ref ShrinkAndDestroy shrinkAndDestroy, ref NonUniformScale scale) =>
@@ -27,10 +34,9 @@ public class ShrinkAndDestroySystem: SystemBase
 
                 var scaleCof = 1.0f - math.clamp(shrinkAndDestroy.age / shrinkAndDestroy.lifetime, 0, 1);
                 scale.Value *= scaleCof;
-            }).Run();
-        
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+            }).Schedule();
+            
+        endSim.AddJobHandleForProducer(Dependency);
     }
     
 }

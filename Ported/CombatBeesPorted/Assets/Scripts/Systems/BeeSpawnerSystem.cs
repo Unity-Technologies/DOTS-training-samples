@@ -7,11 +7,20 @@ using Unity.Transforms;
 
 public class BeeSpawnerSystem: SystemBase
 {
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+    
     protected override void OnUpdate()
     {
 
         var gameConfig = GetSingleton<GameConfiguration>();
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
+
         var random = new Random((uint)(Time.ElapsedTime * 10000)+1);
         var speed = 2f;
         
@@ -27,7 +36,7 @@ public class BeeSpawnerSystem: SystemBase
                 }
                 
                 commandBuffer.DestroyEntity(entity);
-            }).Run();
+            }).Schedule();
         
         Entities
             .WithAll<TeamB>()
@@ -41,9 +50,8 @@ public class BeeSpawnerSystem: SystemBase
                 }
                 
                 commandBuffer.DestroyEntity(entity);
-            }).Run();
+            }).Schedule();
         
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

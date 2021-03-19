@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-
+using Unity.Collections.LowLevel.Unsafe;
 
 struct AverageBeePos {
     public float3 position;
@@ -22,18 +22,21 @@ public class RepulsionSystem: SystemBase
             All = new ComponentType[] {typeof(Bee)} //, ComponentType.ReadOnly<WorldRenderBounds>()
         };
 
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
     
+    EndSimulationEntityCommandBufferSystem endSim;    
+
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
 
         EntityQuery allBeesQuery = GetEntityQuery(allBeesQueryDesc);        
         const float maxRepulsionRadius = 4.0f;
         const float posPartitionK = maxRepulsionRadius * 2.0f / 3.0f;
 
-        int beesCount = allBeesQuery.CalculateEntityCount();
-        NativeHashMap<int,AverageBeePos> partitions = new NativeHashMap<int, AverageBeePos>((int)math.sqrt(beesCount),Allocator.TempJob);
+        int beesCount = allBeesQuery.CalculateEntityCount();        
+        UnsafeHashMap<int,AverageBeePos> partitions = new UnsafeHashMap<int, AverageBeePos>((int)math.sqrt(beesCount),Allocator.TempJob);
 
         var random = new Unity.Mathematics.Random(1 + (uint)(Time.ElapsedTime*10000));     
         float keepPercent = math.max(2000,math.sqrt(beesCount) / beesCount);
@@ -54,15 +57,17 @@ public class RepulsionSystem: SystemBase
                         partitions[index] = new AverageBeePos() {count=1, position=translation.Value};
                     }
                 }
-            }).Run();
+            }).Schedule();
 
-        var keys = partitions.GetKeyArray(Allocator.TempJob);
-        foreach(int key in keys) {
-            var v = partitions[key];
-            v.position /= v.count;
-            partitions[key] = v;
-        }
-        keys.Dispose();
+        Job.WithCode( () => {
+            var keys = partitions.GetKeyArray(Allocator.Temp);
+            foreach(int key in keys) {
+                var v = partitions[key];
+                v.position /= v.count;
+                partitions[key] = v;
+            }
+            keys.Dispose();
+        }).Schedule();
         
         Entities
             .WithNone<Attacking>()
@@ -96,59 +101,9 @@ public class RepulsionSystem: SystemBase
                 }             
 
                 beeForce.Value += sumForce * 3 / count;
-            }).Run();
+            }).Schedule();
+
+        endSim.AddJobHandleForProducer(Dependency);
     }
-    /*
-    protected override void OnUpdate()
-    {
-
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-
-        EntityQuery allBeesQuery = GetEntityQuery(allBeesQueryDesc);        
-        const float maxRepulsionDistance = 5.0f;
-
-        NativeMultiHashMap<int,float3> partitions =  new NativeMultiHashMap<int, float3>(allBeesQuery.CalculateEntityCount(), Allocator.TempJob);
-        Entities
-            .WithNone<Attacking>()
-            .WithAll<Bee>()
-            .ForEach((in Translation translation) =>
-            {
-                var partIndex = translation.Value / maxRepulsionDistance / 2.0f;
-                int index =  (int)partIndex.x + ((int)partIndex.y)*1024;
-                partitions.Add(index, translation.Value);
-            
-            }).Run();
-
-        Entities
-            .WithNone<Attacking>()
-            .WithAll<Bee>()
-            .WithDisposeOnCompletion(partitions)
-            .ForEach((ref Force beeForce, in Translation translation) =>
-            {
-                float3 sumForce = float3.zero;
-                int count = 1;
-                var partIndex = translation.Value / maxRepulsionDistance / 2.0f;
-                
-                for( int indexX=((int)partIndex.x)-1; indexX<=((int)partIndex.x)+1; indexX++) {
-                    for( int indexY=((int)partIndex.y)-1; indexY<=((int)partIndex.y)+1; indexY++) {
-                        var iterator = partitions.GetValuesForKey(indexX+indexY*1024);
-                        while( iterator.MoveNext()) {
-                            var anotherBeePos = iterator.Current;
-
-                            float3 vec = translation.Value - anotherBeePos;
-
-                            float distance = math.length(vec);                            
-                            if(distance < maxRepulsionDistance && distance != 0) {
-                                float amout = 1.0f - distance / maxRepulsionDistance;
-                                sumForce +=  math.normalize(vec) * amout;
-                                count += 1;
-                            }                        
-                        }    
-                    }
-                }             
-
-                beeForce.Value += sumForce *3 / count;
-            }).Run();
-    }*/
     
 }

@@ -11,12 +11,17 @@ public class InitialSpawnSystem : SystemBase
     private static readonly int HivePosition = Shader.PropertyToID("_HivePosition");
     private bool firstInitCreated = false;
 
-   
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
 
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfiguration>();
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
         var random = new Random((uint)(Time.ElapsedTime * 10000)+1);
 
         var distance = 10f;
@@ -52,10 +57,9 @@ public class InitialSpawnSystem : SystemBase
               commandBuffer.AddComponent(TeamBBeeSpawner, new Translation() { Value = new float3(gameConfig.HivePosition, 0, 0) });
 
               commandBuffer.DestroyEntity(entity);
-          }).Run();
+          }).Schedule();
         }
           
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

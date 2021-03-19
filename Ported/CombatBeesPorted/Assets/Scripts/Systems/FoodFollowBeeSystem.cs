@@ -7,26 +7,15 @@ using Unity.Transforms;
 
 [UpdateAfter(typeof(MoveSystem))]
 public class FoodFollowBeeSystem: SystemBase
-{
-    
+{   
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.TempJob);
+        Entities            
+            .ForEach((Entity entity, in Food food,in PossessedBy possessedBy) =>
+            {    
+                SetComponent(entity, new Translation() {Value = new float3(0,-0.70f,0) + GetComponent<Translation>(possessedBy.Bee).Value} );                
+            }).Schedule();
         
-        
-        var translationFromEntity = GetComponentDataFromEntity<Translation>(true);
-        Entities
-            .ForEach((Entity entity,ref Translation foodTranslation, in Food food,in PossessedBy possessedBy) =>
-            {
-                // if (!HasComponent<Bee>(possessedBy.Bee))
-                // {
-                //     commandBuffer.RemoveComponent<PossessedBy>(entity); // Hack to remove food attached to dead bee
-                // }
-                foodTranslation.Value = translationFromEntity[possessedBy.Bee].Value+new float3(0,-0.70f,0);
-            }).Run();
-        
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
     }
     
 }

@@ -9,10 +9,16 @@ public class DustSpawnSystem : SystemBase
 {
     private static readonly int HivePosition = Shader.PropertyToID("_HivePosition");
 
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfiguration>();
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
         var random = new Unity.Mathematics.Random((uint)(Time.ElapsedTime * 10000)+1);
         
         Entities
@@ -28,9 +34,8 @@ public class DustSpawnSystem : SystemBase
                 }
                 
                 commandBuffer.RemoveComponent<DustSpawnConfiguration>(entity);
-            }).Run();
+            }).Schedule();
         
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

@@ -19,6 +19,6 @@ public class GravitySystem: SystemBase
             .ForEach((ref Force force) =>
             {                
                 force.Value += new float3{x=0,y=-1,z=0};
-            }).Run();
+            }).Schedule();
     }
 }

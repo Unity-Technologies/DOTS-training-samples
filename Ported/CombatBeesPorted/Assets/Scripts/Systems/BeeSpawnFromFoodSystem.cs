@@ -10,6 +10,8 @@ using UnityEngine.UIElements;
 public class BeeSpawnFromFoodSystem : SystemBase
 {
     private EntityQuery boundsQuery;
+    EndSimulationEntityCommandBufferSystem endSim;    
+
     protected override void OnCreate()
     {
         var boundsQueryDesc= new EntityQueryDesc
@@ -18,15 +20,17 @@ public class BeeSpawnFromFoodSystem : SystemBase
             Any = new ComponentType[] {typeof(TeamA),typeof(TeamB)}
         };
         boundsQuery = GetEntityQuery(boundsQueryDesc);
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfiguration>();
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.Temp);
+        var ecb = endSim.CreateCommandBuffer();
+        var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.TempJob);
         Entities
             .WithChangeFilter<Grounded>()
+            .WithDisposeOnCompletion(spawnBoundsArray)
             .ForEach((Entity entity,in Translation translation,in Food food,in Grounded grounded) =>
             {
                 if (GetComponent<SpawnBounds>(spawnBoundsArray[0]).ContainsPoint(new float3(translation.Value.x,translation.Value.y ,translation.Value.z)))
@@ -52,8 +56,7 @@ public class BeeSpawnFromFoodSystem : SystemBase
                     
                     ecb.AddComponent<DustSpawnConfiguration>(beeSpawnerEntity, new DustSpawnConfiguration() { Count = 5, Direction =  new float3(1f,1f,1f)});
                 }
-            }).Run();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            }).Schedule();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

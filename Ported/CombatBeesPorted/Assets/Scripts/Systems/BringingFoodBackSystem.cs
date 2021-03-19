@@ -10,9 +10,16 @@ public class BringingFoodBackSystem:SystemBase
 {
     private const float dropDistance = 1f;
     private const float carryingSpeed = 0.5f;
+
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
 
         Entities
             .ForEach((Entity entity,ref Force force, in BringingFoodBack bringingFoodBack, in FoodTarget foodTarget,in Translation beeTranslation, in Team team) =>
@@ -29,8 +36,7 @@ public class BringingFoodBackSystem:SystemBase
                 }
                 force.Value += math.normalize(targetMoveVector)*carryingSpeed;
                      
-            }).Run();
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+            }).Schedule();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

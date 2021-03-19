@@ -17,7 +17,7 @@ public class VelocityScaleSystem: SystemBase
             {
                 float yScale = math.lerp(initialScale.Value.y, initialScale.Value.y * 4f, math.clamp((math.length(velocity.Value) / 30f) - 0.5f,0,1)); // Expose these numbers?
                 nonUniformScale.Value = new float3( initialScale.Value.x, yScale, initialScale.Value.y);
-            }).Run();
+            }).Schedule();
         
         Entities
             .WithAll<VelocityScale, BloodDroplet>()
@@ -25,7 +25,7 @@ public class VelocityScaleSystem: SystemBase
             {
                 float yScale = math.lerp(initialScale.Value.y, initialScale.Value.y * 4f, math.clamp((math.length(velocity.Value) / 10f) - 0.5f,0,1)); // Expose these numbers?
                 nonUniformScale.Value = new float3( initialScale.Value.x, yScale, initialScale.Value.y);
-            }).Run();
+            }).Schedule();
     }
     
 }

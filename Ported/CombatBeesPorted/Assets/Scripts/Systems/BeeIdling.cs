@@ -20,6 +20,6 @@ public class BeeIdling: SystemBase
             {                
                 force.Value += random.NextFloat3Direction()*4f;
                      
-            }).Run();
+            }).Schedule();
     }
 }

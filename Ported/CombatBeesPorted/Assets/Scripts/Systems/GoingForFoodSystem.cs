@@ -12,6 +12,8 @@ public class GoingForFoodSystem:SystemBase
 {
     private EntityQuery boundsQuery;
     private const float boundsPadding=0.8f;
+    EndSimulationEntityCommandBufferSystem endSim;    
+
     protected override void OnCreate()
     {
 
@@ -20,17 +22,18 @@ public class GoingForFoodSystem:SystemBase
             All = new ComponentType[] { typeof(SpawnBounds),typeof(TeamA) }
         };
         boundsQuery = GetEntityQuery(boundsQueryDesc);
-
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     private const float pickDistance = 1f;
     protected override void OnUpdate()
     {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
+        var spawnBoundsArray = boundsQuery.ToEntityArray(Allocator.TempJob);
         var random = new Random((uint)(Time.ElapsedTime * 10000) + 1);
 
         Entities
+            .WithDisposeOnCompletion(spawnBoundsArray)
             .ForEach((Entity entity, ref Force force,in GoingForFood goingForFood,in FoodTarget foodTarget,in Translation beeTranslation, in Team team) =>
             {
                 var targetFood = foodTarget.Value;
@@ -72,8 +75,7 @@ public class GoingForFoodSystem:SystemBase
                 }
                 force.Value += math.normalize(targetMoveVector);
                      
-            }).Run();
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+            }).Schedule();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

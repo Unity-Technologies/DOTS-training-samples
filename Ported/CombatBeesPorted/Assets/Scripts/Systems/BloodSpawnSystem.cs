@@ -8,11 +8,18 @@ using UnityEngine;
 
 public class BloodSpawnSystem: SystemBase
 {
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
 
         var gameConfig = GetSingleton<GameConfiguration>();
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
         var random = new Unity.Mathematics.Random((uint)(Time.ElapsedTime * 10000)+1);
         
         Entities
@@ -29,9 +36,8 @@ public class BloodSpawnSystem: SystemBase
                 }
                 
                 commandBuffer.RemoveComponent<BloodSpawnConfiguration>(entity);
-            }).Run();
+            }).Schedule();
         
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 }

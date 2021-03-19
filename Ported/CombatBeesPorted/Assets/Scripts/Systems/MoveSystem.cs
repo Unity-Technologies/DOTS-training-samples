@@ -15,6 +15,7 @@ public class MoveSystem: SystemBase
     {
         base.OnCreate();
         endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        
     }
     protected override void OnUpdate()
     {
@@ -81,7 +82,7 @@ public class MoveSystem: SystemBase
                     velocity.Value.z *= -bounciness;
                 }
                 
-            }).Run();
+            }).Schedule();
 
         endSim.AddJobHandleForProducer(Dependency);   
     }

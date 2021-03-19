@@ -7,12 +7,19 @@ using UnityEngine;
 
 public class BloodDropSplaterSystem: SystemBase
 {
+    EndSimulationEntityCommandBufferSystem endSim;    
+
+    protected override void OnCreate()
+    {
+        endSim = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
         
         var random = new Unity.Mathematics.Random((uint)(Time.ElapsedTime * 10000)+1);
         
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var commandBuffer = endSim.CreateCommandBuffer();
         
         
         var gameConfig = GetSingletonEntity<GameConfiguration>();
@@ -53,15 +60,13 @@ public class BloodDropSplaterSystem: SystemBase
                     commandBuffer.SetComponent<NonUniformScale>(entity, new NonUniformScale(){ Value = new float3(0.2f) + (new float3(1, 1, 1) - math.abs(outsideNormal)) * random.NextFloat(0.0f, 4f)});
                     commandBuffer.AddComponent<ShrinkAndDestroy>(entity, new ShrinkAndDestroy() { lifetime = 1f, age = -2f });
                 }
-            }).Run();
+            }).Schedule();
         
-        commandBuffer.Playback(EntityManager);
-        commandBuffer.Dispose();
+        endSim.AddJobHandleForProducer(Dependency);
     }
 
     private float3 DirectionalScale(float3 position)
     {
-
         return float3.zero;
     }
 }
