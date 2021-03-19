@@ -28,7 +28,7 @@ public class FillBucketSystem : SystemBase
         var ecb = sys.CreateCommandBuffer();
         var waterLocations = waterQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var waterVolume = waterQuery.ToComponentDataArray<Volume>(Allocator.TempJob);
-        var waterIds = waterQuery.ToEntityArray(Allocator.TempJob);
+        //var waterIds = waterQuery.ToEntityArray(Allocator.TempJob);
 
         Dependency =
             Entities
