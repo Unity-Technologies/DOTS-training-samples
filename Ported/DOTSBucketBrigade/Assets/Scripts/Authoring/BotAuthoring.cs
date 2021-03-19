@@ -26,9 +26,15 @@ public class BotAuthoring : MonoBehaviour
         {
             Value = new float3(0.0f, 0.0f, 0.0f)
         });
+        
+        dstManager.AddComponentData(entity, new PlaceInLine()
+        {
+            Value = new float3(0.0f, 0.0f, 0.0f)
+        });
 
         dstManager.AddComponent<NextPerson>(entity);
         dstManager.AddComponent<BucketID>(entity);
+        dstManager.AddComponent<PassedBucketId>(entity);
         dstManager.AddComponentData(entity, new Radius()
         {
             Value = 5
