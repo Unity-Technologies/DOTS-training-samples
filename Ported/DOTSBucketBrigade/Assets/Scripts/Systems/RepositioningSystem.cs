@@ -21,7 +21,7 @@ public class RepositioningSystem : SystemBase
                 float3 increment = diff / points;
                 float3 arcRight = new float3(diff.z, diff.y, -diff.x) * 0.01f;
 
-                var nextEmptyBucketer = GetComponent<NextPerson>(line.EmptyHead).Value;
+                var nextEmptyBucketer = line.EmptyHead;
                 float3 nextTarget = fullTailTarget;
                 int counter = 0;
 
@@ -43,7 +43,7 @@ public class RepositioningSystem : SystemBase
                 }
 
                 float3 arcLeft = new float3(-diff.z, diff.y, diff.x) * 0.01f;
-                var nextFullBucketer = GetComponent<NextPerson>(line.FullHead).Value;
+                var nextFullBucketer = line.FullHead;
                 nextTarget = emptyTailTarget;
                 counter = 0;
 
