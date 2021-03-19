@@ -25,13 +25,15 @@ public class RockVelocitySystem : SystemBase
             {
                 if (targetCan.Value != Entity.Null && timer.Value <= 0.15f && timer.Value >= 0.0f)
                 {
+                    var rockTranslation = translations[targetRock.RockEntity].Value;
+                    
             		const float baseThrowSpeed = 24.0f;
                     float3 rockVelocity = float3.zero;
                     float3 canVelocity = velocities[targetCan.Value].Value;
                     float3 canTranslation = translations[targetCan.Value].Value;
                     float canSpeed = Unity.Mathematics.math.length(canVelocity);
-                    float cosTheta = Unity.Mathematics.math.dot(Unity.Mathematics.math.normalize(translation.Value - canTranslation), Unity.Mathematics.math.normalize(canVelocity));
-                    float D = Unity.Mathematics.math.length(canTranslation - translation.Value);
+                    float cosTheta = Unity.Mathematics.math.dot(Unity.Mathematics.math.normalize(rockTranslation - canTranslation), Unity.Mathematics.math.normalize(canVelocity));
+                    float D = Unity.Mathematics.math.length(canTranslation - rockTranslation);
 
                     // quadratic equation terms
                     float A = baseThrowSpeed * baseThrowSpeed - canSpeed * canSpeed;
@@ -68,7 +70,7 @@ public class RockVelocitySystem : SystemBase
                             t = Unity.Mathematics.math.min(t1, t2);
                         }
 
-                        rockVelocity = canVelocity - .5f * new float3(0f, -9.8f, 0f) * t + (canTranslation - translation.Value) / t;
+                        rockVelocity = canVelocity - .5f * new float3(0f, -9.8f, 0f) * t + (canTranslation - rockTranslation) / t;
 
                         //if (Unity.Mathematics.math.lengthsq(rockVelocity) > baseThrowSpeed * 2f)
                         //{
