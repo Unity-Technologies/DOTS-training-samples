@@ -140,28 +140,7 @@ public class AnimationSystem : SystemBase
                     // Orient arm toward target
                     var armRoot = translations[entity].Value;
                     var forward = math.normalize(handTargetPos - armRoot);
-
-                    var up = new float3();
-                    if (isIdle || isLookingForACan)
-                    {
-                        up = new float3(0.0f, 1.0f, 0.0f);
-                    }
-                    else
-                    {
-                        var moveDirection = targetPosition.Value - startPosition.Value;
-                        if (isWindingUp)
-                        {
-                            moveDirection = -moveDirection;
-                        }
-                        
-                        var right = math.cross(moveDirection, forward);
-                        right.y = right.y * 0.15f; // Keep hand quite horizontal
-                        up = math.cross(right, forward);
-                    }
-
-                    var currentUp = -localToWorlds[arm.m_Humerus].Forward;
-                    up = math.lerp(currentUp, up, normalizedTime);
-
+                    var up = new float3(0.0f, forward.z, -forward.y);
                     var rotation  = math.mul(quaternion.LookRotation(forward, up), quaternion.RotateX(math.PI * 0.5f));
 
                     float limbLength = parameters.ArmJointLength + parameters.ArmJointSpacing;
