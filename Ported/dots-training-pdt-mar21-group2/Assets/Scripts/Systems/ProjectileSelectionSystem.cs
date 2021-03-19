@@ -47,7 +47,7 @@ public class ProjectileSelectionSystem : SystemBase
             {
                 var futurePos = translation.Value + velocity.Value;
 
-                var grabDist = 6.0f;
+                var grabDist = 5.1f;
                 float minBound = futurePos.x - grabDist;
                 float maxBound = futurePos.x + grabDist;
 
