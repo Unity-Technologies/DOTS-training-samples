@@ -9,6 +9,8 @@ using UnityEngine.Rendering;
 
 public class ArmSpawnerSystem : SystemBase
 {
+    public bool m_Enabled;
+    
     static Entity CreateJoint(ref EntityCommandBuffer ecb, in Entity jointBase, in Entity meshBase, float3 position,
         float length, float thickness)
     {
@@ -29,12 +31,27 @@ public class ArmSpawnerSystem : SystemBase
         return joint;
     }
 
+    protected override void OnCreate()
+    {
+        var sortedArms = EntityManager.CreateEntity();
+        EntityManager.AddBuffer<SortedArm>(sortedArms);
+
+        m_Enabled = true;
+    }
+    
     protected override void OnUpdate()
     {
+        if (!m_Enabled)
+        {
+            return;
+        }
+        
         var parameters = GetSingleton<SimulationParameters>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         var armCount = Utils.GetArmCount(this);
+        
+        bool spawned = false;
 
         Entities
             .ForEach((Entity entity, in ArmSpawner spawner) =>
@@ -52,6 +69,7 @@ public class ArmSpawnerSystem : SystemBase
                     var instance = ecb.Instantiate(spawner.m_ArmPrefab);
                     ecb.SetComponent(instance, new Translation {Value = rootTranslation});
                     ecb.AddComponent<HandIdle>(instance);
+                    
 
                     // Joint entities of the arm
                     var armScale = new NonUniformScale
@@ -143,9 +161,31 @@ public class ArmSpawnerSystem : SystemBase
                     };
                     ecb.AddComponent(instance, arm);
                 }
+                
+                spawned = true;
             }).Run();
-
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        
+        var sortedArmsEntity = GetSingletonEntity<SortedArm>();
+        var sortedArmsBuffers = GetBufferFromEntity<SortedArm>();
+        var sortedArms = sortedArmsBuffers[sortedArmsEntity];
+        
+        Entities
+            .WithAll<Arm>()
+            .ForEach((Entity entity) =>
+            {
+                sortedArms.Add(new SortedArm()
+                {
+                    ArmEntity = entity
+                });
+            }).Run();
+
+        if (spawned)
+        {
+            // We must create sortedArms only once
+            m_Enabled = false;
+        }
     }
 }

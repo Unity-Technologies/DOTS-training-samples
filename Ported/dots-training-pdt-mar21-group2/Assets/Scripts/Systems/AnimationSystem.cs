@@ -178,7 +178,7 @@ public class AnimationSystem : SystemBase
                         Value = quaternion.RotateX(-forearmAngle)
                     };
                     
-                    if (isWindingUp || isThrowing)
+                    if (isWindingUp || isThrowing || isLookingForACan)
                     {
                         // Update rock position to stick to the hand when it's grabbed
                         translations[targetRock.RockEntity] = new Translation()

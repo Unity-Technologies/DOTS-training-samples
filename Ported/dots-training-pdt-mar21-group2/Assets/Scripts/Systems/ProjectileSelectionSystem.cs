@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 
 /// <summary>
 /// For each arm looking to grab a rock (i.e. having a HandleIdle component)
@@ -29,32 +31,57 @@ public class ProjectileSelectionSystem : SystemBase
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         
-        var availableRocks = m_AvailableRocksQuery.ToEntityArray(Allocator.TempJob);
         var translations = GetComponentDataFromEntity<Translation>();
-        
+        var sortedArms = GetBufferFromEntity<SortedArm>()[GetSingletonEntity<SortedArm>()];
+        var handsIdle = GetComponentDataFromEntity<HandIdle>();
+
+        var parameters = GetSingleton<SimulationParameters>();
+
         Dependency = Entities
-            .WithDisposeOnCompletion(availableRocks)
-            .WithReadOnly(availableRocks)
+            .WithAll<Rock, Available>()
+            .WithReadOnly(sortedArms)
+            .WithReadOnly(handsIdle)
             .WithReadOnly(translations)
-            .WithAll<HandIdle>()
             .ForEach((Entity entity, int entityInQueryIndex,
-                in TargetRock targetRock,
-                in Translation translation) =>
-        {
-            if (Utils.FindNearestRock(translation, availableRocks, translations, out Entity nearestRock))
+                in Translation translation, in Velocity velocity) =>
             {
-                // Set target rock to reach
-                // (doesn't mean the rock will actually be grabbed since another arm might compete for it)
-                ecb.SetComponent(entityInQueryIndex, entity, new TargetRock()
+                var futurePos = translation.Value + velocity.Value;
+
+                var grabDist = 6.0f;
+                float minBound = futurePos.x - grabDist;
+                float maxBound = futurePos.x + grabDist;
+
+                var minIndex = math.max((int) math.floor(minBound / parameters.ArmSeparation), 0);
+                var maxIndex = math.min((int) math.floor(maxBound / parameters.ArmSeparation),
+                    sortedArms.Length - 1);
+
+                for (var i = minIndex; i <= maxIndex; ++i)
                 {
-                    RockEntity = nearestRock
-                });
-                
-                // Go to grab rock state
-                Utils.GoToState<HandIdle, HandGrabbingRock>(ecb, entityInQueryIndex, entity);
-            }
-        }).ScheduleParallel(Dependency);
-        
+                    var armEntity = sortedArms[i].ArmEntity;
+                    if (!handsIdle.HasComponent(armEntity))
+                    {
+                        // arm is not looking for a rock
+                        continue;
+                    }
+
+                    var armPos = translations[sortedArms[i].ArmEntity];
+                    if (math.distancesq(armPos.Value, translation.Value) <= grabDist * grabDist)
+                    {
+                        // Set target rock to reach
+                        // (doesn't mean the rock will actually be grabbed since another arm might compete for it)
+                        ecb.SetComponent(entityInQueryIndex, armEntity, new TargetRock()
+                        {
+                            RockEntity = entity
+                        });
+                        
+                        // Go to grab rock state
+                        Utils.GoToState<HandIdle, HandGrabbingRock>(ecb, entityInQueryIndex, armEntity);
+
+                        break;
+                    }
+                }
+            }).ScheduleParallel(Dependency);
+
         sys.AddJobHandleForProducer(Dependency);
     }
 }

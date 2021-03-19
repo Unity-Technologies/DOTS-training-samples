@@ -58,6 +58,7 @@ struct Utils
             if (distSq < curentDistance)
             {
                 nearestCan = canEntity;
+                curentDistance = distSq;
                 retVal = true;
             }
         }
@@ -131,8 +132,8 @@ struct Utils
 
         // add margin to make sure arm won't try to grab for rock that will be recycled soon
         var margin = parameters.ArmSeparation * 4.0f;
-
-        return (uint) ((worldBounds.Width - margin) / parameters.ArmSeparation);
+        
+        return (uint) (math.max(worldBounds.Width - margin, 0.0f) / parameters.ArmSeparation);
     }
 
     public static float GetArmRowWidth(SystemBase system)

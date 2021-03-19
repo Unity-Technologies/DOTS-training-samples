@@ -9,6 +9,7 @@ using UnityEngine;
 /// <summary>
 /// System that will try to attribute a rock to every hand asking for it
 /// </summary>
+[UpdateAfter(typeof(ProjectileSelectionSystem))]
 public class RockGrabSystem : SystemBase
 {
     private EntityQuery m_AvailableRocksQuery;
