@@ -41,16 +41,15 @@ public class PickupBucketLineHead : SystemBase
                 if (!HasComponent<CarryingBucket>(line.FullHead))
                 {
                     Translation position = GetComponent<Translation>(line.FullHead);
-                    Radius radius = GetComponent<Radius>(line.FullHead);
                     for (int i = 0; i < bucketPositions.Length; i++)
                     {
                         if (bucketVolumes[i].Value >= 1.0f && bucketIDs[i] != lastPassedBucket.Value)
                         {
-                            if (math.distance(bucketPositions[i].Value, position.Value) <= 10)//radius.Value)
+                            if (math.distance(bucketPositions[i].Value, position.Value) <= 3)//radius.Value)
                             {
-                                ecb.AddComponent<CarryingBucket>(line.FullHead);
                                 ecb.SetComponent(line.FullHead, new BucketID() {Value = bucketIDs[i]});
                                 ecb.SetComponent(line.FullHead, new PassedBucketId() {Value = bucketIDs[i]});
+                                ecb.AddComponent<CarryingBucket>(line.FullHead);
                                 break;
                             }
                         }

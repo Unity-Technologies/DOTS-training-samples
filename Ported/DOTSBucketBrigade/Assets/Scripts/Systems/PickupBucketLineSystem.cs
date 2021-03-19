@@ -27,20 +27,14 @@ public class PickupBucketLineSystem : SystemBase
         var ecb = sys.CreateCommandBuffer();
         
         Dependency = Entities
-            .WithAll<EmptyBucketer>()
-            .WithAll<FullBucketer>()
+            .WithAny<EmptyBucketer, FullBucketer>()
             .WithNone<CarryingBucket>()
             .ForEach((Entity entity, ref TargetPosition targetPosition, ref BucketID bucketId, in PassedBucketId passedBucketId , in Translation position, in Radius radius) =>
             {
                 if (bucketId.Value != Entity.Null && passedBucketId.Value != bucketId.Value)
                 {
-                    var targetBucketPos = GetComponent<Translation>(bucketId.Value);
-                    var distx = math.distance(targetBucketPos.Value.x, position.Value.x);
-                    var distz = math.distance(targetBucketPos.Value.z, position.Value.z);
-                    if (distx < radius.Value || distz < radius.Value)
-                    {
-                        ecb.AddComponent<CarryingBucket>(entity);
-                    }
+                    ecb.AddComponent<CarryingBucket>(entity);
+                    ecb.SetComponent<Translation>(bucketId.Value, position);
                 }
             }).Schedule(Dependency);
         sys.AddJobHandleForProducer(Dependency);
