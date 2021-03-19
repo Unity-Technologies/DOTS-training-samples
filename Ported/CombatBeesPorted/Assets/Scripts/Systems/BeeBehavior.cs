@@ -130,7 +130,8 @@ public class BeeBehavior: SystemBase
             .ForEach((Entity entity, in Translation translation, in Team team) =>
             {
                 int r = random.NextInt() % 100;
-                if(r < 98)                
+                if(r < 50) {}
+                else if(r < 98)                
                 {
                     int foodCount = foodEntities.Length;
                     if (foodCount == 0)
@@ -138,9 +139,7 @@ public class BeeBehavior: SystemBase
                     commandBuffer.AddComponent<GoingForFood>(entity);
                     commandBuffer.AddComponent<FoodTarget>(entity, new FoodTarget(){Value = foodEntities[random.NextInt(foodCount)] } );
                 } else {
-                    var bucketEnum = new NativeHashMap<int, BucketInfo>.Enumerator();                    
-                    if(team.index==false) bucketEnum = partitionsB.GetEnumerator();
-                    else bucketEnum = partitionsA.GetEnumerator();
+                    var bucketEnum = (team.index==false) ? partitionsB.GetEnumerator() : partitionsA.GetEnumerator();
 
                     // go for attack
                     // find nearest enemy bee
