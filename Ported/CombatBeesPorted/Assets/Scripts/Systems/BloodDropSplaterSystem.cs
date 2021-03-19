@@ -49,8 +49,8 @@ public class BloodDropSplaterSystem: SystemBase
                     commandBuffer.RemoveComponent<BloodDroplet>(entity);
                     commandBuffer.RemoveComponent<InitialScale>(entity);
                     
-                    commandBuffer.SetComponent<Rotation>(entity, new Rotation());
-                    commandBuffer.SetComponent<NonUniformScale>(entity, new NonUniformScale(){ Value = new float3(0.2f) + (new float3(1, 1, 1) - math.abs(outsideNormal))*random.NextFloat(0.0f, 4f)});
+                    commandBuffer.RemoveComponent<Rotation>(entity);
+                    commandBuffer.SetComponent<NonUniformScale>(entity, new NonUniformScale(){ Value = new float3(0.2f) + (new float3(1, 1, 1) - math.abs(outsideNormal)) * random.NextFloat(0.0f, 4f)});
                     commandBuffer.AddComponent<ShrinkAndDestroy>(entity, new ShrinkAndDestroy() { lifetime = 1f, age = -2f });
                 }
             }).Run();
