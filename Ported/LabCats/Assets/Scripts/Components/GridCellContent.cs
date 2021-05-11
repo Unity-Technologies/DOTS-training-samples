@@ -11,6 +11,11 @@ public struct GridCellContent : IBufferElementData
     {
         return position.X + position.Y * numberColumns;
     }
+    
+    public static int Get1DIndexFromGridPosition(int x, int y, int numberColumns)
+    {
+        return x + y * numberColumns;
+    }
 }
 
 public enum GridCellType : byte

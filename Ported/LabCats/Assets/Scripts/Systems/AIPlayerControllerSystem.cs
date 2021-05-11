@@ -8,6 +8,7 @@ public class AIPlayerControllerSystem : SystemBase
     protected override void OnUpdate()
     {
         var boardEntity = GetSingletonEntity<BoardDefinition>();
+        var boardDefinition = GetSingleton<BoardDefinition>();
         
         const float cursorSpeed = 1.0f;
         
@@ -17,11 +18,11 @@ public class AIPlayerControllerSystem : SystemBase
         
         var random = new Random(1234);
         
-        const int numberOfRows = 10; //Get actual values
-        const int numberOfColumns = 12;
+        int numberOfRows = boardDefinition.NumberRows;
+        int numberOfColumns = boardDefinition.NumberColumns;
 
         var ecb = new EntityCommandBuffer();
-        Dependency = Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref ArrowReference arrows, ref Translation translation) =>
+        Dependency = Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation) =>
         {
             var targetCellPosition = new float3(1.0f, 2.0f, 3.0f); // obtain first cell pos + calculate targetPosition
             
@@ -33,45 +34,37 @@ public class AIPlayerControllerSystem : SystemBase
             if (cursorSpeed * timeData.DeltaTime > distance)
             {
                 // the cursor has reached its target point, we need to change the cell to have an arrow and setup a new targetCell
-                int selectedArrowIndex;
+                int selectedArrowIndex = -1;
                 Entity selectedArrow;
-                if (arrows.Entity1 == Entity.Null)
+                for (int i = 0; i < arrows.Length; i++)
                 {
+                    if (arrows[i].Entity == Entity.Null)
+                    {   
+                        selectedArrowIndex = i;
+                        break;
+                    }
+                }
+
+                if (selectedArrowIndex == -1)
                     selectedArrowIndex = 0;
-                    selectedArrow = arrows.Entity1;
-                }
-                else if (arrows.Entity2 == Entity.Null)
-                {
-                    selectedArrowIndex = 1;
-                    selectedArrow = arrows.Entity2;
-                }
-                else if (arrows.Entity3 == Entity.Null)
-                {
-                    selectedArrowIndex = 2;
-                    selectedArrow = arrows.Entity3;
-                }
-                else
-                {
-                    selectedArrowIndex = 0; //This does not make sense
-                    selectedArrow = arrows.Entity1;
-                }
-                    
+                selectedArrow = arrows[selectedArrowIndex].Entity;
 
                 // Move with arrow
                 {
+                    var index = GridCellContent.Get1DIndexFromGridPosition(aiTargetCell.X, aiTargetCell.Y, numberOfColumns);
                     if (selectedArrow != Entity.Null)
                     {
                         var oldArrowPosition = GetComponent<GridPosition>(selectedArrow);
-                        var oldGridContentValue = gridCellContents[oldArrowPosition.Y * numberOfRows + oldArrowPosition.X];
+                        var oldGridContentValue = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(oldArrowPosition.X, oldArrowPosition.Y, numberOfColumns)];
                         oldGridContentValue.Type = GridCellType.None;
-                        gridCellContents[aiTargetCell.Y * numberOfRows + aiTargetCell.X] = oldGridContentValue;
+                        gridCellContents[index] = oldGridContentValue;
                     }
 
-                    var gridContent = gridCellContents[aiTargetCell.Y * numberOfRows + aiTargetCell.X];
+                    var gridContent = gridCellContents[index];
                     gridContent.Type = GridCellType.ArrowLeft; //Why left, I don’t know
-                    gridCellContents[aiTargetCell.Y * numberOfRows + aiTargetCell.X] = gridContent;
+                    gridCellContents[index] = gridContent;
                     
-                    ecb.SetComponent<GridPosition>(selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
+                    ecb.SetComponent(selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
                     
                 }
                 //Compute new target
@@ -84,12 +77,15 @@ public class AIPlayerControllerSystem : SystemBase
                 }
 
             }
-            var progress = movementDirection * math.min(cursorSpeed*timeData.DeltaTime, distance);
+            var progress = movementDirection * math.min(cursorSpeed * timeData.DeltaTime, distance);
             
             translation.Value = translation.Value + progress;
             
             
 
         }).ScheduleParallel(Dependency);
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

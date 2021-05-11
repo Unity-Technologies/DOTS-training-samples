@@ -1,8 +1,7 @@
 using Unity.Entities;
 
-public struct ArrowReference : IComponentData
+[InternalBufferCapacity(3)]
+public struct ArrowReference : IBufferElementData
 {
-    public Entity Entity1;
-    public Entity Entity2;
-    public Entity Entity3;
+    public Entity Entity;
 }
