@@ -17,31 +17,30 @@ public static class PlatformGenerator
         int tanksPlaced = 0;
         float tankChance = (float)numberOfTanks / (float)cellSizes;
         var random = new System.Random();
+        int cellId = 0;
+
+        numberOfTanks = math.min(numberOfTanks, cellSizes);
 
         var platforms = new NativeArray<PlatformType>(width * height, allocator);
-        
-        //platforms = new List<PlatformType>();
-        //tankPositions = new List<int2>();
+        for (; cellId < cellSizes; ++cellId)
+        {
+            platforms[cellId] = PlatformType.Empty;
+        }
 
-        for (int cellId = 0; cellId < cellSizes && tanksPlaced <= numberOfTanks; ++cellId)
+        cellId = 0;
+        while (tanksPlaced < numberOfTanks)
         {
             float randomVal = (float)random.NextDouble();
             
             int2 cellCoord = CoordUtils.ToCoords(cellId, width, height);
-
-            PlatformType platformType;
-            if (randomVal <= tankChance && cellCoord.x != playerPosition.x && cellCoord.y != playerPosition.y)
+            bool isCellValid = cellCoord.x != playerPosition.x || cellCoord.y != playerPosition.y && platforms[cellId] == PlatformType.Empty;
+            if (isCellValid && randomVal <= tankChance)
             {
                 ++tanksPlaced;
-                platformType = PlatformType.Tank;
-                //tankPositions.Add(cellCoord);
-            }
-            else
-            {
-                platformType = PlatformType.Empty;
+                platforms[cellId] = PlatformType.Tank;
             }
 
-            platforms[cellId] = platformType;
+            cellId = (cellId + 1) % cellSizes;
         }
 
         return platforms;
