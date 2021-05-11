@@ -12,8 +12,6 @@ public class UpdatePositionSystem : SystemBase
 
     protected override void OnCreate()
     {
-        // Looking up another system in the world is an expensive operation.
-        // In order to not do it every frame, we store the reference in a field.
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
@@ -28,16 +26,20 @@ public class UpdatePositionSystem : SystemBase
         var boardDefinition = EntityManager.GetComponentData<BoardDefinition>(boardEntity);
         var numberColumns = boardDefinition.NumberColumns;
 
-        // Entities.ForEach is a job generator, the lambda it contains will be turned
-        // into a proper IJob by IL post processing.
         Entities.WithNone<FallingTime>().ForEach((Entity e, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
         {
             var deltaDisplacement = speed.Value * deltaTime;
             var deltaRatio = deltaDisplacement / boardDefinition.CellSize;
             var newOffset = offset.Value + deltaRatio;
-            if (offset.Value < 0.5f && newOffset > 0.5f)
+            if (offset.Value <= 0.5f && newOffset >= 0.5f)
             {
                 var cellType = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Type;
+                var wallBoundaries = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Walls;
+                if ((wallBoundaries & WallBoundaries.WallAll) == WallBoundaries.WallAll)
+                {
+                    offset.Value = 0.5f;
+                    return;
+                }
                 switch(cellType)
                 {
                     case GridCellType.Goal:
@@ -47,6 +49,9 @@ public class UpdatePositionSystem : SystemBase
                     }
                         break;
                     case GridCellType.Hole:
+                    {
+                        ecb.AddComponent<FallingTime>(e);
+                    }
                         break;
                     case GridCellType.ArrowDown:
                     {
@@ -66,6 +71,58 @@ public class UpdatePositionSystem : SystemBase
                     case GridCellType.ArrowUp:
                     {
                         dir.Value = Dir.Up;
+                    }
+                        break;
+                }
+
+                switch (dir.Value)
+                {
+                    case Dir.Down:
+                    {
+                        if ((wallBoundaries & WallBoundaries.WallDown) == 0)
+                            break;
+                        if ((wallBoundaries & WallBoundaries.WallLeft) == 0)
+                            dir.Value = Dir.Left;
+                        else if ((wallBoundaries & WallBoundaries.WallRight) == 0)
+                            dir.Value = Dir.Right;
+                        else
+                            dir.Value = Dir.Up;
+                    }
+                        break;
+                    case Dir.Left:
+                    {
+                        if ((wallBoundaries & WallBoundaries.WallLeft) == 0)
+                            break;
+                        if ((wallBoundaries & WallBoundaries.WallUp) == 0)
+                            dir.Value = Dir.Up;
+                        else if ((wallBoundaries & WallBoundaries.WallDown) == 0)
+                            dir.Value = Dir.Down;
+                        else
+                            dir.Value = Dir.Right;
+                    }
+                        break;
+                    case Dir.Right:
+                    {
+                        if ((wallBoundaries & WallBoundaries.WallRight) == 0)
+                            break;
+                        if ((wallBoundaries & WallBoundaries.WallDown) == 0)
+                            dir.Value = Dir.Down;
+                        else if ((wallBoundaries & WallBoundaries.WallUp) == 0)
+                            dir.Value = Dir.Up;
+                        else
+                            dir.Value = Dir.Left;
+                    }
+                        break;
+                    case Dir.Up:
+                    {
+                        if ((wallBoundaries & WallBoundaries.WallUp) == 0)
+                            break;
+                        if ((wallBoundaries & WallBoundaries.WallRight) == 0)
+                            dir.Value = Dir.Right;
+                        else if ((wallBoundaries & WallBoundaries.WallLeft) == 0)
+                            dir.Value = Dir.Left;
+                        else
+                            dir.Value = Dir.Down;
                     }
                         break;
                 }
