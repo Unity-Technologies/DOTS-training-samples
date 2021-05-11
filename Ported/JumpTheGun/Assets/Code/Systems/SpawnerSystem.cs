@@ -62,9 +62,12 @@ public class SpawnerSystem : SystemBase
             {
                 if (platforms[i] == PlatformGenerator.PlatformType.Tank)
                 {
-                    var coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
-                    var instance = EntityManager.Instantiate(board.TankPrefab);
-                    EntityManager.SetComponentData(instance, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+                    int2 coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
+                    Entity tank = EntityManager.Instantiate(board.TankPrefab);
+                    EntityManager.SetComponentData(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+
+                    Entity turret = EntityManager.Instantiate(board.TurretPrefab);
+                    EntityManager.SetComponentData(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
                 }
             }
 
