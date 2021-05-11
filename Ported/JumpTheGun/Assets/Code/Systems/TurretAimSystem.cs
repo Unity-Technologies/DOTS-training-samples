@@ -18,7 +18,7 @@ public class TurretAimSystem : SystemBase
         targetPosition.y += 3;
 
         Entities.
-            WithAll<Turret, Translation, Rotation>()
+            WithAll<Turret>()
             .ForEach((ref Rotation rotation, in Translation turretPosition) =>
             {
                 rotation.Value = quaternion.LookRotation(turretPosition.Value, targetPosition);
