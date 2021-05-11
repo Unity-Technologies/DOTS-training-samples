@@ -14,5 +14,10 @@ public class PlatformAuthoring : MonoBehaviour
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponentData(entity, new Platform { });
+
+        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<BoardPosition>(entity);
+        dstManager.AddComponent<Color>(entity);
     }
 }
