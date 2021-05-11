@@ -50,7 +50,7 @@ public class SpawnerSystem : SystemBase
                     EntityManager.RemoveComponent<Translation>(instance);
 
                     float4 color = Colorize.Platform(localToWorld.c3.y, board.MinHeight, board.MaxHeight);
-                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
+                    EntityManager.AddComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
 
                     EntityManager.RemoveComponent<Rotation>(instance);
                     
