@@ -162,6 +162,7 @@ MonoBehaviour:
   HitStrength: 0.4
   PlaformPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   TankPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4, type: 3}
+  TurretPrefab: {fileID: 1285056113001856, guid: 0fb85b5f0701a43afb429a6d8ed479d5, type: 3}
 --- !u!4 &291329770
 Transform:
   m_ObjectHideFlags: 0
