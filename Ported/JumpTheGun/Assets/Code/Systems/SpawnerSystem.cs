@@ -9,7 +9,10 @@ public class SpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges().ForEach((Entity boardEntity, in BoardSpawner board) =>
+        Entities
+            .WithStructuralChanges()
+            .WithAll<BoardSpawnerTag>()
+            .ForEach((Entity boardEntity, in BoardSpawnerData board) =>
         {
             EntityManager.AddComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
             EntityManager.AddComponent<OffsetList>(boardEntity);
@@ -18,6 +21,7 @@ public class SpawnerSystem : SystemBase
 
             EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
             EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
+            EntityManager.AddComponentData(boardEntity, new HitStrength {Value = board.HitStrength});
            
             var totalSize = board.SizeX * board.SizeY;
             
@@ -72,8 +76,7 @@ public class SpawnerSystem : SystemBase
             }
 
             // TODO Remove that.
-            EntityManager.RemoveComponent<BoardSpawner>(boardEntity);
-            //EntityManager.DestroyEntity(boardEntity);
+            EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
     }
 }
