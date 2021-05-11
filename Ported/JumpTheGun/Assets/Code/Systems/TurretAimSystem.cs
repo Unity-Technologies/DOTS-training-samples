@@ -21,7 +21,13 @@ public class TurretAimSystem : SystemBase
             WithAll<Turret>()
             .ForEach((ref Rotation rotation, in Translation turretPosition) =>
             {
-                rotation.Value = quaternion.LookRotation(turretPosition.Value, targetPosition);
+                float3 diff = targetPosition - turretPosition.Value;
+                float angle = math.atan2(diff.x, diff.z);
+                float deg = math.degrees(angle);
+
+                rotation.Value = quaternion.EulerXYZ(-0.5F, angle, 0F);
+
+                //rotation.Value = quaternion.LookRotation(turretPosition.Value, targetPosition);
             }).Run();
 
         ecb.Playback(EntityManager);
