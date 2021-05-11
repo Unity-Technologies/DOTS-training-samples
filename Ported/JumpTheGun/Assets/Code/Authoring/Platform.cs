@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class PlatformAuthoring : MonoBehaviour
@@ -18,6 +19,6 @@ public class PlatformAuthoring : MonoBehaviour
 
         dstManager.AddComponent<Position>(entity);
         dstManager.AddComponent<BoardPosition>(entity);
-        dstManager.AddComponent<Color>(entity);
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }
