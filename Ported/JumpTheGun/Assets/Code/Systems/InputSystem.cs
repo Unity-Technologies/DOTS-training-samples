@@ -26,10 +26,11 @@ public class InputSystem : SystemBase
         float t = (halfHeight - ray.origin.y) / ray.direction.y;
         mouseWorldPos.x = ray.origin.x + t * ray.direction.x;
         mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
+        mouseWorldPos.y = halfHeight;
 
         //Update the player destination position
         var player = GetSingletonEntity<Player>();
         SetComponent(player, new TargetPosition { Value = mouseWorldPos });
-        SetComponent(player, new Translation { Value = new float3(0.0f, halfHeight, 0.0f) });
+        SetComponent(player, new Translation { Value = mouseWorldPos });
     }
 }
