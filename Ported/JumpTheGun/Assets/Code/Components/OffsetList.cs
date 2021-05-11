@@ -1,5 +1,6 @@
 using Unity.Entities;
 
-struct OffsetList : IComponentData
+public struct OffsetList : IBufferElementData
 {
+    public float Value;
 }
