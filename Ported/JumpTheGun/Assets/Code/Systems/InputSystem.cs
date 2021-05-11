@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using UnityInput = UnityEngine.Input;
 
@@ -15,7 +16,7 @@ public class InputSystem : SystemBase
 
         if (!TryGetSingleton<MinMaxHeight>(out minMaxHeight))
             return;
-                
+                        
         float halfHeight = (minMaxHeight.Value.x + minMaxHeight.Value.y) * 0.5f;            
         Ray ray = Camera.main.ScreenPointToRay(UnityInput.mousePosition);
         Vector3 mouseWorldPos = new Vector3(0, halfHeight, 0);
@@ -25,6 +26,7 @@ public class InputSystem : SystemBase
 
         //Update the player destination position
         var player = GetSingletonEntity<Player>();
-        SetComponent(player, new TargetPosition() { Value = mouseWorldPos });
+        SetComponent(player, new TargetPosition { Value = mouseWorldPos });
+        SetComponent(player, new Translation { Value = new float3(0.0f, halfHeight + 10.0f, 0.0f) });
     }
 }

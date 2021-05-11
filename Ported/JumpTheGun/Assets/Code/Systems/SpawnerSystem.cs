@@ -77,5 +77,14 @@ public class SpawnerSystem : SystemBase
 
             EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
+
+
+        Entities.WithStructuralChanges()
+        .WithAll<PlayerAuthoring>()
+        .ForEach((Entity boardEntity, in Player player) =>
+        {
+            var instance = EntityManager.Instantiate(player.PlayerBallPrefab);
+            EntityManager.RemoveComponent<PlayerSpawnerTag>(instance);
+        }).Run();
     }
 }
