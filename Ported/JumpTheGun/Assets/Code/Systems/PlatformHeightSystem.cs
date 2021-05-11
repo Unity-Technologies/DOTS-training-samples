@@ -11,12 +11,12 @@ public class PlatformHeightSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        Board board = GetSingleton<Board>();
+
         Entities.
             WithAll<Platform, WasHit>()
             .ForEach((ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit) =>
             {
-                Board board = GetSingleton<Board>();
-
                 float posY = math.max(board.MinHeight, xform.Position.y - hit.Count * board.HitStrength);
 
                 baseColor.Value = Colorize.Platform(posY, board.MinHeight, board.MaxHeight);

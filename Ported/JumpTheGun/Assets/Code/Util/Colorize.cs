@@ -3,8 +3,8 @@ using Unity.Mathematics;
 
 public static class Colorize
 {
-    public static float4 MIN_HEIGHT_COLOR = new float4(0F, 1F, 0F, 1F);
-    public static float4 MAX_HEIGHT_COLOR = new float4(0.388F, 0.184F, 0F, 1F);
+    public static readonly float4 MIN_HEIGHT_COLOR = new float4(0F, 1F, 0F, 1F);
+    public static readonly float4 MAX_HEIGHT_COLOR = new float4(0.388F, 0.184F, 0F, 1F);
 
     public static float4 Platform(float height, float minHeight, float maxHeight)
     {
