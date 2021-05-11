@@ -19,7 +19,7 @@ public class RailMarker : MonoBehaviour
 	public int pointIndex;
 	public RailMarkerType railMarkerType;
 
-	public Color[] colors = {Color.red, Color.blue, Color.green, Color.yellow };
+	public UnityEngine.Color[] colors = {UnityEngine.Color.red, UnityEngine.Color.blue, UnityEngine.Color.green, UnityEngine.Color.yellow };
 	
 	private void Awake()
 	{
@@ -28,7 +28,7 @@ public class RailMarker : MonoBehaviour
 	}
 	public void OnDrawGizmos()
 	{
-		Gizmos.color = GUI.color = (railMarkerType != RailMarkerType.PLATFORM_START) ?  colors[metroLineID] : Color.white;
+		Gizmos.color = GUI.color = (railMarkerType != RailMarkerType.PLATFORM_START) ?  colors[metroLineID] : UnityEngine.Color.white;
 		
 		// Draw marker X
 		float xSize = 0.5f;
