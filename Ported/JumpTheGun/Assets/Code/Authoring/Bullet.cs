@@ -27,6 +27,6 @@ public class BulletAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new WasHit() { Count = 0 });
         dstManager.AddComponentData(entity, new TargetPosition() { Value = new float3(0.0f, 0.0f, 0.0f) });
         dstManager.AddComponentData(entity, new Arc() { Value = new float3(0.0f, 0.0f, 0.0f) });
-        dstManager.AddComponentData(entity, new Time() { Value = 0.0f });
+        dstManager.AddComponentData(entity, new Time() { StartTime = 0.0f, EndTime= 0.0f });
     }
 }
