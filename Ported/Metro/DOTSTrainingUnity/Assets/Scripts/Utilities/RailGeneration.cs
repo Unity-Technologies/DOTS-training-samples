@@ -2,13 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+using Unity.Collections;
 public struct Line
 {
     public BezierPath bezierPath;
 
     // scalar values stored in the 0 - Length range (Not 0 - 1)
     public float[] PlatformStopPoint;
+
+    public static NativeArray<BezierPoint> allBezierPaths;
+    public static NativeArray<int> bezierPathIndices;
+
+    public static NativeArray<float> allStopPointSets;
+    public static NativeArray<int> stopPointSetIndices;
+
+    public static NativeArray<float> allDistances;
 
     public void Create_RailPath(List<RailMarker> _outboundPoints)
     {
@@ -162,9 +170,60 @@ public class RailGeneration : MonoBehaviour
         {
             Destroy(_RM);
         }
-        
-    }
 
-    
-    
+
+        int numLines = metroLines.Length;
+        int numStopPoints = 0;
+        NativeArray<int> stopPointIndices = new NativeArray<int>(numLines, Allocator.Persistent);
+        NativeArray<int> controlPointIndices = new NativeArray<int>(numLines, Allocator.Persistent);
+        NativeArray<float> distances = new NativeArray<float>(numLines, Allocator.Persistent);
+
+        for (int i = 0; i < numLines; i++)
+        {
+            stopPointIndices[i] = numStopPoints;
+            Line metroLine = metroLines[i];
+            numStopPoints += metroLine.PlatformStopPoint.Length;
+            distances[i] = metroLine.bezierPath.distance;
+        }
+
+        NativeArray<float> platformStopPoints = new NativeArray<float>(numStopPoints, Allocator.Persistent);
+
+        numStopPoints = 0;
+        for (int i = 0; i < numLines; i++)
+        {
+            Line metroLine = metroLines[i];
+            for (int j = 0; j < metroLine.PlatformStopPoint.Length; j++)
+            {
+                platformStopPoints[numStopPoints + j] = metroLine.PlatformStopPoint[j];
+            }
+            numStopPoints += metroLine.PlatformStopPoint.Length;
+        }
+
+        int numControlPoints = 0;
+        for (int i = 0; i < numLines; i++)
+        {
+            controlPointIndices[i] = numControlPoints;
+            Line metroLine = metroLines[i];
+            numControlPoints += metroLine.bezierPath.points.Count;
+        }
+
+        NativeArray<BezierPoint> bezierPaths = new NativeArray<BezierPoint>(numControlPoints, Allocator.Persistent);
+        numControlPoints = 0;
+        for (int i = 0; i < numLines; i++)
+        {
+            Line metroLine = metroLines[i];
+
+            List<BezierPoint> pointsForPath = metroLine.bezierPath.points;
+            int pointCount = metroLine.bezierPath.points.Count;
+
+            for (int j = 0; j < pointCount; j++)
+            {
+                bezierPaths[numControlPoints + j] = pointsForPath[j];
+            }
+
+            numControlPoints += pointCount;
+        }
+
+        Debug.Log("Done");
+    }
 }

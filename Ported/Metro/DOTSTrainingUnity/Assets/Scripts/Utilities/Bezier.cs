@@ -5,8 +5,7 @@ using UnityEngine;
 public class BezierPath
 {
     public List<BezierPoint> points;
-    private float pathLength;
-    private float distance = 0f;
+    public float distance = 0f;
 
     public BezierPath()
     {
@@ -38,7 +37,10 @@ public class BezierPath
     public void MeasurePath()
     {
         distance = 0f;
-        points[0].distanceAlongPath = 0.000001f;
+        BezierPoint point = points[0];
+        point.distanceAlongPath = 0.000001f;
+        points[0] = point;
+
         for (int i = 1; i < points.Count; i++)
         {
             MeasurePoint(i, i-1);
@@ -65,8 +67,11 @@ public class BezierPath
     }
 
     public void MeasurePoint(int _currentPoint, int _prevPoint) {
-            distance += Get_AccurateDistanceBetweenPoints(_currentPoint, _prevPoint);
-            points[_currentPoint].distanceAlongPath = distance;
+        distance += Get_AccurateDistanceBetweenPoints(_currentPoint, _prevPoint);
+        BezierPoint point = points[_currentPoint];
+
+        point.distanceAlongPath = distance;
+        points[_currentPoint] = point;
     }
 
     public Vector3 Get_NormalAtPosition(float _position)
@@ -156,12 +161,11 @@ public class BezierPath
     }
 }
 
-public class BezierPoint
+public struct BezierPoint
 {
     public int index;
     public Vector3 location, handle_in, handle_out;
-    public float distanceAlongPath = 0f;
-    public List<string> tags;
+    public float distanceAlongPath;
 
     public BezierPoint(int _index, Vector3 _location, Vector3 _handle_in, Vector3 _handle_out)
     {
@@ -169,7 +173,7 @@ public class BezierPoint
         location = _location;
         handle_in = _handle_in;
         handle_out = _handle_out;
-        tags = new List<string>();
+        distanceAlongPath = 0f;
     }
 
     public void SetHandles(Vector3 _distance)
