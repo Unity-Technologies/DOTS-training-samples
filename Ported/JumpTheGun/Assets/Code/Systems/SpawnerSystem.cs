@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -47,6 +48,10 @@ public class SpawnerSystem : SystemBase
                         float4x4.Translate(new float3(0f, 0.5f, 0f)));
                     
                     EntityManager.RemoveComponent<Translation>(instance);
+
+                    float4 color = Colorize.Platform(localToWorld.c3.y, board.MinHeight, board.MaxHeight);
+                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
+
                     EntityManager.RemoveComponent<Rotation>(instance);
                     
                     EntityManager.SetComponentData(instance, new LocalToWorld {Value = localToWorld});

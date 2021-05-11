@@ -1,11 +1,11 @@
-
+﻿
 using System.Collections.Generic;
 
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 
-public class PlayerAuthoring : MonoBehaviour
+public class TurretAuthoring : MonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
@@ -15,11 +15,9 @@ public class PlayerAuthoring : MonoBehaviour
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Player { });
+        dstManager.AddComponentData(entity, new Turret { });
 
-        dstManager.AddComponent<Arc>(entity);
         dstManager.AddComponent<Translation>(entity);
-        dstManager.AddComponent<Direction>(entity);
-        dstManager.AddComponent<TargetPosition>(entity);
+        dstManager.AddComponent<Rotation>(entity);
     }
 }
