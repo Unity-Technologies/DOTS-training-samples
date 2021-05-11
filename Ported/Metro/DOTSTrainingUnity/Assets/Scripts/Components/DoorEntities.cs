@@ -9,13 +9,13 @@ public struct DoorEntities : IBufferElementData
     public Entity value;
 	
 	// The following implicit conversions are optional, but can be convenient.
-    public static implicit operator int(DoorEntities e)
+    public static implicit operator Entity(DoorEntities e)
     {
-        return e.Value;
+        return e.value;
     }
 
-    public static implicit operator DoorEntities(int e)
+    public static implicit operator DoorEntities(Entity e)
     {
-        return new DoorEntities { Value = e };
+        return new DoorEntities { value = e };
     }
 }

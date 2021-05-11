@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct TrainWaitTimer : IComponentData
+public struct TrainCarIndex : IComponentData
 {
     public int value;
 }
