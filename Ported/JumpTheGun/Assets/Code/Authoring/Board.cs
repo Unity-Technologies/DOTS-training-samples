@@ -31,4 +31,5 @@ public struct Board : IComponentData
     
     public Entity PlaformPrefab;
     public Entity TankPrefab;
+    public Entity TurretPrefab;
 }
