@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct Board : IComponentData
+public struct BoardSpawner : IComponentData
 {
     [Range(1, 1000)]
     public int SizeX;

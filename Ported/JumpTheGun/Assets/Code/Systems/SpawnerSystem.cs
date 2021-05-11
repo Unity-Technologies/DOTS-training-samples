@@ -9,7 +9,7 @@ public class SpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithStructuralChanges().ForEach((Entity boardEntity, in Board board) =>
+        Entities.WithStructuralChanges().ForEach((Entity boardEntity, in BoardSpawner board) =>
         {
             EntityManager.AddComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
             EntityManager.AddComponent<OffsetList>(boardEntity);
@@ -72,7 +72,7 @@ public class SpawnerSystem : SystemBase
             }
 
             // TODO Remove that.
-            EntityManager.RemoveComponent<Board>(boardEntity);
+            EntityManager.RemoveComponent<BoardSpawner>(boardEntity);
             //EntityManager.DestroyEntity(boardEntity);
         }).Run();
     }
