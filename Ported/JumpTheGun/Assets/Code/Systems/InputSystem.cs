@@ -11,6 +11,9 @@ public class InputSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        if (TryGetSingleton<IsPaused>(out _))
+            return;
+
         //ray trace mouse position for the board, and figure out a destination position for the ball
         MinMaxHeight minMaxHeight;
 
