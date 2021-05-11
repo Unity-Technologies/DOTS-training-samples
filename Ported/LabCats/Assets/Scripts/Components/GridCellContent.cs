@@ -15,6 +15,7 @@ public struct GridCellContent : IBufferElementData
 
 public enum GridCellType : byte
 {
+    None,
     Goal,
     Hole,
     ArrowLeft,
