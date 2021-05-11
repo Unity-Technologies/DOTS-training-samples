@@ -23,7 +23,7 @@ public static class PlatformGenerator
         //platforms = new List<PlatformType>();
         //tankPositions = new List<int2>();
 
-        for (int cellId = 0; cellId < cellSizes || tanksPlaced >= numberOfTanks; ++cellId)
+        for (int cellId = 0; cellId < cellSizes && tanksPlaced <= numberOfTanks; ++cellId)
         {
             float randomVal = (float)random.NextDouble();
             
