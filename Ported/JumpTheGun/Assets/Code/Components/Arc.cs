@@ -1,8 +1,7 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct Arc : IComponentData
 {
-    public float Start;
-    public float End;
-    public float Height;
+    public float3 Value;
 }
