@@ -53,7 +53,7 @@ public class SpawnerSystem : SystemBase
                     
                     EntityManager.RemoveComponent<Translation>(instance);
 
-                    float4 color = Colorize.Platform(localToWorld.c3.y, board.MinHeight, board.MaxHeight);
+                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
                     EntityManager.AddComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
 
                     EntityManager.RemoveComponent<Rotation>(instance);
@@ -75,7 +75,6 @@ public class SpawnerSystem : SystemBase
                 }
             }
 
-            // TODO Remove that.
             EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
     }
