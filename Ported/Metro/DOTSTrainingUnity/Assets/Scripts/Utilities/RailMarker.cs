@@ -19,7 +19,7 @@ public class RailMarker : MonoBehaviour
 	public int pointIndex;
 	public RailMarkerType railMarkerType;
 
-	public UnityEngine.Color[] colors = {UnityEngine.Color.red, UnityEngine.Color.blue, UnityEngine.Color.green, UnityEngine.Color.yellow };
+	public UnityEngine.Color[] colors = {UnityEngine.Color.red, UnityEngine.Color.green, UnityEngine.Color.yellow, UnityEngine.Color.blue };
 	
 	private void Awake()
 	{
