@@ -16,8 +16,5 @@ public class TurretAuthoring : MonoBehaviour
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new Turret { });
-
-        dstManager.AddComponent<Translation>(entity);
-        dstManager.AddComponent<Rotation>(entity);
     }
 }

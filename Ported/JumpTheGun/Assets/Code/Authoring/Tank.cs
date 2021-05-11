@@ -17,7 +17,6 @@ public class TankAuthoring : MonoBehaviour
     {
         dstManager.AddComponentData(entity, new Tank { });
 
-        dstManager.AddComponent<Translation>(entity);
         dstManager.AddComponent<Rotation>(entity);
         dstManager.AddComponent<BoardPosition>(entity);
         dstManager.AddComponent<TimeOffset>(entity);
