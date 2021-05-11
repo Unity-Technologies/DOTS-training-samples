@@ -69,7 +69,8 @@ public class SpawnerSystem : SystemBase
             }
 
             // TODO Remove that.
-            EntityManager.DestroyEntity(boardEntity);
+            EntityManager.RemoveComponent<Board>(boardEntity);
+            //EntityManager.DestroyEntity(boardEntity);
         }).Run();
     }
 }
