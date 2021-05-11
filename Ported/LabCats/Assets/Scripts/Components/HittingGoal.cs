@@ -12,6 +12,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
-public struct HittingGoalTag : IComponentData
+public struct HittingGoal : IComponentData
 {
+    public int PlayerIndex;
 }

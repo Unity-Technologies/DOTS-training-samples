@@ -6,6 +6,11 @@ public struct GridCellContent : IBufferElementData
 {
     public GridCellType Type;
     public WallBoundaries Walls;
+
+    public static int Get1DIndexFromGridPosition(GridPosition position, int numberColumns)
+    {
+        return position.X + position.Y * numberColumns;
+    }
 }
 
 public enum GridCellType : byte

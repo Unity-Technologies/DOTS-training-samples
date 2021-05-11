@@ -9,8 +9,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct BoardDefinition : IComponentData
 {
-    public float CellWidth;
-    public float CellHeight;
+    public float CellSize;
     public int NumberColumns;
-    public int NumberLines;
+    public int NumberRows;
 }
