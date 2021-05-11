@@ -19,10 +19,10 @@ public static class PlatformGenerator
         for (int cellId = 0; cellId < cellSizes || tanksPlaced >= numberOfTanks; ++cellId)
         {
             float randomVal = (float)random.NextDouble();
-            int playerX = cellId % width;
-            int playerY = cellId / width;            
             
-            if (randomVal <= tankChance && playerX != playerPosition.x && playerY != playerPosition.y)
+            int2 cellCoord = CoordUtils.ToCoords(cellId, width, height);
+            
+            if (randomVal <= tankChance && cellCoord.x != playerPosition.x && cellCoord.y != playerPosition.y)
             {
                 ++tanksPlaced;
                 platforms[cellId] = PlatformType.Tank;
