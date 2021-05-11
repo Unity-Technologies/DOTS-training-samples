@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using UnityEngine;
 
 public class SpawnBoardSystem : SystemBase
 {
@@ -9,9 +10,36 @@ public class SpawnBoardSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var random = new Random(1234);
+        var random = new Unity.Mathematics.Random(1234);
 
         var gameObjectRefs = this.GetSingleton<GameObjectRefs>();
+
+        // set reference to MainCamera gameObject - james
+        var camera = this.GetSingleton<GameObjectRefs>().Camera;
+
+        // orthographic default state for camera - james
+        camera.orthographic = true;
+
+        // adjustment to orthograhpic angle - james
+        var overheadFactor = 1.5f;
+
+        var maxSize = Mathf.Max(NumberRows, NumberColumns);
+        var maxCellSize = Mathf.Max(CellSize.x, CellSize.y);
+
+        // set the orthographic size based on board and cell dimensions - james
+        camera.orthographicSize = maxSize * maxCellSize * .65f;
+
+        // scale based on board dimensions - james
+        var posXZ = Vector2.Scale(new Vector2(NumberRows, NumberColumns) * 0.5f, CellSize);
+
+        // hold position value adjusted by dimensions of board - james
+        float3 camPosition = new Vector3(0, maxSize * maxCellSize * overheadFactor, 0);
+
+        // set camera position to modified value - james
+        camera.transform.position = camPosition;
+
+        // set camera to look at board center - james
+        camera.transform.LookAt(new Vector3(posXZ.x, 0f, posXZ.y));
 
         Entities
             .WithNone<BoardInitializedTag>()
