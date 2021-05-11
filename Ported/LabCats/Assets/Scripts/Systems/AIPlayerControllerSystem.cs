@@ -13,7 +13,7 @@ public class AIPlayerControllerSystem : SystemBase
         const float cursorSpeed = 1.0f;
         
         DynamicBuffer<GridCellContent> gridCellContents = EntityManager.GetBuffer<GridCellContent>(boardEntity);
-        var gridWorldPosition = EntityManager.GetComponentData<Translation>(boardEntity);
+        var firstCellPosition = EntityManager.GetComponentData<FirstCellPosition>(boardEntity);
         var timeData = this.Time;
         
         var random = new Random(1234);
@@ -24,8 +24,9 @@ public class AIPlayerControllerSystem : SystemBase
         var ecb = new EntityCommandBuffer();
         Dependency = Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation) =>
         {
-            var targetCellPosition = new float3(1.0f, 2.0f, 3.0f); // obtain first cell pos + calculate targetPosition
-            
+            var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.X, 0, - boardDefinition.CellSize * aiTargetCell.Y);
+            float3 targetCellPosition = firstCellPosition.Value + cellOffSet;
+
             var distanceVector = targetCellPosition - translation.Value;
             var movementDirection = math.normalize(targetCellPosition);
             var squareDistance = distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y + distanceVector.z * distanceVector.z;
