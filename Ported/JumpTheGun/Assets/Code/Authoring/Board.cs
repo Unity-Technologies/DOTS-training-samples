@@ -4,15 +4,18 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class BoardAuthoring : MonoBehaviour
-    , IConvertGameObjectToEntity
-    , IDeclareReferencedPrefabs
+[GenerateAuthoringComponent]
+public class Board : IComponentData
 {
-    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
-    {
-    }
+    public int SizeX;
+    public int SizeY;
 
-    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-    {
-    }
+    public float MinHeight;
+    public float MaxHeight;
+
+    public int NumberOfTanks;
+    public float HitStrength;
+    
+    public Entity PlaformPrefab;
+    public Entity TankPrefab;
 }
