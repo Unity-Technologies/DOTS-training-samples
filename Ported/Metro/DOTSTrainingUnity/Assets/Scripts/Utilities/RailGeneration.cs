@@ -6,6 +6,10 @@ using UnityEngine;
 public struct Line
 {
     public BezierPath bezierPath;
+
+    // scalar values stored in the 0 - Length range (Not 0 - 1)
+    public float[] PlatformStopPoint;
+
     public void Create_RailPath(List<RailMarker> _outboundPoints)
     {
         bezierPath = new BezierPath();
@@ -13,11 +17,21 @@ public struct Line
         int total_outboundPoints = _outboundPoints.Count;
         Vector3 currentLocation = Vector3.zero;
 
+        List<int> stopPointIndices = new List<int>();
         // - - - - - - - - - - - - - - - - - - - - - - - -  OUTBOUND points
         for (int i = 0; i < total_outboundPoints; i++)
         {
             bezierPath.AddPoint(_outboundPoints[i].transform.position);
+
+            if (_outboundPoints[i].railMarkerType == RailMarkerType.PLATFORM_END)
+            {
+                stopPointIndices.Add(i);
+                stopPointIndices.Add(2 * total_outboundPoints - i);
+            }
         }
+        
+        stopPointIndices.Sort();
+        
 
         // fix the OUTBOUND handles
         for (int i = 0; i <= total_outboundPoints - 1; i++)
@@ -68,6 +82,14 @@ public struct Line
         }
 
         bezierPath.MeasurePath();
+
+        PlatformStopPoint = new float[stopPointIndices.Count];
+        
+        for(int i = 0; i < stopPointIndices.Count; ++i)
+        {
+            int index = stopPointIndices[i];
+            PlatformStopPoint[i] = bezierPath.points[index].distanceAlongPath;
+        }
     }
 }
 
