@@ -11,15 +11,16 @@ public class PlatformHeightSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Board board = GetSingleton<Board>();
+        float2 board = GetSingleton<MinMaxHeight>().Value;
+        float hitStrength = GetSingleton<HitStrength>().Value;
 
         Entities.
             WithAll<Platform, WasHit>()
             .ForEach((ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit) =>
             {
-                float posY = math.max(board.MinHeight, xform.Position.y - hit.Count * board.HitStrength);
+                float posY = math.max(board.x, xform.Position.y - hit.Count * hitStrength);
 
-                baseColor.Value = Colorize.Platform(posY, board.MinHeight, board.MaxHeight);
+                baseColor.Value = Colorize.Platform(posY, board.x, board.y);
             }).Run();
 
         ecb.Playback(EntityManager);
