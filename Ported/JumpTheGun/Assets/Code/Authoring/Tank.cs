@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class TankAuthoring : MonoBehaviour
@@ -16,8 +17,8 @@ public class TankAuthoring : MonoBehaviour
     {
         dstManager.AddComponentData(entity, new Tank { });
 
-        dstManager.AddComponent<Position>(entity);
-        dstManager.AddComponent<Direction>(entity);
+        dstManager.AddComponent<Translation>(entity);
+        dstManager.AddComponent<Rotation>(entity);
         dstManager.AddComponent<BoardPosition>(entity);
         dstManager.AddComponent<TimeOffset>(entity);
         dstManager.AddComponent<TargetPosition>(entity);

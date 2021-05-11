@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class PlayerAuthoring : MonoBehaviour
@@ -17,7 +18,7 @@ public class PlayerAuthoring : MonoBehaviour
         dstManager.AddComponentData(entity, new Player { });
 
         dstManager.AddComponent<Arc>(entity);
-        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<Translation>(entity);
         dstManager.AddComponent<Direction>(entity);
         dstManager.AddComponent<TargetPosition>(entity);
     }
