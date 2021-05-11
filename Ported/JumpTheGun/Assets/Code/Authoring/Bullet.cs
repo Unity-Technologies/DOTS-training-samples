@@ -2,11 +2,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGameObject = UnityEngine.GameObject;
-using UnityCamera = UnityEngine.Camera;
-using UnityInput = UnityEngine.Input;
-using UnityKeyCode = UnityEngine.KeyCode;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
+using Unity.Mathematics;
 
 public class BulletAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
@@ -25,5 +21,11 @@ public class BulletAuthoring : UnityMonoBehaviour
         {
             BulletPrefab = conversionSystem.GetPrimaryEntity(BulletPrefab)
         });
+        dstManager.AddComponentData(entity, new Position() { Value = new float3(0.0f, 0.0f, 0.0f) });
+        dstManager.AddComponentData(entity, new Direction() { Value = new float3(0.0f, 0.0f, 0.0f) });
+        dstManager.AddComponentData(entity, new WasHit() { Count = 0 });
+        dstManager.AddComponentData(entity, new TargetPosition() { Value = new float3(0.0f, 0.0f, 0.0f) });
+        dstManager.AddComponentData(entity, new Arc() { Value = new float3(0.0f, 0.0f, 0.0f) });
+        dstManager.AddComponentData(entity, new Time() { Value = 0.0f });
     }
 }
