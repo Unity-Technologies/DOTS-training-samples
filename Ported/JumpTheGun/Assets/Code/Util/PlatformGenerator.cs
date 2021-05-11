@@ -11,14 +11,17 @@ public static class PlatformGenerator
         Empty
     }
 
-    public static void CreatePlatforms(int width, int height, int2 playerPosition, int numberOfTanks, out List<PlatformType> platforms, out List<int2> tankPositions)
+    public static NativeArray<PlatformType> CreatePlatforms(int width, int height, int2 playerPosition, int numberOfTanks, Allocator allocator = Allocator.Persistent)
     {
         int cellSizes = width * height;
         int tanksPlaced = 0;
         float tankChance = (float)numberOfTanks / (float)cellSizes;
         var random = new System.Random();
-        platforms = new List<PlatformType>();
-        tankPositions = new List<int2>();
+
+        var platforms = new NativeArray<PlatformType>(width * height, allocator);
+        
+        //platforms = new List<PlatformType>();
+        //tankPositions = new List<int2>();
 
         for (int cellId = 0; cellId < cellSizes || tanksPlaced >= numberOfTanks; ++cellId)
         {
@@ -31,15 +34,17 @@ public static class PlatformGenerator
             {
                 ++tanksPlaced;
                 platformType = PlatformType.Tank;
-                tankPositions.Add(cellCoord);
+                //tankPositions.Add(cellCoord);
             }
             else
             {
                 platformType = PlatformType.Empty;
             }
 
-            platforms.Add(platformType);
+            platforms[cellId] = platformType;
         }
+
+        return platforms;
     }
 
 }

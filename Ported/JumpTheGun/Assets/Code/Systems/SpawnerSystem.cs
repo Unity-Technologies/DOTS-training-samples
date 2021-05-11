@@ -13,18 +13,27 @@ public class SpawnerSystem : SystemBase
             EntityManager.AddComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
             EntityManager.AddComponent<OffsetList>(boardEntity);
 
+            var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);
+
+            EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
+            EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
+           
+            var totalSize = board.SizeX * board.SizeY;
+            
             var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, Allocator.Temp);
+            var platforms = PlatformGenerator.CreatePlatforms(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, Allocator.Temp);
             
             // TODO find a better way to do that.
-            var totalSize = board.SizeX * board.SizeY;
             var buffer = EntityManager.AddBuffer<OffsetList>(boardEntity);
             buffer.ResizeUninitialized(totalSize);
-
             for (int i = 0; i < totalSize; ++i)
-            {
                 buffer[i] = new OffsetList {Value = offsets[i]};
-            }
-            
+
+            var tankMap = EntityManager.AddBuffer<TankMap>(boardEntity);
+            tankMap.ResizeUninitialized(totalSize);
+            for (int i = 0; i < totalSize; ++i)
+                tankMap[i] = new TankMap {Value = (platforms[i] == PlatformGenerator.PlatformType.Tank)}; 
+
             for (int y = 0; y < board.SizeY; ++y)
             {
                 for (int x = 0; x < board.SizeX; ++x)
@@ -41,6 +50,16 @@ public class SpawnerSystem : SystemBase
                     EntityManager.RemoveComponent<Rotation>(instance);
                     
                     EntityManager.SetComponentData(instance, new LocalToWorld {Value = localToWorld});
+                }
+            }
+
+            for (int i = 0; i < platforms.Length; ++i)
+            {
+                if (platforms[i] == PlatformGenerator.PlatformType.Tank)
+                {
+                    var coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
+                    var instance = EntityManager.Instantiate(board.TankPrefab);
+                    EntityManager.SetComponentData(instance, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
                 }
             }
 
