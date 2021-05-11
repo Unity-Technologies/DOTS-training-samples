@@ -12,6 +12,7 @@ public class TurretAimSystem : SystemBase
 
         Entity player = GetSingletonEntity<Player>();
         float3 targetPosition = GetComponent<Translation>(player).Value;
+        targetPosition.y += 3;
 
         Entities.
             WithAll<Turret, Translation, Rotation>()
