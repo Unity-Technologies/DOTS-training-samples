@@ -4,6 +4,25 @@ using Unity.Transforms;
 
 public class UpdateTransformSystem : SystemBase
 {
+    public static void GetOffsetDirs(ref int offsetDirX, ref int offsetDirY, in Direction direction)
+    {
+        switch (direction.Value)
+        {
+            case Dir.Up:
+                offsetDirY = 1;
+                break;
+            case Dir.Right:
+                offsetDirX = 1;
+                break;
+            case Dir.Down:
+                offsetDirY = -1;
+                break;
+            case Dir.Left:
+                offsetDirX = -1;
+                break;
+        }
+    }
+
     protected override void OnUpdate()
     {
         var board = GetSingletonEntity<BoardDefinition>();
@@ -11,9 +30,6 @@ public class UpdateTransformSystem : SystemBase
         var cellSize = boardDefinition.CellSize;
         var columns = boardDefinition.NumberColumns;
         var rows = boardDefinition.NumberRows;
-
-        if (!HasComponent<FirstCellPosition>(board))
-            return;
 
         var firstCellPosition = GetComponent<FirstCellPosition>(board);
 
@@ -25,28 +41,26 @@ public class UpdateTransformSystem : SystemBase
                 var offsetDirX = 0;
                 var offsetDirY = 0;
 
-                switch (direction.Value)
-                {
-                    case Dir.Up:
-                        offsetDirY = 1;
-                        break;
-                    case Dir.Right:
-                        offsetDirX = 1;
-                        break;
-                    case Dir.Down:
-                        offsetDirY = -1;
-                        break;
-                    case Dir.Left:
-                        offsetDirX = -1;
-                        break;
-                }
+                GetOffsetDirs(ref offsetDirX, ref offsetDirY, in direction);
 
                 // Fill this in with conversion math as well as adding offset
                 var xOffset = gridPosition.X * cellSize + offsetDirX * (cellOffset.Value - .5f) * cellSize;
                 var yOffset = gridPosition.Y * cellSize + offsetDirY * (cellOffset.Value - .5f) * cellSize;
                 translation.Value = firstCellPosition.Value + new float3(xOffset, 0.5f, yOffset);
+            }).ScheduleParallel();
+
+        // Rotate all transforms with Driections
+        Entities
+            .ForEach((ref Rotation rotation, in Direction direction) =>
+            {
+                var offsetDirX = 0;
+                var offsetDirY = 0;
+
+                GetOffsetDirs(ref offsetDirX, ref offsetDirY, in direction);
+
                 // Rotate based on direction
                 rotation.Value = quaternion.LookRotation(new float3(offsetDirX, 0f, offsetDirY), new float3(0f, 1f, 0f));
+
             }).ScheduleParallel();
     }
 }

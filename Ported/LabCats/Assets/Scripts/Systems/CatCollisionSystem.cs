@@ -26,7 +26,18 @@ public class CatCollisionSystem : SystemBase
             .WithNone<CatTag>()
             .ForEach((Entity entity, in GridPosition gridPosition, in CellOffset cellOffset, in Direction direction) =>
             {
+                var offsetX = 0;
+                var offsetY = 0;
+
+                UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in direction);
+
+                //var mouseGridPosition = new float2()
+
                 // TODO: Check the distance to each cat
+                for (int i = 0; i < catPositions.Length; i++)
+                {
+                    //if (math.distance(new float2(catPositions[i].X, catPositions[i].Y), new float2(gridPosition))
+                }
             }).Run();
     }
 }
