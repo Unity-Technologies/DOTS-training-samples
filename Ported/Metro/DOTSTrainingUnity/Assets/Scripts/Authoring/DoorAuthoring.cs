@@ -5,7 +5,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class DoorAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    public int doorState;
+    public CurrentDoorState doorState;
 
     // Add fields to your component here. Remember that:
     //

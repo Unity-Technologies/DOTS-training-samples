@@ -16,13 +16,13 @@ public class DoorAnimatorSystem : SystemBase
             switch(doorState.value)
             {
                 // Door closing
-                case 0:
+                case CurrentDoorState.Close:
                     {
                         animTime.value = math.max(0.0f, animTime.value - deltaTime);
                         break;
                     }
                 // Door opening
-                case 1:
+                case CurrentDoorState.Open:
                     {
                         animTime.value = math.min(1.0f, animTime.value + deltaTime);
                         break;
