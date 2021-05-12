@@ -6,9 +6,14 @@ using UnityEngine.Rendering;
 
 public class AIPlayerControllerSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<BoardInitializedTag>();
+    }
+    
     protected override void OnUpdate()
     {
-        var boardEntity = GetSingletonEntity<BoardDefinition>();
+        var boardEntity = GetSingletonEntity<BoardInitializedTag>();
         var boardDefinition = GetSingleton<BoardDefinition>();
         
         const float cursorSpeed = 1.0f;

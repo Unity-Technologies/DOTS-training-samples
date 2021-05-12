@@ -4,6 +4,9 @@ using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateBefore(typeof(EndInitializationEntityCommandBufferSystem))]
+[UpdateAfter(typeof(CopyInitialTransformFromGameObjectSystem))] //maybe not necessary but I’m afraid it might create issues
 public class SpawnBoardSystem : SystemBase
 {
     protected override void OnUpdate()

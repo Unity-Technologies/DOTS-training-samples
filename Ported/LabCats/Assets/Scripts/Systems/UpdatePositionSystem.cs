@@ -14,6 +14,7 @@ public class UpdatePositionSystem : SystemBase
     {
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<BoardInitializedTag>();
     }
 
     protected override void OnUpdate()
