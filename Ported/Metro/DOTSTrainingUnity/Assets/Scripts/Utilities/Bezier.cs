@@ -21,13 +21,15 @@ public class BezierPath
         {
             BezierPoint _prev = points[points.Count - 2];
             BezierPoint _current = points[points.Count - 1];
-            SetHandles(_current, _prev.location);
+            SetHandles(ref _current, _prev.location);
+
+            points[points.Count - 1] = _current;
         }
 
         return result;
     }
 
-    void SetHandles(BezierPoint _point, Vector3 _prevPointLocation)
+    void SetHandles(ref BezierPoint _point, Vector3 _prevPointLocation)
     {
         Vector3 _dist_PREV_CURRENT = Vector3.Normalize(_point.location - _prevPointLocation);
 
@@ -59,17 +61,18 @@ public class BezierPath
         {
             float _CURRENT_SUBDIV = i * measurementIncrement;
             float _NEXT_SOBDIV = (i + 1) * measurementIncrement;
-            regionDistance += Vector3.Distance(BezierLerp(_prevPoint, _currentPoint, _CURRENT_SUBDIV),
-                BezierLerp(_prevPoint, _currentPoint, _NEXT_SOBDIV));
+            regionDistance += Vector3.Distance(BezierLerp(ref _prevPoint, ref _currentPoint, _CURRENT_SUBDIV),
+                BezierLerp(ref _prevPoint, ref _currentPoint, _NEXT_SOBDIV));
         }
 
         return regionDistance;
     }
 
     public void MeasurePoint(int _currentPoint, int _prevPoint) {
+        
         distance += Get_AccurateDistanceBetweenPoints(_currentPoint, _prevPoint);
+        
         BezierPoint point = points[_currentPoint];
-
         point.distanceAlongPath = distance;
         points[_currentPoint] = point;
     }
@@ -87,7 +90,7 @@ public class BezierPath
         return new Vector3(-normal.z, normal.y, normal.x);
     }
 
-    public Vector3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset)
+    public Vector3 GetPoint_PerpendicularOffset(ref BezierPoint _point, float _offset)
     {
         return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance) * _offset;
     }
@@ -108,7 +111,10 @@ public class BezierPath
 
         // do your bezier lerps
         // Round 1 --> Origins to handles, handle to handle
-        return BezierLerp(point_region_start, point_region_end, regionProgress);
+        Vector3 returnVal = BezierLerp(ref point_region_start, ref point_region_end, regionProgress);
+        points[pointIndex_region_start] = point_region_start;
+        points[pointIndex_region_end] = point_region_end;
+        return returnVal;
     }
 
     public int GetRegionIndex(float _progress)
@@ -141,7 +147,7 @@ public class BezierPath
         return result;
     }
 
-    public Vector3 BezierLerp(BezierPoint _pointA, BezierPoint _pointB, float _progress)
+    public Vector3 BezierLerp(ref BezierPoint _pointA, ref BezierPoint _pointB, float _progress)
     {
         // Round 1 --> Origins to handles, handle to handle
         Vector3 l1_a_aOUT = Vector3.Lerp(_pointA.location, _pointA.handle_out, _progress);

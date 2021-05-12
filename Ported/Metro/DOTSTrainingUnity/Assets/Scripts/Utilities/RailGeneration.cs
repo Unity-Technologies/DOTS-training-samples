@@ -62,36 +62,39 @@ public struct Line
             {
                 _currentPoint.SetHandles(_POINTS[i + 1].location - _POINTS[i - 1].location);
             }
+            _POINTS[i] = _currentPoint;
         }
 
         bezierPath.MeasurePath();
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
         float platformOffset = MetroDefines.BEZIER_PLATFORM_OFFSET;
-        List<BezierPoint> _RETURN_POINTS = new List<BezierPoint>();
         for (int i = total_outboundPoints - 1; i >= 0; i--)
         {
-            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(bezierPath.points[i], platformOffset);
+            BezierPoint point = bezierPath.points[i];
+            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(ref point, platformOffset);
+            bezierPath.points[i] = point;
             bezierPath.AddPoint(_targetLocation);
-            _RETURN_POINTS.Add(_POINTS[_POINTS.Count - 1]);
         }
 
         // fix the RETURN handles
         for (int i = 0; i <= total_outboundPoints - 1; i++)
         {
-            BezierPoint _currentPoint = _RETURN_POINTS[i];
+            BezierPoint _currentPoint = bezierPath.points[total_outboundPoints + i];
             if (i == 0)
             {
-                _currentPoint.SetHandles(_RETURN_POINTS[1].location - _currentPoint.location);
+                _currentPoint.SetHandles(bezierPath.points[total_outboundPoints + 1].location - _currentPoint.location);
             }
             else if (i == total_outboundPoints - 1)
             {
-                _currentPoint.SetHandles(_currentPoint.location - _RETURN_POINTS[i - 1].location);
+                _currentPoint.SetHandles(_currentPoint.location - bezierPath.points[total_outboundPoints + i - 1].location);
             }
             else
             {
-                _currentPoint.SetHandles(_RETURN_POINTS[i + 1].location - _RETURN_POINTS[i - 1].location);
+                _currentPoint.SetHandles(bezierPath.points[total_outboundPoints + i + 1].location - bezierPath.points[total_outboundPoints + i - 1].location);
             }
+
+            bezierPath.points[total_outboundPoints + i] = _currentPoint;
         }
 
         bezierPath.MeasurePath();
