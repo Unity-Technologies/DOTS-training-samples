@@ -178,9 +178,5 @@ PrefabInstance:
       propertyPath: m_Name
       value: Train
       objectReference: {fileID: 0}
-    - target: {fileID: 8487843274094152949, guid: 47e9c024090cb1b48a80ff8006dab704, type: 3}
-      propertyPath: totalDistance
-      value: 100
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47e9c024090cb1b48a80ff8006dab704, type: 3}

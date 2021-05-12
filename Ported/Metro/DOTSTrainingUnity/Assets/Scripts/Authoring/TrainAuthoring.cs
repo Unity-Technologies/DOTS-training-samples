@@ -11,6 +11,7 @@ public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponentData(entity, new TrackIndex());
         dstManager.AddComponentData(entity, new TrainWaitTimer());
         dstManager.AddComponentData(entity, new TrainCurrDistance());
         dstManager.AddComponentData(entity, new TrainTargetDistance() { value = targetDistance });
