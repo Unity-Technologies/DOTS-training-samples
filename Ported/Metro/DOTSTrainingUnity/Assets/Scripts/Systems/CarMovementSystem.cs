@@ -12,8 +12,8 @@ public class CarMovementSystem : SystemBase
     {
         var time = Time.ElapsedTime;
         EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        NativeArray<BezierPoint> allBezierPaths = Line.allBezierPaths;
-        NativeArray<int> bezierPathIndices = Line.bezierPathIndices;
+        NativeArray<BezierPoint> allBezierPaths = Line.allBezierPathSubarrays;
+        NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
         Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex, in TrainEngineRef engineRef) =>
         {

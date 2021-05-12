@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Unity.Collections;
+
+using Unity.Entities;
+using Unity.Transforms;
+using Unity.Mathematics;
+
 public struct Line
 {
     public BezierPath bezierPath;
@@ -10,11 +15,11 @@ public struct Line
     // scalar values stored in the 0 - Length range (Not 0 - 1)
     public float[] PlatformStopPoint;
 
-    public static NativeArray<BezierPoint> allBezierPaths;
-    public static NativeArray<int> bezierPathIndices;
+    public static NativeArray<BezierPoint> allBezierPathSubarrays;
+    public static NativeArray<int> bezierPathSubarrayIndices;
 
-    public static NativeArray<float> allStopPointSets;
-    public static NativeArray<int> stopPointSetIndices;
+    public static NativeArray<float> allStopPointSubarrays;
+    public static NativeArray<int> stopPointSubarrayIndices;
 
     public static NativeArray<float> allDistances;
 
@@ -117,12 +122,11 @@ public class RailGeneration : MonoBehaviour
     }
 
     public int numberOfLines = 0;
-    public Line[] metroLines = null;
     public GameObject prefabRail;
     
     void SetupMetroLines()
     {
-        metroLines = new Line[numberOfLines];
+        Line[] metroLines = new Line[numberOfLines];
         for (int i = 0; i < numberOfLines; i++)
         {
             // Find all of the relevant RailMarkers in the scene for this line
@@ -175,7 +179,7 @@ public class RailGeneration : MonoBehaviour
         int numLines = metroLines.Length;
         int numStopPoints = 0;
         NativeArray<int> stopPointIndices = new NativeArray<int>(numLines, Allocator.Persistent);
-        NativeArray<int> controlPointIndices = new NativeArray<int>(numLines, Allocator.Persistent);
+        NativeArray<int> bezierPathIndices = new NativeArray<int>(numLines, Allocator.Persistent);
         NativeArray<float> distances = new NativeArray<float>(numLines, Allocator.Persistent);
 
         for (int i = 0; i < numLines; i++)
@@ -202,7 +206,7 @@ public class RailGeneration : MonoBehaviour
         int numControlPoints = 0;
         for (int i = 0; i < numLines; i++)
         {
-            controlPointIndices[i] = numControlPoints;
+            bezierPathIndices[i] = numControlPoints;
             Line metroLine = metroLines[i];
             numControlPoints += metroLine.bezierPath.points.Count;
         }
@@ -223,6 +227,12 @@ public class RailGeneration : MonoBehaviour
 
             numControlPoints += pointCount;
         }
+
+        Line.allBezierPathSubarrays = bezierPaths;
+        Line.bezierPathSubarrayIndices = bezierPathIndices;
+        Line.allStopPointSubarrays = platformStopPoints;
+        Line.stopPointSubarrayIndices = stopPointIndices;
+        Line.allDistances = distances;
 
         Debug.Log("Done");
     }
