@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlayerCollisionSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbs;
@@ -12,6 +13,8 @@ public class PlayerCollisionSystem : SystemBase
         var query = GetEntityQuery(typeof(Player));
         RequireForUpdate(query);
 
+        RequireForUpdate(GetEntityQuery(typeof(Board), typeof(Radius)));
+        
         ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 

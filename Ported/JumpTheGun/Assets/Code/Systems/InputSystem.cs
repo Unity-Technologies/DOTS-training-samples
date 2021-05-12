@@ -6,7 +6,6 @@ using UnityInput = UnityEngine.Input;
 
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
-[UpdateAfter(typeof(SpawnerSystem))]
 public class InputSystem : SystemBase
 {
     protected override void OnUpdate()

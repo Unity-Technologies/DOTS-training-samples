@@ -5,7 +5,6 @@ using UnityEngine;
 
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
-[UpdateAfter(typeof(SpawnerSystem))]
 public class CameraSystem : SystemBase
 {
     protected override void OnUpdate()
