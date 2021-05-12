@@ -42,6 +42,7 @@ public enum GridCellType : byte
 [Flags]
 public enum WallBoundaries : byte
 {
+    NoWall = 0,
     WallLeft = 1,
     WallRight = 2,
     WallDown = 4,

@@ -46,9 +46,21 @@ public class SpawnBoardSystem : SystemBase
                 }
 
                 int numberCells = boardDefinition.NumberColumns * boardDefinition.NumberRows;
-                for (int i = 0; i < numberCells; ++i)
+                for (int boardIndex = 0; boardIndex < numberCells; ++boardIndex)
                 {
-                    gridContent.Add(new GridCellContent() { Type = GridCellType.None });
+                    WallBoundaries borderWall = WallBoundaries.NoWall;
+                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+
+                    if(i == 0)
+                        borderWall |= WallBoundaries.WallUp;
+                    if (i == boardDefinition.NumberRows - 1)
+                        borderWall |= WallBoundaries.WallDown;
+                    if (j == 0)
+                        borderWall |= WallBoundaries.WallLeft;
+                    if (j == boardDefinition.NumberColumns - 1)
+                        borderWall |= WallBoundaries.WallRight;
+                    gridContent.Add(new GridCellContent() { Type = GridCellType.None, Walls = borderWall});
                 }
 
                 int numHoles = random.NextInt(0, 4);
