@@ -2,16 +2,17 @@
 using Unity.Collections;
 using Unity.Entities;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformCollision : SystemBase
 {
-    private EntityCommandBufferSystem m_ECBSystem;
+    private EntityCommandBufferSystem ecbs;
 
     protected override void OnCreate()
     {
         var query = GetEntityQuery(typeof(Bullet), typeof(BoardTarget));
         RequireForUpdate(query);
 
-        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -19,15 +20,20 @@ public class PlatformCollision : SystemBase
         if (TryGetSingleton<IsPaused>(out _))
             return;
 
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         float currentTime = (float)Time.ElapsedTime;
 
-        NativeArray<BoardTarget> bulletTargets = GetEntityQuery(typeof(Bullet), typeof(BoardTarget)).ToComponentDataArray<BoardTarget>(Allocator.TempJob);
-        NativeArray<Time> bulletTime = GetEntityQuery(typeof(Bullet), typeof(Time)).ToComponentDataArray<Time>(Allocator.TempJob);
+        var query = GetEntityQuery(typeof(Bullet), typeof(BoardTarget), typeof(Time));
+        NativeArray<BoardTarget> bulletTargets = query.ToComponentDataArray<BoardTarget>(Allocator.TempJob);
+        NativeArray<Time> bulletTime = query.ToComponentDataArray<Time>(Allocator.TempJob);
 
-        Entities.
-            WithAll<Platform, BoardPosition>()
+        Entities
+            .WithDisposeOnCompletion(bulletTargets)
+            .WithDisposeOnCompletion(bulletTime)
+            .WithAll<Platform, BoardPosition>()
+            .WithReadOnly(bulletTargets)
+            .WithReadOnly(bulletTime)
             .ForEach((int entityInQueryIndex, Entity entity, in BoardPosition boardPosition) => {
 
                 int count = 0;
@@ -47,10 +53,8 @@ public class PlatformCollision : SystemBase
                     ecb.AddComponent<WasHit>(entityInQueryIndex, entity, new WasHit { Count = count });
 
             })
-            .WithDisposeOnCompletion(bulletTargets)
-            .WithDisposeOnCompletion(bulletTime)
             .ScheduleParallel();
 
-        m_ECBSystem.AddJobHandleForProducer(Dependency);
+        ecbs.AddJobHandleForProducer(Dependency);
     }
 }

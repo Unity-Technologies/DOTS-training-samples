@@ -22,11 +22,17 @@ public class BulletSpawnerSystem : SystemBase
         if (!TryGetSingletonEntity<Player>(out playerEntity))
             return;
         
+        Entity boardEntity;
+        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+            return;
+
         var times = new double2(Time.ElapsedTime - Time.DeltaTime, Time.ElapsedTime);
         var reloadTime = GetSingleton<ReloadTime>().Value;
         var bulletPrefab = GetSingleton<BoardSpawnerData>().BulletPrefab;
-        var boardSize = GetSingleton<BoardSize>();
-        
+
+        var boardSize = GetComponent<BoardSize>(boardEntity);
+        DynamicBuffer<OffsetList> offsets = GetBuffer<OffsetList>(boardEntity);
+
         var playerPosition = GetComponent<Translation>(playerEntity);
 
         const float kDuration = 5f;
@@ -35,6 +41,7 @@ public class BulletSpawnerSystem : SystemBase
  
         Entities
             .WithAll<Tank, BoardPosition>()
+            .WithReadOnly(offsets)
             .ForEach((
                 int entityInQueryIndex,
                 ref Translation translation,
@@ -48,12 +55,6 @@ public class BulletSpawnerSystem : SystemBase
                         var bulletEntity = ecb.Instantiate(entityInQueryIndex, bulletPrefab);
 
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Translation {Value = translation.Value});
-                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new BallTrajectory
-                            {
-                                Source = translation.Value,
-                                Destination = playerPosition.Value
-                            }
-                        );
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new BoardTarget
                         {
                             Value = CoordUtils.WorldToBoardPosition(playerPosition.Value, boardSize, float3.zero)
@@ -61,8 +62,18 @@ public class BulletSpawnerSystem : SystemBase
                         
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
                         
-                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.5f, 10f, playerPosition.Value.y, out float a, out float b, out float c);
-                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
+                        var landingPos = new float3(0,0,0);
+                        var bulletArc = new Arc();
+
+                        TraceUtils.TraceArc(translation.Value, playerPosition.Value, boardSize, offsets, out landingPos, out bulletArc);
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new BallTrajectory
+                            {
+                                Source = translation.Value,
+                                Destination = landingPos
+                            }
+                        );
+
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, bulletArc);
                     }
                 }).ScheduleParallel();
         
