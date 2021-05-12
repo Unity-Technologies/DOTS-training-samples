@@ -304,8 +304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e4ef9596ef37641488a799325414cf2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  X: 0.5
-  Y: 0.5
+  Value: 0.5
 --- !u!114 &2349209003845849416
 MonoBehaviour:
   m_ObjectHideFlags: 0
