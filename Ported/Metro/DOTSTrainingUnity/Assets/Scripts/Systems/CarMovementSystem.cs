@@ -21,13 +21,16 @@ public class CarMovementSystem : SystemBase
             in TrainEngineRef engineRef) =>
         {
             
-            float trainDistance = 2.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
+            float trainDistance = 12.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
         int engineTrackIndex = 0; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
-        float carDistance = trainDistance + (trainCarLength * carIndex.value);
-
+        
         int startIndex = bezierPathIndices[engineTrackIndex];
         float distance = allDistances[engineTrackIndex];
 
+        float carDistance = trainDistance - (trainCarLength * carIndex.value);
+        if (carDistance < 0)
+            carDistance += distance;
+        
         int onePastEndIndex;
 
         if (engineTrackIndex == bezierPathIndices.Length - 1)
@@ -48,9 +51,9 @@ public class CarMovementSystem : SystemBase
 
         float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
 
-        float3 lookAtDirection = position - normalAtPosition;
+        //float3 lookAtDirection = position - normalAtPosition;
 
-        quaternion lookRotation = quaternion.LookRotation(lookAtDirection, new float3(0f, 1f, 0f));
+        quaternion lookRotation = quaternion.LookRotation(normalAtPosition, new float3(0f, 1f, 0f));
 
         translation.Value = position;
         rotation.Value = lookRotation;
