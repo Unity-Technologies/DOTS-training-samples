@@ -3,6 +3,31 @@ using UnityEngine;
 
 public static class CoordUtils
 {
+    public static readonly float3 BoardOffset = new float3(-0.5f, 0.0f, -0.5f);
+
+    public static int2 WorldToBoardPosition(float3 worldPos)
+    {
+        float3 localPos = worldPos - BoardOffset;
+        return new int2((int)math.floor(localPos.x), (int)math.floor(localPos.z));
+    }
+
+    public static int2 WorldOffsetToBoardPosition(float2 worldOffset)
+    {
+        return new int2((int)math.floor(worldOffset.x - BoardOffset.x), (int)math.floor(worldOffset.y - BoardOffset.z));
+    }
+
+    public static float2 BoardPosToWorldOffset(int2 boardPos)
+    {
+        float2 worldOffset = new float2((float)boardPos.x, (float)boardPos.y);
+        return worldOffset;
+    }
+
+    public static float3 BoardPosToWorldPos(int2 boardPos, float height)
+    {
+        float2 worldOffset = BoardPosToWorldOffset(boardPos);
+        return new float3(worldOffset.x, height, worldOffset.y);
+    }
+
     public static int2 ToCoords(int index, int width, int height)
     {
         return new int2(index % width, index / width);
