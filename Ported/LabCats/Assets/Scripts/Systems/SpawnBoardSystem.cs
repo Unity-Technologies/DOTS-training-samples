@@ -89,7 +89,7 @@ public class SpawnBoardSystem : SystemBase
                         //
                         ecb.SetComponent(arrow, new Translation
                         {
-                            Value = new float3(posX*boardDefinition.CellSize, 1.01f, posY*boardDefinition.CellSize)
+                            Value = new float3(posX*boardDefinition.CellSize, 0.501f, posY*boardDefinition.CellSize)
                         });
                         ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
                         ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
@@ -110,7 +110,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent<GoalTag>(spawnedEntity);
                     ecb.SetComponent(spawnedEntity, new Translation
                     {
-                        Value = new float3(posX*boardDefinition.CellSize, 1.0f, posY*boardDefinition.CellSize)
+                        Value = new float3(posX*boardDefinition.CellSize, 0.5f, posY*boardDefinition.CellSize)
                     });
                     ecb.AddComponent(spawnedEntity, new GridPosition(){X=posX,Y=posY});
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});

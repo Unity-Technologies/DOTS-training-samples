@@ -48,7 +48,7 @@ public class DynamicSpawnerSystem : SystemBase
                     // Set its components
                     var gridPosition = new GridPosition() { X = spawnerData.X, Y = spawnerData.Y };
                     var direction = new Direction() { Value = spawnerData.Direction };
-                    var cellOffset = new CellOffset() { Value = 0f };
+                    var cellOffset = new CellOffset() { Value = 0.5f };
                     ecb.AddComponent(spawnedEntity, gridPosition);
                     ecb.AddComponent(spawnedEntity, direction);
                     ecb.AddComponent(spawnedEntity, cellOffset);

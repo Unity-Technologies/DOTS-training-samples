@@ -42,9 +42,9 @@ public class UpdateTransformSystem : SystemBase
                 }
 
                 // Fill this in with conversion math as well as adding offset
-                var xOffset = gridPosition.X * cellSize + offsetDirX * cellOffset.Value * cellSize;
-                var yOffset = gridPosition.Y * cellSize + offsetDirY * cellOffset.Value * cellSize;
-                translation.Value = firstCellPosition.Value + new float3(xOffset, 0, yOffset);
+                var xOffset = gridPosition.X * cellSize + offsetDirX * (cellOffset.Value - .5f) * cellSize;
+                var yOffset = gridPosition.Y * cellSize + offsetDirY * (cellOffset.Value - .5f) * cellSize;
+                translation.Value = firstCellPosition.Value + new float3(xOffset, 0.5f, yOffset);
                 // Rotate based on direction
                 rotation.Value = quaternion.LookRotation(new float3(offsetDirX, 0f, offsetDirY), new float3(0f, 1f, 0f));
             }).ScheduleParallel();
