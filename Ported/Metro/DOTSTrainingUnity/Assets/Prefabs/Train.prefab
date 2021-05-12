@@ -45,3 +45,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   totalDistance: 100
   maxSpeed: 3
+  doors: []
