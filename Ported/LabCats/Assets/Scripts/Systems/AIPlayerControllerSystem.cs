@@ -55,10 +55,37 @@ public class AIPlayerControllerSystem : SystemBase
                     }
                 
                     var gridContent = gridCellContents[index];
-                    gridContent.Type = GridCellType.ArrowLeft; //Why left, I don’t know
+
+                    var newArrowDirectionAsInt = random.NextInt(0, 4);
+                    var newArrowDirection = Dir.Left;
+                    var newType = GridCellType.ArrowLeft;
+                    if (newArrowDirectionAsInt == 0)
+                    {
+                        newArrowDirection = Dir.Left;
+                        newType = GridCellType.ArrowLeft;
+                    }
+                        
+                    else if (newArrowDirectionAsInt == 1)
+                    {
+                        newArrowDirection = Dir.Right;
+                        newType = GridCellType.ArrowRight;
+                    }
+                    else if (newArrowDirectionAsInt == 2)
+                    {
+                        newArrowDirection = Dir.Up;
+                        newType = GridCellType.ArrowUp;
+                    }
+                    else 
+                    {
+                        newArrowDirection = Dir.Down;
+                        newType = GridCellType.ArrowDown;
+                    }
+                        
+                    gridContent.Type = newType;
                     gridCellContents[index] = gridContent;
                 
                     ecb.SetComponent(selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
+                    ecb.SetComponent(selectedArrow, new Direction(){ Value = newArrowDirection});
                 
                 }
                 //Compute new target 

@@ -219,8 +219,8 @@ public class SpawnBoardSystem : SystemBase
                     for (int l = 0; l < 3; l++)
                     {
                         Entity arrowPrefab = boardPrefab.ArrowPrefab;
-                        var posX = random.NextInt(0, boardDefinition.NumberRows);
-                        var posY = random.NextInt(0, boardDefinition.NumberColumns);
+                        var posX = 0;
+                        var posY = 0;
                         var arrow = ecb.Instantiate(arrowPrefab);
                         //
                         ecb.SetComponent(arrow, new Translation
