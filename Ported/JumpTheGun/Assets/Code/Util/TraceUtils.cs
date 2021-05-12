@@ -91,5 +91,20 @@ public static class TraceUtils
         boardMaxPointWorldPos.z = foundCoord.y;
         return foundCoordI;
     }
-    
+
+    public static Arc GetPlayerArchMovement(
+        int2 startPosition,
+        int2 endPosition,
+        in DynamicBuffer<OffsetList> offsets,
+        in BoardSize boardSize)
+    {
+        int sourceIndex = CoordUtils.ToIndex(CoordUtils.ClampPos(startPosition, boardSize.Value), boardSize.Value.x, boardSize.Value.y);
+        int destIndex = CoordUtils.ToIndex(CoordUtils.ClampPos(endPosition, boardSize.Value), boardSize.Value.x, boardSize.Value.y);
+        float ballHeightSrc = offsets[sourceIndex].Value;
+        float ballHeightDst = offsets[destIndex].Value;
+
+        float a, b, c;
+        ParabolaUtil.CreateParabolaOverPoint(ballHeightSrc, 0.5f, ballHeightDst * 1.2f, ballHeightDst, out a, out b, out c);
+        return new Arc { Value = new float3(a, b, c) };
+    }
 }

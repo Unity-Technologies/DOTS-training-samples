@@ -18,7 +18,7 @@ public static class CoordUtils
 
     public static int2 ClampPos(int2 coord, int2 bounds)
     {
-        return math.clamp(coord, new int2(0,0), bounds);
+        return math.clamp(coord, new int2(0,0), bounds - 1);
     }
 
     public static float2 BoardPosToWorldOffset(int2 boardPos)
