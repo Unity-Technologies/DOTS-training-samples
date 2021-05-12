@@ -25,6 +25,7 @@ public class BulletSpawnerSystem : SystemBase
         var times = new double2(Time.ElapsedTime - Time.DeltaTime, Time.ElapsedTime);
         var reloadTime = GetSingleton<ReloadTime>().Value;
         var bulletPrefab = GetSingleton<BoardSpawnerData>().BulletPrefab;
+        var boardSize = GetSingleton<BoardSize>();
         
         var targetPoint = GetComponent<TargetPosition>(playerEntity);
 
@@ -49,10 +50,17 @@ public class BulletSpawnerSystem : SystemBase
 
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Translation {Value = translation.Value});
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new TargetPosition {Value = targetPoint.Value});
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new BoardTarget
+                        {
+                            Value = CoordUtils.WorldToBoardPosition(targetPoint.Value, boardSize, float3.zero)
+                        });
+                        
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
                         
                         ParabolaUtil.CreateParabolaOverPoint(0.0f, 0.2f, 8.0f, targetPoint.Value.y, out float a, out float b, out float c);
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
+                        
+                        
                     }
                 }).ScheduleParallel();
         
