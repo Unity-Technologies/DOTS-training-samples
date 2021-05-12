@@ -10,6 +10,7 @@ public class BulletAuthoring : UnityMonoBehaviour
     public static void CreateBulletArchetype(Entity entity, EntityManager entityManager)
     {
         entityManager.AddComponentData(entity, new Bullet());
+        entityManager.AddComponentData(entity, new CurrentLevel());
         entityManager.AddComponentData(entity, new Direction() { Value = new float3(0.0f, 0.0f, 0.0f) });
         entityManager.AddComponentData(entity, new WasHit() { Count = 0 });
         entityManager.AddComponentData(entity, new TargetPosition() { Value = new float3(0.0f, 0.0f, 0.0f) });

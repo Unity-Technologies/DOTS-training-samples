@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 
 using Unity.Entities;
-using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
 
@@ -18,8 +17,8 @@ public class PlatformAuthoring : MonoBehaviour
     {
         dstManager.AddComponentData(entity, new Platform { });
 
-        dstManager.AddComponent<Translation>(entity);
         dstManager.AddComponent<BoardPosition>(entity);
+        dstManager.AddComponent<CurrentLevel>(entity);
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }
