@@ -7,6 +7,7 @@ using Unity.Mathematics;
 public class CarMovementSystem : SystemBase
 {
     
+    
     public const float trainCarLength = 3.0f;
     //EntityArchetype trainCarArchetype = World.EntityManager.CreateArchetype()
     protected override void OnUpdate()
@@ -17,46 +18,51 @@ public class CarMovementSystem : SystemBase
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
 
+        ComponentDataFromEntity<TrainCurrDistance> trainDistances =  GetComponentDataFromEntity<TrainCurrDistance>(true);
+        ComponentDataFromEntity<TrackIndex> trainTrackIndices = GetComponentDataFromEntity<TrackIndex>(true);
+        
         Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex,
             in TrainEngineRef engineRef) =>
         {
             
-            float trainDistance = 12.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
-        int engineTrackIndex = 0; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
-        
-        int startIndex = bezierPathIndices[engineTrackIndex];
-        float distance = allDistances[engineTrackIndex];
+            //float trainDistance = 12.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
+            int engineTrackIndex = 1; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
+            float trainDistance = trainDistances[engineRef.value].value;
+            //int engineTrackIndex = trainTrackIndices[engineRef.value].value;
+            
+            int startIndex = bezierPathIndices[engineTrackIndex];
+            float distance = allDistances[engineTrackIndex];
+            
+            float carDistance = trainDistance - (trainCarLength * carIndex.value);
+            if (carDistance < 0)
+                carDistance += distance;
+            
+            int onePastEndIndex;
+            
+            if (engineTrackIndex == bezierPathIndices.Length - 1)
+            {
+                onePastEndIndex = allBezierPaths.Length;
+            }
+            else
+            {
+                onePastEndIndex = bezierPathIndices[engineTrackIndex + 1];
+            }
+            
+            int length = onePastEndIndex - startIndex;
+            
+            NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
+            
+            float3 position = Get_Position(carDistance, points);
+            float3 aheadPosition = Get_Position((carDistance + 0.0001f) % distance, points);
+            
+            float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
+            
+            //float3 lookAtDirection = position - normalAtPosition;
+            
+            quaternion lookRotation = quaternion.LookRotation(normalAtPosition, new float3(0f, 1f, 0f));
 
-        float carDistance = trainDistance - (trainCarLength * carIndex.value);
-        if (carDistance < 0)
-            carDistance += distance;
-        
-        int onePastEndIndex;
-
-        if (engineTrackIndex == bezierPathIndices.Length - 1)
-        {
-            onePastEndIndex = allBezierPaths.Length;
-        }
-        else
-        {
-            onePastEndIndex = bezierPathIndices[engineTrackIndex + 1];
-        }
-
-        int length = onePastEndIndex - startIndex;
-
-        NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
-
-        float3 position = Get_Position(carDistance, points);
-        float3 aheadPosition = Get_Position((carDistance + 0.0001f) % distance, points);
-
-        float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
-
-        //float3 lookAtDirection = position - normalAtPosition;
-
-        quaternion lookRotation = quaternion.LookRotation(normalAtPosition, new float3(0f, 1f, 0f));
-
-        translation.Value = position;
-        rotation.Value = lookRotation;
+            translation.Value = position;
+            rotation.Value = lookRotation;
         
         }).Run();
     }

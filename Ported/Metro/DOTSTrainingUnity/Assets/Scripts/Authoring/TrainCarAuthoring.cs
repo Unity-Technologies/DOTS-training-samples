@@ -8,11 +8,16 @@ public class TrainCarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public int trainCarIndex = 0;
     public UnityEngine.Color color;
+    public GameObject theTrainEngine;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new TrainCarIndex(){value = trainCarIndex});
-        dstManager.AddComponent<TrainEngineRef>(entity);
-        dstManager.AddComponentData(entity, new Color() {value = new float4(color.r, color.g, color.b, color.a)});
+        dstManager.AddComponents(entity, new ComponentTypes(typeof(TrainCarIndex), typeof(TrainEngineRef), typeof(Color)));
+        dstManager.SetComponentData(entity, new TrainCarIndex(){value = trainCarIndex});
+        
+        Entity trainEntity = conversionSystem.GetPrimaryEntity(theTrainEngine);
+        dstManager.SetComponentData(entity, new TrainEngineRef(){value = trainEntity});
+        
+        dstManager.SetComponentData(entity, new Color() {value = new float4(color.r, color.g, color.b, color.a)});
     }
 }
