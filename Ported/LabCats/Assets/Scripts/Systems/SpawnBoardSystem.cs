@@ -121,19 +121,54 @@ public class SpawnBoardSystem : SystemBase
                 // TODO: Add time?
 
                 // TODO: Set up walls
+
                 // Set up spawners
                 var spawner1 = ecb.CreateEntity();
-                var spawnerData = new SpawnerData()
+                ecb.AddComponent(spawner1, new SpawnerData()
                 {
                     Timer = 0f,
                     Frequency = 0.25f,
-                    Direction = Dir.Right,
+                    Direction = Dir.Up,
                     Type = SpawnerType.MouseSpawner,
                     X = 0,
                     Y = 0
-                };
-                ecb.AddComponent(spawner1, spawnerData);
-                ecb.SetName(spawner1, "Spawner 1");
+                });
+                ecb.SetName(spawner1, "Mouse Spawner 1");
+                
+                var spawner2 = ecb.CreateEntity();
+                ecb.AddComponent(spawner2, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 0.25f,
+                    Direction = Dir.Down,
+                    Type = SpawnerType.MouseSpawner,
+                    X = boardDefinition.NumberColumns - 1,
+                    Y = boardDefinition.NumberRows - 1
+                });
+                ecb.SetName(spawner2, "Mouse Spawner 2");
+
+                var spawner3 = ecb.CreateEntity();
+                ecb.AddComponent(spawner3, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 5f,
+                    Direction = Dir.Left,
+                    Type = SpawnerType.CatSpawner,
+                    X = boardDefinition.NumberColumns - 1,
+                    Y = 0
+                });
+                ecb.SetName(spawner3, "CatSpawner 1");
+
+                var spawner4 = ecb.CreateEntity();
+                ecb.AddComponent(spawner4, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 5f,
+                    Direction = Dir.Right,
+                    Type = SpawnerType.CatSpawner,
+                    X = 0,
+                    Y = boardDefinition.NumberRows - 1
+                });
 
                 // TODO: Set up goals
                 // TODO: Set up holes
