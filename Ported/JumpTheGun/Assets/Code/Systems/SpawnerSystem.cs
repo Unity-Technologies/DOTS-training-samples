@@ -7,7 +7,7 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class SpawnerSystem : SystemBase
 {
-    protected override void OnUpdate()
+    private void SpawnBoard()
     {
         Entities
             .WithStructuralChanges()
@@ -77,5 +77,27 @@ public class SpawnerSystem : SystemBase
 
             EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
+    }
+
+    private void SpawnDebugEntities()
+    {
+        Entities
+            .WithStructuralChanges()
+            .WithAll<DebugParabolaSpawnerTag>()
+            .ForEach((Entity debugEntity, in DebugParabolaData debugData) =>
+        {
+            for (int i = 0; i < debugData.SampleCount; ++i)
+            {
+                EntityManager.Instantiate(debugData.SamplePrefab);
+            }
+
+            EntityManager.RemoveComponent<DebugParabolaSpawnerTag>(debugEntity);
+        }).Run();
+    }
+
+    protected override void OnUpdate()
+    {
+        SpawnBoard();
+        SpawnDebugEntities();
     }
 }
