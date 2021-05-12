@@ -5,8 +5,8 @@ using UnityEngine;
 public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     private float CellSize => 1.0f;
-    [Range(20, 60)]public int NumberColumns;
-    [Range(20, 60)]public int NumberRows;
+    [Range(10, 60)]public int NumberColumns;
+    [Range(10, 60)]public int NumberRows;
     public GameObject LightCellPrefab;
     public GameObject DarkCellPrefab;
     public GameObject CursorPrefab;
@@ -48,7 +48,7 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
-            GoalPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            GoalPrefab = conversionSystem.GetPrimaryEntity(GoalPrefab),
         });
     }
 }
