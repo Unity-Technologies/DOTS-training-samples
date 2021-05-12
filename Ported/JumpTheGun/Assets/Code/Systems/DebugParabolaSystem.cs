@@ -17,6 +17,13 @@ public class DebugParabolaSystem : SystemBase
         if (!TryGetSingleton<DebugParabolaData>(out debugInfo))
              return;
 
+        Entity boardEntity;
+        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+            return;
+
+        var boardSize = GetComponent<BoardSize>(boardEntity);
+        var offsets = GetBuffer<OffsetList>(boardEntity);
+
         float currentTime = (float)Time.ElapsedTime;
         var targetPoint = GetComponent<Translation>(playerEntity);
         var timeOffset =  debugInfo.Duration / System.Math.Max((float)debugInfo.SampleCount, 1.0);
@@ -32,14 +39,14 @@ public class DebugParabolaSystem : SystemBase
                 t.StartTime = currentTime + (float)timeOffset * (float)debugSample.id;
                 t.EndTime   = t.StartTime + debugInfo.Duration;
 
-                float a, b, c;
-                ParabolaUtil.CreateParabolaOverPoint(0.0f, 0.2f, 8.0f, targetPoint.Value.y, out a, out b, out c);
-                arc.Value.x = a;
-                arc.Value.y = b;
-                arc.Value.z = c;
+                float3 landingPos = new float3(0,0,0);
+                TraceUtils.TraceArc(
+                    new float3(0, 0, 0),
+                    targetPoint.Value,
+                    boardSize, offsets, out landingPos, out arc);
 
                 destination.Source = translation.Value;
-                destination.Destination = targetPoint.Value;
+                destination.Destination = landingPos;
             }).Run();
     }
 }

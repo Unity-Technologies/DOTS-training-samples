@@ -16,6 +16,11 @@ public static class CoordUtils
         return new int2((int)math.floor(worldOffset.x - BoardOffset.x), (int)math.floor(worldOffset.y - BoardOffset.z));
     }
 
+    public static int2 ClampPos(int2 coord, int2 bounds)
+    {
+        return math.clamp(coord, new int2(0,0), bounds);
+    }
+
     public static float2 BoardPosToWorldOffset(int2 boardPos)
     {
         float2 worldOffset = new float2((float)boardPos.x, (float)boardPos.y);
