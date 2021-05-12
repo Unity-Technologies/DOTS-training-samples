@@ -144,18 +144,19 @@ public class SpawnBoardSystem : SystemBase
                 //create the board cell entities
                 for (int boardIndex = 0; boardIndex < numberCells; ++boardIndex)
                 {
-                    if (gridContent[boardIndex].Type == GridCellType.Hole)
-                        continue;
                     int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
                     int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
                     Entity cellPrefab = (j % 2 == i % 2 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
-                    var cell = ecb.Instantiate(cellPrefab);
-
-                    ecb.SetComponent(cell, new Translation
+                    if (gridContent[boardIndex].Type != GridCellType.Hole)
                     {
-                        Value = new float3(i*boardDefinition.CellSize, 0, j*boardDefinition.CellSize)
-                    });
-                    ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
+                        var cell = ecb.Instantiate(cellPrefab);
+
+                        ecb.SetComponent(cell, new Translation
+                        {
+                            Value = new float3(i * boardDefinition.CellSize, 0, j * boardDefinition.CellSize)
+                        });
+                        ecb.AddComponent(cell, new GridPosition() { X = j, Y = i });
+                    }
 
                     var wallBoundaries = gridContent[boardIndex].Walls;
                     if ((wallBoundaries & WallBoundaries.WallUp) != 0)
@@ -164,10 +165,24 @@ public class SpawnBoardSystem : SystemBase
                         ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize - 0.5f - halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
                     }
 
-                    if ((wallBoundaries & WallBoundaries.WallDown) != 0)
+                    if (i == boardDefinition.NumberRows - 1 && (wallBoundaries & WallBoundaries.WallDown) != 0)
                     {
                         var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
                         ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize + 0.5f + halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
+                    }
+
+                    if ((wallBoundaries & WallBoundaries.WallLeft) != 0)
+                    {
+                        var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
+                        ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize, 0.5f, j*boardDefinition.CellSize - 0.5f - halfWallThickness)});
+                        ecb.SetComponent(wallEntity, new Rotation{Value = quaternion.LookRotation(new float3(1.0f, 0f, 0f), new float3(0f, 1f, 0f))});
+                    }
+
+                    if (j == boardDefinition.NumberColumns - 1 && (wallBoundaries & WallBoundaries.WallRight) != 0)
+                    {
+                        var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
+                        ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize, 0.5f, j*boardDefinition.CellSize + 0.5f + halfWallThickness)});
+                        ecb.SetComponent(wallEntity, new Rotation{Value = quaternion.LookRotation(new float3(1.0f, 0f, 0f), new float3(0f, 1f, 0f))});
                     }
 
                 }
