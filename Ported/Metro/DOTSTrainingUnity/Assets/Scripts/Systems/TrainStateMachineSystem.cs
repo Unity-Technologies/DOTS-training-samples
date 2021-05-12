@@ -37,7 +37,10 @@ public class TrainStateMachineSystem : SystemBase
         int numDistances = distances.Length;
         float trainWaitTime = 5.0f;
 
+        var doorState = GetComponentDataFromEntity<DoorState>();
+
         Entities.ForEach((
+            ref DynamicBuffer <DoorEntities> doorEntBuffer,
             ref TrainState trainState,
             ref TrackIndex trackIndex,
             ref TrainWaitTimer waitTimer,
@@ -46,12 +49,45 @@ public class TrainStateMachineSystem : SystemBase
         {
             switch (trainState.value)
             {
+                case CurrTrainState.Arrived:
+                    {
+                        // TODO: put real logic here
+                        int doorSide = trackIndex.value;
+
+                        int numDoors = doorEntBuffer.Length;
+                        int halfNumDoors = numDoors / 2;
+
+                        for(int dIdx=0; dIdx < halfNumDoors; ++dIdx)
+                        {
+                            var currEnt = doorEntBuffer[dIdx + doorSide * halfNumDoors];
+                            doorState[currEnt] = new DoorState() { value = CurrentDoorState.Open };
+                        }
+
+                        trainState.value = CurrTrainState.Waiting;
+                        break;
+                    }
                 case CurrTrainState.Waiting:
                     {
                         waitTimer.value += deltaTime;
 
                         if (waitTimer.value >= trainWaitTime)
                         {
+                            // Close the doors
+
+                            // TODO: put real logic here
+                            int doorSide = trackIndex.value;
+
+                            int numDoors = doorEntBuffer.Length;
+                            int halfNumDoors = numDoors / 2;
+
+                            for (int dIdx = 0; dIdx < halfNumDoors; ++dIdx)
+                            {
+                                var currEnt = doorEntBuffer[dIdx + doorSide * halfNumDoors];
+                                doorState[currEnt] = new DoorState() { value = CurrentDoorState.Close };
+                            }
+
+                            // Tell the train to move
+                            
                             waitTimer.value = 0.0f;
 
                             // Set a new target distance

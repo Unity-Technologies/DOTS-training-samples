@@ -6,7 +6,8 @@ using Unity.Mathematics;
 public enum CurrTrainState
 {
     Waiting,
-    Moving
+    Moving,
+    Arrived
 }
 
 [Serializable]

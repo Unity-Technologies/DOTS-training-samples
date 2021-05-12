@@ -58,7 +58,7 @@ public class TrainMoverSystem : SystemBase
                 currDist.value = targetDist.value;
                 if (trainState.value == CurrTrainState.Moving)
                 {
-                    trainState.value = CurrTrainState.Waiting;
+                    trainState.value = CurrTrainState.Arrived;
                 }
             }
         }).Schedule();
