@@ -35,13 +35,14 @@ public class BoardSpawnerAuthoring : MonoBehaviour
     public GameObject PlaformPrefab;
     public GameObject TankPrefab;
     public GameObject TurretPrefab;
-    
+    public GameObject BulletPrefab;
     
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(PlaformPrefab);
         referencedPrefabs.Add(TankPrefab);
         referencedPrefabs.Add(TurretPrefab);
+        referencedPrefabs.Add(BulletPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -59,7 +60,8 @@ public class BoardSpawnerAuthoring : MonoBehaviour
             
             PlaformPrefab = conversionSystem.GetPrimaryEntity(PlaformPrefab),
             TankPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
-            TurretPrefab = conversionSystem.GetPrimaryEntity(TurretPrefab)
+            TurretPrefab = conversionSystem.GetPrimaryEntity(TurretPrefab),
+            BulletPrefab = conversionSystem.GetPrimaryEntity(BulletPrefab)
         });
 
         dstManager.AddComponent<BoardSpawnerTag>(entity);

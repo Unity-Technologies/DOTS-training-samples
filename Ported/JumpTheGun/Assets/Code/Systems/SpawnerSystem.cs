@@ -22,7 +22,10 @@ public class SpawnerSystem : SystemBase
             EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
             EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
             EntityManager.AddComponentData(boardEntity, new HitStrength {Value = board.HitStrength});
-           
+
+            EntityManager.AddComponentData(boardEntity, new ReloadTime {Value = board.ReloadTime});
+            EntityManager.AddComponentData(boardEntity, new Radius {Value = board.Radius});
+            
             var totalSize = board.SizeX * board.SizeY;
             
             var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, Allocator.Temp);

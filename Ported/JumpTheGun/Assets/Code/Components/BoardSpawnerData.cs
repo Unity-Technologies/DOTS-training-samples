@@ -17,5 +17,6 @@ public struct BoardSpawnerData : IComponentData
     
     public Entity PlaformPrefab;
     public Entity TankPrefab;
-    public Entity TurretPrefab; 
+    public Entity TurretPrefab;
+    public Entity BulletPrefab;
 }

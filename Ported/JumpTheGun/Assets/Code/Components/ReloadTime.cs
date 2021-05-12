@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-struct ReloadTimes : IComponentData
+struct ReloadTime : IComponentData
 {
     public float Value;
 }
