@@ -4,10 +4,18 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class SpawnerSystem : SystemBase
 {
+    private Random m_Random;
+   
+    protected override void OnCreate()
+    {
+        m_Random = new Random(0x1234567);
+    }
+    
     private void SpawnBoard()
     {
         Entities
@@ -68,6 +76,8 @@ public class SpawnerSystem : SystemBase
                 }
             }
 
+            var random = new System.Random();
+            
             for (int i = 0; i < platforms.Length; ++i)
             {
                 if (platforms[i] == PlatformGenerator.PlatformType.Tank)
@@ -75,7 +85,8 @@ public class SpawnerSystem : SystemBase
                     int2 coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
                     Entity tank = EntityManager.Instantiate(board.TankPrefab);
                     EntityManager.SetComponentData(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
-
+                    EntityManager.SetComponentData(tank, new TimeOffset {Value = math.fmod(m_Random.NextFloat(), 1f) * 5f});
+                    
                     Entity turret = EntityManager.Instantiate(board.TurretPrefab);
                     EntityManager.SetComponentData(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
                 }
