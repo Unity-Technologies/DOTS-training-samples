@@ -94,11 +94,12 @@ public class SpawnBoardSystem : SystemBase
                         ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
                         ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
                         ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
                         ecb.AddComponent<PropagateColor>(arrow);
                     }
                 }
                 
-                //Spawn the goals randomly, need to remove that eventually when players can put arrows
+                //Goals are spawned randomly but shouldn’t
                 for (int k = 0; k < 4; k++)
                 {
                     Entity goalPrefab = boardPrefab.GoalPrefab;
