@@ -73,9 +73,6 @@ public class SpawnerSystem : SystemBase
                     boardPosition.x = x;
                     boardPosition.y = y;
 
-                    float3 myPos = new float3(x, offsets[y * board.SizeX + x], y); 
-
-                    EntityManager.AddComponentData(instance, new TargetPosition { Value = myPos });
                     EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
                     EntityManager.SetComponentData(instance, new BoardPosition { Value = boardPosition });
 
@@ -101,26 +98,39 @@ public class SpawnerSystem : SystemBase
             EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
 
-        var player = GetSingletonEntity<Player>();
+    }
+
+
+    private void SpawnPlayer()
+    {
+        Entity boardEntity;
+        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+            return;
+
         var random = new System.Random();
-        startX = random.Next(0, 8);
-        startY = random.Next(0, 8);
 
-        float3 targetPos = new float3(0.0f, 0.0f, 0.0f);
+        float3 targetPosition = new float3(0.0f, 0.0f, 0.0f);
 
+        var boardSize = GetComponent<BoardSize>(boardEntity);
+        var offsets = GetBuffer<OffsetList>(boardEntity);
+
+        //startX = random.Next(0, boardEntity.SizeX);
+        //startY = random.Next(0, boardEntity.SizeY);
 
         Entities
-        .WithAll<Platform>()
-        .ForEach((ref BoardPosition boardPosition, ref TargetPosition translation) =>
-        {
-
-            if (boardPosition.Value.x == startX && boardPosition.Value.y == startY)
+            .WithStructuralChanges()
+            .WithReadOnly(offsets)
+            .WithAll<PlayerSpawnerTag>()
+            .ForEach((Entity player) =>
             {
-                targetPos += translation.Value;
-            }
-        }).Run();
+                 int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
 
-        SetComponent(player, new Translation { Value = targetPos });
+                 float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
+
+                 SetComponent(player, new Translation { Value = targetPos });
+
+            EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
+            }).Run();
     }
 
     private void SpawnDebugEntities()
@@ -144,6 +154,7 @@ public class SpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         SpawnBoard();
+        SpawnPlayer();
         SpawnDebugEntities();
     }
 }
