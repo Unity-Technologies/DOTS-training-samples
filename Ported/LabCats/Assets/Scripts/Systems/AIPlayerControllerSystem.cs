@@ -2,7 +2,9 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.Rendering;
+using Random = Unity.Mathematics.Random;
 
 public class AIPlayerControllerSystem : SystemBase
 {
@@ -20,20 +22,22 @@ public class AIPlayerControllerSystem : SystemBase
         
         var firstCellPosition = EntityManager.GetComponentData<FirstCellPosition>(boardEntity);
         var timeData = this.Time;
-        
-        var random = new Random(1234);
-        
+
         int numberOfRows = boardDefinition.NumberRows;
         int numberOfColumns = boardDefinition.NumberColumns;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex) =>
+        Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, ref RandomContainer random) =>
         {
             DynamicBuffer<GridCellContent> gridCellContents = GetBufferFromEntity<GridCellContent>()[boardEntity];
             var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.X, 1.0f, boardDefinition.CellSize * aiTargetCell.Y);
             float3 targetCellPosition = firstCellPosition.Value + cellOffSet;
          
             var distanceVector = targetCellPosition - translation.Value;
+            if (math.length(distanceVector) < 0.001)
+            {
+                Debug.Log("Problem");
+            }
             var movementDirection = math.normalize(distanceVector);
             var squareDistance = math.distancesq(translation.Value, targetCellPosition);
             var distanceToTarget = math.sqrt(squareDistance);
@@ -56,7 +60,7 @@ public class AIPlayerControllerSystem : SystemBase
                 
                     var gridContent = gridCellContents[index];
 
-                    var newArrowDirectionAsInt = random.NextInt(0, 4);
+                    var newArrowDirectionAsInt = random.Value.NextInt(0, 4);
                     var newArrowDirection = Dir.Left;
                     var newType = GridCellType.ArrowLeft;
                     if (newArrowDirectionAsInt == 0)
@@ -90,8 +94,8 @@ public class AIPlayerControllerSystem : SystemBase
                 }
                 //Compute new target 
 
-                var newTargetX = random.NextInt(0, numberOfRows);
-                var newTargetY = random.NextInt(0, numberOfColumns);
+                var newTargetX = random.Value.NextInt(0, numberOfRows);
+                var newTargetY = random.Value.NextInt(0, numberOfColumns);
     
                 aiTargetCell = new AITargetCell(){X = newTargetX, Y = newTargetY};
             }

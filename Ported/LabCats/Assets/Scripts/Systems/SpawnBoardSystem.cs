@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Collections;
 using Unity.Rendering;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateBefore(typeof(EndInitializationEntityCommandBufferSystem))]
@@ -219,6 +220,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
                     ecb.AddComponent<NextArrowIndex>(spawnedEntity);
+                    ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)k)});
                     ecb.AddBuffer<ArrowReference>(spawnedEntity);
                     if (k != 0)
                     {
