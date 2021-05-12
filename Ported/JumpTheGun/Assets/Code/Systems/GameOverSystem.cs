@@ -7,7 +7,7 @@ public class GameOverSystem : SystemBase
 
     protected override void OnCreate()
     {
-        var query = GetEntityQuery(typeof(Player));//, typeof(WasHit));
+        var query = GetEntityQuery(typeof(Player), typeof(WasHit));
         RequireForUpdate(query);
 
         ecbs_level = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
