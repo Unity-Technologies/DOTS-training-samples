@@ -15,26 +15,32 @@ public class TrainMoverSystem : SystemBase
         float minSpeed = 1f;
         float acceleration = 1.2f;
 
-        Entities.ForEach((
+        NativeArray<float> totalDistances = Line.allDistances;
+
+        Entities.WithReadOnly(totalDistances)
+            .ForEach((
             ref TrainState trainState,
             ref TrainCurrDistance currDist, ref TrainCurrSpeed currSpeed,
-            in TrainTargetDistance targetDist, in TrainTotalDistance totalDist,
+            in TrackIndex trackIndex,
+            in TrainTargetDistance targetDist,
             in TrainMaxSpeed maxSpeed) => 
         {
-            switch(trainState.value)
+            float totalDist = totalDistances[trackIndex.value];
+
+            switch (trainState.value)
             {
                 case CurrTrainState.Moving:
                     {
                         float stoppingTimeSecs = currSpeed.value / acceleration;
                         float stoppingDistance = 0.5f * acceleration * stoppingTimeSecs * stoppingTimeSecs + currSpeed.value * stoppingTimeSecs;
 
-                        float wrappedtargetDist = targetDist.value - (((int)(targetDist.value / totalDist.value)) * totalDist.value);
+                        float wrappedtargetDist = targetDist.value - (((int)(targetDist.value / totalDist)) * totalDist);
                         
                         // Calculate distance to target taking into account the fact that we can loop
                         float distToTarget = wrappedtargetDist - currDist.value;
                         if (distToTarget < 0f)
                         {
-                            distToTarget = totalDist.value - currDist.value + wrappedtargetDist;
+                            distToTarget = totalDist - currDist.value + wrappedtargetDist;
                         }
 
                         // If we are not at max speed and do not need to slow down
@@ -56,9 +62,9 @@ public class TrainMoverSystem : SystemBase
                         if (distToTarget >= currSpeed.value * deltaTime)
                         {
                             currDist.value += currSpeed.value * deltaTime;
-                            if (currDist.value > totalDist.value)
+                            if (currDist.value > totalDist)
                             {
-                                currDist.value -= totalDist.value;
+                                currDist.value -= totalDist;
                             }
                         }
                         else

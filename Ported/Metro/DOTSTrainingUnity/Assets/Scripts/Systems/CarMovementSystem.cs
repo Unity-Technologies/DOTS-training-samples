@@ -18,17 +18,22 @@ public class CarMovementSystem : SystemBase
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
 
-        ComponentDataFromEntity<TrainCurrDistance> trainDistances =  GetComponentDataFromEntity<TrainCurrDistance>(true);
+        ComponentDataFromEntity<TrainCurrDistance> trainDistances = GetComponentDataFromEntity<TrainCurrDistance>(true);
         ComponentDataFromEntity<TrackIndex> trainTrackIndices = GetComponentDataFromEntity<TrackIndex>(true);
         
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex,
+        Entities
+            .WithReadOnly(allBezierPaths)
+            .WithReadOnly(bezierPathIndices)
+            .WithReadOnly(allDistances)
+            .WithReadOnly(trainDistances)
+            .WithReadOnly(trainTrackIndices)
+            .ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex,
             in TrainEngineRef engineRef) =>
         {
-            
             //float trainDistance = 12.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
-            //int engineTrackIndex = 1; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
+            int engineTrackIndex = trainTrackIndices[engineRef.value].value; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
             float trainDistance = trainDistances[engineRef.value].value;
-            int engineTrackIndex = trainTrackIndices[engineRef.value].value;
+            //int engineTrackIndex = trainTrackIndices[engineRef.value].value;
             
             int startIndex = bezierPathIndices[engineTrackIndex];
             float distance = allDistances[engineTrackIndex];

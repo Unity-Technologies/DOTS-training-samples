@@ -27,7 +27,6 @@ public class TrainSpawnerSystem : SystemBase
                     // need to set total distance, target distance, max speed, track index, train state
                     ecb.SetComponent(newTrainEngine, new TrackIndex(){value = trackIdx});
                     ecb.SetComponent(newTrainEngine, new TrainState(){value = CurrTrainState.Moving});
-                    ecb.SetComponent(newTrainEngine, new TrainTotalDistance(){value = trackDistance});
                     ecb.SetComponent(newTrainEngine, new TrainCurrDistance(){value = trainIdx * (trackDistance / spawnerData.numberOfTrainsPerTrack) });
                     ecb.SetComponent(newTrainEngine, new TrainTargetDistance() {value = (trainIdx + 1) * (trackDistance / spawnerData.numberOfTrainsPerTrack) } );
                     ecb.SetComponent(newTrainEngine, new TrainMaxSpeed(){value = 100.0f});
