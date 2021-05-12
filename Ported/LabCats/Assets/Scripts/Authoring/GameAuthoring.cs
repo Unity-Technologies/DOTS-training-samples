@@ -4,24 +4,34 @@ using UnityEngine;
 
 public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    [Range(30, 50)]public float CellSize;
+    [Range(1, 2)]public float CellSize;
     [Range(20, 60)]public int NumberColumns;
     [Range(20, 60)]public int NumberRows;
     public GameObject LightCellPrefab;
     public GameObject DarkCellPrefab;
     public GameObject CursorPrefab;
+    public GameObject PlayerCursorPrefab;
     public GameObject ArrowPrefab;
     public GameObject MousePrefab;
     public GameObject CatPrefab;
+    public GameObject WallPrefab;
+    public GameObject MouseSpawnerPrefab;
+    public GameObject CatSpawnerPrefab;
+    public GameObject GoalPrefab;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(LightCellPrefab);
         referencedPrefabs.Add(DarkCellPrefab);
         referencedPrefabs.Add(CursorPrefab);
+        referencedPrefabs.Add(PlayerCursorPrefab);
         referencedPrefabs.Add(ArrowPrefab);
         referencedPrefabs.Add(MousePrefab);
         referencedPrefabs.Add(CatPrefab);
+        referencedPrefabs.Add(WallPrefab);
+        referencedPrefabs.Add(MouseSpawnerPrefab);
+        referencedPrefabs.Add(CatSpawnerPrefab);
+        referencedPrefabs.Add(GoalPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager
@@ -37,34 +47,14 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             LightCellPrefab = conversionSystem.GetPrimaryEntity(LightCellPrefab),
             DarkCellPrefab = conversionSystem.GetPrimaryEntity(DarkCellPrefab),
             CursorPrefab = conversionSystem.GetPrimaryEntity(CursorPrefab),
+            PlayerCursorPrefab = conversionSystem.GetPrimaryEntity(PlayerCursorPrefab),
             ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
             MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
-            CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab)
+            CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
+            WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            MouseSpawnerPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            CatSpawnerPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            GoalPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
         });
-
-
-
-
-
-
-
-/*
-        var playerReferenceBuffer = dstManager.AddBuffer<PlayerReference>(entity);
-        playerReferenceBuffer.Capacity = 4;
-        for (int i = 0; i < 4; ++i)
-        {
-            Entity playerEntity = dstManager.CreateEntity();
-            dstManager.AddComponentData(playerEntity, new PlayerIndex() { Value = i });
-            dstManager.AddComponent<Score>(playerEntity);
-            dstManager.AddBuffer<ArrowReference>(playerEntity);
-//            playerReferenceBuffer.Add(new PlayerReference() { Player = playerEntity });
-            if (i != 0)
-                dstManager.AddComponent<AITargetCell>(playerEntity);
-        }
-
-        dstManager.AddComponentData(entity, new BoardDefinition() { CellSize = CellSize, NumberColumns = NumberColumns, NumberRows = NumberRows });
-        var gridCellBuffer = dstManager.AddBuffer<GridCellContent>(entity);
-        gridCellBuffer.Capacity = NumberColumns * NumberRows;
-        dstManager.AddComponent<GameData>(entity);*/
     }
 }

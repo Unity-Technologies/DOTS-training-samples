@@ -152,9 +152,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5993056b28f63e349a15c4a297821b90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CellSize: 20
+  CellSize: 1
   NumberColumns: 20
   NumberRows: 20
+  LightCellPrefab: {fileID: 1148662629856070320, guid: 0f07ddedb40c8534cb0b886907b481e9, type: 3}
+  DarkCellPrefab: {fileID: 1148662629856070320, guid: 0f07ddedb40c8534cb0b886907b481e9, type: 3}
+  CursorPrefab: {fileID: 7490853708712508792, guid: 5608af00b2a26f24bb8ebb88b836b4c3, type: 3}
+  PlayerCursorPrefab: {fileID: 3549828067281371606, guid: 2f5a98ce6a63a444085d2fd371f1751b, type: 3}
+  ArrowPrefab: {fileID: 0}
+  MousePrefab: {fileID: 7557102604738225989, guid: 8e8ecebabba6866429294b586f59f518, type: 3}
+  CatPrefab: {fileID: 6651773216328647454, guid: 844f5eeed185491409f7ed4f42978d3c, type: 3}
+  WallPrefab: {fileID: 5081770881951749758, guid: 2e7c1d419b4dd004c9e5714f189e6e7d, type: 3}
+  MouseSpawnerPrefab: {fileID: 4260112985847725634, guid: 520c6c61a4b3f6946889fe0a21833e4e, type: 3}
+  CatSpawnerPrefab: {fileID: 7168224769106163571, guid: 4fe5a321f788252488011b6ebd044bdd, type: 3}
+  GoalPrefab: {fileID: 8369240432833589965, guid: 41c20a3d78367794fa3d063dab63f55c, type: 3}
 --- !u!4 &1777681426
 Transform:
   m_ObjectHideFlags: 0
