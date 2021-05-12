@@ -10,6 +10,48 @@ using UnityEngine;
 [UpdateAfter(typeof(CopyInitialTransformFromGameObjectSystem))] //maybe not necessary but I’m afraid it might create issues
 public class SpawnBoardSystem : SystemBase
 {
+    static Dir GetRandomDirection(Unity.Mathematics.Random random)
+    {
+        int randomDirection = random.NextInt(0, 4);
+        if (randomDirection == 0)
+            return Dir.Up;
+        if (randomDirection == 1)
+            return Dir.Right;
+        if (randomDirection == 2)
+            return Dir.Down;
+        return Dir.Left;
+    }
+
+    static Dir GetOppositeDirection(Dir direction)
+    {
+        if (direction == Dir.Up)
+            return Dir.Down;
+        if (direction == Dir.Down)
+            return Dir.Up;
+        if (direction == Dir.Left)
+            return Dir.Right;
+        return Dir.Left;
+    }
+
+    static int HasWallBoundariesInDirection(WallBoundaries walls, Dir dir)
+    {
+        switch (dir)
+        {
+            case Dir.Up:
+                return (int)(walls & WallBoundaries.WallUp);
+            case Dir.Down:
+                return (int)(walls & WallBoundaries.WallDown);
+            case Dir.Left:
+                return (int)(walls & WallBoundaries.WallLeft);
+            case Dir.Right:
+                return (int)(walls & WallBoundaries.WallRight);
+        }
+
+        return 0;
+    }
+
+    static float halfWallThickness = 0.025f;
+    static float kWallDensity = 0.2f;
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -63,6 +105,33 @@ public class SpawnBoardSystem : SystemBase
                     gridContent.Add(new GridCellContent() { Type = GridCellType.None, Walls = borderWall});
                 }
 
+                int numWalls = (int)(numberCells * kWallDensity);
+                for (int c = 0; c < numWalls; ++c)
+                {
+                    int wallCellIndex = random.NextInt(0, numberCells);
+                    var randomDirection = GetRandomDirection(random);
+
+                    int neighbourCellIndex = GridCellContent.GetNeighbour1DIndexWithDirection(wallCellIndex,randomDirection,boardDefinition.NumberRows, boardDefinition.NumberColumns);
+                    int wallBoundaryInCell = HasWallBoundariesInDirection(gridContent[wallCellIndex].Walls, randomDirection);
+                    int neighbourBoundary = 0;
+                    if (neighbourCellIndex != -1)
+                        neighbourBoundary = HasWallBoundariesInDirection(gridContent[neighbourCellIndex].Walls, GetOppositeDirection(randomDirection));
+                    if (wallBoundaryInCell + neighbourBoundary > 0)
+                        --c;
+                    else
+                    {
+                        var cellContent = gridContent[wallCellIndex];
+                        cellContent.Walls |= GridCellContent.GetWallBoundariesFromDirection(randomDirection);
+                        gridContent[wallCellIndex] = cellContent;
+                        if (neighbourCellIndex != -1)
+                        {
+                            var neighbourCellContent = gridContent[neighbourCellIndex];
+                            neighbourCellContent.Walls |= GridCellContent.GetWallBoundariesFromDirection(GetOppositeDirection(randomDirection));
+                            gridContent[neighbourCellIndex] = neighbourCellContent;
+                        }
+                    }
+                }
+
                 int numHoles = random.NextInt(0, 4);
                 for (int hole = 0; hole < numHoles; ++hole)
                 {
@@ -87,9 +156,23 @@ public class SpawnBoardSystem : SystemBase
                         Value = new float3(i*boardDefinition.CellSize, 0, j*boardDefinition.CellSize)
                     });
                     ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
+
+                    var wallBoundaries = gridContent[boardIndex].Walls;
+                    if ((wallBoundaries & WallBoundaries.WallUp) != 0)
+                    {
+                        var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
+                        ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize - 0.5f - halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
+                    }
+
+                    if ((wallBoundaries & WallBoundaries.WallDown) != 0)
+                    {
+                        var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
+                        ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize + 0.5f + halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
+                    }
+
                 }
 
-                
+
                 //Goals are spawned randomly but shouldn’t
                 for (int k = 0; k < 3; k++)
                 {
@@ -97,7 +180,7 @@ public class SpawnBoardSystem : SystemBase
                     var posX = random.NextInt(0, boardDefinition.NumberRows);
                     var posY = random.NextInt(0, boardDefinition.NumberColumns);
                     var spawnedEntity = ecb.Instantiate(goalPrefab);
-                    
+
                     ecb.AddComponent<GoalTag>(spawnedEntity);
                     ecb.SetComponent(spawnedEntity, new Translation
                     {
@@ -108,12 +191,12 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
                     ecb.AddComponent<PropagateColor>(spawnedEntity);
                 }
-                
+
                 for (int k = 0; k < 4; k++)
                 {
                     Entity cursorPrefab = boardPrefab.CursorPrefab;
                     var spawnedEntity = ecb.Instantiate(cursorPrefab);
-                    
+
                     ecb.SetComponent(spawnedEntity, new Translation
                     {
                         Value = new float3(0.0f, 1.0f, 0.0f)
@@ -125,13 +208,13 @@ public class SpawnBoardSystem : SystemBase
                     {
                         ecb.AddComponent(spawnedEntity, new AITargetCell()
                         {
-                            X = random.NextInt(0, boardDefinition.NumberRows), 
+                            X = random.NextInt(0, boardDefinition.NumberRows),
                             Y = random.NextInt(0, boardDefinition.NumberColumns),
                         });
                     }
-                        
+
                     ecb.SetBuffer<ArrowReference>(spawnedEntity);
-                        
+
                     for (int l = 0; l < 3; l++)
                     {
                         Entity arrowPrefab = boardPrefab.ArrowPrefab;
@@ -168,7 +251,7 @@ public class SpawnBoardSystem : SystemBase
                     Y = 0
                 });
                 ecb.SetName(spawner1, "Mouse Spawner 1");
-                
+
                 var spawner2 = ecb.CreateEntity();
                 ecb.AddComponent(spawner2, new SpawnerData()
                 {
@@ -205,7 +288,6 @@ public class SpawnBoardSystem : SystemBase
                 });
 
                 // TODO: Set up goals
-                // TODO: Set up holes
                 // ...
                 // TODO: Set up Game Data
 
@@ -236,9 +318,9 @@ public class SpawnBoardSystem : SystemBase
             }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
-        
+
         var ecb2 = new EntityCommandBuffer(Allocator.Temp);
-            
+
         Entities.WithAll<GridPosition, PlayerIndex, URPMaterialPropertyBaseColor>()
                 .ForEach((Entity e, DynamicBuffer<LinkedEntityGroup> linkedEntities) =>
         {
@@ -247,7 +329,7 @@ public class SpawnBoardSystem : SystemBase
                 ecb2.AddComponent<URPMaterialPropertyBaseColor>(linkedEntity.Value);
             }
         }).Run();
-        
+
         ecb2.Playback(EntityManager);
         ecb2.Dispose();
 
