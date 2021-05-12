@@ -26,9 +26,9 @@ public class CarMovementSystem : SystemBase
         {
             
             //float trainDistance = 12.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
-            int engineTrackIndex = 1; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
+            //int engineTrackIndex = 1; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
             float trainDistance = trainDistances[engineRef.value].value;
-            //int engineTrackIndex = trainTrackIndices[engineRef.value].value;
+            int engineTrackIndex = trainTrackIndices[engineRef.value].value;
             
             int startIndex = bezierPathIndices[engineTrackIndex];
             float distance = allDistances[engineTrackIndex];

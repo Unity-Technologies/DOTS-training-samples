@@ -14,8 +14,8 @@ public class TrainStateMachineSystem : SystemBase
         base.OnCreate();
 
         targetDistances = new NativeList<float>(8, Allocator.Persistent);
-        targetDistances.Add(30.0f);
-        targetDistances.Add(60.0f);
+        targetDistances.Add(500.0f);
+        targetDistances.Add(1000.0f);
     }
 
     protected override void OnDestroy()

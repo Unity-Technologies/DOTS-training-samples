@@ -28,11 +28,13 @@ public class TrainMoverSystem : SystemBase
                         float stoppingTimeSecs = currSpeed.value / acceleration;
                         float stoppingDistance = 0.5f * acceleration * stoppingTimeSecs * stoppingTimeSecs + currSpeed.value * stoppingTimeSecs;
 
+                        float wrappedtargetDist = targetDist.value - (((int)(targetDist.value / totalDist.value)) * totalDist.value);
+                        
                         // Calculate distance to target taking into account the fact that we can loop
-                        float distToTarget = targetDist.value - currDist.value;
+                        float distToTarget = wrappedtargetDist - currDist.value;
                         if (distToTarget < 0f)
                         {
-                            distToTarget = totalDist.value - currDist.value + targetDist.value;
+                            distToTarget = totalDist.value - currDist.value + wrappedtargetDist;
                         }
 
                         // If we are not at max speed and do not need to slow down
@@ -67,7 +69,8 @@ public class TrainMoverSystem : SystemBase
                                 trainState.value = CurrTrainState.Arrived;
                             }
                         }
-                    break;
+                        
+                        break;
                     }
                 case CurrTrainState.Arrived:
                     {
