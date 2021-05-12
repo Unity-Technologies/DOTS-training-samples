@@ -6,7 +6,8 @@ using Unity.Collections;
 using Unity.Mathematics;
 public class CarMovementSystem : SystemBase
 {
-    public const float trainCarLength = 1f;
+    
+    public const float trainCarLength = 3.0f;
     //EntityArchetype trainCarArchetype = World.EntityManager.CreateArchetype()
     protected override void OnUpdate()
     {
@@ -16,43 +17,45 @@ public class CarMovementSystem : SystemBase
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
 
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex, in TrainEngineRef engineRef) =>
+        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex,
+            in TrainEngineRef engineRef) =>
         {
-            float trainDistance = entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
-            int engineTrackIndex = entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
-            float carDistance = trainDistance + (trainCarLength * carIndex.value);
+            
+            float trainDistance = 2.0f;// entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;
+        int engineTrackIndex = 0; //entityManager.GetComponentData<TrackIndex>(engineRef.value).value;
+        float carDistance = trainDistance + (trainCarLength * carIndex.value);
 
-            int startIndex = bezierPathIndices[engineTrackIndex];
-            float distance = allDistances[engineTrackIndex];
+        int startIndex = bezierPathIndices[engineTrackIndex];
+        float distance = allDistances[engineTrackIndex];
 
-            int onePastEndIndex;
+        int onePastEndIndex;
 
-            if (engineTrackIndex == bezierPathIndices.Length - 1)
-            {
-                onePastEndIndex = allBezierPaths.Length;
-            }
-            else
-            {
-                onePastEndIndex = bezierPathIndices[engineTrackIndex + 1];
-            }
+        if (engineTrackIndex == bezierPathIndices.Length - 1)
+        {
+            onePastEndIndex = allBezierPaths.Length;
+        }
+        else
+        {
+            onePastEndIndex = bezierPathIndices[engineTrackIndex + 1];
+        }
 
-            int length = onePastEndIndex - startIndex;
+        int length = onePastEndIndex - startIndex;
 
-            NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
+        NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
 
-            float3 position = Get_Position(carDistance, points);
-            float3 aheadPosition = Get_Position((carDistance + 0.0001f) % distance, points);
+        float3 position = Get_Position(carDistance, points);
+        float3 aheadPosition = Get_Position((carDistance + 0.0001f) % distance, points);
 
-            float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
+        float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
 
-            float3 lookAtDirection = position - normalAtPosition;
+        float3 lookAtDirection = position - normalAtPosition;
 
-            quaternion lookRotation = quaternion.LookRotation(lookAtDirection, new float3(0f, 1f, 0f));
+        quaternion lookRotation = quaternion.LookRotation(lookAtDirection, new float3(0f, 1f, 0f));
 
-            translation.Value = position;
-            rotation.Value = lookRotation;
-
-        }).ScheduleParallel();
+        translation.Value = position;
+        rotation.Value = lookRotation;
+        
+        }).Run();
     }
 
     public static float3 Get_Position(float sampleDistance, NativeArray<BezierPoint> points)

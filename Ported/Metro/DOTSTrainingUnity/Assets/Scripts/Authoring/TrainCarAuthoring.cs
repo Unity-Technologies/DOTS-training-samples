@@ -1,18 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
-public class TrainCarAuthoring : MonoBehaviour
+public class TrainCarAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-    // Start is called before the first frame update
-    void Start()
+    public int trainCarIndex = 0;
+    public UnityEngine.Color color;
+    
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        dstManager.AddComponentData(entity, new TrainCarIndex(){value = trainCarIndex});
+        dstManager.AddComponent<TrainEngineRef>(entity);
+        dstManager.AddComponentData(entity, new Color() {value = new float4(color.r, color.g, color.b, color.a)});
     }
 }
