@@ -18,6 +18,9 @@ public class BulletSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        if (TryGetSingleton<IsPaused>(out _))
+            return;
+        
         Entity playerEntity;
         if (!TryGetSingletonEntity<Player>(out playerEntity))
             return;
