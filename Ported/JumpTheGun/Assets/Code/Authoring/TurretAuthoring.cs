@@ -8,6 +8,7 @@ public class TurretAuthoring : MonoBehaviour
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponentData(entity, new CurrentLevel());
         dstManager.AddComponentData(entity, new Turret());
     }
 }

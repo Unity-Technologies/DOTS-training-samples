@@ -28,7 +28,7 @@ public class PlatformCollision : SystemBase
 
         Entities.
             WithAll<Platform, BoardPosition>()
-            .WithStructuralChanges()
+            //.WithStructuralChanges()
             .ForEach((int entityInQueryIndex, Entity entity, in BoardPosition boardPosition) => {
 
                 int count = 0;
@@ -50,7 +50,7 @@ public class PlatformCollision : SystemBase
             })
             .WithDisposeOnCompletion(bulletTargets)
             .WithDisposeOnCompletion(bulletTime)
-            .Run();
+            .ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

@@ -64,6 +64,7 @@ public class BoardSpawnerAuthoring : MonoBehaviour
             BulletPrefab = conversionSystem.GetPrimaryEntity(BulletPrefab)
         });
 
+        dstManager.AddComponent<Board>(entity);
         dstManager.AddComponent<BoardSpawnerTag>(entity);
     }
 }
