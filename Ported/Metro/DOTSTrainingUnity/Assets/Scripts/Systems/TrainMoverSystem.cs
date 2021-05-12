@@ -15,13 +15,18 @@ public class TrainMoverSystem : SystemBase
         float minSpeed = 1f;
         float acceleration = 1.2f;
 
+        NativeArray<float> totalDistances = Line.allDistances;
+
         Entities.ForEach((
             ref TrainState trainState,
             ref TrainCurrDistance currDist, ref TrainCurrSpeed currSpeed,
-            in TrainTargetDistance targetDist, in TrainTotalDistance totalDist,
+            in TrackIndex trackIndex,
+            in TrainTargetDistance targetDist,
             in TrainMaxSpeed maxSpeed) => 
         {
-            switch(trainState.value)
+            float totalDist = totalDistances[trackIndex.value];
+
+            switch (trainState.value)
             {
                 case CurrTrainState.Moving:
                     {
@@ -32,7 +37,7 @@ public class TrainMoverSystem : SystemBase
                         float distToTarget = targetDist.value - currDist.value;
                         if (distToTarget < 0f)
                         {
-                            distToTarget = totalDist.value - currDist.value + targetDist.value;
+                            distToTarget = totalDist - currDist.value + targetDist.value;
                         }
 
                         // If we are not at max speed and do not need to slow down
@@ -54,9 +59,9 @@ public class TrainMoverSystem : SystemBase
                         if (distToTarget >= currSpeed.value * deltaTime)
                         {
                             currDist.value += currSpeed.value * deltaTime;
-                            if (currDist.value > totalDist.value)
+                            if (currDist.value > totalDist)
                             {
-                                currDist.value -= totalDist.value;
+                                currDist.value -= totalDist;
                             }
                         }
                         else

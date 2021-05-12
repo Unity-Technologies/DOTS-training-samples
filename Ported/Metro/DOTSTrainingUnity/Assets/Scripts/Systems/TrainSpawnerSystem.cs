@@ -12,12 +12,12 @@ public class TrainSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        int numTrains = entityQuery.CalculateEntityCount();
-        Entities.WithStoreEntityQueryInField(ref entityQuery)
-            .ForEach((int entityInQueryIndex, ref TrainCurrDistance currDists, in TrainTotalDistance totalDists) =>
-        {
-            currDists.value = totalDists.value / numTrains * ((entityInQueryIndex + 1) % numTrains);
-        }).Run();
-        Enabled = false;
+        //int numTrains = entityQuery.CalculateEntityCount();
+        //Entities.WithStoreEntityQueryInField(ref entityQuery)
+        //    .ForEach((int entityInQueryIndex, ref TrainCurrDistance currDists) =>
+        //{
+        //    currDists.value = totalDists.value / numTrains * ((entityInQueryIndex + 1) % numTrains);
+        //}).Run();
+        //Enabled = false;
     }
 }

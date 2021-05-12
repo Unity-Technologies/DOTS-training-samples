@@ -7,22 +7,14 @@ using Unity.Transforms;
 
 public class TrainStateMachineSystem : SystemBase
 {
-    private NativeList<float> targetDistances;
-
     protected override void OnCreate()
     {
         base.OnCreate();
-
-        targetDistances = new NativeList<float>(8, Allocator.Persistent);
-        targetDistances.Add(30.0f);
-        targetDistances.Add(60.0f);
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-
-        targetDistances.Dispose();
     }
 
     protected override void OnUpdate()
@@ -32,27 +24,30 @@ public class TrainStateMachineSystem : SystemBase
         // we'll initialize it with a constant. (In release, we'd want a seed that
         // randomly varies, such as the time from the user's system clock.)
         float deltaTime = Time.DeltaTime;
-
-        var distances = targetDistances;
-        int numDistances = distances.Length;
         float trainWaitTime = 5.0f;
 
         var doorState = GetComponentDataFromEntity<DoorState>();
 
-        Entities.ForEach((
+        var stopDistances = Line.allStopPointSubarrays;
+        var stopPointSubarrayIndices = Line.stopPointSubarrayIndices;
+
+        Entities
+            .WithReadOnly(stopDistances)
+            .WithReadOnly(stopPointSubarrayIndices)
+            .ForEach((
             ref DynamicBuffer <DoorEntities> doorEntBuffer,
             ref TrainState trainState,
-            ref TrackIndex trackIndex,
+            ref PlatformIndex platformIndex,
             ref TrainWaitTimer waitTimer,
             ref TrainTargetDistance targetDist,
-            in TrainTotalDistance totalDist) =>
+            in TrackIndex trackIndex) =>
         {
             switch (trainState.value)
             {
                 case CurrTrainState.Arrived:
                     {
                         // TODO: put real logic here
-                        int doorSide = trackIndex.value;
+                        int doorSide = platformIndex.value;
 
                         int numDoors = doorEntBuffer.Length;
                         int halfNumDoors = numDoors / 2;
@@ -75,7 +70,7 @@ public class TrainStateMachineSystem : SystemBase
                             // Close the doors
 
                             // TODO: put real logic here
-                            int doorSide = trackIndex.value;
+                            int doorSide = platformIndex.value;
 
                             int numDoors = doorEntBuffer.Length;
                             int halfNumDoors = numDoors / 2;
@@ -87,13 +82,32 @@ public class TrainStateMachineSystem : SystemBase
                             }
 
                             // Tell the train to move
-                            
                             waitTimer.value = 0.0f;
 
+                            // TODO: make an array of the number of stops per line and use that here
+
+                            int startIndex = stopPointSubarrayIndices[trackIndex.value];
+                            int onePastEndIndex;
+
+                            if (trackIndex.value == stopPointSubarrayIndices.Length - 1)
+                            {
+                                onePastEndIndex = stopDistances.Length;
+                            }
+                            else
+                            {
+                                onePastEndIndex = stopPointSubarrayIndices[trackIndex.value + 1];
+                            }
+
+                            int numStops = onePastEndIndex - startIndex;
+
+                            var stopDistancesForLine = stopDistances.GetSubArray(startIndex, numStops);
+
                             // Set a new target distance
-                            int trackIndexVal = trackIndex.value;
-                            targetDist.value = distances[trackIndexVal];
-                            trackIndex.value = (trackIndexVal + 1) % numDistances;
+                            int platformIndexVal = platformIndex.value;
+
+                            targetDist.value = stopDistancesForLine[platformIndexVal];
+
+                            platformIndex.value = (platformIndexVal + 1) % numStops;
 
                             trainState.value = CurrTrainState.Moving;
                         }

@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct TrainStationIndex : IComponentData
+public struct PlatformIndex : IComponentData
 {
     public int value;
 }

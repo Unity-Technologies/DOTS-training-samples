@@ -5,6 +5,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
+    public int trackIndex = 1;
     public float totalDistance;
     public float maxSpeed;
     public GameObject[] doors;
@@ -12,11 +13,11 @@ public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new TrackIndex());
+        dstManager.AddComponentData(entity, new TrackIndex() {value = trackIndex });
+        dstManager.AddComponentData(entity, new PlatformIndex());
         dstManager.AddComponentData(entity, new TrainWaitTimer());
         dstManager.AddComponentData(entity, new TrainCurrDistance());
         dstManager.AddComponentData(entity, new TrainTargetDistance());
-        dstManager.AddComponentData(entity, new TrainTotalDistance() { value = totalDistance });
         dstManager.AddComponentData(entity, new TrainCurrSpeed());
         dstManager.AddComponentData(entity, new TrainMaxSpeed() { value = maxSpeed });
         dstManager.AddComponentData(entity, new TrainState() { value = CurrTrainState.Waiting });
