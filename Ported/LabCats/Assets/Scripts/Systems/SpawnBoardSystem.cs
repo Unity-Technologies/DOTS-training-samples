@@ -6,16 +6,24 @@ using UnityEngine;
 
 public class SpawnBoardSystem : SystemBase
 {
+    private EntityCommandBufferSystem CommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        CommandBufferSystem
+            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         var random = new Unity.Mathematics.Random(1234);
 
         Entities
             .WithNone<BoardInitializedTag>()
             .WithoutBurst()
-            .ForEach((Entity entity, ref GameData gameData, in BoardDefinition boardDefinition) =>
+            .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition) =>
             {
                 var firstCellPosition = new FirstCellPosition
                 {
@@ -23,6 +31,21 @@ public class SpawnBoardSystem : SystemBase
                     Value = new float3(0, 0, 0)
                 };
                 ecb.AddComponent(entity, firstCellPosition);
+
+                var playerReferenceBuffer = ecb.AddBuffer<PlayerReference>(entity);
+                playerReferenceBuffer.Capacity = 4;
+                for (int i = 0; i < 4; ++i)
+                {
+                    Entity playerEntity = ecb.CreateEntity();
+                    ecb.AddComponent(playerEntity, new PlayerIndex() { Value = i });
+                    ecb.AddComponent<Score>(playerEntity);
+                    ecb.AddBuffer<ArrowReference>(playerEntity);
+                    ecb.AppendToBuffer(entity, new PlayerReference() { Player = playerEntity });
+                    if (i != 0)
+                        ecb.AddComponent<AITargetCell>(playerEntity);
+                }
+
+
 
                 // TODO: Add time?
 
@@ -57,9 +80,5 @@ public class SpawnBoardSystem : SystemBase
                 // Only run on first frame the BoardInitializedTag is not found. Add it so we don't run again
                 ecb.AddComponent(entity, new BoardInitializedTag());
             }).Run();
-
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
     }
 }

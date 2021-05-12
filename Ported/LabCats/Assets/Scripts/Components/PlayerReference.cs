@@ -6,9 +6,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct BoardDefinition : IComponentData
+[InternalBufferCapacity(4)]
+public struct PlayerReference : IBufferElementData
 {
-    public float CellSize;
-    public int NumberColumns;
-    public int NumberRows;
+    public Entity Player;
 }
