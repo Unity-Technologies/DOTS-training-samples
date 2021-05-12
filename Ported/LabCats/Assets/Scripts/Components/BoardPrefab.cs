@@ -16,7 +16,5 @@ public struct BoardPrefab : IComponentData
     public Entity MousePrefab;
     public Entity CatPrefab;
     public Entity WallPrefab;
-    public Entity MouseSpawnerPrefab;
-    public Entity CatSpawnerPrefab;
     public Entity GoalPrefab;
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    [Range(1, 2)]public float CellSize;
+    private float CellSize => 1.0f;
     [Range(20, 60)]public int NumberColumns;
     [Range(20, 60)]public int NumberRows;
     public GameObject LightCellPrefab;
@@ -15,8 +15,6 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public GameObject MousePrefab;
     public GameObject CatPrefab;
     public GameObject WallPrefab;
-    public GameObject MouseSpawnerPrefab;
-    public GameObject CatSpawnerPrefab;
     public GameObject GoalPrefab;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -29,8 +27,6 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
         referencedPrefabs.Add(MousePrefab);
         referencedPrefabs.Add(CatPrefab);
         referencedPrefabs.Add(WallPrefab);
-        referencedPrefabs.Add(MouseSpawnerPrefab);
-        referencedPrefabs.Add(CatSpawnerPrefab);
         referencedPrefabs.Add(GoalPrefab);
     }
 
@@ -52,8 +48,6 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
-            MouseSpawnerPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
-            CatSpawnerPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             GoalPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
         });
     }

@@ -44,22 +44,20 @@ public class SpawnBoardSystem : SystemBase
                     ecb.SetName(playerEntity, "Player " + i);
                 }
 
+
+
                 //create the board cell entities
                 for (int j = 0; j < boardDefinition.NumberColumns; ++j)
                 {
                     for (int i = 0; i < boardDefinition.NumberRows; ++i)
                     {
-                        Entity cellPrefab = (j % 2 == 0 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
+                        Entity cellPrefab = (j % 2 == i % 2 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
                         var cell = ecb.Instantiate(cellPrefab);
 
                         ecb.SetComponent(cell, new Translation
                         {
-                            Value = new float3(j*boardDefinition.CellSize, 0, i*boardDefinition.CellSize)
+                            Value = new float3(i*boardDefinition.CellSize, 0, j*boardDefinition.CellSize)
                         });
-//                        ecb.SetComponent(cell, new Scale
-//                        {
-//                            Value = boardDefinition.CellSize
-//                        });
                         ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
                     }
                 }
