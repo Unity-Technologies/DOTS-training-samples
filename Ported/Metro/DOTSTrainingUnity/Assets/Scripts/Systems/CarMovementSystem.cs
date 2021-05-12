@@ -15,6 +15,7 @@ public class CarMovementSystem : SystemBase
         NativeArray<BezierPoint> allBezierPaths = Line.allBezierPathSubarrays;
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
+
         Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex, in TrainEngineRef engineRef) =>
         {
             float trainDistance = entityManager.GetComponentData<TrainCurrDistance>(engineRef.value).value;

@@ -236,4 +236,13 @@ public class RailGeneration : MonoBehaviour
 
         Debug.Log("Done");
     }
+
+    private void OnDestroy()
+    {
+        Line.allBezierPathSubarrays.Dispose();
+        Line.bezierPathSubarrayIndices.Dispose();
+        Line.allStopPointSubarrays.Dispose();
+        Line.stopPointSubarrayIndices.Dispose();
+        Line.allDistances.Dispose();
+    }
 }
