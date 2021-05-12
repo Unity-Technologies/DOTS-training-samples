@@ -41,11 +41,13 @@ public class SpawnerSystem : SystemBase
             
             // TODO find a better way to do that.
             var buffer = EntityManager.AddBuffer<OffsetList>(boardEntity);
+            //buffer.AddRange(offsets.Reinterpret<OffsetList>());
             buffer.ResizeUninitialized(totalSize);
             for (int i = 0; i < totalSize; ++i)
                 buffer[i] = new OffsetList {Value = offsets[i]};
-
+            
             var tankMap = EntityManager.AddBuffer<TankMap>(boardEntity);
+            //tankMap.AddRange(platforms.Reinterpret<TankMap>());
             tankMap.ResizeUninitialized(totalSize);
             for (int i = 0; i < totalSize; ++i)
                 tankMap[i] = new TankMap {Value = (platforms[i] == PlatformGenerator.PlatformType.Tank)}; 

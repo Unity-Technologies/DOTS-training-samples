@@ -1,5 +1,4 @@
 ﻿
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -29,7 +28,6 @@ public class PlatformHeightSystem : SystemBase
 
         Entities.
             WithAll<Platform, WasHit>()
-            .WithStructuralChanges()
             .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit, ref TargetPosition targetPosition) =>
             {
                 if (hit.Count <= 0)
@@ -48,7 +46,7 @@ public class PlatformHeightSystem : SystemBase
             })
             .WithDisposeOnCompletion(board)
             .WithDisposeOnCompletion(hitStrength)
-            .Run();
+            .ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }

@@ -1,7 +1,6 @@
 
 using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Transforms;
 using UnityEngine;
 
 public class BoardSpawnerAuthoring : MonoBehaviour
@@ -64,6 +63,7 @@ public class BoardSpawnerAuthoring : MonoBehaviour
             BulletPrefab = conversionSystem.GetPrimaryEntity(BulletPrefab)
         });
 
+        dstManager.AddComponent<Board>(entity);
         dstManager.AddComponent<BoardSpawnerTag>(entity);
     }
 }

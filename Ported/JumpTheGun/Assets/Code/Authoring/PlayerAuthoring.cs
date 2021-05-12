@@ -13,7 +13,7 @@ public class PlayerAuthoring : MonoBehaviour
     {
         dstManager.AddComponent<Arc>(entity);
         dstManager.AddComponent<Direction>(entity);
-        dstManager.AddComponent<TargetPosition>(entity);
+        //dstManager.AddComponent<BallTrajectory>(entity);
         dstManager.AddComponent<PlayerSpawnerTag>(entity);
         dstManager.AddComponentData(entity, new Player(){});
     }

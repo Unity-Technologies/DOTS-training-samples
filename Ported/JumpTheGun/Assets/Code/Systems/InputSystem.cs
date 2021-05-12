@@ -30,7 +30,6 @@ public class InputSystem : SystemBase
 
         //Update the player destination position
         var player = GetSingletonEntity<Player>();
-        SetComponent(player, new TargetPosition { Value = mouseWorldPos });
         SetComponent(player, new Translation { Value = mouseWorldPos });
     }
 }
