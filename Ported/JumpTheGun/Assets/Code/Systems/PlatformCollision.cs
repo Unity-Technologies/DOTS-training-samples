@@ -1,6 +1,7 @@
 ﻿
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformCollision : SystemBase
@@ -18,35 +19,30 @@ public class PlatformCollision : SystemBase
 
         float currentTime = (float)Time.ElapsedTime;
 
-        var query = GetEntityQuery(typeof(Bullet), typeof(BoardTarget), typeof(Time));
-        NativeArray<BoardTarget> bulletTargets = query.ToComponentDataArray<BoardTarget>(Allocator.TempJob);
-        NativeArray<Time> bulletTime = query.ToComponentDataArray<Time>(Allocator.TempJob);
+        var hitCount = new NativeList<int2>(GetEntityQuery(typeof(Bullet)).CalculateEntityCount(), Allocator.TempJob);
+        var hitCountWriter = hitCount.AsParallelWriter();
 
         Entities
-            .WithDisposeOnCompletion(bulletTargets)
-            .WithDisposeOnCompletion(bulletTime)
+            .WithAll<Bullet>()
+            .ForEach((int entityInQueryIndex, Entity entity, in BoardTarget target, in Time time) =>
+            {
+                if (time.EndTime <= currentTime)
+                    hitCountWriter.AddNoResize(target.Value);
+
+            }).ScheduleParallel();
+
+        Entities
+            .WithDisposeOnCompletion(hitCount)
             .WithAll<Platform, BoardPosition>()
-            .WithReadOnly(bulletTargets)
-            .WithReadOnly(bulletTime)
+            .WithReadOnly(hitCount)
             .ForEach((int entityInQueryIndex, Entity entity, ref WasHit hit, in BoardPosition boardPosition) => {
 
-                int count = 0;
-
-                for (int index = 0; index < bulletTargets.Length; index++)
+                for (int index = 0; index < hitCount.Length; index++)
                 {
-                    if (bulletTime[index].EndTime > currentTime)
-                        continue;
-
-                    if (bulletTargets[index].Value.Equals(boardPosition.Value))
-                        continue;
-
-                    count++;
+                    if (hitCount[index].Equals(boardPosition.Value))
+                        hit.Count++;
                 }
 
-                if (count > 0)
-                    hit.Count = count;
-
-            })
-            .Run();
+            }).ScheduleParallel();
     }
 }
