@@ -18,9 +18,17 @@ public class BulletSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        Entity playerEntity;
+        if (!TryGetSingletonEntity<Player>(out playerEntity))
+            return;
+        
         var times = new double2(Time.ElapsedTime - Time.DeltaTime, Time.ElapsedTime);
         var reloadTime = GetSingleton<ReloadTime>().Value;
-        var bulletEntity = GetSingleton<BoardSpawnerData>().BulletPrefab;
+        var bulletPrefab = GetSingleton<BoardSpawnerData>().BulletPrefab;
+        
+        var targetPoint = GetComponent<TargetPosition>(playerEntity);
+
+        const float kDuration = 40f;
         
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
  
@@ -37,7 +45,14 @@ public class BulletSpawnerSystem : SystemBase
 
                     if (loopCounts.y > loopCounts.x)
                     {
-                        ecb.Instantiate(entityInQueryIndex, bulletEntity);
+                        var bulletEntity = ecb.Instantiate(entityInQueryIndex, bulletPrefab);
+
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Translation {Value = translation.Value});
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new TargetPosition {Value = targetPoint.Value});
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
+                        
+                        ParabolaUtil.CreateParabolaOverPoint(0.0f, 0.2f, 8.0f, targetPoint.Value.y, out float a, out float b, out float c);
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
                     }
                 }).ScheduleParallel();
         
