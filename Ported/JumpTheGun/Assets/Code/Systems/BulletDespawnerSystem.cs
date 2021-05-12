@@ -5,6 +5,7 @@ using UnityInput = UnityEngine.Input;
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 [UpdateAfter(typeof(BulletSpawnerSystem))]
+[UpdateAfter(typeof(PlatformCollision))]
 public class BulletDespawnerSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

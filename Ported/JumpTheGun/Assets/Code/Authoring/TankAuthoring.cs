@@ -13,6 +13,6 @@ public class TankAuthoring : MonoBehaviour
         dstManager.AddComponent<BoardPosition>(entity);
         dstManager.AddComponent<CurrentLevel>(entity);
         dstManager.AddComponent<TimeOffset>(entity);
-        dstManager.AddComponent<TargetPosition>(entity);
+        dstManager.AddComponent<BallTrajectory>(entity);
     }
 }

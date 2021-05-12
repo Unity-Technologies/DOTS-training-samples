@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformHeightSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

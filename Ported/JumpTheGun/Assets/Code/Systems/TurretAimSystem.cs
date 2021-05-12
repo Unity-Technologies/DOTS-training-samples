@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class TurretAimSystem : SystemBase
 {
     protected override void OnUpdate()

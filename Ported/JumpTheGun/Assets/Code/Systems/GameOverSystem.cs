@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class GameOverSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbs_player;

@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 
+[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformCollision : SystemBase
 {
     private EntityCommandBufferSystem ecbs;
