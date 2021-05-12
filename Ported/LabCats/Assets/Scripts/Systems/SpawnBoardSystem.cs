@@ -35,6 +35,8 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AppendToBuffer(entity, new PlayerReference() { Player = playerEntity });
                     if (i != 0)
                         ecb.AddComponent<AITargetCell>(playerEntity);
+
+                    ecb.SetName(playerEntity, "Player " + i);
                 }
 
 
@@ -71,6 +73,7 @@ public class SpawnBoardSystem : SystemBase
 
                 // Only run on first frame the BoardInitializedTag is not found. Add it so we don't run again
                 ecb.AddComponent(entity, new BoardInitializedTag());
+                ecb.SetName(entity, "Board");
             }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
