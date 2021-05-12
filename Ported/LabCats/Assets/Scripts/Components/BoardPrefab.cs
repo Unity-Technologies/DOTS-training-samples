@@ -11,7 +11,12 @@ public struct BoardPrefab : IComponentData
     public Entity LightCellPrefab;
     public Entity DarkCellPrefab;
     public Entity CursorPrefab;
+    public Entity PlayerCursorPrefab;
     public Entity ArrowPrefab;
     public Entity MousePrefab;
     public Entity CatPrefab;
+    public Entity WallPrefab;
+    public Entity MouseSpawnerPrefab;
+    public Entity CatSpawnerPrefab;
+    public Entity GoalPrefab;
 }
