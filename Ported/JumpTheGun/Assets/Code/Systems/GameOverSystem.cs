@@ -2,6 +2,7 @@
 
 public class GameOverSystem : SystemBase
 {
+    private EntityCommandBufferSystem ecbs_player;
     private EntityCommandBufferSystem ecbs_level;
     private EntityCommandBufferSystem ecbs_board;
 
@@ -10,6 +11,7 @@ public class GameOverSystem : SystemBase
         var query = GetEntityQuery(typeof(Player), typeof(WasHit));
         RequireForUpdate(query);
 
+        ecbs_player = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         ecbs_level = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         ecbs_board = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
@@ -20,6 +22,10 @@ public class GameOverSystem : SystemBase
 
         if (!HasComponent<WasHit>(player))
             return;
+
+        var ecbp = ecbs_level.CreateCommandBuffer();
+
+        ecbp.RemoveComponent<WasHit>(player);
 
         EntityCommandBuffer.ParallelWriter ecbl = ecbs_level.CreateCommandBuffer().AsParallelWriter();
         EntityCommandBuffer.ParallelWriter ecbb = ecbs_board.CreateCommandBuffer().AsParallelWriter();
