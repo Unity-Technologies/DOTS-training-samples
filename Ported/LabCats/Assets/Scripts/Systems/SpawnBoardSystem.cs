@@ -44,22 +44,36 @@ public class SpawnBoardSystem : SystemBase
                     ecb.SetName(playerEntity, "Player " + i);
                 }
 
+                int numberCells = boardDefinition.NumberColumns * boardDefinition.NumberRows;
+                for (int i = 0; i < numberCells; ++i)
+                {
+                    gridContent.Add(new GridCellContent() { Type = GridCellType.None });
+                }
 
+                int numHoles = random.NextInt(0, 4);
+                for (int hole = 0; hole < numHoles; ++hole)
+                {
+                    int holeIndex = random.NextInt(0, numberCells);
+                    var gridContentCell = gridContent[holeIndex];
+                    gridContentCell.Type = GridCellType.Hole;
+                    gridContent[holeIndex] = gridContentCell;
+                }
 
                 //create the board cell entities
-                for (int j = 0; j < boardDefinition.NumberColumns; ++j)
+                for (int boardIndex = 0; boardIndex < numberCells; ++boardIndex)
                 {
-                    for (int i = 0; i < boardDefinition.NumberRows; ++i)
-                    {
-                        Entity cellPrefab = (j % 2 == i % 2 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
-                        var cell = ecb.Instantiate(cellPrefab);
+                    if (gridContent[boardIndex].Type == GridCellType.Hole)
+                        continue;
+                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+                    Entity cellPrefab = (j % 2 == i % 2 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
+                    var cell = ecb.Instantiate(cellPrefab);
 
-                        ecb.SetComponent(cell, new Translation
-                        {
-                            Value = new float3(i*boardDefinition.CellSize, 0, j*boardDefinition.CellSize)
-                        });
-                        ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
-                    }
+                    ecb.SetComponent(cell, new Translation
+                    {
+                        Value = new float3(i*boardDefinition.CellSize, 0, j*boardDefinition.CellSize)
+                    });
+                    ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
                 }
 
                 // TODO: Add time?
