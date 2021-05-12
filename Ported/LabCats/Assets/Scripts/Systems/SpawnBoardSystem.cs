@@ -77,11 +77,6 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
                 }
 
-                //Spawn some arrows randomly, need to remove that eventually when players can put arrows
-                for (int j = 0; j < 3; j++)
-                {
-
-                }
                 
                 //Goals are spawned randomly but shouldn’t
                 for (int k = 0; k < 3; k++)
@@ -94,7 +89,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent<GoalTag>(spawnedEntity);
                     ecb.SetComponent(spawnedEntity, new Translation
                     {
-                        Value = new float3(posX*boardDefinition.CellSize, 1.0f, posY*boardDefinition.CellSize)
+                        Value = new float3(posX*boardDefinition.CellSize, 0.5f, posY*boardDefinition.CellSize)
                     });
                     ecb.AddComponent(spawnedEntity, new GridPosition(){X=posX,Y=posY});
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
@@ -125,7 +120,7 @@ public class SpawnBoardSystem : SystemBase
                         
                     ecb.SetBuffer<ArrowReference>(spawnedEntity);
                         
-                    for (int l = 0; l < 4; l++)
+                    for (int l = 0; l < 3; l++)
                     {
                         Entity arrowPrefab = boardPrefab.ArrowPrefab;
                         var posX = random.NextInt(0, boardDefinition.NumberRows);
@@ -134,7 +129,7 @@ public class SpawnBoardSystem : SystemBase
                         //
                         ecb.SetComponent(arrow, new Translation
                         {
-                            Value = new float3(posX*boardDefinition.CellSize, 1.01f, posY*boardDefinition.CellSize)
+                            Value = new float3(posX*boardDefinition.CellSize, 0.501f, posY*boardDefinition.CellSize)
                         });
                         ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
                         ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
@@ -148,7 +143,55 @@ public class SpawnBoardSystem : SystemBase
                 // TODO: Add time?
 
                 // TODO: Set up walls
-                // TODO: Set up spawners
+
+                // Set up spawners
+                var spawner1 = ecb.CreateEntity();
+                ecb.AddComponent(spawner1, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 0.25f,
+                    Direction = Dir.Up,
+                    Type = SpawnerType.MouseSpawner,
+                    X = 0,
+                    Y = 0
+                });
+                ecb.SetName(spawner1, "Mouse Spawner 1");
+                
+                var spawner2 = ecb.CreateEntity();
+                ecb.AddComponent(spawner2, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 0.25f,
+                    Direction = Dir.Down,
+                    Type = SpawnerType.MouseSpawner,
+                    X = boardDefinition.NumberColumns - 1,
+                    Y = boardDefinition.NumberRows - 1
+                });
+                ecb.SetName(spawner2, "Mouse Spawner 2");
+
+                var spawner3 = ecb.CreateEntity();
+                ecb.AddComponent(spawner3, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 5f,
+                    Direction = Dir.Left,
+                    Type = SpawnerType.CatSpawner,
+                    X = boardDefinition.NumberColumns - 1,
+                    Y = 0
+                });
+                ecb.SetName(spawner3, "CatSpawner 1");
+
+                var spawner4 = ecb.CreateEntity();
+                ecb.AddComponent(spawner4, new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 5f,
+                    Direction = Dir.Right,
+                    Type = SpawnerType.CatSpawner,
+                    X = 0,
+                    Y = boardDefinition.NumberRows - 1
+                });
+
                 // TODO: Set up goals
                 // TODO: Set up holes
                 // ...

@@ -268,6 +268,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8045074931893300453}
+  - component: {fileID: 2190884875825020558}
+  - component: {fileID: 2349209003845849416}
   m_Layer: 0
   m_Name: Mouse
   m_TagString: Untagged
@@ -290,3 +292,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2190884875825020558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557102604738225989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4ef9596ef37641488a799325414cf2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  X: 0.5
+  Y: 0.5
+--- !u!114 &2349209003845849416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7557102604738225989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c20d09e4ed87ab04a8d5a8789ea13c2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 3

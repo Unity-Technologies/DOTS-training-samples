@@ -14,6 +14,7 @@ public enum Dir
     Right
 }
 
+[GenerateAuthoringComponent]
 public struct Direction : IComponentData
 {
     public Dir Value;

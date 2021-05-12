@@ -6,7 +6,9 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-public struct RemainingAnimTime : IComponentData
+[GenerateAuthoringComponent]
+public struct AnimationProperties : IComponentData
 {
-    public float Value;
+    public float ObjScaleFactor;
+    public float ObjectScaleTime;
 }

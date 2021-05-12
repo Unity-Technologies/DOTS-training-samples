@@ -10,13 +10,16 @@ using UnityEngine;
 public enum SpawnerType
 {
     MouseSpawner,
-    MouseAndCatSpawner,
+    //MouseAndCatSpawner,
     CatSpawner
 }
 
 public struct SpawnerData : IComponentData
 {
+    public float Timer;
     public float Frequency;
     public Dir Direction;
     public SpawnerType Type;
+    public int X;
+    public int Y;
 }
