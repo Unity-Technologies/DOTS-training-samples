@@ -22,7 +22,7 @@ public class BulletMovementSystem : SystemBase
                 float yInParabola = ParabolaUtil.Solve(arc.Value.x, arc.Value.y, arc.Value.z, timeInParabola);
                 float3 position = math.lerp(trajectory.Source, trajectory.Destination, timeInParabola);
 
-                //position.y = yInParabola;
+                position.y = yInParabola;
                 translation.Value = position;
             }).ScheduleParallel();
     }

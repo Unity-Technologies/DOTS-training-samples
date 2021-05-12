@@ -61,7 +61,7 @@ public class BulletSpawnerSystem : SystemBase
                         
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
                         
-                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.5f, 20f, playerPosition.Value.y, out float a, out float b, out float c);
+                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.5f, 10f, playerPosition.Value.y, out float a, out float b, out float c);
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
                     }
                 }).ScheduleParallel();
