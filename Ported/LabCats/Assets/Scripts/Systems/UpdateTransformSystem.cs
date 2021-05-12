@@ -12,6 +12,9 @@ public class UpdateTransformSystem : SystemBase
         var columns = boardDefinition.NumberColumns;
         var rows = boardDefinition.NumberRows;
 
+        if (!HasComponent<FirstCellPosition>(board))
+            return;
+
         var firstCellPosition = GetComponent<FirstCellPosition>(board);
 
         // Move Mice and Cats
