@@ -28,7 +28,7 @@ public class InputSystem : SystemBase
         mouseWorldPos.y = halfHeight;
 
         //Update the player destination position
-        var player = GetSingletonEntity<Player>();
-        SetComponent(player, new Translation { Value = mouseWorldPos });
+        /*var player = GetSingletonEntity<Player>();
+        SetComponent(player, new Translation { Value = mouseWorldPos });*/
     }
 }

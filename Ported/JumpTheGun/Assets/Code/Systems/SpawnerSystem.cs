@@ -18,6 +18,10 @@ public class SpawnerSystem : SystemBase
     
     private void SpawnBoard()
     {
+        //var player = GetSingletonEntity<Player>();
+        var startX = 0;
+        var startY = 0;
+
         Entities
             .WithStructuralChanges()
             .WithAll<BoardSpawnerTag>()
@@ -27,6 +31,9 @@ public class SpawnerSystem : SystemBase
             EntityManager.AddComponent<OffsetList>(boardEntity);
 
             var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);
+
+            startX = board.SizeX;
+            startY = board.SizeY;
 
             EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
             EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
@@ -39,6 +46,7 @@ public class SpawnerSystem : SystemBase
             
             var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, Allocator.Temp);
             var platforms = PlatformGenerator.CreatePlatforms(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, Allocator.Temp);
+            var boardPosition = new int2(0, 0);
             
             // TODO find a better way to do that.
             var buffer = EntityManager.AddBuffer<OffsetList>(boardEntity);
@@ -64,11 +72,18 @@ public class SpawnerSystem : SystemBase
                             float4x4.Translate(new float3(x, -0.5f, y)),
                             float4x4.Scale(1f, offsets[y * board.SizeX + x], 1f)),
                         float4x4.Translate(new float3(0f, 0.5f, 0f)));
-                    
+
                     EntityManager.RemoveComponent<Translation>(instance);
 
+                    
+
                     float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
-                    EntityManager.AddComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
+
+                    boardPosition.x = x;
+                    boardPosition.y = y;
+
+                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
+                    EntityManager.SetComponentData(instance, new BoardPosition { Value = boardPosition });
 
                     EntityManager.RemoveComponent<Rotation>(instance);
                     
@@ -94,6 +109,40 @@ public class SpawnerSystem : SystemBase
 
             EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
+
+    }
+
+
+    private void SpawnPlayer()
+    {
+        Entity boardEntity;
+        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+            return;
+
+        var random = new System.Random();
+
+        float3 targetPosition = new float3(0.0f, 0.0f, 0.0f);
+
+        var boardSize = GetComponent<BoardSize>(boardEntity);
+        var offsets = GetBuffer<OffsetList>(boardEntity);
+
+        //startX = random.Next(0, boardEntity.SizeX);
+        //startY = random.Next(0, boardEntity.SizeY);
+
+        Entities
+            .WithStructuralChanges()
+            .WithReadOnly(offsets)
+            .WithAll<PlayerSpawnerTag>()
+            .ForEach((Entity player) =>
+            {
+                 int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
+
+                 float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
+
+                 SetComponent(player, new Translation { Value = targetPos });
+
+            EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
+            }).Run();
     }
 
     private void SpawnDebugEntities()
@@ -117,6 +166,7 @@ public class SpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         SpawnBoard();
+        SpawnPlayer();
         SpawnDebugEntities();
     }
 }
