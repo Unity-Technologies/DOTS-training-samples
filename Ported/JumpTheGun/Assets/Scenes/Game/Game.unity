@@ -153,7 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SampleCount: 16
-  Enable: 0
+  Duration: 4
+  Enable: 1
   SamplePrefab: {fileID: 1908342676492234, guid: 804354b785c584494afa73ff5ef3d1f4, type: 3}
 --- !u!4 &135286299
 Transform:

@@ -10,6 +10,8 @@ public class DebugParabolaAuthoring : MonoBehaviour
     [Range(1, 40)]
     public int SampleCount = 16;
 
+    public float Duration = 4.0f;
+
     public bool Enable = false;
 
     public GameObject SamplePrefab;
@@ -30,6 +32,7 @@ public class DebugParabolaAuthoring : MonoBehaviour
         dstManager.AddComponentData(entity, new DebugParabolaData
         {
             SampleCount = SampleCount,
+            Duration = Duration,
             SamplePrefab = conversionSystem.GetPrimaryEntity(SamplePrefab),
         });
         dstManager.AddComponent<DebugParabolaSpawnerTag>(entity);
