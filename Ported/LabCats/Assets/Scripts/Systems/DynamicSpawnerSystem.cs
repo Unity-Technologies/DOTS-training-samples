@@ -35,17 +35,11 @@ public class DynamicSpawnerSystem : SystemBase
                 {
                     spawnerData.Timer = spawnerData.Frequency;
 
-                    var colliderSize = new ColliderSize() { X = .5f, Y = .5f }; // TODO: Get values elsewhere
-                    var speed = new Speed() { Value = 2f };
-
                     // Choose the prefab
                     var prefab = prefabsSingleton.MousePrefab;
                     if (spawnerData.Type == SpawnerType.CatSpawner)
                     {
                         prefab = prefabsSingleton.CatPrefab;
-                        colliderSize.X = .65f;
-                        colliderSize.Y = .65f; // TODO: These two values also need to be found elsewhere
-                        speed.Value = .75f; // TODO: Get this value from elsewhere
                     }
 
                     // Create the prefab
@@ -58,8 +52,6 @@ public class DynamicSpawnerSystem : SystemBase
                     ecb.AddComponent(spawnedEntity, gridPosition);
                     ecb.AddComponent(spawnedEntity, direction);
                     ecb.AddComponent(spawnedEntity, cellOffset);
-                    ecb.AddComponent(spawnedEntity, colliderSize);
-                    ecb.AddComponent(spawnedEntity, speed);
                 }
 
             }).Run();

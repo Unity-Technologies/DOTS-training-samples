@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[GenerateAuthoringComponent]
 public struct AnimationProperties : IComponentData
 {
     public float ObjScaleFactor;
