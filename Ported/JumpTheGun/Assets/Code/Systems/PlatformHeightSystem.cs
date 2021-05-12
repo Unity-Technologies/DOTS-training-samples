@@ -28,7 +28,6 @@ public class PlatformHeightSystem : SystemBase
 
         Entities.
             WithAll<Platform, WasHit>()
-            //.WithStructuralChanges()
             .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit) =>
             {
                 if (hit.Count <= 0)

@@ -22,7 +22,7 @@ public class GameOverSystem : SystemBase
 
         if (!HasComponent<WasHit>(player))
             return;
-
+        /*
         var ecbp = ecbs_level.CreateCommandBuffer();
 
         ecbp.RemoveComponent<WasHit>(player);
@@ -45,6 +45,6 @@ public class GameOverSystem : SystemBase
             }).ScheduleParallel();
         
         ecbs_level.AddJobHandleForProducer(Dependency);
-        ecbs_board.AddJobHandleForProducer(Dependency);
+        ecbs_board.AddJobHandleForProducer(Dependency);*/
     }
 }
