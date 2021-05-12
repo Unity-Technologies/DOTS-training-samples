@@ -6,17 +6,9 @@ using UnityEngine;
 
 public class SpawnBoardSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
-
-    protected override void OnCreate()
-    {
-        CommandBufferSystem
-            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-
     protected override void OnUpdate()
     {
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         var random = new Unity.Mathematics.Random(1234);
 
@@ -80,5 +72,7 @@ public class SpawnBoardSystem : SystemBase
                 // Only run on first frame the BoardInitializedTag is not found. Add it so we don't run again
                 ecb.AddComponent(entity, new BoardInitializedTag());
             }).Run();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
