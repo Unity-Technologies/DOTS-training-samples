@@ -155,11 +155,11 @@ MonoBehaviour:
   CellSize: 1
   NumberColumns: 20
   NumberRows: 20
-  LightCellPrefab: {fileID: 1148662629856070320, guid: 0f07ddedb40c8534cb0b886907b481e9, type: 3}
+  LightCellPrefab: {fileID: 1148662629856070320, guid: 664882bdbd2079b4e82d1baa31c42010, type: 3}
   DarkCellPrefab: {fileID: 1148662629856070320, guid: 0f07ddedb40c8534cb0b886907b481e9, type: 3}
   CursorPrefab: {fileID: 7490853708712508792, guid: 5608af00b2a26f24bb8ebb88b836b4c3, type: 3}
   PlayerCursorPrefab: {fileID: 3549828067281371606, guid: 2f5a98ce6a63a444085d2fd371f1751b, type: 3}
-  ArrowPrefab: {fileID: 0}
+  ArrowPrefab: {fileID: 6678236925220556056, guid: 340dade5b7c55fc4ba6643f60c5b968b, type: 3}
   MousePrefab: {fileID: 7557102604738225989, guid: 8e8ecebabba6866429294b586f59f518, type: 3}
   CatPrefab: {fileID: 6651773216328647454, guid: 844f5eeed185491409f7ed4f42978d3c, type: 3}
   WallPrefab: {fileID: 5081770881951749758, guid: 2e7c1d419b4dd004c9e5714f189e6e7d, type: 3}
