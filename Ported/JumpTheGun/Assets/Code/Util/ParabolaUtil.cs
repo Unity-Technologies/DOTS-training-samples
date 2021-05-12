@@ -25,7 +25,7 @@ public static class ParabolaUtil
     public static void CreateParabolaOverPoint(float startY, float q, float height, float endY, out float a, out float b, out float c)
     {
         c = startY;
-        a = height - q * endY + q * c - c / (q * q - q);
+        a = (height - startY - q * (endY - startY)) / (q * q - q);
         b = endY - startY - a;
     }
 

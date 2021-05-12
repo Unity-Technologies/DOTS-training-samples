@@ -33,7 +33,7 @@ public class DebugParabolaSystem : SystemBase
                 t.EndTime   = t.StartTime + debugInfo.Duration;
 
                 float a, b, c;
-                ParabolaUtil.Create(0.0f, 8.0f, targetPoint.Value.y, out a, out b, out c);
+                ParabolaUtil.CreateParabolaOverPoint(0.0f, 0.2f, 8.0f, targetPoint.Value.y, out a, out b, out c);
                 arc.Value.x = a;
                 arc.Value.y = b;
                 arc.Value.z = c;
