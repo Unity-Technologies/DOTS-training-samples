@@ -26,8 +26,6 @@ public class TurretAimSystem : SystemBase
                 float deg = math.degrees(angle);
 
                 rotation.Value = quaternion.EulerXYZ(-0.5F, angle, 0F);
-
-                //rotation.Value = quaternion.LookRotation(turretPosition.Value, targetPosition);
             }).Run();
 
         ecb.Playback(EntityManager);
