@@ -41,12 +41,47 @@ public class UpdateTransformSystem : SystemBase
                         break;
                 }
 
-                // Fill this in with conversion math as well as adding offset
+                // Fill this in with conversion math as w   ell as adding offset
                 var xOffset = gridPosition.X * cellSize + offsetDirX * (cellOffset.Value - .5f) * cellSize;
                 var yOffset = gridPosition.Y * cellSize + offsetDirY * (cellOffset.Value - .5f) * cellSize;
                 translation.Value = firstCellPosition.Value + new float3(xOffset, 0.5f, yOffset);
                 // Rotate based on direction
                 rotation.Value = quaternion.LookRotation(new float3(offsetDirX, 0f, offsetDirY), new float3(0f, 1f, 0f));
+            }).ScheduleParallel();
+        
+        Entities
+            .WithName("UpdateStaticGridObjectPosition")
+            .WithNone<Speed>()
+            .ForEach((ref Translation translation, in GridPosition gridPosition) =>
+            {
+                var xOffset = gridPosition.X * cellSize;
+                var yOffset = gridPosition.Y * cellSize;
+                translation.Value = firstCellPosition.Value + new float3(xOffset, translation.Value.y, yOffset);
+            }).ScheduleParallel();
+        
+        Entities
+            .WithName("UpdateStaticDirectionalGridObject")
+            .WithNone<Speed>()
+            .ForEach((ref Rotation rotation, in Direction direction) =>
+            {
+                var offsetDirX = 0;
+                var offsetDirY = 0;
+                switch (direction.Value)
+                {
+                    case Dir.Up:
+                        offsetDirY = 1;
+                        break;
+                    case Dir.Right:
+                        offsetDirX = 1;
+                        break;
+                    case Dir.Down:
+                        offsetDirY = -1;
+                        break;
+                    case Dir.Left:
+                        offsetDirX = -1;
+                        break;
+                }
+                rotation.Value = quaternion.LookRotation(new float3(0f, 0f, 1f), new float3(0f, 1f, 0f));
             }).ScheduleParallel();
     }
 }
