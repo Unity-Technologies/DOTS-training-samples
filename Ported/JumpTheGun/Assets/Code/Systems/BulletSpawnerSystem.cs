@@ -27,7 +27,7 @@ public class BulletSpawnerSystem : SystemBase
         var bulletPrefab = GetSingleton<BoardSpawnerData>().BulletPrefab;
         var boardSize = GetSingleton<BoardSize>();
         
-        var targetPoint = GetComponent<TargetPosition>(playerEntity);
+        var playerPosition = GetComponent<Translation>(playerEntity);
 
         const float kDuration = 5f;
         
@@ -48,15 +48,20 @@ public class BulletSpawnerSystem : SystemBase
                         var bulletEntity = ecb.Instantiate(entityInQueryIndex, bulletPrefab);
 
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Translation {Value = translation.Value});
-                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new TargetPosition {Value = targetPoint.Value});
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new BallTrajectory
+                            {
+                                Source = translation.Value,
+                                Destination = playerPosition.Value
+                            }
+                        );
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new BoardTarget
                         {
-                            Value = CoordUtils.WorldToBoardPosition(targetPoint.Value, boardSize, float3.zero)
+                            Value = CoordUtils.WorldToBoardPosition(playerPosition.Value, boardSize, float3.zero)
                         });
                         
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
                         
-                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.5f, 20f, targetPoint.Value.y, out float a, out float b, out float c);
+                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.5f, 10f, playerPosition.Value.y, out float a, out float b, out float c);
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
                     }
                 }).ScheduleParallel();
