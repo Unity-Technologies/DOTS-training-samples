@@ -48,7 +48,6 @@ public struct GridCellContent : IBufferElementData
     {
         int row = GetRowIndexFrom1DIndex(index, numberColumns);
         int col = GetColumnIndexFrom1DIndex(index, numberColumns);
-        int neighbourIndex = -1;
         switch (direction)
         {
             case Dir.Up:

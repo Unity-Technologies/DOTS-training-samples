@@ -173,6 +173,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2727507061442745671}
   - component: {fileID: -1031327391913492109}
+  - component: {fileID: 579338284996049168}
   m_Layer: 0
   m_Name: Homebase
   m_TagString: Untagged
@@ -209,3 +210,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ObjScaleFactor: 2
   ObjectScaleTime: 0
+--- !u!114 &579338284996049168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8369240432833589965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1679780fc6134640b722959b11eb2b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

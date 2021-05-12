@@ -23,14 +23,14 @@ public class UpdatePositionSystem : SystemBase
 
         var deltaTime = Time.DeltaTime;
         var boardEntity = GetSingletonEntity<BoardDefinition>();
-        
+
         var boardDefinition = EntityManager.GetComponentData<BoardDefinition>(boardEntity);
-        
+
         var numberColumns = boardDefinition.NumberColumns;
         var gridCellContents = GetBufferFromEntity<GridCellContent>(true)[boardEntity];
         Dependency = Entities.WithNativeDisableContainerSafetyRestriction(gridCellContents).WithNone<FallingTime>().ForEach((Entity e, int entityInQueryIndex, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
         {
-            
+
             var deltaDisplacement = speed.Value * deltaTime;
             var deltaRatio = deltaDisplacement / boardDefinition.CellSize;
             var newOffset = offset.Value + deltaRatio;
