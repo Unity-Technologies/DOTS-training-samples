@@ -38,7 +38,6 @@ public class BulletSpawnerSystem : SystemBase
             .ForEach((
                 int entityInQueryIndex,
                 ref Translation translation,
-                in TargetPosition targetPos,
                 in TimeOffset timeOffset) =>
                 {
                     var loopCounts = times - timeOffset.Value;
@@ -57,10 +56,8 @@ public class BulletSpawnerSystem : SystemBase
                         
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
                         
-                        ParabolaUtil.CreateParabolaOverPoint(0.0f, 0.2f, 8.0f, targetPoint.Value.y, out float a, out float b, out float c);
+                        ParabolaUtil.CreateParabolaOverPoint(translation.Value.y, 0.2f, 8.0f, targetPoint.Value.y, out float a, out float b, out float c);
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Arc {Value = new float3(a, b, c)});
-                        
-                        
                     }
                 }).ScheduleParallel();
         
