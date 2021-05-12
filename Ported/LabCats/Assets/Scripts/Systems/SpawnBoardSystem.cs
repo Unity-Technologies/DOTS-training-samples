@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Rendering;
 using UnityEngine;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -76,6 +77,47 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent(cell, new GridPosition(){X=j,Y=i});
                 }
 
+                //Spawn some arrows randomly, need to remove that eventually when players can put arrows
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 4; k++)
+                    {
+                        Entity arrowPrefab = boardPrefab.ArrowPrefab;
+                        var posX = random.NextInt(0, boardDefinition.NumberRows);
+                        var posY = random.NextInt(0, boardDefinition.NumberColumns);
+                        var arrow = ecb.Instantiate(arrowPrefab);
+                        //
+                        ecb.SetComponent(arrow, new Translation
+                        {
+                            Value = new float3(posX*boardDefinition.CellSize, 1.01f, posY*boardDefinition.CellSize)
+                        });
+                        ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
+                        ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
+                        ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
+                        ecb.AddComponent<PropagateColor>(arrow);
+                    }
+                }
+                
+                //Goals are spawned randomly but shouldn’t
+                for (int k = 0; k < 4; k++)
+                {
+                    Entity goalPrefab = boardPrefab.GoalPrefab;
+                    var posX = random.NextInt(0, boardDefinition.NumberRows);
+                    var posY = random.NextInt(0, boardDefinition.NumberColumns);
+                    var spawnedEntity = ecb.Instantiate(goalPrefab);
+                    
+                    ecb.AddComponent<GoalTag>(spawnedEntity);
+                    ecb.SetComponent(spawnedEntity, new Translation
+                    {
+                        Value = new float3(posX*boardDefinition.CellSize, 1.0f, posY*boardDefinition.CellSize)
+                    });
+                    ecb.AddComponent(spawnedEntity, new GridPosition(){X=posX,Y=posY});
+                    ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
+                    ecb.AddComponent<PropagateColor>(spawnedEntity);
+                }
+
                 // TODO: Add time?
 
                 // TODO: Set up walls
@@ -125,5 +167,21 @@ public class SpawnBoardSystem : SystemBase
             }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        
+        var ecb2 = new EntityCommandBuffer(Allocator.Temp);
+            
+        Entities.WithAll<GridPosition, PlayerIndex, URPMaterialPropertyBaseColor>()
+                .ForEach((Entity e, DynamicBuffer<LinkedEntityGroup> linkedEntities) =>
+        {
+            foreach (var linkedEntity in linkedEntities)
+            {
+                ecb2.AddComponent<URPMaterialPropertyBaseColor>(linkedEntity.Value);
+            }
+        }).Run();
+        
+        ecb2.Playback(EntityManager);
+        ecb2.Dispose();
+
+
     }
 }
