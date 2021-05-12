@@ -34,7 +34,7 @@ public class PauseButton : MonoBehaviour
             else
                 entityManager.AddComponent<IsPaused>(entity);
 
-            text.text = isPaused ? "Paused" : "Pause";
+            text.text = isPaused ? "Pause" : "Paused";
         }
     }
 }
