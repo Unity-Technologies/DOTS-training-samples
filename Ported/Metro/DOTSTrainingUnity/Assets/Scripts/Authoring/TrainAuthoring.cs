@@ -8,7 +8,8 @@ public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float totalDistance;
     public float maxSpeed;
     public GameObject[] doors;
-
+    public float targetDistance = 0;
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new TrackIndex());
@@ -28,5 +29,8 @@ public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             var ent = conversionSystem.GetPrimaryEntity(doors[dIdx]);
             doorBuffer.Add(ent);
         }
+        
+        dstManager.SetComponentData(entity, new TrainTargetDistance(){value = targetDistance});
+        
     }
 }
