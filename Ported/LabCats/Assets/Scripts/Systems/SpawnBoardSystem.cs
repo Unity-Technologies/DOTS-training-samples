@@ -79,7 +79,20 @@ public class SpawnBoardSystem : SystemBase
                 // TODO: Add time?
 
                 // TODO: Set up walls
-                // TODO: Set up spawners
+                // Set up spawners
+                var spawner1 = ecb.CreateEntity();
+                var spawnerData = new SpawnerData()
+                {
+                    Timer = 0f,
+                    Frequency = 0.25f,
+                    Direction = Dir.Right,
+                    Type = SpawnerType.MouseSpawner,
+                    X = 0,
+                    Y = 0
+                };
+                ecb.AddComponent(spawner1, spawnerData);
+                ecb.SetName(spawner1, "Spawner 1");
+
                 // TODO: Set up goals
                 // TODO: Set up holes
                 // ...
