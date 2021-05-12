@@ -89,6 +89,7 @@ public class SpawnerSystem : SystemBase
             for (int i = 0; i < debugData.SampleCount; ++i)
             {
                 var sampleEntity = EntityManager.Instantiate(debugData.SamplePrefab);
+                EntityManager.AddComponentData(sampleEntity, new DebugParabolaSampleTag { id = i } );
                 BulletAuthoring.CreateBulletArchetype(sampleEntity, EntityManager);
             }
 
