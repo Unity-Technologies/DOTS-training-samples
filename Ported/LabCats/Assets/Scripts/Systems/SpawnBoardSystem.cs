@@ -80,27 +80,11 @@ public class SpawnBoardSystem : SystemBase
                 //Spawn some arrows randomly, need to remove that eventually when players can put arrows
                 for (int j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < 4; k++)
-                    {
-                        Entity arrowPrefab = boardPrefab.ArrowPrefab;
-                        var posX = random.NextInt(0, boardDefinition.NumberRows);
-                        var posY = random.NextInt(0, boardDefinition.NumberColumns);
-                        var arrow = ecb.Instantiate(arrowPrefab);
-                        //
-                        ecb.SetComponent(arrow, new Translation
-                        {
-                            Value = new float3(posX*boardDefinition.CellSize, 1.01f, posY*boardDefinition.CellSize)
-                        });
-                        ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
-                        ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
-                        ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
-                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
-                        ecb.AddComponent<PropagateColor>(arrow);
-                    }
+
                 }
                 
                 //Goals are spawned randomly but shouldn’t
-                for (int k = 0; k < 4; k++)
+                for (int k = 0; k < 3; k++)
                 {
                     Entity goalPrefab = boardPrefab.GoalPrefab;
                     var posX = random.NextInt(0, boardDefinition.NumberRows);
@@ -116,6 +100,49 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
                     ecb.AddComponent<PropagateColor>(spawnedEntity);
+                }
+                
+                for (int k = 0; k < 4; k++)
+                {
+                    Entity cursorPrefab = boardPrefab.CursorPrefab;
+                    var spawnedEntity = ecb.Instantiate(cursorPrefab);
+                    
+                    ecb.SetComponent(spawnedEntity, new Translation
+                    {
+                        Value = new float3(0.0f, 1.0f, 0.0f)
+                    });
+                    ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
+                    ecb.AddBuffer<ArrowReference>(spawnedEntity);
+                    if (k != 0)
+                    {
+                        ecb.AddComponent(spawnedEntity, new AITargetCell()
+                        {
+                            X = random.NextInt(0, boardDefinition.NumberRows), 
+                            Y = random.NextInt(0, boardDefinition.NumberColumns),
+                        });
+                    }
+                        
+                    ecb.SetBuffer<ArrowReference>(spawnedEntity);
+                        
+                    for (int l = 0; l < 4; l++)
+                    {
+                        Entity arrowPrefab = boardPrefab.ArrowPrefab;
+                        var posX = random.NextInt(0, boardDefinition.NumberRows);
+                        var posY = random.NextInt(0, boardDefinition.NumberColumns);
+                        var arrow = ecb.Instantiate(arrowPrefab);
+                        //
+                        ecb.SetComponent(arrow, new Translation
+                        {
+                            Value = new float3(posX*boardDefinition.CellSize, 1.01f, posY*boardDefinition.CellSize)
+                        });
+                        ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
+                        ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
+                        ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
+                        ecb.AddComponent<PropagateColor>(arrow);
+                        ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Entity = arrow});
+                    }
                 }
 
                 // TODO: Add time?

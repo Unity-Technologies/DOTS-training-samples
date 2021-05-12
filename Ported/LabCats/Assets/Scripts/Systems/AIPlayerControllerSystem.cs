@@ -16,7 +16,7 @@ public class AIPlayerControllerSystem : SystemBase
         var boardEntity = GetSingletonEntity<BoardInitializedTag>();
         var boardDefinition = GetSingleton<BoardDefinition>();
         
-        const float cursorSpeed = 1.0f;
+        const float cursorSpeed = 3.0f;
         
         var firstCellPosition = EntityManager.GetComponentData<FirstCellPosition>(boardEntity);
         var timeData = this.Time;
@@ -30,11 +30,11 @@ public class AIPlayerControllerSystem : SystemBase
         Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation) =>
         {
             DynamicBuffer<GridCellContent> gridCellContents = GetBufferFromEntity<GridCellContent>()[boardEntity];
-            var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.X, 0, - boardDefinition.CellSize * aiTargetCell.Y);
+            var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.X, 1.0f, boardDefinition.CellSize * aiTargetCell.Y);
             float3 targetCellPosition = firstCellPosition.Value + cellOffSet;
-        
+         
             var distanceVector = targetCellPosition - translation.Value;
-            var movementDirection = math.normalize(targetCellPosition);
+            var movementDirection = math.normalize(distanceVector);
             var squareDistance = distanceVector.x * distanceVector.x + distanceVector.y * distanceVector.y + distanceVector.z * distanceVector.z;
             var distance = math.sqrt(squareDistance);
         
@@ -51,11 +51,11 @@ public class AIPlayerControllerSystem : SystemBase
                         break;
                     }
                 }
-        
+                
                 if (selectedArrowIndex == -1)
                     selectedArrowIndex = 0;
                 selectedArrow = arrows[selectedArrowIndex].Entity;
-        
+                
                 // Move with arrow
                 {
                     var index = GridCellContent.Get1DIndexFromGridPosition(aiTargetCell.X, aiTargetCell.Y, numberOfColumns);
@@ -66,32 +66,28 @@ public class AIPlayerControllerSystem : SystemBase
                         oldGridContentValue.Type = GridCellType.None;
                         gridCellContents[index] = oldGridContentValue;
                     }
-        
+                
                     var gridContent = gridCellContents[index];
                     gridContent.Type = GridCellType.ArrowLeft; //Why left, I don’t know
                     gridCellContents[index] = gridContent;
-        
+                
                     ecb.SetComponent(selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
-        
+                
                 }
                 //Compute new target
-                {
-        
-                    var newTargetX = random.NextInt() % numberOfRows;
-                    var newTargetY = random.NextInt() % numberOfColumns;
-        
-                    aiTargetCell = new AITargetCell(){X = newTargetX, Y = newTargetY};
-                }
-        
+
+                var newTargetX = random.NextInt(0, numberOfRows);
+                var newTargetY = random.NextInt(0, numberOfColumns);
+    
+                aiTargetCell = new AITargetCell(){X = newTargetX, Y = newTargetY};
             }
             var progress = movementDirection * math.min(cursorSpeed * timeData.DeltaTime, distance);
         
             translation.Value = translation.Value + progress;
         
         
-        
         }).Run();
-        
+        //
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
