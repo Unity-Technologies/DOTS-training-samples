@@ -19,6 +19,7 @@ public class PlatformAuthoring : MonoBehaviour
         dstManager.AddComponentData(entity, new Platform { });
 
         dstManager.AddComponent<Translation>(entity);
+        dstManager.AddComponent<TargetPosition>(entity);
         dstManager.AddComponent<BoardPosition>(entity);
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }

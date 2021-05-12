@@ -30,7 +30,7 @@ public class PlatformHeightSystem : SystemBase
         Entities.
             WithAll<Platform, WasHit>()
             .WithStructuralChanges()
-            .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit, ref TargetPosition targetPosition) =>
             {
                 if (hit.Count <= 0)
                 {
@@ -39,6 +39,8 @@ public class PlatformHeightSystem : SystemBase
                 }
 
                 float posY = math.max(board.x, xform.Position.y - hit.Count * hitStrength);
+
+                targetPosition.Value.y = posY;
 
                 baseColor.Value = Colorize.Platform(posY, board.x, board.y);
 
