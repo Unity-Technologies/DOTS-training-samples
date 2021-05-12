@@ -22,6 +22,7 @@ public class PlatformAuthoring : MonoBehaviour
 
         dstManager.AddComponent<BoardPosition>(entity);
         dstManager.AddComponent<CurrentLevel>(entity);
+        dstManager.AddComponent<WasHit>(entity);
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }

@@ -15,6 +15,7 @@ public class PlayerAuthoring : MonoBehaviour
         dstManager.AddComponent<Direction>(entity);
         //dstManager.AddComponent<BallTrajectory>(entity);
         dstManager.AddComponent<PlayerSpawnerTag>(entity);
+        dstManager.AddComponent<WasHit>(entity);
         dstManager.AddComponentData(entity, new Player(){});
     }
 }

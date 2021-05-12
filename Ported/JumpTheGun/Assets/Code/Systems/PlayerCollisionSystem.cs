@@ -1,4 +1,5 @@
 ﻿
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -6,16 +7,10 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlayerCollisionSystem : SystemBase
 {
-    private EntityCommandBufferSystem ecbs;
-
     protected override void OnCreate()
     {
-        var query = GetEntityQuery(typeof(Player));
+        var query = GetEntityQuery(typeof(Bullet));
         RequireForUpdate(query);
-
-        RequireForUpdate(GetEntityQuery(typeof(Board), typeof(Radius)));
-        
-        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -26,7 +21,7 @@ public class PlayerCollisionSystem : SystemBase
         Entity board = GetSingletonEntity<Board>();
         float radius = GetComponent<Radius>(board).Value;
 
-        EntityCommandBuffer.ParallelWriter ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
+        NativeArray<int> hitCount = new NativeArray<int>(GetEntityQuery(typeof(Bullet)).CalculateEntityCount(), Allocator.TempJob);
 
         Entities
             .WithAll<Bullet>()
@@ -41,11 +36,25 @@ public class PlayerCollisionSystem : SystemBase
                     && pos[2] - radius < playerPos[2]
                     && pos[2] + radius > playerPos[2])
                 {
-                    ecb.AddComponent(entityInQueryIndex, player, new WasHit { Count = 1 });
+                    hitCount[entityInQueryIndex] = 1;
                 }
             })
-            .ScheduleParallel();
+            .Run();
 
-        ecbs.AddJobHandleForProducer(Dependency);
+        Entities
+            .WithAll<Player>()
+            .WithDisposeOnCompletion(hitCount)
+            .ForEach((ref WasHit hit) =>
+            {
+                for (int i = 0; i < hitCount.Length; i++)
+                {
+                    if (hitCount[i] == 1)
+                    {
+                        hit.Count = 1;
+                        break;
+                    }
+                }
+            }).Run();
+
     }
 }

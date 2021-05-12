@@ -5,22 +5,16 @@ using Unity.Entities;
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformCollision : SystemBase
 {
-    private EntityCommandBufferSystem ecbs;
-
     protected override void OnCreate()
     {
         var query = GetEntityQuery(typeof(Bullet), typeof(BoardTarget));
         RequireForUpdate(query);
-
-        ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         if (TryGetSingleton<IsPaused>(out _))
             return;
-
-        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         float currentTime = (float)Time.ElapsedTime;
 
@@ -34,7 +28,7 @@ public class PlatformCollision : SystemBase
             .WithAll<Platform, BoardPosition>()
             .WithReadOnly(bulletTargets)
             .WithReadOnly(bulletTime)
-            .ForEach((int entityInQueryIndex, Entity entity, in BoardPosition boardPosition) => {
+            .ForEach((int entityInQueryIndex, Entity entity, ref WasHit hit, in BoardPosition boardPosition) => {
 
                 int count = 0;
 
@@ -50,11 +44,9 @@ public class PlatformCollision : SystemBase
                 }
 
                 if (count > 0)
-                    ecb.AddComponent<WasHit>(entityInQueryIndex, entity, new WasHit { Count = count });
+                    hit.Count = count;
 
             })
-            .ScheduleParallel();
-
-        ecbs.AddJobHandleForProducer(Dependency);
+            .Run();
     }
 }

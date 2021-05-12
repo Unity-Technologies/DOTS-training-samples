@@ -1,9 +1,9 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class GameOverSystem : SystemBase
 {
-    private EntityCommandBufferSystem ecbs_player;
     private EntityCommandBufferSystem ecbs_level;
     private EntityCommandBufferSystem ecbs_board;
 
@@ -12,21 +12,26 @@ public class GameOverSystem : SystemBase
         var query = GetEntityQuery(typeof(Player), typeof(WasHit));
         RequireForUpdate(query);
 
-        ecbs_player = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         ecbs_level = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         ecbs_board = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        Entity player = GetSingletonEntity<Player>();
+        /*Entity player = GetSingletonEntity<Player>();
+        WasHit hit = GetComponent<WasHit>(player);
 
-        if (!HasComponent<WasHit>(player))
+        if (hit.Count <= 0)
             return;
-        /*
-        var ecbp = ecbs_level.CreateCommandBuffer();
 
-        ecbp.RemoveComponent<WasHit>(player);
+        Entities
+            .WithAll<Player>()
+            .ForEach((ref WasHit hit) =>
+            {
+                hit.Count = 0;
+            }).Run();
+        
+        var ecbp = ecbs_level.CreateCommandBuffer();
 
         EntityCommandBuffer.ParallelWriter ecbl = ecbs_level.CreateCommandBuffer().AsParallelWriter();
         EntityCommandBuffer.ParallelWriter ecbb = ecbs_board.CreateCommandBuffer().AsParallelWriter();
