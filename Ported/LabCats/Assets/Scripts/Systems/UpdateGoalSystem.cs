@@ -21,7 +21,7 @@ public class UpdateGoalSystem : SystemBase
     {
         var ecb = CommandBufferSystem.CreateCommandBuffer();
 
-        Entities.ForEach((Entity e, HittingGoal goalInfo) =>
+        Entities.ForEach((Entity e, in HittingGoal goalInfo) =>
         {
         }).ScheduleParallel();
     }
