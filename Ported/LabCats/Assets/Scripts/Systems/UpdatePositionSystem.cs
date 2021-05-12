@@ -35,7 +35,7 @@ public class UpdatePositionSystem : SystemBase
             var deltaRatio = deltaDisplacement / boardDefinition.CellSize;
             var newOffset = offset.Value + deltaRatio;
 
-            if (offset.Value <= 0.5f && newOffset >= 0.5f)
+            if (offset.Value <= 0.5f && newOffset >= 0.5f || newOffset >= 1.5f)
             {
                 var cellType = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Type;
                 var wallBoundaries = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Walls;
@@ -130,10 +130,8 @@ public class UpdatePositionSystem : SystemBase
                     }
                         break;
                 }
-
-                offset.Value = newOffset;
             }
-            else if (newOffset >= 1.0f)
+            if (newOffset >= 1.0f)
             {
                 switch (dir.Value)
                 {
@@ -159,12 +157,10 @@ public class UpdatePositionSystem : SystemBase
                         break;
                 }
 
-                offset.Value -= 1.0f;
+                newOffset -= 1.0f;
             }
-            else
-            {
-                offset.Value = newOffset;
-            }
+            offset.Value = newOffset;
+
         }).ScheduleParallel(Dependency);
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

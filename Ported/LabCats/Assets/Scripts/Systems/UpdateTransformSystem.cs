@@ -46,8 +46,8 @@ public class UpdateTransformSystem : SystemBase
 
                 // Fill this in with conversion math as w   ell as adding offset
                 var xOffset = gridPosition.X * cellSize + offsetDirX * (cellOffset.Value - .5f) * cellSize;
-                var yOffset = gridPosition.Y * cellSize + offsetDirY * (cellOffset.Value - .5f) * cellSize;
-                translation.Value = firstCellPosition.Value + new float3(xOffset, 0.5f, yOffset);
+                var yOffset = gridPosition.Y * cellSize - offsetDirY * (cellOffset.Value - .5f) * cellSize;
+                translation.Value = firstCellPosition.Value + new float3(yOffset, 0.5f, xOffset);
             }).ScheduleParallel();
         
         Entities
