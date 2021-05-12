@@ -130,6 +130,8 @@ public class UpdatePositionSystem : SystemBase
                     }
                         break;
                 }
+
+                offset.Value = newOffset;
             }
             else if (newOffset >= 1.0f)
             {
@@ -158,6 +160,10 @@ public class UpdatePositionSystem : SystemBase
                 }
 
                 offset.Value -= 1.0f;
+            }
+            else
+            {
+                offset.Value = newOffset;
             }
         }).ScheduleParallel(Dependency);
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
