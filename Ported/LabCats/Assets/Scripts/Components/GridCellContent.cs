@@ -11,10 +11,20 @@ public struct GridCellContent : IBufferElementData
     {
         return position.X + position.Y * numberColumns;
     }
-    
+
     public static int Get1DIndexFromGridPosition(int x, int y, int numberColumns)
     {
         return x + y * numberColumns;
+    }
+
+    public static int GetRowIndexFrom1DIndex(int index, int numberColumns)
+    {
+        return index / numberColumns;
+    }
+
+    public static int GetColumnIndexFrom1DIndex(int index, int numberColumns)
+    {
+        return index % numberColumns;
     }
 }
 
