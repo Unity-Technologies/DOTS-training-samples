@@ -20,6 +20,7 @@ public struct Line
 
     public static NativeArray<float> allStopPointSubarrays;
     public static NativeArray<int> stopPointSubarrayIndices;
+    public static NativeArray<int> numStopPointsInLine;
 
     public static NativeArray<float> allDistances;
 
@@ -184,12 +185,15 @@ public class RailGeneration : MonoBehaviour
         NativeArray<int> stopPointIndices = new NativeArray<int>(numLines, Allocator.Persistent);
         NativeArray<int> bezierPathIndices = new NativeArray<int>(numLines, Allocator.Persistent);
         NativeArray<float> distances = new NativeArray<float>(numLines, Allocator.Persistent);
+        Line.numStopPointsInLine = new NativeArray<int>(numLines, Allocator.Persistent);
 
         for (int i = 0; i < numLines; i++)
         {
             stopPointIndices[i] = numStopPoints;
             Line metroLine = metroLines[i];
-            numStopPoints += metroLine.PlatformStopPoint.Length;
+            int stopPointCount = metroLine.PlatformStopPoint.Length;
+            numStopPoints += stopPointCount;
+            Line.numStopPointsInLine[i] = stopPointCount;
             distances[i] = metroLine.bezierPath.distance;
         }
 
@@ -250,5 +254,6 @@ public class RailGeneration : MonoBehaviour
         Line.allStopPointSubarrays.Dispose();
         Line.stopPointSubarrayIndices.Dispose();
         Line.allDistances.Dispose();
+        Line.numStopPointsInLine.Dispose();
     }
 }

@@ -30,10 +30,12 @@ public class TrainStateMachineSystem : SystemBase
 
         var stopDistances = Line.allStopPointSubarrays;
         var stopPointSubarrayIndices = Line.stopPointSubarrayIndices;
+        var numStopPointsInLine = Line.numStopPointsInLine;
 
         Entities
             .WithReadOnly(stopDistances)
             .WithReadOnly(stopPointSubarrayIndices)
+            .WithReadOnly(numStopPointsInLine)
             .ForEach((
             ref DynamicBuffer <DoorEntities> doorEntBuffer,
             ref TrainState trainState,
@@ -87,19 +89,7 @@ public class TrainStateMachineSystem : SystemBase
                             // TODO: make an array of the number of stops per line and use that here
 
                             int startIndex = stopPointSubarrayIndices[trackIndex.value];
-                            int onePastEndIndex;
-
-                            if (trackIndex.value == stopPointSubarrayIndices.Length - 1)
-                            {
-                                onePastEndIndex = stopDistances.Length;
-                            }
-                            else
-                            {
-                                onePastEndIndex = stopPointSubarrayIndices[trackIndex.value + 1];
-                            }
-
-                            int numStops = onePastEndIndex - startIndex;
-
+                            int numStops = numStopPointsInLine[trackIndex.value];
                             var stopDistancesForLine = stopDistances.GetSubArray(startIndex, numStops);
 
                             // Set a new target distance
