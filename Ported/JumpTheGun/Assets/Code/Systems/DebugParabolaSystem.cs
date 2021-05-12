@@ -18,12 +18,12 @@ public class DebugParabolaSystem : SystemBase
              return;
 
         float currentTime = (float)Time.ElapsedTime;
-        var targetPoint = GetComponent<TargetPosition>(playerEntity);
+        var targetPoint = GetComponent<Translation>(playerEntity);
         var timeOffset =  debugInfo.Duration / System.Math.Max((float)debugInfo.SampleCount, 1.0);
 
         Entities.
             WithAll<DebugParabolaSampleTag>()
-            .ForEach((ref Translation translation, ref Arc arc, ref TargetPosition destination, ref Time t, in DebugParabolaSampleTag debugSample) =>
+            .ForEach((ref Translation translation, ref Arc arc, ref BallTrajectory destination, ref Time t, in DebugParabolaSampleTag debugSample) =>
             {
                 translation.Value = new float3(0.0f, 0.0f, 0.0f);
                 if (currentTime < t.EndTime)
@@ -38,7 +38,8 @@ public class DebugParabolaSystem : SystemBase
                 arc.Value.y = b;
                 arc.Value.z = c;
 
-                destination.Value = targetPoint.Value;
+                destination.Source = translation.Value;
+                destination.Destination = targetPoint.Value;
             }).Run();
     }
 }
