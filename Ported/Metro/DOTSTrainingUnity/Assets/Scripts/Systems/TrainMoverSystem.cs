@@ -14,6 +14,7 @@ public class TrainMoverSystem : SystemBase
         float minSpeed = 1f;
         float acceleration = 1.2f;
         Entities.ForEach((
+            ref TrainState trainState,
             ref TrainCurrDistance currDist, ref TrainCurrSpeed currSpeed,
             in TrainTargetDistance targetDist, in TrainTotalDistance totalDist,
             in TrainMaxSpeed maxSpeed) => 
@@ -55,6 +56,10 @@ public class TrainMoverSystem : SystemBase
             else
             {
                 currDist.value = targetDist.value;
+                if (trainState.value == CurrTrainState.Moving)
+                {
+                    trainState.value = CurrTrainState.Waiting;
+                }
             }
         }).Schedule();
     }
