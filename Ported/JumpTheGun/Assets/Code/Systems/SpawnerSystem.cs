@@ -3,54 +3,56 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class SpawnerSystem : SystemBase
 {
-    private Random m_Random;
-   
+    private EntityCommandBufferSystem m_ECBSystem;
+ 
     protected override void OnCreate()
     {
-        m_Random = new Random(0x1234567);
+        m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
     
     private void SpawnBoard()
     {
-  
+        var ecb = m_ECBSystem.CreateCommandBuffer();
+        var randomGenerator = new Random(0x1234567);
+ 
         Entities
-            .WithStructuralChanges()
             .WithAll<BoardSpawnerTag>()
-            .ForEach((Entity boardEntity, in BoardSpawnerData board) =>
+            .ForEach((
+                Entity boardEntity,
+                in BoardSpawnerData board) =>
         {
-            EntityManager.AddComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
-            EntityManager.AddComponent<OffsetList>(boardEntity);
+            ecb.SetComponent(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
 
             var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);;
 
-            EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
-            EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
-            EntityManager.AddComponentData(boardEntity, new HitStrength {Value = board.HitStrength});
+            ecb.SetComponent(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
+            ecb.SetComponent(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
+            ecb.SetComponent(boardEntity, new HitStrength {Value = board.HitStrength});
 
-            EntityManager.AddComponentData(boardEntity, new ReloadTime {Value = board.ReloadTime});
-            EntityManager.AddComponentData(boardEntity, new Radius {Value = board.Radius});
-            EntityManager.AddComponentData(boardEntity, new BulletArcHeightFactor { Value = board.BulletArcHeightFactor });
+            ecb.SetComponent(boardEntity, new ReloadTime {Value = board.ReloadTime});
+            ecb.SetComponent(boardEntity, new Radius {Value = board.Radius});
+            ecb.SetComponent(boardEntity, new BulletArcHeightFactor { Value = board.BulletArcHeightFactor });
             
             var totalSize = board.SizeX * board.SizeY;
             
-            var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, Allocator.Temp);
-            var platforms = PlatformGenerator.CreatePlatforms(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, Allocator.Temp);
+            var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, Allocator.Temp);
+            var platforms = PlatformGenerator.CreatePlatforms(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, Allocator.Temp);
             var boardPosition = new int2(0, 0);
             
             // TODO find a better way to do that.
-            var buffer = EntityManager.AddBuffer<OffsetList>(boardEntity);
-            //buffer.AddRange(offsets.Reinterpret<OffsetList>());
-            buffer.ResizeUninitialized(totalSize);
-            for (int i = 0; i < totalSize; ++i)
-                buffer[i] = new OffsetList {Value = offsets[i]};
+
+            var buffer = ecb.AddBuffer<OffsetList>(boardEntity);
+            buffer.AddRange(offsets.Reinterpret<OffsetList>());
+            //buffer.ResizeUninitialized(totalSize);
+            //for (int i = 0; i < totalSize; ++i)
+            //    buffer[i] = new OffsetList {Value = offsets[i]};
             
-            var tankMap = EntityManager.AddBuffer<TankMap>(boardEntity);
+            var tankMap = ecb.AddBuffer<TankMap>(boardEntity);
             //tankMap.AddRange(platforms.Reinterpret<TankMap>());
             tankMap.ResizeUninitialized(totalSize);
             for (int i = 0; i < totalSize; ++i)
@@ -60,7 +62,7 @@ public class SpawnerSystem : SystemBase
             {
                 for (int x = 0; x < board.SizeX; ++x)
                 {
-                    var instance = EntityManager.Instantiate(board.PlaformPrefab);
+                    var instance = ecb.Instantiate(board.PlaformPrefab);
 
                     var localToWorld = math.mul(
                         math.mul(
@@ -68,10 +70,10 @@ public class SpawnerSystem : SystemBase
                             float4x4.Scale(1f, offsets[y * board.SizeX + x], 1f)),
                         float4x4.Translate(new float3(0f, 0.5f, 0f)));
 
-                    EntityManager.RemoveComponent<Translation>(instance);
-                    EntityManager.RemoveComponent<Rotation>(instance);
+                    ecb.RemoveComponent<Translation>(instance);
+                    ecb.RemoveComponent<Rotation>(instance);
                     
-                    EntityManager.SetComponentData(instance, new LocalToWorld {Value = localToWorld});
+                    ecb.SetComponent(instance, new LocalToWorld {Value = localToWorld});
                     
                     boardPosition.x = x;
                     boardPosition.y = y;
@@ -79,75 +81,27 @@ public class SpawnerSystem : SystemBase
                     //float4 color = new float4((float)boardPosition.x / board.SizeX, (float)boardPosition.y / board.SizeY, 0f, 1f); 
                     float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
                     
-                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
-                    EntityManager.SetComponentData(instance, new BoardPosition { Value = boardPosition });
+                    ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = color });
+                    ecb.SetComponent(instance, new BoardPosition { Value = boardPosition });
                 }
             }
 
-            var random = new System.Random();
-            
             for (int i = 0; i < platforms.Length; ++i)
             {
                 if (platforms[i] == PlatformGenerator.PlatformType.Tank)
                 {
                     int2 coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
-                    Entity tank = EntityManager.Instantiate(board.TankPrefab);
-                    EntityManager.SetComponentData(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
-                    EntityManager.SetComponentData(tank, new TimeOffset {Value = math.fmod(m_Random.NextFloat(), 1f) * 5f});
+                    Entity tank = ecb.Instantiate(board.TankPrefab);
+                    ecb.SetComponent(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+                    ecb.SetComponent(tank, new TimeOffset {Value = math.fmod(randomGenerator.NextFloat(), 1f) * 5f});
                     
-                    Entity turret = EntityManager.Instantiate(board.TurretPrefab);
-                    EntityManager.SetComponentData(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+                    Entity turret = ecb.Instantiate(board.TurretPrefab);
+                    ecb.SetComponent(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
                 }
             }
 
-            EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
+            ecb.RemoveComponent<BoardSpawnerTag>(boardEntity);
         }).Run();
-
-    }
-
-
-    private void SpawnPlayer()
-    {
-        Entity boardEntity;
-        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
-            return;
-
-        var random = new System.Random();
-
-        float3 targetPosition = new float3(0.0f, 0.0f, 0.0f);
-
-        var boardSize = GetComponent<BoardSize>(boardEntity);
-        var offsets = GetBuffer<OffsetList>(boardEntity);
-
-        //TODO Randomize at the beginning.
-        int startX = random.Next(0, boardSize.Value.x);
-        int startY = random.Next(0, boardSize.Value.y);
-
-        Entities
-            .WithStructuralChanges()
-            .WithReadOnly(offsets)
-            .WithAll<PlayerSpawnerTag>()
-            .ForEach((Entity player, ref NonUniformScale scale, in Radius radius) =>
-            {
-                int2 boardPos = new int2(startX, startY);
-                float3 size = new float3(radius.Value * 2F, radius.Value * 2F, radius.Value * 2F);
-
-                Camera mainCamera = Camera.main;
-
-
-                float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
-
-                float3 cameraPosition = new float3(targetPos.x, mainCamera.transform.position.y, targetPos.z);
-
-                EntityManager.SetComponentData(player, new Translation { Value = targetPos });
-                EntityManager.SetComponentData(player, new BoardPosition { Value = boardPos });
-                EntityManager.SetComponentData(player, new NonUniformScale { Value = size });
-
-                EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
-
-                mainCamera.transform.position = cameraPosition;
-            }).Run();
-
     }
 
     private void SpawnDebugEntities()
@@ -171,7 +125,6 @@ public class SpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         SpawnBoard();
-        SpawnPlayer();
         SpawnDebugEntities();
     }
 }

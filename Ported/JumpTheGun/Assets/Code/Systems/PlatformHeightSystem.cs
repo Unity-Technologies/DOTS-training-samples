@@ -10,10 +10,8 @@ public class PlatformHeightSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        var query = GetEntityQuery(typeof(MinMaxHeight));
+        var query = GetEntityQuery(typeof(OffsetList));
         RequireForUpdate(query);
-
-        GetEntityQuery(typeof(OffsetList));
     }
     
     protected override void OnUpdate()

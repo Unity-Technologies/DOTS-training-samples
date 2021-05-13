@@ -10,7 +10,8 @@ public class InputSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        GetEntityQuery(typeof(OffsetList));
+        var query = GetEntityQuery(typeof(OffsetList));
+        RequireForUpdate(query);
     }
     
     protected override void OnUpdate()

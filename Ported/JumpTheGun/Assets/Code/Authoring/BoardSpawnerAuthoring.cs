@@ -74,5 +74,14 @@ public class BoardSpawnerAuthoring : MonoBehaviour
         dstManager.AddComponent<Board>(entity);
         dstManager.AddComponent<BoardSpawnerTag>(entity);
         dstManager.AddComponentData(entity, new BulletSpeed { Value = BulletSpeed });
+
+        dstManager.AddComponent<BoardSize>(entity);
+        dstManager.AddComponent<MinMaxHeight>(entity);
+        dstManager.AddComponent<ReloadTime>(entity);
+        dstManager.AddComponent<Radius>(entity);
+        dstManager.AddComponent<NumberOfTanks>(entity);
+        dstManager.AddComponent<HitStrength>(entity);
+        dstManager.AddComponent<BulletArcHeightFactor>(entity);
+        dstManager.AddComponent<BulletSpeed>(entity);
     }
 }
