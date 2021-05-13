@@ -6,7 +6,7 @@ using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class SpawnerSystem : SystemBase
+public class BoardSpawnerSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
  

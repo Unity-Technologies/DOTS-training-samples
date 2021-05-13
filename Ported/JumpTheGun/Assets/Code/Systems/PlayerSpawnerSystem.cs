@@ -4,7 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-[UpdateAfter(typeof(SpawnerSystem))]
+[UpdateAfter(typeof(BoardSpawnerSystem))]
 public class PlayerSpawnerSystem : SystemBase
 {
     protected override void OnCreate()
