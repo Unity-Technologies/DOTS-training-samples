@@ -66,7 +66,7 @@ public class CarMovementSystem : SystemBase
             translation.Value = position;
             rotation.Value = lookRotation;
         
-        }).Run();
+        }).Schedule();
     }
 
     public static float3 Get_Position(float sampleDistance, NativeArray<BezierPoint> points)
