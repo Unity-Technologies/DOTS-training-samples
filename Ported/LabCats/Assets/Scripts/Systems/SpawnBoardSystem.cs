@@ -226,8 +226,8 @@ public class SpawnBoardSystem : SystemBase
                     {
                         ecb.AddComponent(spawnedEntity, new AITargetCell()
                         {
-                            X = random.NextInt(0, boardDefinition.NumberRows),
-                            Y = random.NextInt(0, boardDefinition.NumberColumns),
+                            X = random.NextInt(0, boardDefinition.NumberColumns),
+                            Y = random.NextInt(0, boardDefinition.NumberRows),
                         });
                     }
 

@@ -36,6 +36,16 @@ public class AIPlayerControllerSystem : SystemBase
             .WithReadOnly(gridCellContents)
             .ForEach((Entity e, int entityInQueryIndex, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, ref RandomContainer random) =>
         {
+            // if target is already occupied, pick a new target
+            var currentTargetCellType = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(aiTargetCell.X, aiTargetCell.Y, boardDefinition.NumberColumns)].Type;
+            if (currentTargetCellType != GridCellType.None)
+            {
+                var newTargetX = random.Value.NextInt(0, numberOfColumns);
+                var newTargetY = random.Value.NextInt(0, numberOfRows);
+
+                aiTargetCell = new AITargetCell(){X = newTargetX, Y = newTargetY};
+            }
+
             var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.Y, 1.0f, boardDefinition.CellSize * aiTargetCell.X);
             float3 targetCellPosition = firstCellPosition.Value + cellOffSet;
 
@@ -52,7 +62,10 @@ public class AIPlayerControllerSystem : SystemBase
             {
                 // the cursor has reached its target point, we need to change the cell to have an arrow and setup a new targetCell
                 Entity selectedArrow = arrows[nextArrowIndex.Value].Value;
-
+                //don't forget to cycle to the next arrow target to have 3 at the same time
+                ++nextArrowIndex.Value;
+                if (nextArrowIndex.Value == 3)
+                    nextArrowIndex.Value = 0;
                 // Move with arrow
                 {
                     var newBuffer = ecb.SetBuffer<GridCellContent>(entityInQueryIndex, boardEntity);
@@ -64,7 +77,7 @@ public class AIPlayerControllerSystem : SystemBase
                         var oldGridContentIndex = GridCellContent.Get1DIndexFromGridPosition(oldArrowPosition.X, oldArrowPosition.Y, numberOfColumns);
                         var oldGridContentValue = gridCellContents[oldGridContentIndex];
                         oldGridContentValue.Type = GridCellType.None;
-                        // newBuffer[oldGridContentIndex] = oldGridContentValue;
+                        newBuffer[oldGridContentIndex] = oldGridContentValue;
                     }
 
                     var gridContent = gridCellContents[index];
@@ -102,16 +115,14 @@ public class AIPlayerControllerSystem : SystemBase
                 }
                 //Compute new target
 
-                var newTargetX = random.Value.NextInt(0, numberOfRows);
-                var newTargetY = random.Value.NextInt(0, numberOfColumns);
+                var newTargetX = random.Value.NextInt(0, numberOfColumns);
+                var newTargetY = random.Value.NextInt(0, numberOfRows);
 
                 aiTargetCell = new AITargetCell(){X = newTargetX, Y = newTargetY};
             }
             var progress = movementDirection * math.min(cursorSpeed * timeData.DeltaTime, distanceToTarget);
 
             translation.Value = translation.Value + progress;
-
-
         }).ScheduleParallel(Dependency);
 
         m_EcbSystem.AddJobHandleForProducer(Dependency);
