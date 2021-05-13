@@ -27,7 +27,14 @@ public static class TraceUtils
         float2 hitDisplacementVec2s = new float2(hitDisplacementVec.x, hitDisplacementVec.z);
         float hitLen = math.length(hitDisplacementVec2s);
 
-        float hitT = math.clamp(hitLen / totalLen, 0.1f, 0.99f);
+        float hitT = hitLen / totalLen;
+        if (hitT < 0.1f || hitT > 0.9f)
+        {
+            hitT = 0.5f;
+            hitPosition.y = math.max(destinationWorldPosition.y, sourceWorldPosition.y);
+        }
+
+        hitPosition.y *= 1.5f;
 
         float a, b, c;
         ParabolaUtil.CreateParabolaOverPoint(sourceWorldPosition.y, hitT, hitPosition.y, destinationWorldPosition.y, out a, out b, out c);
