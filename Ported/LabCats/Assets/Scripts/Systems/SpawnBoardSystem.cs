@@ -81,8 +81,10 @@ public class SpawnBoardSystem : SystemBase
                 playerReferenceBuffer.Capacity = 4;
                 for (int i = 0; i < 4; ++i)
                 {
-                    var spawnedEntity = ecb.Instantiate(boardPrefab.CursorPrefab);
+                    // var spawnedEntity = ecb.Instantiate(boardPrefab.CursorPrefab);
+                    var spawnedEntity = ecb.CreateEntity();
                     ecb.SetName(spawnedEntity, "Player " + i);
+                    ecb.AddComponent<Translation>(spawnedEntity);
                     ecb.AddComponent(spawnedEntity, new PlayerIndex() { Value = i });
                     ecb.AddComponent<Score>(spawnedEntity);
                     ecb.AddBuffer<ArrowReference>(spawnedEntity);

@@ -128,6 +128,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5066169276682575464, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
   m_PrefabInstance: {fileID: 5608588421237559376}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &457384925 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1204757564233567423, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -254,6 +259,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &900465554 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 375359107919655212, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -409,6 +419,10 @@ MonoBehaviour:
   Player4ScoreText: {fileID: 755793216}
   GameOverPanel: {fileID: 295575731}
   GameOverText: {fileID: 807585185}
+  Player1Cursor: {fileID: 900465554}
+  Player2Cursor: {fileID: 1657265610}
+  Player3Cursor: {fileID: 1103260882}
+  Player4Cursor: {fileID: 457384925}
 --- !u!4 &1007041096
 Transform:
   m_ObjectHideFlags: 0
@@ -436,6 +450,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ConversionMode: 0
+--- !u!1 &1103260882 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7600561644520770351, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1242860726 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5462892629589504373, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
@@ -458,6 +477,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1657265610 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 217417889796263916, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1719860721 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 372883740649177171, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}

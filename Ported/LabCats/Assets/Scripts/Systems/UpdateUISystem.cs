@@ -62,5 +62,7 @@ public class UpdateUISystem : SystemBase
         gameObjectRefs.Player2ScoreText.text = $"{scorePlayer2}";
         gameObjectRefs.Player3ScoreText.text = $"{scorePlayer3}";
         gameObjectRefs.Player4ScoreText.text = $"{scorePlayer4}";
+        
+
     }
 }
