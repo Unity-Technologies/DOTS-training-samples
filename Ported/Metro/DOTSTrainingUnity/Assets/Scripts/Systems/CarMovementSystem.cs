@@ -58,7 +58,7 @@ public class CarMovementSystem : SystemBase
             NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
             
             float3 position = Get_Position(carDistance, points);
-            float3 aheadPosition = Get_Position((carDistance + 0.0001f) % distance, points);
+            float3 aheadPosition = Get_Position((carDistance + 0.01f) % distance, points);
             
             float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
             
