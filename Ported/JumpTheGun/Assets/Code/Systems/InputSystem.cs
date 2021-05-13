@@ -23,6 +23,7 @@ public class InputSystem : SystemBase
         var radiusProperty = GetComponent<Radius>(boardEntity);
 
         var player = GetSingletonEntity<Player>();
+        var playerData = GetComponent<Player>(player);
         float currentTime = (float)Time.ElapsedTime;
         
         //check if we are at the end of a cycle. If not we just exit
@@ -57,7 +58,7 @@ public class InputSystem : SystemBase
         SetComponent(player, new BallTrajectory { Source = sourcePosition, Destination = dstPosition });
         SetComponent(player, new BoardTarget { Value = boardTarget });
         SetComponent(player, new BoardPosition { Value = boardTarget });
-        SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + 1.0f });
+        SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + playerData.BounceTime + playerData.CooldownTime });
         SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, offsets, boardSize));
     }
 }
