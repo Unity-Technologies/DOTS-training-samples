@@ -315,7 +315,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 100
+  far clip plane: 120
   field of view: 60
   orthographic: 1
   orthographic size: 8.45
@@ -423,6 +423,7 @@ MonoBehaviour:
   Player2Cursor: {fileID: 1657265610}
   Player3Cursor: {fileID: 1103260882}
   Player4Cursor: {fileID: 457384925}
+  BoardQuad: {fileID: 1414188393}
 --- !u!4 &1007041096
 Transform:
   m_ObjectHideFlags: 0
@@ -521,8 +522,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8673454126471734702, guid: d29d540982e2ca04287d572ca06546ec, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d29d540982e2ca04287d572ca06546ec, type: 3}
+--- !u!1 &1414188393 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8673454126471734696, guid: d29d540982e2ca04287d572ca06546ec, type: 3}
+  m_PrefabInstance: {fileID: 1414188392}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1543616362 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8160052888438069382, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
