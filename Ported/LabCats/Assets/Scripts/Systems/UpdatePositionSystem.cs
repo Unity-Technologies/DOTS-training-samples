@@ -28,7 +28,7 @@ public class UpdatePositionSystem : SystemBase
 
         var numberColumns = boardDefinition.NumberColumns;
         var gridCellContents = GetBufferFromEntity<GridCellContent>(true)[boardEntity];
-        Dependency = Entities.WithNativeDisableContainerSafetyRestriction(gridCellContents).WithNone<FallingTime>().ForEach((Entity e, int entityInQueryIndex, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
+        Dependency = Entities.WithReadOnly(gridCellContents).WithNone<FallingTime>().ForEach((Entity e, int entityInQueryIndex, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
         {
 
             var deltaDisplacement = speed.Value * deltaTime;
