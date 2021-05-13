@@ -18,9 +18,6 @@ public class PlatformHeightSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
         var boardEntity = GetSingletonEntity<Board>();
         
         float2 minMaxHeight = GetComponent<MinMaxHeight>(boardEntity).Value;

@@ -8,9 +8,6 @@ public class BallMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
         float currentTime = (float)Time.ElapsedTime;
 
         Entities

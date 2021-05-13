@@ -32,7 +32,7 @@ public class PauseButton : MonoBehaviour
             if (isPaused)
                 entityManager.RemoveComponent<IsPaused>(entity);
             else
-                entityManager.AddComponent<IsPaused>(entity);
+                entityManager.AddComponentData(entity, new IsPaused { Time = World.DefaultGameObjectInjectionWorld.Time.ElapsedTime });
 
             text.text = isPaused ? "Pause" : "Paused";
         }

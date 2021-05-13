@@ -9,9 +9,6 @@ public class TurretAimSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entity player = GetSingletonEntity<Player>();

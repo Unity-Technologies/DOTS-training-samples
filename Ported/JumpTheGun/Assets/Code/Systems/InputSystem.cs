@@ -15,11 +15,7 @@ public class InputSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
-        Entity boardEntity;
-        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+        if (!TryGetSingletonEntity<BoardSize>(out Entity boardEntity))
             return;
 
         Dependency.Complete();

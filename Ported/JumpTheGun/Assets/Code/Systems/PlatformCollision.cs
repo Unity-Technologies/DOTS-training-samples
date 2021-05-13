@@ -14,9 +14,6 @@ public class PlatformCollision : SystemBase
 
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
         float currentTime = (float)Time.ElapsedTime;
 
         var hitCount = new NativeList<int2>(GetEntityQuery(typeof(Bullet)).CalculateEntityCount(), Allocator.TempJob);
