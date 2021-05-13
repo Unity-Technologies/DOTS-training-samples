@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 using UnityGameObject = UnityEngine.GameObject;
+using Unity.Mathematics;
 
 public class PlayerAuthoring : MonoBehaviour
     , IConvertGameObjectToEntity
@@ -17,5 +18,18 @@ public class PlayerAuthoring : MonoBehaviour
         dstManager.AddComponent<PlayerSpawnerTag>(entity);
         dstManager.AddComponent<WasHit>(entity);
         dstManager.AddComponentData(entity, new Player(){});
+
+        dstManager.AddComponentData(entity, new BallTrajectory()
+        {
+            Source = float3.zero,
+            Destination = float3.zero
+        }
+        );
+
+        dstManager.AddComponentData(entity, new BoardPosition());
+        dstManager.AddComponentData(entity, new BoardTarget());
+        dstManager.AddComponentData(entity, new Arc() { Value = new float3(0.0f, 0.0f, 0.0f) });
+        dstManager.AddComponentData(entity, new Time() { StartTime = 0.0f, EndTime = 0.0f });
+        dstManager.AddComponentData(entity, new TimeOffset() { Value = 0.0f });
     }
 }

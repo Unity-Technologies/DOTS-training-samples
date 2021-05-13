@@ -139,9 +139,10 @@ public class SpawnerSystem : SystemBase
 
                  float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
 
-                 SetComponent(player, new Translation { Value = targetPos });
+                 EntityManager.SetComponentData(player, new Translation { Value = targetPos });
+                 EntityManager.SetComponentData(player, new BoardPosition { Value = boardPos });
 
-            EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
+                 EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
             }).Run();
     }
 

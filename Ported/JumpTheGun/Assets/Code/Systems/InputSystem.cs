@@ -27,8 +27,14 @@ public class InputSystem : SystemBase
         mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
         mouseWorldPos.y = halfHeight;
 
-        //Update the player destination position
-        /*var player = GetSingletonEntity<Player>();
-        SetComponent(player, new Translation { Value = mouseWorldPos });*/
+        var player = GetSingletonEntity<Player>();
+
+        var boardPos = GetComponent<BoardPosition>(player);
+
+        int2 boardTarget = new int2(boardPos.Value.x+(int)ray.direction.x, boardPos.Value.y+(int)ray.direction.z);
+
+        
+        SetComponent(player, new Direction { Value = ray.direction });
+        SetComponent(player, new BoardTarget { Value = boardTarget });
     }
 }

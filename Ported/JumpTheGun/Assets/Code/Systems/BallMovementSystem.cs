@@ -1,48 +1,34 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Rendering;
+using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(SpawnerSystem))]
 public class BallMovementSystem : SystemBase
 {
-
-
-    public static int CreateRandomStartPoint(int range)
-    {
-
-        var random = new System.Random();
-
-        int value = random.Next(0, range);
-
-
-        return value;
-    }
-
-
     protected override void OnUpdate()
     {
+        Debug.Log("BallMovement");
 
-        /*var player = GetSingletonEntity<Player>();
-        var startX = CreateRandomStartPoint(8);
-        var starty = CreateRandomStartPoint(8);
+        if (TryGetSingleton<IsPaused>(out _))
+            return;
 
-        float3 targetPos = new float3(0.0f, 0.0f, 0.0f);
+        float currentTime = (float)Time.ElapsedTime;
 
+        Debug.Log("BallMovement - 1");
 
         Entities
-        .WithAll<Platform>()
-        .ForEach((ref BoardPosition boardPosition, ref TargetPosition translation) =>
-        {
-           
-            if (boardPosition.Value.x == startX && boardPosition.Value.y == starty)
+            .WithAll<Player, Arc, Time>()
+            .WithAll<Translation, BallTrajectory, TimeOffset>().ForEach(
+            (ref Translation translation, in Time t, in BallTrajectory trajectory, in Arc arc, in TimeOffset timeOffset) =>
             {
-                targetPos += translation.Value;
-            }
-        }).Run();
+                var timeInParabola = math.clamp((currentTime - t.StartTime - timeOffset.Value) / (t.EndTime - t.StartTime), 0.0f, 1.0f);
+                float yInParabola = ParabolaUtil.Solve(arc.Value.x, arc.Value.y, arc.Value.z, timeInParabola);
+                float3 position = math.lerp(trajectory.Source, trajectory.Destination, timeInParabola);
 
-        SetComponent(player, new Translation { Value = targetPos });*/
+                position.y = yInParabola;
+                translation.Value = position;
+            }).ScheduleParallel();
 
     }
 }
