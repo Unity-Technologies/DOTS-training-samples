@@ -32,7 +32,7 @@ public class DynamicSpawnerSystem : SystemBase
             {
                 spawnerData.Timer -= dt;
 
-                if (spawnerData.Timer < 0 && !(spawnerData.Type == SpawnerType.CatSpawner && numberOfCats >= 8)) //TODO: Number of cats
+                if (spawnerData.Timer < 0 && !(spawnerData.Type == SpawnerType.CatSpawner && numberOfCats >= 4)) //TODO: Number of cats
                 {
                     spawnerData.Timer = spawnerData.Frequency;
 

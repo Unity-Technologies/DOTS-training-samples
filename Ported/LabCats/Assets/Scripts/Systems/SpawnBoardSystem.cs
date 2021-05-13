@@ -337,6 +337,7 @@ public class SpawnBoardSystem : SystemBase
                     X = 0,
                     Y = numberRows - 1
                 });
+                ecb.SetName(spawner4, "CatSpawner 2");
 
                 // TODO: Set up goals
                 // ...
