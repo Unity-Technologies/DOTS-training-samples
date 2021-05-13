@@ -10,11 +10,19 @@ namespace JumpTheGun
 
 	public class Options : MonoBehaviour
 	{
-		static public EntityQueryDesc QueryDesc => new EntityQueryDesc()
+		static public EntityQueryDesc QueryBoard => new EntityQueryDesc()
 		{
 			All = new ComponentType[]
 			{
 				ComponentType.ReadWrite<Board>()
+			},
+		};
+
+		static public EntityQueryDesc QueryPlayer => new EntityQueryDesc()
+		{
+			All = new ComponentType[]
+			{
+				ComponentType.ReadWrite<Player>()
 			},
 		};
 
@@ -44,20 +52,28 @@ namespace JumpTheGun
 		public SliderProp tankLaunchPeriod;
 
 
-		public void UpdateBoard(float _ = 0F)
+		public void UpdateBoard()
 		{
 			UpdateSliders();
 
 			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-			var query = entityManager.CreateEntityQuery(QueryDesc);
+			var query = entityManager.CreateEntityQuery(QueryBoard);
 
-			using var entities = query.ToEntityArray(Allocator.TempJob);
-			var entity = entities.SingleOrDefault();
-			if (entity == Entity.Null)
+			using var boards = query.ToEntityArray(Allocator.TempJob);
+			var board = boards.SingleOrDefault();
+			if (board == Entity.Null)
 				return;
 
-			Debug.Log(entity);
-			entityManager.AddComponent<BoardSpawnerTag>(entity);
+			entityManager.AddComponent<BoardSpawnerTag>(board);
+
+			query = entityManager.CreateEntityQuery(QueryPlayer);
+
+			using var players = query.ToEntityArray(Allocator.TempJob);
+			var player = boards.SingleOrDefault();
+			if (player == Entity.Null)
+				return;
+
+			entityManager.AddComponent<PlayerSpawnerTag>(player);
 		}
 
 		void Start()
@@ -95,7 +111,7 @@ namespace JumpTheGun
 		void UpdateSliders()
 		{
 			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-			var query = entityManager.CreateEntityQuery(QueryDesc);
+			var query = entityManager.CreateEntityQuery(QueryBoard);
 
             using var entities = query.ToEntityArray(Allocator.TempJob);
             var entity = entities.SingleOrDefault();
