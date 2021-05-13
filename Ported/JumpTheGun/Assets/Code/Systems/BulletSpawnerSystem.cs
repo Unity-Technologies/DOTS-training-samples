@@ -3,7 +3,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityInput = UnityEngine.Input;
 
-[UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
+
+[UpdateBefore(typeof(TransformSystemGroup))]
 public class BulletSpawnerSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;

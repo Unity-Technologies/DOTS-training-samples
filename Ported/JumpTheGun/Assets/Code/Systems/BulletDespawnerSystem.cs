@@ -4,7 +4,7 @@ using Unity.Transforms;
 using UnityInput = UnityEngine.Input;
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
-[UpdateAfter(typeof(BulletSpawnerSystem))]
+[UpdateAfter(typeof(BulletMovementSystem))]
 [UpdateAfter(typeof(PlatformCollision))]
 public class BulletDespawnerSystem : SystemBase
 {
