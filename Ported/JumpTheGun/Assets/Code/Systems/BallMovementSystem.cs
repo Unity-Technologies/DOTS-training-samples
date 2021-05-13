@@ -22,7 +22,9 @@ public class BallMovementSystem : SystemBase
                 if (elapsedTime < p.CooldownTime)
                     return;
 
-                var timeInParabola = math.clamp((elapsedTime - timeOffset.Value) / (t.EndTime - t.StartTime), 0.0f, 1.0f);
+                elapsedTime -= p.CooldownTime;
+
+                var timeInParabola = math.clamp((elapsedTime - timeOffset.Value) / p.BounceTime, 0.0f, 1.0f);
                 float yInParabola = ParabolaUtil.Solve(arc.Value.x, arc.Value.y, arc.Value.z, timeInParabola);
                 float3 position = math.lerp(trajectory.Source, trajectory.Destination, timeInParabola);
                 position.y = yInParabola;
