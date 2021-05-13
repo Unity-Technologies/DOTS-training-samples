@@ -20,6 +20,10 @@ public class GameOverSystem : SystemBase
 
     protected override void OnUpdate()
     {
+
+        if (TryGetSingleton<IsInvincible>(out _))
+            return;
+
         Entity player = GetSingletonEntity<Player>();
         WasHit hit = GetComponent<WasHit>(player);
 
