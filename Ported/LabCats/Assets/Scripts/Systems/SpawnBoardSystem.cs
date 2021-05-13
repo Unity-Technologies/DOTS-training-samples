@@ -72,6 +72,8 @@ public class SpawnBoardSystem : SystemBase
                 };
                 ecb.AddComponent(entity, firstCellPosition);
 
+                ecb.AddComponent(entity, new GameTime(){AccumulatedTime = -5.0f});
+
                 // Create the player entities
                 var playerReferenceBuffer = ecb.AddBuffer<PlayerReference>(entity);
                 playerReferenceBuffer.Capacity = 4;

@@ -11,7 +11,7 @@ public class AIPlayerControllerSystem : SystemBase
     private EntityCommandBufferSystem m_EcbSystem;
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<BoardInitializedTag>();
+        RequireSingletonForUpdate<GameStartedTag>();
         m_EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 

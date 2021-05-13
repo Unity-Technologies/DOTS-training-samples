@@ -13,6 +13,7 @@ public class UpdateGoalSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<GameStartedTag>();
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }

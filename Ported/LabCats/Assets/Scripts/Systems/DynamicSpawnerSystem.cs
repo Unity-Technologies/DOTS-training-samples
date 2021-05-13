@@ -9,6 +9,7 @@ public class DynamicSpawnerSystem : SystemBase
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<GameStartedTag>();
         // Query to grab the cats (need max number of cats)
         m_CatQuery = GetEntityQuery(typeof(CatTag), typeof(GridPosition), typeof(CellOffset), typeof(Direction));
     }
