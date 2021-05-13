@@ -13,12 +13,22 @@ public class InputSystem : SystemBase
         if (TryGetSingleton<IsPaused>(out _))
             return;
 
-        //ray trace mouse position for the board, and figure out a destination position for the ball
-        MinMaxHeight minMaxHeight;
-
-        if (!TryGetSingleton<MinMaxHeight>(out minMaxHeight))
+        Entity boardEntity;
+        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
             return;
-                        
+
+        var minMaxHeight = GetComponent<MinMaxHeight>(boardEntity);
+        var offsets = GetBuffer<OffsetList>(boardEntity);
+        var boardSize = GetComponent<BoardSize>(boardEntity);
+
+        var player = GetSingletonEntity<Player>();
+        float currentTime = (float)Time.ElapsedTime;
+        
+        //check if we are at the end of a cycle. If not we just exit
+        if (currentTime < GetComponent<Time>(player).EndTime)
+            return;
+
+        //ray trace mouse position for the board, and figure out a destination position for the ball
         float halfHeight = (minMaxHeight.Value.x + minMaxHeight.Value.y) * 0.5f;            
         Ray ray = Camera.main.ScreenPointToRay(UnityInput.mousePosition);
         Vector3 mouseWorldPos = new Vector3(0, halfHeight, 0);
@@ -26,15 +36,26 @@ public class InputSystem : SystemBase
         mouseWorldPos.x = ray.origin.x + t * ray.direction.x;
         mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
         mouseWorldPos.y = halfHeight;
-
-        var player = GetSingletonEntity<Player>();
-
+        
         var boardPos = GetComponent<BoardPosition>(player);
 
-        int2 boardTarget = new int2(boardPos.Value.x+(int)ray.direction.x, boardPos.Value.y+(int)ray.direction.z);
+        int2 boardSrc = boardPos.Value;
+        int2 boardTarget = CoordUtils.WorldToBoardPosition(mouseWorldPos);
+        int2 displacement = boardTarget - boardSrc;
+        displacement.x = displacement.x > 0 ? 1 : (displacement.x < 0 ? -1 : 0);
+        displacement.y = displacement.y > 0 ? 1 : (displacement.y < 0 ? -1 : 0);
+        boardTarget = boardSrc + displacement;
 
+        //safety
+        boardSrc = CoordUtils.ClampPos(boardSrc, boardSize.Value);
+        boardTarget = CoordUtils.ClampPos(boardTarget, boardSize.Value);
+
+        float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
+        float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
         
-        SetComponent(player, new Direction { Value = ray.direction });
+        SetComponent(player, new BallTrajectory { Source = sourcePosition, Destination = dstPosition });
         SetComponent(player, new BoardTarget { Value = boardTarget });
+        SetComponent(player, new BoardPosition { Value = boardTarget });
+        SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + 1.0f });
     }
 }
