@@ -121,8 +121,8 @@ public class SpawnerSystem : SystemBase
         var offsets = GetBuffer<OffsetList>(boardEntity);
 
         //TODO Randomize at the beginning.
-        //startX = random.Next(0, boardEntity.SizeX);
-        //startY = random.Next(0, boardEntity.SizeY);
+        startX = random.Next(0, boardEntity.SizeX);
+        startY = random.Next(0, boardEntity.SizeY);
 
         Entities
             .WithStructuralChanges()
