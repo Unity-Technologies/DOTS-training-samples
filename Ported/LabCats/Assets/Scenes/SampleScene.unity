@@ -664,7 +664,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2970465761613484253, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.r
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4216902155714089870, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.b
@@ -680,6 +680,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4374285371865296206, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4374285371865296206, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5066169276682575464, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
@@ -716,7 +720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6694629239173041260, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.r
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6768340268181431159, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_RootOrder
@@ -772,7 +776,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8059858178630353024, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.r
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8160052888438069382, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.b

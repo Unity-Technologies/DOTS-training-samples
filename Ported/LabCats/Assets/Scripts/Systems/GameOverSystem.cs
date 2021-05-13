@@ -50,7 +50,7 @@ public class GameOverSystem : SystemBase
             // if player 1 has higher score than 2, 3 and 4
             if ((scorePlayer1 > scorePlayer2) && (scorePlayer1 > scorePlayer3) && (scorePlayer1 > scorePlayer4))
             {
-                gameObjectRefs.GameOverText.text = "Red Wins!";
+                gameObjectRefs.GameOverText.text = "Player Wins!";
             }
             // if player 2 has higher score than 1, 3 and 4
             else if ((scorePlayer2 > scorePlayer1) && (scorePlayer2 > scorePlayer3) && (scorePlayer2 > scorePlayer4))
@@ -64,7 +64,7 @@ public class GameOverSystem : SystemBase
             }
             else // only scenario left is player win
             {
-                gameObjectRefs.GameOverText.text = "Player Wins!";
+                gameObjectRefs.GameOverText.text = "Red Wins!";
             }
         }
         else
