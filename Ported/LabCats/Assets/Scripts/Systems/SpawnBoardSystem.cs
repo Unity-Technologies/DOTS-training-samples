@@ -81,15 +81,53 @@ public class SpawnBoardSystem : SystemBase
                 playerReferenceBuffer.Capacity = 4;
                 for (int i = 0; i < 4; ++i)
                 {
-                    Entity playerEntity = ecb.CreateEntity();
-                    ecb.AddComponent(playerEntity, new PlayerIndex() { Value = i });
-                    ecb.AddComponent<Score>(playerEntity);
-                    ecb.AddBuffer<ArrowReference>(playerEntity);
-                    ecb.AppendToBuffer(entity, new PlayerReference() { Player = playerEntity });
+                    var spawnedEntity = ecb.Instantiate(boardPrefab.CursorPrefab);
+                    ecb.SetName(spawnedEntity, "Player " + i);
+                    ecb.AddComponent(spawnedEntity, new PlayerIndex() { Value = i });
+                    ecb.AddComponent<Score>(spawnedEntity);
+                    ecb.AddBuffer<ArrowReference>(spawnedEntity);
+                    ecb.AppendToBuffer(entity, new PlayerReference() { Player = spawnedEntity });
                     if (i != 0)
-                        ecb.AddComponent<AITargetCell>(playerEntity);
-
-                    ecb.SetName(playerEntity, "Player " + i);
+                        ecb.AddComponent<AITargetCell>(spawnedEntity);
+                    
+                    ecb.SetComponent(spawnedEntity, new Translation
+                    {
+                        Value = new float3(0.0f, 1.0f, 0.0f)
+                    });
+                    ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = i});
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
+                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
+                    ecb.AddComponent<NextArrowIndex>(spawnedEntity);
+                    ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)i)});
+                    if (i != 0)
+                    {
+                        ecb.AddComponent(spawnedEntity, new AITargetCell()
+                        {
+                            X = random.NextInt(0, numberColumns),
+                            Y = random.NextInt(0, numberRows),
+                        });
+                    }
+                    
+                    //Setup arrows for each character
+                    for (int l = 0; l < 3; l++)
+                    {
+                        Entity arrowPrefab = boardPrefab.ArrowPrefab;
+                        var posX = 0;
+                        var posY = 0;
+                        var arrow = ecb.Instantiate(arrowPrefab);
+                        //
+                        ecb.SetComponent(arrow, new Translation
+                        {
+                            Value = new float3(posX*boardDefinition.CellSize, 0.501f, posY*boardDefinition.CellSize)
+                        });
+                        ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
+                        ecb.AddComponent(arrow, new PlayerIndex(){Value = i});
+                        ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
+                        ecb.AddComponent<PropagateColor>(arrow);
+                        ecb.AddComponent<ShouldSetupColor>(arrow);
+                        ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Value = arrow});
+                    }
                 }
 
                 int player1GoalIndex = GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer1, numberColumns);
@@ -199,9 +237,7 @@ public class SpawnBoardSystem : SystemBase
                     }
 
                 }
-
-
-                //Goals are spawned randomly but shouldn’t
+                
                 for (int k = 0; k < 4; k++)
                 {
                     Entity goalPrefab = boardPrefab.GoalPrefab;
@@ -242,52 +278,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
                 }
 
-                for (int k = 0; k < 4; k++)
-                {
-                    Entity cursorPrefab = boardPrefab.CursorPrefab;
-                    var spawnedEntity = ecb.Instantiate(cursorPrefab);
-
-                    ecb.SetComponent(spawnedEntity, new Translation
-                    {
-                        Value = new float3(0.0f, 1.0f, 0.0f)
-                    });
-                    ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
-                    ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
-                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
-                    ecb.AddComponent<NextArrowIndex>(spawnedEntity);
-                    ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)k)});
-                    ecb.AddBuffer<ArrowReference>(spawnedEntity);
-                    if (k != 0)
-                    {
-                        ecb.AddComponent(spawnedEntity, new AITargetCell()
-                        {
-                            X = random.NextInt(0, numberColumns),
-                            Y = random.NextInt(0, numberRows),
-                        });
-                    }
-
-                    ecb.SetBuffer<ArrowReference>(spawnedEntity);
-
-                    for (int l = 0; l < 3; l++)
-                    {
-                        Entity arrowPrefab = boardPrefab.ArrowPrefab;
-                        var posX = 0;
-                        var posY = 0;
-                        var arrow = ecb.Instantiate(arrowPrefab);
-                        //
-                        ecb.SetComponent(arrow, new Translation
-                        {
-                            Value = new float3(posX*boardDefinition.CellSize, 0.501f, posY*boardDefinition.CellSize)
-                        });
-                        ecb.AddComponent(arrow, new GridPosition(){X=posX,Y=posY});
-                        ecb.AddComponent(arrow, new PlayerIndex(){Value = k});
-                        ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
-                        ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
-                        ecb.AddComponent<PropagateColor>(arrow);
-                        ecb.AddComponent<ShouldSetupColor>(arrow);
-                        ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Value = arrow});
-                    }
-                }
+                
 
                 // TODO: Add time?
 
