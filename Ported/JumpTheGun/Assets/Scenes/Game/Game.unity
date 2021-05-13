@@ -204,13 +204,8 @@ MonoBehaviour:
   MinHeight: 2.5
   MaxHeight: 5.5
   ReloadTime: 1
-<<<<<<< HEAD
   Radius: 0.3
   NumberOfTanks: 5
-=======
-  Radius: 1
-  NumberOfTanks: 10
->>>>>>> 8888351de2f3768971052ed7af1ba08cb0b7ba6b
   HitStrength: 0.4
   PlaformPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   TankPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4, type: 3}
