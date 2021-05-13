@@ -17,7 +17,7 @@ public class UpdateRenderedCursorsFromVirtualCursors : SystemBase
         var camera = gameObjectRefs.Camera;
         GameObject cursor;
         
-        Entities.WithoutBurst().WithAll<Score>().ForEach((in PlayerIndex playerIndex, in Translation translation) =>
+        Entities.WithoutBurst().WithAll<Score, AITargetCell>().ForEach((in PlayerIndex playerIndex, in Translation translation) =>
         {
             if (playerIndex.Value == 0)
             {
@@ -36,7 +36,7 @@ public class UpdateRenderedCursorsFromVirtualCursors : SystemBase
                 cursor = gameObjectRefs.Player4Cursor;
             }
 
-            var vec = new Vector3(translation.Value.x,translation.Value.y,translation.Value.z);
+            var vec = new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
             var targetPosition = camera.WorldToScreenPoint(vec);
             // gameObjectRefs.Player1Cursor.
             var transform = cursor.GetComponent<RectTransform>();
