@@ -57,7 +57,7 @@ public class UpdateTransformSystem : SystemBase
             {
                 var xOffset = gridPosition.X * cellSize;
                 var yOffset = gridPosition.Y * cellSize;
-                translation.Value = firstCellPosition.Value + new float3(xOffset, translation.Value.y, yOffset);
+                translation.Value = firstCellPosition.Value + new float3(yOffset, translation.Value.y, xOffset);
             }).ScheduleParallel();
 
 
