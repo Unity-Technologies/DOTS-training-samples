@@ -19,6 +19,7 @@ public class InputSystem : SystemBase
 
         var minMaxHeight = GetComponent<MinMaxHeight>(boardEntity);
         var offsets = GetBuffer<OffsetList>(boardEntity);
+        var tankMap = GetBuffer<TankMap>(boardEntity);
         var boardSize = GetComponent<BoardSize>(boardEntity);
         var radiusProperty = GetComponent<Radius>(boardEntity);
 
@@ -51,6 +52,9 @@ public class InputSystem : SystemBase
         //safety
         boardSrc = CoordUtils.ClampPos(boardSrc, boardSize.Value);
         boardTarget = CoordUtils.ClampPos(boardTarget, boardSize.Value);
+
+        if (tankMap[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value)
+            boardTarget = boardSrc;
 
         float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);
         float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);

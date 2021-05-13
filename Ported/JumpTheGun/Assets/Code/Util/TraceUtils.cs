@@ -84,7 +84,6 @@ public static class TraceUtils
             currentCoord += D * s_MarchDistance;
             ++iterations;
         }
-
         
         boardMaxPointWorldPos.y = maxHeightValue;
         boardMaxPointWorldPos.x = foundCoord.x;
