@@ -30,15 +30,14 @@ public class PlayerCollisionSystem : SystemBase
             {
                 float3 pos = translation.Value;
 
-                if (   pos[0] + bulletRadius > playerPos[0] - playerRadius
-                    && pos[0] - bulletRadius < playerPos[0] + playerRadius
-                    && pos[1] + bulletRadius > playerPos[1] - playerRadius
-                    && pos[1] - bulletRadius < playerPos[1] + playerRadius
-                    && pos[2] + bulletRadius > playerPos[2] - playerRadius
-                    && pos[2] - bulletRadius < playerPos[2] + playerRadius)
-                {
+                float distX = pos[0] - playerPos[0];
+                float distY = pos[1] - playerPos[1];
+                float distZ = pos[2] - playerPos[2];
+
+                float distance = math.sqrt((distX * distX) + (distY * distY) + (distZ * distZ));
+
+                if (distance <= bulletRadius + playerRadius)
                     hitCount[entityInQueryIndex] = 1;
-                }
             })
             .Run();
 
