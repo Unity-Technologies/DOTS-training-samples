@@ -239,6 +239,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
                     ecb.AddComponent<PropagateColor>(spawnedEntity);
+                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
                 }
 
                 for (int k = 0; k < 4; k++)
@@ -252,6 +253,7 @@ public class SpawnBoardSystem : SystemBase
                     });
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
+                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
                     ecb.AddComponent<NextArrowIndex>(spawnedEntity);
                     ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)k)});
                     ecb.AddBuffer<ArrowReference>(spawnedEntity);
@@ -282,6 +284,7 @@ public class SpawnBoardSystem : SystemBase
                         ecb.AddComponent(arrow, new Direction(){Value = Dir.Right});
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
                         ecb.AddComponent<PropagateColor>(arrow);
+                        ecb.AddComponent<ShouldSetupColor>(arrow);
                         ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Value = arrow});
                     }
                 }

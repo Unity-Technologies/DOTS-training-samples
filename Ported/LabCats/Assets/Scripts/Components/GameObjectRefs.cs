@@ -17,4 +17,6 @@ public class GameObjectRefs : IComponentData
     public Text Player2ScoreText;
     public Text Player3ScoreText;
     public Text Player4ScoreText;
+    public GameObject GameOverPanel; // James 
+    public Text GameOverText; // James
 }
