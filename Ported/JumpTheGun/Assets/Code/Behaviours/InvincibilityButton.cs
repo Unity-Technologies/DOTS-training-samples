@@ -35,7 +35,7 @@ public class InvincibilityButton : MonoBehaviour
             else
                 entityManager.AddComponent<IsInvincible>(entity);
 
-            text.text = isInvincible ? "Vulnerable" : "Invincible";
+            text.text = isInvincible ? "Vulnerable" : "Invulnerable";
         }
     }
 }
