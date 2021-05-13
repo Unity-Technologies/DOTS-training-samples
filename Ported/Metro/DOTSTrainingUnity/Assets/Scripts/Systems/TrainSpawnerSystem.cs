@@ -12,6 +12,7 @@ public class TrainSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         NativeArray<float> distances = Line.allDistances;
+        NativeArray<int> numStops = Line.numStopPointsInLine;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
@@ -22,15 +23,17 @@ public class TrainSpawnerSystem : SystemBase
                 for (int trainIdx = 0; trainIdx < spawnerData.numberOfTrainsPerTrack; ++trainIdx)
                 {
                     float trackDistance = distances[trackIdx];
+                    int theNumStopsBetweenTrains = numStops[trackIdx] / spawnerData.numberOfTrainsPerTrack;
                     
                     // spawn train
                     Entity newTrainEngine = ecb.Instantiate(spawnerData.TrainEnginePrefab);
 
                     // need to set total distance, target distance, max speed, track index, train state
                     ecb.SetComponent(newTrainEngine, new TrackIndex(){value = trackIdx});
-                    ecb.SetComponent(newTrainEngine, new TrainState(){value = CurrTrainState.Moving});
+                    ecb.SetComponent(newTrainEngine, new TrainState(){value = CurrTrainState.Waiting});
                     ecb.SetComponent(newTrainEngine, new TrainCurrDistance(){value = trainIdx * (trackDistance / spawnerData.numberOfTrainsPerTrack) });
-                    ecb.SetComponent(newTrainEngine, new TrainTargetDistance() {value = (trainIdx + 1) * (trackDistance / spawnerData.numberOfTrainsPerTrack) } );
+                    ecb.SetComponent(newTrainEngine, new PlatformIndex(){value = trainIdx * theNumStopsBetweenTrains});
+                    ecb.SetComponent(newTrainEngine, new TrainTargetDistance() {value = 0 } );
                     ecb.SetComponent(newTrainEngine, new TrainMaxSpeed(){value = 100.0f});
 
                     // spawn train cars

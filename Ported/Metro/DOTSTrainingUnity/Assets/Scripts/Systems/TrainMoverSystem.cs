@@ -13,7 +13,7 @@ public class TrainMoverSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         float stopTolerance = 0.05f;
         float minSpeed = 1f;
-        float acceleration = 1.2f;
+        float acceleration = 20f;
 
         NativeArray<float> totalDistances = Line.allDistances;
 
