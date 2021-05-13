@@ -66,8 +66,9 @@ public class PlatformSpawnerSystem : SystemBase
 
                     float3 direction = GetTrackDirection(stopPoint, points);
                     quaternion rotation = GetRotationFromDirection(direction);
+                    float3 offset = math.rotate(rotation, new float3(0, 0, 5.25f));
                     Entity platform = ecb.Instantiate(spawnerData.PlatformPrefab);
-                    ecb.SetComponent(platform, new Translation() { Value = position });
+                    ecb.SetComponent(platform, new Translation() { Value = position + offset });
                     ecb.SetComponent(platform, new Rotation() { Value = rotation });
                 }
             }
