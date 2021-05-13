@@ -94,3 +94,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f1e0d2b006cb427191a12b206b9d5fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BallJumpRatio: 0.2
+  BounceTime: 1
+  CooldownTime: 0
