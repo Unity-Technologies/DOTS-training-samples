@@ -49,7 +49,7 @@ public class UpdateTransformSystem : SystemBase
                 var yOffset = gridPosition.Y * cellSize - offsetDirY * (cellOffset.Value - .5f) * cellSize;
                 translation.Value = firstCellPosition.Value + new float3(yOffset, 0.5f, xOffset);
             }).ScheduleParallel();
-        
+
         Entities
             .WithName("UpdateStaticGridObjectPosition")
             .WithNone<Speed>()
@@ -72,7 +72,7 @@ public class UpdateTransformSystem : SystemBase
                 GetOffsetDirs(ref offsetDirX, ref offsetDirY, in direction);
 
                 // Rotate based on direction
-                rotation.Value = quaternion.LookRotation(new float3(offsetDirX, 0f, offsetDirY), new float3(0f, 1f, 0f));
+                rotation.Value = quaternion.LookRotation(new float3(-offsetDirY, 0f, offsetDirX), new float3(0f, 1f, 0f));
 
             }).ScheduleParallel();
     }
