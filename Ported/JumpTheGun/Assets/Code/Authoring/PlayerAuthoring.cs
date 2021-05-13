@@ -10,6 +10,8 @@ using Unity.Mathematics;
 public class PlayerAuthoring : MonoBehaviour
     , IConvertGameObjectToEntity
 {
+    [Range(0.1f, 4.0f)]
+    public float BallJumpRatio = 0.2f;
     public float BounceTime = 0.8f;
     public float CooldownTime = 0.2f;
 
@@ -20,7 +22,7 @@ public class PlayerAuthoring : MonoBehaviour
         //dstManager.AddComponent<BallTrajectory>(entity);
         dstManager.AddComponent<PlayerSpawnerTag>(entity);
         dstManager.AddComponent<WasHit>(entity);
-        dstManager.AddComponentData(entity, new Player(){ BounceTime = BounceTime, CooldownTime = CooldownTime });
+        dstManager.AddComponentData(entity, new Player(){ BounceTime = BounceTime, CooldownTime = CooldownTime, BallJumpRatio = BallJumpRatio });
 
         dstManager.AddComponentData(entity, new BallTrajectory()
         {

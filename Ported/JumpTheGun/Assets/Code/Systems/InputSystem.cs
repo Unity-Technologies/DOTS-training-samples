@@ -63,6 +63,6 @@ public class InputSystem : SystemBase
         SetComponent(player, new BoardTarget { Value = boardTarget });
         SetComponent(player, new BoardPosition { Value = boardTarget });
         SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + playerData.BounceTime + playerData.CooldownTime });
-        SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, offsets, boardSize));
+        SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, playerData.BallJumpRatio, offsets, boardSize));
     }
 }
