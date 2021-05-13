@@ -104,7 +104,7 @@ public static class TraceUtils
         float ballHeightDst = offsets[destIndex].Value;
 
         float a, b, c;
-        ParabolaUtil.CreateParabolaOverPoint(ballHeightSrc, 0.5f, ballHeightDst * 1.2f, ballHeightDst, out a, out b, out c);
+        ParabolaUtil.CreateParabolaOverPoint(ballHeightSrc, 0.5f, math.max(ballHeightDst, ballHeightSrc) * 1.2f, ballHeightDst, out a, out b, out c);
         return new Arc { Value = new float3(a, b, c) };
     }
 }
