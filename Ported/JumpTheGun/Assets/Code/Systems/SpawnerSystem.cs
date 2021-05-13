@@ -122,8 +122,8 @@ public class SpawnerSystem : SystemBase
         var offsets = GetBuffer<OffsetList>(boardEntity);
 
         //TODO Randomize at the beginning.
-        startX = random.Next(0, boardEntity.SizeX);
-        startY = random.Next(0, boardEntity.SizeY);
+        int startX = random.Next(0, boardSize.Value.x);
+        int startY = random.Next(0, boardSize.Value.y);
 
         Entities
             .WithStructuralChanges()
@@ -131,7 +131,7 @@ public class SpawnerSystem : SystemBase
             .WithAll<PlayerSpawnerTag>()
             .ForEach((Entity player, ref NonUniformScale scale, in Radius radius) =>
             {
-                int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
+                int2 boardPos = new int2(startX, startY);
                 float3 size = new float3(radius.Value * 2F, radius.Value * 2F, radius.Value * 2F);
 
                 Camera mainCamera = Camera.main;
