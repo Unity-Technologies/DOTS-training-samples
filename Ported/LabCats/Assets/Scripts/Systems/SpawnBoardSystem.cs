@@ -365,6 +365,21 @@ public class SpawnBoardSystem : SystemBase
                 // set camera to look at board center
                 camera.transform.LookAt(new Vector3(posXZ.x, 0f, posXZ.y));
 
+                // Setup the raycast quad
+                var boardQuad = gameObjectRefs.BoardQuad;
+                var xSize = boardDefinition.CellSize * ((float)boardDefinition.NumberRows);
+                var ySize = boardDefinition.CellSize * ((float)boardDefinition.NumberColumns);
+                boardQuad.transform.localScale = new Vector3(
+                    xSize,
+                    ySize,
+                    1.0f
+                );
+
+                boardQuad.transform.position = new Vector3(
+                    (xSize / 2.0f) - .5f,
+                    boardQuad.transform.position.y,
+                    (ySize / 2.0f) - .5f
+                );
 
                 // Only run on first frame the BoardInitializedTag is not found. Add it so we don't run again
                 ecb.AddComponent(entity, new BoardInitializedTag());

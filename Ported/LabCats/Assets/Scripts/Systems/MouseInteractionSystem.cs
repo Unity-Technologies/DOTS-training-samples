@@ -49,8 +49,8 @@ public class MouseInteractionSystem : SystemBase
                 .ForEach((Entity e, int entityInQueryIndex, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, in PlayerIndex playerIndex) =>
                 {
                     hitCoords = hitCoords.yx;
-                    hitCoords.x = boardDefinition.NumberRows * hitCoords.x;
-                    hitCoords.y = boardDefinition.NumberColumns * hitCoords.y;
+                    hitCoords.x = boardDefinition.NumberColumns * hitCoords.x;
+                    hitCoords.y = boardDefinition.NumberRows * hitCoords.y;
 
                     var gridPosition = (int2)hitCoords;
 
