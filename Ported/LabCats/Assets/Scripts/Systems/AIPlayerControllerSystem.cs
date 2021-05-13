@@ -8,9 +8,12 @@ using Random = Unity.Mathematics.Random;
 
 public class AIPlayerControllerSystem : SystemBase
 {
+    private EntityCommandBufferSystem m_EcbSystem;
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<BoardInitializedTag>();
+        m_EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+
     }
     
     protected override void OnUpdate()
@@ -18,7 +21,7 @@ public class AIPlayerControllerSystem : SystemBase
         var boardEntity = GetSingletonEntity<BoardInitializedTag>();
         var boardDefinition = GetSingleton<BoardDefinition>();
         
-        const float cursorSpeed = 3.0f;
+        const float cursorSpeed = 5.0f;
         
         var firstCellPosition = EntityManager.GetComponentData<FirstCellPosition>(boardEntity);
         var timeData = this.Time;
@@ -26,10 +29,13 @@ public class AIPlayerControllerSystem : SystemBase
         int numberOfRows = boardDefinition.NumberRows;
         int numberOfColumns = boardDefinition.NumberColumns;
         
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithName("ComputeMovementForCursor").ForEach((Entity e, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, ref RandomContainer random) =>
+        var ecb = m_EcbSystem.CreateCommandBuffer().AsParallelWriter();
+        var gridCellContents = GetBufferFromEntity<GridCellContent>(true)[boardEntity];
+        Dependency = Entities
+            .WithName("ComputeMovementForCursor")
+            .WithReadOnly(gridCellContents)
+            .ForEach((Entity e, int entityInQueryIndex, ref AITargetCell aiTargetCell, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, ref RandomContainer random) =>
         {
-            DynamicBuffer<GridCellContent> gridCellContents = GetBufferFromEntity<GridCellContent>()[boardEntity];
             var cellOffSet = new float3(boardDefinition.CellSize * aiTargetCell.X, 1.0f, boardDefinition.CellSize * aiTargetCell.Y);
             float3 targetCellPosition = firstCellPosition.Value + cellOffSet;
          
@@ -49,13 +55,16 @@ public class AIPlayerControllerSystem : SystemBase
                 
                 // Move with arrow
                 {
+                    var newBuffer = ecb.SetBuffer<GridCellContent>(entityInQueryIndex, boardEntity);
+                    newBuffer.CopyFrom(gridCellContents);
                     var index = GridCellContent.Get1DIndexFromGridPosition(aiTargetCell.X, aiTargetCell.Y, numberOfColumns);
                     if (selectedArrow != Entity.Null)
                     {
                         var oldArrowPosition = GetComponent<GridPosition>(selectedArrow);
-                        var oldGridContentValue = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(oldArrowPosition.X, oldArrowPosition.Y, numberOfColumns)];
+                        var oldGridContentIndex = GridCellContent.Get1DIndexFromGridPosition(oldArrowPosition.X, oldArrowPosition.Y, numberOfColumns);
+                        var oldGridContentValue = gridCellContents[oldGridContentIndex];
                         oldGridContentValue.Type = GridCellType.None;
-                        gridCellContents[index] = oldGridContentValue;
+                        // newBuffer[oldGridContentIndex] = oldGridContentValue;
                     }
                 
                     var gridContent = gridCellContents[index];
@@ -86,10 +95,9 @@ public class AIPlayerControllerSystem : SystemBase
                     }
                         
                     gridContent.Type = newType;
-                    gridCellContents[index] = gridContent;
-                
-                    ecb.SetComponent(selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
-                    ecb.SetComponent(selectedArrow, new Direction(){ Value = newArrowDirection});
+                    newBuffer[index] = gridContent;
+                    ecb.SetComponent(entityInQueryIndex, selectedArrow, new GridPosition(){X = aiTargetCell.X, Y = aiTargetCell.Y});
+                    ecb.SetComponent(entityInQueryIndex, selectedArrow, new Direction(){ Value = newArrowDirection});
                 
                 }
                 //Compute new target 
@@ -104,9 +112,8 @@ public class AIPlayerControllerSystem : SystemBase
             translation.Value = translation.Value + progress;
         
         
-        }).Run();
-        //
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        }).ScheduleParallel(Dependency);
+        
+        m_EcbSystem.AddJobHandleForProducer(Dependency);
     }
 }
