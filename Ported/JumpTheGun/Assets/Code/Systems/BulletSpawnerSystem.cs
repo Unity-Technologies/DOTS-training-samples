@@ -20,11 +20,11 @@ public class BulletSpawnerSystem : SystemBase
     {
         if (TryGetSingleton<IsPaused>(out _))
             return;
-        
+
         Entity playerEntity;
         if (!TryGetSingletonEntity<Player>(out playerEntity))
             return;
-        
+
         Entity boardEntity;
         if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
             return;
@@ -35,6 +35,9 @@ public class BulletSpawnerSystem : SystemBase
 
         var boardSize = GetComponent<BoardSize>(boardEntity);
         DynamicBuffer<OffsetList> offsets = GetBuffer<OffsetList>(boardEntity);
+
+        float bulletRadius = GetComponent<Radius>(boardEntity).Value;
+        float3 size = new float3(bulletRadius * 2F, bulletRadius * 2F, bulletRadius * 2F);
 
         var playerPosition = GetComponent<Translation>(playerEntity);
 
@@ -76,6 +79,7 @@ public class BulletSpawnerSystem : SystemBase
                             }
                         );
 
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new NonUniformScale { Value = size });
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, bulletArc);
                     }
                 }).ScheduleParallel();

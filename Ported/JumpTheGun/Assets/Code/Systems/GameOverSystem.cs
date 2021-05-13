@@ -6,6 +6,7 @@ public class GameOverSystem : SystemBase
 {
     private EntityCommandBufferSystem ecbs_level;
     private EntityCommandBufferSystem ecbs_board;
+    private EntityCommandBufferSystem ecbs_player;
 
     protected override void OnCreate()
     {
@@ -14,11 +15,12 @@ public class GameOverSystem : SystemBase
 
         ecbs_level = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         ecbs_board = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        ecbs_player = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        /*Entity player = GetSingletonEntity<Player>();
+        Entity player = GetSingletonEntity<Player>();
         WasHit hit = GetComponent<WasHit>(player);
 
         if (hit.Count <= 0)
@@ -50,7 +52,15 @@ public class GameOverSystem : SystemBase
                 ecbb.AddComponent<BoardSpawnerTag>(entityInQueryIndex, entity);
             }).ScheduleParallel();
         
+        Entities
+            .WithAll<Player>()
+            .ForEach((int entityInQueryIndex, Entity entity) =>
+            {
+                ecbb.AddComponent<PlayerSpawnerTag>(entityInQueryIndex, entity);
+            }).ScheduleParallel();
+        
         ecbs_level.AddJobHandleForProducer(Dependency);
-        ecbs_board.AddJobHandleForProducer(Dependency);*/
+        ecbs_board.AddJobHandleForProducer(Dependency);
+        ecbs_player.AddJobHandleForProducer(Dependency);
     }
 }

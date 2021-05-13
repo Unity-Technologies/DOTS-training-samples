@@ -18,6 +18,7 @@ public class PlayerAuthoring : MonoBehaviour
         dstManager.AddComponent<PlayerSpawnerTag>(entity);
         dstManager.AddComponent<WasHit>(entity);
         dstManager.AddComponentData(entity, new Player(){});
+        dstManager.AddComponent<NonUniformScale>(entity);
 
         dstManager.AddComponentData(entity, new BallTrajectory()
         {
@@ -28,6 +29,7 @@ public class PlayerAuthoring : MonoBehaviour
 
         dstManager.AddComponentData(entity, new BoardPosition());
         dstManager.AddComponentData(entity, new BoardTarget());
+        dstManager.AddComponentData(entity, new Radius { Value = 0.3F });
         dstManager.AddComponentData(entity, new Arc() { Value = new float3(0.0f, 0.0f, 0.0f) });
         dstManager.AddComponentData(entity, new Time() { StartTime = 0.0f, EndTime = 0.0f });
         dstManager.AddComponentData(entity, new TimeOffset() { Value = 0.0f });

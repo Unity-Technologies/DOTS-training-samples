@@ -133,17 +133,20 @@ public class SpawnerSystem : SystemBase
             .WithStructuralChanges()
             .WithReadOnly(offsets)
             .WithAll<PlayerSpawnerTag>()
-            .ForEach((Entity player) =>
+            .ForEach((Entity player, ref NonUniformScale scale, in Radius radius) =>
             {
-                 int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
+                int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
+                float3 size = new float3(radius.Value * 2F, radius.Value * 2F, radius.Value * 2F);
 
-                 float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
+                float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
 
-                 EntityManager.SetComponentData(player, new Translation { Value = targetPos });
-                 EntityManager.SetComponentData(player, new BoardPosition { Value = boardPos });
+                EntityManager.SetComponentData(player, new Translation { Value = targetPos });
+                EntityManager.SetComponentData(player, new BoardPosition { Value = boardPos });
+                EntityManager.SetComponentData(player, new NonUniformScale { Value = size });
 
-                 EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
+                EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
             }).Run();
+
     }
 
     private void SpawnDebugEntities()

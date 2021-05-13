@@ -17,9 +17,10 @@ public class PlayerCollisionSystem : SystemBase
     {
         Entity player = GetSingletonEntity<Player>();
         float3 playerPos = GetComponent<Translation>(player).Value;
+        float playerRadius = GetComponent<Radius>(player).Value;
 
         Entity board = GetSingletonEntity<Board>();
-        float radius = GetComponent<Radius>(board).Value;
+        float bulletRadius = GetComponent<Radius>(board).Value;
 
         NativeArray<int> hitCount = new NativeArray<int>(GetEntityQuery(typeof(Bullet)).CalculateEntityCount(), Allocator.TempJob);
 
@@ -29,12 +30,12 @@ public class PlayerCollisionSystem : SystemBase
             {
                 float3 pos = translation.Value;
 
-                if (pos[0] - radius < playerPos[0]
-                    && pos[0] + radius > playerPos[0]
-                    //&& pos[1] - radius < playerPos[1]
-                    //&& pos[1] + radius > playerPos[1]
-                    && pos[2] - radius < playerPos[2]
-                    && pos[2] + radius > playerPos[2])
+                if (   pos[0] + bulletRadius > playerPos[0] - playerRadius
+                    && pos[0] - bulletRadius < playerPos[0] + playerRadius
+                    && pos[1] + bulletRadius > playerPos[1] - playerRadius
+                    && pos[1] - bulletRadius < playerPos[1] + playerRadius
+                    && pos[2] + bulletRadius > playerPos[2] - playerRadius
+                    && pos[2] - bulletRadius < playerPos[2] + playerRadius)
                 {
                     hitCount[entityInQueryIndex] = 1;
                 }

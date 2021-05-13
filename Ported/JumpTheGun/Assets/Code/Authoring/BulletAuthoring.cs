@@ -2,6 +2,7 @@
 using Unity.Entities;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public class BulletAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
@@ -13,6 +14,7 @@ public class BulletAuthoring : UnityMonoBehaviour
         entityManager.AddComponentData(entity, new CurrentLevel());
         entityManager.AddComponentData(entity, new Direction() { Value = new float3(0.0f, 0.0f, 0.0f) });
         entityManager.AddComponentData(entity, new WasHit() { Count = 0 });
+        entityManager.AddComponent<NonUniformScale>(entity);
         entityManager.AddComponentData(entity, new BallTrajectory()
             {
                 Source = float3.zero,
