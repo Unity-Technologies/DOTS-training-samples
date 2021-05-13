@@ -6,9 +6,13 @@ using Unity.Collections;
 public class CatCollisionSystem : SystemBase
 {
     EntityQuery m_CatQuery;
+    private EntityCommandBufferSystem CommandBufferSystem;
 
     protected override void OnCreate()
     {
+        CommandBufferSystem
+            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<GameStartedTag>();
         m_CatQuery = GetEntityQuery(
             new EntityQueryDesc
             {
@@ -38,12 +42,11 @@ public class CatCollisionSystem : SystemBase
         var catDirections = m_CatQuery.ToComponentDataArray<Direction>(Allocator.Temp);
         var catColliders = m_CatQuery.ToComponentDataArray<ColliderSize>(Allocator.Temp);
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-
+        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         // Foreach on all the mice and check if they collide
         Entities
             .WithNone<CatTag>()
-            .ForEach((Entity entity, in GridPosition gridPosition, in CellOffset cellOffset, in Direction direction, in ColliderSize colliderSize) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in GridPosition gridPosition, in CellOffset cellOffset, in Direction direction, in ColliderSize colliderSize) =>
             {
                 var offsetX = 0;
                 var offsetY = 0;
@@ -66,12 +69,13 @@ public class CatCollisionSystem : SystemBase
 
                     if (distance < colliderSize.Value * .5f + catColliders[i].Value * .5f)
                     {
-                        ecb.DestroyEntity(entity);
+                        ecb.AddComponent(entityInQueryIndex, catEntities[i],
+                            new BounceScaleAnimationProperties(){ AccumulatedTime = 0.0f, AnimationDuration = 0.5f, OriginalScale = 1.0f, TargetScale = 1.4f});
+
+                        ecb.DestroyEntity(entityInQueryIndex,entity);
                     }
                 }
             }).Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+//        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

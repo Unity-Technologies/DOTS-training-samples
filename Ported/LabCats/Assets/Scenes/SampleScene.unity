@@ -683,6 +683,34 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2970465761613484253, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2970465761613484253, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2970465761613484253, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4216902155714089870, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4216902155714089870, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4374285371865296206, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4374285371865296206, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5066169276682575464, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -696,6 +724,14 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5462892629589504373, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5835399354942969677, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5835399354942969677, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Color.r
       value: 0
       objectReference: {fileID: 0}
