@@ -60,7 +60,7 @@ public class CarMovementSystem : SystemBase
             float3 position = Get_Position(carDistance, points);
             float3 aheadPosition = Get_Position((carDistance + 0.01f) % distance, points);
             
-            float3 normalAtPosition = (aheadPosition - position) / math.distance(aheadPosition, position);
+            float3 normalAtPosition = math.normalize(aheadPosition - position);
             
             //float3 lookAtDirection = position - normalAtPosition;
             

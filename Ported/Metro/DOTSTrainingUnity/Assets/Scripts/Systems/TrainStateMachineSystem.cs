@@ -49,13 +49,14 @@ public class TrainStateMachineSystem : SystemBase
                 case CurrTrainState.Arrived:
                     {
                         // TODO: put real logic here
-                        int doorSide = platformIndex.value;
+                        int doorSide = platformIndex.value % 2;
 
                         int numDoors = doorEntBuffer.Length;
                         int halfNumDoors = numDoors / 2;
 
                         for(int dIdx=0; dIdx < halfNumDoors; ++dIdx)
                         {
+                            int doorBufferIndex = dIdx + doorSide * halfNumDoors;
                             var currEnt = doorEntBuffer[dIdx + doorSide * halfNumDoors];
                             doorState[currEnt] = new DoorState() { value = CurrentDoorState.Open };
                         }
@@ -72,7 +73,7 @@ public class TrainStateMachineSystem : SystemBase
                             // Close the doors
 
                             // TODO: put real logic here
-                            int doorSide = platformIndex.value;
+                            int doorSide = platformIndex.value % 2;
 
                             int numDoors = doorEntBuffer.Length;
                             int halfNumDoors = numDoors / 2;
