@@ -52,10 +52,11 @@ public class InputSystem : SystemBase
 
         float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
         float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
-        
+
         SetComponent(player, new BallTrajectory { Source = sourcePosition, Destination = dstPosition });
         SetComponent(player, new BoardTarget { Value = boardTarget });
         SetComponent(player, new BoardPosition { Value = boardTarget });
         SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + 1.0f });
+        SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, offsets, boardSize));
     }
 }
