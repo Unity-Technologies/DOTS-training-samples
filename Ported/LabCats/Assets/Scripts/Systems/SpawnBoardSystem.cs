@@ -253,6 +253,7 @@ public class SpawnBoardSystem : SystemBase
                     });
                     ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
+                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
                     ecb.AddComponent<NextArrowIndex>(spawnedEntity);
                     ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)k)});
                     ecb.AddBuffer<ArrowReference>(spawnedEntity);
