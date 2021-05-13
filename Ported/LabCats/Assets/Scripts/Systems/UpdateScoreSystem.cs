@@ -9,28 +9,38 @@ using UnityEngine;
 
 public class UpdateScoreSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
+    EntityCommandBufferSystem CommandBufferSystem;
+    NativeArray<int> ScoreCache;
 
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameStartedTag>();
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        ScoreCache = new NativeArray<int>(4, Allocator.Persistent);
+    }
+
+    protected override void OnDestroy()
+    {
+        ScoreCache.Dispose();
     }
 
     protected override void OnUpdate()
     {
         var ecb = CommandBufferSystem.CreateCommandBuffer();
-
         var boardEntity = GetSingletonEntity<BoardDefinition>();
         var playerReference = GetBufferFromEntity<PlayerReference>(true)[boardEntity];
 
-        Entities.WithoutBurst().WithNone<CatTag>().ForEach((Entity e, in HittingGoal goalInfo) =>
+        var localScoreCache = ScoreCache;
+
+        for (int i = 0; i < 4; ++i)
         {
-            var playerEntity = playerReference[goalInfo.PlayerIndex].Player;
-            var score = EntityManager.GetComponentData<Score>(playerEntity);
-            ++score.Value;
-            EntityManager.SetComponentData(playerEntity, score);
+            var playerEntity = playerReference[i].Player;
+            localScoreCache[i] = EntityManager.GetComponentData<Score>(playerEntity).Value;
+        }
+        Entities.WithNone<CatTag>().ForEach((Entity e, in HittingGoal goalInfo) =>
+        {
+            ++localScoreCache[goalInfo.PlayerIndex];
             ecb.DestroyEntity(e);
         }).Run();
 
@@ -38,5 +48,11 @@ public class UpdateScoreSystem : SystemBase
         {
             ecb.DestroyEntity(e);
         }).Run();
+
+        for (int i = 0; i < 4; ++i)
+        {
+            var playerEntity = playerReference[i].Player;
+            EntityManager.SetComponentData(playerEntity, new Score(){Value = localScoreCache[i]});
+        }
     }
 }
