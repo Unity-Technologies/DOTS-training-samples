@@ -8,6 +8,11 @@ using UnityInput = UnityEngine.Input;
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class InputSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        GetEntityQuery(typeof(OffsetList));
+    }
+    
     protected override void OnUpdate()
     {
         if (TryGetSingleton<IsPaused>(out _))
@@ -17,6 +22,8 @@ public class InputSystem : SystemBase
         if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
             return;
 
+        Dependency.Complete();
+        
         var minMaxHeight = GetComponent<MinMaxHeight>(boardEntity);
         var offsets = GetBuffer<OffsetList>(boardEntity);
         var tankMap = GetBuffer<TankMap>(boardEntity);

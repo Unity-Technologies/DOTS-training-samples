@@ -3,33 +3,59 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class PlatformHeightSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        var query = GetEntityQuery(typeof(MinMaxHeight));
+        RequireForUpdate(query);
+
+        GetEntityQuery(typeof(OffsetList));
+    }
+    
     protected override void OnUpdate()
     {
         if (TryGetSingleton<IsPaused>(out _))
             return;
 
-        float2 board = GetSingleton<MinMaxHeight>().Value;
-        float hitStrength = GetSingleton<HitStrength>().Value;
-
+        var boardEntity = GetSingletonEntity<Board>();
+        
+        float2 minMaxHeight = GetComponent<MinMaxHeight>(boardEntity).Value;
+        float hitStrength = GetComponent<HitStrength>(boardEntity).Value;
+        var boardSize = GetComponent<BoardSize>(boardEntity).Value;
+        var offsets = GetBuffer<OffsetList>(boardEntity).AsNativeArray();
+       
         Entities
-            .WithDisposeOnCompletion(board)
-            .WithDisposeOnCompletion(hitStrength)
-            .WithAll<Platform, WasHit>()
-            .ForEach((int entityInQueryIndex, Entity entity, ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit) =>
+            .WithAll<Platform>()
+            .WithNativeDisableParallelForRestriction(offsets)
+            .ForEach((ref LocalToWorld xform, ref URPMaterialPropertyBaseColor baseColor, ref WasHit hit, in BoardPosition boardPosition) =>
             {
                 if (hit.Count <= 0)
                 {
                     return;
                 }
 
-                float posY = math.max(board.x, xform.Position.y - hit.Count * hitStrength);
+                //Debug.Log("boardPosition: " + boardPosition.Value.x + " " + boardPosition.Value.y);
+                
+                var index = CoordUtils.ToIndex(boardPosition.Value, boardSize.x, boardSize.y); 
+                var offset = offsets[index].Value - hitStrength * hit.Count;
 
-                baseColor.Value = Colorize.Platform(posY, board.x, board.y);
+                offsets[index] = new OffsetList {Value = offset};
+                
+                xform.Value = math.mul(
+                    math.mul(
+                        float4x4.Translate(new float3(boardPosition.Value.x, -0.5f, boardPosition.Value.y)),
+                        float4x4.Scale(1f, offset, 1f)),
+                    float4x4.Translate(new float3(0f, 0.5f, 0f)));
+                
+                baseColor.Value = Colorize.Platform(offset, minMaxHeight.x, minMaxHeight.y);
+
+                // Reset hit count
+                hit.Count = 0;
             })
-            .Run();
+            .ScheduleParallel();
     }
 }

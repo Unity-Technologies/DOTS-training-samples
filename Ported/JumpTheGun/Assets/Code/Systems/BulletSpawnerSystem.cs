@@ -14,6 +14,8 @@ public class BulletSpawnerSystem : SystemBase
         var query = GetEntityQuery(typeof(Tank), typeof(BoardPosition));
         RequireForUpdate(query);
 
+        GetEntityQuery(typeof(OffsetList));
+
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
