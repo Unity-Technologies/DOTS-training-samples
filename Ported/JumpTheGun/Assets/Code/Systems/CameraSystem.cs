@@ -21,7 +21,7 @@ public class CameraSystem : SystemBase
         float time = (float)UnityEngine.Time.deltaTime;
         float step = speed * time; // calculate distance to move
         float originalHeight = mainCamera.transform.position.y;
-        float3 targetPosition = GetComponent<Translation>(player).Value;
+        float3 targetPosition = GetComponent<Translation>(player).Value - (float3)mainCamera.transform.forward*10.0f;
         float3 cameraPosition = Vector3.MoveTowards(mainCamera.transform.position, targetPosition, step);
         cameraPosition.y = originalHeight;
         mainCamera.transform.position = cameraPosition;
