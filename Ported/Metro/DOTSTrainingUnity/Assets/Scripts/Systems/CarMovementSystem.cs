@@ -6,8 +6,6 @@ using Unity.Collections;
 using Unity.Mathematics;
 public class CarMovementSystem : SystemBase
 {
-    
-    
     public const float trainCarLength = 3.0f;
     //EntityArchetype trainCarArchetype = World.EntityManager.CreateArchetype()
     protected override void OnUpdate()
