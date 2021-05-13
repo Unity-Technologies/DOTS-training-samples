@@ -4,3 +4,5 @@ public struct PropagateColor : IComponentData
 {
     
 }
+
+public struct ShouldSetupColor : IComponentData{}

@@ -5,8 +5,8 @@ using Unity.Collections;
 
 public class UpdateFallingSystem : SystemBase
 {
-    static float kFallingSpeed = 6.0f;
-    static float kTimeToDespawn = 3.0f;
+    const float kFallingSpeed = 6.0f;
+    const float kTimeToDespawn = 3.0f;
 
     private EntityCommandBufferSystem m_EcbSystem;
     protected override void OnCreate()
