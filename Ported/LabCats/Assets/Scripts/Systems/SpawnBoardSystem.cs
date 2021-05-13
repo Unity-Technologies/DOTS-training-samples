@@ -62,7 +62,8 @@ public class SpawnBoardSystem : SystemBase
         Entities
             .WithNone<BoardInitializedTag>()
             .WithoutBurst()
-            .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab) =>
+            .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab,
+                in DynamicSpawnerDefinition dynamicSpawnerDefinition) =>
             {
                 int numberColumns = boardDefinition.NumberColumns;
                 int numberRows = boardDefinition.NumberRows;
@@ -298,7 +299,7 @@ public class SpawnBoardSystem : SystemBase
                 ecb.AddComponent(spawner1, new SpawnerData()
                 {
                     Timer = 0f,
-                    Frequency = 0.25f,
+                    Frequency = dynamicSpawnerDefinition.MouseFrequency,
                     Direction = Dir.Up,
                     Type = SpawnerType.MouseSpawner,
                     X = 0,
@@ -310,7 +311,7 @@ public class SpawnBoardSystem : SystemBase
                 ecb.AddComponent(spawner2, new SpawnerData()
                 {
                     Timer = 0f,
-                    Frequency = 0.25f,
+                    Frequency = dynamicSpawnerDefinition.MouseFrequency,
                     Direction = Dir.Down,
                     Type = SpawnerType.MouseSpawner,
                     X = numberColumns - 1,
@@ -322,7 +323,7 @@ public class SpawnBoardSystem : SystemBase
                 ecb.AddComponent(spawner3, new SpawnerData()
                 {
                     Timer = 0f,
-                    Frequency = 5f,
+                    Frequency = dynamicSpawnerDefinition.CatFrequency,
                     Direction = Dir.Left,
                     Type = SpawnerType.CatSpawner,
                     X = numberColumns - 1,
@@ -334,7 +335,7 @@ public class SpawnBoardSystem : SystemBase
                 ecb.AddComponent(spawner4, new SpawnerData()
                 {
                     Timer = 0f,
-                    Frequency = 5f,
+                    Frequency = dynamicSpawnerDefinition.CatFrequency,
                     Direction = Dir.Right,
                     Type = SpawnerType.CatSpawner,
                     X = 0,
