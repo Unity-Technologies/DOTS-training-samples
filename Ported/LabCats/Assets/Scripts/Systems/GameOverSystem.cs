@@ -30,7 +30,7 @@ public class GameOverSystem : SystemBase
         // reference component on board entity to pull score data and check elapsed time
         var gameTime = GetComponent<GameTime>(boardEntity);
 
-        if (gameTime.AccumulatedTime >= 30.0f) // default is 30, if greater than this value
+        if (gameTime.AccumulatedTime >= 5.0f) // default is 30, if greater than this value
         {
             var ecb = CommandBufferSystem.CreateCommandBuffer();
             ecb.RemoveComponent<GameStartedTag>(boardEntity); // remove the GameStarted tag to stop game progression
@@ -44,8 +44,6 @@ public class GameOverSystem : SystemBase
             var scorePlayer2 = EntityManager.GetComponentData<Score>(playerReferences[1].Player).Value; // green player
             var scorePlayer3 = EntityManager.GetComponentData<Score>(playerReferences[2].Player).Value; // blue player 
             var scorePlayer4 = EntityManager.GetComponentData<Score>(playerReferences[3].Player).Value; // human player
-
-            int bestScore = Mathf.Max(scorePlayer1, scorePlayer2, scorePlayer3, scorePlayer4);
 
             // if player 1 has higher score than 2, 3 and 4
             if ((scorePlayer1 > scorePlayer2) && (scorePlayer1 > scorePlayer3) && (scorePlayer1 > scorePlayer4))
@@ -62,7 +60,47 @@ public class GameOverSystem : SystemBase
             {
                 gameObjectRefs.GameOverText.text = "Blue Wins!";
             }
-            else // only scenario left is player win
+            // check for tie conditions for player 1
+            else if ((scorePlayer1 == scorePlayer2))
+            {
+                gameObjectRefs.GameOverText.text = "Red and Green Tie!";
+            }
+            else if ((scorePlayer1 == scorePlayer3))
+            {
+                gameObjectRefs.GameOverText.text = "Red and Blue Tie!";
+            }
+            else if ((scorePlayer1 == scorePlayer4))
+            {
+                gameObjectRefs.GameOverText.text = "Red and Player Tie!";
+            }
+            // check for tie conditions for player 2
+            else if ((scorePlayer2 == scorePlayer1))
+            {
+                gameObjectRefs.GameOverText.text = "Green and Red Tie!";
+            }
+            else if ((scorePlayer2 == scorePlayer3))
+            {
+                gameObjectRefs.GameOverText.text = "Green and Blue Tie!";
+            }
+            else if ((scorePlayer2 == scorePlayer4))
+            {
+                gameObjectRefs.GameOverText.text = "Green and Player Tie!";
+            }
+            // check for tie conditions for player 3
+            else if ((scorePlayer3 == scorePlayer1))
+            {
+                gameObjectRefs.GameOverText.text = "Blue and Red Tie!";
+            }
+            else if ((scorePlayer3 == scorePlayer2))
+            {
+                gameObjectRefs.GameOverText.text = "Blue and Green Tie!";
+            }
+            else if ((scorePlayer3 == scorePlayer4))
+            {
+                gameObjectRefs.GameOverText.text = "Blue and Player Tie!";
+            }
+            // only scenario left is player win
+            else
             {
                 gameObjectRefs.GameOverText.text = "Red Wins!";
             }
