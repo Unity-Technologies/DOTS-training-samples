@@ -199,14 +199,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d7f20954f5043b18a343f7903a9592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SizeX: 10
-  SizeY: 10
+  SizeX: 100
+  SizeY: 100
   MinHeight: 2.5
   MaxHeight: 5.5
   ReloadTime: 5.39
   Radius: 0.3
-  NumberOfTanks: 5
-  HitStrength: 0.4
+  NumberOfTanks: 300
+  HitStrength: 0.5
+  BulletArcHeightFactor: 0.2
+  BulletSpeed: 2
   PlaformPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   TankPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4, type: 3}
   TurretPrefab: {fileID: 1285056113001856, guid: 0fb85b5f0701a43afb429a6d8ed479d5, type: 3}

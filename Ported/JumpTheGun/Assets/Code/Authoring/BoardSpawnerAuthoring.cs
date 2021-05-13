@@ -33,6 +33,9 @@ public class BoardSpawnerAuthoring : MonoBehaviour
 
     [Range(0.1F, 5F)]
     public float BulletArcHeightFactor = 0.2f;
+
+    [Range(0.1F, 10F)]
+    public float BulletSpeed = 0.5F;
     
     public GameObject PlaformPrefab;
     public GameObject TankPrefab;
@@ -60,6 +63,7 @@ public class BoardSpawnerAuthoring : MonoBehaviour
             NumberOfTanks = NumberOfTanks,
             HitStrength = HitStrength,
             BulletArcHeightFactor = BulletArcHeightFactor,
+            BulletSpeed = BulletSpeed,
             
             PlaformPrefab = conversionSystem.GetPrimaryEntity(PlaformPrefab),
             TankPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
@@ -69,5 +73,6 @@ public class BoardSpawnerAuthoring : MonoBehaviour
 
         dstManager.AddComponent<Board>(entity);
         dstManager.AddComponent<BoardSpawnerTag>(entity);
+        dstManager.AddComponentData(entity, new BulletSpeed { Value = BulletSpeed });
     }
 }

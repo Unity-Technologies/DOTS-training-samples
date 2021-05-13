@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityInput = UnityEngine.Input;
 
 
@@ -40,7 +41,7 @@ public class BulletSpawnerSystem : SystemBase
 
         var playerPosition = GetComponent<Translation>(playerEntity);
 
-        const float kDuration = 5f;
+        float kDuration = GetComponent<BulletSpeed>(boardEntity).Value;
         
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
  
@@ -64,8 +65,13 @@ public class BulletSpawnerSystem : SystemBase
                         {
                             Value = CoordUtils.WorldToBoardPosition(playerPosition.Value, boardSize, float3.zero)
                         });
+
+                        float distX = translation.Value.x - playerPosition.Value.x;
+                        float distZ = translation.Value.z - playerPosition.Value.z;
+
+                        float distance = math.sqrt((distX * distX) + (distZ * distZ));
                         
-                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + kDuration});
+                        ecb.SetComponent(entityInQueryIndex, bulletEntity, new Time {StartTime = (float)times.y, EndTime = (float)times.y + distance / kDuration });
                         
                         var landingPos = new float3(0,0,0);
                         var bulletArc = new Arc();
