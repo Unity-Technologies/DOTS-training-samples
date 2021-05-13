@@ -42,12 +42,4 @@ public static class CoordUtils
     {
         return coords.x + coords.y * width;
     }
-
-    public static int2 WorldToBoardPosition(in float3 position, in BoardSize boardSize, in float3 boardWorldOffset)
-    {
-        float3 localPos = position - boardWorldOffset;
-        float boardX = Mathf.Floor(localPos.x);
-        float boardY = Mathf.Floor(localPos.y);
-        return new int2((int)boardX, (int)boardY);
-    }
 }

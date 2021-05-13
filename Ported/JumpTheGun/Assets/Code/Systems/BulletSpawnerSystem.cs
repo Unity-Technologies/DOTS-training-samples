@@ -63,7 +63,7 @@ public class BulletSpawnerSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new Translation {Value = translation.Value});
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new BoardTarget
                         {
-                            Value = CoordUtils.WorldToBoardPosition(playerPosition.Value, boardSize, float3.zero)
+                            Value = CoordUtils.WorldToBoardPosition(playerPosition.Value)
                         });
 
                         float distX = translation.Value.x - playerPosition.Value.x;

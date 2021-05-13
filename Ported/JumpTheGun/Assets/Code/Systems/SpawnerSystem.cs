@@ -69,20 +69,18 @@ public class SpawnerSystem : SystemBase
                         float4x4.Translate(new float3(0f, 0.5f, 0f)));
 
                     EntityManager.RemoveComponent<Translation>(instance);
-
-                    
-
-                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
-
-                    boardPosition.x = x;
-                    boardPosition.y = y;
-
-                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
-                    EntityManager.SetComponentData(instance, new BoardPosition { Value = boardPosition });
-
                     EntityManager.RemoveComponent<Rotation>(instance);
                     
                     EntityManager.SetComponentData(instance, new LocalToWorld {Value = localToWorld});
+                    
+                    boardPosition.x = x;
+                    boardPosition.y = y;
+                    
+                    //float4 color = new float4((float)boardPosition.x / board.SizeX, (float)boardPosition.y / board.SizeY, 0f, 1f); 
+                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
+                    
+                    EntityManager.SetComponentData(instance, new URPMaterialPropertyBaseColor { Value = color });
+                    EntityManager.SetComponentData(instance, new BoardPosition { Value = boardPosition });
                 }
             }
 
