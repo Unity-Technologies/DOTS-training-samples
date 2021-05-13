@@ -17,6 +17,10 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public GameObject WallPrefab;
     public GameObject GoalPrefab;
 
+    public int MaxCats = 3;
+    public float CatSpawnFrequency = 5f;
+    public float MouseSpawnFrequency = 0.25f;
+
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(LightCellPrefab);
@@ -57,10 +61,17 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             CursorPrefab = conversionSystem.GetPrimaryEntity(CursorPrefab),
             PlayerCursorPrefab = conversionSystem.GetPrimaryEntity(PlayerCursorPrefab),
             ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
-            MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
-            CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             GoalPrefab = conversionSystem.GetPrimaryEntity(GoalPrefab),
+        });
+
+        dstManager.AddComponentData(entity, new DynamicSpawnerDefinition()
+        {
+            MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
+            CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
+            CatFrequency = CatSpawnFrequency,
+            MouseFrequency = MouseSpawnFrequency,
+            MaxCats = MaxCats
         });
     }
 }

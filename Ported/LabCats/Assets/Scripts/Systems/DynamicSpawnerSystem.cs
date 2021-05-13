@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
-using Unity.Transforms;
+using UnityEngine;
 
 public class DynamicSpawnerSystem : SystemBase
 {
@@ -23,7 +23,7 @@ public class DynamicSpawnerSystem : SystemBase
         var numberOfCats = catEntities.Length;
 
         // Need to access to cat and mouse prefabs
-        var prefabsSingleton = GetSingleton<BoardPrefab>();
+        var spawnerDefinition = GetSingleton<DynamicSpawnerDefinition>();
 
         var dt = Time.DeltaTime;
 
@@ -32,15 +32,15 @@ public class DynamicSpawnerSystem : SystemBase
             {
                 spawnerData.Timer -= dt;
 
-                if (spawnerData.Timer < 0 && !(spawnerData.Type == SpawnerType.CatSpawner && numberOfCats >= 4)) //TODO: Number of cats
+                if (spawnerData.Timer < 0 && !(spawnerData.Type == SpawnerType.CatSpawner && numberOfCats >= spawnerDefinition.MaxCats))
                 {
                     spawnerData.Timer = spawnerData.Frequency;
 
                     // Choose the prefab
-                    var prefab = prefabsSingleton.MousePrefab;
+                    var prefab = spawnerDefinition.MousePrefab;
                     if (spawnerData.Type == SpawnerType.CatSpawner)
                     {
-                        prefab = prefabsSingleton.CatPrefab;
+                        prefab = spawnerDefinition.CatPrefab;
                     }
 
                     // Create the prefab
