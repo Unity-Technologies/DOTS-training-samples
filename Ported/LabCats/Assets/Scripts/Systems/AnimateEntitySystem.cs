@@ -8,19 +8,43 @@ using UnityEngine;
 
 public class AnimateEntitySystem : SystemBase
 {
+    private EntityCommandBufferSystem CommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        CommandBufferSystem
+            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<GameStartedTag>();
+    }
+
     protected override void OnUpdate()
     {
-        var dt = Time.DeltaTime; 
+        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var dt = Time.DeltaTime;
 
-        Entities
-            .WithAll<AnimationProperties>()
-            .ForEach((Entity entity, ref Scale scale, in AnimationProperties animationProperties) =>
+        Dependency = Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Scale scale, ref BounceScaleAnimationProperties scaleAnimationProperties) =>
             {
-                var scaleFactor = animationProperties.ObjScaleFactor;
-                var animTime = animationProperties.ObjectScaleTime;
+                if (scaleAnimationProperties.AccumulatedTime + dt > scaleAnimationProperties.AnimationDuration)
+                {
+                    scale.Value = scaleAnimationProperties.OriginalScale;
+                    ecb.RemoveComponent<BounceScaleAnimationProperties>(entityInQueryIndex,entity);
+                }
+                else
+                {
+                    float halfAnimDuration = scaleAnimationProperties.AnimationDuration / 2.0f;
+                    scaleAnimationProperties.AccumulatedTime += dt;
+                    if (scaleAnimationProperties.AccumulatedTime <= halfAnimDuration)
+                    {
+                        scale.Value = Unity.Mathematics.math.lerp(scaleAnimationProperties.OriginalScale, scaleAnimationProperties.TargetScale, scaleAnimationProperties.AccumulatedTime/halfAnimDuration );
+                    }
+                    else
+                    {
+                        scale.Value = math.lerp(scaleAnimationProperties.TargetScale, scaleAnimationProperties.OriginalScale, 1.0f - (scaleAnimationProperties.AnimationDuration - scaleAnimationProperties.AccumulatedTime)/halfAnimDuration);
+                    }
+                }
 
-                scale.Value = Unity.Mathematics.math.lerp(scale.Value, scale.Value * scaleFactor, animTime * dt);
-
-            }).Run();
+            }).ScheduleParallel(Dependency);
+        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

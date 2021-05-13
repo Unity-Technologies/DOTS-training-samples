@@ -240,11 +240,14 @@ public class SpawnBoardSystem : SystemBase
                     }
 
                 }
-                
+
+
+                var goalReferenceBuffer = ecb.AddBuffer<GoalReference>(entity);
+                goalReferenceBuffer.Capacity = 4;
                 for (int k = 0; k < 4; k++)
                 {
                     Entity goalPrefab = boardPrefab.GoalPrefab;
-                    var spawnedEntity = ecb.Instantiate(goalPrefab);
+                    var goalEntity = ecb.Instantiate(goalPrefab);
 
                     int posX = 0;
                     int posY = 0;
@@ -269,16 +272,18 @@ public class SpawnBoardSystem : SystemBase
                         posY = boardDefinition.GoalPlayer4.Y;
                     }
 
-                    ecb.AddComponent<GoalTag>(spawnedEntity);
-                    ecb.SetComponent(spawnedEntity, new Translation
+                    ecb.AddComponent<GoalTag>(goalEntity);
+                    ecb.SetComponent(goalEntity, new Translation
                     {
                         Value = new float3(posX*boardDefinition.CellSize, 0.5f, posY*boardDefinition.CellSize)
                     });
-                    ecb.AddComponent(spawnedEntity, new GridPosition(){X=posX,Y=posY});
-                    ecb.AddComponent(spawnedEntity, new PlayerIndex(){Value = k});
-                    ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
-                    ecb.AddComponent<PropagateColor>(spawnedEntity);
-                    ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
+                    ecb.AddComponent(goalEntity, new GridPosition(){X=posX,Y=posY});
+                    ecb.AddComponent(goalEntity, new PlayerIndex(){Value = k});
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(goalEntity);
+                    ecb.AddComponent<PropagateColor>(goalEntity);
+                    ecb.AddComponent<ShouldSetupColor>(goalEntity);
+
+                    ecb.AppendToBuffer(entity, new GoalReference() { Goal = goalEntity });
                 }
 
                 

@@ -6,9 +6,18 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[GenerateAuthoringComponent]
-public struct AnimationProperties : IComponentData
+public struct BounceScaleAnimationProperties : IComponentData
 {
-    public float ObjScaleFactor;
-    public float ObjectScaleTime;
+    public float TargetScale;
+    public float OriginalScale;
+    public float AnimationDuration;
+    public float AccumulatedTime;
+}
+
+public struct RotateAnimationProperties : IComponentData
+{
+    public float3 TargetAngle;
+    public float3 OriginalAngle;
+    public float AnimationDuration;
+    public float AccumulatedTime;
 }

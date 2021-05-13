@@ -28,9 +28,13 @@ public class UpdatePositionSystem : SystemBase
 
         var numberColumns = boardDefinition.NumberColumns;
         var gridCellContents = GetBufferFromEntity<GridCellContent>(true)[boardEntity];
-        Dependency = Entities.WithReadOnly(gridCellContents).WithNone<FallingTime>().ForEach((Entity e, int entityInQueryIndex, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
-        {
+        var goalReferences = GetBufferFromEntity<GoalReference>(true)[boardEntity];
 
+        Dependency = Entities.WithReadOnly(gridCellContents)
+                            .WithReadOnly(goalReferences)
+                            .WithNone<FallingTime>()
+                            .ForEach((Entity e, int entityInQueryIndex, ref GridPosition position, ref CellOffset offset, ref Direction dir, in Speed speed) =>
+        {
             var deltaDisplacement = speed.Value * deltaTime;
             var deltaRatio = deltaDisplacement / boardDefinition.CellSize;
             var newOffset = offset.Value + deltaRatio;
@@ -62,7 +66,9 @@ public class UpdatePositionSystem : SystemBase
                         {
                             playerIndex = 3;
                         }
-                        //@TODO start scale animation on goal
+
+                        ecb.AddComponent(entityInQueryIndex,goalReferences[playerIndex].Goal,
+                            new BounceScaleAnimationProperties(){ AccumulatedTime = 0.0f, AnimationDuration = 0.5f, OriginalScale = 1.0f, TargetScale = 1.4f});
                         ecb.AddComponent(entityInQueryIndex, e, new HittingGoal{PlayerIndex = playerIndex});
                     }
                         break;
