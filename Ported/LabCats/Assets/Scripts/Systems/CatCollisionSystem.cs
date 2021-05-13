@@ -34,17 +34,17 @@ public class CatCollisionSystem : SystemBase
 
                 UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in direction);
 
-                var mouseX = gridPosition.X + cellOffset.Value * offsetX;
-                var mouseY = gridPosition.Y + cellOffset.Value * offsetY;
+                var mouseX = gridPosition.X + (cellOffset.Value - 0.5f) * offsetX;
+                var mouseY = gridPosition.Y - (cellOffset.Value - 0.5f) * offsetY;
 
                 // TODO: Check the distance to each cat
                 for (int i = 0; i < catPositions.Length; i++)
                 {
+                    var catDir = catDirections[i];
+                    UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in catDir);
 
-                    UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in direction);
-
-                    var catX = catPositions[i].X + catOffsets[i].Value * offsetX;
-                    var catY = catPositions[i].Y + catOffsets[i].Value * offsetY;
+                    var catX = catPositions[i].X + (catOffsets[i].Value - 0.5f) * offsetX;
+                    var catY = catPositions[i].Y - (catOffsets[i].Value - 0.5f) * offsetY;
 
                     var distance = math.distance(new float2(mouseX, mouseY), new float2(catX, catY));
 
