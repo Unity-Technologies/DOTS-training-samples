@@ -35,6 +35,7 @@ public class SpawnerSystem : SystemBase
 
             EntityManager.AddComponentData(boardEntity, new ReloadTime {Value = board.ReloadTime});
             EntityManager.AddComponentData(boardEntity, new Radius {Value = board.Radius});
+            EntityManager.AddComponentData(boardEntity, new BulletArcHeightFactor { Value = board.BulletArcHeightFactor });
             
             var totalSize = board.SizeX * board.SizeY;
             

@@ -32,6 +32,7 @@ public class BulletSpawnerSystem : SystemBase
         var bulletPrefab = GetSingleton<BoardSpawnerData>().BulletPrefab;
 
         var boardSize = GetComponent<BoardSize>(boardEntity);
+        var arcHeightFactor = GetComponent<BulletArcHeightFactor>(boardEntity);
         DynamicBuffer<OffsetList> offsets = GetBuffer<OffsetList>(boardEntity);
 
         float bulletRadius = GetComponent<Radius>(boardEntity).Value;
@@ -69,7 +70,7 @@ public class BulletSpawnerSystem : SystemBase
                         var landingPos = new float3(0,0,0);
                         var bulletArc = new Arc();
 
-                        TraceUtils.TraceArc(translation.Value, playerPosition.Value, boardSize, offsets, out landingPos, out bulletArc);
+                        TraceUtils.TraceArc(translation.Value, playerPosition.Value, boardSize, offsets, arcHeightFactor.Value, out landingPos, out bulletArc);
                         ecb.SetComponent(entityInQueryIndex, bulletEntity, new BallTrajectory
                             {
                                 Source = translation.Value,

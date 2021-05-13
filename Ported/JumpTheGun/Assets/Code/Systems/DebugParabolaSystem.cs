@@ -43,7 +43,7 @@ public class DebugParabolaSystem : SystemBase
                 TraceUtils.TraceArc(
                     new float3(0, 0, 0),
                     targetPoint.Value,
-                    boardSize, offsets, out landingPos, out arc);
+                    boardSize, offsets, 0.2f, out landingPos, out arc);
 
                 destination.Source = translation.Value;
                 destination.Destination = landingPos;
