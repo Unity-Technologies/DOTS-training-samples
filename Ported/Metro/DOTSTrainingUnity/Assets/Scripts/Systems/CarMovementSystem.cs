@@ -13,7 +13,6 @@ public class CarMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var time = Time.ElapsedTime;
-        EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         NativeArray<BezierPoint> allBezierPaths = Line.allBezierPathSubarrays;
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
