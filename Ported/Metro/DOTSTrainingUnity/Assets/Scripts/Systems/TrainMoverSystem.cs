@@ -59,7 +59,7 @@ public class TrainMoverSystem : SystemBase
                         }
 
                         // Update train distance based on current speed
-                        if (distToTarget >= currSpeed.value * deltaTime)
+                        if (distToTarget > currSpeed.value * deltaTime)
                         {
                             currDist.value += currSpeed.value * deltaTime;
                             if (currDist.value > totalDist)
