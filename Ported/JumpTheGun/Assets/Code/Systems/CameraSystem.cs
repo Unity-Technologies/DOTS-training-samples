@@ -7,6 +7,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(Unity.Entities.SimulationSystemGroup))]
 public class CameraSystem : SystemBase
 {
+   
     protected override void OnUpdate()
     {
         if (TryGetSingleton<IsPaused>(out _))

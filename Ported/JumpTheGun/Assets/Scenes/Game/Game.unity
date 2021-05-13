@@ -199,13 +199,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11d7f20954f5043b18a343f7903a9592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SizeX: 15
+  SizeX: 10
   SizeY: 10
   MinHeight: 2.5
   MaxHeight: 5.5
   ReloadTime: 1
+<<<<<<< HEAD
   Radius: 0.3
   NumberOfTanks: 5
+=======
+  Radius: 1
+  NumberOfTanks: 10
+>>>>>>> 8888351de2f3768971052ed7af1ba08cb0b7ba6b
   HitStrength: 0.4
   PlaformPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   TankPrefab: {fileID: 1285056113001856, guid: c86b1bd6777d544aba9a2ee2262c61c4, type: 3}
@@ -232,6 +237,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -380043868190919870, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: BounceTime
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: -380043868190919870, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: CooldownTime
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
       propertyPath: m_Name
       value: Player
@@ -282,20 +295,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
---- !u!1 &955104455 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-  m_PrefabInstance: {fileID: 955104454}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &955104456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 955104455}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f1e0d2b006cb427191a12b206b9d5fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

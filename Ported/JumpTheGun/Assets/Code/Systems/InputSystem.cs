@@ -19,9 +19,12 @@ public class InputSystem : SystemBase
 
         var minMaxHeight = GetComponent<MinMaxHeight>(boardEntity);
         var offsets = GetBuffer<OffsetList>(boardEntity);
+        var tankMap = GetBuffer<TankMap>(boardEntity);
         var boardSize = GetComponent<BoardSize>(boardEntity);
+        var radiusProperty = GetComponent<Radius>(boardEntity);
 
         var player = GetSingletonEntity<Player>();
+        var playerData = GetComponent<Player>(player);
         float currentTime = (float)Time.ElapsedTime;
         
         //check if we are at the end of a cycle. If not we just exit
@@ -50,13 +53,16 @@ public class InputSystem : SystemBase
         boardSrc = CoordUtils.ClampPos(boardSrc, boardSize.Value);
         boardTarget = CoordUtils.ClampPos(boardTarget, boardSize.Value);
 
-        float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
-        float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
+        if (tankMap[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value)
+            boardTarget = boardSrc;
+
+        float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);
+        float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);
 
         SetComponent(player, new BallTrajectory { Source = sourcePosition, Destination = dstPosition });
         SetComponent(player, new BoardTarget { Value = boardTarget });
         SetComponent(player, new BoardPosition { Value = boardTarget });
-        SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + 1.0f });
-        SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, offsets, boardSize));
+        SetComponent(player, new Time { StartTime = currentTime, EndTime = currentTime + playerData.BounceTime + playerData.CooldownTime });
+        SetComponent(player, TraceUtils.GetPlayerArchMovement(boardSrc, boardTarget, playerData.BallJumpRatio, offsets, boardSize));
     }
 }

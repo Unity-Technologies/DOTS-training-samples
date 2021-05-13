@@ -16,9 +16,13 @@ public class BallMovementSystem : SystemBase
         Entities
             .WithAll<Player, Arc, Time>()
             .WithAll<Translation, BallTrajectory, TimeOffset>().ForEach(
-            (ref Translation translation, in Time t, in BallTrajectory trajectory, in Arc arc, in TimeOffset timeOffset) =>
+            (ref Translation translation, in Player p, in Time t, in BallTrajectory trajectory, in Arc arc, in TimeOffset timeOffset) =>
             {
-                var timeInParabola = math.clamp((currentTime - t.StartTime - timeOffset.Value) / (t.EndTime - t.StartTime), 0.0f, 1.0f);
+                float elapsedTime = currentTime - t.StartTime;
+                if (elapsedTime < p.CooldownTime)
+                    return;
+
+                var timeInParabola = math.clamp((elapsedTime - timeOffset.Value) / (t.EndTime - t.StartTime), 0.0f, 1.0f);
                 float yInParabola = ParabolaUtil.Solve(arc.Value.x, arc.Value.y, arc.Value.z, timeInParabola);
                 float3 position = math.lerp(trajectory.Source, trajectory.Destination, timeInParabola);
                 position.y = yInParabola;
