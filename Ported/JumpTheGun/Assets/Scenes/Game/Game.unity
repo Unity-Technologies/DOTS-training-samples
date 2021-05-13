@@ -234,11 +234,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -380043868190919870, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
       propertyPath: BounceTime
-      value: 1
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: -380043868190919870, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
       propertyPath: CooldownTime
-      value: 0
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
       propertyPath: m_Name
