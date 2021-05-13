@@ -84,7 +84,6 @@ public static class TraceUtils
             currentCoord += D * s_MarchDistance;
             ++iterations;
         }
-
         
         boardMaxPointWorldPos.y = maxHeightValue;
         boardMaxPointWorldPos.x = foundCoord.x;
@@ -95,6 +94,7 @@ public static class TraceUtils
     public static Arc GetPlayerArchMovement(
         int2 startPosition,
         int2 endPosition,
+        float jumpRatio,
         in DynamicBuffer<OffsetList> offsets,
         in BoardSize boardSize)
     {
@@ -104,7 +104,7 @@ public static class TraceUtils
         float ballHeightDst = offsets[destIndex].Value;
 
         float a, b, c;
-        ParabolaUtil.CreateParabolaOverPoint(ballHeightSrc, 0.5f, math.max(ballHeightDst, ballHeightSrc) * 1.2f, ballHeightDst, out a, out b, out c);
+        ParabolaUtil.CreateParabolaOverPoint(ballHeightSrc, 0.5f, math.max(ballHeightDst, ballHeightSrc) * (jumpRatio + 1.0f), ballHeightDst, out a, out b, out c);
         return new Arc { Value = new float3(a, b, c) };
     }
 }
