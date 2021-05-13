@@ -11,6 +11,7 @@ public static class TraceUtils
         in float3 destinationWorldPosition,
         in BoardSize boardSize,
         in DynamicBuffer<OffsetList> offsets,
+        in float arcHeightFactor,
         out float3 outDestinationPos,
         out Arc outArc) 
     {
@@ -34,7 +35,7 @@ public static class TraceUtils
             hitPosition.y = math.max(destinationWorldPosition.y, sourceWorldPosition.y);
         }
 
-        hitPosition.y *= 1.5f;
+        hitPosition.y *= 1.0f + arcHeightFactor;
 
         float a, b, c;
         ParabolaUtil.CreateParabolaOverPoint(sourceWorldPosition.y, hitT, hitPosition.y, destinationWorldPosition.y, out a, out b, out c);

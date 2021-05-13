@@ -15,6 +15,8 @@ public struct BoardSpawnerData : IComponentData
     public int NumberOfTanks;
     public float HitStrength;
     
+    public float BulletArcHeightFactor;
+    
     public Entity PlaformPrefab;
     public Entity TankPrefab;
     public Entity TurretPrefab;

@@ -30,6 +30,9 @@ public class BoardSpawnerAuthoring : MonoBehaviour
 
     [Range(0.1F, 5F)]
     public float HitStrength;
+
+    [Range(0.1F, 5F)]
+    public float BulletArcHeightFactor = 0.2f;
     
     public GameObject PlaformPrefab;
     public GameObject TankPrefab;
@@ -56,6 +59,7 @@ public class BoardSpawnerAuthoring : MonoBehaviour
             Radius = Radius,
             NumberOfTanks = NumberOfTanks,
             HitStrength = HitStrength,
+            BulletArcHeightFactor = BulletArcHeightFactor,
             
             PlaformPrefab = conversionSystem.GetPrimaryEntity(PlaformPrefab),
             TankPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
