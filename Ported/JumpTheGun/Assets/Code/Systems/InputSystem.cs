@@ -20,6 +20,7 @@ public class InputSystem : SystemBase
         var minMaxHeight = GetComponent<MinMaxHeight>(boardEntity);
         var offsets = GetBuffer<OffsetList>(boardEntity);
         var boardSize = GetComponent<BoardSize>(boardEntity);
+        var radiusProperty = GetComponent<Radius>(boardEntity);
 
         var player = GetSingletonEntity<Player>();
         float currentTime = (float)Time.ElapsedTime;
@@ -50,8 +51,8 @@ public class InputSystem : SystemBase
         boardSrc = CoordUtils.ClampPos(boardSrc, boardSize.Value);
         boardTarget = CoordUtils.ClampPos(boardTarget, boardSize.Value);
 
-        float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
-        float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + 0.3f);
+        float3 sourcePosition = CoordUtils.BoardPosToWorldPos(boardPos.Value, offsets[CoordUtils.ToIndex(boardSrc, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);
+        float3 dstPosition    = CoordUtils.BoardPosToWorldPos(boardTarget, offsets[CoordUtils.ToIndex(boardTarget, boardSize.Value.x, boardSize.Value.y)].Value + radiusProperty.Value);
 
         SetComponent(player, new BallTrajectory { Source = sourcePosition, Destination = dstPosition });
         SetComponent(player, new BoardTarget { Value = boardTarget });
