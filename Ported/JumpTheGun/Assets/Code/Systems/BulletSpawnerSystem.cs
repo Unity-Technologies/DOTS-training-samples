@@ -21,15 +21,10 @@ public class BulletSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
+        if (!TryGetSingletonEntity<Player>(out Entity playerEntity))
             return;
 
-        Entity playerEntity;
-        if (!TryGetSingletonEntity<Player>(out playerEntity))
-            return;
-
-        Entity boardEntity;
-        if (!TryGetSingletonEntity<BoardSize>(out boardEntity))
+        if (!TryGetSingletonEntity<BoardSize>(out Entity boardEntity))
             return;
 
         var times = new double2(Time.ElapsedTime - Time.DeltaTime, Time.ElapsedTime);

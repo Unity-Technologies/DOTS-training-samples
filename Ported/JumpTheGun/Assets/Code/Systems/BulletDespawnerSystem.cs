@@ -20,9 +20,6 @@ public class BulletDespawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        if (TryGetSingleton<IsPaused>(out _))
-            return;
-
         var currentTime = Time.ElapsedTime;
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
