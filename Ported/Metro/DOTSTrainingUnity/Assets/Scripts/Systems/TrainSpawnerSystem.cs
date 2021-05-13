@@ -7,6 +7,8 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class TrainSpawnerSystem : SystemBase
 {
+    private EntityQuery RequirePropagation;
+    
     protected override void OnUpdate()
     {
         NativeArray<float> distances = Line.allDistances;
@@ -37,8 +39,30 @@ public class TrainSpawnerSystem : SystemBase
                         Entity newTrainCar = ecb.Instantiate(spawnerData.TrainCarPrefab);
                         ecb.SetComponent(newTrainCar, new TrainCarIndex(){value = carIdx});
                         ecb.SetComponent(newTrainCar, new TrainEngineRef(){value = newTrainEngine});
-                        // eventually do color here
-                        //dstManager.SetComponentData(entity, new Color() {value = new float4(color.r, color.g, color.b, color.a)});
+
+                        int color = trackIdx % 4;
+                        float4 theColor = spawnerData.color0;
+                        switch (color)
+                        {
+                            case 1:
+                            {
+                                theColor = spawnerData.color1;
+                                break;
+                            }
+                            case 2:
+                            {
+                                theColor = spawnerData.color2;
+                                break;
+                            }
+                            case 3:
+                            {
+                                theColor = spawnerData.color3;
+                                break;
+                            }
+                            default:
+                                break;
+                        };
+                        ecb.SetComponent(newTrainCar, new Color() {value = theColor});
                     }
                 }
             }
@@ -47,6 +71,30 @@ public class TrainSpawnerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        ecb.RemoveComponentForEntityQuery<PropagateColor>(RequirePropagation);
+        var cdfe = GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
+        Entities
+            .WithNativeDisableContainerSafetyRestriction(cdfe)
+            .WithStoreEntityQueryInField(ref RequirePropagation)
+            .WithAll<PropagateColor>()
+            .ForEach((in DynamicBuffer<LinkedEntityGroup> group
+                , in Color color) =>
+            {
+                for (int i = 1; i < group.Length; ++i)
+                {
+                    if (HasComponent<URPMaterialPropertyBaseColor>(group[i].Value))
+                    {
+                        cdfe[group[i].Value] = new URPMaterialPropertyBaseColor() {Value = color.value};
+                    }
+                }
+            }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        
+         
         ecb = new EntityCommandBuffer(Allocator.Temp);
 
         // Add right doors
