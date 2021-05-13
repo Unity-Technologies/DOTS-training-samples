@@ -18,10 +18,7 @@ public class SpawnerSystem : SystemBase
     
     private void SpawnBoard()
     {
-        //var player = GetSingletonEntity<Player>();
-        var startX = 0;
-        var startY = 0;
-
+  
         Entities
             .WithStructuralChanges()
             .WithAll<BoardSpawnerTag>()
@@ -30,10 +27,7 @@ public class SpawnerSystem : SystemBase
             EntityManager.AddComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
             EntityManager.AddComponent<OffsetList>(boardEntity);
 
-            var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);
-
-            startX = board.SizeX;
-            startY = board.SizeY;
+            var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);;
 
             EntityManager.AddComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
             EntityManager.AddComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
@@ -126,6 +120,7 @@ public class SpawnerSystem : SystemBase
         var boardSize = GetComponent<BoardSize>(boardEntity);
         var offsets = GetBuffer<OffsetList>(boardEntity);
 
+        //TODO Randomize at the beginning.
         //startX = random.Next(0, boardEntity.SizeX);
         //startY = random.Next(0, boardEntity.SizeY);
 
@@ -135,14 +130,21 @@ public class SpawnerSystem : SystemBase
             .WithAll<PlayerSpawnerTag>()
             .ForEach((Entity player) =>
             {
+
+                 Camera mainCamera = Camera.main;
+
                  int2 boardPos = new int2(boardSize.Value.x >> 1, boardSize.Value.y >> 1);
 
                  float3 targetPos = CoordUtils.BoardPosToWorldPos(boardPos, offsets[CoordUtils.ToIndex(boardPos, boardSize.Value.x, boardSize.Value.y)].Value);
+
+                 float3 cameraPosition = new float3(targetPos.x, mainCamera.transform.position.y, targetPos.z);
 
                  EntityManager.SetComponentData(player, new Translation { Value = targetPos });
                  EntityManager.SetComponentData(player, new BoardPosition { Value = boardPos });
 
                  EntityManager.RemoveComponent<PlayerSpawnerTag>(player);
+
+                 mainCamera.transform.position = cameraPosition;
             }).Run();
     }
 
