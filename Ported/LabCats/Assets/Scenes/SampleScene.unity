@@ -123,6 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &295575731 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5066169276682575464, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,6 +239,17 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &807585185 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 915491803297117823, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+  m_PrefabInstance: {fileID: 5608588421237559376}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
@@ -391,6 +407,8 @@ MonoBehaviour:
   Player2ScoreText: {fileID: 1242860726}
   Player3ScoreText: {fileID: 1543616362}
   Player4ScoreText: {fileID: 755793216}
+  GameOverPanel: {fileID: 295575731}
+  GameOverText: {fileID: 807585185}
 --- !u!4 &1007041096
 Transform:
   m_ObjectHideFlags: 0
@@ -543,6 +561,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1495345244375063815, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5066169276682575464, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5462892629589504373, guid: edad88e9b849adf4eb58a6cc9cf75752, type: 3}
