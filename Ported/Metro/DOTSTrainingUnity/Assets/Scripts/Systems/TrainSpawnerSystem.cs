@@ -23,14 +23,14 @@ public class TrainSpawnerSystem : SystemBase
                     
                     // spawn train
                     Entity newTrainEngine = ecb.Instantiate(spawnerData.TrainEnginePrefab);
-                    
+
                     // need to set total distance, target distance, max speed, track index, train state
                     ecb.SetComponent(newTrainEngine, new TrackIndex(){value = trackIdx});
                     ecb.SetComponent(newTrainEngine, new TrainState(){value = CurrTrainState.Moving});
                     ecb.SetComponent(newTrainEngine, new TrainCurrDistance(){value = trainIdx * (trackDistance / spawnerData.numberOfTrainsPerTrack) });
                     ecb.SetComponent(newTrainEngine, new TrainTargetDistance() {value = (trainIdx + 1) * (trackDistance / spawnerData.numberOfTrainsPerTrack) } );
                     ecb.SetComponent(newTrainEngine, new TrainMaxSpeed(){value = 100.0f});
-                    
+
                     // spawn train cars
                     for (int carIdx = 0; carIdx < spawnerData.numberOfTrainCarsPerTrain; ++carIdx)
                     {
@@ -43,10 +43,27 @@ public class TrainSpawnerSystem : SystemBase
                 }
             }
         }).Run();
-        
-        Enabled = false;
-        
+
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        // Add right doors
+        Entities.ForEach((Entity entity, in TrainEngineRef trainEngineRef, in DoorsRef doorsRef) =>
+        {
+            ecb.AppendToBuffer<DoorEntities>(trainEngineRef.value, doorsRef.doorEntRight);
+        }).Run();
+
+        // Add left doors
+        Entities.ForEach((Entity entity, in TrainEngineRef trainEngineRef, in DoorsRef doorsRef) =>
+        {
+            ecb.AppendToBuffer<DoorEntities>(trainEngineRef.value, doorsRef.doorEntLeft);
+        }).Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+
+        Enabled = false;
     }
 }
