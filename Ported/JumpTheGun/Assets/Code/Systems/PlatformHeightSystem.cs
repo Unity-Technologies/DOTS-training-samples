@@ -38,7 +38,7 @@ public class PlatformHeightSystem : SystemBase
                 //Debug.Log("boardPosition: " + boardPosition.Value.x + " " + boardPosition.Value.y);
                 
                 var index = CoordUtils.ToIndex(boardPosition.Value, boardSize.x, boardSize.y); 
-                var offset = offsets[index].Value - hitStrength * hit.Count;
+                var offset = math.max(offsets[index].Value - hitStrength * hit.Count, minMaxHeight.x);
 
                 offsets[index] = new OffsetList {Value = offset};
                 
