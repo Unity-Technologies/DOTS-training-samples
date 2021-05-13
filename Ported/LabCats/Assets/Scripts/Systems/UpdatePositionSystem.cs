@@ -37,8 +37,9 @@ public class UpdatePositionSystem : SystemBase
 
             if (offset.Value <= 0.5f && newOffset >= 0.5f || newOffset >= 1.5f)
             {
-                var cellType = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Type;
-                var wallBoundaries = gridCellContents[GridCellContent.Get1DIndexFromGridPosition(position, numberColumns)].Walls;
+                int cell1DIndex = GridCellContent.Get1DIndexFromGridPosition(position, numberColumns);
+                var cellType = gridCellContents[cell1DIndex].Type;
+                var wallBoundaries = gridCellContents[cell1DIndex].Walls;
                 if ((wallBoundaries & WallBoundaries.WallAll) == WallBoundaries.WallAll)
                 {
                     offset.Value = 0.5f;
@@ -48,8 +49,21 @@ public class UpdatePositionSystem : SystemBase
                 {
                     case GridCellType.Goal:
                     {
-                        //@TODO who is the goal play index ? Should add a component data with that information so we can update the score.
-                        ecb.AddComponent<HittingGoal>(entityInQueryIndex, e);
+                        int playerIndex = 0;
+                        if (cell1DIndex == GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer2, numberColumns))
+                        {
+                            playerIndex = 1;
+                        }
+                        if (cell1DIndex == GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer3, numberColumns))
+                        {
+                            playerIndex = 2;
+                        }
+                        if (cell1DIndex == GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer4, numberColumns))
+                        {
+                            playerIndex = 3;
+                        }
+                        //@TODO start scale animation on goal
+                        ecb.AddComponent(entityInQueryIndex, e, new HittingGoal{PlayerIndex = playerIndex});
                     }
                         break;
                     case GridCellType.Hole:

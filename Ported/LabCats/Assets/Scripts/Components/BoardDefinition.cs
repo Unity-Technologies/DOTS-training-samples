@@ -11,4 +11,8 @@ public struct BoardDefinition : IComponentData
     public float CellSize;
     public int NumberColumns;
     public int NumberRows;
+    public GridPosition GoalPlayer1;
+    public GridPosition GoalPlayer2;
+    public GridPosition GoalPlayer3;
+    public GridPosition GoalPlayer4;
 }

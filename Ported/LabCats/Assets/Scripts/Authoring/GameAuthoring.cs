@@ -33,7 +33,19 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new BoardDefinition() { CellSize = CellSize, NumberColumns = NumberColumns, NumberRows = NumberRows });
+        var random = new Unity.Mathematics.Random(1234);
+        //goals shouldnt be random, they should be computed from the board dimension to be fair
+        dstManager.AddComponentData(entity,
+            new BoardDefinition()
+            {
+                CellSize = CellSize,
+                NumberColumns = NumberColumns,
+                NumberRows = NumberRows,
+                GoalPlayer1 = new GridPosition(){X = 2/*random.NextInt(0, NumberColumns)*/, Y=8/*random.NextInt(0, NumberRows)*/},
+                GoalPlayer2 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
+                GoalPlayer3 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
+                GoalPlayer4 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
+            });
         var gridCellBuffer = dstManager.AddBuffer<GridCellContent>(entity);
         gridCellBuffer.Capacity = NumberColumns * NumberRows;
         dstManager.AddComponent<GameData>(entity);

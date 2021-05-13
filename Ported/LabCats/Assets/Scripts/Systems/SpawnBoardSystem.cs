@@ -64,6 +64,8 @@ public class SpawnBoardSystem : SystemBase
             .WithoutBurst()
             .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab) =>
             {
+                int numberColumns = boardDefinition.NumberColumns;
+                int numberRows = boardDefinition.NumberRows;
                 // Store the grid world position
                 var firstCellPosition = new FirstCellPosition
                 {
@@ -90,22 +92,30 @@ public class SpawnBoardSystem : SystemBase
                     ecb.SetName(playerEntity, "Player " + i);
                 }
 
-                int numberCells = boardDefinition.NumberColumns * boardDefinition.NumberRows;
+                int player1GoalIndex = GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer1, numberColumns);
+                int player2GoalIndex = GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer2, numberColumns);
+                int player3GoalIndex = GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer3, numberColumns);
+                int player4GoalIndex = GridCellContent.Get1DIndexFromGridPosition(boardDefinition.GoalPlayer4, numberColumns);
+
+                int numberCells = numberColumns * numberRows;
                 for (int boardIndex = 0; boardIndex < numberCells; ++boardIndex)
                 {
                     WallBoundaries borderWall = WallBoundaries.NoWall;
-                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
-                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, numberColumns);
+                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, numberColumns);
 
                     if(i == 0)
                         borderWall |= WallBoundaries.WallUp;
-                    if (i == boardDefinition.NumberRows - 1)
+                    if (i == numberRows - 1)
                         borderWall |= WallBoundaries.WallDown;
                     if (j == 0)
                         borderWall |= WallBoundaries.WallLeft;
-                    if (j == boardDefinition.NumberColumns - 1)
+                    if (j == numberColumns - 1)
                         borderWall |= WallBoundaries.WallRight;
-                    gridContent.Add(new GridCellContent() { Type = GridCellType.None, Walls = borderWall});
+                    var gridCellType = GridCellType.None;
+                    if (boardIndex == player1GoalIndex || boardIndex == player2GoalIndex || boardIndex == player3GoalIndex || boardIndex == player4GoalIndex)
+                        gridCellType = GridCellType.Goal;
+                    gridContent.Add(new GridCellContent() { Type = gridCellType, Walls = borderWall});
                 }
 
                 int numWalls = (int)(numberCells * kWallDensity);
@@ -114,7 +124,7 @@ public class SpawnBoardSystem : SystemBase
                     int wallCellIndex = random.NextInt(0, numberCells);
                     var randomDirection = GetRandomDirection(random);
 
-                    int neighbourCellIndex = GridCellContent.GetNeighbour1DIndexWithDirection(wallCellIndex,randomDirection,boardDefinition.NumberRows, boardDefinition.NumberColumns);
+                    int neighbourCellIndex = GridCellContent.GetNeighbour1DIndexWithDirection(wallCellIndex,randomDirection,numberRows, numberColumns);
                     int wallBoundaryInCell = HasWallBoundariesInDirection(gridContent[wallCellIndex].Walls, randomDirection);
                     int neighbourBoundary = 0;
                     if (neighbourCellIndex != -1)
@@ -147,8 +157,8 @@ public class SpawnBoardSystem : SystemBase
                 //create the board cell entities
                 for (int boardIndex = 0; boardIndex < numberCells; ++boardIndex)
                 {
-                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
-                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, boardDefinition.NumberColumns);
+                    int j = GridCellContent.GetColumnIndexFrom1DIndex(boardIndex, numberColumns);
+                    int i = GridCellContent.GetRowIndexFrom1DIndex(boardIndex, numberColumns);
                     Entity cellPrefab = (j % 2 == i % 2 ? boardPrefab.DarkCellPrefab : boardPrefab.LightCellPrefab);
                     if (gridContent[boardIndex].Type != GridCellType.Hole)
                     {
@@ -168,7 +178,7 @@ public class SpawnBoardSystem : SystemBase
                         ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize - 0.5f - halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
                     }
 
-                    if (i == boardDefinition.NumberRows - 1 && (wallBoundaries & WallBoundaries.WallDown) != 0)
+                    if (i == numberRows - 1 && (wallBoundaries & WallBoundaries.WallDown) != 0)
                     {
                         var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
                         ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize + 0.5f + halfWallThickness, 0.5f, j*boardDefinition.CellSize)});
@@ -181,7 +191,7 @@ public class SpawnBoardSystem : SystemBase
                         ecb.SetComponent(wallEntity, new Rotation{Value = quaternion.LookRotation(new float3(1.0f, 0f, 0f), new float3(0f, 1f, 0f))});
                     }
 
-                    if (j == boardDefinition.NumberColumns - 1 && (wallBoundaries & WallBoundaries.WallRight) != 0)
+                    if (j == numberColumns - 1 && (wallBoundaries & WallBoundaries.WallRight) != 0)
                     {
                         var wallEntity = ecb.Instantiate(boardPrefab.WallPrefab);
                         ecb.SetComponent(wallEntity, new Translation{Value = new float3(i*boardDefinition.CellSize, 0.5f, j*boardDefinition.CellSize + 0.5f + halfWallThickness)});
@@ -192,12 +202,33 @@ public class SpawnBoardSystem : SystemBase
 
 
                 //Goals are spawned randomly but shouldn’t
-                for (int k = 0; k < 3; k++)
+                for (int k = 0; k < 4; k++)
                 {
                     Entity goalPrefab = boardPrefab.GoalPrefab;
-                    var posX = random.NextInt(0, boardDefinition.NumberRows);
-                    var posY = random.NextInt(0, boardDefinition.NumberColumns);
                     var spawnedEntity = ecb.Instantiate(goalPrefab);
+
+                    int posX = 0;
+                    int posY = 0;
+                    if (k == 0)
+                    {
+                        posX = boardDefinition.GoalPlayer1.X;
+                        posY = boardDefinition.GoalPlayer1.Y;
+                    }
+                    else if (k == 1)
+                    {
+                        posX = boardDefinition.GoalPlayer2.X;
+                        posY = boardDefinition.GoalPlayer2.Y;
+                    }
+                    else if (k == 2)
+                    {
+                        posX = boardDefinition.GoalPlayer3.X;
+                        posY = boardDefinition.GoalPlayer3.Y;
+                    }
+                    else
+                    {
+                        posX = boardDefinition.GoalPlayer4.X;
+                        posY = boardDefinition.GoalPlayer4.Y;
+                    }
 
                     ecb.AddComponent<GoalTag>(spawnedEntity);
                     ecb.SetComponent(spawnedEntity, new Translation
@@ -228,8 +259,8 @@ public class SpawnBoardSystem : SystemBase
                     {
                         ecb.AddComponent(spawnedEntity, new AITargetCell()
                         {
-                            X = random.NextInt(0, boardDefinition.NumberColumns),
-                            Y = random.NextInt(0, boardDefinition.NumberRows),
+                            X = random.NextInt(0, numberColumns),
+                            Y = random.NextInt(0, numberRows),
                         });
                     }
 
@@ -279,8 +310,8 @@ public class SpawnBoardSystem : SystemBase
                     Frequency = 0.25f,
                     Direction = Dir.Down,
                     Type = SpawnerType.MouseSpawner,
-                    X = boardDefinition.NumberColumns - 1,
-                    Y = boardDefinition.NumberRows - 1
+                    X = numberColumns - 1,
+                    Y = numberRows - 1
                 });
                 ecb.SetName(spawner2, "Mouse Spawner 2");
 
@@ -291,7 +322,7 @@ public class SpawnBoardSystem : SystemBase
                     Frequency = 5f,
                     Direction = Dir.Left,
                     Type = SpawnerType.CatSpawner,
-                    X = boardDefinition.NumberColumns - 1,
+                    X = numberColumns - 1,
                     Y = 0
                 });
                 ecb.SetName(spawner3, "CatSpawner 1");
@@ -304,7 +335,7 @@ public class SpawnBoardSystem : SystemBase
                     Direction = Dir.Right,
                     Type = SpawnerType.CatSpawner,
                     X = 0,
-                    Y = boardDefinition.NumberRows - 1
+                    Y = numberRows - 1
                 });
 
                 // TODO: Set up goals
@@ -317,12 +348,12 @@ public class SpawnBoardSystem : SystemBase
                 camera.orthographic = true;
                 var overheadFactor = 1.5f;
 
-                var maxSize = Mathf.Max(boardDefinition.NumberRows, boardDefinition.NumberColumns);
+                var maxSize = Mathf.Max(numberRows, numberColumns);
                 var maxCellSize = boardDefinition.CellSize;
                 camera.orthographicSize = maxSize * maxCellSize * .65f;
 
                 // scale based on board dimensions - james
-                var posXZ = Vector2.Scale(new Vector2(boardDefinition.NumberRows, boardDefinition.NumberColumns) * 0.5f, new Vector2(boardDefinition.CellSize, boardDefinition.CellSize));
+                var posXZ = Vector2.Scale(new Vector2(numberRows, numberColumns) * 0.5f, new Vector2(boardDefinition.CellSize, boardDefinition.CellSize));
 
                 // hold position value adjusted by dimensions of board
                 float3 camPosition = new Vector3(0, maxSize * maxCellSize * overheadFactor, 0);

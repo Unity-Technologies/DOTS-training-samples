@@ -52,5 +52,15 @@ public class UpdateUISystem : SystemBase
             }
             gameObjectRefs.GameTime.text = $"0:{(int)gameTime.AccumulatedTime}";
         }
+
+        var playerReferences = EntityManager.GetBuffer<PlayerReference>(boardEntity);
+        var scorePlayer1 = EntityManager.GetComponentData<Score>(playerReferences[0].Player).Value;
+        var scorePlayer2 = EntityManager.GetComponentData<Score>(playerReferences[1].Player).Value;
+        var scorePlayer3 = EntityManager.GetComponentData<Score>(playerReferences[2].Player).Value;
+        var scorePlayer4 = EntityManager.GetComponentData<Score>(playerReferences[3].Player).Value;
+        gameObjectRefs.Player1ScoreText.text = $"{scorePlayer1}";
+        gameObjectRefs.Player2ScoreText.text = $"{scorePlayer2}";
+        gameObjectRefs.Player3ScoreText.text = $"{scorePlayer3}";
+        gameObjectRefs.Player4ScoreText.text = $"{scorePlayer4}";
     }
 }

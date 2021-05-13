@@ -13,4 +13,8 @@ public class GameObjectRefs : IComponentData
     public Camera Camera;
     public Text GameTime;
     public Text IntroText;
+    public Text Player1ScoreText;
+    public Text Player2ScoreText;
+    public Text Player3ScoreText;
+    public Text Player4ScoreText;
 }
