@@ -25,6 +25,8 @@ public class BulletAuthoring : UnityMonoBehaviour
         entityManager.AddComponentData(entity, new Arc() { Value = new float3(0.0f, 0.0f, 0.0f) });
         entityManager.AddComponentData(entity, new Time() { StartTime = 0.0f, EndTime= 0.0f });
         entityManager.AddComponentData(entity, new TimeOffset() { Value = 0.0f });
+        entityManager.SetComponentData(entity, new Translation() { Value = new float3(0.0f, 1000.0f, 0.0f)});
+        entityManager.SetComponentData(entity, new LocalToWorld { Value = float4x4.Translate(new float3(0f, 1000f, 0f)) });
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
