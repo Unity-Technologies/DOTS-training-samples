@@ -9,12 +9,28 @@ public class CatCollisionSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_CatQuery = GetEntityQuery(typeof(CatTag), typeof(GridPosition), typeof(CellOffset), typeof(Direction), typeof(ColliderSize));
+        m_CatQuery = GetEntityQuery(
+            new EntityQueryDesc
+            {
+                All = new ComponentType[]
+                {
+                    ComponentType.ReadOnly<CatTag>(),
+                    ComponentType.ReadOnly<GridPosition>(),
+                    ComponentType.ReadOnly<CellOffset>(),
+                    ComponentType.ReadOnly<Direction>(),
+                    ComponentType.ReadOnly<ColliderSize>()
+                },
+                // Prevent cats from eating all the mice when they are falling to their death
+                None = new ComponentType[]
+                {
+                    ComponentType.ReadOnly<FallingTime>()
+                }
+            });
     }
 
     protected override void OnUpdate()
     {
-        // Grab all the Cats and put their positions in a dyanmic buffer
+        // Grab all the Cats and put their positions in a dynamic buffer
         // TODO: I have no idea if this will work
         var catEntities = m_CatQuery.ToEntityArray(Allocator.Temp);
         var catPositions = m_CatQuery.ToComponentDataArray<GridPosition>(Allocator.Temp);

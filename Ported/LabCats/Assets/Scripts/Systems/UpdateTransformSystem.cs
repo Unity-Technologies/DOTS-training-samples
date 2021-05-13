@@ -37,6 +37,7 @@ public class UpdateTransformSystem : SystemBase
         Entities
             .WithName("UpdateMovingGridObjectPosition")
             .WithAll<Speed>()
+            .WithNone<FallingTime>()
             .ForEach((ref Translation translation, ref Rotation rotation, in GridPosition gridPosition, in CellOffset cellOffset, in Direction direction) =>
             {
                 var offsetDirX = 0;

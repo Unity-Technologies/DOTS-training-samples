@@ -13,7 +13,6 @@ public class AIPlayerControllerSystem : SystemBase
     {
         RequireSingletonForUpdate<BoardInitializedTag>();
         m_EcbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-
     }
 
     protected override void OnUpdate()
