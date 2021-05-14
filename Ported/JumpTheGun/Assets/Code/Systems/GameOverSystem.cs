@@ -10,7 +10,7 @@ public class GameOverSystem : SystemBase
 
     protected override void OnCreate()
     {
-        var query = GetEntityQuery(typeof(Player), typeof(WasHit));
+        var query = GetEntityQuery(typeof(Player));
         RequireForUpdate(query);
 
         ecbs_level = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -20,14 +20,15 @@ public class GameOverSystem : SystemBase
 
     protected override void OnUpdate()
     {
-
-        if (TryGetSingleton<IsInvincible>(out _))
+        bool hasReset = TryGetSingleton<Reset>(out _);
+        
+        if (!hasReset && TryGetSingleton<IsInvincible>(out _))
             return;
 
         Entity player = GetSingletonEntity<Player>();
         WasHit hit = GetComponent<WasHit>(player);
 
-        if (hit.Count <= 0)
+        if (!hasReset && hit.Count <= 0)
             return;
 
         Entities
@@ -37,10 +38,9 @@ public class GameOverSystem : SystemBase
                 hit.Count = 0;
             }).Run();
         
-        var ecbp = ecbs_level.CreateCommandBuffer();
-
         EntityCommandBuffer.ParallelWriter ecbl = ecbs_level.CreateCommandBuffer().AsParallelWriter();
         EntityCommandBuffer.ParallelWriter ecbb = ecbs_board.CreateCommandBuffer().AsParallelWriter();
+        EntityCommandBuffer.ParallelWriter ecbp = ecbs_player.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<CurrentLevel>()
@@ -60,7 +60,10 @@ public class GameOverSystem : SystemBase
             .WithAll<Player>()
             .ForEach((int entityInQueryIndex, Entity entity) =>
             {
-                ecbb.AddComponent<PlayerSpawnerTag>(entityInQueryIndex, entity);
+                if (hasReset)
+                    ecbp.RemoveComponent<Reset>(entityInQueryIndex, entity);
+
+                ecbp.AddComponent<PlayerSpawnerTag>(entityInQueryIndex, entity);
             }).ScheduleParallel();
         
         ecbs_level.AddJobHandleForProducer(Dependency);
