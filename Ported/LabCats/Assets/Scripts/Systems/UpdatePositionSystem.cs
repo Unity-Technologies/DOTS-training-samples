@@ -39,7 +39,7 @@ public class UpdatePositionSystem : SystemBase
             var deltaRatio = deltaDisplacement / boardDefinition.CellSize;
             var newOffset = offset.Value + deltaRatio;
 
-            if (offset.Value <= 0.5f && newOffset >= 0.5f || newOffset >= 1.5f)
+            if (newOffset >= 0.5f)
             {
                 int cell1DIndex = GridCellContent.Get1DIndexFromGridPosition(position, numberColumns);
                 var cellType = gridCellContents[cell1DIndex].Type;

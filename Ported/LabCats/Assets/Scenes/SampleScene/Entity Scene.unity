@@ -163,9 +163,14 @@ MonoBehaviour:
   CatPrefab: {fileID: 6651773216328647454, guid: 844f5eeed185491409f7ed4f42978d3c, type: 3}
   WallPrefab: {fileID: 5081770881951749758, guid: 2e7c1d419b4dd004c9e5714f189e6e7d, type: 3}
   GoalPrefab: {fileID: 8369240432833589965, guid: 41c20a3d78367794fa3d063dab63f55c, type: 3}
-  MaxCats: 3
-  CatSpawnFrequency: 5
-  MouseSpawnFrequency: 0.25
+  GameLength: 120
+  BoardGenerationSeed: 1234
+  AIControllerSeed: 1234
+  WallDensity: 0.2
+  MaximumNumberCellsPerHole: 600
+  MaxCats: 100
+  CatSpawnFrequency: 0
+  MouseSpawnFrequency: 0
 --- !u!4 &1777681426
 Transform:
   m_ObjectHideFlags: 0
