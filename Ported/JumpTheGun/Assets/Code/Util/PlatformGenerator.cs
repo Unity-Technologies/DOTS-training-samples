@@ -1,19 +1,14 @@
 using System.Collections.Generic;
 
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 using Random = Unity.Mathematics.Random;
 
 public static class PlatformGenerator
 {
-    public enum PlatformType
-    {
-        Tank,
-        Empty
-    }
-
-    public static NativeArray<PlatformType> CreatePlatforms(int width, int height, int2 playerPosition, int numberOfTanks, Random random, Allocator allocator = Allocator.Persistent)
+    public static void CreateTanks(int width, int height, int2 playerPosition, int numberOfTanks, Random random, ref DynamicBuffer<TankMap> tanks)
     {
         int cellSizes = width * height;
         int tanksPlaced = 0;
@@ -22,29 +17,26 @@ public static class PlatformGenerator
 
         numberOfTanks = math.min(numberOfTanks, cellSizes);
 
-        var platforms = new NativeArray<PlatformType>(width * height, allocator);
-        for (; cellId < cellSizes; ++cellId)
-        {
-            platforms[cellId] = PlatformType.Empty;
-        }
-
+        tanks.ResizeUninitialized(cellSizes);
+        for (int i = 0; i < cellSizes; ++i)
+            tanks[i] = new TankMap {Value = false};
+        
         cellId = 0;
         while (tanksPlaced < numberOfTanks)
         {
             float randomVal = random.NextFloat();
             
             int2 cellCoord = CoordUtils.ToCoords(cellId, width, height);
-            bool isCellValid = cellCoord.x != playerPosition.x || cellCoord.y != playerPosition.y && platforms[cellId] == PlatformType.Empty;
+            bool isCellValid = cellCoord.x != playerPosition.x || cellCoord.y != playerPosition.y && tanks[cellId].Value == false;
             if (isCellValid && randomVal <= tankChance)
             {
                 ++tanksPlaced;
-                platforms[cellId] = PlatformType.Tank;
+                tanks[cellId] = new TankMap {Value = true};
             }
 
             cellId = (cellId + 1) % cellSizes;
         }
-
-        return platforms;
     }
-
+    
+    
 }

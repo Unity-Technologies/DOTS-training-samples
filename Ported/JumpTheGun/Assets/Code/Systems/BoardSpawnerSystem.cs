@@ -40,24 +40,16 @@ public class BoardSpawnerSystem : SystemBase
             
             var totalSize = board.SizeX * board.SizeY;
             
-            var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, Allocator.Temp);
-            var platforms = PlatformGenerator.CreatePlatforms(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, Allocator.Temp);
+            //var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, Allocator.Temp);
+            //var tanks = PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, Allocator.Temp);
             var boardPosition = new int2(0, 0);
             
-            // TODO find a better way to do that.
-
-            var buffer = ecb.AddBuffer<OffsetList>(boardEntity);
-            buffer.AddRange(offsets.Reinterpret<OffsetList>());
-            //buffer.ResizeUninitialized(totalSize);
-            //for (int i = 0; i < totalSize; ++i)
-            //    buffer[i] = new OffsetList {Value = offsets[i]};
+            var offsets = ecb.AddBuffer<OffsetList>(boardEntity);
+            OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, ref offsets);
             
-            var tankMap = ecb.AddBuffer<TankMap>(boardEntity);
-            //tankMap.AddRange(platforms.Reinterpret<TankMap>());
-            tankMap.ResizeUninitialized(totalSize);
-            for (int i = 0; i < totalSize; ++i)
-                tankMap[i] = new TankMap {Value = (platforms[i] == PlatformGenerator.PlatformType.Tank)}; 
-
+            var tanks = ecb.AddBuffer<TankMap>(boardEntity);
+            PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, ref tanks);
+            
             for (int y = 0; y < board.SizeY; ++y)
             {
                 for (int x = 0; x < board.SizeX; ++x)
@@ -67,7 +59,7 @@ public class BoardSpawnerSystem : SystemBase
                     var localToWorld = math.mul(
                         math.mul(
                             float4x4.Translate(new float3(x, -0.5f, y)),
-                            float4x4.Scale(1f, offsets[y * board.SizeX + x], 1f)),
+                            float4x4.Scale(1f, offsets[y * board.SizeX + x].Value, 1f)),
                         float4x4.Translate(new float3(0f, 0.5f, 0f)));
 
                     ecb.RemoveComponent<Translation>(instance);
@@ -79,24 +71,24 @@ public class BoardSpawnerSystem : SystemBase
                     boardPosition.y = y;
                     
                     //float4 color = new float4((float)boardPosition.x / board.SizeX, (float)boardPosition.y / board.SizeY, 0f, 1f); 
-                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x], board.MinHeight, board.MaxHeight);
+                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x].Value, board.MinHeight, board.MaxHeight);
                     
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = color });
                     ecb.SetComponent(instance, new BoardPosition { Value = boardPosition });
                 }
             }
 
-            for (int i = 0; i < platforms.Length; ++i)
+            for (int i = 0; i < tanks.Length; ++i)
             {
-                if (platforms[i] == PlatformGenerator.PlatformType.Tank)
+                if (tanks[i].Value)
                 {
                     int2 coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
                     Entity tank = ecb.Instantiate(board.TankPrefab);
-                    ecb.SetComponent(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+                    ecb.SetComponent(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y)});
                     ecb.SetComponent(tank, new TimeOffset {Value = math.fmod(randomGenerator.NextFloat(), 1f) * 5f});
                     
                     Entity turret = ecb.Instantiate(board.TurretPrefab);
-                    ecb.SetComponent(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x], coords.y)});
+                    ecb.SetComponent(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y)});
                 }
             }
 

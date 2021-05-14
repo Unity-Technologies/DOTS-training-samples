@@ -6,19 +6,17 @@ using Random = Unity.Mathematics.Random;
 
 public static class OffsetGenerator
 {
-    public static NativeArray<float> CreateRandomOffsets(int width, int height, float minHeight, float maxHeight, Random random, Allocator allocator = Allocator.Persistent)
+    public static void CreateRandomOffsets(int width, int height, float minHeight, float maxHeight, Random random, ref DynamicBuffer<OffsetList> buffer)
     {
         int totalSize = width * height;
-        
-        var outputArray = new NativeArray<float>(totalSize, allocator, NativeArrayOptions.UninitializedMemory);
+       
+        buffer.ResizeUninitialized(totalSize);
         float rangeHeight = maxHeight - minHeight;
         for (int i = 0; i < totalSize; ++i)
         {
             var randVal = random.NextFloat() * rangeHeight + minHeight;
-            outputArray[i] = randVal;
+            buffer[i] = new OffsetList {Value = randVal};
         }
-
-        return outputArray;
     }
 }
 
