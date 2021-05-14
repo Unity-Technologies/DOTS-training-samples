@@ -68,13 +68,13 @@ public class CarMovementSystem : SystemBase
 
 
             float linearizedCarDistance = BezierPath.FindLinearRemappedInput(carDistance, distRemapTable, distance);
-            float3 position = Get_Position(linearizedCarDistance, points);
+            float3 position = Get_Position(linearizedCarDistance, points, distance);
 
             float aheadDistance = (carDistance + 0.01f) % distance;
             float linearizedAheadCarDistance =
                 BezierPath.FindLinearRemappedInput(aheadDistance, distanceRemapTables, distance);
             
-            float3 aheadPosition = Get_Position(linearizedAheadCarDistance, points);
+            float3 aheadPosition = Get_Position(linearizedAheadCarDistance, points, distance);
 
             float3 normalAtPosition = math.normalize(aheadPosition - position);
             quaternion lookRotation = quaternion.LookRotation(normalAtPosition, new float3(0f, 1f, 0f));
@@ -85,7 +85,7 @@ public class CarMovementSystem : SystemBase
         }).Schedule();
     }
 
-    public static float3 Get_Position(float sampleDistance, NativeArray<BezierPoint> points)
+    public static float3 Get_Position(float sampleDistance, NativeArray<BezierPoint> points, float totalDistance)
     {
         int pointIndex_region_start = 0;
         int totalPoints = points.Length;
@@ -120,7 +120,7 @@ public class CarMovementSystem : SystemBase
         BezierPoint point_region_end = points[pointIndex_region_end];
         // lerp between the points to arrive at PROGRESS
         float pathProgress_start = point_region_start.distanceAlongPath;
-        float pathProgress_end = (pointIndex_region_end != 0) ? point_region_end.distanceAlongPath : 1;
+        float pathProgress_end = (pointIndex_region_end != 0) ? point_region_end.distanceAlongPath : totalDistance;
         float regionProgress = (sampleDistance - pathProgress_start) / (pathProgress_end - pathProgress_start);
 
         // do your bezier lerps
