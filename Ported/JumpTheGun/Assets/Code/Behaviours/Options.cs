@@ -70,43 +70,42 @@ namespace JumpTheGun
 
 		void Start()
 		{
-			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-			var query = entityManager.CreateEntityQuery(QueryBoard);
-
-			using var entities = query.ToEntityArray(Allocator.TempJob);
-			var entity = entities.SingleOrDefault();
-			if (entity == Entity.Null)
-				return;
-
-			var data = entityManager.GetComponentData<BoardSpawnerData>(entity);
 
 			terrainWidth.SetBounds(10, 1000);
-			terrainWidth.value = initTerrainWidth = data.SizeX;
+			terrainWidth.value = initTerrainWidth = 100;
+			terrainWidth.SetText($"Terrain Width: {initTerrainWidth}");
 
 			terrainLength.SetBounds(10, 1000);
-			terrainLength.value = initTerrainLength = data.SizeY;
+			terrainLength.value = initTerrainLength = 100;
+			terrainLength.SetText($"Terrain Length: {initTerrainLength}");
 
 			minTerrainHeight.SetBounds(0.5F, 20F);
-			minTerrainHeight.value = initMinTerrainHeight = data.MinHeight;
+			minTerrainHeight.value = initMinTerrainHeight = 2.5F;
+			minTerrainHeight.SetText($"Min Terrain Height: {initMinTerrainHeight}");
 
 			maxTerrainHeight.SetBounds(0.5F, 20F);
-			maxTerrainHeight.value = initMaxTerrainHeight = data.MaxHeight;
+			maxTerrainHeight.value = initMaxTerrainHeight = 5.5F;
+			maxTerrainHeight.SetText($"Max Terrain Height: {initMaxTerrainHeight}");
 
 			boxHeightDamage.SetBounds(0.1F, 5F);
-			boxHeightDamage.value = initBoxHeightDamage = data.HitStrength;
+			boxHeightDamage.value = initBoxHeightDamage = 0.4F;
+			boxHeightDamage.SetText($"Terrain Damage: {initBoxHeightDamage}");
 
 			numTanks.SetBounds(0, 10000);
-			numTanks.value = initNumTanks = data.NumberOfTanks;
+			numTanks.value = initNumTanks = 100;
+			numTanks.SetText($"Tanks Amount: {initNumTanks}");
 
 			tankLaunchPeriod.SetBounds(0.1F, 20F);
-			tankLaunchPeriod.value = initTankLaunchPeriod = data.ReloadTime;
+			tankLaunchPeriod.value = initTankLaunchPeriod = 4F;
+			tankLaunchPeriod.SetText($"Tank Reload Time: {initTankLaunchPeriod}");
 
 			bulletSpeed.SetBounds(0.1F, 10F);
-			bulletSpeed.value = initBulletSpeed = data.BulletSpeed;
-
-			optionsMenu.SetActive(false);
+			bulletSpeed.value = initBulletSpeed = 2F;
+			bulletSpeed.SetText($"Bullet Speed: {initBulletSpeed}");
 
 			UpdateSliders();
+
+			optionsMenu.SetActive(false);
 		}
 
 		void UpdateSliders()
