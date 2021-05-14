@@ -9,10 +9,33 @@ using UnityEngine;
 
 public class GameOverSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
+    private EntityCommandBufferSystem CommandBufferSystem; 
+    EntityQuery m_MouseEntityQuery;
+    EntityQuery m_CatEntityQuery;
 
     protected override void OnCreate()
     {
+        m_CatEntityQuery = GetEntityQuery(
+            new EntityQueryDesc
+            {
+                All = new ComponentType[]
+                {
+                    ComponentType.ReadOnly<CatTag>()
+                }
+            });
+        m_MouseEntityQuery = GetEntityQuery(
+        new EntityQueryDesc
+        {
+            All = new ComponentType[]
+            {
+                        ComponentType.ReadOnly<Speed>()
+            },
+            None = new ComponentType[]
+            {
+                        ComponentType.ReadOnly<CatTag>()
+            }
+        });
+
         RequireSingletonForUpdate<GameStartedTag>(); // require component to remove when game ends
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -116,6 +139,8 @@ public class GameOverSystem : SystemBase
             {
                 gameObjectRefs.GameOverText.text = "Red Wins!";
             }
+
+            gameObjectRefs.GameOverText.text = "Mice " + m_MouseEntityQuery.CalculateEntityCountWithoutFiltering() + ", \nCat " + m_CatEntityQuery.CalculateEntityCountWithoutFiltering() + " entities. \n" + gameObjectRefs.GameOverText.text;
         }
         else
         {
