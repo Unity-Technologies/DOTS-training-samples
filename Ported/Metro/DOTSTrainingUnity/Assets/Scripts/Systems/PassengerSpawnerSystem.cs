@@ -20,10 +20,13 @@ public class PassengerSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = new Random(1337);
         var friendRandom = new Random(1338);
+        var colorRandom = new Random(4568);
 
-        Entities.ForEach((Entity entity, in PassengerSpawner spawner, in LocalToWorld spawnerLocalToWorld) =>
+        Entities.ForEach((Entity entity, ref DynamicBuffer<PassengerPrefabs> passengerPrefabBuffer, in PassengerSpawner spawner, in LocalToWorld spawnerLocalToWorld) =>
         {
             ecb.DestroyEntity(entity);
+
+            uint numPassengerPrefabs = (uint)passengerPrefabBuffer.Length;
 
             float3 spawnerForwardVec = spawnerLocalToWorld.Forward;
             float3 spawnerRightVec = spawnerLocalToWorld.Right;
@@ -47,7 +50,9 @@ public class PassengerSpawnerSystem : SystemBase
                     float randOffsetY = math.lerp(-offsetMax, offsetMax, random.NextFloat());
                     float randOffsetZ = math.lerp(-offsetMax, offsetMax, random.NextFloat());
 
-                    var passengerEnt = ecb.Instantiate(spawner.passengerPrefab);
+                    int passengerPrefrabIdx = (int)(colorRandom.NextUInt() % numPassengerPrefabs);
+                    var passengerEnt = ecb.Instantiate(passengerPrefabBuffer[passengerPrefrabIdx]);
+
                     float3 pos = queueFrontPos - spawnerForwardVec * pIdx * spawner.passengerSpacing + new float3(randOffsetX, randOffsetY, randOffsetZ);
                     ecb.SetComponent(passengerEnt, new Translation() { Value = pos });
                     ecb.SetComponent(passengerEnt, new Rotation() { Value = randRot });
@@ -78,7 +83,9 @@ public class PassengerSpawnerSystem : SystemBase
                     float randOffsetY = math.lerp(-offsetMax, offsetMax, random.NextFloat());
                     float randOffsetZ = math.lerp(-offsetMax, offsetMax, random.NextFloat());
 
-                    var passengerEnt = ecb.Instantiate(spawner.passengerPrefab);
+                    int passengerPrefrabIdx = (int)(colorRandom.NextUInt() % numPassengerPrefabs);
+                    var passengerEnt = ecb.Instantiate(passengerPrefabBuffer[passengerPrefrabIdx]);
+
                     float3 pos = queueFrontPos - spawnerForwardVec * pIdx * spawner.passengerSpacing + new float3(randOffsetX, randOffsetY, randOffsetZ) + friendOffset;
                     ecb.SetComponent(passengerEnt, new Translation() { Value = pos });
                     ecb.SetComponent(passengerEnt, new Rotation() { Value = randRot });

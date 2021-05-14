@@ -13,7 +13,7 @@ public class DoorPanelAnimatorSystem : SystemBase
 
         Entities.ForEach((ref Translation position, in DoorPanelParentRef doorPanel) => {
             float currTimer = parentAnimTimers[doorPanel.value].value;
-            position.Value.x = 1.0f * currTimer;
+            position.Value.x = 0.35f * currTimer;
         }).Schedule();
     }
 }
