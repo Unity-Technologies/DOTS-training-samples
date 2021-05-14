@@ -189,8 +189,15 @@ public class SpawnBoardSystem : SystemBase
                 {
                     int holeIndex = random.NextInt(0, numberCells);
                     var gridContentCell = gridContent[holeIndex];
-                    gridContentCell.Type = GridCellType.Hole;
-                    gridContent[holeIndex] = gridContentCell;
+                    if (gridContentCell.Type != GridCellType.None)
+                    {
+                        --hole;
+                    }
+                    else
+                    {
+                        gridContentCell.Type = GridCellType.Hole;
+                        gridContent[holeIndex] = gridContentCell;
+                    }
                 }
 
                 //create the board cell entities
