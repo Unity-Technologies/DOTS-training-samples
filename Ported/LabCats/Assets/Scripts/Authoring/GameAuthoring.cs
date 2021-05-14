@@ -45,16 +45,20 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     {
         var random = new Unity.Mathematics.Random(1234);
         //goals shouldnt be random, they should be computed from the board dimension to be fair
+        int oneThirdColumn = NumberColumns / 3;
+        int twoThirdColumn = NumberColumns*2 / 3;
+        int oneThirdRow = NumberRows / 3;
+        int twoThirdRow = NumberRows * 2 / 3;
         dstManager.AddComponentData(entity,
             new BoardDefinition()
             {
                 CellSize = CellSize,
                 NumberColumns = NumberColumns,
                 NumberRows = NumberRows,
-                GoalPlayer1 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
-                GoalPlayer2 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
-                GoalPlayer3 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
-                GoalPlayer4 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
+                GoalPlayer1 = new GridPosition(){X = oneThirdColumn, Y=oneThirdRow},
+                GoalPlayer2 = new GridPosition(){X = oneThirdColumn, Y=twoThirdRow},
+                GoalPlayer3 = new GridPosition(){X = twoThirdColumn, Y=oneThirdRow},
+                GoalPlayer4 = new GridPosition(){X = twoThirdColumn, Y=twoThirdRow},
             });
         var gridCellBuffer = dstManager.AddBuffer<GridCellContent>(entity);
         gridCellBuffer.Capacity = NumberColumns * NumberRows;
