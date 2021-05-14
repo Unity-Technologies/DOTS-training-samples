@@ -16,8 +16,8 @@ public struct BounceScaleAnimationProperties : IComponentData
 
 public struct RotateAnimationProperties : IComponentData
 {
-    public float3 TargetAngle;
-    public float3 OriginalAngle;
+    public quaternion TargetRotation;
+    public quaternion OriginalRotation;
     public float AnimationDuration;
     public float AccumulatedTime;
 }

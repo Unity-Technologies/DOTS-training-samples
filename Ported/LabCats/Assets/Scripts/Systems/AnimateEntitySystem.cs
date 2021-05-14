@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateTransformSystem))]
 public class AnimateEntitySystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
@@ -22,7 +23,7 @@ public class AnimateEntitySystem : SystemBase
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var dt = Time.DeltaTime;
 
-        Dependency = Entities
+        Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref Scale scale, ref BounceScaleAnimationProperties scaleAnimationProperties) =>
             {
                 if (scaleAnimationProperties.AccumulatedTime + dt > scaleAnimationProperties.AnimationDuration)
@@ -44,7 +45,24 @@ public class AnimateEntitySystem : SystemBase
                     }
                 }
 
-            }).ScheduleParallel(Dependency);
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Rotation rotation, ref RotateAnimationProperties rotAnimationProperties) =>
+            {
+                if (rotAnimationProperties.AccumulatedTime + dt > rotAnimationProperties.AnimationDuration)
+                {
+                    rotation.Value = rotAnimationProperties.TargetRotation;
+                    ecb.RemoveComponent<RotateAnimationProperties>(entityInQueryIndex,entity);
+                }
+                else
+                {
+                    rotAnimationProperties.AccumulatedTime += dt;
+                    var mixedRotation = math.slerp(rotAnimationProperties.OriginalRotation, rotAnimationProperties.TargetRotation, rotAnimationProperties.AccumulatedTime / rotAnimationProperties.AnimationDuration);
+                    rotation.Value = mixedRotation;
+                }
+            }).ScheduleParallel();
+
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

@@ -13,7 +13,6 @@ public class GameOverSystem : SystemBase
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<BoardInitializedTag>(); // require component to read time data later
         RequireSingletonForUpdate<GameStartedTag>(); // require component to remove when game ends
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
