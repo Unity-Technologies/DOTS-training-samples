@@ -6,19 +6,29 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PassengerSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    public GameObject passengerPrefab;
+    public GameObject[] passengerPrefabs;
     public int numQueues;
     public float passengerSpacing;
     public int passengersPerQueue;
     public float queueSpacing;
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
-        referencedPrefabs.Add(passengerPrefab);
+        for(int i=0; i<passengerPrefabs.Length; ++i)
+        {
+            referencedPrefabs.Add(passengerPrefabs[i]);
+        }
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new PassengerSpawner()
-        { passengerSpacing=passengerSpacing, numQueues = numQueues, passengersPerQueue=passengersPerQueue, queueSpacing = queueSpacing, passengerPrefab = conversionSystem.GetPrimaryEntity(passengerPrefab)});
+        { passengerSpacing =passengerSpacing, numQueues = numQueues, passengersPerQueue=passengersPerQueue, queueSpacing = queueSpacing});
+
+        var passengerPrefabsBuffer = dstManager.AddBuffer<PassengerPrefabs>(entity);
+        for(int i=0; i<passengerPrefabs.Length; ++i)
+        {
+            var passengerPrefab = passengerPrefabs[i];
+            passengerPrefabsBuffer.Add(conversionSystem.GetPrimaryEntity(passengerPrefab));
+        }
     }
 }
