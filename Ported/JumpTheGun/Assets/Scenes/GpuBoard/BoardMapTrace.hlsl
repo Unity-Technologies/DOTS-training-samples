@@ -39,6 +39,6 @@ void BoardTraceMarch_float(
     float xN = dirVector.x < 0.0 ? -1.0 : 1.0;
     float zN = dirVector.z < 0.0 ? -1.0 : 1.0;
 
-    OutputColor = bestH;
+    OutputColor = lerp(float4(1.0,1.0,0.0,1.0), float4(0.2, 0.2, 0.0, 1.0), bestH);
     OutputNormal = normalize(float3(normUp > 0.0 ? 0.0 : xN, normUp, normUp > 0.0 ? 0.0 : zN));
 }
