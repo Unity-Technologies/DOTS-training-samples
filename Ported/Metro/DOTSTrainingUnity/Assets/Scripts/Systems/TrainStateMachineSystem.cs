@@ -14,6 +14,15 @@ public class TrainStateMachineSystem : SystemBase
 
     protected override void OnDestroy()
     {
+        Line.allBezierPathSubarrays.Dispose();
+        Line.bezierPathSubarrayIndices.Dispose();
+        Line.allStopPointSubarrays.Dispose();
+        Line.stopPointSubarrayIndices.Dispose();
+        Line.allDistances.Dispose();
+        Line.numStopPointsInLine.Dispose();
+        Line.allBezierDistancesAlongPath.Dispose();
+        Line.allDistanceTables.Dispose();
+        Line.distanceTableSubarrayIndices.Dispose();
         base.OnDestroy();
     }
 

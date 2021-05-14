@@ -7,11 +7,11 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class PlatformSpawnerSystem : SystemBase
 {
-    private static float3 GetTrackDirection(float stopPoint, NativeArray<BezierPoint> trackPoints)
+    private static float3 GetTrackDirection(float stopPoint, NativeArray<BezierPoint> trackPoints, NativeArray<float> distancesAlongPath, float distance)
     {
-        float pointAhead = stopPoint + 10f;
-        float3 stopPointPosition = CarMovementSystem.Get_Position(stopPoint, trackPoints);
-        float3 aheadPointPosition = CarMovementSystem.Get_Position(pointAhead, trackPoints);
+        float pointAhead = stopPoint + 0.5f;
+        float3 stopPointPosition = CarMovementSystem.Get_Position(stopPoint, trackPoints, distancesAlongPath, distance);
+        float3 aheadPointPosition = CarMovementSystem.Get_Position(pointAhead, trackPoints, distancesAlongPath, distance);
 
         return aheadPointPosition - stopPointPosition;
     }
@@ -31,7 +31,10 @@ public class PlatformSpawnerSystem : SystemBase
         NativeArray<int> numStopPointsInLine = Line.numStopPointsInLine;
 
         NativeArray<BezierPoint> bezierPointsSubarrays = Line.allBezierPathSubarrays;
+        NativeArray<float> distancesAlongPathSubarrays = Line.allBezierDistancesAlongPath;
         NativeArray<int> bezierPointArrayIndices = Line.bezierPathSubarrayIndices;
+        NativeArray<float> distances = Line.allDistances;
+        
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -41,7 +44,8 @@ public class PlatformSpawnerSystem : SystemBase
             {
                 int subarrayOffset = stopPointArrayIndices[lineNum];
                 int numStopPoints = numStopPointsInLine[lineNum];
-
+                float splineDistance = distances[lineNum];
+                
                 NativeArray<float> stopPoints = stopPointSubarrays.GetSubArray(subarrayOffset, numStopPoints);
                
                 int startIndex = bezierPointArrayIndices[lineNum];
@@ -58,13 +62,13 @@ public class PlatformSpawnerSystem : SystemBase
                 int length = onePastEndIndex - startIndex;
 
                 NativeArray<BezierPoint> points = bezierPointsSubarrays.GetSubArray(startIndex, length);
-
+                NativeArray<float> distancesAlongPath = distancesAlongPathSubarrays.GetSubArray(startIndex, length);
                 for (int i = 0; i < stopPoints.Length / 2; ++i)
                 {
                     float stopPoint = stopPoints[i];
-                    float3 position = CarMovementSystem.Get_Position(stopPoint, points);
+                    float3 position = CarMovementSystem.Get_Position(stopPoint, points, distancesAlongPath, splineDistance);
 
-                    float3 direction = GetTrackDirection(stopPoint, points);
+                    float3 direction = GetTrackDirection(stopPoint, points, distancesAlongPath, splineDistance);
                     quaternion rotation = GetRotationFromDirection(direction);
                     
                     float3 offsetForTrack = math.normalize(direction) * -20;
