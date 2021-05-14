@@ -70,30 +70,39 @@ namespace JumpTheGun
 
 		void Start()
 		{
+			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+			var query = entityManager.CreateEntityQuery(QueryBoard);
+
+			using var entities = query.ToEntityArray(Allocator.TempJob);
+			var entity = entities.SingleOrDefault();
+			if (entity == Entity.Null)
+				return;
+
+			var data = entityManager.GetComponentData<BoardSpawnerData>(entity);
 
 			terrainWidth.SetBounds(10, 1000);
-			terrainWidth.value = initTerrainWidth = 100;
+			terrainWidth.value = initTerrainWidth = data.SizeX;
 
 			terrainLength.SetBounds(10, 1000);
-			terrainLength.value = initTerrainLength = 100;
+			terrainLength.value = initTerrainLength = data.SizeY;
 
 			minTerrainHeight.SetBounds(0.5F, 20F);
-			minTerrainHeight.value = initMinTerrainHeight = 2.5F;
+			minTerrainHeight.value = initMinTerrainHeight = data.MinHeight;
 
 			maxTerrainHeight.SetBounds(0.5F, 20F);
-			maxTerrainHeight.value = initMaxTerrainHeight = 5.5F;
+			maxTerrainHeight.value = initMaxTerrainHeight = data.MaxHeight;
 
 			boxHeightDamage.SetBounds(0.1F, 5F);
-			boxHeightDamage.value = initBoxHeightDamage = 0.4F;
+			boxHeightDamage.value = initBoxHeightDamage = data.HitStrength;
 
 			numTanks.SetBounds(0, 10000);
-			numTanks.value = initNumTanks = 100;
+			numTanks.value = initNumTanks = data.NumberOfTanks;
 
 			tankLaunchPeriod.SetBounds(0.1F, 20F);
-			tankLaunchPeriod.value = initTankLaunchPeriod = 4F;
+			tankLaunchPeriod.value = initTankLaunchPeriod = data.ReloadTime;
 
 			bulletSpeed.SetBounds(0.1F, 10F);
-			bulletSpeed.value = initBulletSpeed = 2F;
+			bulletSpeed.value = initBulletSpeed = data.BulletSpeed;
 
 			optionsMenu.SetActive(false);
 
