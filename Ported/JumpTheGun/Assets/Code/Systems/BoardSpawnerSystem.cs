@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -12,88 +13,94 @@ public class BoardSpawnerSystem : SystemBase
  
     protected override void OnCreate()
     {
+
+        RequireSingletonForUpdate<BoardSpawnerTag>();
+
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
     
     private void SpawnBoard()
     {
-        var ecb = m_ECBSystem.CreateCommandBuffer();
+        //var ecb = m_ECBSystem.CreateCommandBuffer();
         var randomGenerator = new Random(0x1234567);
- 
+
+        var boardEntity = GetSingletonEntity<BoardSpawnerTag>();
+        var board = GetSingleton<BoardSpawnerData>();
+
+        
+        EntityManager.SetComponentData(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
+
+        var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);;
+
+        EntityManager.SetComponentData(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
+        EntityManager.SetComponentData(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
+        EntityManager.SetComponentData(boardEntity, new HitStrength {Value = board.HitStrength});
+
+        EntityManager.SetComponentData(boardEntity, new ReloadTime {Value = board.ReloadTime});
+        EntityManager.SetComponentData(boardEntity, new Radius {Value = board.Radius});
+        EntityManager.SetComponentData(boardEntity, new BulletArcHeightFactor { Value = board.BulletArcHeightFactor });
+            
+        var totalSize = board.SizeX * board.SizeY;
+            
+        //var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, Allocator.Temp);
+        //var tanks = PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, Allocator.Temp);
+        var boardPosition = new int2(0, 0);
+            
+        EntityManager.Instantiate(board.PlaformPrefab, totalSize, Allocator.Temp);
+
+        var tanks = EntityManager.AddBuffer<TankMap>(boardEntity);
+        var tanksCoord = PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, ref tanks, Allocator.TempJob);
+
+        int tankCount = board.NumberOfTanks;
+
+        EntityManager.Instantiate(board.TankPrefab, tankCount, Allocator.Temp);
+        EntityManager.Instantiate(board.TurretPrefab, tankCount, Allocator.Temp);
+
+        var offsets = EntityManager.AddBuffer<OffsetList>(boardEntity);
+        OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, ref offsets);
+
         Entities
-            .WithAll<BoardSpawnerTag>()
-            .ForEach((
-                Entity boardEntity,
-                in BoardSpawnerData board) =>
-        {
-            ecb.SetComponent(boardEntity, new BoardSize {Value = new int2(board.SizeX, board.SizeY)});
-
-            var playerPosition = new int2(board.SizeX >> 1, board.SizeY >> 1);;
-
-            ecb.SetComponent(boardEntity, new NumberOfTanks {Count = board.NumberOfTanks});
-            ecb.SetComponent(boardEntity, new MinMaxHeight {Value = new float2(board.MinHeight, board.MaxHeight)});
-            ecb.SetComponent(boardEntity, new HitStrength {Value = board.HitStrength});
-
-            ecb.SetComponent(boardEntity, new ReloadTime {Value = board.ReloadTime});
-            ecb.SetComponent(boardEntity, new Radius {Value = board.Radius});
-            ecb.SetComponent(boardEntity, new BulletArcHeightFactor { Value = board.BulletArcHeightFactor });
-            
-            var totalSize = board.SizeX * board.SizeY;
-            
-            //var offsets = OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, Allocator.Temp);
-            //var tanks = PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, Allocator.Temp);
-            var boardPosition = new int2(0, 0);
-            
-            var offsets = ecb.AddBuffer<OffsetList>(boardEntity);
-            OffsetGenerator.CreateRandomOffsets(board.SizeX, board.SizeY, board.MinHeight, board.MaxHeight, randomGenerator, ref offsets);
-            
-            var tanks = ecb.AddBuffer<TankMap>(boardEntity);
-            PlatformGenerator.CreateTanks(board.SizeX, board.SizeY, playerPosition, board.NumberOfTanks, randomGenerator, ref tanks);
-            
-            for (int y = 0; y < board.SizeY; ++y)
+            .WithAll<Platform>()
+            .WithReadOnly(offsets)
+            .ForEach((int entityInQueryIndex, ref LocalToWorld matrix, ref URPMaterialPropertyBaseColor color, ref BoardPosition boardPos) =>
             {
-                for (int x = 0; x < board.SizeX; ++x)
-                {
-                    var instance = ecb.Instantiate(board.PlaformPrefab);
+                int2 indices = CoordUtils.ToCoords(entityInQueryIndex, board.SizeX, board.SizeY);
 
-                    var localToWorld = math.mul(
-                        math.mul(
-                            float4x4.Translate(new float3(x, -0.5f, y)),
-                            float4x4.Scale(1f, offsets[y * board.SizeX + x].Value, 1f)),
-                        float4x4.Translate(new float3(0f, 0.5f, 0f)));
+                matrix.Value = math.mul(
+                    math.mul(
+                        float4x4.Translate(new float3(indices.x, -0.5f, indices.y)),
+                        float4x4.Scale(1f, offsets[indices.y * board.SizeX + indices.x].Value, 1f)),
+                    float4x4.Translate(new float3(0f, 0.5f, 0f)));
 
-                    ecb.RemoveComponent<Translation>(instance);
-                    ecb.RemoveComponent<Rotation>(instance);
-                    
-                    ecb.SetComponent(instance, new LocalToWorld {Value = localToWorld});
-                    
-                    boardPosition.x = x;
-                    boardPosition.y = y;
-                    
-                    //float4 color = new float4((float)boardPosition.x / board.SizeX, (float)boardPosition.y / board.SizeY, 0f, 1f); 
-                    float4 color = Colorize.Platform(offsets[y * board.SizeX + x].Value, board.MinHeight, board.MaxHeight);
-                    
-                    ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = color });
-                    ecb.SetComponent(instance, new BoardPosition { Value = boardPosition });
-                }
-            }
+                boardPos.Value = indices;
 
-            for (int i = 0; i < tanks.Length; ++i)
+                color.Value = Colorize.Platform(offsets[indices.y * board.SizeX + indices.x].Value, board.MinHeight, board.MaxHeight);
+
+            }).ScheduleParallel();
+        
+        Entities
+            .WithAll<Tank>()
+            .WithReadOnly(offsets)
+            .ForEach((int entityInQueryIndex, ref Translation translation, ref TimeOffset offset) =>
             {
-                if (tanks[i].Value)
-                {
-                    int2 coords = CoordUtils.ToCoords(i, board.SizeX, board.SizeY);
-                    Entity tank = ecb.Instantiate(board.TankPrefab);
-                    ecb.SetComponent(tank, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y)});
-                    ecb.SetComponent(tank, new TimeOffset {Value = math.fmod(randomGenerator.NextFloat(), 1f) * 5f});
-                    
-                    Entity turret = ecb.Instantiate(board.TurretPrefab);
-                    ecb.SetComponent(turret, new Translation {Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y)});
-                }
-            }
+                int2 coords = tanksCoord[entityInQueryIndex];
+                translation.Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y);
+                offset.Value = math.fmod(randomGenerator.NextFloat(), 1f) * 5f;
 
-            ecb.RemoveComponent<BoardSpawnerTag>(boardEntity);
-        }).Run();
+            }).ScheduleParallel();
+
+        Entities
+            .WithAll<Turret>()
+            .WithReadOnly(offsets)
+            .WithDisposeOnCompletion(tanksCoord)
+            .ForEach((int entityInQueryIndex, ref Translation translation, ref TimeOffset color) =>
+            {
+                int2 coords = tanksCoord[entityInQueryIndex];
+                translation.Value = new float3(coords.x, offsets[coords.y * board.SizeX + coords.x].Value, coords.y);
+            }).ScheduleParallel();
+
+
+        EntityManager.RemoveComponent<BoardSpawnerTag>(boardEntity);
     }
 
     private void SpawnDebugEntities()

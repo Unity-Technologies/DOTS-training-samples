@@ -8,12 +8,14 @@ using Random = Unity.Mathematics.Random;
 
 public static class PlatformGenerator
 {
-    public static void CreateTanks(int width, int height, int2 playerPosition, int numberOfTanks, Random random, ref DynamicBuffer<TankMap> tanks)
+    public static NativeArray<int2> CreateTanks(int width, int height, int2 playerPosition, int numberOfTanks, Random random, ref DynamicBuffer<TankMap> tanks, Allocator allocator)
     {
         int cellSizes = width * height;
         int tanksPlaced = 0;
         float tankChance = (float)numberOfTanks / (float)cellSizes;
         int cellId = 0;
+
+        NativeArray<int2> output = new NativeArray<int2>(numberOfTanks, allocator, NativeArrayOptions.UninitializedMemory);
 
         numberOfTanks = math.min(numberOfTanks, cellSizes);
 
@@ -30,12 +32,14 @@ public static class PlatformGenerator
             bool isCellValid = cellCoord.x != playerPosition.x || cellCoord.y != playerPosition.y && tanks[cellId].Value == false;
             if (isCellValid && randomVal <= tankChance)
             {
+                output[tanksPlaced] = cellCoord;
                 ++tanksPlaced;
                 tanks[cellId] = new TankMap {Value = true};
             }
 
             cellId = (cellId + 1) % cellSizes;
         }
+        return output;
     }
     
     

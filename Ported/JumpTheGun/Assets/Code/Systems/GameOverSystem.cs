@@ -42,8 +42,10 @@ public class GameOverSystem : SystemBase
         EntityCommandBuffer.ParallelWriter ecbb = ecbs_board.CreateCommandBuffer().AsParallelWriter();
         EntityCommandBuffer.ParallelWriter ecbp = ecbs_player.CreateCommandBuffer().AsParallelWriter();
 
+        EntityManager.DestroyEntity(GetEntityQuery(typeof(CurrentLevel)));
+
         Entities
-            .WithAll<CurrentLevel>()
+            .WithAny<Tank, Turret>()
             .ForEach((int entityInQueryIndex, Entity entity) =>
             {
                 ecbl.DestroyEntity(entityInQueryIndex, entity);
