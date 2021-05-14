@@ -16,6 +16,7 @@ public struct Line
     public float[] PlatformStopPoint;
 
     public static NativeArray<BezierPoint> allBezierPathSubarrays;
+    public static NativeArray<float> allBezierDistancesAlongPath;
     public static NativeArray<int> bezierPathSubarrayIndices;
 
     public static NativeArray<float> allStopPointSubarrays;
@@ -76,8 +77,10 @@ public struct Line
         for (int i = total_outboundPoints - 1; i >= 0; i--)
         {
             BezierPoint point = bezierPath.points[i];
-            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(ref point, platformOffset, false);
+            float distanceAlongPath = bezierPath.distances[i];
+            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(ref point, ref distanceAlongPath, platformOffset, false);
             bezierPath.points[i] = point;
+            bezierPath.distances[i] = distanceAlongPath;
             bezierPath.AddPoint(_targetLocation);
         }
 
@@ -108,7 +111,7 @@ public struct Line
         for(int i = 0; i < stopPointIndices.Count; ++i)
         {
             int index = stopPointIndices[i];
-            PlatformStopPoint[i] = bezierPath.points[index].distanceAlongPath;
+            PlatformStopPoint[i] = bezierPath.distances[index];
         }
     }
 }
@@ -222,17 +225,20 @@ public class RailGeneration : MonoBehaviour
         }
 
         NativeArray<BezierPoint> bezierPaths = new NativeArray<BezierPoint>(numControlPoints, Allocator.Persistent);
+        NativeArray<float> bezierDistancesAlongPath = new NativeArray<float>(numControlPoints, Allocator.Persistent);
         numControlPoints = 0;
         for (int i = 0; i < numLines; i++)
         {
             Line metroLine = metroLines[i];
 
             List<BezierPoint> pointsForPath = metroLine.bezierPath.points;
+            List<float> distancesForPath = metroLine.bezierPath.distances;
             int pointCount = metroLine.bezierPath.points.Count;
 
             for (int j = 0; j < pointCount; j++)
             {
                 bezierPaths[numControlPoints + j] = pointsForPath[j];
+                bezierDistancesAlongPath[numControlPoints + j] = distancesForPath[j];
             }
 
             numControlPoints += pointCount;
@@ -252,6 +258,7 @@ public class RailGeneration : MonoBehaviour
         }
 
         Line.allBezierPathSubarrays = bezierPaths;
+        Line.allBezierDistancesAlongPath = bezierDistancesAlongPath;
         Line.bezierPathSubarrayIndices = bezierPathIndices;
         Line.allStopPointSubarrays = platformStopPoints;
         Line.stopPointSubarrayIndices = stopPointIndices;
@@ -271,5 +278,6 @@ public class RailGeneration : MonoBehaviour
         Line.stopPointSubarrayIndices.Dispose();
         Line.allDistances.Dispose();
         Line.numStopPointsInLine.Dispose();
+        Line.allBezierDistancesAlongPath.Dispose();
     }
 }
