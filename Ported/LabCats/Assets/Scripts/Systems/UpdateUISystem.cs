@@ -7,6 +7,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateFallingSystem))]
 public class UpdateUISystem : SystemBase
 {
     protected override void OnCreate()

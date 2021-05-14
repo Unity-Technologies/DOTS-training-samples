@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 
+[UpdateAfter(typeof(AnimateEntitySystem))]
 public class UpdateFallingSystem : SystemBase
 {
     static readonly float kFallingSpeed = 6.0f;

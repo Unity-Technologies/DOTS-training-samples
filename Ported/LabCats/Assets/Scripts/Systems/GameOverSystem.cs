@@ -7,9 +7,10 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(UpdateUISystem))]
 public class GameOverSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem; 
+    private EntityCommandBufferSystem CommandBufferSystem;
     EntityQuery m_MouseEntityQuery;
     EntityQuery m_CatEntityQuery;
 

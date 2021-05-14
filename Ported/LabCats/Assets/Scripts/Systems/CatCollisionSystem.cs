@@ -1,9 +1,10 @@
-#define DONT_EAT_ENTITIES
+//#define DONT_EAT_ENTITIES
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 
+[UpdateAfter(typeof(AnimateEntitySystem))]
 public class CatCollisionSystem : SystemBase
 {
     EntityQuery m_CatQuery;

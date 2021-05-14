@@ -1,4 +1,4 @@
-#define DONT_EAT_ENTITIES
+//#define DONT_EAT_ENTITIES
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -8,6 +8,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(AnimateEntitySystem))]
 public class UpdateScoreSystem : SystemBase
 {
     EntityCommandBufferSystem CommandBufferSystem;

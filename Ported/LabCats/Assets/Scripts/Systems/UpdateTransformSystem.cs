@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(UpdatePositionSystem))]
 public class UpdateTransformSystem : SystemBase
 {
     EntityCommandBufferSystem CommandBufferSystem;
@@ -92,7 +93,7 @@ public class UpdateTransformSystem : SystemBase
                 }
 
             }).ScheduleParallel();
-        
+
         // Rotate all transforms with Directions
         Entities
             .WithName("UpdateMovableGridObjectRotation")
@@ -104,11 +105,11 @@ public class UpdateTransformSystem : SystemBase
                 var offsetDirY = 0;
 
                 GetOffsetDirs(ref offsetDirX, ref offsetDirY, in direction);
-                
+
                 // Rotate based on direction
                 rotation.Value = quaternion.LookRotation(new float3(-offsetDirY, 0f, offsetDirX), new float3(0f, 1f, 0f));
             }).ScheduleParallel();
-        
+
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

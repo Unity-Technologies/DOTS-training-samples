@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(AIPlayerControllerSystem))]
 public class UpdatePositionSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
