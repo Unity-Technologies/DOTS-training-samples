@@ -127,6 +127,7 @@ public class SpawnBoardSystem : SystemBase
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
                         ecb.AddComponent<PropagateColor>(arrow);
                         ecb.AddComponent<ShouldSetupColor>(arrow);
+                        ecb.AddComponent<MovableTag>(arrow);
                         ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Value = arrow});
                     }
                 }

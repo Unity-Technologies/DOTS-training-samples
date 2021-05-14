@@ -4,3 +4,8 @@ using Unity.Entities;
 public struct CatTag : IComponentData
 {
 }
+
+public struct MovableTag : IComponentData
+{
+    
+}
