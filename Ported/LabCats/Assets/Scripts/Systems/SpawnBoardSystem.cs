@@ -386,7 +386,8 @@ public class SpawnBoardSystem : SystemBase
 
         var ecb2 = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithAll<GridPosition, PlayerIndex, URPMaterialPropertyBaseColor>()
+        Entities.WithAll<GridPosition, PlayerIndex, URPMaterialPropertyBaseColor>().
+                 WithAll<ShouldSetupColor>()
                 .ForEach((Entity e, DynamicBuffer<LinkedEntityGroup> linkedEntities) =>
         {
             foreach (var linkedEntity in linkedEntities)
