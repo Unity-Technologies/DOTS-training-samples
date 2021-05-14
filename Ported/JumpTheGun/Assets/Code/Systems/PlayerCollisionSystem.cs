@@ -26,6 +26,7 @@ public class PlayerCollisionSystem : SystemBase
 
         Entities
             .WithAll<Bullet>()
+            .WithNativeDisableParallelForRestriction(hitCount)
             .ForEach((int entityInQueryIndex, Entity entity, in Translation translation) =>
             {
                 float3 pos = translation.Value;
@@ -39,7 +40,7 @@ public class PlayerCollisionSystem : SystemBase
                 if (distance <= bulletRadius + playerRadius)
                     hitCount[entityInQueryIndex] = 1;
             })
-            .Run();
+            .ScheduleParallel();
 
         Entities
             .WithAll<Player>()
