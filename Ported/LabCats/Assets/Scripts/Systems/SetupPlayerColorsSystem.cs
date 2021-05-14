@@ -20,13 +20,13 @@ public class SetupPlayerColorsSystem : SystemBase
         Dependency = Entities.WithAll<ShouldSetupColor>().ForEach((Entity e, int entityInQueryIndex, ref URPMaterialPropertyBaseColor urpColor, in PlayerIndex playerIndex) =>
         {
             if(playerIndex.Value == 0)
-                urpColor.Value = new float4(0.0f, 0.0f, 0.0f, 1.0f);
+                urpColor.Value = new float4(0.2f, 0.2f, 0.2f, 1.0f);
             else if (playerIndex.Value == 1)
-                urpColor.Value = new float4(0.0f, 1.0f, 0.0f, 1.0f);
+                urpColor.Value = new float4(0.3f, 1.0f, 0.3f, 1.0f);
             else if (playerIndex.Value == 2)
-                urpColor.Value = new float4(0.0f, 0.0f, 1.0f, 1.0f);
+                urpColor.Value = new float4(0.3f, 0.3f, 1.0f, 1.0f);
             else
-                urpColor.Value = new float4(1.0f, 0.0f, 0.0f, 1.0f);
+                urpColor.Value = new float4(1.0f, 0.3f, 0.3f, 1.0f);
             ecb.RemoveComponent<ShouldSetupColor>(entityInQueryIndex, e);
         }).ScheduleParallel(Dependency);
         
