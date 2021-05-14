@@ -57,23 +57,15 @@ namespace JumpTheGun
 			UpdateSliders();
 
 			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-			var query = entityManager.CreateEntityQuery(QueryBoard);
-
-			using var boards = query.ToEntityArray(Allocator.TempJob);
-			var board = boards.SingleOrDefault();
-			if (board == Entity.Null)
-				return;
-
-			entityManager.AddComponent<BoardSpawnerTag>(board);
-
-			query = entityManager.CreateEntityQuery(QueryPlayer);
+			var query = entityManager.CreateEntityQuery(QueryPlayer);
 
 			using var players = query.ToEntityArray(Allocator.TempJob);
-			var player = boards.SingleOrDefault();
+			var player = players.SingleOrDefault();
 			if (player == Entity.Null)
 				return;
 
-			entityManager.AddComponent<PlayerSpawnerTag>(player);
+			if (!entityManager.HasComponent<Reset>(player))
+				entityManager.AddComponent<Reset>(player);
 		}
 
 		void Start()
