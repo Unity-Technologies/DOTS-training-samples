@@ -27,7 +27,7 @@ public class UpdateTransformSystem : SystemBase
 
     protected override void OnCreate()
     {
-        RequireSingletonForUpdate<GameStartedTag>();
+        RequireSingletonForUpdate<BoardInitializedTag>();
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
