@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ public class BezierPath
 
     public const int RemapTableSize = 500;
     public DistRemapPoint[] remapTable = new DistRemapPoint[RemapTableSize];
-
+    
     public void CalculateRemapTable()
     {
         float increment = distance / RemapTableSize;
@@ -38,8 +39,6 @@ public class BezierPath
             remapTable[i].outputValue = distanceAccum;
             prevPoint = newPoint;
         }
-
-        
     }
     
     float findLinearRemappedInput(float desiredValue)
@@ -62,7 +61,27 @@ public class BezierPath
         float interp = (desiredValue - remapTable[lessIndex].outputValue) / (remapTable[moreIndex].outputValue - remapTable[lessIndex].outputValue);
         return remapTable[moreIndex].inputValue * interp + remapTable[lessIndex].inputValue * (1 - interp);
     }
-    
+
+    public static float FindLinearRemappedInput(float desiredValue, NativeArray<DistRemapPoint> remapTable, float distance)
+    {
+        float clampedDesiredValue = math.clamp(desiredValue, 0, distance);
+        
+        // improvement here, could be a binary search
+        int lessIndex = 0;
+        int moreIndex = 1;
+        for (int i = 1; i < RemapTableSize; ++i)
+        {
+            if (remapTable[i].outputValue >= clampedDesiredValue)
+            {
+                moreIndex = i;
+                lessIndex = i - 1;
+                break;
+            }
+        }
+        
+        float interp = (desiredValue - remapTable[lessIndex].outputValue) / (remapTable[moreIndex].outputValue - remapTable[lessIndex].outputValue);
+        return remapTable[moreIndex].inputValue * interp + remapTable[lessIndex].inputValue * (1 - interp);
+    }
     
     
     

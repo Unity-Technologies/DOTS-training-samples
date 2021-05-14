@@ -24,6 +24,9 @@ public struct Line
 
     public static NativeArray<float> allDistances;
 
+    public static NativeArray<BezierPath.DistRemapPoint> allDistanceTables;
+    public static NativeArray<int> distanceTableSubarrayIndices;
+
     public void Create_RailPath(List<RailMarker> _outboundPoints)
     {
         bezierPath = new BezierPath();
@@ -233,6 +236,19 @@ public class RailGeneration : MonoBehaviour
             }
 
             numControlPoints += pointCount;
+        }
+
+        Line.distanceTableSubarrayIndices = new NativeArray<int>(numLines, Allocator.Persistent);
+        Line.allDistanceTables = new NativeArray<BezierPath.DistRemapPoint>(numLines * BezierPath.RemapTableSize, Allocator.Persistent);
+        for (int i = 0; i < numLines; ++i)
+        {
+            int startIdx = i * BezierPath.RemapTableSize;
+            Line.distanceTableSubarrayIndices[i] = startIdx;
+
+            for (int j = 0; j < BezierPath.RemapTableSize; ++j)
+            {
+                Line.allDistanceTables[startIdx + j] = metroLines[i].bezierPath.remapTable[j];
+            }
         }
 
         Line.allBezierPathSubarrays = bezierPaths;
