@@ -59,9 +59,9 @@ public class UpdateUISystem : SystemBase
             }
 
             if (remainingSeconds < 0.0f)
-                gameObjectRefs.GameTime.text = "0:0";
+                gameObjectRefs.GameTime.text = "0:00";
             else
-                gameObjectRefs.GameTime.text = $"{(int)(remainingSeconds/60)}:{remainingSeconds%60}";
+                gameObjectRefs.GameTime.text = $"{(int)(remainingSeconds/60)}:{remainingSeconds%60:00}";
         }
 
         var playerReferences = EntityManager.GetBuffer<PlayerReference>(boardEntity);
