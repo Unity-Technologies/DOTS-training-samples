@@ -59,7 +59,7 @@ public class SpawnBoardSystem : SystemBase
         Entities
             .WithNone<BoardInitializedTag>()
             .WithoutBurst()
-            .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab,
+            .ForEach((Entity entity, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab,
                 in DynamicSpawnerDefinition dynamicSpawnerDefinition, in GameInitParams gameInitParams) =>
             {
                 var random = new Unity.Mathematics.Random(gameInitParams.BoardGenerationSeed);
@@ -127,6 +127,7 @@ public class SpawnBoardSystem : SystemBase
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(arrow);
                         ecb.AddComponent<PropagateColor>(arrow);
                         ecb.AddComponent<ShouldSetupColor>(arrow);
+                        ecb.AddComponent<MovableTag>(arrow);
                         ecb.AppendToBuffer(spawnedEntity, new ArrowReference(){Value = arrow});
                     }
                 }

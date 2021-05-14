@@ -62,7 +62,6 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             });
         var gridCellBuffer = dstManager.AddBuffer<GridCellContent>(entity);
         gridCellBuffer.Capacity = NumberColumns * NumberRows;
-        dstManager.AddComponent<GameData>(entity);
 
         dstManager.AddComponentData(entity, new BoardPrefab()
         {
