@@ -38,9 +38,6 @@ public class UpdateTransformSystem : SystemBase
         var board = GetSingletonEntity<BoardDefinition>();
         var boardDefinition = GetComponent<BoardDefinition>(board);
         var cellSize = boardDefinition.CellSize;
-        var columns = boardDefinition.NumberColumns;
-        var rows = boardDefinition.NumberRows;
-
         var firstCellPosition = GetComponent<FirstCellPosition>(board).Value;
 
         // Move Mice and Cats
@@ -56,9 +53,10 @@ public class UpdateTransformSystem : SystemBase
                 GetOffsetDirs(ref offsetDirX, ref offsetDirY, in direction);
 
                 // Fill this in with conversion math as well as adding offset
-                var xOffset = gridPosition.X * cellSize + offsetDirX * (cellOffset.Value - .5f) * cellSize;
-                var yOffset = gridPosition.Y * cellSize - offsetDirY * (cellOffset.Value - .5f) * cellSize;
-                translation.Value = firstCellPosition + new float3(yOffset, 0.5f, xOffset);
+                var cellOffsetMiddle = cellOffset.Value - 0.5f;
+                var xOffset = gridPosition.X + offsetDirX * cellOffsetMiddle ;
+                var yOffset = gridPosition.Y - offsetDirY * cellOffsetMiddle;
+                translation.Value = firstCellPosition + new float3(yOffset * cellSize, 0.5f, xOffset * cellSize);
             }).ScheduleParallel();
 
         Entities
@@ -92,5 +90,6 @@ public class UpdateTransformSystem : SystemBase
                 }
 
             }).ScheduleParallel();
+        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
