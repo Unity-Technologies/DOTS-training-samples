@@ -37,15 +37,25 @@ public class CatCollisionSystem : SystemBase
     {
         // Grab all the Cats and put their positions in a dynamic buffer
         // TODO: I have no idea if this will work
-        var catEntities = m_CatQuery.ToEntityArray(Allocator.Temp);
-        var catPositions = m_CatQuery.ToComponentDataArray<GridPosition>(Allocator.Temp);
-        var catOffsets = m_CatQuery.ToComponentDataArray<CellOffset>(Allocator.Temp);
-        var catDirections = m_CatQuery.ToComponentDataArray<Direction>(Allocator.Temp);
-        var catColliders = m_CatQuery.ToComponentDataArray<ColliderSize>(Allocator.Temp);
+        var catEntities = m_CatQuery.ToEntityArray(Allocator.TempJob);
+        var catPositions = m_CatQuery.ToComponentDataArray<GridPosition>(Allocator.TempJob);
+        var catOffsets = m_CatQuery.ToComponentDataArray<CellOffset>(Allocator.TempJob);
+        var catDirections = m_CatQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
+        var catColliders = m_CatQuery.ToComponentDataArray<ColliderSize>(Allocator.TempJob);
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         // Foreach on all the mice and check if they collide
         Entities
+            .WithDisposeOnCompletion(catEntities)
+            .WithDisposeOnCompletion(catPositions)
+            .WithDisposeOnCompletion(catOffsets)
+            .WithDisposeOnCompletion(catDirections)
+            .WithDisposeOnCompletion(catColliders)
+            .WithReadOnly(catEntities)
+            .WithReadOnly(catPositions)
+            .WithReadOnly(catOffsets)
+            .WithReadOnly(catDirections)
+            .WithReadOnly(catColliders)
             .WithNone<CatTag>()
             .ForEach((Entity entity, int entityInQueryIndex, in GridPosition gridPosition, in CellOffset cellOffset, in Direction direction, in ColliderSize colliderSize) =>
             {
@@ -78,6 +88,7 @@ public class CatCollisionSystem : SystemBase
                         #endif
                     }
                 }
-            }).Run();
+            }).ScheduleParallel();
+        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
