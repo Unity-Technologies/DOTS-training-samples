@@ -1,3 +1,4 @@
+#define DONT_EAT_ENTITIES
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -41,12 +42,16 @@ public class UpdateScoreSystem : SystemBase
         Entities.WithNone<CatTag>().ForEach((Entity e, in HittingGoal goalInfo) =>
         {
             ++localScoreCache[goalInfo.PlayerIndex];
+            #if !DONT_EAT_ENTITIES
             ecb.DestroyEntity(e);
+            #endif
         }).Run();
 
         Entities.WithAll<CatTag>().WithAll<HittingGoal>().ForEach((Entity e) =>
         {
+            #if !DONT_EAT_ENTITIES
             ecb.DestroyEntity(e);
+            #endif
         }).Run();
 
         for (int i = 0; i < 4; ++i)

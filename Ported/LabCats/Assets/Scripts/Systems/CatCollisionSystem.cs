@@ -1,4 +1,4 @@
-#define DONT_EAT_MOUSE
+#define DONT_EAT_ENTITIES
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -73,7 +73,7 @@ public class CatCollisionSystem : SystemBase
                         ecb.AddComponent(entityInQueryIndex, catEntities[i],
                             new BounceScaleAnimationProperties(){ AccumulatedTime = 0.0f, AnimationDuration = 0.5f, OriginalScale = 1.0f, TargetScale = 1.4f});
 
-                        #if !DONT_EAT_MOUSE
+                        #if !DONT_EAT_ENTITIES
                             ecb.DestroyEntity(entityInQueryIndex,entity);
                         #endif
                     }
