@@ -29,6 +29,7 @@ public class MouseInteractionSystem : SystemBase
         Debug.DrawLine(ray.origin, ray.origin + ray.direction * 100f);
 
         var hitCoords = new float2(-1f, -1f);
+        var arrowShadow = gameObjectRefs.PlayerArrowShadow;
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -48,6 +49,7 @@ public class MouseInteractionSystem : SystemBase
                 .WithNone<AITargetCell>()
                 .ForEach((Entity e, int entityInQueryIndex, ref DynamicBuffer<ArrowReference> arrows, ref Translation translation, ref NextArrowIndex nextArrowIndex, in PlayerIndex playerIndex) =>
                 {
+
                     hitCoords = hitCoords.yx;
                     hitCoords.x = boardDefinition.NumberColumns * hitCoords.x;
                     hitCoords.y = boardDefinition.NumberRows * hitCoords.y;
@@ -118,9 +120,39 @@ public class MouseInteractionSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, arrow, new GridPosition() { X = gridPosition.x, Y = gridPosition.y });
                         ecb.SetComponent(entityInQueryIndex, arrow, new Direction() { Value = arrowDirection });
                     }
+
+                    if (currentGridCellContent.Type == GridCellType.None)
+                    {
+                        arrowShadow.transform.position = new Vector3((int)(hit.point.x + .5f), hit.point.y + 0.01f, (int)(hit.point.z + .5f));
+                        arrowShadow.SetActive(true);
+
+                        switch (arrowDirection)
+                        {
+                            case Dir.Down:
+                                arrowShadow.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+                                break;
+                            case Dir.Up:
+                                arrowShadow.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
+                                break;
+                            case Dir.Right:
+                                arrowShadow.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                                break;
+                            case Dir.Left:
+                                arrowShadow.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        arrowShadow.SetActive(false);
+                    }
                 }).Run();
 
             m_EcbSystem.AddJobHandleForProducer(Dependency);
+        }
+        else
+        {
+            arrowShadow.SetActive(false);
         }
     }
 }

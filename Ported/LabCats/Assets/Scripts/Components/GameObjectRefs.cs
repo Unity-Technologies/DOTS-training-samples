@@ -24,4 +24,5 @@ public class GameObjectRefs : IComponentData
     public GameObject Player3Cursor;
     public GameObject Player4Cursor;
     public GameObject BoardQuad;
+    public GameObject PlayerArrowShadow;
 }
