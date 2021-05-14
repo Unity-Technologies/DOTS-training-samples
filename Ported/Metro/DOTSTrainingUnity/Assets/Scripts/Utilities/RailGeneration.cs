@@ -24,6 +24,9 @@ public struct Line
 
     public static NativeArray<float> allDistances;
 
+    public static NativeArray<BezierPath.DistRemapPoint> allDistanceTables;
+    public static NativeArray<int> distanceTableSubarrayIndices;
+
     public void Create_RailPath(List<RailMarker> _outboundPoints)
     {
         bezierPath = new BezierPath();
@@ -73,7 +76,7 @@ public struct Line
         for (int i = total_outboundPoints - 1; i >= 0; i--)
         {
             BezierPoint point = bezierPath.points[i];
-            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(ref point, platformOffset);
+            Vector3 _targetLocation = bezierPath.GetPoint_PerpendicularOffset(ref point, platformOffset, false);
             bezierPath.points[i] = point;
             bezierPath.AddPoint(_targetLocation);
         }
@@ -152,9 +155,9 @@ public class RailGeneration : MonoBehaviour
                     // convert distance value to 0 - 1 range
                     float distAsInterpolant = dist / _newLine.bezierPath.GetPathDistance();
 
-                    Vector3 railPosition = _newLine.bezierPath.Get_Position(distAsInterpolant);
+                    Vector3 railPosition = _newLine.bezierPath.Get_Position(distAsInterpolant, true);
 
-                    Vector3 normalAtRailPosition = _newLine.bezierPath.Get_NormalAtPosition(distAsInterpolant);
+                    Vector3 normalAtRailPosition = _newLine.bezierPath.Get_NormalAtPosition(distAsInterpolant, true);
                     
                     // rail that has been created
                     GameObject _rail = GameObject.Instantiate(prefabRail);
@@ -233,6 +236,19 @@ public class RailGeneration : MonoBehaviour
             }
 
             numControlPoints += pointCount;
+        }
+
+        Line.distanceTableSubarrayIndices = new NativeArray<int>(numLines, Allocator.Persistent);
+        Line.allDistanceTables = new NativeArray<BezierPath.DistRemapPoint>(numLines * BezierPath.RemapTableSize, Allocator.Persistent);
+        for (int i = 0; i < numLines; ++i)
+        {
+            int startIdx = i * BezierPath.RemapTableSize;
+            Line.distanceTableSubarrayIndices[i] = startIdx;
+
+            for (int j = 0; j < BezierPath.RemapTableSize; ++j)
+            {
+                Line.allDistanceTables[startIdx + j] = metroLines[i].bezierPath.remapTable[j];
+            }
         }
 
         Line.allBezierPathSubarrays = bezierPaths;

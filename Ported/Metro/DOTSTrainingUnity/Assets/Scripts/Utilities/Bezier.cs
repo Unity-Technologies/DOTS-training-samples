@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class BezierPath
@@ -7,6 +10,81 @@ public class BezierPath
     public List<BezierPoint> points;
     public float distance = 0f;
 
+    public struct DistRemapPoint
+    {
+        public float inputValue;
+        public float outputValue;
+    }
+
+    public const int RemapTableSize = 500;
+    public DistRemapPoint[] remapTable = new DistRemapPoint[RemapTableSize];
+    
+    public void CalculateRemapTable()
+    {
+        float increment = distance / RemapTableSize;
+        float distanceAccum = 0.0f;
+        Vector3 prevPoint = Get_Position(0.0f, false);
+        
+        remapTable[0].inputValue = 0;
+        remapTable[0].outputValue = 0;
+
+        remapTable[RemapTableSize - 1].inputValue = distance;
+        remapTable[RemapTableSize - 1].outputValue = distance;
+        
+        for (int i = 1; i < RemapTableSize - 1; ++i)
+        {
+            remapTable[i].inputValue = increment * i;
+            Vector3 newPoint = Get_Position(increment * i / distance, false);
+            distanceAccum += Vector3.Distance(prevPoint, newPoint);
+            remapTable[i].outputValue = distanceAccum;
+            prevPoint = newPoint;
+        }
+    }
+    
+    float findLinearRemappedInput(float desiredValue)
+    {
+        float clampedDesiredValue = math.clamp(desiredValue, 0, distance);
+        
+        // improvement here, could be a binary search
+        int lessIndex = 0;
+        int moreIndex = 1;
+        for (int i = 1; i < RemapTableSize; ++i)
+        {
+            if (remapTable[i].outputValue >= clampedDesiredValue)
+            {
+                moreIndex = i;
+                lessIndex = i - 1;
+                break;
+            }
+        }
+        
+        float interp = (desiredValue - remapTable[lessIndex].outputValue) / (remapTable[moreIndex].outputValue - remapTable[lessIndex].outputValue);
+        return remapTable[moreIndex].inputValue * interp + remapTable[lessIndex].inputValue * (1 - interp);
+    }
+
+    public static float FindLinearRemappedInput(float desiredValue, NativeArray<DistRemapPoint> remapTable, float distance)
+    {
+        float clampedDesiredValue = math.clamp(desiredValue, 0, distance);
+        
+        // improvement here, could be a binary search
+        int lessIndex = 0;
+        int moreIndex = 1;
+        for (int i = 1; i < RemapTableSize; ++i)
+        {
+            if (remapTable[i].outputValue >= clampedDesiredValue)
+            {
+                moreIndex = i;
+                lessIndex = i - 1;
+                break;
+            }
+        }
+        
+        float interp = (desiredValue - remapTable[lessIndex].outputValue) / (remapTable[moreIndex].outputValue - remapTable[lessIndex].outputValue);
+        return remapTable[moreIndex].inputValue * interp + remapTable[lessIndex].inputValue * (1 - interp);
+    }
+    
+    
+    
     public BezierPath()
     {
         points = new List<BezierPoint>();
@@ -49,6 +127,7 @@ public class BezierPath
         }
         // add last stretch (return loop to point ZERO)
         distance += Get_AccurateDistanceBetweenPoints(0, points.Count - 1);
+        CalculateRemapTable();
     }
 
     public float Get_AccurateDistanceBetweenPoints(int _current, int _prev)
@@ -57,7 +136,7 @@ public class BezierPath
         BezierPoint _prevPoint = points[_prev];
         float measurementIncrement = 1f / MetroDefines.BEZIER_MEASUREMENT_SUBDIVISIONS;
         float regionDistance = 0f;
-        for (int i = 0; i < MetroDefines.BEZIER_MEASUREMENT_SUBDIVISIONS- 1; i++)
+        for (int i = 0; i < MetroDefines.BEZIER_MEASUREMENT_SUBDIVISIONS; i++)
         {
             float _CURRENT_SUBDIV = i * measurementIncrement;
             float _NEXT_SOBDIV = (i + 1) * measurementIncrement;
@@ -77,27 +156,30 @@ public class BezierPath
         points[_currentPoint] = point;
     }
 
-    public Vector3 Get_NormalAtPosition(float _position)
+    public Vector3 Get_NormalAtPosition(float _position, bool useRemapTable)
     {
-        Vector3 _current = Get_Position(_position);
-        Vector3 _ahead = Get_Position((_position + 0.0001f) % 1f);
+        Vector3 _current = Get_Position(_position, useRemapTable);
+        Vector3 _ahead = Get_Position((_position + 0.0001f) % 1f, useRemapTable);
         return (_ahead - _current) / Vector3.Distance(_ahead, _current);
     }
 
-    public Vector3 Get_TangentAtPosition(float _position)
+    public Vector3 Get_TangentAtPosition(float _position, bool useRemapTable)
     {
-        Vector3 normal = Get_NormalAtPosition(_position);
+        Vector3 normal = Get_NormalAtPosition(_position, useRemapTable);
         return new Vector3(-normal.z, normal.y, normal.x);
     }
 
-    public Vector3 GetPoint_PerpendicularOffset(ref BezierPoint _point, float _offset)
+    public Vector3 GetPoint_PerpendicularOffset(ref BezierPoint _point, float _offset, bool useRemapTable)
     {
-        return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance) * _offset;
+        return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance, useRemapTable) * _offset;
     }
 
-    public Vector3 Get_Position(float _progress)
+    public Vector3 Get_Position(float _progress, bool useRemapTable)
     {
         float progressDistance = distance * _progress;
+        if (useRemapTable)
+            progressDistance = findLinearRemappedInput(progressDistance);
+        
         int pointIndex_region_start = GetRegionIndex(progressDistance);
         int pointIndex_region_end = (pointIndex_region_start + 1) % points.Count;
 
@@ -105,9 +187,9 @@ public class BezierPath
         BezierPoint point_region_start = points[pointIndex_region_start];
         BezierPoint point_region_end = points[pointIndex_region_end];
         // lerp between the points to arrive at PROGRESS
-        float pathProgress_start = point_region_start.distanceAlongPath / distance;
-        float pathProgress_end = (pointIndex_region_end != 0) ?  point_region_end.distanceAlongPath / distance : 1f;
-        float regionProgress = (_progress - pathProgress_start) / (pathProgress_end - pathProgress_start);
+        float pathProgress_start = point_region_start.distanceAlongPath;
+        float pathProgress_end = (pointIndex_region_end != 0) ?  point_region_end.distanceAlongPath : distance;
+        float regionProgress = (progressDistance - pathProgress_start) / (pathProgress_end - pathProgress_start);
 
         // do your bezier lerps
         // Round 1 --> Origins to handles, handle to handle

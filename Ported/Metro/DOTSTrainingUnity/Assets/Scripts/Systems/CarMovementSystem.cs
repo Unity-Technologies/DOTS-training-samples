@@ -15,6 +15,9 @@ public class CarMovementSystem : SystemBase
         NativeArray<int> bezierPathIndices = Line.bezierPathSubarrayIndices;
         NativeArray<float> allDistances = Line.allDistances;
 
+        NativeArray<int> distanceRemapTableIndices = Line.distanceTableSubarrayIndices;
+        NativeArray<BezierPath.DistRemapPoint> distanceRemapTables = Line.allDistanceTables;
+        
         ComponentDataFromEntity<TrainCurrDistance> trainDistances = GetComponentDataFromEntity<TrainCurrDistance>(true);
         ComponentDataFromEntity<TrackIndex> trainTrackIndices = GetComponentDataFromEntity<TrackIndex>(true);
         
@@ -24,6 +27,8 @@ public class CarMovementSystem : SystemBase
             .WithReadOnly(allDistances)
             .WithReadOnly(trainDistances)
             .WithReadOnly(trainTrackIndices)
+            .WithReadOnly(distanceRemapTables)
+            .WithReadOnly(distanceRemapTableIndices)
             .ForEach((ref Translation translation, ref Rotation rotation, in TrainCarIndex carIndex,
             in TrainEngineRef engineRef) =>
         {
@@ -34,33 +39,44 @@ public class CarMovementSystem : SystemBase
             
             int startIndex = bezierPathIndices[engineTrackIndex];
             float distance = allDistances[engineTrackIndex];
-            
+            int tableStartIdx = distanceRemapTableIndices[engineTrackIndex];
+
             float carDistance = trainDistance - (trainCarLength * carIndex.value);
             if (carDistance < 0)
                 carDistance += distance;
             
             int onePastEndIndex;
+            int onePastTableIndex;
             
             if (engineTrackIndex == bezierPathIndices.Length - 1)
             {
                 onePastEndIndex = allBezierPaths.Length;
+                onePastTableIndex = distanceRemapTables.Length;
             }
             else
             {
                 onePastEndIndex = bezierPathIndices[engineTrackIndex + 1];
+                onePastTableIndex = distanceRemapTableIndices[engineTrackIndex + 1];
             }
             
             int length = onePastEndIndex - startIndex;
             
             NativeArray<BezierPoint> points = allBezierPaths.GetSubArray(startIndex, length);
+
+            NativeArray<BezierPath.DistRemapPoint> distRemapTable =
+                distanceRemapTables.GetSubArray(tableStartIdx, onePastTableIndex - tableStartIdx);
+
+
+            float linearizedCarDistance = BezierPath.FindLinearRemappedInput(carDistance, distRemapTable, distance);
+            float3 position = Get_Position(linearizedCarDistance, points);
+
+            float aheadDistance = (carDistance + 0.01f) % distance;
+            float linearizedAheadCarDistance =
+                BezierPath.FindLinearRemappedInput(aheadDistance, distanceRemapTables, distance);
             
-            float3 position = Get_Position(carDistance, points);
-            float3 aheadPosition = Get_Position((carDistance + 0.01f) % distance, points);
-            
+            float3 aheadPosition = Get_Position(linearizedAheadCarDistance, points);
+
             float3 normalAtPosition = math.normalize(aheadPosition - position);
-            
-            //float3 lookAtDirection = position - normalAtPosition;
-            
             quaternion lookRotation = quaternion.LookRotation(normalAtPosition, new float3(0f, 1f, 0f));
 
             translation.Value = position;
