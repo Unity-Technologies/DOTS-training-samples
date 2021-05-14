@@ -17,6 +17,12 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
     public GameObject WallPrefab;
     public GameObject GoalPrefab;
 
+    [Range(1,600)]public int GameLength = 30;
+    public uint BoardGenerationSeed = 1234;
+    public uint AIControllerSeed = 1234;
+    [Range(0.0f,0.9f)]public float WallDensity = 0.2f;
+    public int MaximumNumberCellsPerHole = 30;
+
     public int MaxCats = 3;
     public float CatSpawnFrequency = 5f;
     public float MouseSpawnFrequency = 0.25f;
@@ -45,7 +51,7 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
                 CellSize = CellSize,
                 NumberColumns = NumberColumns,
                 NumberRows = NumberRows,
-                GoalPlayer1 = new GridPosition(){X = 2/*random.NextInt(0, NumberColumns)*/, Y=8/*random.NextInt(0, NumberRows)*/},
+                GoalPlayer1 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
                 GoalPlayer2 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
                 GoalPlayer3 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
                 GoalPlayer4 = new GridPosition(){X = random.NextInt(0, NumberColumns), Y=random.NextInt(0, NumberRows)},
@@ -63,6 +69,15 @@ public class GameAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclare
             ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             GoalPrefab = conversionSystem.GetPrimaryEntity(GoalPrefab),
+        });
+
+        dstManager.AddComponentData(entity, new GameInitParams()
+        {
+            LengthGame = GameLength,
+            BoardGenerationSeed = BoardGenerationSeed,
+            AIControllerSeed = AIControllerSeed,
+            MaximumNumberCellsPerHole = MaximumNumberCellsPerHole,
+            WallDensity = WallDensity
         });
 
         dstManager.AddComponentData(entity, new DynamicSpawnerDefinition()

@@ -19,10 +19,11 @@ public class UpdateUISystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         var gameObjectRefs = this.GetSingleton<GameObjectRefs>();
-        gameObjectRefs.GameTime.text = "0:00";
+        gameObjectRefs.GameTime.text = "";
 
         var boardEntity = GetSingletonEntity<BoardInitializedTag>();
         var gameTime = GetComponent<GameTime>(boardEntity);
+        var gameInitParams = GetComponent<GameInitParams>(boardEntity);
 
         float previousAccumulatedTime = gameTime.AccumulatedTime;
         gameTime.AccumulatedTime += deltaTime;
@@ -50,7 +51,17 @@ public class UpdateUISystem : SystemBase
                 gameObjectRefs.IntroText.text = "";
                 gameObjectRefs.IntroText.enabled = false;
             }
-            gameObjectRefs.GameTime.text = $"0:{(int)gameTime.AccumulatedTime}";
+
+            int remainingSeconds = gameInitParams.LengthGame;
+            if (gameTime.AccumulatedTime > 0.0f)
+            {
+                remainingSeconds = gameInitParams.LengthGame - (int)gameTime.AccumulatedTime;
+            }
+
+            if (remainingSeconds < 0.0f)
+                gameObjectRefs.GameTime.text = "0:0";
+            else
+                gameObjectRefs.GameTime.text = $"{(int)(remainingSeconds/60)}:{remainingSeconds%60}";
         }
 
         var playerReferences = EntityManager.GetBuffer<PlayerReference>(boardEntity);
@@ -62,7 +73,7 @@ public class UpdateUISystem : SystemBase
         gameObjectRefs.Player2ScoreText.text = $"{scorePlayer2}";
         gameObjectRefs.Player3ScoreText.text = $"{scorePlayer3}";
         gameObjectRefs.Player4ScoreText.text = $"{scorePlayer4}";
-        
+
 
     }
 }

@@ -52,19 +52,17 @@ public class SpawnBoardSystem : SystemBase
     }
 
     static float halfWallThickness = 0.025f;
-    static float kWallDensity = 0.2f;
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        var random = new Unity.Mathematics.Random(1234);
 
         Entities
             .WithNone<BoardInitializedTag>()
             .WithoutBurst()
             .ForEach((Entity entity, ref GameData gameData, ref DynamicBuffer<GridCellContent> gridContent, in BoardDefinition boardDefinition, in BoardPrefab boardPrefab,
-                in DynamicSpawnerDefinition dynamicSpawnerDefinition) =>
+                in DynamicSpawnerDefinition dynamicSpawnerDefinition, in GameInitParams gameInitParams) =>
             {
+                var random = new Unity.Mathematics.Random(gameInitParams.BoardGenerationSeed);
                 int numberColumns = boardDefinition.NumberColumns;
                 int numberRows = boardDefinition.NumberRows;
                 // Store the grid world position
@@ -92,7 +90,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AppendToBuffer(entity, new PlayerReference() { Player = spawnedEntity });
                     if (i != 0)
                         ecb.AddComponent<AITargetCell>(spawnedEntity);
-                    
+
                     ecb.SetComponent(spawnedEntity, new Translation
                     {
                         Value = new float3(0.0f, 1.0f, 0.0f)
@@ -101,7 +99,7 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(spawnedEntity);
                     ecb.AddComponent<ShouldSetupColor>(spawnedEntity);
                     ecb.AddComponent<NextArrowIndex>(spawnedEntity);
-                    ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(1234 + (uint)i)});
+                    ecb.AddComponent<RandomContainer>(spawnedEntity, new RandomContainer(){Value = new Random(gameInitParams.AIControllerSeed + (uint)i)});
                     if (i != 0)
                     {
                         ecb.AddComponent(spawnedEntity, new AITargetCell()
@@ -110,7 +108,7 @@ public class SpawnBoardSystem : SystemBase
                             Y = random.NextInt(0, numberRows),
                         });
                     }
-                    
+
                     //Setup arrows for each character
                     for (int l = 0; l < 3; l++)
                     {
@@ -159,7 +157,7 @@ public class SpawnBoardSystem : SystemBase
                     gridContent.Add(new GridCellContent() { Type = gridCellType, Walls = borderWall});
                 }
 
-                int numWalls = (int)(numberCells * kWallDensity);
+                int numWalls = (int)(numberCells * gameInitParams.WallDensity);
                 for (int c = 0; c < numWalls; ++c)
                 {
                     int wallCellIndex = random.NextInt(0, numberCells);
@@ -186,7 +184,7 @@ public class SpawnBoardSystem : SystemBase
                     }
                 }
 
-                int numHoles = random.NextInt(0, 4);
+                int numHoles = random.NextInt(0, numberCells/gameInitParams.MaximumNumberCellsPerHole);
                 for (int hole = 0; hole < numHoles; ++hole)
                 {
                     int holeIndex = random.NextInt(0, numberCells);
@@ -286,12 +284,6 @@ public class SpawnBoardSystem : SystemBase
                     ecb.AppendToBuffer(entity, new GoalReference() { Goal = goalEntity });
                 }
 
-                
-
-                // TODO: Add time?
-
-                // TODO: Set up walls
-
                 // Set up spawners
                 var spawner1 = ecb.CreateEntity();
                 ecb.AddComponent(spawner1, new SpawnerData()
@@ -340,10 +332,6 @@ public class SpawnBoardSystem : SystemBase
                     Y = numberRows - 1
                 });
                 ecb.SetName(spawner4, "CatSpawner 2");
-
-                // TODO: Set up goals
-                // ...
-                // TODO: Set up Game Data
 
                 // Setup camera
                 var gameObjectRefs = this.GetSingleton<GameObjectRefs>();
