@@ -22,7 +22,7 @@ public class DynamicSpawnerSystem : SystemBase
         var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         // Figure out number of cats
-        var numberOfCats = m_CatQuery.CalculateEntityCount();
+        var numberOfCats = m_CatQuery.CalculateEntityCountWithoutFiltering();
 
         // Need to access to cat and mouse prefabs
         var spawnerDefinition = GetSingleton<DynamicSpawnerDefinition>();
