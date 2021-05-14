@@ -84,16 +84,16 @@ namespace JumpTheGun
 			maxTerrainHeight.value = initMaxTerrainHeight = 5.5F;
 
 			boxHeightDamage.SetBounds(0.1F, 5F);
-			boxHeightDamage.value = 0.4F;
+			boxHeightDamage.value = initBoxHeightDamage = 0.4F;
 
 			numTanks.SetBounds(0, 10000);
-			numTanks.value = 100;
+			numTanks.value = initNumTanks = 100;
 
 			tankLaunchPeriod.SetBounds(0.1F, 20F);
-			tankLaunchPeriod.value = 4F;
+			tankLaunchPeriod.value = initTankLaunchPeriod = 4F;
 
 			bulletSpeed.SetBounds(0.1F, 10F);
-			bulletSpeed.value = 2F;
+			bulletSpeed.value = initBulletSpeed = 2F;
 
 			optionsMenu.SetActive(false);
 
