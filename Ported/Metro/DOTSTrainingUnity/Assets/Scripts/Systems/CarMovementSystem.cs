@@ -149,7 +149,6 @@ public class CarMovementSystem : SystemBase
         int totalPoints = points.Length;
         for (int i = 0; i < totalPoints; i++)
         {
-            BezierPoint _PT = points[i];
             float distanceAlongPath = distancesAlongPath[i];
             if (distanceAlongPath <= _progress)
             {

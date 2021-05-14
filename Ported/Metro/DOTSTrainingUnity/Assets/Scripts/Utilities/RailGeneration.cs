@@ -271,13 +271,5 @@ public class RailGeneration : MonoBehaviour
     {
         // TODO: An error happens because the job didn't finish using it yet
         // This data should be created in a system and destroyed in a system
-
-        Line.allBezierPathSubarrays.Dispose();
-        Line.bezierPathSubarrayIndices.Dispose();
-        Line.allStopPointSubarrays.Dispose();
-        Line.stopPointSubarrayIndices.Dispose();
-        Line.allDistances.Dispose();
-        Line.numStopPointsInLine.Dispose();
-        Line.allBezierDistancesAlongPath.Dispose();
     }
 }
