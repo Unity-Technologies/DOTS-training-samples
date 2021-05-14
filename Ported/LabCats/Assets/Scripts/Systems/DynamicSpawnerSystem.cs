@@ -6,9 +6,12 @@ using UnityEngine;
 public class DynamicSpawnerSystem : SystemBase
 {
     EntityQuery m_CatQuery;
+    private EntityCommandBufferSystem CommandBufferSystem;
 
     protected override void OnCreate()
     {
+        CommandBufferSystem
+            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<GameStartedTag>();
         // Query to grab the cats (need max number of cats)
         m_CatQuery = GetEntityQuery(typeof(CatTag), typeof(GridPosition), typeof(CellOffset), typeof(Direction));
@@ -16,11 +19,10 @@ public class DynamicSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         // Figure out number of cats
-        var catEntities = m_CatQuery.ToEntityArray(Allocator.Temp);
-        var numberOfCats = catEntities.Length;
+        var numberOfCats = m_CatQuery.CalculateEntityCount();
 
         // Need to access to cat and mouse prefabs
         var spawnerDefinition = GetSingleton<DynamicSpawnerDefinition>();
@@ -55,9 +57,6 @@ public class DynamicSpawnerSystem : SystemBase
                     ecb.AddComponent(spawnedEntity, cellOffset);
                 }
 
-            }).Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            }).Schedule();
     }
 }
