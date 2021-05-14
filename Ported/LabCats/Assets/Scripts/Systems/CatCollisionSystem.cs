@@ -64,17 +64,25 @@ public class CatCollisionSystem : SystemBase
 
                 UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in direction);
 
-                var mouseX = gridPosition.X + (cellOffset.Value - 0.5f) * offsetX;
-                var mouseY = gridPosition.Y - (cellOffset.Value - 0.5f) * offsetY;
+                var mouseGridPositionX = gridPosition.X;
+                var mouseGridPositionY = gridPosition.Y;
+
+                var mouseX = mouseGridPositionX + (cellOffset.Value - 0.5f) * offsetX;
+                var mouseY = mouseGridPositionY - (cellOffset.Value - 0.5f) * offsetY;
 
                 // TODO: Check the distance to each cat
                 for (int i = 0; i < catPositions.Length; i++)
                 {
+                    var catGridPositionX = catPositions[i].X;
+                    var catGridPositionY = catPositions[i].Y;
+
+                    if (math.abs(mouseGridPositionX - catGridPositionX) > 1 || math.abs(mouseGridPositionY - catGridPositionY) > 1)
+                        continue;
                     var catDir = catDirections[i];
                     UpdateTransformSystem.GetOffsetDirs(ref offsetX, ref offsetY, in catDir);
 
-                    var catX = catPositions[i].X + (catOffsets[i].Value - 0.5f) * offsetX;
-                    var catY = catPositions[i].Y - (catOffsets[i].Value - 0.5f) * offsetY;
+                    var catX = catGridPositionX + (catOffsets[i].Value - 0.5f) * offsetX;
+                    var catY = catGridPositionY - (catOffsets[i].Value - 0.5f) * offsetY;
 
                     var distance = math.distance(new float2(mouseX, mouseY), new float2(catX, catY));
 

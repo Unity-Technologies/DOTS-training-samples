@@ -39,7 +39,7 @@ public class UpdateScoreSystem : SystemBase
             var playerEntity = playerReference[i].Player;
             localScoreCache[i] = EntityManager.GetComponentData<Score>(playerEntity).Value;
         }
-        Entities.WithNone<CatTag>().ForEach((Entity e, in HittingGoal goalInfo) =>
+        Entities.WithNone<CatTag>().WithAll<Speed>().ForEach((Entity e, in HittingGoal goalInfo) =>
         {
             ++localScoreCache[goalInfo.PlayerIndex];
             #if !DONT_EAT_ENTITIES
