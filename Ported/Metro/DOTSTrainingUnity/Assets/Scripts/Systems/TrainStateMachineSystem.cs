@@ -26,6 +26,9 @@ public class TrainStateMachineSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         float trainWaitTime = 5.0f;
 
+        //var ecbSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        //var ecb = ecbSystem.CreateCommandBuffer();
+
         var doorState = GetComponentDataFromEntity<DoorState>();
 
         var stopDistances = Line.allStopPointSubarrays;
@@ -33,6 +36,7 @@ public class TrainStateMachineSystem : SystemBase
         var numStopPointsInLine = Line.numStopPointsInLine;
 
         Entities
+            .WithNativeDisableParallelForRestriction(doorState)
             .WithReadOnly(stopDistances)
             .WithReadOnly(stopPointSubarrayIndices)
             .WithReadOnly(numStopPointsInLine)
@@ -57,8 +61,9 @@ public class TrainStateMachineSystem : SystemBase
                         for(int dIdx=0; dIdx < halfNumDoors; ++dIdx)
                         {
                             int doorBufferIndex = dIdx + doorSide * halfNumDoors;
-                            var currEnt = doorEntBuffer[dIdx + doorSide * halfNumDoors];
+                            var currEnt = doorEntBuffer[doorBufferIndex];
                             doorState[currEnt] = new DoorState() { value = CurrentDoorState.Open };
+                            //ecb.SetComponent(currEnt, new DoorState() { value = CurrentDoorState.Open });
                         }
 
                         trainState.value = CurrTrainState.Waiting;
@@ -80,8 +85,10 @@ public class TrainStateMachineSystem : SystemBase
 
                             for (int dIdx = 0; dIdx < halfNumDoors; ++dIdx)
                             {
-                                var currEnt = doorEntBuffer[dIdx + doorSide * halfNumDoors];
+                                int doorBufferIndex = dIdx + doorSide * halfNumDoors;
+                                var currEnt = doorEntBuffer[doorBufferIndex];
                                 doorState[currEnt] = new DoorState() { value = CurrentDoorState.Close };
+                                //ecb.SetComponent(currEnt, new DoorState() { value = CurrentDoorState.Close });
                             }
 
                             // Tell the train to move
@@ -110,6 +117,8 @@ public class TrainStateMachineSystem : SystemBase
                         break;
                     }
             }
-        }).Schedule();
+        }).ScheduleParallel();
+
+        //ecbSystem.AddJobHandleForProducer(Dependency);
     }
 }
