@@ -5,6 +5,8 @@ using UnityKeyCode = UnityEngine.KeyCode;
 
 public class PlayerInput : SystemBase
 {
+    private EntityQuery antWallQueryGroup;
+    
     protected override void OnUpdate()
     {
         var simSpeedEntity = GetSingletonEntity<SimulationSpeed>();
@@ -37,7 +39,7 @@ public class PlayerInput : SystemBase
                 All = new ComponentType[] { typeof(Wall) }
             };
 
-            EntityQuery antWallQueryGroup = GetEntityQuery(new EntityQueryDesc[] {antQuery, wallQuery});
+            antWallQueryGroup = GetEntityQuery(new EntityQueryDesc[] {antQuery, wallQuery});
             
             Entities
                 .WithStoreEntityQueryInField(ref antWallQueryGroup)
