@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;
@@ -24,18 +27,20 @@ public class AntSpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
-                for (int i = 0; i < spawner.AntCount; ++i)
+                var side = (int)Math.Sqrt(spawner.AntCount);
+
+                for (int i = 0; i < spawner.AntCount; i++)
                 {
+                    var x = (float) (i % side) / side * 10 - 5;
+                    var y = (float) (i / side) / side * 10 - 5;
+                    
                     var instance = ecb.Instantiate(spawner.AntPrefab);
                     
-                    var translation = new Translation {Value = new float3(0, 0, i)};
-                    ecb.SetComponent(instance, translation);
-                    //ecb.AddComponent<Position>(instance);
-                    ecb.SetComponent(instance, new Position {Value = new float2(0, 0)});
-                    //ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
+                    ecb.SetComponent(instance, new Translation {Value = new float3(x, y, 0)});
+                    ecb.SetComponent(instance, new Position {Value = new float2(x, y)});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
-                        Value = random.NextFloat4()
+                        Value = new float4((float)0x30 / 0x100, (float)0x36 / 0x100, (float)0x5A / 0x100, 0)
                     });
                 }
             }).Run();
