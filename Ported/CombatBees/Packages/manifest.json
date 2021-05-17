@@ -1,4 +1,5 @@
 {
+  "registry": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates",
   "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
@@ -39,6 +40,11 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.entities": "0.19.0-preview.26",
+    "com.unity.render-pipelines.universal": "10.3.1",
+    "com.unity.rendering.hybrid": "0.13.0-preview.26",
+    "com.unity.dots.editor": "0.14.0-preview.1",
+    "com.unity.platforms.windows": "0.12.0-preview.13"
   }
 }
