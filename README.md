@@ -182,6 +182,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>At three-way intersections, each car randomly chooses whether to go left, right, or straight.</li>
 <li>Cars wait to enter an intersection if their path through the intersection crosses the path of another car in the intersection.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
+<li>Walls can be added at runtime by left clicking while holding the shift key down.</li>
    </ul>
 </details>
 
@@ -195,7 +196,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
    <ul>
    <li>The trains move on a fixed schedule. Passengers should not enter or exit the train if they do not have time to get in position before the train moves.</li>
    <li>Disembarking passengers randomly pick another train to board.</li>
-   <li>On init, the tracks and station placement is randomly generated.</li>
+   <li>The scene contains a set of authored control points that defines splines for the tracks. Some of these control points also define the placement of stations.</li>
    <li>Keyboard controls allow the user to reset the simulation.</li>
    </ul>
 </details>
