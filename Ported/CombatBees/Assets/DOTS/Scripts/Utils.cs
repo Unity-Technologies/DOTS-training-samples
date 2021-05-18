@@ -2,7 +2,7 @@ using Unity.Mathematics;
 
 public static class Utils
 {
-    public static float3 BoundedRandomPosition(AABB bounds, Random random)
+    public static float3 BoundedRandomPosition(AABB bounds, ref Random random)
     {
         var x = random.NextFloat(bounds.Min.x, bounds.Max.x);
         var y = random.NextFloat(bounds.Min.y, bounds.Max.y);

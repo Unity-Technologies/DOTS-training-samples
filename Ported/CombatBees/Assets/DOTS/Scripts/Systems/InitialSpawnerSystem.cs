@@ -25,8 +25,9 @@ public class InitialSpawnerSystem : SystemBase
 
         var arena = GetSingletonEntity<IsArena>();
         var resourcesBounds = GetComponent<Bounds>(arena).Value;
-        resourcesBounds.Extents *= 0.3f;
-        
+        resourcesBounds.Extents.z *= 0.3f;
+        resourcesBounds.Extents.y *= 0.3f;
+
         //Spawn bees
         Entities
             .ForEach((in Bounds bounds, in Team team) =>
@@ -52,13 +53,11 @@ public class InitialSpawnerSystem : SystemBase
             ecb.AddComponent<IsResource>(instance);
             ecb.AddComponent<HasGravity>(instance);
             
-            Debug.Log(random.NextFloat(resourcesBounds.Min.x, resourcesBounds.Max.x));
-            
             var x = random.NextFloat(resourcesBounds.Min.x, resourcesBounds.Max.x);
             var y = random.NextFloat(resourcesBounds.Min.y, resourcesBounds.Max.y);
             var z = random.NextFloat(resourcesBounds.Min.z, resourcesBounds.Max.z);
 
-            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds, random) };
+            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds,ref random) };
             ecb.SetComponent(instance, translation);
         }
 

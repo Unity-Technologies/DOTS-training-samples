@@ -35,7 +35,7 @@ public class BeeMovement : SystemBase
             .WithAll<IsBee>()
             .WithNone<Target, IsDead, IsAttacking>()
             .ForEach((ref Translation translation, in Speed speed) => {
-                var targetPosition = Utils.BoundedRandomPosition(arenaAABB, random);
+                var targetPosition = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
                 // move toward target Resource
                 var move = math.normalize(targetPosition - translation.Value) * speed.Value * deltaTime;
