@@ -22,7 +22,9 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CellPrefab;
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
+    public UnityGameObject MousePrefab;
     public int NumOfCats;
+    public int NumOfMice;
     public float MouseSpeed = 1f;
     public float CatSpeed = .5f;
     public int RoundDuration = 30;
@@ -37,6 +39,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(CellPrefab);
         referencedPrefabs.Add(CatPrefab);
         referencedPrefabs.Add(WallPrefab);
+        referencedPrefabs.Add(MousePrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -45,10 +48,12 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         {
             CellPrefab = conversionSystem.GetPrimaryEntity(CellPrefab),
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
+            MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
             NumOfCats =  NumOfCats,
+            NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),

@@ -15,29 +15,78 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class AnimalSpawnerSystem : SystemBase
 {
+    int catcount = 0;
+    int mousecount = 0;
+    bool mouseflipflop = false;
+    float respawn = 0f;
     protected override void OnUpdate()
     {
-        var random = new Random(1234);
-        
+        var random = Random.CreateFromIndex(1234);
+
         if (TryGetSingleton(out GameConfig gameConfig))
         {
-            for (int i = 0; i < gameConfig.NumOfCats; i++)
+            if (catcount < gameConfig.NumOfCats)
             {
-                var xPos = random.NextInt(gameConfig.BoardDimensions.x);
-                var yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                int countToCreate = gameConfig.NumOfCats - catcount;
+                for (int i = 0; i < countToCreate; i++)
+                {
+                    var xPos = random.NextInt(gameConfig.BoardDimensions.x);
+                    var yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                    var randDir = random.NextInt(3);
+                    var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
 
-                var randNum = random.NextInt(3);
-                var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randNum / 2);
-                
-                Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
-                EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
-                EntityManager.SetComponentData(cat, new Rotation() {Value = rotation});
+                    Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
+                    EntityManager.AddComponent<Cat>(cat);
+                    EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
+                    EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
+                    EntityManager.AddComponent<Direction>(cat);
+                    EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
 
-                EntityManager.AddComponent<Position>(cat);
-                EntityManager.SetComponentData(cat, new Position() { Value = new float2(xPos, yPos) });
+                    EntityManager.AddComponent<Position>(cat);
+                    EntityManager.SetComponentData(cat, new Position() { Value = new float2(xPos, yPos) });
+                    catcount++;
+               
+                }
             }
-        
-            Enabled = false;
+
+            if (mousecount < gameConfig.NumOfMice)
+            {
+                int countToCreate = gameConfig.NumOfMice - mousecount;
+                if (respawn <= 0)
+                {
+                    int xPos = 0;
+                    int yPos = 0;
+                    Cardinals dir = Cardinals.West;
+                    if (mouseflipflop)
+                    {
+                        xPos = gameConfig.BoardDimensions.x - 1;
+                        yPos = gameConfig.BoardDimensions.y - 1;
+                        dir = Cardinals.East;
+                    }
+
+                    var rotation = Unity.Mathematics.quaternion.RotateY(Direction.GetAngle(dir));
+
+                    Entity mouse = EntityManager.Instantiate(gameConfig.MousePrefab);
+                    respawn = 0.2f;
+                    EntityManager.AddComponent<Mouse>(mouse);
+                    EntityManager.AddComponent<Direction>(mouse);
+                    EntityManager.AddComponent<Position>(mouse);
+
+                    EntityManager.SetComponentData(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
+                    EntityManager.SetComponentData(mouse, new Rotation() { Value = rotation });
+                    EntityManager.SetComponentData(mouse, new Direction() { Value = dir });
+                    EntityManager.SetComponentData(mouse, new Position() { Value = new float2(xPos, yPos) });
+                    mousecount++;
+                    mouseflipflop = !mouseflipflop;
+
+                }
+                else
+                {
+                    respawn -= Time.DeltaTime;
+                }
+            }
+
+            //Enabled = false;
         }
     }
 }

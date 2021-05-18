@@ -21,11 +21,41 @@ public struct Direction : IComponentData
             case Cardinals.North:
                 return new float2(0, 1);
             case Cardinals.West:
-                return new float2(-1, 0);
+                return new float2(1, 0);
             case Cardinals.South:
                 return new float2(0, -1);
             case Cardinals.East:
-                return new float2(1, 0);
+                return new float2(-1, 0);
+        }
+    }
+
+    public static float GetAngle(Cardinals direction)
+    {
+        switch (direction)
+        {
+            default:
+            case Cardinals.None:
+            case Cardinals.North:
+                return 0;
+            case Cardinals.West:
+                return math.radians(90);
+            case Cardinals.South:
+                return math.radians(180);
+            case Cardinals.East:
+                return math.radians(270);
+
+        }
+    }
+
+    public static Cardinals FromRandomDirection (int randDir)
+    {
+        switch(randDir)
+        {
+            default:
+            case 0: return Cardinals.North;
+            case 1: return Cardinals.West;
+            case 2: return Cardinals.South;
+            case 3: return Cardinals.East;
         }
     }
 }
