@@ -20,6 +20,7 @@ public class FieldAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         , GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bounds>(entity);
+        dstManager.AddComponent<IsArena>(entity);
 
         var translation = transform.position;
 

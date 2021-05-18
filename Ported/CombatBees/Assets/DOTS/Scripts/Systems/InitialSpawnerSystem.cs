@@ -29,8 +29,12 @@ public class InitialSpawnerSystem : SystemBase
                 
                 for (int i = 0; i < spawner.BeeCount/2; ++i)
                 {
+
                     var instance = ecb.Instantiate(spawner.BeePrefab);
                     ecb.AddComponent(instance, team);
+
+                //    dstManager.AddComponent<PropagateColor>(entity);
+                    ecb.AddComponent<IsBee>(instance);
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
@@ -46,6 +50,7 @@ public class InitialSpawnerSystem : SystemBase
                 for (int i = 0; i < spawner.ResourceCount; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.ResourcePrefab);
+                    ecb.AddComponent<IsResource>(instance);
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     //ecb.SetComponent(instance, translation);
