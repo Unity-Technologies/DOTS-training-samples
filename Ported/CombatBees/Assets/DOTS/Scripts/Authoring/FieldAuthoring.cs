@@ -13,26 +13,20 @@ using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 
-public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
+public class FieldAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
-    public int team;
-
 
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bounds>(entity);
-        dstManager.AddComponent<Team>(entity);
-
-        dstManager.AddComponentData(entity, new Team { Id = team});
 
         var translation = transform.position;
 
         dstManager.AddComponentData(entity, new Bounds
         {
-            Value = new AABB {Center = translation}
-           
-        }) ;
+            Value = new AABB { Center = translation }
+        });
 
     }
 }

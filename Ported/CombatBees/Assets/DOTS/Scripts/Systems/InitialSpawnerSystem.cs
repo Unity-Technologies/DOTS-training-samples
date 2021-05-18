@@ -22,10 +22,11 @@ public class InitialSpawnerSystem : SystemBase
         var spawner = GetComponent<InitialSpawner>(spawnerEntity);
 
 
+        //Spawn bees
         Entities
             .ForEach(( in Bounds bounds, in Team team) =>
             {
-                //Spawn bees
+                
                 for (int i = 0; i < spawner.BeeCount/2; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.BeePrefab);
@@ -34,9 +35,22 @@ public class InitialSpawnerSystem : SystemBase
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
                 }
-
             }).Run();
 
+        //Spawn resources
+        Entities
+            .WithNone<Team>()
+            .ForEach((in Bounds bounds) =>
+            {
+
+                for (int i = 0; i < spawner.ResourceCount; ++i)
+                {
+                    var instance = ecb.Instantiate(spawner.ResourcePrefab);
+
+                    var translation = new Translation { Value = bounds.Value.Center };
+                    //ecb.SetComponent(instance, translation);
+                }
+            }).Run();
 
 
         ecb.Playback(EntityManager);
