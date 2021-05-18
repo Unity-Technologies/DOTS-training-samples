@@ -18,6 +18,8 @@ public class InitialSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var random = new Random(1234);
+
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         var spawnerEntity = GetSingletonEntity<InitialSpawner>();
@@ -39,7 +41,7 @@ public class InitialSpawnerSystem : SystemBase
                     ecb.AddComponent(instance, team);
 
                     ecb.AddComponent<IsBee>(instance);
-                    ecb.AddComponent<Speed>(instance, new Speed { Value = 1.0f });
+                    ecb.AddComponent(instance, new Speed { Value = random.NextFloat(0, spawner.MaxSpeed) });
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
@@ -51,8 +53,6 @@ public class InitialSpawnerSystem : SystemBase
                 }
             }).Run();
 
-        var random = new Random(1234);
-        
         //Spawn resources
         for (int i = 0; i < spawner.ResourceCount; ++i)
         {

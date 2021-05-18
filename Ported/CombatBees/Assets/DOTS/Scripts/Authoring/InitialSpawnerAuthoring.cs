@@ -23,6 +23,8 @@ public class InitialSpawnerAuthoring : UnityMonoBehaviour
     public UnityGameObject ResourcePrefab;
     [UnityRange(0, 1000)] public int ResourceCount;
 
+    [UnityRange(0, 100)] public int MaxSpeed = 1;
+
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -44,7 +46,8 @@ public class InitialSpawnerAuthoring : UnityMonoBehaviour
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             BeeCount = BeeCount,
             ResourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab),
-            ResourceCount = ResourceCount
+            ResourceCount = ResourceCount,
+            MaxSpeed = MaxSpeed
         });
     }
 }
