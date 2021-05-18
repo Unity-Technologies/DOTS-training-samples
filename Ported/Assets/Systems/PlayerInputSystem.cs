@@ -40,7 +40,7 @@ public class PlayerInput : SystemBase
                 }).Run();
             
             Entities
-                .WithAll<Position, URPMaterialPropertyBaseColor>()
+                .WithAll<Ant>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.DestroyEntity(entity);
