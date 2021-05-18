@@ -48,7 +48,7 @@ public class PlayerInput : SystemBase
             
             // Add Respawn component to AntSpawner
             Entities
-                .WithAny<AntSpawner, WallSpawner>()
+                .WithAny<AntSpawner, WallSpawner, PheromoneMap>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.AddComponent<Respawn>(entity);

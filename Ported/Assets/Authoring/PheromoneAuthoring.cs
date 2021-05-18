@@ -1,21 +1,19 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PheromoneAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntity
 {
-    public int mapSize = 128;
+    public int pheromoneGridSize = 128;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        var buf = dstManager.AddBuffer<Pheromone>(entity);
-        for (int i = 0; i < mapSize * mapSize; i++)
+        dstManager.AddComponentData(entity, new PheromoneMap()
         {
-            buf.Add(new Pheromone
-            {
-                Value = 0
-            });
-        }
-        
-        dstManager.AddComponent<PheromoneMap>(entity);
+            gridSize = pheromoneGridSize
+        });
+
+        dstManager.AddComponent<Respawn>(entity);
     }
 }
