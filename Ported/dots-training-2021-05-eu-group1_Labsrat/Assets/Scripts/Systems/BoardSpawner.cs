@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -14,14 +13,17 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class BoardSpawner : SystemBase
 {
-    NativeArray<Entity> cells;
+    public static NativeArray<Entity> cells;
 
     protected override void OnCreate()
     {
     }
 
-    int CoordintateToIndex(GameConfig c, int x, int y)
+    public static int CoordintateToIndex(GameConfig c, int x, int y)
     {
+        if (x >= c.BoardDimensions.x || y >= c.BoardDimensions.y || x < 0 || y < 0)
+            return -1;
+        
         return (y * c.BoardDimensions.x) + x;
     }
     
@@ -122,6 +124,18 @@ public class BoardSpawner : SystemBase
                     }
                 }
             }
+            
+            // Create players
+
+            for (int i = 0; i < gameConfig.NumOfAIPlayers+1; i++)
+            {
+                var player = EntityManager.CreateEntity();
+
+                EntityManager.AddComponentData(player, new PlayerIndex() { Index = i});
+                EntityManager.AddComponentData(player, new PlayerInput() { TileIndex = -1});
+                EntityManager.AddComponentData(player, new Score());
+                EntityManager.AddComponentData(player, new PlayerColor());
+            }
            
 
             Enabled = false;
@@ -151,5 +165,10 @@ public class BoardSpawner : SystemBase
 
             }
         }
+    }
+
+    protected override void OnDestroy()
+    {
+        cells.Dispose();
     }
 }

@@ -23,6 +23,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
     public int NumOfCats;
+    public int NumOfAIPlayers;
     public float MouseSpeed = 1f;
     public float CatSpeed = .5f;
     public int RoundDuration = 30;
@@ -49,6 +50,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
             NumOfCats =  NumOfCats,
+            NumOfAIPlayers = NumOfAIPlayers,
             RoundDuration = RoundDuration,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),

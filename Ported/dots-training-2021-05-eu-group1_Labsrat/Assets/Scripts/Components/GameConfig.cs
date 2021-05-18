@@ -6,6 +6,7 @@ public struct GameConfig : IComponentData
     public float MouseSpeed;
     public float CatSpeed;
     public int NumOfCats;
+    public int NumOfAIPlayers;
     public int RoundDuration;
     public int2 BoardDimensions;
     public float4 TileColor1;
