@@ -29,7 +29,7 @@ public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             Id = team
         });
 
-        var translation = new float3(0, 0, 0);   //GetComponent<Translation>(entity);
+        var translation = transform.position;
 
         dstManager.AddComponentData(entity, new Bounds
         {
