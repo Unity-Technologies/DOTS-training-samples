@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
@@ -35,8 +36,11 @@ public class AntSpawnerSystem : SystemBase
                     var y = (float) (i / side) / side * 10 - 5;
                     
                     var instance = ecb.Instantiate(spawner.AntPrefab);
+
+                    var rotation = random.NextFloat(2.0f * Mathf.PI);
                     
                     ecb.SetComponent(instance, new Translation {Value = new float3(x, y, 0)});
+                    ecb.SetComponent(instance, new Rotation {Value = quaternion.RotateZ(rotation)});
                     ecb.SetComponent(instance, new Position {Value = new float2(x, y)});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
