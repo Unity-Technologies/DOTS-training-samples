@@ -37,6 +37,7 @@ public class AnimalSpawnerSystem : SystemBase
 
                     Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
                     EntityManager.AddComponent<Cat>(cat);
+                    EntityManager.AddComponent<Translation>(cat);
                     EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
                     EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
                     EntityManager.AddComponent<Direction>(cat);
@@ -68,6 +69,7 @@ public class AnimalSpawnerSystem : SystemBase
 
                     Entity mouse = EntityManager.Instantiate(gameConfig.MousePrefab);
                     respawn = 0.2f;
+                    EntityManager.AddComponent<Translation>(mouse);
                     EntityManager.AddComponent<Mouse>(mouse);
                     EntityManager.AddComponent<Direction>(mouse);
                     EntityManager.AddComponent<Position>(mouse);

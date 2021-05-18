@@ -17,23 +17,27 @@ public class MovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var time = Time.DeltaTime;
+        if (TryGetSingleton(out GameConfig gameConfig))
+        {
+            var time = Time.DeltaTime;
 
-        Entities.
-            ForEach((ref Translation translation, in Cat cat, in Direction direction) =>
-            {
-                var offset = direction.getDirection() * time * 0.5f;
-                translation.Value.x += offset.x;
-                translation.Value.z += offset.y;
-            }).ScheduleParallel();
+            Entities.
+                ForEach((ref Translation translation, in Cat cat, in Direction direction) =>
+                {
+                    var offset = direction.getDirection() * time * gameConfig.CatSpeed;
+                    translation.Value.x += offset.x;
+                    translation.Value.z += offset.y;
+                }).ScheduleParallel();
 
-        Entities.
-            ForEach((ref Translation translation, in Mouse mouse, in Direction direction) =>
-            {
-                var offset = direction.getDirection() * time * 1f;
-                translation.Value.x += offset.x;
-                translation.Value.z += offset.y;
-            }).ScheduleParallel();
+            Entities.
+                ForEach((ref Translation translation, in Mouse mouse, in Direction direction) =>
+                {
+                    var offset = direction.getDirection() * time * gameConfig.MouseSpeed; 
+                    translation.Value.x += offset.x;
+                    translation.Value.z += offset.y;
+                }).ScheduleParallel();
+        }
+
 
     }
 

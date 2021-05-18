@@ -10,10 +10,34 @@ public struct Direction : IComponentData
     {
         Value = c;
     }
+    
+    public static Cardinals RotateRight(Cardinals c)
+    {
+        switch (c)
+        {
+            default:
+            case Cardinals.None:
+                return Cardinals.None;
+            case Cardinals.North:
+                return Cardinals.East;
+            case Cardinals.West:
+                return Cardinals.North;
+            case Cardinals.South:
+                return Cardinals.West;
+            case Cardinals.East:
+                return Cardinals.South;
+        }
+    }
 
     public float2 getDirection()
     {
-        switch (Value)
+        return getDirection(Value);
+    }
+
+
+    public static float2 getDirection(Cardinals c)
+    {
+        switch (c)
         {
             default:
             case Cardinals.None:
