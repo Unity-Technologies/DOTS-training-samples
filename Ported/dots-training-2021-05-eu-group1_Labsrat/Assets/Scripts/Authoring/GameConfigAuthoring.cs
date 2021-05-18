@@ -20,9 +20,11 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public UnityGameObject CellPrefab;
+    public UnityGameObject CatPrefab;
 
     public float MouseSpeed;
     public float CatSpeed;
+    public int NumOfCats;
     public int RoundDuration;
     public int2 BoardDimensions;
     public Color TileColor1;
@@ -31,6 +33,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(CellPrefab);
+        referencedPrefabs.Add(CatPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -38,8 +41,10 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         var gameConfig = new GameConfig()
         {
             CellPrefab = conversionSystem.GetPrimaryEntity(CellPrefab),
+            CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
+            NumOfCats =  NumOfCats,
             RoundDuration = RoundDuration,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
