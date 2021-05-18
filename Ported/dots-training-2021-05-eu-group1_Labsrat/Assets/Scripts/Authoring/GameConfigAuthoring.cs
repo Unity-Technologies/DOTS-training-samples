@@ -22,8 +22,10 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CellPrefab;
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
-    public UnityGameObject MousePrefab;
+    public UnityGameObject ArrowPrefab;
     public int NumOfCats;
+    public int NumOfAIPlayers;
+    public UnityGameObject MousePrefab;
     public int NumOfMice;
     public float MouseSpeed = 1f;
     public float CatSpeed = .5f;
@@ -39,6 +41,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(CellPrefab);
         referencedPrefabs.Add(CatPrefab);
         referencedPrefabs.Add(WallPrefab);
+        referencedPrefabs.Add(ArrowPrefab);
         referencedPrefabs.Add(MousePrefab);
     }
 
@@ -50,9 +53,11 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
             NumOfCats =  NumOfCats,
+            NumOfAIPlayers = NumOfAIPlayers,
             NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
             BoardDimensions = BoardDimensions,
