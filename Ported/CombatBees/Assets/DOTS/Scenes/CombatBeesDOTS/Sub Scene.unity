@@ -166,7 +166,7 @@ BoxCollider:
   m_GameObject: {fileID: 785965737}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -245,8 +245,9 @@ GameObject:
   - component: {fileID: 1075990050}
   - component: {fileID: 1075990049}
   - component: {fileID: 1075990052}
+  - component: {fileID: 1075990053}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Field
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -275,7 +276,7 @@ BoxCollider:
   m_GameObject: {fileID: 1075990047}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -340,6 +341,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8c479b597cfea84a81338b0b734d3bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1075990053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1075990047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ca03f60717b8a843bfce49dad1b4099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1150688215
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,7 +387,7 @@ MonoBehaviour:
   BeeCount: 10
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
-  ResourceCount: 10
+  ResourceCount: 100
 --- !u!4 &1150688217
 Transform:
   m_ObjectHideFlags: 0
@@ -432,7 +445,7 @@ BoxCollider:
   m_GameObject: {fileID: 1466324074}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
