@@ -23,21 +23,23 @@ public class BeeMovement : SystemBase
                 // move toward target Resource
                 var move = math.normalize(targetPosition - translation.Value) * speed.Value * deltaTime;
                 translation.Value += move;
-        }).ScheduleParallel();
+        }).Schedule();
 
         // Move bees that are not targetting a Resource in a random direction bounded by the Arena
         var arena = GetSingletonEntity<IsArena>();
         var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
+        
+        var random = new Random(1234);
 
         Entities
             .WithAll<IsBee>()
             .WithNone<Target, IsDead, IsAttacking>()
             .ForEach((ref Translation translation, in Speed speed) => {
-                var targetPosition = Utils.BoundedRandomPosition(arenaAABB);
+                var targetPosition = Utils.BoundedRandomPosition(arenaAABB, random);
 
                 // move toward target Resource
                 var move = math.normalize(targetPosition - translation.Value) * speed.Value * deltaTime;
                 translation.Value += move;
-        }).ScheduleParallel();
+        }).Schedule();
     }
 }

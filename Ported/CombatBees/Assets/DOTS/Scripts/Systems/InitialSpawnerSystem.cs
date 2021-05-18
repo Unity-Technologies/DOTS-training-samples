@@ -52,6 +52,12 @@ public class InitialSpawnerSystem : SystemBase
             ecb.AddComponent<IsResource>(instance);
             ecb.AddComponent<HasGravity>(instance);
             
+            Debug.Log(random.NextFloat(resourcesBounds.Min.x, resourcesBounds.Max.x));
+            
+            var x = random.NextFloat(resourcesBounds.Min.x, resourcesBounds.Max.x);
+            var y = random.NextFloat(resourcesBounds.Min.y, resourcesBounds.Max.y);
+            var z = random.NextFloat(resourcesBounds.Min.z, resourcesBounds.Max.z);
+
             var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds, random) };
             ecb.SetComponent(instance, translation);
         }

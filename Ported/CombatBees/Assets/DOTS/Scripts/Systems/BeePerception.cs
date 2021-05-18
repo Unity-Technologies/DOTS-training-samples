@@ -38,6 +38,8 @@ public class BeePerception : SystemBase
                     ecb.RemoveComponent<Target>(entity);
                 }
         }).Schedule();
+        
+        var random = new Random(1234);
 
         // Get list of Resources available to collect
         var resources = m_queryResources.ToEntityArray(Allocator.TempJob);
@@ -52,7 +54,7 @@ public class BeePerception : SystemBase
                     // pick a random resource and add target component to bee
                     ecb.SetComponent(entity, new Target
                     {
-                        Value = resources[Utils.Random.NextInt(0, resources.Length)]
+                        Value = resources[random.NextInt(0, resources.Length)]
                     });
                     // tag the bee as now gathering
                     ecb.AddComponent<IsGathering>(entity);
