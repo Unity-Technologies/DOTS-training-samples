@@ -11,6 +11,8 @@ public struct GameConfig : IComponentData
     public float4 TileColor2;
 
     public Entity CellPrefab;
+    public Entity WallPrefab;
+    public float WallProbability;
 
 
     // TODO: probably lots of other stuff
