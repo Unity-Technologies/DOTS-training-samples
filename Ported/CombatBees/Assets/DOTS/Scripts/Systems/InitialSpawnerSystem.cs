@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;
@@ -21,19 +23,19 @@ public class InitialSpawnerSystem : SystemBase
         var spawnerEntity = GetSingletonEntity<InitialSpawner>();
         var spawner = GetComponent<InitialSpawner>(spawnerEntity);
 
-
+        var arena = GetSingletonEntity<IsArena>();
+        var resourcesBounds = GetComponent<Bounds>(arena).Value;
+        resourcesBounds.Extents *= 0.3f;
+        
         //Spawn bees
         Entities
-            .ForEach(( in Bounds bounds, in Team team) =>
+            .ForEach((in Bounds bounds, in Team team) =>
             {
-                
                 for (int i = 0; i < spawner.BeeCount/2; ++i)
                 {
-
                     var instance = ecb.Instantiate(spawner.BeePrefab);
                     ecb.AddComponent(instance, team);
 
-                //    dstManager.AddComponent<PropagateColor>(entity);
                     ecb.AddComponent<IsBee>(instance);
 
                     var translation = new Translation { Value = bounds.Value.Center };
@@ -41,22 +43,18 @@ public class InitialSpawnerSystem : SystemBase
                 }
             }).Run();
 
+        var random = new Random(1234);
+        
         //Spawn resources
-        Entities
-            .WithNone<Team>()
-            .ForEach((in Bounds bounds) =>
-            {
-
-                for (int i = 0; i < spawner.ResourceCount; ++i)
-                {
-                    var instance = ecb.Instantiate(spawner.ResourcePrefab);
-                    ecb.AddComponent<IsResource>(instance);
-
-                    var translation = new Translation { Value = bounds.Value.Center };
-                    //ecb.SetComponent(instance, translation);
-                }
-            }).Run();
-
+        for (int i = 0; i < spawner.ResourceCount; ++i)
+        {
+            var instance = ecb.Instantiate(spawner.ResourcePrefab);
+            ecb.AddComponent<IsResource>(instance);
+            ecb.AddComponent<HasGravity>(instance);
+            
+            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds, random) };
+            ecb.SetComponent(instance, translation);
+        }
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
