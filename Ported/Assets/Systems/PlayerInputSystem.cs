@@ -45,10 +45,24 @@ public class PlayerInput : SystemBase
                 {
                     ecb.DestroyEntity(entity);
                 }).Run();
+
+            Entities
+                .WithAll<FoodSource>()
+                .ForEach((Entity entity) =>
+                {
+                    ecb.DestroyEntity(entity);
+                }).Run();
             
             // Add Respawn component to AntSpawner
             Entities
                 .WithAny<AntSpawner, WallSpawner, PheromoneMap>()
+                .ForEach((Entity entity) =>
+                {
+                    ecb.AddComponent<Respawn>(entity);
+                }).Run();
+
+            Entities
+                .WithAny<FoodSpawner>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.AddComponent<Respawn>(entity);

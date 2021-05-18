@@ -11,6 +11,7 @@ using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
 
 
+[UpdateAfter(typeof(FoodSpawnerSystem))]
 public class AntMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
