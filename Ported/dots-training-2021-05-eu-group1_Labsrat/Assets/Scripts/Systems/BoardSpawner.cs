@@ -13,7 +13,7 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class BoardSpawner : SystemBase
 {
-    public static NativeArray<Entity> cells;
+    public NativeArray<Entity> cells;
 
     protected override void OnCreate()
     {

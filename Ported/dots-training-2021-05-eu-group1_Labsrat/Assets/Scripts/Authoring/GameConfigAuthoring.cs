@@ -22,6 +22,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CellPrefab;
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
+    public UnityGameObject ArrowPrefab;
     public int NumOfCats;
     public int NumOfAIPlayers;
     public float MouseSpeed = 1f;
@@ -38,6 +39,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(CellPrefab);
         referencedPrefabs.Add(CatPrefab);
         referencedPrefabs.Add(WallPrefab);
+        referencedPrefabs.Add(ArrowPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -47,6 +49,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             CellPrefab = conversionSystem.GetPrimaryEntity(CellPrefab),
             CatPrefab = conversionSystem.GetPrimaryEntity(CatPrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
             NumOfCats =  NumOfCats,

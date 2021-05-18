@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Mathematics.Geometry;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
@@ -12,39 +13,43 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateAfter(typeof(BoardSpawner))]
 public class InputSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var gameConfig = GetSingleton<GameConfig>();
         
+        var localToWorldData = GetComponentDataFromEntity<LocalToWorld>();
+        var cellArray = World.GetExistingSystem<BoardSpawner>().cells;
+        
         var mousePos = UnityCamera.main.ScreenPointToRay(Input.mousePosition);
         var mouseDown = Input.GetMouseButtonDown(0);
 
-        Entities.ForEach((ref PlayerInput playerInput, in PlayerIndex playerIndex) => {
+        Entities
+            .WithoutBurst() // We are using UnityEngine.Plane which is not supported by Burst
+            .ForEach((ref PlayerInput playerInput, in PlayerIndex playerIndex) => {
 
             if (playerIndex.Index == 0)
             {
-                playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig);
+                playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.isMouseDown = mouseDown;
                 
-                if(mouseDown) Debug.Log(playerInput.TileIndex);
+                //if (mouseDown) Debug.Log(playerInput.TileIndex);
             }
             else
             {
                 
             }
-            
-        }).Schedule();
+            }).Schedule();
     }
     
-    public static int RaycastCellDirection(Ray ray, GameConfig gameConfig)
+    public static int RaycastCellDirection(Ray ray, GameConfig gameConfig, ComponentDataFromEntity<LocalToWorld> localToWorldData, NativeArray<Entity> cells, out Cardinals cellDirection)
     {
-        //cellDirection = Cardinals.North;
+        cellDirection = Cardinals.North;
 
         float enter;
-
-        var plane = new Plane(Vector3.up, new Vector3(0, 0.5f, 0));
+        var plane = new Plane(Vector3.up, new Vector3(0, 0.0f, 0));
 
         if (!plane.Raycast(ray, out enter))
             return -1;
@@ -52,12 +57,20 @@ public class InputSystem : SystemBase
         var worldPos = ray.GetPoint(enter);
         var cell = CellAtWorldPosition(worldPos, gameConfig);
 
-        // var pt = cell.transform.InverseTransformPoint(worldPos);
-        //
-        // if (Mathf.Abs(pt.z) > Mathf.Abs(pt.x))
-        //     cellDirection = pt.z > 0 ? Cardinals.North : Cardinals.South;
-        // else
-        //     cellDirection = pt.x > 0 ? Cardinals.East : Cardinals.West;
+        if (cell < 0)
+            return cell;
+
+        Entity cellEntity = cells[cell];
+        LocalToWorld cellLocalToWorldTransform = localToWorldData[cellEntity];
+
+        float4x4 worldToLocal = math.inverse(cellLocalToWorldTransform.Value);
+        var pt = math.transform(worldToLocal, new float3(worldPos));
+        //var pt = worldPos;//cell.transform.InverseTransformPoint(worldPos);
+        
+        if (Mathf.Abs(pt.z) > Mathf.Abs(pt.x))
+            cellDirection = pt.z > 0 ? Cardinals.North : Cardinals.South;
+        else
+            cellDirection = pt.x > 0 ? Cardinals.East : Cardinals.West;
 
         return cell;
 

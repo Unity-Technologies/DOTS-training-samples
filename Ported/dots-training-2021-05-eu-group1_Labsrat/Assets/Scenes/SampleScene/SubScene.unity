@@ -169,13 +169,15 @@ MonoBehaviour:
   CellPrefab: {fileID: 6401784360738124690, guid: 79ed59e6bf104154ca7a1eda2e5923d3, type: 3}
   CatPrefab: {fileID: 6401784360738124690, guid: 992913ff96ea5cc4b9b8e287d29cce0b, type: 3}
   WallPrefab: {fileID: 2873772957599496155, guid: c1a5df0081f7acd4ea19c5c889aeab0a, type: 3}
+  ArrowPrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
+  NumOfCats: 10
+  NumOfAIPlayers: 0
   MouseSpeed: 0
   CatSpeed: 0
-  NumOfCats: 10
   RoundDuration: 0
   BoardDimensions:
     x: 10
     y: 10
   TileColor1: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 0}
   TileColor2: {r: 0.745283, g: 0.6801589, b: 0.3058473, a: 0}
-  WallCount: 25
+  WallProbability: 0.1

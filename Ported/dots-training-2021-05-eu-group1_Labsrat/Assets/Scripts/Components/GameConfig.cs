@@ -16,7 +16,5 @@ public struct GameConfig : IComponentData
     public Entity WallPrefab;
     public float WallProbability;
     public Entity CatPrefab;
-
-
-    // TODO: probably lots of other stuff
+    public Entity ArrowPrefab;
 }
