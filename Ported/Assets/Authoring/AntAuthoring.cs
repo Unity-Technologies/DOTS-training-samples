@@ -6,7 +6,8 @@ public class AntAuthoring : UnityEngine.MonoBehaviour, IConvertGameObjectToEntit
     public void Convert(Entity entity, EntityManager dstManager,
         GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<Ant>(entity);
+        dstManager.AddComponent<Direction>(entity);
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
     }
 }
