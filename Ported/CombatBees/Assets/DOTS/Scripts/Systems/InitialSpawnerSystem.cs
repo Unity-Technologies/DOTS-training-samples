@@ -59,6 +59,7 @@ public class InitialSpawnerSystem : SystemBase
             var instance = ecb.Instantiate(spawner.ResourcePrefab);
             ecb.AddComponent<IsResource>(instance);
             ecb.AddComponent<HasGravity>(instance);
+            ecb.AddComponent<Velocity>(instance);
 
             var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds,ref random) };
             ecb.SetComponent(instance, translation);
