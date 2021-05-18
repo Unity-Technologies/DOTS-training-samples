@@ -27,10 +27,12 @@ public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Team { Id = team});
 
         var translation = transform.position;
+        var extents = transform.localScale/2;
+        extents = math.abs(extents);
 
         dstManager.AddComponentData(entity, new Bounds
         {
-            Value = new AABB {Center = translation}
+            Value = new AABB {Center = translation, Extents = extents }
            
         }) ;
 
