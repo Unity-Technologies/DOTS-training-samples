@@ -54,12 +54,13 @@ public class AntMovementSystem : SystemBase
         Dependency = Entities
             .WithAll<Ant>()
             .WithNone<CarryingFood>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color, ref Direction direction, in Translation translation) =>
             {
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
                 {
                     color.Value = new float4(1, 1, 0, 0);
+                    direction.Radians += Mathf.PI;
                     
                     ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
