@@ -16,13 +16,15 @@ public class AntMovementSystem : SystemBase
     {
         var random = new Random(1234);
         var deltaTime = Time.DeltaTime;
-        
+        var simulationSpeedEntity = GetSingletonEntity<SimulationSpeed>();
+        var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value;
+
         Entities
             .WithAll<Ant>()
             .ForEach((Entity entity, ref Translation translation, in Direction direction) =>
             {
                 var delta = new float3(Mathf.Cos(direction.Radians), Mathf.Sin(direction.Radians), 0);
-                translation.Value += delta * deltaTime;
+                translation.Value += delta * deltaTime * simulationSpeed;
             }).Schedule();
     }
 }

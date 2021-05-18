@@ -20,7 +20,7 @@ public class PlayerInput : SystemBase
             {
                 SimulationSpeed newSimSpeed = new SimulationSpeed
                 {
-                    Value = i
+                    Value = i - (int)UnityKeyCode.Alpha0
                 };
                 SetComponent(simSpeedEntity, newSimSpeed);
             }
