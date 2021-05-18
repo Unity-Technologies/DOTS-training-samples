@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 785965740}
   - component: {fileID: 785965739}
   - component: {fileID: 785965742}
+  - component: {fileID: 785965743}
   m_Layer: 0
   m_Name: TeamYellowBase
   m_TagString: Untagged
@@ -232,6 +233,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 0
+--- !u!114 &785965743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 785965737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 1
+    y: 1
+    z: 0
+    w: 0
 --- !u!1 &1075990047
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,6 +433,7 @@ GameObject:
   - component: {fileID: 1466324077}
   - component: {fileID: 1466324076}
   - component: {fileID: 1466324079}
+  - component: {fileID: 1466324080}
   m_Layer: 0
   m_Name: TeamBlueBase
   m_TagString: Untagged
@@ -511,6 +530,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 1
+--- !u!114 &1466324080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1466324074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 1
+    w: 0
 --- !u!1 &1494864233
 GameObject:
   m_ObjectHideFlags: 0

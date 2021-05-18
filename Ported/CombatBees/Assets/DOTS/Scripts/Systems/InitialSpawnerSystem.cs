@@ -30,8 +30,9 @@ public class InitialSpawnerSystem : SystemBase
 
         //Spawn bees
         Entities
-            .ForEach((in Bounds bounds, in Team team) =>
+            .ForEach((Entity entity, in Bounds bounds, in Team team) =>
             {
+
                 for (int i = 0; i < spawner.BeeCount/2; ++i)
                 {
                     var instance = ecb.Instantiate(spawner.BeePrefab);
@@ -41,6 +42,11 @@ public class InitialSpawnerSystem : SystemBase
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
+
+                    ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
+                    {
+                        Value = GetComponent<URPMaterialPropertyBaseColor>(entity).Value
+                    });
                 }
             }).Run();
 
