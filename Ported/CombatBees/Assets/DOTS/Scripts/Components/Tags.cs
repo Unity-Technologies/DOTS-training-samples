@@ -9,3 +9,4 @@ public struct IsReturning : IComponentData { }
 public struct IsDead : IComponentData { }
 public struct HasGravity : IComponentData { }
 public struct OnCollision : IComponentData { }
+public struct IsArena : IComponentData { }
