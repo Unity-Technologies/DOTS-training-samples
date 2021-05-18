@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -167,9 +167,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CellPrefab: {fileID: 6401784360738124690, guid: 79ed59e6bf104154ca7a1eda2e5923d3, type: 3}
+  CatPrefab: {fileID: 6401784360738124690, guid: 992913ff96ea5cc4b9b8e287d29cce0b, type: 3}
   WallPrefab: {fileID: 2873772957599496155, guid: c1a5df0081f7acd4ea19c5c889aeab0a, type: 3}
   MouseSpeed: 0
   CatSpeed: 0
+  NumOfCats: 10
   RoundDuration: 0
   BoardDimensions:
     x: 10
