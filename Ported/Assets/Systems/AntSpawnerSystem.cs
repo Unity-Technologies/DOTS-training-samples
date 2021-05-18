@@ -41,7 +41,7 @@ public class AntSpawnerSystem : SystemBase
                     
                     ecb.SetComponent(instance, new Translation {Value = new float3(x, y, 0)});
                     ecb.SetComponent(instance, new Rotation {Value = quaternion.RotateZ(rotation)});
-                    ecb.SetComponent(instance, new Position {Value = new float2(x, y)});
+                    ecb.SetComponent(instance, new Direction {Radians = rotation});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
                         Value = new float4((float)0x30 / 0x100, (float)0x36 / 0x100, (float)0x5A / 0x100, 0)
