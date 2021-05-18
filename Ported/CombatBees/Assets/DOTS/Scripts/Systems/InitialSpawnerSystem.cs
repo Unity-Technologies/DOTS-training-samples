@@ -39,6 +39,7 @@ public class InitialSpawnerSystem : SystemBase
                     ecb.AddComponent(instance, team);
 
                     ecb.AddComponent<IsBee>(instance);
+                    ecb.AddComponent<Speed>(instance, new Speed { Value = 1.0f });
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
