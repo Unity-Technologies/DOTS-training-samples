@@ -23,10 +23,10 @@ public class AntSpawnerSystem : SystemBase
         var random = new Random(1234);
 
         Entities
-            .ForEach((Entity entity, in AntSpawner spawner) =>
+            .ForEach((Entity entity, in AntSpawner spawner, in Respawn respawn) =>
             {
-                ecb.DestroyEntity(entity);
-
+                ecb.RemoveComponent<Respawn>(entity);
+                
                 var side = (int)Math.Sqrt(spawner.AntCount);
 
                 for (int i = 0; i < spawner.AntCount; i++)
