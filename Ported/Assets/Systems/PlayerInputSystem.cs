@@ -14,7 +14,7 @@ public class PlayerInput : SystemBase
         var simSpeedEntity = GetSingletonEntity<SimulationSpeed>();
         
         // Loop through numeric keycodes and assign Simulation Speed upon match
-        for( int i = (int) UnityKeyCode.Alpha1 ; i < (int) UnityKeyCode.Alpha9 ; ++i )
+        for( int i = (int) UnityKeyCode.Alpha1 ; i <= (int) UnityKeyCode.Alpha9 ; ++i )
         {
             if(UnityInput.GetKeyDown((UnityKeyCode)i))
             {

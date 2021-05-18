@@ -54,12 +54,12 @@ public class PheromoneSpawnerSystem : SystemBase
                                        new float2(screenSize.Value / 2, screenSize.Value / 2))
                                       * multiplySize;
                     int x, y;
-                    x = (int)math.floor(normPos.x);
-                    y = (int)math.floor(normPos.y);
+                    x = math.clamp((int)math.floor(normPos.x), 0, pheromoneMap.gridSize - 1);
+                    y = math.clamp((int)math.floor(normPos.y), 0, pheromoneMap.gridSize - 1);
                     int index = y * pheromoneMap.gridSize + x;
 
                     float newCol = pheromoneBuffer[index].Value;
-                    newCol = math.clamp(newCol + 0.001f, 0.0f, 1.0f);
+                    newCol = math.clamp(newCol + 0.005f, 0.0f, 1.0f);
                     pheromoneBuffer[index] = new Pheromone()
                     {
                         Value = newCol
