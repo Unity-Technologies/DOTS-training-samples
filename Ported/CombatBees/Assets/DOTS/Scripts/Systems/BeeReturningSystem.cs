@@ -45,6 +45,7 @@ public class BeeReturningSystem : SystemBase
                  {
                      ecb.RemoveComponent<IsReturning>(entity);
                      ecb.RemoveComponent<Target>(entity);
+                     ecb.RemoveComponent<TargetPosition>(entity);
                      ecb.RemoveComponent<IsCarried>(target.Value);
                      ecb.AddComponent<HasGravity>(target.Value);
                  } else 

@@ -15,8 +15,6 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 public class BeePerception : SystemBase
 {
     private EntityQuery m_queryResources;
-    [ReadOnly]
-    private ComponentDataFromEntity<IsCarried> cdfe;
 
     protected override void OnCreate()
     {
@@ -31,7 +29,7 @@ public class BeePerception : SystemBase
 
     protected override void OnUpdate()
     {
-        cdfe = GetComponentDataFromEntity<IsCarried>(true);
+        var cdfe = GetComponentDataFromEntity<IsCarried>(true);
         var random = new Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
@@ -42,6 +40,7 @@ public class BeePerception : SystemBase
         // another bee and clear their target Resource
         Entities
             .WithoutBurst()
+            .WithReadOnly(cdfe)
             .WithNone<IsReturning>()
             .WithAll<IsBee>()
             .ForEach((Entity entity, in Target target) =>

@@ -68,7 +68,7 @@ public class BeeSpawnerSystem : SystemBase
                         });
                     }
 
-                    //ecb.AddComponent<LifeSpan>(entity, new LifeSpan() { Value = 1f });
+                    ecb.AddComponent<LifeSpan>(entity, new LifeSpan() { Value = 1f });
                 }
             }).Schedule();
 
