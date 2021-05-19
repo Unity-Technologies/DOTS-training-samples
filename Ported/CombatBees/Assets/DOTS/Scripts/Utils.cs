@@ -10,5 +10,4 @@ public static class Utils
 
         return new float3(x, y, z);
     }
-
 }

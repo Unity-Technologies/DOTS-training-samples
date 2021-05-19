@@ -12,7 +12,6 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
-
 public class InitialSpawnerAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs

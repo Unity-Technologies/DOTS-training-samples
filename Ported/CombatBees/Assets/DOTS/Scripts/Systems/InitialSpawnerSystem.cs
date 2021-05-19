@@ -4,8 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;

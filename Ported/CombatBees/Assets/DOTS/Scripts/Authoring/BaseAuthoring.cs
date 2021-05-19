@@ -12,11 +12,9 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
-
 public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public int team;
-
 
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
@@ -34,7 +32,6 @@ public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         {
             Value = new AABB {Center = translation, Extents = extents }
            
-        }) ;
-
+        });
     }
 }

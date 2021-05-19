@@ -12,13 +12,11 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
-
 public class ResourceGridAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bounds>(entity);
-
     }
 }
