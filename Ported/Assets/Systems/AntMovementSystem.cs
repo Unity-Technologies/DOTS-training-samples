@@ -28,35 +28,64 @@ public class AntMovementSystem : SystemBase
         const float antHillRadius = 2.5f;
         
         var random = new Random((uint)(Time.ElapsedTime * 1000f + 1f));
+        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
+
         var deltaTime = Time.DeltaTime;
+
         var simulationSpeedEntity = GetSingletonEntity<SimulationSpeed>();
         var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value;
 
-        Dependency = Entities
+        var foodSource = GetSingletonEntity<FoodSource>();
+        var foodSourceTranslation = GetComponent<Translation>(foodSource);
+        var foodPos = new Vector2(foodSourceTranslation.Value.x, foodSourceTranslation.Value.y);
+        var antHillPosition = new Vector2(0, 0);
+
+        var screenSizeEntity = GetSingletonEntity<ScreenSize>();
+        var screenSize = GetComponent<ScreenSize>(screenSizeEntity).Value;
+        var screenUpperBound = (float) screenSize / 2f - 0.5f;
+        var screenLowerBound = -screenSize / 2f + 0.5f;
+
+        var movementJob = Entities
             .WithAll<Ant>()
-            .ForEach((Entity entity, ref Translation translation, ref Direction direction, ref Rotation rotation) =>
+            .ForEach((Entity entity, ref Translation translation, ref Direction direction,
+                ref Rotation rotation) =>
             {
                 var delta = new float3(Mathf.Cos(direction.Radians), Mathf.Sin(direction.Radians), 0);
                 translation.Value += delta * deltaTime * simulationSpeed;
 
-                direction.Radians += random.NextFloat(-maxDirectionChangePerSecond * deltaTime * simulationSpeed,
-                                                       maxDirectionChangePerSecond * deltaTime * simulationSpeed);
+                var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
+                direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+
+                if (translation.Value.x > screenUpperBound)
+                {
+                    direction.Radians = Mathf.PI - direction.Radians;
+                    translation.Value.x = screenUpperBound;
+                }
+                else if (translation.Value.x < screenLowerBound)
+                {
+                    direction.Radians = Mathf.PI - direction.Radians;
+                    translation.Value.x = screenLowerBound;
+                }
+
+                if (translation.Value.y > screenUpperBound)
+                {
+                    direction.Radians = -direction.Radians;
+                    translation.Value.y = screenUpperBound;
+                }
+                else if (translation.Value.y < screenLowerBound)
+                {
+                    direction.Radians = -direction.Radians;
+                    translation.Value.y = screenLowerBound;
+                }
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
             }).ScheduleParallel(Dependency);
-
-        Dependency.Complete();
         
-        var foodSource = GetSingletonEntity<FoodSource>();
-        var foodSourceTranslation = GetComponent<Translation>(foodSource);
-        var foodPos = new Vector2(foodSourceTranslation.Value.x, foodSourceTranslation.Value.y);
-        
-        var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        
-        Dependency = Entities
+        var checkReachedFoodSourceJob = Entities
             .WithAll<Ant>()
             .WithNone<CarryingFood>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color, ref Direction direction, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
+                ref Direction direction, in Translation translation) =>
             {
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
@@ -66,15 +95,12 @@ public class AntMovementSystem : SystemBase
                     
                     ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel(Dependency);
-        
-        Dependency.Complete();
+            }).ScheduleParallel(movementJob);
 
-        var antHillPosition = new Vector2(0, 0);
-
-        Dependency = Entities
+        var checkReachedAntHillJob = Entities
             .WithAll<Ant,CarryingFood>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color, ref Direction direction, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
+                ref Direction direction, in Translation translation) =>
             {
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
@@ -84,8 +110,8 @@ public class AntMovementSystem : SystemBase
                     
                     ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel(Dependency);
+            }).ScheduleParallel(checkReachedFoodSourceJob);
         
-        Dependency.Complete();
+        Dependency = checkReachedAntHillJob;
     }
 }
