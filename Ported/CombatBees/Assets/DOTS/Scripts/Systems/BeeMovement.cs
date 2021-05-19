@@ -16,6 +16,7 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 public class BeeMovement : SystemBase
 {
     const float maxRotation =180f;
+    const float distanceMaxSpeed = 4f;
     
     [ReadOnly]
     private ComponentDataFromEntity<Translation> cdfe;
@@ -51,25 +52,13 @@ public class BeeMovement : SystemBase
                 q = UnityEngine.Quaternion.AngleAxis(deltaAngle, axis);
 
                 velocity.Value = math.rotate(q, velocity.Value);
-                //velocity.Value += speed.Value;
 
-                /*float3 axis = math.cross(newLookAt, velocity.Value);
-                float sinAngle = math.length(axis);
-                float cosAngle = math.dot(newLookAt, velocity.Value);
+                float3 direction = math.normalize(velocity.Value);
 
-                float angle = math.atan2(sinAngle, cosAngle);
+                float distanceToTarget = math.lengthsq(newLookAt);
+                float currentSpeed = math.lerp(1f, speed.Value, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                velocity.Value = direction * currentSpeed;
 
-                float deltaAngle = angle > maxRotation * deltaTime ? maxRotation * deltaTime : angle;
-
-                quaternion rotation = quaternion.AxisAngle(axis, deltaAngle);
-
-                velocity.Value = math.rotate(rotation, velocity.Value);
-                velocity.Value += speed.Value;
-                */
-
-                //translation.Value += velocity.Value;
-                // move toward target Resource
-                //var move = math.normalize(targetPosition.Value - translation.Value) * speed.Value * deltaTime;
                 translation.Value += velocity.Value * deltaTime;
                 translation.Value.y = math.max(translation.Value.y, 0.05f);
             }).Schedule();

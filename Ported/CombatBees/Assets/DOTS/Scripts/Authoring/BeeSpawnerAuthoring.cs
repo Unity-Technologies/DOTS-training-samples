@@ -12,6 +12,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     [UnityRange(0, 100)] public int BeeCountFromResource = 10;
 
     [UnityRange(0, 100)] public int MaxSpeed = 1;
+    [UnityRange(0, 100)] public int MaxSize = 1;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -33,7 +34,8 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             BeeCount = BeeCount,
             BeeCountFromResource = BeeCountFromResource,
-            MaxSpeed = MaxSpeed
+            MaxSpeed = MaxSpeed,
+            MaxSize = MaxSize
         });
     }
 }

@@ -7,6 +7,7 @@ public struct BeeSpawner : IComponentData
     public int BeeCountFromResource;
 
     public int MaxSpeed;
+    public int MaxSize;
 }
 
 public struct ResourceSpawner : IComponentData 
