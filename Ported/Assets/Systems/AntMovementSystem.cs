@@ -31,6 +31,7 @@ public class AntMovementSystem : SystemBase
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var deltaTime = Time.DeltaTime;
+
         var simulationSpeedEntity = GetSingletonEntity<SimulationSpeed>();
         var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value;
 
@@ -38,6 +39,11 @@ public class AntMovementSystem : SystemBase
         var foodSourceTranslation = GetComponent<Translation>(foodSource);
         var foodPos = new Vector2(foodSourceTranslation.Value.x, foodSourceTranslation.Value.y);
         var antHillPosition = new Vector2(0, 0);
+
+        var screenSizeEntity = GetSingletonEntity<ScreenSize>();
+        var screenSize = GetComponent<ScreenSize>(screenSizeEntity).Value;
+        var screenUpperBound = (float) screenSize / 2f - 0.5f;
+        var screenLowerBound = -screenSize / 2f + 0.5f;
 
         var movementJob = Entities
             .WithAll<Ant>()
@@ -47,8 +53,30 @@ public class AntMovementSystem : SystemBase
                 var delta = new float3(Mathf.Cos(direction.Radians), Mathf.Sin(direction.Radians), 0);
                 translation.Value += delta * deltaTime * simulationSpeed;
 
-                direction.Radians += random.NextFloat(-maxDirectionChangePerSecond * deltaTime * simulationSpeed,
-                                                       maxDirectionChangePerSecond * deltaTime * simulationSpeed);
+                var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
+                direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+
+                if (translation.Value.x > screenUpperBound)
+                {
+                    direction.Radians = Mathf.PI - direction.Radians;
+                    translation.Value.x = screenUpperBound;
+                }
+                else if (translation.Value.x < screenLowerBound)
+                {
+                    direction.Radians = Mathf.PI - direction.Radians;
+                    translation.Value.x = screenLowerBound;
+                }
+
+                if (translation.Value.y > screenUpperBound)
+                {
+                    direction.Radians = -direction.Radians;
+                    translation.Value.y = screenUpperBound;
+                }
+                else if (translation.Value.y < screenLowerBound)
+                {
+                    direction.Radians = -direction.Radians;
+                    translation.Value.y = screenLowerBound;
+                }
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
             }).ScheduleParallel(Dependency);
