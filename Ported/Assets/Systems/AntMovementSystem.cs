@@ -27,7 +27,7 @@ public class AntMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        const float maxDirectionChangePerSecond = 5.0f;
+        const float maxDirectionChangePerSecond = 2.5f;
         const float foodSourceRadius = 2.5f;
         const float antHillRadius = 2.5f;
         
@@ -56,6 +56,7 @@ public class AntMovementSystem : SystemBase
 
         var movementJob = Entities
             .WithAll<Ant>()
+            .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
             .WithDisposeOnCompletion(walls)
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
@@ -83,12 +84,30 @@ public class AntMovementSystem : SystemBase
                     var wall = wallComponentData[wallEntity];
                     if (antRadius > wall.Radius - halfWallThickness && antRadius < wall.Radius + halfWallThickness)
                     {
+                        var antAngleDeg = antAngle * Mathf.Rad2Deg;
+                        while (antAngleDeg < 0)
+                            antAngleDeg += 360;
+                        while (antAngleDeg > 360)
+                            antAngleDeg -= 360;
                         shouldCollide = true;
-                        if (antAngle > wall.Angles.x && antAngle < wall.Angles.y)
+
+                        if ( wall.Angles.x <  wall.Angles.y)
                         {
-                            // in gap, can't collide
-                            shouldCollide = false;
-                            break;
+                            if (antAngleDeg > wall.Angles.x && antAngleDeg < wall.Angles.y)
+                            {
+                                // in gap, can't collide
+                                shouldCollide = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (antAngleDeg > wall.Angles.x || antAngleDeg < wall.Angles.y)
+                            {
+                                // in gap, can't collide
+                                shouldCollide = false;
+                                break;
+                            }
                         }
                     }
                 }
