@@ -18,6 +18,7 @@ public class DirectionUpdaterSystem : SystemBase
     protected override void OnUpdate()
     {
         NativeArray<Entity> cells = World.GetOrCreateSystem<BoardSpawner>().cells;
+        NativeArray<Cardinals> walls = World.GetOrCreateSystem<BoardSpawner>().walls;
 
         if (TryGetSingleton(out GameConfig gameConfig))
         {
@@ -33,8 +34,9 @@ public class DirectionUpdaterSystem : SystemBase
 
             var forcedDirectionData = GetComponentDataFromEntity<ForcedDirection>(true);
 
+
             Entities
-                .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData)
+                .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData).WithReadOnly(walls)
                 .ForEach((ref Direction direction, ref Translation translation, ref Rotation rotation) =>
             {
                 bool recenter = false;
@@ -42,6 +44,7 @@ public class DirectionUpdaterSystem : SystemBase
                 int index = InputSystem.CellAtWorldPosition(translation.Value, gameConfig);
 
                 Entity cell =  cells[index];
+                Cardinals wallCollision = walls[index];
                 ForcedDirection fd = forcedDirectionData[cell];
 
                 float2 cellCenter = new float2(math.round(translation.Value.x), math.round(translation.Value.z));
@@ -56,11 +59,11 @@ public class DirectionUpdaterSystem : SystemBase
                     recenter = true;
                 }
 
-                if (
-                        (direction.Value == Cardinals.East && translation.Value.x >= gameConfig.BoardDimensions.x - 1)
-                    ||  (direction.Value == Cardinals.West && translation.Value.x < 0)
-                    ||  (direction.Value == Cardinals.North && translation.Value.z >= gameConfig.BoardDimensions.y - 1)
-                    ||  (direction.Value == Cardinals.South && translation.Value.z < 0)
+
+                while (
+                    wallCollision != Cardinals.All &&
+                    wallCollision.HasFlag(direction.Value) &&
+                    math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
                     )
                 {
                     // Rotate Right

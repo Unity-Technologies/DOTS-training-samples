@@ -14,6 +14,7 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 public class BoardSpawner : SystemBase
 {
     public NativeArray<Entity> cells;
+    public NativeArray<Cardinals> walls;
 
     protected override void OnCreate()
     {
@@ -32,6 +33,7 @@ public class BoardSpawner : SystemBase
         if (TryGetSingleton(out GameConfig gameConfig))
         {
             cells = new NativeArray<Entity>(gameConfig.BoardDimensions.x * gameConfig.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+            walls = new NativeArray<Cardinals>(gameConfig.BoardDimensions.x * gameConfig.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.ClearMemory);
 
             // Spawn Tiles
             for (int x = 0; x < gameConfig.BoardDimensions.x; x++)
@@ -63,69 +65,88 @@ public class BoardSpawner : SystemBase
             {
                 for (int y = 0; y < gameConfig.BoardDimensions.y; y++)
                 {
-                    if (r.NextFloat() > gameConfig.WallProbability)
-                        continue;
-
-                    Cardinals direction = (Cardinals)r.NextInt(15);
-
-                    if (x == 0 && direction.HasFlag(Cardinals.West))
-                        direction &= ~Cardinals.West;
-
-                    if (x == gameConfig.BoardDimensions.x - 1 && direction.HasFlag(Cardinals.East))
-                        direction &= ~Cardinals.East;
-
-                    if (y == 0 && direction.HasFlag(Cardinals.South))
-                        direction &= ~Cardinals.South;
-
-                    if (y == gameConfig.BoardDimensions.y - 1 && direction.HasFlag(Cardinals.North))
-                        direction &= ~Cardinals.North;
-
                     int idx = CoordintateToIndex(gameConfig, x, y);
+                    Cardinals direction = EntityManager.GetComponentData<Direction>(cells[idx]).Value;
+
+                    // We add the outer walls
+                    if (x == 0)
+                        direction |= Cardinals.West;
+                    if (x == gameConfig.BoardDimensions.x - 1)
+                        direction |= Cardinals.East;
+                    if (y == 0)
+                        direction |= Cardinals.South;
+                    if (y == gameConfig.BoardDimensions.y - 1)
+                        direction |= Cardinals.North;
+
+                    // Then we add random walls
+                    if (r.NextFloat() <= gameConfig.WallProbability)
+                    {
+                        direction |= (Cardinals)r.NextInt(15);
+                    }
 
                     // Set flags in current cell
                     EntityManager.SetComponentData<Direction>(cells[idx], new Direction(direction));
-
+                   
+                    walls[idx] = direction;
 
                     // Add flags in adjacent cells
                     if (direction.HasFlag(Cardinals.West))
                     {
-                        int tmpIdx = CoordintateToIndex(gameConfig, x - 1, y);
-                        var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
-                        tmpCellDirection.Value |= Cardinals.East;
-                        EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        if(x > 0)
+                        {
+                            int tmpIdx = CoordintateToIndex(gameConfig, x - 1, y);
+                            var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
+                            tmpCellDirection.Value |= Cardinals.East;
+                            walls[tmpIdx] = tmpCellDirection.Value;
+                            EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        }
 
                         CreateWall(x, y, Cardinals.West);
                     }
 
                     if (direction.HasFlag(Cardinals.East))
                     {
-                        int tmpIdx = CoordintateToIndex(gameConfig, x + 1, y);
-                        var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
-                        tmpCellDirection.Value |= Cardinals.West;
-                        EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        if(x < gameConfig.BoardDimensions.x - 1)
+                        {
+                            int tmpIdx = CoordintateToIndex(gameConfig, x + 1, y);
+                            var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
+                            tmpCellDirection.Value |= Cardinals.West;
+                            walls[tmpIdx] = tmpCellDirection.Value;
+                            EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        }
 
                         CreateWall(x, y, Cardinals.East);
                     }
 
                     if (direction.HasFlag(Cardinals.North))
                     {
-                        int tmpIdx = CoordintateToIndex(gameConfig, x, y + 1);
-                        var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
-                        tmpCellDirection.Value |= Cardinals.South;
-                        EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        if(y < gameConfig.BoardDimensions.y - 1)
+                        {
+                            int tmpIdx = CoordintateToIndex(gameConfig, x, y + 1);
+                            var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
+                            tmpCellDirection.Value |= Cardinals.South;
+                            walls[tmpIdx] = tmpCellDirection.Value;
+                            EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        }
 
                         CreateWall(x, y, Cardinals.North);
                     }
 
                     if (direction.HasFlag(Cardinals.South))
                     {
-                        int tmpIdx = CoordintateToIndex(gameConfig, x, y - 1);
-                        var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
-                        tmpCellDirection.Value |= Cardinals.North;
-                        EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        if(y > 0)
+                        {
+                            int tmpIdx = CoordintateToIndex(gameConfig, x, y - 1);
+                            var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
+                            tmpCellDirection.Value |= Cardinals.North;
+                            walls[tmpIdx] = tmpCellDirection.Value;
+                            EntityManager.SetComponentData<Direction>(cells[tmpIdx], tmpCellDirection);
+                        }
 
                         CreateWall(x, y, Cardinals.South);
                     }
+
+
                 }
             }
             
@@ -150,26 +171,9 @@ public class BoardSpawner : SystemBase
             Entity renderedWall = EntityManager.Instantiate(gameConfig.WallPrefab);
             EntityManager.AddComponent<Wall>(renderedWall);
             EntityManager.SetComponentData(renderedWall, new Translation() { Value = new float3(x, .5f, y) });
-            EntityManager.SetComponentData(renderedWall, new Rotation() { Value = quaternion.RotateY(GetAngle(direction)) });
+            EntityManager.SetComponentData(renderedWall, new Rotation() { Value = quaternion.RotateY(Direction.GetAngle(direction)) });
         }
 
-        static float GetAngle(Cardinals direction)
-        {
-            switch (direction)
-            {
-                default:
-                case Cardinals.None:
-                case Cardinals.North:
-                    return 0;
-                case Cardinals.West:
-                    return math.radians(90);
-                case Cardinals.South:
-                    return math.radians(180);
-                case Cardinals.East:
-                    return math.radians(270);
-
-            }
-        }
     }
 
     protected override void OnDestroy()

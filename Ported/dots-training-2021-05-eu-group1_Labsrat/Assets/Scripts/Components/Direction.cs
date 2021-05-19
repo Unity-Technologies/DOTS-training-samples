@@ -115,5 +115,6 @@ public enum Cardinals
     North = 1,
     West = 2,
     South = 4,
-    East = 8
+    East = 8,
+    All = North | South | West | East
 }
