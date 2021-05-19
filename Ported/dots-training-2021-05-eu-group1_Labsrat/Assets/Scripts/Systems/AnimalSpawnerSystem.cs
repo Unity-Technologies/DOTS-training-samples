@@ -57,12 +57,12 @@ public class AnimalSpawnerSystem : SystemBase
                 {
                     int xPos = 0;
                     int yPos = 0;
-                    Cardinals dir = Cardinals.West;
+                    Cardinals dir = Cardinals.East;
                     if (mouseflipflop)
                     {
                         xPos = gameConfig.BoardDimensions.x - 1;
                         yPos = gameConfig.BoardDimensions.y - 1;
-                        dir = Cardinals.East;
+                        dir = Cardinals.West;
                     }
 
                     var rotation = Unity.Mathematics.quaternion.RotateY(Direction.GetAngle(dir));

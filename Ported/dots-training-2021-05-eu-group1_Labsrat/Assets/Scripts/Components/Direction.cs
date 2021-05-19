@@ -33,6 +33,24 @@ public struct Direction : IComponentData
                 return Cardinals.South;
         }
     }
+    public static Cardinals RotateLeft(Cardinals c)
+    {
+        switch (c)
+        {
+            default:
+            case Cardinals.None:
+                return Cardinals.None;
+            case Cardinals.North:
+                return Cardinals.West;
+            case Cardinals.West:
+                return Cardinals.South;
+            case Cardinals.South:
+                return Cardinals.East;
+            case Cardinals.East:
+                return Cardinals.North;
+        }
+    }
+
 
     public float2 getDirection()
     {
@@ -50,11 +68,11 @@ public struct Direction : IComponentData
             case Cardinals.North:
                 return new float2(0, 1);
             case Cardinals.West:
-                return new float2(1, 0);
+                return new float2(-1, 0);
             case Cardinals.South:
                 return new float2(0, -1);
             case Cardinals.East:
-                return new float2(-1, 0);
+                return new float2(1, 0);
         }
     }
 
@@ -67,11 +85,11 @@ public struct Direction : IComponentData
             case Cardinals.North:
                 return 0;
             case Cardinals.West:
-                return math.radians(90);
+                return math.radians(270);
             case Cardinals.South:
                 return math.radians(180);
             case Cardinals.East:
-                return math.radians(270);
+                return math.radians(90);
 
         }
     }

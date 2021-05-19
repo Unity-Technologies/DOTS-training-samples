@@ -50,14 +50,14 @@ public class DirectionUpdaterSystem : SystemBase
                 }
 
                 if (    
-                        (direction.Value == Cardinals.West && translation.Value.x >= gameConfig.BoardDimensions.x - 1)
-                    ||  (direction.Value == Cardinals.East && translation.Value.x < 0)
+                        (direction.Value == Cardinals.East && translation.Value.x >= gameConfig.BoardDimensions.x - 1)
+                    ||  (direction.Value == Cardinals.West && translation.Value.x < 0)
                     ||  (direction.Value == Cardinals.North && translation.Value.z >= gameConfig.BoardDimensions.y - 1)
                     ||  (direction.Value == Cardinals.South && translation.Value.z < 0)
                     )
                 {
                     // Rotate Right
-                    direction.Value = Direction.RotateRight(direction.Value);
+                    direction.Value = Direction.RotateLeft(direction.Value);
 
                     // Recenter on Cell?
                     translation.Value.x = math.round(translation.Value.x);
