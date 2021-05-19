@@ -39,7 +39,12 @@ public class InitialSpawnerSystem : SystemBase
                     ecb.AddComponent(instance, team);
 
                     ecb.AddComponent<IsBee>(instance);
-                    ecb.AddComponent(instance, new Speed { Value = random.NextFloat(0, spawner.MaxSpeed) });
+
+                    var speed = random.NextFloat(0, spawner.MaxSpeed);
+
+                    ecb.AddComponent(instance, new Velocity() { Value = UnityEngine.Random.onUnitSphere * speed });
+
+                    ecb.AddComponent(instance, new Speed { Value = speed });
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
