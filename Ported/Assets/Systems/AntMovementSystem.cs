@@ -52,7 +52,8 @@ public class AntMovementSystem : SystemBase
         var walls = wallQuery.ToEntityArray(Allocator.TempJob);
         var wallComponentData = GetComponentDataFromEntity<Wall>(true);
 
-        var halfWallThickness = 2.5f;
+        var halfWallThickness = 1.5f;
+        var halfAnt = 0.5f;
 
         var movementJob = Entities
             .WithAll<Ant>()
@@ -79,10 +80,12 @@ public class AntMovementSystem : SystemBase
                 var antAngle = math.atan2(translation.Value.y, translation.Value.x);
 
                 bool shouldCollide = false;
+                bool shouldCollideFromCorner = false;
+                float3 positionToBounce = float3.zero;
                 foreach (var wallEntity in walls)
                 {
                     var wall = wallComponentData[wallEntity];
-                    if (antRadius > wall.Radius - halfWallThickness && antRadius < wall.Radius + halfWallThickness)
+                    if (antRadius > wall.Radius - (halfWallThickness + halfAnt) && antRadius < wall.Radius + (halfWallThickness + halfAnt))
                     {
                         var antAngleDeg = antAngle * Mathf.Rad2Deg;
                         while (antAngleDeg < 0)
@@ -97,7 +100,6 @@ public class AntMovementSystem : SystemBase
                             {
                                 // in gap, can't collide
                                 shouldCollide = false;
-                                break;
                             }
                         }
                         else
@@ -106,8 +108,24 @@ public class AntMovementSystem : SystemBase
                             {
                                 // in gap, can't collide
                                 shouldCollide = false;
-                                break;
                             }
+                        }
+
+                        if (!shouldCollide)
+                        {
+                            var pos = new float3(math.cos(math.radians(wall.Angles.x)) * wall.Radius, math.sin(math.radians(wall.Angles.x)) * wall.Radius, 0f);
+                            if (math.distance(pos, translation.Value) < halfWallThickness)
+                            {
+                                shouldCollideFromCorner = true;
+                                positionToBounce = pos;
+                            }
+                            pos = new float3(math.cos(math.radians(wall.Angles.y)) * wall.Radius, math.sin(math.radians(wall.Angles.y)) * wall.Radius, 0f);
+                            if (math.distance(pos, translation.Value) < halfWallThickness)
+                            {
+                                shouldCollideFromCorner = true;
+                                positionToBounce = pos;
+                            }
+                            break;
                         }
                     }
                 }
@@ -116,6 +134,14 @@ public class AntMovementSystem : SystemBase
                 {
                     var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
                     var normal = float2.zero - collisionPoint;
+                    var newDirection = math.reflect(delta, normal);
+                    direction.Radians = math.atan2(newDirection.y, newDirection.x);
+                    translation.Value.x += newDirection.x;
+                    translation.Value.y += newDirection.y;
+                }else if (shouldCollideFromCorner)
+                {
+                    var normal3 = positionToBounce - translation.Value;
+                    var normal = new float2(normal3.x, normal3.y);
                     var newDirection = math.reflect(delta, normal);
                     direction.Radians = math.atan2(newDirection.y, newDirection.x);
                     translation.Value.x += newDirection.x;
