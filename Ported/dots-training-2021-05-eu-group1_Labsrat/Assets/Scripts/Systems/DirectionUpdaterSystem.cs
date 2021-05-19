@@ -28,7 +28,6 @@ public class DirectionUpdaterSystem : SystemBase
 
             Entities
                 .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData).WithReadOnly(walls)
-                .WithoutBurst()
                 .ForEach((ref Direction direction, ref Translation translation, ref Rotation rotation) =>
             {
                 bool recenter = false;
@@ -57,7 +56,7 @@ public class DirectionUpdaterSystem : SystemBase
 
                 while (
                     wallCollision != Cardinals.All &&
-                    wallCollision.HasFlag(direction.Value) &&
+                    ((wallCollision & direction.Value) != 0) &&
                     math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
                     )
                 {
