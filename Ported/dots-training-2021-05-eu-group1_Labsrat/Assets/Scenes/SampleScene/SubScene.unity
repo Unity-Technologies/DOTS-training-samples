@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a17e0edf8b989f45b6d4f4566f004a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RandomSeed: 1
+  RandomSeed: 0
   Seed: 23498573
   CellPrefab: {fileID: 6401784360738124690, guid: 79ed59e6bf104154ca7a1eda2e5923d3, type: 3}
   CatPrefab: {fileID: 6401784360738124690, guid: 992913ff96ea5cc4b9b8e287d29cce0b, type: 3}

@@ -15,6 +15,12 @@ public struct Direction : IComponentData
     {
         Value = c;
     }
+
+    public float2 getDirection()
+    {
+        return getDirection(Value);
+    }
+
     
     public static Cardinals RotateRight(Cardinals c)
     {
@@ -52,10 +58,6 @@ public struct Direction : IComponentData
     }
 
 
-    public float2 getDirection()
-    {
-        return getDirection(Value);
-    }
 
 
     public static float2 getDirection(Cardinals c)

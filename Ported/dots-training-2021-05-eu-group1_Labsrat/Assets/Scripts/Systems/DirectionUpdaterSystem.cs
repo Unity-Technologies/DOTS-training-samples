@@ -25,15 +25,7 @@ public class DirectionUpdaterSystem : SystemBase
             if (cells.Length == 0)
                 return;
 
-
-            // If we're stepping on an arrow
-
-            // Until we don't have a wall facing us
-
-            // If we are at the edge of the board..
-
             var forcedDirectionData = GetComponentDataFromEntity<ForcedDirection>(true);
-
 
             Entities
                 .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData).WithReadOnly(walls)
@@ -49,6 +41,7 @@ public class DirectionUpdaterSystem : SystemBase
 
                 float2 cellCenter = new float2(math.round(translation.Value.x), math.round(translation.Value.z));
 
+                // If we're stepping on an arrow
                 if (
                     fd.Value != Cardinals.None                                                                                                                    // If there's a forced direction (arrow) ....
                     && fd.Value != direction.Value                                                                                                                // ... and we're not already in the given direction
@@ -59,6 +52,7 @@ public class DirectionUpdaterSystem : SystemBase
                     recenter = true;
                 }
 
+                // Until we don't have a wall facing us
 
                 while (
                     wallCollision != Cardinals.All &&
@@ -66,8 +60,9 @@ public class DirectionUpdaterSystem : SystemBase
                     math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
                     )
                 {
-                    // Rotate Right
-                    direction.Value = Direction.RotateLeft(direction.Value);
+                    // Rotate Left
+                    direction.Value = Cardinals.North;
+
                     recenter = true;
 
                 }
