@@ -20,8 +20,9 @@ public class InitialSpawnerSystem : SystemBase
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
-        var spawnerEntity = GetSingletonEntity<InitialSpawner>();
-        var spawner = GetComponent<InitialSpawner>(spawnerEntity);
+        var spawnerEntity = GetSingletonEntity<BeeSpawner>();
+        var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);
+        var resourceSpawner = GetComponent<ResourceSpawner>(spawnerEntity);
 
         var arena = GetSingletonEntity<IsArena>();
         var resourcesBounds = GetComponent<Bounds>(arena).Value;
@@ -33,18 +34,16 @@ public class InitialSpawnerSystem : SystemBase
             .ForEach((Entity entity, in Bounds bounds, in Team team) =>
             {
 
-                for (int i = 0; i < spawner.BeeCount/2; ++i)
+                for (int i = 0; i < beeSpawner.BeeCount/2; ++i)
                 {
-                    var instance = ecb.Instantiate(spawner.BeePrefab);
-                    ecb.AddComponent(instance, team);
+                    var instance = ecb.Instantiate(beeSpawner.BeePrefab);
+                    ecb.SetComponent(instance, team);
 
-                    ecb.AddComponent<IsBee>(instance);
+                    var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
-                    var speed = random.NextFloat(0, spawner.MaxSpeed);
+                    ecb.SetComponent(instance, new Velocity { Value = UnityEngine.Random.onUnitSphere * speed });
 
-                    ecb.AddComponent(instance, new Velocity() { Value = UnityEngine.Random.onUnitSphere * speed });
-
-                    ecb.AddComponent(instance, new Speed { Value = speed });
+                    ecb.SetComponent(instance, new Speed { Value = speed });
 
                     var translation = new Translation { Value = bounds.Value.Center };
                     ecb.SetComponent(instance, translation);
@@ -57,14 +56,11 @@ public class InitialSpawnerSystem : SystemBase
             }).Run();
 
         //Spawn resources
-        for (int i = 0; i < spawner.ResourceCount; ++i)
+        for (int i = 0; i < resourceSpawner.ResourceCount; ++i)
         {
-            var instance = ecb.Instantiate(spawner.ResourcePrefab);
-            ecb.AddComponent<IsResource>(instance);
-            ecb.AddComponent<HasGravity>(instance);
-            ecb.AddComponent<Velocity>(instance);
+            var instance = ecb.Instantiate(resourceSpawner.ResourcePrefab);
 
-            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds,ref random) };
+            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds, ref random) };
             ecb.SetComponent(instance, translation);
         }
 
