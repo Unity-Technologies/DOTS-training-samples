@@ -45,6 +45,7 @@
     "com.unity.render-pipelines.universal": "10.3.1",
     "com.unity.rendering.hybrid": "0.13.0-preview.26",
     "com.unity.dots.editor": "0.14.0-preview.1",
-    "com.unity.platforms.windows": "0.12.0-preview.13"
+    "com.unity.platforms.windows": "0.12.0-preview.13",
+    "com.unity.platforms.macos": "0.12.0-preview.13"
   }
 }
