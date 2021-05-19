@@ -406,6 +406,7 @@ MonoBehaviour:
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
   ResourceCount: 100
+  MaxSpeed: 10
 --- !u!4 &1150688217
 Transform:
   m_ObjectHideFlags: 0
