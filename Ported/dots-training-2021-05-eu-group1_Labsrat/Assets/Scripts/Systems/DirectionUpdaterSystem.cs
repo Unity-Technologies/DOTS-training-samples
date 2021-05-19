@@ -18,7 +18,9 @@ public class DirectionUpdaterSystem : SystemBase
     {
         if (TryGetSingleton(out GameConfig gameConfig))
         {
-            Entities.ForEach((ref Direction direction, ref Rotation rotation, in Translation translation) =>
+            Entities
+                .WithAny<Cat, Mouse>()
+                .ForEach((ref Direction direction, ref Rotation rotation, in Translation translation) =>
             {
                 if (    (direction.Value == Cardinals.West && translation.Value.x >= gameConfig.BoardDimensions.x - 1)
                     ||  (direction.Value == Cardinals.East && translation.Value.x < 0)
