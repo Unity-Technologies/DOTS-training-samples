@@ -15,10 +15,13 @@ using Random = Unity.Mathematics.Random;
 public class AntMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
+    private EntityQuery wallQuery;
 
     protected override void OnCreate()
     {
         m_ECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var desc = new EntityQueryDesc {All = new []{new ComponentType(typeof(Wall))}};
+        wallQuery = GetEntityQuery(desc);
     }
 
     protected override void OnUpdate()
@@ -44,18 +47,56 @@ public class AntMovementSystem : SystemBase
         var screenSize = GetComponent<ScreenSize>(screenSizeEntity).Value;
         var screenUpperBound = (float) screenSize / 2f - 0.5f;
         var screenLowerBound = -screenSize / 2f + 0.5f;
+        
+        var walls = wallQuery.ToEntityArray(Allocator.TempJob);
+        var wallComponentData = GetComponentDataFromEntity<Wall>(true);
+
+        var wall = new Wall {Angles = new float2(0, math.PI / 2f), Radius = 25};
+        var halfWallThickness = 2.5f;
 
         var movementJob = Entities
             .WithAll<Ant>()
+            .WithReadOnly(wallComponentData)
+            .WithDisposeOnCompletion(walls)
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
                 ref Rotation rotation) =>
             {
-                var delta = new float3(Mathf.Cos(direction.Radians), Mathf.Sin(direction.Radians), 0);
-                translation.Value += delta * deltaTime * simulationSpeed;
-
+                // Change ant direction by random amount
                 var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
                 direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
 
+                var prevAntAngle = math.atan2(translation.Value.y, translation.Value.x);
+
+                // Move ant a step forward in its direction
+                var delta = new float2(math.cos(direction.Radians), math.sin(direction.Radians));
+                delta *= deltaTime * simulationSpeed;
+                translation.Value.x += delta.x;
+                translation.Value.y += delta.y;
+                
+                // Check for wall collisions
+                foreach (var wallEntity in walls)
+                {
+                    var wall = wallComponentData[wallEntity];
+                }
+                
+                // Convert the ant location to polar coordinates
+                var antRadius = math.distance(float3.zero, translation.Value);
+                var antAngle = math.atan2(translation.Value.y, translation.Value.x);
+
+                if (antRadius > wall.Radius - halfWallThickness && antRadius < wall.Radius + halfWallThickness)
+                {
+                    if (antAngle > wall.Angles.x && antAngle < wall.Angles.y)
+                    {
+                        var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
+                        var normal = float2.zero - collisionPoint;
+                        var newDirection = math.reflect(delta, normal);
+                        direction.Radians = math.atan2(newDirection.y, newDirection.x);
+                        translation.Value.x += newDirection.x;
+                        translation.Value.y += newDirection.y;
+                    }
+                }
+
+                // Check if we're hitting the screen edge
                 if (translation.Value.x > screenUpperBound)
                 {
                     direction.Radians = Mathf.PI - direction.Radians;
@@ -77,10 +118,10 @@ public class AntMovementSystem : SystemBase
                     direction.Radians = -direction.Radians;
                     translation.Value.y = screenLowerBound;
                 }
-                
+
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
             }).ScheduleParallel(Dependency);
-        
+
         var checkReachedFoodSourceJob = Entities
             .WithAll<Ant>()
             .WithNone<CarryingFood>()
