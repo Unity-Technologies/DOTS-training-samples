@@ -34,6 +34,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public Color TileColor1 = Color.gray;
     public Color TileColor2 = Color.yellow;
     public UnityGameObject CursorPrefab;
+    public int MaximumArrows = 3;
 
     public float WallProbability = .1f;
 
@@ -66,6 +67,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),
+            MaximumArrows = MaximumArrows,
             WallProbability = WallProbability
         };
 

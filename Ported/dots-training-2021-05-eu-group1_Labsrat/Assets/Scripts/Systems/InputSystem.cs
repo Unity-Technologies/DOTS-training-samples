@@ -39,6 +39,7 @@ public class InputSystem : SystemBase
                 Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.isMouseDown = mouseDown;
+                if (mouseDown) { playerInput.CurrentArrowIndex++; }
             }).Schedule();
         
         Entities
@@ -71,6 +72,7 @@ public class InputSystem : SystemBase
                         playerInput.isMouseDown = true;
                         playerInput.TileIndex = CellAtWorldPosition(translation.Value, gameConfig);
                         playerInput.ArrowDirection = Direction.FromRandomDirection(random.NextInt(4));
+                        playerInput.CurrentArrowIndex++;
                         
                         aiState.SecondsSinceClicked = 0;
                         aiState.state = AIState.State.Thinking;

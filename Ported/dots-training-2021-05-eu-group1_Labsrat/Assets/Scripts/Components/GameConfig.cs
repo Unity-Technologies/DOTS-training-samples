@@ -20,4 +20,5 @@ public struct GameConfig : IComponentData
     public Entity ArrowPrefab;
     public Entity MousePrefab;
     public Entity CursorPrefab;
+    public int MaximumArrows;
 }

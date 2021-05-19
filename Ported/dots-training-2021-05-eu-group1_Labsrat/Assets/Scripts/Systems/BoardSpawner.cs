@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine.AI;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;
@@ -27,6 +28,8 @@ public class BoardSpawner : SystemBase
 
     protected override void OnUpdate()
     {
+        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
+
         if (TryGetSingleton(out GameConfig gameConfig))
         {
             cells = new NativeArray<Entity>(gameConfig.BoardDimensions.x * gameConfig.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.ClearMemory);
@@ -131,6 +134,8 @@ public class BoardSpawner : SystemBase
             for (int i = 0; i < gameConfig.NumOfAIPlayers + 1; i++)
             {
                 var player = EntityManager.Instantiate(gameConfig.CursorPrefab);
+                float4 color = random.NextFloat4();
+                color.w = 1f;
 
                 if (i == 0)
                 {
@@ -145,8 +150,10 @@ public class BoardSpawner : SystemBase
                 EntityManager.AddComponentData(player, new PlayerIndex() { Index = i });
                 EntityManager.AddComponentData(player, new PlayerInput() { TileIndex = -1 });
                 EntityManager.AddComponentData(player, new Score());
-                EntityManager.AddComponentData(player, new PlayerColor());
-                EntityManager.SetComponentData(player, new Translation() { Value = new float3(0f, 0.1f, 0) });
+                EntityManager.SetComponentData(player, new Translation() { Value = new float3(random.NextInt(gameConfig.BoardDimensions.x), 0.1f, random.NextInt(gameConfig.BoardDimensions.y)) });
+                EntityManager.AddComponentData(player, new URPMaterialPropertyBaseColor() { Value = color });
+                EntityManager.AddComponentData(player, new PlayerColor() { Color = color });
+                EntityManager.AddBuffer < CreatedArrows >(player);
             }
 
             Enabled = false;
