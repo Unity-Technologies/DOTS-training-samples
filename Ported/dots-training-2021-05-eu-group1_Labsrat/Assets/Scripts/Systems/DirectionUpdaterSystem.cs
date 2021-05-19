@@ -54,7 +54,7 @@ public class DirectionUpdaterSystem : SystemBase
 
                 // Until we don't have a wall facing us
 
-                while (
+                /*while (
                     wallCollision != Cardinals.All &&
                     wallCollision.HasFlag(direction.Value) &&
                     math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
@@ -65,7 +65,7 @@ public class DirectionUpdaterSystem : SystemBase
 
                     recenter = true;
 
-                }
+                }*/
 
                 if(recenter)
                 {
