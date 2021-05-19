@@ -37,16 +37,23 @@ public class DirectionUpdaterSystem : SystemBase
                 .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData)
                 .ForEach((ref Direction direction, ref Translation translation, ref Rotation rotation) =>
             {
+                bool recenter = false;
 
                 int index = InputSystem.CellAtWorldPosition(translation.Value, gameConfig);
 
                 Entity cell =  cells[index];
                 ForcedDirection fd = forcedDirectionData[cell];
 
+                float2 cellCenter = new float2(math.round(translation.Value.x), math.round(translation.Value.z));
 
-                if (fd.Value != Cardinals.None) // If there's a forced direction (arrow) we apply it...
+                if (
+                    fd.Value != Cardinals.None                                                                      // If there's a forced direction (arrow) ....
+                    && fd.Value != direction.Value                                                                  // ... and we're not already in the given direction
+                    && math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < 0.1f     // ... and we're close to the center
+                    )
                 {
                     direction.Value = fd.Value;
+                    recenter = true;
                 }
 
                 if (    
@@ -58,10 +65,15 @@ public class DirectionUpdaterSystem : SystemBase
                 {
                     // Rotate Right
                     direction.Value = Direction.RotateLeft(direction.Value);
+                    recenter = true;
 
+                }
+
+                if(recenter)
+                {
                     // Recenter on Cell?
-                    translation.Value.x = math.round(translation.Value.x);
-                    translation.Value.z = math.round(translation.Value.z);
+                    translation.Value.x = cellCenter.x;
+                    translation.Value.z = cellCenter.y;
                 }
 
                 rotation.Value = math.slerp(rotation.Value, quaternion.RotateY(Direction.GetAngle(direction.Value)), 0.1f);
