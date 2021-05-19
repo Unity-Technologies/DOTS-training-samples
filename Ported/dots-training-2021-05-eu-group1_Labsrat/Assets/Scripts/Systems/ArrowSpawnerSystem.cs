@@ -48,11 +48,22 @@ public class ArrowSpawnerSystem : SystemBase
                 ecb.AddComponent(arrowEntity, new PlayerIndex() { Index = PlayerIndex.Index });
                 ecb.AddComponent(arrowEntity, new URPMaterialPropertyBaseColor() { Value = color.Color });
                
-               ecb.AppendToBuffer(Player,new CreatedArrows() { CreatedArrow = arrowEntity });
-
-               if (ArrowBuffer.Length > gameConfig.MaximumArrows-1)
+                ecb.AppendToBuffer(Player,new CreatedArrows()
                 {
-                    ecb.DestroyEntity(ArrowBuffer[0].CreatedArrow);
+                    CreatedArrow = arrowEntity, 
+                    TileEntity = cellEntity
+                });
+
+                if (ArrowBuffer.Length > gameConfig.MaximumArrows-1)
+                {
+                    // Destroy arrow entity
+                    Entity arrowToDestroy = ArrowBuffer[0].CreatedArrow;
+                    ecb.DestroyEntity(arrowToDestroy);
+                    
+                    // Reset tile forced direction
+                    Entity arrowTile = ArrowBuffer[0].TileEntity;
+                    ecb.SetComponent(arrowTile, new ForcedDirection());
+                    
                     ArrowBuffer.RemoveAt(0);
                 }
 
