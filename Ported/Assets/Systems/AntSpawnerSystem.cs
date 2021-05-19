@@ -44,7 +44,7 @@ public class AntSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, new Direction {Radians = rotation});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
-                        Value = new float4(0.19f, 0.21f, 0.35f, 0)
+                        Value = new float4(0.25f, 0.25f, 0.35f, 0)
                     });
                 }
             }).Run();
