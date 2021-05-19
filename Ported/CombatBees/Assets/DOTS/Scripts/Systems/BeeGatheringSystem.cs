@@ -14,28 +14,43 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class BeeGatheringSystem : SystemBase
 {
+    private EntityCommandBufferSystem EntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        // var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+
         // Query for bees that are close enough to a Resource target to collect the Resource
         // TODO how to stop 2 bees collecting the same Resource
-        // var cdfeForTranslation = GetComponentDataFromEntity<Translation>(true);
-        
-        // Entities
-        //     .WithAll<IsGathering>()
-        //     .ForEach((Entity entity, in Translation translation, in Target target, in Team team) => {
-        //         // if bee is close enough to target
-        //         if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.05 * 0.05)
-        //         {
-        //             ecb.RemoveComponent<IsGathering>(entity);
-        //             ecb.AddComponent<IsReturning>(entity);
-        //             ecb.AddComponent<IsCarried>(target.Value);
-        //             target.Value = ; // position in team's base
-        //         }
-        //     }).Schedule();
-        //
-        // ecb.Playback(EntityManager);
-        // ecb.Dispose();
+        var cdfeForTranslation = GetComponentDataFromEntity<Translation>(true);
+        var YellowBase = GetSingletonEntity<YellowBase>();
+        var YellowBaseAABB = EntityManager.GetComponentData<Bounds>(YellowBase).Value;
+
+        var BlueBase = GetSingletonEntity<BlueBase>();
+        var BlueBaseAABB = EntityManager.GetComponentData<Bounds>(BlueBase).Value;
+
+        Entities
+             .WithReadOnly(cdfeForTranslation)
+             .WithAll<IsGathering>()
+             .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation,  in Team team) => {
+                 // if bee is close enough to target
+                 if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
+                 {
+                     ecb.RemoveComponent<IsGathering>(entity);
+                     ecb.AddComponent<IsReturning>(entity);
+                     ecb.AddComponent<IsCarried>(target.Value);
+
+                     if (team.Id == 0) targetPosition.Value = YellowBaseAABB.Center;
+                        else targetPosition.Value = BlueBaseAABB.Center;
+
+                 }
+             }).Schedule();
+
+        EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
