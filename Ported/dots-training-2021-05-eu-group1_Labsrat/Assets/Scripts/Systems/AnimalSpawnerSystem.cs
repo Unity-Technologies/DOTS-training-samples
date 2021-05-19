@@ -21,10 +21,11 @@ public class AnimalSpawnerSystem : SystemBase
     float respawn = 0f;
     protected override void OnUpdate()
     {
-        var random = Random.CreateFromIndex(1234);
-
+        
         if (TryGetSingleton(out GameConfig gameConfig))
         {
+            var random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
+
             if (catcount < gameConfig.NumOfCats)
             {
                 int countToCreate = gameConfig.NumOfCats - catcount;

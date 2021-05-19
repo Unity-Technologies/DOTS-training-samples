@@ -166,10 +166,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a17e0edf8b989f45b6d4f4566f004a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RandomSeed: 1
+  Seed: 23498573
   CellPrefab: {fileID: 6401784360738124690, guid: 79ed59e6bf104154ca7a1eda2e5923d3, type: 3}
   CatPrefab: {fileID: 6401784360738124690, guid: 992913ff96ea5cc4b9b8e287d29cce0b, type: 3}
   WallPrefab: {fileID: 2873772957599496155, guid: c1a5df0081f7acd4ea19c5c889aeab0a, type: 3}
   ArrowPrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
+  SnapDistance: 0.2
   NumOfCats: 10
   NumOfAIPlayers: 0
   MousePrefab: {fileID: 1164449925845529574, guid: d4b3fb1fe319bf44a84d939b1b3f586d, type: 3}

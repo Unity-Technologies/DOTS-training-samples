@@ -20,4 +20,7 @@ public struct GameConfig : IComponentData
     public Entity CatPrefab;
     public Entity ArrowPrefab;
     public Entity MousePrefab;
+
+    public bool RandomSeed;
+    public uint Seed;
 }

@@ -59,7 +59,7 @@ public class BoardSpawner : SystemBase
             }
 
             // Spawn Walls
-            var r = Random.CreateFromIndex(0);
+            var r = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 3495736491);
 
             for (int x = 0; x < gameConfig.BoardDimensions.x; x++)
             {
@@ -170,7 +170,7 @@ public class BoardSpawner : SystemBase
         {
             Entity renderedWall = EntityManager.Instantiate(gameConfig.WallPrefab);
             EntityManager.AddComponent<Wall>(renderedWall);
-            EntityManager.SetComponentData(renderedWall, new Translation() { Value = new float3(x, .5f, y) });
+            EntityManager.SetComponentData(renderedWall, new Translation() { Value = new float3(x, 0, y) });
             EntityManager.SetComponentData(renderedWall, new Rotation() { Value = quaternion.RotateY(Direction.GetAngle(direction)) });
         }
 

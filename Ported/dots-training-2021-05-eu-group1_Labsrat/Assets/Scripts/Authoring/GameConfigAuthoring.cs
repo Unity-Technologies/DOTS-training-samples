@@ -19,6 +19,10 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
+
+    public bool RandomSeed;
+    public uint Seed = 23498573;
+
     public UnityGameObject CellPrefab;
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
@@ -65,7 +69,9 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),
-            WallProbability = WallProbability
+            WallProbability = WallProbability,
+            RandomSeed = RandomSeed,
+            Seed = Seed
         };
 
         dstManager.AddComponentData(entity, gameConfig);
