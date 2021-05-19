@@ -1,3 +1,5 @@
+using System;
+using Unity.Assertions;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -5,6 +7,7 @@ using Unity.Mathematics.Geometry;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;
@@ -25,22 +28,59 @@ public class InputSystem : SystemBase
         
         var mousePos = UnityCamera.main.ScreenPointToRay(Input.mousePosition);
         var mouseDown = Input.GetMouseButtonDown(0);
+        var time = Time.DeltaTime;
+        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
 
         Entities
             .WithoutBurst() // We are using UnityEngine.Plane which is not supported by Burst
-            .ForEach((ref PlayerInput playerInput, in PlayerIndex playerIndex) => {
-
-            if (playerIndex.Index == 0)
+            .WithNone<AIState>()
+            .ForEach((ref PlayerInput playerInput, in PlayerIndex playerIndex) =>
             {
+                Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.isMouseDown = mouseDown;
-                
-                //if (mouseDown) Debug.Log(playerInput.TileIndex);
-            }
-            else
+                if (mouseDown) { playerInput.CurrentArrowIndex++; }
+            }).Schedule();
+        
+        Entities
+            .ForEach((ref PlayerInput playerInput, ref AIState aiState, ref Translation translation, in PlayerIndex playerIndex) =>
             {
+                float ThinkingDelay = 2.0f;
+                float CursorSpeed = 2.0f;
+
+                playerInput.isMouseDown = false;
                 
-            }
+                if (aiState.state == AIState.State.Thinking && aiState.SecondsSinceClicked > ThinkingDelay)
+                {
+                    // pick random cell on the board
+                    int cellX = random.NextInt(gameConfig.BoardDimensions.x);
+                    int cellY = random.NextInt(gameConfig.BoardDimensions.y);
+                    float3 targetPos = CellCoordinatesToWorldPosition(cellX, cellY);
+                    targetPos.y = 0.1f;
+                    aiState.TargetPosition = targetPos;
+
+                    aiState.state = AIState.State.MovingToTarget;
+                }
+
+                if (aiState.state == AIState.State.MovingToTarget)
+                {
+                    translation.Value = math.lerp(translation.Value, aiState.TargetPosition, time * CursorSpeed);
+
+                    if (math.distance(translation.Value, aiState.TargetPosition) < 0.01f)
+                    {
+                        // click!
+                        playerInput.isMouseDown = true;
+                        playerInput.TileIndex = CellAtWorldPosition(translation.Value, gameConfig);
+                        playerInput.ArrowDirection = Direction.FromRandomDirection(random.NextInt(4));
+                        playerInput.CurrentArrowIndex++;
+                        
+                        aiState.SecondsSinceClicked = 0;
+                        aiState.state = AIState.State.Thinking;
+                    }
+                }
+
+                aiState.SecondsSinceClicked += time;
+
             }).Schedule();
     }
     
@@ -84,5 +124,10 @@ public class InputSystem : SystemBase
         localPt += new Vector2(0.5f, 0.5f); // offset by half cellsize
         var cellCoord = new Vector2Int(Mathf.FloorToInt(localPt.x / 1), Mathf.FloorToInt(localPt.y / 1));
         return BoardSpawner.CoordintateToIndex(gameConfig, cellCoord.x, cellCoord.y);
+    }
+
+    public static float3 CellCoordinatesToWorldPosition(int x, int z)
+    {
+        return new float3(x, -0.5f, z);
     }
 }

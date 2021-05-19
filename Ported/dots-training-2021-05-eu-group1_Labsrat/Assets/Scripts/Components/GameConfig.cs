@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 
 public struct GameConfig : IComponentData
@@ -20,6 +20,8 @@ public struct GameConfig : IComponentData
     public Entity CatPrefab;
     public Entity ArrowPrefab;
     public Entity MousePrefab;
+    public Entity CursorPrefab;
+    public int MaximumArrows;
 
     public bool RandomSeed;
     public uint Seed;

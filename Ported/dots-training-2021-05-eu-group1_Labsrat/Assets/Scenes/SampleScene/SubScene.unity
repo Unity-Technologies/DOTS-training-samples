@@ -174,7 +174,7 @@ MonoBehaviour:
   ArrowPrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
   SnapDistance: 0.2
   NumOfCats: 10
-  NumOfAIPlayers: 0
+  NumOfAIPlayers: 3
   MousePrefab: {fileID: 1164449925845529574, guid: d4b3fb1fe319bf44a84d939b1b3f586d, type: 3}
   NumOfMice: 32
   MouseSpeed: 6
@@ -185,4 +185,6 @@ MonoBehaviour:
     y: 10
   TileColor1: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 0}
   TileColor2: {r: 0.745283, g: 0.6801589, b: 0.3058473, a: 0}
+  CursorPrefab: {fileID: 718791354512338433, guid: 07d2e50c3873bc449a16c3c9646487b0, type: 3}
+  MaximumArrows: 3
   WallProbability: 0.1

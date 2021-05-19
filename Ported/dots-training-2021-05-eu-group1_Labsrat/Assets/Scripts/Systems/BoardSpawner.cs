@@ -1,8 +1,9 @@
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine.AI;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityInput = UnityEngine.Input;
@@ -16,20 +17,20 @@ public class BoardSpawner : SystemBase
     public NativeArray<Entity> cells;
     public NativeArray<Cardinals> walls;
 
-    protected override void OnCreate()
-    {
-    }
+    protected override void OnCreate() { }
 
     public static int CoordintateToIndex(GameConfig c, int x, int y)
     {
         if (x >= c.BoardDimensions.x || y >= c.BoardDimensions.y || x < 0 || y < 0)
             return -1;
-        
+
         return (y * c.BoardDimensions.x) + x;
     }
-    
+
     protected override void OnUpdate()
     {
+        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
+
         if (TryGetSingleton(out GameConfig gameConfig))
         {
             cells = new NativeArray<Entity>(gameConfig.BoardDimensions.x * gameConfig.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.ClearMemory);
@@ -88,7 +89,6 @@ public class BoardSpawner : SystemBase
                     EntityManager.SetComponentData<Direction>(cells[idx], new Direction(direction));
                    
                     walls[idx] = direction;
-
                     // Add flags in adjacent cells
                     if (direction.HasFlag(Cardinals.West))
                     {
@@ -149,19 +149,33 @@ public class BoardSpawner : SystemBase
 
                 }
             }
-            
+
             // Create players
 
-            for (int i = 0; i < gameConfig.NumOfAIPlayers+1; i++)
+            for (int i = 0; i < gameConfig.NumOfAIPlayers + 1; i++)
             {
-                var player = EntityManager.CreateEntity();
+                var player = EntityManager.Instantiate(gameConfig.CursorPrefab);
+                float4 color = random.NextFloat4();
+                color.w = 1f;
 
-                EntityManager.AddComponentData(player, new PlayerIndex() { Index = i});
-                EntityManager.AddComponentData(player, new PlayerInput() { TileIndex = -1});
+                if (i == 0)
+                {
+                    EntityManager.AddComponent<DisableRendering>(player);
+                    //EntityManager.RemoveComponent<RenderMesh>(player); // This doesn't seem to work
+                }
+                else
+                {
+                    EntityManager.AddComponent<AIState>(player);
+                }
+
+                EntityManager.AddComponentData(player, new PlayerIndex() { Index = i });
+                EntityManager.AddComponentData(player, new PlayerInput() { TileIndex = -1 });
                 EntityManager.AddComponentData(player, new Score());
-                EntityManager.AddComponentData(player, new PlayerColor());
+                EntityManager.SetComponentData(player, new Translation() { Value = new float3(random.NextInt(gameConfig.BoardDimensions.x), 0.1f, random.NextInt(gameConfig.BoardDimensions.y)) });
+                EntityManager.AddComponentData(player, new URPMaterialPropertyBaseColor() { Value = color });
+                EntityManager.AddComponentData(player, new PlayerColor() { Color = color });
+                EntityManager.AddBuffer < CreatedArrows >(player);
             }
-           
 
             Enabled = false;
         }

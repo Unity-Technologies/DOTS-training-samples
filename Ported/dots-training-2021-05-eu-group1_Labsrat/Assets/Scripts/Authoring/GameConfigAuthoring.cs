@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -38,6 +38,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public int2 BoardDimensions = new int2(8,8);
     public Color TileColor1 = Color.gray;
     public Color TileColor2 = Color.yellow;
+    public UnityGameObject CursorPrefab;
+    public int MaximumArrows = 3;
 
     public float WallProbability = .1f;
 
@@ -48,6 +50,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(WallPrefab);
         referencedPrefabs.Add(ArrowPrefab);
         referencedPrefabs.Add(MousePrefab);
+        referencedPrefabs.Add(CursorPrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -59,6 +62,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MousePrefab = conversionSystem.GetPrimaryEntity(MousePrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             ArrowPrefab = conversionSystem.GetPrimaryEntity(ArrowPrefab),
+            CursorPrefab = conversionSystem.GetPrimaryEntity(CursorPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
             NumOfCats =  NumOfCats,
@@ -69,6 +73,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),
+            MaximumArrows = MaximumArrows,
             WallProbability = WallProbability,
             RandomSeed = RandomSeed,
             Seed = Seed

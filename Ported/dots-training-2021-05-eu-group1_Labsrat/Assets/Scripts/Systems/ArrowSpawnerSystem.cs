@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -28,7 +29,7 @@ public class ArrowSpawnerSystem : SystemBase
         var cellArray = World.GetExistingSystem<BoardSpawner>().cells;
         
         
-        Entities.ForEach((in PlayerInput playerInput) => {
+        Entities.WithoutBurst().ForEach((Entity Player, ref DynamicBuffer<CreatedArrows> ArrowBuffer, in PlayerInput playerInput, in PlayerColor color, in PlayerIndex PlayerIndex ) => {
 
             if (playerInput.isMouseDown && playerInput.TileIndex < cellArray.Length && playerInput.TileIndex >= 0)
             {
@@ -43,7 +44,18 @@ public class ArrowSpawnerSystem : SystemBase
                 Cardinals direction = playerInput.ArrowDirection;
                 ecb.AddComponent(arrowEntity, new Direction(direction));
                 ecb.SetComponent(cellEntity, new ForcedDirection() { Value = direction });
-                ecb.AddComponent(arrowEntity, new Arrow());
+                ecb.AddComponent(arrowEntity, new Arrow() { Id = playerInput.CurrentArrowIndex});
+                ecb.AddComponent(arrowEntity, new PlayerIndex() { Index = PlayerIndex.Index });
+                ecb.AddComponent(arrowEntity, new URPMaterialPropertyBaseColor() { Value = color.Color });
+               
+               ecb.AppendToBuffer(Player,new CreatedArrows() { CreatedArrow = arrowEntity });
+
+               if (ArrowBuffer.Length > gameConfig.MaximumArrows-1)
+                {
+                    ecb.DestroyEntity(ArrowBuffer[0].CreatedArrow);
+                    ArrowBuffer.RemoveAt(0);
+                }
+
                 switch (direction)
                 {
                     default:
@@ -62,6 +74,9 @@ public class ArrowSpawnerSystem : SystemBase
                 
                 ecb.SetComponent(arrowEntity, rotation);
 
+                
+
+                //ecb.DestroyEntity()
             }
         }).Schedule();
         
