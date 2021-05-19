@@ -53,6 +53,13 @@ public class PlayerInput : SystemBase
                     ecb.DestroyEntity(entity);
                 }).Run();
             
+            Entities
+                .WithAny<Wall, WallSegment>()
+                .ForEach((Entity entity) =>
+                {
+                    ecb.DestroyEntity(entity);
+                }).Run();
+            
             // Add Respawn component to AntSpawner
             Entities
                 .WithAny<AntSpawner, WallSpawner, PheromoneMap>()
