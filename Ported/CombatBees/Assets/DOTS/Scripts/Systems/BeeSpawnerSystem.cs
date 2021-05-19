@@ -26,6 +26,9 @@ public class BeeSpawnerSystem : SystemBase
         var blueBase = GetSingletonEntity<BlueBase>();
         var blueBaseAABB = EntityManager.GetComponentData<Bounds>(blueBase).Value;
 
+        var arena = GetSingletonEntity<IsArena>();
+        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
+
         var spawnerEntity = GetSingletonEntity<BeeSpawner>();
         var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);
         var numberOfBees = beeSpawner.BeeCountFromResource;
@@ -56,9 +59,9 @@ public class BeeSpawnerSystem : SystemBase
 
                         var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
-                        float3 randomPointOnBase = Utils.BoundedRandomPosition(bounds, ref random);
+                        float3 randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
-                        ecb.SetComponent(instance, new Velocity { Value = (randomPointOnBase - translation.Value) * speed });
+                        ecb.SetComponent(instance, new Velocity { Value = math.normalize(randomPointOnBase - translation.Value) * speed });
                         ecb.SetComponent(instance, new Speed { Value = speed });
                         ecb.SetComponent(instance, new Translation { Value = translation.Value });
 
