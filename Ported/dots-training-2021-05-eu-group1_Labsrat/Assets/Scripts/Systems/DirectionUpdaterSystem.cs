@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
@@ -29,6 +28,7 @@ public class DirectionUpdaterSystem : SystemBase
 
             Entities
                 .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData).WithReadOnly(walls)
+                .WithoutBurst()
                 .ForEach((ref Direction direction, ref Translation translation, ref Rotation rotation) =>
             {
                 bool recenter = false;
@@ -50,22 +50,20 @@ public class DirectionUpdaterSystem : SystemBase
                 {
                     direction.Value = fd.Value;
                     recenter = true;
+                    
                 }
 
                 // Until we don't have a wall facing us
 
-                /*while (
+                while (
                     wallCollision != Cardinals.All &&
                     wallCollision.HasFlag(direction.Value) &&
                     math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
                     )
                 {
-                    // Rotate Left
-                    direction.Value = Cardinals.North;
-
+                    direction.Value = Direction.RotateLeft(direction.Value);
                     recenter = true;
-
-                }*/
+                }
 
                 if(recenter)
                 {
