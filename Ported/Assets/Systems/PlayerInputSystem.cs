@@ -62,7 +62,7 @@ public class PlayerInput : SystemBase
                 }).Run();
 
             Entities
-                .WithAny<FoodSpawner>()
+                .WithAny<FoodSpawner, PheromoneMap>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.AddComponent<Respawn>(entity);

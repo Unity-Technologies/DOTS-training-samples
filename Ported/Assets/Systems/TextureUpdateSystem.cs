@@ -5,15 +5,14 @@ using UnityEngine;
 
 public class TextureUpdateSystem : SystemBase
 {
-    private EntityQuery MissingCustomTextureQuery;
+    private EntityQuery UninitializedPheromoneMap;
     private EntityQuery PresentCustomTextureQuery;
 
     protected override void OnCreate()
     {
-        MissingCustomTextureQuery = GetEntityQuery(new EntityQueryDesc
+        UninitializedPheromoneMap = GetEntityQuery(new EntityQueryDesc
         {
-            All = new ComponentType[] {typeof(PheromoneMap), typeof(RenderMesh)},
-            None = new ComponentType[] {typeof(Pheromone)}
+            All = new ComponentType[] {typeof(PheromoneMap), typeof(RenderMesh), typeof(Respawn)},
         });
 
         PresentCustomTextureQuery = GetEntityQuery(new EntityQueryDesc
@@ -24,10 +23,10 @@ public class TextureUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        if (!MissingCustomTextureQuery.IsEmpty)
+        if (!UninitializedPheromoneMap.IsEmpty)
         {
-            var entities = MissingCustomTextureQuery.ToEntityArray(Allocator.Temp);
-            var colorMapsSizes = MissingCustomTextureQuery.ToComponentDataArray<PheromoneMap>(Allocator.Temp);
+            var entities = UninitializedPheromoneMap.ToEntityArray(Allocator.Temp);
+            var colorMapsSizes = UninitializedPheromoneMap.ToComponentDataArray<PheromoneMap>(Allocator.Temp);
 
             for (int i = 0; i < entities.Length; i += 1)
             {
