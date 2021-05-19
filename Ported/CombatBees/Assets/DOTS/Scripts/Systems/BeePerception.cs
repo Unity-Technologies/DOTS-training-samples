@@ -24,7 +24,7 @@ public class BeePerception : SystemBase
         EntityQueryDesc queryResourcesDesc = new EntityQueryDesc()
         {
             All = new ComponentType[] { typeof(IsResource)},
-            None = new ComponentType[] { typeof(IsCarried)}
+            None = new ComponentType[] { typeof(IsCarried), typeof(HasGravity), typeof(LifeSpan) }
         };
         m_queryResources = GetEntityQuery(queryResourcesDesc);
     }
@@ -55,7 +55,7 @@ public class BeePerception : SystemBase
         // Get list of Resources available to collect
         using (var resources = m_queryResources.ToEntityArray(Allocator.TempJob))
         {
-            if (resources.Length >= 0)
+            if (resources.Length > 0)
             {
                 // Query for bees that are not dead, carrying, attacking or returning
                 // and set a random Resource as the target the bee is trying to collect         

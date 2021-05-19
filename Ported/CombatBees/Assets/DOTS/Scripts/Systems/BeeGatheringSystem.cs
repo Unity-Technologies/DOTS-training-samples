@@ -38,17 +38,21 @@ public class BeeGatheringSystem : SystemBase
              .WithReadOnly(cdfeForTranslation)
              .WithAll<IsGathering>()
              .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation,  in Team team) => {
-                 // if bee is close enough to target
-                 if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
-                 {
-                     ecb.RemoveComponent<IsGathering>(entity);
-                     ecb.AddComponent<IsReturning>(entity);
-                     ecb.AddComponent<IsCarried>(target.Value);
 
-                     if (team.Id == 0) targetPosition.Value = YellowBaseAABB.Center;
-                        else targetPosition.Value = BlueBaseAABB.Center;
+                if (cdfeForTranslation.HasComponent(target.Value))//(Value.StorageInfoFromEntity.Exists(target)) 
+                {
+                     if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
+                     {
+                         ecb.RemoveComponent<IsGathering>(entity);
+                         ecb.AddComponent<IsReturning>(entity);
+                         ecb.AddComponent<IsCarried>(target.Value);
 
-                 }
+                         if (team.Id == 0) targetPosition.Value = YellowBaseAABB.Center;
+                         else targetPosition.Value = BlueBaseAABB.Center;
+
+                     }
+                }
+              
              }).Schedule();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
