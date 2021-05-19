@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -51,7 +52,6 @@ public class AntMovementSystem : SystemBase
         var walls = wallQuery.ToEntityArray(Allocator.TempJob);
         var wallComponentData = GetComponentDataFromEntity<Wall>(true);
 
-        var wall = new Wall {Angles = new float2(0, math.PI / 2f), Radius = 25};
         var halfWallThickness = 2.5f;
 
         var movementJob = Entities
@@ -73,27 +73,34 @@ public class AntMovementSystem : SystemBase
                 translation.Value.x += delta.x;
                 translation.Value.y += delta.y;
                 
-                // Check for wall collisions
-                foreach (var wallEntity in walls)
-                {
-                    var wall = wallComponentData[wallEntity];
-                }
-                
                 // Convert the ant location to polar coordinates
                 var antRadius = math.distance(float3.zero, translation.Value);
                 var antAngle = math.atan2(translation.Value.y, translation.Value.x);
 
-                if (antRadius > wall.Radius - halfWallThickness && antRadius < wall.Radius + halfWallThickness)
+                bool shouldCollide = false;
+                foreach (var wallEntity in walls)
                 {
-                    if (antAngle > wall.Angles.x && antAngle < wall.Angles.y)
+                    var wall = wallComponentData[wallEntity];
+                    if (antRadius > wall.Radius - halfWallThickness && antRadius < wall.Radius + halfWallThickness)
                     {
-                        var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
-                        var normal = float2.zero - collisionPoint;
-                        var newDirection = math.reflect(delta, normal);
-                        direction.Radians = math.atan2(newDirection.y, newDirection.x);
-                        translation.Value.x += newDirection.x;
-                        translation.Value.y += newDirection.y;
+                        shouldCollide = true;
+                        if (antAngle > wall.Angles.x && antAngle < wall.Angles.y)
+                        {
+                            // in gap, can't collide
+                            shouldCollide = false;
+                            break;
+                        }
                     }
+                }
+                
+                if (shouldCollide)
+                {
+                    var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
+                    var normal = float2.zero - collisionPoint;
+                    var newDirection = math.reflect(delta, normal);
+                    direction.Radians = math.atan2(newDirection.y, newDirection.x);
+                    translation.Value.x += newDirection.x;
+                    translation.Value.y += newDirection.y;
                 }
 
                 // Check if we're hitting the screen edge
