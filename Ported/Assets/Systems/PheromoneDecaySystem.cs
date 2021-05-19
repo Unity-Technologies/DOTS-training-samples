@@ -29,5 +29,6 @@ public class PheromoneDecaySystem : SystemBase
             dt = Time.DeltaTime * simulationSpeed.Value
         }.Schedule(map.Length, 64, Dependency);
         Dependency = JobHandle.CombineDependencies(Dependency, handle);
+        Dependency.Complete();
     }
 }

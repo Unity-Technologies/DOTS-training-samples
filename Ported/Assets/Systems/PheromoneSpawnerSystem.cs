@@ -22,11 +22,11 @@ public class PheromoneSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         var screenSize = GetSingleton<ScreenSize>();
         var simSpeed = GetSingleton<SimulationSpeed>();
 
-        Entities
+        var initJob = Entities
             .ForEach((Entity entity, ref NonUniformScale scale, in PheromoneMap map, in Respawn respawn) =>
             {
                 ecb.SetComponent(entity, new NonUniformScale()
@@ -35,7 +35,7 @@ public class PheromoneSpawnerSystem : SystemBase
                 });
                 
                 ecb.RemoveComponent<Respawn>(entity);
-            }).Run();
+            }).Schedule(Dependency);
     
         if (Time.ElapsedTime > lastIntervalTime + (pheromoneIntervalTime / simSpeed.Value) &&
             !PresentCustomTextureQuery.IsEmpty)
@@ -46,7 +46,7 @@ public class PheromoneSpawnerSystem : SystemBase
             var pheromoneBuffer = GetBuffer<Pheromone>(pheromoneMapEntity);
             
             lastIntervalTime = Time.ElapsedTime;
-            Entities
+            var colorJob = Entities
                 .WithAll<Ant>()
                 .ForEach((Entity entity, in Translation pos) =>
                 {
@@ -64,10 +64,13 @@ public class PheromoneSpawnerSystem : SystemBase
                     {
                         Value = newCol
                     };
-                }).Run();
+                }).Schedule(initJob);
             
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            colorJob.Complete();
         }
+                    
+        initJob.Complete();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
