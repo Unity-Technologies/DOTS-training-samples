@@ -38,17 +38,21 @@ public class BoardSpawner : SystemBase
             {
                 for (int y = 0; y < gameConfig.BoardDimensions.y; y++)
                 {
-                    Entity renderedCell = EntityManager.Instantiate(gameConfig.CellPrefab);
-                    EntityManager.SetComponentData(renderedCell, new Translation() { Value = new float3(x, -.5f, y) });
+                    Entity cell = EntityManager.Instantiate(gameConfig.CellPrefab);
+
+                    EntityManager.AddComponent<ForcedDirection>(cell);
+
+                    EntityManager.AddComponent<Cell>(cell);
+                    EntityManager.SetComponentData(cell, new Translation() { Value = new float3(x, -.5f, y) });
 
                     float4 color = (x + y) % 2 == 0 ? gameConfig.TileColor1 : gameConfig.TileColor2;
-                    EntityManager.AddComponentData(renderedCell, new URPMaterialPropertyBaseColor() { Value = color });
+                    EntityManager.AddComponentData(cell, new URPMaterialPropertyBaseColor() { Value = color });
 
                     int idx = CoordintateToIndex(gameConfig, x, y);
 
-                    cells[idx] = renderedCell;
+                    cells[idx] = cell;
 
-                    EntityManager.AddComponentData(renderedCell, new Direction());
+                    EntityManager.AddComponentData(cell, new Direction());
                 }
             }
 
@@ -144,6 +148,7 @@ public class BoardSpawner : SystemBase
         void CreateWall(int x, int y, Cardinals direction)
         {
             Entity renderedWall = EntityManager.Instantiate(gameConfig.WallPrefab);
+            EntityManager.AddComponent<Wall>(renderedWall);
             EntityManager.SetComponentData(renderedWall, new Translation() { Value = new float3(x, .5f, y) });
             EntityManager.SetComponentData(renderedWall, new Rotation() { Value = quaternion.RotateY(GetAngle(direction)) });
         }

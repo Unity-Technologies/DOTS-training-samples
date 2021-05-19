@@ -42,6 +42,7 @@ public class ArrowSpawnerSystem : SystemBase
                 Rotation rotation = new Rotation();
                 Cardinals direction = playerInput.ArrowDirection;
                 ecb.AddComponent(arrowEntity, new Direction(direction));
+                ecb.SetComponent(cellEntity, new ForcedDirection() { Value = direction });
                 ecb.AddComponent(arrowEntity, new Arrow());
                 switch (direction)
                 {

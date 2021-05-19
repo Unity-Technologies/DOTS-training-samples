@@ -2,6 +2,11 @@ using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
+public struct ForcedDirection : IComponentData
+{
+    public Cardinals Value;
+}
+
 public struct Direction : IComponentData
 {
     public Cardinals Value;
