@@ -433,7 +433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
-  ResourceCount: 100
+  ResourceCount: 5
 --- !u!1 &1466324074
 GameObject:
   m_ObjectHideFlags: 0
