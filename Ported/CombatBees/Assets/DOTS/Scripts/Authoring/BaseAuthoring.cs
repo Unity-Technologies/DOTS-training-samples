@@ -14,27 +14,38 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
-    public int team;
+    public int TeamId;
 
-    public void Convert(Entity entity, EntityManager dstManager
-        , GameObjectConversionSystem conversionSystem)
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bounds>(entity);
         dstManager.AddComponent<Team>(entity);
 
-        dstManager.AddComponentData(entity, new Team { Id = team});
+        dstManager.AddComponentData(entity, new Team
+        {
+            Id = TeamId
+        });
 
-        if (team==1) dstManager.AddComponent<BlueBase>(entity);
-            else dstManager.AddComponent<YellowBase>(entity);
+        if (TeamId == 0)
+        {
+            dstManager.AddComponent<YellowBase>(entity);
+        }
+        else
+        {
+            dstManager.AddComponent<BlueBase>(entity);
+        }
 
         var translation = transform.position;
-        var extents = transform.localScale/2;
+        var extents = transform.localScale / 2;
         extents = math.abs(extents);
 
         dstManager.AddComponentData(entity, new Bounds
         {
-            Value = new AABB {Center = translation, Extents = extents }
-           
+            Value = new AABB
+            {
+                Center = translation,
+                Extents = extents
+            }
         });
     }
 }

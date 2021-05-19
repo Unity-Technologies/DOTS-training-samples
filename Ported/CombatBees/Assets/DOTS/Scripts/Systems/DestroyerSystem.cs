@@ -31,7 +31,6 @@ public class DestroyerSystem : SystemBase
             .ForEach((Entity entity, ref Target target) =>
             {
                 var targetEntity = target.Value;
-                var targetTranslation = GetComponent<Translation>(targetEntity);
                 
                 if (HasComponent<LifeSpan>(targetEntity))
                 {
@@ -48,7 +47,6 @@ public class DestroyerSystem : SystemBase
 
                 if (lifespan.Value<=0)
                 {
-                    //Destroys entity
                     ecb.DestroyEntity(entity);
                 }
             }).Schedule();

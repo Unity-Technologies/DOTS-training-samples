@@ -35,7 +35,7 @@ public class GravitySystem : SystemBase
                 velocity.Value += gravity * time;
                 translation.Value += velocity.Value;
 
-                var halfHeight = scale.Value.y / 2f;
+                var halfHeight = scale.Value.y / 2;
 
                 if (translation.Value.y < halfHeight)
                 {

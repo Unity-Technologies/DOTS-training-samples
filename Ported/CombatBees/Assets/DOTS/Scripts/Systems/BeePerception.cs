@@ -14,23 +14,24 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class BeePerception : SystemBase
 {
-    private EntityQuery m_queryResources;
+    private EntityQuery QueryResources;
 
     protected override void OnCreate()
     {
         // Query list of Resources available to collect
-        EntityQueryDesc queryResourcesDesc = new EntityQueryDesc()
+        EntityQueryDesc queryResourcesDesc = new EntityQueryDesc
         {
-            All = new ComponentType[] { typeof(IsResource)},
+            All = new ComponentType[] { typeof(IsResource) },
             None = new ComponentType[] { typeof(IsCarried), typeof(HasGravity), typeof(LifeSpan) }
         };
-        m_queryResources = GetEntityQuery(queryResourcesDesc);
+        
+        QueryResources = GetEntityQuery(queryResourcesDesc);
     }
 
     protected override void OnUpdate()
     {
         var cdfe = GetComponentDataFromEntity<IsCarried>(true);
-        var random = new Random(1234);
+        var random = Utils.GetRandom();
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         // TODO what about bees that are targetting Resources that have been
@@ -45,14 +46,16 @@ public class BeePerception : SystemBase
             .WithAll<IsBee>()
             .ForEach((Entity entity, in Target target) =>
             {
-                if (cdfe.HasComponent(target.Value))
+                var targetEntity = target.Value;
+                
+                if (cdfe.HasComponent(targetEntity))
                 {
                     ecb.RemoveComponent<Target>(entity);
                 }
             }).Run();
 
         // Get list of Resources available to collect
-        using (var resources = m_queryResources.ToEntityArray(Allocator.TempJob))
+        using (var resources = QueryResources.ToEntityArray(Allocator.TempJob))
         {
             if (resources.Length > 0)
             {
@@ -68,12 +71,14 @@ public class BeePerception : SystemBase
                         {
                             Value = resources[random.NextInt(0, resources.Length)]
                         });
+                        
                         ecb.AddComponent(entity, new TargetPosition());
-                    // tag the bee as now gathering
-                    ecb.AddComponent<IsGathering>(entity);
+                        // tag the bee as now gathering
+                        ecb.AddComponent<IsGathering>(entity);
                     }).Run();
             }
         }
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

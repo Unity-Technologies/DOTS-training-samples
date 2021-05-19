@@ -28,19 +28,19 @@ public class BeeGatheringSystem : SystemBase
         // Query for bees that are close enough to a Resource target to collect the Resource
         // TODO how to stop 2 bees collecting the same Resource
         var cdfeForTranslation = GetComponentDataFromEntity<Translation>(true);
-        var YellowBase = GetSingletonEntity<YellowBase>();
-        var YellowBaseAABB = EntityManager.GetComponentData<Bounds>(YellowBase).Value;
+        var yellowBase = GetSingletonEntity<YellowBase>();
+        var yellowBaseAABB = EntityManager.GetComponentData<Bounds>(yellowBase).Value;
 
-        var BlueBase = GetSingletonEntity<BlueBase>();
-        var BlueBaseAABB = EntityManager.GetComponentData<Bounds>(BlueBase).Value;
+        var blueBase = GetSingletonEntity<BlueBase>();
+        var blueBaseAABB = EntityManager.GetComponentData<Bounds>(blueBase).Value;
 
         Entities
              .WithReadOnly(cdfeForTranslation)
              .WithAll<IsGathering>()
-             .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation,  in Team team) => {
-
-                if (cdfeForTranslation.HasComponent(target.Value))//(Value.StorageInfoFromEntity.Exists(target)) 
-                {
+             .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation, in Team team) =>
+             {
+                 if (cdfeForTranslation.HasComponent(target.Value)) //(Value.StorageInfoFromEntity.Exists(target))
+                 {
                      if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
                      {
                          ecb.RemoveComponent<IsGathering>(entity);
@@ -48,12 +48,9 @@ public class BeeGatheringSystem : SystemBase
                          ecb.AddComponent<IsCarried>(target.Value);
                          ecb.RemoveComponent<OnCollision>(target.Value);
 
-                         if (team.Id == 0) targetPosition.Value = YellowBaseAABB.Center;
-                         else targetPosition.Value = BlueBaseAABB.Center;
-
+                         targetPosition.Value = team.Id == 0 ? yellowBaseAABB.Center : blueBaseAABB.Center;
                      }
-                }
-              
+                 }
              }).Schedule();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
