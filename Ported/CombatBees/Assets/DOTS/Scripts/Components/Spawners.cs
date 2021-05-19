@@ -4,6 +4,7 @@ public struct BeeSpawner : IComponentData
 {
     public Entity BeePrefab;
     public int BeeCount;
+    public int BeeCountFromResource;
 
     public int MaxSpeed;
 }

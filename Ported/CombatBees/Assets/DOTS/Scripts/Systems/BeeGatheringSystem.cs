@@ -46,6 +46,7 @@ public class BeeGatheringSystem : SystemBase
                          ecb.RemoveComponent<IsGathering>(entity);
                          ecb.AddComponent<IsReturning>(entity);
                          ecb.AddComponent<IsCarried>(target.Value);
+                         ecb.RemoveComponent<OnCollision>(target.Value);
 
                          if (team.Id == 0) targetPosition.Value = YellowBaseAABB.Center;
                          else targetPosition.Value = BlueBaseAABB.Center;

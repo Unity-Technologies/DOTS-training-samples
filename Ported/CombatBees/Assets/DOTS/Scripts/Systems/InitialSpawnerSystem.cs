@@ -16,7 +16,7 @@ public class InitialSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var random = new Random(1234);
+        var random = Utils.GetRandom();
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
@@ -29,12 +29,13 @@ public class InitialSpawnerSystem : SystemBase
         resourcesBounds.Extents.z *= 0.3f;
         resourcesBounds.Extents.y *= 0.3f;
 
+        var numberOfBeesPerTeam = (int)(beeSpawner.BeeCount * 0.5);
+
         //Spawn bees
         Entities
             .ForEach((Entity entity, in Bounds bounds, in Team team) =>
             {
-
-                for (int i = 0; i < beeSpawner.BeeCount/2; ++i)
+                for (int i = 0; i < numberOfBeesPerTeam; ++i)
                 {
                     var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                     ecb.SetComponent(instance, team);

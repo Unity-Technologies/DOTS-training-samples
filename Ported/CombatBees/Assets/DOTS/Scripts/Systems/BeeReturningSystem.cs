@@ -47,7 +47,6 @@ public class BeeReturningSystem : SystemBase
                      ecb.RemoveComponent<Target>(entity);
                      ecb.RemoveComponent<IsCarried>(target.Value);
                      ecb.AddComponent<HasGravity>(target.Value);
-                     ecb.AddComponent<LifeSpan>(target.Value, new LifeSpan { Value = 2f});
                  } else 
                  {
                      ecb.SetComponent<Translation>(target.Value, new Translation { Value = translation.Value + offset });

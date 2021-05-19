@@ -2,6 +2,8 @@ using Unity.Mathematics;
 
 public static class Utils
 {
+    public static Random GetRandom() => new Random((uint)System.DateTime.Now.Ticks);
+
     public static float3 BoundedRandomPosition(AABB bounds, ref Random random)
     {
         var x = random.NextFloat(bounds.Min.x, bounds.Max.x);
