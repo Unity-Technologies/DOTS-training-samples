@@ -42,6 +42,7 @@ public class BeePerception : SystemBase
         // another bee and clear their target Resource
         Entities
             .WithoutBurst()
+            .WithNone<IsReturning>()
             .WithAll<IsBee>()
             .ForEach((Entity entity, in Target target) =>
             {

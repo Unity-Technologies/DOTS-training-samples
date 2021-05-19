@@ -28,6 +28,7 @@ public class BeeMovement : SystemBase
         
         // Update all TargetPositions with current position of Target (deterministic!)
         Entities
+            .WithNone<IsReturning>()
             .WithoutBurst()
             .ForEach((ref TargetPosition targetPosition, in Target target) => {
                 targetPosition.Value = cdfe[target.Value].Value;

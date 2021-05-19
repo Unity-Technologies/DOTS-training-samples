@@ -24,6 +24,9 @@ public class BaseAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         dstManager.AddComponentData(entity, new Team { Id = team});
 
+        if (team==1) dstManager.AddComponent<BlueBase>(entity);
+            else dstManager.AddComponent<YellowBase>(entity);
+
         var translation = transform.position;
         var extents = transform.localScale/2;
         extents = math.abs(extents);

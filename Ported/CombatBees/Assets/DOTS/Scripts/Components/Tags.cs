@@ -10,3 +10,5 @@ public struct IsDead : IComponentData { }
 public struct HasGravity : IComponentData { }
 public struct OnCollision : IComponentData { }
 public struct IsArena : IComponentData { }
+public struct YellowBase : IComponentData { }
+public struct BlueBase : IComponentData { }
