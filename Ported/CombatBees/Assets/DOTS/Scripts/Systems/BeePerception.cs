@@ -63,8 +63,8 @@ public class BeePerception : SystemBase
                     .WithNone<Target, IsDead>()
                     .ForEach((Entity entity) =>
                     {
-                    // pick a random resource and add target component to bee
-                    ecb.AddComponent(entity, new Target
+                        // pick a random resource and add target component to bee
+                        ecb.AddComponent(entity, new Target
                         {
                             Value = resources[random.NextInt(0, resources.Length)]
                         });

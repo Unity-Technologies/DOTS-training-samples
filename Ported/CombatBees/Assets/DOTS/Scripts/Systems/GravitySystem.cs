@@ -32,7 +32,7 @@ public class GravitySystem : SystemBase
             .WithAll<HasGravity>()
             .ForEach((Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
             {
-                velocity.Value = velocity.Value + gravity * time;
+                velocity.Value += gravity * time;
                 translation.Value += velocity.Value;
 
                 var halfHeight = scale.Value.y / 2f;
