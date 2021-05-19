@@ -19,12 +19,12 @@ public class ResourceSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0)) // Left-click
         {
             var arena = GetSingletonEntity<IsArena>();
             var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
-            var random = new Random((uint)DateTime.Now.Ticks);
+            var random = Utils.GetRandom();
             
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -32,9 +32,11 @@ public class ResourceSpawnerSystem : SystemBase
             var resourceSpawner = GetComponent<ResourceSpawner>(spawnerEntity);
             
             var instance = ecb.Instantiate(resourceSpawner.ResourcePrefab);
-            
-            var translation = new Translation { Value = Utils.BoundedRandomPosition(arenaAABB, ref random) };
-            ecb.SetComponent(instance, translation);
+
+            ecb.SetComponent(instance, new Translation
+            {
+                Value = Utils.BoundedRandomPosition(arenaAABB, ref random)
+            });
             
             ecb.Playback(EntityManager);
             ecb.Dispose();

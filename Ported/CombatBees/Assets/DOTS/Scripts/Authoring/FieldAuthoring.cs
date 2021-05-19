@@ -14,19 +14,21 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class FieldAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
-    public void Convert(Entity entity, EntityManager dstManager
-        , GameObjectConversionSystem conversionSystem)
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<Bounds>(entity);
         dstManager.AddComponent<IsArena>(entity);
 
         var translation = transform.position;
-        var extents = transform.localScale/2;
-        extents = math.abs(extents);
+        var extents = math.abs(transform.localScale / 2);
 
         dstManager.AddComponentData(entity, new Bounds
         {
-            Value = new AABB { Center = translation, Extents = extents }
+            Value = new AABB
+            {
+                Center = translation,
+                Extents = extents
+            }
         });
     }
 }

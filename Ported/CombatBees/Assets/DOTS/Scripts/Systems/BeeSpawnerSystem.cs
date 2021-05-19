@@ -39,15 +39,14 @@ public class BeeSpawnerSystem : SystemBase
             .ForEach((Entity entity, in Translation translation) =>
             {
                 Entity? baseEntity = null;
-                AABB bounds = blueBaseAABB;
-                if (blueBaseAABB.Contains(translation.Value))
-                {
-                    baseEntity = blueBase;
-                }
-                else if (yellowBaseAABB.Contains(translation.Value))
+                
+                if (yellowBaseAABB.Contains(translation.Value))
                 {
                     baseEntity = yellowBase;
-                    bounds = yellowBaseAABB;
+                }
+                else if (blueBaseAABB.Contains(translation.Value))
+                {
+                    baseEntity = blueBase;
                 }
 
                 if (baseEntity.HasValue)
@@ -55,15 +54,26 @@ public class BeeSpawnerSystem : SystemBase
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(beeSpawner.BeePrefab);
-                        ecb.SetComponent<Team>(instance, GetComponent<Team>(baseEntity.Value));
+                        ecb.SetComponent(instance, GetComponent<Team>(baseEntity.Value));
 
                         var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
-                        float3 randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
+                        var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
-                        ecb.SetComponent(instance, new Velocity { Value = math.normalize(randomPointOnBase - translation.Value) * speed });
-                        ecb.SetComponent(instance, new Speed { Value = speed });
-                        ecb.SetComponent(instance, new Translation { Value = translation.Value });
+                        ecb.SetComponent(instance, new Velocity
+                        {
+                            Value = math.normalize(randomPointOnBase - translation.Value) * speed
+                        });
+                        
+                        ecb.SetComponent(instance, new Speed
+                        {
+                            Value = speed
+                        });
+                        
+                        ecb.SetComponent(instance, new Translation
+                        {
+                            Value = translation.Value
+                        });
 
                         ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                         {
@@ -71,7 +81,7 @@ public class BeeSpawnerSystem : SystemBase
                         });
                     }
 
-                    ecb.AddComponent<LifeSpan>(entity, new LifeSpan() { Value = 1f });
+                    ecb.AddComponent<LifeSpan>(entity);
                 }
             }).Schedule();
 

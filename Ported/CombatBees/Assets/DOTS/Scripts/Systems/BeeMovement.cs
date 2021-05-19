@@ -24,16 +24,17 @@ public class BeeMovement : SystemBase
     protected override void OnUpdate()
     {
         cdfe = GetComponentDataFromEntity<Translation>(true);
-        var random = new Random(1234);
+        var random = Utils.GetRandom();
         var deltaTime = Time.DeltaTime;
         
         // Update all TargetPositions with current position of Target (deterministic!)
         Entities
             .WithNone<IsReturning>()
             .WithoutBurst()
-            .ForEach((ref TargetPosition targetPosition, in Target target) => {
+            .ForEach((ref TargetPosition targetPosition, in Target target) =>
+            {
                 targetPosition.Value = cdfe[target.Value].Value;
-        }).Run();
+            }).Run();
 
         // TODO when a bee dies it's target must be removed
         // Move bees that are targetting (a Resource or Base) towards the target's position
@@ -41,9 +42,8 @@ public class BeeMovement : SystemBase
             .WithAll<IsBee>()
             .ForEach((ref Translation translation, ref Velocity velocity, in TargetPosition targetPosition, in Speed speed) =>
             {
-                float3 currentPosition = translation.Value;
-
-                float3 newLookAt = targetPosition.Value - currentPosition;
+                var currentPosition = translation.Value;
+                var newLookAt = targetPosition.Value - currentPosition;
 
                 var q = UnityEngine.Quaternion.FromToRotation(velocity.Value, newLookAt);
                 q.ToAngleAxis(out var angle, out var axis);

@@ -28,18 +28,13 @@ public class BeeReturningSystem : SystemBase
 
         // Query for bees that are close enough to a Resource target to collect the Resource
         // TODO how to stop 2 bees collecting the same Resource
-        var YellowBase = GetSingletonEntity<YellowBase>();
-        var YellowBaseAABB = EntityManager.GetComponentData<Bounds>(YellowBase).Value;
-
-        var BlueBase = GetSingletonEntity<BlueBase>();
-        var BlueBaseAABB = EntityManager.GetComponentData<Bounds>(BlueBase).Value;
 
         var offset = new float3(0, -0.98f, 0);
 
         Entities
              .WithAll<IsReturning>()
-             .ForEach((Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) => {
-                 
+             .ForEach((Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) =>
+             {
                  // if bee is close enough to Base
                  if (math.distancesq(translation.Value, targetPosition.Value) < 0.025)
                  {
@@ -48,9 +43,13 @@ public class BeeReturningSystem : SystemBase
                      ecb.RemoveComponent<TargetPosition>(entity);
                      ecb.RemoveComponent<IsCarried>(target.Value);
                      ecb.AddComponent<HasGravity>(target.Value);
-                 } else 
+                 }
+                 else
                  {
-                     ecb.SetComponent<Translation>(target.Value, new Translation { Value = translation.Value + offset });
+                     ecb.SetComponent(target.Value, new Translation
+                     {
+                         Value = translation.Value + offset
+                     });
                  }
              }).Schedule();
 

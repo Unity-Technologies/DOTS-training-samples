@@ -26,6 +26,7 @@ public class InitialSpawnerSystem : SystemBase
 
         var arena = GetSingletonEntity<IsArena>();
         var resourcesBounds = GetComponent<Bounds>(arena).Value;
+        
         resourcesBounds.Extents.z *= 0.3f;
         resourcesBounds.Extents.y *= 0.3f;
 
@@ -42,12 +43,20 @@ public class InitialSpawnerSystem : SystemBase
 
                     var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
-                    ecb.SetComponent(instance, new Velocity { Value = UnityEngine.Random.onUnitSphere * speed });
+                    ecb.SetComponent(instance, new Velocity
+                    {
+                        Value = UnityEngine.Random.onUnitSphere * speed
+                    });
 
-                    ecb.SetComponent(instance, new Speed { Value = speed });
+                    ecb.SetComponent(instance, new Speed
+                    {
+                        Value = speed
+                    });
 
-                    var translation = new Translation { Value = bounds.Value.Center };
-                    ecb.SetComponent(instance, translation);
+                    ecb.SetComponent(instance, new Translation
+                    {
+                        Value = bounds.Value.Center
+                    });
 
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                     {
@@ -61,7 +70,11 @@ public class InitialSpawnerSystem : SystemBase
         {
             var instance = ecb.Instantiate(resourceSpawner.ResourcePrefab);
 
-            var translation = new Translation { Value = Utils.BoundedRandomPosition(resourcesBounds, ref random) };
+            var translation = new Translation
+            {
+                Value = Utils.BoundedRandomPosition(resourcesBounds, ref random)
+            };
+            
             ecb.SetComponent(instance, translation);
         }
 
