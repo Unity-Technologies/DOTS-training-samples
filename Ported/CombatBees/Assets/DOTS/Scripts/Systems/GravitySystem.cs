@@ -16,12 +16,19 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 public class GravitySystem : SystemBase
 {
+    private EntityCommandBufferSystem EntityCommandBufferSystem;
+    
+    protected override void OnCreate()
+    {
+        EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+    
     protected override void OnUpdate()
     {
         var time = Time.DeltaTime;
         var gravity = new float3(0, -0.98f, 0);
 
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
             
         Entities
             .WithAll<HasGravity>()
@@ -40,8 +47,7 @@ public class GravitySystem : SystemBase
                     ecb.AddComponent<OnCollision>(entity);
                 }
             }).Schedule();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        
+        EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
