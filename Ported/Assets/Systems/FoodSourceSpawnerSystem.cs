@@ -36,7 +36,7 @@ public class FoodSpawnerSystem : SystemBase
                 ecb.SetComponent(foodSource, new Translation {Value = position});
                 ecb.SetComponent(foodSource, new URPMaterialPropertyBaseColor
                 {
-                    Value = new float4(0, 1, 0, 0)
+                    Value = new float4(0, 0.7f, 0, 0)
                 });
             }).Run();
 

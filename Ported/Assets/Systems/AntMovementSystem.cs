@@ -172,7 +172,7 @@ public class AntMovementSystem : SystemBase
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
                 {
-                    color.Value = new float4(0.19f, 0.21f, 0.35f, 0);
+                    color.Value = new float4(0.29f, 0.31f, 0.45f, 0);
                     direction.Radians += Mathf.PI;
                     
                     ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
