@@ -47,16 +47,16 @@ public class DirectionUpdaterSystem : SystemBase
                 float2 cellCenter = new float2(math.round(translation.Value.x), math.round(translation.Value.z));
 
                 if (
-                    fd.Value != Cardinals.None                                                                      // If there's a forced direction (arrow) ....
-                    && fd.Value != direction.Value                                                                  // ... and we're not already in the given direction
-                    && math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < 0.1f     // ... and we're close to the center
+                    fd.Value != Cardinals.None                                                                                                                    // If there's a forced direction (arrow) ....
+                    && fd.Value != direction.Value                                                                                                                // ... and we're not already in the given direction
+                    && math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)    // ... and we're close to the center
                     )
                 {
                     direction.Value = fd.Value;
                     recenter = true;
                 }
 
-                if (    
+                if (
                         (direction.Value == Cardinals.East && translation.Value.x >= gameConfig.BoardDimensions.x - 1)
                     ||  (direction.Value == Cardinals.West && translation.Value.x < 0)
                     ||  (direction.Value == Cardinals.North && translation.Value.z >= gameConfig.BoardDimensions.y - 1)

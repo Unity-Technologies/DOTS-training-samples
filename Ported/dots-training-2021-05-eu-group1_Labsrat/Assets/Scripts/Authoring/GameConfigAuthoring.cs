@@ -23,6 +23,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
     public UnityGameObject ArrowPrefab;
+    public float SnapDistance = 0.2f;
     public int NumOfCats;
     public int NumOfAIPlayers;
     public UnityGameObject MousePrefab;
@@ -60,6 +61,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             NumOfAIPlayers = NumOfAIPlayers,
             NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
+            SnapDistance = SnapDistance,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),
