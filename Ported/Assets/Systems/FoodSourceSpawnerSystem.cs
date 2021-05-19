@@ -31,7 +31,7 @@ public class FoodSpawnerSystem : SystemBase
                 var foodSource = ecb.Instantiate(spawner.FoodPrefab);
 
                 var direction = random.NextFloat(0, 2.0f * Mathf.PI);
-                var position = new float3(Mathf.Cos(direction), Mathf.Sin(direction), 0) * 40f;
+                var position = new float3(Mathf.Cos(direction), Mathf.Sin(direction), 0) * 45f;
 
                 ecb.SetComponent(foodSource, new Translation {Value = position});
                 ecb.SetComponent(foodSource, new URPMaterialPropertyBaseColor
