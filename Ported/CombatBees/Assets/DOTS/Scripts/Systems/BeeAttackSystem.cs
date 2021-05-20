@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(BeeUpdateGroup))]
@@ -121,6 +122,13 @@ public class BeeAttackSystem : SystemBase
                     Entity opposingBee = target.Value;
                     ecb.AddComponent<IsDead>(opposingBee);
                     ecb.AddComponent<HasGravity>(opposingBee);
+                    ecb.SetComponent(opposingBee, new Velocity());
+                    
+                    ecb.SetComponent(opposingBee, new URPMaterialPropertyBaseColor
+                    {
+                        Value = new float4(1, 0, 0, 1)
+                    });
+                    
                     if (HasComponent<IsReturning>(opposingBee))
                     {
                         Entity resourceCarriedByOpposingBee = GetComponent<Target>(opposingBee).Value;
