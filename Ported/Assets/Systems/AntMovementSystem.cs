@@ -204,10 +204,10 @@ public class AntMovementSystem : SystemBase
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
                 
-                if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
-                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.green);
-                else
-                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.magenta);
+//                if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
+//                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.green);
+//                else
+//                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.magenta);
             }).ScheduleParallel(Dependency);
 
         var checkReachedFoodSourceJob = Entities
@@ -318,70 +318,108 @@ public class AntMovementSystem : SystemBase
 
     private static bool IsTargetVisible(float2 antPos, float2 targetPos, NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData)
     {
+        bool isOpen = false;
+        float lastRadius = -1f;
         foreach (var wall in walls)
         {
-            var wallData = wallComponentData[wall];
             
+            var wallData = wallComponentData[wall];
+            if (lastRadius < 0)
+                lastRadius = wallData.Radius;
+
+            if (Math.Abs(lastRadius - wallData.Radius) < 0.01f)
+            {
+                if (isOpen)
+                    continue;
+            }
+            else
+            {
+                lastRadius = wallData.Radius;
+                if (!isOpen)
+                    return false;
+            }
+
             float2 intersection1 = new float2(float.NaN, float.NaN), intersection2 = new float2(float.NaN, float.NaN);
             int intersectionAmount = FindLineCircleIntersections(0, 0, wallData.Radius, antPos, targetPos, ref intersection1, ref intersection2);
-            if(intersectionAmount == 0)
+            if (intersectionAmount == 0)
+            {
+                isOpen = true;
                 continue;
-
-            bool isOpening = false;
-            if (!float.IsNaN(intersection1.x))
-            {
-                float a = math.degrees(math.atan2(intersection1.x, intersection1.y));
-                while (a < 0)
-                    a += 360;
-                while (a > 360)
-                    a -= 360;
-                Debug.Log("Intersection1 " + a);
-                if (wallData.Angles.x < wallData.Angles.y)
-                {
-                    if (a > wallData.Angles.x && a < wallData.Angles.y)
-                        isOpening = true;
-                }
-                else
-                {
-                    if (a > wallData.Angles.x || a < wallData.Angles.y)
-                        isOpening = true;
-                }
-            }
-            else
-            {
-                isOpening = true;
             }
 
-            if (isOpening == false) return false;
-            isOpening = false;
-            
-            if (!float.IsNaN(intersection2.x))
+            if (intersectionAmount == 1)
             {
-                float a = math.degrees(math.atan2(intersection2.x, intersection2.y));
-                while (a < 0)
-                    a += 360;
-                while (a > 360)
-                    a -= 360;
-                Debug.Log("Intersection2 " + a);
-                if (wallData.Angles.x < wallData.Angles.y)
+                bool isOpening = false;
+                if (!float.IsNaN(intersection1.x))
                 {
-                    if (a > wallData.Angles.x && a < wallData.Angles.y)
-                        isOpening = true;
-                }
-                else
+                    float a = math.degrees(math.atan2(intersection1.y, intersection1.x));
+
+                    a = a < 0 ? a + 360 : a % 360;
+                    if (wallData.Angles.x < wallData.Angles.y)
+                    {
+                        if (a > wallData.Angles.x && a < wallData.Angles.y)
+                            isOpening = true;
+                    }
+                    else
+                    {
+                        if (a > wallData.Angles.x || a < wallData.Angles.y)
+                            isOpening = true;
+                    }
+                } else if (!float.IsNaN(intersection2.x))
                 {
-                    if (a > wallData.Angles.x || a < wallData.Angles.y)
-                        isOpening = true;
+                    float a = math.degrees(math.atan2(intersection2.y, intersection2.x));
+                    a = a < 0 ? a + 360 : a % 360;
+                    if (wallData.Angles.x < wallData.Angles.y)
+                    {
+                        if (a > wallData.Angles.x && a < wallData.Angles.y)
+                            isOpening = true;
+                    }
+                    else
+                    {
+                        if (a > wallData.Angles.x || a < wallData.Angles.y)
+                            isOpening = true;
+                    }
                 }
-            }
-            else
+                isOpen = isOpening;
+            }else if (intersectionAmount == 2)
             {
-                isOpening = true;
+                var isOpening1 = false;
+                var isOpening2 = false;
+                if (!float.IsNaN(intersection1.x))
+                {
+                    float a = math.degrees(math.atan2(intersection1.y, intersection1.x));
+                    a = a < 0 ? a + 360 : a % 360;
+                    if (wallData.Angles.x < wallData.Angles.y)
+                    {
+                        if (a > wallData.Angles.x && a < wallData.Angles.y)
+                            isOpening1 = true;
+                    }
+                    else
+                    {
+                        if (a > wallData.Angles.x || a < wallData.Angles.y)
+                            isOpening1 = true;
+                    }
+                } 
+                if (!float.IsNaN(intersection2.x))
+                {
+                    float a = math.degrees(math.atan2(intersection2.y, intersection2.x));
+                    a = a < 0 ? a + 360 : a % 360;
+                    if (wallData.Angles.x < wallData.Angles.y)
+                    {
+                        if (a > wallData.Angles.x && a < wallData.Angles.y)
+                            isOpening2 = true;
+                    }
+                    else
+                    {
+                        if (a > wallData.Angles.x || a < wallData.Angles.y)
+                            isOpening2 = true;
+                    }
+                }
+
+                isOpen = isOpening1 && isOpening2;
             }
-            
-            if (isOpening == false) return false;
         }
 
-        return true;
+        return isOpen;
     }
 }
