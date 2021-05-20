@@ -30,8 +30,7 @@ public class BeeAttackSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
-
-
+        
         // job to 'start attacks'
         // for all bees that are not already attacking, returning, dead or are not cooling down from a previous attack
         //    test against their aggression for 'chance' that they look to attack
@@ -41,62 +40,55 @@ public class BeeAttackSystem : SystemBase
         // TODO how to move this into parallel worker threads?
         // safety complains that the threads will outlive the QueryAliveBees results
 
-        var random = new Random(1234);
         var cdfeTeam = GetComponentDataFromEntity<Team>(true);
         var cdfeTranslation = GetComponentDataFromEntity<Translation>(true);
-        using (var aliveBees = QueryAliveBees.ToEntityArray(Allocator.TempJob))
-        {
-            if (aliveBees.Length > 0)
-            {
-                Entities
-                    .WithAll<IsBee>()
-                    .WithNone<IsDead, IsAttacking, IsReturning>()
-                    .WithNone<AttackCooldown>()
-                    .WithReadOnly(cdfeTeam)
-                    .WithReadOnly(cdfeTranslation)
-                    .ForEach((Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
-                    {
-                        // test if bee is aggressive anough to look to start an attack
-                        if (aggression.Value > random.NextFloat(0, 1))
-                        {
-                            Entity? closestOpposingBee = null;
-                            float closestsqDistance = 9999999999f;
-                            // iterate over all opposing team bees to look for closest bee to attack and set as target of attack (expensive)
-                            foreach (var bee in aliveBees)
-                            {
-                                // only consider bees on opposing team
-                                if (team.Id != cdfeTeam[bee].Id)
-                                {
-                                    var distancesqToBee = math.distancesq(translation.Value, cdfeTranslation[bee].Value);
-                                    if (distancesqToBee < closestsqDistance)
-                                    {
-                                        closestsqDistance = distancesqToBee;
-                                        closestOpposingBee = bee;
-                                    }
-                                }
-                            }
 
-                            // if we found a bee to attack, start the attack
-                            if (closestOpposingBee != null)
+        var aliveBees = QueryAliveBees.ToEntityArray(Allocator.TempJob);
+        
+        if (aliveBees.Length > 0)
+        {
+            Entities
+                .WithAll<IsBee>()
+                .WithNone<IsDead, IsAttacking, IsReturning>()
+                .WithNone<AttackCooldown>()
+                .WithReadOnly(cdfeTeam)
+                .WithReadOnly(cdfeTranslation)
+                .WithDisposeOnCompletion(aliveBees)
+                .ForEach((Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
+                {
+                    // test if bee is aggressive enough to look to start an attack
+                    if (aggression.Value > 0.5)
+                    {
+                        var closestOpposingBee = Entity.Null;
+                        var closestsqDistance = 9999999999f;
+                        // iterate over all opposing team bees to look for closest bee to attack and set as target of attack (expensive)
+                        foreach (var bee in aliveBees)
+                        {
+                            // only consider bees on opposing team
+                            if (team.Id != cdfeTeam[bee].Id)
                             {
-                                ecb.AddComponent<AttackTimer>(entity, new AttackTimer { Value = 2f });
-                                ecb.AddComponent<IsAttacking>(entity);
-                                if (HasComponent<Target>(entity))
+                                var distancesqToBee = math.distancesq(translation.Value, cdfeTranslation[bee].Value);
+                                if (distancesqToBee < closestsqDistance)
                                 {
-                                    ecb.SetComponent<Target>(entity, new Target { Value = (Entity)closestOpposingBee });
+                                    closestsqDistance = distancesqToBee;
+                                    closestOpposingBee = bee;
                                 }
-                                else
-                                {
-                                    ecb.AddComponent<Target>(entity, new Target { Value = (Entity)closestOpposingBee });
-                                    ecb.AddComponent<TargetPosition>(entity);
-                                }
-                                speed.MaxSpeedValue *= 2;
                             }
                         }
-                    }).Run();
-            }
-        }
 
+                        // if we found a bee to attack, start the attack
+                        if (closestOpposingBee != Entity.Null)
+                        {
+                            ecb.AddComponent(entity, new AttackTimer { Value = 2f });
+                            ecb.AddComponent<IsAttacking>(entity);
+                            ecb.AddComponent(entity, new Target { Value = closestOpposingBee });
+                            ecb.AddComponent<TargetPosition>(entity);
+                            
+                            speed.MaxSpeedValue *= 2;
+                        }
+                    }
+                }).Schedule();
+        }
 
         // job to 'process attacks'
         // for all bees that are attacking
@@ -129,9 +121,10 @@ public class BeeAttackSystem : SystemBase
                         Value = new float4(1, 0, 0, 1)
                     });
                     
-                    if (HasComponent<IsReturning>(opposingBee))
+                    if (HasComponent<IsReturning>(opposingBee) && HasComponent<Target>(opposingBee))
                     {
-                        Entity resourceCarriedByOpposingBee = GetComponent<Target>(opposingBee).Value;
+                        var resourceCarriedByOpposingBee = GetComponent<Target>(opposingBee).Value;
+                        
                         ecb.RemoveComponent<IsCarried>(resourceCarriedByOpposingBee);
                         ecb.AddComponent<HasGravity>(resourceCarriedByOpposingBee);
                         ecb.RemoveComponent<IsReturning>(opposingBee);
@@ -145,11 +138,11 @@ public class BeeAttackSystem : SystemBase
                 {
                     ecb.RemoveComponent<IsAttacking>(entity);
                     ecb.RemoveComponent<AttackTimer>(entity);
-                    ecb.AddComponent(entity, new AttackCooldown { Value = 2f });
+                    ecb.AddComponent(entity, new AttackCooldown { Value = 1 });
                     ecb.RemoveComponent<Target>(entity);
                     speed.MaxSpeedValue /= 2;
                 }
-            }).Run();
+            }).Schedule();
 
         // decrement attack cool downs
         Entities
@@ -160,7 +153,7 @@ public class BeeAttackSystem : SystemBase
                 {
                     ecb.RemoveComponent<AttackCooldown>(entity);
                 }
-            }).Run();
+            }).Schedule();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
