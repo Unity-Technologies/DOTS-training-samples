@@ -174,12 +174,12 @@ MonoBehaviour:
   ArrowPrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
   SnapDistance: 0.4
   NumOfCats: 10
-  NumOfAIPlayers: 3
+  NumOfAIPlayers: 10
   MousePrefab: {fileID: 1164449925845529574, guid: d4b3fb1fe319bf44a84d939b1b3f586d, type: 3}
   NumOfMice: 32
   MouseSpeed: 6
   CatSpeed: 2
-  RoundDuration: 0
+  RoundDuration: 5
   BoardDimensions:
     x: 10
     y: 10
