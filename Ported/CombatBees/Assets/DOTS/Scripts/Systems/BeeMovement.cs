@@ -12,6 +12,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(BeeUpdateGroup))]
 [UpdateAfter(typeof(BeePerception))]
 public class BeeMovement : SystemBase
 {
@@ -61,23 +62,6 @@ public class BeeMovement : SystemBase
 
                 translation.Value += velocity.Value * deltaTime;
                 translation.Value.y = math.max(translation.Value.y, 0.05f);
-            }).Schedule();
-
-        // Move bees that are not targetting a Resource in a random direction bounded by the Arena
-        var arena = GetSingletonEntity<IsArena>();
-        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
-
-        var random = Utils.GetRandom();
-
-        Entities
-            .WithAll<IsBee>()
-            .WithNone<Target, IsDead, IsAttacking>()
-            .ForEach((ref Translation translation, in Speed speed) =>
-            {
-                var targetPosition = Utils.BoundedRandomPosition(arenaAABB, ref random);
-                var move = math.normalize(targetPosition - translation.Value) * speed.Value * deltaTime;
-                
-                translation.Value += move;
             }).Schedule();
     }
 }

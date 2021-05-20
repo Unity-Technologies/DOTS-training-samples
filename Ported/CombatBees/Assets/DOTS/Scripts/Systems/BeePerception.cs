@@ -1,17 +1,7 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Rendering;
-using Unity.Transforms;
-using UnityCamera = UnityEngine.Camera;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityInput = UnityEngine.Input;
-using UnityKeyCode = UnityEngine.KeyCode;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
-using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(BeeUpdateGroup))]
 public class BeePerception : SystemBase
 {
     private EntityQuery QueryResources;
@@ -71,8 +61,6 @@ public class BeePerception : SystemBase
                         {
                             Value = resources[random.NextInt(0, resources.Length)]
                         });
-                        
-                        ecb.AddComponent(entity, new TargetPosition());
                         // tag the bee as now gathering
                         ecb.AddComponent<IsGathering>(entity);
                     }).Run();

@@ -1,18 +1,10 @@
-
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityCamera = UnityEngine.Camera;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityInput = UnityEngine.Input;
-using UnityKeyCode = UnityEngine.KeyCode;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
-using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(BeeUpdateGroup))]
+[UpdateAfter(typeof(BeePerception))]
 public class BeeReturningSystem : SystemBase
 {
     private EntityCommandBufferSystem EntityCommandBufferSystem;
@@ -35,21 +27,25 @@ public class BeeReturningSystem : SystemBase
              .WithAll<IsReturning>()
              .ForEach((Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) =>
              {
-                 // if bee is close enough to Base
-                 if (math.distancesq(translation.Value, targetPosition.Value) < 0.025)
+                 var targetEntity = target.Value;
+
+                 if (HasComponent<IsCarried>(targetEntity))
                  {
-                     ecb.RemoveComponent<IsReturning>(entity);
-                     ecb.RemoveComponent<Target>(entity);
-                     ecb.RemoveComponent<TargetPosition>(entity);
-                     ecb.RemoveComponent<IsCarried>(target.Value);
-                     ecb.AddComponent<HasGravity>(target.Value);
-                 }
-                 else
-                 {
-                     ecb.SetComponent(target.Value, new Translation
+                     // if bee is close enough to Base
+                     if (math.distancesq(translation.Value, targetPosition.Value) < 0.025)
                      {
-                         Value = translation.Value + offset
-                     });
+                         ecb.RemoveComponent<IsReturning>(entity);
+                         ecb.RemoveComponent<Target>(entity);
+                         ecb.RemoveComponent<IsCarried>(targetEntity);
+                         ecb.AddComponent<HasGravity>(targetEntity);
+                     }
+                     else
+                     {
+                         ecb.SetComponent(targetEntity, new Translation
+                         {
+                             Value = translation.Value + offset
+                         });
+                     }
                  }
              }).Schedule();
 

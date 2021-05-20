@@ -20,5 +20,6 @@ public class BeeAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Team>(entity);
         dstManager.AddComponent<Velocity>(entity);
         dstManager.AddComponent<Speed>(entity);
+        dstManager.AddComponent<TargetPosition>(entity);
     }
 }

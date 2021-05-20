@@ -25,6 +25,7 @@ public class InitialSpawnerSystem : SystemBase
         var resourceSpawner = GetComponent<ResourceSpawner>(spawnerEntity);
 
         var arena = GetSingletonEntity<IsArena>();
+        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
         var resourcesBounds = GetComponent<Bounds>(arena).Value;
         
         resourcesBounds.Extents.z *= 0.3f;
@@ -34,7 +35,7 @@ public class InitialSpawnerSystem : SystemBase
 
         //Spawn bees
         Entities
-            .ForEach((Entity entity, in Bounds bounds, in Team team) =>
+            .ForEach((Entity entity, ref Translation translation, in Bounds bounds, in Team team) =>
             {
                 for (int i = 0; i < numberOfBeesPerTeam; ++i)
                 {
@@ -43,9 +44,16 @@ public class InitialSpawnerSystem : SystemBase
 
                     var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
+                    var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
+
                     ecb.SetComponent(instance, new Velocity
                     {
-                        Value = UnityEngine.Random.onUnitSphere * speed
+                        Value = math.normalize(randomPointOnBase - translation.Value) * speed
+                    });
+
+                    ecb.SetComponent(instance, new TargetPosition
+                    {
+                        Value = randomPointOnBase
                     });
 
                     ecb.SetComponent(instance, new Speed

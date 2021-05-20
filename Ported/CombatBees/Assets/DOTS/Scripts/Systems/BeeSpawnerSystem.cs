@@ -1,10 +1,11 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+
+[UpdateInGroup(typeof(SpawnGroup))]
+[UpdateBefore(typeof(BeeUpdateGroup))]
 
 public class BeeSpawnerSystem : SystemBase
 {
@@ -64,7 +65,12 @@ public class BeeSpawnerSystem : SystemBase
                         {
                             Value = math.normalize(randomPointOnBase - translation.Value) * speed
                         });
-                        
+
+                        ecb.SetComponent(instance, new TargetPosition
+                        {
+                            Value = randomPointOnBase
+                        });
+
                         ecb.SetComponent(instance, new Speed
                         {
                             Value = speed
