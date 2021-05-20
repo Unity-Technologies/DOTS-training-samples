@@ -48,6 +48,7 @@ public class PheromoneSpawnerSystem : SystemBase
             lastIntervalTime = Time.ElapsedTime;
             var colorJob = Entities
                 .WithAll<Ant>()
+                .WithNativeDisableParallelForRestriction(pheromoneBuffer)
                 .ForEach((Entity entity, in Translation pos) =>
                 {
                     float2 normPos = (pos.Value.xy +
@@ -64,7 +65,7 @@ public class PheromoneSpawnerSystem : SystemBase
                     {
                         Value = newCol
                     };
-                }).Schedule(initJob);
+                }).ScheduleParallel(initJob);
             
             colorJob.Complete();
         }
