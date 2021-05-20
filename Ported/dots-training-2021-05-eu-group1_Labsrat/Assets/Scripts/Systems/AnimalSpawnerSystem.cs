@@ -22,11 +22,14 @@ public class AnimalSpawnerSystem : SystemBase
 
     EntityQuery mouseQuery;
     EntityQuery catQuery;
+    Random random;
+    bool randomInitialized;
 
     protected override void OnCreate()
     {
         mouseQuery = GetEntityQuery(ComponentType.ReadOnly<Mouse>());
         catQuery = GetEntityQuery(ComponentType.ReadOnly<Cat>());
+        randomInitialized = false;
     }
 
     protected override void OnUpdate()
@@ -36,30 +39,32 @@ public class AnimalSpawnerSystem : SystemBase
         
         if (TryGetSingleton(out GameConfig gameConfig))
         {
-            var random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
+            if(!randomInitialized)
+            {
+                random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
+                randomInitialized = true;
+            }
 
             if (catcount < gameConfig.NumOfCats)
             {
-                int countToCreate = gameConfig.NumOfCats - catcount;
+
                 if (TimeUntilNextCatSpawn <= 0)
                 {
-                    for (int i = 0; i < countToCreate; i++)
-                    {
-                        var xPos = random.NextInt(gameConfig.BoardDimensions.x);
-                        var yPos = random.NextInt(gameConfig.BoardDimensions.y);
-                        var randDir = random.NextInt(3);
-                        var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
 
-                        Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
-                        TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
-                        EntityManager.AddComponent<Cat>(cat);
-                        EntityManager.AddComponent<Translation>(cat);
-                        EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
-                        EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
-                        EntityManager.AddComponent<Direction>(cat);
-                        EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
-                        catcount++;
-                    }
+                    var xPos = random.NextInt(gameConfig.BoardDimensions.x);
+                    var yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                    var randDir = random.NextInt(3);
+                    var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
+
+                    Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
+                    TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
+                    EntityManager.AddComponent<Cat>(cat);
+                    EntityManager.AddComponent<Translation>(cat);
+                    EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
+                    EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
+                    EntityManager.AddComponent<Direction>(cat);
+                    EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
+
                 }
                 else
                 {
@@ -69,7 +74,7 @@ public class AnimalSpawnerSystem : SystemBase
 
             if (mousecount < gameConfig.NumOfMice)
             {
-                int countToCreate = gameConfig.NumOfMice - mousecount;
+                
                 if (TimeUntilNextMouseSpawn <= 0)
                 {
                     int xPos = 0;
@@ -93,7 +98,6 @@ public class AnimalSpawnerSystem : SystemBase
                     EntityManager.SetComponentData(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
                     EntityManager.SetComponentData(mouse, new Rotation() { Value = rotation });
                     EntityManager.SetComponentData(mouse, new Direction() { Value = dir });
-                    mousecount++;
                     mouseflipflop = !mouseflipflop;
 
                 }

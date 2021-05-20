@@ -22,6 +22,13 @@ public class GameLogicSystem : SystemBase
     private int winner = 0;
     private int winnerScore = 0;
 
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        start = true;
+        timer = float.PositiveInfinity;
+    }
+
     protected override void OnUpdate()
     {
         var time = Time.DeltaTime;
@@ -34,6 +41,7 @@ public class GameLogicSystem : SystemBase
             
             start = false;
         }
+
         
         NativeArray<int> playerScores = UIDisplay.PlayerScores;
         NativeArray<float4> playerColors = UIDisplay.PlayerColors;
@@ -42,16 +50,13 @@ public class GameLogicSystem : SystemBase
             .WithoutBurst()
             .ForEach((in Score score, in PlayerIndex playerIndex, in PlayerColor playerColor) =>
         {
-            // TODO: Change scoreValue to score.Value
-            var scoreValue = playerIndex.Index;
-            
-            playerScores[playerIndex.Index] = scoreValue;
+            playerScores[playerIndex.Index] = score.Value;
             playerColors[playerIndex.Index] = playerColor.Color;
             
-            if (scoreValue > winnerScore)
+            if (score.Value > winnerScore)
             {
                 winner = playerIndex.Index;
-                winnerScore = scoreValue;
+                winnerScore = score.Value;
             }
             
         }).Run();
@@ -60,8 +65,9 @@ public class GameLogicSystem : SystemBase
         {
             UIDisplay.EndGame = true;
             UIDisplay.Winner = winner;
+            World.GetExistingSystem<MovementSystem>().Enabled = false;
+            World.GetExistingSystem<InputSystem>().Enabled = false;
         }
-
         else
         {
             timer -= time;
