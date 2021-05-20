@@ -41,7 +41,7 @@ public class BeeSpawnerSystem : SystemBase
             .WithNone<LifeSpan>()
             .ForEach((Entity entity, in Translation translation) =>
             {
-                Entity? baseEntity = null;
+                var baseEntity = Entity.Null;
                 
                 if (yellowBaseAABB.Contains(translation.Value))
                 {
@@ -52,7 +52,7 @@ public class BeeSpawnerSystem : SystemBase
                     baseEntity = blueBase;
                 }
 
-                if (baseEntity.HasValue)
+                if (baseEntity != Entity.Null)
                 {
                     var explosionInstance = ecb.Instantiate(explosion.ExplosionPrefab);
                     ecb.SetComponent(explosionInstance, new Translation
@@ -63,7 +63,7 @@ public class BeeSpawnerSystem : SystemBase
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(beeSpawner.BeePrefab);
-                        ecb.SetComponent(instance, GetComponent<Team>(baseEntity.Value));
+                        ecb.SetComponent(instance, GetComponent<Team>(baseEntity));
 
                         
 
@@ -96,7 +96,7 @@ public class BeeSpawnerSystem : SystemBase
 
                         ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                         {
-                            Value = GetComponent<URPMaterialPropertyBaseColor>(baseEntity.Value).Value
+                            Value = GetComponent<URPMaterialPropertyBaseColor>(baseEntity).Value
                         });
 
                         var aggression = random.NextFloat(0, 1);
