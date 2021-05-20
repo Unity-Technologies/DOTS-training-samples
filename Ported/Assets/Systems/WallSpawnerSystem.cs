@@ -48,8 +48,6 @@ public class WallSpawnerSystem : SystemBase
                 {
                     ecb.RemoveComponent<Respawn>(entity);
                     
-                    Debug.Log("Hello");
-
                     for (int j = 0; j < openings.Length; j++)
                     {
                         var wallEntity = ecb.CreateEntity();
