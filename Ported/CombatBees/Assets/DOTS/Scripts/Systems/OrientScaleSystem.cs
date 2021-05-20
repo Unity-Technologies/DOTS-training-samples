@@ -17,14 +17,16 @@ public class OrientScaleSystem : SystemBase
             .WithAll<IsOriented>()
             .ForEach((ref Rotation rotation,in Velocity velocity) =>
             {
-                rotation.Value = quaternion.LookRotation(velocity.Value, upVector);
+                var right = math.cross(velocity.Value, upVector);
+                var beeUpVector = math.cross(right, velocity.Value);
+                rotation.Value = quaternion.LookRotation(velocity.Value, beeUpVector);
             }).Schedule();
 
         Entities
             .WithAll<IsStretched>()
             .ForEach((ref NonUniformScale scale, in Velocity velocity) =>
             {
-                scale.Value.z = math.length(velocity.Value)/7;
+                    //scale.Value.z = math.length(velocity.Value) / 7;       
             }).Schedule();
     }
 }
