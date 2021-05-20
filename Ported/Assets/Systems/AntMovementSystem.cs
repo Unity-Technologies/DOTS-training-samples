@@ -181,6 +181,7 @@ public class AntMovementSystem : SystemBase
             .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
             .WithDisposeOnCompletion(walls)
+            .WithName("AntMovement")
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
                 ref Rotation rotation) =>
             {
@@ -200,6 +201,7 @@ public class AntMovementSystem : SystemBase
         var checkReachedFoodSourceJob = Entities
             .WithAll<Ant>()
             .WithNone<CarryingFood>()
+            .WithName("CheckReachedFoodSourceJob")
             .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
                 ref Direction direction, in Translation translation) =>
             {
@@ -215,6 +217,7 @@ public class AntMovementSystem : SystemBase
 
         var checkReachedAntHillJob = Entities
             .WithAll<Ant,CarryingFood>()
+            .WithName("CheckedReachedAntHill")
             .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
                 ref Direction direction, in Translation translation) =>
             {
