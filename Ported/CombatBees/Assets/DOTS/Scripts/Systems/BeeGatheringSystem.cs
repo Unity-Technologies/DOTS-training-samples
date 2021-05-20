@@ -30,6 +30,7 @@ public class BeeGatheringSystem : SystemBase
         var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
         Entities
+             .WithName("GatherResource")
              .WithReadOnly(cdfeForTranslation)
              .WithAll<IsGathering>()
              .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation, in Team team) =>
@@ -65,7 +66,7 @@ public class BeeGatheringSystem : SystemBase
 
              }).Schedule();
 
-        // Check if the resource that the bees are targetting 
+        // Check if the resource that the bees are targeting 
         /*Entities
              .WithAll<IsGathering>()
              .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target) =>

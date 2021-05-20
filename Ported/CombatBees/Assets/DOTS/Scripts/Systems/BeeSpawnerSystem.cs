@@ -37,6 +37,7 @@ public class BeeSpawnerSystem : SystemBase
         var explosion = GetComponent<Explosion>(spawnerEntity);
 
         Entities
+            .WithName("SpawnBees")
             .WithAll<IsResource, OnCollision>()
             .WithNone<LifeSpan>()
             .ForEach((Entity entity, in Translation translation) =>

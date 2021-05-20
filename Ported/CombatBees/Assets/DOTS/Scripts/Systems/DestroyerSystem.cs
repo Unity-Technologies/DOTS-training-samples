@@ -19,6 +19,7 @@ public class DestroyerSystem : SystemBase
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
         Entities
+            .WithName("RemoveDeadTarget")
             .ForEach((Entity entity, ref Target target) =>
             {
                 var targetEntity = target.Value;
@@ -28,9 +29,9 @@ public class DestroyerSystem : SystemBase
                     ecb.RemoveComponent<Target>(entity);
                 }
             }).Schedule();
-
-
+        
         Entities
+            .WithName("DestroyEntity")
             .ForEach((Entity entity, ref LifeSpan lifespan) =>
             {
                 lifespan.Value -= timeDeltaTime;

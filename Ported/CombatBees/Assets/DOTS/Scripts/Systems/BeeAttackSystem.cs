@@ -48,6 +48,7 @@ public class BeeAttackSystem : SystemBase
         if (aliveBees.Length > 0)
         {
             Entities
+                .WithName("StartAttack")
                 .WithAll<IsBee>()
                 .WithNone<IsDead, IsAttacking, IsReturning>()
                 .WithNone<AttackCooldown>()
@@ -100,6 +101,7 @@ public class BeeAttackSystem : SystemBase
         var timeDeltaTime = Time.DeltaTime;
 
         Entities
+            .WithName("ProcessAttack")
             .WithAll<IsAttacking>()
             .ForEach((Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target) =>
             {
@@ -146,6 +148,7 @@ public class BeeAttackSystem : SystemBase
 
         // decrement attack cool downs
         Entities
+            .WithName("AttackCooldown")
             .ForEach((Entity entity, ref AttackCooldown attackCooldown) =>
             {
                 attackCooldown.Value -= timeDeltaTime;

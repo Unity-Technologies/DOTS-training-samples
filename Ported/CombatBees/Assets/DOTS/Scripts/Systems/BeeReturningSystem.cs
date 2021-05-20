@@ -24,6 +24,7 @@ public class BeeReturningSystem : SystemBase
         var offset = new float3(0, -0.98f, 0);
 
         Entities
+             .WithName("ReturningResource")
              .WithAll<IsReturning>()
              .ForEach((Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) =>
              {

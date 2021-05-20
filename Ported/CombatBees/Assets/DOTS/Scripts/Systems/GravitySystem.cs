@@ -22,6 +22,7 @@ public class GravitySystem : SystemBase
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
         Entities
+            .WithName("UseGravity")
             .WithAll<HasGravity>()
             .ForEach((Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
             {
@@ -41,6 +42,7 @@ public class GravitySystem : SystemBase
             }).Schedule();
         
         Entities
+            .WithName("SendBeeToDeath")
             .WithAll<IsBee, OnCollision>()
             .WithNone<LifeSpan>()
             .ForEach((Entity entity) =>
