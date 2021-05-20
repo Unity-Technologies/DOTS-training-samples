@@ -90,7 +90,6 @@ public class BeeAttackSystem : SystemBase
                                     ecb.AddComponent<Target>(entity, new Target { Value = (Entity)closestOpposingBee });
                                     ecb.AddComponent<TargetPosition>(entity);
                                 }
-                                speed.MinSpeedValue *= 2;
                                 speed.MaxSpeedValue *= 2;
                             }
                         }
@@ -141,7 +140,6 @@ public class BeeAttackSystem : SystemBase
                     ecb.RemoveComponent<AttackTimer>(entity);
                     ecb.AddComponent(entity, new AttackCooldown { Value = 2f });
                     ecb.RemoveComponent<Target>(entity);
-                    speed.MinSpeedValue /= 2;
                     speed.MaxSpeedValue /= 2;
                 }
             }).Run();
