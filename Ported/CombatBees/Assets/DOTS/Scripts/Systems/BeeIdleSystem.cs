@@ -37,7 +37,6 @@ public class BeeIdleSystem : SystemBase
                 if (math.distancesq(targetPosition.Value, translation.Value) < 0.025)
                 {
                     targetPosition.Value = Utils.BoundedRandomPosition(arenaAABB, ref random);
-                    targetPosition.Value.y = arenaAABB.Center.y;
                 }
             }).Schedule();
     }
