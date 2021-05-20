@@ -166,9 +166,8 @@ public class BoardSpawner : SystemBase
                 
                 // Create homebase
                 var homebase = EntityManager.Instantiate(gameConfig.HomebasePrefab);
-                EntityManager.AddComponentData(homebase, new PlayerIndex() { Index = i });
                 EntityManager.AddComponentData(homebase, new URPMaterialPropertyBaseColor() { Value = color });
-                EntityManager.AddComponentData(homebase, new Homebase());
+                EntityManager.AddComponentData(homebase, new Homebase() { PlayerEntity = player });
                 EntityManager.SetComponentData(homebase, new Translation() { Value = new float3(random.NextInt(1, gameConfig.BoardDimensions.x-1), 0.1f, random.NextInt(1, gameConfig.BoardDimensions.y-1)) });
             }
 

@@ -24,16 +24,24 @@ public class ArrowSpawnerSystem : SystemBase
     {
         var gameConfig = GetSingleton<GameConfig>();
         var translationData = GetComponentDataFromEntity<Translation>();
+        var forcedDirectionData = GetComponentDataFromEntity<ForcedDirection>();
 
         var ecb = m_EcbSystem.CreateCommandBuffer();
         var cellArray = World.GetExistingSystem<BoardSpawner>().cells;
 
-        Entities.WithoutBurst().ForEach((Entity Player, ref DynamicBuffer<CreatedArrowData> ArrowBuffer, in PlayerInput playerInput, in PlayerColor color, in PlayerIndex PlayerIndex ) => {
+        Entities
+            .WithoutBurst()
+            .WithReadOnly(forcedDirectionData)
+            .ForEach((Entity Player, ref DynamicBuffer<CreatedArrowData> ArrowBuffer, in PlayerInput playerInput, in PlayerColor color, in PlayerIndex PlayerIndex ) => {
 
             if (playerInput.IsMouseDown && playerInput.TileIndex < cellArray.Length && playerInput.TileIndex >= 0)
             {
                 Entity cellEntity = cellArray[playerInput.TileIndex];
                 var cellTranslation = translationData[cellEntity];
+
+                // Don't allow duplicate arrows
+                if (forcedDirectionData[cellEntity].Value != Cardinals.None)
+                    return;
 
                 Entity arrowEntity = ecb.Instantiate(gameConfig.ArrowPrefab);
                 

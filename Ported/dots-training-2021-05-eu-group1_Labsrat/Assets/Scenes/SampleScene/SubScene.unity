@@ -190,4 +190,4 @@ MonoBehaviour:
   WallProbability: 0.1
   MouseSpawnDelay: 0.2
   CatSpawnDelay: 1
-  HomebasePrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
+  HomebasePrefab: {fileID: 6401784360738124690, guid: 496c4ae7455465744851108c6e217762, type: 3}
