@@ -24,7 +24,7 @@ public class WallSpawnerSystem : SystemBase
         for (int i = 0; i < wallSpawner.wallCount; i++)
         {
             int wallExitCount = UnityRandom.Range(1, 3);
-            float openingSize = UnityRandom.Range(10.0f, 30.0f);
+            float openingSize = UnityRandom.Range(20.0f, 40.0f);
             float openingAngle = UnityRandom.Range(0.0f, 360.0f);
             
             float wallSpacing = (float)(screenSize.Value / 2) / (wallSpawner.wallCount + 1) * (i + 1);
