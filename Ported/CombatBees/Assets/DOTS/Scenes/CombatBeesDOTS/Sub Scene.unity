@@ -382,6 +382,7 @@ GameObject:
   - component: {fileID: 1150688217}
   - component: {fileID: 1150688216}
   - component: {fileID: 1150688218}
+  - component: {fileID: 1150688219}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -403,8 +404,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 3997372445315145562, guid: 2a1a5b9c28984244a99219f31b40257b,
     type: 3}
-  BeeCount: 10
-  BeeCountFromResource: 10
+  BeeCount: 6
+  BeeCountFromResource: 2
+  MinSpeed: 1
   MaxSpeed: 10
   MaxSize: 1
 --- !u!4 &1150688217
@@ -435,7 +437,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
-  ResourceCount: 0
+  ResourceCount: 3
+--- !u!114 &1150688219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150688215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a80b8154df0ad6042a01dd370821d1c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ExplosionPrefab: {fileID: 3548367001378344076, guid: e06b9e1111206444fb586bcf2a55542c,
+    type: 3}
 --- !u!1 &1466324074
 GameObject:
   m_ObjectHideFlags: 0
