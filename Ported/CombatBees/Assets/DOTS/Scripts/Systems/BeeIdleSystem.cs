@@ -8,7 +8,7 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(BeeUpdateGroup))]
 public class BeeIdleSystem : SystemBase
 {
-    private EntityQuery QueryResources;
+    private EntityQuery QueryIdleBees;
 
     protected override void OnCreate()
     {
@@ -19,7 +19,7 @@ public class BeeIdleSystem : SystemBase
             None = new ComponentType[] { typeof(IsAttacking), typeof(IsGathering), typeof(IsReturning), typeof(IsDead) }
         };
 
-        QueryResources = GetEntityQuery(queryResourcesDesc);
+        QueryIdleBees = GetEntityQuery(queryResourcesDesc);
     }
 
     protected override void OnUpdate()
@@ -30,7 +30,7 @@ public class BeeIdleSystem : SystemBase
         var random = Utils.GetRandom();
 
         Entities
-            .WithStoreEntityQueryInField(ref QueryResources)
+            .WithStoreEntityQueryInField(ref QueryIdleBees)
             .ForEach((ref TargetPosition targetPosition, in Translation translation) =>
             {
                 if (math.distancesq(targetPosition.Value, translation.Value) < 0.025)
