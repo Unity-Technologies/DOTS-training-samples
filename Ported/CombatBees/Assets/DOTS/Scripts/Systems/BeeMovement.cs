@@ -1,16 +1,7 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
-using UnityCamera = UnityEngine.Camera;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityInput = UnityEngine.Input;
-using UnityKeyCode = UnityEngine.KeyCode;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
-using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
 [UpdateInGroup(typeof(BeeUpdateGroup))]
 [UpdateAfter(typeof(BeePerception))]
@@ -57,7 +48,7 @@ public class BeeMovement : SystemBase
                 float3 direction = math.normalize(velocity.Value);
 
                 float distanceToTarget = math.lengthsq(newLookAt);
-                float currentSpeed = math.lerp(1f, speed.Value, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                float currentSpeed = math.lerp(speed.MinSpeedValue, speed.MaxSpeedValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
                 velocity.Value = direction * currentSpeed;
 
                 translation.Value += velocity.Value * deltaTime;

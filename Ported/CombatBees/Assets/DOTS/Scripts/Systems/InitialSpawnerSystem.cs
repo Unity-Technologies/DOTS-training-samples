@@ -42,13 +42,14 @@ public class InitialSpawnerSystem : SystemBase
                     var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                     ecb.SetComponent(instance, team);
 
-                    var speed = random.NextFloat(0, beeSpawner.MaxSpeed);
+                    var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
+                    var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
                     var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
                     ecb.SetComponent(instance, new Velocity
                     {
-                        Value = math.normalize(randomPointOnBase - translation.Value) * speed
+                        Value = math.normalize(randomPointOnBase - translation.Value) * maxSpeed
                     });
 
                     ecb.SetComponent(instance, new TargetPosition
@@ -58,7 +59,8 @@ public class InitialSpawnerSystem : SystemBase
 
                     ecb.SetComponent(instance, new Speed
                     {
-                        Value = speed
+                        MaxSpeedValue = maxSpeed,
+                        MinSpeedValue = minSpeed
                     });
 
                     ecb.SetComponent(instance, new Translation
