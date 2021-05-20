@@ -42,7 +42,7 @@ public class UIDisplay : MonoBehaviour
             var winnerColor = PlayerColors[Winner];
             
             GUI.color = new Color(winnerColor.x, winnerColor.y, winnerColor.z, 1);
-            GUI.Label(winnerPos, $"Player {Winner} won");
+            GUI.Label(winnerPos, Winner == 0 ? "You won!" : $"Player {Winner} won!");
         }
     }
 }
