@@ -25,9 +25,131 @@ public class AntMovementSystem : SystemBase
         wallQuery = GetEntityQuery(desc);
     }
 
-    protected override void OnUpdate()
+    // Change ant direction by random amount
+    static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
         const float maxDirectionChangePerSecond = 2.5f;
+
+        var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
+        direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+    }
+
+    static float2 CalculateMovementStep(Direction direction, float deltaTime, float simulationSpeed)
+    {
+        var delta = new float2(math.cos(direction.Radians), math.sin(direction.Radians));
+        delta *= deltaTime * simulationSpeed;
+        return delta;
+    }
+
+    static void HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
+        ref Translation translation, ref Direction direction, float2 movementStep)
+    {
+        var halfWallThickness = 1.5f;
+        var halfAnt = 0.5f;
+        
+        // Convert the ant location to polar coordinates
+        var antRadius = math.distance(float3.zero, translation.Value);
+        var antAngle = math.atan2(translation.Value.y, translation.Value.x);
+
+        bool shouldCollide = false;
+        bool shouldCollideFromCorner = false;
+        float3 positionToBounce = float3.zero;
+        foreach (var wallEntity in walls)
+        {
+            var wall = wallComponentData[wallEntity];
+            if (antRadius > wall.Radius - (halfWallThickness + halfAnt) && antRadius < wall.Radius + (halfWallThickness + halfAnt))
+            {
+                var antAngleDeg = antAngle * Mathf.Rad2Deg;
+                while (antAngleDeg < 0)
+                    antAngleDeg += 360;
+                while (antAngleDeg > 360)
+                    antAngleDeg -= 360;
+                shouldCollide = true;
+
+                if ( wall.Angles.x <  wall.Angles.y)
+                {
+                    if (antAngleDeg > wall.Angles.x && antAngleDeg < wall.Angles.y)
+                    {
+                        // in gap, can't collide
+                        shouldCollide = false;
+                    }
+                }
+                else
+                {
+                    if (antAngleDeg > wall.Angles.x || antAngleDeg < wall.Angles.y)
+                    {
+                        // in gap, can't collide
+                        shouldCollide = false;
+                    }
+                }
+
+                if (!shouldCollide)
+                {
+                    var pos = new float3(math.cos(math.radians(wall.Angles.x)) * wall.Radius, math.sin(math.radians(wall.Angles.x)) * wall.Radius, 0f);
+                    if (math.distance(pos, translation.Value) < halfWallThickness)
+                    {
+                        shouldCollideFromCorner = true;
+                        positionToBounce = pos;
+                    }
+                    pos = new float3(math.cos(math.radians(wall.Angles.y)) * wall.Radius, math.sin(math.radians(wall.Angles.y)) * wall.Radius, 0f);
+                    if (math.distance(pos, translation.Value) < halfWallThickness)
+                    {
+                        shouldCollideFromCorner = true;
+                        positionToBounce = pos;
+                    }
+                    break;
+                }
+            }
+        }
+        
+        if (shouldCollide)
+        {
+            var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
+            var normal = float2.zero - collisionPoint;
+            var newDirection = math.reflect(movementStep, normal);
+            direction.Radians = math.atan2(newDirection.y, newDirection.x);
+            translation.Value.x += newDirection.x;
+            translation.Value.y += newDirection.y;
+        }
+        else if (shouldCollideFromCorner)
+        {
+            var normal3 = positionToBounce - translation.Value;
+            var normal = new float2(normal3.x, normal3.y);
+            var newDirection = math.reflect(movementStep, normal);
+            direction.Radians = math.atan2(newDirection.y, newDirection.x);
+            translation.Value.x += newDirection.x;
+            translation.Value.y += newDirection.y;
+        }
+    }
+
+    static void HandleScreenBoundCollisions(ref Translation translation, ref Direction direction, float screenLowerBound, float screenUpperBound)
+    {
+        // Check if we're hitting the screen edge
+        if (translation.Value.x > screenUpperBound)
+        {
+            direction.Radians = Mathf.PI - direction.Radians;
+            translation.Value.x = screenUpperBound;
+        }
+        else if (translation.Value.x < screenLowerBound)
+        {
+            direction.Radians = Mathf.PI - direction.Radians;
+            translation.Value.x = screenLowerBound;
+        }
+
+        if (translation.Value.y > screenUpperBound)
+        {
+            direction.Radians = -direction.Radians;
+            translation.Value.y = screenUpperBound;
+        }
+        else if (translation.Value.y < screenLowerBound)
+        {
+            direction.Radians = -direction.Radians;
+            translation.Value.y = screenLowerBound;
+        }
+    }
+    
+    protected override void OnUpdate()
+    {
         const float foodSourceRadius = 2.5f;
         const float antHillRadius = 2.5f;
         
@@ -52,8 +174,7 @@ public class AntMovementSystem : SystemBase
         var walls = wallQuery.ToEntityArray(Allocator.TempJob);
         var wallComponentData = GetComponentDataFromEntity<Wall>(true);
 
-        var halfWallThickness = 1.5f;
-        var halfAnt = 0.5f;
+
 
         var movementJob = Entities
             .WithAll<Ant>()
@@ -63,114 +184,16 @@ public class AntMovementSystem : SystemBase
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
                 ref Rotation rotation) =>
             {
-                // Change ant direction by random amount
-                var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
-                direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
-
-                var prevAntAngle = math.atan2(translation.Value.y, translation.Value.x);
-
+                RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
+                var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                
                 // Move ant a step forward in its direction
-                var delta = new float2(math.cos(direction.Radians), math.sin(direction.Radians));
-                delta *= deltaTime * simulationSpeed;
-                translation.Value.x += delta.x;
-                translation.Value.y += delta.y;
+                translation.Value.x += movementStep.x;
+                translation.Value.y += movementStep.y;
+
+                HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep);
+                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 
-                // Convert the ant location to polar coordinates
-                var antRadius = math.distance(float3.zero, translation.Value);
-                var antAngle = math.atan2(translation.Value.y, translation.Value.x);
-
-                bool shouldCollide = false;
-                bool shouldCollideFromCorner = false;
-                float3 positionToBounce = float3.zero;
-                foreach (var wallEntity in walls)
-                {
-                    var wall = wallComponentData[wallEntity];
-                    if (antRadius > wall.Radius - (halfWallThickness + halfAnt) && antRadius < wall.Radius + (halfWallThickness + halfAnt))
-                    {
-                        var antAngleDeg = antAngle * Mathf.Rad2Deg;
-                        while (antAngleDeg < 0)
-                            antAngleDeg += 360;
-                        while (antAngleDeg > 360)
-                            antAngleDeg -= 360;
-                        shouldCollide = true;
-
-                        if ( wall.Angles.x <  wall.Angles.y)
-                        {
-                            if (antAngleDeg > wall.Angles.x && antAngleDeg < wall.Angles.y)
-                            {
-                                // in gap, can't collide
-                                shouldCollide = false;
-                            }
-                        }
-                        else
-                        {
-                            if (antAngleDeg > wall.Angles.x || antAngleDeg < wall.Angles.y)
-                            {
-                                // in gap, can't collide
-                                shouldCollide = false;
-                            }
-                        }
-
-                        if (!shouldCollide)
-                        {
-                            var pos = new float3(math.cos(math.radians(wall.Angles.x)) * wall.Radius, math.sin(math.radians(wall.Angles.x)) * wall.Radius, 0f);
-                            if (math.distance(pos, translation.Value) < halfWallThickness)
-                            {
-                                shouldCollideFromCorner = true;
-                                positionToBounce = pos;
-                            }
-                            pos = new float3(math.cos(math.radians(wall.Angles.y)) * wall.Radius, math.sin(math.radians(wall.Angles.y)) * wall.Radius, 0f);
-                            if (math.distance(pos, translation.Value) < halfWallThickness)
-                            {
-                                shouldCollideFromCorner = true;
-                                positionToBounce = pos;
-                            }
-                            break;
-                        }
-                    }
-                }
-                
-                if (shouldCollide)
-                {
-                    var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
-                    var normal = float2.zero - collisionPoint;
-                    var newDirection = math.reflect(delta, normal);
-                    direction.Radians = math.atan2(newDirection.y, newDirection.x);
-                    translation.Value.x += newDirection.x;
-                    translation.Value.y += newDirection.y;
-                }else if (shouldCollideFromCorner)
-                {
-                    var normal3 = positionToBounce - translation.Value;
-                    var normal = new float2(normal3.x, normal3.y);
-                    var newDirection = math.reflect(delta, normal);
-                    direction.Radians = math.atan2(newDirection.y, newDirection.x);
-                    translation.Value.x += newDirection.x;
-                    translation.Value.y += newDirection.y;
-                }
-
-                // Check if we're hitting the screen edge
-                if (translation.Value.x > screenUpperBound)
-                {
-                    direction.Radians = Mathf.PI - direction.Radians;
-                    translation.Value.x = screenUpperBound;
-                }
-                else if (translation.Value.x < screenLowerBound)
-                {
-                    direction.Radians = Mathf.PI - direction.Radians;
-                    translation.Value.x = screenLowerBound;
-                }
-
-                if (translation.Value.y > screenUpperBound)
-                {
-                    direction.Radians = -direction.Radians;
-                    translation.Value.y = screenUpperBound;
-                }
-                else if (translation.Value.y < screenLowerBound)
-                {
-                    direction.Radians = -direction.Radians;
-                    translation.Value.y = screenLowerBound;
-                }
-
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
             }).ScheduleParallel(Dependency);
 
