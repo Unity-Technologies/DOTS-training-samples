@@ -13,14 +13,26 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[AlwaysUpdateSystem]
 public class AnimalSpawnerSystem : SystemBase
 {
-    int catcount = 0;
-    int mousecount = 0;
-    bool mouseflipflop = false;
-    float respawn = 0f;
+    bool mouseflipflop;
+    float TimeUntilNextMouseSpawn;
+    float TimeUntilNextCatSpawn;
+
+    EntityQuery mouseQuery;
+    EntityQuery catQuery;
+
+    protected override void OnCreate()
+    {
+        mouseQuery = GetEntityQuery(ComponentType.ReadOnly<Mouse>());
+        catQuery = GetEntityQuery(ComponentType.ReadOnly<Cat>());
+    }
+
     protected override void OnUpdate()
     {
+        int mousecount = mouseQuery.CalculateEntityCount();
+        int catcount = catQuery.CalculateEntityCount();
         
         if (TryGetSingleton(out GameConfig gameConfig))
         {
@@ -29,29 +41,36 @@ public class AnimalSpawnerSystem : SystemBase
             if (catcount < gameConfig.NumOfCats)
             {
                 int countToCreate = gameConfig.NumOfCats - catcount;
-                for (int i = 0; i < countToCreate; i++)
+                if (TimeUntilNextCatSpawn <= 0)
                 {
-                    var xPos = random.NextInt(gameConfig.BoardDimensions.x);
-                    var yPos = random.NextInt(gameConfig.BoardDimensions.y);
-                    var randDir = random.NextInt(3);
-                    var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
+                    for (int i = 0; i < countToCreate; i++)
+                    {
+                        var xPos = random.NextInt(gameConfig.BoardDimensions.x);
+                        var yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                        var randDir = random.NextInt(3);
+                        var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
 
-                    Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
-                    EntityManager.AddComponent<Cat>(cat);
-                    EntityManager.AddComponent<Translation>(cat);
-                    EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
-                    EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
-                    EntityManager.AddComponent<Direction>(cat);
-                    EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
-                    catcount++;
-               
+                        Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
+                        TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
+                        EntityManager.AddComponent<Cat>(cat);
+                        EntityManager.AddComponent<Translation>(cat);
+                        EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
+                        EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
+                        EntityManager.AddComponent<Direction>(cat);
+                        EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
+                        catcount++;
+                    }
+                }
+                else
+                {
+                    TimeUntilNextCatSpawn -= Time.DeltaTime;
                 }
             }
 
             if (mousecount < gameConfig.NumOfMice)
             {
                 int countToCreate = gameConfig.NumOfMice - mousecount;
-                if (respawn <= 0)
+                if (TimeUntilNextMouseSpawn <= 0)
                 {
                     int xPos = 0;
                     int yPos = 0;
@@ -66,7 +85,7 @@ public class AnimalSpawnerSystem : SystemBase
                     var rotation = Unity.Mathematics.quaternion.RotateY(Direction.GetAngle(dir));
 
                     Entity mouse = EntityManager.Instantiate(gameConfig.MousePrefab);
-                    respawn = 0.2f;
+                    TimeUntilNextMouseSpawn = gameConfig.MouseSpawnDelay;
                     EntityManager.AddComponent<Translation>(mouse);
                     EntityManager.AddComponent<Mouse>(mouse);
                     EntityManager.AddComponent<Direction>(mouse);
@@ -80,7 +99,7 @@ public class AnimalSpawnerSystem : SystemBase
                 }
                 else
                 {
-                    respawn -= Time.DeltaTime;
+                    TimeUntilNextMouseSpawn -= Time.DeltaTime;
                 }
             }
 

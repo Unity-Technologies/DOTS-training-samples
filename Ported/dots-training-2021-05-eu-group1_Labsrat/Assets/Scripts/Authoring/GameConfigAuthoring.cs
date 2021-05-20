@@ -42,6 +42,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public int MaximumArrows = 3;
 
     public float WallProbability = .1f;
+    public float MouseSpawnDelay = 0.2f;
+    public float CatSpawnDelay = 1f;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -76,7 +78,9 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MaximumArrows = MaximumArrows,
             WallProbability = WallProbability,
             RandomSeed = RandomSeed,
-            Seed = Seed
+            Seed = Seed,
+            MouseSpawnDelay = MouseSpawnDelay,
+            CatSpawnDelay = CatSpawnDelay
         };
 
         dstManager.AddComponentData(entity, gameConfig);

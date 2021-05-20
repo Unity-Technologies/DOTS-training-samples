@@ -25,4 +25,7 @@ public struct GameConfig : IComponentData
 
     public bool RandomSeed;
     public uint Seed;
+
+    public float MouseSpawnDelay;
+    public float CatSpawnDelay;
 }

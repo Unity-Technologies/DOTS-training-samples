@@ -13,7 +13,6 @@ using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 public class DirectionUpdaterSystem : SystemBase
 {
-
     protected override void OnUpdate()
     {
         NativeArray<Entity> cells = World.GetOrCreateSystem<BoardSpawner>().cells;

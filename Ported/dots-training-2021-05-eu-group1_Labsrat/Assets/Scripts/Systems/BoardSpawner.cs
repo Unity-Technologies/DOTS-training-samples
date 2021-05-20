@@ -183,5 +183,6 @@ public class BoardSpawner : SystemBase
     protected override void OnDestroy()
     {
         cells.Dispose();
+        walls.Dispose();
     }
 }
