@@ -16,10 +16,9 @@ public class BeeGatheringSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var random = Utils.GetRandom();
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
-        // Query for bees that are close enough to a Resource target to collect the Resource
-        // TODO how to stop 2 bees collecting the same Resource
         var cdfeForTranslation = GetComponentDataFromEntity<Translation>(true);
         var yellowBase = GetSingletonEntity<YellowBase>();
         var yellowBaseAABB = EntityManager.GetComponentData<Bounds>(yellowBase).Value;
@@ -27,12 +26,17 @@ public class BeeGatheringSystem : SystemBase
         var blueBase = GetSingletonEntity<BlueBase>();
         var blueBaseAABB = EntityManager.GetComponentData<Bounds>(blueBase).Value;
 
+        var arena = GetSingletonEntity<IsArena>();
+        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
+
         Entities
              .WithReadOnly(cdfeForTranslation)
              .WithAll<IsGathering>()
              .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation, in Team team) =>
              {
-                 if (cdfeForTranslation.HasComponent(target.Value)) //(Value.StorageInfoFromEntity.Exists(target))
+                 bool updateTarget = false;
+                 AABB targetAABB = arenaAABB;
+                 if (!HasComponent<IsCarried>(target.Value))
                  {
                      if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
                      {
@@ -41,10 +45,37 @@ public class BeeGatheringSystem : SystemBase
                          ecb.AddComponent<IsCarried>(target.Value);
                          ecb.RemoveComponent<OnCollision>(target.Value);
 
-                         targetPosition.Value = team.Id == 0 ? yellowBaseAABB.Center : blueBaseAABB.Center;
+                         updateTarget = true;
+                         targetAABB = team.Id == 0 ? yellowBaseAABB : blueBaseAABB;
                      }
                  }
+                 else
+                 {
+                     ecb.RemoveComponent<Target>(entity);
+                     ecb.RemoveComponent<IsGathering>(entity);
+                     updateTarget = true;
+                 }
+
+                 if (updateTarget)
+                 {
+                     targetPosition.Value = Utils.BoundedRandomPosition(targetAABB, ref random);
+                 }
+
              }).Schedule();
+
+        // Check if the resource that the bees are targetting 
+        /*Entities
+             .WithAll<IsGathering>()
+             .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target) =>
+             {
+                 if (!HasComponent<IsCarried>(target.Value))
+                 {
+                     ecb.RemoveComponent<Target>(entity);
+                     ecb.RemoveComponent<IsGathering>(entity);
+
+                     targetPosition.Value = Utils.BoundedRandomPosition(arenaAABB, ref random);
+                 }
+             }).Schedule();*/
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
