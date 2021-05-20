@@ -30,9 +30,11 @@ public class BeeSpawnerSystem : SystemBase
         var arena = GetSingletonEntity<IsArena>();
         var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
-        var spawnerEntity = GetSingletonEntity<BeeSpawner>();
+        var spawnerEntity = GetSingletonEntity<BeeSpawner>(); 
         var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);
         var numberOfBees = beeSpawner.BeeCountFromResource;
+
+        var explosion = GetComponent<Explosion>(spawnerEntity);
 
         Entities
             .WithAll<IsResource, OnCollision>()
@@ -52,10 +54,18 @@ public class BeeSpawnerSystem : SystemBase
 
                 if (baseEntity.HasValue)
                 {
+                    var explosionInstance = ecb.Instantiate(explosion.ExplosionPrefab);
+                    ecb.SetComponent(explosionInstance, new Translation
+                    {
+                        Value = translation.Value
+                    });
+
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                         ecb.SetComponent(instance, GetComponent<Team>(baseEntity.Value));
+
+                        
 
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                         var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);
