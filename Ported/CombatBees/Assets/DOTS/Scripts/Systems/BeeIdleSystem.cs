@@ -38,6 +38,6 @@ public class BeeIdleSystem : SystemBase
                 {
                     targetPosition.Value = Utils.BoundedRandomPosition(arenaAABB, ref random);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }

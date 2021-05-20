@@ -16,7 +16,7 @@ public class BeeReturningSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         // Query for bees that are close enough to a Resource target to collect the Resource
         // TODO how to stop 2 bees collecting the same Resource
@@ -26,7 +26,7 @@ public class BeeReturningSystem : SystemBase
         Entities
              .WithName("ReturnResource")
              .WithAll<IsReturning>()
-             .ForEach((Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) =>
+             .ForEach((int entityInQueryIndex, Entity entity, in TargetPosition targetPosition, in Target target, in Translation translation) =>
              {
                  var targetEntity = target.Value;
 
@@ -35,20 +35,20 @@ public class BeeReturningSystem : SystemBase
                      // if bee is close enough to Base
                      if (math.distancesq(translation.Value, targetPosition.Value) < 0.1)
                      {
-                         ecb.RemoveComponent<IsReturning>(entity);
-                         ecb.RemoveComponent<Target>(entity);
-                         ecb.RemoveComponent<IsCarried>(targetEntity);
-                         ecb.AddComponent<HasGravity>(targetEntity);
+                         ecb.RemoveComponent<IsReturning>(entityInQueryIndex, entity);
+                         ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                         ecb.RemoveComponent<IsCarried>(entityInQueryIndex, targetEntity);
+                         ecb.AddComponent<HasGravity>(entityInQueryIndex, targetEntity);
                      }
                      else
                      {
-                         ecb.SetComponent(targetEntity, new Translation
+                         ecb.SetComponent(entityInQueryIndex, targetEntity, new Translation
                          {
                              Value = translation.Value + offset
                          });
                      }
                  }
-             }).Schedule();
+             }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

@@ -15,8 +15,6 @@ public class BeeMovement : SystemBase
 
     protected override void OnUpdate()
     {
-        cdfe = GetComponentDataFromEntity<Translation>(true);
-        
         var deltaTime = Time.DeltaTime;
         
         // Update all TargetPositions with current position of Target (deterministic!)
@@ -26,8 +24,11 @@ public class BeeMovement : SystemBase
             .WithoutBurst()
             .ForEach((ref TargetPosition targetPosition, in Target target) =>
             {
-                targetPosition.Value = cdfe[target.Value].Value;
-            }).Run();
+                var targetEntity = target.Value;
+                var targetTranslation = GetComponent<Translation>(targetEntity);
+                
+                targetPosition.Value = targetTranslation.Value;
+            }).ScheduleParallel();
 
         // Move bees that are targeting (a Resource or Base or opposing bee) towards the target's position
         Entities
@@ -55,6 +56,6 @@ public class BeeMovement : SystemBase
 
                 //translation.Value += velocity.Value * deltaTime;
                 //translation.Value.y = math.max(translation.Value.y, 0.05f);
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }

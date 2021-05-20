@@ -6,16 +6,13 @@ using Unity.Transforms;
 [UpdateAfter(typeof(ApplyVelocitySystem))]
 public class OrientScaleSystem : SystemBase
 {
-   
-    //[ReadOnly]
-    //private ComponentDataFromEntity<Translation> cdfe;
-
     protected override void OnUpdate()
     {
         var upVector = new float3(0,1f,0);
+        
         Entities
             .WithAll<IsOriented>()
-            .ForEach((ref Rotation rotation,in Velocity velocity) =>
+            .ForEach((ref Rotation rotation, in Velocity velocity) =>
             {
                 if (math.length(velocity.Value) == 0.0f)
                 {
@@ -23,18 +20,18 @@ public class OrientScaleSystem : SystemBase
                 }
                 else
                 {
-                    var normalizedVelocity = math.normalize(velocity.Value);
+                    // var normalizedVelocity = math.normalize(velocity.Value);
                     var beeRightVector = math.cross(upVector, velocity.Value);
                     var beeUpVector = math.cross(velocity.Value, beeRightVector);
                     rotation.Value = quaternion.LookRotation(velocity.Value, beeUpVector);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         Entities
             .WithAll<IsStretched>()
             .ForEach((ref NonUniformScale scale, in Velocity velocity) =>
             {
-                    //scale.Value.z = math.length(velocity.Value) / 7;       
-            }).Schedule();
+                //scale.Value.z = math.length(velocity.Value) / 7;       
+            }).ScheduleParallel();
     }
 }

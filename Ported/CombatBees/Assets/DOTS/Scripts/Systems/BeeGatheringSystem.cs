@@ -17,7 +17,7 @@ public class BeeGatheringSystem : SystemBase
     protected override void OnUpdate()
     {
         var random = Utils.GetRandom();
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         var cdfeForTranslation = GetComponentDataFromEntity<Translation>(true);
         var yellowBase = GetSingletonEntity<YellowBase>();
@@ -33,18 +33,19 @@ public class BeeGatheringSystem : SystemBase
              .WithName("GatherResource")
              .WithReadOnly(cdfeForTranslation)
              .WithAll<IsGathering>()
-             .ForEach((Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation, in Team team) =>
+             .ForEach((int entityInQueryIndex, Entity entity, ref TargetPosition targetPosition, in Target target, in Translation translation, in Team team) =>
              {
-                 bool updateTarget = false;
-                 AABB targetAABB = arenaAABB;
+                 var updateTarget = false;
+                 var targetAABB = arenaAABB;
+                 
                  if (!HasComponent<IsCarried>(target.Value))
                  {
                      if (math.distancesq(translation.Value, cdfeForTranslation[target.Value].Value) < 0.025)
                      {
-                         ecb.RemoveComponent<IsGathering>(entity);
-                         ecb.AddComponent<IsReturning>(entity);
-                         ecb.AddComponent<IsCarried>(target.Value);
-                         ecb.RemoveComponent<OnCollision>(target.Value);
+                         ecb.RemoveComponent<IsGathering>(entityInQueryIndex, entity);
+                         ecb.AddComponent<IsReturning>(entityInQueryIndex, entity);
+                         ecb.AddComponent<IsCarried>(entityInQueryIndex, target.Value);
+                         ecb.RemoveComponent<OnCollision>(entityInQueryIndex, target.Value);
 
                          updateTarget = true;
                          targetAABB = team.Id == 0 ? yellowBaseAABB : blueBaseAABB;
@@ -52,8 +53,8 @@ public class BeeGatheringSystem : SystemBase
                  }
                  else
                  {
-                     ecb.RemoveComponent<Target>(entity);
-                     ecb.RemoveComponent<IsGathering>(entity);
+                     ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                     ecb.RemoveComponent<IsGathering>(entityInQueryIndex, entity);
                      updateTarget = true;
                  }
 
@@ -63,8 +64,7 @@ public class BeeGatheringSystem : SystemBase
                      newRandomPosition.y = targetAABB.Center.y;
                      targetPosition.Value = newRandomPosition;
                  }
-
-             }).Schedule();
+             }).ScheduleParallel();
 
         // Check if the resource that the bees are targeting 
         /*Entities

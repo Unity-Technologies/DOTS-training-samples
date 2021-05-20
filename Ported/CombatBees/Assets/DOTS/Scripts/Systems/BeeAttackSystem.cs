@@ -30,6 +30,7 @@ public class BeeAttackSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var pecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         
         // job to 'start attacks'
         // for all bees that are not already attacking, returning, dead or are not cooling down from a previous attack
@@ -103,7 +104,7 @@ public class BeeAttackSystem : SystemBase
         Entities
             .WithName("ProcessAttack")
             .WithAll<IsAttacking>()
-            .ForEach((Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target, in Velocity velocity) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target, in Velocity velocity) =>
             {
                 attackTimer.Value -= timeDeltaTime;
                 bool attackOver = attackTimer.Value <= 0 || HasComponent<IsDead>(entity);
@@ -114,13 +115,13 @@ public class BeeAttackSystem : SystemBase
                     attackOver = true;
                     // kill the opposing bee, drop any carried resource, add gravity
                     Entity opposingBee = target.Value;
-                    ecb.AddComponent<IsDead>(opposingBee);
-                    ecb.AddComponent<HasGravity>(opposingBee);
+                    pecb.AddComponent<IsDead>(entityInQueryIndex, opposingBee);
+                    pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBee);
 
-                    ecb.SetComponent(opposingBee, new Velocity() { Value = math.normalize(velocity.Value) });
-                    ecb.RemoveComponent<TargetPosition>(opposingBee);
+                    pecb.SetComponent(entityInQueryIndex, opposingBee, new Velocity() { Value = math.normalize(velocity.Value) });
+                    pecb.RemoveComponent<TargetPosition>(entityInQueryIndex, opposingBee);
                     
-                    ecb.SetComponent(opposingBee, new URPMaterialPropertyBaseColor
+                    pecb.SetComponent(entityInQueryIndex, opposingBee, new URPMaterialPropertyBaseColor
                     {
                         Value = new float4(1, 0, 0, 1)
                     });
@@ -129,36 +130,36 @@ public class BeeAttackSystem : SystemBase
                     {
                         var resourceCarriedByOpposingBee = GetComponent<Target>(opposingBee).Value;
                         
-                        ecb.RemoveComponent<IsCarried>(resourceCarriedByOpposingBee);
-                        ecb.AddComponent<HasGravity>(resourceCarriedByOpposingBee);
-                        ecb.RemoveComponent<IsReturning>(opposingBee);
-                        ecb.RemoveComponent<Target>(opposingBee);
-                        ecb.RemoveComponent<TargetPosition>(opposingBee);
+                        pecb.RemoveComponent<IsCarried>(entityInQueryIndex, resourceCarriedByOpposingBee);
+                        pecb.AddComponent<HasGravity>(entityInQueryIndex, resourceCarriedByOpposingBee);
+                        pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
+                        pecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
+                        pecb.RemoveComponent<TargetPosition>(entityInQueryIndex, opposingBee);
                     }
                 }
 
                 // if the attack is over, end the attack
                 if (attackOver)
                 {
-                    ecb.RemoveComponent<IsAttacking>(entity);
-                    ecb.RemoveComponent<AttackTimer>(entity);
-                    ecb.AddComponent(entity, new AttackCooldown { Value = 1 });
-                    ecb.RemoveComponent<Target>(entity);
+                    pecb.RemoveComponent<IsAttacking>(entityInQueryIndex, entity);
+                    pecb.RemoveComponent<AttackTimer>(entityInQueryIndex, entity);
+                    pecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
+                    pecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                     speed.MaxSpeedValue /= 2;
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         // decrement attack cool downs
         Entities
             .WithName("CooldownAttack")
-            .ForEach((Entity entity, ref AttackCooldown attackCooldown) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref AttackCooldown attackCooldown) =>
             {
                 attackCooldown.Value -= timeDeltaTime;
                 if (attackCooldown.Value < 0)
                 {
-                    ecb.RemoveComponent<AttackCooldown>(entity);
+                    pecb.RemoveComponent<AttackCooldown>(entityInQueryIndex, entity);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

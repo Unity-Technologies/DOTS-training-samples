@@ -18,7 +18,7 @@ public class InitialSpawnerSystem : SystemBase
     {
         var random = Utils.GetRandom();
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
         var spawnerEntity = GetSingletonEntity<BeeSpawner>();
         var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);

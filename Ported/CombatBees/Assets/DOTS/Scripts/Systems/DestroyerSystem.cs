@@ -16,31 +16,31 @@ public class DestroyerSystem : SystemBase
     {
         var timeDeltaTime = Time.DeltaTime;
  
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithName("RemoveDeadTarget")
-            .ForEach((Entity entity, ref Target target) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Target target) =>
             {
                 var targetEntity = target.Value;
                 
                 if (HasComponent<LifeSpan>(targetEntity))
                 {
-                    ecb.RemoveComponent<Target>(entity);
+                    ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
         
         Entities
             .WithName("DestroyEntity")
-            .ForEach((Entity entity, ref LifeSpan lifespan) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref LifeSpan lifespan) =>
             {
                 lifespan.Value -= timeDeltaTime;
 
                 if (lifespan.Value <= 0)
                 {
-                    ecb.DestroyEntity(entity);
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

@@ -9,6 +9,7 @@ public class ApplyVelocitySystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        
         Entities
             .WithName("ApplyVelocity")
             .ForEach((ref Translation translation, in Velocity velocity) =>
@@ -17,6 +18,6 @@ public class ApplyVelocitySystem : SystemBase
 
                 // TODO: Arena Bounds Check
                 //translation.Value.y = math.max(translation.Value.y, 0.05f);
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }

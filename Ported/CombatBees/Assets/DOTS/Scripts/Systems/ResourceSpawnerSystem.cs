@@ -16,7 +16,7 @@ public class ResourceSpawnerSystem : SystemBase
 
             var random = Utils.GetRandom();
             
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             var spawnerEntity = GetSingletonEntity<ResourceSpawner>();
             var resourceSpawner = GetComponent<ResourceSpawner>(spawnerEntity);

@@ -18,7 +18,7 @@ public class BeeSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var random = Utils.GetRandom();
 
         var yellowBase = GetSingletonEntity<YellowBase>();
@@ -40,7 +40,7 @@ public class BeeSpawnerSystem : SystemBase
             .WithName("SpawnBees")
             .WithAll<IsResource, OnCollision>()
             .WithNone<LifeSpan>()
-            .ForEach((Entity entity, in Translation translation) =>
+            .ForEach((int entityInQueryIndex, Entity entity, in Translation translation) =>
             {
                 var baseEntity = Entity.Null;
                 
@@ -55,63 +55,63 @@ public class BeeSpawnerSystem : SystemBase
 
                 if (baseEntity != Entity.Null)
                 {
-                    var explosionInstance = ecb.Instantiate(explosion.ExplosionPrefab);
-                    ecb.SetComponent(explosionInstance, new Translation
+                    var explosionInstance = ecb.Instantiate(entityInQueryIndex, explosion.ExplosionPrefab);
+                    ecb.SetComponent(entityInQueryIndex, explosionInstance, new Translation
                     {
                         Value = translation.Value
                     });
 
-                    ecb.AddComponent<LifeSpan>(explosionInstance, new LifeSpan
+                    ecb.AddComponent<LifeSpan>(entityInQueryIndex, explosionInstance, new LifeSpan
                     {
                         Value = 4f
                     });
 
                     for (int i = 0; i < numberOfBees; ++i)
                     {
-                        var instance = ecb.Instantiate(beeSpawner.BeePrefab);
-                        ecb.SetComponent(instance, GetComponent<Team>(baseEntity));
+                        var instance = ecb.Instantiate(entityInQueryIndex, beeSpawner.BeePrefab);
+                        ecb.SetComponent(entityInQueryIndex, instance, GetComponent<Team>(baseEntity));
                         
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                         var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
                         var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
-                        ecb.SetComponent(instance, new Velocity
+                        ecb.SetComponent(entityInQueryIndex, instance, new Velocity
                         {
                             Value = math.normalize(randomPointOnBase - translation.Value) * maxSpeed
                         });
 
-                        ecb.SetComponent(instance, new TargetPosition
+                        ecb.SetComponent(entityInQueryIndex, instance, new TargetPosition
                         {
                             Value = randomPointOnBase
                         });
 
-                        ecb.SetComponent(instance, new Speed
+                        ecb.SetComponent(entityInQueryIndex, instance, new Speed
                         {
                             MaxSpeedValue = maxSpeed,
                             MinSpeedValue = minSpeed
                         });
                         
-                        ecb.SetComponent(instance, new Translation
+                        ecb.SetComponent(entityInQueryIndex, instance, new Translation
                         {
                             Value = translation.Value
                         });
 
-                        ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
+                        ecb.SetComponent(entityInQueryIndex, instance, new URPMaterialPropertyBaseColor
                         {
                             Value = GetComponent<URPMaterialPropertyBaseColor>(baseEntity).Value
                         });
 
                         var aggression = random.NextFloat(0, 1);
-                        ecb.SetComponent(instance, new Aggression
+                        ecb.SetComponent(entityInQueryIndex, instance, new Aggression
                         {
                             Value = aggression
                         });
                     }
 
-                    ecb.AddComponent<LifeSpan>(entity);
+                    ecb.AddComponent<LifeSpan>(entityInQueryIndex, entity);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

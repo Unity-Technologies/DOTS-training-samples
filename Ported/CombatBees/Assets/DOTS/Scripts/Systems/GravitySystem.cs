@@ -19,12 +19,12 @@ public class GravitySystem : SystemBase
         var time = Time.DeltaTime;
         var gravity = new float3(0, -9.81f, 0);
 
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithName("UseGravity")
             .WithAll<HasGravity>()
-            .ForEach((Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
             {
                 velocity.Value += gravity * time;
 
@@ -34,20 +34,20 @@ public class GravitySystem : SystemBase
                 {
                     translation.Value.y = halfHeight;
 
-                    ecb.RemoveComponent<HasGravity>(entity);
-                    ecb.AddComponent<OnCollision>(entity);
+                    ecb.RemoveComponent<HasGravity>(entityInQueryIndex, entity);
+                    ecb.AddComponent<OnCollision>(entityInQueryIndex, entity);
                     velocity.Value.y = 0;
                 }
-            }).Schedule();
+            }).ScheduleParallel();
         
         Entities
             .WithName("SendBeeToDeath")
             .WithAll<IsBee, OnCollision>()
             .WithNone<LifeSpan>()
-            .ForEach((Entity entity) =>
+            .ForEach((int entityInQueryIndex, Entity entity) =>
             {
-                ecb.AddComponent(entity, new LifeSpan { Value = 1 });
-            }).Schedule();
+                ecb.AddComponent(entityInQueryIndex, entity, new LifeSpan { Value = 1 });
+            }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
