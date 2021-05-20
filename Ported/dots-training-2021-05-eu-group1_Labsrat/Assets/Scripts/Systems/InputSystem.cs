@@ -17,6 +17,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 [UpdateAfter(typeof(BoardSpawner))]
 public class InputSystem : SystemBase
 {

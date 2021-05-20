@@ -11,7 +11,6 @@ public struct GameConfig : IComponentData
     public int NumOfAIPlayers;
     public int RoundDuration;
     public int2 BoardDimensions;
-    public float SnapDistance;
     public float4 TileColor1;
     public float4 TileColor2;
     public float ControlSensitivity;
@@ -32,5 +31,7 @@ public struct GameConfig : IComponentData
     public float CatSpawnDelay;
     public Entity HomebasePrefab;
 
+    public int MaxAnimalsSpawnedPerFrame;
+    public bool MiceSpawnInRandomLocations;
     public float CameraOffset;
 }

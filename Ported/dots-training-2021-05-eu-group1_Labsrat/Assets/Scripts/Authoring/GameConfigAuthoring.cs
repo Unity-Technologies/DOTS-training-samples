@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -35,18 +36,20 @@ public class GameConfigAuthoring : UnityMonoBehaviour
 
     [Header("Game Properties")]
     public int RoundDuration = 30;
-    public float SnapDistance = 0.2f;
     public int NumOfAIPlayers;
     public int MaximumArrows = 3;
     public UnityGameObject ArrowPrefab;
     public UnityGameObject CursorPrefab;
     public UnityGameObject HomebasePrefab;
+    public int MaxAnimalsSpawnedPerFrame = 1;
+    public float TimeScale = 1;
 
     [Header("Mice")]
     public int NumOfMice;
     public float MouseSpawnDelay = 0.2f;
     public float MouseSpeed = 1f;
     public UnityGameObject MousePrefab;
+    public bool MiceSpawnInRandomLocations = false;
 
     [Header("Cats")]
     public int NumOfCats;
@@ -57,6 +60,11 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     
 
 
+    
+    void Update()
+    {
+        Time.timeScale = TimeScale;
+    }
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -85,7 +93,6 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             NumOfAIPlayers = NumOfAIPlayers,
             NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
-            SnapDistance = SnapDistance,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),
@@ -96,6 +103,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MouseSpawnDelay = MouseSpawnDelay,
             CatSpawnDelay = CatSpawnDelay,
             HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
+            MaxAnimalsSpawnedPerFrame = MaxAnimalsSpawnedPerFrame,
+            MiceSpawnInRandomLocations = MiceSpawnInRandomLocations,
             CameraOffset = CameraOffset,
             ControlSensitivity = ControlSensitivity
     };

@@ -13,6 +13,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 [AlwaysUpdateSystem]
 public class GameLogicSystem : SystemBase
 {
@@ -67,11 +68,18 @@ public class GameLogicSystem : SystemBase
             UIDisplay.Winner = winner;
             World.GetExistingSystem<MovementSystem>().Enabled = false;
             World.GetExistingSystem<InputSystem>().Enabled = false;
+            World.GetExistingSystem<AnimalSpawnerSystem>().Enabled = false;
         }
         else
         {
             timer -= time;
             UIDisplay.TimeLeft = math.ceil(timer);
         }
+    }
+
+    protected override void OnDestroy()
+    {
+        UIDisplay.PlayerScores.Dispose();
+        UIDisplay.PlayerColors.Dispose();
     }
 }

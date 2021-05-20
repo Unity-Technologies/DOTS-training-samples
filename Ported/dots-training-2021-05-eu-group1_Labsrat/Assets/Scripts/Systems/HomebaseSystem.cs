@@ -11,6 +11,7 @@ public struct HomebaseData
     public float2 position;
 }
 
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 public class HomebaseSystem : SystemBase
 {
     EntityCommandBufferSystem m_EcbSystem;
@@ -46,12 +47,13 @@ public class HomebaseSystem : SystemBase
             Entities
                 .WithAll<Mouse>()
                 .WithReadOnly(homeBases)
-                .ForEach((Entity mouseEntity, in Translation translation) =>
+                .ForEach((Entity mouseEntity, in Translation translation, in Direction direction) =>
             {
                 float2 mousePos = new float2(translation.Value.x, translation.Value.z);
                 foreach (var homebase in homeBases)
                 {
-                    if (math.distance(mousePos, homebase.position) < gameConfig.SnapDistance)
+                if (Utils.SnapTest(mousePos, homebase.position, direction.Value)
+                    && math.distancesq(mousePos, homebase.position) < 1)
                     {
                         Score score = scoreData[homebase.playerEntity];
                         score.Value += 1;
@@ -65,12 +67,13 @@ public class HomebaseSystem : SystemBase
             Entities
                 .WithAll<Cat>()
                 .WithReadOnly(homeBases)
-                .ForEach((Entity catEntity, in Translation translation) =>
+                .ForEach((Entity catEntity, in Translation translation, in Direction direction) =>
             {
                 float2 catPos = new float2(translation.Value.x, translation.Value.z);
                 foreach (var homebase in homeBases)
                 {
-                    if (math.distance(catPos, homebase.position) < gameConfig.SnapDistance)
+                    if (Utils.SnapTest(catPos, homebase.position, direction.Value)
+                    && math.distancesq(catPos, homebase.position) < 1)
                     {
                         Score score = scoreData[homebase.playerEntity];
                         score.Value = math.max(0, score.Value-30);

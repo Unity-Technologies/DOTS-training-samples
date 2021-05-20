@@ -12,6 +12,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 public class ArrowSpawnerSystem : SystemBase
 {
     EntityCommandBufferSystem m_EcbSystem;
