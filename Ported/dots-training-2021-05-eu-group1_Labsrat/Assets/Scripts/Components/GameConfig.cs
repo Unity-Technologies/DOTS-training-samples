@@ -14,6 +14,7 @@ public struct GameConfig : IComponentData
     public float4 TileColor2;
 
     public Entity CellPrefab;
+
     public Entity WallPrefab;
     public float WallProbability;
     public Entity CatPrefab;
@@ -31,4 +32,8 @@ public struct GameConfig : IComponentData
 
     public int MaxAnimalsSpawnedPerFrame;
     public bool MiceSpawnInRandomLocations;
+
+    public Entity ParticlePrefab;
+    public float ParticleSpawnRate;
+    public float ParticleLifetime;
 }

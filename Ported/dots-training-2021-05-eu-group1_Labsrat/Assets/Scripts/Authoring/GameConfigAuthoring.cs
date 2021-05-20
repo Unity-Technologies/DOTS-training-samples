@@ -53,7 +53,10 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public float CatSpeed = .5f;
     public UnityGameObject CatPrefab;
 
-
+    [Header("Particles")]
+    public UnityGameObject ParticlePrefab;
+    public float ParticleSpawnRate = 20f;
+    public float ParticleLifetime = 0.5f;
     
     void Update()
     {
@@ -69,6 +72,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(MousePrefab);
         referencedPrefabs.Add(CursorPrefab);
         referencedPrefabs.Add(HomebasePrefab);
+        referencedPrefabs.Add(ParticlePrefab);
+
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -99,6 +104,9 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
             MaxAnimalsSpawnedPerFrame = MaxAnimalsSpawnedPerFrame,
             MiceSpawnInRandomLocations = MiceSpawnInRandomLocations,
+            ParticlePrefab = conversionSystem.GetPrimaryEntity(ParticlePrefab),
+            ParticleLifetime = ParticleLifetime,
+            ParticleSpawnRate = ParticleSpawnRate,
         };
 
         dstManager.AddComponentData(entity, gameConfig);
