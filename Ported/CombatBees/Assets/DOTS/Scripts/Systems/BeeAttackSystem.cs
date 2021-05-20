@@ -1,4 +1,3 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -6,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(BeeUpdateGroup))]
-[UpdateAfter(typeof(BeeGatheringSystem))]
+[UpdateAfter(typeof(BeePerception))]
 public class BeeAttackSystem : SystemBase
 {
     private EntityCommandBufferSystem EntityCommandBufferSystem;

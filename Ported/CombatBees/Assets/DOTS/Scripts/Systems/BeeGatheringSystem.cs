@@ -58,7 +58,9 @@ public class BeeGatheringSystem : SystemBase
 
                  if (updateTarget)
                  {
-                     targetPosition.Value = Utils.BoundedRandomPosition(targetAABB, ref random);
+                     var newRandomPosition = Utils.BoundedRandomPosition(targetAABB, ref random);
+                     newRandomPosition.y = targetAABB.Center.y;
+                     targetPosition.Value = newRandomPosition;
                  }
 
              }).Schedule();
