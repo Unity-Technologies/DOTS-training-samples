@@ -33,7 +33,7 @@ public class BeeReturningSystem : SystemBase
                  if (HasComponent<IsCarried>(targetEntity))
                  {
                      // if bee is close enough to Base
-                     if (math.distancesq(translation.Value, targetPosition.Value) < 0.025)
+                     if (math.distancesq(translation.Value, targetPosition.Value) < 0.1)
                      {
                          ecb.RemoveComponent<IsReturning>(entity);
                          ecb.RemoveComponent<Target>(entity);

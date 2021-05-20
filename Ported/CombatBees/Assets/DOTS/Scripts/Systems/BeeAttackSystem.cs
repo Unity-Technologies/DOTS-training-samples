@@ -103,7 +103,7 @@ public class BeeAttackSystem : SystemBase
         Entities
             .WithName("ProcessAttack")
             .WithAll<IsAttacking>()
-            .ForEach((Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target) =>
+            .ForEach((Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target, in Velocity velocity) =>
             {
                 attackTimer.Value -= timeDeltaTime;
                 bool attackOver = attackTimer.Value <= 0 || HasComponent<IsDead>(entity);
@@ -116,7 +116,9 @@ public class BeeAttackSystem : SystemBase
                     Entity opposingBee = target.Value;
                     ecb.AddComponent<IsDead>(opposingBee);
                     ecb.AddComponent<HasGravity>(opposingBee);
-                    ecb.SetComponent(opposingBee, new Velocity());
+
+                    ecb.SetComponent(opposingBee, new Velocity() { Value = math.normalize(velocity.Value) });
+                    ecb.RemoveComponent<TargetPosition>(opposingBee);
                     
                     ecb.SetComponent(opposingBee, new URPMaterialPropertyBaseColor
                     {

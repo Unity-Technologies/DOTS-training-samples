@@ -10,8 +10,8 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     [UnityRange(0, 1000)] public int BeeCount;
     [UnityRange(0, 100)] public int BeeCountFromResource = 10;
 
-    [UnityRange(0, 1)] public int MinSpeed = 1;
-    [UnityRange(0, 20)] public int MaxSpeed = 20;
+    [UnityRange(0, 20)] public int MinSpeed = 1;
+    [UnityRange(0, 100)] public int MaxSpeed = 20;
 
     [UnityRange(0, 100)] public int MaxSize = 1;
 

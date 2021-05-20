@@ -22,7 +22,7 @@ public class BeeMovement : SystemBase
         // Update all TargetPositions with current position of Target (deterministic!)
         Entities
             .WithName("UpdateTargetPosition")
-            .WithNone<IsReturning>()
+            .WithNone<IsReturning, IsDead>()
             .WithoutBurst()
             .ForEach((ref TargetPosition targetPosition, in Target target) =>
             {
@@ -53,8 +53,8 @@ public class BeeMovement : SystemBase
                 var currentSpeed = math.lerp(speed.MinSpeedValue, speed.MaxSpeedValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
                 velocity.Value = direction * currentSpeed;
 
-                translation.Value += velocity.Value * deltaTime;
-                translation.Value.y = math.max(translation.Value.y, 0.05f);
+                //translation.Value += velocity.Value * deltaTime;
+                //translation.Value.y = math.max(translation.Value.y, 0.05f);
             }).Schedule();
     }
 }

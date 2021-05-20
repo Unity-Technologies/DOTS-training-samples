@@ -17,7 +17,7 @@ public class GravitySystem : SystemBase
     protected override void OnUpdate()
     {
         var time = Time.DeltaTime;
-        var gravity = new float3(0, -0.098f, 0);
+        var gravity = new float3(0, -9.81f, 0);
 
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
@@ -27,7 +27,6 @@ public class GravitySystem : SystemBase
             .ForEach((Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
             {
                 velocity.Value += gravity * time;
-                translation.Value += velocity.Value;
 
                 var halfHeight = scale.Value.y / 2;
 
