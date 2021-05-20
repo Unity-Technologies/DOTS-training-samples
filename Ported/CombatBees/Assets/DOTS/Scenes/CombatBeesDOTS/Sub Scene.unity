@@ -383,6 +383,7 @@ GameObject:
   - component: {fileID: 1150688216}
   - component: {fileID: 1150688218}
   - component: {fileID: 1150688219}
+  - component: {fileID: 1150688220}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -451,6 +452,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ExplosionPrefab: {fileID: 3548367001378344076, guid: e06b9e1111206444fb586bcf2a55542c,
+    type: 3}
+--- !u!114 &1150688220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150688215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56dc4c0f5f4902240b76392411ef1fea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BloodPrefab: {fileID: 8708822092039593794, guid: 619d975781bcb3148b63a0be5512e36c,
     type: 3}
 --- !u!1 &1466324074
 GameObject:

@@ -27,3 +27,6 @@ public struct IsDead : IComponentData { }
 
 public struct HasGravity : IComponentData { }
 public struct OnCollision : IComponentData { }
+public struct IsOriented : IComponentData { }
+
+public struct IsStretched : IComponentData { }

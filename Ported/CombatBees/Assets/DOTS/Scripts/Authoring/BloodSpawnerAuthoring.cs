@@ -12,17 +12,20 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
-public class BeeAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
+public class BloodSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
+    public UnityGameObject BloodPrefab;
+
+    public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(BloodPrefab);
+    }
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponent<IsBee>(entity);
-        dstManager.AddComponent<Team>(entity);
-        dstManager.AddComponent<Velocity>(entity);
-        dstManager.AddComponent<Speed>(entity);
-        dstManager.AddComponent<TargetPosition>(entity);
-        dstManager.AddComponent<Aggression>(entity);
-        dstManager.AddComponent<IsOriented>(entity);
-        dstManager.AddComponent<IsStretched>(entity);
+        dstManager.AddComponentData(entity, new Blood
+        {
+            BloodPrefab = conversionSystem.GetPrimaryEntity(BloodPrefab)
+        });
     }
 }
