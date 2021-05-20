@@ -148,7 +148,7 @@ public class BeeAttackSystem : SystemBase
 
         // decrement attack cool downs
         Entities
-            .WithName("AttackCooldown")
+            .WithName("CooldownAttack")
             .ForEach((Entity entity, ref AttackCooldown attackCooldown) =>
             {
                 attackCooldown.Value -= timeDeltaTime;

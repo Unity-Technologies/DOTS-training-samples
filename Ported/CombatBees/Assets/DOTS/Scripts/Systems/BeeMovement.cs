@@ -47,10 +47,10 @@ public class BeeMovement : SystemBase
 
                 velocity.Value = math.rotate(q, velocity.Value);
 
-                float3 direction = math.normalize(velocity.Value);
+                var direction = math.normalize(velocity.Value);
 
-                float distanceToTarget = math.lengthsq(newLookAt);
-                float currentSpeed = math.lerp(speed.MinSpeedValue, speed.MaxSpeedValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                var distanceToTarget = math.lengthsq(newLookAt);
+                var currentSpeed = math.lerp(speed.MinSpeedValue, speed.MaxSpeedValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
                 velocity.Value = direction * currentSpeed;
 
                 translation.Value += velocity.Value * deltaTime;
