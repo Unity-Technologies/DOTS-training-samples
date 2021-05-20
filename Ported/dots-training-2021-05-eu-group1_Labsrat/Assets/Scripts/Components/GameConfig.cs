@@ -28,4 +28,7 @@ public struct GameConfig : IComponentData
     public float MouseSpawnDelay;
     public float CatSpawnDelay;
     public Entity HomebasePrefab;
+
+    public int MaxAnimalsSpawnedPerFrame;
+    public bool MiceSpawnInRandomLocations;
 }

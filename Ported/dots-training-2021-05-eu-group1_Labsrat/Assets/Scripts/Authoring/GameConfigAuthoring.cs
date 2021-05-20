@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -36,12 +37,15 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject ArrowPrefab;
     public UnityGameObject CursorPrefab;
     public UnityGameObject HomebasePrefab;
+    public int MaxAnimalsSpawnedPerFrame = 1;
+    public float TimeScale = 1;
 
     [Header("Mice")]
     public int NumOfMice;
     public float MouseSpawnDelay = 0.2f;
     public float MouseSpeed = 1f;
     public UnityGameObject MousePrefab;
+    public bool MiceSpawnInRandomLocations = false;
 
     [Header("Cats")]
     public int NumOfCats;
@@ -50,6 +54,11 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public UnityGameObject CatPrefab;
 
 
+    
+    void Update()
+    {
+        Time.timeScale = TimeScale;
+    }
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -88,6 +97,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MouseSpawnDelay = MouseSpawnDelay,
             CatSpawnDelay = CatSpawnDelay,
             HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
+            MaxAnimalsSpawnedPerFrame = MaxAnimalsSpawnedPerFrame,
+            MiceSpawnInRandomLocations = MiceSpawnInRandomLocations,
         };
 
         dstManager.AddComponentData(entity, gameConfig);
