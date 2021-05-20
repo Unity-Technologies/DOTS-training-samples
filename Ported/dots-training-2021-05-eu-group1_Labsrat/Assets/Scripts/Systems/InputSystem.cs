@@ -7,6 +7,7 @@ using Unity.Mathematics.Geometry;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Random = Unity.Mathematics.Random;
 using UnityCamera = UnityEngine.Camera;
 using UnityGameObject = UnityEngine.GameObject;
@@ -24,10 +25,11 @@ public class InputSystem : SystemBase
         var gameConfig = GetSingleton<GameConfig>();
         
         var localToWorldData = GetComponentDataFromEntity<LocalToWorld>();
-        var cellArray = World.GetExistingSystem<BoardSpawner>().cells;
-        
+        var cellArray = World.GetExistingSystem<BoardSpawner>().cells;      
         var mousePos = UnityCamera.main.ScreenPointToRay(Input.mousePosition);
+        var mouseScreenPos = new float2 (Input.mousePosition.x/Screen.width,Input.mousePosition.y/Screen.height);
         var mouseDown = Input.GetMouseButtonDown(0);
+        var mousewheel = Input.mouseScrollDelta.y;
         var time = Time.DeltaTime;
         var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
 
@@ -39,7 +41,21 @@ public class InputSystem : SystemBase
                 Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.IsMouseDown = mouseDown;
-            }).Schedule();
+
+                var camera = this.GetSingleton<GameObjectRefs>().Camera;
+                var BoardCenter = new Vector3 (gameConfig.BoardDimensions.x / 2,0, gameConfig.BoardDimensions.y/2);
+
+                var mouseAxis = mouseScreenPos;
+                mouseAxis = new float2(mouseAxis.x - 0.5f, mouseAxis.y - 0.5f);
+                mouseAxis *= 2;
+                var mouseCenter = math.max(0,math.abs(mouseAxis)-0.5f)*2;
+                mouseAxis = mouseAxis * mouseCenter;
+
+                camera.transform.position += new Vector3(mouseAxis.x * gameConfig.ControlSensitivity, -mousewheel*5, mouseAxis.y * gameConfig.ControlSensitivity);
+                camera.transform.position = math.max(new Vector3(camera.transform.position.x, 5, camera.transform.position.z), camera.transform.position);
+
+                
+            }).Run();
         
         Entities
             .ForEach((ref PlayerInput playerInput, ref AIState aiState, ref Translation translation, in PlayerIndex playerIndex) =>
@@ -80,6 +96,7 @@ public class InputSystem : SystemBase
                 aiState.SecondsSinceClicked += time;
 
             }).Schedule();
+        
     }
     
     public static int RaycastCellDirection(Ray ray, GameConfig gameConfig, ComponentDataFromEntity<LocalToWorld> localToWorldData, NativeArray<Entity> cells, out Cardinals cellDirection)
@@ -113,4 +130,11 @@ public class InputSystem : SystemBase
         return cell;
 
     }
+
+    public static float3 RayCastPlayerPos(Ray ray)
+    {
+        float3 PlayerPos = new float3(0,0,0);
+        return PlayerPos;
+    }
+
 }

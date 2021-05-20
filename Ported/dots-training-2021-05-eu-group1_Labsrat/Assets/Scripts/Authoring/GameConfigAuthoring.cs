@@ -19,6 +19,10 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
+    [Header("Camera and Controls")]
+    public float ControlSensitivity;
+    public float CameraOffset;
+
     [Header("Board Generation")]
     public bool RandomSeed;
     public uint Seed = 23498573;
@@ -50,6 +54,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public float CatSpeed = .5f;
     public UnityGameObject CatPrefab;
 
+    
+
 
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -75,7 +81,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             CursorPrefab = conversionSystem.GetPrimaryEntity(CursorPrefab),
             MouseSpeed = MouseSpeed,
             CatSpeed = CatSpeed,
-            NumOfCats =  NumOfCats,
+            NumOfCats = NumOfCats,
             NumOfAIPlayers = NumOfAIPlayers,
             NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
@@ -90,7 +96,9 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             MouseSpawnDelay = MouseSpawnDelay,
             CatSpawnDelay = CatSpawnDelay,
             HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
-        };
+            CameraOffset = CameraOffset,
+            ControlSensitivity = ControlSensitivity
+    };
 
         dstManager.AddComponentData(entity, gameConfig);
     }

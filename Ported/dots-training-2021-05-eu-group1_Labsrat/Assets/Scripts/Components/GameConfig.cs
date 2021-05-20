@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 public struct GameConfig : IComponentData
 {
@@ -13,6 +14,7 @@ public struct GameConfig : IComponentData
     public float SnapDistance;
     public float4 TileColor1;
     public float4 TileColor2;
+    public float ControlSensitivity;
 
     public Entity CellPrefab;
     public Entity WallPrefab;
@@ -29,4 +31,6 @@ public struct GameConfig : IComponentData
     public float MouseSpawnDelay;
     public float CatSpawnDelay;
     public Entity HomebasePrefab;
+
+    public float CameraOffset;
 }
