@@ -28,10 +28,10 @@ public class BeeMovement : SystemBase
                 targetPosition.Value = cdfe[target.Value].Value;
             }).Run();
 
-        // TODO when a bee dies it's target must be removed
-        // Move bees that are targetting (a Resource or Base) towards the target's position
+        // Move bees that are targetting (a Resource or Base or opposing bee) towards the target's position
         Entities
             .WithAll<IsBee>()
+            .WithNone<IsDead>()
             .ForEach((ref Translation translation, ref Velocity velocity, in TargetPosition targetPosition, in Speed speed) =>
             {
                 var currentPosition = translation.Value;

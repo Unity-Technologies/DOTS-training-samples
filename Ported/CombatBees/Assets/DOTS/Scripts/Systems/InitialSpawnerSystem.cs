@@ -72,6 +72,11 @@ public class InitialSpawnerSystem : SystemBase
                     {
                         Value = GetComponent<URPMaterialPropertyBaseColor>(entity).Value
                     });
+                    var aggression = random.NextFloat(0, 1);
+                    ecb.SetComponent(instance, new Aggression
+                    {
+                        Value = aggression
+                    });
                 }
             }).Run();
 

@@ -62,6 +62,7 @@ public class BeeSpawnerSystem : SystemBase
 
                         var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
+
                         ecb.SetComponent(instance, new Velocity
                         {
                             Value = math.normalize(randomPointOnBase - translation.Value) * maxSpeed
@@ -86,6 +87,12 @@ public class BeeSpawnerSystem : SystemBase
                         ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                         {
                             Value = GetComponent<URPMaterialPropertyBaseColor>(baseEntity.Value).Value
+                        });
+
+                        var aggression = random.NextFloat(0, 1);
+                        ecb.SetComponent(instance, new Aggression
+                        {
+                            Value = aggression
                         });
                     }
 
