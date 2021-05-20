@@ -30,7 +30,7 @@ public class BeeIdleSystem : SystemBase
         var random = Utils.GetRandom();
 
         Entities
-            .WithName("IdleTargetPosition")
+            .WithName("MoveIdleBee")
             .WithStoreEntityQueryInField(ref QueryIdleBees)
             .ForEach((ref TargetPosition targetPosition, in Translation translation) =>
             {
