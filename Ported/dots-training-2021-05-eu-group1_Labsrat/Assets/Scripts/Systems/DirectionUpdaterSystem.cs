@@ -11,12 +11,16 @@ using UnityKeyCode = UnityEngine.KeyCode;
 using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
+
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
+[UpdateAfter(typeof(MovementSystem))]
 public class DirectionUpdaterSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         NativeArray<Entity> cells = World.GetOrCreateSystem<BoardSpawner>().cells;
         NativeArray<Cardinals> walls = World.GetOrCreateSystem<BoardSpawner>().walls;
+        float dt = Time.DeltaTime;
 
         if (TryGetSingleton(out GameConfig gameConfig))
         {
@@ -27,7 +31,7 @@ public class DirectionUpdaterSystem : SystemBase
 
             Entities
                 .WithAny<Cat, Mouse>().WithReadOnly(cells).WithReadOnly(forcedDirectionData).WithReadOnly(walls)
-                .ForEach((ref Direction direction, ref Translation translation, ref Rotation rotation) =>
+                .ForEach((Entity entity, ref Direction direction, ref Translation translation, ref Rotation rotation) =>
             {
                 bool recenter = false;
 
@@ -37,18 +41,20 @@ public class DirectionUpdaterSystem : SystemBase
                 Cardinals wallCollision = walls[index];
                 ForcedDirection fd = forcedDirectionData[cell];
 
+                float speed = HasComponent<Cat>(entity) ? gameConfig.CatSpeed : gameConfig.MouseSpeed; 
+
                 float2 cellCenter = new float2(math.round(translation.Value.x), math.round(translation.Value.z));
 
                 // If we're stepping on an arrow
                 if (
                     fd.Value != Cardinals.None                                                                                                                    // If there's a forced direction (arrow) ....
                     && fd.Value != direction.Value                                                                                                                // ... and we're not already in the given direction
-                    && math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)    // ... and we're close to the center
+                    && Utils.SnapTest(new float2(translation.Value.x, translation.Value.z), cellCenter, direction.Value)
                     )
                 {
                     direction.Value = fd.Value;
-                    recenter = true;
-                    
+                    translation.Value.x = cellCenter.x;
+                    translation.Value.z = cellCenter.y;
                 }
 
                 // Until we don't have a wall facing us
@@ -56,16 +62,11 @@ public class DirectionUpdaterSystem : SystemBase
                 while (
                     wallCollision != Cardinals.All &&
                     ((wallCollision & direction.Value) != 0) &&
-                    math.distancesq(cellCenter, new float2(translation.Value.x, translation.Value.z)) < (gameConfig.SnapDistance * gameConfig.SnapDistance)
+                    Utils.SnapTest(new float2(translation.Value.x, translation.Value.z), cellCenter, direction.Value)
                     )
                 {
                     direction.Value = Direction.RotateLeft(direction.Value);
-                    recenter = true;
-                }
 
-                if(recenter)
-                {
-                    // Recenter on Cell?
                     translation.Value.x = cellCenter.x;
                     translation.Value.z = cellCenter.y;
                 }
@@ -73,6 +74,10 @@ public class DirectionUpdaterSystem : SystemBase
                 rotation.Value = math.slerp(rotation.Value, quaternion.RotateY(Direction.GetAngle(direction.Value)), 0.1f);
 
             }).ScheduleParallel();
+
+
         }
+
+
     }
 }

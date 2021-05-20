@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 public class CatCollisionSystem : SystemBase
 {
     EntityCommandBufferSystem m_EcbSystem;
@@ -38,12 +40,13 @@ public class CatCollisionSystem : SystemBase
             Entities
                 .WithAll<Mouse>()
                 .WithReadOnly(catPositions)
-                .ForEach((Entity mouseEntity, in Translation translation) =>
+                .ForEach((Entity mouseEntity, in Translation translation, in Direction direction) =>
                 {
                     float2 mousePosition = new float2(translation.Value.x, translation.Value.z);
                     foreach (var catPosition in catPositions)
                     {
-                        if (math.distance(mousePosition, catPosition) < gameConfig.SnapDistance)
+                        if (Utils.SnapTest(mousePosition, catPosition, direction.Value)
+                        && math.distancesq(mousePosition, catPosition) < 1)
                         {
                             // Cat collides with mouse
                             ecb.DestroyEntity(mouseEntity);

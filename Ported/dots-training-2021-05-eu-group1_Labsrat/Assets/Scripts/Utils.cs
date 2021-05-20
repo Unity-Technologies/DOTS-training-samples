@@ -37,4 +37,11 @@ public static class Utils
     {
         return new float3(x, -0.5f, z);
     }
+
+    public static bool SnapTest(float2 position, float2 cellCenter, Cardinals direction)
+    {
+        var d = Direction.GetDirection(direction);
+        var d2 = cellCenter - position;
+        return math.dot(d, d2) <= 0;
+    }
 }

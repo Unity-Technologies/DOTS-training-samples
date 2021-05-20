@@ -10,7 +10,6 @@ public struct GameConfig : IComponentData
     public int NumOfAIPlayers;
     public int RoundDuration;
     public int2 BoardDimensions;
-    public float SnapDistance;
     public float4 TileColor1;
     public float4 TileColor2;
 

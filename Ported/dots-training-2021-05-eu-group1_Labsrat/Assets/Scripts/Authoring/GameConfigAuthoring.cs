@@ -31,7 +31,6 @@ public class GameConfigAuthoring : UnityMonoBehaviour
 
     [Header("Game Properties")]
     public int RoundDuration = 30;
-    public float SnapDistance = 0.2f;
     public int NumOfAIPlayers;
     public int MaximumArrows = 3;
     public UnityGameObject ArrowPrefab;
@@ -79,7 +78,6 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             NumOfAIPlayers = NumOfAIPlayers,
             NumOfMice = NumOfMice,
             RoundDuration = RoundDuration,
-            SnapDistance = SnapDistance,
             BoardDimensions = BoardDimensions,
             TileColor1 = new float4(TileColor1.r, TileColor1.g, TileColor1.b, 1),
             TileColor2 = new float4(TileColor2.r, TileColor2.g, TileColor2.b, 1),

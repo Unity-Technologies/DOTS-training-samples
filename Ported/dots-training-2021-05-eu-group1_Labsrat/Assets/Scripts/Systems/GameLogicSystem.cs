@@ -13,6 +13,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 
+[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
 [AlwaysUpdateSystem]
 public class GameLogicSystem : SystemBase
 {
