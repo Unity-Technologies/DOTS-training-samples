@@ -177,7 +177,7 @@ MonoBehaviour:
   TileColor1: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 0}
   TileColor2: {r: 0.745283, g: 0.6801589, b: 0.3058473, a: 0}
   RoundDuration: 30
-  NumOfAIPlayers: 0
+  NumOfAIPlayers: 1
   MaximumArrows: 3
   ArrowPrefab: {fileID: 5535265697216621377, guid: c03ebe57f15104b4bbb54f6fa2277821, type: 3}
   CursorPrefab: {fileID: 718791354512338433, guid: 07d2e50c3873bc449a16c3c9646487b0, type: 3}
