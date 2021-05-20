@@ -30,6 +30,7 @@ public class BeePerception : SystemBase
         // Query for bees that are targeting Resources that are being carried by
         // another bee and clear their target Resource
         Entities
+            .WithName("RemoveResourceTarget")
             .WithoutBurst()
             .WithReadOnly(cdfe)
             .WithNone<IsReturning>()
@@ -52,6 +53,7 @@ public class BeePerception : SystemBase
                 // Query for bees that are not dead, carrying, attacking or returning
                 // and set a random Resource as the target the bee is trying to collect         
                 Entities
+                    .WithName("TargetResource")
                     .WithAll<IsBee>()
                     .WithNone<Target, IsAttacking, IsDead>()
                     .ForEach((Entity entity) =>

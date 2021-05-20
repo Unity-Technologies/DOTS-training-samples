@@ -21,6 +21,7 @@ public class BeeMovement : SystemBase
         
         // Update all TargetPositions with current position of Target (deterministic!)
         Entities
+            .WithName("UpdateTargetPosition")
             .WithNone<IsReturning>()
             .WithoutBurst()
             .ForEach((ref TargetPosition targetPosition, in Target target) =>
@@ -28,8 +29,9 @@ public class BeeMovement : SystemBase
                 targetPosition.Value = cdfe[target.Value].Value;
             }).Run();
 
-        // Move bees that are targetting (a Resource or Base or opposing bee) towards the target's position
+        // Move bees that are targeting (a Resource or Base or opposing bee) towards the target's position
         Entities
+            .WithName("MoveToTarget")
             .WithAll<IsBee>()
             .WithNone<IsDead>()
             .ForEach((ref Translation translation, ref Velocity velocity, in TargetPosition targetPosition, in Speed speed) =>

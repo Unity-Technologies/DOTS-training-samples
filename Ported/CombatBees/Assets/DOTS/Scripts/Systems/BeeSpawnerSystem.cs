@@ -37,6 +37,7 @@ public class BeeSpawnerSystem : SystemBase
         var explosion = GetComponent<Explosion>(spawnerEntity);
 
         Entities
+            .WithName("SpawnBees")
             .WithAll<IsResource, OnCollision>()
             .WithNone<LifeSpan>()
             .ForEach((Entity entity, in Translation translation) =>
@@ -64,18 +65,16 @@ public class BeeSpawnerSystem : SystemBase
                     {
                         Value = 4f
                     });
-                    
 
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                         ecb.SetComponent(instance, GetComponent<Team>(baseEntity));
-
+                        
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                         var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);
 
                         var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
-
 
                         ecb.SetComponent(instance, new Velocity
                         {

@@ -35,6 +35,7 @@ public class InitialSpawnerSystem : SystemBase
 
         //Spawn bees
         Entities
+            .WithName("InitialSpawnBees")
             .ForEach((Entity entity, ref Translation translation, in Bounds bounds, in Team team) =>
             {
                 for (int i = 0; i < numberOfBeesPerTeam; ++i)

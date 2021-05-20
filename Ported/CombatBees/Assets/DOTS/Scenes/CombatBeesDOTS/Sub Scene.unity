@@ -405,8 +405,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 3997372445315145562, guid: 2a1a5b9c28984244a99219f31b40257b,
     type: 3}
-  BeeCount: 6
-  BeeCountFromResource: 2
+  BeeCount: 100
+  BeeCountFromResource: 10
   MinSpeed: 1
   MaxSpeed: 10
   MaxSize: 1
@@ -438,7 +438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
-  ResourceCount: 3
+  ResourceCount: 100
 --- !u!114 &1150688219
 MonoBehaviour:
   m_ObjectHideFlags: 0
