@@ -20,7 +20,7 @@ public class GravitySystem : SystemBase
         var gravity = new float3(0, -0.98f, 0);
 
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
-            
+
         Entities
             .WithAll<HasGravity>()
             .ForEach((Entity entity, ref Velocity velocity, ref Translation translation, in NonUniformScale scale) =>
@@ -33,12 +33,12 @@ public class GravitySystem : SystemBase
                 if (translation.Value.y < halfHeight)
                 {
                     translation.Value.y = halfHeight;
-                    
+
                     ecb.RemoveComponent<HasGravity>(entity);
                     ecb.AddComponent<OnCollision>(entity);
                 }
             }).Schedule();
-        
+
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
