@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0c18341c5b08bb449417a836c9b29cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  team: 0
+  TeamId: 0
 --- !u!114 &785965743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +404,9 @@ MonoBehaviour:
   BeePrefab: {fileID: 3997372445315145562, guid: 2a1a5b9c28984244a99219f31b40257b,
     type: 3}
   BeeCount: 10
+  BeeCountFromResource: 10
   MaxSpeed: 10
+  MaxSize: 1
 --- !u!4 &1150688217
 Transform:
   m_ObjectHideFlags: 0
@@ -543,7 +545,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0c18341c5b08bb449417a836c9b29cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  team: 1
+  TeamId: 1
 --- !u!114 &1466324080
 MonoBehaviour:
   m_ObjectHideFlags: 0
