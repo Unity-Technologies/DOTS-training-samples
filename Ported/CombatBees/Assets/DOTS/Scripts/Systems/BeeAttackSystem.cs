@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(BeeUpdateGroup))]
+[UpdateAfter(typeof(BeeGatheringSystem))]
 public class BeeAttackSystem : SystemBase
 {
     private EntityCommandBufferSystem EntityCommandBufferSystem;
@@ -29,13 +31,6 @@ public class BeeAttackSystem : SystemBase
     {
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
-        // 1. in Perception, bees that are not returning (or dead), they can decide to target another bee to attack
-        // 2. once per second, if an opposing team bee is within a threshold distance change target to that bee for attack
-        // 3. move bee towards target
-        // 4. attack when bee is with a specified distance of target - start timer
-        // 4.1 velocity increased for the duration of the attack (timer?)
-        // 4.2 if during attack (timer) bee comes with a specified distance of target then target is killed
-        // 4.3 attack ends on timer
 
         // job to 'start attacks'
         // for all bees that are not already attacking, returning, dead or are not cooling down from a previous attack
@@ -95,7 +90,8 @@ public class BeeAttackSystem : SystemBase
                                     ecb.AddComponent<Target>(entity, new Target { Value = (Entity)closestOpposingBee });
                                     ecb.AddComponent<TargetPosition>(entity);
                                 }
-                                speed.Value *= 2;
+                                speed.MinSpeedValue *= 2;
+                                speed.MaxSpeedValue *= 2;
                             }
                         }
                     }).Run();
@@ -145,7 +141,8 @@ public class BeeAttackSystem : SystemBase
                     ecb.RemoveComponent<AttackTimer>(entity);
                     ecb.AddComponent(entity, new AttackCooldown { Value = 2f });
                     ecb.RemoveComponent<Target>(entity);
-                    speed.Value /= 2;
+                    speed.MinSpeedValue /= 2;
+                    speed.MaxSpeedValue /= 2;
                 }
             }).Run();
 
