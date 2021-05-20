@@ -32,7 +32,8 @@ public class AntMovementSystem : SystemBase
         const float maxDirectionChangePerSecond = 5f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
-        direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+        var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+        direction.Radians += change;
     }
 
     private static float2 CalculateMovementStep(Direction direction, float deltaTime, float simulationSpeed)
@@ -42,7 +43,7 @@ public class AntMovementSystem : SystemBase
         return delta;
     }
 
-    private static void HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
+    private static bool HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
         ref Translation translation, ref Direction direction, float2 movementStep,
         ref Random random, float simulationSpeed, float deltaTime)
     {
@@ -122,6 +123,7 @@ public class AntMovementSystem : SystemBase
                 else
                 {
                     direction.Radians += 0.1f * math.sign(direction.Radians - antAngle);
+                    return true;
                 }
             }
             else
@@ -144,6 +146,8 @@ public class AntMovementSystem : SystemBase
             translation.Value.x += newDirection.x;
             translation.Value.y += newDirection.y;
         }
+
+        return false;
     }
 
     private static void HandleScreenBoundCollisions(ref Translation translation, ref Direction direction, float screenLowerBound, float screenUpperBound)
@@ -241,13 +245,13 @@ public class AntMovementSystem : SystemBase
         const float foodSourceRadius = 2.5f;
         const float antHillRadius = 2.5f;
         
-        var random = new Random((uint)(Time.ElapsedTime * 1000f + 1f));
+        var random = new Random((uint)(Time.ElapsedTime * 10000000f + 1f));
         var ecb = m_ECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var deltaTime = Time.DeltaTime;
 
         var simulationSpeedEntity = GetSingletonEntity<SimulationSpeed>();
-        var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value;
+        var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value * 2f;
 
         var foodSource = GetSingletonEntity<FoodSource>();
         var foodSourceTranslation = GetComponent<Translation>(foodSource);
@@ -291,14 +295,15 @@ public class AntMovementSystem : SystemBase
                 var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
                 var directionVec = movementStep / math.length(movementStep);
 
-                FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor);
+
+                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
+                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
+                if (!collided)
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor);
                 
                 // Move ant a step forward in its direction
                 translation.Value.x += movementStep.x;
                 translation.Value.y += movementStep.y;
-
-                HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
-                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
                 

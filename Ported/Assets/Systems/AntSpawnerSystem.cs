@@ -32,8 +32,8 @@ public class AntSpawnerSystem : SystemBase
 
                 for (int i = 0; i < spawner.AntCount; i++)
                 {
-                    var x = (float) (i % side) / side * 10 - 5;
-                    var y = (float) (i / side) / side * 10 - 5;
+                    var x = (float) (i % side) / side * 5 - 2.5f;
+                    var y = (float) (i / side) / side * 5 - 2.5f;
                     
                     var instance = ecb.Instantiate(spawner.AntPrefab);
 
@@ -44,7 +44,7 @@ public class AntSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, new Direction {Radians = rotation});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
-                        Value = new float4(0.25f, 0.25f, 0.35f, 0)
+                        Value = new float4(0.35f, 0.35f, 0.45f, 0)
                     });
                 }
             }).Run();
