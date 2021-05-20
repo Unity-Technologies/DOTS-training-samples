@@ -19,32 +19,38 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
-
+    [Header("Board Generation")]
     public bool RandomSeed;
     public uint Seed = 23498573;
-
     public UnityGameObject CellPrefab;
-    public UnityGameObject CatPrefab;
     public UnityGameObject WallPrefab;
-    public UnityGameObject ArrowPrefab;
-    public float SnapDistance = 0.2f;
-    public int NumOfCats;
-    public int NumOfAIPlayers;
-    public UnityGameObject MousePrefab;
-    public int NumOfMice;
-    public float MouseSpeed = 1f;
-    public float CatSpeed = .5f;
-    public int RoundDuration = 30;
     public int2 BoardDimensions = new int2(8,8);
+    public float WallProbability = .1f;
     public Color TileColor1 = Color.gray;
     public Color TileColor2 = Color.yellow;
-    public UnityGameObject CursorPrefab;
-    public int MaximumArrows = 3;
 
-    public float WallProbability = .1f;
-    public float MouseSpawnDelay = 0.2f;
-    public float CatSpawnDelay = 1f;
+    [Header("Game Properties")]
+    public int RoundDuration = 30;
+    public float SnapDistance = 0.2f;
+    public int NumOfAIPlayers;
+    public int MaximumArrows = 3;
+    public UnityGameObject ArrowPrefab;
+    public UnityGameObject CursorPrefab;
     public UnityGameObject HomebasePrefab;
+
+    [Header("Mice")]
+    public int NumOfMice;
+    public float MouseSpawnDelay = 0.2f;
+    public float MouseSpeed = 1f;
+    public UnityGameObject MousePrefab;
+
+    [Header("Cats")]
+    public int NumOfCats;
+    public float CatSpawnDelay = 1f;
+    public float CatSpeed = .5f;
+    public UnityGameObject CatPrefab;
+
+
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
