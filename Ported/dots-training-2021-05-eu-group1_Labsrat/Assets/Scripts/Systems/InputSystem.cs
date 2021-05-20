@@ -42,7 +42,6 @@ public class InputSystem : SystemBase
                 Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.IsMouseDown = mouseDown;
-
                 var camera = this.GetSingleton<GameObjectRefs>().Camera;
                 var BoardCenter = new Vector3 (gameConfig.BoardDimensions.x / 2,0, gameConfig.BoardDimensions.y/2);
 
