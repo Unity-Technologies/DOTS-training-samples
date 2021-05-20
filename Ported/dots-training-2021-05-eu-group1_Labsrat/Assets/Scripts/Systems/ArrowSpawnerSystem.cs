@@ -27,11 +27,10 @@ public class ArrowSpawnerSystem : SystemBase
 
         var ecb = m_EcbSystem.CreateCommandBuffer();
         var cellArray = World.GetExistingSystem<BoardSpawner>().cells;
-        
-        
-        Entities.WithoutBurst().ForEach((Entity Player, ref DynamicBuffer<CreatedArrows> ArrowBuffer, in PlayerInput playerInput, in PlayerColor color, in PlayerIndex PlayerIndex ) => {
 
-            if (playerInput.isMouseDown && playerInput.TileIndex < cellArray.Length && playerInput.TileIndex >= 0)
+        Entities.WithoutBurst().ForEach((Entity Player, ref DynamicBuffer<CreatedArrowData> ArrowBuffer, in PlayerInput playerInput, in PlayerColor color, in PlayerIndex PlayerIndex ) => {
+
+            if (playerInput.IsMouseDown && playerInput.TileIndex < cellArray.Length && playerInput.TileIndex >= 0)
             {
                 Entity cellEntity = cellArray[playerInput.TileIndex];
                 var cellTranslation = translationData[cellEntity];
@@ -44,11 +43,11 @@ public class ArrowSpawnerSystem : SystemBase
                 Cardinals direction = playerInput.ArrowDirection;
                 ecb.AddComponent(arrowEntity, new Direction(direction));
                 ecb.SetComponent(cellEntity, new ForcedDirection() { Value = direction });
-                ecb.AddComponent(arrowEntity, new Arrow() { Id = playerInput.CurrentArrowIndex});
+                ecb.AddComponent(arrowEntity, new Arrow());
                 ecb.AddComponent(arrowEntity, new PlayerIndex() { Index = PlayerIndex.Index });
                 ecb.AddComponent(arrowEntity, new URPMaterialPropertyBaseColor() { Value = color.Color });
                
-                ecb.AppendToBuffer(Player,new CreatedArrows()
+                ecb.AppendToBuffer(Player,new CreatedArrowData()
                 {
                     CreatedArrow = arrowEntity, 
                     TileEntity = cellEntity
@@ -84,10 +83,6 @@ public class ArrowSpawnerSystem : SystemBase
                 }
                 
                 ecb.SetComponent(arrowEntity, rotation);
-
-                
-
-                //ecb.DestroyEntity()
             }
         }).Schedule();
         

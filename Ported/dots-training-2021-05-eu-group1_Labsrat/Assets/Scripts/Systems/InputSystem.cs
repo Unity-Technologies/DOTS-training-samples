@@ -38,8 +38,7 @@ public class InputSystem : SystemBase
             {
                 Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
-                playerInput.isMouseDown = mouseDown;
-                if (mouseDown) { playerInput.CurrentArrowIndex++; }
+                playerInput.IsMouseDown = mouseDown;
             }).Schedule();
         
         Entities
@@ -48,14 +47,14 @@ public class InputSystem : SystemBase
                 float ThinkingDelay = 2.0f;
                 float CursorSpeed = 2.0f;
 
-                playerInput.isMouseDown = false;
+                playerInput.IsMouseDown = false;
                 
                 if (aiState.state == AIState.State.Thinking && aiState.SecondsSinceClicked > ThinkingDelay)
                 {
                     // pick random cell on the board
                     int cellX = random.NextInt(gameConfig.BoardDimensions.x);
                     int cellY = random.NextInt(gameConfig.BoardDimensions.y);
-                    float3 targetPos = CellCoordinatesToWorldPosition(cellX, cellY);
+                    float3 targetPos = Utils.CellCoordinatesToWorldPosition(cellX, cellY);
                     targetPos.y = 0.1f;
                     aiState.TargetPosition = targetPos;
 
@@ -69,10 +68,9 @@ public class InputSystem : SystemBase
                     if (math.distance(translation.Value, aiState.TargetPosition) < 0.01f)
                     {
                         // click!
-                        playerInput.isMouseDown = true;
-                        playerInput.TileIndex = CellAtWorldPosition(translation.Value, gameConfig);
+                        playerInput.IsMouseDown = true;
+                        playerInput.TileIndex = Utils.WorldPositionToCellIndex(translation.Value, gameConfig);
                         playerInput.ArrowDirection = Direction.FromRandomDirection(random.NextInt(4));
-                        playerInput.CurrentArrowIndex++;
                         
                         aiState.SecondsSinceClicked = 0;
                         aiState.state = AIState.State.Thinking;
@@ -95,7 +93,7 @@ public class InputSystem : SystemBase
             return -1;
 
         var worldPos = ray.GetPoint(enter);
-        var cell = CellAtWorldPosition(worldPos, gameConfig);
+        var cell = Utils.WorldPositionToCellIndex(worldPos, gameConfig);
 
         if (cell < 0)
             return cell;
@@ -114,20 +112,5 @@ public class InputSystem : SystemBase
 
         return cell;
 
-    }
-    
-    public static int CellAtWorldPosition(Vector3 worldPosition, GameConfig gameConfig)
-    {
-        var localPt3D = new float3(worldPosition.x, worldPosition.y, worldPosition.z);
-        var localPt = new Vector2(localPt3D.x, localPt3D.z);
-
-        localPt += new Vector2(0.5f, 0.5f); // offset by half cellsize
-        var cellCoord = new Vector2Int(Mathf.FloorToInt(localPt.x / 1), Mathf.FloorToInt(localPt.y / 1));
-        return BoardSpawner.CoordintateToIndex(gameConfig, cellCoord.x, cellCoord.y);
-    }
-
-    public static float3 CellCoordinatesToWorldPosition(int x, int z)
-    {
-        return new float3(x, -0.5f, z);
     }
 }

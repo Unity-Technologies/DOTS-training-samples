@@ -19,14 +19,6 @@ public class BoardSpawner : SystemBase
 
     protected override void OnCreate() { }
 
-    public static int CoordintateToIndex(GameConfig c, int x, int y)
-    {
-        if (x >= c.BoardDimensions.x || y >= c.BoardDimensions.y || x < 0 || y < 0)
-            return -1;
-
-        return (y * c.BoardDimensions.x) + x;
-    }
-
     protected override void OnUpdate()
     {
         var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
@@ -51,7 +43,7 @@ public class BoardSpawner : SystemBase
                     float4 color = (x + y) % 2 == 0 ? gameConfig.TileColor1 : gameConfig.TileColor2;
                     EntityManager.AddComponentData(cell, new URPMaterialPropertyBaseColor() { Value = color });
 
-                    int idx = CoordintateToIndex(gameConfig, x, y);
+                    int idx = Utils.CellCoordinatesToCellIndex(gameConfig, x, y);
 
                     cells[idx] = cell;
 
@@ -66,7 +58,7 @@ public class BoardSpawner : SystemBase
             {
                 for (int y = 0; y < gameConfig.BoardDimensions.y; y++)
                 {
-                    int idx = CoordintateToIndex(gameConfig, x, y);
+                    int idx = Utils.CellCoordinatesToCellIndex(gameConfig, x, y);
                     Cardinals direction = EntityManager.GetComponentData<Direction>(cells[idx]).Value;
 
                     // We add the outer walls
@@ -94,7 +86,7 @@ public class BoardSpawner : SystemBase
                     {
                         if(x > 0)
                         {
-                            int tmpIdx = CoordintateToIndex(gameConfig, x - 1, y);
+                            int tmpIdx = Utils.CellCoordinatesToCellIndex(gameConfig, x - 1, y);
                             var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
                             tmpCellDirection.Value |= Cardinals.East;
                             walls[tmpIdx] = tmpCellDirection.Value;
@@ -108,7 +100,7 @@ public class BoardSpawner : SystemBase
                     {
                         if(x < gameConfig.BoardDimensions.x - 1)
                         {
-                            int tmpIdx = CoordintateToIndex(gameConfig, x + 1, y);
+                            int tmpIdx = Utils.CellCoordinatesToCellIndex(gameConfig, x + 1, y);
                             var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
                             tmpCellDirection.Value |= Cardinals.West;
                             walls[tmpIdx] = tmpCellDirection.Value;
@@ -122,7 +114,7 @@ public class BoardSpawner : SystemBase
                     {
                         if(y < gameConfig.BoardDimensions.y - 1)
                         {
-                            int tmpIdx = CoordintateToIndex(gameConfig, x, y + 1);
+                            int tmpIdx = Utils.CellCoordinatesToCellIndex(gameConfig, x, y + 1);
                             var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
                             tmpCellDirection.Value |= Cardinals.South;
                             walls[tmpIdx] = tmpCellDirection.Value;
@@ -136,7 +128,7 @@ public class BoardSpawner : SystemBase
                     {
                         if(y > 0)
                         {
-                            int tmpIdx = CoordintateToIndex(gameConfig, x, y - 1);
+                            int tmpIdx = Utils.CellCoordinatesToCellIndex(gameConfig, x, y - 1);
                             var tmpCellDirection = EntityManager.GetComponentData<Direction>(cells[tmpIdx]);
                             tmpCellDirection.Value |= Cardinals.North;
                             walls[tmpIdx] = tmpCellDirection.Value;
@@ -161,7 +153,6 @@ public class BoardSpawner : SystemBase
                 if (i == 0)
                 {
                     EntityManager.AddComponent<DisableRendering>(player);
-                    //EntityManager.RemoveComponent<RenderMesh>(player); // This doesn't seem to work
                 }
                 else
                 {
@@ -174,7 +165,7 @@ public class BoardSpawner : SystemBase
                 EntityManager.SetComponentData(player, new Translation() { Value = new float3(random.NextInt(gameConfig.BoardDimensions.x), 0.1f, random.NextInt(gameConfig.BoardDimensions.y)) });
                 EntityManager.AddComponentData(player, new URPMaterialPropertyBaseColor() { Value = color });
                 EntityManager.AddComponentData(player, new PlayerColor() { Color = color });
-                EntityManager.AddBuffer < CreatedArrows >(player);
+                EntityManager.AddBuffer < CreatedArrowData >(player);
             }
 
             Enabled = false;
@@ -187,7 +178,6 @@ public class BoardSpawner : SystemBase
             EntityManager.SetComponentData(renderedWall, new Translation() { Value = new float3(x, 0, y) });
             EntityManager.SetComponentData(renderedWall, new Rotation() { Value = quaternion.RotateY(Direction.GetAngle(direction)) });
         }
-
     }
 
     protected override void OnDestroy()

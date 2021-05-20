@@ -24,7 +24,7 @@ public class MovementSystem : SystemBase
             Entities.
                 ForEach((ref Translation translation, in Cat cat, in Direction direction) =>
                 {
-                    var offset = direction.getDirection() * time * gameConfig.CatSpeed;
+                    var offset = direction.GetDirection() * time * gameConfig.CatSpeed;
                     translation.Value.x += offset.x;
                     translation.Value.z += offset.y;
                 }).ScheduleParallel();
@@ -32,7 +32,7 @@ public class MovementSystem : SystemBase
             Entities.
                 ForEach((ref Translation translation, in Mouse mouse, in Direction direction) =>
                 {
-                    var offset = direction.getDirection() * time * gameConfig.MouseSpeed; 
+                    var offset = direction.GetDirection() * time * gameConfig.MouseSpeed; 
                     translation.Value.x += offset.x;
                     translation.Value.z += offset.y;
                 }).ScheduleParallel();

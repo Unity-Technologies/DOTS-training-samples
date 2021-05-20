@@ -1,8 +1,6 @@
 using Unity.Entities;
-using Unity.Mathematics;
 
-
-public struct CreatedArrows : IBufferElementData
+public struct CreatedArrowData : IBufferElementData
 {   
     public Entity CreatedArrow;
     public Entity TileEntity;

@@ -43,9 +43,6 @@ public class AnimalSpawnerSystem : SystemBase
                     EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
                     EntityManager.AddComponent<Direction>(cat);
                     EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
-
-                    EntityManager.AddComponent<Position>(cat);
-                    EntityManager.SetComponentData(cat, new Position() { Value = new float2(xPos, yPos) });
                     catcount++;
                
                 }
@@ -73,12 +70,10 @@ public class AnimalSpawnerSystem : SystemBase
                     EntityManager.AddComponent<Translation>(mouse);
                     EntityManager.AddComponent<Mouse>(mouse);
                     EntityManager.AddComponent<Direction>(mouse);
-                    EntityManager.AddComponent<Position>(mouse);
 
                     EntityManager.SetComponentData(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
                     EntityManager.SetComponentData(mouse, new Rotation() { Value = rotation });
                     EntityManager.SetComponentData(mouse, new Direction() { Value = dir });
-                    EntityManager.SetComponentData(mouse, new Position() { Value = new float2(xPos, yPos) });
                     mousecount++;
                     mouseflipflop = !mouseflipflop;
 

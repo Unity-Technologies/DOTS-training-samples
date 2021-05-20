@@ -2,6 +2,17 @@ using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[Flags]
+public enum Cardinals
+{
+    None = 0,
+    North = 1,
+    West = 2,
+    South = 4,
+    East = 8,
+    All = North | South | West | East
+}
+
 public struct ForcedDirection : IComponentData
 {
     public Cardinals Value;
@@ -16,11 +27,28 @@ public struct Direction : IComponentData
         Value = c;
     }
 
-    public float2 getDirection()
+    public float2 GetDirection()
     {
-        return getDirection(Value);
+        return GetDirection(Value);
     }
-
+    
+    public static float2 GetDirection(Cardinals c)
+    {
+        switch (c)
+        {
+            default:
+            case Cardinals.None:
+                return new float2(0, 0);
+            case Cardinals.North:
+                return new float2(0, 1);
+            case Cardinals.West:
+                return new float2(-1, 0);
+            case Cardinals.South:
+                return new float2(0, -1);
+            case Cardinals.East:
+                return new float2(1, 0);
+        }
+    }
     
     public static Cardinals RotateRight(Cardinals c)
     {
@@ -56,28 +84,7 @@ public struct Direction : IComponentData
                 return Cardinals.North;
         }
     }
-
-
-
-
-    public static float2 getDirection(Cardinals c)
-    {
-        switch (c)
-        {
-            default:
-            case Cardinals.None:
-                return new float2(0, 0);
-            case Cardinals.North:
-                return new float2(0, 1);
-            case Cardinals.West:
-                return new float2(-1, 0);
-            case Cardinals.South:
-                return new float2(0, -1);
-            case Cardinals.East:
-                return new float2(1, 0);
-        }
-    }
-
+    
     public static float GetAngle(Cardinals direction)
     {
         switch (direction)
@@ -92,7 +99,6 @@ public struct Direction : IComponentData
                 return math.radians(180);
             case Cardinals.East:
                 return math.radians(90);
-
         }
     }
 
@@ -107,16 +113,4 @@ public struct Direction : IComponentData
             case 3: return Cardinals.East;
         }
     }
-}
-
-
-[Flags]
-public enum Cardinals
-{
-    None = 0,
-    North = 1,
-    West = 2,
-    South = 4,
-    East = 8,
-    All = North | South | West | East
 }
