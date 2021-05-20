@@ -11,8 +11,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Random = Unity.Mathematics.Random;
 
-
+[UpdateAfter(typeof(AntSpawnerSystem))]
 [UpdateAfter(typeof(FoodSpawnerSystem))]
+[UpdateAfter(typeof(PheromoneSpawnerSystem))]
 public class AntMovementSystem : SystemBase
 {
     private EntityCommandBufferSystem m_ECBSystem;
@@ -26,25 +27,27 @@ public class AntMovementSystem : SystemBase
     }
 
     // Change ant direction by random amount
-    static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
+    private static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
-        const float maxDirectionChangePerSecond = 2.5f;
+        const float maxDirectionChangePerSecond = 5f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
         direction.Radians += random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
     }
 
-    static float2 CalculateMovementStep(Direction direction, float deltaTime, float simulationSpeed)
+    private static float2 CalculateMovementStep(Direction direction, float deltaTime, float simulationSpeed)
     {
         var delta = new float2(math.cos(direction.Radians), math.sin(direction.Radians));
         delta *= deltaTime * simulationSpeed;
         return delta;
     }
 
-    static void HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
-        ref Translation translation, ref Direction direction, float2 movementStep)
+    private static void HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
+        ref Translation translation, ref Direction direction, float2 movementStep,
+        ref Random random, float simulationSpeed, float deltaTime)
     {
         var halfWallThickness = 1.5f;
+        var startTurningDistance = 2f;
         var halfAnt = 0.5f;
         
         // Convert the ant location to polar coordinates
@@ -54,10 +57,11 @@ public class AntMovementSystem : SystemBase
         bool shouldCollide = false;
         bool shouldCollideFromCorner = false;
         float3 positionToBounce = float3.zero;
+        float wallRadius = 0.0f;
         foreach (var wallEntity in walls)
         {
             var wall = wallComponentData[wallEntity];
-            if (antRadius > wall.Radius - (halfWallThickness + halfAnt) && antRadius < wall.Radius + (halfWallThickness + halfAnt))
+            if (antRadius > wall.Radius - (startTurningDistance + halfAnt) && antRadius < wall.Radius + (startTurningDistance + halfAnt))
             {
                 var antAngleDeg = antAngle * Mathf.Rad2Deg;
                 while (antAngleDeg < 0)
@@ -65,6 +69,7 @@ public class AntMovementSystem : SystemBase
                 while (antAngleDeg > 360)
                     antAngleDeg -= 360;
                 shouldCollide = true;
+                wallRadius = wall.Radius;
 
                 if ( wall.Angles.x <  wall.Angles.y)
                 {
@@ -104,12 +109,31 @@ public class AntMovementSystem : SystemBase
         
         if (shouldCollide)
         {
-            var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
-            var normal = float2.zero - collisionPoint;
-            var newDirection = math.reflect(movementStep, normal);
-            direction.Radians = math.atan2(newDirection.y, newDirection.x);
-            translation.Value.x += newDirection.x;
-            translation.Value.y += newDirection.y;
+            if (true)
+            {
+                var collisionPoint = (new float2(math.cos(antAngle), math.sin(antAngle))) * wallRadius;
+                var antPos = translation.Value.xy;
+
+                var nextPos = antPos + movementStep;
+                if (math.length(nextPos - collisionPoint) >= math.length(antPos - collisionPoint))
+                {
+                    // Heading away from the wall
+                }
+                else
+                {
+                    direction.Radians += 0.1f * math.sign(direction.Radians - antAngle);
+                }
+            }
+            else
+            {
+                var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
+                var normal = float2.zero - collisionPoint;
+                var newDirection = math.reflect(movementStep, normal);
+                direction.Radians = math.atan2(newDirection.y, newDirection.x);
+                translation.Value.x += newDirection.x;
+                translation.Value.y += newDirection.y;
+            }
+            
         }
         else if (shouldCollideFromCorner)
         {
@@ -122,7 +146,7 @@ public class AntMovementSystem : SystemBase
         }
     }
 
-    static void HandleScreenBoundCollisions(ref Translation translation, ref Direction direction, float screenLowerBound, float screenUpperBound)
+    private static void HandleScreenBoundCollisions(ref Translation translation, ref Direction direction, float screenLowerBound, float screenUpperBound)
     {
         // Check if we're hitting the screen edge
         if (translation.Value.x > screenUpperBound)
@@ -147,6 +171,70 @@ public class AntMovementSystem : SystemBase
             translation.Value.y = screenLowerBound;
         }
     }
+
+    private static int ClampPheromoneMap(PheromoneMap map, int pos)
+    {
+        return math.clamp(pos, 0, map.gridSize - 1);
+    }
+
+    private static int2 ClampPheromoneMap(PheromoneMap map, int2 pos)
+    {
+        return new int2(ClampPheromoneMap(map, pos.x), ClampPheromoneMap(map, pos.y));
+    }
+
+    private static int2 PheromoneGridLocation(PheromoneMap map, float2 translation, float halfScreenSize, float pheromoneMapFactor)
+    {
+        return new int2( (translation + halfScreenSize) * pheromoneMapFactor);
+    }
+
+    private static int PheromoneGridIndex(PheromoneMap map, int2 location)
+    {
+        var clampedLocation = ClampPheromoneMap(map, location);
+        return clampedLocation.y * map.gridSize + clampedLocation.x;
+    }
+
+    private static void FollowPheromones(PheromoneMap map, DynamicBuffer<Pheromone> pheromoneBuffer,
+        Translation translation, ref Direction direction, float2 antDirection, float halfScreenSize, float pheromoneMapFactor)
+    {
+        var antTextureCoord = PheromoneGridLocation(map, translation.Value.xy, halfScreenSize, pheromoneMapFactor);
+
+        // Compute a "pull" direction from each pheromone point in a 5x5 grid around the ant.
+        float2 pullDirection = float2.zero;
+        const int radius = 2;
+        const int side = radius + 1 + radius;
+        for (int y = -radius; y <= radius; y++)
+        {
+            for (int x = -radius; x <= radius; x++)
+            {
+                var textureOffset = new int2(x, y);
+                if (x == 0 && y == 0)
+                    continue;
+                
+                var textureCoord = antTextureCoord + textureOffset;
+                var index = PheromoneGridIndex(map, textureCoord);
+                if (index < 0)
+                {
+                    Debug.Log($"Coords: ({x}, {y})");
+                }
+            
+                float intensity = pheromoneBuffer[index].Value;
+                float2 offset = new float2(x, y);
+
+                // Is this point behind the ant?
+                if (math.dot(offset, antDirection) < 0)
+                    continue;
+                
+                float length = math.length(offset);
+                pullDirection += offset / length / length * intensity;
+            }
+        }
+        
+        // Divide by how many points we checked so that we get a value between 0 and 1
+        pullDirection /= side * side;
+
+        antDirection = pullDirection * 0.05f + antDirection * 0.90f;
+        direction.Radians = math.atan2(antDirection.y, antDirection.x);
+    }
     
     protected override void OnUpdate()
     {
@@ -168,6 +256,7 @@ public class AntMovementSystem : SystemBase
 
         var screenSizeEntity = GetSingletonEntity<ScreenSize>();
         var screenSize = GetComponent<ScreenSize>(screenSizeEntity).Value;
+        var halfScreenSize = screenSize / 2.0f;
         var screenUpperBound = (float) screenSize / 2f - 0.5f;
         var screenLowerBound = -screenSize / 2f + 0.5f;
         
@@ -183,23 +272,33 @@ public class AntMovementSystem : SystemBase
        //Debug.Log(intersection1);
        //Debug.Log(intersection2);
         
+        var pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
+        var pheromoneMap = GetComponent<PheromoneMap>(pheromoneMapEntity);
+        var pheromoneMapFactor = (float)pheromoneMap.gridSize / (float)screenSize;
+        var pheromoneBuffer = GetBuffer<Pheromone>(pheromoneMapEntity);
+
         var movementJob = Entities
             .WithAll<Ant>()
             .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
+            .WithReadOnly(pheromoneBuffer)
             .WithDisposeOnCompletion(walls)
             .WithName("AntMovement")
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
                 ref Rotation rotation) =>
             {
                 RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
+
                 var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                var directionVec = movementStep / math.length(movementStep);
+
+                FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor);
                 
                 // Move ant a step forward in its direction
                 translation.Value.x += movementStep.x;
                 translation.Value.y += movementStep.y;
 
-                HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep);
+                HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
                 HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
@@ -246,6 +345,7 @@ public class AntMovementSystem : SystemBase
             }).ScheduleParallel(checkReachedFoodSourceJob);
         
         Dependency = checkReachedAntHillJob;
+        m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 
         // Find the points of intersection.
