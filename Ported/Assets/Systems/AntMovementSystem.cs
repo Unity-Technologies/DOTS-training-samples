@@ -232,7 +232,7 @@ public class AntMovementSystem : SystemBase
         // Divide by how many points we checked so that we get a value between 0 and 1
         pullDirection /= side * side;
 
-        antDirection = pullDirection * 0.05f + antDirection * 0.90f;
+        antDirection = pullDirection * 0.2f + antDirection * 0.90f;
         direction.Radians = math.atan2(antDirection.y, antDirection.x);
     }
     
@@ -282,7 +282,6 @@ public class AntMovementSystem : SystemBase
             .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
             .WithReadOnly(pheromoneBuffer)
-            .WithDisposeOnCompletion(walls)
             .WithName("AntMovement")
             .ForEach((Entity entity, ref Translation translation, ref Direction direction,
                 ref Rotation rotation) =>
@@ -303,16 +302,14 @@ public class AntMovementSystem : SystemBase
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
                 
-//                if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
-//                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.green);
-//                else
-//                    Debug.DrawLine(new Vector3(translation.Value.x, translation.Value.y, 0), foodPos, UnityEngine.Color.magenta);
             }).ScheduleParallel(Dependency);
 
         var checkReachedFoodSourceJob = Entities
             .WithAll<Ant>()
             .WithNone<CarryingFood>()
             .WithName("CheckReachedFoodSourceJob")
+            .WithReadOnly(walls)
+            .WithReadOnly(wallComponentData)
             .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
                 ref Direction direction, in Translation translation) =>
             {
@@ -325,12 +322,24 @@ public class AntMovementSystem : SystemBase
                     ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
                 
+                if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
+                {
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+                    
+                    float2 pullDirection = new float2(foodPos.x, foodPos.y) - translation.Value.xy;
+                    directionVec = pullDirection * 0.001f + directionVec * 0.90f;
+                    direction.Radians = math.atan2(directionVec.y, directionVec.x);
+                }
                 
             }).ScheduleParallel(movementJob);
 
         var checkReachedAntHillJob = Entities
             .WithAll<Ant,CarryingFood>()
             .WithName("CheckedReachedAntHill")
+            .WithReadOnly(walls)
+            .WithReadOnly(wallComponentData)
+            .WithDisposeOnCompletion(walls)
             .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
                 ref Direction direction, in Translation translation) =>
             {
@@ -342,6 +351,17 @@ public class AntMovementSystem : SystemBase
                     
                     ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
+
+                if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
+                {var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+                    
+                    float2 pullDirection = float2.zero - translation.Value.xy;
+                    directionVec = pullDirection * 0.001f + directionVec * 0.90f;
+                    direction.Radians = math.atan2(directionVec.y, directionVec.x);
+                    
+                }
+                
             }).ScheduleParallel(checkReachedFoodSourceJob);
         
         Dependency = checkReachedAntHillJob;

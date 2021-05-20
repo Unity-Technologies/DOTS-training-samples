@@ -65,7 +65,7 @@ public class PheromoneSpawnerSystem : SystemBase
                             int index = y * pheromoneMap.gridSize + x;
                             
                             float newCol = pheromoneBuffer[index].Value;
-                            var add = (1 - (newCol / (1.5f - newCol))) * 0.0015f;
+                            var add = (1 - (newCol / (1.5f - newCol))) * 0.0012f;
                             newCol = math.clamp(newCol + add, 0.0f, 1.0f);
                             pheromoneBuffer[index] = new Pheromone()
                             {

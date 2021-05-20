@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7adf252f9d12341d6b372102126c1b0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 1
+  Value: 5
 --- !u!4 &375989020
 Transform:
   m_ObjectHideFlags: 0
@@ -271,7 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 6725547702897238790, guid: 854f737b5248749dea4bc8a10cdfd386, type: 3}
-  AntCount: 1024
+  AntCount: 250
 --- !u!4 &1023164830
 Transform:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ public class PheromoneDecaySystem : SystemBase
         
         public void Execute(int index)
         {
-            Data[index] = Data[index] * (1 - dt / 8);
+            Data[index] = Data[index] * (1 - dt / 25);
         }
     }
     
