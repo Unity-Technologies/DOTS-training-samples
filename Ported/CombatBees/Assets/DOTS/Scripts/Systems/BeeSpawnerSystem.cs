@@ -60,12 +60,16 @@ public class BeeSpawnerSystem : SystemBase
                         Value = translation.Value
                     });
 
+                    ecb.AddComponent<LifeSpan>(explosionInstance, new LifeSpan
+                    {
+                        Value = 4f
+                    });
+                    
+
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                         ecb.SetComponent(instance, GetComponent<Team>(baseEntity.Value));
-
-                        
 
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                         var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);

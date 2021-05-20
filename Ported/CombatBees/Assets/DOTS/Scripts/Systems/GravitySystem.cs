@@ -17,7 +17,7 @@ public class GravitySystem : SystemBase
     protected override void OnUpdate()
     {
         var time = Time.DeltaTime;
-        var gravity = new float3(0, -0.98f, 0);
+        var gravity = new float3(0, -0.098f, 0);
 
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
 
@@ -36,6 +36,7 @@ public class GravitySystem : SystemBase
 
                     ecb.RemoveComponent<HasGravity>(entity);
                     ecb.AddComponent<OnCollision>(entity);
+                    velocity.Value.y = 0;
                 }
             }).Schedule();
         
