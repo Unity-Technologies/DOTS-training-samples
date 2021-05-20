@@ -34,10 +34,10 @@ public class BeePerception : SystemBase
         var random = Utils.GetRandom();
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-        // TODO what about bees that are targetting Resources that have been
+        // TODO what about bees that are targeting Resources that have been
         // destroyed because they where returned to a hive?
 
-        // Query for bees that are targetting Resources that are being carried by
+        // Query for bees that are targeting Resources that are being carried by
         // another bee and clear their target Resource
         Entities
             .WithoutBurst()

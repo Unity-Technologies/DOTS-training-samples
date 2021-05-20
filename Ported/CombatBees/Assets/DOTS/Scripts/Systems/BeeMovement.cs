@@ -15,7 +15,7 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 [UpdateAfter(typeof(BeePerception))]
 public class BeeMovement : SystemBase
 {
-    const float maxRotation =180f;
+    const float maxRotation = 180f;
     const float distanceMaxSpeed = 4f;
     
     [ReadOnly]
@@ -24,7 +24,7 @@ public class BeeMovement : SystemBase
     protected override void OnUpdate()
     {
         cdfe = GetComponentDataFromEntity<Translation>(true);
-        var random = Utils.GetRandom();
+        
         var deltaTime = Time.DeltaTime;
         
         // Update all TargetPositions with current position of Target (deterministic!)
@@ -67,15 +67,16 @@ public class BeeMovement : SystemBase
         var arena = GetSingletonEntity<IsArena>();
         var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
+        var random = Utils.GetRandom();
+
         Entities
             .WithAll<IsBee>()
             .WithNone<Target, IsDead, IsAttacking>()
             .ForEach((ref Translation translation, in Speed speed) =>
             {
                 var targetPosition = Utils.BoundedRandomPosition(arenaAABB, ref random);
-
-                // move toward target Resource
                 var move = math.normalize(targetPosition - translation.Value) * speed.Value * deltaTime;
+                
                 translation.Value += move;
             }).Schedule();
     }
