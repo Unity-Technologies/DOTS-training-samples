@@ -75,4 +75,10 @@ public class GameLogicSystem : SystemBase
             UIDisplay.TimeLeft = math.ceil(timer);
         }
     }
+
+    protected override void OnDestroy()
+    {
+        UIDisplay.PlayerScores.Dispose();
+        UIDisplay.PlayerColors.Dispose();
+    }
 }
