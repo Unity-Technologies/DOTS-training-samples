@@ -15,7 +15,7 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 [UpdateAfter(typeof(BeePerception))]
 public class BeeMovement : SystemBase
 {
-    const float maxRotation =180f;
+    const float maxRotation = 180f;
     const float distanceMaxSpeed = 4f;
     
     [ReadOnly]
