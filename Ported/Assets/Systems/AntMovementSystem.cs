@@ -29,7 +29,7 @@ public class AntMovementSystem : SystemBase
     // Change ant direction by random amount
     private static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
-        const float maxDirectionChangePerSecond = 5f;
+        const float maxDirectionChangePerSecond = 2.5f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
         var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
@@ -251,7 +251,7 @@ public class AntMovementSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         var simulationSpeedEntity = GetSingletonEntity<SimulationSpeed>();
-        var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value * 2f;
+        var simulationSpeed = GetComponent<SimulationSpeed>(simulationSpeedEntity).Value;
 
         var foodSource = GetSingletonEntity<FoodSource>();
         var foodSourceTranslation = GetComponent<Translation>(foodSource);
