@@ -21,8 +21,6 @@ public class BoardSpawner : SystemBase
 
     protected override void OnUpdate()
     {
-        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
-
         if (TryGetSingleton(out GameConfig gameConfig))
         {
             cells = new NativeArray<Entity>(gameConfig.BoardDimensions.x * gameConfig.BoardDimensions.y, Allocator.Persistent, NativeArrayOptions.ClearMemory);
@@ -137,16 +135,15 @@ public class BoardSpawner : SystemBase
 
                         CreateWall(x, y, Cardinals.South);
                     }
-
-
                 }
             }
 
+            var random = Random.CreateFromIndex(12345);
             // Create players
-
             for (int i = 0; i < gameConfig.NumOfAIPlayers + 1; i++)
             {
                 var player = EntityManager.Instantiate(gameConfig.CursorPrefab);
+                
                 float4 color = random.NextFloat4();
                 color.w = 1f;
 
@@ -166,6 +163,13 @@ public class BoardSpawner : SystemBase
                 EntityManager.AddComponentData(player, new URPMaterialPropertyBaseColor() { Value = color });
                 EntityManager.AddComponentData(player, new PlayerColor() { Color = color });
                 EntityManager.AddBuffer < CreatedArrowData >(player);
+                
+                // Create homebase
+                var homebase = EntityManager.Instantiate(gameConfig.HomebasePrefab);
+                EntityManager.AddComponentData(homebase, new PlayerIndex() { Index = i });
+                EntityManager.AddComponentData(homebase, new URPMaterialPropertyBaseColor() { Value = color });
+                EntityManager.AddComponentData(homebase, new Homebase());
+                EntityManager.SetComponentData(homebase, new Translation() { Value = new float3(random.NextInt(1, gameConfig.BoardDimensions.x-1), 0.1f, random.NextInt(1, gameConfig.BoardDimensions.y-1)) });
             }
 
             Enabled = false;

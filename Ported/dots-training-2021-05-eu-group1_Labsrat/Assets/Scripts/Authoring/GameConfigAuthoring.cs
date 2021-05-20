@@ -44,6 +44,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
     public float WallProbability = .1f;
     public float MouseSpawnDelay = 0.2f;
     public float CatSpawnDelay = 1f;
+    public UnityGameObject HomebasePrefab;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -53,6 +54,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(ArrowPrefab);
         referencedPrefabs.Add(MousePrefab);
         referencedPrefabs.Add(CursorPrefab);
+        referencedPrefabs.Add(HomebasePrefab);
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -80,7 +82,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             RandomSeed = RandomSeed,
             Seed = Seed,
             MouseSpawnDelay = MouseSpawnDelay,
-            CatSpawnDelay = CatSpawnDelay
+            CatSpawnDelay = CatSpawnDelay,
+            HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
         };
 
         dstManager.AddComponentData(entity, gameConfig);
