@@ -11,7 +11,7 @@ public struct HomebaseData
     public float2 position;
 }
 
-[UpdateInGroup(typeof(ChuChuRocketUpdateGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 public class HomebaseSystem : SystemBase
 {
     EntityCommandBufferSystem m_EcbSystem;
