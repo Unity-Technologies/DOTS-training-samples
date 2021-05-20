@@ -68,6 +68,7 @@ public class GameLogicSystem : SystemBase
             UIDisplay.Winner = winner;
             World.GetExistingSystem<MovementSystem>().Enabled = false;
             World.GetExistingSystem<InputSystem>().Enabled = false;
+            World.GetExistingSystem<AnimalSpawnerSystem>().Enabled = false;
         }
         else
         {
