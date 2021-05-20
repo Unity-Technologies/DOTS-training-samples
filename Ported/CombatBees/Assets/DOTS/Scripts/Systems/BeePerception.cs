@@ -53,7 +53,7 @@ public class BeePerception : SystemBase
                 // and set a random Resource as the target the bee is trying to collect         
                 Entities
                     .WithAll<IsBee>()
-                    .WithNone<Target, IsDead>()
+                    .WithNone<Target, IsAttacking, IsDead>()
                     .ForEach((Entity entity) =>
                     {
                         // pick a random resource and add target component to bee

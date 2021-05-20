@@ -35,7 +35,7 @@ public class DestroyerSystem : SystemBase
             {
                 lifespan.Value -= timeDeltaTime;
 
-                if (lifespan.Value<=0)
+                if (lifespan.Value <= 0)
                 {
                     ecb.DestroyEntity(entity);
                 }

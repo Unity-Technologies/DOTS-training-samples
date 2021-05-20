@@ -38,6 +38,14 @@ public class GravitySystem : SystemBase
                     ecb.AddComponent<OnCollision>(entity);
                 }
             }).Schedule();
+        
+        Entities
+            .WithAll<IsBee, OnCollision>()
+            .WithNone<LifeSpan>()
+            .ForEach((Entity entity) =>
+            {
+                ecb.AddComponent(entity, new LifeSpan { Value = 1 });
+            }).Schedule();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
