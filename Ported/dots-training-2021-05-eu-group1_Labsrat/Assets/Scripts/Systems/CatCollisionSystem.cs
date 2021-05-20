@@ -35,12 +35,12 @@ public class CatCollisionSystem : SystemBase
                     catPositions.Add(new float2(translation.Value.x, translation.Value.z));
                 }).Schedule();
 
-            EntityCommandBuffer ecb = m_EcbSystem.CreateCommandBuffer();
+            EntityCommandBuffer.ParallelWriter ecb = m_EcbSystem.CreateCommandBuffer().AsParallelWriter();
             
             Entities
                 .WithAll<Mouse>()
                 .WithReadOnly(catPositions)
-                .ForEach((Entity mouseEntity, in Translation translation, in Direction direction) =>
+                .ForEach((Entity mouseEntity, int entityInQueryIndex, in Translation translation, in Direction direction) =>
                 {
                     float2 mousePosition = new float2(translation.Value.x, translation.Value.z);
                     foreach (var catPosition in catPositions)
@@ -49,10 +49,10 @@ public class CatCollisionSystem : SystemBase
                         && math.distancesq(mousePosition, catPosition) < 1)
                         {
                             // Cat collides with mouse
-                            ecb.DestroyEntity(mouseEntity);
+                            ecb.DestroyEntity(entityInQueryIndex, mouseEntity);
                         }
                     }
-                }).Schedule();
+                }).ScheduleParallel();
             
             m_EcbSystem.AddJobHandleForProducer(Dependency);
         }
