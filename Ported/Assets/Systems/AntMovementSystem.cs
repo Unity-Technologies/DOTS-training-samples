@@ -29,7 +29,7 @@ public class AntMovementSystem : SystemBase
     // Change ant direction by random amount
     private static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
-        const float maxDirectionChangePerSecond = 2.5f;
+        const float maxDirectionChangePerSecond = 2.0f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
         var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
@@ -122,7 +122,7 @@ public class AntMovementSystem : SystemBase
                 }
                 else
                 {
-                    direction.Radians += 0.1f * math.sign(direction.Radians - antAngle);
+                    direction.Radians += 0.2f * math.sign(direction.Radians - antAngle);
                     return true;
                 }
             }
@@ -236,7 +236,7 @@ public class AntMovementSystem : SystemBase
         // Divide by how many points we checked so that we get a value between 0 and 1
         pullDirection /= side * side;
 
-        antDirection = pullDirection * 0.2f + antDirection * 0.90f;
+        antDirection = pullDirection * 0.25f + antDirection * 0.75f;
         direction.Radians = math.atan2(antDirection.y, antDirection.x);
     }
     
