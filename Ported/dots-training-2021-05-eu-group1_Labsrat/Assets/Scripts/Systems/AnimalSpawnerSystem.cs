@@ -23,8 +23,9 @@ public class AnimalSpawnerSystem : SystemBase
 
     EntityQuery mouseQuery;
     EntityQuery catQuery;
-    Random m_Random;
     bool randomInitialized;
+    
+    static Random random;
 
     protected override void OnCreate()
     {
@@ -42,11 +43,10 @@ public class AnimalSpawnerSystem : SystemBase
         {
             if (!randomInitialized)
             {
-                m_Random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
+                random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
                 randomInitialized = true;
             }
 
-            Random random = m_Random;
             EntityCommandBuffer catEcb = new EntityCommandBuffer(Allocator.TempJob);
             EntityCommandBuffer mouseEcb = new EntityCommandBuffer(Allocator.TempJob);
 
@@ -62,6 +62,9 @@ public class AnimalSpawnerSystem : SystemBase
                         {
                             for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
                             {
+                                if (catcount++ >= gameConfig.NumOfCats)
+                                    return;
+                                
                                 var xPos = random.NextInt(gameConfig.BoardDimensions.x);
                                 var yPos = random.NextInt(gameConfig.BoardDimensions.y);
                                 var randDir = random.NextInt(3);
@@ -98,6 +101,9 @@ public class AnimalSpawnerSystem : SystemBase
                             quaternion angleWest = quaternion.RotateY(Direction.GetAngle(Cardinals.West));
                             for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
                             {
+                                if (mousecount++ >= gameConfig.NumOfMice)
+                                    return;
+                                
                                 int xPos = 0;
                                 int yPos = 0;
                                 Cardinals dir = Cardinals.East;
@@ -147,7 +153,6 @@ public class AnimalSpawnerSystem : SystemBase
                     mouseEcb.Playback(EntityManager);
                     mouseEcb.Dispose();
                 }
-
             }
 
             //Enabled = false;
