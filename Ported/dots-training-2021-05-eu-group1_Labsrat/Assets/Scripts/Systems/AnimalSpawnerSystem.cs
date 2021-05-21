@@ -130,21 +130,21 @@ public class AnimalSpawnerSystem : SystemBase
                 {
                     TimeUntilNextMouseSpawn -= Time.DeltaTime;
                 }
-
-                if (catJob.HasValue)
-                {
-                    catJob.Value.Complete();
-                    catEcb.Playback(EntityManager);
-                }
-                if (mouseJob.HasValue)
-                {
-                    mouseJob.Value.Complete();
-                    mouseEcb.Playback(EntityManager);
-                }
-                
-                catEcb.Dispose();
-                mouseEcb.Dispose();
             }
+
+            if (catJob.HasValue)
+            {
+                catJob.Value.Complete();
+                catEcb.Playback(EntityManager);
+            }
+            if (mouseJob.HasValue)
+            {
+                mouseJob.Value.Complete();
+                mouseEcb.Playback(EntityManager);
+            }
+                
+            catEcb.Dispose();
+            mouseEcb.Dispose();
         }
     }
 }
