@@ -44,7 +44,7 @@ public class AntMovementSystem : SystemBase
     }
 
     private static bool HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
-        ref Translation translation, ref Direction direction, float2 movementStep,
+        ref Translation translation, ref Direction direction, float2 directionVec,
         ref Random random, float simulationSpeed, float deltaTime)
     {
         var halfWallThickness = 1.5f;
@@ -92,13 +92,13 @@ public class AntMovementSystem : SystemBase
                 if (!shouldCollide)
                 {
                     var pos = new float3(math.cos(math.radians(wall.Angles.x)) * wall.Radius, math.sin(math.radians(wall.Angles.x)) * wall.Radius, 0f);
-                    if (math.distance(pos, translation.Value) < halfWallThickness)
+                    if (math.distance(pos, translation.Value) < halfWallThickness * 2f)
                     {
                         shouldCollideFromCorner = true;
                         positionToBounce = pos;
                     }
                     pos = new float3(math.cos(math.radians(wall.Angles.y)) * wall.Radius, math.sin(math.radians(wall.Angles.y)) * wall.Radius, 0f);
-                    if (math.distance(pos, translation.Value) < halfWallThickness)
+                    if (math.distance(pos, translation.Value) < halfWallThickness * 2f)
                     {
                         shouldCollideFromCorner = true;
                         positionToBounce = pos;
@@ -113,16 +113,25 @@ public class AntMovementSystem : SystemBase
             if (true)
             {
                 var collisionPoint = (new float2(math.cos(antAngle), math.sin(antAngle))) * wallRadius;
+                var normal = float2.zero - collisionPoint;
+                var reflected = math.reflect(directionVec, normal);
+                reflected = reflected / math.length(reflected);
                 var antPos = translation.Value.xy;
 
-                var nextPos = antPos + movementStep;
-                if (math.length(nextPos - collisionPoint) >= math.length(antPos - collisionPoint))
+                var nextPos = antPos + directionVec * 0.01f;
+                var distanceToWallCenter = math.length(antPos - collisionPoint);
+                if (math.length(nextPos - collisionPoint) >= distanceToWallCenter)
                 {
                     // Heading away from the wall
                 }
                 else
                 {
-                    direction.Radians += 0.2f * math.sign(direction.Radians - antAngle);
+                    var strength = 0.3f;
+                    var targetDirection = directionVec * (1.0f - strength) + reflected * strength;
+                    direction.Radians = math.atan2(targetDirection.y, targetDirection.x);
+                    var step = targetDirection * deltaTime * simulationSpeed;
+                    translation.Value.x += step.x;
+                    translation.Value.y += step.y;
                     return true;
                 }
             }
@@ -130,7 +139,7 @@ public class AntMovementSystem : SystemBase
             {
                 var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
                 var normal = float2.zero - collisionPoint;
-                var newDirection = math.reflect(movementStep, normal);
+                var newDirection = math.reflect(directionVec * directionVec, normal);
                 direction.Radians = math.atan2(newDirection.y, newDirection.x);
                 translation.Value.x += newDirection.x;
                 translation.Value.y += newDirection.y;
@@ -141,7 +150,7 @@ public class AntMovementSystem : SystemBase
         {
             var normal3 = positionToBounce - translation.Value;
             var normal = new float2(normal3.x, normal3.y);
-            var newDirection = math.reflect(movementStep, normal);
+            var newDirection = math.reflect(directionVec * deltaTime * simulationSpeed, normal);
             direction.Radians = math.atan2(newDirection.y, newDirection.x);
             translation.Value.x += newDirection.x;
             translation.Value.y += newDirection.y;
@@ -303,7 +312,7 @@ public class AntMovementSystem : SystemBase
                 var directionVec = movementStep / math.length(movementStep);
 
 
-                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
+                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec, ref random, simulationSpeed, deltaTime);
                 if (!collided)
                     FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                 
