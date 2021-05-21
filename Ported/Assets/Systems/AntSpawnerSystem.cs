@@ -38,10 +38,11 @@ public class AntSpawnerSystem : SystemBase
                     var instance = ecb.Instantiate(spawner.AntPrefab);
 
                     var rotation = random.NextFloat(2.0f * Mathf.PI);
+                    var direction = new float2(math.cos(rotation), math.sin(rotation));
                     
                     ecb.SetComponent(instance, new Translation {Value = new float3(x, y, 0)});
                     ecb.SetComponent(instance, new Rotation {Value = quaternion.RotateZ(rotation)});
-                    ecb.SetComponent(instance, new Direction {Radians = rotation});
+                    ecb.SetComponent(instance, new Direction {Value = direction});
                     ecb.SetComponent(instance, new URPMaterialPropertyBaseColor 
                     {
                         Value = new float4(0.35f, 0.35f, 0.45f, 0)

@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct Direction : IComponentData
 {
-    public float Radians;
+    public float2 Value;
 }

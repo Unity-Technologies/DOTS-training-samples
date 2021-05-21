@@ -32,15 +32,9 @@ public class AntMovementSystem : SystemBase
         const float maxDirectionChangePerSecond = 1f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
-        var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
-        direction.Radians += change;
-    }
-
-    private static float2 CalculateMovementStep(Direction direction, float deltaTime, float simulationSpeed)
-    {
-        var delta = new float2(math.cos(direction.Radians), math.sin(direction.Radians));
-        delta *= deltaTime * simulationSpeed;
-        return delta;
+        var angle = math.atan2(direction.Value.y, direction.Value.x);
+        angle +=random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
+        direction.Value = new float2(math.cos(angle), math.sin(angle));
     }
 
     private static bool HandleWallCollisions(NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
@@ -128,7 +122,7 @@ public class AntMovementSystem : SystemBase
                 {
                     var strength = 0.3f;
                     var targetDirection = directionVec * (1.0f - strength) + reflected * strength;
-                    direction.Radians = math.atan2(targetDirection.y, targetDirection.x);
+                    direction.Value = targetDirection;
                     var step = targetDirection * deltaTime * simulationSpeed;
                     translation.Value.x += step.x;
                     translation.Value.y += step.y;
@@ -140,7 +134,7 @@ public class AntMovementSystem : SystemBase
                 var collisionPoint = new float2(math.cos(antAngle), math.sin(antAngle));
                 var normal = float2.zero - collisionPoint;
                 var newDirection = math.reflect(directionVec * directionVec, normal);
-                direction.Radians = math.atan2(newDirection.y, newDirection.x);
+                direction.Value = newDirection;
                 translation.Value.x += newDirection.x;
                 translation.Value.y += newDirection.y;
             }
@@ -151,7 +145,7 @@ public class AntMovementSystem : SystemBase
             var normal3 = positionToBounce - translation.Value;
             var normal = new float2(normal3.x, normal3.y);
             var newDirection = math.reflect(directionVec * deltaTime * simulationSpeed, normal);
-            direction.Radians = math.atan2(newDirection.y, newDirection.x);
+            direction.Value = newDirection;
             translation.Value.x += newDirection.x;
             translation.Value.y += newDirection.y;
             return true;
@@ -166,28 +160,32 @@ public class AntMovementSystem : SystemBase
         var upperBound = screenUpperBound - border;
         var lowerBound = screenLowerBound + border;
 
+        var angle = math.atan2(direction.Value.y, direction.Value.x);
+
         // Check if we're hitting the screen edge
         if (translation.Value.x > upperBound)
         {
-            direction.Radians = Mathf.PI - direction.Radians;
+            angle = Mathf.PI - angle;
             translation.Value.x = upperBound;
         }
         else if (translation.Value.x < lowerBound)
         {
-            direction.Radians = Mathf.PI - direction.Radians;
+            angle = Mathf.PI - angle;
             translation.Value.x = lowerBound;
         }
 
         if (translation.Value.y > upperBound)
         {
-            direction.Radians = -direction.Radians;
+            angle = -angle;
             translation.Value.y = upperBound;
         }
         else if (translation.Value.y < lowerBound)
         {
-            direction.Radians = -direction.Radians;
+            angle = -angle;
             translation.Value.y = lowerBound;
         }
+
+        direction.Value = new float2(math.cos(angle), math.sin(angle));
     }
 
     private static int ClampPheromoneMap(PheromoneMap map, int pos)
@@ -247,21 +245,18 @@ public class AntMovementSystem : SystemBase
         pullDirection /= side * side;
 
         antDirection = pullDirection * pheromoneStrength + antDirection;
-        direction.Radians = math.atan2(antDirection.y, antDirection.x);
+        direction.Value = antDirection / math.length(direction.Value);
     }
 
     static void ApproachFoodSource(Translation translation, ref Direction direction, float2 foodPos,
         NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
         float deltaTime, float simulationSpeed)
     {
-        var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-        var directionVec = movementStep / math.length(movementStep);
-
         if (IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
         {
             float2 pullDirection = new float2(foodPos.x, foodPos.y) - translation.Value.xy;
-            directionVec = pullDirection * 0.001f + directionVec * 0.90f;
-            direction.Radians = math.atan2(directionVec.y, directionVec.x);
+            direction.Value = pullDirection * 0.001f + direction.Value * 0.90f;
+            direction.Value = direction.Value / math.length(direction.Value);
         }
     }
     
@@ -269,14 +264,11 @@ public class AntMovementSystem : SystemBase
          NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
          float deltaTime, float simulationSpeed)
     {
-        var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-        var directionVec = movementStep / math.length(movementStep);
-
         if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
         {
             float2 pullDirection = float2.zero - translation.Value.xy;
-            directionVec = pullDirection * 0.001f + directionVec * 0.90f;
-            direction.Radians = math.atan2(directionVec.y, directionVec.x);
+            direction.Value = pullDirection * 0.001f + direction.Value * 0.90f;
+            direction.Value = direction.Value / math.length(direction.Value);
         }
     }
 
@@ -288,7 +280,7 @@ public class AntMovementSystem : SystemBase
         if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
         {
             color.Value = new float4(1, 1, 0, 0);
-            direction.Radians += Mathf.PI;
+            direction.Value = -direction.Value;
 
             ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
         }
@@ -302,7 +294,7 @@ public class AntMovementSystem : SystemBase
         if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
         {
             color.Value = new float4(0.25f, 0.25f, 0.35f, 0);
-            direction.Radians += Mathf.PI;
+            direction.Value = -direction.Value;
 
             ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
         }
@@ -543,9 +535,7 @@ public class AntMovementSystem : SystemBase
                 .ForEach((ref Translation translation, ref Direction direction) =>
                 {
                     float pheromoneStrength = 0.7f;
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, direction.Value,
                         halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                 }).ScheduleParallel(Dependency);
 
@@ -556,9 +546,7 @@ public class AntMovementSystem : SystemBase
                 .ForEach((ref Translation translation, ref Direction direction) =>
                 {
                     float pheromoneStrength = 1.5f;
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, direction.Value,
                         halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                 }).ScheduleParallel(Dependency);
 
@@ -592,10 +580,7 @@ public class AntMovementSystem : SystemBase
                 .WithDisposeOnCompletion(walls)
                 .ForEach((ref Translation translation, ref Direction direction) =>
                 {
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-
-                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, direction.Value,
                         ref random, simulationSpeed, deltaTime);
                 }).ScheduleParallel(Dependency);
 
@@ -633,9 +618,8 @@ public class AntMovementSystem : SystemBase
                 .WithName("MoveForwards")
                 .ForEach((ref Translation translation, ref Direction direction) =>
                 {
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-
                     // Move ant a step forward in its direction
+                    var movementStep = direction.Value * deltaTime * simulationSpeed;
                     translation.Value.x += movementStep.x;
                     translation.Value.y += movementStep.y;
                 }).ScheduleParallel(Dependency);
@@ -645,7 +629,8 @@ public class AntMovementSystem : SystemBase
                 .WithName("UpdateRenderingState")
                 .ForEach((ref Direction direction, ref Rotation rotation) =>
                 {
-                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                    var angle = math.atan2(direction.Value.y, direction.Value.x);
+                    rotation = new Rotation {Value = quaternion.RotateZ(angle)};
                 }).ScheduleParallel(Dependency);
         }
         else
@@ -666,24 +651,23 @@ public class AntMovementSystem : SystemBase
 
                     RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
 
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, direction.Value,
                         halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                     ApproachFoodSource(translation, ref direction, foodPos, walls, wallComponentData, deltaTime,
                         simulationSpeed);
-                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, direction.Value,
                         ref random, simulationSpeed, deltaTime);
                     CheckReachedFoodSource(translation, foodPos, foodSourceRadius, direction, ecb, entityInQueryIndex,
                         entity, ref color);
                     HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
 
                     // Move ant a step forward in its direction
+                    var movementStep = direction.Value * deltaTime * simulationSpeed;
                     translation.Value.x += movementStep.x;
                     translation.Value.y += movementStep.y;
 
-                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                    var angle = math.atan2(direction.Value.y, direction.Value.x);
+                    rotation = new Rotation {Value = quaternion.RotateZ(angle)};
                 }).ScheduleParallel(Dependency);
 
             Dependency = Entities
@@ -702,23 +686,22 @@ public class AntMovementSystem : SystemBase
                     
                     RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
                     
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, direction.Value,
                         halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                     ApproachAntHill(translation, direction, walls, wallComponentData, deltaTime, simulationSpeed);
-                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, direction.Value,
                         ref random, simulationSpeed, deltaTime);
                     CheckReachedAntHill(translation, antHillPosition, antHillRadius, direction, ecb, entityInQueryIndex,
                         entity, ref color);
                     HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
 
                     // Move ant a step forward in its direction
+                    var movementStep = direction.Value * deltaTime * simulationSpeed;
                     translation.Value.x += movementStep.x;
                     translation.Value.y += movementStep.y;
 
-                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                    var angle = math.atan2(direction.Value.y, direction.Value.x);
+                    rotation = new Rotation {Value = quaternion.RotateZ(angle)};
                 }).ScheduleParallel(Dependency);
         }
 
