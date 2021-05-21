@@ -28,8 +28,7 @@ public class BeeAttackSystem : SystemBase
     }
     protected override void OnUpdate()
     {
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer();
-        var pecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         
         // job to 'start attacks'
         // for all bees that are not already attacking, returning, dead or are not cooling down from a previous attack
@@ -49,8 +48,9 @@ public class BeeAttackSystem : SystemBase
                 .WithAll<IsBee>()
                 .WithNone<IsDead, IsAttacking, IsReturning>()
                 .WithNone<AttackCooldown>()
+                .WithReadOnly(aliveBees)
                 .WithDisposeOnCompletion(aliveBees)
-                .ForEach((Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
+                .ForEach((int entityInQueryIndex, Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
                 {
                     // test if bee is aggressive enough to look to start an attack
                     if (aggression.Value > 0.5)
@@ -79,15 +79,15 @@ public class BeeAttackSystem : SystemBase
                         // if we found a bee to attack, start the attack
                         if (closestOpposingBee != Entity.Null)
                         {
-                            ecb.AddComponent<IsAttacking>(entity);
-                            ecb.AddComponent(entity, new AttackTimer { Value = 2f });
-                            ecb.AddComponent(entity, new Target { Value = closestOpposingBee });
-                            ecb.AddComponent<TargetPosition>(entity);
+                            ecb.AddComponent<IsAttacking>(entityInQueryIndex, entity);
+                            ecb.AddComponent(entityInQueryIndex, entity, new AttackTimer { Value = 2f });
+                            ecb.AddComponent(entityInQueryIndex, entity, new Target { Value = closestOpposingBee });
+                            ecb.AddComponent<TargetPosition>(entityInQueryIndex, entity);
                             
                             speed.MaxValue *= 2;
                         }
                     }
-                }).Schedule();
+                }).ScheduleParallel();
         }
 
         // job to 'process attacks'
@@ -117,12 +117,12 @@ public class BeeAttackSystem : SystemBase
                     // kill the opposing bee, drop any carried resource, add gravity
                     var opposingBee = target.Value;
                     
-                    pecb.AddComponent<IsDead>(entityInQueryIndex, opposingBee);
-                    pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBee);
+                    ecb.AddComponent<IsDead>(entityInQueryIndex, opposingBee);
+                    ecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBee);
 
-                    pecb.SetComponent(entityInQueryIndex, opposingBee, new Velocity { Value = math.normalize(velocity.Value) });
+                    ecb.SetComponent(entityInQueryIndex, opposingBee, new Velocity { Value = math.normalize(velocity.Value) });
                     
-                    pecb.SetComponent(entityInQueryIndex, opposingBee, new URPMaterialPropertyBaseColor
+                    ecb.SetComponent(entityInQueryIndex, opposingBee, new URPMaterialPropertyBaseColor
                     {
                         Value = new float4(1, 0, 0, 1)
                     });
@@ -133,23 +133,23 @@ public class BeeAttackSystem : SystemBase
                         {
                             var opposingBeeResource = GetComponent<Target>(opposingBee).Value;
                         
-                            pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
-                            pecb.RemoveComponent<IsCarried>(entityInQueryIndex, opposingBeeResource);
-                            pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBeeResource);
+                            ecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
+                            ecb.RemoveComponent<IsCarried>(entityInQueryIndex, opposingBeeResource);
+                            ecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBeeResource);
                         }
                         
-                        pecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
+                        ecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
                     }
                 }
 
                 // if the attack is over, end the attack
                 if (attackOver)
                 {
-                    pecb.RemoveComponent<IsAttacking>(entityInQueryIndex, entity);
-                    pecb.RemoveComponent<AttackTimer>(entityInQueryIndex, entity);
-                    pecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<IsAttacking>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AttackTimer>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                     
-                    pecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
+                    ecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
                     
                     speed.MaxValue /= 2;
                 }
@@ -164,7 +164,7 @@ public class BeeAttackSystem : SystemBase
                 
                 if (attackCooldown.Value < 0)
                 {
-                    pecb.RemoveComponent<AttackCooldown>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AttackCooldown>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel();
 
