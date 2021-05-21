@@ -44,27 +44,28 @@ public class BeePerception : SystemBase
             }).Run();
 
         // Get list of Resources available to collect
-        var resources = QueryResources.ToEntityArray(Allocator.TempJob);
-        
-        if (resources.Length > 0)
+        using (var resources = QueryResources.ToEntityArray(Allocator.TempJob))
         {
-            // Query for bees that are not dead, carrying, attacking or returning
-            // and set a random Resource as the target the bee is trying to collect         
-            Entities
-                .WithName("TargetResource")
-                .WithAll<IsBee>()
-                .WithNone<Target, IsAttacking, IsDead>()
-                .ForEach((Entity entity) =>
-                {
-                    // tag the bee as now gathering
-                    ecb.AddComponent<IsGathering>(entity);
-                    
-                    // pick a random resource and add target component to bee
-                    ecb.AddComponent(entity, new Target
+            if (resources.Length > 0)
+            {
+                // Query for bees that are not dead, carrying, attacking or returning
+                // and set a random Resource as the target the bee is trying to collect         
+                Entities
+                    .WithName("TargetResource")
+                    .WithAll<IsBee>()
+                    .WithNone<Target, IsAttacking, IsDead>()
+                    .ForEach((Entity entity) =>
                     {
-                        Value = resources[random.NextInt(0, resources.Length)]
-                    });
-                }).Run();
+                        // tag the bee as now gathering
+                        ecb.AddComponent<IsGathering>(entity);
+                    
+                        // pick a random resource and add target component to bee
+                        ecb.AddComponent(entity, new Target
+                        {
+                            Value = resources[random.NextInt(0, resources.Length)]
+                        });
+                    }).Run();
+            }
         }
 
         ecb.Playback(EntityManager);

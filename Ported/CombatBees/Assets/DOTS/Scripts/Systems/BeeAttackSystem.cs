@@ -129,16 +129,16 @@ public class BeeAttackSystem : SystemBase
 
                     if (HasComponent<Target>(opposingBee))
                     {
-                        pecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
-                    }
-                    
-                    if (HasComponent<IsReturning>(opposingBee))
-                    {
-                        var opposingBeeResource = GetComponent<Target>(opposingBee).Value;
+                        if (HasComponent<IsReturning>(opposingBee))
+                        {
+                            var opposingBeeResource = GetComponent<Target>(opposingBee).Value;
                         
-                        pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
-                        pecb.RemoveComponent<IsCarried>(entityInQueryIndex, opposingBeeResource);
-                        pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBeeResource);
+                            pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
+                            pecb.RemoveComponent<IsCarried>(entityInQueryIndex, opposingBeeResource);
+                            pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBeeResource);
+                        }
+                        
+                        pecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
                     }
                 }
 
