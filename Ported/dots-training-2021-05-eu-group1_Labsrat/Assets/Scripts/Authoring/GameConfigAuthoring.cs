@@ -22,7 +22,7 @@ public class GameConfigAuthoring : UnityMonoBehaviour
 {
     [Header("Camera and Controls")]
     public float ControlSensitivity;
-    public float CameraOffset;
+    public bool FixedCamera;
 
     [Header("Board Generation")]
     public bool RandomSeed;
@@ -105,8 +105,8 @@ public class GameConfigAuthoring : UnityMonoBehaviour
             HomebasePrefab = conversionSystem.GetPrimaryEntity(HomebasePrefab),
             MaxAnimalsSpawnedPerFrame = MaxAnimalsSpawnedPerFrame,
             MiceSpawnInRandomLocations = MiceSpawnInRandomLocations,
-            CameraOffset = CameraOffset,
-            ControlSensitivity = ControlSensitivity
+            ControlSensitivity = ControlSensitivity,
+            FixedCamera=FixedCamera
     };
 
         dstManager.AddComponentData(entity, gameConfig);

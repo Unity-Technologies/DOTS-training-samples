@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ControlSensitivity: 0.1
-  CameraOffset: 0
+  FixedCamera: 1
   RandomSeed: 1
   Seed: 234
   CellPrefab: {fileID: 6401784360738124690, guid: 79ed59e6bf104154ca7a1eda2e5923d3, type: 3}

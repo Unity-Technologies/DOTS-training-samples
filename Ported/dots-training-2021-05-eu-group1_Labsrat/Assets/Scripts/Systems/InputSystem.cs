@@ -45,25 +45,28 @@ public class InputSystem : SystemBase
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.IsMouseDown = mouseDown;
 
-                if (isMouseOverViewport)
+                if (!gameConfig.FixedCamera)
                 {
-                    var camera = this.GetSingleton<GameObjectRefs>().Camera;
-                    var mouseAxis = mouseScreenPos;
-                    mouseAxis = new float2(mouseAxis.x - 0.5f, mouseAxis.y - 0.5f);
-                    mouseAxis *= 2;
-                    var mouseCenter = math.max(0,math.abs(mouseAxis)-0.5f)*2;
-                    mouseAxis = math.clamp(mouseAxis * mouseCenter, -0.3f, 0.3f);
+                    if (isMouseOverViewport)
+                    {
+                        var camera = this.GetSingleton<GameObjectRefs>().Camera;
+                        var mouseAxis = mouseScreenPos;
+                        mouseAxis = new float2(mouseAxis.x - 0.5f, mouseAxis.y - 0.5f);
+                        mouseAxis *= 2;
+                        var mouseCenter = math.max(0, math.abs(mouseAxis) - 0.5f) * 2;
+                        mouseAxis = math.clamp(mouseAxis * mouseCenter, -0.3f, 0.3f);
 
-                
-                
-                    float3 cameraPos = camera.transform.position;
-                
-                    float scrollY = -mousewheel * 3f;
-                    cameraPos.y = math.max(cameraPos.y + scrollY, 5f);
-                    cameraPos.x += mouseAxis.x * gameConfig.ControlSensitivity * cameraPos.y;
-                    cameraPos.z += mouseAxis.y * gameConfig.ControlSensitivity * cameraPos.y;
-                
-                    camera.transform.position = cameraPos;
+
+
+                        float3 cameraPos = camera.transform.position;
+
+                        float scrollY = -mousewheel * 3f;
+                        cameraPos.y = math.max(cameraPos.y + scrollY, 5f);
+                        cameraPos.x += mouseAxis.x * gameConfig.ControlSensitivity * cameraPos.y;
+                        cameraPos.z += mouseAxis.y * gameConfig.ControlSensitivity * cameraPos.y;
+
+                        camera.transform.position = cameraPos;
+                    }
                 }
             }).Run();
         

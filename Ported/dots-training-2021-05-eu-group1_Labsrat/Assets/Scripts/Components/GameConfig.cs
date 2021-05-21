@@ -14,6 +14,7 @@ public struct GameConfig : IComponentData
     public float4 TileColor1;
     public float4 TileColor2;
     public float ControlSensitivity;
+    public bool FixedCamera;
 
     public Entity CellPrefab;
     public Entity WallPrefab;
