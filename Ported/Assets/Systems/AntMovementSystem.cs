@@ -152,8 +152,8 @@ public class AntMovementSystem : SystemBase
             var normal = new float2(normal3.x, normal3.y);
             var newDirection = math.reflect(directionVec * deltaTime * simulationSpeed, normal);
             direction.Radians = math.atan2(newDirection.y, newDirection.x);
-            translation.Value.x += newDirection.x;
-            translation.Value.y += newDirection.y;
+            translation.Value.x += newDirection.x * 2.0f;
+            translation.Value.y += newDirection.y * 2.0f;
             return true;
         }
 
@@ -219,7 +219,7 @@ public class AntMovementSystem : SystemBase
 
         // Compute a "pull" direction from each pheromone point in a 5x5 grid around the ant.
         float2 pullDirection = float2.zero;
-        const int radius = 5;
+        const int radius = 3;
         const int side = radius + 1 + radius;
         for (int y = -radius; y <= radius; y++)
         {
@@ -305,7 +305,7 @@ public class AntMovementSystem : SystemBase
                 ref URPMaterialPropertyBaseColor color,
                 ref Rotation rotation) =>
             {
-                float pheromoneStrength = 1.0f;
+                float pheromoneStrength = 0.7f;
                 RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
 
                 var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
