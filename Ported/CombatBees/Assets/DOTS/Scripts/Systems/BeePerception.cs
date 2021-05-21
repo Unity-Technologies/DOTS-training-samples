@@ -5,9 +5,13 @@ using Unity.Entities;
 public class BeePerception : SystemBase
 {
     private EntityQuery QueryResources;
+    private EntityCommandBufferSystem EntityCommandBufferSystem;
+
 
     protected override void OnCreate()
     {
+        EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
         // Query list of Resources available to collect
         var queryResourcesDesc = new EntityQueryDesc
         {
@@ -20,8 +24,7 @@ public class BeePerception : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var random = Utils.GetRandom();
 
         // TODO what about bees that are targeting Resources that have been
@@ -33,42 +36,43 @@ public class BeePerception : SystemBase
             .WithName("RemoveResourceTarget")
             .WithNone<IsReturning>()
             .WithAll<IsBee>()
-            .ForEach((Entity entity, in Target target) =>
+            .ForEach((int entityInQueryIndex, Entity entity, in Target target) =>
             {
                 var targetEntity = target.Value;
                 
                 if (HasComponent<IsCarried>(targetEntity))
                 {
-                    ecb.RemoveComponent<Target>(entity);
+                    ecb.RemoveComponent<Target>(entityInQueryIndex, entity);
                 }
-            }).Run();
+            }).ScheduleParallel();
 
         // Get list of Resources available to collect
-        using (var resources = QueryResources.ToEntityArray(Allocator.TempJob))
+        var resources = QueryResources.ToEntityArray(Allocator.TempJob);
+        if (resources.Length > 0)
         {
-            if (resources.Length > 0)
-            {
-                // Query for bees that are not dead, carrying, attacking or returning
-                // and set a random Resource as the target the bee is trying to collect         
-                Entities
-                    .WithName("TargetResource")
-                    .WithAll<IsBee>()
-                    .WithNone<Target, IsAttacking, IsDead>()
-                    .ForEach((Entity entity) =>
-                    {
-                        // tag the bee as now gathering
-                        ecb.AddComponent<IsGathering>(entity);
-                    
-                        // pick a random resource and add target component to bee
-                        ecb.AddComponent(entity, new Target
-                        {
-                            Value = resources[random.NextInt(0, resources.Length)]
-                        });
-                    }).Run();
-            }
-        }
+            // Query for bees that are not dead, carrying, attacking or returning
+            // and set a random Resource as the target the bee is trying to collect         
+            Entities
+                .WithName("TargetResource")
+                .WithAll<IsBee>()
+                .WithNone<Target, IsAttacking, IsDead>()
+                .WithReadOnly(resources)
+                .WithDisposeOnCompletion(resources)
+                .ForEach((int entityInQueryIndex, Entity entity) =>
+                {
+                    // tag the bee as now gathering
+                    ecb.AddComponent<IsGathering>(entityInQueryIndex, entity);
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-    }
+                    // pick a random resource and add target component to bee
+                    ecb.AddComponent(entityInQueryIndex, entity, new Target
+                    {
+                        Value = resources[random.NextInt(0, resources.Length)]
+                    });
+                }).ScheduleParallel();
+        }
+        else
+            resources.Dispose();
+ 
+        EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+   }
 }
