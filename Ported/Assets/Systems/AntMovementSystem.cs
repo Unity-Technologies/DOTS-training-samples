@@ -29,7 +29,7 @@ public class AntMovementSystem : SystemBase
     // Change ant direction by random amount
     private static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
-        const float maxDirectionChangePerSecond = 1.4f;
+        const float maxDirectionChangePerSecond = 1f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
         var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
@@ -249,6 +249,36 @@ public class AntMovementSystem : SystemBase
         antDirection = pullDirection * pheromoneStrength + antDirection;
         direction.Radians = math.atan2(antDirection.y, antDirection.x);
     }
+
+    static void ApproachFoodSource(Translation translation, ref Direction direction, float2 foodPos,
+        NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
+        float deltaTime, float simulationSpeed)
+    {
+        var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+        var directionVec = movementStep / math.length(movementStep);
+
+        if (IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
+        {
+            float2 pullDirection = new float2(foodPos.x, foodPos.y) - translation.Value.xy;
+            directionVec = pullDirection * 0.001f + directionVec * 0.90f;
+            direction.Radians = math.atan2(directionVec.y, directionVec.x);
+        }
+    }
+    
+    private static void ApproachAntHill(Translation translation, Direction direction,
+         NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
+         float deltaTime, float simulationSpeed)
+    {
+        var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+        var directionVec = movementStep / math.length(movementStep);
+
+        if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
+        {
+            float2 pullDirection = float2.zero - translation.Value.xy;
+            directionVec = pullDirection * 0.001f + directionVec * 0.90f;
+            direction.Radians = math.atan2(directionVec.y, directionVec.x);
+        }
+    }
     
     protected override void OnUpdate()
     {
@@ -291,111 +321,236 @@ public class AntMovementSystem : SystemBase
         var pheromoneMapFactor = (float)pheromoneMap.gridSize / (float)screenSize;
         var pheromoneBuffer = GetBuffer<Pheromone>(pheromoneMapEntity);
 
-        Dependency = Entities
-            .WithAll<Ant>()
-            .WithNone<CarryingFood>()
-            .WithName("UpdateBlueAnts")
-            .WithReadOnly(walls)
-            .WithReadOnly(wallComponentData)
-            .WithReadOnly(pheromoneBuffer)
-            .ForEach((Entity entity,
-                int entityInQueryIndex,
-                ref Translation translation,
-                ref Direction direction,
-                ref URPMaterialPropertyBaseColor color,
-                ref Rotation rotation) =>
-            {
-                float pheromoneStrength = 0.7f;
-                RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
-
-                var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                var directionVec = movementStep / math.length(movementStep);
-
-
-                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec, ref random, simulationSpeed, deltaTime);
-                if (!collided)
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor, pheromoneStrength);
-                
-                // Move ant a step forward in its direction
-                translation.Value.x += movementStep.x;
-                translation.Value.y += movementStep.y;
-
-                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
-                
-                rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
-
-                var pos = new Vector2(translation.Value.x, translation.Value.y);
-                if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
+        bool splitJobs = true;
+        if (splitJobs)
+        {
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithName("RandomDirectionChange")
+                .ForEach((ref Direction direction) =>
                 {
-                    color.Value = new float4(1, 1, 0, 0);
-                    direction.Radians += Mathf.PI;
+                    RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithNone<CarryingFood>()
+                .WithName("FollowPheromones_Blue")
+                .WithReadOnly(pheromoneBuffer)
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    float pheromoneStrength = 0.7f;
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                        halfScreenSize, pheromoneMapFactor, pheromoneStrength);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant, CarryingFood>()
+                .WithName("FollowPheromones_Yellow")
+                .WithReadOnly(pheromoneBuffer)
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    float pheromoneStrength = 1.5f;
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                        halfScreenSize, pheromoneMapFactor, pheromoneStrength);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithNone<CarryingFood>()
+                .WithName("ApproachFoodSource")
+                .WithReadOnly(walls)
+                .WithReadOnly(wallComponentData)
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    ApproachFoodSource(translation, ref direction, foodPos, walls, wallComponentData, deltaTime,
+                        simulationSpeed);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant, CarryingFood>()
+                .WithName("ApproachTarget_Yellow")
+                .WithReadOnly(walls)
+                .WithReadOnly(wallComponentData)
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    ApproachAntHill(translation, direction, walls, wallComponentData, deltaTime, simulationSpeed);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithName("WallCollisions")
+                .WithReadOnly(walls)
+                .WithReadOnly(wallComponentData)
+                .WithDisposeOnCompletion(walls)
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                        ref random, simulationSpeed, deltaTime);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithNone<CarryingFood>()
+                .WithName("CheckReachedFoodSource")
+                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Direction direction,
+                    ref URPMaterialPropertyBaseColor color) =>
+                {
+                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, direction, ecb, entityInQueryIndex,
+                        entity, ref color);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant, CarryingFood>()
+                .WithName("CheckReachedAntHill")
+                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Direction direction,
+                    ref URPMaterialPropertyBaseColor color) =>
+                {
+                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, direction, ecb, entityInQueryIndex,
+                        entity, ref color);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithName("ScreenBoundCollisions")
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithName("MoveForwards")
+                .ForEach((ref Translation translation, ref Direction direction) =>
+                {
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+
+                    // Move ant a step forward in its direction
+                    translation.Value.x += movementStep.x;
+                    translation.Value.y += movementStep.y;
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithName("UpdateRenderingState")
+                .ForEach((ref Direction direction, ref Rotation rotation) =>
+                {
+                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                }).ScheduleParallel(Dependency);
+        }
+        else
+        {
+            Dependency = Entities
+                .WithAll<Ant>()
+                .WithNone<CarryingFood>()
+                .WithName("BlueAnts")
+                .WithReadOnly(pheromoneBuffer)
+                .WithReadOnly(walls)
+                .WithReadOnly(wallComponentData)
+                .ForEach((Entity entity, int entityInQueryIndex,
+                    ref Translation translation, ref Direction direction,
+                    ref URPMaterialPropertyBaseColor color,
+                    ref Rotation rotation) =>
+                {
+                    float pheromoneStrength = 0.7f;
+
+                    RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
+
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
                     
-                    ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
-                }
-                else if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                        halfScreenSize, pheromoneMapFactor, pheromoneStrength);
+                    ApproachFoodSource(translation, ref direction, foodPos, walls, wallComponentData, deltaTime,
+                        simulationSpeed);
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                        ref random, simulationSpeed, deltaTime);
+                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, direction, ecb, entityInQueryIndex,
+                        entity, ref color);
+                    HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
+
+                    // Move ant a step forward in its direction
+                    translation.Value.x += movementStep.x;
+                    translation.Value.y += movementStep.y;
+
+                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                }).ScheduleParallel(Dependency);
+
+            Dependency = Entities
+                .WithAll<Ant,CarryingFood>()
+                .WithName("YallowAnts")
+                .WithReadOnly(pheromoneBuffer)
+                .WithReadOnly(walls)
+                .WithReadOnly(wallComponentData)
+                .WithDisposeOnCompletion(walls)
+                .ForEach((Entity entity, int entityInQueryIndex,
+                    ref Translation translation, ref Direction direction,
+                    ref URPMaterialPropertyBaseColor color,
+                    ref Rotation rotation) =>
                 {
-                    float2 pullDirection = new float2(foodPos.x, foodPos.y) - translation.Value.xy;
-                    directionVec = pullDirection * 0.001f + directionVec * 0.90f;
-                    direction.Radians = math.atan2(directionVec.y, directionVec.x);
-                }
-                
-            }).ScheduleParallel(Dependency);
-
-        Dependency = Entities
-            .WithAll<Ant,CarryingFood>()
-            .WithName("UpdateYellowAnts")
-            .WithReadOnly(walls)
-            .WithReadOnly(wallComponentData)
-            .WithReadOnly(pheromoneBuffer)
-            .WithDisposeOnCompletion(walls)
-            .ForEach((Entity entity,
-                int entityInQueryIndex,
-                ref Translation translation,
-                ref Direction direction,
-                ref URPMaterialPropertyBaseColor color,
-                ref Rotation rotation) =>
-            {
-                float pheromoneStrength = 1.5f;
-                RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
-
-                var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                var directionVec = movementStep / math.length(movementStep);
-
-
-                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
-                if (!collided)
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor, pheromoneStrength);
-                
-                // Move ant a step forward in its direction
-                translation.Value.x += movementStep.x;
-                translation.Value.y += movementStep.y;
-
-                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
-                
-                rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
-
-                var pos = new Vector2(translation.Value.x, translation.Value.y);
-                if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
-                {
-                    color.Value = new float4(0.25f, 0.25f, 0.35f, 0);
-                    direction.Radians += Mathf.PI;
+                    float pheromoneStrength = 1.5f;
                     
-                    ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
-                }
-                else if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
-                {
-                    float2 pullDirection = float2.zero - translation.Value.xy;
-                    directionVec = pullDirection * 0.001f + directionVec * 0.90f;
-                    direction.Radians = math.atan2(directionVec.y, directionVec.x);
+                    RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
                     
-                }
-                
-            }).ScheduleParallel(Dependency);
-        
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                    var directionVec = movementStep / math.length(movementStep);
+                    
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec,
+                        halfScreenSize, pheromoneMapFactor, pheromoneStrength);
+                    ApproachAntHill(translation, direction, walls, wallComponentData, deltaTime, simulationSpeed);
+                    HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, directionVec,
+                        ref random, simulationSpeed, deltaTime);
+                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, direction, ecb, entityInQueryIndex,
+                        entity, ref color);
+                    HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
+
+                    // Move ant a step forward in its direction
+                    translation.Value.x += movementStep.x;
+                    translation.Value.y += movementStep.y;
+
+                    rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+                }).ScheduleParallel(Dependency);
+        }
+
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 
-        // Find the points of intersection.
+    private static void CheckReachedFoodSource(Translation translation, Vector2 foodPos, float foodSourceRadius,
+        Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
+        ref URPMaterialPropertyBaseColor color)
+    {
+        var pos = new Vector2(translation.Value.x, translation.Value.y);
+        if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
+        {
+            color.Value = new float4(1, 1, 0, 0);
+            direction.Radians += Mathf.PI;
+
+            ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
+        }
+    }
+
+    private static void CheckReachedAntHill(Translation translation, Vector2 antHillPosition, float antHillRadius,
+        Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
+        ref URPMaterialPropertyBaseColor color)
+    {
+        var pos = new Vector2(translation.Value.x, translation.Value.y);
+        if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
+        {
+            color.Value = new float4(0.25f, 0.25f, 0.35f, 0);
+            direction.Radians += Mathf.PI;
+
+            ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
+        }
+    }
+
+    // Find the points of intersection.
     private static int FindLineCircleIntersections(
         float cx, float cy, float radius,
         float2 point1, float2 point2,
