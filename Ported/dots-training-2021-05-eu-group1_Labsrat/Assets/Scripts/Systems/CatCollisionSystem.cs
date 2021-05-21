@@ -28,11 +28,14 @@ public class CatCollisionSystem : SystemBase
             NativeList<float2> catPositions = m_CatPositions;
             catPositions.Clear();
             
+            // preallocate array
+            catPositions.Resize(gameConfig.NumOfCats, NativeArrayOptions.UninitializedMemory);
+
             Entities
                 .WithAll<Cat>()
-                .ForEach((in Translation translation) => 
+                .ForEach((int entityInQueryIndex, in Translation translation) => 
                 {
-                    catPositions.Add(new float2(translation.Value.x, translation.Value.z));
+                    catPositions[entityInQueryIndex] = new float2(translation.Value.x, translation.Value.z);
                 }).Schedule();
 
             EntityCommandBuffer.ParallelWriter ecb = m_EcbSystem.CreateCommandBuffer().AsParallelWriter();

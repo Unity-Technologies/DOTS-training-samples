@@ -66,7 +66,6 @@ public class AnimalSpawnerSystem : SystemBase
 
                                 Entity cat = catEcb.Instantiate(gameConfig.CatPrefab);
                                 catEcb.AddComponent<Cat>(cat);
-                                catEcb.AddComponent<Translation>(cat);
                                 catEcb.SetComponent(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
                                 catEcb.SetComponent(cat, new Rotation() { Value = rotation });
                                 catEcb.AddComponent<Direction>(cat);
@@ -118,10 +117,6 @@ public class AnimalSpawnerSystem : SystemBase
                                 }
 
                                 Entity mouse = mouseEcb.Instantiate(gameConfig.MousePrefab);
-                                mouseEcb.AddComponent<Translation>(mouse);
-                                mouseEcb.AddComponent<Mouse>(mouse);
-                                mouseEcb.AddComponent<Direction>(mouse);
-
                                 mouseEcb.SetComponent(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
                                 mouseEcb.SetComponent(mouse, new Rotation() { Value = rotation });
                                 mouseEcb.SetComponent(mouse, new Direction() { Value = dir });
@@ -140,17 +135,16 @@ public class AnimalSpawnerSystem : SystemBase
                 {
                     catJob.Value.Complete();
                     catEcb.Playback(EntityManager);
-                    catEcb.Dispose();
                 }
                 if (mouseJob.HasValue)
                 {
                     mouseJob.Value.Complete();
                     mouseEcb.Playback(EntityManager);
-                    mouseEcb.Dispose();
                 }
+                
+                catEcb.Dispose();
+                mouseEcb.Dispose();
             }
-
-            //Enabled = false;
         }
     }
 }
