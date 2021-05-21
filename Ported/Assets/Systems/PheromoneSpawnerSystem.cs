@@ -9,11 +9,14 @@ public class PheromoneSpawnerSystem : SystemBase
 {
     public float pheromoneIntervalTime = 0.05f;
 
+    private EntityCommandBufferSystem ecbSystem;
     private EntityQuery PresentCustomTextureQuery;
     private double lastIntervalTime = 0.0f;
 
     protected override void OnCreate()
     {
+        ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
         PresentCustomTextureQuery = GetEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[] {typeof(PheromoneMap), typeof(Pheromone), typeof(RenderMesh)},
@@ -22,20 +25,23 @@ public class PheromoneSpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
+
         var screenSize = GetSingleton<ScreenSize>();
         var simSpeed = GetSingleton<SimulationSpeed>();
 
         var initJob = Entities
-            .ForEach((Entity entity, ref NonUniformScale scale, in PheromoneMap map, in Respawn respawn) =>
+            .WithName("InitJob")
+            .ForEach((Entity entity, int entityInQueryIndex, ref NonUniformScale scale, in PheromoneMap map, in Respawn respawn) =>
             {
-                ecb.SetComponent(entity, new NonUniformScale()
+                ecb.SetComponent(entityInQueryIndex, entity, new NonUniformScale()
                 {
                     Value = new float3(screenSize.Value, screenSize.Value, 1.0f)
                 });
                 
-                ecb.RemoveComponent<Respawn>(entity);
+                ecb.RemoveComponent<Respawn>(entityInQueryIndex, entity);
             }).Schedule(Dependency);
+        Dependency = initJob;
     
         if (Time.ElapsedTime > lastIntervalTime + (pheromoneIntervalTime / simSpeed.Value) &&
             !PresentCustomTextureQuery.IsEmpty)
@@ -48,6 +54,7 @@ public class PheromoneSpawnerSystem : SystemBase
             lastIntervalTime = Time.ElapsedTime;
             var colorJob = Entities
                 .WithAll<Ant>()
+                .WithName("ColorJob")
                 .WithNativeDisableParallelForRestriction(pheromoneBuffer)
                 .ForEach((Entity entity, in Translation pos) =>
                 {
@@ -74,12 +81,10 @@ public class PheromoneSpawnerSystem : SystemBase
                         }
                     }
                 }).ScheduleParallel(initJob);
-            
-            colorJob.Complete();
+
+            Dependency = colorJob;
         }
                     
-        initJob.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        ecbSystem.AddJobHandleForProducer(Dependency);
     }
 }
