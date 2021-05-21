@@ -24,14 +24,11 @@ public class AnimalSpawnerSystem : SystemBase
     EntityQuery mouseQuery;
     EntityQuery catQuery;
     bool randomInitialized;
-    
-    static Random random;
 
     protected override void OnCreate()
     {
         mouseQuery = GetEntityQuery(ComponentType.ReadOnly<Mouse>());
         catQuery = GetEntityQuery(ComponentType.ReadOnly<Cat>());
-        randomInitialized = false;
     }
 
     protected override void OnUpdate()
@@ -41,17 +38,13 @@ public class AnimalSpawnerSystem : SystemBase
 
         if (TryGetSingleton(out GameConfig gameConfig))
         {
-            if (!randomInitialized)
-            {
-                random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
-                randomInitialized = true;
-            }
-
             EntityCommandBuffer catEcb = new EntityCommandBuffer(Allocator.TempJob);
             EntityCommandBuffer mouseEcb = new EntityCommandBuffer(Allocator.TempJob);
 
             JobHandle? catJob = null;
             JobHandle? mouseJob = null;
+
+            var timeNow = System.DateTime.Now.Ticks; 
             
             if (catcount < gameConfig.NumOfCats)
             {
@@ -60,6 +53,7 @@ public class AnimalSpawnerSystem : SystemBase
                     TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
                     catJob = Job.WithCode(() =>
                         {
+                            Random random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)timeNow : gameConfig.Seed ^ 2984576396);
                             for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
                             {
                                 if (catcount++ >= gameConfig.NumOfCats)
@@ -96,6 +90,7 @@ public class AnimalSpawnerSystem : SystemBase
                     
                     mouseJob = Job.WithCode(() =>
                         {
+                            Random random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)timeNow+1 : gameConfig.Seed ^ 1236534);
                             bool mouseflipflop = true;
                             quaternion angleEast = quaternion.RotateY(Direction.GetAngle(Cardinals.East));
                             quaternion angleWest = quaternion.RotateY(Direction.GetAngle(Cardinals.West));
