@@ -29,7 +29,7 @@ public class AntMovementSystem : SystemBase
     // Change ant direction by random amount
     private static void RandomDirectionChange(ref Random random, ref Direction direction, float simulationSpeed, float deltaTime)
     {
-        const float maxDirectionChangePerSecond = 2.0f;
+        const float maxDirectionChangePerSecond = 1.4f;
 
         var maxFrameDirectionChange = maxDirectionChangePerSecond * deltaTime * simulationSpeed;
         var change = random.NextFloat(-maxFrameDirectionChange, maxFrameDirectionChange);
@@ -216,11 +216,6 @@ public class AntMovementSystem : SystemBase
                 
                 var textureCoord = antTextureCoord + textureOffset;
                 var index = PheromoneGridIndex(map, textureCoord);
-                if (index < 0)
-                {
-                    Debug.Log($"Coords: ({x}, {y})");
-                }
-            
                 float intensity = pheromoneBuffer[index].Value;
                 float2 offset = new float2(x, y);
 
