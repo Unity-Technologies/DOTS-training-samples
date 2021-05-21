@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -17,13 +18,12 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 [AlwaysUpdateSystem]
 public class AnimalSpawnerSystem : SystemBase
 {
-    bool mouseflipflop;
     float TimeUntilNextMouseSpawn;
     float TimeUntilNextCatSpawn;
 
     EntityQuery mouseQuery;
     EntityQuery catQuery;
-    Random random;
+    Random m_Random;
     bool randomInitialized;
 
     protected override void OnCreate()
@@ -42,30 +42,42 @@ public class AnimalSpawnerSystem : SystemBase
         {
             if (!randomInitialized)
             {
-                random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
+                m_Random = Random.CreateFromIndex(gameConfig.RandomSeed ? (uint)System.DateTime.Now.Ticks : gameConfig.Seed ^ 2984576396);
                 randomInitialized = true;
             }
 
+            Random random = m_Random;
+            EntityCommandBuffer catEcb = new EntityCommandBuffer(Allocator.TempJob);
+            EntityCommandBuffer mouseEcb = new EntityCommandBuffer(Allocator.TempJob);
+
+            JobHandle? catJob = null;
+            JobHandle? mouseJob = null;
+            
             if (catcount < gameConfig.NumOfCats)
             {
                 if (TimeUntilNextCatSpawn <= 0)
                 {
-                    for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
-                    {
-                        var xPos = random.NextInt(gameConfig.BoardDimensions.x);
-                        var yPos = random.NextInt(gameConfig.BoardDimensions.y);
-                        var randDir = random.NextInt(3);
-                        var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
+                    TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
+                    catJob = Job.WithCode(() =>
+                        {
+                            for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
+                            {
+                                var xPos = random.NextInt(gameConfig.BoardDimensions.x);
+                                var yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                                var randDir = random.NextInt(3);
+                                var rotation = Unity.Mathematics.quaternion.RotateY(Mathf.PI * randDir / 2);
 
-                        Entity cat = EntityManager.Instantiate(gameConfig.CatPrefab);
-                        TimeUntilNextCatSpawn = gameConfig.CatSpawnDelay;
-                        EntityManager.AddComponent<Cat>(cat);
-                        EntityManager.AddComponent<Translation>(cat);
-                        EntityManager.SetComponentData(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
-                        EntityManager.SetComponentData(cat, new Rotation() { Value = rotation });
-                        EntityManager.AddComponent<Direction>(cat);
-                        EntityManager.SetComponentData(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
-                    }
+                                Entity cat = catEcb.Instantiate(gameConfig.CatPrefab);
+                                catEcb.AddComponent<Cat>(cat);
+                                catEcb.AddComponent<Translation>(cat);
+                                catEcb.SetComponent(cat, new Translation() { Value = new float3(xPos, 0, yPos) });
+                                catEcb.SetComponent(cat, new Rotation() { Value = rotation });
+                                catEcb.AddComponent<Direction>(cat);
+                                catEcb.SetComponent(cat, new Direction() { Value = Direction.FromRandomDirection(randDir) });
+                            }
+                        })
+                        .WithName("SpawnCats")
+                        .Schedule(Dependency);
                 }
                 else
                 {
@@ -77,42 +89,65 @@ public class AnimalSpawnerSystem : SystemBase
             {
                 if (TimeUntilNextMouseSpawn <= 0)
                 {
-                    for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
-                    {
-                        int xPos = 0;
-                        int yPos = 0;
-                        Cardinals dir = Cardinals.East;
-                        if (mouseflipflop)
+                    TimeUntilNextMouseSpawn = gameConfig.MouseSpawnDelay;
+                    
+                    mouseJob = Job.WithCode(() =>
                         {
-                            xPos = gameConfig.BoardDimensions.x - 1;
-                            yPos = gameConfig.BoardDimensions.y - 1;
-                            dir = Cardinals.West;
-                        }
+                            bool mouseflipflop = true;
+                            quaternion angleEast = quaternion.RotateY(Direction.GetAngle(Cardinals.East));
+                            quaternion angleWest = quaternion.RotateY(Direction.GetAngle(Cardinals.West));
+                            for (int i = 0; i < gameConfig.MaxAnimalsSpawnedPerFrame; i++)
+                            {
+                                int xPos = 0;
+                                int yPos = 0;
+                                Cardinals dir = Cardinals.East;
+                                quaternion rotation = angleEast;
+                                if (mouseflipflop)
+                                {
+                                    xPos = gameConfig.BoardDimensions.x - 1;
+                                    yPos = gameConfig.BoardDimensions.y - 1;
+                                    dir = Cardinals.West;
+                                    rotation = angleWest;
+                                }
 
-                        if (gameConfig.MiceSpawnInRandomLocations)
-                        {
-                            xPos = random.NextInt(gameConfig.BoardDimensions.x);
-                            yPos = random.NextInt(gameConfig.BoardDimensions.y);
-                        }
-                        
-                        var rotation = Unity.Mathematics.quaternion.RotateY(Direction.GetAngle(dir));
+                                if (gameConfig.MiceSpawnInRandomLocations)
+                                {
+                                    xPos = random.NextInt(gameConfig.BoardDimensions.x);
+                                    yPos = random.NextInt(gameConfig.BoardDimensions.y);
+                                }
 
-                        Entity mouse = EntityManager.Instantiate(gameConfig.MousePrefab);
-                        TimeUntilNextMouseSpawn = gameConfig.MouseSpawnDelay;
-                        EntityManager.AddComponent<Translation>(mouse);
-                        EntityManager.AddComponent<Mouse>(mouse);
-                        EntityManager.AddComponent<Direction>(mouse);
+                                Entity mouse = mouseEcb.Instantiate(gameConfig.MousePrefab);
+                                mouseEcb.AddComponent<Translation>(mouse);
+                                mouseEcb.AddComponent<Mouse>(mouse);
+                                mouseEcb.AddComponent<Direction>(mouse);
 
-                        EntityManager.SetComponentData(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
-                        EntityManager.SetComponentData(mouse, new Rotation() { Value = rotation });
-                        EntityManager.SetComponentData(mouse, new Direction() { Value = dir });
-                        mouseflipflop = !mouseflipflop;
-                    }
+                                mouseEcb.SetComponent(mouse, new Translation() { Value = new float3(xPos, 0, yPos) });
+                                mouseEcb.SetComponent(mouse, new Rotation() { Value = rotation });
+                                mouseEcb.SetComponent(mouse, new Direction() { Value = dir });
+                                mouseflipflop = !mouseflipflop;
+                            }
+                        })
+                    .WithName("SpawnMice")
+                    .Schedule(Dependency);
                 }
                 else
                 {
                     TimeUntilNextMouseSpawn -= Time.DeltaTime;
                 }
+
+                if (catJob.HasValue)
+                {
+                    catJob.Value.Complete();
+                    catEcb.Playback(EntityManager);
+                    catEcb.Dispose();
+                }
+                if (mouseJob.HasValue)
+                {
+                    mouseJob.Value.Complete();
+                    mouseEcb.Playback(EntityManager);
+                    mouseEcb.Dispose();
+                }
+
             }
 
             //Enabled = false;
