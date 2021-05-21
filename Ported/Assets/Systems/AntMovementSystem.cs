@@ -236,7 +236,7 @@ public class AntMovementSystem : SystemBase
         // Divide by how many points we checked so that we get a value between 0 and 1
         pullDirection /= side * side;
 
-        antDirection = pullDirection * 0.25f + antDirection * 0.75f;
+        antDirection = pullDirection * 1.0f + antDirection;
         direction.Radians = math.atan2(antDirection.y, antDirection.x);
     }
     
@@ -359,7 +359,8 @@ public class AntMovementSystem : SystemBase
                 }
 
                 if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
-                {var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                {
+                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
                     var directionVec = movementStep / math.length(movementStep);
                     
                     float2 pullDirection = float2.zero - translation.Value.xy;
