@@ -8,9 +8,9 @@ public class InitialSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var random = Utils.GetRandom();
-
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        
+        var random = Utils.GetRandom();
         
         var spawnerEntity = GetSingletonEntity<BeeSpawner>();
         var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);
@@ -33,6 +33,7 @@ public class InitialSpawnerSystem : SystemBase
                 for (int i = 0; i < numberOfBeesPerTeam; ++i)
                 {
                     var instance = ecb.Instantiate(beeSpawner.BeePrefab);
+                    
                     ecb.SetComponent(instance, team);
 
                     var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
@@ -67,6 +68,7 @@ public class InitialSpawnerSystem : SystemBase
                     });
                     
                     var aggression = random.NextFloat(0, 1);
+                    
                     ecb.SetComponent(instance, new Aggression
                     {
                         Value = aggression

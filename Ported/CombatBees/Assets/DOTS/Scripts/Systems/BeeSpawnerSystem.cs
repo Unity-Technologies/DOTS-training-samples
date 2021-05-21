@@ -18,7 +18,9 @@ public class BeeSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var random = Utils.GetRandom();
+        
+        var arena = GetSingletonEntity<IsArena>();
+        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
         var yellowBase = GetSingletonEntity<YellowBase>();
         var yellowBaseAABB = EntityManager.GetComponentData<Bounds>(yellowBase).Value;
@@ -26,8 +28,7 @@ public class BeeSpawnerSystem : SystemBase
         var blueBase = GetSingletonEntity<BlueBase>();
         var blueBaseAABB = EntityManager.GetComponentData<Bounds>(blueBase).Value;
 
-        var arena = GetSingletonEntity<IsArena>();
-        var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
+        var random = Utils.GetRandom();
 
         var spawnerEntity = GetSingletonEntity<BeeSpawner>(); 
         var beeSpawner = GetComponent<BeeSpawner>(spawnerEntity);
@@ -55,19 +56,21 @@ public class BeeSpawnerSystem : SystemBase
                 if (baseEntity != Entity.Null)
                 {
                     var explosionInstance = ecb.Instantiate(entityInQueryIndex, explosion.ExplosionPrefab);
+                    
                     ecb.SetComponent(entityInQueryIndex, explosionInstance, new Translation
                     {
                         Value = translation.Value
                     });
 
-                    ecb.AddComponent<LifeSpan>(entityInQueryIndex, explosionInstance, new LifeSpan
+                    ecb.AddComponent(entityInQueryIndex, explosionInstance, new LifeSpan
                     {
-                        Value = 4f
+                        Value = 4
                     });
 
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(entityInQueryIndex, beeSpawner.BeePrefab);
+                        
                         ecb.SetComponent(entityInQueryIndex, instance, GetComponent<Team>(baseEntity));
                         
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
@@ -102,6 +105,7 @@ public class BeeSpawnerSystem : SystemBase
                         });
 
                         var aggression = random.NextFloat(0, 1);
+                        
                         ecb.SetComponent(entityInQueryIndex, instance, new Aggression
                         {
                             Value = aggression

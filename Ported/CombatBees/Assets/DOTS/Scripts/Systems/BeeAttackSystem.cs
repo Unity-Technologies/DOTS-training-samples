@@ -17,7 +17,7 @@ public class BeeAttackSystem : SystemBase
         EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         // Query list of opposing team bees
-        EntityQueryDesc queryAliveBeesDesc = new EntityQueryDesc
+        var queryAliveBeesDesc = new EntityQueryDesc
         {
             All = new ComponentType[] { typeof(IsBee) },
             None = new ComponentType[] { typeof(IsDead) }
@@ -40,9 +40,6 @@ public class BeeAttackSystem : SystemBase
         // TODO how to move this into parallel worker threads?
         // safety complains that the threads will outlive the QueryAliveBees results
 
-        var cdfeTeam = GetComponentDataFromEntity<Team>(true);
-        var cdfeTranslation = GetComponentDataFromEntity<Translation>(true);
-
         var aliveBees = QueryAliveBees.ToEntityArray(Allocator.TempJob);
         
         if (aliveBees.Length > 0)
@@ -52,8 +49,6 @@ public class BeeAttackSystem : SystemBase
                 .WithAll<IsBee>()
                 .WithNone<IsDead, IsAttacking, IsReturning>()
                 .WithNone<AttackCooldown>()
-                .WithReadOnly(cdfeTeam)
-                .WithReadOnly(cdfeTranslation)
                 .WithDisposeOnCompletion(aliveBees)
                 .ForEach((Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
                 {
@@ -65,10 +60,14 @@ public class BeeAttackSystem : SystemBase
                         // iterate over all opposing team bees to look for closest bee to attack and set as target of attack (expensive)
                         foreach (var bee in aliveBees)
                         {
+                            var beeTeam = GetComponent<Team>(bee);
+                            
                             // only consider bees on opposing team
-                            if (team.Id != cdfeTeam[bee].Id)
+                            if (team.Id != beeTeam.Id)
                             {
-                                var distancesqToBee = math.distancesq(translation.Value, cdfeTranslation[bee].Value);
+                                var beeTranslation = GetComponent<Translation>(bee);
+                                var distancesqToBee = math.distancesq(translation.Value, beeTranslation.Value);
+                                
                                 if (distancesqToBee < closestsqDistance)
                                 {
                                     closestsqDistance = distancesqToBee;
@@ -80,8 +79,8 @@ public class BeeAttackSystem : SystemBase
                         // if we found a bee to attack, start the attack
                         if (closestOpposingBee != Entity.Null)
                         {
-                            ecb.AddComponent(entity, new AttackTimer { Value = 2f });
                             ecb.AddComponent<IsAttacking>(entity);
+                            ecb.AddComponent(entity, new AttackTimer { Value = 2f });
                             ecb.AddComponent(entity, new Target { Value = closestOpposingBee });
                             ecb.AddComponent<TargetPosition>(entity);
                             
@@ -98,6 +97,7 @@ public class BeeAttackSystem : SystemBase
         //    test whether close enough to target bee to 'kill' target
         //       set state to reflect opposing bee is killed
         //       end attack
+        
         var timeDeltaTime = Time.DeltaTime;
 
         Entities
@@ -106,34 +106,39 @@ public class BeeAttackSystem : SystemBase
             .ForEach((int entityInQueryIndex, Entity entity, ref AttackTimer attackTimer, ref Speed speed, in Translation translation, in TargetPosition targetPosition, in Target target, in Velocity velocity) =>
             {
                 attackTimer.Value -= timeDeltaTime;
-                bool attackOver = attackTimer.Value <= 0 || HasComponent<IsDead>(entity);
+                
+                var attackOver = attackTimer.Value <= 0 || HasComponent<IsDead>(entity);
 
                 // if the attack is in progress, test if close enough to kill opposing bee
                 if (!attackOver && math.distancesq(translation.Value, targetPosition.Value) < 1)
                 {
                     attackOver = true;
+                    
                     // kill the opposing bee, drop any carried resource, add gravity
-                    Entity opposingBee = target.Value;
+                    var opposingBee = target.Value;
+                    
                     pecb.AddComponent<IsDead>(entityInQueryIndex, opposingBee);
                     pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBee);
 
-                    pecb.SetComponent(entityInQueryIndex, opposingBee, new Velocity() { Value = math.normalize(velocity.Value) });
-                    pecb.RemoveComponent<TargetPosition>(entityInQueryIndex, opposingBee);
+                    pecb.SetComponent(entityInQueryIndex, opposingBee, new Velocity { Value = math.normalize(velocity.Value) });
                     
                     pecb.SetComponent(entityInQueryIndex, opposingBee, new URPMaterialPropertyBaseColor
                     {
                         Value = new float4(1, 0, 0, 1)
                     });
-                    
-                    if (HasComponent<IsReturning>(opposingBee) && HasComponent<Target>(opposingBee))
+
+                    if (HasComponent<Target>(opposingBee))
                     {
-                        var resourceCarriedByOpposingBee = GetComponent<Target>(opposingBee).Value;
-                        
-                        pecb.RemoveComponent<IsCarried>(entityInQueryIndex, resourceCarriedByOpposingBee);
-                        pecb.AddComponent<HasGravity>(entityInQueryIndex, resourceCarriedByOpposingBee);
-                        pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
                         pecb.RemoveComponent<Target>(entityInQueryIndex, opposingBee);
-                        pecb.RemoveComponent<TargetPosition>(entityInQueryIndex, opposingBee);
+                    }
+                    
+                    if (HasComponent<IsReturning>(opposingBee))
+                    {
+                        var opposingBeeResource = GetComponent<Target>(opposingBee).Value;
+                        
+                        pecb.RemoveComponent<IsReturning>(entityInQueryIndex, opposingBee);
+                        pecb.RemoveComponent<IsCarried>(entityInQueryIndex, opposingBeeResource);
+                        pecb.AddComponent<HasGravity>(entityInQueryIndex, opposingBeeResource);
                     }
                 }
 
@@ -142,8 +147,10 @@ public class BeeAttackSystem : SystemBase
                 {
                     pecb.RemoveComponent<IsAttacking>(entityInQueryIndex, entity);
                     pecb.RemoveComponent<AttackTimer>(entityInQueryIndex, entity);
-                    pecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
                     pecb.RemoveComponent<Target>(entityInQueryIndex, entity);
+                    
+                    pecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
+                    
                     speed.MaxValue /= 2;
                 }
             }).ScheduleParallel();
@@ -154,6 +161,7 @@ public class BeeAttackSystem : SystemBase
             .ForEach((int entityInQueryIndex, Entity entity, ref AttackCooldown attackCooldown) =>
             {
                 attackCooldown.Value -= timeDeltaTime;
+                
                 if (attackCooldown.Value < 0)
                 {
                     pecb.RemoveComponent<AttackCooldown>(entityInQueryIndex, entity);

@@ -13,9 +13,18 @@ public class DestroyerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var timeDeltaTime = Time.DeltaTime;
- 
         var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        
+        var timeDeltaTime = Time.DeltaTime;
+        
+        Entities
+            .WithName("SendBeeToDeath")
+            .WithAll<IsBee, OnCollision>()
+            .WithNone<LifeSpan>()
+            .ForEach((int entityInQueryIndex, Entity entity) =>
+            {
+                ecb.AddComponent(entityInQueryIndex, entity, new LifeSpan { Value = 1 });
+            }).ScheduleParallel();
 
         Entities
             .WithName("RemoveDeadTarget")

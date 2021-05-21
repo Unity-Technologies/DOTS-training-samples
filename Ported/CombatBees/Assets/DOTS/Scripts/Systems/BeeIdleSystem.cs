@@ -10,7 +10,7 @@ public class BeeIdleSystem : SystemBase
     protected override void OnCreate()
     {
         // Query list of Resources available to collect
-        EntityQueryDesc queryResourcesDesc = new EntityQueryDesc
+        var queryResourcesDesc = new EntityQueryDesc
         {
             All = new ComponentType[] { typeof(IsBee) },
             None = new ComponentType[] { typeof(IsAttacking), typeof(IsGathering), typeof(IsReturning), typeof(IsDead) }

@@ -22,6 +22,7 @@ public class OrientScaleSystem : SystemBase
                     // var normalizedVelocity = math.normalize(velocity.Value);
                     var beeRightVector = math.cross(upVector, velocity.Value);
                     var beeUpVector = math.cross(velocity.Value, beeRightVector);
+                    
                     rotation.Value = quaternion.LookRotation(velocity.Value, beeUpVector);
                 }
             }).ScheduleParallel();

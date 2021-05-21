@@ -11,13 +11,13 @@ public class ResourceSpawnerSystem : SystemBase
     {
         if (Input.GetMouseButtonDown(0)) // Left-click
         {
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            
             var arena = GetSingletonEntity<IsArena>();
             var arenaAABB = EntityManager.GetComponentData<Bounds>(arena).Value;
 
             var random = Utils.GetRandom();
             
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
-
             var spawnerEntity = GetSingletonEntity<ResourceSpawner>();
             var resourceSpawner = GetComponent<ResourceSpawner>(spawnerEntity);
             

@@ -7,8 +7,8 @@ using Unity.Transforms;
 [UpdateAfter(typeof(BeePerception))]
 public class BeeMovement : SystemBase
 {
-    const float maxRotation = 360f;
-    const float distanceMaxSpeed = 4f;
+    const float maxRotation = 360;
+    const float distanceMaxSpeed = 4;
     
     [ReadOnly]
     private ComponentDataFromEntity<Translation> cdfe;
@@ -21,7 +21,6 @@ public class BeeMovement : SystemBase
         Entities
             .WithName("UpdateTargetPosition")
             .WithNone<IsReturning, IsDead>()
-            .WithoutBurst()
             .ForEach((ref TargetPosition targetPosition, in Target target) =>
             {
                 var targetEntity = target.Value;
@@ -42,16 +41,18 @@ public class BeeMovement : SystemBase
 
                 var q = UnityEngine.Quaternion.FromToRotation(velocity.Value, newLookAt);
                 q.ToAngleAxis(out var angle, out var axis);
+                
                 var deltaAngle = maxRotation * deltaTime;
                 deltaAngle = angle > deltaAngle ? deltaAngle : angle;
+                
                 q = UnityEngine.Quaternion.AngleAxis(deltaAngle, axis);
 
                 velocity.Value = math.rotate(q, velocity.Value);
 
                 var direction = math.normalize(velocity.Value);
-
                 var distanceToTarget = math.lengthsq(newLookAt);
                 var currentSpeed = math.lerp(speed.MinValue, speed.MaxValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                
                 velocity.Value = direction * currentSpeed;
 
                 //translation.Value += velocity.Value * deltaTime;

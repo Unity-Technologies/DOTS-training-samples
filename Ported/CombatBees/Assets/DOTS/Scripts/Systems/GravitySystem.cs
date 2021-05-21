@@ -15,10 +15,10 @@ public class GravitySystem : SystemBase
     
     protected override void OnUpdate()
     {
+        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        
         var time = Time.DeltaTime;
         var gravity = new float3(0, -9.81f, 0);
-
-        var ecb = EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithName("UseGravity")
@@ -32,20 +32,11 @@ public class GravitySystem : SystemBase
                 if (translation.Value.y < halfHeight)
                 {
                     translation.Value.y = halfHeight;
+                    velocity.Value.y = 0;
 
                     ecb.RemoveComponent<HasGravity>(entityInQueryIndex, entity);
                     ecb.AddComponent<OnCollision>(entityInQueryIndex, entity);
-                    velocity.Value.y = 0;
                 }
-            }).ScheduleParallel();
-        
-        Entities
-            .WithName("SendBeeToDeath")
-            .WithAll<IsBee, OnCollision>()
-            .WithNone<LifeSpan>()
-            .ForEach((int entityInQueryIndex, Entity entity) =>
-            {
-                ecb.AddComponent(entityInQueryIndex, entity, new LifeSpan { Value = 1 });
             }).ScheduleParallel();
 
         EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
