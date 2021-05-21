@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Lab Rat/1 - Game.unity
     guid: 3f35c955dfdf04b108e6c8f4d13bdbef
   - enabled: 0
     path: Assets/Lab Rat/2 - High.unity
     guid: 35fd005c968c04a45b7b323b4a64499c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Lab Rat/3 - Extreme.unity
     guid: f734dcc9b3f510947b6cc05425822676
   m_configObjects: {}
