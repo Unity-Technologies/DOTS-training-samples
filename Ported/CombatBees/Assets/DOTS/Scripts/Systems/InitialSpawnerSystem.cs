@@ -36,7 +36,7 @@ public class InitialSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, team);
 
                     var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
-                    var maxSpeed = random.NextFloat(0, beeSpawner.MaxSpeed);
+                    var maxSpeed = random.NextFloat(minSpeed, beeSpawner.MaxSpeed);
 
                     var randomPointOnBase = Utils.BoundedRandomPosition(arenaAABB, ref random);
 
