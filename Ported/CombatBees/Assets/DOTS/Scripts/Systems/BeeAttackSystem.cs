@@ -1,6 +1,5 @@
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -86,7 +85,7 @@ public class BeeAttackSystem : SystemBase
                             ecb.AddComponent(entity, new Target { Value = closestOpposingBee });
                             ecb.AddComponent<TargetPosition>(entity);
                             
-                            speed.MaxSpeedValue *= 2;
+                            speed.MaxValue *= 2;
                         }
                     }
                 }).Schedule();
@@ -145,7 +144,7 @@ public class BeeAttackSystem : SystemBase
                     pecb.RemoveComponent<AttackTimer>(entityInQueryIndex, entity);
                     pecb.AddComponent(entityInQueryIndex, entity, new AttackCooldown { Value = 1 });
                     pecb.RemoveComponent<Target>(entityInQueryIndex, entity);
-                    speed.MaxSpeedValue /= 2;
+                    speed.MaxValue /= 2;
                 }
             }).ScheduleParallel();
 

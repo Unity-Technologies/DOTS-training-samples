@@ -1,21 +1,18 @@
 using System.Collections.Generic;
 using Unity.Entities;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
+using UnityEngine;
 
-public class BeeSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    public UnityGameObject BeePrefab;
-    [UnityRange(0, 1000)] public int BeeCount;
-    [UnityRange(0, 100)] public int BeeCountFromResource = 10;
+    public GameObject BeePrefab;
+    
+    [Range(0, 1000)] public int BeeCount;
+    [Range(0, 100)] public int BeeCountFromResource = 10;
 
-    [UnityRange(0, 20)] public int MinSpeed = 1;
-    [UnityRange(0, 100)] public int MaxSpeed = 20;
+    [Range(0, 20)] public int MinSpeed = 1;
+    [Range(0, 100)] public int MaxSpeed = 20;
 
-    [UnityRange(0, 100)] public int MaxSize = 1;
-
-    public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(BeePrefab);
     }
@@ -28,8 +25,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             BeeCount = BeeCount,
             BeeCountFromResource = BeeCountFromResource,
             MinSpeed = MinSpeed,
-            MaxSpeed = MaxSpeed,
-            MaxSize = MaxSize
+            MaxSpeed = MaxSpeed
         });
     }
 }

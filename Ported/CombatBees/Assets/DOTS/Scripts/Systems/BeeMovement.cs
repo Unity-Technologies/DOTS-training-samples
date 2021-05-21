@@ -51,7 +51,7 @@ public class BeeMovement : SystemBase
                 var direction = math.normalize(velocity.Value);
 
                 var distanceToTarget = math.lengthsq(newLookAt);
-                var currentSpeed = math.lerp(speed.MinSpeedValue, speed.MaxSpeedValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                var currentSpeed = math.lerp(speed.MinValue, speed.MaxValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
                 velocity.Value = direction * currentSpeed;
 
                 //translation.Value += velocity.Value * deltaTime;

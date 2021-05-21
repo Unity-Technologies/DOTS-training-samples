@@ -8,7 +8,6 @@ public struct BeeSpawner : IComponentData
 
     public int MinSpeed;
     public int MaxSpeed;
-    public int MaxSize;
 }
 
 public struct ResourceSpawner : IComponentData 

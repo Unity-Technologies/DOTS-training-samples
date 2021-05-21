@@ -1,22 +1,12 @@
 using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Rendering;
-using Unity.Transforms;
-using UnityCamera = UnityEngine.Camera;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityInput = UnityEngine.Input;
-using UnityKeyCode = UnityEngine.KeyCode;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
-using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
+using UnityEngine;
 
-public class ExplosionAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
+public class ExplosionAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
-    public UnityGameObject ExplosionPrefab;
+    public GameObject ExplosionPrefab;
 
-    public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(ExplosionPrefab);
     }

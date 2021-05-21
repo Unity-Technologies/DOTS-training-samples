@@ -1,6 +1,4 @@
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(GravitySystem))]

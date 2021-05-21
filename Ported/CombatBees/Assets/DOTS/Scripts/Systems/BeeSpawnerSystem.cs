@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -88,8 +87,8 @@ public class BeeSpawnerSystem : SystemBase
 
                         ecb.SetComponent(entityInQueryIndex, instance, new Speed
                         {
-                            MaxSpeedValue = maxSpeed,
-                            MinSpeedValue = minSpeed
+                            MaxValue = maxSpeed,
+                            MinValue = minSpeed
                         });
                         
                         ecb.SetComponent(entityInQueryIndex, instance, new Translation

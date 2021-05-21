@@ -2,6 +2,6 @@ using Unity.Entities;
 
 public struct Speed : IComponentData
 {
-    public float MaxSpeedValue;
-    public float MinSpeedValue;
+    public float MinValue;
+    public float MaxValue;
 }
