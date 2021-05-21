@@ -152,8 +152,8 @@ public class AntMovementSystem : SystemBase
             var normal = new float2(normal3.x, normal3.y);
             var newDirection = math.reflect(directionVec * deltaTime * simulationSpeed, normal);
             direction.Radians = math.atan2(newDirection.y, newDirection.x);
-            translation.Value.x += newDirection.x * 2.0f;
-            translation.Value.y += newDirection.y * 2.0f;
+            translation.Value.x += newDirection.x;
+            translation.Value.y += newDirection.y;
             return true;
         }
 
