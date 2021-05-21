@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Profliling - Default.unity
+    guid: bff97f106bc3b2f4e946ee5a370b0594
+  - enabled: 1
+    path: Assets/Scenes/Profliling - High.unity
+    guid: a0103f01d7881e941812125825fe4166
+  - enabled: 1
+    path: Assets/Scenes/Profliling - Extreme.unity
+    guid: 9faabe684040a1c4f97b5083b3c72801
   m_configObjects: {}
