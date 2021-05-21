@@ -203,7 +203,8 @@ public class AntMovementSystem : SystemBase
     }
 
     private static void FollowPheromones(PheromoneMap map, DynamicBuffer<Pheromone> pheromoneBuffer,
-        Translation translation, ref Direction direction, float2 antDirection, float halfScreenSize, float pheromoneMapFactor)
+        Translation translation, ref Direction direction, float2 antDirection, float halfScreenSize,
+        float pheromoneMapFactor, float pheromoneStrength)
     {
         var antTextureCoord = PheromoneGridLocation(map, translation.Value.xy, halfScreenSize, pheromoneMapFactor);
 
@@ -236,7 +237,7 @@ public class AntMovementSystem : SystemBase
         // Divide by how many points we checked so that we get a value between 0 and 1
         pullDirection /= side * side;
 
-        antDirection = pullDirection * 1.0f + antDirection;
+        antDirection = pullDirection * pheromoneStrength + antDirection;
         direction.Radians = math.atan2(antDirection.y, antDirection.x);
     }
     
@@ -281,15 +282,21 @@ public class AntMovementSystem : SystemBase
         var pheromoneMapFactor = (float)pheromoneMap.gridSize / (float)screenSize;
         var pheromoneBuffer = GetBuffer<Pheromone>(pheromoneMapEntity);
 
-        var movementJob = Entities
+        Dependency = Entities
             .WithAll<Ant>()
+            .WithNone<CarryingFood>()
+            .WithName("UpdateBlueAnts")
             .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
             .WithReadOnly(pheromoneBuffer)
-            .WithName("AntMovement")
-            .ForEach((Entity entity, ref Translation translation, ref Direction direction,
+            .ForEach((Entity entity,
+                int entityInQueryIndex,
+                ref Translation translation,
+                ref Direction direction,
+                ref URPMaterialPropertyBaseColor color,
                 ref Rotation rotation) =>
             {
+                float pheromoneStrength = 1.0f;
                 RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
 
                 var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
@@ -298,7 +305,7 @@ public class AntMovementSystem : SystemBase
 
                 bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
                 if (!collided)
-                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor);
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor, pheromoneStrength);
                 
                 // Move ant a step forward in its direction
                 translation.Value.x += movementStep.x;
@@ -307,18 +314,7 @@ public class AntMovementSystem : SystemBase
                 HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
-                
-            }).ScheduleParallel(Dependency);
 
-        var checkReachedFoodSourceJob = Entities
-            .WithAll<Ant>()
-            .WithNone<CarryingFood>()
-            .WithName("CheckReachedFoodSourceJob")
-            .WithReadOnly(walls)
-            .WithReadOnly(wallComponentData)
-            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
-                ref Direction direction, in Translation translation) =>
-            {
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, foodPos) < foodSourceRadius)
                 {
@@ -327,28 +323,48 @@ public class AntMovementSystem : SystemBase
                     
                     ecb.AddComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
-                
-                if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
+                else if(IsTargetVisible(translation.Value.xy, foodPos, walls, wallComponentData))
                 {
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    
                     float2 pullDirection = new float2(foodPos.x, foodPos.y) - translation.Value.xy;
                     directionVec = pullDirection * 0.001f + directionVec * 0.90f;
                     direction.Radians = math.atan2(directionVec.y, directionVec.x);
                 }
                 
-            }).ScheduleParallel(movementJob);
+            }).ScheduleParallel(Dependency);
 
-        var checkReachedAntHillJob = Entities
+        Dependency = Entities
             .WithAll<Ant,CarryingFood>()
-            .WithName("CheckedReachedAntHill")
+            .WithName("UpdateYellowAnts")
             .WithReadOnly(walls)
             .WithReadOnly(wallComponentData)
+            .WithReadOnly(pheromoneBuffer)
             .WithDisposeOnCompletion(walls)
-            .ForEach((Entity entity, int entityInQueryIndex, ref URPMaterialPropertyBaseColor color,
-                ref Direction direction, in Translation translation) =>
+            .ForEach((Entity entity,
+                int entityInQueryIndex,
+                ref Translation translation,
+                ref Direction direction,
+                ref URPMaterialPropertyBaseColor color,
+                ref Rotation rotation) =>
             {
+                float pheromoneStrength = 1.5f;
+                RandomDirectionChange(ref random, ref direction, simulationSpeed, deltaTime);
+
+                var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
+                var directionVec = movementStep / math.length(movementStep);
+
+
+                bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
+                if (!collided)
+                    FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor, pheromoneStrength);
+                
+                // Move ant a step forward in its direction
+                translation.Value.x += movementStep.x;
+                translation.Value.y += movementStep.y;
+
+                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
+                
+                rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
+
                 var pos = new Vector2(translation.Value.x, translation.Value.y);
                 if (Vector2.Distance(pos, antHillPosition) < antHillRadius)
                 {
@@ -357,21 +373,16 @@ public class AntMovementSystem : SystemBase
                     
                     ecb.RemoveComponent<CarryingFood>(entityInQueryIndex, entity);
                 }
-
-                if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
+                else if (IsTargetVisible(translation.Value.xy, float2.zero, walls, wallComponentData))
                 {
-                    var movementStep = CalculateMovementStep(direction, deltaTime, simulationSpeed);
-                    var directionVec = movementStep / math.length(movementStep);
-                    
                     float2 pullDirection = float2.zero - translation.Value.xy;
                     directionVec = pullDirection * 0.001f + directionVec * 0.90f;
                     direction.Radians = math.atan2(directionVec.y, directionVec.x);
                     
                 }
                 
-            }).ScheduleParallel(checkReachedFoodSourceJob);
+            }).ScheduleParallel(Dependency);
         
-        Dependency = checkReachedAntHillJob;
         m_ECBSystem.AddJobHandleForProducer(Dependency);
     }
 
