@@ -31,6 +31,8 @@ public class InputSystem : SystemBase
         var mouseScreenPos = new float2 (Input.mousePosition.x/Screen.width,Input.mousePosition.y/Screen.height);
         var mouseDown = Input.GetMouseButtonDown(0);
         var mousewheel = Input.mouseScrollDelta.y;
+        bool isMouseOverViewport = UnityCamera.main.rect.Contains(UnityCamera.main.ScreenToViewportPoint(Input.mousePosition));
+        
         var time = Time.DeltaTime;
         var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
 
@@ -42,25 +44,27 @@ public class InputSystem : SystemBase
                 Assert.IsTrue(playerIndex.Index == 0);
                 playerInput.TileIndex = RaycastCellDirection(mousePos, gameConfig, localToWorldData, cellArray, out playerInput.ArrowDirection);
                 playerInput.IsMouseDown = mouseDown;
-                var camera = this.GetSingleton<GameObjectRefs>().Camera;
-                var BoardCenter = new Vector3 (gameConfig.BoardDimensions.x / 2,0, gameConfig.BoardDimensions.y/2);
 
-                var mouseAxis = mouseScreenPos;
-                mouseAxis = new float2(mouseAxis.x - 0.5f, mouseAxis.y - 0.5f);
-                mouseAxis *= 2;
-                var mouseCenter = math.max(0,math.abs(mouseAxis)-0.5f)*2;
-                mouseAxis = mouseAxis * mouseCenter;
+                if (isMouseOverViewport)
+                {
+                    var camera = this.GetSingleton<GameObjectRefs>().Camera;
+                    var mouseAxis = mouseScreenPos;
+                    mouseAxis = new float2(mouseAxis.x - 0.5f, mouseAxis.y - 0.5f);
+                    mouseAxis *= 2;
+                    var mouseCenter = math.max(0,math.abs(mouseAxis)-0.5f)*2;
+                    mouseAxis = math.clamp(mouseAxis * mouseCenter, -0.3f, 0.3f);
 
                 
                 
-                float3 cameraPos = camera.transform.position;
+                    float3 cameraPos = camera.transform.position;
                 
-                float scrollY = -mousewheel * 3f;
-                cameraPos.y = math.max(cameraPos.y + scrollY, 5f);
-                cameraPos.x += mouseAxis.x * gameConfig.ControlSensitivity * cameraPos.y;
-                cameraPos.z += mouseAxis.y * gameConfig.ControlSensitivity * cameraPos.y;
+                    float scrollY = -mousewheel * 3f;
+                    cameraPos.y = math.max(cameraPos.y + scrollY, 5f);
+                    cameraPos.x += mouseAxis.x * gameConfig.ControlSensitivity * cameraPos.y;
+                    cameraPos.z += mouseAxis.y * gameConfig.ControlSensitivity * cameraPos.y;
                 
-                camera.transform.position = cameraPos;
+                    camera.transform.position = cameraPos;
+                }
             }).Run();
         
         Entities
