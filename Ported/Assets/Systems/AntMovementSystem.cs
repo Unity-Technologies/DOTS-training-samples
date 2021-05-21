@@ -145,6 +145,7 @@ public class AntMovementSystem : SystemBase
             direction.Radians = math.atan2(newDirection.y, newDirection.x);
             translation.Value.x += newDirection.x;
             translation.Value.y += newDirection.y;
+            return true;
         }
 
         return false;
@@ -152,27 +153,31 @@ public class AntMovementSystem : SystemBase
 
     private static void HandleScreenBoundCollisions(ref Translation translation, ref Direction direction, float screenLowerBound, float screenUpperBound)
     {
+        const float border = 3f;
+        var upperBound = screenUpperBound - border;
+        var lowerBound = screenLowerBound + border;
+
         // Check if we're hitting the screen edge
-        if (translation.Value.x > screenUpperBound)
+        if (translation.Value.x > upperBound)
         {
             direction.Radians = Mathf.PI - direction.Radians;
-            translation.Value.x = screenUpperBound;
+            translation.Value.x = upperBound;
         }
-        else if (translation.Value.x < screenLowerBound)
+        else if (translation.Value.x < lowerBound)
         {
             direction.Radians = Mathf.PI - direction.Radians;
-            translation.Value.x = screenLowerBound;
+            translation.Value.x = lowerBound;
         }
 
-        if (translation.Value.y > screenUpperBound)
+        if (translation.Value.y > upperBound)
         {
             direction.Radians = -direction.Radians;
-            translation.Value.y = screenUpperBound;
+            translation.Value.y = upperBound;
         }
-        else if (translation.Value.y < screenLowerBound)
+        else if (translation.Value.y < lowerBound)
         {
             direction.Radians = -direction.Radians;
-            translation.Value.y = screenLowerBound;
+            translation.Value.y = lowerBound;
         }
     }
 
@@ -204,7 +209,7 @@ public class AntMovementSystem : SystemBase
 
         // Compute a "pull" direction from each pheromone point in a 5x5 grid around the ant.
         float2 pullDirection = float2.zero;
-        const int radius = 2;
+        const int radius = 5;
         const int side = radius + 1 + radius;
         for (int y = -radius; y <= radius; y++)
         {
@@ -292,13 +297,14 @@ public class AntMovementSystem : SystemBase
 
 
                 bool collided = HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, movementStep, ref random, simulationSpeed, deltaTime);
-                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 if (!collided)
                     FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, directionVec, halfScreenSize, pheromoneMapFactor);
                 
                 // Move ant a step forward in its direction
                 translation.Value.x += movementStep.x;
                 translation.Value.y += movementStep.y;
+
+                HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
                 
                 rotation = new Rotation {Value = quaternion.RotateZ(direction.Radians)};
                 
