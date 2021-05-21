@@ -45,8 +45,7 @@ public class CatCollisionSystem : SystemBase
                     float2 mousePosition = new float2(translation.Value.x, translation.Value.z);
                     foreach (var catPosition in catPositions)
                     {
-                        if (Utils.SnapTest(mousePosition, catPosition, direction.Value)
-                        && math.distancesq(mousePosition, catPosition) < 1)
+                        if (math.distancesq(mousePosition, catPosition) < 1)
                         {
                             // Cat collides with mouse
                             ecb.DestroyEntity(entityInQueryIndex, mouseEntity);
