@@ -36,6 +36,8 @@ public class DirectionUpdaterSystem : SystemBase
                 bool recenter = false;
 
                 int index = Utils.WorldPositionToCellIndex(translation.Value, gameConfig);
+                if (index < 0)
+                    return;
 
                 Entity cell =  cells[index];
                 Cardinals wallCollision = walls[index];
