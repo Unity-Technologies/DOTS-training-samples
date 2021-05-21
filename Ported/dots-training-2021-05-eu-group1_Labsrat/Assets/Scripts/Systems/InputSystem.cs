@@ -51,10 +51,16 @@ public class InputSystem : SystemBase
                 var mouseCenter = math.max(0,math.abs(mouseAxis)-0.5f)*2;
                 mouseAxis = mouseAxis * mouseCenter;
 
-                camera.transform.position += new Vector3(mouseAxis.x * gameConfig.ControlSensitivity, -mousewheel*5, mouseAxis.y * gameConfig.ControlSensitivity);
-                camera.transform.position = math.max(new Vector3(camera.transform.position.x, 5, camera.transform.position.z), camera.transform.position);
-
                 
+                
+                float3 cameraPos = camera.transform.position;
+                
+                float scrollY = -mousewheel * 3f;
+                cameraPos.y = math.max(cameraPos.y + scrollY, 5f);
+                cameraPos.x += mouseAxis.x * gameConfig.ControlSensitivity * cameraPos.y;
+                cameraPos.z += mouseAxis.y * gameConfig.ControlSensitivity * cameraPos.y;
+                
+                camera.transform.position = cameraPos;
             }).Run();
         
         Entities
