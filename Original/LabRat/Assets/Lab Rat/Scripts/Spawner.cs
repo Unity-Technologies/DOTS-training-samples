@@ -5,6 +5,8 @@ using UnityEngine;
 namespace ECSExamples {
 
 public class Spawner : MonoBehaviour {
+
+    public bool RandomPosition = false;
 	public float Max = Mathf.Infinity;
 
 	public float Frequency = 0.2f;
@@ -54,7 +56,13 @@ public class Spawner : MonoBehaviour {
 		if (!parent)
 			parent = transform;
 
-		var obj = Instantiate<GameObject>(prefab, transform.position, Quaternion.identity, parent);
+        Vector3 position = transform.position;
+        if (RandomPosition)
+        {
+                position = board.CoordToWorld(new Vector2Int(Random.Range(1, board.boardDesc.size.x-2), Random.Range(1, board.boardDesc.size.y-2)));
+        }
+
+		var obj = Instantiate<GameObject>(prefab, position, Quaternion.identity, parent);
 		obj.GetComponent<ISpawnable>().OnSpawned(this);
 	}
 
