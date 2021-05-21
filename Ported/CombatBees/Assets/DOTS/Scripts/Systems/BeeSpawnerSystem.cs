@@ -70,9 +70,18 @@ public class BeeSpawnerSystem : SystemBase
                     for (int i = 0; i < numberOfBees; ++i)
                     {
                         var instance = ecb.Instantiate(entityInQueryIndex, beeSpawner.BeePrefab);
-                        
-                        ecb.SetComponent(entityInQueryIndex, instance, GetComponent<Team>(baseEntity));
-                        
+
+                        var team = GetComponent<Team>(baseEntity);
+                        ecb.SetComponent(entityInQueryIndex, instance, team);
+                        if (team.Id == 0)
+                        {
+                            ecb.AddComponent<YellowTeam>(entityInQueryIndex, instance);
+                        }
+                        else
+                        {
+                            ecb.AddComponent<BlueTeam>(entityInQueryIndex, instance);
+                        }
+
                         var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                         var maxSpeed = random.NextFloat(minSpeed, beeSpawner.MaxSpeed);
 
@@ -104,7 +113,7 @@ public class BeeSpawnerSystem : SystemBase
                             Value = GetComponent<URPMaterialPropertyBaseColor>(baseEntity).Value
                         });
 
-                        var aggression = random.NextFloat(0, 1);
+                        var aggression = 0.1f; // random.NextFloat(0, 1);
                         
                         ecb.SetComponent(entityInQueryIndex, instance, new Aggression
                         {

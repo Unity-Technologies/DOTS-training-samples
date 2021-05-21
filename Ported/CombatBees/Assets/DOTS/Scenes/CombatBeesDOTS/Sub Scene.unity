@@ -405,11 +405,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 3997372445315145562, guid: 2a1a5b9c28984244a99219f31b40257b,
     type: 3}
-  BeeCount: 100
-  BeeCountFromResource: 10
-  MinSpeed: 1
+  BeeCount: 1000
+  BeeCountFromResource: 100
+  MinSpeed: 9
   MaxSpeed: 10
-  MaxSize: 1
 --- !u!4 &1150688217
 Transform:
   m_ObjectHideFlags: 0
@@ -438,7 +437,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 5714847037841731591, guid: d2c9fccc29c6c754aab92ffb57919abb,
     type: 3}
-  ResourceCount: 100
+  ResourceCount: 1000
 --- !u!114 &1150688219
 MonoBehaviour:
   m_ObjectHideFlags: 0

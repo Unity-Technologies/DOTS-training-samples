@@ -18,3 +18,5 @@ public struct OnCollision : IComponentData { }
 
 public struct IsOriented : IComponentData { }
 public struct IsStretched : IComponentData { }
+public struct YellowTeam : IComponentData {}
+public struct BlueTeam : IComponentData {}

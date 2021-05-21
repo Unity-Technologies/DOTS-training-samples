@@ -6,8 +6,8 @@ public class BeeSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
 {
     public GameObject BeePrefab;
     
-    [Range(0, 1000)] public int BeeCount;
-    [Range(0, 100)] public int BeeCountFromResource = 10;
+    [Range(0, 10000)] public int BeeCount;
+    [Range(0, 10000)] public int BeeCountFromResource = 10;
 
     [Range(0, 20)] public int MinSpeed = 1;
     [Range(0, 100)] public int MaxSpeed = 20;

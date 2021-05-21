@@ -34,7 +34,7 @@ public class BeeMovement : SystemBase
             .WithName("MoveToTarget")
             .WithAll<IsBee>()
             .WithNone<IsDead>()
-            .ForEach((ref Translation translation, ref Velocity velocity, in TargetPosition targetPosition, in Speed speed) =>
+            .ForEach((Entity entity, ref Translation translation, ref Velocity velocity, in TargetPosition targetPosition, in Speed speed) =>
             {
                 var currentPosition = translation.Value;
                 var newLookAt = targetPosition.Value - currentPosition;
@@ -52,6 +52,10 @@ public class BeeMovement : SystemBase
                 var direction = math.normalize(velocity.Value);
                 var distanceToTarget = math.lengthsq(newLookAt);
                 var currentSpeed = math.lerp(speed.MinValue, speed.MaxValue, math.clamp(distanceToTarget / distanceMaxSpeed, 0, 1));
+                if (HasComponent<IsAttacking>(entity))
+                {
+                    currentSpeed = speed.MaxValue;
+                }
                 
                 velocity.Value = direction * currentSpeed;
 

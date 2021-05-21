@@ -35,6 +35,14 @@ public class InitialSpawnerSystem : SystemBase
                     var instance = ecb.Instantiate(beeSpawner.BeePrefab);
                     
                     ecb.SetComponent(instance, team);
+                    if (team.Id == 0)
+                    {
+                        ecb.AddComponent<YellowTeam>(instance);
+                    }
+                    else
+                    {
+                        ecb.AddComponent<BlueTeam>(instance);
+                    }
 
                     var minSpeed = random.NextFloat(0, beeSpawner.MinSpeed);
                     var maxSpeed = random.NextFloat(minSpeed, beeSpawner.MaxSpeed);
@@ -66,8 +74,8 @@ public class InitialSpawnerSystem : SystemBase
                     {
                         Value = GetComponent<URPMaterialPropertyBaseColor>(entity).Value
                     });
-                    
-                    var aggression = random.NextFloat(0, 1);
+
+                    var aggression = 0.01f; //random.NextFloat(0, 1);
                     
                     ecb.SetComponent(instance, new Aggression
                     {

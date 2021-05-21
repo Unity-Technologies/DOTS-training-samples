@@ -6,7 +6,7 @@ public class ResourceSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntit
 {
     public GameObject ResourcePrefab;
     
-    [Range(0, 1000)] public int ResourceCount;
+    [Range(0, 10000)] public int ResourceCount;
 
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
     {

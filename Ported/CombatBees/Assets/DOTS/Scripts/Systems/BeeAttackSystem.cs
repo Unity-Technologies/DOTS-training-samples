@@ -9,7 +9,8 @@ using Unity.Transforms;
 public class BeeAttackSystem : SystemBase
 {
     private EntityCommandBufferSystem EntityCommandBufferSystem;
-    private EntityQuery QueryAliveBees;
+    private EntityQuery QueryAliveYellowTeamBees;
+    private EntityQuery QueryAliveBlueTeamBees;
 
 
     protected override void OnCreate()
@@ -17,13 +18,20 @@ public class BeeAttackSystem : SystemBase
         EntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
 
         // Query list of opposing team bees
-        var queryAliveBeesDesc = new EntityQueryDesc
+        var queryAliveYellowTeamBeesDesc = new EntityQueryDesc
         {
-            All = new ComponentType[] { typeof(IsBee) },
+            All = new ComponentType[] { typeof(IsBee), typeof(YellowTeam) },
             None = new ComponentType[] { typeof(IsDead) }
         };
         
-        QueryAliveBees = GetEntityQuery(queryAliveBeesDesc);
+        QueryAliveYellowTeamBees = GetEntityQuery(queryAliveYellowTeamBeesDesc);
+        var queryAliveBlueTeamBeesDesc = new EntityQueryDesc
+        {
+            All = new ComponentType[] { typeof(IsBee), typeof(BlueTeam) },
+            None = new ComponentType[] { typeof(IsDead) }
+        };
+        
+        QueryAliveBlueTeamBees = GetEntityQuery(queryAliveBlueTeamBeesDesc);
 
     }
     protected override void OnUpdate()
@@ -39,53 +47,55 @@ public class BeeAttackSystem : SystemBase
         // TODO how to move this into parallel worker threads?
         // safety complains that the threads will outlive the QueryAliveBees results
 
-        var aliveBees = QueryAliveBees.ToEntityArray(Allocator.TempJob);
+        var aliveYellowTeamBees = QueryAliveYellowTeamBees.ToEntityArray(Allocator.TempJob);
+        var aliveBlueTeamBees = QueryAliveBlueTeamBees.ToEntityArray(Allocator.TempJob);
+        var random = Utils.GetRandom();
         
-        if (aliveBees.Length > 0)
+        if (aliveYellowTeamBees.Length > 0)
         {
             Entities
-                .WithName("StartAttack")
-                .WithAll<IsBee>()
+                .WithName("StartAttackBlueTeam")
+                .WithAll<IsBee, BlueTeam>()
                 .WithNone<IsDead, IsAttacking, IsReturning>()
                 .WithNone<AttackCooldown>()
-                .WithReadOnly(aliveBees)
-                .WithDisposeOnCompletion(aliveBees)
+                .WithReadOnly(aliveYellowTeamBees)
+                .WithDisposeOnCompletion(aliveYellowTeamBees)
+                .ForEach((int entityInQueryIndex, Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
+                {
+                // test if bee is aggressive enough to look to start an attack
+                if (aggression.Value > random.NextFloat(0, 1))
+                    {
+                        // pick a random opposing bee to attack
+                        ecb.AddComponent<IsAttacking>(entityInQueryIndex, entity);
+                        ecb.AddComponent(entityInQueryIndex, entity, new AttackTimer { Value = 2f });
+                        ecb.AddComponent(entityInQueryIndex, entity, new Target { Value = aliveYellowTeamBees[random.NextInt(0, aliveYellowTeamBees.Length)] });
+                        ecb.AddComponent<TargetPosition>(entityInQueryIndex, entity);
+                            
+                        speed.MaxValue *= 2;
+                    }
+                }).ScheduleParallel();
+        }
+        if (aliveBlueTeamBees.Length > 0)
+        {
+            Entities
+                .WithName("StartAttackYellowTeam")
+                .WithAll<IsBee, YellowTeam>()
+                .WithNone<IsDead, IsAttacking, IsReturning>()
+                .WithNone<AttackCooldown>()
+                .WithReadOnly(aliveBlueTeamBees)
+                .WithDisposeOnCompletion(aliveBlueTeamBees)
                 .ForEach((int entityInQueryIndex, Entity entity, ref Speed speed, in Aggression aggression, in Team team, in Translation translation) =>
                 {
                     // test if bee is aggressive enough to look to start an attack
-                    if (aggression.Value > 0.5)
+                    if (aggression.Value > random.NextFloat(0, 1))
                     {
-                        var closestOpposingBee = Entity.Null;
-                        var closestsqDistance = 9999999999f;
-                        // iterate over all opposing team bees to look for closest bee to attack and set as target of attack (expensive)
-                        foreach (var bee in aliveBees)
-                        {
-                            var beeTeam = GetComponent<Team>(bee);
+                        // pick a random opposing bee to attack
+                        ecb.AddComponent<IsAttacking>(entityInQueryIndex, entity);
+                        ecb.AddComponent(entityInQueryIndex, entity, new AttackTimer { Value = 2f });
+                        ecb.AddComponent(entityInQueryIndex, entity, new Target { Value = aliveBlueTeamBees[random.NextInt(0, aliveBlueTeamBees.Length)] });
+                        ecb.AddComponent<TargetPosition>(entityInQueryIndex, entity);
                             
-                            // only consider bees on opposing team
-                            if (team.Id != beeTeam.Id)
-                            {
-                                var beeTranslation = GetComponent<Translation>(bee);
-                                var distancesqToBee = math.distancesq(translation.Value, beeTranslation.Value);
-                                
-                                if (distancesqToBee < closestsqDistance)
-                                {
-                                    closestsqDistance = distancesqToBee;
-                                    closestOpposingBee = bee;
-                                }
-                            }
-                        }
-
-                        // if we found a bee to attack, start the attack
-                        if (closestOpposingBee != Entity.Null)
-                        {
-                            ecb.AddComponent<IsAttacking>(entityInQueryIndex, entity);
-                            ecb.AddComponent(entityInQueryIndex, entity, new AttackTimer { Value = 2f });
-                            ecb.AddComponent(entityInQueryIndex, entity, new Target { Value = closestOpposingBee });
-                            ecb.AddComponent<TargetPosition>(entityInQueryIndex, entity);
-                            
-                            speed.MaxValue *= 2;
-                        }
+                        speed.MaxValue *= 2;
                     }
                 }).ScheduleParallel();
         }
