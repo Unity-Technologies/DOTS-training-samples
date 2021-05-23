@@ -1,0 +1,33 @@
+// runtime plan
+
+GetInput
+
+MakeMoveAI
+    GetInput
+
+MouseReachesHome: Parallel
+
+CatReachesHome: Parallel
+
+GameLogic
+
+DirectionUpdate
+
+CatPositions
+
+CatCollisions
+    CatPositions  // implicit handoff of the NativeArray<float2> (can be implicit because there's only one)
+
+ArrowSpawner
+
+SpawnCats: PlaybackBeforeNext     // playback will be performed before any job that depends upon this one
+
+SpawnMice: PlaybackBeforeNext
+
+
+
+// init plan
+
+BoardSpawner   // does everything need to depend upon BoardSpawner? 
+
+InitHomebases

@@ -11,84 +11,75 @@ public struct HomebaseData
     public float2 position;
 }
 
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
-public class HomebaseSystem : SystemBase
+struct InitHomebases : IJobEntityMain
 {
-    EntityCommandBufferSystem m_EcbSystem;
-    NativeList<HomebaseData> m_HomeBases;
+    [Out] public NativeList<HomebaseData> homeBases;    
 
-    protected override void OnCreate()
+    // run before first Execute; if returns false, then job does nothing
+    public bool Pre()
     {
-        m_EcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        m_HomeBases = new NativeList<HomebaseData>(Allocator.Persistent);
+        return homeBases.IsEmpty;
     }
 
-    protected override void OnUpdate()
+    public void Execute(in Homebase homebase, in Translation translation)
     {
-        if (TryGetSingleton(out GameConfig gameConfig))
+        homeBases.Add(new HomebaseData()
         {
-            var homeBases = m_HomeBases;
-            if (homeBases.IsEmpty)
-            {
-                Entities
-                    .ForEach((Entity playerEntity, in Homebase homebase, in Translation translation) =>
-                    {
-                        homeBases.Add(new HomebaseData()
-                        {
-                            playerEntity = homebase.PlayerEntity,
-                            position = new float2(translation.Value.x, translation.Value.z)
-                        });
-                    }).Run();
-            }
-
-            var ecb = m_EcbSystem.CreateCommandBuffer();
-            var scoreData = GetComponentDataFromEntity<Score>();
-
-            Entities
-                .WithAll<Mouse>()
-                .WithReadOnly(homeBases)
-                .ForEach((Entity mouseEntity, in Translation translation, in Direction direction) =>
-            {
-                float2 mousePos = new float2(translation.Value.x, translation.Value.z);
-                foreach (var homebase in homeBases)
-                {
-                if (Utils.SnapTest(mousePos, homebase.position, direction.Value)
-                    && math.distancesq(mousePos, homebase.position) < 1)
-                    {
-                        Score score = scoreData[homebase.playerEntity];
-                        score.Value += 1;
-                        scoreData[homebase.playerEntity] = score;
-                        
-                        ecb.DestroyEntity(mouseEntity);
-                    }
-                }
-            }).Schedule();
-            
-            Entities
-                .WithAll<Cat>()
-                .WithReadOnly(homeBases)
-                .ForEach((Entity catEntity, in Translation translation, in Direction direction) =>
-            {
-                float2 catPos = new float2(translation.Value.x, translation.Value.z);
-                foreach (var homebase in homeBases)
-                {
-                    if (Utils.SnapTest(catPos, homebase.position, direction.Value)
-                    && math.distancesq(catPos, homebase.position) < 1)
-                    {
-                        Score score = scoreData[homebase.playerEntity];
-                        score.Value = math.max(0, score.Value-30);
-                        scoreData[homebase.playerEntity] = score;
-                        ecb.DestroyEntity(catEntity);
-                    }
-                }
-            }).Schedule();
-            
-            m_EcbSystem.AddJobHandleForProducer(Dependency);
-        }
+            playerEntity = homebase.PlayerEntity,
+            position = new float2(translation.Value.x, translation.Value.z)
+        });
     }
 
-    protected override void OnDestroy()
+    public void Teardown()
     {
-        m_HomeBases.Dispose();
+        homeBases.Dispose();
     }
 }
+
+struct MouseReachesHome : IJobEntity
+{
+    [Read] public NativeList<HomebaseData> homeBases;
+    public Lookup<Score> scoreData;
+
+    [Include(typeof(Mouse))]
+    public void Execute(in Translation translation, in Direction direction)
+    {
+        float2 mousePos = new float2(translation.Value.x, translation.Value.z);
+        foreach (var homebase in homeBases)
+        {
+        if (Utils.SnapTest(mousePos, homebase.position, direction.Value)
+            && math.distancesq(mousePos, homebase.position) < 1)
+            {
+                Score score = scoreData[homebase.playerEntity];
+                score.Value += 1;
+                scoreData[homebase.playerEntity] = score;
+                
+                Destroy();
+            }
+        }
+    }
+}
+
+struct CatReachesHome : IJobEntity
+{
+    [Read] public NativeList<HomebaseData> homeBases;
+    public Lookup<Score> scoreData;
+
+    [Include(typeof(Cat))]
+    public void Execute(in Translation translation, in Direction direction)
+    {
+        float2 catPos = new float2(translation.Value.x, translation.Value.z);
+        foreach (var homebase in homeBases)
+        {
+            if (Utils.SnapTest(catPos, homebase.position, direction.Value)
+            && math.distancesq(catPos, homebase.position) < 1)
+            {
+                Score score = scoreData[homebase.playerEntity];
+                score.Value = math.max(0, score.Value-30);
+                scoreData[homebase.playerEntity] = score;
+                Destroy();
+            }
+        }
+    }
+}
+
