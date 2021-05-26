@@ -260,7 +260,7 @@ public class AntMovementSystem : SystemBase
         }
     }
     
-    private static void ApproachAntHill(Translation translation, Direction direction,
+    private static void ApproachAntHill(Translation translation, ref Direction direction,
          NativeArray<Entity> walls, ComponentDataFromEntity<Wall> wallComponentData,
          float deltaTime, float simulationSpeed)
     {
@@ -273,7 +273,7 @@ public class AntMovementSystem : SystemBase
     }
 
     private static void CheckReachedFoodSource(Translation translation, Vector2 foodPos, float foodSourceRadius,
-        Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
+        ref Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
         ref URPMaterialPropertyBaseColor color)
     {
         var pos = new Vector2(translation.Value.x, translation.Value.y);
@@ -287,7 +287,7 @@ public class AntMovementSystem : SystemBase
     }
 
     private static void CheckReachedAntHill(Translation translation, Vector2 antHillPosition, float antHillRadius,
-        Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
+        ref Direction direction, EntityCommandBuffer.ParallelWriter ecb, int entityInQueryIndex, Entity entity,
         ref URPMaterialPropertyBaseColor color)
     {
         var pos = new Vector2(translation.Value.x, translation.Value.y);
@@ -564,12 +564,12 @@ public class AntMovementSystem : SystemBase
 
             Dependency = Entities
                 .WithAll<Ant, CarryingFood>()
-                .WithName("ApproachTarget_Yellow")
+                .WithName("ApproachAntHill")
                 .WithReadOnly(walls)
                 .WithReadOnly(wallComponentData)
                 .ForEach((ref Translation translation, ref Direction direction) =>
                 {
-                    ApproachAntHill(translation, direction, walls, wallComponentData, deltaTime, simulationSpeed);
+                    ApproachAntHill(translation, ref direction, walls, wallComponentData, deltaTime, simulationSpeed);
                 }).ScheduleParallel(Dependency);
 
             Dependency = Entities
@@ -591,7 +591,7 @@ public class AntMovementSystem : SystemBase
                 .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Direction direction,
                     ref URPMaterialPropertyBaseColor color) =>
                 {
-                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, direction, ecb, entityInQueryIndex,
+                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, ref direction, ecb, entityInQueryIndex,
                         entity, ref color);
                 }).ScheduleParallel(Dependency);
 
@@ -601,7 +601,7 @@ public class AntMovementSystem : SystemBase
                 .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Direction direction,
                     ref URPMaterialPropertyBaseColor color) =>
                 {
-                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, direction, ecb, entityInQueryIndex,
+                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, ref direction, ecb, entityInQueryIndex,
                         entity, ref color);
                 }).ScheduleParallel(Dependency);
 
@@ -657,7 +657,7 @@ public class AntMovementSystem : SystemBase
                         simulationSpeed);
                     HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, direction.Value,
                         ref random, simulationSpeed, deltaTime);
-                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, direction, ecb, entityInQueryIndex,
+                    CheckReachedFoodSource(translation, foodPos, foodSourceRadius, ref direction, ecb, entityInQueryIndex,
                         entity, ref color);
                     HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
 
@@ -688,10 +688,10 @@ public class AntMovementSystem : SystemBase
                     
                     FollowPheromones(pheromoneMap, pheromoneBuffer, translation, ref direction, direction.Value,
                         halfScreenSize, pheromoneMapFactor, pheromoneStrength);
-                    ApproachAntHill(translation, direction, walls, wallComponentData, deltaTime, simulationSpeed);
+                    ApproachAntHill(translation, ref direction, walls, wallComponentData, deltaTime, simulationSpeed);
                     HandleWallCollisions(walls, wallComponentData, ref translation, ref direction, direction.Value,
                         ref random, simulationSpeed, deltaTime);
-                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, direction, ecb, entityInQueryIndex,
+                    CheckReachedAntHill(translation, antHillPosition, antHillRadius, ref direction, ecb, entityInQueryIndex,
                         entity, ref color);
                     HandleScreenBoundCollisions(ref translation, ref direction, screenLowerBound, screenUpperBound);
 
