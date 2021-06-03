@@ -124,6 +124,101 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &21527763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 21527764}
+  - component: {fileID: 21527768}
+  - component: {fileID: 21527767}
+  - component: {fileID: 21527766}
+  m_Layer: 5
+  m_Name: Status Text
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &21527764
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21527763}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1457226479}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 10, y: -168.36}
+  m_SizeDelta: {x: 160, y: 30}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &21527766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21527763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.12017656, g: 0.11072663, b: 0.2352941, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &21527767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21527763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 6ace0424a00c36a4f9590d4c07a4a56e, type: 3}
+    m_FontSize: 23
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 50
+    m_Alignment: 0
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
+    m_LineSpacing: 1
+  m_Text: status...
+--- !u!222 &21527768
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21527763}
+  m_CullTransparentMesh: 1
 --- !u!1 &519808261
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,6 +465,7 @@ GameObject:
   - component: {fileID: 1457226479}
   - component: {fileID: 1457226478}
   - component: {fileID: 1457226477}
+  - component: {fileID: 1457226480}
   m_Layer: 5
   m_Name: Instructions Canvas
   m_TagString: Untagged
@@ -433,6 +529,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
   - {fileID: 1787589143}
+  - {fileID: 21527764}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -441,6 +538,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1457226480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1457226476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828f97245e131624d92f2e6ec521ebbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  infoText: {fileID: 1787589145}
+  statusText: {fileID: 21527767}
 --- !u!1 &1707647148
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,7 +656,6 @@ GameObject:
   - component: {fileID: 1787589146}
   - component: {fileID: 1787589145}
   - component: {fileID: 1787589144}
-  - component: {fileID: 1787589147}
   m_Layer: 5
   m_Name: Instructions Text
   m_TagString: Untagged
@@ -624,8 +734,12 @@ MonoBehaviour:
 
     Press R: Restart the sim
 
-    Press H: Hide
-    or show this info'
+    Press H: Toggle
+    this info
+
+    Press V: Toggle wall rendering
+
+    Press A: Toggle ant rendering'
 --- !u!222 &1787589146
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -634,18 +748,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1787589142}
   m_CullTransparentMesh: 1
---- !u!114 &1787589147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1787589142}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 828f97245e131624d92f2e6ec521ebbc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2087170865
 GameObject:
   m_ObjectHideFlags: 0
@@ -688,9 +790,9 @@ MonoBehaviour:
   resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   searchColor: {r: 0.18944636, g: 0.21086979, b: 0.35294116, a: 0}
   carryColor: {r: 0.7205882, g: 0.7116722, b: 0.39738318, a: 0}
-  antCount: 1000
+  antCount: 1000000
   mapSize: 128
-  bucketResolution: 64
+  obstacleBucketResolution: 64
   antSize: {x: 0.008, y: 0.004, z: 0.004}
   antSpeed: 0.2
   antAccel: 0.07
@@ -706,6 +808,12 @@ MonoBehaviour:
   obstacleRingCount: 3
   obstaclesPerRing: 0.8
   obstacleRadius: 2
+  renderAnts: 1
+  renderWalls: 0
+  addWallsToTexture: 1
+  simulationHz: 60
+  maxSimulationStepsPerFrame: 500
+  manualJobBatcherStep: 1
 --- !u!4 &2087170867
 Transform:
   m_ObjectHideFlags: 0
