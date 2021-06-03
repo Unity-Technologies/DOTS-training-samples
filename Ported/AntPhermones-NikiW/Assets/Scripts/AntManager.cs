@@ -66,13 +66,20 @@ public unsafe class AntManager : MonoBehaviour
 	MaterialPropertyBlock reusableAntMatProps;
 	Matrix4x4[][] obstacleMatrices;
 	NativeBitArray obstacleCollisionLookup;
-	NativeBitArray isAntHoldingFood;
 
 	Matrix4x4 resourceMatrix;
 	Matrix4x4 colonyMatrix;
 
 	float2 resourcePosition;
 	float2 colonyPosition;
+	
+	/// <summary>
+	///		We INFER if an ant has food by its position in the <see cref="ants"/> array.
+	///		I.e.
+	///     - 0 to antsWithFoodStartIndex-1 = No food.
+	///	    - antsWithFoodStartIndex to ants.Length = Has food.	
+	/// </summary>
+	NativeArray<int> antsWithFoodStartIndex;
 
 	const int instancesPerBatch = 1023;
 
@@ -164,6 +171,7 @@ public unsafe class AntManager : MonoBehaviour
 	}
 	void Start()
 	{
+		antsWithFoodStartIndex = new NativeArray<int>(1, Allocator.Persistent);
 		GenerateObstacles();
 
 		colonyPosition = new float2(mapSize * .5f);
@@ -181,7 +189,7 @@ public unsafe class AntManager : MonoBehaviour
 		myPheromoneMaterial.mainTexture = pheromoneTexture;
 		pheromoneRenderer.sharedMaterial = myPheromoneMaterial;
 		ants = new NativeArray<Ant>(antCount, Allocator.Persistent);
-		isAntHoldingFood = new NativeBitArray(antCount, Allocator.Persistent);
+		new NativeBitArray(antCount, Allocator.Persistent);
 		pickupDropoffRequests = new NativeQueue<int>(Allocator.Persistent);
 
 		antMatrix = new NativeArray<Matrix4x4>(antCount, Allocator.Persistent);
@@ -208,11 +216,11 @@ public unsafe class AntManager : MonoBehaviour
 		m_AntUpdateJob = new AntUpdateJob
 		{
 			ants = ants,
-			isAntHoldingFood = isAntHoldingFood,
 			obstacleCollisionLookup = obstacleCollisionLookup,
 			pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
-
 			pheromones = pheromones,
+			
+			antsWithFoodStartIndex = antsWithFoodStartIndex,
 		
 			antAccel = antAccel,
 			antSpeed = antSpeed,
@@ -234,7 +242,7 @@ public unsafe class AntManager : MonoBehaviour
 		{
 			ants = ants,
 			pheromones = pheromones,
-			isAntHoldingFood = isAntHoldingFood,
+			antsWithFoodStartIndex = antsWithFoodStartIndex,
 
 			antSpeed = antSpeed,
 			mapSize = mapSize,
@@ -263,8 +271,8 @@ public unsafe class AntManager : MonoBehaviour
 		if (rotationMatrixLookup.IsCreated) rotationMatrixLookup.Dispose();
 		if (antMatrix.IsCreated) antMatrix.Dispose();
 		if (obstacleCollisionLookup.IsCreated) obstacleCollisionLookup.Dispose();
-		if (isAntHoldingFood.IsCreated) isAntHoldingFood.Dispose();
 		if (pickupDropoffRequests.IsCreated) pickupDropoffRequests.Dispose();
+		if (antsWithFoodStartIndex.IsCreated) antsWithFoodStartIndex.Dispose();
 	}
 
 	// void OnDrawGizmos()
@@ -358,8 +366,8 @@ public unsafe class AntManager : MonoBehaviour
 		[NoAlias, ReadOnly]
 		public NativeArray<float> pheromones;
 	
-		[NoAlias, ReadOnly]
-		public NativeBitArray isAntHoldingFood;
+		[NoAlias, ReadOnly] 
+		public NativeArray<int> antsWithFoodStartIndex;
 
 		[NoAlias, WriteOnly]
 		public NativeQueue<int>.ParallelWriter pickupDropoffRequests;
@@ -373,6 +381,8 @@ public unsafe class AntManager : MonoBehaviour
 		public int mapSize;
 		public float2 colonyPosition, resourcePosition;
 		
+
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		float PheromoneSteering(Ant ant, float distance)
 		{
@@ -453,7 +463,7 @@ public unsafe class AntManager : MonoBehaviour
 			//ant.speed += ((targetSpeed - ant.speed) * antAccel);
 			ant.speed = targetSpeed;
 
-			var isHoldingFood = isAntHoldingFood.IsSet(index);
+			var isHoldingFood = index >= antsWithFoodStartIndex[0];
 			var targetPos = math.@select(resourcePosition, colonyPosition, isHoldingFood);
 			
 			// Steer towards target if the ant can "see" it.
@@ -553,7 +563,7 @@ public unsafe class AntManager : MonoBehaviour
 
 	JobHandle simulationJobHandle;
 	
-	void TickSimulation()
+	void ScheduleSimulationTick()
 	{
 		simulationJobHandle = m_AntUpdateJob.Schedule(ants.Length, 4, simulationJobHandle);
 
@@ -563,13 +573,14 @@ public unsafe class AntManager : MonoBehaviour
 			trailDecay = trailDecay,
 		}.Schedule(pheromones.Length, 4, simulationJobHandle);
 		
-		var antSetFoodBitsHandle = new AntSetFoodBitsJob
+		var antSetFoodHandle = new AntSetFoodBySwappingJob
 		{
+			ants = ants,
 			pickupDropoffRequests = pickupDropoffRequests,
-			isAntHoldingFood = isAntHoldingFood,
+			antsWithFoodStartIndex = antsWithFoodStartIndex,
 		}.Schedule(simulationJobHandle);
 		
-		simulationJobHandle = JobHandle.CombineDependencies(weakenHandle, antSetFoodBitsHandle);
+		simulationJobHandle = JobHandle.CombineDependencies(weakenHandle, antSetFoodHandle);
 		
 		simulationJobHandle = m_AntDropPheromonesJob.Schedule(ants.Length, 4, simulationJobHandle);
 
@@ -588,7 +599,7 @@ public unsafe class AntManager : MonoBehaviour
 				var dt = 1f / simulationHz;
 				simulationTime += dt;
 				m_AntsPerSecondCounter += ants.Length;
-				TickSimulation();
+				ScheduleSimulationTick();
 			}
 
 			// NW: Trying out different forms and frequencies of job scheduling.
@@ -796,11 +807,12 @@ public unsafe class AntManager : MonoBehaviour
 		public NativeArray<float> pheromones;
 		
 		[NoAlias, ReadOnly]
-		public NativeBitArray isAntHoldingFood;
+		public NativeArray<int> antsWithFoodStartIndex;
 
 		public float simulationDt, antSpeed, trailAddSpeed;
 		public int mapSize;
 		
+
 		public void Execute(int index)
 		{
 			// NW: Ants spread pheromones in tiles around their current pos.
@@ -817,27 +829,51 @@ public unsafe class AntManager : MonoBehaviour
 #endif
 
 			ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
-			var excitement = math.@select(0.3f, 1f, isAntHoldingFood.IsSet(index)) * ants[index].speed / antSpeed;
+			var isHoldingFood = index >= antsWithFoodStartIndex[0];
+			var excitement = math.@select(0.3f, 1f, isHoldingFood) * ants[index].speed / antSpeed;
 			color += (trailAddSpeed * excitement * simulationDt) * (1f - color);
 		}
 	}
 
 	[NoAlias]
 	[BurstCompile]
-	public struct AntSetFoodBitsJob : IJob
+	public struct AntSetFoodBySwappingJob : IJob
 	{
 		[NoAlias]
 		public NativeQueue<int> pickupDropoffRequests;
+		
+		[NoAlias]
+		public NativeArray<Ant> ants;
 
 		[NoAlias]
-		public NativeBitArray isAntHoldingFood;
+		public NativeArray<int> antsWithFoodStartIndex;
 		
 		public void Execute()
 		{
-			while(pickupDropoffRequests.TryDequeue(out var index))
+			ref var currentIndex = ref UnsafeUtility.ArrayElementAsRef<int>(antsWithFoodStartIndex.GetUnsafePtr(), 0);
+			var startIndex = currentIndex;
+			while (pickupDropoffRequests.TryDequeue(out var index))
 			{
-				isAntHoldingFood.Set(index, ! isAntHoldingFood.IsSet(index));
+				// [ not holding ][  holding ]
+				//                ^ pointer.
+
+				var wasHoldingFood = index >= startIndex;
+				var swapWithIndex = antsWithFoodStartIndex[0];
+				currentIndex += wasHoldingFood ? 1 : -1;
+
+				// Note: index might = swapWithIndex.
+				Swap<Ant>(ants.GetUnsafePtr(), swapWithIndex, index);
 			}
+		}
+		
+		/// <summary>
+		///		Copied from <see cref="NativeSortExtension.Swap{T}"/>
+		/// </summary>
+		static void Swap<T>(void* array, int lhs, int rhs) where T : struct
+		{
+			T val = UnsafeUtility.ReadArrayElement<T>(array, lhs);
+			UnsafeUtility.WriteArrayElement(array, lhs, UnsafeUtility.ReadArrayElement<T>(array, rhs));
+			UnsafeUtility.WriteArrayElement(array, rhs, val);
 		}
 	}
 
