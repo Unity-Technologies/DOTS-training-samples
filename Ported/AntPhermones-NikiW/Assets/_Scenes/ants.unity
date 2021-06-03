@@ -790,7 +790,7 @@ MonoBehaviour:
   resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   searchColor: {r: 0.18944636, g: 0.21086979, b: 0.35294116, a: 0}
   carryColor: {r: 0.7205882, g: 0.7116722, b: 0.39738318, a: 0}
-  antCount: 1000000
+  antCount: 1000
   mapSize: 128
   obstacleBucketResolution: 64
   antSize: {x: 0.008, y: 0.004, z: 0.004}

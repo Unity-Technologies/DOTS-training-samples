@@ -66,6 +66,7 @@ public unsafe class AntManager : MonoBehaviour
 	MaterialPropertyBlock reusableAntMatProps;
 	Matrix4x4[][] obstacleMatrices;
 	NativeBitArray obstacleCollisionLookup;
+	NativeBitArray isAntHoldingFood;
 
 	Matrix4x4 resourceMatrix;
 	Matrix4x4 colonyMatrix;
@@ -180,9 +181,10 @@ public unsafe class AntManager : MonoBehaviour
 		myPheromoneMaterial.mainTexture = pheromoneTexture;
 		pheromoneRenderer.sharedMaterial = myPheromoneMaterial;
 		ants = new NativeArray<Ant>(antCount, Allocator.Persistent);
+		isAntHoldingFood = new NativeBitArray(antCount, Allocator.Persistent);
+		pickupDropoffRequests = new NativeQueue<int>(Allocator.Persistent);
 
 		antMatrix = new NativeArray<Matrix4x4>(antCount, Allocator.Persistent);
-		var numBatches = Mathf.CeilToInt((float)antCount / instancesPerBatch);
 		antColors = new Vector4[antCount];
 		reusableAntMatrix = new Matrix4x4[instancesPerBatch];
 		reusableAntMatProps = new MaterialPropertyBlock();
@@ -206,7 +208,9 @@ public unsafe class AntManager : MonoBehaviour
 		m_AntUpdateJob = new AntUpdateJob
 		{
 			ants = ants,
+			isAntHoldingFood = isAntHoldingFood,
 			obstacleCollisionLookup = obstacleCollisionLookup,
+			pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
 
 			pheromones = pheromones,
 		
@@ -230,6 +234,7 @@ public unsafe class AntManager : MonoBehaviour
 		{
 			ants = ants,
 			pheromones = pheromones,
+			isAntHoldingFood = isAntHoldingFood,
 
 			antSpeed = antSpeed,
 			mapSize = mapSize,
@@ -239,12 +244,14 @@ public unsafe class AntManager : MonoBehaviour
 		};
 	}
 
-	void Blit(Texture2D texture2D, Color32 color32)
+	static void Blit(Texture2D texture2D, Color32 color32)
 	{
-		var color = pheromoneTexture.GetPixelData<Color32>(0);
+		var color = texture2D.GetPixelData<Color32>(0);
+		
+		// NWalker; Find the burst compile single method for this.
 		for (var i = 0; i < color.Length; i++) 
 			color[i] = color32;
-		pheromoneTexture.Apply();
+		texture2D.Apply();
 	}
 
 	void OnDestroy()
@@ -257,6 +264,8 @@ public unsafe class AntManager : MonoBehaviour
 		if (rotationMatrixLookup.IsCreated) rotationMatrixLookup.Dispose();
 		if (antMatrix.IsCreated) antMatrix.Dispose();
 		if (obstacleCollisionLookup.IsCreated) obstacleCollisionLookup.Dispose();
+		if (isAntHoldingFood.IsCreated) isAntHoldingFood.Dispose();
+		if (pickupDropoffRequests.IsCreated) pickupDropoffRequests.Dispose();
 	}
 
 	// void OnDrawGizmos()
@@ -347,7 +356,13 @@ public unsafe class AntManager : MonoBehaviour
 
 		[NoAlias, ReadOnly]
 		public NativeArray<float> pheromones;
+	
+		[NoAlias, ReadOnly]
+		public NativeBitArray isAntHoldingFood;
 
+		[NoAlias, WriteOnly]
+		public NativeQueue<int>.ParallelWriter pickupDropoffRequests;
+		
 		public float antSpeed, pheromoneSteerStrength, wallSteerStrength, antAccel, randomSteering;
 		public int obstacleBucketResolution;
 		public float goalSteerStrength;
@@ -419,12 +434,9 @@ public unsafe class AntManager : MonoBehaviour
 
 		public void Execute(int index)
 		{
-			var antsUnsafePtr = ants.GetUnsafePtr();
 			const float piX2 = math.PI * 2f;
+			ref var ant = ref UnsafeUtility.ArrayElementAsRef<Ant>(ants.GetUnsafePtr(), index);
 			
-			ref var ant = ref UnsafeUtility.ArrayElementAsRef<Ant>(antsUnsafePtr, index);
-			float targetSpeed = antSpeed;
-
 			// NW: Random "enough" for our case.
 			var randRotation = Squirrel3.NextFloat((uint)index, perFrameRandomSeed, -randomSteering, randomSteering);
 			ant.facingAngle += randRotation;
@@ -433,13 +445,17 @@ public unsafe class AntManager : MonoBehaviour
 			var wallSteering = WallSteering(ant, 1.5f);
 			ant.facingAngle += pheroSteering * pheromoneSteerStrength;
 			ant.facingAngle += wallSteering * wallSteerStrength;
-
+			
+			float targetSpeed = antSpeed;
 			targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
 			
 			//ant.speed += ((targetSpeed - ant.speed) * antAccel);
 			ant.speed = targetSpeed;
+
+			var isHoldingFood = isAntHoldingFood.IsSet(index);
+			var targetPos = math.@select(resourcePosition, colonyPosition, isHoldingFood);
 			
-			var targetPos = math.@select(resourcePosition, colonyPosition, ant.holdingResource);
+			// Steer towards target if the ant can "see" it.
 			if (! Linecast(ant.position, targetPos))
 			{
 				//var color = Color.green;
@@ -464,10 +480,11 @@ public unsafe class AntManager : MonoBehaviour
 				//Debug.DrawLine((Vector2)ant.position/mapSize,(Vector2)targetPos/mapSize,color);
 			}
 
+			// Pick up / Drop off food.
 			if (math.distancesq(ant.position, targetPos) < 3f * 3f)
 			{
-				ant.holdingResource = !ant.holdingResource;
-				ant.facingAngle += (math.PI);
+				pickupDropoffRequests.Enqueue(index);
+				ant.facingAngle += math.PI;
 			}
 
 			float vx = math.cos(ant.facingAngle) * ant.speed;
@@ -516,25 +533,20 @@ public unsafe class AntManager : MonoBehaviour
 			// 	}
 			// }
 			
-			float inwardOrOutward = -outwardStrength;
-			float pushRadius = mapSize * .4f;
-			if (ant.holdingResource)
-			{
-				inwardOrOutward = inwardStrength;
-				pushRadius = mapSize;
-			}
-			
+			var inwardOrOutward = -outwardStrength;
+			var pushRadius = mapSize * .4f;
+			inwardOrOutward = math.@select(inwardOrOutward, inwardStrength, isHoldingFood);
+			pushRadius = math.@select(pushRadius, mapSize, isHoldingFood);
+
 			dx = colonyPosition.x - ant.position.x;
 			dy = colonyPosition.y - ant.position.y;
 			dist = math.sqrt(dx * dx + dy * dy);
 			inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
 			vx += dx / dist * inwardOrOutward;
 			vy += dy / dist * inwardOrOutward;
-			
-			if (math.abs(ovx - vx) > float.Epsilon || math.abs(ovy - vy) > float.Epsilon)
-			{
-				ant.facingAngle = math.atan2(vy, vx);
-			}
+
+			var velocityHasChanged = math.abs(ovx - vx) > float.Epsilon || math.abs(ovy - vy) > float.Epsilon;
+			ant.facingAngle = math.@select(ant.facingAngle, math.atan2(vy, vx), velocityHasChanged);
 		}
 	}
 
@@ -545,7 +557,14 @@ public unsafe class AntManager : MonoBehaviour
 		simulationJobHandle = m_AntUpdateJob.Schedule(ants.Length, 16, simulationJobHandle);
 		//m_AntUpdateJob.Run(ants.Length);
 
+		simulationJobHandle = new AntSetFoodBitsJob
+		{
+			pickupDropoffRequests = pickupDropoffRequests,
+			isAntHoldingFood = isAntHoldingFood,
+		}.Schedule(simulationJobHandle);
+		
 		simulationJobHandle = m_AntDropPheromonesJob.Schedule(simulationJobHandle);
+		
 		//simulationJobHandle.Complete();
 		//simulationJobHandle = default;
 		//m_AntsDropPheromonesJob.Run();
@@ -570,12 +589,12 @@ public unsafe class AntManager : MonoBehaviour
 
 			using (s_ComputeSimMarker.Auto())
 			{
-				if (simulationStepsPerRenderFrame % manualJobBatcherStep == 0)
+				if (ticks % manualJobBatcherStep == 0)
 				{
 					simulationJobHandle.Complete();
 					simulationJobHandle = default;
 				}
-				/*if (i % manualJobBatcherStep == 0)
+				/*if (ticks % manualJobBatcherStep == 0)
 				{
 					JobHandle.ScheduleBatchedJobs();
 				}*/
@@ -591,7 +610,13 @@ public unsafe class AntManager : MonoBehaviour
 			m_AntsPerSecondCounter = 0;
 			m_AntsPerSecondDt -= 1;
 		}
-
+		
+		using (s_ComputeSimMarker.Auto())
+		{
+			simulationJobHandle.Complete();
+			simulationJobHandle = default;
+		}
+		
 		ConvergeTowards(ref simulationStepsPerRenderFrame, ticks);
 	}
 
@@ -619,6 +644,7 @@ public unsafe class AntManager : MonoBehaviour
 	double m_AntsPerSecond;
 	long m_AntsPerSecondCounter;
 	double m_AntsPerSecondDt;
+	NativeQueue<int> pickupDropoffRequests;
 
 	public void LateUpdate()
 	{
@@ -732,6 +758,9 @@ public unsafe class AntManager : MonoBehaviour
 
 		[NoAlias]
 		public NativeArray<float> pheromones;
+		
+		[NoAlias, ReadOnly]
+		public NativeBitArray isAntHoldingFood;
 
 		public float simulationDt, antSpeed, trailAddSpeed, trailDecay;
 		public int mapSize;
@@ -754,7 +783,7 @@ public unsafe class AntManager : MonoBehaviour
 					throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
 				
 				ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromonesPtr, pheromoneIndex);
-				var excitement = math.@select(0.3f, 1f, ants[i].holdingResource) * ants[i].speed / antSpeed;
+				var excitement = math.@select(0.3f, 1f, isAntHoldingFood.IsSet(i)) * ants[i].speed / antSpeed;
 				color += (trailAddSpeed * excitement * simulationDt) * (1f - color);
 				color = Mathf.Clamp01(color);
 			}
@@ -765,6 +794,24 @@ public unsafe class AntManager : MonoBehaviour
 			{
 				ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(pheromonesPtr, i);
 				pheromone *= trailDecay;
+			}
+		}
+	}
+
+	[BurstCompile]
+	public struct AntSetFoodBitsJob : IJob
+	{
+		[NoAlias]
+		public NativeQueue<int> pickupDropoffRequests;
+
+		[NoAlias]
+		public NativeBitArray isAntHoldingFood;
+		
+		public void Execute()
+		{
+			while(pickupDropoffRequests.TryDequeue(out var index))
+			{
+				isAntHoldingFood.Set(index, ! isAntHoldingFood.IsSet(index));
 			}
 		}
 	}
