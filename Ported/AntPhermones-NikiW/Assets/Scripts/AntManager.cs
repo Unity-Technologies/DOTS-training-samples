@@ -239,7 +239,6 @@ public unsafe class AntManager : MonoBehaviour
 			antSpeed = antSpeed,
 			mapSize = mapSize,
 			trailAddSpeed = trailAddSpeed,
-			trailDecay = trailDecay,
 			simulationDt = 1f / simulationHz
 		};
 	}
@@ -309,6 +308,7 @@ public unsafe class AntManager : MonoBehaviour
 	}
 
 	// NWALKER: Investigate https://github.com/stella3d/SharedArray
+	[NoAlias]
 	[BurstCompile]
 	public struct AntMatricesJob : IJobParallelFor
 	{
@@ -345,6 +345,7 @@ public unsafe class AntManager : MonoBehaviour
 		}
 	}
 
+	[NoAlias]
 	[BurstCompile]
 	struct AntUpdateJob : IJobParallelFor
 	{
@@ -357,7 +358,7 @@ public unsafe class AntManager : MonoBehaviour
 		[NoAlias, ReadOnly]
 		public NativeArray<float> pheromones;
 	
-		[NoAlias, ReadOnly]
+		[NoAlias]
 		public NativeBitArray isAntHoldingFood;
 
 		[NoAlias, WriteOnly]
@@ -554,22 +555,25 @@ public unsafe class AntManager : MonoBehaviour
 	
 	void TickSimulation()
 	{
-		simulationJobHandle = m_AntUpdateJob.Schedule(ants.Length, 16, simulationJobHandle);
-		//m_AntUpdateJob.Run(ants.Length);
+		simulationJobHandle = m_AntUpdateJob.Schedule(ants.Length, 4, simulationJobHandle);
 
-		simulationJobHandle = new AntSetFoodBitsJob
+		var weakenHandle = new WeakenPotencyOfPheromonesJob
+		{
+			pheromones = pheromones,
+			trailDecay = trailDecay,
+		}.Schedule(pheromones.Length, 4, simulationJobHandle);
+		
+		var antSetFoodBitsHandle = new AntSetFoodBitsJob
 		{
 			pickupDropoffRequests = pickupDropoffRequests,
 			isAntHoldingFood = isAntHoldingFood,
 		}.Schedule(simulationJobHandle);
 		
-		simulationJobHandle = m_AntDropPheromonesJob.Schedule(simulationJobHandle);
+		simulationJobHandle = JobHandle.CombineDependencies(weakenHandle, antSetFoodBitsHandle);
 		
-		//simulationJobHandle.Complete();
-		//simulationJobHandle = default;
-		//m_AntsDropPheromonesJob.Run();
-		
-		mustRerender = true;
+		simulationJobHandle = m_AntDropPheromonesJob.Schedule(ants.Length, 4, simulationJobHandle);
+
+		mustRebuildMatrices = true;
 	}
 
 	private void Update()
@@ -587,22 +591,34 @@ public unsafe class AntManager : MonoBehaviour
 				TickSimulation();
 			}
 
-			using (s_ComputeSimMarker.Auto())
+			// NW: Trying out different forms and frequencies of job scheduling.
+
+			if (manualJobBatcherStep > 0 && ticks % manualJobBatcherStep == 0)
 			{
-				if (ticks % manualJobBatcherStep == 0)
+				if (useCompleteInsteadofSchedule)
 				{
-					simulationJobHandle.Complete();
-					simulationJobHandle = default;
+					using (s_ComputeSimMarker.Auto())
+					{
+						// When used with a relatively low manualJobBatcherStep, you get a nice balance between scheduling and job utilization.
+						// The problem is: Scheduling gets linearly more expensive with the more jobs queued in the handle, so after 10+ you spend more time scheduling.
+						simulationJobHandle.Complete();
+						simulationJobHandle = default;
+					}
 				}
-				/*if (ticks % manualJobBatcherStep == 0)
+				else
 				{
-					JobHandle.ScheduleBatchedJobs();
-				}*/
+					// This is quite nice for shoving queued jobs through, but otherwise
+					// doesn't matter. The above handle overhead is far more impactful.
+					using (s_ScheduleBatchedJobsMarker.Auto())
+					{
+						JobHandle.ScheduleBatchedJobs();
+					}
+				}
 			}
-			
+
 			ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartup - updateStart);
 		}
-		
+
 		m_AntsPerSecondDt += Time.deltaTime;
 		if (m_AntsPerSecondDt >= 1)
 		{
@@ -630,8 +646,9 @@ public unsafe class AntManager : MonoBehaviour
 	static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
 	static ProfilerMarker s_ScheduleSimMarker = new ProfilerMarker("ScheduleSim");
 	static ProfilerMarker s_ComputeSimMarker = new ProfilerMarker("ComputeSim");
+	static ProfilerMarker s_ScheduleBatchedJobsMarker = new ProfilerMarker("ScheduleBatchedJobs");
 	
-	bool mustRerender;
+	bool mustRebuildMatrices;
 	[FormerlySerializedAs("simulationRate")]
 	public int simulationHz = 60;
 	public int maxSimulationStepsPerFrame = 20;
@@ -639,6 +656,7 @@ public unsafe class AntManager : MonoBehaviour
 	AntUpdateJob m_AntUpdateJob;
 	AntDropPheromonesJob m_AntDropPheromonesJob;
 	public int manualJobBatcherStep = 10;
+	public bool useCompleteInsteadofSchedule = true;
 	double simulationStepsPerRenderFrame;
 	double simulationElapsedSeconds, renderElapsedSeconds, rerenderElapsedSeconds;
 	double m_AntsPerSecond;
@@ -653,9 +671,9 @@ public unsafe class AntManager : MonoBehaviour
 		// Prepare matrices as this is a render frame:
 		using (s_RenderSetupMarker.Auto())
 		{
-			if (mustRerender)
+			if (mustRebuildMatrices)
 			{
-				mustRerender = false;
+				mustRebuildMatrices = false;
 				float rerenderStart = Time.realtimeSinceStartup;
 
 				simulationJobHandle.Complete();
@@ -751,53 +769,60 @@ public unsafe class AntManager : MonoBehaviour
 
 
 	[BurstCompile]
-	public struct AntDropPheromonesJob : IJob
+	[NoAlias]
+	public struct WeakenPotencyOfPheromonesJob : IJobParallelFor
+	{
+		[NoAlias]
+		public NativeArray<float> pheromones;
+		
+		public float trailDecay;
+		
+		public void Execute(int index)
+		{
+			ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), index);
+			pheromone = math.clamp(math.mul(pheromone, trailDecay), 0, 1);
+		}
+	}
+	
+
+	[BurstCompile]
+	[NoAlias]
+	public struct AntDropPheromonesJob : IJobParallelFor
 	{
 		[NoAlias, ReadOnly]
 		public NativeArray<Ant> ants;
 
-		[NoAlias]
+		[NoAlias, NativeDisableContainerSafetyRestriction]
 		public NativeArray<float> pheromones;
 		
 		[NoAlias, ReadOnly]
 		public NativeBitArray isAntHoldingFood;
 
-		public float simulationDt, antSpeed, trailAddSpeed, trailDecay;
+		public float simulationDt, antSpeed, trailAddSpeed;
 		public int mapSize;
 		
-		public void Execute()
+		public void Execute(int index)
 		{
-			var pheromonesPtr = pheromones.GetUnsafePtr();
-			
 			// NW: Ants spread pheromones in tiles around their current pos.
-			// Writing to same array locations, so simpler to just do this in 1 flat update.
-			// Forced single-threaded though!
-			for (var i = 0; i < ants.Length; i++)
-			{
-				var position = ants[i].position;
-				var x = Mathf.RoundToInt(position.x);
-				var y = Mathf.RoundToInt(position.y);
+			// Writing to same array locations, so be aware that we're clobbering data here!
+			// However, after discussion on slack, it's an acceptable tradeoff.
+			var position = ants[index].position;
+			var x = Mathf.RoundToInt(position.x);
+			var y = Mathf.RoundToInt(position.y);
 
-				var isInBounds = CalculateIsInBounds(in x, in y, in mapSize, out var pheromoneIndex);
-				if (!math.any(isInBounds))
-					throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
-				
-				ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromonesPtr, pheromoneIndex);
-				var excitement = math.@select(0.3f, 1f, isAntHoldingFood.IsSet(i)) * ants[i].speed / antSpeed;
-				color += (trailAddSpeed * excitement * simulationDt) * (1f - color);
-				color = Mathf.Clamp01(color);
-			}
+			var isInBounds = CalculateIsInBounds(in x, in y, in mapSize, out var pheromoneIndex);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+			if (!math.any(isInBounds))
+				throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
+#endif
 
-			// NWALKER - See if this is faster if we make it its own job.
-			// Decay:
-			for (var i = 0; i < pheromones.Length; i++)
-			{
-				ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(pheromonesPtr, i);
-				pheromone *= trailDecay;
-			}
+			ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
+			var excitement = math.@select(0.3f, 1f, isAntHoldingFood.IsSet(index)) * ants[index].speed / antSpeed;
+			color += (trailAddSpeed * excitement * simulationDt) * (1f - color);
 		}
 	}
 
+	[NoAlias]
 	[BurstCompile]
 	public struct AntSetFoodBitsJob : IJob
 	{
