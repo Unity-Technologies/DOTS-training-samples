@@ -358,7 +358,7 @@ public unsafe class AntManager : MonoBehaviour
 		[NoAlias, ReadOnly]
 		public NativeArray<float> pheromones;
 	
-		[NoAlias]
+		[NoAlias, ReadOnly]
 		public NativeBitArray isAntHoldingFood;
 
 		[NoAlias, WriteOnly]
