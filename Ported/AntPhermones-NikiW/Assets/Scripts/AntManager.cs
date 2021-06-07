@@ -241,7 +241,7 @@ public unsafe class AntManager : MonoBehaviour
                         rotationMatrixLookup = rotationMatrixLookup,
                         oneOverMapSize = 1f / mapSize
                     };
-                    antMatricesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64)).Complete();
+                    antMatricesJob.Schedule(ants.Length, 4).Complete();
                 }
 
                 // NW: Apply the pheromone float array to the texture:
@@ -476,7 +476,7 @@ public unsafe class AntManager : MonoBehaviour
 
         using (s_ScheduleSimMarker.Auto())
         {
-            simulationJobHandle = antUpdateJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64), simulationJobHandle);
+            simulationJobHandle = antUpdateJob.Schedule(ants.Length, 4, simulationJobHandle);
             JobHandle.ScheduleBatchedJobs();
         }
 
@@ -568,11 +568,6 @@ public unsafe class AntManager : MonoBehaviour
                 ticksForAntToDie = ticksForAntToDie
             };
         }
-    }
-
-    static int CalculateBatchCount(int arrayLength, int min)
-    {
-        return math.max(min, Mathf.CeilToInt((float)arrayLength / JobsUtility.JobWorkerCount));
     }
 
     static void ConvergeTowards(ref double value, double target)
