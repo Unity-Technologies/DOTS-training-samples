@@ -802,22 +802,22 @@ MonoBehaviour:
   resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   searchColor: {r: 0.18944636, g: 0.21086979, b: 0.35294116, a: 0}
   carryColor: {r: 0.7205882, g: 0.7116722, b: 0.39738318, a: 0}
-  antCount: 100000
+  antCount: 1000
   mapSize: 128
   obstacleBucketResolution: 64
   antSize: {x: 0.008, y: 0.004, z: 0.004}
   antSpeed: 0.2
   antAccel: 0.07
-  trailAddSpeedWithFood: 0.8
-  trailAddSpeedWhenSearching: 0.01
-  trailDecay: 0.99
+  pheromoneAddSpeedWithFood: 0.05
+  pheromoneAddSpeedWhenSearching: 0.01
+  pheromoneDecay: 0.99
   randomSteering: 0.3
   pheromoneSteerStrengthWithFood: 0.1
   pheromoneSteerStrengthWhenSearching: 0.05
   wallSteerStrength: 0.12
   unknownFoodResourceSteerStrength: 0.01
-  seenTargetSteerStrength: 0.4
-  colonySteerStrength: 0.01
+  seenTargetSteerStrength: 1
+  colonySteerStrength: 0.05
   rotationResolution: 360
   obstacleRingCount: 3
   obstaclesPerRing: 0.8
@@ -826,7 +826,7 @@ MonoBehaviour:
   renderWalls: 0
   addWallsToTexture: 1
   simulationHz: 60
-  ticksForAntToDie: 2000
+  ticksForAntToDie: 5000
   maxSimulationStepsPerFrame: 101
   manualJobBatcherStep: 1
   useCompleteInsteadofSchedule: 1
