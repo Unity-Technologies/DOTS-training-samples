@@ -17,7 +17,7 @@ public class KeyboardInput : MonoBehaviour {
 		m_AntManager = FindObjectOfType<AntManager>();
 	}
 	
-	void Update () {
+	void LateUpdate () {
 		if (Input.GetKeyDown(KeyCode.H)) {
 			showText = !showText;
 			statusText.enabled = infoText.enabled = showText;
@@ -52,7 +52,7 @@ public class KeyboardInput : MonoBehaviour {
 		else if (Input.GetKeyDown(KeyCode.Alpha9)) 
 			Time.timeScale = 100f;
 
-		if (string.IsNullOrEmpty(statusText.text) || Time.frameCount % 100 == 0)
+		if (Time.frameCount <= 1 || Time.frameCount % 100 == 0)
 		{
 			if (m_AntManager == null)
 			{

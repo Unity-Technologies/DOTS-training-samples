@@ -37,15 +37,17 @@ public unsafe class AntManager : MonoBehaviour
 	public float antSpeed;
 	[Range(0f, 1f)]
 	public float antAccel;
-	public float trailAddSpeed;
+	public float trailAddSpeedWithFood;
+	public float trailAddSpeedWhenSearching;
 	[Range(0f, 1f)]
 	public float trailDecay;
 	public float randomSteering;
-	public float pheromoneSteerStrength;
+	public float pheromoneSteerStrengthWithFood;
+	public float pheromoneSteerStrengthWhenSearching;
 	public float wallSteerStrength;
-	public float goalSteerStrength;
-	public float outwardStrength;
-	public float inwardStrength;
+	public float unknownFoodResourceSteerStrength;
+	public float seenTargetSteerStrength;
+	public float colonySteerStrength;
 	public int rotationResolution = 360;
 	public int obstacleRingCount;
 	[Range(0f, 1f)]
@@ -204,43 +206,8 @@ public unsafe class AntManager : MonoBehaviour
 
 		simulationTime = Time.time;
 		
-		// NW: "Build" the job here to avoid expensive copy.
-		m_AntUpdateJob = new AntUpdateJob
-		{
-			ants = ants,
-			isAntHoldingFood = isAntHoldingFood,
-			obstacleCollisionLookup = obstacleCollisionLookup,
-			pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
-
-			pheromones = pheromones,
-		
-			antAccel = antAccel,
-			antSpeed = antSpeed,
-			pheromoneSteerStrength = pheromoneSteerStrength,
-			wallSteerStrength = wallSteerStrength,
-			obstacleBucketResolution = obstacleBucketResolution,
-			randomSteering = randomSteering,
-			mapSize = mapSize,
-			goalSteerStrength = goalSteerStrength,
-			outwardStrength = outwardStrength,
-			inwardStrength = inwardStrength,
-			
-			perFrameRandomSeed = (uint)(Random.value * uint.MaxValue),
-
-			colonyPosition = colonyPosition,
-			resourcePosition = resourcePosition,
-		};
-		m_AntDropPheromonesJob = new AntDropPheromonesJob
-		{
-			ants = ants,
-			pheromones = pheromones,
-			isAntHoldingFood = isAntHoldingFood,
-
-			antSpeed = antSpeed,
-			mapSize = mapSize,
-			trailAddSpeed = trailAddSpeed,
-			simulationDt = 1f / simulationHz
-		};
+		// NW: "Build" the jobs here to avoid expensive copy.
+		BuildJobs();
 	}
 
 	static void Blit(Texture2D texture2D, Color32 color32)
@@ -345,8 +312,7 @@ public unsafe class AntManager : MonoBehaviour
 		}
 	}
 
-	[NoAlias]
-	[BurstCompile]
+	[NoAlias, BurstCompile]
 	struct AntUpdateJob : IJobParallelFor
 	{
 		[NoAlias]
@@ -364,15 +330,18 @@ public unsafe class AntManager : MonoBehaviour
 		[NoAlias, WriteOnly]
 		public NativeQueue<int>.ParallelWriter pickupDropoffRequests;
 		
-		public float antSpeed, pheromoneSteerStrength, wallSteerStrength, antAccel, randomSteering;
+		public float antSpeed, pheromoneSteerStrengthWithFood, wallSteerStrength, randomSteeringStrength;
 		public int obstacleBucketResolution;
-		public float goalSteerStrength;
-		public float outwardStrength, inwardStrength;
+		public float unknownFoodResourceSteerStrength;
+		public float seenTargetSteerStrength;
+		public float colonySteerStrength;
 		public uint perFrameRandomSeed;
 
 		public int mapSize;
 		public float2 colonyPosition, resourcePosition;
-		
+		public ushort ticksForAntToDie;
+		public float pheromoneSteerStrengthWhenSearching;
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		float PheromoneSteering(Ant ant, float distance)
 		{
@@ -385,14 +354,20 @@ public unsafe class AntManager : MonoBehaviour
 				int testY = (int)(ant.position.y + math.sin(angle) * distance);
 				var isInBounds = CalculateIsInBounds(in testX, in testY, in mapSize, out var index);
 				if (math.all(isInBounds))
+				{
 					output += pheromones[index] * i;
+				}
+				else
+				{
+					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.magenta);
+				}
 			}
 
 			return math.sign(output);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		int WallSteering(Ant ant, float distance)
+		int WallSteering(Ant ant, float distance, Color color)
 		{
 			var output = 0;
 			for (var i = -1; i <= 1; i += 2)
@@ -405,6 +380,11 @@ public unsafe class AntManager : MonoBehaviour
 				if (! math.any(isInBounds) || math.all(isInBounds) && obstacleCollisionLookup.IsSet(obstacleCollisionIndex))
 				{
 					output -= i;
+					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.red, 0.2f);
+				}
+				else
+				{
+					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, color);
 				}
 			}
 
@@ -412,19 +392,19 @@ public unsafe class AntManager : MonoBehaviour
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		bool Linecast(float2 point1, float2 point2)
+		bool DirectPathToTargetIsBlocked(float2 origin, float2 target, out float dist)
 		{
-			var dx = point2.x - point1.x;
-			var dy = point2.y - point1.y;
-			var dist = math.sqrt(dx * dx + dy * dy);
+			var dx = target.x - origin.x;
+			var dy = target.y - origin.y;
+			dist = math.sqrt(dx * dx + dy * dy);
 
 			// NW: Test to see if step count can be generalized.
 			var stepCount = Mathf.CeilToInt(dist * .5f);
 			for (var i = 0; i < stepCount; i++)
 			{
 				var t = (float)i / stepCount;
-				var testX = (int) (point1.x + dx * t);
-				var testY = (int) (point1.y + dy * t);
+				var testX = (int) (origin.x + dx * t);
+				var testY = (int) (origin.y + dy * t);
 				var isInBounds = CalculateIsInBounds(in testX, in testY, in obstacleBucketResolution, out var collisionIndex);
 				if (! math.all(isInBounds) || obstacleCollisionLookup.IsSet(collisionIndex))
 					return true;
@@ -438,142 +418,197 @@ public unsafe class AntManager : MonoBehaviour
 			const float piX2 = math.PI * 2f;
 			ref var ant = ref UnsafeUtility.ArrayElementAsRef<Ant>(ants.GetUnsafePtr(), index);
 			
-			// NW: Random "enough" for our case.
-			var randRotation = Squirrel3.NextFloat((uint)index, perFrameRandomSeed, -randomSteering, randomSteering);
-			ant.facingAngle += randRotation;
-
-			var pheroSteering = PheromoneSteering(ant, (3f));
-			var wallSteering = WallSteering(ant, 1.5f);
-			ant.facingAngle += pheroSteering * pheromoneSteerStrength;
-			ant.facingAngle += wallSteering * wallSteerStrength;
-			
-			float targetSpeed = antSpeed;
-			targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
-			
-			//ant.speed += ((targetSpeed - ant.speed) * antAccel);
-			ant.speed = targetSpeed;
-
 			var isHoldingFood = isAntHoldingFood.IsSet(index);
 			var targetPos = math.@select(resourcePosition, colonyPosition, isHoldingFood);
+			float steerTowardsTargetWeight = math.@select(unknownFoodResourceSteerStrength, colonySteerStrength, isHoldingFood);
+			
+			// NW: Every time we touch a colony or food, we get EXTRA excited. Linear dropoff per ant = Exponential drop-off. This should allow ants to find their way home.
+			
+			if (ant.lifeTicks <= 0)
+			{
+				// Ant died!
+				ant.position = colonyPosition;
+				isHoldingFood = false;
+				ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
+			}
+			ant.lifeTicks--;
+
+			// NW: Add some random rotation to indicate "curiosity"...
+			var randRotation = Squirrel3.NextFloat((uint)index, perFrameRandomSeed, -randomSteeringStrength, randomSteeringStrength);
+			ant.facingAngle += randRotation;
+			
+			// Avoid walls:
+			var wallSteering = WallSteering(ant, 1.5f, isHoldingFood ? new Color(1f, 0.99f, 0.02f, 0.95f) : new Color(1f, 1f, 1f, 0.08f));
+			ant.facingAngle += wallSteering * wallSteerStrength;
 			
 			// Steer towards target if the ant can "see" it.
-			if (! Linecast(ant.position, targetPos))
+			if (DirectPathToTargetIsBlocked(ant.position, targetPos, out var distanceToTarget))
 			{
-				//var color = Color.green;
-				float targetAngle = math.atan2(targetPos.y - ant.position.y, targetPos.x - ant.position.x);
+				// Steer out of the way of obstacles and map boundaries if we can't see the target.
+				var pheroSteering = PheromoneSteering(ant, (3f));
+				ant.facingAngle += pheroSteering * math.@select(pheromoneSteerStrengthWhenSearching, pheromoneSteerStrengthWithFood, isHoldingFood);
+				
+			}
+			else
+			{
+				// Steer towards the target.
+				steerTowardsTargetWeight = seenTargetSteerStrength;
+				
+				// Pick up / Drop off food only when we're within LOS and within distance.
+				if (distanceToTarget < 3f)
+				{
+					pickupDropoffRequests.Enqueue(index);
+					var dir = colonyPosition - ant.position;
+					ant.facingAngle = math.atan2(dir.y, dir.x);
 
-				if (targetAngle - ant.facingAngle > math.PI)
-				{
-					ant.facingAngle += (piX2);
-					//color = Color.red;
+					// The ant either found food or returned home with it, so it gets to live.
+					ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
 				}
-				else if (targetAngle - ant.facingAngle < -math.PI)
-				{
-					ant.facingAngle -= (piX2);
-					//color = Color.red;
-				}
-				else
-				{
-					if (math.abs(targetAngle - ant.facingAngle) < math.PI * .5f)
-						ant.facingAngle += ((targetAngle - ant.facingAngle) * goalSteerStrength);
-				}
-
-				//Debug.DrawLine((Vector2)ant.position/mapSize,(Vector2)targetPos/mapSize,color);
 			}
 
-			// Pick up / Drop off food.
-			if (math.distancesq(ant.position, targetPos) < 3f * 3f)
+			// Head towards a target.
+			// Much more weight if we've seen it.
+			// Much more weight if it's a known location (colony). E.g. Simulating memory.
+			var targetAngle = math.atan2(targetPos.y - ant.position.y, targetPos.x - ant.position.x);
+			if (targetAngle - ant.facingAngle > math.PI)
 			{
-				pickupDropoffRequests.Enqueue(index);
-				ant.facingAngle += math.PI;
+				ant.facingAngle -= piX2;
+			}
+			else if (targetAngle - ant.facingAngle < -math.PI)
+			{
+				ant.facingAngle += piX2;
+			}
+			else
+			{
+				if (math.abs(targetAngle - ant.facingAngle) < math.PI * .5f)
+				{
+					ant.facingAngle += ((targetAngle - ant.facingAngle) * steerTowardsTargetWeight);
+				}
 			}
 
-			float vx = math.cos(ant.facingAngle) * ant.speed;
-			float vy = math.sin(ant.facingAngle) * ant.speed;
-			var ovx = vx;
-			var ovy = vy;
-
-			var originalPosition = ant.position;
-			ant.position.x += vx;
-			ant.position.y += vy;
+			var velocity = new float2(math.cos(ant.facingAngle), math.sin(ant.facingAngle));
+			velocity = math.normalizesafe(velocity) * math.@select(antSpeed, antSpeed * 0.6f, isHoldingFood);
 			
+			// Move, then undo it later if we moved into invalid.
+			var newPos = ant.position + velocity;
+
 			// NW: If we're now colliding with a wall, bounce:
-			var isInBounds = CalculateIsInBounds(in ant.position, in obstacleBucketResolution, out var collisionIndex);
-			
+			var isInBounds = CalculateIsInBounds(in newPos, in obstacleBucketResolution, out var collisionIndex);
 			if (! math.all(isInBounds))
 			{
-				ant.position -= (ant.position - originalPosition) * 2f;
-				if(! isInBounds.x) vx = -vx;
-				if(! isInBounds.y) vy = -vy;
+				ant.facingAngle = math.atan2(math.@select(-velocity.y, velocity.y, isInBounds.y), math.@select(-velocity.x, velocity.x, isInBounds.x));
 			}
 			else if (obstacleCollisionLookup.IsSet(collisionIndex))
 			{
-				ant.position -= (ant.position - originalPosition) * 2f;
-				vx = -vx;
-				vy = -vy;
+				ant.facingAngle += math.PI;
+				//Debug.DrawLine((Vector2)ant.position / mapSize, (Vector2)(ant.position + velocity) / mapSize, Color.red, 0.2f);
 			}
-			
-			float dx, dy, dist;
-			// var nearbyObstacles = GetObstacleBucket(ant.position);
-			// for (var j = 0; j < nearbyObstacles.Length; j++)
-			// {
-			// 	var obstacle = nearbyObstacles[j];
-			// 	dx = ant.position.x - obstacle.position.x;
-			// 	dy = ant.position.y - obstacle.position.y;
-			// 	float sqrDist = dx * dx + dy * dy;
-			// 	if (sqrDist < obstacleRadiusSqr)
-			// 	{
-			// 		dist = math.sqrt(sqrDist);
-			// 		dx /= dist;
-			// 		dy /= dist;
-			// 		ant.position.x = (obstacle.position.x + dx * obstacleRadius);
-			// 		ant.position.y = (obstacle.position.y + dy * obstacleRadius);
-			//
-			// 		vx -= dx * (dx * vx + dy * vy) * 1.5f;
-			// 		vy -= dy * (dx * vx + dy * vy) * 1.5f;
-			// 	}
-			// }
-			
-			var inwardOrOutward = -outwardStrength;
-			var pushRadius = mapSize * .4f;
-			inwardOrOutward = math.@select(inwardOrOutward, inwardStrength, isHoldingFood);
-			pushRadius = math.@select(pushRadius, mapSize, isHoldingFood);
-
-			dx = colonyPosition.x - ant.position.x;
-			dy = colonyPosition.y - ant.position.y;
-			dist = math.sqrt(dx * dx + dy * dy);
-			inwardOrOutward *= 1f - Mathf.Clamp01(dist / pushRadius);
-			vx += dx / dist * inwardOrOutward;
-			vy += dy / dist * inwardOrOutward;
-
-			var velocityHasChanged = math.abs(ovx - vx) > float.Epsilon || math.abs(ovy - vy) > float.Epsilon;
-			ant.facingAngle = math.@select(ant.facingAngle, math.atan2(vy, vx), velocityHasChanged);
+			else
+			{
+				ant.position = newPos;
+			}
 		}
 	}
 
 	JobHandle simulationJobHandle;
-	
+	AntUpdateJob antUpdateJob;
+	AntSetFoodBitsJob antSetFoodBitsJob;
+	WeakenPotencyOfPheromonesJob weakenPotencyOfPheromonesJob;
+	AntDropPheromonesJob antDropPheromonesJob;
 	void TickSimulation()
 	{
-		simulationJobHandle = m_AntUpdateJob.Schedule(ants.Length, 4, simulationJobHandle);
-
-		var weakenHandle = new WeakenPotencyOfPheromonesJob
+		// NW: Rebuilding is 0.002ms.
+#if UNITY_EDITOR
+		//BuildJobs();
+#endif
+		using (s_BuildJobsMarker.Auto())
 		{
-			pheromones = pheromones,
-			trailDecay = trailDecay,
-		}.Schedule(pheromones.Length, 4, simulationJobHandle);
+			antUpdateJob.perFrameRandomSeed = (uint)(Random.value * uint.MaxValue);
+		}
 		
-		var antSetFoodBitsHandle = new AntSetFoodBitsJob
+		using (s_ScheduleSimMarker.Auto())
 		{
-			pickupDropoffRequests = pickupDropoffRequests,
-			isAntHoldingFood = isAntHoldingFood,
-		}.Schedule(simulationJobHandle);
+			simulationJobHandle = antUpdateJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64), simulationJobHandle);
+			JobHandle.ScheduleBatchedJobs();
+		}
 		
-		simulationJobHandle = JobHandle.CombineDependencies(weakenHandle, antSetFoodBitsHandle);
-		
-		simulationJobHandle = m_AntDropPheromonesJob.Schedule(ants.Length, 4, simulationJobHandle);
+		simulationJobHandle.Complete();
+		simulationJobHandle = default;
 
+		using (s_ScheduleSimMarker.Auto())
+		{
+			simulationJobHandle = antSetFoodBitsJob.Schedule();
+			JobHandle.ScheduleBatchedJobs();
+		}
+		
+		weakenPotencyOfPheromonesJob.Run();
+		
+		simulationJobHandle.Complete();
+		simulationJobHandle = default;
+		
+		//simulationJobHandle = antDropPheromonesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64));
+		antDropPheromonesJob.Run(ants.Length);
+		
 		mustRebuildMatrices = true;
+	}
+
+	void BuildJobs()
+	{
+		using (s_BuildJobsMarker.Auto())
+		{
+			antUpdateJob = new AntUpdateJob
+			{
+				ants = ants,
+				isAntHoldingFood = isAntHoldingFood,
+				obstacleCollisionLookup = obstacleCollisionLookup,
+				pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
+
+				pheromones = pheromones,
+				antSpeed = antSpeed,
+				pheromoneSteerStrengthWithFood = pheromoneSteerStrengthWithFood,
+				pheromoneSteerStrengthWhenSearching = pheromoneSteerStrengthWhenSearching,
+				wallSteerStrength = wallSteerStrength,
+				obstacleBucketResolution = obstacleBucketResolution,
+				randomSteeringStrength = randomSteering,
+				mapSize = mapSize,
+				unknownFoodResourceSteerStrength = unknownFoodResourceSteerStrength,
+				seenTargetSteerStrength = seenTargetSteerStrength,
+				colonySteerStrength = colonySteerStrength,
+				ticksForAntToDie = ticksForAntToDie,
+
+				colonyPosition = colonyPosition,
+				resourcePosition = resourcePosition,
+			};
+
+			antSetFoodBitsJob = new AntSetFoodBitsJob
+			{
+				pickupDropoffRequests = pickupDropoffRequests,
+				isAntHoldingFood = isAntHoldingFood,
+			};
+
+			weakenPotencyOfPheromonesJob = new WeakenPotencyOfPheromonesJob
+			{
+				pheromones = pheromones,
+				trailDecay = trailDecay,
+			};
+
+			antDropPheromonesJob = new AntDropPheromonesJob
+			{
+				ants = ants,
+				pheromones = pheromones,
+				isAntHoldingFood = isAntHoldingFood,
+				mapSize = mapSize,
+				trailAddSpeedWithFood = trailAddSpeedWithFood,
+				trailAddSpeedWhenSearching = trailAddSpeedWhenSearching,
+				simulationDt = 1f / simulationHz,
+				ticksForAntToDie = ticksForAntToDie,
+			};
+		}
+	}
+
+	static int CalculateBatchCount(int arrayLength, int min)
+	{
+		return math.max(min, Mathf.CeilToInt((float)arrayLength / JobsUtility.JobWorkerCount));
 	}
 
 	private void Update()
@@ -588,33 +623,35 @@ public unsafe class AntManager : MonoBehaviour
 				var dt = 1f / simulationHz;
 				simulationTime += dt;
 				m_AntsPerSecondCounter += ants.Length;
-				TickSimulation();
+				
+				using(s_TickSimulationMarker.Auto())
+					TickSimulation();
 			}
 
-			// NW: Trying out different forms and frequencies of job scheduling.
-
-			if (manualJobBatcherStep > 0 && ticks % manualJobBatcherStep == 0)
-			{
-				if (useCompleteInsteadofSchedule)
-				{
-					using (s_ComputeSimMarker.Auto())
-					{
-						// When used with a relatively low manualJobBatcherStep, you get a nice balance between scheduling and job utilization.
-						// The problem is: Scheduling gets linearly more expensive with the more jobs queued in the handle, so after 10+ you spend more time scheduling.
-						simulationJobHandle.Complete();
-						simulationJobHandle = default;
-					}
-				}
-				else
-				{
-					// This is quite nice for shoving queued jobs through, but otherwise
-					// doesn't matter. The above handle overhead is far more impactful.
-					using (s_ScheduleBatchedJobsMarker.Auto())
-					{
-						JobHandle.ScheduleBatchedJobs();
-					}
-				}
-			}
+			// // NW: Trying out different forms and frequencies of job scheduling.
+			//
+			// if (manualJobBatcherStep > 0 && ticks % manualJobBatcherStep == 0)
+			// {
+			// 	if (useCompleteInsteadofSchedule)
+			// 	{
+			// 		using (s_ComputeSimMarker.Auto())
+			// 		{
+			// 			// When used with a relatively low manualJobBatcherStep, you get a nice balance between scheduling and job utilization.
+			// 			// The problem is: Scheduling gets linearly more expensive with the more jobs queued in the handle, so after 10+ you spend more time scheduling.
+			// 			simulationJobHandle.Complete();
+			// 			simulationJobHandle = default;
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 		// This is quite nice for shoving queued jobs through, but otherwise
+			// 		// doesn't matter. The above handle overhead is far more impactful.
+			// 		using (s_ScheduleBatchedJobsMarker.Auto())
+			// 		{
+			// 			JobHandle.ScheduleBatchedJobs();
+			// 		}
+			// 	}
+			// }
 
 			ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartup - updateStart);
 		}
@@ -627,11 +664,11 @@ public unsafe class AntManager : MonoBehaviour
 			m_AntsPerSecondDt -= 1;
 		}
 		
-		using (s_ComputeSimMarker.Auto())
-		{
-			simulationJobHandle.Complete();
-			simulationJobHandle = default;
-		}
+		// using (s_ComputeSimMarker.Auto())
+		// {
+		// 	simulationJobHandle.Complete();
+		// 	simulationJobHandle = default;
+		// }
 		
 		ConvergeTowards(ref simulationStepsPerRenderFrame, ticks);
 	}
@@ -644,17 +681,18 @@ public unsafe class AntManager : MonoBehaviour
 	static ProfilerMarker s_RenderSetupMarker = new ProfilerMarker("RenderSetup");
 	static ProfilerMarker s_GraphicsDrawMarker = new ProfilerMarker("Graphics.DrawMeshInstanced");
 	static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
+	static ProfilerMarker s_TextureApplyMarker = new ProfilerMarker("Texture2D.Apply");
 	static ProfilerMarker s_ScheduleSimMarker = new ProfilerMarker("ScheduleSim");
-	static ProfilerMarker s_ComputeSimMarker = new ProfilerMarker("ComputeSim");
-	static ProfilerMarker s_ScheduleBatchedJobsMarker = new ProfilerMarker("ScheduleBatchedJobs");
+	static ProfilerMarker s_BuildJobsMarker = new ProfilerMarker("BuildJobs");
+	static ProfilerMarker s_TickSimulationMarker = new ProfilerMarker("TickSim");
+	//static ProfilerMarker s_ScheduleBatchedJobsMarker = new ProfilerMarker("ScheduleBatchedJobs");
 	
 	bool mustRebuildMatrices;
 	[FormerlySerializedAs("simulationRate")]
 	public int simulationHz = 60;
+	public ushort ticksForAntToDie = 2000;
 	public int maxSimulationStepsPerFrame = 20;
 	float simulationTime;
-	AntUpdateJob m_AntUpdateJob;
-	AntDropPheromonesJob m_AntDropPheromonesJob;
 	public int manualJobBatcherStep = 10;
 	public bool useCompleteInsteadofSchedule = true;
 	double simulationStepsPerRenderFrame;
@@ -666,8 +704,6 @@ public unsafe class AntManager : MonoBehaviour
 
 	public void LateUpdate()
 	{
-		
-		
 		// Prepare matrices as this is a render frame:
 		using (s_RenderSetupMarker.Auto())
 		{
@@ -689,23 +725,23 @@ public unsafe class AntManager : MonoBehaviour
 						rotationMatrixLookup = rotationMatrixLookup,
 						oneOverMapSize = 1f / mapSize,
 					};
-					antMatricesJob.Schedule(ants.Length, 4).Complete();
+					antMatricesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64)).Complete();
 				}
 				
 				// NW: Apply the pheromone float array to the texture:
 				using (s_PheromoneFloatToColorCopyMarker.Auto())
 				{
 					var colors = pheromoneTexture.GetPixelData<Color32>(0);
-					var colorsPtr = colors.GetUnsafePtr();
-					for (var i = 0; i < colors.Length; i++)
+					new PheromoneToColorJob
 					{
-						ref var color = ref UnsafeUtility.ArrayElementAsRef<Color32>(colorsPtr, i);
-						color.r = (byte)(pheromones[i] * byte.MaxValue);
-						color.b = ! addWallsToTexture || ! obstacleCollisionLookup.IsSet(i) ? (byte)0 : (byte)150;
-						color.g = 0;
-					}
+						colors = colors,
+						pheromones = pheromones,
+						obstacleCollisionLookup = obstacleCollisionLookup,
+						addWallsToTexture = addWallsToTexture,
+					}.Run(colors.Length);
 					
-					pheromoneTexture.Apply();
+					using(s_TextureApplyMarker.Auto())
+						pheromoneTexture.Apply(); // NW: ~0.052ms!!
 				}
 
 				ConvergeTowards(ref rerenderElapsedSeconds, Time.realtimeSinceStartup - rerenderStart);
@@ -767,20 +803,51 @@ public unsafe class AntManager : MonoBehaviour
 		}
 	}
 
+	[BurstCompile, NoAlias]
+	public struct PheromoneToColorJob : IJobParallelFor
+	{
+		[NoAlias]
+		public NativeArray<Color32> colors;
+		
+		[NoAlias][ReadOnly]
+		public NativeArray<float> pheromones;
+		
+		[NoAlias][ReadOnly]
+		public NativeBitArray obstacleCollisionLookup;
+		
+		public bool addWallsToTexture;
+		
+		public void Execute(int index)
+		{
+			var colorsPtr = colors.GetUnsafePtr();
+			//for (var i = 0; i < colors.Length; i++)
+			{
+				ref var color = ref UnsafeUtility.ArrayElementAsRef<Color32>(colorsPtr, index);
+				color.r = (byte)(pheromones[index] * byte.MaxValue);
+				color.b = ! addWallsToTexture || ! obstacleCollisionLookup.IsSet(index) ? (byte)0 : (byte)150;
+				color.g = 0;
+			}
+
+		}
+	}
 
 	[BurstCompile]
 	[NoAlias]
-	public struct WeakenPotencyOfPheromonesJob : IJobParallelFor
+	public struct WeakenPotencyOfPheromonesJob : IJob
 	{
 		[NoAlias]
 		public NativeArray<float> pheromones;
 		
 		public float trailDecay;
 		
-		public void Execute(int index)
+		public void Execute()
 		{
-			ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), index);
-			pheromone = math.clamp(math.mul(pheromone, trailDecay), 0, 1);
+			var unsafePtr = pheromones.GetUnsafePtr();
+			for (var index = 0; index < pheromones.Length; index++)
+			{
+				ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(unsafePtr, index);
+				pheromone = math.clamp(pheromone * trailDecay, 0, 1);
+			}
 		}
 	}
 	
@@ -798,15 +865,17 @@ public unsafe class AntManager : MonoBehaviour
 		[NoAlias, ReadOnly]
 		public NativeBitArray isAntHoldingFood;
 
-		public float simulationDt, antSpeed, trailAddSpeed;
+		public float simulationDt, trailAddSpeedWithFood, trailAddSpeedWhenSearching;
 		public int mapSize;
+		public ushort ticksForAntToDie;
 		
 		public void Execute(int index)
 		{
 			// NW: Ants spread pheromones in tiles around their current pos.
 			// Writing to same array locations, so be aware that we're clobbering data here!
 			// However, after discussion on slack, it's an acceptable tradeoff.
-			var position = ants[index].position;
+			var ant = ants[index];
+			var position = ant.position;
 			var x = Mathf.RoundToInt(position.x);
 			var y = Mathf.RoundToInt(position.y);
 
@@ -817,8 +886,9 @@ public unsafe class AntManager : MonoBehaviour
 #endif
 
 			ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
-			var excitement = math.@select(0.3f, 1f, isAntHoldingFood.IsSet(index)) * ants[index].speed / antSpeed;
-			color += (trailAddSpeed * excitement * simulationDt) * (1f - color);
+			var excitement = math.@select(trailAddSpeedWhenSearching, trailAddSpeedWithFood, isAntHoldingFood.IsSet(index));
+			//excitement *= Mathf.InverseLerp(0, ticksForAntToDie, ant.ticksSinceFoundSomething);
+			color += excitement * simulationDt;
 		}
 	}
 
@@ -847,7 +917,7 @@ public unsafe class AntManager : MonoBehaviour
 		{
 			var antsPerRenderFrame = ants.Length * simulationStepsPerRenderFrame;
 			var antsPerMicros = m_AntsPerSecond / 1000_000.0;
-			return $"Fps: {(1.0 / Time.unscaledDeltaTime):0.00}\nAnts: {ants.Length}\nAvg Simulation Steps per Render Frame: {simulationStepsPerRenderFrame:0.000}  (max: {maxSimulationStepsPerFrame})\nSim CPU: {(simulationElapsedSeconds * 1000_000_000):#,000}ns per Sim ({(simulationElapsedSeconds * simulationStepsPerRenderFrame * 1000_000_000):#,000}ns per Render)\nRender CPU {(renderElapsedSeconds * 1000_000_000):#,000}ns per Render\nRerender CPU {(rerenderElapsedSeconds * 1000_000_000):#,000}ns per Render\nAnts per microSecond: {antsPerMicros:#,000.000}\nAnts per render: {(antsPerRenderFrame / 1000):0.00}k\nAnts per second: {m_AntsPerSecond / 1000000:#,##0.00}m";
+			return $"Fps: {(1.0 / Time.unscaledDeltaTime):0.00}\nAnts: {ants.Length}\nSim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}  (max: {maxSimulationStepsPerFrame})\nSim CPU: {(simulationElapsedSeconds * 1000_000_000):#,000}ns per Sim ({(simulationElapsedSeconds * simulationStepsPerRenderFrame * 1000_000_000):#,000}ns per Render)\nRender CPU {(renderElapsedSeconds * 1000_000_000):#,000}ns per Render\nRerender CPU {(rerenderElapsedSeconds * 1000_000_000):#,000}ns per Render\nAnts per microSecond: {antsPerMicros:#,000.000}\nAnts per render: {(antsPerRenderFrame / 1000):0.00}k\nAnts per second: {m_AntsPerSecond / 1000000:#,##0.00}m";
 		}
 		return null;
 	}
