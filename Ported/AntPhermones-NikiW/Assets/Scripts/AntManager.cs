@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
@@ -11,914 +8,894 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Profiling;
 using UnityEngine;
-using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public unsafe class AntManager : MonoBehaviour
 {
-	public Material basePheromoneMaterial;
-	public Renderer pheromoneRenderer;
-	public Material antMaterial;
-	public Material obstacleMaterial;
-	public Material resourceMaterial;
-	public Material colonyMaterial;
-	public Mesh antMesh;
-	public Mesh obstacleMesh;
-	public Mesh colonyMesh;
-	public Mesh resourceMesh;
-	public Color searchColor;
-	public Color carryColor;
-	public int antCount;
-	public int mapSize = 128;
-	[FormerlySerializedAs("bucketResolution")]
-	public int obstacleBucketResolution;
-	public Vector3 antSize;
-	public float antSpeed;
-	[Range(0f, 1f)]
-	public float antAccel;
-	public float trailAddSpeedWithFood;
-	public float trailAddSpeedWhenSearching;
-	[Range(0f, 1f)]
-	public float trailDecay;
-	public float randomSteering;
-	public float pheromoneSteerStrengthWithFood;
-	public float pheromoneSteerStrengthWhenSearching;
-	public float wallSteerStrength;
-	public float unknownFoodResourceSteerStrength;
-	public float seenTargetSteerStrength;
-	public float colonySteerStrength;
-	public int rotationResolution = 360;
-	public int obstacleRingCount;
-	[Range(0f, 1f)]
-	public float obstaclesPerRing;
-	public float obstacleRadius;
+    const int instancesPerBatch = 1023;
 
-	public bool renderAnts = true;
-	public bool renderWalls = true;
-	public bool addWallsToTexture = false;
+    static ProfilerMarker s_RenderSetupMarker = new ProfilerMarker("RenderSetup");
+    static ProfilerMarker s_GraphicsDrawMarker = new ProfilerMarker("Graphics.DrawMeshInstanced");
+    static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
+    static ProfilerMarker s_TextureApplyMarker = new ProfilerMarker("Texture2D.Apply");
+    static ProfilerMarker s_ScheduleSimMarker = new ProfilerMarker("ScheduleSim");
+    static ProfilerMarker s_BuildJobsMarker = new ProfilerMarker("BuildJobs");
+    static ProfilerMarker s_TickSimulationMarker = new ProfilerMarker("TickSim");
+    public Material basePheromoneMaterial;
+    public Renderer pheromoneRenderer;
+    public Material antMaterial;
+    public Material obstacleMaterial;
+    public Material resourceMaterial;
+    public Material colonyMaterial;
+    public Mesh antMesh;
+    public Mesh obstacleMesh;
+    public Mesh colonyMesh;
+    public Mesh resourceMesh;
+    public Color searchColor;
+    public Color carryColor;
+    public int antCount;
+    public int mapSize = 128;
+    public int obstacleBucketResolution;
+    public Vector3 antSize;
+    public float antSpeed;
+    [Range(0f, 1f)]
+    public float antAccel;
+    public float trailAddSpeedWithFood;
+    public float trailAddSpeedWhenSearching;
+    [Range(0f, 1f)]
+    public float trailDecay;
+    public float randomSteering;
+    public float pheromoneSteerStrengthWithFood;
+    public float pheromoneSteerStrengthWhenSearching;
+    public float wallSteerStrength;
+    public float unknownFoodResourceSteerStrength;
+    public float seenTargetSteerStrength;
+    public float colonySteerStrength;
+    public int rotationResolution = 360;
+    public int obstacleRingCount;
+    [Range(0f, 1f)]
+    public float obstaclesPerRing;
+    public float obstacleRadius;
+    public bool renderAnts = true;
+    public bool renderWalls = true;
+    public bool addWallsToTexture;
+    public int simulationHz = 60;
+    public ushort ticksForAntToDie = 2000;
+    public int maxSimulationStepsPerFrame = 20;
+    public int manualJobBatcherStep = 10;
+    public bool useCompleteInsteadofSchedule = true;
+    Vector4[] antColors;
+    AntDropPheromonesJob antDropPheromonesJob;
+    NativeArray<Matrix4x4> antMatrix;
+    NativeArray<Ant> ants;
+    AntSetFoodBitsJob antSetFoodBitsJob;
+    AntUpdateJob antUpdateJob;
+    Matrix4x4 colonyMatrix;
+    float2 colonyPosition;
+    NativeBitArray isAntHoldingFood;
+    double antsPerSecond;
+    long antsPerSecondCounter;
+    double antsPerSecondDt;
+    bool mustRebuildMatrices;
+    Material myPheromoneMaterial;
+    NativeBitArray obstacleCollisionLookup;
+    Matrix4x4[][] obstacleMatrices;
+    NativeArray<float> pheromones;
+    Texture2D pheromoneTexture;
+    NativeQueue<int> pickupDropoffRequests;
+    Matrix4x4 resourceMatrix;
+    float2 resourcePosition;
+    MaterialPropertyBlock reusableAntMatProps;
+    Matrix4x4[] reusableAntMatrix;
+    NativeArray<Matrix4x4> rotationMatrixLookup;
+    double simulationElapsedSeconds, renderElapsedSeconds, rerenderElapsedSeconds;
+    JobHandle simulationJobHandle;
+    double simulationStepsPerRenderFrame;
+    float simulationTime;
+    WeakenPotencyOfPheromonesJob weakenPotencyOfPheromonesJob;
 
-	Texture2D pheromoneTexture;
-	Material myPheromoneMaterial;
-	NativeArray<float> pheromones;
-	NativeArray<Ant> ants;
-	NativeArray<Matrix4x4> antMatrix;
-	Matrix4x4[] reusableAntMatrix;
-	Vector4[] antColors;
-	MaterialPropertyBlock reusableAntMatProps;
-	Matrix4x4[][] obstacleMatrices;
-	NativeBitArray obstacleCollisionLookup;
-	NativeBitArray isAntHoldingFood;
+    void Start()
+    {
+        GenerateObstacles();
 
-	Matrix4x4 resourceMatrix;
-	Matrix4x4 colonyMatrix;
+        colonyPosition = new float2(mapSize * .5f);
+        colonyMatrix = Matrix4x4.TRS((Vector2)colonyPosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
+        var resourceAngle = Random.value * 2f * math.PI;
+        resourcePosition = colonyPosition + new float2(math.cos(resourceAngle) * mapSize * .475f, math.sin(resourceAngle) * mapSize * .475f);
+        resourceMatrix = Matrix4x4.TRS((Vector2)resourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
 
-	float2 resourcePosition;
-	float2 colonyPosition;
+        pheromoneTexture = new Texture2D(mapSize, mapSize);
+        pheromoneTexture.wrapMode = TextureWrapMode.Mirror;
+        Blit(pheromoneTexture, new Color32());
 
-	const int instancesPerBatch = 1023;
+        pheromones = new NativeArray<float>(mapSize * mapSize, Allocator.Persistent);
+        myPheromoneMaterial = new Material(basePheromoneMaterial);
+        myPheromoneMaterial.mainTexture = pheromoneTexture;
+        pheromoneRenderer.sharedMaterial = myPheromoneMaterial;
+        ants = new NativeArray<Ant>(antCount, Allocator.Persistent);
+        isAntHoldingFood = new NativeBitArray(antCount, Allocator.Persistent);
+        pickupDropoffRequests = new NativeQueue<int>(Allocator.Persistent);
 
-	NativeArray<Matrix4x4> rotationMatrixLookup;
-	
-	void GenerateObstacles()
-	{
-		// TEMP HACK:
-		obstacleBucketResolution = mapSize;
-		
-		// Generate obstacles in a circle:
-		var obstaclePositions = new NativeList<float2>(1024, Allocator.Temp);
-		for (var i = 1; i <= obstacleRingCount; i++)
-		{
-			var ringRadius = (i / (obstacleRingCount + 1f)) * (mapSize * .5f);
-			var circumference = ringRadius * 2f * math.PI;
-			var maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-			var offset = Random.Range(0, maxCount);
-			var holeCount = Random.Range(1, 3);
-			for (var j = 0; j < maxCount; j++)
-			{
-				var t = (float)j / maxCount;
-				if ((t * holeCount) % 1f < obstaclesPerRing)
-				{
-					var angle = (j + offset) / (float)maxCount * (2f * math.PI);
-					var obstaclePosition = new float2(mapSize * .5f + math.cos(angle) * ringRadius, mapSize * .5f + math.sin(angle) * ringRadius);
-					obstaclePositions.Add(obstaclePosition);
+        antMatrix = new NativeArray<Matrix4x4>(antCount, Allocator.Persistent);
+        antColors = new Vector4[antCount];
+        reusableAntMatrix = new Matrix4x4[instancesPerBatch];
+        reusableAntMatProps = new MaterialPropertyBlock();
 
-					//Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
-				}
-			}
-		}
+        for (var i = 0; i < antCount; i++) ants[i] = new Ant(new float2(Random.Range(-5f, 5f) + mapSize * .5f, Random.Range(-5f, 5f) + mapSize * .5f));
 
-		obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)obstaclePositions.Length / instancesPerBatch)][];
-		for (var i = 0; i < obstacleMatrices.Length; i++)
-		{
-			obstacleMatrices[i] = new Matrix4x4[math.min(instancesPerBatch, obstaclePositions.Length - i * instancesPerBatch)];
-			for (var j = 0; j < obstacleMatrices[i].Length; j++)
-			{
-				obstacleMatrices[i][j] = Matrix4x4.TRS((Vector2)obstaclePositions[i * instancesPerBatch + j] / mapSize, Quaternion.identity, new Vector3(obstacleRadius * 2f, obstacleRadius * 2f, 1f) / mapSize);
-			}
-		}
+        rotationMatrixLookup = new NativeArray<Matrix4x4>(rotationResolution, Allocator.Persistent);
+        for (var i = 0; i < rotationResolution; i++)
+        {
+            var angle = (float)i / rotationResolution;
+            angle *= 360f;
+            rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0f, 0f, angle), antSize);
+        }
 
-		// Buckets:
-		// NW: Max bucket size seems to be around 4, and the vast majority are empty.
-		// Thus, lets just simplify to a collision map.
-		obstacleCollisionLookup = new NativeBitArray(obstacleBucketResolution * obstacleBucketResolution, Allocator.Persistent, NativeArrayOptions.ClearMemory);
+        simulationTime = Time.time;
 
-		for (int i = 0; i < obstaclePositions.Length; i++)
-		{
-			float2 pos = obstaclePositions[i];
+        // NW: "Build" the jobs here to avoid expensive copy.
+        BuildJobs();
+    }
 
-			for (int x = Mathf.FloorToInt((pos.x - obstacleRadius) / mapSize * obstacleBucketResolution); x <= Mathf.FloorToInt((pos.x + obstacleRadius) / mapSize * obstacleBucketResolution); x++)
-			{
-				if (x < 0 || x >= obstacleBucketResolution)
-					continue;
+    void Update()
+    {
+        var ticks = 0;
+        for (; ticks < maxSimulationStepsPerFrame && simulationTime < Time.time; ticks++)
+        {
+            var updateStart = Time.realtimeSinceStartup;
 
-				for (int y = Mathf.FloorToInt((pos.y - obstacleRadius) / mapSize * obstacleBucketResolution); y <= Mathf.FloorToInt((pos.y + obstacleRadius) / mapSize * obstacleBucketResolution); y++)
-				{
-					if (y < 0 || y >= obstacleBucketResolution)
-						continue;
+            using (s_ScheduleSimMarker.Auto())
+            {
+                var dt = 1f / simulationHz;
+                simulationTime += dt;
+                antsPerSecondCounter += ants.Length;
 
-					var isInBounds = CalculateIsInBounds(in x, in y, in obstacleBucketResolution, out var obstacleBucketIndex);
-					if (math.all(isInBounds))
-						obstacleCollisionLookup.Set(obstacleBucketIndex, true);
-				}
-			}
-		}
+                using (s_TickSimulationMarker.Auto())
+                {
+                    TickSimulation();
+                }
+            }
 
+            // // NW: Trying out different forms and frequencies of job scheduling.
+            //
+            // if (manualJobBatcherStep > 0 && ticks % manualJobBatcherStep == 0)
+            // {
+            // 	if (useCompleteInsteadofSchedule)
+            // 	{
+            // 		using (s_ComputeSimMarker.Auto())
+            // 		{
+            // 			// When used with a relatively low manualJobBatcherStep, you get a nice balance between scheduling and job utilization.
+            // 			// The problem is: Scheduling gets linearly more expensive with the more jobs queued in the handle, so after 10+ you spend more time scheduling.
+            // 			simulationJobHandle.Complete();
+            // 			simulationJobHandle = default;
+            // 		}
+            // 	}
+            // 	else
+            // 	{
+            // 		// This is quite nice for shoving queued jobs through, but otherwise
+            // 		// doesn't matter. The above handle overhead is far more impactful.
+            // 		using (s_ScheduleBatchedJobsMarker.Auto())
+            // 		{
+            // 			JobHandle.ScheduleBatchedJobs();
+            // 		}
+            // 	}
+            // }
 
-		// Assert collision map:
-		string log = $"OBSTACLES: {obstaclePositions.Length}\nCOLLISION BUCKETS: [{obstacleCollisionLookup.Length}";
-		{
-			for (var x = 0; x < obstacleBucketResolution; x++)
-			{
-				log += $"\n{x:0000}|";
-				for (var y = 0; y < obstacleBucketResolution; y++)
-				{
-					var isInBounds = CalculateIsInBounds(x, y, obstacleBucketResolution, out var obstacleIndex);
-					if (math.all(isInBounds))
-						log += obstacleCollisionLookup.IsSet(obstacleIndex) ? "/" : ".";
-					else throw new InvalidOperationException();
-				}
-			}
-		}
-		Debug.Log(log);
-		
-		obstaclePositions.Dispose();
-	}
-	void Start()
-	{
-		GenerateObstacles();
+            ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartup - updateStart);
+        }
 
-		colonyPosition = new float2(mapSize * .5f);
-		colonyMatrix = Matrix4x4.TRS((Vector2)colonyPosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
-		var resourceAngle = Random.value * 2f * math.PI;
-		resourcePosition = (colonyPosition + new float2(math.cos(resourceAngle) * mapSize * .475f, math.sin(resourceAngle) * mapSize * .475f));
-		resourceMatrix = Matrix4x4.TRS((Vector2)resourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
+        antsPerSecondDt += Time.deltaTime;
+        if (antsPerSecondDt >= 1)
+        {
+            ConvergeTowards(ref antsPerSecond, antsPerSecondCounter);
+            antsPerSecondCounter = 0;
+            antsPerSecondDt -= 1;
+        }
 
-		pheromoneTexture = new Texture2D(mapSize, mapSize);
-		pheromoneTexture.wrapMode = TextureWrapMode.Mirror;
-		Blit(pheromoneTexture, new Color32());
-		
-		pheromones = new NativeArray<float>(mapSize * mapSize, Allocator.Persistent);
-		myPheromoneMaterial = new Material(basePheromoneMaterial);
-		myPheromoneMaterial.mainTexture = pheromoneTexture;
-		pheromoneRenderer.sharedMaterial = myPheromoneMaterial;
-		ants = new NativeArray<Ant>(antCount, Allocator.Persistent);
-		isAntHoldingFood = new NativeBitArray(antCount, Allocator.Persistent);
-		pickupDropoffRequests = new NativeQueue<int>(Allocator.Persistent);
+        // using (s_ComputeSimMarker.Auto())
+        // {
+        // 	simulationJobHandle.Complete();
+        // 	simulationJobHandle = default;
+        // }
 
-		antMatrix = new NativeArray<Matrix4x4>(antCount, Allocator.Persistent);
-		antColors = new Vector4[antCount];
-		reusableAntMatrix = new Matrix4x4[instancesPerBatch];
-		reusableAntMatProps = new MaterialPropertyBlock();
+        ConvergeTowards(ref simulationStepsPerRenderFrame, ticks);
+    }
 
-		for (var i = 0; i < antCount; i++)
-		{
-			ants[i] = new Ant(new float2(Random.Range(-5f, 5f) + mapSize * .5f, Random.Range(-5f, 5f) + mapSize * .5f));
-		}
+    public void LateUpdate()
+    {
+        // Prepare matrices as this is a render frame:
+        using (s_RenderSetupMarker.Auto())
+        {
+            if (mustRebuildMatrices)
+            {
+                mustRebuildMatrices = false;
+                var rerenderStart = Time.realtimeSinceStartup;
 
-		rotationMatrixLookup = new NativeArray<Matrix4x4>(rotationResolution, Allocator.Persistent);
-		for (var i = 0; i < rotationResolution; i++)
-		{
-			var angle = (float)i / rotationResolution;
-			angle *= 360f;
-			rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0f, 0f, angle), antSize);
-		}
+                simulationJobHandle.Complete();
 
-		simulationTime = Time.time;
-		
-		// NW: "Build" the jobs here to avoid expensive copy.
-		BuildJobs();
-	}
+                if (renderAnts)
+                {
+                    var antMatricesJob = new AntMatricesJob
+                    {
+                        ants = ants,
+                        matrices = antMatrix,
 
-	static void Blit(Texture2D texture2D, Color32 color32)
-	{
-		var color = texture2D.GetPixelData<Color32>(0);
-		
-		// NWalker; Find the burst compile single method for this.
-		for (var i = 0; i < color.Length; i++) 
-			color[i] = color32;
-		texture2D.Apply();
-	}
+                        rotationResolution = rotationResolution,
+                        rotationMatrixLookup = rotationMatrixLookup,
+                        oneOverMapSize = 1f / mapSize
+                    };
+                    antMatricesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64)).Complete();
+                }
 
-	void OnDestroy()
-	{
-		Destroy(pheromoneTexture);
-		Destroy(myPheromoneMaterial);
+                // NW: Apply the pheromone float array to the texture:
+                using (s_PheromoneFloatToColorCopyMarker.Auto())
+                {
+                    var colors = pheromoneTexture.GetPixelData<Color32>(0);
+                    new PheromoneToColorJob
+                    {
+                        colors = colors,
+                        pheromones = pheromones,
+                        obstacleCollisionLookup = obstacleCollisionLookup,
+                        addWallsToTexture = addWallsToTexture
+                    }.Run(colors.Length);
 
-		if (ants.IsCreated) ants.Dispose();
-		if (pheromones.IsCreated) pheromones.Dispose();
-		if (rotationMatrixLookup.IsCreated) rotationMatrixLookup.Dispose();
-		if (antMatrix.IsCreated) antMatrix.Dispose();
-		if (obstacleCollisionLookup.IsCreated) obstacleCollisionLookup.Dispose();
-		if (isAntHoldingFood.IsCreated) isAntHoldingFood.Dispose();
-		if (pickupDropoffRequests.IsCreated) pickupDropoffRequests.Dispose();
-	}
+                    using (s_TextureApplyMarker.Auto())
+                    {
+                        pheromoneTexture.Apply(); // NW: ~0.052ms!!
+                    }
+                }
 
-	// void OnDrawGizmos()
-	// {
-	// 	if (! Application.isPlaying) return;
-	// 	
-	// 		for (int x = 0; x < obstacleBucketResolution; x++)
-	// 	for (int y = 0; y < obstacleBucketResolution; y++)
-	// 	{
-	// 		Gizmos.color = new Color(1f, 0f, 0f, 0.27f);
-	// 		var isInBounds = CalculateIsInBounds(in x, in y, in obstacleBucketResolution, out var index);
-	// 		if (math.all(isInBounds) && obstacleCollisionLookup.IsSet(index))
-	// 		{
-	// 			Gizmos.DrawSphere(new Vector3(x, y, 0), 1f);
-	// 		}
-	// 	}
-	//
-	// 	for (int i = 0; i < ants.Length; i++)
-	// 	{
-	// 		var ant = ants[i];
-	// 		Gizmos.color = ant.holdingResource ? Color.black : Color.magenta;
-	// 		Gizmos.DrawSphere((Vector2)ant.position, .8f);
-	// 	}
-	// }
+                ConvergeTowards(ref rerenderElapsedSeconds, Time.realtimeSinceStartup - rerenderStart);
+            }
+        }
 
-	// NWALKER: Trying out in keyword to improve perf.
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool2 CalculateIsInBounds(in int x, in int y, in int size, out int index)
-	{
-		index = x + y * size;
-		return new bool2(x >= 0 && x < size, y >= 0 && y < size);
-	}	
-	
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static bool2 CalculateIsInBounds(in float2 pos, in int size, out int index)
-	{
-		var x = Mathf.RoundToInt(pos.x);
-		var y = Mathf.RoundToInt(pos.y);
-		index = x + y * size;
-		return new bool2(x >= 0 && x < size, y >= 0 && y < size);
-	}
+        using (s_GraphicsDrawMarker.Auto())
+        {
+            var renderStart = Time.realtimeSinceStartup;
 
-	// NWALKER: Investigate https://github.com/stella3d/SharedArray
-	[NoAlias]
-	[BurstCompile]
-	public struct AntMatricesJob : IJobParallelFor
-	{
-		// NWalker: float4x4?
-		[NoAlias, ReadOnly]
-		public NativeArray<Matrix4x4> rotationMatrixLookup;
+            // NW: Create batches when we actually render them:
+            if (renderAnts)
+            {
+                var start = 0;
+                while (start < antMatrix.Length)
+                {
+                    // NW: Annoying that there is a copy here, but it's a limitation of the Graphics.DrawMeshInstanced API AFAIK.
+                    // TODO - Remove copy to managed array once API supports.
+                    var end = math.min(antMatrix.Length, start + instancesPerBatch);
+                    var length = end - start;
+                    NativeArray<Matrix4x4>.Copy(antMatrix, start, reusableAntMatrix, 0, length);
 
-		[NoAlias, ReadOnly]
-		public NativeArray<Ant> ants;
-		
-		[NoAlias, WriteOnly]
-		public NativeArray<Matrix4x4> matrices;
+                    // var index1 = index / instancesPerBatch;
+                    // var index2 = index % instancesPerBatch;
+                    // if (ant.holdingResource == false)
+                    // {
+                    // 	targetPos = resourcePosition;
+                    //
+                    // 	// NWALKER - SPLIT presentation from simulation.
+                    // 	//antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
+                    // }
+                    // else
+                    // {
+                    // 	targetPos = colonyPosition;
+                    //
+                    // 	//antColors[index1][index2] += ((Vector4)carryColor * ant.brightness - antColors[index1][index2]) * .05f;
+                    // }
+                    //
+                    // reusableAntMatProps.SetVectorArray("_Color", );
 
-		public float oneOverMapSize;
+                    Graphics.DrawMeshInstanced(antMesh, 0, antMaterial, reusableAntMatrix, length, reusableAntMatProps);
+                    start = end;
+                }
+            }
 
-		public int rotationResolution;
+            if (renderWalls)
+                for (var i = 0; i < obstacleMatrices.Length; i++)
+                    Graphics.DrawMeshInstanced(obstacleMesh, 0, obstacleMaterial, obstacleMatrices[i]);
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		Matrix4x4 GetRotationMatrix(float angle)
-		{
-			angle /= math.PI * 2f;
-			angle -= math.floor(angle);
-			angle *= rotationResolution;
-			return rotationMatrixLookup[((int)angle) % rotationResolution];
-		}
+            Graphics.DrawMesh(colonyMesh, colonyMatrix, colonyMaterial, 0);
+            Graphics.DrawMesh(resourceMesh, resourceMatrix, resourceMaterial, 0);
 
-		public void Execute(int index)
-		{
-			var ant = ants[index];
-			var matrix = GetRotationMatrix(ant.facingAngle);
-			matrix.m03 = ant.position.x * oneOverMapSize;
-			matrix.m13 = ant.position.y * oneOverMapSize;
-			matrices[index] = matrix;
-		}
-	}
+            ConvergeTowards(ref renderElapsedSeconds, Time.realtimeSinceStartup - renderStart);
+        }
+    }
 
-	[NoAlias, BurstCompile]
-	struct AntUpdateJob : IJobParallelFor
-	{
-		[NoAlias]
-		public NativeArray<Ant> ants;
+    void OnDestroy()
+    {
+        Destroy(pheromoneTexture);
+        Destroy(myPheromoneMaterial);
 
-		[NoAlias, ReadOnly]
-		public NativeBitArray obstacleCollisionLookup;
+        if (ants.IsCreated) ants.Dispose();
+        if (pheromones.IsCreated) pheromones.Dispose();
+        if (rotationMatrixLookup.IsCreated) rotationMatrixLookup.Dispose();
+        if (antMatrix.IsCreated) antMatrix.Dispose();
+        if (obstacleCollisionLookup.IsCreated) obstacleCollisionLookup.Dispose();
+        if (isAntHoldingFood.IsCreated) isAntHoldingFood.Dispose();
+        if (pickupDropoffRequests.IsCreated) pickupDropoffRequests.Dispose();
+    }
 
-		[NoAlias, ReadOnly]
-		public NativeArray<float> pheromones;
-	
-		[NoAlias, ReadOnly]
-		public NativeBitArray isAntHoldingFood;
+    void GenerateObstacles()
+    {
+        // TEMP HACK:
+        obstacleBucketResolution = mapSize;
 
-		[NoAlias, WriteOnly]
-		public NativeQueue<int>.ParallelWriter pickupDropoffRequests;
-		
-		public float antSpeed, pheromoneSteerStrengthWithFood, wallSteerStrength, randomSteeringStrength;
-		public int obstacleBucketResolution;
-		public float unknownFoodResourceSteerStrength;
-		public float seenTargetSteerStrength;
-		public float colonySteerStrength;
-		public uint perFrameRandomSeed;
+        // Generate obstacles in a circle:
+        var obstaclePositions = new NativeList<float2>(1024, Allocator.Temp);
+        for (var i = 1; i <= obstacleRingCount; i++)
+        {
+            var ringRadius = i / (obstacleRingCount + 1f) * (mapSize * .5f);
+            var circumference = ringRadius * 2f * math.PI;
+            var maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
+            var offset = Random.Range(0, maxCount);
+            var holeCount = Random.Range(1, 3);
+            for (var j = 0; j < maxCount; j++)
+            {
+                var t = (float)j / maxCount;
+                if (t * holeCount % 1f < obstaclesPerRing)
+                {
+                    var angle = (j + offset) / (float)maxCount * (2f * math.PI);
+                    var obstaclePosition = new float2(mapSize * .5f + math.cos(angle) * ringRadius, mapSize * .5f + math.sin(angle) * ringRadius);
+                    obstaclePositions.Add(obstaclePosition);
 
-		public int mapSize;
-		public float2 colonyPosition, resourcePosition;
-		public ushort ticksForAntToDie;
-		public float pheromoneSteerStrengthWhenSearching;
+                    //Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
+                }
+            }
+        }
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		float PheromoneSteering(Ant ant, float distance)
-		{
-			var output = 0f;
-			var quarterPi = (math.PI * .25f);
-			for (var i = -1; i <= 1; i += 2)
-			{
-				var angle = (ant.facingAngle + i * quarterPi);
-				int testX = (int)(ant.position.x + math.cos(angle) * distance);
-				int testY = (int)(ant.position.y + math.sin(angle) * distance);
-				var isInBounds = CalculateIsInBounds(in testX, in testY, in mapSize, out var index);
-				if (math.all(isInBounds))
-				{
-					output += pheromones[index] * i;
-				}
-				else
-				{
-					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.magenta);
-				}
-			}
+        obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)obstaclePositions.Length / instancesPerBatch)][];
+        for (var i = 0; i < obstacleMatrices.Length; i++)
+        {
+            obstacleMatrices[i] = new Matrix4x4[math.min(instancesPerBatch, obstaclePositions.Length - i * instancesPerBatch)];
+            for (var j = 0; j < obstacleMatrices[i].Length; j++) obstacleMatrices[i][j] = Matrix4x4.TRS((Vector2)obstaclePositions[i * instancesPerBatch + j] / mapSize, Quaternion.identity, new Vector3(obstacleRadius * 2f, obstacleRadius * 2f, 1f) / mapSize);
+        }
 
-			return math.sign(output);
-		}
+        // Buckets:
+        // NW: Max bucket size seems to be around 4, and the vast majority are empty.
+        // Thus, lets just simplify to a collision map.
+        obstacleCollisionLookup = new NativeBitArray(obstacleBucketResolution * obstacleBucketResolution, Allocator.Persistent);
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		int WallSteering(Ant ant, float distance, Color color)
-		{
-			var output = 0;
-			for (var i = -1; i <= 1; i += 2)
-			{
-				var angle = ant.facingAngle + i * math.PI * .25f;
-				var testX = (int)(ant.position.x + math.cos(angle) * distance);
-				var testY = (int)(ant.position.y + math.sin(angle) * distance);
+        for (var i = 0; i < obstaclePositions.Length; i++)
+        {
+            var pos = obstaclePositions[i];
 
-				var isInBounds = CalculateIsInBounds(in testX, in testY, in obstacleBucketResolution, out var obstacleCollisionIndex);
-				if (! math.any(isInBounds) || math.all(isInBounds) && obstacleCollisionLookup.IsSet(obstacleCollisionIndex))
-				{
-					output -= i;
-					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.red, 0.2f);
-				}
-				else
-				{
-					//Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, color);
-				}
-			}
+            for (var x = Mathf.FloorToInt((pos.x - obstacleRadius) / mapSize * obstacleBucketResolution); x <= Mathf.FloorToInt((pos.x + obstacleRadius) / mapSize * obstacleBucketResolution); x++)
+            {
+                if (x < 0 || x >= obstacleBucketResolution)
+                    continue;
 
-			return output;
-		}
+                for (var y = Mathf.FloorToInt((pos.y - obstacleRadius) / mapSize * obstacleBucketResolution); y <= Mathf.FloorToInt((pos.y + obstacleRadius) / mapSize * obstacleBucketResolution); y++)
+                {
+                    if (y < 0 || y >= obstacleBucketResolution)
+                        continue;
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		bool DirectPathToTargetIsBlocked(float2 origin, float2 target, out float dist)
-		{
-			var dx = target.x - origin.x;
-			var dy = target.y - origin.y;
-			dist = math.sqrt(dx * dx + dy * dy);
+                    var isInBounds = CalculateIsInBounds(in x, in y, in obstacleBucketResolution, out var obstacleBucketIndex);
+                    if (math.all(isInBounds))
+                        obstacleCollisionLookup.Set(obstacleBucketIndex, true);
+                }
+            }
+        }
 
-			// NW: Test to see if step count can be generalized.
-			var stepCount = Mathf.CeilToInt(dist * .5f);
-			for (var i = 0; i < stepCount; i++)
-			{
-				var t = (float)i / stepCount;
-				var testX = (int) (origin.x + dx * t);
-				var testY = (int) (origin.y + dy * t);
-				var isInBounds = CalculateIsInBounds(in testX, in testY, in obstacleBucketResolution, out var collisionIndex);
-				if (! math.all(isInBounds) || obstacleCollisionLookup.IsSet(collisionIndex))
-					return true;
-			}
+        // Assert collision map:
+        var log = $"OBSTACLES: {obstaclePositions.Length}\nCOLLISION BUCKETS: [{obstacleCollisionLookup.Length}";
+        {
+            for (var x = 0; x < obstacleBucketResolution; x++)
+            {
+                log += $"\n{x:0000}|";
+                for (var y = 0; y < obstacleBucketResolution; y++)
+                {
+                    var isInBounds = CalculateIsInBounds(x, y, obstacleBucketResolution, out var obstacleIndex);
+                    if (math.all(isInBounds))
+                        log += obstacleCollisionLookup.IsSet(obstacleIndex) ? "/" : ".";
+                    else throw new InvalidOperationException();
+                }
+            }
+        }
+        Debug.Log(log);
 
-			return false;
-		}
+        obstaclePositions.Dispose();
+    }
 
-		public void Execute(int index)
-		{
-			const float piX2 = math.PI * 2f;
-			ref var ant = ref UnsafeUtility.ArrayElementAsRef<Ant>(ants.GetUnsafePtr(), index);
-			
-			var isHoldingFood = isAntHoldingFood.IsSet(index);
-			var targetPos = math.@select(resourcePosition, colonyPosition, isHoldingFood);
-			float steerTowardsTargetWeight = math.@select(unknownFoodResourceSteerStrength, colonySteerStrength, isHoldingFood);
-			
-			// NW: Every time we touch a colony or food, we get EXTRA excited. Linear dropoff per ant = Exponential drop-off. This should allow ants to find their way home.
-			
-			if (ant.lifeTicks <= 0)
-			{
-				// Ant died!
-				ant.position = colonyPosition;
-				isHoldingFood = false;
-				ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
-			}
-			ant.lifeTicks--;
+    static void Blit(Texture2D texture2D, Color32 color32)
+    {
+        var color = texture2D.GetPixelData<Color32>(0);
 
-			// NW: Add some random rotation to indicate "curiosity"...
-			var randRotation = Squirrel3.NextFloat((uint)index, perFrameRandomSeed, -randomSteeringStrength, randomSteeringStrength);
-			ant.facingAngle += randRotation;
-			
-			// Avoid walls:
-			var wallSteering = WallSteering(ant, 1.5f, isHoldingFood ? new Color(1f, 0.99f, 0.02f, 0.95f) : new Color(1f, 1f, 1f, 0.08f));
-			ant.facingAngle += wallSteering * wallSteerStrength;
-			
-			// Steer towards target if the ant can "see" it.
-			if (DirectPathToTargetIsBlocked(ant.position, targetPos, out var distanceToTarget))
-			{
-				// Steer out of the way of obstacles and map boundaries if we can't see the target.
-				var pheroSteering = PheromoneSteering(ant, (3f));
-				ant.facingAngle += pheroSteering * math.@select(pheromoneSteerStrengthWhenSearching, pheromoneSteerStrengthWithFood, isHoldingFood);
-				
-			}
-			else
-			{
-				// Steer towards the target.
-				steerTowardsTargetWeight = seenTargetSteerStrength;
-				
-				// Pick up / Drop off food only when we're within LOS and within distance.
-				if (distanceToTarget < 3f)
-				{
-					pickupDropoffRequests.Enqueue(index);
-					var dir = colonyPosition - ant.position;
-					ant.facingAngle = math.atan2(dir.y, dir.x);
+        // NWalker; Find the burst compile single method for this.
+        for (var i = 0; i < color.Length; i++)
+            color[i] = color32;
+        texture2D.Apply();
+    }
 
-					// The ant either found food or returned home with it, so it gets to live.
-					ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
-				}
-			}
+    // void OnDrawGizmos()
+    // {
+    // 	if (! Application.isPlaying) return;
+    // 	
+    // 		for (int x = 0; x < obstacleBucketResolution; x++)
+    // 	for (int y = 0; y < obstacleBucketResolution; y++)
+    // 	{
+    // 		Gizmos.color = new Color(1f, 0f, 0f, 0.27f);
+    // 		var isInBounds = CalculateIsInBounds(in x, in y, in obstacleBucketResolution, out var index);
+    // 		if (math.all(isInBounds) && obstacleCollisionLookup.IsSet(index))
+    // 		{
+    // 			Gizmos.DrawSphere(new Vector3(x, y, 0), 1f);
+    // 		}
+    // 	}
+    //
+    // 	for (int i = 0; i < ants.Length; i++)
+    // 	{
+    // 		var ant = ants[i];
+    // 		Gizmos.color = ant.holdingResource ? Color.black : Color.magenta;
+    // 		Gizmos.DrawSphere((Vector2)ant.position, .8f);
+    // 	}
+    // }
 
-			// Head towards a target.
-			// Much more weight if we've seen it.
-			// Much more weight if it's a known location (colony). E.g. Simulating memory.
-			var targetAngle = math.atan2(targetPos.y - ant.position.y, targetPos.x - ant.position.x);
-			if (targetAngle - ant.facingAngle > math.PI)
-			{
-				ant.facingAngle -= piX2;
-			}
-			else if (targetAngle - ant.facingAngle < -math.PI)
-			{
-				ant.facingAngle += piX2;
-			}
-			else
-			{
-				if (math.abs(targetAngle - ant.facingAngle) < math.PI * .5f)
-				{
-					ant.facingAngle += ((targetAngle - ant.facingAngle) * steerTowardsTargetWeight);
-				}
-			}
+    // NWALKER: Trying out in keyword to improve perf.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static bool2 CalculateIsInBounds(in int x, in int y, in int size, out int index)
+    {
+        index = x + y * size;
+        return new bool2(x >= 0 && x < size, y >= 0 && y < size);
+    }
 
-			var velocity = new float2(math.cos(ant.facingAngle), math.sin(ant.facingAngle));
-			velocity = math.normalizesafe(velocity) * math.@select(antSpeed, antSpeed * 0.6f, isHoldingFood);
-			
-			// Move, then undo it later if we moved into invalid.
-			var newPos = ant.position + velocity;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static bool2 CalculateIsInBounds(in float2 pos, in int size, out int index)
+    {
+        var x = Mathf.RoundToInt(pos.x);
+        var y = Mathf.RoundToInt(pos.y);
+        index = x + y * size;
+        return new bool2(x >= 0 && x < size, y >= 0 && y < size);
+    }
 
-			// NW: If we're now colliding with a wall, bounce:
-			var isInBounds = CalculateIsInBounds(in newPos, in obstacleBucketResolution, out var collisionIndex);
-			if (! math.all(isInBounds))
-			{
-				ant.facingAngle = math.atan2(math.@select(-velocity.y, velocity.y, isInBounds.y), math.@select(-velocity.x, velocity.x, isInBounds.x));
-			}
-			else if (obstacleCollisionLookup.IsSet(collisionIndex))
-			{
-				ant.facingAngle += math.PI;
-				//Debug.DrawLine((Vector2)ant.position / mapSize, (Vector2)(ant.position + velocity) / mapSize, Color.red, 0.2f);
-			}
-			else
-			{
-				ant.position = newPos;
-			}
-		}
-	}
-
-	JobHandle simulationJobHandle;
-	AntUpdateJob antUpdateJob;
-	AntSetFoodBitsJob antSetFoodBitsJob;
-	WeakenPotencyOfPheromonesJob weakenPotencyOfPheromonesJob;
-	AntDropPheromonesJob antDropPheromonesJob;
-	void TickSimulation()
-	{
-		// NW: Rebuilding is 0.002ms.
+    void TickSimulation()
+    {
+        // NW: Rebuilding is 0.002ms.
 #if UNITY_EDITOR
-		//BuildJobs();
+
+        //BuildJobs();
 #endif
-		using (s_BuildJobsMarker.Auto())
-		{
-			antUpdateJob.perFrameRandomSeed = (uint)(Random.value * uint.MaxValue);
-		}
-		
-		using (s_ScheduleSimMarker.Auto())
-		{
-			simulationJobHandle = antUpdateJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64), simulationJobHandle);
-			JobHandle.ScheduleBatchedJobs();
-		}
-		
-		simulationJobHandle.Complete();
-		simulationJobHandle = default;
+        using (s_BuildJobsMarker.Auto())
+        {
+            antUpdateJob.perFrameRandomSeed = (uint)(Random.value * uint.MaxValue);
+        }
 
-		using (s_ScheduleSimMarker.Auto())
-		{
-			simulationJobHandle = antSetFoodBitsJob.Schedule();
-			JobHandle.ScheduleBatchedJobs();
-		}
-		
-		weakenPotencyOfPheromonesJob.Run();
-		
-		simulationJobHandle.Complete();
-		simulationJobHandle = default;
-		
-		//simulationJobHandle = antDropPheromonesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64));
-		antDropPheromonesJob.Run(ants.Length);
-		
-		mustRebuildMatrices = true;
-	}
+        using (s_ScheduleSimMarker.Auto())
+        {
+            simulationJobHandle = antUpdateJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64), simulationJobHandle);
+            JobHandle.ScheduleBatchedJobs();
+        }
 
-	void BuildJobs()
-	{
-		using (s_BuildJobsMarker.Auto())
-		{
-			antUpdateJob = new AntUpdateJob
-			{
-				ants = ants,
-				isAntHoldingFood = isAntHoldingFood,
-				obstacleCollisionLookup = obstacleCollisionLookup,
-				pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
+        simulationJobHandle.Complete();
+        simulationJobHandle = default;
 
-				pheromones = pheromones,
-				antSpeed = antSpeed,
-				pheromoneSteerStrengthWithFood = pheromoneSteerStrengthWithFood,
-				pheromoneSteerStrengthWhenSearching = pheromoneSteerStrengthWhenSearching,
-				wallSteerStrength = wallSteerStrength,
-				obstacleBucketResolution = obstacleBucketResolution,
-				randomSteeringStrength = randomSteering,
-				mapSize = mapSize,
-				unknownFoodResourceSteerStrength = unknownFoodResourceSteerStrength,
-				seenTargetSteerStrength = seenTargetSteerStrength,
-				colonySteerStrength = colonySteerStrength,
-				ticksForAntToDie = ticksForAntToDie,
+        using (s_ScheduleSimMarker.Auto())
+        {
+            simulationJobHandle = antSetFoodBitsJob.Schedule();
+            JobHandle.ScheduleBatchedJobs();
+        }
 
-				colonyPosition = colonyPosition,
-				resourcePosition = resourcePosition,
-			};
+        weakenPotencyOfPheromonesJob.Run();
 
-			antSetFoodBitsJob = new AntSetFoodBitsJob
-			{
-				pickupDropoffRequests = pickupDropoffRequests,
-				isAntHoldingFood = isAntHoldingFood,
-			};
+        simulationJobHandle.Complete();
+        simulationJobHandle = default;
 
-			weakenPotencyOfPheromonesJob = new WeakenPotencyOfPheromonesJob
-			{
-				pheromones = pheromones,
-				trailDecay = trailDecay,
-			};
+        //simulationJobHandle = antDropPheromonesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64));
+        antDropPheromonesJob.Run(ants.Length);
 
-			antDropPheromonesJob = new AntDropPheromonesJob
-			{
-				ants = ants,
-				pheromones = pheromones,
-				isAntHoldingFood = isAntHoldingFood,
-				mapSize = mapSize,
-				trailAddSpeedWithFood = trailAddSpeedWithFood,
-				trailAddSpeedWhenSearching = trailAddSpeedWhenSearching,
-				simulationDt = 1f / simulationHz,
-				ticksForAntToDie = ticksForAntToDie,
-			};
-		}
-	}
+        mustRebuildMatrices = true;
+    }
 
-	static int CalculateBatchCount(int arrayLength, int min)
-	{
-		return math.max(min, Mathf.CeilToInt((float)arrayLength / JobsUtility.JobWorkerCount));
-	}
+    void BuildJobs()
+    {
+        using (s_BuildJobsMarker.Auto())
+        {
+            antUpdateJob = new AntUpdateJob
+            {
+                ants = ants,
+                isAntHoldingFood = isAntHoldingFood,
+                obstacleCollisionLookup = obstacleCollisionLookup,
+                pickupDropoffRequests = pickupDropoffRequests.AsParallelWriter(),
 
-	private void Update()
-	{
-		int ticks = 0;
-		for (; ticks < maxSimulationStepsPerFrame && simulationTime < Time.time; ticks++)
-		{
-			float updateStart = Time.realtimeSinceStartup;
+                pheromones = pheromones,
+                antSpeed = antSpeed,
+                pheromoneSteerStrengthWithFood = pheromoneSteerStrengthWithFood,
+                pheromoneSteerStrengthWhenSearching = pheromoneSteerStrengthWhenSearching,
+                wallSteerStrength = wallSteerStrength,
+                obstacleBucketResolution = obstacleBucketResolution,
+                randomSteeringStrength = randomSteering,
+                mapSize = mapSize,
+                unknownFoodResourceSteerStrength = unknownFoodResourceSteerStrength,
+                seenTargetSteerStrength = seenTargetSteerStrength,
+                colonySteerStrength = colonySteerStrength,
+                ticksForAntToDie = ticksForAntToDie,
 
-			using (s_ScheduleSimMarker.Auto())
-			{
-				var dt = 1f / simulationHz;
-				simulationTime += dt;
-				m_AntsPerSecondCounter += ants.Length;
-				
-				using(s_TickSimulationMarker.Auto())
-					TickSimulation();
-			}
+                colonyPosition = colonyPosition,
+                resourcePosition = resourcePosition
+            };
 
-			// // NW: Trying out different forms and frequencies of job scheduling.
-			//
-			// if (manualJobBatcherStep > 0 && ticks % manualJobBatcherStep == 0)
-			// {
-			// 	if (useCompleteInsteadofSchedule)
-			// 	{
-			// 		using (s_ComputeSimMarker.Auto())
-			// 		{
-			// 			// When used with a relatively low manualJobBatcherStep, you get a nice balance between scheduling and job utilization.
-			// 			// The problem is: Scheduling gets linearly more expensive with the more jobs queued in the handle, so after 10+ you spend more time scheduling.
-			// 			simulationJobHandle.Complete();
-			// 			simulationJobHandle = default;
-			// 		}
-			// 	}
-			// 	else
-			// 	{
-			// 		// This is quite nice for shoving queued jobs through, but otherwise
-			// 		// doesn't matter. The above handle overhead is far more impactful.
-			// 		using (s_ScheduleBatchedJobsMarker.Auto())
-			// 		{
-			// 			JobHandle.ScheduleBatchedJobs();
-			// 		}
-			// 	}
-			// }
+            antSetFoodBitsJob = new AntSetFoodBitsJob
+            {
+                pickupDropoffRequests = pickupDropoffRequests,
+                isAntHoldingFood = isAntHoldingFood
+            };
 
-			ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartup - updateStart);
-		}
+            weakenPotencyOfPheromonesJob = new WeakenPotencyOfPheromonesJob
+            {
+                pheromones = pheromones,
+                trailDecay = trailDecay
+            };
 
-		m_AntsPerSecondDt += Time.deltaTime;
-		if (m_AntsPerSecondDt >= 1)
-		{
-			ConvergeTowards(ref m_AntsPerSecond, m_AntsPerSecondCounter);
-			m_AntsPerSecondCounter = 0;
-			m_AntsPerSecondDt -= 1;
-		}
-		
-		// using (s_ComputeSimMarker.Auto())
-		// {
-		// 	simulationJobHandle.Complete();
-		// 	simulationJobHandle = default;
-		// }
-		
-		ConvergeTowards(ref simulationStepsPerRenderFrame, ticks);
-	}
+            antDropPheromonesJob = new AntDropPheromonesJob
+            {
+                ants = ants,
+                pheromones = pheromones,
+                isAntHoldingFood = isAntHoldingFood,
+                mapSize = mapSize,
+                trailAddSpeedWithFood = trailAddSpeedWithFood,
+                trailAddSpeedWhenSearching = trailAddSpeedWhenSearching,
+                simulationDt = 1f / simulationHz,
+                ticksForAntToDie = ticksForAntToDie
+            };
+        }
+    }
 
-	static void ConvergeTowards(ref double value, double target)
-	{
-		value = math.lerp(value, target, .02f);
-	}
+    static int CalculateBatchCount(int arrayLength, int min)
+    {
+        return math.max(min, Mathf.CeilToInt((float)arrayLength / JobsUtility.JobWorkerCount));
+    }
 
-	static ProfilerMarker s_RenderSetupMarker = new ProfilerMarker("RenderSetup");
-	static ProfilerMarker s_GraphicsDrawMarker = new ProfilerMarker("Graphics.DrawMeshInstanced");
-	static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
-	static ProfilerMarker s_TextureApplyMarker = new ProfilerMarker("Texture2D.Apply");
-	static ProfilerMarker s_ScheduleSimMarker = new ProfilerMarker("ScheduleSim");
-	static ProfilerMarker s_BuildJobsMarker = new ProfilerMarker("BuildJobs");
-	static ProfilerMarker s_TickSimulationMarker = new ProfilerMarker("TickSim");
-	//static ProfilerMarker s_ScheduleBatchedJobsMarker = new ProfilerMarker("ScheduleBatchedJobs");
-	
-	bool mustRebuildMatrices;
-	[FormerlySerializedAs("simulationRate")]
-	public int simulationHz = 60;
-	public ushort ticksForAntToDie = 2000;
-	public int maxSimulationStepsPerFrame = 20;
-	float simulationTime;
-	public int manualJobBatcherStep = 10;
-	public bool useCompleteInsteadofSchedule = true;
-	double simulationStepsPerRenderFrame;
-	double simulationElapsedSeconds, renderElapsedSeconds, rerenderElapsedSeconds;
-	double m_AntsPerSecond;
-	long m_AntsPerSecondCounter;
-	double m_AntsPerSecondDt;
-	NativeQueue<int> pickupDropoffRequests;
+    static void ConvergeTowards(ref double value, double target)
+    {
+        value = math.lerp(value, target, .02f);
+    }
 
-	public void LateUpdate()
-	{
-		// Prepare matrices as this is a render frame:
-		using (s_RenderSetupMarker.Auto())
-		{
-			if (mustRebuildMatrices)
-			{
-				mustRebuildMatrices = false;
-				float rerenderStart = Time.realtimeSinceStartup;
+    public string DumpStatusText()
+    {
+        if (this && ants.IsCreated)
+        {
+            var antsPerRenderFrame = ants.Length * simulationStepsPerRenderFrame;
+            var antsPerMicros = antsPerSecond / 1000_000.0;
+            return $"Fps: {1.0 / Time.unscaledDeltaTime:0.00}\nAnts: {ants.Length}\nSim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}  (max: {maxSimulationStepsPerFrame})\nSim CPU: {simulationElapsedSeconds * 1000_000_000:#,000}ns per Sim ({simulationElapsedSeconds * simulationStepsPerRenderFrame * 1000_000_000:#,000}ns per Render)\nRender CPU {renderElapsedSeconds * 1000_000_000:#,000}ns per Render\nRerender CPU {rerenderElapsedSeconds * 1000_000_000:#,000}ns per Render\nAnts per microSecond: {antsPerMicros:#,000.000}\nAnts per render: {antsPerRenderFrame / 1000:0.00}k\nAnts per second: {antsPerSecond / 1000000:#,##0.00}m";
+        }
 
-				simulationJobHandle.Complete();
+        return null;
+    }
 
-				if (renderAnts)
-				{
-					var antMatricesJob = new AntMatricesJob
-					{
-						ants = ants,
-						matrices = antMatrix,
+    // NWALKER: Investigate https://github.com/stella3d/SharedArray
+    [NoAlias]
+    [BurstCompile]
+    public struct AntMatricesJob : IJobParallelFor
+    {
+        // NWalker: float4x4?
+        [NoAlias]
+        [ReadOnly]
+        public NativeArray<Matrix4x4> rotationMatrixLookup;
 
-						rotationResolution = rotationResolution,
-						rotationMatrixLookup = rotationMatrixLookup,
-						oneOverMapSize = 1f / mapSize,
-					};
-					antMatricesJob.Schedule(ants.Length, CalculateBatchCount(ants.Length, 64)).Complete();
-				}
-				
-				// NW: Apply the pheromone float array to the texture:
-				using (s_PheromoneFloatToColorCopyMarker.Auto())
-				{
-					var colors = pheromoneTexture.GetPixelData<Color32>(0);
-					new PheromoneToColorJob
-					{
-						colors = colors,
-						pheromones = pheromones,
-						obstacleCollisionLookup = obstacleCollisionLookup,
-						addWallsToTexture = addWallsToTexture,
-					}.Run(colors.Length);
-					
-					using(s_TextureApplyMarker.Auto())
-						pheromoneTexture.Apply(); // NW: ~0.052ms!!
-				}
+        [NoAlias]
+        [ReadOnly]
+        public NativeArray<Ant> ants;
 
-				ConvergeTowards(ref rerenderElapsedSeconds, Time.realtimeSinceStartup - rerenderStart);
-			}
-		}
+        [NoAlias]
+        [WriteOnly]
+        public NativeArray<Matrix4x4> matrices;
 
-		
-		using (s_GraphicsDrawMarker.Auto())
-		{
-			var renderStart = Time.realtimeSinceStartup;
-			
-			// NW: Create batches when we actually render them:
-			if (renderAnts)
-			{
-				int start = 0;
-				while (start < antMatrix.Length)
-				{
-					// NW: Annoying that there is a copy here, but it's a limitation of the Graphics.DrawMeshInstanced API AFAIK.
-					// TODO - Remove copy to managed array once API supports.
-					var end = math.min(antMatrix.Length, start + instancesPerBatch);
-					var length = end - start;
-					NativeArray<Matrix4x4>.Copy(antMatrix, start, reusableAntMatrix, 0, length);
+        public float oneOverMapSize;
 
-					// var index1 = index / instancesPerBatch;
-					// var index2 = index % instancesPerBatch;
-					// if (ant.holdingResource == false)
-					// {
-					// 	targetPos = resourcePosition;
-					//
-					// 	// NWALKER - SPLIT presentation from simulation.
-					// 	//antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
-					// }
-					// else
-					// {
-					// 	targetPos = colonyPosition;
-					//
-					// 	//antColors[index1][index2] += ((Vector4)carryColor * ant.brightness - antColors[index1][index2]) * .05f;
-					// }
-					//
-					// reusableAntMatProps.SetVectorArray("_Color", );
+        public int rotationResolution;
 
-					Graphics.DrawMeshInstanced(antMesh, 0, antMaterial, reusableAntMatrix, length, reusableAntMatProps);
-					start = end;
-				}
-			}
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        Matrix4x4 GetRotationMatrix(float angle)
+        {
+            angle /= math.PI * 2f;
+            angle -= math.floor(angle);
+            angle *= rotationResolution;
+            return rotationMatrixLookup[(int)angle % rotationResolution];
+        }
 
-			if (renderWalls)
-			{
-				for (var i = 0; i < obstacleMatrices.Length; i++)
-				{
-					Graphics.DrawMeshInstanced(obstacleMesh, 0, obstacleMaterial, obstacleMatrices[i]);
-				}
-			}
+        public void Execute(int index)
+        {
+            var ant = ants[index];
+            var matrix = GetRotationMatrix(ant.facingAngle);
+            matrix.m03 = ant.position.x * oneOverMapSize;
+            matrix.m13 = ant.position.y * oneOverMapSize;
+            matrices[index] = matrix;
+        }
+    }
 
-			Graphics.DrawMesh(colonyMesh, colonyMatrix, colonyMaterial, 0);
-			Graphics.DrawMesh(resourceMesh, resourceMatrix, resourceMaterial, 0);
-			
-			ConvergeTowards(ref renderElapsedSeconds, Time.realtimeSinceStartup - renderStart);
-		}
-	}
+    [NoAlias]
+    [BurstCompile]
+    struct AntUpdateJob : IJobParallelFor
+    {
+        [NoAlias]
+        public NativeArray<Ant> ants;
 
-	[BurstCompile, NoAlias]
-	public struct PheromoneToColorJob : IJobParallelFor
-	{
-		[NoAlias]
-		public NativeArray<Color32> colors;
-		
-		[NoAlias][ReadOnly]
-		public NativeArray<float> pheromones;
-		
-		[NoAlias][ReadOnly]
-		public NativeBitArray obstacleCollisionLookup;
-		
-		public bool addWallsToTexture;
-		
-		public void Execute(int index)
-		{
-			var colorsPtr = colors.GetUnsafePtr();
-			//for (var i = 0; i < colors.Length; i++)
-			{
-				ref var color = ref UnsafeUtility.ArrayElementAsRef<Color32>(colorsPtr, index);
-				color.r = (byte)(pheromones[index] * byte.MaxValue);
-				color.b = ! addWallsToTexture || ! obstacleCollisionLookup.IsSet(index) ? (byte)0 : (byte)150;
-				color.g = 0;
-			}
+        [NoAlias]
+        [ReadOnly]
+        public NativeBitArray obstacleCollisionLookup;
 
-		}
-	}
+        [NoAlias]
+        [ReadOnly]
+        public NativeArray<float> pheromones;
 
-	[BurstCompile]
-	[NoAlias]
-	public struct WeakenPotencyOfPheromonesJob : IJob
-	{
-		[NoAlias]
-		public NativeArray<float> pheromones;
-		
-		public float trailDecay;
-		
-		public void Execute()
-		{
-			var unsafePtr = pheromones.GetUnsafePtr();
-			for (var index = 0; index < pheromones.Length; index++)
-			{
-				ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(unsafePtr, index);
-				pheromone = math.clamp(pheromone * trailDecay, 0, 1);
-			}
-		}
-	}
-	
+        [NoAlias]
+        [ReadOnly]
+        public NativeBitArray isAntHoldingFood;
 
-	[BurstCompile]
-	[NoAlias]
-	public struct AntDropPheromonesJob : IJobParallelFor
-	{
-		[NoAlias, ReadOnly]
-		public NativeArray<Ant> ants;
+        [NoAlias]
+        [WriteOnly]
+        public NativeQueue<int>.ParallelWriter pickupDropoffRequests;
 
-		[NoAlias, NativeDisableContainerSafetyRestriction]
-		public NativeArray<float> pheromones;
-		
-		[NoAlias, ReadOnly]
-		public NativeBitArray isAntHoldingFood;
+        public float antSpeed, pheromoneSteerStrengthWithFood, wallSteerStrength, randomSteeringStrength;
+        public int obstacleBucketResolution;
+        public float unknownFoodResourceSteerStrength;
+        public float seenTargetSteerStrength;
+        public float colonySteerStrength;
+        public uint perFrameRandomSeed;
 
-		public float simulationDt, trailAddSpeedWithFood, trailAddSpeedWhenSearching;
-		public int mapSize;
-		public ushort ticksForAntToDie;
-		
-		public void Execute(int index)
-		{
-			// NW: Ants spread pheromones in tiles around their current pos.
-			// Writing to same array locations, so be aware that we're clobbering data here!
-			// However, after discussion on slack, it's an acceptable tradeoff.
-			var ant = ants[index];
-			var position = ant.position;
-			var x = Mathf.RoundToInt(position.x);
-			var y = Mathf.RoundToInt(position.y);
+        public int mapSize;
+        public float2 colonyPosition, resourcePosition;
+        public ushort ticksForAntToDie;
+        public float pheromoneSteerStrengthWhenSearching;
 
-			var isInBounds = CalculateIsInBounds(in x, in y, in mapSize, out var pheromoneIndex);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float PheromoneSteering(Ant ant, float distance)
+        {
+            var output = 0f;
+            var quarterPi = math.PI * .25f;
+            for (var i = -1; i <= 1; i += 2)
+            {
+                var angle = ant.facingAngle + i * quarterPi;
+                var testX = (int)(ant.position.x + math.cos(angle) * distance);
+                var testY = (int)(ant.position.y + math.sin(angle) * distance);
+                var isInBounds = CalculateIsInBounds(in testX, in testY, in mapSize, out var index);
+                if (math.all(isInBounds))
+                {
+                    output += pheromones[index] * i;
+                }
+            }
+
+            return math.sign(output);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        int WallSteering(Ant ant, float distance, Color color)
+        {
+            var output = 0;
+            for (var i = -1; i <= 1; i += 2)
+            {
+                var angle = ant.facingAngle + i * math.PI * .25f;
+                var testX = (int)(ant.position.x + math.cos(angle) * distance);
+                var testY = (int)(ant.position.y + math.sin(angle) * distance);
+
+                var isInBounds = CalculateIsInBounds(in testX, in testY, in obstacleBucketResolution, out var obstacleCollisionIndex);
+                if (!math.any(isInBounds) || math.all(isInBounds) && obstacleCollisionLookup.IsSet(obstacleCollisionIndex))
+                {
+                    output -= i;
+
+                    //Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.red, 0.2f);
+                }
+            }
+
+            return output;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool DirectPathToTargetIsBlocked(float2 origin, float2 target, out float dist)
+        {
+            var dx = target.x - origin.x;
+            var dy = target.y - origin.y;
+            dist = math.sqrt(dx * dx + dy * dy);
+
+            // NW: Test to see if step count can be generalized.
+            var stepCount = Mathf.CeilToInt(dist * .5f);
+            for (var i = 0; i < stepCount; i++)
+            {
+                var t = (float)i / stepCount;
+                var testX = (int)(origin.x + dx * t);
+                var testY = (int)(origin.y + dy * t);
+                var isInBounds = CalculateIsInBounds(in testX, in testY, in obstacleBucketResolution, out var collisionIndex);
+                if (!math.all(isInBounds) || obstacleCollisionLookup.IsSet(collisionIndex))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void Execute(int index)
+        {
+            const float piX2 = math.PI * 2f;
+            ref var ant = ref UnsafeUtility.ArrayElementAsRef<Ant>(ants.GetUnsafePtr(), index);
+
+            var isHoldingFood = isAntHoldingFood.IsSet(index);
+            var targetPos = math.select(resourcePosition, colonyPosition, isHoldingFood);
+            var steerTowardsTargetWeight = math.select(unknownFoodResourceSteerStrength, colonySteerStrength, isHoldingFood);
+
+            // NW: Every time we touch a colony or food, we get EXTRA excited. Linear dropoff per ant = Exponential drop-off. This should allow ants to find their way home.
+
+            if (ant.lifeTicks <= 0)
+            {
+                // Ant died!
+                ant.position = colonyPosition;
+                isHoldingFood = false;
+                ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
+            }
+
+            ant.lifeTicks--;
+
+            // NW: Add some random rotation to indicate "curiosity"...
+            var randRotation = Squirrel3.NextFloat((uint)index, perFrameRandomSeed, -randomSteeringStrength, randomSteeringStrength);
+            ant.facingAngle += randRotation;
+
+            // Avoid walls:
+            var wallSteering = WallSteering(ant, 1.5f, isHoldingFood ? new Color(1f, 0.99f, 0.02f, 0.95f) : new Color(1f, 1f, 1f, 0.08f));
+            ant.facingAngle += wallSteering * wallSteerStrength;
+
+            // Steer towards target if the ant can "see" it.
+            if (DirectPathToTargetIsBlocked(ant.position, targetPos, out var distanceToTarget))
+            {
+                // Steer out of the way of obstacles and map boundaries if we can't see the target.
+                var pheroSteering = PheromoneSteering(ant, 3f);
+                ant.facingAngle += pheroSteering * math.select(pheromoneSteerStrengthWhenSearching, pheromoneSteerStrengthWithFood, isHoldingFood);
+            }
+            else
+            {
+                // Steer towards the target.
+                steerTowardsTargetWeight = seenTargetSteerStrength;
+
+                // Pick up / Drop off food only when we're within LOS and within distance.
+                if (distanceToTarget < 3f)
+                {
+                    pickupDropoffRequests.Enqueue(index);
+                    var dir = colonyPosition - ant.position;
+                    ant.facingAngle = math.atan2(dir.y, dir.x);
+
+                    // The ant either found food or returned home with it, so it gets to live.
+                    ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
+                }
+            }
+
+            // Head towards a target.
+            // Much more weight if we've seen it.
+            // Much more weight if it's a known location (colony). E.g. Simulating memory.
+            var targetAngle = math.atan2(targetPos.y - ant.position.y, targetPos.x - ant.position.x);
+            if (targetAngle - ant.facingAngle > math.PI)
+            {
+                ant.facingAngle -= piX2;
+            }
+            else if (targetAngle - ant.facingAngle < -math.PI)
+            {
+                ant.facingAngle += piX2;
+            }
+            else
+            {
+                if (math.abs(targetAngle - ant.facingAngle) < math.PI * .5f) ant.facingAngle += (targetAngle - ant.facingAngle) * steerTowardsTargetWeight;
+            }
+
+            var velocity = new float2(math.cos(ant.facingAngle), math.sin(ant.facingAngle));
+            velocity = math.normalizesafe(velocity) * math.select(antSpeed, antSpeed * 0.6f, isHoldingFood);
+
+            // Move, then undo it later if we moved into invalid.
+            var newPos = ant.position + velocity;
+
+            // NW: If we're now colliding with a wall, bounce:
+            var isInBounds = CalculateIsInBounds(in newPos, in obstacleBucketResolution, out var collisionIndex);
+            if (!math.all(isInBounds))
+                ant.facingAngle = math.atan2(math.@select(-velocity.y, velocity.y, isInBounds.y), math.@select(-velocity.x, velocity.x, isInBounds.x));
+            else if (obstacleCollisionLookup.IsSet(collisionIndex))
+                ant.facingAngle += math.PI;
+
+            //Debug.DrawLine((Vector2)ant.position / mapSize, (Vector2)(ant.position + velocity) / mapSize, Color.red, 0.2f);
+            else
+                ant.position = newPos;
+        }
+    }
+
+    [BurstCompile]
+    [NoAlias]
+    public struct PheromoneToColorJob : IJobParallelFor
+    {
+        [NoAlias]
+        public NativeArray<Color32> colors;
+
+        [NoAlias]
+        [ReadOnly]
+        public NativeArray<float> pheromones;
+
+        [NoAlias]
+        [ReadOnly]
+        public NativeBitArray obstacleCollisionLookup;
+
+        public bool addWallsToTexture;
+
+        public void Execute(int index)
+        {
+            var colorsPtr = colors.GetUnsafePtr();
+
+            //for (var i = 0; i < colors.Length; i++)
+            {
+                ref var color = ref UnsafeUtility.ArrayElementAsRef<Color32>(colorsPtr, index);
+                color.r = (byte)(pheromones[index] * byte.MaxValue);
+                color.b = !addWallsToTexture || !obstacleCollisionLookup.IsSet(index) ? (byte)0 : (byte)150;
+                color.g = 0;
+            }
+        }
+    }
+
+    [BurstCompile]
+    [NoAlias]
+    public struct WeakenPotencyOfPheromonesJob : IJob
+    {
+        [NoAlias]
+        public NativeArray<float> pheromones;
+
+        public float trailDecay;
+
+        public void Execute()
+        {
+            var unsafePtr = pheromones.GetUnsafePtr();
+            for (var index = 0; index < pheromones.Length; index++)
+            {
+                ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(unsafePtr, index);
+                pheromone = math.clamp(pheromone * trailDecay, 0, 1);
+            }
+        }
+    }
+
+    [BurstCompile]
+    [NoAlias]
+    public struct AntDropPheromonesJob : IJobParallelFor
+    {
+        [NoAlias]
+        [ReadOnly]
+        public NativeArray<Ant> ants;
+
+        [NoAlias]
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<float> pheromones;
+
+        [NoAlias]
+        [ReadOnly]
+        public NativeBitArray isAntHoldingFood;
+
+        public float simulationDt, trailAddSpeedWithFood, trailAddSpeedWhenSearching;
+        public int mapSize;
+        public ushort ticksForAntToDie;
+
+        public void Execute(int index)
+        {
+            // NW: Ants spread pheromones in tiles around their current pos.
+            // Writing to same array locations, so be aware that we're clobbering data here!
+            // However, after discussion on slack, it's an acceptable tradeoff.
+            var ant = ants[index];
+            var position = ant.position;
+            var x = Mathf.RoundToInt(position.x);
+            var y = Mathf.RoundToInt(position.y);
+
+            var isInBounds = CalculateIsInBounds(in x, in y, in mapSize, out var pheromoneIndex);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-			if (!math.any(isInBounds))
-				throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
+            if (!math.any(isInBounds))
+                throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
 #endif
 
-			ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
-			var excitement = math.@select(trailAddSpeedWhenSearching, trailAddSpeedWithFood, isAntHoldingFood.IsSet(index));
-			//excitement *= Mathf.InverseLerp(0, ticksForAntToDie, ant.ticksSinceFoundSomething);
-			color += excitement * simulationDt;
-		}
-	}
+            ref var color = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
+            var excitement = math.select(trailAddSpeedWhenSearching, trailAddSpeedWithFood, isAntHoldingFood.IsSet(index));
 
-	[NoAlias]
-	[BurstCompile]
-	public struct AntSetFoodBitsJob : IJob
-	{
-		[NoAlias]
-		public NativeQueue<int> pickupDropoffRequests;
+            //excitement *= Mathf.InverseLerp(0, ticksForAntToDie, ant.ticksSinceFoundSomething);
+            color += excitement * simulationDt;
+        }
+    }
 
-		[NoAlias]
-		public NativeBitArray isAntHoldingFood;
-		
-		public void Execute()
-		{
-			while(pickupDropoffRequests.TryDequeue(out var index))
-			{
-				isAntHoldingFood.Set(index, ! isAntHoldingFood.IsSet(index));
-			}
-		}
-	}
+    [NoAlias]
+    [BurstCompile]
+    public struct AntSetFoodBitsJob : IJob
+    {
+        [NoAlias]
+        public NativeQueue<int> pickupDropoffRequests;
 
-	public string DumpStatusText()
-	{
-		if (this && ants.IsCreated)
-		{
-			var antsPerRenderFrame = ants.Length * simulationStepsPerRenderFrame;
-			var antsPerMicros = m_AntsPerSecond / 1000_000.0;
-			return $"Fps: {(1.0 / Time.unscaledDeltaTime):0.00}\nAnts: {ants.Length}\nSim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}  (max: {maxSimulationStepsPerFrame})\nSim CPU: {(simulationElapsedSeconds * 1000_000_000):#,000}ns per Sim ({(simulationElapsedSeconds * simulationStepsPerRenderFrame * 1000_000_000):#,000}ns per Render)\nRender CPU {(renderElapsedSeconds * 1000_000_000):#,000}ns per Render\nRerender CPU {(rerenderElapsedSeconds * 1000_000_000):#,000}ns per Render\nAnts per microSecond: {antsPerMicros:#,000.000}\nAnts per render: {(antsPerRenderFrame / 1000):0.00}k\nAnts per second: {m_AntsPerSecond / 1000000:#,##0.00}m";
-		}
-		return null;
-	}
+        [NoAlias]
+        public NativeBitArray isAntHoldingFood;
+
+        public void Execute()
+        {
+            while (pickupDropoffRequests.TryDequeue(out var index)) isAntHoldingFood.Set(index, !isAntHoldingFood.IsSet(index));
+        }
+    }
 }
