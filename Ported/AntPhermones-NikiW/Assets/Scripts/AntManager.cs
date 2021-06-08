@@ -255,7 +255,7 @@ public unsafe class AntManager : MonoBehaviour
                         pheromonesFood = pheromonesFood,
                         obstacleCollisionLookup = obstacleCollisionLookup,
                         addWallsToTexture = addWallsToTexture
-                    }.Run(colors.Length);
+                    }.Schedule(colors.Length, 4).Complete();
 
                     using (s_TextureApplyMarker.Auto())
                     {
