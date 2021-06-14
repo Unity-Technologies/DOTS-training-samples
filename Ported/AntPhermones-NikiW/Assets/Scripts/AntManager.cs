@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Unity.Burst;
@@ -15,7 +16,7 @@ using Random = UnityEngine.Random;
 public unsafe class AntManager : MonoBehaviour
 {
     const int k_InstancesPerBatch = 1023;
-
+    
     static ProfilerMarker s_RenderSetupMarker = new ProfilerMarker("RenderSetup");
     static ProfilerMarker s_GraphicsDrawMarker = new ProfilerMarker("Graphics.DrawMeshInstanced");
     static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
@@ -107,6 +108,7 @@ public unsafe class AntManager : MonoBehaviour
     float simulationTime;
     WeakenPotencyOfPheromonesJob weakenPotencyOfColonyPheromonesJob;
     WeakenPotencyOfPheromonesJob weakenPotencyOfFoodPheromonesJob;
+    UpdateCountersJob updateCountersJob;
 
     void Start()
     {
@@ -121,9 +123,9 @@ public unsafe class AntManager : MonoBehaviour
         pheromoneTexture = new Texture2D(mapSize, mapSize);
         pheromoneTexture.wrapMode = TextureWrapMode.Mirror;
         Blit(pheromoneTexture, new Color32());
-
-        counters = new NativeArray<long>(3, Allocator.Persistent);
-
+        
+        counters = new NativeArray<long>(8 * JobsUtility.MaxJobThreadCount, Allocator.Persistent);
+        
         pheromonesColony = new NativeArray<float>(mapSize * mapSize, Allocator.Persistent);
         pheromonesFood = new NativeArray<float>(mapSize * mapSize, Allocator.Persistent);
         myPheromoneMaterial = new Material(basePheromoneMaterial);
@@ -159,7 +161,7 @@ public unsafe class AntManager : MonoBehaviour
         var ticks = 0;
         for (; ticks < maxSimulationStepsPerFrame && simulationTime < Time.time; ticks++)
         {
-            var updateStart = Time.realtimeSinceStartup;
+            var updateStart = Time.realtimeSinceStartupAsDouble;
 
             using (s_ScheduleSimMarker.Auto())
             {
@@ -198,7 +200,7 @@ public unsafe class AntManager : MonoBehaviour
             // 	}
             // }
 
-            ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartup - updateStart);
+            ConvergeTowards(ref simulationElapsedSeconds, Time.realtimeSinceStartupAsDouble - updateStart);
         }
 
         antsPerSecondDt += Time.deltaTime;
@@ -208,13 +210,7 @@ public unsafe class AntManager : MonoBehaviour
             antsPerSecondCounter = 0;
             antsPerSecondDt -= 1;
         }
-
-        // using (s_ComputeSimMarker.Auto())
-        // {
-        // 	simulationJobHandle.Complete();
-        // 	simulationJobHandle = default;
-        // }
-
+        
         ConvergeTowards(ref simulationStepsPerRenderFrame, ticks);
     }
 
@@ -226,7 +222,7 @@ public unsafe class AntManager : MonoBehaviour
             if (mustRebuildMatrices)
             {
                 mustRebuildMatrices = false;
-                var rerenderStart = Time.realtimeSinceStartup;
+                var rerenderStart = Time.realtimeSinceStartupAsDouble;
 
                 simulationJobHandle.Complete();
 
@@ -263,13 +259,13 @@ public unsafe class AntManager : MonoBehaviour
                     }
                 }
 
-                ConvergeTowards(ref rerenderElapsedSeconds, Time.realtimeSinceStartup - rerenderStart);
+                ConvergeTowards(ref rerenderElapsedSeconds, Time.realtimeSinceStartupAsDouble - rerenderStart);
             }
         }
 
         using (s_GraphicsDrawMarker.Auto())
         {
-            var renderStart = Time.realtimeSinceStartup;
+            var renderStart = Time.realtimeSinceStartupAsDouble;
 
             // NW: Create batches when we actually render them:
             if (renderAnts)
@@ -313,7 +309,7 @@ public unsafe class AntManager : MonoBehaviour
             Graphics.DrawMesh(colonyMesh, colonyMatrix, colonyMaterial, 0);
             Graphics.DrawMesh(resourceMesh, resourceMatrix, resourceMaterial, 0);
 
-            ConvergeTowards(ref renderElapsedSeconds, Time.realtimeSinceStartup - renderStart);
+            ConvergeTowards(ref renderElapsedSeconds, Time.realtimeSinceStartupAsDouble - renderStart);
         }
     }
 
@@ -477,7 +473,6 @@ public unsafe class AntManager : MonoBehaviour
         using (s_ScheduleSimMarker.Auto())
         {
             simulationJobHandle = antUpdateJob.Schedule(ants.Length, 4, simulationJobHandle);
-            JobHandle.ScheduleBatchedJobs();
         }
 
         simulationJobHandle.Complete();
@@ -502,6 +497,9 @@ public unsafe class AntManager : MonoBehaviour
         antDropPheromonesJob.Run(ants.Length);
 
         mustRebuildMatrices = true;
+
+        // Sum up counters and save them into the first index:
+        updateCountersJob.Run();
     }
 
     /// <summary>
@@ -567,9 +565,15 @@ public unsafe class AntManager : MonoBehaviour
                 simulationDt = 1f / simulationHz,
                 ticksForAntToDie = ticksForAntToDie
             };
+
+            updateCountersJob = new UpdateCountersJob
+            {
+                counters = counters,
+            };
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static void ConvergeTowards(ref double value, double target)
     {
         value = math.lerp(value, target, .02f);
@@ -659,6 +663,10 @@ public unsafe class AntManager : MonoBehaviour
         [WriteOnly]
         public NativeArray<long> counters;
 
+        [NativeSetThreadIndex]
+        public int ThreadIndex;
+        
+
         public float antSpeed, pheromoneSteerStrengthWithFood, wallSteerStrength, randomSteeringStrength;
         public int obstacleBucketResolution;
         public float unknownFoodResourceSteerStrength;
@@ -738,9 +746,7 @@ public unsafe class AntManager : MonoBehaviour
             var isHoldingFood = isAntHoldingFood.IsSet(index);
             var targetPos = math.select(resourcePosition, colonyPosition, isHoldingFood);
             var steerTowardsTargetWeight = math.select(unknownFoodResourceSteerStrength, colonySteerStrength, isHoldingFood);
-
-            // NW: Every time we touch a colony or food, we get EXTRA excited. Linear dropoff per ant = Exponential drop-off. This should allow ants to find their way home.
-
+            
             if (ant.lifeTicks <= 0)
             {
                 // Ant died!
@@ -748,7 +754,9 @@ public unsafe class AntManager : MonoBehaviour
                 isHoldingFood = false;
                 ant.lifeTicks = (ushort)(Squirrel3.NextFloat((uint)index, perFrameRandomSeed, 0.5f, 1.5f) * ticksForAntToDie);
 
-                AtomicIncrementCounter(2, counters);
+                var paddedIndex = (ThreadIndex * 8) + 2;
+                ref var count = ref ((long*)counters.GetUnsafePtr())[paddedIndex];
+                count++;
             }
 
             ant.lifeTicks--;
@@ -821,13 +829,6 @@ public unsafe class AntManager : MonoBehaviour
 
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static void AtomicIncrementCounter(int index, NativeArray<long> countersArr)
-    {
-        ref var count = ref UnsafeUtility.ArrayElementAsRef<long>(countersArr.GetUnsafePtr(), index);
-        Interlocked.Increment(ref count);
-    }
-    
     [BurstCompile]
     [NoAlias]
     public struct PheromoneToColorJob : IJobParallelFor
@@ -883,6 +884,32 @@ public unsafe class AntManager : MonoBehaviour
         }
     }
 
+    [BurstCompile]
+    [NoAlias]
+    public struct UpdateCountersJob : IJob
+    {
+        [NoAlias]
+        public NativeArray<long> counters;
+
+        public void Execute()
+        {
+            long sum0 = 0, sum1 = 0, sum2 = 0;
+            for (var i = 0; i < JobsUtility.MaxJobThreadCount; i++)
+            {
+                var index = (i * 8);
+                sum0 += counters[index];
+                sum1 += counters[index + 1];
+                sum2 += counters[index + 2];
+                counters[index] = 0;
+                counters[index + 1] = 0;
+                counters[index + 2] = 0;
+            }
+            counters[0] = sum0;
+            counters[1] = sum1;
+            counters[2] = sum2;
+        }    
+    }
+    
     [BurstCompile]
     [NoAlias]
     public struct AntDropPheromonesJob : IJobParallelFor
@@ -950,12 +977,17 @@ public unsafe class AntManager : MonoBehaviour
 
         public void Execute()
         {
+            long sumWithFood = 0, sumWithoutFood = 0;
             while (pickupDropoffRequests.TryDequeue(out var index))
             {
                 var isHoldingFood = isAntHoldingFood.IsSet(index);
                 isAntHoldingFood.Set(index, !isHoldingFood);
-                AtomicIncrementCounter(math.select(0, 1, isHoldingFood), counters);
+
+                sumWithFood += math.select(0, 1, isHoldingFood);
+                sumWithoutFood += math.select(1, 0, isHoldingFood);
             }
+            counters[0] += sumWithoutFood;
+            counters[1] += sumWithFood;
         }
     }
 }
