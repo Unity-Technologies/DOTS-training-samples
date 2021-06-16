@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Burst;
 
 /// <summary>
@@ -11,11 +12,13 @@ public static class Squirrel3
     const uint k_Noise2 = 0x68e31da4;
     const uint k_Noise3 = 0x1b56c4e9;
 
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float NextFloat(uint last, uint seed, float min, float max)
     {
         return (float)((double)NextRand(last, seed) / uint.MaxValue * (max - min) + min);
     }
     
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint NextRand(uint n, uint seed = 0)
     {
         n *= k_Noise1;

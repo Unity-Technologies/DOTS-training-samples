@@ -124,8 +124,8 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             
             if (simParams.renderAnts)
             {
-                RenderAntQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaerialHolding);
-                RenderAntQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
+                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaerialHolding);
+                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
             }
 
             if (simParams.renderObstacles && !m_ObstacleManagementSystem.obstaclesQuery.IsEmpty)
@@ -154,10 +154,11 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         }
     }
 
-    void RenderAntQuery(AntSimulationParams simParams, AntSimulationRenderer data, EntityQuery antQuery, Material antMaterial)
+    void RenderForAntsInQuery(AntSimulationParams simParams, AntSimulationRenderer data, EntityQuery antQuery, Material antMaterial)
     {
         if (antQuery.IsEmpty) return;
         
+        // NWALKER: hybrid render may be faster here!
         var antTransform2Ds = antQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
         var antMatrices = new NativeArray<Matrix4x4>(antTransform2Ds.Length, Allocator.TempJob);
         var antMatricesJob = new AntMatricesJob
@@ -232,8 +233,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         var antsPerRenderFrame = antsCount * simulationStepsPerRenderFrame;
         var antsPerMicros = antsPerSecond / 1000_000.0;
 
-        //return $" Ants: {ants.Length} ({counters[2]} respawned)\nFood Found: {counters[0]}, Gathered: {counters[1]}\nSim CPU: {simulationElapsedSeconds * 1000_000_000:#,000}ns per Sim\nAnts per microSecond: {antsPerMicros:#,000.000}\nAnts per render: {antsPerRenderFrame / 1000:0.00}k\nAnts per second: {antsPerSecond / 1000000:#,##0.00}m";
-        return $"Fps: {1.0 / UnityEngine.Time.unscaledDeltaTime:0.00},Sim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}\nRender CPU: {renderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render\nRerender CPU {rerenderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render";
+        return $"Fps: {1.0 / UnityEngine.Time.unscaledDeltaTime:0.00}, Sim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}\nRender CPU: {renderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render\nRerender CPU {rerenderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render";
     }
 
     // NWALKER: Investigate https://github.com/stella3d/SharedArray

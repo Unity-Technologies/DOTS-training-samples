@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+// NWALKER: Change this to a local to world system.
 [NoAlias]
 public struct AntSimulationTransform2D : IComponentData
 {

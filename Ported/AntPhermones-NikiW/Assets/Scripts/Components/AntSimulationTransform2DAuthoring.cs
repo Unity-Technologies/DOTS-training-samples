@@ -13,8 +13,12 @@ public class AntSimulationTransform2DAuthoring : MonoBehaviour, IConvertGameObje
         {
             position = new float2(transformPosition.x, transformPosition.y),
         });
+        
+        // NW: Better ECS chunk cache cohesion without all this:
         dstManager.RemoveComponent<Translation>(entity);
         dstManager.RemoveComponent<Rotation>(entity);
         dstManager.RemoveComponent<Scale>(entity);
+        dstManager.RemoveComponent<LocalToWorld>(entity);
+        dstManager.RemoveComponent<LinkedEntityGroup>(entity);
     }
 }

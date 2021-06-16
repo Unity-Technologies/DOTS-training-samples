@@ -131,7 +131,7 @@ public class ObstacleManagementSystem : SystemBase
             // }).Run();
         }
 
-        void GenerateObstacles(float2 position, CircleObstacleGeneratorMarker marker, in AntSimulationParams simParams)
+        void GenerateObstacles(float2 basePosition, CircleObstacleGeneratorMarker marker, in AntSimulationParams simParams)
         {
             // Generate obstacles in a circle:
             var obstaclePositions = new NativeList<float2>(1024, Allocator.Temp);
@@ -149,7 +149,7 @@ public class ObstacleManagementSystem : SystemBase
                     {
                         var angle = (j + offset) / (float)maxCount * (2f * math.PI);
                         var obstaclePosition = new float2(simParams.mapSize * .5f + math.cos(angle) * ringRadius, simParams.mapSize * .5f + math.sin(angle) * ringRadius);
-                        obstaclePositions.Add(obstaclePosition);
+                        obstaclePositions.Add(basePosition + obstaclePosition);
 
                         //Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
                     }

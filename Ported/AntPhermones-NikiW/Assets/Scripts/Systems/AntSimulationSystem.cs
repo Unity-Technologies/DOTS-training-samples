@@ -108,19 +108,20 @@ public class AntSimulationSystem : SystemBase
 
         Dependency = Entities
             .WithBurst()
-            .ForEach((Entity entity, ref AntSimulationTransform2D translation, ref LifeTicks lifeTicks) =>
+            .ForEach((int nativeThreadIndex, ref AntSimulationTransform2D translation, ref LifeTicks lifeTicks) =>
             {
                 if (lifeTicks.value <= 0)
                 {
                     // Ant died!
                     translation.position = simRuntimeData.colonyPos;
-                    lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                    lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)nativeThreadIndex ^ (uint)translation.facingAngle, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
                     Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[2]);
                 }
 
                 lifeTicks.value--;
             }).ScheduleParallel(Dependency);
 
+        // NWALKER: merge these two jobs and use the chunk iterator version instead. Means we can still use the same counters array, and that small job for ants with food will disappear. 
         Dependency = Entities
             .WithBurst()
             .WithReadOnly(obstacleCollisionLookupLocal)
@@ -143,7 +144,7 @@ public class AntSimulationSystem : SystemBase
                 UpdateAntBaseSteering(ref trans, in entity, in simParams, in simRuntimeData, in obstacleCollisionLookupLocal);
                 UpdateAntLinecastSteering(in entity, in nativeThreadIndex,ref trans, ref lifeTicks, in simParams, in simRuntimeData, obstacleCollisionLookupLocal, pheromonesFoodLocal, in simParams.pheromoneSteerStrengthWhenSearching, ecb, in simParams.antSpeedSearching, in simRuntimeData.foodPosition, false, countersLocal);
             }).ScheduleParallel(Dependency);
-
+        
         m_EndFixedStepSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         
         RunDropPheromonesJob(simParams, antsSearchingQuery, pheromonesColonyLocal, simParams.pheromoneAddSpeedWhenSearching);
@@ -153,12 +154,12 @@ public class AntSimulationSystem : SystemBase
         {
             pheromones = pheromonesColonyLocal,
             pheromoneDecay = simParams.pheromoneDecay
-        }.Schedule(Dependency);
+        }.Schedule(pheromonesColonyLocal.Length, 8, Dependency);
         var weaken2 = new WeakenPotencyOfPheromonesJob
         {
             pheromones = pheromonesFoodLocal,
             pheromoneDecay = simParams.pheromoneDecay
-        }.Schedule(Dependency);
+        }.Schedule(pheromonesFoodLocal.Length, 8, Dependency);
 
         Dependency = JobHandle.CombineDependencies(weaken1, weaken2);
         
@@ -336,7 +337,10 @@ public class AntSimulationSystem : SystemBase
         if (antsQuery == default) return "Waiting for Query...";
 
         var antsCount = antsQuery.CalculateEntityCount();
-        return $" Ants: {antsCount} ({counters[2]} respawned)\nFood Found: {counters[0]}, Gathered: {counters[1]}\nSim CPU: {m_SimulationElapsedSeconds.Average * 1000_000_000:#,000}ns per Sim";
+        var found = counters[0];
+        var gathered = counters[1];
+        var gatheredPerc =  (float)gathered / found;
+        return $"Ants: {antsCount} ({counters[2]} respawned)\nFood Found: {found}, Gathered: {gathered} ({gatheredPerc:p2})\nSim CPU: {m_SimulationElapsedSeconds.Average * 1000_000_000:#,000}ns per Sim";
     }
 
     [BurstCompile]
@@ -378,21 +382,18 @@ public class AntSimulationSystem : SystemBase
 
     [BurstCompile]
     [NoAlias]
-    public unsafe struct WeakenPotencyOfPheromonesJob : IJob
+    public unsafe struct WeakenPotencyOfPheromonesJob : IJobParallelFor
     {
         [NoAlias]
         public NativeArray<float> pheromones;
 
         public float pheromoneDecay;
 
-        public void Execute()
+        public void Execute(int index)
         {
             var unsafePtr = pheromones.GetUnsafePtr();
-            for (var index = 0; index < pheromones.Length; index++)
-            {
-                ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(unsafePtr, index);
-                pheromone = math.clamp(pheromone * pheromoneDecay, 0, 1);
-            }
+            ref var pheromone = ref UnsafeUtility.ArrayElementAsRef<float>(unsafePtr, index);
+            pheromone = math.clamp(pheromone * pheromoneDecay, 0, 1);
         }
     }
 }

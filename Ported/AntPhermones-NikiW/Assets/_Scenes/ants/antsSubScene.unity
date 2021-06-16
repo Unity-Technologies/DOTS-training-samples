@@ -178,7 +178,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014471929}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0.3, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -250,7 +250,7 @@ MonoBehaviour:
   addWallsToTexture: 1
   renderTargets: 1
   ticksForAntToDie: 5000
-  colonyRadius: 4
+  colonyRadius: 8
   antPrefab: {fileID: 118689052044523085, guid: 8443dffe054459046a5b44baa25cf673,
     type: 3}
   obstaclePrefab: {fileID: 118689052044523085, guid: 454fbedde9aab4043a015532c08cee2c,
