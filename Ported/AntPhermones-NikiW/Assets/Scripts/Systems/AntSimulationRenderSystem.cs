@@ -66,8 +66,9 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         
         if (pheromoneTextureInstance == null)
         {
-            colonyMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.colonyPos / simParams.mapSize, Quaternion.identity, new Vector3(simParams.colonyRadius, simParams.colonyRadius, .1f) / simParams.mapSize);
-            resourceMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.foodPosition / simParams.mapSize, Quaternion.identity, new Vector3(simParams.colonyRadius, simParams.colonyRadius, .1f) / simParams.mapSize);
+            var colonyDiameter = simParams.colonyRadius*2;
+            colonyMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.colonyPos / simParams.mapSize, Quaternion.identity, new Vector3(colonyDiameter, colonyDiameter, .1f) / simParams.mapSize);
+            resourceMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.foodPosition / simParams.mapSize, Quaternion.identity, new Vector3(colonyDiameter, colonyDiameter, .1f) / simParams.mapSize);
 
             pheromoneTextureInstance = new Texture2D(simParams.mapSize, simParams.mapSize);
             pheromoneTextureInstance.wrapMode = TextureWrapMode.Mirror;
