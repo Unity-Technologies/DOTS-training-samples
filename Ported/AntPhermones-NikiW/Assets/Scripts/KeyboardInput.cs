@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -8,13 +9,10 @@ public class KeyboardInput : MonoBehaviour
     static bool showText = true;
     public Text infoText;
     public Text statusText;
-
-    AntManager m_AntManager;
-
+    
     void Start()
     {
         statusText.enabled = infoText.enabled = showText;
-        m_AntManager = FindObjectOfType<AntManager>();
     }
 
     void LateUpdate()
@@ -30,12 +28,6 @@ public class KeyboardInput : MonoBehaviour
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-
-        if (m_AntManager != null && Input.GetKeyDown(KeyCode.V))
-            m_AntManager.addWallsToTexture ^= true;
-
-        if (m_AntManager != null && Input.GetKeyDown(KeyCode.A))
-            m_AntManager.renderAnts ^= true;
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
             Time.timeScale = 1f;
@@ -56,12 +48,38 @@ public class KeyboardInput : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha9))
             Time.timeScale = 100f;
 
-        if (Time.frameCount <= 1 || Time.frameCount % 100 == 0)
+        var world = World.DefaultGameObjectInjectionWorld;
+        var antRenderSystem = world.GetExistingSystem<AntSimulationRenderSystem>();
+        var antSimulationSystem = world.GetExistingSystem<AntSimulationSystem>();
+
+        if (antSimulationSystem != null)
         {
-            if (m_AntManager == null)
-                statusText.text = "No stats, cannot find AntManager!";
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                simParams.addWallsToTexture ^= true;
+                antSimulationSystem.SetSingleton(simParams);
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                simParams.renderAnts ^= true;
+                antSimulationSystem.SetSingleton(simParams);
+            }
+            if (Input.GetKeyDown(KeyCode.W))
+            {
+                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                simParams.renderObstacles ^= true;
+                antSimulationSystem.SetSingleton(simParams);
+            }
+        }
+        
+        if (Time.frameCount <= 1 || Time.frameCount % 30 == 0)
+        {
+            if (antRenderSystem == null || antSimulationSystem == null)
+                statusText.text = "No stats, cannot find Systems!";
             else
-                statusText.text = m_AntManager.DumpStatusText();
+                statusText.text = antRenderSystem.DumpStatusText() + "\n\n" + antSimulationSystem.DumpStatusText();
         }
     }
 }
