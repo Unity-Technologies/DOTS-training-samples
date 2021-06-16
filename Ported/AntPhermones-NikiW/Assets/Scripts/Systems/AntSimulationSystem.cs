@@ -157,7 +157,7 @@ public class AntSimulationSystem : SystemBase
         m_SimulationElapsedSeconds.AddSample(UnityEngine.Time.realtimeSinceStartupAsDouble - simStart);
     }
 
-    void RunDropPheromonesJob(in AntSimulationParams simParams, in EntityQuery query, in NativeArray<float> pheromonesArray, in float pheromoneAddSpeed)
+    void RunDropPheromonesJob(in AntSimulationParams simParams, in EntityQuery query, NativeArray<float> pheromonesArray, in float pheromoneAddSpeed)
     {
         if (query.IsEmpty) return;
 
@@ -177,74 +177,6 @@ public class AntSimulationSystem : SystemBase
         Dependency.Complete();
 
         transform2Ds.Dispose();
-    }
-
-    [BurstCompile]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float PheromoneSteering(ref AntSimulationTransform2D trans, [ReadOnly] in NativeArray<float> pheromones, in int mapSize)
-    {
-        const float pheromoneSteerCheckAhead = 3;
-        const float quarterPi = math.PI * .25f;
-        var output = 0f;
-        for (var i = -1; i <= 1; i += 2)
-        {
-            var angle = trans.facingAngle + i * quarterPi;
-            var testX = (int)(trans.position.x + math.cos(angle) * pheromoneSteerCheckAhead);
-            var testY = (int)(trans.position.y + math.sin(angle) * pheromoneSteerCheckAhead);
-            var isInBounds = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in mapSize, out var index);
-            if (math.all(isInBounds)) output += pheromones[index] * i;
-        }
-
-        return math.sign(output);
-    }
-
-    [BurstCompile]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int WallSteering(in AntSimulationTransform2D trans, in int mapSize, in NativeBitArray obstacleCollisionLookup)
-    {
-        const float wallSteeringTestDistance = 1.5f;
-        var output = 0;
-        for (var i = -1; i <= 1; i += 2)
-        {
-            var angle = trans.facingAngle + i * math.PI * .25f;
-            var testX = (int)(trans.position.x + math.cos(angle) * wallSteeringTestDistance);
-            var testY = (int)(trans.position.y + math.sin(angle) * wallSteeringTestDistance);
-
-            var isInBounds = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in mapSize, out var obstacleCollisionIndex);
-
-            // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
-            if (!math.any(isInBounds) || math.all(isInBounds) && obstacleCollisionLookup.IsSet(obstacleCollisionIndex))
-                output -= i;
-
-            //Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.red, 0.2f);
-        }
-
-        return output;
-    }
-
-    [BurstCompile]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static bool DirectPathToTargetIsBlocked(in float2 origin, in float2 target, in int mapSize, in NativeBitArray obstacleCollisionLookup, out float dist)
-    {
-        var dx = target.x - origin.x;
-        var dy = target.y - origin.y;
-        dist = math.sqrt(dx * dx + dy * dy);
-
-        // NW: Test to see if step count can be generalized.
-        var stepCount = Mathf.CeilToInt(dist * .5f);
-        for (var i = 0; i < stepCount; i++)
-        {
-            var t = (float)i / stepCount;
-            var testX = (int)(origin.x + dx * t);
-            var testY = (int)(origin.y + dy * t);
-            var isInBounds = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in mapSize, out var collisionIndex);
-
-            // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
-            if (!math.all(isInBounds) || obstacleCollisionLookup.IsSet(collisionIndex))
-                return true;
-        }
-
-        return false;
     }
 
     public string DumpStatusText()
@@ -300,7 +232,7 @@ public class AntSimulationSystem : SystemBase
 
         public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
-            var entitiesPtr = (Entity*)chunk.GetNativeArray(EntityTypeHandle).GetUnsafeReadOnlyPtr();
+            var entitiesPtr = chunk.GetNativeArray(EntityTypeHandle);
             var lifeTicksPtr = (LifeTicks*)chunk.GetNativeArray(LifeTicksTypeHandle).GetUnsafePtr();
             var transformsPtr = (AntSimulationTransform2D*)chunk.GetNativeArray(Transform2DTypeHandle).GetUnsafePtr();
 
@@ -334,16 +266,47 @@ public class AntSimulationSystem : SystemBase
                 trans.facingAngle += randRotation;
 
                 // Avoid walls:
-                var wallSteering = WallSteering(in trans, in simParams.mapSize, in obstacleCollisionLookupLocal);
-                trans.facingAngle += wallSteering * simParams.wallSteerStrength;
+                {
+                    float wallSteering = 0;
+                    const float wallSteeringTestDistance = 1.5f;
+                    for (var i2 = -1; i2 <= 1; i2 += 2)
+                    {
+                        var angle1 = trans.facingAngle + i2 * math.PI * .25f;
+                        var testX1 = (int)(trans.position.x + math.cos(angle1) * wallSteeringTestDistance);
+                        var testY1 = (int)(trans.position.y + math.sin(angle1) * wallSteeringTestDistance);
+
+                        var isInBounds2 = AntSimulationUtilities.CalculateIsInBounds(in testX1, in testY1, in simParams.mapSize, out var obstacleCollisionIndex);
+
+                        // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
+                        if (!math.any(isInBounds2) || math.all(isInBounds2) && obstacleCollisionLookupLocal.IsSet(obstacleCollisionIndex))
+                            wallSteering -= i2;
+
+                        //Debug.DrawLine((Vector2)ant.position / mapSize, new Vector2(testX, testY) / mapSize, Color.red, 0.2f);
+                    }
+
+                    trans.facingAngle += wallSteering * simParams.wallSteerStrength;
+                }
 
                 // Steer towards target if the ant can "see" it.
                 var steerTowardsTargetWeight = simParams.colonySteerStrength;
-                if (DirectPathToTargetIsBlocked(in trans.position, in targetPos, in simParams.mapSize, in obstacleCollisionLookupLocal, out var distanceToTarget))
+                if (DirectPathToTargetIsBlocked(in trans.position, in targetPos, in simParams.mapSize, obstacleCollisionLookupLocal, out var distanceToTarget))
                 {
-                    // Steer out of the way of obstacles and map boundaries if we can't see the target.
-                    var pheroSteering = PheromoneSteering(ref trans, in pheromones, in simParams.mapSize);
-                    trans.facingAngle += pheroSteering * steerStrength;
+                    // Pheromone steering:
+                    {
+                        const float pheromoneSteerCheckAhead = 3;
+                        const float quarterPi = math.PI * .25f;
+                        var output = 0f;
+                        for (var i1 = -1; i1 <= 1; i1 += 2)
+                        {
+                            var angle = trans.facingAngle + i1 * quarterPi;
+                            var testX = (int)(trans.position.x + math.cos(angle) * pheromoneSteerCheckAhead);
+                            var testY = (int)(trans.position.y + math.sin(angle) * pheromoneSteerCheckAhead);
+                            var isInBounds1 = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in simParams.mapSize, out var index);
+                            if (math.all(isInBounds1)) output += pheromones[index] * i1;
+                        }
+
+                        trans.facingAngle += math.sign(output) * steerStrength;
+                    }
                 }
                 else
                 {
@@ -403,10 +366,33 @@ public class AntSimulationSystem : SystemBase
                 else
                     trans.position = newPos;
             }
-            
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static bool DirectPathToTargetIsBlocked(in float2 origin, in float2 target, in int mapSize, NativeBitArray obstacleCollisionLookup, out float dist)
+        {
+            var dx = target.x - origin.x;
+            var dy = target.y - origin.y;
+            dist = math.sqrt(dx * dx + dy * dy);
+
+            // NW: Test to see if step count can be generalized.
+            var stepCount = Mathf.CeilToInt(dist * .5f);
+            for (var i = 0; i < stepCount; i++)
+            { 
+                var t = (float)i / stepCount;
+                var testX = (int)(origin.x + dx * t);
+                var testY = (int)(origin.y + dy * t);
+                var isInBounds = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in mapSize, out var collisionIndex);
+
+                // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
+                if (!math.all(isInBounds) || obstacleCollisionLookup.IsSet(collisionIndex))
+                    return true;
+            }
+
+            return false;
         }
     }
-
+ 
     [BurstCompile]
     [NoAlias]
     public struct AntDropPheromonesJob : IJobParallelFor
