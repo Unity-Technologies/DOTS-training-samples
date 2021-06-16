@@ -234,14 +234,14 @@ MonoBehaviour:
   antSpeedHoldingFood: 0.15
   pheromoneAddSpeedWithFood: 0.05
   pheromoneAddSpeedWhenSearching: 0.03
-  pheromoneDecay: 0.99
-  randomSteeringStrength: 0.02
+  pheromoneDecay: 0.995
+  randomSteeringStrength: 0.1
   pheromoneSteerStrengthWithFood: 0.1
   pheromoneSteerStrengthWhenSearching: 0.05
   wallSteerStrength: 0.12
-  unknownFoodResourceSteerStrength: 0.01
-  seenTargetSteerStrength: 1
-  colonySteerStrength: 0.05
+  unknownFoodResourceSteerStrength: 0.00001
+  seenTargetSteerStrength: 0.01
+  colonySteerStrength: 0.0005
   antRotationResolution: 360
   obstacleRingCount: 3
   obstacleRadius: 1

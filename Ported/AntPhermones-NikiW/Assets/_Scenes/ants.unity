@@ -843,14 +843,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   basePheromoneMaterial: {fileID: 2100000, guid: 6f6ea5e44517b3d42ab85fb9577e4c93,
     type: 2}
-  carryColor: {r: 1, g: 0.98724854, b: 0, a: 1}
   colonyMaterial: {fileID: 2100000, guid: 4d609a20db07a9b429e13f6eb488714c, type: 2}
   colonyMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   resourceMaterial: {fileID: 2100000, guid: b9f0e89d232e61841941ba0f7651f15b, type: 2}
   resourceMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   textureRenderer: {fileID: 519808262}
   antMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  antMaterial: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438, type: 2}
+  antMaterialSearching: {fileID: 2100000, guid: c66329d3aec0ce443ba9cbe148029438,
+    type: 2}
+  antMaerialHolding: {fileID: 2100000, guid: a1d5cff102b526c45b79ae3e1d80817b, type: 2}
   obstacleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   obstacleMaterial: {fileID: 2100000, guid: b580cd5f5ceb0f245b7111180e40301d, type: 2}
 --- !u!4 &2087170867

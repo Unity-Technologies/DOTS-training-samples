@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Profiling;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -17,7 +17,6 @@ using Random = UnityEngine.Random;
 public class AntSimulationSystem : SystemBase
 {
     const float k_PIX2 = math.PI * 2f;
-    static ProfilerMarker s_SetHoldingFoodMarker = new ProfilerMarker("SetHoldingFoodFlag");
     public EntityQuery antsQuery;
     /// <summary>
     ///     0 = Number of times food was picked up.
@@ -27,8 +26,8 @@ public class AntSimulationSystem : SystemBase
     [NoAlias]
     public NativeArray<long> counters;
 
-    EntityQuery m_AntsHoldingFoodQuery;
-    EntityQuery m_AntsSearchingQuery;
+    public EntityQuery antsHoldingFoodQuery;
+    public EntityQuery antsSearchingQuery;
 
     ObstacleManagementSystem m_ObstacleManagementSystem;
 
@@ -37,7 +36,7 @@ public class AntSimulationSystem : SystemBase
     [NoAlias]
     public NativeArray<float> pheromonesFood;
     
-    AverageState simulationElapsedSeconds;
+    AverageState m_SimulationElapsedSeconds;
     EndFixedStepSimulationEntityCommandBufferSystem m_EndFixedStepSimulationEntityCommandBufferSystem;
 
     protected override void OnCreate()
@@ -64,8 +63,8 @@ public class AntSimulationSystem : SystemBase
         
         m_ObstacleManagementSystem = World.GetOrCreateSystem<ObstacleManagementSystem>();
 
-        m_AntsHoldingFoodQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<IsHoldingFoodFlag>());
-        m_AntsSearchingQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.Exclude<IsHoldingFoodFlag>());
+        antsHoldingFoodQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<IsHoldingFoodFlag>());
+        antsSearchingQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.Exclude<IsHoldingFoodFlag>());
         antsQuery = GetEntityQuery(ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
     }
 
@@ -99,7 +98,7 @@ public class AntSimulationSystem : SystemBase
                 });
                 EntityManager.SetComponentData(antEntity, new AntSimulationTransform2D
                 {
-                    position = simRuntimeData.colonyPos + (float2)Random.insideUnitCircle * simParams.colonyRadius,
+                    position = simRuntimeData.colonyPos + ((float2)Random.insideUnitCircle * simParams.colonyRadius),
                     facingAngle = (ushort)(Random.value * math.PI * 2),
                 });
             }
@@ -116,9 +115,7 @@ public class AntSimulationSystem : SystemBase
                     // Ant died!
                     translation.position = simRuntimeData.colonyPos;
                     lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
-
-                    ref var count = ref ((long*)countersLocal.GetUnsafePtr())[2];
-                    count++;
+                    Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[2]);
                 }
 
                 lifeTicks.value--;
@@ -132,7 +129,7 @@ public class AntSimulationSystem : SystemBase
             .ForEach((Entity entity, int nativeThreadIndex, ref AntSimulationTransform2D trans, ref LifeTicks lifeTicks) =>
             {
                 UpdateAntBaseSteering(ref trans, in entity, in simParams, in simRuntimeData, in obstacleCollisionLookupLocal);
-                UpdateAntLinecastSteering(in entity, in nativeThreadIndex, ref trans, ref lifeTicks, in simParams, in simRuntimeData, obstacleCollisionLookupLocal, pheromonesColonyLocal, in simParams.pheromoneSteerStrengthWithFood, ecb, in simParams.antSpeedHoldingFood, in simRuntimeData.colonyPos, true);
+                UpdateAntLinecastSteering(in entity, in nativeThreadIndex, ref trans, ref lifeTicks, in simParams, in simRuntimeData, obstacleCollisionLookupLocal, pheromonesColonyLocal, in simParams.pheromoneSteerStrengthWithFood, ecb, in simParams.antSpeedHoldingFood, in simRuntimeData.colonyPos, true, countersLocal);
             }).ScheduleParallel(Dependency);
 
         Dependency = Entities
@@ -144,13 +141,13 @@ public class AntSimulationSystem : SystemBase
             .ForEach((Entity entity, int nativeThreadIndex, ref AntSimulationTransform2D trans, ref LifeTicks lifeTicks) =>
             {
                 UpdateAntBaseSteering(ref trans, in entity, in simParams, in simRuntimeData, in obstacleCollisionLookupLocal);
-                UpdateAntLinecastSteering(in entity, in nativeThreadIndex,ref trans, ref lifeTicks, in simParams, in simRuntimeData, obstacleCollisionLookupLocal, pheromonesFoodLocal, in simParams.pheromoneSteerStrengthWhenSearching, ecb, in simParams.antSpeedSearching, in simRuntimeData.foodPosition, false);
+                UpdateAntLinecastSteering(in entity, in nativeThreadIndex,ref trans, ref lifeTicks, in simParams, in simRuntimeData, obstacleCollisionLookupLocal, pheromonesFoodLocal, in simParams.pheromoneSteerStrengthWhenSearching, ecb, in simParams.antSpeedSearching, in simRuntimeData.foodPosition, false, countersLocal);
             }).ScheduleParallel(Dependency);
 
         m_EndFixedStepSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         
-        RunDropPheromonesJob(simParams, m_AntsSearchingQuery, pheromonesColonyLocal, simParams.pheromoneAddSpeedWhenSearching);
-        RunDropPheromonesJob(simParams, m_AntsHoldingFoodQuery, pheromonesFoodLocal, simParams.pheromoneAddSpeedWithFood);
+        RunDropPheromonesJob(simParams, antsSearchingQuery, pheromonesColonyLocal, simParams.pheromoneAddSpeedWhenSearching);
+        RunDropPheromonesJob(simParams, antsHoldingFoodQuery, pheromonesFoodLocal, simParams.pheromoneAddSpeedWithFood);
         
         var weaken1 = new WeakenPotencyOfPheromonesJob
         {
@@ -165,7 +162,7 @@ public class AntSimulationSystem : SystemBase
 
         Dependency = JobHandle.CombineDependencies(weaken1, weaken2);
         
-        simulationElapsedSeconds.AddSample(UnityEngine.Time.realtimeSinceStartupAsDouble - simStart);
+        m_SimulationElapsedSeconds.AddSample(UnityEngine.Time.realtimeSinceStartupAsDouble - simStart);
     }
 
     void RunDropPheromonesJob(in AntSimulationParams simParams, in EntityQuery query, in NativeArray<float> pheromonesArray, in float pheromoneAddSpeed)
@@ -191,7 +188,7 @@ public class AntSimulationSystem : SystemBase
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static void UpdateAntLinecastSteering(in Entity entity, in int nativeThreadIndex, ref AntSimulationTransform2D trans, ref LifeTicks lifeTicks, [ReadOnly] in AntSimulationParams simParams, in AntSimulationRuntimeData runtimeData, [ReadOnly] NativeBitArray obstacleCollisionLookup, [ReadOnly] NativeArray<float> pheromones, in float pheromoneSteerStrength, EntityCommandBuffer.ParallelWriter ecb, in float antSpeed, in float2 targetPos, bool isHoldingFood)
+    static unsafe void UpdateAntLinecastSteering(in Entity entity, in int nativeThreadIndex, ref AntSimulationTransform2D trans, ref LifeTicks lifeTicks, [ReadOnly] in AntSimulationParams simParams, in AntSimulationRuntimeData runtimeData, [ReadOnly] NativeBitArray obstacleCollisionLookup, [ReadOnly] NativeArray<float> pheromones, in float pheromoneSteerStrength, EntityCommandBuffer.ParallelWriter ecb, in float antSpeed, in float2 targetPos, bool isHoldingFood, NativeArray<long> counters)
     {
         // Steer towards target if the ant can "see" it.
         var steerTowardsTargetWeight = simParams.colonySteerStrength;
@@ -210,9 +207,16 @@ public class AntSimulationSystem : SystemBase
             if (distanceToTarget < simParams.colonyRadius)
             {
                 // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
-                if(isHoldingFood)
+                if (isHoldingFood)
+                {
                     ecb.RemoveComponent<IsHoldingFoodFlag>(nativeThreadIndex, entity);
-                else ecb.AddComponent<IsHoldingFoodFlag>(nativeThreadIndex, entity);
+                    Interlocked.Increment(ref ((long*)counters.GetUnsafePtr())[1]);
+                }
+                else
+                {
+                    ecb.AddComponent<IsHoldingFoodFlag>(nativeThreadIndex, entity);
+                    Interlocked.Increment(ref ((long*)counters.GetUnsafePtr())[0]);
+                }
 
                 // The ant either found food or returned home with it, so it gets to live.
                 lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, runtimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
@@ -223,18 +227,15 @@ public class AntSimulationSystem : SystemBase
         // Much more weight if we've seen it.
         // Much more weight if it's a known location (colony). E.g. Simulating memory.
         var targetAngle = math.atan2(targetPos.y - trans.position.y, targetPos.x - trans.position.x);
-        if (targetAngle - trans.facingAngle > math.PI)
-        {
-            trans.facingAngle -= k_PIX2;
-        }
-        else if (targetAngle - trans.facingAngle < -math.PI)
-        {
-            trans.facingAngle += k_PIX2;
-        }
-        else
-        {
-            if (math.abs(targetAngle - trans.facingAngle) < math.PI * .5f) trans.facingAngle += (targetAngle - trans.facingAngle) * steerTowardsTargetWeight;
-        }
+        // if (targetAngle - trans.facingAngle > math.PI)
+        // {
+        //     trans.facingAngle -= math.PI;
+        // }
+        // else if (targetAngle - trans.facingAngle < -math.PI)
+        // {
+        //     trans.facingAngle += math.PI;
+        // }
+        trans.facingAngle += math.clamp(targetAngle - trans.facingAngle, -steerTowardsTargetWeight, steerTowardsTargetWeight);
 
         var velocity = new float2(math.cos(trans.facingAngle), math.sin(trans.facingAngle));
         velocity = math.normalizesafe(velocity) * antSpeed * 0.6f;
@@ -335,7 +336,7 @@ public class AntSimulationSystem : SystemBase
         if (antsQuery == default) return "Waiting for Query...";
 
         var antsCount = antsQuery.CalculateEntityCount();
-        return $" Ants: {antsCount} ({counters[2]} respawned)\nFood Found: {counters[0]}, Gathered: {counters[1]}\nSim CPU: {simulationElapsedSeconds.Average * 1000_000_000:#,000}ns per Sim";
+        return $" Ants: {antsCount} ({counters[2]} respawned)\nFood Found: {counters[0]}, Gathered: {counters[1]}\nSim CPU: {m_SimulationElapsedSeconds.Average * 1000_000_000:#,000}ns per Sim";
     }
 
     [BurstCompile]

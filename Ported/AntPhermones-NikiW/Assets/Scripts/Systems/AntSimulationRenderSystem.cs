@@ -32,7 +32,6 @@ public unsafe class AntSimulationRenderSystem : SystemBase
     Texture2D pheromoneTextureInstance;
     AverageState renderElapsedSeconds, rerenderElapsedSeconds;
     Matrix4x4 resourceMatrix;
-    MaterialPropertyBlock reusableAntMatProps;
     Matrix4x4[] reusableMatrices;
     NativeArray<Matrix4x4> rotationMatrixLookup;
     JobHandle simulationJobHandle;
@@ -49,7 +48,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         RequireSingletonForUpdate<AntSimulationRuntimeData>();
 
         reusableMatrices = new Matrix4x4[k_InstancesPerBatch];
-        reusableAntMatProps = new MaterialPropertyBlock();
+        new MaterialPropertyBlock();
     }
 
     protected override void OnDestroy()
@@ -67,8 +66,8 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         
         if (pheromoneTextureInstance == null)
         {
-            colonyMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.colonyPos / simParams.mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / simParams.mapSize);
-            resourceMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.foodPosition / simParams.mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / simParams.mapSize);
+            colonyMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.colonyPos / simParams.mapSize, Quaternion.identity, new Vector3(simParams.colonyRadius, simParams.colonyRadius, .1f) / simParams.mapSize);
+            resourceMatrix = Matrix4x4.TRS((Vector2)simRuntimeData.foodPosition / simParams.mapSize, Quaternion.identity, new Vector3(simParams.colonyRadius, simParams.colonyRadius, .1f) / simParams.mapSize);
 
             pheromoneTextureInstance = new Texture2D(simParams.mapSize, simParams.mapSize);
             pheromoneTextureInstance.wrapMode = TextureWrapMode.Mirror;
@@ -122,27 +121,11 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         using (s_GraphicsDrawMarker.Auto())
         {
             var renderStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
-
-            // NW: Create batches when we actually render them:
-            if (simParams.renderAnts && !m_AntSimulationSystem.antsQuery.IsEmpty)
+            
+            if (simParams.renderAnts)
             {
-                var antTransform2Ds = m_AntSimulationSystem.antsQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
-                var antMatrices = new NativeArray<Matrix4x4>(antTransform2Ds.Length, Allocator.TempJob);
-                var antMatricesJob = new AntMatricesJob
-                {
-                    antTransform2Ds = antTransform2Ds,
-                    matrices = antMatrices,
-                    rotationMatrixLookup = rotationMatrixLookup,
-
-                    rotationResolution = simParams.antRotationResolution,
-                    oneOverMapSize = 1f / simParams.mapSize
-                };
-                antMatricesJob.Schedule(antTransform2Ds.Length, 4).Complete();
-                antTransform2Ds.Dispose();
-
-                RenderAllNativeArrayMatrices(antMatrices, data.antMesh, data.antMaterial, reusableAntMatProps);
-
-                antMatrices.Dispose();
+                RenderAntQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaerialHolding);
+                RenderAntQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
             }
 
             if (simParams.renderObstacles && !m_ObstacleManagementSystem.obstaclesQuery.IsEmpty)
@@ -157,7 +140,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
                     obstacleRadius = simParams.obstacleRadius / simParams.mapSize,
                     
                 }.Schedule(obstacleTransforms.Length, 4).Complete();
-                RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial, null);
+                RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial);
                 obstacleMatrices.Dispose();
             }
 
@@ -171,7 +154,30 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         }
     }
 
-    void RenderAllNativeArrayMatrices(NativeArray<Matrix4x4> matrices, Mesh mesh, Material material, MaterialPropertyBlock materialPropertyBlock)
+    void RenderAntQuery(AntSimulationParams simParams, AntSimulationRenderer data, EntityQuery antQuery, Material antMaterial)
+    {
+        if (antQuery.IsEmpty) return;
+        
+        var antTransform2Ds = antQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
+        var antMatrices = new NativeArray<Matrix4x4>(antTransform2Ds.Length, Allocator.TempJob);
+        var antMatricesJob = new AntMatricesJob
+        {
+            antTransform2Ds = antTransform2Ds,
+            matrices = antMatrices,
+            rotationMatrixLookup = rotationMatrixLookup,
+
+            rotationResolution = simParams.antRotationResolution,
+            oneOverMapSize = 1f / simParams.mapSize
+        };
+        antMatricesJob.Schedule(antTransform2Ds.Length, 4).Complete();
+        antTransform2Ds.Dispose();
+
+        RenderAllNativeArrayMatrices(antMatrices, data.antMesh, antMaterial);
+
+        antMatrices.Dispose();
+    }
+
+    void RenderAllNativeArrayMatrices(NativeArray<Matrix4x4> matrices, Mesh mesh, Material material)
     {
         var start = 0;
         while (start < matrices.Length)
@@ -181,30 +187,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             var end = math.min(matrices.Length, start + k_InstancesPerBatch);
             var length = end - start;
             NativeArray<Matrix4x4>.Copy(matrices, start, reusableMatrices, 0, length);
-
-            // var index1 = index / instancesPerBatch;
-            // var index2 = index % instancesPerBatch;
-            // if (ant.holdingResource == false)
-            // {
-            // 	targetPos = resourcePosition;
-            //
-            // 	// NWALKER - SPLIT presentation from simulation.
-            // 	//antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
-            // }
-            // else
-            // {
-            // 	targetPos = colonyPosition;
-            //
-            // 	//antColors[index1][index2] += ((Vector4)carryColor * ant.brightness - antColors[index1][index2]) * .05f;
-            // }
-            //
-            // reusableAntMatProps.SetVectorArray("_Color", );
-
-            if (materialPropertyBlock != null)
-                Graphics.DrawMeshInstanced(mesh, 0, material, reusableMatrices, length, materialPropertyBlock);
-            else
-                Graphics.DrawMeshInstanced(mesh, 0, material, reusableMatrices, length);
-
+            Graphics.DrawMeshInstanced(mesh, 0, material, reusableMatrices, length);
             start = end;
         }
     }
