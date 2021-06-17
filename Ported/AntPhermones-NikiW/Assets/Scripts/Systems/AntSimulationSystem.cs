@@ -134,7 +134,7 @@ public class AntSimulationSystem : SystemBase
             LifeTicksTypeHandle = GetComponentTypeHandle<LifeTicks>(),
             Transform2DTypeHandle = GetComponentTypeHandle<AntSimulationTransform2D>(),
             IsHoldingFoodTypeHandle = GetComponentTypeHandle<IsHoldingFoodFlag>(true)
-        }.ScheduleParallel(antsQuery, Dependency);
+        }.ScheduleParallel(antsQuery, 1, Dependency);
 
         m_EndFixedStepSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 
@@ -192,7 +192,7 @@ public class AntSimulationSystem : SystemBase
 
     [BurstCompile]
     [NoAlias]
-    public struct AntSteeringSimulationJob : IJobChunk
+    public struct AntSteeringSimulationJob : IJobEntityBatch
     {
         [NoAlias]
         public ComponentTypeHandle<AntSimulationTransform2D> Transform2DTypeHandle;
@@ -230,7 +230,7 @@ public class AntSimulationSystem : SystemBase
         [NoAlias]
         public NativeArray<long> countersLocal;
 
-        public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+        public unsafe void Execute(ArchetypeChunk chunk, int batchIndex)
         {
             var entitiesPtr = chunk.GetNativeArray(EntityTypeHandle);
             var lifeTicksPtr = (LifeTicks*)chunk.GetNativeArray(LifeTicksTypeHandle).GetUnsafePtr();
@@ -260,9 +260,10 @@ public class AntSimulationSystem : SystemBase
             for (var i = 0; i < chunk.Count; i++)
             {
                 ref var trans = ref transformsPtr[i];
+                var entity = entitiesPtr[i];
                 
                 // NW: Add some random rotation to indicate "curiosity"...
-                var randRotation = Squirrel3.NextFloat((uint)chunkIndex, simRuntimeData.perFrameRandomSeed, -simParams.randomSteeringStrength, simParams.randomSteeringStrength);
+                var randRotation = Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, -simParams.randomSteeringStrength, simParams.randomSteeringStrength);
                 trans.facingAngle += randRotation;
 
                 // Avoid walls:
@@ -319,17 +320,17 @@ public class AntSimulationSystem : SystemBase
                         // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                         if (isHoldingFood)
                         {
-                            ecb.RemoveComponent<IsHoldingFoodFlag>(chunkIndex, entitiesPtr[i]);
+                            ecb.RemoveComponent<IsHoldingFoodFlag>(entity.Index, entity);
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[1]);
                             
-                            lifeTicksPtr[i].value = (ushort)(Squirrel3.NextFloat((uint)entitiesPtr[i].Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                            lifeTicksPtr[i].value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
                         }
                         else
                         {
-                            ecb.AddComponent<IsHoldingFoodFlag>(chunkIndex, entitiesPtr[i]);
+                            ecb.AddComponent<IsHoldingFoodFlag>(entity.Index, entity);
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[0]);
                             
-                            lifeTicksPtr[i].value += (ushort)(Squirrel3.NextFloat((uint)entitiesPtr[i].Index, simRuntimeData.perFrameRandomSeed, 0.25f, 0.75f) * simParams.ticksForAntToDie);
+                            lifeTicksPtr[i].value += (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.25f, 0.75f) * simParams.ticksForAntToDie);
                         }
                     }
                 }
