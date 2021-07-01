@@ -23,13 +23,7 @@ public class ObstacleManagementSystem : SystemBase
         m_CircleObstacleGeneratorMarkerQuery = GetEntityQuery(ComponentType.ReadOnly<CircleObstacleGeneratorMarker>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
         obstaclesQuery = GetEntityQuery(ComponentType.ReadOnly<StaticObstacleFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
     }
-
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        obstacleCollisionLookup.Dispose();
-    }
-
+    
     protected override void OnUpdate()
     {
         var simParams = GetSingleton<AntSimulationParams>();
