@@ -73,7 +73,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             pheromoneTextureInstance = new Texture2D(simParams.mapSize, simParams.mapSize);
             pheromoneTextureInstance.wrapMode = TextureWrapMode.Mirror;
             Blit(pheromoneTextureInstance, new Color32());
-
+            
             pheromoneMaterialInstance = new Material(data.basePheromoneMaterial);
             pheromoneMaterialInstance.mainTexture = pheromoneTextureInstance;
             data.textureRenderer.sharedMaterial = pheromoneMaterialInstance;
@@ -86,7 +86,8 @@ public unsafe class AntSimulationRenderSystem : SystemBase
                 rotationMatrixLookup[i] = Matrix4x4.TRS(Vector3.zero, Quaternion.Euler(0f, 0f, angle), simParams.antSize);
             }
         }
-
+        
+     
         // Prepare matrices as this is a render frame:
         using (s_RenderSetupMarker.Auto())
         {
@@ -194,14 +195,40 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         }
     }
 
-    static void Blit(Texture2D texture2D, Color32 color32)
+    static void Blit(Texture2D texture2D, Color32 targetColor32)
     {
-        var color = texture2D.GetPixelData<Color32>(0);
+        var textureArray = texture2D.GetPixelData<Color32>(0);
 
-        // NWalker; Find the burst compile single method for this.
-        for (var i = 0; i < color.Length; i++)
-            color[i] = color32;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+        var atomicSafetyHandle = AtomicSafetyHandle.Create();
+        NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref textureArray, atomicSafetyHandle);
+#endif
+        
+        new BlitJob<Color32>
+        {
+            dest = textureArray,
+            target = targetColor32,
+        }.Run(textureArray.Length);
+        
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+        AtomicSafetyHandle.Release(atomicSafetyHandle);
+#endif
+        
         texture2D.Apply();
+    }
+
+    [BurstCompile]
+    struct BlitJob<T> : IJobParallelFor
+        where T : struct
+    {
+        [NoAlias]
+        [WriteOnly]
+        public NativeArray<T> dest;
+        
+        [ReadOnly]
+        public T target;
+        
+        public void Execute(int index) => dest[index] = target;
     }
 
     // void OnDrawGizmos()
