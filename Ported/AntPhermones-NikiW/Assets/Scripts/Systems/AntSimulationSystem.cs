@@ -113,8 +113,9 @@ public class AntSimulationSystem : SystemBase
                 if (lifeTicks.value <= 0)
                 {
                     // Ant died!
-                    translation.position = simRuntimeData.colonyPos;
-                    lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)nativeThreadIndex ^ (uint)translation.facingAngle, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                    var seed = (uint)translation.position.x ^ (uint)translation.position.y;
+                    translation.position = simRuntimeData.colonyPos + new float2(math.cos(translation.facingAngle), math.sin(translation.facingAngle)) * Squirrel3.NextFloat(seed, simRuntimeData.perFrameRandomSeed, 0f, simParams.colonyRadius);
+                    lifeTicks.value = (ushort)(Squirrel3.NextDouble(seed, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
                     Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[2]);
                 }
 
@@ -302,8 +303,8 @@ public class AntSimulationSystem : SystemBase
                             var angle = trans.facingAngle + i1 * quarterPi;
                             var testX = (int)(trans.position.x + math.cos(angle) * pheromoneSteerCheckAhead);
                             var testY = (int)(trans.position.y + math.sin(angle) * pheromoneSteerCheckAhead);
-                            var isInBounds1 = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in simParams.mapSize, out var index);
-                            if (math.all(isInBounds1)) output += pheromones[index] * i1;
+                            var isInBoundsPheromones = AntSimulationUtilities.CalculateIsInBounds(in testX, in testY, in simParams.mapSize, out var index);
+                            if (math.all(isInBoundsPheromones)) output += pheromones[index] * i1;
                         }
 
                         trans.facingAngle += math.sign(output) * steerStrength;
@@ -324,6 +325,7 @@ public class AntSimulationSystem : SystemBase
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[1]);
                             
                             lifeTicksPtr[i].value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                            trans.facingAngle += Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, -math.PI, math.PI);
                         }
                         else
                         {
@@ -331,6 +333,7 @@ public class AntSimulationSystem : SystemBase
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[0]);
                             
                             lifeTicksPtr[i].value += (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.25f, 0.75f) * simParams.ticksForAntToDie);
+                            trans.facingAngle += math.PI;
                         }
                     }
                 }
