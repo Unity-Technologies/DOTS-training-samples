@@ -15,13 +15,13 @@ public static class Squirrel3
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float NextFloat(uint last, uint seed, float min, float max)
     {
-        return (float)NextDouble(last, seed, min, max);
+        return (float)NextRand(last, seed) / uint.MaxValue * (max - min) + min;
     }
 
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double NextDouble(uint last, uint seed, float min, float max)
     {
-        return ((double)NextRand(last, seed) / uint.MaxValue * (max - min) + min);
+        return (double)NextRand(last, seed) / uint.MaxValue * (max - min) + min;
     }
 
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
