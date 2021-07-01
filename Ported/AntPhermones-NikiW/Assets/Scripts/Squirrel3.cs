@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 using Unity.Burst;
 
 /// <summary>
-///     NW: Better random.
-///     https://github.com/sublee/squirrel3-python/blob/master/squirrel3.py
+///     niki.walker@unity3d.com
+///     Better random, ported from: https://github.com/sublee/squirrel3-python/blob/master/squirrel3.py
 /// </summary>
 public static class Squirrel3
 {
@@ -15,9 +15,15 @@ public static class Squirrel3
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float NextFloat(uint last, uint seed, float min, float max)
     {
-        return (float)((double)NextRand(last, seed) / uint.MaxValue * (max - min) + min);
+        return (float)NextDouble(last, seed, min, max);
     }
-    
+
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static double NextDouble(uint last, uint seed, float min, float max)
+    {
+        return ((double)NextRand(last, seed) / uint.MaxValue * (max - min) + min);
+    }
+
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint NextRand(uint n, uint seed = 0)
     {
