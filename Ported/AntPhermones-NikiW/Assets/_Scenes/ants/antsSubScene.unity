@@ -237,7 +237,7 @@ MonoBehaviour:
   pheromoneDecay: 0.995
   randomSteeringStrength: 0.1
   pheromoneSteerStrengthWithFood: 0.1
-  pheromoneSteerStrengthWhenSearching: 0.05
+  pheromoneSteerStrengthWhenSearching: 0.1
   wallSteerStrength: 0.12
   unknownFoodResourceSteerStrength: 0
   seenTargetSteerStrength: 0.05
