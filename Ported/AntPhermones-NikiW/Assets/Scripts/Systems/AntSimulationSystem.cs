@@ -68,6 +68,15 @@ public class AntSimulationSystem : SystemBase
         antsQuery = GetEntityQuery(ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        if(pheromonesColony.IsCreated) pheromonesColony.Dispose();
+        if(pheromonesFood.IsCreated) pheromonesFood.Dispose();
+        if(counters.IsCreated) counters.Dispose();
+    }
+
     protected override unsafe void OnUpdate()
     {
         var simStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
