@@ -60,17 +60,17 @@ public class Benchmarker
 
             for (int writePercentageInt = -10; writePercentageInt <= 100; writePercentageInt++)
             {
-                double writePercentage = writePercentageInt * 0.01f;
+                var writePercentage = writePercentageInt * 0.01;
 
                 // NW: First 10 tests are "warmup" and should be disregarded.
-                var isWarmup = writePercentage < -0.005f; // NW: Note that writePercentage will never be exactly 0.
+                var isWarmup = writePercentageInt < 0;
                 RunTestInnerLoop(tests, numIterationsForTestId, writePercentage, testId);
 
                 if (!isWarmup)
-                    tableString += tests.Aggregate($"\n{writePercentage:0.00}", (c, n) => $"{c},{n.Elapsed:000.000000}");
+                    tableString += tests.Aggregate($"\n{writePercentage:0.00}", (c, n) => $"{c},{n.Elapsed[testId]:000.000000}");
             }
 
-            quickResultsString += tests.Aggregate("", (c, n) => $"{c}\n{n.Name}: Elapsed: {n.Elapsed:000.000000}, Results Length: {n.AllResults.Length}");
+            quickResultsString += tests.Aggregate("", (c, n) => $"{c}\n{n.Name}: Elapsed: {n.Elapsed[testId]:000.000000}, Results Length: {n.AllResults.Length}");
             foreach (var test in tests)
             {
                 test.AllResults.Clear();
