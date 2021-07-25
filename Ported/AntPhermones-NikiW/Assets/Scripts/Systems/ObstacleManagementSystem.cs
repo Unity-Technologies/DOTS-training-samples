@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -21,9 +22,16 @@ public class ObstacleManagementSystem : SystemBase
 
         RequireSingletonForUpdate<AntSimulationParams>();
         m_CircleObstacleGeneratorMarkerQuery = GetEntityQuery(ComponentType.ReadOnly<CircleObstacleGeneratorMarker>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
-        obstaclesQuery = GetEntityQuery(ComponentType.ReadOnly<StaticObstacleFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
+        obstaclesQuery = GetEntityQuery(ComponentType.ReadOnly<StaticObstacleFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadWrite<LocalToWorld>());
     }
-    
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        if (obstacleCollisionLookup.IsCreated) obstacleCollisionLookup.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         var simParams = GetSingleton<AntSimulationParams>();

@@ -18,7 +18,7 @@ public class AntSimulationTransform2DAuthoring : MonoBehaviour, IConvertGameObje
         dstManager.RemoveComponent<Translation>(entity);
         dstManager.RemoveComponent<Rotation>(entity);
         dstManager.RemoveComponent<Scale>(entity);
-        dstManager.RemoveComponent<LocalToWorld>(entity);
+        //dstManager.RemoveComponent<LocalToWorld>(entity);
         dstManager.RemoveComponent<LinkedEntityGroup>(entity);
     }
 }

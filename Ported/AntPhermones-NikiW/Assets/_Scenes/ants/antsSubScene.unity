@@ -246,7 +246,7 @@ MonoBehaviour:
   obstacleRingCount: 3
   obstacleRadius: 1
   renderAnts: 1
-  renderObstacles: 1
+  renderObstacles: 0
   addWallsToTexture: 1
   renderTargets: 1
   ticksForAntToDie: 5000

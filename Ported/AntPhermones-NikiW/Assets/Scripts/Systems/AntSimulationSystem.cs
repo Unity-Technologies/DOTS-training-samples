@@ -7,6 +7,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -63,9 +64,9 @@ public class AntSimulationSystem : SystemBase
 
         m_ObstacleManagementSystem = World.GetOrCreateSystem<ObstacleManagementSystem>();
 
-        antsHoldingFoodQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<IsHoldingFoodFlag>());
-        antsSearchingQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.Exclude<IsHoldingFoodFlag>());
-        antsQuery = GetEntityQuery(ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
+        antsHoldingFoodQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<IsHoldingFoodFlag>(), ComponentType.ReadWrite<LocalToWorld>());
+        antsSearchingQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.Exclude<IsHoldingFoodFlag>(), ComponentType.ReadWrite<LocalToWorld>());
+        antsQuery = GetEntityQuery(ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadWrite<LocalToWorld>());
     }
 
     protected override void OnDestroy()

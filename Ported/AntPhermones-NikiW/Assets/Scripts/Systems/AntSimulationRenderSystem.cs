@@ -8,16 +8,21 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+[UpdateAfter(typeof(AntSimulationSystem))]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public unsafe class AntSimulationRenderSystem : SystemBase
 {
     public const int k_InstancesPerBatch = 1023;
 
-    static ProfilerMarker s_RenderSetupMarker = new ProfilerMarker("RenderSetup");
-    static ProfilerMarker s_GraphicsDrawMarker = new ProfilerMarker("Graphics.DrawMeshInstanced");
+    static ProfilerMarker s_PheromoneColorMarker = new ProfilerMarker("PheromoneColor");
+    static ProfilerMarker s_LocalToWorldMarker = new ProfilerMarker("L2W");
+    static ProfilerMarker s_ObstaclesLocalToWorldMarker = new ProfilerMarker("ObstaclesL2W");
+    static ProfilerMarker s_AntsLocalToWorldMarker = new ProfilerMarker("AntsL2W");
     static ProfilerMarker s_PheromoneFloatToColorCopyMarker = new ProfilerMarker("Pheromone Float > Color32");
     static ProfilerMarker s_TextureApplyMarker = new ProfilerMarker("Texture2D.Apply");
     Vector4[] antColors;
@@ -56,6 +61,8 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         base.OnDestroy();
         Object.Destroy(pheromoneTextureInstance);
         Object.Destroy(pheromoneMaterialInstance);
+
+        if (rotationMatrixLookup.IsCreated) rotationMatrixLookup.Dispose();
     }
 
     protected override void OnUpdate()
@@ -89,9 +96,9 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         
      
         // Prepare matrices as this is a render frame:
-        using (s_RenderSetupMarker.Auto())
+        using (s_PheromoneColorMarker.Auto())
         {
-            if (pheromoneTextureInstance) // NWALKER: Find a way to determine if the entities have changed.
+            if (pheromoneTextureInstance && m_AntSimulationSystem.pheromonesColony.IsCreated) // NWALKER: Find a way to determine if the entities have changed.
             {
                 var rerenderStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
      
@@ -120,30 +127,44 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             }
         }
 
-        using (s_GraphicsDrawMarker.Auto())
+        using (s_LocalToWorldMarker.Auto())
         {
             var renderStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
-            
-            if (simParams.renderAnts)
+
+            using (s_AntsLocalToWorldMarker.Auto())
             {
-                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaerialHolding);
-                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
+                if (simParams.renderAnts)
+                {
+                    RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaterialHolding);
+                    RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
+                }
             }
 
-            if (simParams.renderObstacles && !m_ObstacleManagementSystem.obstaclesQuery.IsEmpty)
+            using (s_ObstaclesLocalToWorldMarker.Auto())
             {
-                var obstacleTransforms = m_ObstacleManagementSystem.obstaclesQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
-                var obstacleMatrices = new NativeArray<Matrix4x4>(obstacleTransforms.Length, Allocator.TempJob);
-                new ObstacleMatricesJob
+                var obstaclesQuery = m_ObstacleManagementSystem.obstaclesQuery;
+                if (simParams.renderObstacles && !obstaclesQuery.IsEmpty)
                 {
-                    obstacleTransform2Ds = obstacleTransforms,
-                    matrices = obstacleMatrices,
-                    oneOverMapSize = 1f/simParams.mapSize,
-                    obstacleRadius = simParams.obstacleRadius / simParams.mapSize,
+                    using var obstacleTransforms = obstaclesQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
+                    using var localToWorlds = obstaclesQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+                 
+                    // NWALKER - Need to update render meshes.
                     
-                }.Schedule(obstacleTransforms.Length, 4).Complete();
-                RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial);
-                obstacleMatrices.Dispose();
+                    //var obstacleMatrices = new NativeArray<Matrix4x4>(obstacleTransforms.Length, Allocator.TempJob);
+                    new ObstacleMatricesJob
+                    {
+                        obstacleTransform2Ds = obstacleTransforms,
+                        matrices = localToWorlds,
+                        oneOverMapSize = 1f / simParams.mapSize,
+                        obstacleRadius = simParams.obstacleRadius / simParams.mapSize,
+
+                    }.Schedule(obstacleTransforms.Length, 4).Complete();
+
+                    obstaclesQuery.CopyFromComponentDataArray(localToWorlds);
+                    
+                    //RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial);
+                    //obstacleMatrices.Dispose();
+                }
             }
 
             if (simParams.renderTargets)
@@ -155,29 +176,30 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             renderElapsedSeconds.AddSample(UnityEngine.Time.realtimeSinceStartupAsDouble - renderStart);
         }
     }
-
+    
     void RenderForAntsInQuery(AntSimulationParams simParams, AntSimulationRenderer data, EntityQuery antQuery, Material antMaterial)
     {
-        if (antQuery.IsEmpty) return;
+        //if (antQuery.IsEmpty) return;
         
-        // NWALKER: hybrid render may be faster here!
-        var antTransform2Ds = antQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
-        var antMatrices = new NativeArray<Matrix4x4>(antTransform2Ds.Length, Allocator.TempJob);
+        using var antTransform2Ds = antQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
+        using var antLocalToWorlds = antQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+        //var antMatrices = new NativeArray<Matrix4x4>(antTransform2Ds.Length, Allocator.TempJob);
         var antMatricesJob = new AntMatricesJob
         {
             antTransform2Ds = antTransform2Ds,
-            matrices = antMatrices,
+            matrices = antLocalToWorlds,
             rotationMatrixLookup = rotationMatrixLookup,
 
             rotationResolution = simParams.antRotationResolution,
             oneOverMapSize = 1f / simParams.mapSize
         };
         antMatricesJob.Schedule(antTransform2Ds.Length, 4).Complete();
-        antTransform2Ds.Dispose();
+        
+        antQuery.CopyFromComponentDataArray(antLocalToWorlds);
+        //RenderAllNativeArrayMatrices(antMatrices, data.antMesh, antMaterial);
 
-        RenderAllNativeArrayMatrices(antMatrices, data.antMesh, antMaterial);
-
-        antMatrices.Dispose();
+        //antTransform2Ds.Dispose();
+        //antMatrices.Dispose();
     }
 
     void RenderAllNativeArrayMatrices(NativeArray<Matrix4x4> matrices, Mesh mesh, Material material)
@@ -230,29 +252,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         
         public void Execute(int index) => dest[index] = target;
     }
-
-    // void OnDrawGizmos()
-    // {
-    // 	if (! Application.isPlaying) return;
-    // 	
-    // 		for (int x = 0; x < obstacleBucketResolution; x++)
-    // 	for (int y = 0; y < obstacleBucketResolution; y++)
-    // 	{
-    // 		Gizmos.color = new Color(1f, 0f, 0f, 0.27f);
-    // 		var isInBounds = CalculateIsInBounds(in x, in y, in obstacleBucketResolution, out var index);
-    // 		if (math.all(isInBounds) && obstacleCollisionLookup.IsSet(index))
-    // 		{
-    // 			Gizmos.DrawSphere(new Vector3(x, y, 0), 1f);
-    // 		}
-    // 	}
-    //
-    // 	for (int i = 0; i < ants.Length; i++)
-    // 	{
-    // 		var ant = ants[i];
-    // 		Gizmos.color = ant.holdingResource ? Color.black : Color.magenta;
-    // 		Gizmos.DrawSphere((Vector2)ant.position, .8f);
-    // 	}
-    // }
+    
     public string DumpStatusText()
     {
         if (m_AntSimulationSystem.antsQuery == default) return "Waiting for AntSimulationSystem...";
@@ -278,7 +278,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
 
         [NoAlias]
         [WriteOnly]
-        public NativeArray<Matrix4x4> matrices;
+        public NativeArray<LocalToWorld> matrices;
 
         public float oneOverMapSize;
 
@@ -299,7 +299,10 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             var matrix = GetRotationMatrix(ant.facingAngle);
             matrix.m03 = ant.position.x * oneOverMapSize;
             matrix.m13 = ant.position.y * oneOverMapSize;
-            matrices[index] = matrix;
+            matrices[index] = new LocalToWorld
+            {
+                Value = matrix,
+            };
         }
     }
     
@@ -312,7 +315,7 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         public NativeArray<AntSimulationTransform2D> obstacleTransform2Ds;
         [NoAlias]
         [WriteOnly]
-        public NativeArray<Matrix4x4> matrices;
+        public NativeArray<LocalToWorld> matrices;
 
         public float oneOverMapSize;
         public float obstacleRadius;
@@ -320,7 +323,10 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         public void Execute(int index)
         {
             var trans = obstacleTransform2Ds[index];
-            matrices[index] = Matrix4x4.TRS(new Vector3(trans.position.x  * oneOverMapSize, trans.position.y  * oneOverMapSize), Quaternion.identity, new float3(obstacleRadius));
+            matrices[index] = new LocalToWorld
+                {
+                    Value = Matrix4x4.TRS(new Vector3(trans.position.x * oneOverMapSize, trans.position.y * oneOverMapSize), Quaternion.identity, new float3(obstacleRadius)),
+                };
         }
     }
 
