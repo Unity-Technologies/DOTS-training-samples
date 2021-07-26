@@ -6,7 +6,7 @@ namespace src.Components
     /// <summary>
     ///     
     /// </summary>
-    public struct EmptyBucketPassetTag : IComponentData
+    public struct EmptyBucketPasserTag : IComponentData
     {
     }
 }
