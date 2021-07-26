@@ -3,6 +3,8 @@
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.analytics": "3.5.3",
+    "com.unity.dots.editor": "0.14.0-preview.2",
+    "com.unity.entities": "0.19.0-preview.30",
     "com.unity.ide.rider": "2.0.7",
     "com.unity.ide.visualstudio": "2.0.7",
     "com.unity.ide.vscode": "1.2.3",
@@ -39,6 +41,10 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
-  }
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.platforms.windows": "0.12.0-preview.15",
+    "com.unity.render-pipelines.universal": "10.3.2",
+    "com.unity.rendering.hybrid": "0.13.0-preview.30"
+  },
+  "registry": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
 }
