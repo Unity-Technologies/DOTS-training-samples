@@ -7,6 +7,7 @@ namespace src.Components
     /// <summary>
     ///     
     /// </summary>
+    [GenerateAuthoringComponent]
     public struct TeamData : IComponentData
     {
         public float2 TargetWaterPos;

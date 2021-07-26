@@ -8,5 +8,6 @@ namespace src.Components
     /// </summary>
     public struct BucketThrowerTag : IComponentData
     {
+        
     }
 }
