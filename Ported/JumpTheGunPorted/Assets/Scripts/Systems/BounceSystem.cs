@@ -9,32 +9,38 @@ public class BounceSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
+        var heightMapEntity = GetSingletonEntity<HeightBufferElement>();
+        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
+
+        int terrainLength = 15; // spawner.TerrainLength; // TODO: we destroyed the spawner entity at start, where/how do we want to store the terrain length needed to figure out the height map
+
         Entities
             .ForEach((Entity entity, ref ParabolaTValue tValue, in Translation translation, in Player playerTag) =>
             {
                 if (tValue.Value < 0)
                 {
                     // solving parabola path
-                    //startBox endBox // TODO: player aim logic using mouse input 
-                    float startY = translation.Value.y; // startBox.Y + Player.Y_OFFSET; // TODO: get current height of player tile vs player Y value
-                    float endY = translation.Value.y; //endBox.Y + Player.Y_OFFSET; // TODO: get current height of player destination tile vs. player Y value
+                    int startBoxCol = (int)translation.Value.x;
+                    int startBoxRow = (int)translation.Value.z;
+                    float startY = heightMap[startBoxRow * terrainLength + startBoxCol] + Player.Y_OFFSET;
+
+                    int endBoxCol = startBoxCol; // TODO: needs to be the tile that mouse is over
+                    int endBoxRow = startBoxRow; // TODO: needs to be the tile that mouse is over
+                    float endY = heightMap[endBoxRow * terrainLength + endBoxCol] + Player.Y_OFFSET;
                     float height = math.max(startY, endY);
 
                     // make height max of adjacent boxes when moving diagonally
-                    // TODO:
-                    /*if (startBox.col != endBox.col && startBox.row != endBox.row)
+                    if (startBoxCol != endBoxCol && startBoxRow != endBoxRow)
                     {
-                        height = Mathf.Max(height, TerrainArea.instance.GetBox(startBox.col, endBox.row).top, TerrainArea.instance.GetBox(endBox.col, startBox.row).top);
-                    }*/
+                        height = math.max(height, math.max(heightMap[endBoxRow * terrainLength + startBoxCol], heightMap[startBoxRow * terrainLength + endBoxCol]));
+                    }
                     height += Player.BOUNCE_HEIGHT;
 
                     JumpTheGun.Parabola.Create(startY, height, endY, out float a, out float b, out float c);
 
-                    // TODO: duration affected by distance to end box
-                    //Vector2 startPos = new Vector2(startBox.col, startBox.row);
-                    //Vector2 endPos = new Vector2(endBox.col, endBox.row);
-                    //float dist = Vector2.Distance(startPos, endPos);
-                    float dist = 1.0f;
+                    float2 startPos = new float2(startBoxCol, startBoxRow);
+                    float2 endPos = new float2(endBoxCol, endBoxRow);
+                    float dist = math.distance(startPos, endPos);
                     float duration = math.max(1, dist) * Player.BOUNCE_BASE_DURATION;
 
                     ecb.AddComponent(entity, new Parabola

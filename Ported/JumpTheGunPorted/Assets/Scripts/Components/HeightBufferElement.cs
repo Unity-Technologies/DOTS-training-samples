@@ -9,7 +9,7 @@ public struct HeightBufferElement : IBufferElementData
 {
     // These implicit conversions are optional, but can help reduce typing.
     public static implicit operator float(HeightBufferElement e) { return e.Value; }
-    public static implicit operator HeightBufferElement(int e) { return new HeightBufferElement { Value = e }; }
+    public static implicit operator HeightBufferElement(float e) { return new HeightBufferElement { Value = e }; }
 
     // Actual value each buffer element will store.
     public float Value;

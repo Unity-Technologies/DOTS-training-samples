@@ -31,13 +31,13 @@ public class SpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 // build terrain
-                for (int i = 0; i < spawner.TerrainLength; ++i)
+                for (int i = 0; i < spawner.TerrainWidth; ++i)
                 {
-                    for (int j = 0; j < spawner.TerrainWidth; ++j)
+                    for (int j = 0; j < spawner.TerrainLength; ++j)
                     {
                         float height = random.NextFloat(spawner.MinTerrainHeight, spawner.MaxTerrainHeight);
                         heightMap.Add((HeightBufferElement) height);
-
+                        
                         var box = ecb.Instantiate(spawner.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
                         {
@@ -51,7 +51,7 @@ public class SpawnerSystem : SystemBase
 
                         ecb.SetComponent(box, new Translation
                         {
-                            Value = new float3(i, height /  2, j) // reposition halfway to heigh to level all at 0 plane
+                            Value = new float3(j, height / 2, i) // reposition halfway to heigh to level all at 0 plane
                         });
                     }
                 }
@@ -60,7 +60,8 @@ public class SpawnerSystem : SystemBase
                 var player = ecb.Instantiate(spawner.PlayerPrefab);
                 int boxX = spawner.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
                 int boxY = spawner.TerrainWidth / 2;
-                float boxHeight = heightMap[boxY * spawner.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
+                float boxHeight = heightMap[boxY * spawner.TerrainLength + boxX]; // use box height map to figure out starting y
+                UnityEngine.Debug.Log(boxX + " " + boxY + " = " + boxHeight + "***********");
                 ecb.SetComponent(player, new Translation
                 {
                     Value = new float3(boxX, boxHeight + Player.Y_OFFSET, boxY) // reposition halfway to heigh to level all at 0 plane
