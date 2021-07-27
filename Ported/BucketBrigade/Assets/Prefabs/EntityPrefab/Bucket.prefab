@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4063074243886014560}
   - component: {fileID: 7518860746032515387}
   m_Layer: 0
-  m_Name: BucketThrower
+  m_Name: Bucket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,3 +60,5 @@ MonoBehaviour:
   KeepTranslation: 0
   KeepScale: 0
   KeepRotation: 0
+  KeepLocalToWorld: 0
+  KeepLinkedEntityGroup: 0

@@ -11,8 +11,11 @@ GameObject:
   - component: {fileID: 7583228276367364920}
   - component: {fileID: 4063074243886014560}
   - component: {fileID: 7518860746032515387}
+  - component: {fileID: -829350713080602850}
+  - component: {fileID: -1421833006520083947}
+  - component: {fileID: -1645985214237558228}
   m_Layer: 0
-  m_Name: BucketThrower
+  m_Name: BucketFetcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,3 +63,42 @@ MonoBehaviour:
   KeepTranslation: 0
   KeepScale: 0
   KeepRotation: 0
+  KeepLinkedEntityGroup: 0
+--- !u!114 &-829350713080602850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8ddff66cab141c6aafc5a3e7711851b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-1421833006520083947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d763883d8264689aba5d3885fa73309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id: -1
+--- !u!114 &-1645985214237558228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a435d5fa3b4ee2be7b03b8ef62e035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id: -1
