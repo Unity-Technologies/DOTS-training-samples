@@ -92,6 +92,8 @@ namespace src.Systems
                         {
                             // If in range, drop it at water location.
                             pos.Value += math.normalizesafe(deltaToTeam) * timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket;
+                            // Update bucket position
+                            concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position() { Value = pos.Value});
                         }
                         else
                         {
