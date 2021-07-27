@@ -12,7 +12,10 @@ public class BounceSystem : SystemBase
         var heightMapEntity = GetSingletonEntity<HeightBufferElement>();
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
 
-        int terrainLength = 15; // spawner.TerrainLength; // TODO: we destroyed the spawner entity at start, where/how do we want to store the terrain length needed to figure out the height map
+        // need terrain length to calculate index to our height map array
+        var refs = this.GetSingleton<GameObjectRefs>();
+        var config = refs.Config.Data;
+        int terrainLength = config.TerrainLength;
 
         Entities
             .ForEach((Entity entity, ref ParabolaTValue tValue, in Translation translation, in Player playerTag) =>
