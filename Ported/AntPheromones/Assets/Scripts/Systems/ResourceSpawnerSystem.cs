@@ -20,6 +20,7 @@ public class ResourceSpawnerSystem : SystemBase
 					{
 						Value = new float3(mapSize/5f,mapSize/5f,0f)
 					});
+					ecb.AddComponent(resourceEntity, new Resource());
 				}).Run();
 
 

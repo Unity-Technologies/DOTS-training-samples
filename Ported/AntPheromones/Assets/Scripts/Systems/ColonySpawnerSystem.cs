@@ -20,6 +20,7 @@ public class ColonySpawnerSystem : SystemBase
                     {
                         Value = new float3(mapSize/2f,mapSize/2f,0f)
                     });
+                    ecb.AddComponent(colonyEntity, new Colony());
                 }).Run();
 
 
