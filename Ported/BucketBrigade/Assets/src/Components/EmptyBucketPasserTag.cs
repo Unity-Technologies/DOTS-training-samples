@@ -6,6 +6,7 @@ namespace src.Components
     /// <summary>
     ///     
     /// </summary>
+    [GenerateAuthoringComponent]
     public struct EmptyBucketPasserTag : IComponentData
     {
     }
