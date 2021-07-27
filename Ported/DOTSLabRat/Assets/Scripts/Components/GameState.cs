@@ -17,7 +17,6 @@ namespace DOTSRATS
         public float timer;
         public GamePhase gamePhase;
         public float2 arrowPlacementRate;
-        public int maxWalls;
         // BoardArray
     }
 }
