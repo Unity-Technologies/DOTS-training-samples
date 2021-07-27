@@ -243,6 +243,7 @@ GameObject:
   - component: {fileID: 8073156}
   - component: {fileID: 8073155}
   - component: {fileID: 8073154}
+  - component: {fileID: 8073157}
   m_Layer: 0
   m_Name: Fire Sim Config
   m_TagString: Untagged
@@ -265,6 +266,8 @@ MonoBehaviour:
   FullBucketPasserWorkerPrefab: {fileID: 4172664212239075065, guid: d887ab433785afb48af140e991861e8a,
     type: 3}
   EmptyBucketPasserWorkerPrefab: {fileID: 4172664212239075065, guid: 1cf1b7cfb0c0793428a7ef4831e2a004,
+    type: 3}
+  BucketFetcherPrefab: {fileID: 4172664212239075065, guid: a6eb2afeacd243e4d99b5ebd5d2d374e,
     type: 3}
   BucketThrowerWorkerPrefab: {fileID: 4172664212239075065, guid: 4d50be49245d50044880b0d97b9c7535,
     type: 3}
@@ -299,6 +302,30 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8073157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8073153}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d134c91abd7be446b24774b30004d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StartingFireCount: 1
+  MaxFlameHeight: 0.1
+  CellSize: 0.05
+  Rows: 20
+  Columns: 20
+  Flashpoint: 0.5
+  HeatRadius: 1
+  HeatTransferRate: 0.7
+  FireSimUpdateRate: 0.5
+  WorkerSpeed: 4
+  WorkerSpeedWhenHoldingBucket: 2
+  DistanceToPickupBucket: 1
 --- !u!1001 &42460135
 PrefabInstance:
   m_ObjectHideFlags: 0
