@@ -169,6 +169,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Camera: {fileID: 963194227}
   Config: {fileID: 1702529456}
+  BoxPrefab: {fileID: 7065276215041349323, guid: cadd2d4222b51114eba8ce65cdcd6ae6,
+    type: 3}
+  PlayerPrefab: {fileID: 7065276215041349323, guid: 9cf35c1f71ad217459adc2535bf96355,
+    type: 3}
+  TankPrefab: {fileID: 1285056113001856, guid: 1a6e6c73e1404e543b5887b6f723d4a5, type: 3}
 --- !u!114 &93403117
 MonoBehaviour:
   m_ObjectHideFlags: 0

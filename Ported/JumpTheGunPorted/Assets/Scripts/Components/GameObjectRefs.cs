@@ -8,4 +8,8 @@ public class GameObjectRefs : IComponentData
 {
     public UnityCamera Camera;
     public Config Config;
+
+    public Entity BoxPrefab;
+    public Entity PlayerPrefab;
+    public Entity TankPrefab;
 }

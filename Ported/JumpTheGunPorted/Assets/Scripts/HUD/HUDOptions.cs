@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Entities;
+using UnityEngine;
 
 public class HUDOptions : MonoBehaviour
 {
@@ -69,6 +70,6 @@ public class HUDOptions : MonoBehaviour
 	
 	public void OnRestart()
 	{
-		// TODO: Create Spawner entity here
+		World.DefaultGameObjectInjectionWorld.EntityManager.CreateEntity(typeof(Spawner));
 	}
 }
