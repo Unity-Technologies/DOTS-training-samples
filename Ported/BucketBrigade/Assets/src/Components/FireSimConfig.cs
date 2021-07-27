@@ -73,7 +73,7 @@ namespace src.Components
 
         void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int row, int column, float temperature)
         {
-            if (row >= 0 || column >= 0 || row < Rows || column < Columns)
+            if (row >= 0 && column >= 0 && row < Rows && column < Columns)
             {
                 int cellIndex = column + row * Columns;
 
