@@ -6,11 +6,17 @@ using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
-    public static readonly float4 MIN_HEIGHT_COLOR = new float4(0, 1, 0, 1);
-    public static readonly float4 MAX_HEIGHT_COLOR = new float4(99 / 255f, 47 / 255f, 0 / 255f, 1);
-
-    public const float HEIGHT_MIN = .5f;
-    public static readonly float maxTerrainHeight = 10.0f; // TODO: get from config instead
+    private static readonly float4 MIN_HEIGHT_COLOR = new float4(0, 1, 0, 1);
+    private static readonly float4 MAX_HEIGHT_COLOR = new float4(99 / 255f, 47 / 255f, 0 / 255f, 1);
+    
+    private EntityQuery _PlayerEntityQuery;
+    private EntityQuery _BoxEntityQuery;
+    
+    protected override void OnCreate()
+    {
+        _PlayerEntityQuery = EntityManager.CreateEntityQuery(typeof(Player));
+        _BoxEntityQuery = EntityManager.CreateEntityQuery(typeof(NonUniformScale)); // TODO: Reinforce this maybe
+    }
 
     protected override void OnUpdate()
     {
@@ -25,20 +31,27 @@ public class SpawnerSystem : SystemBase
         var heightMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement));
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
 
+        var refs = this.GetSingleton<GameObjectRefs>();
+        
         Entities
-            .ForEach((Entity entity, in Spawner spawner) =>
+            .WithAll<Spawner>()
+            .WithoutBurst()
+            .ForEach((Entity entity) =>
             {
+                var config = refs.Config.Data;
+                
                 ecb.DestroyEntity(entity);
 
                 // build terrain
+                ecb.DestroyEntitiesForEntityQuery(_BoxEntityQuery);
                 for (int i = 0; i < spawner.TerrainWidth; ++i)
                 {
                     for (int j = 0; j < spawner.TerrainLength; ++j)
                     {
-                        float height = random.NextFloat(spawner.MinTerrainHeight, spawner.MaxTerrainHeight);
+                        float height = random.NextFloat(config.MinTerrainHeight, config.MaxTerrainHeight);
                         heightMap.Add((HeightBufferElement) height);
-                        
-                        var box = ecb.Instantiate(spawner.BoxPrefab);
+
+                        var box = ecb.Instantiate(refs.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
                         {
                             Value = new float3(1, height, 1)
@@ -46,7 +59,7 @@ public class SpawnerSystem : SystemBase
 
                         ecb.SetComponent(box, new URPMaterialPropertyBaseColor
                         {
-                            Value = GetColorForHeight(height, spawner.MaxTerrainHeight)
+                            Value = GetColorForHeight(height, config.MinTerrainHeight, config.MaxTerrainHeight)
                         });
 
                         ecb.SetComponent(box, new Translation
@@ -57,11 +70,16 @@ public class SpawnerSystem : SystemBase
                 }
 
                 // new fresh player at proper x/y and height and empty parabola t value
+                ecb.DestroyEntitiesForEntityQuery(_PlayerEntityQuery);
                 var player = ecb.Instantiate(spawner.PlayerPrefab);
-                int boxX = spawner.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
-                int boxY = spawner.TerrainWidth / 2;
-                float boxHeight = heightMap[boxY * spawner.TerrainLength + boxX]; // use box height map to figure out starting y
-                UnityEngine.Debug.Log(boxX + " " + boxY + " = " + boxHeight + "***********");
+                int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
+                int boxY = config.TerrainWidth / 2;
+                float boxHeight = heightMap[boxY * config.TerrainLength + boxX]; // use box height map to figure out starting y
+                
+                var player = ecb.Instantiate(refs.PlayerPrefab);
+                int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
+                int boxY = config.TerrainWidth / 2;
+                float boxHeight = heightMap[boxY * config.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
                 ecb.SetComponent(player, new Translation
                 {
                     Value = new float3(boxX, boxHeight + Player.Y_OFFSET, boxY) // reposition halfway to heigh to level all at 0 plane
@@ -85,20 +103,21 @@ public class SpawnerSystem : SystemBase
     /// 
     /// </summary>
     /// <param name="height"></param>
+    /// <param name="minTerrainHeight"></param>
     /// <param name="maxTerrainHeight"></param>
     /// <returns></returns>
-    public static float4 GetColorForHeight(float height, float maxTerrainHeight)
+    private static float4 GetColorForHeight(float height, float minTerrainHeight, float maxTerrainHeight)
     {
         float4 color;
 
         // change color based on height
-        if (math.abs(maxTerrainHeight - HEIGHT_MIN) < math.EPSILON) // special case, if max is close to min just color as min height
+        if (math.abs(maxTerrainHeight - minTerrainHeight) < math.EPSILON) // special case, if max is close to min just color as min height
         {
             color = MIN_HEIGHT_COLOR;
         }
         else
         {
-            color = math.lerp(MIN_HEIGHT_COLOR, MAX_HEIGHT_COLOR, (height - HEIGHT_MIN) / (maxTerrainHeight - HEIGHT_MIN));
+            color = math.lerp(MIN_HEIGHT_COLOR, MAX_HEIGHT_COLOR, (height - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
         }
 
         return color;
