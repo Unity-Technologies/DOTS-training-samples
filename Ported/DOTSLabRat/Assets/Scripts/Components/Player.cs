@@ -1,4 +1,5 @@
 using Unity.Entities;
+using UnityEngine;
 
 namespace DOTSRATS
 {
@@ -7,6 +8,6 @@ namespace DOTSRATS
     {
         public int playerNumber;
         public UnityEngine.Color color;
-        public int score;
+        [HideInInspector] public int score;
     }
 }

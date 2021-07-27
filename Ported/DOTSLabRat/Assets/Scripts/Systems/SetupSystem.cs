@@ -21,6 +21,7 @@ public class SetupSystem : SystemBase
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
+                int playerNumber = 0;
 
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
@@ -45,6 +46,10 @@ public class SetupSystem : SystemBase
                             SpawnWall(boardSpawner, new int2(x, z), x == 0 ? Direction.West : Direction.East, ref cell);
                         if (z == 0 || z == size - 1)
                             SpawnWall(boardSpawner, new int2(x, z), z == 0 ? Direction.South : Direction.North, ref cell);
+
+                        //spawn goals
+                        if (ShouldPlaceGoalTile(new int2(x, z), size))
+                            SpawnGoal(boardSpawner, new int2(x, z), playerNumber++, ref cell);
 
                         cellStructs.Append(cell);
                     }
@@ -89,6 +94,20 @@ public class SetupSystem : SystemBase
         cellStruct.wallLayout |= direction;
 
         return wall;
+    }
+    
+    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct)
+    {
+        Entity goal = default;
+        float3 position = new float3(coord.x, -0.5f, coord.y);
+
+        goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
+        EntityManager.SetComponentData(goal, new Translation() { Value = position });
+        EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
+
+        cellStruct.goal = goal;
+
+        return goal;
     }
 
     // TODO: also return player id as an out variable
