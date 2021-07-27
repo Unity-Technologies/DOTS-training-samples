@@ -28,21 +28,83 @@ public class SetupSystem : SystemBase
                 EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
                 var cellStructs = EntityManager.AddBuffer<CellStruct>(gameState);
                 
-                // Spawn tiles
+                
                 for (int z = 0; z < size; ++z)
                 {
                     for (int x = 0; x < size; ++x)
                     {
+                        // Spawn tiles
                         var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
                         var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
                         var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
                         EntityManager.SetComponentData(tile, translation);
+                        var cell = new CellStruct();
 
-                        cellStructs.Append(new CellStruct());
+                        // Spawn outer walls
+                        if (x == 0 || x == size - 1)
+                            SpawnWall(boardSpawner, new int2(x, z), x == 0 ? Direction.West : Direction.East, ref cell);
+                        if (z == 0 || z == size - 1)
+                            SpawnWall(boardSpawner, new int2(x, z), z == 0 ? Direction.South : Direction.North, ref cell);
+
+                        cellStructs.Append(cell);
                     }
                 }
 
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }
+
+    public Entity SpawnWall(BoardSpawner boardSpawner, int2 coord, Direction direction, ref CellStruct cellStruct)
+    {
+        Entity wall = default;
+        
+        float3 position = new float3(coord.x, 0.25f, coord.y);
+        quaternion rotation = quaternion.identity;
+
+        switch (direction)
+        {
+            case Direction.North:
+                position += new float3(0f, 0f, 0.5f);
+                rotation = quaternion.AxisAngle(math.up(), math.radians(90f));
+                break;
+            
+            case Direction.South:
+                position += new float3(0f, 0f, -0.5f);
+                rotation = quaternion.AxisAngle(math.up(), math.radians(90f));
+                break;
+            
+            case Direction.East:
+                position += new float3(0.5f, 0f, 0f);
+                break;
+            
+            case Direction.West:
+                position += new float3(-0.5f, 0f, 0f);
+                break;
+        }
+        
+        wall = EntityManager.Instantiate(boardSpawner.wallPrefab);
+        EntityManager.SetComponentData(wall, new Translation() { Value = position });
+        EntityManager.SetComponentData(wall, new Rotation() { Value = rotation });
+
+        cellStruct.wallLayout |= direction;
+
+        return wall;
+    }
+
+    // TODO: also return player id as an out variable
+    public bool ShouldPlaceGoalTile(int2 coord, int boardSize)
+    {
+        var halfSize = boardSize / 2;
+        var midCoord = halfSize + (boardSize % 2 == 0 ? 1 : 2);
+        var offsetFromCenter = halfSize / 6;
+        
+        if ((coord.x == (halfSize - offsetFromCenter - 1) || coord.x == (midCoord + offsetFromCenter - 1)) &&
+            (coord.y == (halfSize - offsetFromCenter - 1) || coord.y == (midCoord + offsetFromCenter - 1)))
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
 }
