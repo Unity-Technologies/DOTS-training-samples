@@ -41,7 +41,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4390796380579536}
   - component: {fileID: 33845497183522504}
-  - component: {fileID: 65423542457529928}
   - component: {fileID: 23706683454862814}
   m_Layer: 0
   m_Name: EarL
@@ -72,19 +71,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1780733835329128}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65423542457529928
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1780733835329128}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &23706683454862814
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -136,7 +122,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4415606136193240}
   - component: {fileID: 33287682254422682}
-  - component: {fileID: 65323138299228602}
   - component: {fileID: 23529203214699200}
   m_Layer: 0
   m_Name: EarR
@@ -167,19 +152,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1860067280529358}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65323138299228602
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1860067280529358}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &23529203214699200
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -231,9 +203,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4738444682991010}
   - component: {fileID: 33478659056517618}
-  - component: {fileID: 65528252140383342}
   - component: {fileID: 23644074922838098}
-  - component: {fileID: 54888757612839202}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -265,19 +235,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1991230468250066}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65528252140383342
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991230468250066}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &23644074922838098
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -319,19 +276,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &54888757612839202
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1991230468250066}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 1
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
