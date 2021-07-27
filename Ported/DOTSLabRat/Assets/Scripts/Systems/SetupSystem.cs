@@ -27,7 +27,7 @@ public class SetupSystem : SystemBase
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
                 EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
-                var cellStructs = EntityManager.AddBuffer<CellStruct>(gameState);
+                var cellStructs = new NativeArray<CellStruct>(size * size, Allocator.TempJob);
 
                 for (int z = 0; z < size; ++z)
                 {
@@ -46,9 +46,11 @@ public class SetupSystem : SystemBase
                         if (z == 0 || z == size - 1)
                             SpawnWall(boardSpawner, new int2(x, z), z == 0 ? Direction.South : Direction.North, ref cell);
 
-                        cellStructs.Append(cell);
+                        cellStructs[z * size + x] = cell;
                     }
                 }
+
+                EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
 
                 SetAnimalSpawners(size);
                 EntityManager.DestroyEntity(entity);
@@ -111,7 +113,7 @@ public class SetupSystem : SystemBase
     public void SetAnimalSpawners(int boardSize)
     {
         float3 ratSpawnPoint = new float3 ( 0.5f, -.5f, 0.5f );
-        float3 catSpawnPoint = new float3(boardSize - 0.5f, -.5f, 0);
+        float3 catSpawnPoint = new float3(boardSize - 0.5f, -.5f, 0.5f);
         Entities
             .WithStructuralChanges()
             .WithAny<RatSpawner>()

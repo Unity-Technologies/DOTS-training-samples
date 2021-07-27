@@ -7,7 +7,7 @@ public class Movement : SystemBase
 {
     protected override void OnUpdate()
     {
-        var time = (float)Time.ElapsedTime;
+        var deltaTime = Time.DeltaTime;
 
         var gameStateEntity = GetSingletonEntity<GameState>();
         var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
@@ -19,10 +19,10 @@ public class Movement : SystemBase
             .WithReadOnly(cellStructs)
             .ForEach((ref Translation translation, ref Velocity velocity) =>
             {
-                var newTranslation = translation.Value + time * velocity.Direction.ToFloat3() * velocity.Speed;
+                var newTranslation = translation.Value + deltaTime * velocity.Direction.ToFloat3() * velocity.Speed;
 
                 // Are we crossing the center of a tile?
-                var newTile = (int3)(newTranslation + 0.5f);
+                var newTile = (int3)newTranslation;
                 var tileCenter = (float3)newTile + 0.5f;
                 if (newTranslation.x >= tileCenter.x != translation.Value.x >= tileCenter.x ||
                     newTranslation.z >= tileCenter.z != translation.Value.z >= tileCenter.z)

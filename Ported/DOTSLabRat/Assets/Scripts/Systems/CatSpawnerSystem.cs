@@ -23,6 +23,7 @@ namespace DOTSRATS
                         {
                             var instance = ecb.Instantiate(catSpawner.catPrefab);
                             ecb.SetComponent(instance, translation);
+                            ecb.AddComponent(instance, new Velocity{Direction = Direction.North, Speed = 1f});
                         }
                     }
                 }).Run();
