@@ -4,4 +4,5 @@ public struct AntSpawner : IComponentData
 {
     public Entity AntPrefab;
     public int AntCount;
+    public float Acceleration;
 }

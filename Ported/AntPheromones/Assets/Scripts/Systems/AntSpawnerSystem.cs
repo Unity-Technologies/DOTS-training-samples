@@ -31,6 +31,10 @@ public class AntSpawnerSystem : SystemBase
                         {
                             Value = 0f
                         });
+                        ecb.AddComponent(spawnedEntity, new Acceleration()
+                        {
+                            Value = spawner.Acceleration
+                        });
                         ecb.AddComponent(spawnedEntity, new FacingAngle()
                         {
                             Value = rand.NextFloat() * math.PI * 2f

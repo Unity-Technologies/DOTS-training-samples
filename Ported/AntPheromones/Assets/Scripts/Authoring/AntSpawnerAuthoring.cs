@@ -10,6 +10,7 @@ public class AntSpawnerAuthoring : UnityMonoBehaviour
 {
     public UnityGameObject AntPrefab;
     [UnityRange(1, 1000)] public int AntCount;
+    [UnityRange(0, 1)] public float Acceleration;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -26,7 +27,8 @@ public class AntSpawnerAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new AntSpawner
         {
             AntPrefab = conversionSystem.GetPrimaryEntity(AntPrefab),
-            AntCount = AntCount
+            AntCount = AntCount,
+            Acceleration = Acceleration
         });
     }
 }
