@@ -36,9 +36,9 @@ namespace src.Systems
                 .WithoutBurst()
                 .WithName("DrawBuckets")
                 .WithAll<EcsBucket>()
-                .ForEach((in Position pos) =>
+                .ForEach((in Position pos, in EcsBucket bucket) =>
                 {
-                    DrawCross(new Vector3(pos.Value.x, 5.0f, pos.Value.y), 2, Color.blue);
+                    DrawCross(new Vector3(pos.Value.x, 5.0f, pos.Value.y), 1.0f + bucket.WaterLevel * 4.0f, Color.Lerp(Color.white, Color.blue, bucket.WaterLevel));
                 }).Run();
 
 
