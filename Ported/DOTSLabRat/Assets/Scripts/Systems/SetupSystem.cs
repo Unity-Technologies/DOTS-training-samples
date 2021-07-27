@@ -50,6 +50,7 @@ public class SetupSystem : SystemBase
                     }
                 }
 
+                SetAnimalSpawners(size);
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }
@@ -107,4 +108,28 @@ public class SetupSystem : SystemBase
         return false;
     }
 
+    public void SetAnimalSpawners(int boardSize)
+    {
+        float3 ratSpawnPoint = new float3 ( 0.5f, -.5f, 0.5f );
+        float3 catSpawnPoint = new float3(boardSize - 0.5f, -.5f, 0);
+        Entities
+            .WithStructuralChanges()
+            .WithAny<RatSpawner>()
+            .ForEach((Entity entity) =>
+            {
+                EntityManager.AddComponent<InPlay>(entity);
+                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = ratSpawnPoint });
+                ratSpawnPoint = new float3(boardSize - 0.5f, 0, boardSize - 0.5f);
+            }).Run();
+
+        Entities
+            .WithStructuralChanges()
+            .WithAny<CatSpawner>()
+            .ForEach((Entity entity) =>
+            {
+                EntityManager.AddComponent<InPlay>(entity);
+                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = catSpawnPoint });
+                catSpawnPoint = new float3(catSpawnPoint.z, 0, catSpawnPoint.x);
+            }).Run();
+    }
 }
