@@ -8,6 +8,8 @@ using Unity.Entities;
 public struct Spawner : IComponentData
 {
     public Entity BoxPrefab;
+    public Entity PlayerPrefab;
+    public Entity TankPrefab;
 
     public int TerrainLength;
     public int TerrainWidth;

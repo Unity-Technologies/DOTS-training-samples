@@ -27,13 +27,16 @@ public class SpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
+                // build terrain
+                // TODO: NativeArray<float> heightMap = new NativeArray<float>(new float[spawner.TerrainLength * spawner.TerrainWidth], Allocator.Temp); // TODO: make this its own entity/comp using DynamicBuffer for later lookup
                 for (int i = 0; i < spawner.TerrainLength; ++i)
                 {
                     for (int j = 0; j < spawner.TerrainWidth; ++j)
                     {
-                        var box = ecb.Instantiate(spawner.BoxPrefab);
-
                         float height = random.NextFloat(spawner.MinTerrainHeight, spawner.MaxTerrainHeight);
+                        //TODO: heightMap[i * spawner.TerrainLength + j] = height;
+
+                        var box = ecb.Instantiate(spawner.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
                         {
                             Value = new float3(1, height, 1)
@@ -50,6 +53,22 @@ public class SpawnerSystem : SystemBase
                         });
                     }
                 }
+
+                // TODO: spawn tanks (barrels/turrets too?) at whatever random logic the original game did
+
+                var player = ecb.Instantiate(spawner.PlayerPrefab);
+                // TODO: spawn player at which box ???
+                int boxX = spawner.TerrainLength / 2;
+                int boxY = spawner.TerrainWidth / 2;
+                float boxHeight = spawner.MaxTerrainHeight; // TODO: heightMap[boxY * spawner.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
+                ecb.SetComponent(player, new Translation
+                {
+                    Value = new float3(boxX + 0.5f, boxHeight + Player.Y_OFFSET, boxY + 0.5f) // reposition halfway to heigh to level all at 0 plane
+                });
+                ecb.AddComponent(player, new ParabolaTValue
+                {
+                    Value = -1 // less than zero will trigger recalculate the next bounce parabola
+                });
             }).Run();
 
         ecb.Playback(EntityManager);

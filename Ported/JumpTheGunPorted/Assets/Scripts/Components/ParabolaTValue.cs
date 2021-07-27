@@ -7,5 +7,5 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct ParabolaTValue : IComponentData
 {
-    float value;
+    public float Value;
 }

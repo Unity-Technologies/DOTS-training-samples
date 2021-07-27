@@ -7,4 +7,12 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct Player : IComponentData
 {
+    /// <summary>
+    /// Raise player's origin this much above the top of a box.
+    /// </summary>
+    public const float Y_OFFSET = .3f;
+
+    public const float BOUNCE_HEIGHT = 2;
+
+    public const float BOUNCE_BASE_DURATION = .7f;
 }

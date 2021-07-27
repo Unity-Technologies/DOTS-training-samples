@@ -8,11 +8,13 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct Parabola : IComponentData
 {
-    float startTime;
-    float heightStart;
-    float heightMax;
+    public float StartY;
+    public float Height;
+    public float EndY;
 
-    // TODO: don't we need these to calculate position per frame?
-    float2 startPosition;
-    float2 endPosition;
+    public float A;
+    public float B;
+    public float C;
+
+    public float Duration;
 }

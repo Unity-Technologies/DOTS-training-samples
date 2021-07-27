@@ -7,10 +7,10 @@ public class TankFiringystem : SystemBase
     {
         var time = Time.ElapsedTime;
 
-        Entities
-            .ForEach((ref Translation translation, in Movement movement) =>
+        /*Entities
+            .ForEach((ref Translation translation, TODO) =>
             {
                 // TODO: tank firing logic
-            }).ScheduleParallel();
+            }).ScheduleParallel();*/
     }
 }

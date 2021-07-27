@@ -7,6 +7,6 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct AimDirection : IComponentData
 {
-    float yaw;
-    float pitch;
+    public float Yaw;
+    public float Pitch;
 }
