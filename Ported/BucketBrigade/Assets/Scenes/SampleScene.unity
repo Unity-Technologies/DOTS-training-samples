@@ -326,6 +326,7 @@ MonoBehaviour:
   WorkerSpeed: 4
   WorkerSpeedWhenHoldingBucket: 2
   DistanceToPickupBucket: 1
+  WaterFillUpDuration: 4
 --- !u!1001 &42460135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1843,7 +1844,7 @@ MonoBehaviour:
   columns: 50
   flashpoint: 0.2
   heatRadius: 2
-  heatTransferRate: 0.0003
+  heatTransferRate: 0.0004
   fireSimUpdateRate: 0.01
   colour_fireCell_neutral: {r: 0.48885423, g: 0.7924528, b: 0.45977217, a: 0}
   colour_fireCell_cool: {r: 1, g: 0.9884242, b: 0.514151, a: 0}
@@ -1866,9 +1867,25 @@ MonoBehaviour:
     passers_FULL: 3
   - passers_EMPTY: 3
     passers_FULL: 3
+  - passers_EMPTY: 3
+    passers_FULL: 3
+  - passers_EMPTY: 2
+    passers_FULL: 2
+  - passers_EMPTY: 2
+    passers_FULL: 2
+  - passers_EMPTY: 2
+    passers_FULL: 2
+  - passers_EMPTY: 1
+    passers_FULL: 1
+  - passers_EMPTY: 1
+    passers_FULL: 1
+  - passers_EMPTY: 1
+    passers_FULL: 1
+  - passers_EMPTY: 1
+    passers_FULL: 1
   botSpeed: 0.075
   waterCarryAffect: 0.5
-  total_OMNIBOTS: 1
+  total_OMNIBOTS: 0
   allBuckets: []
   allWater: []
 --- !u!4 &410720148
