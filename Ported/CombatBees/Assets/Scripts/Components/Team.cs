@@ -1,5 +1,9 @@
 using Unity.Entities;
 
-public struct Team : IComponentData
+public struct TeamA : IComponentData
+{
+}
+
+public struct TeamB : IComponentData
 {
 }

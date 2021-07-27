@@ -10,7 +10,6 @@ public enum BeeState
 
 public struct Bee : IComponentData
 {
-    public Team Team;
     public BeeState State;
     public Entity Target;
 }

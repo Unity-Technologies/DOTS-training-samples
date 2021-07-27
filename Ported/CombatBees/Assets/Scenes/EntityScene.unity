@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 402190650}
   - component: {fileID: 402190651}
   m_Layer: 0
-  m_Name: SpawnConfig
+  m_Name: SpawnBeeConfig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163,18 +163,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 402190649}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84f421af311f9ec4a8105d2be5b0d8f2, type: 3}
+  m_Script: {fileID: 11500000, guid: 22996768cf3185a439fb0fabac3f3bd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeeSize:
+  BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
+  SpawnLocation:
     x: 0
     y: 0
     z: 0
-  BaseSize:
-    x: 0
-    y: 0
-    z: 0
-  ResourceSize:
-    x: 0
-    y: 0
-    z: 0
+  SpawnAreaSize:
+    x: 1
+    y: 1
+    z: 1
+  BeeCount: 10
