@@ -22,17 +22,16 @@ public class Movement : SystemBase
                 var newTranslation = translation.Value + deltaTime * velocity.Direction.ToFloat3() * velocity.Speed;
 
                 // Are we crossing the center of a tile?
-                var newTile = (int3)newTranslation;
-                var tileCenter = (float3)newTile + 0.5f;
+                var tileCenter = (int3)(newTranslation + 0.5f);
                 if (newTranslation.x >= tileCenter.x != translation.Value.x >= tileCenter.x ||
                     newTranslation.z >= tileCenter.z != translation.Value.z >= tileCenter.z)
                 {
-                    var cell = cellStructs[newTile.z * gameState.boardSize + newTile.x];
+                    var cell = cellStructs[tileCenter.z * gameState.boardSize + tileCenter.x];
 
                     if (cell.hole)
                     {
                         velocity.Direction = Direction.Down;
-                        newTranslation = new float3(tileCenter.x, -math.length(newTranslation - tileCenter), tileCenter.z);
+                        newTranslation = new float3(tileCenter.x, translation.Value.y - math.length(newTranslation.xz - tileCenter.xz), tileCenter.z);
                     }
                     // TODO: Goal collision
                     // if (cell.goal)
@@ -55,7 +54,8 @@ public class Movement : SystemBase
 
                         // Tweak new translation according to the (possible) new direction
                         newTranslation =
-                            tileCenter + math.length(newTranslation - tileCenter) * velocity.Direction.ToFloat3();
+                            new float3(tileCenter.x, newTranslation.y, tileCenter.z) +
+                            math.length(newTranslation.xz - tileCenter.xz) * velocity.Direction.ToFloat3();
                     }
                 }
 

@@ -14,7 +14,7 @@ namespace DOTSRATS
             int numRats = GetEntityQuery(ComponentType.ReadOnly<Rat>()).CalculateEntityCount();
             Entities
                 .WithAll<InPlay, RatSpawner>()
-                .ForEach((Entity entity, in RatSpawner ratSpawner, in Translation translation) =>
+                .ForEach((Entity entity, in RatSpawner ratSpawner, in Translation translation, in DirectionData direction) =>
                 {
                     if (numRats < ratSpawner.maxRats)
                     {
@@ -22,6 +22,7 @@ namespace DOTSRATS
                         {
                             var instance = ecb.Instantiate(ratSpawner.ratPrefab);
                             ecb.SetComponent(instance, translation);
+                            ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = 1f});
                         }
                     }
                 }).Run();

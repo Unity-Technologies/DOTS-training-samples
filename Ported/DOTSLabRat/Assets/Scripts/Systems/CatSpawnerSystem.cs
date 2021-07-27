@@ -15,7 +15,7 @@ namespace DOTSRATS
 
             Entities
                 .WithAll<InPlay, CatSpawner>()
-                .ForEach((Entity entity, in CatSpawner catSpawner, in Translation translation) =>
+                .ForEach((Entity entity, in CatSpawner catSpawner, in Translation translation, in DirectionData direction) =>
                 {
                     if (numCats < catSpawner.maxCats)
                     {
@@ -23,7 +23,7 @@ namespace DOTSRATS
                         {
                             var instance = ecb.Instantiate(catSpawner.catPrefab);
                             ecb.SetComponent(instance, translation);
-                            ecb.AddComponent(instance, new Velocity{Direction = Direction.North, Speed = 1f});
+                            ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = 1f});
                         }
                     }
                 }).Run();

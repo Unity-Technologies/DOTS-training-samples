@@ -146,18 +146,22 @@ public class SetupSystem : SystemBase
         Entity catSpawnPointOne = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
         EntityManager.AddComponent<InPlay>(catSpawnPointOne);
         EntityManager.SetComponentData(catSpawnPointOne, new Translation { Value = new float3(0, -0.5f, 0) });
+        EntityManager.AddComponentData(catSpawnPointOne, new DirectionData { Value = Direction.North });
 
         Entity catSpawnPointTwo = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
         EntityManager.AddComponent<InPlay>(catSpawnPointTwo);
         EntityManager.SetComponentData(catSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, boardSize - 1) });
+        EntityManager.AddComponentData(catSpawnPointTwo, new DirectionData { Value = Direction.South });
 
         Entity ratSpawnPointOne = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
         EntityManager.AddComponent<InPlay>(ratSpawnPointOne);
         EntityManager.SetComponentData(ratSpawnPointOne, new Translation { Value = new float3(0, -0.5f, boardSize - 1) });
+        EntityManager.AddComponentData(ratSpawnPointOne, new DirectionData { Value = Direction.East });
 
         Entity ratSpawnPointTwo = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
         EntityManager.AddComponent<InPlay>(ratSpawnPointTwo);
         EntityManager.SetComponentData(ratSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, 0) });
+        EntityManager.AddComponentData(ratSpawnPointTwo, new DirectionData { Value = Direction.West });
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, Random random)
