@@ -12,9 +12,6 @@ class BeeSimulationSystem: SystemBase
         const float aggressivity = 0.5f;
         const float speed = 1.0f;
         const float beeSize = 0.01f;
-        const float targetSize = 0.01f;
-        float collR2 = beeSize + targetSize;
-        collR2 *= collR2;
         Random rng = new Random(123);
 
         EntityCommandBuffer ecb = new EntityCommandBuffer( Allocator.TempJob );
@@ -32,7 +29,7 @@ class BeeSimulationSystem: SystemBase
             .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos) =>
             {
                 // set target if not set
-                if(bee.Target == Entity.Null)
+                if(bee.Target == Entity.Null && bee.State != BeeState.ReturningToBase)
                 {
                     bool fetchResource = resources.Length > 0 && rng.NextFloat() < aggressivity;
                     if(!fetchResource)
@@ -43,6 +40,7 @@ class BeeSimulationSystem: SystemBase
                             {
                                 int beeIdx = rng.NextInt(teamBBees.Length);
                                 bee.Target = teamBBees[beeIdx];
+                                bee.State = BeeState.ChasingEnemy;
                             }
                             else
                                 fetchResource = true;
@@ -53,11 +51,11 @@ class BeeSimulationSystem: SystemBase
                             {
                                 int beeIdx = rng.NextInt(teamABees.Length);
                                 bee.Target = teamABees[beeIdx];
+                                bee.State = BeeState.ChasingEnemy;
                             }
                             else
                                 fetchResource = true;
                         }
-                        bee.State = BeeState.ChasingEnemy;
                     }
                     if(fetchResource)
                     {
@@ -68,18 +66,22 @@ class BeeSimulationSystem: SystemBase
                 }
 
                 // move bee towards the target
-                if(!HasComponent<Translation>(bee.Target))
+                if(bee.Target != Entity.Null && !HasComponent<Translation>(bee.Target))
                 {
                     bee.Target = Entity.Null;
                     bee.State = BeeState.Idle;
                     return;
                 }
-                var targetPos = GetComponent<Translation>(bee.Target);
-                float3 targetVec = targetPos.Value - pos.translation.Value;
+                float3 basePos = HasComponent<TeamA>(entity) ? new float3(-2.0f, 0.5f, 0.0f) : new float3(2.0f, 0.5f, 0.0f);
+                var targetPos = bee.State == BeeState.ReturningToBase ? basePos : GetComponent<Translation>(bee.Target).Value;
+                float3 targetVec = targetPos - pos.translation.Value;
                 float3 dir = math.normalize(targetVec);
                 pos.translation.Value += dir * speed * deltaTime;
 
                 // check collision with target
+                const float targetSize = 0.01f;/*todo: set target size */
+                float collR2 = beeSize + targetSize;
+                collR2 *= collR2;
                 if(math.lengthsq(targetVec) < collR2)
                 {
                     switch(bee.State)
@@ -93,13 +95,13 @@ class BeeSimulationSystem: SystemBase
                             var resource = GetComponent<Resource>(bee.Target);
                             resource.CarryingBee = entity;
                             bee.resource = bee.Target;
-                            bee.Target = Entity.Null; /*todo: set base entity*/
+                            bee.Target = Entity.Null;
                             bee.State = BeeState.ReturningToBase;
                         } break;
 
                         case BeeState.ReturningToBase:
                         {
-                            var resource = GetComponent<Resource>(bee.Target);
+                            var resource = GetComponent<Resource>(bee.resource);
                             resource.CarryingBee = Entity.Null;
                             bee.resource = Entity.Null;
                             bee.Target = Entity.Null;
