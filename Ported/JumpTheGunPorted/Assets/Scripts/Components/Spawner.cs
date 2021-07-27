@@ -8,6 +8,16 @@ using Unity.Entities;
 public struct Spawner : IComponentData
 {
     public Entity BoxPrefab;
+
     public int TerrainLength;
     public int TerrainWidth;
+
+    public float MinTerrainHeight;
+    public float MaxTerrainHeight;
+    public float BoxHeightDamage;
+
+    public int NumOfTanks;
+    public float TankLaunchPeriod;
+    public float CollisionStepMultiplier;
+    public float PlayerParabolaPrecision;
 }

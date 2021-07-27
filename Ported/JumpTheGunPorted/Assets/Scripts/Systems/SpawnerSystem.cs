@@ -33,7 +33,7 @@ public class SpawnerSystem : SystemBase
                     {
                         var box = ecb.Instantiate(spawner.BoxPrefab);
 
-                        float height = random.NextFloat(HEIGHT_MIN, maxTerrainHeight);
+                        float height = random.NextFloat(spawner.MinTerrainHeight, spawner.MaxTerrainHeight);
                         ecb.SetComponent(box, new NonUniformScale
                         {
                             Value = new float3(1, height, 1)
@@ -41,12 +41,12 @@ public class SpawnerSystem : SystemBase
 
                         ecb.SetComponent(box, new URPMaterialPropertyBaseColor
                         {
-                            Value = GetColorForHeight(height)
+                            Value = GetColorForHeight(height, spawner.MaxTerrainHeight)
                         });
 
                         ecb.SetComponent(box, new Translation
                         {
-                            Value = new float3(i, height /  2, j)
+                            Value = new float3(i, height /  2, j) // reposition halfway to heigh to level all at 0 plane
                         });
                     }
                 }
@@ -58,17 +58,18 @@ public class SpawnerSystem : SystemBase
 
     /// <summary>
     /// Helper function to calculate terrain color to use for a given height
-    /// TODO: how/where do we put to share between spawner and ball collision system
+    /// TODO: how/where do we put to share between spawner and ball collision system when it recalculates color based on new height
     /// 
     /// </summary>
     /// <param name="height"></param>
+    /// <param name="maxTerrainHeight"></param>
     /// <returns></returns>
-    public static float4 GetColorForHeight(float height)
+    public static float4 GetColorForHeight(float height, float maxTerrainHeight)
     {
         float4 color;
 
         // change color based on height
-        if (math.abs(maxTerrainHeight - HEIGHT_MIN) < math.EPSILON)
+        if (math.abs(maxTerrainHeight - HEIGHT_MIN) < math.EPSILON) // special case, if max is close to min just color as min height
         {
             color = MIN_HEIGHT_COLOR;
         }
