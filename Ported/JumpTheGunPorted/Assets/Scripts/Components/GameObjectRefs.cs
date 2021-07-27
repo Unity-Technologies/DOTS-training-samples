@@ -7,4 +7,5 @@ using UnityCamera = UnityEngine.Camera;
 public class GameObjectRefs : IComponentData
 {
     public UnityCamera Camera;
+    public Config Config;
 }
