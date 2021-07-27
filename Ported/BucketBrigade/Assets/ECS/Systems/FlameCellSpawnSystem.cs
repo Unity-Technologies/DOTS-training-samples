@@ -48,11 +48,12 @@ public class FlameCellSpawnSystem : SystemBase
             }
         }
 
-        var rand = new Unity.Mathematics.Random();
-        rand.InitState();
+        var rand = new Unity.Mathematics.Random(seed:(uint)System.DateTime.Now.Millisecond);
+        
         for (int i = 0; i < fireCount; i++)
         {
-            var index = rand.NextInt(0, grid * grid);
+            //var index = rand.NextInt(0, grid * grid);
+            var index = 12;
             buffer[index] = new HeatMapElement(){temperature = rand.NextFloat(flashpoint, 1)};
             
 

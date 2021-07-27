@@ -24,9 +24,9 @@ public class FireSimSystem : SystemBase
 
                 var heatContribution = 0f;
 
-                for (int j = math.max(row - rad, 0); j < math.min(row + rad, grid); j++)
+                for (int j = math.max(row - rad, 0); j <= math.min(row + rad, grid-1); j++)
                 {
-                    for (int k = math.max(col - rad, 0); k < math.min(col + rad, grid); k++)
+                    for (int k = math.max(col - rad, 0); k <= math.min(col + rad, grid-1); k++)
                     {
                         var index = k + j * grid;
                         var heat = heatMap[index].temperature;
@@ -42,7 +42,7 @@ public class FireSimSystem : SystemBase
                         }
                         else
                         {
-                            heatContribution = heat;
+                            heatContribution += heat;
                         }
                         
                     }

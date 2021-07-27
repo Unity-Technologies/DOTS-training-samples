@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 412e6788713bcb542883e4f26d4bbcdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SimulationSize: 10
+  SimulationSize: 5
   WaterRefillRate: 0.02
   WaterMaxScale: 0.2
   MinBucketScale: 0.2
@@ -169,10 +169,10 @@ MonoBehaviour:
   FlameDefaultColor: {r: 0.3969552, g: 0.8113208, b: 0.24110004, a: 0.83137256}
   FlameBurnColor: {r: 0.9528302, g: 0.085395135, b: 0.085395135, a: 1}
   FlameColdColor: {r: 0.8962264, g: 0.7177736, b: 0.2325116, a: 1}
-  HeatTrasferRadius: 2
+  HeatTrasferRadius: 1
   HeatFallOff: 0.0003
   FlashPoint: 0.2
-  startingFireCount: 5
+  startingFireCount: 1
   FlameScaleMax: 1
 --- !u!4 &271051949
 Transform:
