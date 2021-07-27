@@ -10,7 +10,6 @@ namespace DOTSRATS
         End = 2
     }
 
-    [GenerateAuthoringComponent]
     public struct GameState : IComponentData
     {
         public int boardSize;

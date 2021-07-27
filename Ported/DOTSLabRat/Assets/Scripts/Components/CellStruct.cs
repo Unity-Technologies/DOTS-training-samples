@@ -1,4 +1,5 @@
 using System;
+using Unity.Entities;
 
 namespace DOTSRATS
 {
@@ -11,7 +12,7 @@ namespace DOTSRATS
         West = 0x0008
     }
 
-    public struct CellStruct
+    public struct CellStruct : IBufferElementData
     {
         public Direction wallLayout;
         public bool hole;
