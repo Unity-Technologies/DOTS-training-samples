@@ -167,6 +167,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ObstaclePrefab: {fileID: 2737088235565343020, guid: 943a185d10f91fb4d81a7300a8784089, type: 3}
-  obstacleRingCount: 0
-  ObstaclesPerRing: 0
-  ObstacleRadius: 0
+  obstacleRingCount: 3
+  ObstaclesPerRing: 0.5
+  ObstacleRadius: 0.5
