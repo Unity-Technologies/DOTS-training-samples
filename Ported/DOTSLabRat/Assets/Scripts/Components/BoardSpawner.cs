@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Rendering;
+using UnityEngine;
 
 [GenerateAuthoringComponent]
 public struct BoardSpawner : IComponentData
@@ -8,7 +9,7 @@ public struct BoardSpawner : IComponentData
     public Entity tilePrefab;
     public Entity wallPrefab;
     public Entity goalPrefab;
-    public int maxWalls;
+    public Vector2Int maxWallsRange;
     public int maxHoles;
 
     public Entity catSpawnerPrefab;

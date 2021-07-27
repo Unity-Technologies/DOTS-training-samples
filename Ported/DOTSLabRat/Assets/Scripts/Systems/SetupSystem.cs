@@ -23,18 +23,31 @@ public class SetupSystem : SystemBase
                 var size = boardSpawner.boardSize;
                 int playerNumber = 0;
 
-                var holesToSpawn = random.NextInt(0, boardSpawner.maxHoles + 1);
-
-                NativeArray<int2> holeCoords = new NativeArray<int2>(holesToSpawn, Allocator.Temp);
-
-                for (int i = 0; i < holesToSpawn; ++i)
-                    holeCoords[i] = GenerateNextHoleCoord(holeCoords, size, random);
-
+                
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
                 EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = 30f});
                 var cellStructs = new NativeArray<CellStruct>(size * size, Allocator.TempJob);
+                
+                // Init hole coordinates
+                var holesToSpawn = random.NextInt(0, boardSpawner.maxHoles + 1);
+                var holeCoords = new NativeArray<int2>(holesToSpawn, Allocator.Temp);
+                for (int i = 0; i < holesToSpawn; ++i)
+                    holeCoords[i] = GenerateNextHoleCoord(holeCoords, size, ref random);
+                
+                // Init inner wall spawn parameters
+                var innerWallsToSpawn = random.NextInt(boardSpawner.maxWallsRange.x, boardSpawner.maxWallsRange.y + 1);
+
+                var wallGenParams = new NativeHashMap<int2, int>(innerWallsToSpawn, Allocator.Temp);
+                var paramsGenerated = 0;
+                
+                while (paramsGenerated < innerWallsToSpawn)
+                {
+                    var spawnParam = GenerateNextWallSpawnParam(wallGenParams, size, ref random, innerWallsToSpawn - paramsGenerated);
+                    paramsGenerated += spawnParam.z;
+                    wallGenParams.Add(new int2(spawnParam.x, spawnParam.y), spawnParam.z);
+                }
 
                 for (int z = 0; z < size; ++z)
                 {
@@ -42,8 +55,9 @@ public class SetupSystem : SystemBase
                     {
                         // Spawn tiles / holes
                         var cell = new CellStruct();
+                        var cellCoord = new int2(x, z);
 
-                        if (!HoleCoordExists(holeCoords, new int2(x, z)))
+                        if (!CoordExistsInArray(new int2(x, z), holeCoords))
                         {
                             var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
                             var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
@@ -55,13 +69,16 @@ public class SetupSystem : SystemBase
 
                         // Spawn outer walls
                         if (x == 0 || x == size - 1)
-                            SpawnWall(boardSpawner, new int2(x, z), x == 0 ? Direction.West : Direction.East, ref cell);
+                            SpawnWall(boardSpawner, cellCoord, x == 0 ? Direction.West : Direction.East, ref cell);
                         if (z == 0 || z == size - 1)
-                            SpawnWall(boardSpawner, new int2(x, z), z == 0 ? Direction.South : Direction.North, ref cell);
+                            SpawnWall(boardSpawner,cellCoord, z == 0 ? Direction.South : Direction.North, ref cell);
+
+                        if (wallGenParams.TryGetValue(cellCoord, out var spawnCount))
+                            SpawnInnerWall(boardSpawner, cellCoord, spawnCount, ref cell);
 
                         //spawn goals
-                        if (ShouldPlaceGoalTile(new int2(x, z), size))
-                            SpawnGoal(boardSpawner, new int2(x, z), playerNumber++, ref cell);
+                        if (ShouldPlaceGoalTile(cellCoord, size))
+                            SpawnGoal(boardSpawner, cellCoord, playerNumber++, ref cell);
 
                         cellStructs[z * size + x] = cell;
                     }
@@ -74,7 +91,7 @@ public class SetupSystem : SystemBase
             }).Run();
     }
 
-    public Entity SpawnWall(BoardSpawner boardSpawner, int2 coord, Direction direction, ref CellStruct cellStruct)
+    Entity SpawnWall(BoardSpawner boardSpawner, int2 coord, Direction direction, ref CellStruct cellStruct)
     {
         Entity wall = default;
         
@@ -109,6 +126,12 @@ public class SetupSystem : SystemBase
         cellStruct.wallLayout |= direction;
 
         return wall;
+    }
+
+    void SpawnInnerWall(BoardSpawner boardSpawner, int2 coord, int amount, ref CellStruct cellStruct)
+    {
+        for (int i = 0; i < amount; i++)
+            SpawnWall(boardSpawner, coord, (Direction) (1 << i), ref cellStruct);
     }
     
     public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct)
@@ -164,7 +187,7 @@ public class SetupSystem : SystemBase
         EntityManager.AddComponentData(ratSpawnPointTwo, new DirectionData { Value = Direction.West });
     }
 
-    int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, Random random)
+    int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, ref Random random)
     {
         int2 nextCoord = int2.zero; 
         do
@@ -172,16 +195,47 @@ public class SetupSystem : SystemBase
             nextCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
         } while (ShouldPlaceGoalTile(nextCoord, boardSize) || 
                  IsCoordEdge(nextCoord, boardSize) || 
-                 HoleCoordExists(holeCoords, nextCoord));
+                 CoordExistsInArray(nextCoord, holeCoords));
 
         return nextCoord;
     }
-
-    bool HoleCoordExists(NativeArray<int2> holeCoords, int2 coord)
+    
+    int3 GenerateNextWallSpawnParam(NativeHashMap<int2, int> spawnParams, int boardSize, ref Random random, int maxSpawnCount)
     {
-        foreach (int2 holeCoord in holeCoords)
+        int2 spawnCoord = int2.zero;
+        
+        // We want to spawn max up to 3 walls per cell, but not more than the number of pending walls to spawn
+        maxSpawnCount = math.min(3, maxSpawnCount);
+        var spawnCount = random.NextInt(1, maxSpawnCount + 1);
+
+        do
         {
-            if (holeCoord.x == coord.x && holeCoord.y == coord.y)
+            spawnCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
+        } while (ShouldPlaceGoalTile(spawnCoord, boardSize) ||
+                 IsCoordCorner(spawnCoord, boardSize) ||
+                 spawnParams.ContainsKey(spawnCoord));
+
+        return new int3(spawnCoord.x, spawnCoord.y, spawnCount);
+    }
+
+    bool CoordExistsInArray(int2 coord, NativeArray<int2> coordArray)
+    {
+        foreach (int2 arrayElement in coordArray)
+        {
+            if (arrayElement.x == coord.x && arrayElement.y == coord.y)
+                return true;
+        }
+
+        return false;
+    }
+    
+    bool CoordExistsInArray(int3 coord, NativeArray<int3> coordArray)
+    {
+        foreach (int3 arrayElement in coordArray)
+        {
+            if (arrayElement.x == coord.x && 
+                arrayElement.y == coord.y &&
+                arrayElement.z == coord.z)
                 return true;
         }
 
