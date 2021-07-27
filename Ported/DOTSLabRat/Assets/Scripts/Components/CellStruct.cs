@@ -19,7 +19,7 @@ namespace DOTSRATS
     {
         public Direction wallLayout;
         public bool hole;
-        // public EntityRef goal;
+        public Entity goal;
         public Direction arrow;
     }
 }
