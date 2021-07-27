@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7518860746032515387}
   - component: {fileID: 8773564630959140869}
   - component: {fileID: 2271634423689943277}
+  - component: {fileID: 7237149421945858838}
   m_Layer: 0
   m_Name: OmniWorker
   m_TagString: Untagged
@@ -62,6 +63,7 @@ MonoBehaviour:
   KeepTranslation: 0
   KeepScale: 0
   KeepRotation: 0
+  KeepLocalToWorld: 0
   KeepLinkedEntityGroup: 0
 --- !u!114 &8773564630959140869
 MonoBehaviour:
@@ -89,3 +91,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: -1
+--- !u!114 &7237149421945858838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f57460d0c9e2455d80ca347930cd39fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0

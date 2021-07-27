@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 7583228276367364920}
   - component: {fileID: 4063074243886014560}
   - component: {fileID: 7518860746032515387}
+  - component: {fileID: -7507415129393053857}
+  - component: {fileID: -1908875567911285325}
   m_Layer: 0
   m_Name: Bucket
   m_TagString: Untagged
@@ -61,4 +63,31 @@ MonoBehaviour:
   KeepScale: 0
   KeepRotation: 0
   KeepLocalToWorld: 0
-  KeepLinkedEntityGroup: 0
+--- !u!114 &-7507415129393053857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f57460d0c9e2455d80ca347930cd39fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+--- !u!114 &-1908875567911285325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3292407f7fdf4641b48a0a86fa8baa80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WaterLevel: 0

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 393454914584776937}
   - component: {fileID: -7859722285439788423}
   - component: {fileID: 921288035926319133}
+  - component: {fileID: 2375871701742397020}
   m_Layer: 0
   m_Name: EmptyBucketPasser
   m_TagString: Untagged
@@ -63,6 +64,7 @@ MonoBehaviour:
   KeepTranslation: 0
   KeepScale: 0
   KeepRotation: 0
+  KeepLocalToWorld: 0
   KeepLinkedEntityGroup: 0
 --- !u!114 &393454914584776937
 MonoBehaviour:
@@ -102,3 +104,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: -1
+--- !u!114 &2375871701742397020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f57460d0c9e2455d80ca347930cd39fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
