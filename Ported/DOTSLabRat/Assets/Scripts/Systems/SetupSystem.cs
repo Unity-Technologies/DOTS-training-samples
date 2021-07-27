@@ -21,14 +21,14 @@ public class SetupSystem : SystemBase
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
+                var holesToSpawn = random.NextInt(0, boardSpawner.maxHoles + 1);
 
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
                 EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
                 var cellStructs = EntityManager.AddBuffer<CellStruct>(gameState);
-                
-                
+
                 for (int z = 0; z < size; ++z)
                 {
                     for (int x = 0; x < size; ++x)
@@ -131,5 +131,29 @@ public class SetupSystem : SystemBase
                 EntityManager.SetComponentData<Translation>(entity, new Translation { Value = catSpawnPoint });
                 catSpawnPoint = new float3(catSpawnPoint.z, 0, catSpawnPoint.x);
             }).Run();
+    }
+    
+    
+    bool ShouldSpawnHole(int2 coord, int boardSize)
+    {
+        if (IsCoordCorner(coord, boardSize))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool IsCoordCorner(int2 coord, int boardSize)
+    {
+        if ((coord.x == 0 && coord.y == 0) ||
+            (coord.x == 0 && coord.y == boardSize - 1) ||
+            (coord.y == 0 && coord.x == boardSize - 1) ||
+            (coord.x == boardSize - 1 && coord.y == boardSize - 1))
+        {
+            return false;
+        }
+
+        return true;
     }
 }
