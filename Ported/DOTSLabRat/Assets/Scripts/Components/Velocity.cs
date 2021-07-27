@@ -5,6 +5,7 @@ namespace DOTSRATS
 {
     public struct Velocity : IComponentData
     {
-        public float3 velocity;
+        public Direction Direction;
+        public float Speed;
     }
 }
