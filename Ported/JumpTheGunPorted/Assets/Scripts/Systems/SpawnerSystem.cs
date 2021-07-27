@@ -22,19 +22,21 @@ public class SpawnerSystem : SystemBase
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
 
+        var heightMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement));
+        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
+
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
 
                 // build terrain
-                // TODO: NativeArray<float> heightMap = new NativeArray<float>(new float[spawner.TerrainLength * spawner.TerrainWidth], Allocator.Temp); // TODO: make this its own entity/comp using DynamicBuffer for later lookup
                 for (int i = 0; i < spawner.TerrainLength; ++i)
                 {
                     for (int j = 0; j < spawner.TerrainWidth; ++j)
                     {
                         float height = random.NextFloat(spawner.MinTerrainHeight, spawner.MaxTerrainHeight);
-                        //TODO: heightMap[i * spawner.TerrainLength + j] = height;
+                        heightMap.Add((HeightBufferElement) height);
 
                         var box = ecb.Instantiate(spawner.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
@@ -54,21 +56,22 @@ public class SpawnerSystem : SystemBase
                     }
                 }
 
-                // TODO: spawn tanks (barrels/turrets too?) at whatever random logic the original game did
-
+                // new fresh player at proper x/y and height and empty parabola t value
                 var player = ecb.Instantiate(spawner.PlayerPrefab);
-                // TODO: spawn player at which box ???
-                int boxX = spawner.TerrainLength / 2;
+                int boxX = spawner.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
                 int boxY = spawner.TerrainWidth / 2;
-                float boxHeight = spawner.MaxTerrainHeight; // TODO: heightMap[boxY * spawner.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
+                float boxHeight = heightMap[boxY * spawner.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
                 ecb.SetComponent(player, new Translation
                 {
-                    Value = new float3(boxX + 0.5f, boxHeight + Player.Y_OFFSET, boxY + 0.5f) // reposition halfway to heigh to level all at 0 plane
+                    Value = new float3(boxX, boxHeight + Player.Y_OFFSET, boxY) // reposition halfway to heigh to level all at 0 plane
                 });
                 ecb.AddComponent(player, new ParabolaTValue
                 {
                     Value = -1 // less than zero will trigger recalculate the next bounce parabola
                 });
+
+                // make tanks!
+                // TODO: spawn tanks (barrels/turrets too?) at whatever random logic the original game did
             }).Run();
 
         ecb.Playback(EntityManager);

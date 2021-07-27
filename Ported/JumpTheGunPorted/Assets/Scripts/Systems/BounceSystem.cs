@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class PlayerAimerSystem : SystemBase
+public class BounceSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -16,8 +16,8 @@ public class PlayerAimerSystem : SystemBase
                 {
                     // solving parabola path
                     //startBox endBox // TODO: player aim logic using mouse input 
-                    float startY = translation.Value.y + Player.Y_OFFSET; // TODO: get current height of player tile vs player Y value
-                    float endY = translation.Value.y + Player.Y_OFFSET; // TODO: get current height of player destination tile vs. player Y value
+                    float startY = translation.Value.y; // startBox.Y + Player.Y_OFFSET; // TODO: get current height of player tile vs player Y value
+                    float endY = translation.Value.y; //endBox.Y + Player.Y_OFFSET; // TODO: get current height of player destination tile vs. player Y value
                     float height = math.max(startY, endY);
 
                     // make height max of adjacent boxes when moving diagonally
