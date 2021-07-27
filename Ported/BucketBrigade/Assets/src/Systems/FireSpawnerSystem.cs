@@ -27,17 +27,25 @@ namespace src.Systems
 
             DynamicBuffer<Temperature> buffer = EntityManager.GetBuffer<Temperature>(temperatureEntity);
 
-            buffer.ResizeUninitialized(configValues.Columns * configValues.Rows);
+            int totalCells = configValues.Columns * configValues.Rows;
 
-            for (int y = 0; y < configValues.Rows; ++y)
+            buffer.ResizeUninitialized(totalCells);
+
+            for (int cell = 0; cell < totalCells; ++cell)
             {
-                for (int x = 0; x < configValues.Columns; ++x)
+                buffer[cell] = new Temperature
                 {
-                    buffer[x + y * configValues.Columns] = new Temperature
-                    {
-                        Intensity = 0
-                    };
-                }
+                    Intensity = 0
+                };
+            }
+
+            // Set starting fires
+            for (int i=0; i<configValues.StartingFireCount; ++i)
+            {
+                buffer[Mathf.FloorToInt(UnityEngine.Random.Range(0, totalCells))] = new Temperature
+                {
+                    Intensity = UnityEngine.Random.Range(configValues.Flashpoint, 1f)
+                };
             }
             
             // Once we've spawned, we can disable this system, as it's done its job.
