@@ -1,4 +1,3 @@
-using System;
 using DOTSRATS;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,7 +9,14 @@ public class Movement : SystemBase
     {
         var time = (float)Time.ElapsedTime;
 
+        var gameStateEntity = GetSingletonEntity<GameState>();
+        var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
+
+        var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
+
         Entities
+            .WithAll<InPlay>()
+            .WithReadOnly(cellStructs)
             .ForEach((ref Translation translation, ref Velocity velocity) =>
             {
                 var newTranslation = translation.Value + time * velocity.Direction.ToFloat3() * velocity.Speed;
@@ -21,7 +27,7 @@ public class Movement : SystemBase
                 if (newTranslation.x >= tileCenter.x != translation.Value.x >= tileCenter.x ||
                     newTranslation.z >= tileCenter.z != translation.Value.z >= tileCenter.z)
                 {
-                    var cell = new CellStruct();
+                    var cell = cellStructs[newTile.z * gameState.boardSize + newTile.x];
 
                     if (cell.hole)
                     {
