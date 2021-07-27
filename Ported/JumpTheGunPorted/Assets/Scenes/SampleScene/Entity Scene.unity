@@ -155,10 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 168f031ae604cb5448bdb302d61e94c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CameraOffset:
-    x: 0
-    y: 0
-    z: 0
 --- !u!136 &937235237
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -269,6 +265,13 @@ MonoBehaviour:
     type: 3}
   TerrainLength: 15
   TerrainWidth: 10
+  MinTerrainHeight: 2.5
+  MaxTerrainHeight: 5.5
+  BoxHeightDamage: 0.4
+  NumOfTanks: 5
+  TankLaunchPeriod: 3
+  CollisionStepMultiplier: 4
+  PlayerParabolaPrecision: 0.1
 --- !u!4 &1847886312
 Transform:
   m_ObjectHideFlags: 0
