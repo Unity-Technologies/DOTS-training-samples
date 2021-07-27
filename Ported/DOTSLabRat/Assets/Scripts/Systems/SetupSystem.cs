@@ -67,7 +67,7 @@ public class SetupSystem : SystemBase
                     }
                 }
 
-                SetAnimalSpawners(size);
+                SetAnimalSpawners(boardSpawner, size);
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }
@@ -139,29 +139,23 @@ public class SetupSystem : SystemBase
         return false;
     }
 
-    public void SetAnimalSpawners(int boardSize)
+    public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize)
     {
-        float3 ratSpawnPoint = new float3 ( 0.5f, -.5f, 0.5f );
-        float3 catSpawnPoint = new float3(boardSize - 0.5f, -.5f, 0);
-        Entities
-            .WithStructuralChanges()
-            .WithAny<RatSpawner>()
-            .ForEach((Entity entity) =>
-            {
-                EntityManager.AddComponent<InPlay>(entity);
-                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = ratSpawnPoint });
-                ratSpawnPoint = new float3(boardSize - 0.5f, 0, boardSize - 0.5f);
-            }).Run();
+        Entity catSpawnPointOne = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(catSpawnPointOne);
+        EntityManager.SetComponentData(catSpawnPointOne, new Translation { Value = new float3(0, -0.5f, 0) });
 
-        Entities
-            .WithStructuralChanges()
-            .WithAny<CatSpawner>()
-            .ForEach((Entity entity) =>
-            {
-                EntityManager.AddComponent<InPlay>(entity);
-                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = catSpawnPoint });
-                catSpawnPoint = new float3(catSpawnPoint.z, 0, catSpawnPoint.x);
-            }).Run();
+        Entity catSpawnPointTwo = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(catSpawnPointTwo);
+        EntityManager.SetComponentData(catSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, boardSize - 1) });
+
+        Entity ratSpawnPointOne = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(ratSpawnPointOne);
+        EntityManager.SetComponentData(ratSpawnPointOne, new Translation { Value = new float3(0, -0.5f, boardSize - 1) });
+
+        Entity ratSpawnPointTwo = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(ratSpawnPointTwo);
+        EntityManager.SetComponentData(ratSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, 0) });
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, Random random)

@@ -10,4 +10,7 @@ public struct BoardSpawner : IComponentData
     public Entity goalPrefab;
     public int maxWalls;
     public int maxHoles;
+
+    public Entity catSpawnerPrefab;
+    public Entity ratSpawnerPrefab;
 }
