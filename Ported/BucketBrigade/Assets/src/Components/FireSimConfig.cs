@@ -53,5 +53,26 @@ namespace src.Components
         
         [Range(0.0001f, 5f)]
         public float DistanceToPickupBucket;
+
+
+        float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
+        {
+            if (row < 0 || column < 0 || row >= Rows || column >= Columns)
+                return 0;
+
+            int cellIndex = column + row * Columns;
+
+            return temperatureBuffer[cellIndex].Intensity;
+        }
+
+        void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int row, int column, float temperature)
+        {
+            if (row >= 0 || column >= 0 || row < Rows || column < Columns)
+            {
+                int cellIndex = column + row * Columns;
+
+                temperatureBuffer[cellIndex] = new Temperature { Intensity = temperature };
+            }
+        }
     }
 }
