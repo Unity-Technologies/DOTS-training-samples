@@ -18,7 +18,7 @@ namespace DOTSRATS
                 {
                     if (numRats < ratSpawner.maxRats)
                     {
-                        if (Random.Range(0, 1) < ratSpawner.spawnRate)
+                        if (Random.Range(0f, 1f) < ratSpawner.spawnRate)
                         {
                             var instance = ecb.Instantiate(ratSpawner.ratPrefab);
                             ecb.SetComponent(instance, translation);
