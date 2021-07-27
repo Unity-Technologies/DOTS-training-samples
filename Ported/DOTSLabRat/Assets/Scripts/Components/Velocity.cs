@@ -6,6 +6,7 @@ namespace DOTSRATS
     [GenerateAuthoringComponent]
     public struct Velocity : IComponentData
     {
-        public float3 velocity;
+        public Direction Direction;
+        public float Speed;
     }
 }

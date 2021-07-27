@@ -6,10 +6,13 @@ namespace DOTSRATS
     [Flags]
     public enum Direction
     {
-        North = 0x0001,
-        South = 0x0002,
-        East = 0x0004,
-        West = 0x0008
+        None = 0,
+        North = 1,
+        South = North << 1,
+        East = South << 1,
+        West = East << 1,
+        Up = West << 1,
+        Down = Up << 1
     }
 
     public struct CellStruct : IBufferElementData
