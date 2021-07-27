@@ -23,6 +23,11 @@ public class SetupSystem : SystemBase
                 var size = boardSpawner.boardSize;
                 var holesToSpawn = random.NextInt(0, boardSpawner.maxHoles + 1);
 
+                NativeArray<int2> holeCoords = new NativeArray<int2>(holesToSpawn, Allocator.Temp);
+
+                for (int i = 0; i < holesToSpawn; ++i)
+                    holeCoords[i] = GenerateNextHoleCoord(holeCoords, size, random);
+
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
@@ -33,12 +38,18 @@ public class SetupSystem : SystemBase
                 {
                     for (int x = 0; x < size; ++x)
                     {
-                        // Spawn tiles
-                        var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
-                        var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
-                        var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
-                        EntityManager.SetComponentData(tile, translation);
+                        // Spawn tiles / holes
                         var cell = new CellStruct();
+
+                        if (!HoleCoordExists(holeCoords, new int2(x, z)))
+                        {
+                            var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
+                            var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
+                            var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
+                            EntityManager.SetComponentData(tile, translation);
+                        }
+                        else
+                            cell.hole = true;
 
                         // Spawn outer walls
                         if (x == 0 || x == size - 1)
@@ -132,16 +143,29 @@ public class SetupSystem : SystemBase
                 catSpawnPoint = new float3(catSpawnPoint.z, 0, catSpawnPoint.x);
             }).Run();
     }
-    
-    
-    bool ShouldSpawnHole(int2 coord, int boardSize)
+
+    int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, Random random)
     {
-        if (IsCoordCorner(coord, boardSize))
+        int2 nextCoord = int2.zero; 
+        do
         {
-            return false;
+            nextCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
+        } while (ShouldPlaceGoalTile(nextCoord, boardSize) || 
+                 IsCoordEdge(nextCoord, boardSize) || 
+                 HoleCoordExists(holeCoords, nextCoord));
+
+        return nextCoord;
+    }
+
+    bool HoleCoordExists(NativeArray<int2> holeCoords, int2 coord)
+    {
+        foreach (int2 holeCoord in holeCoords)
+        {
+            if (holeCoord.x == coord.x && holeCoord.y == coord.y)
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     bool IsCoordCorner(int2 coord, int boardSize)
@@ -151,9 +175,20 @@ public class SetupSystem : SystemBase
             (coord.y == 0 && coord.x == boardSize - 1) ||
             (coord.x == boardSize - 1 && coord.y == boardSize - 1))
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
+    }
+    
+    bool IsCoordEdge(int2 coord, int boardSize)
+    {
+        if ((coord.x == 0 || coord.y == 0) ||
+            (coord.x == boardSize - 1 || coord.y == boardSize - 1))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
