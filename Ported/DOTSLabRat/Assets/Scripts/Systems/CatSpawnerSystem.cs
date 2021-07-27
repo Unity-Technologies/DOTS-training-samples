@@ -19,7 +19,7 @@ namespace DOTSRATS
                 {
                     if (numCats < catSpawner.maxCats)
                     {
-                        if (Random.Range(0, 1) < catSpawner.spawnRate)
+                        if (Random.Range(0f, 1f) < catSpawner.spawnRate)
                         {
                             var instance = ecb.Instantiate(catSpawner.catPrefab);
                             ecb.SetComponent(instance, translation);

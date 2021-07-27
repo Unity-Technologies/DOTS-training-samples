@@ -21,24 +21,37 @@ public class SetupSystem : SystemBase
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
+                int playerNumber = 0;
+
                 var holesToSpawn = random.NextInt(0, boardSpawner.maxHoles + 1);
+
+                NativeArray<int2> holeCoords = new NativeArray<int2>(holesToSpawn, Allocator.Temp);
+
+                for (int i = 0; i < holesToSpawn; ++i)
+                    holeCoords[i] = GenerateNextHoleCoord(holeCoords, size, random);
 
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
-                EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
+                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = 30f});
                 var cellStructs = new NativeArray<CellStruct>(size * size, Allocator.TempJob);
 
                 for (int z = 0; z < size; ++z)
                 {
                     for (int x = 0; x < size; ++x)
                     {
-                        // Spawn tiles
-                        var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
-                        var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
-                        var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
-                        EntityManager.SetComponentData(tile, translation);
+                        // Spawn tiles / holes
                         var cell = new CellStruct();
+
+                        if (!HoleCoordExists(holeCoords, new int2(x, z)))
+                        {
+                            var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
+                            var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
+                            var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
+                            EntityManager.SetComponentData(tile, translation);
+                        }
+                        else
+                            cell.hole = true;
 
                         // Spawn outer walls
                         if (x == 0 || x == size - 1)
@@ -46,13 +59,17 @@ public class SetupSystem : SystemBase
                         if (z == 0 || z == size - 1)
                             SpawnWall(boardSpawner, new int2(x, z), z == 0 ? Direction.South : Direction.North, ref cell);
 
+                        //spawn goals
+                        if (ShouldPlaceGoalTile(new int2(x, z), size))
+                            SpawnGoal(boardSpawner, new int2(x, z), playerNumber++, ref cell);
+
                         cellStructs[z * size + x] = cell;
                     }
                 }
 
                 EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
+                SetAnimalSpawners(boardSpawner, size);
 
-                SetAnimalSpawners(size);
                 EntityManager.DestroyEntity(entity);
             }).Run();
     }
@@ -93,6 +110,20 @@ public class SetupSystem : SystemBase
 
         return wall;
     }
+    
+    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct)
+    {
+        Entity goal = default;
+        float3 position = new float3(coord.x, -0.5f, coord.y);
+
+        goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
+        EntityManager.SetComponentData(goal, new Translation() { Value = position });
+        EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
+
+        cellStruct.goal = goal;
+
+        return goal;
+    }
 
     // TODO: also return player id as an out variable
     public bool ShouldPlaceGoalTile(int2 coord, int boardSize)
@@ -110,40 +141,47 @@ public class SetupSystem : SystemBase
         return false;
     }
 
-    public void SetAnimalSpawners(int boardSize)
+    public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize)
     {
-        float3 ratSpawnPoint = new float3 ( 0.5f, -.5f, 0.5f );
-        float3 catSpawnPoint = new float3(boardSize - 0.5f, -.5f, 0.5f);
-        Entities
-            .WithStructuralChanges()
-            .WithAny<RatSpawner>()
-            .ForEach((Entity entity) =>
-            {
-                EntityManager.AddComponent<InPlay>(entity);
-                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = ratSpawnPoint });
-                ratSpawnPoint = new float3(boardSize - 0.5f, 0, boardSize - 0.5f);
-            }).Run();
+        Entity catSpawnPointOne = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(catSpawnPointOne);
+        EntityManager.SetComponentData(catSpawnPointOne, new Translation { Value = new float3(0, -0.5f, 0) });
 
-        Entities
-            .WithStructuralChanges()
-            .WithAny<CatSpawner>()
-            .ForEach((Entity entity) =>
-            {
-                EntityManager.AddComponent<InPlay>(entity);
-                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = catSpawnPoint });
-                catSpawnPoint = new float3(catSpawnPoint.z, 0, catSpawnPoint.x);
-            }).Run();
+        Entity catSpawnPointTwo = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(catSpawnPointTwo);
+        EntityManager.SetComponentData(catSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, boardSize - 1) });
+
+        Entity ratSpawnPointOne = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(ratSpawnPointOne);
+        EntityManager.SetComponentData(ratSpawnPointOne, new Translation { Value = new float3(0, -0.5f, boardSize - 1) });
+
+        Entity ratSpawnPointTwo = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
+        EntityManager.AddComponent<InPlay>(ratSpawnPointTwo);
+        EntityManager.SetComponentData(ratSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, 0) });
     }
-    
-    
-    bool ShouldSpawnHole(int2 coord, int boardSize)
+
+    int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, Random random)
     {
-        if (IsCoordCorner(coord, boardSize))
+        int2 nextCoord = int2.zero; 
+        do
         {
-            return false;
+            nextCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
+        } while (ShouldPlaceGoalTile(nextCoord, boardSize) || 
+                 IsCoordEdge(nextCoord, boardSize) || 
+                 HoleCoordExists(holeCoords, nextCoord));
+
+        return nextCoord;
+    }
+
+    bool HoleCoordExists(NativeArray<int2> holeCoords, int2 coord)
+    {
+        foreach (int2 holeCoord in holeCoords)
+        {
+            if (holeCoord.x == coord.x && holeCoord.y == coord.y)
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     bool IsCoordCorner(int2 coord, int boardSize)
@@ -153,9 +191,20 @@ public class SetupSystem : SystemBase
             (coord.y == 0 && coord.x == boardSize - 1) ||
             (coord.x == boardSize - 1 && coord.y == boardSize - 1))
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
+    }
+    
+    bool IsCoordEdge(int2 coord, int boardSize)
+    {
+        if ((coord.x == 0 || coord.y == 0) ||
+            (coord.x == boardSize - 1 || coord.y == boardSize - 1))
+        {
+            return true;
+        }
+
+        return false;
     }
 }
