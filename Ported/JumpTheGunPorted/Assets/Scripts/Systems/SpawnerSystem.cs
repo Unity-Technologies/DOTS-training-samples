@@ -44,9 +44,9 @@ public class SpawnerSystem : SystemBase
 
                 // build terrain
                 ecb.DestroyEntitiesForEntityQuery(_BoxEntityQuery);
-                for (int i = 0; i < spawner.TerrainWidth; ++i)
+                for (int i = 0; i < config.TerrainWidth; ++i)
                 {
-                    for (int j = 0; j < spawner.TerrainLength; ++j)
+                    for (int j = 0; j < config.TerrainLength; ++j)
                     {
                         float height = random.NextFloat(config.MinTerrainHeight, config.MaxTerrainHeight);
                         heightMap.Add((HeightBufferElement) height);
@@ -71,11 +71,6 @@ public class SpawnerSystem : SystemBase
 
                 // new fresh player at proper x/y and height and empty parabola t value
                 ecb.DestroyEntitiesForEntityQuery(_PlayerEntityQuery);
-                var player = ecb.Instantiate(spawner.PlayerPrefab);
-                int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
-                int boxY = config.TerrainWidth / 2;
-                float boxHeight = heightMap[boxY * config.TerrainLength + boxX]; // use box height map to figure out starting y
-                
                 var player = ecb.Instantiate(refs.PlayerPrefab);
                 int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
                 int boxY = config.TerrainWidth / 2;
