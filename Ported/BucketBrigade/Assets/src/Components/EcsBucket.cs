@@ -4,7 +4,6 @@ using Unity.Entities;
 namespace src.Components
 {
     /// <summary>
-    ///     
     /// </summary>
     [GenerateAuthoringComponent]
     public struct EcsBucket : IComponentData

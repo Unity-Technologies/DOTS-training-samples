@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace src.Components

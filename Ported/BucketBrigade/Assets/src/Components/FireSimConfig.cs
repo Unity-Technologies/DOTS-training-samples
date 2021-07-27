@@ -53,5 +53,8 @@ namespace src.Components
         
         [Range(0.0001f, 5f)]
         public float DistanceToPickupBucket;
+        
+        [Range(0.0001f, 50f)]
+        public float WaterFillUpDuration;
     }
 }

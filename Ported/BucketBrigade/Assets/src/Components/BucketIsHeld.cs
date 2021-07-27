@@ -8,6 +8,7 @@ namespace src.Systems
     /// </summary>
     public struct BucketIsHeld : IComponentData
     {
+        // todo - Work out if we even need this data. Could be a tag component!
         public Entity WorkerHoldingThis;
     }
 }

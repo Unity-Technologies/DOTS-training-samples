@@ -37,6 +37,9 @@ namespace src.Components
         [Range(0.0001f, 5f)]
         public float DistanceToPickupBucket = 1f;
 
+        [Range(0.0001f, 50f)]
+        public float WaterFillUpDuration = 4f;
+        
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponentData(entity, new FireSimConfigValues
@@ -53,6 +56,7 @@ namespace src.Components
                 WorkerSpeed = WorkerSpeed,
                 WorkerSpeedWhenHoldingBucket = WorkerSpeedWhenHoldingBucket, 
                 DistanceToPickupBucket = DistanceToPickupBucket,
+                WaterFillUpDuration = WaterFillUpDuration,
             });
         }
     }

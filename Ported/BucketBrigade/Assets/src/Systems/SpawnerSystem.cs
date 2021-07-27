@@ -46,6 +46,21 @@ namespace src.Systems
                 });
             }
             
+            // Spawn teams:
+            var teamContainerEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<TeamData>());
+            EntityManager.SetName(teamContainerEntity, "TeamContainer");
+            var teamDataBuffer = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
+            teamDataBuffer.Add(new TeamData
+            {
+                TargetFileCell = 5,
+                TargetWaterPos = 15,
+            });   
+            teamDataBuffer.Add(new TeamData
+            {
+                TargetFileCell = 25,
+                TargetWaterPos = 35,
+            });
+            
             // Spawn bucket fetchers:
             const int numBucketFetcherWorkers = 30;
             using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
