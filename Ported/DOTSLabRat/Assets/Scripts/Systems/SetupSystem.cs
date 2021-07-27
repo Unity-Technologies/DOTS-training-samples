@@ -1,3 +1,4 @@
+using System.Linq;
 using DOTSRATS;
 using Unity.Collections;
 using Unity.Entities;
@@ -13,14 +14,19 @@ public class SetupSystem : SystemBase
         const float k_yRangeSize = 0.03f;
         
         var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
-        var gameState = GetSingleton<GameState>();
 
         Entities
             .WithStructuralChanges()
             .WithAll<BoardSpawner>()
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
-                var size = gameState.boardSize;
+                var size = boardSpawner.boardSize;
+
+                // Spawn the GameState
+                var gameState = EntityManager.CreateEntity();
+                EntityManager.AddComponent<GameState>(gameState);
+                EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
+                var cellStructs = EntityManager.AddBuffer<CellStruct>(gameState);
                 
                 // Spawn tiles
                 for (int z = 0; z < size; ++z)
@@ -30,7 +36,9 @@ public class SetupSystem : SystemBase
                         var tile = EntityManager.Instantiate(boardSpawner.tilePrefab);
                         var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
                         var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
-                        EntityManager.SetComponentData<Translation>(tile, translation);
+                        EntityManager.SetComponentData(tile, translation);
+
+                        cellStructs.Append(new CellStruct());
                     }
                 }
 
