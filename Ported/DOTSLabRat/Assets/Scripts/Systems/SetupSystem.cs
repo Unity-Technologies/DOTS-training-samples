@@ -33,7 +33,7 @@ public class SetupSystem : SystemBase
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
-                EntityManager.SetComponentData(gameState, new GameState{boardSize = size});
+                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = 30f});
                 var cellStructs = EntityManager.AddBuffer<CellStruct>(gameState);
 
                 for (int z = 0; z < size; ++z)
