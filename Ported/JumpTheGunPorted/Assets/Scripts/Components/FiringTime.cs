@@ -7,5 +7,5 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct FiringTime : IComponentData
 {
-    float nextFiringTime;
+    public float NextFiringTime;
 }
