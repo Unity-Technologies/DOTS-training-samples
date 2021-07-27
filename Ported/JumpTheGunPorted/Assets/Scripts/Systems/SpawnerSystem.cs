@@ -11,11 +11,17 @@ public class SpawnerSystem : SystemBase
     
     private EntityQuery _PlayerEntityQuery;
     private EntityQuery _BoxEntityQuery;
-    
+    private EntityQuery _HeightMapEntityQuery;
+
+    private Entity HeightMapEntity;
+
     protected override void OnCreate()
     {
         _PlayerEntityQuery = EntityManager.CreateEntityQuery(typeof(Player));
         _BoxEntityQuery = EntityManager.CreateEntityQuery(typeof(NonUniformScale)); // TODO: Reinforce this maybe
+        _HeightMapEntityQuery = EntityManager.CreateEntityQuery(typeof(HeightBufferElement));
+
+        HeightMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement));        
     }
 
     protected override void OnUpdate()
@@ -28,11 +34,9 @@ public class SpawnerSystem : SystemBase
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
 
-        var heightMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement));
-        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
+        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(HeightMapEntity);
 
         var refs = this.GetSingleton<GameObjectRefs>();
-        
         Entities
             .WithAll<Spawner>()
             .WithoutBurst()
@@ -43,6 +47,7 @@ public class SpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 // build terrain
+                heightMap.Clear();
                 ecb.DestroyEntitiesForEntityQuery(_BoxEntityQuery);
                 for (int i = 0; i < config.TerrainWidth; ++i)
                 {

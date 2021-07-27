@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43667555, g: 0.48427182, b: 0.56452405, a: 1}
+  m_IndirectSpecularColor: {r: 0.4366756, g: 0.48427194, b: 0.5645252, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -836,11 +836,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _TerrainWidth: 10
-  _TerrainLength: 10
-  _MinTerrainHeight: 1
-  _MaxTerrainHeight: 10
-  _HeightDamage: 2
-  _TankCount: 10
+  _TerrainLength: 15
+  _MinTerrainHeight: 2.5
+  _MaxTerrainHeight: 5.5
+  _HeightDamage: 0.4
+  _TankCount: 5
   _TankReloadTime: 3
 --- !u!4 &1702529457
 Transform:
