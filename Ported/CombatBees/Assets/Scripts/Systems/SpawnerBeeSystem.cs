@@ -4,6 +4,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 class SpawnerBeeSystem: SystemBase
 {
     protected override void OnUpdate()
@@ -26,6 +27,13 @@ class SpawnerBeeSystem: SystemBase
                         ecb.AddComponent<TeamA>(instance);
                     else
                         ecb.AddComponent<TeamB>(instance);
+                    ecb.AddComponent(instance, new NewTranslation {translation = translation});
+                    ecb.AddComponent(instance, new Bee
+                    {
+                        State = BeeState.Idle,
+                        Target = Entity.Null,
+                        resource = Entity.Null
+                    });
                 }
             }).Run();
 

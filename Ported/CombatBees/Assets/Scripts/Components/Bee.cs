@@ -12,4 +12,5 @@ public struct Bee : IComponentData
 {
     public BeeState State;
     public Entity Target;
+    public Entity resource;
 }

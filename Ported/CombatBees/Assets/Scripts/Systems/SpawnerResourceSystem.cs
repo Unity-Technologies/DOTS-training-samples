@@ -4,6 +4,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 class SpawnerResourceSystem: SystemBase
 {
     protected override void OnUpdate()
@@ -22,6 +23,12 @@ class SpawnerResourceSystem: SystemBase
                     float3 pos = rng.NextFloat3(spawner.SpawnLocation - spawner.SpawnAreaSize * 0.5f, spawner.SpawnLocation + spawner.SpawnAreaSize * 0.5f);
                     var translation = new Translation {Value = pos};
                     ecb.SetComponent(instance, translation);
+                    ecb.AddComponent(instance, new Resource
+                    {
+                        Speed = 0.0f,
+                        CarryingBee = Entity.Null
+                    });
+                    ecb.AddComponent(instance, new NewTranslation {translation = translation});
                 }
             }).Run();
 
