@@ -14,6 +14,5 @@ public class BucketAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntit
         dstManager.AddComponentData(entity, new WaterCapacityComponent(){Capacity = Capacity});
         dstManager.AddComponentData(entity, new BucketActiveComponent());
         dstManager.AddComponentData(entity, new BucketFullComponent());
-        dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor());
     }
 }

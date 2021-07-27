@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEditor.Experimental;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [Serializable]
 [GenerateAuthoringComponent]
@@ -18,4 +19,13 @@ public struct GameConfigComponent : IComponentData
     public Color32 EmptyBucketColor;
     public Color32 FullBucketColor;
     public Entity BucketPrefab;
+    public Entity FlameCellPrefab;
+    public Color FlameDefaultColor;
+    public Color FlameBurnColor;
+    public Color FlameColdColor;
+    public int HeatTrasferRadius;
+    public float HeatFallOff;
+    public float FlashPoint;
+    public int startingFireCount;
+    public float FlameScaleMax;
 }
