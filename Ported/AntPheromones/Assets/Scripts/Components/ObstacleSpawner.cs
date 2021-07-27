@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
 
 public struct ObstacleSpawner : IComponentData
 {
