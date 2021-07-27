@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-[GenerateAuthoringComponent]
-public struct InPlay : IComponentData
+namespace DOTSRATS
 {
+    [GenerateAuthoringComponent]
+    public struct InPlay : IComponentData
+    {
+    }
 }
