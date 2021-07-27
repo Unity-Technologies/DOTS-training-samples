@@ -39,10 +39,10 @@ public class ObstacleSpawnerSystem : SystemBase
                                 {
                                     Value = new float3(mapSize * .5f + math.cos(angle) * ringRadius, mapSize * .5f + math.sin(angle) * ringRadius, 0)
                                 });
-                                //ecb.AddComponent(obstacleEntity, new Scale
-                                //{
-                                //    Value = spawner.ObstacleRadius
-                                //});
+                                ecb.AddComponent(obstacleEntity, new Scale
+                                {
+                                    Value = spawner.ObstacleRadius
+                                });
                             }
                         }
                     }
