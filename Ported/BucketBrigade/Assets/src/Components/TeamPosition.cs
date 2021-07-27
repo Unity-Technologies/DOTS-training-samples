@@ -10,6 +10,6 @@ namespace src.Components
     public struct TeamPosition : IComponentData
     {
         // NW: Consider ushort.
-        public int Id;
+        public int Index;
     }
 }

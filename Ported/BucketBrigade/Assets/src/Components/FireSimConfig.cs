@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace src.Components
@@ -12,12 +13,12 @@ namespace src.Components
     {
         public Entity FullBucketPasserWorkerPrefab;
         public Entity EmptyBucketPasserWorkerPrefab;
-        
+        public Entity BucketFetcherPrefab;
         public Entity BucketThrowerWorkerPrefab;
         public Entity OmniWorkerPrefab;
         
         public Entity BucketPrefab;
-
+ 
     }
 
     public struct FireSimConfigValues : IComponentData
@@ -44,5 +45,13 @@ namespace src.Components
         [Range(0.0001f, 2f)]
         [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
         public float FireSimUpdateRate;
+        
+        [Range(0.0001f, 100f)]
+        public float WorkerSpeed;  
+        [Range(0.0001f, 100f)]
+        public float WorkerSpeedWhenHoldingBucket;
+        
+        [Range(0.0001f, 5f)]
+        public float DistanceToPickupBucket;
     }
 }

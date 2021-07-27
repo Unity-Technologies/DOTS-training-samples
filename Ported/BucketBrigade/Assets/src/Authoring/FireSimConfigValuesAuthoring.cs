@@ -30,6 +30,12 @@ namespace src.Components
         [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
         public float FireSimUpdateRate = 0.5f;
 
+        [Range(0.0001f, 100f)]
+        public float WorkerSpeed = 4f;
+        [Range(0.0001f, 100f)]
+        public float WorkerSpeedWhenHoldingBucket = 2f;
+        [Range(0.0001f, 5f)]
+        public float DistanceToPickupBucket = 1f;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -43,7 +49,10 @@ namespace src.Components
                 Flashpoint = Flashpoint,
                 HeatRadius = HeatRadius,
                 HeatTransferRate = HeatTransferRate,
-                FireSimUpdateRate = FireSimUpdateRate
+                FireSimUpdateRate = FireSimUpdateRate,
+                WorkerSpeed = WorkerSpeed,
+                WorkerSpeedWhenHoldingBucket = WorkerSpeedWhenHoldingBucket, 
+                DistanceToPickupBucket = DistanceToPickupBucket,
             });
         }
     }
