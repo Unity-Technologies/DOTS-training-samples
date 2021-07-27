@@ -1,16 +1,29 @@
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
+using UnityEngine;
 
 public class TankAimerSystem : SystemBase
 {
+
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
+        float time = Time.DeltaTime;
 
         Entities
-            .ForEach((ref Translation translation, in Movement movement) =>
+            .WithAll<TankBase>()
+            .ForEach((ref Rotation rotation, ref Translation translation) =>
             {
-                // TODO: tank aim logic
+                var player = GetSingletonEntity<Player>();
+                var playerTranslation = GetComponent<Translation>(player);
+                // Get an angle
+                // quaternion yRot = Quaternion.LookRotation(mousePos, Vector3.up);
+                var relPos = objPos - translation.Value;
+                
+                quaternion lookAtQuat = Quaternion.LookRotation(relPos, Vector3.right);
+                // SetComponent the rotation
+                rotation.Value = lookAtQuat;
+
             }).ScheduleParallel();
     }
 }
