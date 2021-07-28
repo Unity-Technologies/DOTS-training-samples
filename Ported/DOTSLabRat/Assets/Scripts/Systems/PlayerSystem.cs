@@ -52,14 +52,16 @@ namespace DOTSRATS
                             Debug.Log($"AI {player.playerNumber} will place next arrow after {player.nextArrowTime - elapsedTime}");
                         }
                     }
-
-                    //Check for new arrow and place them
-                    if (player.arrowToPlace.x != -1)
+                    else
                     {
-                        var cell = cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x];
-                        cell.arrow = player.arrowDirection;
-                        cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x] = cell;
-                        player.arrowToPlace = new int2(-1, -1);
+                        //Check for new arrow and place them
+                        if (player.arrowToPlace.x != -1)
+                        {
+                            var cell = cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x];
+                            cell.arrow = player.arrowDirection;
+                            cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x] = cell;
+                            player.arrowToPlace = new int2(-1, -1);
+                        }
                     }
                 }).Schedule();
         }
