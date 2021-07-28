@@ -22,6 +22,7 @@ namespace src.Components
  
     }
 
+    [Serializable]
     public struct FireSimConfigValues : IComponentData
     {
         // Fire config
