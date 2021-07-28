@@ -97,7 +97,7 @@ namespace src.Components
 
         public int2 GetRowColOfCell(int cellId)
         {
-            var rowColOfCell = new int2(cellId % Columns, cellId / Columns);
+            var rowColOfCell = new int2(cellId / Columns, cellId % Columns);
             Debug.Assert(GetCellIdOfRowCol(rowColOfCell.x, rowColOfCell.y) == cellId, "'GetRowColOfCell' does not match 'GetCellIdOfRowCol'!");
             return rowColOfCell;
         }
