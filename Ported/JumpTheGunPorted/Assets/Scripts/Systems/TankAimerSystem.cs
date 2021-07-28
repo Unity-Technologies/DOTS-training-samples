@@ -11,7 +11,7 @@ public class TankAimerSystem : SystemBase
         var playerTranslation = GetComponent<Translation>(player);
 
         Entities
-            .WithAll<AimDirection>()
+            .WithAll<LookAtPlayer>()
             .ForEach((ref Rotation rotation, ref Translation translation) =>
             {
                 

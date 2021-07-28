@@ -5,8 +5,6 @@ using Unity.Entities;
 // generate an authoring component with the same fields and a conversion
 // function that simply copies the fields from one to the other.
 [GenerateAuthoringComponent]
-public struct AimDirection : IComponentData
+public struct LookAtPlayer : IComponentData
 {
-    public float Yaw;
-    public float Pitch;
 }

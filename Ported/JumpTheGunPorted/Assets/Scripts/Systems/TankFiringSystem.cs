@@ -99,13 +99,13 @@ public class TankFiringystem : SystemBase
                             Forward = forward
                         });
 
-                        // TODO: set cannon rotation values into AimDirection
+                        // TODO: set cannon pitch (maybe also yaw too at this point)
                         //SetCannonRotation(math.Atan2(Parabola.Solve(paraA, paraB, paraC, .1f) - Parabola.Solve(paraA, paraB, paraC, 0), .1f) * math.Rad2Deg);
-                        ecb.SetComponent(entity, new AimDirection
+                        /*ecb.SetComponent(entity, new Rotation
                         {
                             Pitch = 0,
                             Yaw = 0
-                        });
+                        });*/
                     }
                     else
                     {
