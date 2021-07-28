@@ -7,10 +7,11 @@ public class BounceSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var heightMapEntity = GetSingletonEntity<HeightBufferElement>();
-        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(heightMapEntity);
+        var boxMapEntity = GetSingletonEntity<HeightBufferElement>(); // ASSUMES the singleton that has height buffer also has occupied
+        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(boxMapEntity);
+        var occupiedMap = EntityManager.GetBuffer<OccupiedBufferElement>(boxMapEntity);
 
         // need terrain length to calculate index to our height map array
         var refs = this.GetSingleton<GameObjectRefs>();
@@ -64,14 +65,17 @@ public class BounceSystem : SystemBase
 
                     }
 
-                    // TODO: don't move if target is occupied by checking some map of where tanks are?
-                    /*if (TerrainArea.instance.OccupiedBox(movePos.x, movePos.y))
-                    {
-                        movePos.Set(endBox.col, endBox.row);
-                    }*/
-
-                    int endBoxCol = (int) movePos.x;
+                    int endBoxCol = (int)movePos.x;
                     int endBoxRow = (int)movePos.y;
+
+                    // don't move if target is occupied by checking some map of where tanks are?
+                    if (occupiedMap[endBoxRow * terrainLength + endBoxCol])
+                    {
+                        // stay where you are
+                        endBoxCol = startBoxCol;
+                        endBoxRow = startBoxRow;
+                    }
+
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol] + Player.Y_OFFSET;
 
                     float height = math.max(startY, endY);

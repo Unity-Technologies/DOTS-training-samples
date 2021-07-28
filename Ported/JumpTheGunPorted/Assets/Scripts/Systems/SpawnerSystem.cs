@@ -11,17 +11,17 @@ public class SpawnerSystem : SystemBase
     
     private EntityQuery _PlayerEntityQuery;
     private EntityQuery _BoxEntityQuery;
-    private EntityQuery _HeightMapEntityQuery;
+    private EntityQuery _BoxMapEntityQuery;
 
-    private Entity HeightMapEntity;
+    private Entity _BoxMapEntity;
 
     protected override void OnCreate()
     {
         _PlayerEntityQuery = EntityManager.CreateEntityQuery(typeof(Player));
         _BoxEntityQuery = EntityManager.CreateEntityQuery(typeof(NonUniformScale)); // TODO: Reinforce this maybe
-        _HeightMapEntityQuery = EntityManager.CreateEntityQuery(typeof(HeightBufferElement));
+        _BoxMapEntityQuery = EntityManager.CreateEntityQuery(typeof(HeightBufferElement), typeof(OccupiedBufferElement));
 
-        HeightMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement));        
+        _BoxMapEntity = EntityManager.CreateEntity(typeof(HeightBufferElement), typeof(OccupiedBufferElement));
     }
 
     protected override void OnUpdate()
@@ -34,7 +34,8 @@ public class SpawnerSystem : SystemBase
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
 
-        var heightMap = EntityManager.GetBuffer<HeightBufferElement>(HeightMapEntity);
+        var heightMapBuffer = EntityManager.GetBuffer<HeightBufferElement>(_BoxMapEntity);
+        var occupiedMapBuffer = EntityManager.GetBuffer<OccupiedBufferElement>(_BoxMapEntity);
 
         var refs = this.GetSingleton<GameObjectRefs>();
         Entities
@@ -47,14 +48,16 @@ public class SpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
 
                 // build terrain
-                heightMap.Clear();
+                heightMapBuffer.Clear();
+                occupiedMapBuffer.Clear();
                 ecb.DestroyEntitiesForEntityQuery(_BoxEntityQuery);
                 for (int i = 0; i < config.TerrainWidth; ++i)
                 {
                     for (int j = 0; j < config.TerrainLength; ++j)
                     {
                         float height = random.NextFloat(config.MinTerrainHeight, config.MaxTerrainHeight);
-                        heightMap.Add((HeightBufferElement) height);
+                        heightMapBuffer.Add((HeightBufferElement) height);
+                        occupiedMapBuffer.Add((OccupiedBufferElement)false);
 
                         var box = ecb.Instantiate(refs.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
@@ -79,7 +82,7 @@ public class SpawnerSystem : SystemBase
                 var player = ecb.Instantiate(refs.PlayerPrefab);
                 int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
                 int boxY = config.TerrainWidth / 2;
-                float boxHeight = heightMap[boxY * config.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
+                float boxHeight = heightMapBuffer[boxY * config.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
                 ecb.SetComponent(player, new Translation
                 {
                     Value = new float3(boxX, boxHeight + Player.Y_OFFSET, boxY) // reposition halfway to heigh to level all at 0 plane
