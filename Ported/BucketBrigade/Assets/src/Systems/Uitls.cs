@@ -44,6 +44,11 @@ namespace src.Systems
             });
         }
 
+        public static void ThrowBucketAtFire(EntityCommandBuffer.ParallelWriter ecb, int queryIndex, Entity bucketEntity, float2 firePosition)
+        {
+            ecb.AddComponent(queryIndex, bucketEntity, new ThrowBucketAtFire() { firePosition = firePosition });
+        }
+
         public static void DropBucket(EntityCommandBuffer.ParallelWriter ecb, int queryIndex, Entity workerEntity, in WorkerIsHoldingBucket isHoldingBucket)
         {
             ecb.RemoveComponent<BucketIsHeld>(queryIndex, isHoldingBucket.Bucket);

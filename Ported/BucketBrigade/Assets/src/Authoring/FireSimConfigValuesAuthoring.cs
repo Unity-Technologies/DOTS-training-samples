@@ -39,7 +39,10 @@ namespace src.Components
 
         [Range(0.0001f, 50f)]
         public float WaterFillUpDuration = 4f;
-        
+
+        [Tooltip("How may workers there are per team")]
+        public int WorkerCountPerTeam = 10;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponentData(entity, new FireSimConfigValues
@@ -57,6 +60,7 @@ namespace src.Components
                 WorkerSpeedWhenHoldingBucket = WorkerSpeedWhenHoldingBucket, 
                 DistanceToPickupBucket = DistanceToPickupBucket,
                 WaterFillUpDuration = WaterFillUpDuration,
+                WorkerCountPerTeam = WorkerCountPerTeam
             });
         }
     }

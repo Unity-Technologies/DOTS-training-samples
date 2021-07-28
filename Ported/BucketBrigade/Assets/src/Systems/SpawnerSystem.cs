@@ -65,8 +65,12 @@ namespace src.Systems
                 TargetWaterPos = 35,
             });
 
-            SpawnFullBucketPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam);
-            
+            // TODO: create multiple teams
+            var teamId = 1;
+            SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+            SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+            SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+
             // Spawn bucket fetchers:
             const int numBucketFetcherWorkers = 2;
             using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
@@ -94,34 +98,40 @@ namespace src.Systems
             Enabled = false;
         }
 
-        private void SpawnFullBucketPassers(Entity prefab, int count)
+        private void SpawnPassers(Entity prefab, int count, int teamId)
         {
-            //for (int teamId = 0; teamId < teamDataBuffer.Length; teamId++)
-            // TODO: Assign proper teams
-            var teamId = 1;
+            using var passers = new NativeArray<Entity>(count, Allocator.Temp);
+            EntityManager.Instantiate(prefab, passers);
+
+            for (var f = 0; f < passers.Length; f++)
             {
-                using var fullBucketPassers = new NativeArray<Entity>(count, Allocator.Temp);
-                EntityManager.Instantiate(prefab, fullBucketPassers);
-
-                for (var f = 0; f < fullBucketPassers.Length; f++)
+                var entity = passers[f];
+                SetTeamWorkerComponents(entity, teamId);
+                EntityManager.SetComponentData(entity, new TeamPosition()
                 {
-                    var entity = fullBucketPassers[f];
-                    EntityManager.SetComponentData(entity, new Position
-                    {
-                        Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
-                    });
-
-                    EntityManager.SetComponentData(entity, new TeamId
-                    {
-                        Id = teamId,
-                    });
-
-                    EntityManager.SetComponentData(entity, new TeamPosition()
-                    {
-                        Index = f
-                    });
-                }
+                    Index = f
+                });
             }
+        }
+
+        private void SpawnThrower(Entity prefab, int teamId)
+        {
+            using var throwers = new NativeArray<Entity>(1, Allocator.Temp);
+            EntityManager.Instantiate(prefab, throwers);
+            SetTeamWorkerComponents(throwers[0], teamId);
+        }
+
+        private void SetTeamWorkerComponents(Entity entity, int teamId)
+        {
+            EntityManager.SetComponentData(entity, new Position
+            {
+                Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
+            });
+
+            EntityManager.SetComponentData(entity, new TeamId
+            {
+                Id = teamId,
+            });
         }
     }
 }
