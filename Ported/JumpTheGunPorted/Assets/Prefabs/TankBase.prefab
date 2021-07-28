@@ -200,6 +200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4927100602340655413}
   - component: {fileID: 2433550956516268700}
+  - component: {fileID: -750029566261387859}
   m_Layer: 0
   m_Name: TankBase
   m_TagString: Untagged
@@ -238,6 +239,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c301210955a3b9c44857e183c81893bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-750029566261387859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2419665243598880927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97f5831f9822627489df399947c483ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Yaw: 0
+  Pitch: 0
 --- !u!1 &2500345098736188482
 GameObject:
   m_ObjectHideFlags: 0

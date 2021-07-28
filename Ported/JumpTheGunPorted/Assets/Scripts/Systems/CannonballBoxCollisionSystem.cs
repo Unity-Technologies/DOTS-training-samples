@@ -17,7 +17,8 @@ public class CannonballBoxCollisionSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ball = GetSingletonEntity<Cannonball>();
+        /* TODO: this is copied from breakout for reference
+        var balls = GetEntitys<Cannonball>();
         var ballPos = GetComponent<Translation>(ball);
         var ballScale = GetComponent<NonUniformScale>(ball);
 
@@ -36,7 +37,7 @@ public class CannonballBoxCollisionSystem : SystemBase
                 in NonUniformScale boxScale) =>
             {
                 // TODO:
-                /*var brickAabb = new AABB2D { Center = boxTranslation.Value.xy, Extents = boxScale.Value.xy / 2 };
+                var brickAabb = new AABB2D { Center = boxTranslation.Value.xy, Extents = boxScale.Value.xy / 2 };
                 var axisFlip = new float2();
 
                 if (brickAabb.Intersects(ballAabb, ref axisFlip))
@@ -44,9 +45,9 @@ public class CannonballBoxCollisionSystem : SystemBase
                     ecb.SetComponent(entityInQueryIndex, ball, new Velocity2D { Value = ballVelocity.Value * axisFlip });
                     ecb.DestroyEntity(entityInQueryIndex, brickEntity);
                 }
-                */
             }).ScheduleParallel();
 
         m_ECBSystem.AddJobHandleForProducer(Dependency);
+        */
     }
 }

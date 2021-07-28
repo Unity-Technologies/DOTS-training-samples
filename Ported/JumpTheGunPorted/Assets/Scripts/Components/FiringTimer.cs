@@ -5,7 +5,7 @@ using Unity.Entities;
 // generate an authoring component with the same fields and a conversion
 // function that simply copies the fields from one to the other.
 [GenerateAuthoringComponent]
-public struct FiringTime : IComponentData
+public struct FiringTimer : IComponentData
 {
     public float NextFiringTime;
 }

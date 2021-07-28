@@ -20,6 +20,13 @@ public class BounceSystem : SystemBase
         int terrainWidth = config.TerrainWidth;
         float midPlaneY = (config.MinTerrainHeight + config.MaxTerrainHeight) / 2;
 
+        UnityEngine.Ray ray = refs.Camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+        float3 mouseWorldPos = new float3(0, midPlaneY, 0);
+        float t = (midPlaneY - ray.origin.y) / ray.direction.y;
+        mouseWorldPos.x = ray.origin.x + t * ray.direction.x;
+        mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
+        float3 mouseLocalPos = mouseWorldPos;
+
         Entities
             .ForEach((Entity entity, ref ParabolaTValue tValue, in Translation translation, in Player playerTag) =>
             {
@@ -38,12 +45,6 @@ public class BounceSystem : SystemBase
 
                     // target box is one move forward in the direction of the mouse
                     // getting local world position of mouse.  Is where camera ray intersects xz plane with y = 
-                    float3 mouseWorldPos = new float3(0, midPlaneY, 0);
-                    UnityEngine.Ray ray = UnityEngine.Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
-                    float t = (midPlaneY - ray.origin.y) / ray.direction.y;
-                    mouseWorldPos.x = ray.origin.x + t * ray.direction.x;
-                    mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
-                    float3 mouseLocalPos = mouseWorldPos;
                     float2 mouseBoxPos = new float2(
                         math.clamp(math.round(mouseLocalPos.x), 0, terrainLength - 1),
                         math.clamp(math.round(mouseLocalPos.z), 0, terrainWidth - 1)

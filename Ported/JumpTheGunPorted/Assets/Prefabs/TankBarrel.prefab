@@ -9,6 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1655353133483744595}
+  - component: {fileID: 5551146932749756927}
+  - component: {fileID: 2359906086245954584}
   m_Layer: 0
   m_Name: TankBarrel
   m_TagString: Untagged
@@ -31,6 +33,33 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5551146932749756927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878654052333999606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4fdfe4e1a4fbe24cac4cf269344fd7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NextFiringTime: 0
+--- !u!114 &2359906086245954584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878654052333999606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97f5831f9822627489df399947c483ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Yaw: 0
+  Pitch: 0
 --- !u!1 &7628766570642562783
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,4 +7,6 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct Cannonball : IComponentData
 {
+    public const float RADIUS = .25f;
+    public const float SPEED = 2.5f;
 }
