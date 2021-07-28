@@ -16,6 +16,8 @@ public class BounceSystem : SystemBase
         var refs = this.GetSingleton<GameObjectRefs>();
         var config = refs.Config.Data;
         int terrainLength = config.TerrainLength;
+        int terrainWidth = config.TerrainWidth;
+        float midPlaneY = (config.MinTerrainHeight + config.MaxTerrainHeight) / 2;
 
         Entities
             .ForEach((Entity entity, ref ParabolaTValue tValue, in Translation translation, in Player playerTag) =>
@@ -23,13 +25,55 @@ public class BounceSystem : SystemBase
                 if (tValue.Value < 0)
                 {
                     // solving parabola path
-                    int startBoxCol = (int)translation.Value.x;
-                    int startBoxRow = (int)translation.Value.z;
+
+                    //start at player and move towards the box the mouse is over
+                    float2 currentPos = new float2(
+                        math.clamp(math.round(translation.Value.x), 0, terrainLength - 1),
+                        math.clamp(math.round(translation.Value.z), 0, terrainWidth - 1)
+                    );
+                    int startBoxCol = (int) currentPos.x;
+                    int startBoxRow = (int) currentPos.y;
                     float startY = heightMap[startBoxRow * terrainLength + startBoxCol] + Player.Y_OFFSET;
 
-                    int endBoxCol = startBoxCol; // TODO: needs to be the tile that mouse is over
-                    int endBoxRow = startBoxRow; // TODO: needs to be the tile that mouse is over
+                    // target box is one move forward in the direction of the mouse
+                    // getting local world position of mouse.  Is where camera ray intersects xz plane with y = 
+                    float3 mouseWorldPos = new float3(0, midPlaneY, 0);
+                    UnityEngine.Ray ray = UnityEngine.Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
+                    float t = (midPlaneY - ray.origin.y) / ray.direction.y;
+                    mouseWorldPos.x = ray.origin.x + t * ray.direction.x;
+                    mouseWorldPos.z = ray.origin.z + t * ray.direction.z;
+                    float3 mouseLocalPos = mouseWorldPos;
+                    float2 mouseBoxPos = new float2(
+                        math.clamp(math.round(mouseLocalPos.x), 0, terrainLength - 1),
+                        math.clamp(math.round(mouseLocalPos.z), 0, terrainWidth - 1)
+                    );
+
+                    float2 movePos = mouseBoxPos;
+                    if (math.abs(mouseBoxPos.x - currentPos.x) > 1 || math.abs(mouseBoxPos.y - currentPos.y) > 1)
+                    {
+                        // mouse position is too far away.  Find closest position
+                        movePos = currentPos;
+                        if (mouseBoxPos.x != currentPos.x)
+                        {
+                            movePos.x += mouseBoxPos.x > currentPos.x ? 1 : -1;
+                        }
+                        if (mouseBoxPos.y != currentPos.y)
+                        {
+                            movePos.y += mouseBoxPos.y > currentPos.y ? 1 : -1;
+                        }
+
+                    }
+
+                    // TODO: don't move if target is occupied by checking some map of where tanks are?
+                    /*if (TerrainArea.instance.OccupiedBox(movePos.x, movePos.y))
+                    {
+                        movePos.Set(endBox.col, endBox.row);
+                    }*/
+
+                    int endBoxCol = (int) movePos.x;
+                    int endBoxRow = (int)movePos.y;
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol] + Player.Y_OFFSET;
+
                     float height = math.max(startY, endY);
 
                     // make height max of adjacent boxes when moving diagonally
@@ -46,6 +90,10 @@ public class BounceSystem : SystemBase
                     float dist = math.distance(startPos, endPos);
                     float duration = math.max(1, dist) * Player.BOUNCE_BASE_DURATION;
 
+                    // determine forward movement per t
+                    float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
+
+                    // construct the parabola data struct for use in the movement system
                     ecb.AddComponent(entity, new Parabola
                     {
                         StartY = startY,
@@ -54,9 +102,11 @@ public class BounceSystem : SystemBase
                         A = a,
                         B = b,
                         C = c,
-                        Duration = duration
+                        Duration = duration,
+                        Forward = forward
                     });
 
+                    // start the parabola movement
                     tValue.Value = 0;
                 }
             }).Run(); // TODO: can I make this a job or parallel? errors right now doing that, figure out later

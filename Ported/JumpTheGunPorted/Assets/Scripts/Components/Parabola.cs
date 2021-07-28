@@ -17,4 +17,5 @@ public struct Parabola : IComponentData
     public float C;
 
     public float Duration;
+    public float3 Forward;
 }

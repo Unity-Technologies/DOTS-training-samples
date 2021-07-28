@@ -20,7 +20,8 @@ public class MovementSystem : SystemBase
                         tValue.Value = -1; // reset and calculate new bounce
                     }
 
-                    // TODO: also move forward in x/z, i.e. mouse input or cannon target, maybe just a a goal x/y to be generic?
+                    // move forward in x/z, i.e. mouse input or cannon target,
+                    translation.Value += parabola.Forward / (parabola.Duration / time); 
                 }
             }).ScheduleParallel();
     }
