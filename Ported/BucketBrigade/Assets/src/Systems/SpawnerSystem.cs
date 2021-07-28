@@ -34,8 +34,7 @@ namespace src.Systems
             
             // Spawn buckets:
             
-            const int numBucketsInMap = 30;
-            using var bucketEntities = new NativeArray<Entity>(numBucketsInMap, Allocator.Temp);
+            using var bucketEntities = new NativeArray<Entity>(configValues.BucketCount, Allocator.Temp);
             EntityManager.Instantiate(config.BucketPrefab, bucketEntities);
             for (var i = 0; i < bucketEntities.Length; i++)
             {
@@ -54,26 +53,26 @@ namespace src.Systems
             var teamContainerEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<TeamData>());
             EntityManager.SetName(teamContainerEntity, "TeamContainer");
             var teamDataBuffer = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
-            teamDataBuffer.Add(new TeamData
+            for (int teamId = 0; teamId < configValues.TeamCount; teamId++)
             {
-                TargetFireCell = 5,
-                TargetWaterPos = 15,
-            });   
-            teamDataBuffer.Add(new TeamData
-            {
-                TargetFireCell = 25,
-                TargetWaterPos = 35,
-            });
+                teamDataBuffer.Add(new TeamData
+                {
+                    // TODO
+                    TargetFireCell = 5 + teamId * 5,
+                    TargetWaterPos = 15 + teamId * 5,
+                });
+            }
 
-            // TODO: create multiple teams
-            var teamId = 1;
-            SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
-            SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
-            SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+            for (int teamId = 0; teamId < configValues.TeamCount; teamId++)
+            {
+                SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+                SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+                SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+            }
+
 
             // Spawn bucket fetchers:
-            const int numBucketFetcherWorkers = 2;
-            using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
+            using var bucketFetcherWorkers = new NativeArray<Entity>(configValues.BucketFetcherCount, Allocator.Temp);
             EntityManager.Instantiate(config.BucketFetcherPrefab, bucketFetcherWorkers);
             for (var i = 0; i < bucketFetcherWorkers.Length; i++)
             {

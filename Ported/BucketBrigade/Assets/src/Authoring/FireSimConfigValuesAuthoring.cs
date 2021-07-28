@@ -22,7 +22,10 @@ namespace src.Components
             WorkerSpeedWhenHoldingBucket = 2f,
             DistanceToPickupBucket = 1f, 
             WaterFillUpDuration = 4f, 
-            WorkerCountPerTeam = 10
+            WorkerCountPerTeam = 10,
+            TeamCount = 2,
+            BucketFetcherCount = 2,
+            BucketCount = 30
         };
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
