@@ -88,6 +88,9 @@ public class SetupSystem : SystemBase
                 SetAnimalSpawners(boardSpawner, size);
 
                 EntityManager.DestroyEntity(entity);
+                holeCoords.Dispose();
+                wallGenParams.Dispose();
+                cellStructs.Dispose();
             }).Run();
     }
 
