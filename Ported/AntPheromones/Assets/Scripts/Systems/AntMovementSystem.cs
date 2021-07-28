@@ -15,6 +15,9 @@ public class AntMovementSystem : SystemBase
     private const float antSpeed = 0.2f;
     private const float randomSteering = 0.14f;
     private const float goalSteerStrength = 0.03f;
+    private const float pheronomeSteeringDistance = 3f;
+    private const float pheromoneSteerStrength = 0.015f;
+
     protected override void OnUpdate()
     {
         Random rand = new Random(1234);
@@ -24,6 +27,34 @@ public class AntMovementSystem : SystemBase
             {
                 facingAngle.Value += rand.NextFloat(-randomSteering, randomSteering);
             }).ScheduleParallel();
+
+        var mapSetting = GetSingleton<PheromoneMapSetting>();
+
+        var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
+        var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
+        Entities
+            //Need to add this so the job system stop complaining. We are simply reading and never setting.
+            //I don't know if we can make a DynamicBuffer Readonly.
+            .WithNativeDisableParallelForRestriction(pheromoneMapBuffer)
+            .ForEach((ref FacingAngle facingAngle, in Translation translation) => 
+            {
+                float pheroSteering = 0;
+                for (int i = -1; i <= 1; i += 2)
+                {
+                    float angle = facingAngle.Value + i * math.PI * .25f;
+                    Translation position = translation;
+                    position.Value.x += math.cos(angle) * pheronomeSteeringDistance;
+                    position.Value.y += math.sin(angle) * pheronomeSteeringDistance;
+
+                    if (PheromoneMapSystem.TryGetClosestPheronomoneIndexFromTranslation(position, mapSetting, out int index))
+                    {
+                        float value = pheromoneMapBuffer[index].x;
+                        pheroSteering += value * i;
+                    }
+                }
+                facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength;
+
+            }).ScheduleParallel(); 
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();

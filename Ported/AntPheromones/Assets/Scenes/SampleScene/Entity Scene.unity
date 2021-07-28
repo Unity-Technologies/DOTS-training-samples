@@ -290,8 +290,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1c868fe3292fa444b5cbe3b083b244a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trailDecay: 0.05
-  trailSpeed: 0.3
+  trailDecay: 0.015
+  trailSpeed: 0.5
   mapSize: 128
   offset:
     x: 14

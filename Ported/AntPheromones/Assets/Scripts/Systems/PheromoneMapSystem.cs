@@ -93,7 +93,7 @@ public class PheromoneMapSystem : SystemBase
         texture.Apply();
     }
 
-    private static bool TryGetClosestPheronomoneIndexFromTranslation(in Translation translation, in PheromoneMapSetting mapSetting, out int index)
+    public static bool TryGetClosestPheronomoneIndexFromTranslation(Translation translation, in PheromoneMapSetting mapSetting, out int index)
     {
         int x = (int)math.round((translation.Value.x - mapSetting.Offset.x) / mapSetting.WorldSize * mapSetting.Size);
         int y = (int)math.round((translation.Value.y - mapSetting.Offset.y) / mapSetting.WorldSize * mapSetting.Size);
