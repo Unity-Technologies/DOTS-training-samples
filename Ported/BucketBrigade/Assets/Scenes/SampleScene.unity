@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
-    StartingFireCount: 1
+    StartingFireCount: 10
     MaxFlameHeight: 2
     CellSize: 0.5
     Rows: 200
