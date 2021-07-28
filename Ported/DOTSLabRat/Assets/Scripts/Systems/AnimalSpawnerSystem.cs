@@ -5,6 +5,7 @@ using Unity.Transforms;
 
 namespace DOTSRATS
 {
+    [UpdateAfter(typeof(SetupSystem))]
     public class AnimalSpawnerSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -28,8 +29,10 @@ namespace DOTSRATS
                         ecb.SetComponent(instance, translation);
                         ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
 
-                        bool spawnSmall = SpawnBigOrSmall(ref animalSpawner.randomSeed);
-                        ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = animalSpawner.initialSpeed[spawnSmall?0:1]});
+                        bool spawnSmall = SpawnBigOrSmall(ref animalSpawner.random);
+                        ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = animalSpawner.initialSpeed[spawnSmall?1:0]});
+                        ecb.AddComponent(instance, new Scale { Value = spawnSmall ? 1f : 1.5f });
+                        ecb.SetComponent(instance, new Scaling { targetScale = spawnSmall ? 1f : 1.5f });
                         ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                     }
                 }).Run();
@@ -38,10 +41,7 @@ namespace DOTSRATS
             ecb.Dispose();
         }
 
-        static bool SpawnBigOrSmall(ref uint randomSeed)
-        {
-            randomSeed = Random.CreateFromIndex(randomSeed).NextUInt();
-            return (randomSeed % 10) >= 2;
-        }
+        static bool SpawnBigOrSmall(ref Random random)
+            => random.NextInt(10) >= 2;
     }
 }

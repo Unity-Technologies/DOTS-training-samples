@@ -10,19 +10,16 @@ namespace DOTSRATS
     {
         protected override void OnUpdate()
         {
+            var deltaTime = Time.DeltaTime;
+
             Entities
-                .WithoutBurst()
                 .ForEach((Entity entity, ref Scale currentScale, ref Scaling targetScale) =>
                 {
                     if(currentScale.Value != targetScale.targetScale)
                     {
-                        currentScale.Value = Mathf.Lerp(currentScale.Value, targetScale.targetScale, targetScale.currentInterpolation);
-                        targetScale.currentInterpolation = math.max(targetScale.interpolationMax, targetScale.currentInterpolation + targetScale.interpolationRate);
-                        if (targetScale.currentInterpolation == targetScale.interpolationMax)
-                            targetScale.currentInterpolation = 0;
+                        currentScale.Value = Mathf.Lerp(currentScale.Value, targetScale.targetScale, deltaTime*5);
                     }
-                    
-                }).Run();
+                }).ScheduleParallel();
         }
     }
 }

@@ -210,6 +210,8 @@ public class SetupSystem : SystemBase
         goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
         EntityManager.SetComponentData(goal, new Translation() { Value = position });
         EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
+        EntityManager.AddComponent(goal, typeof(Scale));
+        EntityManager.SetComponentData(goal, new Scale { Value = 1f });
 
         cellStruct.goal = goal;
 
@@ -234,37 +236,21 @@ public class SetupSystem : SystemBase
 
     public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize, ref Random random)
     {
-        Entity catSpawnPointOne = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(catSpawnPointOne);
-        var animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(catSpawnPointOne);
-        animalSpawner.randomSeed = random.NextUInt();
-        EntityManager.SetComponentData(catSpawnPointOne, animalSpawner);
-        EntityManager.SetComponentData(catSpawnPointOne, new Translation { Value = new float3(0, -0.5f, 0) });
-        EntityManager.AddComponentData(catSpawnPointOne, new DirectionData { Value = Direction.North });
+        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, ref Random random)
+        {
+            Entity spawnPoint = EntityManager.Instantiate(prefab);
+            EntityManager.AddComponent<InPlay>(spawnPoint);
+            var animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(spawnPoint);
+            animalSpawner.random = Random.CreateFromIndex(random.NextUInt());
+            EntityManager.SetComponentData(spawnPoint, animalSpawner);
+            EntityManager.SetComponentData(spawnPoint, new Translation {Value = new float3(position.x, -0.5f, position.y)});
+            EntityManager.AddComponentData(spawnPoint, new DirectionData {Value = direction});
+        }
 
-        Entity catSpawnPointTwo = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(catSpawnPointTwo);
-        animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(catSpawnPointOne);
-        animalSpawner.randomSeed = random.NextUInt();
-        EntityManager.SetComponentData(catSpawnPointOne, animalSpawner);
-        EntityManager.SetComponentData(catSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, boardSize - 1) });
-        EntityManager.AddComponentData(catSpawnPointTwo, new DirectionData { Value = Direction.South });
-
-        Entity ratSpawnPointOne = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(ratSpawnPointOne);
-        animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(catSpawnPointOne);
-        animalSpawner.randomSeed = random.NextUInt();
-        EntityManager.SetComponentData(catSpawnPointOne, animalSpawner);
-        EntityManager.SetComponentData(ratSpawnPointOne, new Translation { Value = new float3(0, -0.5f, boardSize - 1) });
-        EntityManager.AddComponentData(ratSpawnPointOne, new DirectionData { Value = Direction.East });
-
-        Entity ratSpawnPointTwo = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(ratSpawnPointTwo);
-        animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(catSpawnPointOne);
-        animalSpawner.randomSeed = random.NextUInt();
-        EntityManager.SetComponentData(catSpawnPointOne, animalSpawner);
-        EntityManager.SetComponentData(ratSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, 0) });
-        EntityManager.AddComponentData(ratSpawnPointTwo, new DirectionData { Value = Direction.West });
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, ref random);
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, ref Random random)
