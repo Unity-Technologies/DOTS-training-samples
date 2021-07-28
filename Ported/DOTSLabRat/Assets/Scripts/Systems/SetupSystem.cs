@@ -210,6 +210,8 @@ public class SetupSystem : SystemBase
         goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
         EntityManager.SetComponentData(goal, new Translation() { Value = position });
         EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
+        EntityManager.AddComponent(goal, typeof(Scale));
+        EntityManager.SetComponentData(goal, new Scale { Value = 1f });
 
         cellStruct.goal = goal;
 
