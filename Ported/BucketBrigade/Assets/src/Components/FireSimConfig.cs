@@ -86,7 +86,13 @@ namespace src.Components
 
         public int GetCellIdOfRowCol(int row, int column) => column + row * Columns;
 
-        public int2 GetRowColOfCell(int cellId) => new int2(cellId % Columns, cellId / Columns);
+        public int2 GetRowColOfCell(int cellId)
+        {
+            var rowColOfCell = new int2(cellId % Columns, cellId / Columns);
+            Debug.Assert(GetCellIdOfRowCol(rowColOfCell.x, rowColOfCell.y) == cellId, "'GetRowColOfCell' does not match 'GetCellIdOfRowCol'!");
+            return rowColOfCell;
+        }
+
         public int GetCellIdOfPosition2D(float2 pos) => GetCellIdOfRowCol(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y));
 
         /// <summary>
