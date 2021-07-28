@@ -178,7 +178,10 @@ MonoBehaviour:
     type: 3}
   PlayerPrefab: {fileID: 7065276215041349323, guid: 9cf35c1f71ad217459adc2535bf96355,
     type: 3}
-  TankPrefab: {fileID: 1285056113001856, guid: 1a6e6c73e1404e543b5887b6f723d4a5, type: 3}
+  TankPrefab: {fileID: 2419665243598880927, guid: 5a53101f1770ad74987e3cf76e10cdcc,
+    type: 3}
+  BarrelPrefab: {fileID: 1878654052333999606, guid: c0518e5cdc75903419169905e8f7c4a7,
+    type: 3}
   CannonballPrefab: {fileID: 7065276215041349323, guid: 9d971ef95f9d786469f2639699e0c7d2,
     type: 3}
 --- !u!114 &93403117
