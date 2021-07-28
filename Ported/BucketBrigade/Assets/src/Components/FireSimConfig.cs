@@ -60,6 +60,8 @@ namespace src.Components
 
         [Range(0.0001f, 50f)] public float WaterFillUpDuration;
 
+        public int WorkerCountPerTeam;
+
 
         float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
         {

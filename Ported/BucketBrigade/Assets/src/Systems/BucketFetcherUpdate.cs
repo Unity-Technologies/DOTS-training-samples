@@ -47,20 +47,11 @@ namespace src.Systems
                     .WithNone<WorkerIsHoldingBucket>()
                     .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos) =>
                     {
-                        var closestBucketPosition = GetClosestBucket(pos, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+                        var closestBucketPosition = Utils.GetClosestBucket(pos, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
                         var deltaToBucket = closestBucketPosition.Value - pos.Value;
                         if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                         {
-                 
-                            var closestBucketEntity = bucketEntities[closestBucketEntityIndex];
-                            concurrentEcb.AddComponent(entityInQueryIndex, closestBucketEntity, new BucketIsHeld
-                            {
-                                WorkerHoldingThis = workerEntity,
-                            });
-                            concurrentEcb.AddComponent(entityInQueryIndex, workerEntity, new WorkerIsHoldingBucket
-                            {
-                                Bucket = closestBucketEntity,
-                            });
+                            Utils.PickUpBucket(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex]);
                         }
                         else
                         {
@@ -128,23 +119,5 @@ namespace src.Systems
             m_EndSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        static Position GetClosestBucket(Position myPosition, NativeArray<Position> bucketPositions, out float closestSqrDistance, out int closestBucketEntityIndex)
-        {     
-            var closestBucketPosition = new Position();
-            closestSqrDistance = float.PositiveInfinity;
-            closestBucketEntityIndex = -1;
-            for (var i = 0; i < bucketPositions.Length; i++)
-            {
-                var bucketPosition = bucketPositions[i];
-                var bucketSqrDistance = math.distancesq(myPosition.Value, bucketPosition.Value);
-                if (bucketSqrDistance < closestSqrDistance)
-                {
-                    closestBucketPosition = bucketPosition;
-                    closestSqrDistance = bucketSqrDistance;
-                    closestBucketEntityIndex = i;
-                }
-            }
-            return closestBucketPosition;
-        }
     }
 }
