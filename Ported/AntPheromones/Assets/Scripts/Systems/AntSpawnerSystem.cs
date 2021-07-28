@@ -23,6 +23,7 @@ public class AntSpawnerSystem : SystemBase
                     for (int i = 0; i < spawner.AntCount; i++) 
                     {
                         var spawnedEntity = ecb.Instantiate(spawner.AntPrefab);
+                        ecb.AddComponent<Ant>(spawnedEntity);
                         ecb.SetComponent(spawnedEntity, new Translation
                         {
                             Value = new float3(rand.NextFloat(-5f,5f)+mapSize*.5f,rand.NextFloat(-5f,5f) + mapSize * .5f, 0)
@@ -42,6 +43,10 @@ public class AntSpawnerSystem : SystemBase
                         ecb.AddComponent(spawnedEntity, new Brightness()
                         {
                             Value = rand.NextFloat(.75f, 1.25f)
+                        });
+                        ecb.AddComponent(spawnedEntity, new Excitement
+                        {
+                            Value = 0
                         });
                     }
 
