@@ -12,8 +12,9 @@ public class SetupSystem : SystemBase
     protected override void OnUpdate()
     {
         const float k_yRangeSize = 0.03f;
-        
-        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
+
+        var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
+        var random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : randomSeed);
 
         Entities
             .WithStructuralChanges()
