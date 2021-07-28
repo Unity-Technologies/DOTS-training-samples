@@ -1,3 +1,4 @@
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -9,6 +10,7 @@ namespace DOTSRATS
     {
         public int PlayerNumber;
         public UnityEngine.Color PlayerColor;
+        public Vector2 AIArrowPlaceDelayRange;
         
         public void Convert(Entity entity, EntityManager dstManager
             , GameObjectConversionSystem conversionSystem)
@@ -20,7 +22,9 @@ namespace DOTSRATS
                 color = PlayerColor,
                 score = 0,
                 arrowToPlace = new int2(-1,-1),
-                arrowDirection = Direction.None
+                arrowDirection = Direction.None,
+                nextArrowTime = 0,
+                arrowPlacementDelayRange = AIArrowPlaceDelayRange,
             });
         }
     }

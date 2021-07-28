@@ -106,7 +106,7 @@ public class SetupSystem : SystemBase
         cellStruct.wallLayout |= direction;
         if (GetOppositeCoord(coord, direction, boardSpawner.boardSize, out var oppositeCoord))
         {
-            var oppositeDir = GetOppositeDirection(direction);
+            var oppositeDir = Utils.GetOppositeDirection(direction);
             var oppositeCellIndex = oppositeCoord.y * boardSpawner.boardSize + oppositeCoord.x;
             var oppositeCell = cellStructs[oppositeCellIndex];
             oppositeCell.wallLayout |= oppositeDir;
@@ -184,7 +184,7 @@ public class SetupSystem : SystemBase
             else
             {
                 var baseDir = (Direction)(1 << random.NextInt(0, 4));
-                var nextCardinalDir = GetNextCardinalCW(baseDir);
+                var nextCardinalDir = Utils.GetNextCardinalCW(baseDir);
                 
                 SpawnWall(boardSpawner, coord, baseDir, ref cellStruct, cellStructs);
                 SpawnWall(boardSpawner, coord, nextCardinalDir, ref cellStruct, cellStructs);
@@ -197,7 +197,7 @@ public class SetupSystem : SystemBase
             for (int i = 0; i < amount; ++i)
             {
                 SpawnWall(boardSpawner, coord,dir, ref cellStruct, cellStructs);
-                dir = GetNextCardinalCW(dir);
+                dir = Utils.GetNextCardinalCW(dir);
             }
         }
     }
@@ -365,43 +365,5 @@ public class SetupSystem : SystemBase
 
         oppositeCoord = coord;
         return true;
-    }
-
-    Direction GetOppositeDirection(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.North:
-                return Direction.South;
-            case Direction.South:
-                return Direction.North;
-            case Direction.West:
-                return Direction.East;
-            case Direction.East:
-                return Direction.West;
-            case Direction.Up:
-                return Direction.Down;
-            case Direction.Down:
-                return Direction.Up;
-        }
-
-        return direction;
-    }
-    
-    Direction GetNextCardinalCW(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.North:
-                return Direction.East;
-            case Direction.East:
-                return Direction.South;
-            case Direction.South:
-                return Direction.West;
-            case Direction.West:
-                return Direction.North;
-        }
-
-        return direction;
     }
 }

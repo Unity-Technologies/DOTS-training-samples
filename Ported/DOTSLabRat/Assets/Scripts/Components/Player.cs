@@ -11,5 +11,9 @@ namespace DOTSRATS
         public int score;
         public int2 arrowToPlace;
         public Direction arrowDirection;
+        
+        // AI players only
+        public double nextArrowTime;
+        public float2 arrowPlacementDelayRange;
     }
 }
