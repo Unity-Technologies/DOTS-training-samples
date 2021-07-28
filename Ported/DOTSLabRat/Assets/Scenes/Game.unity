@@ -526,6 +526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df5b4ee80629b7543bd2efd12ec5db5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  camera: {fileID: 963194227}
   timerText: {fileID: 732523463}
   player0Score: {fileID: 743164707}
   player1Score: {fileID: 158040237}
