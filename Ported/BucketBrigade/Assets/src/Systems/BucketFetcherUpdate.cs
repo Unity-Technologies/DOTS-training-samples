@@ -88,6 +88,7 @@ namespace src.Systems
                         }
                         else
                         {
+                            concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position() { Value = teamData.TargetWaterPos });
                             concurrentEcb.AddComponent<FillUpBucketTag>(entityInQueryIndex, workerIsHoldingBucket.Bucket);
                             // // DO SOME ECB STUFF.
                            
