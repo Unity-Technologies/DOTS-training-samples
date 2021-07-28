@@ -27,12 +27,13 @@ namespace src.Systems
             var configValues = GetComponent<FireSimConfigValues>(configEntity);
 
             // TODO: grid plane should be at the quad where the grid is projected. For now using a 
-            // hardcoded scale and assuming the plane is on the XZ quadrant with origin at (0, 0, 0)
+            // hardcoded scale and assuming the plane is on the XZ quadrant with bottom left at (0, 0, 0)
 
             var cellSize = configValues.CellSize * 100;
             var rows = configValues.Rows;
             var columns = configValues.Columns;
 
+#if UNITY_EDITOR
             for (int i = 0; i <= rows; ++i)
                 for (int j = 0; j <= columns; ++j)
                 {
@@ -45,7 +46,7 @@ namespace src.Systems
                     UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.cyan, 0);
                     UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.cyan, 0);
                 }
-                    
+#endif                    
 
             if (UnityInput.GetMouseButtonDown(0))
             {
@@ -54,13 +55,12 @@ namespace src.Systems
                 {
                     var screenPointToRay = camera.ScreenPointToRay(UnityInput.mousePosition);                    
                     var plane = new UnityPlane(UnityEngine.Vector3.up, 0);
-                    plane.Raycast(screenPointToRay, out float distance);
-                    var position = screenPointToRay.direction * distance;
-
-                    // TODO: should take into account origin, rotation and scale of the quad where the grid is projected...
+                    plane.Raycast(screenPointToRay, out float enter);
                     
-                    var (row, col) = GetCellRowCol(new float3(position.x, position.y, position.z), cellSize, default);
-                    if (row > 0 && row < rows && col > 0 && col < columns)
+                    var clickPosition = screenPointToRay.GetPoint(enter);                    
+                    var (row, col) = GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z), cellSize, default);
+
+                    if (row >= 0 && row < rows && col >= 0 && col < columns)
                     {
                         var temperatureEntity = GetSingletonEntity<Temperature>();
                         var temperatureBuffer = EntityManager.GetBuffer<Temperature>(temperatureEntity);
@@ -74,10 +74,10 @@ namespace src.Systems
             }
         }
 
-        private float3 GetCellWorldPosition(int row, int col, float cellSize, float3 origin)
+        public static float3 GetCellWorldPosition(int row, int col, float cellSize, float3 origin)
             => origin + new float3(col, 0f, row) * cellSize;
 
-        private (int row, int col) GetCellRowCol(float3 worldPosition, float cellSize, float3 origin)
+        public static (int row, int col) GetCellRowCol(float3 worldPosition, float cellSize, float3 origin)
         {
             var localPosition = worldPosition - origin;
             
