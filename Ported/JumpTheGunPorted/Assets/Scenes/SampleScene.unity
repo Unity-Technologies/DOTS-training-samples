@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43667555, g: 0.48427182, b: 0.56452405, a: 1}
+  m_IndirectSpecularColor: {r: 0.4366756, g: 0.48427194, b: 0.5645252, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -179,7 +179,8 @@ MonoBehaviour:
   PlayerPrefab: {fileID: 7065276215041349323, guid: 9cf35c1f71ad217459adc2535bf96355,
     type: 3}
   TankPrefab: {fileID: 1285056113001856, guid: 1a6e6c73e1404e543b5887b6f723d4a5, type: 3}
-  CannonballPrefab: {fileID: 0}
+  CannonballPrefab: {fileID: 7065276215041349323, guid: 9d971ef95f9d786469f2639699e0c7d2,
+    type: 3}
 --- !u!114 &93403117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -848,6 +849,8 @@ MonoBehaviour:
   _HeightDamage: 0.4
   _TankCount: 5
   _TankReloadTime: 3
+  _CollisionStepMultiplier: 4
+  _PlayerParabolaPrecision: 0.1
 --- !u!4 &1702529457
 Transform:
   m_ObjectHideFlags: 0
