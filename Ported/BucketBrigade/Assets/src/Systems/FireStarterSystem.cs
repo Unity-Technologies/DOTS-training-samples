@@ -19,7 +19,7 @@ namespace src.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
-            RequireSingletonForUpdate<FireSimConfig>();
+            RequireSingletonForUpdate<FireSimConfigValues>();
             RequireSingletonForUpdate<Temperature>();
 
             random = new Random((uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue));
@@ -35,35 +35,36 @@ namespace src.Systems
             var cellSize = configValues.CellSize;
             var rows = configValues.Rows;
             var columns = configValues.Columns;
+            var planeHeight = 0f; // this must move up ro down depending on the height of the green ground above 0
 
 #if UNITY_EDITOR           
-            var offset = cellSize;
+            var offset = 0f;
             for (int i = 0; i <= rows; ++i)
             {
-                var hor_from = configValues.GetCellWorldPosition3D(i, 0) + new float3(-offset, .5f, 0f);
-                var hor_to = configValues.GetCellWorldPosition3D(i, columns) + new float3(offset, .5f, 0f);
-                UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.cyan, 0);
+                var hor_from = configValues.GetCellWorldPosition3D(i, 0) + new float3(-offset, planeHeight, 0f);
+                var hor_to = configValues.GetCellWorldPosition3D(i, columns) + new float3(offset, planeHeight, 0f);
+                UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.grey, 0);
             }
 
             for (int j = 0; j <= columns; ++j)
             { 
-                var ver_from = configValues.GetCellWorldPosition3D(0, j) + new float3(0f, .5f, -offset);
-                var ver_to = configValues.GetCellWorldPosition3D(rows, j) + new float3(0f, .5f, offset);
-                UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.cyan, 0);
+                var ver_from = configValues.GetCellWorldPosition3D(0, j) + new float3(0f, planeHeight, -offset);
+                var ver_to = configValues.GetCellWorldPosition3D(rows, j) + new float3(0f, planeHeight, offset);
+                UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.grey, 0);
             }
 #endif                    
 
             if (UnityInput.GetMouseButtonDown(0))
-            {
+            {              
                 var camera = this.GetSingleton<GameObjectRefs>().Camera;
                 if (camera)
                 {
                     var screenPointToRay = camera.ScreenPointToRay(UnityInput.mousePosition);                    
-                    var plane = new UnityPlane(UnityEngine.Vector3.up, 0);
+                    var plane = new UnityPlane(UnityEngine.Vector3.up, -planeHeight);
                     plane.Raycast(screenPointToRay, out float enter);
                     
-                    var clickPosition = screenPointToRay.GetPoint(enter);                    
-                    var rowCol = configValues.GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z), default);
+                    var clickPosition = screenPointToRay.GetPoint(enter);
+                    var rowCol = configValues.GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z));
                     var row = rowCol.x;
                     var col = rowCol.y;
                     if (row >= 0 && row < rows && col >= 0 && col < columns)

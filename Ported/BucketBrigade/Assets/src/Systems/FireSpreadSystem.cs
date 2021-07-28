@@ -15,15 +15,14 @@ namespace src.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
-            RequireSingletonForUpdate<FireSimConfig>();
+            RequireSingletonForUpdate<FireSimConfigValues>();
             RequireSingletonForUpdate<Temperature>();
 
         }
 
         protected override void OnUpdate()
         {
-            var configEntity = GetSingletonEntity<FireSimConfig>();
-            var configValues = GetComponent<FireSimConfigValues>(configEntity);
+            var configValues = GetSingleton<FireSimConfigValues>();
 
             double elapsedTime = Time.ElapsedTime;
 

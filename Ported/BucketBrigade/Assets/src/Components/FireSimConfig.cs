@@ -118,15 +118,18 @@ namespace src.Components
         /// <summary>
         ///     Assumes world map starts at 0, 0.
         /// </summary>
-        public float3 GetCellWorldPosition3D(int row, int col) => new float3(col, 0f, row) * CellSize;
+        public float3 GetCellWorldPosition3D(int row, int col, float3 origin = default) => origin + new float3(col, 0f, row) * CellSize;
 
-        public int2 GetCellRowCol(float3 worldPosition, float3 origin)
+        public int2 GetCellRowCol(float3 worldPosition, float3 origin = default)
         {
             var localPosition = worldPosition - origin;
-            
             // Convert to grid position
             var row = (int)(localPosition.z / CellSize);
             var col = (int)(localPosition.x / CellSize);
+            if (localPosition.z < 0)
+                row--;
+            if (localPosition.x < 0)
+                col--;
             return new int2(row, col);
         }
     }

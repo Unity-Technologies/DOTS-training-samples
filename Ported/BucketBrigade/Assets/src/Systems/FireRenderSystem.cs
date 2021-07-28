@@ -69,7 +69,7 @@ namespace src.Systems
                    var worldPosition = configValues.GetCellWorldPosition3D(row, column);
                    float xPosition = worldPosition.x + cellSize * 0.5f;
                    float zPosition = worldPosition.z + cellSize * 0.5f;
-                   float yPosition = configValues.MaxFlameHeight * temperatureWithFlicker;
+                   float yPosition = -1f + configValues.MaxFlameHeight * temperatureWithFlicker;
                    float scaleX = cellSize;
                    float scaleY = configValues.MaxFlameHeight; 
                    float scaleZ = cellSize;
