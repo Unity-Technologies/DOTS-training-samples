@@ -23,8 +23,7 @@ namespace src.Systems
 
         protected override void OnUpdate()
         {
-            var configEntity = GetSingletonEntity<FireSimConfig>();
-            var configValues = GetComponent<FireSimConfigValues>(configEntity);
+            var configValues = GetSingleton<FireSimConfigValues>();
 
             // TODO: grid plane should be at the quad where the grid is projected. For now using a 
             // hardcoded scale and assuming the plane is on the XZ quadrant with bottom left at (0, 0, 0)
@@ -37,7 +36,7 @@ namespace src.Systems
             for (int i = 0; i <= rows; ++i)
                 for (int j = 0; j <= columns; ++j)
                 {
-                    var cellWorldPos = GetCellWorldPosition(i, j, cellSize, default);
+                    var cellWorldPos = configValues.GetCellWorldPosition3D(i, j);
                     var offset = cellSize * 0.5f;
                     var hor_from = cellWorldPos + new float3(-offset, .5f, 0f);
                     var hor_to = cellWorldPos + new float3(offset, .5f, 0f);
@@ -58,8 +57,9 @@ namespace src.Systems
                     plane.Raycast(screenPointToRay, out float enter);
                     
                     var clickPosition = screenPointToRay.GetPoint(enter);                    
-                    var (row, col) = GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z), cellSize, default);
-
+                    var rowCol = configValues.GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z), default);
+                    var row = rowCol.x;
+                    var col = rowCol.y;
                     if (row >= 0 && row < rows && col >= 0 && col < columns)
                     {
                         var temperatureEntity = GetSingletonEntity<Temperature>();
@@ -72,19 +72,6 @@ namespace src.Systems
                     }
                 }
             }
-        }
-
-        public static float3 GetCellWorldPosition(int row, int col, float cellSize, float3 origin)
-            => origin + new float3(col, 0f, row) * cellSize;
-
-        public static (int row, int col) GetCellRowCol(float3 worldPosition, float cellSize, float3 origin)
-        {
-            var localPosition = worldPosition - origin;
-            
-            // Convert to grid position
-            var row = (int)(localPosition.z / cellSize);
-            var col = (int)(localPosition.x / cellSize);
-            return (row, col);
         }
     }
 }

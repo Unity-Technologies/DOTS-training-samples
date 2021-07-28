@@ -49,19 +49,19 @@ namespace src.Systems
                    WaterLevel = UnityEngine.Random.value,
                 });
             }
-            
+
             // Spawn teams:
             var teamContainerEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<TeamData>());
             EntityManager.SetName(teamContainerEntity, "TeamContainer");
             var teamDataBuffer = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
             teamDataBuffer.Add(new TeamData
             {
-                TargetFileCell = 5,
+                TargetFireCell = 5,
                 TargetWaterPos = 15,
             });   
             teamDataBuffer.Add(new TeamData
             {
-                TargetFileCell = 25,
+                TargetFireCell = 25,
                 TargetWaterPos = 35,
             });
 

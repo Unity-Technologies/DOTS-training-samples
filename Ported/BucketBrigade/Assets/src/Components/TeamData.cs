@@ -10,6 +10,6 @@ namespace src.Components
     public struct TeamData : IBufferElementData
     {
         public float2 TargetWaterPos;
-        public int TargetFileCell;
+        public int TargetFireCell;
     }
 }

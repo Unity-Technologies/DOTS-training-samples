@@ -1,4 +1,5 @@
 ﻿using System;
+using src.Systems;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -63,7 +64,7 @@ namespace src.Components
         public int WorkerCountPerTeam;
 
 
-        float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
+        public float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
         {
             if (row < 0 || column < 0 || row >= Rows || column >= Columns)
                 return 0;
@@ -73,14 +74,45 @@ namespace src.Components
             return temperatureBuffer[cellIndex].Intensity;
         }
 
-        void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int row, int column, float temperature)
+        public void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int row, int column, float temperature)
         {
             if (row >= 0 && column >= 0 && row < Rows && column < Columns)
             {
-                int cellIndex = column + row * Columns;
+                int cellIndex = GetCellIdOfRowCol(row, column);
 
                 temperatureBuffer[cellIndex] = new Temperature {Intensity = temperature};
             }
+        }
+
+        public int GetCellIdOfRowCol(int row, int column) => column + row * Columns;
+
+        public int2 GetRowColOfCell(int cellId) => new int2(cellId % Columns, cellId / Columns);
+        public int GetCellIdOfPosition2D(float2 pos) => GetCellIdOfRowCol(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y));
+
+        /// <summary>
+        ///     Assumes world map starts at 0, 0.
+        /// </summary>
+        public float2 GetCellWorldPosition2D(int cellId)
+        {
+            var rowCol = GetRowColOfCell(cellId);
+            var cellWorldPosition = GetCellWorldPosition3D(rowCol.x, rowCol.y);
+            // Ignore Y axis when converting back to 2D.
+            return new float2(cellWorldPosition.x, cellWorldPosition.z);
+        }
+
+        /// <summary>
+        ///     Assumes world map starts at 0, 0.
+        /// </summary>
+        public float3 GetCellWorldPosition3D(int row, int col) => new float3(col, 0f, row) * CellSize;
+
+        public int2 GetCellRowCol(float3 worldPosition, float3 origin)
+        {
+            var localPosition = worldPosition - origin;
+            
+            // Convert to grid position
+            var row = (int)(localPosition.z / CellSize);
+            var col = (int)(localPosition.x / CellSize);
+            return new int2(row, col);
         }
     }
 }
