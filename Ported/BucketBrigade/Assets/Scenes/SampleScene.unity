@@ -210,9 +210,9 @@ MonoBehaviour:
   settings:
     StartingFireCount: 1
     MaxFlameHeight: 0.1
-    CellSize: 5
-    Rows: 20
-    Columns: 20
+    CellSize: 0.5
+    Rows: 200
+    Columns: 200
     Flashpoint: 0.5
     HeatRadius: 1
     HeatTransferRate: 0.7
@@ -935,6 +935,7 @@ Transform:
   - {fileID: 410720148}
   - {fileID: 1189930404}
   - {fileID: 1847295279}
+  - {fileID: 145736979}
   - {fileID: 601519714}
   - {fileID: 952452504}
   m_Father: {fileID: 0}
