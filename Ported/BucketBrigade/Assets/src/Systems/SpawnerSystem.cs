@@ -10,16 +10,20 @@ namespace src.Systems
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class SpawnerSystem : SystemBase
     {
+        const float mapSizeXZ = 100;
+
         protected override void OnCreate()
         {
             base.OnCreate();
             RequireSingletonForUpdate<FireSimConfig>();
+            RequireSingletonForUpdate<FireSimConfigValues>();
         }
 
         protected override void OnUpdate()
         {
             var config = GetSingleton<FireSimConfig>();
-            
+            var configValues = GetSingleton<FireSimConfigValues>();
+
             // Fix configs to remove LinkedEntityGroup:
             EntityManager.RemoveComponent<LinkedEntityGroup>(config.OmniWorkerPrefab);
             EntityManager.RemoveComponent<LinkedEntityGroup>(config.BucketThrowerWorkerPrefab);
@@ -29,7 +33,7 @@ namespace src.Systems
             EntityManager.RemoveComponent<LinkedEntityGroup>(config.BucketPrefab);
             
             // Spawn buckets:
-            const float mapSizeXZ = 100;
+            
             const int numBucketsInMap = 30;
             using var bucketEntities = new NativeArray<Entity>(numBucketsInMap, Allocator.Temp);
             EntityManager.Instantiate(config.BucketPrefab, bucketEntities);
@@ -60,9 +64,11 @@ namespace src.Systems
                 TargetFileCell = 25,
                 TargetWaterPos = 35,
             });
+
+            SpawnFullBucketPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam);
             
             // Spawn bucket fetchers:
-            const int numBucketFetcherWorkers = 30;
+            const int numBucketFetcherWorkers = 2;
             using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
             EntityManager.Instantiate(config.BucketFetcherPrefab, bucketFetcherWorkers);
             for (var i = 0; i < bucketFetcherWorkers.Length; i++)
@@ -86,6 +92,36 @@ namespace src.Systems
             
             // Once we've spawned, we can disable this system, as it's done its job.
             Enabled = false;
+        }
+
+        private void SpawnFullBucketPassers(Entity prefab, int count)
+        {
+            //for (int teamId = 0; teamId < teamDataBuffer.Length; teamId++)
+            // TODO: Assign proper teams
+            var teamId = 1;
+            {
+                using var fullBucketPassers = new NativeArray<Entity>(count, Allocator.Temp);
+                EntityManager.Instantiate(prefab, fullBucketPassers);
+
+                for (var f = 0; f < fullBucketPassers.Length; f++)
+                {
+                    var entity = fullBucketPassers[f];
+                    EntityManager.SetComponentData(entity, new Position
+                    {
+                        Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
+                    });
+
+                    EntityManager.SetComponentData(entity, new TeamId
+                    {
+                        Id = teamId,
+                    });
+
+                    EntityManager.SetComponentData(entity, new TeamPosition()
+                    {
+                        Index = f
+                    });
+                }
+            }
         }
     }
 }
