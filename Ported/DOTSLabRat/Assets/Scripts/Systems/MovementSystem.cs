@@ -90,9 +90,17 @@ public class Movement : SystemBase
                     {
                         if (cell.arrow != Direction.None)
                             velocity.Direction = cell.arrow;
-                        for (int i=0; i<3; ++i)
-                            if ((velocity.Direction & cell.wallLayout) != Direction.None)
-                                velocity.Direction = RotateClockWise(velocity.Direction);
+                        if ((velocity.Direction & cell.wallLayout) != Direction.None)
+                        {
+                            var proposedDirection = RotateClockWise(velocity.Direction);
+                            if ((proposedDirection & cell.wallLayout) != Direction.None)
+                            {
+                                proposedDirection = RotateCounterClockWise(velocity.Direction);
+                                if ((proposedDirection & cell.wallLayout) != Direction.None)
+                                    proposedDirection = RotateCounterClockWise(proposedDirection);
+                            }
+                            velocity.Direction = proposedDirection;
+                        }
 
                         // Tweak new translation according to the (possible) new direction
                         newTranslation =
@@ -117,12 +125,29 @@ public class Movement : SystemBase
 
     static Direction RotateClockWise(Direction dir)
     {
+        // Optimization: use bitshifting
         switch (dir)
         {
             case Direction.North: return Direction.East;
             case Direction.South: return Direction.West;
             case Direction.East:  return Direction.South;
             case Direction.West:  return Direction.North;
+            case Direction.Up:    return Direction.Up;
+            case Direction.Down:  return Direction.Down;
+            case Direction.None:
+            default:              return Direction.None;
+        }
+    }
+    
+    static Direction RotateCounterClockWise(Direction dir)
+    {
+        // Optimization: use bitshifting
+        switch (dir)
+        {
+            case Direction.North: return Direction.West;
+            case Direction.South: return Direction.East;
+            case Direction.East:  return Direction.North;
+            case Direction.West:  return Direction.South;
             case Direction.Up:    return Direction.Up;
             case Direction.Down:  return Direction.Down;
             case Direction.None:
