@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4531886296750751325}
   - component: {fileID: 4531886296750751324}
   m_Layer: 0
-  m_Name: AnimalSpawner
+  m_Name: RatSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43,8 +43,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a2eef46a0f6e9b46838e2c993d7b044, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  catPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
   ratPrefab: {fileID: 1565721843962348, guid: fd9947d7db73f441cb1a4d06a4fc087d, type: 3}
-  maxRats: 100
-  maxCats: 100
+  maxRats: 10
   spawnRate: 0.5

@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4947532303769016}
   - component: {fileID: -3699052632421935977}
+  - component: {fileID: -4572345330112327538}
+  - component: {fileID: 351247871377615351}
   m_Layer: 0
   m_Name: Cat
   m_TagString: Cat
@@ -42,6 +44,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8c63a000c614fa4fa2176e85875b997, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-4572345330112327538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377909340170110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1831c228e1a2724897b47ae911cf0c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetScale: 1
+  interpolationMax: 1
+  currentInterpolation: 0
+  interpolationRate: 0.1
+--- !u!114 &351247871377615351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377909340170110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d230809af3844aa6f78b197b7747e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1780733835329128

@@ -44,5 +44,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   catPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
-  maxCats: 100
-  spawnRate: 0.5
+  maxCats: 5
+  spawnRate: 0.001
