@@ -67,14 +67,14 @@ namespace src.Systems
                 SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
-                SpawnFetcher(config);
+                SpawnFetcher(config, teamId);
             }
 
             // Once we've spawned, we can disable this system, as it's done its job.
             Enabled = false;
         }
 
-        void SpawnFetcher(FireSimConfig config)
+        void SpawnFetcher(FireSimConfig config, int teamId)
         {
             const int numBucketFetcherWorkers = 1;
             using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
@@ -90,11 +90,7 @@ namespace src.Systems
                 // NW: Lets default to Team 1 for now.
                 EntityManager.SetComponentData(entity, new TeamId
                 {
-                    Id = 1,
-                });
-                EntityManager.SetComponentData(entity, new TeamPosition
-                {
-                    Index = i,
+                    Id = teamId
                 });
             }
         }
