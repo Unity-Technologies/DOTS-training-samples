@@ -19,7 +19,8 @@ namespace src.Components
         public Entity OmniWorkerPrefab;
         
         public Entity BucketPrefab;
- 
+
+        public Entity FireCellPrefab;
     }
 
     public struct FireSimConfigValues : IComponentData
@@ -39,8 +40,6 @@ namespace src.Components
 
         [Tooltip("How many cells DEEP the simulation will be")]
         public int Columns;
-
-        private float simulation_WIDTH, simulation_DEPTH;
 
         [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
         public float Flashpoint;
