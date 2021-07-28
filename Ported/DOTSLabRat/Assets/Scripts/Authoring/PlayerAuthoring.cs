@@ -19,7 +19,8 @@ namespace DOTSRATS
                 playerNumber = PlayerNumber,
                 color = PlayerColor,
                 score = 0,
-                arrowToPlace = new int2(-1,-1)
+                arrowToPlace = new int2(-1,-1),
+                arrowDirection = Direction.None
             });
         }
     }

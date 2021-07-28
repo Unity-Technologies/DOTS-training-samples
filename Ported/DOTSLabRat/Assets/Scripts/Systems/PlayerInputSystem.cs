@@ -30,7 +30,14 @@ namespace DOTSRATS
                             if (boardPlane.Raycast(ray, out enter))
                             {
                                 Vector3 hitPoint = ray.GetPoint(enter);
-                                player.arrowToPlace = new int2((int) hitPoint.x, (int) hitPoint.z);
+                                var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
+                                player.arrowToPlace = coord;
+
+                                var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
+                                if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
+                                    player.arrowDirection = offset.y > 0 ? Direction.North : Direction.South;
+                                else
+                                    player.arrowDirection = offset.x > 0 ? Direction.East : Direction.West;
                             }
                         }
                     }

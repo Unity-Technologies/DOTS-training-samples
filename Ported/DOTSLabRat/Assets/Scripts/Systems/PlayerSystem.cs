@@ -23,11 +23,11 @@ namespace DOTSRATS
 
                     }
 
-                    //Check for new arrows in personal buffer and place them
+                    //Check for new arrow and place them
                     if (player.arrowToPlace.x != -1)
                     {
                         var cell = cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x];
-                        cell.arrow = Direction.South;
+                        cell.arrow = player.arrowDirection;
                         cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x] = cell;
                         player.arrowToPlace = new int2(-1, -1);
                     }

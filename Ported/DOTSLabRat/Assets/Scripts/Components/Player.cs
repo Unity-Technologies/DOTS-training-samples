@@ -10,5 +10,6 @@ namespace DOTSRATS
         public UnityEngine.Color color;
         public int score;
         public int2 arrowToPlace;
+        public Direction arrowDirection;
     }
 }
