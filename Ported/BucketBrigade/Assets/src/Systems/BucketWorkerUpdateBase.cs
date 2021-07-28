@@ -79,7 +79,7 @@ namespace src.Systems
             return ecb.AsParallelWriter();
         }
 
-        protected static float2 GetPositionInTeam(float2 startPosition, float2 endPosition, int id, int teamCount, bool curveLeft)
+        protected static float2 GetPositionInTeam(float2 startPosition, float2 endPosition, int id, int teamCount)
         {
             float t = (float)id / (float)(teamCount - 1);
 
@@ -91,10 +91,7 @@ namespace src.Systems
             curveOffset.y = tmp;
 
             curveOffset = math.sin(t * math.PI) * curveOffset;
-            if (curveLeft)
-                position += curveOffset;
-            else
-                position -= curveOffset;
+            position += curveOffset;
 
             return position;
         }

@@ -42,7 +42,7 @@ namespace src.Systems
                     var teamData = teamDatas[ourTeamId.Id];
                     // TODO: Get Fire position
                     var firePosition = new float2(100, 100);
-                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam, CurveLeft);
+                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam);
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
                     {
@@ -70,7 +70,7 @@ namespace src.Systems
                     var firePosition = new float2(100, 100);
 
                     // Since we're passing a bucket to team mate, specify target position with next index.
-                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam, CurveLeft);
+                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam);
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed))
                         Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket);
