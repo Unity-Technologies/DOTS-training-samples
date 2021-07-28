@@ -22,6 +22,8 @@ public class AntMovementSystem : SystemBase
     {
         Random rand = new Random(1234);
 
+        var time = Time.DeltaTime;
+
         Entities
             .ForEach((ref FacingAngle facingAngle) =>
             {
@@ -52,7 +54,7 @@ public class AntMovementSystem : SystemBase
                         pheroSteering += value * i;
                     }
                 }
-                facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength;
+                facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength * time;
 
             }).ScheduleParallel(); 
 
@@ -92,7 +94,6 @@ public class AntMovementSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
         
-        var time = Time.DeltaTime;
         var playerEntity = GetSingletonEntity<PlayerInput>();
         var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
         Entities
