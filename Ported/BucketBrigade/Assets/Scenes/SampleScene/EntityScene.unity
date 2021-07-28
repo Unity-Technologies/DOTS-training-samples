@@ -155,7 +155,7 @@ MonoBehaviour:
   SimulationSize: 5
   WaterRefillRate: 0.02
   WaterMaxScale: 0.2
-  MinBucketScale: 0.2
+  MinBucketScale: 0.1
   MaxBucketScale: 0.4
   BucketCount: 5
   EmptyBucketColor:
@@ -183,6 +183,7 @@ MonoBehaviour:
   PasserFullBotColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   PasserEmptyBotColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
   BotSpeed: 0.075
+  TargetProximityThreshold: 0
 --- !u!4 &271051949
 Transform:
   m_ObjectHideFlags: 0

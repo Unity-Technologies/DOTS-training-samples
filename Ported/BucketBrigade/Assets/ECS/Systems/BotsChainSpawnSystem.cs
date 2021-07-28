@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -73,6 +74,8 @@ public class BotsChainSpawnSystem : SystemBase
         ecb.SetComponent(bot, new Translation() {Value = new float3(rnd.NextFloat() * simSize, 0.0f, rnd.NextFloat() * simSize)});
         ecb.SetComponent(bot, new URPMaterialPropertyBaseColor() {Value = ColorToFloat4.Cast(color)});
         ecb.SetComponent(bot, new TargetLocationComponent() {location = float2.zero});
+        ecb.AddComponent<TargetBucket>(bot);
+        ecb.AddComponent<CarriedBucket>(bot);
         return bot;
     }
 }

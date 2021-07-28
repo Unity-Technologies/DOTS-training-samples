@@ -16,9 +16,11 @@ public class BotsMovementSystem : SystemBase
     {
         var config = GetSingleton<GameConfigComponent>();
         var botSpeed = config.BotSpeed;
-        var threshold = 0.05f;
+        var threshold = config.TargetProximityThreshold;
+        var ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = ecbs.CreateCommandBuffer();
         
-        Entities.ForEach((ref Translation trans, in TargetLocationComponent target) =>
+        Entities.ForEach((ref Translation trans, in TargetLocationComponent target, in CarriedBucket carried) =>
         {
             var botPos = trans.Value;
             var targetPos = target.location;
@@ -30,7 +32,15 @@ public class BotsMovementSystem : SystemBase
                 var move = (diff / distance) * speed;
                 botPos += new float3(move.x, 0.0f, move.y);
                 trans.Value = botPos;
+
+                if (carried.bucket != Entity.Null)
+                {
+                    var t = new Translation() {Value = botPos + new float3(0, 1F, 0)};
+                    ecb.SetComponent(carried.bucket, t);
+                }
             }
         }).Schedule();
+        
+        ecbs.AddJobHandleForProducer(Dependency);
     }
 }

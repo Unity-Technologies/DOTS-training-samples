@@ -60,7 +60,7 @@ public class AssessChainSystem : SystemBase
                     }
                 }
 
-                SetComponent(scooper, new TargetLocationComponent() {location = waterPos.xz});
+                //SetComponent(scooper, new TargetLocationComponent() {location = waterPos.xz});
 
                 // Find closest fire cell
                 var bestFirePos = float3.zero;
