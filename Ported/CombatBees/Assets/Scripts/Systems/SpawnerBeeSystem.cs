@@ -26,7 +26,7 @@ class SpawnerBeeSystem: SystemBase
                     if (spawner.Team == 0)
                     {
                         ecb.AddComponent<TeamA>(instance);
-                        ecb.AddComponent(instance,new URPMaterialPropertyBaseColor
+                        ecb.SetComponent(instance,new URPMaterialPropertyBaseColor
                                         {
                                             Value = new float4(1.0f, 0.0f, 0.0f, 1.0f)
                                         });
@@ -34,14 +34,14 @@ class SpawnerBeeSystem: SystemBase
                     else
                     {
                         ecb.AddComponent<TeamB>(instance);
-                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
+                        ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                         {
                             Value = new float4(0.0f, 0.0f, 1.0f, 1.0f)
                         });
                     }
 
-                    ecb.AddComponent(instance, new NewTranslation {translation = translation});
-                    ecb.AddComponent(instance, new Bee
+                    ecb.SetComponent(instance, new NewTranslation {translation = translation});
+                    ecb.SetComponent(instance, new Bee
                     {
                         State = BeeState.Idle,
                         Target = Entity.Null,

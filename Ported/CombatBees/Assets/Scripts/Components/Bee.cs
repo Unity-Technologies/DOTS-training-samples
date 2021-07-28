@@ -8,6 +8,7 @@ public enum BeeState
     ChasingEnemy,
 }
 
+[GenerateAuthoringComponent]
 public struct Bee : IComponentData
 {
     public BeeState State;

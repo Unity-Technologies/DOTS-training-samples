@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 5419349648496032798}
   - component: {fileID: 5419349648496032797}
   - component: {fileID: 5419349648496032796}
+  - component: {fileID: -2310027391171114576}
+  - component: {fileID: 8960130586137357790}
+  - component: {fileID: 2180315929882373761}
   m_Layer: 0
   m_Name: Bee
   m_TagString: Untagged
@@ -96,3 +99,52 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-2310027391171114576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5419349648496032795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99ee644324c91594ebe68a30e17a754a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  translation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+--- !u!114 &8960130586137357790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5419349648496032795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 635e9527500fc564eac43c85c959c703, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  State: 0
+  Target: {fileID: 0}
+  resource: {fileID: 0}
+--- !u!114 &2180315929882373761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5419349648496032795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
