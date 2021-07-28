@@ -5,10 +5,11 @@ using UnityRangeAttribute = UnityEngine.RangeAttribute;
 namespace DOTSRATS
 {
     [GenerateAuthoringComponent]
-    public struct RatSpawner : IComponentData
+    public struct AnimalSpawner : IComponentData
     {
-        public Entity ratPrefab;
-        public int maxRats;
+        public Entity animalPrefab;
+        public int maxAnimals;
         [UnityRange(0, 1)] public float spawnRate;
     }
 }
+
