@@ -332,8 +332,8 @@ MonoBehaviour:
   goalPrefab: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448, type: 3}
   maxWallsRange: {x: 20, y: 30}
   maxHoles: 5
-  catSpawnerPrefab: {fileID: 5757656629589892328, guid: 3b8f6de3f5eb9fe4ab392e663664de93, type: 3}
-  ratSpawnerPrefab: {fileID: 4531886296750751326, guid: 3f0b1f95e74ee2146b4c1e4c340dc3c0, type: 3}
+  catSpawnerPrefab: {fileID: 1794805736887354684, guid: 0c723309ab9e10a43892ac38a3c9122e, type: 3}
+  ratSpawnerPrefab: {fileID: 6069298199091270840, guid: 4ed55f75bb21fcc4991d17525aee8f32, type: 3}
 --- !u!4 &1163757079
 Transform:
   m_ObjectHideFlags: 0

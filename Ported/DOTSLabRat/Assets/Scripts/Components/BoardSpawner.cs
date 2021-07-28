@@ -11,6 +11,7 @@ public struct BoardSpawner : IComponentData
     public Entity goalPrefab;
     public Vector2Int maxWallsRange;
     public int maxHoles;
+    public uint randomSeed;
 
     public Entity catSpawnerPrefab;
     public Entity ratSpawnerPrefab;

@@ -12,8 +12,9 @@ public class SetupSystem : SystemBase
     protected override void OnUpdate()
     {
         const float k_yRangeSize = 0.03f;
-        
-        var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
+
+        var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
+        var random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : randomSeed);
 
         Entities
             .WithStructuralChanges()
@@ -53,8 +54,9 @@ public class SetupSystem : SystemBase
                 {
                     for (int x = 0; x < size; ++x)
                     {
+                        var cellIndex = z * size + x;
                         // Spawn tiles / holes
-                        var cell = new CellStruct();
+                        var cell = cellStructs[cellIndex];
                         var cellCoord = new int2(x, z);
 
                         if (!CoordExistsInArray(new int2(x, z), holeCoords))
@@ -69,21 +71,26 @@ public class SetupSystem : SystemBase
 
                         // Spawn outer walls
                         if (x == 0 || x == size - 1)
-                            SpawnWall(boardSpawner, cellCoord, x == 0 ? Direction.West : Direction.East, ref cell);
+                            SpawnWall(boardSpawner, cellCoord, x == 0 ? Direction.West : Direction.East, ref cell, cellStructs);
                         if (z == 0 || z == size - 1)
-                            SpawnWall(boardSpawner,cellCoord, z == 0 ? Direction.South : Direction.North, ref cell);
+                            SpawnWall(boardSpawner,cellCoord, z == 0 ? Direction.South : Direction.North, ref cell, cellStructs);
 
+                        // Spawn inner walls
                         if (wallGenParams.TryGetValue(cellCoord, out var spawnCount))
-                            SpawnInnerWall(boardSpawner, cellCoord, spawnCount, ref cell);
+                            SpawnInnerWall(boardSpawner, cellCoord, spawnCount, ref cell, cellStructs);
 
                         //spawn goals
                         if (ShouldPlaceGoalTile(cellCoord, size))
                             SpawnGoal(boardSpawner, cellCoord, playerNumber++, ref cell);
 
-                        cellStructs[z * size + x] = cell;
+                        cellStructs[cellIndex] = cell;
                     }
                 }
 
+                /*for (int z = 0; z < size; ++z)
+                    for (int x = 0; x < size; ++x)
+                        Debug.Log($"Wall layout at: ({x},{z}): {cellStructs[z * size + x].wallLayout}");*/                    
+                    
                 EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
                 SetAnimalSpawners(boardSpawner, size);
 
@@ -94,7 +101,7 @@ public class SetupSystem : SystemBase
             }).Run();
     }
 
-    Entity SpawnWall(BoardSpawner boardSpawner, int2 coord, Direction direction, ref CellStruct cellStruct)
+    Entity SpawnWall(BoardSpawner boardSpawner, int2 coord, Direction direction, ref CellStruct cellStruct, NativeArray<CellStruct> cellStructs)
     {
         Entity wall = default;
         
@@ -127,14 +134,24 @@ public class SetupSystem : SystemBase
         EntityManager.SetComponentData(wall, new Rotation() { Value = rotation });
 
         cellStruct.wallLayout |= direction;
+        if (GetOppositeCoord(coord, direction, boardSpawner.boardSize, out var oppositeCoord))
+        {
+            var oppositeDir = GetOppositeDirection(direction);
+            var oppositeCellIndex = oppositeCoord.y * boardSpawner.boardSize + oppositeCoord.x;
+            var oppositeCell = cellStructs[oppositeCellIndex];
+            oppositeCell.wallLayout |= oppositeDir;
+            cellStructs[oppositeCellIndex] = oppositeCell;
+
+            //Debug.Log("Setting opposite wall dir : " + oppositeDir + " @ " + oppositeCoord + " for direction: " + direction + " @ " + coord + " wallLayout: " + cellStruct.wallLayout);
+        }
 
         return wall;
     }
 
-    void SpawnInnerWall(BoardSpawner boardSpawner, int2 coord, int amount, ref CellStruct cellStruct)
+    void SpawnInnerWall(BoardSpawner boardSpawner, int2 coord, int amount, ref CellStruct cellStruct, NativeArray<CellStruct> cellStructs)
     {
         for (int i = 0; i < amount; i++)
-            SpawnWall(boardSpawner, coord, (Direction) (1 << i), ref cellStruct);
+            SpawnWall(boardSpawner, coord, (Direction) (1 << i), ref cellStruct, cellStructs);
     }
     
     public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct)
@@ -267,5 +284,59 @@ public class SetupSystem : SystemBase
         }
 
         return false;
+    }
+
+    bool GetOppositeCoord(int2 coord, Direction direction, int boardSize, out int2 oppositeCoord)
+    {
+        oppositeCoord = default;
+        switch (direction)
+        {
+            case Direction.North:
+                coord.y += 1;
+                if (coord.y >= boardSize)
+                    return false;
+                break;
+            case Direction.South:
+                coord.y -= 1;
+                if (coord.y < 0)
+                    return false;
+                break;
+            case Direction.West:
+                coord.x -= 1;
+                if (coord.x < 0)
+                    return false;
+                break;
+            case Direction.East:
+                coord.x += 1;
+                if (coord.x >= boardSize)
+                    return false;
+                break;
+            default:
+                return false;
+        }
+
+        oppositeCoord = coord;
+        return true;
+    }
+
+    Direction GetOppositeDirection(Direction direction)
+    {
+        switch (direction)
+        {
+            case Direction.North:
+                return Direction.South;
+            case Direction.South:
+                return Direction.North;
+            case Direction.West:
+                return Direction.East;
+            case Direction.East:
+                return Direction.West;
+            case Direction.Up:
+                return Direction.Down;
+            case Direction.Down:
+                return Direction.Up;
+        }
+
+        return direction;
     }
 }

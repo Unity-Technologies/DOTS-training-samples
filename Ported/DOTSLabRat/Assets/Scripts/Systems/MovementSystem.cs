@@ -36,7 +36,7 @@ public class Movement : SystemBase
                     // TODO: Goal collision
                     // if (cell.goal)
                     // {}
-                    else if (cell.wallLayout == (Direction.North & Direction.South & Direction.East & Direction.West))
+                    else if (cell.wallLayout == (Direction.North | Direction.South | Direction.East | Direction.West))
                     {
                         // This will only happen if something exists within a completely walled system. The spawners
                         // should probably identify this situation and immediately set velocity/direction to None.
