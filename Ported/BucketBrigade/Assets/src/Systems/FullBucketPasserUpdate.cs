@@ -100,7 +100,15 @@ namespace src.Systems
         {
             float t = (float) id / (float) (teamCount - 1);
 
-            return math.lerp(startPosition, endPosition, t);
+            var position =  math.lerp(startPosition, endPosition, t);
+            // Give it some curve
+            var curveOffset = math.normalizesafe(endPosition - startPosition) * 10.0f;
+            var tmp = curveOffset.x;
+            curveOffset.x = -curveOffset.y;
+            curveOffset.y = tmp;
+            position += math.sin(t * math.PI) * curveOffset;
+
+            return position;
         }
     }
 }
