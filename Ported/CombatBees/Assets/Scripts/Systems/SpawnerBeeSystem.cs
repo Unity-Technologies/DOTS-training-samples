@@ -23,10 +23,23 @@ class SpawnerBeeSystem: SystemBase
                     float3 pos = rng.NextFloat3(spawner.SpawnLocation - spawner.SpawnAreaSize * 0.5f, spawner.SpawnLocation + spawner.SpawnAreaSize * 0.5f);
                     var translation = new Translation {Value = pos};
                     ecb.SetComponent(instance, translation);
-                    if(spawner.Team == 0)
+                    if (spawner.Team == 0)
+                    {
                         ecb.AddComponent<TeamA>(instance);
+                        ecb.AddComponent(instance,new URPMaterialPropertyBaseColor
+                                        {
+                                            Value = new float4(1.0f, 0.0f, 0.0f, 1.0f)
+                                        });
+                    }
                     else
+                    {
                         ecb.AddComponent<TeamB>(instance);
+                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
+                        {
+                            Value = new float4(0.0f, 0.0f, 1.0f, 1.0f)
+                        });
+                    }
+
                     ecb.AddComponent(instance, new NewTranslation {translation = translation});
                     ecb.AddComponent(instance, new Bee
                     {

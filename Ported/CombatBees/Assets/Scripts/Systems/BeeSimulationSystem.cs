@@ -31,11 +31,10 @@ class BeeSimulationSystem: SystemBase
         var resourceQuery = GetEntityQuery(ComponentType.ReadOnly<Resource>());
         NativeArray<Entity> resources = resourceQuery.ToEntityArray( Allocator.TempJob );
 
-        //NativeHashSet<Entity> set = new NativeHashSet<Entity>();
-        //NativeArray<Entity> arr = new NativeArray<Entity>();
         var capacity = teamABees.Length + teamBBees.Length;
         NativeList<Entity> list = new NativeList<Entity>(capacity, Allocator.TempJob);
         var parallelList = list.AsParallelWriter();
+        var rng1 = new Random((uint) UnityEngine.Random.Range(1, 100000));
         
         Entities
             .WithReadOnly(teamABees)
@@ -43,7 +42,10 @@ class BeeSimulationSystem: SystemBase
             .WithReadOnly(resources)
             .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos) =>
             {
-                var rng = new Random(seed + (uint) entity.GetHashCode());
+
+                var rng = Random.CreateFromIndex(seed*175834927 + (uint) entity.Index);
+                rng.NextFloat();
+                
                 // set target if not set
                 if(bee.Target == Entity.Null && bee.State != BeeState.ReturningToBase)
                 {
@@ -73,7 +75,7 @@ class BeeSimulationSystem: SystemBase
                                 fetchResource = true;
                         }
                     }
-                    if(fetchResource)
+                    if(fetchResource && resources.Length > 0)
                     {
                         int resourceIdx = rng.NextInt(resources.Length);
                         bee.Target = resources[resourceIdx];
@@ -89,7 +91,7 @@ class BeeSimulationSystem: SystemBase
                     return;
                 }
                 float3 basePos = HasComponent<TeamA>(entity) ? new float3(-2.0f, 0.5f, 0.0f) : new float3(2.0f, 0.5f, 0.0f);
-                var targetPos = bee.State == BeeState.ReturningToBase ? basePos : GetComponent<Translation>(bee.Target).Value;
+                var targetPos = bee.Target == Entity.Null ? basePos : GetComponent<Translation>(bee.Target).Value;
                 float3 targetVec = targetPos - pos.translation.Value;
                 float3 dir = math.normalize(targetVec);
                 pos.translation.Value += dir * speed * deltaTime;
