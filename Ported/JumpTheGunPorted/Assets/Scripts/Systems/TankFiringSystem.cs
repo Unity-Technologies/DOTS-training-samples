@@ -26,9 +26,11 @@ public class TankFiringystem : SystemBase
         int terrainLength = config.TerrainLength;
         int terrainWidth = config.TerrainWidth;
         var reloadTime = config.TankReloadTime;
+        var playerParabolaPrecision = config.PlayerParabolaPrecision;
+        var collisionStepMultiplier = config.CollisionStepMultiplier;
 
         Entities
-            .ForEach((ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer) =>
+            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer) =>
             {
                 // time to shoot yet?
                 if (time >= firingTimer.NextFiringTime)
@@ -64,7 +66,9 @@ public class TankFiringystem : SystemBase
                     int endBoxRow = (int)playerBoxPos.y;
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol];
 
-                    float height = math.max(startY, endY);
+
+                    // binary searching to determine height of cannonball arc
+                    float height = CalculateHeight(startY, endY);
 
                     // make height max of adjacent boxes when moving diagonally
                     if (startBoxCol != endBoxCol && startBoxRow != endBoxRow)
@@ -82,7 +86,7 @@ public class TankFiringystem : SystemBase
                     if (duration < .0001f)
                         duration = 1;
 
-                    // determine forward movement per t
+                    // determine forward vector for the full parabola
                     float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
 
                     // construct the parabola data struct for use in the movement system
@@ -97,10 +101,66 @@ public class TankFiringystem : SystemBase
                         Duration = duration,
                         Forward = forward
                     });
-                }
-            }).Run(); // TODO: running as a job gives us error: InvalidOperationException: The previously scheduled job TankFiringystem:OnUpdate_LambdaJob0 writes to the Unity.Entities.EntityCommandBuffer OnUpdate_LambdaJob0.JobData.ecb. You must call JobHandle.Complete() on the job TankFiringystem:OnUpdate_LambdaJob0, before you can write to the Unity.Entities.EntityCommandBuffer safely.
 
+                    // TODO: set cannon rotation values into AimDirection
+                    //SetCannonRotation(Mathf.Atan2(Parabola.Solve(paraA, paraB, paraC, .1f) - Parabola.Solve(paraA, paraB, paraC, 0), .1f) * Mathf.Rad2Deg);
+                    ecb.SetComponent(entity, new AimDirection
+                    {
+                        Pitch = 0,
+                        Yaw = 0
+                    });
+                }
+            }).Schedule();
+        Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+    }
+
+    private static float CalculateHeight(float startY, float endY)
+    {
+        // TODO: implement the original arc checks to avoid collision with boxes
+        /*float low = math.max(startY, endY);
+        float high = low * 2;
+        float paraA, paraB, paraC;
+
+        // look for height of arc that won't hit boxes
+        while (true)
+        {
+            Parabola.Create(startY, high, endY, out paraA, out paraB, out paraC);
+            if (!Cannonball.CheckBoxCollision(start, end, paraA, paraB, paraC))
+            {
+                // high enough
+                break;
+            }
+            // not high enough.  Double value
+            low = high;
+            high *= 2;
+            // failsafe
+            if (high > 9999)
+            {
+                return; // skip launch
+            }
+        }
+
+        // do binary searches to narrow down
+        while (high - low > playerParabolaPrecision)
+        {
+            float mid = (low + high) / 2;
+            Parabola.Create(start.y, mid, end.y, out paraA, out paraB, out paraC);
+            if (Cannonball.CheckBoxCollision(start, end, paraA, paraB, paraC))
+            {
+                // not high enough
+                low = mid;
+            }
+            else
+            {
+                // too high
+                high = mid;
+            }
+        }
+
+        // launch with calculated height
+        float height = (low + high) / 2;*/
+        return math.max(startY, endY);
     }
 }

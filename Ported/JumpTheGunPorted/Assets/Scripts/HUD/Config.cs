@@ -13,6 +13,9 @@ public class ConfigData
     public int TankCount;
     public float TankReloadTime;
 
+    public float PlayerParabolaPrecision;
+    public float CollisionStepMultiplier;
+
     public bool Paused;
 }
 

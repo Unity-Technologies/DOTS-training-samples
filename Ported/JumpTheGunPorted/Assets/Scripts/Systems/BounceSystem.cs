@@ -7,7 +7,7 @@ public class BounceSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         var boxMapEntity = GetSingletonEntity<HeightBufferElement>(); // ASSUMES the singleton that has height buffer also has occupied
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(boxMapEntity);
@@ -39,8 +39,8 @@ public class BounceSystem : SystemBase
                         math.clamp(math.round(translation.Value.x), 0, terrainLength - 1),
                         math.clamp(math.round(translation.Value.z), 0, terrainWidth - 1)
                     );
-                    int startBoxCol = (int) currentPos.x;
-                    int startBoxRow = (int) currentPos.y;
+                    int startBoxCol = (int)currentPos.x;
+                    int startBoxRow = (int)currentPos.y;
                     float startY = heightMap[startBoxRow * terrainLength + startBoxCol] + Player.Y_OFFSET;
 
                     // target box is one move forward in the direction of the mouse
@@ -95,7 +95,7 @@ public class BounceSystem : SystemBase
                     float dist = math.distance(startPos, endPos);
                     float duration = math.max(1, dist) * Player.BOUNCE_BASE_DURATION;
 
-                    // determine forward movement per t
+                    // determine forward vector for the full parabola
                     float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
 
                     // construct the parabola data struct for use in the movement system
@@ -114,8 +114,8 @@ public class BounceSystem : SystemBase
                     // start the parabola movement
                     tValue.Value = 0;
                 }
-            }).Run(); // TODO: can I make this a job or parallel? errors right now doing that, figure out later
-
+            }).Schedule();
+        Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
