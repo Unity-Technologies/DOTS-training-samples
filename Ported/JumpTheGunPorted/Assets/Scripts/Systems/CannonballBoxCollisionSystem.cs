@@ -17,18 +17,17 @@ public class CannonballBoxCollisionSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var parallelWriter = ecb.AsParallelWriter();
 
         Entities
-            .WithoutBurst()
             .WithAll<Cannonball>()
-            .ForEach((Entity entity, in ParabolaTValue tValue) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in ParabolaTValue tValue) =>
             {
-                UnityEngine.Debug.Log(tValue.Value);
-                if (tValue.Value >= 0.97f)
+                if (tValue.Value >= 0.97f) // TODO: fix movement system so it actually gets to 1.0
                 {
-                    ecb.DestroyEntity(entity);
+                    parallelWriter.DestroyEntity(entityInQueryIndex, entity);
                 }
-            }).Schedule();
+            }).ScheduleParallel();
         Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
