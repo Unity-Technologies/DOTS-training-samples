@@ -29,9 +29,6 @@ namespace src.Systems
         {
             if (m_WaterTagQuery.IsEmpty || m_WorkersQuery.IsEmpty)
                 return;
-
-            // NW: TODO: Move to config.
-            var centerOfMap = new float2(50, 50);
             
             var teamContainerEntity = GetSingletonEntity<TeamData>();
             var teamDatas = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
@@ -39,21 +36,27 @@ namespace src.Systems
             var temperatureEntity = GetSingletonEntity<Temperature>();
             var temperatures = EntityManager.GetBuffer<Temperature>(temperatureEntity);
             
+            
+            
             for (var ourTeamId = 0; ourTeamId < teamDatas.Length; ourTeamId++)
             {
                 var teamData = teamDatas[ourTeamId];
                 var noKnownFireOrNoFireAtTargetFireCell = teamData.TargetFireCell < 0 || teamData.TargetFireCell >= temperatures.Length || ! temperatures[teamData.TargetFireCell].IsOnFire;
                 if (noKnownFireOrNoFireAtTargetFireCell)
                 {
-                    var averageTeamPos = GetTeamPos(centerOfMap, ourTeamId);
+                    var averageTeamPos = GetTeamPos(ourTeamId);
                     var hasFoundFire = TryGetClosestFireTo(averageTeamPos, temperatures, out int closestFireCell, out var closestFireDistance);
 
                     if (hasFoundFire)
                     {
+                        var fireSimConfigValues = GetSingleton<FireSimConfigValues>();
+                        var firePos = fireSimConfigValues.GetCellWorldPosition2D(closestFireCell);
+                        
                         var closestWater = GetClosestWaterTo(averageTeamPos, out var closestWaterDistance);
-                        Debug.Log($"Team {ourTeamId} (average pos: {averageTeamPos}) has found a new closest fire position {hasFoundFire} ({closestFireDistance:0.0}m) at cell {closestFireCell}, and closest water source {closestWater} ({closestWaterDistance:0.0}m)!");
+                        Debug.Log($"Team {ourTeamId} (average pos: {averageTeamPos}) has found a new closest fire position {firePos} ({closestFireDistance:0.0}m) at cell {closestFireCell}, and closest water source {closestWater} ({closestWaterDistance:0.0}m)!");
                         teamData.TargetFireCell = closestFireCell;
                         teamData.TargetWaterPos = closestWater;
+                        teamData.TargetFirePos = firePos;
                     }
                 }
             }
@@ -121,13 +124,13 @@ namespace src.Systems
             return new float2(math.clamp(ourPos.x, min.x, max.x), math.clamp(ourPos.y, min.y, max.y));
         }
 
-        float2 GetTeamPos(float2 centerOfMap, int ourTeamId)
+        float2 GetTeamPos(int ourTeamId)
         {
             using var workerPositions = m_WorkersQuery.ToComponentDataArray<Position>(Allocator.Temp);
             using var workerTeams = m_WorkersQuery.ToComponentDataArray<TeamId>(Allocator.Temp);
 
-            var teamPosition = centerOfMap;
-            int numMembersOfTeam = 0;
+            var teamPosition = new float2();
+            var numMembersOfTeam = 0;
             for (var i = 0; i < workerTeams.Length; i++)
             {
                 var team = workerTeams[i];

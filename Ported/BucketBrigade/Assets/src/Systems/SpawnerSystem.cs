@@ -33,7 +33,6 @@ namespace src.Systems
             EntityManager.RemoveComponent<LinkedEntityGroup>(config.BucketPrefab);
             
             // Spawn buckets:
-            
             const int numBucketsInMap = 30;
             using var bucketEntities = new NativeArray<Entity>(numBucketsInMap, Allocator.Temp);
             EntityManager.Instantiate(config.BucketPrefab, bucketEntities);
@@ -54,25 +53,27 @@ namespace src.Systems
             var teamContainerEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<TeamData>());
             EntityManager.SetName(teamContainerEntity, "TeamContainer");
             var teamDataBuffer = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
-            teamDataBuffer.Add(new TeamData
+            for (int teamId = 0; teamId < configValues.NumTeams; teamId++)
             {
-                TargetFireCell = 5,
-                TargetWaterPos = 15,
-            });   
-            teamDataBuffer.Add(new TeamData
-            {
-                TargetFireCell = 25,
-                TargetWaterPos = 35,
-            });
+                // And spawn workers for those teams:
+                teamDataBuffer.Add(new TeamData
+                {
+                    TargetFireCell = -1,
+                });
 
-            // TODO: create multiple teams
-            var teamId = 1;
-            SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
-            SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
-            SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+                SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+                SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
+                SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+                SpawnFetcher(config);
+            }
 
-            // Spawn bucket fetchers:
-            const int numBucketFetcherWorkers = 2;
+            // Once we've spawned, we can disable this system, as it's done its job.
+            Enabled = false;
+        }
+
+        void SpawnFetcher(FireSimConfig config)
+        {
+            const int numBucketFetcherWorkers = 1;
             using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
             EntityManager.Instantiate(config.BucketFetcherPrefab, bucketFetcherWorkers);
             for (var i = 0; i < bucketFetcherWorkers.Length; i++)
@@ -81,21 +82,18 @@ namespace src.Systems
                 EntityManager.SetComponentData(entity, new Position
                 {
                     Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
-                });  
-                
+                });
+
                 // NW: Lets default to Team 1 for now.
                 EntityManager.SetComponentData(entity, new TeamId
                 {
                     Id = 1,
-                });  
+                });
                 EntityManager.SetComponentData(entity, new TeamPosition
                 {
                     Index = i,
                 });
             }
-            
-            // Once we've spawned, we can disable this system, as it's done its job.
-            Enabled = false;
         }
 
         private void SpawnPassers(Entity prefab, int count, int teamId)

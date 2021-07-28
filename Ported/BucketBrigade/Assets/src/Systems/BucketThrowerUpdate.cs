@@ -12,12 +12,18 @@ namespace src.Systems
     {
         protected override QueryBuckets WhichBucketsToQuery { get => QueryBuckets.Full; }
 
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireSingletonForUpdate<TeamData>();
+            RequireSingletonForUpdate<Temperature>();
+        }
+
         protected override void OnUpdate()
         {
-            if (!TryGetSingletonEntity<TeamData>(out var teamContainerEntity))
-                return;
-
+            var teamContainerEntity = GetSingletonEntity<TeamData>();
             var teamDatas = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
+        
             var configValues = GetSingleton<FireSimConfigValues>();
             var timeData = Time;
             var bucketPositions = QueryBucketPositions();
@@ -36,8 +42,7 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
-                    // TODO: Get Fire position
-                    var firePosition = new float2(100, 100);
+                    var firePosition = teamData.TargetFirePos;
 
                     if (Utils.MoveToPosition(ref pos, firePosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
                     {

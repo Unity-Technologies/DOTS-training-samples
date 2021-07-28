@@ -10,6 +10,12 @@ namespace src.Components
     public struct TeamData : IBufferElementData
     {
         public float2 TargetWaterPos;
+
+        /// <summary>
+        ///     Optimization: Fast lookup, should match <see cref="TargetFireCell" />!
+        /// </summary>
+        public float2 TargetFirePos;
+        
         public int TargetFireCell;
     }
 }
