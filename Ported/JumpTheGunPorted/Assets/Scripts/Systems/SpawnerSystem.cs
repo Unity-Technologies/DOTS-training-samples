@@ -38,6 +38,7 @@ public class SpawnerSystem : SystemBase
         var boxPrefab = refs.BoxPrefab;
         var playerPrefab = refs.PlayerPrefab;
         var tankPrefab = refs.TankPrefab;
+        var barrelPrefab = refs.BarrelPrefab;
 
         var config = refs.Config.Data;
         var tankCnt = config.TankCount;
@@ -100,6 +101,7 @@ public class SpawnerSystem : SystemBase
                 for (int i = 0; i < tankCnt; ++i)
                 {
                     var tank = ecb.Instantiate(tankPrefab);
+                    var barrel = ecb.Instantiate(barrelPrefab);
                     var tankX = random.NextInt(0, config.TerrainLength - 1);
                     var tankY = random.NextInt(0, config.TerrainWidth - 1);
                     int safetyCheckMax = config.TerrainLength * config.TerrainWidth;
@@ -119,7 +121,12 @@ public class SpawnerSystem : SystemBase
                     {
                         Value = new float3(tankX, tankHeight, tankY)
                     });
-                    ecb.SetComponent(tank, new FiringTimer
+
+                    ecb.SetComponent(barrel, new Translation
+                    {
+                        Value = new float3(tankX, tankHeight + 0.7f, tankY)
+                    });
+                    ecb.SetComponent(barrel, new FiringTimer
                     {
                         NextFiringTime = (float)Time.ElapsedTime + (float)random.NextDouble(0, reloadTime)
                     });

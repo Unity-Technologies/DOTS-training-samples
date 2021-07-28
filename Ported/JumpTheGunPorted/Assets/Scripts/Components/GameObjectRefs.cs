@@ -19,5 +19,6 @@ public class GameObjectRefs : IComponentData
     public Entity BoxPrefab;
     public Entity PlayerPrefab;
     public Entity TankPrefab;
+    public Entity BarrelPrefab;
     public Entity CannonballPrefab;
 }
