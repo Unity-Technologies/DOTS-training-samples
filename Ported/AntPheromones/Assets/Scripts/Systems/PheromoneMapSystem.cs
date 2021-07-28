@@ -15,8 +15,8 @@ public class PheromoneMapSystem : SystemBase
     {
         //UnityEngine.Debug.Log("OnStartRunning");
 
-        var mapEntity = GetSingletonEntity<PheromoneMapSetting>();
-        var mapSetting = GetComponent<PheromoneMapSetting>(mapEntity);
+        var mapEntity = GetSingletonEntity<MapSetting>();
+        var mapSetting = GetComponent<MapSetting>(mapEntity);
 
         if (texture != null && texture.width == mapSetting.Size && texture.height == mapSetting.Size)
             return;
@@ -50,7 +50,7 @@ public class PheromoneMapSystem : SystemBase
     {
         //Debug.Log("PheromoneMapSystem OnUpdate");
 
-        var mapSetting = GetSingleton<PheromoneMapSetting>();
+        var mapSetting = GetSingleton<MapSetting>();
         var trailSetting = GetSingleton<PheromoneTrailSetting>();
         var playerEntity = GetSingletonEntity<PlayerInput>();
         var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
@@ -94,12 +94,12 @@ public class PheromoneMapSystem : SystemBase
         texture.Apply();
     }
 
-    public static bool TryGetClosestPheronomoneIndexFromTranslation(Translation translation, in PheromoneMapSetting mapSetting, out int index)
+    public static bool TryGetClosestPheronomoneIndexFromTranslation(Translation translation, in MapSetting mapSetting, out int index)
     {
         int x = (int)math.round((translation.Value.x - mapSetting.Offset.x) / mapSetting.WorldSize * mapSetting.Size);
         int y = (int)math.round((translation.Value.y - mapSetting.Offset.y) / mapSetting.WorldSize * mapSetting.Size);
 
-        //I need to check because sometime the ant is goign beyond the bounds
+        //I need to check because sometime the ant is going beyond the bounds
         if (x < 0 || y < 0 || x >= mapSetting.Size || y >= mapSetting.Size)
         {
             index = 0;

@@ -6,14 +6,12 @@ using Unity.Transforms;
 
 public class AntSpawnerSystem : SystemBase
 {
-    const int mapSize = 128;
-
     protected override void OnUpdate()
     {
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
+        Random rand = new Random(1234);
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
-            Random rand = new Random(1234);
-
             Entities
                 .ForEach((Entity entity, in AntSpawner spawner) =>
                 {

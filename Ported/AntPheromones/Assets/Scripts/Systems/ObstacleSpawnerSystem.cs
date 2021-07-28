@@ -6,10 +6,9 @@ using Unity.Transforms;
 
 public class ObstacleSpawnerSystem : SystemBase
 {
-    const int mapSize = 128;
-
     protected override void OnUpdate()
     {
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
             Random rand = new Random(1234);

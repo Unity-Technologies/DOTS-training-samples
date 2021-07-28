@@ -11,16 +11,16 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(PlayerSystem))]
 public class AntMovementSystem : SystemBase
 {
-    private const int mapSize = 128;
-    private const float antSpeed = 0.2f;
-    private const float randomSteering = 0.14f;
-    private const float goalSteerStrength = 0.03f;
-    private const float pheronomeSteeringDistance = 3f;
-    private const float pheromoneSteerStrength = 0.015f;
-
     protected override void OnUpdate()
     {
         Random rand = new Random(1234);
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
+        var generalSettingsEntity = GetSingletonEntity<GeneralSettings>();
+        var antSpeed = GetComponent<GeneralSettings>(generalSettingsEntity).AntSpeed;
+        var randomSteering = GetComponent<GeneralSettings>(generalSettingsEntity).RandomSteering;
+        var goalSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).GoalSteerStrength;
+        var pheronomeSteeringDistance = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteeringDistance;
+        var pheromoneSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteerStrength;
 
         var time = Time.DeltaTime;
 
@@ -30,7 +30,7 @@ public class AntMovementSystem : SystemBase
                 facingAngle.Value += rand.NextFloat(-randomSteering, randomSteering);
             }).ScheduleParallel();
 
-        var mapSetting = GetSingleton<PheromoneMapSetting>();
+        var mapSetting = GetSingleton<MapSetting>();
 
         var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
         var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
@@ -67,7 +67,7 @@ public class AntMovementSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
             {
                 float3 targetPos = colonyPosition;
-                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value);
+                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
                 
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
@@ -82,7 +82,7 @@ public class AntMovementSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
             {
                 float3 targetPos = resourcePosition;
-                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value);
+                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
                               
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
@@ -119,7 +119,7 @@ public class AntMovementSystem : SystemBase
             }).ScheduleParallel();
     }
 
-    private static float SteerToTarget(float3 targetPos, float3 antPos, float facingAngle)
+    private static float SteerToTarget(float3 targetPos, float3 antPos, float facingAngle, float goalSteerStrength)
     {
         //TODO: handle obstacles
         //if (Linecast(ant.position,targetPos)==false)

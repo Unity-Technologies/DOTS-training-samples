@@ -12,7 +12,7 @@ public class PheromoneMapAuthoring : UnityEngine.MonoBehaviour, IConvertGameObje
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new PheromoneMapSetting
+        dstManager.AddComponentData(entity, new MapSetting
         {
             Size = mapSize,
             Offset = offset,
