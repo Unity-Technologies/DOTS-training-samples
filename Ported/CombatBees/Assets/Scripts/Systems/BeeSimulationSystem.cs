@@ -104,7 +104,7 @@ class BeeSimulationSystem: SystemBase
                 {
                     // this?
                     parallelList.AddNoResize(entity);
-                    // or this?
+                    // or this? (not a good idea)
                     //parallelECB.AddComponent(0, entity, new NeedsStateChange());
                 }
             }).ScheduleParallel();
@@ -173,6 +173,8 @@ class BeeSimulationSystem: SystemBase
                         EntityManager.DestroyEntity(bee.Target);
                         bee.Target = Entity.Null;
                         bee.State = BeeState.Idle;
+                        
+                        // we need blood 
                     }
                 } break;
             }
