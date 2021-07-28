@@ -26,9 +26,11 @@ namespace DOTSRATS
                         animalSpawner.timeToNextSpawn = animalSpawner.spawnRate;
                         var instance = ecb.Instantiate(animalSpawner.animalPrefab);
                         ecb.SetComponent(instance, translation);
+                        ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
 
                         bool spawnSmall = SpawnBigOrSmall(ref animalSpawner.randomSeed);
                         ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = animalSpawner.initialSpeed[spawnSmall?0:1]});
+                        ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                     }
                 }).Run();
 
