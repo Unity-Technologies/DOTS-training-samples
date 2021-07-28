@@ -202,10 +202,10 @@ MonoBehaviour:
     y: 0.5
     z: 0
   SpawnAreaSize:
-    x: 0.75
+    x: 1.5
     y: 0.75
     z: 0.75
-  ResourceCount: 100
+  ResourceCount: 1000
 --- !u!4 &348313916
 Transform:
   m_ObjectHideFlags: 0

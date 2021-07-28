@@ -6,13 +6,20 @@ using Unity.Mathematics;
 
 class BeeSimulationSystem: SystemBase
 {
+    uint m_seed;
+    protected override void OnCreate()
+    {
+        m_seed = 1234;
+    }
+
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
         const float aggressivity = 0.5f;
         const float speed = 1.0f;
         const float beeSize = 0.01f;
-        Random rng = new Random(123);
+        m_seed = m_seed + 1;
+        var seed = m_seed;
 
         EntityCommandBuffer ecb = new EntityCommandBuffer( Allocator.TempJob );
         var parallelECB = ecb.AsParallelWriter();
@@ -22,12 +29,20 @@ class BeeSimulationSystem: SystemBase
         NativeArray<Entity> teamBBees = teamBQuery.ToEntityArray( Allocator.TempJob );
         var resourceQuery = GetEntityQuery(ComponentType.ReadOnly<Resource>());
         NativeArray<Entity> resources = resourceQuery.ToEntityArray( Allocator.TempJob );
+
+        //NativeHashSet<Entity> set = new NativeHashSet<Entity>();
+        //NativeArray<Entity> arr = new NativeArray<Entity>();
+        var capacity = teamABees.Length + teamBBees.Length;
+        NativeList<Entity> list = new NativeList<Entity>(capacity, Allocator.TempJob);
+        var parallelList = list.AsParallelWriter();
+        
         Entities
             .WithReadOnly(teamABees)
             .WithReadOnly(teamBBees)
             .WithReadOnly(resources)
             .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos) =>
             {
+                var rng = new Random(seed + (uint) entity.GetHashCode());
                 // set target if not set
                 if(bee.Target == Entity.Null && bee.State != BeeState.ReturningToBase)
                 {
@@ -84,37 +99,10 @@ class BeeSimulationSystem: SystemBase
                 collR2 *= collR2;
                 if(math.lengthsq(targetVec) < collR2)
                 {
-                    switch(bee.State)
-                    {
-/*                        case BeeState.Idle:
-                        {
-                        } break;
-*/
-                        case BeeState.GettingResource:
-                        {
-                            var resource = GetComponent<Resource>(bee.Target);
-                            resource.CarryingBee = entity;
-                            bee.resource = bee.Target;
-                            bee.Target = Entity.Null;
-                            bee.State = BeeState.ReturningToBase;
-                        } break;
-
-                        case BeeState.ReturningToBase:
-                        {
-                            var resource = GetComponent<Resource>(bee.resource);
-                            resource.CarryingBee = Entity.Null;
-                            bee.resource = Entity.Null;
-                            bee.Target = Entity.Null;
-                            bee.State = BeeState.Idle;
-                        } break;
-
-                        case BeeState.ChasingEnemy:
-                        {
-                            parallelECB.DestroyEntity(0, bee.Target);
-                            bee.Target = Entity.Null;
-                            bee.State = BeeState.Idle;
-                        } break;
-                    }
+                    // this?
+                    parallelList.AddNoResize(entity);
+                    // or this?
+                    //parallelECB.AddComponent(0, entity, new NeedsStateChange());
                 }
             }).ScheduleParallel();
         Dependency.Complete();
@@ -123,5 +111,68 @@ class BeeSimulationSystem: SystemBase
         teamABees.Dispose();
         teamBBees.Dispose();
         resources.Dispose();
+
+        foreach (var beeEntity in list)
+        {
+            var bee = GetComponent<Bee>(beeEntity);
+            switch(bee.State)
+            {
+/*                        case BeeState.Idle:
+                        {
+                        } break;
+*/
+                case BeeState.GettingResource:
+                {
+                    var resource = GetComponent<Resource>(bee.Target);
+                    bee.resource = bee.Target;
+                    bee.Target = Entity.Null;
+                    if (resource.CarryingBee == Entity.Null)
+                    {
+                        resource.CarryingBee = beeEntity;
+                        SetComponent(bee.resource, resource);
+                        bee.State = BeeState.ReturningToBase;
+                    }
+                    else
+                    {
+                        // chase the damn bee?
+                        // for now:
+                        bee.resource = Entity.Null;
+                        bee.Target = Entity.Null;
+                        bee.State = BeeState.Idle;
+                    }
+                } break;
+
+                case BeeState.ReturningToBase:
+                {
+                    var resource = GetComponent<Resource>(bee.resource);
+                    resource.CarryingBee = Entity.Null;
+                    SetComponent(bee.resource, resource); // write it back
+                    bee.resource = Entity.Null;
+                    bee.Target = Entity.Null;
+                    bee.State = BeeState.Idle;
+                } break;
+
+                case BeeState.ChasingEnemy:
+                {
+                    var enemyBee = GetComponent<Bee>(bee.Target);
+                    if (enemyBee.resource != Entity.Null)
+                    {
+                        // drop the resource
+                        var resource = GetComponent<Resource>(enemyBee.resource);
+                        resource.CarryingBee = Entity.Null;
+                        SetComponent(enemyBee.resource, resource);
+                    }
+                    EntityManager.DestroyEntity(bee.Target);
+                    bee.Target = Entity.Null;
+                    bee.State = BeeState.Idle;
+                } break;
+            }
+            
+            SetComponent(beeEntity, bee);
+        }
+
+        list.Dispose();
+
+
     }
 }

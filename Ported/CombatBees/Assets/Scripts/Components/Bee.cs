@@ -14,3 +14,8 @@ public struct Bee : IComponentData
     public Entity Target;
     public Entity resource;
 }
+
+public struct NeedsStateChange : IComponentData
+{
+    
+}
