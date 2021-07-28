@@ -59,8 +59,11 @@ namespace src.Systems
                 {
                     TargetFireCell = -1,
                 });
-                
-                // Spawn workers for those teams:
+            }
+            
+            // Spawn workers for those teams:
+            for (int teamId = 0; teamId < configValues.TeamCount; teamId++)
+            {
                 SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
