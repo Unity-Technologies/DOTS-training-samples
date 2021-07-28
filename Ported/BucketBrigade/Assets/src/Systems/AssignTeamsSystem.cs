@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace src.Systems
@@ -22,7 +23,7 @@ namespace src.Systems
             RequireSingletonForUpdate<FireSimConfigValues>();
             
             m_WorkersQuery = GetEntityQuery(ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<TeamId>());
-            m_WaterTagQuery = GetEntityQuery(ComponentType.ReadOnly<RenderBounds>(), ComponentType.ReadOnly<WaterTag>());
+            m_WaterTagQuery = GetEntityQuery(ComponentType.ReadOnly<LocalToWorld>(), ComponentType.ReadOnly<WaterTag>());
         }
 
         protected override void OnUpdate()
@@ -36,11 +37,9 @@ namespace src.Systems
             var temperatureEntity = GetSingletonEntity<Temperature>();
             var temperatures = EntityManager.GetBuffer<Temperature>(temperatureEntity);
             
-            
-            
             for (var ourTeamId = 0; ourTeamId < teamDatas.Length; ourTeamId++)
             {
-                var teamData = teamDatas[ourTeamId];
+                ref var teamData = ref teamDatas.ElementAt(ourTeamId);
                 var noKnownFireOrNoFireAtTargetFireCell = teamData.TargetFireCell < 0 || teamData.TargetFireCell >= temperatures.Length || ! temperatures[teamData.TargetFireCell].IsOnFire;
                 if (noKnownFireOrNoFireAtTargetFireCell)
                 {
@@ -50,13 +49,14 @@ namespace src.Systems
                     if (hasFoundFire)
                     {
                         var fireSimConfigValues = GetSingleton<FireSimConfigValues>();
-                        var firePos = fireSimConfigValues.GetCellWorldPosition2D(closestFireCell);
+                        var closestFire = fireSimConfigValues.GetCellWorldPosition2D(closestFireCell);
                         
                         var closestWater = GetClosestWaterTo(averageTeamPos, out var closestWaterDistance);
-                        Debug.Log($"Team {ourTeamId} (average pos: {averageTeamPos}) has found a new closest fire position {firePos} ({closestFireDistance:0.0}m) at cell {closestFireCell}, and closest water source {closestWater} ({closestWaterDistance:0.0}m)!");
+                        Debug.Log($"Team {ourTeamId} (average pos: {averageTeamPos}) has found a new closest fire position {closestFire} ({closestFireDistance:0.0}m) at cell {closestFireCell}, and closest water source {closestWater} ({closestWaterDistance:0.0}m)!");
+                        Debug.DrawLine(Utils.To3D(closestWater), Utils.To3D(closestFire), Color.red, 5f);
                         teamData.TargetFireCell = closestFireCell;
                         teamData.TargetWaterPos = closestWater;
-                        teamData.TargetFirePos = firePos;
+                        teamData.TargetFirePos = closestFire;
                     }
                 }
             }
@@ -64,21 +64,28 @@ namespace src.Systems
         
         float2 GetClosestWaterTo(float2 ourPos, out float closestDistance)
         {
-            using var waterAABB = m_WorkersQuery.ToComponentDataArray<RenderBounds>(Allocator.Temp);
+            // NW: Hack: Just grab the middle of the water source entity. Don't care about the size of it!
+            using var waterLocalToWorlds = m_WaterTagQuery.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
+            
+            // NW: Hack: BIG assumption made here that the render bounds are the same as the square water tiles.
+            //using var waterAABBs = m_WaterTagQuery.ToComponentDataArray<RenderBounds>(Allocator.Temp);
 
             var closestWaterSqrDistance = float.PositiveInfinity;
             var closestPoint = ourPos;
             closestDistance = float.PositiveInfinity;
-            for (var i = 0; i < waterAABB.Length; i++)
+            for (var i = 0; i < waterLocalToWorlds.Length; i++)
             {
-                var aabb = waterAABB[i];
-
-                var aabbPoint = ClosestPointInAABB2D(aabb.Value, ourPos);
-                var distanceSqr = math.distancesq(aabbPoint, ourPos);
+                var waterLocalToWorld = waterLocalToWorlds[i].Value;
+                var waterWorldPosition = waterLocalToWorld.c3;
+                var waterPosition2D = Utils.To2D(waterWorldPosition.xyz);
+                
+                // var aabb = waterAABB[i];
+                // var aabbPoint = ClosestPointInAABB2D(aabb.Value, ourPos);
+                var distanceSqr = math.distancesq(waterPosition2D, ourPos);
                 if (distanceSqr < closestWaterSqrDistance)
                 {
                     closestWaterSqrDistance = distanceSqr;
-                    closestPoint = aabbPoint;
+                    closestPoint = waterPosition2D;
                     closestDistance = distanceSqr;
                 }
             }
@@ -105,6 +112,7 @@ namespace src.Systems
                 {
                     closestFireDistanceSqr = distanceSqr;
                     closestFireDistance = distanceSqr;
+                    closestFireCell = i;
                 }
             }
 

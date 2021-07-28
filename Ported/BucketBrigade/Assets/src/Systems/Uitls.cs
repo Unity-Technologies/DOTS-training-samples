@@ -2,6 +2,7 @@ using src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace src.Systems
 {
@@ -73,5 +74,8 @@ namespace src.Systems
             }
             return closestBucketPosition;
         }
+
+        public static float3 To3D(float2 pos2D) => new float3(pos2D.x, 0, pos2D.y);
+        public static float2 To2D(float3 pos3D) => pos3D.xz;
     }
 }
