@@ -13,6 +13,7 @@ static class NativeArrayExt
             => ref ((T*) array.GetUnsafePtr())[index];
 }
 
+[UpdateAfter(typeof(SetupSystem))]
 public class Movement : SystemBase
 {
     EntityCommandBufferSystem CommandBufferSystem;
