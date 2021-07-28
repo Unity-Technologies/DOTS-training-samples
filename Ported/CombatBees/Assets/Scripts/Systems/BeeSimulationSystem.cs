@@ -23,7 +23,6 @@ class BeeSimulationSystem: SystemBase
         var seed = m_seed;
 
         EntityCommandBuffer ecb = new EntityCommandBuffer( Allocator.TempJob );
-        var parallelECB = ecb.AsParallelWriter();
         var teamAQuery = GetEntityQuery(ComponentType.ReadOnly<TeamA>());
         NativeArray<Entity> teamABees = teamAQuery.ToEntityArray( Allocator.TempJob );
         var teamBQuery = GetEntityQuery(ComponentType.ReadOnly<TeamB>());
@@ -34,7 +33,6 @@ class BeeSimulationSystem: SystemBase
         var capacity = teamABees.Length + teamBBees.Length;
         NativeList<Entity> list = new NativeList<Entity>(capacity, Allocator.TempJob);
         var parallelList = list.AsParallelWriter();
-        var rng1 = new Random((uint) UnityEngine.Random.Range(1, 100000));
         
         Entities
             .WithReadOnly(teamABees)
@@ -102,10 +100,7 @@ class BeeSimulationSystem: SystemBase
                 collR2 *= collR2;
                 if(math.lengthsq(targetVec) < collR2)
                 {
-                    // this?
                     parallelList.AddNoResize(entity);
-                    // or this?
-                    //parallelECB.AddComponent(0, entity, new NeedsStateChange());
                 }
             }).ScheduleParallel();
         Dependency.Complete();
@@ -122,10 +117,6 @@ class BeeSimulationSystem: SystemBase
             var bee = GetComponent<Bee>(beeEntity);
             switch(bee.State)
             {
-/*                        case BeeState.Idle:
-                        {
-                        } break;
-*/
                 case BeeState.GettingResource:
                 {
                     var resource = GetComponent<Resource>(bee.Target);
@@ -167,21 +158,22 @@ class BeeSimulationSystem: SystemBase
                             // drop the resource
                             var resource = GetComponent<Resource>(enemyBee.resource);
                             resource.CarryingBee = Entity.Null;
+                            resource.Speed = 0f;
                             SetComponent(enemyBee.resource, resource);
                         }
 
                         EntityManager.DestroyEntity(bee.Target);
-                        bee.Target = Entity.Null;
-                        bee.State = BeeState.Idle;
                     }
-                } break;
+                    bee.resource = Entity.Null;
+                    bee.Target = Entity.Null;
+                    bee.State = BeeState.Idle;
+                }
+                break;
             }
             
             SetComponent(beeEntity, bee);
         }
 
         list.Dispose();
-
-
     }
 }
