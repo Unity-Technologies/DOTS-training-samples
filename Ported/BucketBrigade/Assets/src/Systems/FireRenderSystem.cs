@@ -50,8 +50,9 @@ namespace src.Systems
                {
                    float temperature = temperatureArray[column + row * configValues.Columns].Intensity; //configValues.GetTemperatureForCell(temperatureBuffer, row, column);
 
-                   float xPosition = (float)(column) * cellSize;
-                   float yPosition = (float)(row) * cellSize;
+                   var worldPosition = configValues.GetCellWorldPosition3D(row, column);
+                   float xPosition = worldPosition.x + cellSize * 0.5f;
+                   float yPosition = worldPosition.z + cellSize * 0.5f;
                    float scaleX = cellSize;
                    float scaleY = configValues.MaxFlameHeight * temperature * cellSize;
                    float scaleZ = cellSize;
