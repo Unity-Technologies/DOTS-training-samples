@@ -1,13 +1,14 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace DOTSRATS
 {
-    [GenerateAuthoringComponent]
     public struct Player : IComponentData
     {
         public int playerNumber;
         public UnityEngine.Color color;
-        [HideInInspector] public int score;
+        public int score;
+        public int2 arrowToPlace;
     }
 }
