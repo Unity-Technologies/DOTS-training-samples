@@ -39,7 +39,7 @@ public class Movement : SystemBase
 
         var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
 
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
+        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var cdfe = GetComponentDataFromEntity<Goal>();
 
         int numPlayers = GetEntityQuery(ComponentType.ReadOnly<Player>()).CalculateEntityCount();
@@ -48,10 +48,9 @@ public class Movement : SystemBase
 
         Dependency = Entities
             .WithAll<InPlay>()
-            .WithNativeDisableContainerSafetyRestriction(ecb)
             .WithNativeDisableContainerSafetyRestriction(cdfe)
             .WithReadOnly(cellStructs)
-            .ForEach((Entity entity, ref Translation translation, ref Velocity velocity) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Velocity velocity) =>
             {
                 var newTranslation = translation.Value + deltaTime * velocity.Direction.ToFloat3() * velocity.Speed;
 
@@ -67,7 +66,7 @@ public class Movement : SystemBase
                         velocity.Direction = Direction.Down;
                         newTranslation = new float3(tileCenter.x, translation.Value.y - math.length(newTranslation.xz - tileCenter.xz), tileCenter.z);
                         // TODO: Give this a pretty animation...
-                        ecb.DestroyEntity(entity);
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
                     else if (cell.goal != default)
                     {
@@ -77,7 +76,7 @@ public class Movement : SystemBase
                         else if (HasComponent<Cat>(entity))
                             Interlocked.Increment(ref scoreUpdates.GetRef(goal.playerNumber).Cats);
                         // TODO: Give this a pretty animation...
-                        ecb.DestroyEntity(entity);
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
                     else if (cell.wallLayout == (Direction.North | Direction.South | Direction.East | Direction.West))
                     {
