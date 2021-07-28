@@ -11,14 +11,11 @@ namespace src.Components
         public bool KeepTranslation, KeepScale, KeepRotation, KeepLocalToWorld;
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            bool assertDidRemoveAll = true;
-            if(! KeepTranslation) assertDidRemoveAll &= dstManager.RemoveComponent<Translation>(entity);
-            if(! KeepRotation)  assertDidRemoveAll &= dstManager.RemoveComponent<Rotation>(entity);
-            var hasNonUniformScale = transform.localScale != Vector3.one;
-            if(! KeepScale && hasNonUniformScale) assertDidRemoveAll &= dstManager.RemoveComponent<Scale>(entity);
-            if(! KeepLocalToWorld)  assertDidRemoveAll &= dstManager.RemoveComponent<LocalToWorld>(entity);
+            if(! KeepTranslation) dstManager.RemoveComponent<Translation>(entity);
+            if(! KeepRotation) dstManager.RemoveComponent<Rotation>(entity);
+            if(! KeepScale) dstManager.RemoveComponent<Scale>(entity);
+            if(! KeepLocalToWorld)  dstManager.RemoveComponent<LocalToWorld>(entity);
             // NW: Fixed in Spawner.cs - if(! KeepLinkedEntityGroup)  assertDidRemoveAll &= dstManager.RemoveComponent<LinkedEntityGroup>(entity);
-            Debug.Assert(assertDidRemoveAll, $"Failed to remove all specified components! '{dstManager.World.Name}', Prefab '{name}'!");
         }
     }
 }
