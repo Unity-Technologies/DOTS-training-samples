@@ -8,25 +8,10 @@ using UnityEngine;
 namespace src.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class FullBucketPasserUpdate : SystemBase
+    public class FullBucketPasserUpdate : BucketWorkerUpdateBase
     {
-        EntityQuery m_FullBucketsOnFloorQuery;
-        EndSimulationEntityCommandBufferSystem m_EndSimulationEntityCommandBufferSystem;
-
-        protected override void OnCreate()
-        {
-            base.OnCreate();
-            RequireSingletonForUpdate<FireSimConfigValues>();
-
-            m_FullBucketsOnFloorQuery = GetEntityQuery(
-                ComponentType.ReadOnly<EcsBucket>(),
-                ComponentType.ReadOnly<FullBucketTag>(),
-                ComponentType.Exclude<BucketIsHeld>(), 
-                ComponentType.Exclude<FillUpBucketTag>(),
-                ComponentType.ReadOnly<Position>());
-
-            m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        }
+        protected override QueryBuckets WhichBucketsToQuery { get => QueryBuckets.Full; }
+        protected static bool CurveLeft => true;
 
         protected override void OnUpdate()
         {
@@ -36,11 +21,12 @@ namespace src.Systems
             var teamDatas = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
             var configValues = GetSingleton<FireSimConfigValues>();
             var timeData = Time;
-            var bucketPositions = m_FullBucketsOnFloorQuery.ToComponentDataArray<Position>(Allocator.TempJob);
-            var bucketEntities = m_FullBucketsOnFloorQuery.ToEntityArray(Allocator.TempJob);
+            var bucketPositions = QueryBucketPositions();
+            var bucketEntities = QueryBucketEntities();
             var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
-            var ecb = m_EndSimulationEntityCommandBufferSystem.CreateCommandBuffer();
-            var concurrentEcb = ecb.AsParallelWriter();
+            var concurrentEcb = CreateECBParallerWriter();
+            // Note: Adding 1 for team count, since at the end we'll have a bucket thrower
+            var workerCountPerTeam = configValues.WorkerCountPerTeam + 1;
 
             Entities.WithBurst()
                 .WithName("FullBucketPassersMoveIntoPosition")
@@ -56,7 +42,7 @@ namespace src.Systems
                     var teamData = teamDatas[ourTeamId.Id];
                     // TODO: Get Fire position
                     var firePosition = new float2(100, 100);
-                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, configValues.WorkerCountPerTeam);
+                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam, CurveLeft);
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
                     {
@@ -84,7 +70,7 @@ namespace src.Systems
                     var firePosition = new float2(100, 100);
 
                     // Since we're passing a bucket to team mate, specify target position with next index.
-                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, configValues.WorkerCountPerTeam);
+                    var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam, CurveLeft);
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed))
                         Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket);
@@ -93,22 +79,7 @@ namespace src.Systems
 
                 }).ScheduleParallel();
 
-            m_EndSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-        }
-        
-        static float2 GetPositionInTeam(float2 startPosition, float2 endPosition, int id, int teamCount)
-        {
-            float t = (float) id / (float) (teamCount - 1);
-
-            var position =  math.lerp(startPosition, endPosition, t);
-            // Give it some curve
-            var curveOffset = math.normalizesafe(endPosition - startPosition) * 10.0f;
-            var tmp = curveOffset.x;
-            curveOffset.x = -curveOffset.y;
-            curveOffset.y = tmp;
-            position += math.sin(t * math.PI) * curveOffset;
-
-            return position;
+            AddECBAsDependency();
         }
     }
 }
