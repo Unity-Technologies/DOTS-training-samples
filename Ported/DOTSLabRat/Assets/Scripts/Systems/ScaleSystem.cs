@@ -1,18 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Unity.Entities;
+using Unity.Transforms;
+using Unity.Mathematics;
 
-public class Scale : MonoBehaviour
+using Mathf = UnityEngine.Mathf;
+
+namespace DOTSRATS
 {
-    // Start is called before the first frame update
-    void Start()
+    public class ScaleSystem : SystemBase
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        protected override void OnUpdate()
+        {
+            Entities
+                .WithoutBurst()
+                .ForEach((Entity entity, ref Scale currentScale, ref Scaling targetScale) =>
+                {
+                    if(currentScale.Value != targetScale.targetScale)
+                    {
+                        currentScale.Value = Mathf.Lerp(currentScale.Value, targetScale.targetScale, targetScale.currentInterpolation);
+                        targetScale.currentInterpolation = math.max(targetScale.interpolationMax, targetScale.currentInterpolation + targetScale.interpolationRate);
+                        if (targetScale.currentInterpolation == targetScale.interpolationMax)
+                            targetScale.currentInterpolation = 0;
+                    }
+                    
+                }).Run();
+        }
     }
 }
