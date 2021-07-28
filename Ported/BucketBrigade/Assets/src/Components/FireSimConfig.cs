@@ -23,6 +23,7 @@ namespace src.Components
         public Entity FireCellPrefab;
     }
 
+    [Serializable]
     public struct FireSimConfigValues : IComponentData
     {
         // Fire config
@@ -60,9 +61,17 @@ namespace src.Components
 
         [Range(0.0001f, 50f)] public float WaterFillUpDuration;
 
+        [Tooltip("How many workers for full and empty bucket passers we have")]
         public int WorkerCountPerTeam;
         
-        [Min(0)] public int NumTeams;
+        [Tooltip("How many teams we have")]
+        [Min(0)] public int TeamCount;
+
+        [Tooltip("How many workers are fetching the buckets")]
+        public int BucketFetcherCount;
+
+        [Tooltip("How many buckets we have on the map")]
+        public int BucketCount;
 
         public float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
         {

@@ -53,14 +53,14 @@ namespace src.Systems
             var teamContainerEntity = EntityManager.CreateEntity(ComponentType.ReadWrite<TeamData>());
             EntityManager.SetName(teamContainerEntity, "TeamContainer");
             var teamDataBuffer = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
-            for (int teamId = 0; teamId < configValues.NumTeams; teamId++)
+            for (int teamId = 0; teamId < configValues.TeamCount; teamId++)
             {
-                // And spawn workers for those teams:
                 teamDataBuffer.Add(new TeamData
                 {
                     TargetFireCell = -1,
                 });
-
+                
+                // Spawn workers for those teams:
                 SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
