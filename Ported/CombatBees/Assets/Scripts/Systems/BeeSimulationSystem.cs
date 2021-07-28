@@ -167,6 +167,8 @@ class BeeSimulationSystem: SystemBase
                     bee.resource = Entity.Null;
                     bee.Target = Entity.Null;
                     bee.State = BeeState.Idle;
+                        
+                        // we need blood 
                 }
                 break;
             }
