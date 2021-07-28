@@ -13,7 +13,7 @@ public class PheromoneMapSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        UnityEngine.Debug.Log("OnStartRunning");
+        //UnityEngine.Debug.Log("OnStartRunning");
 
         var mapEntity = GetSingletonEntity<PheromoneMapSetting>();
         var mapSetting = GetComponent<PheromoneMapSetting>(mapEntity);
@@ -43,7 +43,7 @@ public class PheromoneMapSystem : SystemBase
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
         renderMesh.material.mainTexture = texture;
 
-        UnityEngine.Debug.Log("OnStartRunning End");
+        //UnityEngine.Debug.Log("OnStartRunning End");
     }
 
     protected override void OnUpdate()
@@ -52,9 +52,10 @@ public class PheromoneMapSystem : SystemBase
 
         var mapSetting = GetSingleton<PheromoneMapSetting>();
         var trailSetting = GetSingleton<PheromoneTrailSetting>();
+        var playerEntity = GetSingletonEntity<PlayerInput>();
+        var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
 
-        //TODO change Time.DeltaTime for the current deltaTime * ScaleTime
-        float deltaTime = Time.DeltaTime;
+        float deltaTime = Time.DeltaTime * playerSpeed;
 
         var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
         var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
