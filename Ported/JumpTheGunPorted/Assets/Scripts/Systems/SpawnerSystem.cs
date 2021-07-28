@@ -48,7 +48,7 @@ public class SpawnerSystem : SystemBase
             .WithoutBurst()
             .ForEach((Entity entity) =>
             {
-                
+
                 ecb.DestroyEntity(entity);
 
                 // build terrain
@@ -60,7 +60,7 @@ public class SpawnerSystem : SystemBase
                     for (int j = 0; j < config.TerrainLength; ++j)
                     {
                         float height = random.NextFloat(config.MinTerrainHeight, config.MaxTerrainHeight);
-                        heightMapBuffer.Add((HeightBufferElement) height);
+                        heightMapBuffer.Add((HeightBufferElement)height);
                         occupiedMapBuffer.Add((OccupiedBufferElement)false);
 
                         var box = ecb.Instantiate(boxPrefab);
@@ -121,7 +121,7 @@ public class SpawnerSystem : SystemBase
                     });
                     ecb.SetComponent(tank, new FiringTimer
                     {
-                        NextFiringTime = (float) Time.ElapsedTime + (float)random.NextDouble(0, reloadTime)
+                        NextFiringTime = (float)Time.ElapsedTime + (float)random.NextDouble(0, reloadTime)
                     });
                 }
             }).Run();
