@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine.UI;
 using UnityCamera = UnityEngine.Camera;
@@ -8,8 +9,5 @@ using UnityCamera = UnityEngine.Camera;
 public class GameObjectRefs : IComponentData
 {
     public Text timerText;
-    public Text player0Score;
-    public Text player1Score;
-    public Text player2Score;
-    public Text player3Score;
+    public List<Text> playerScore;
 }
