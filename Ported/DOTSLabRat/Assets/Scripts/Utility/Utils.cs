@@ -1,3 +1,4 @@
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -43,9 +44,17 @@ namespace DOTSRATS
             return direction;
         }
 
-        public static Direction GetRandomCardinalDirection(ref Random random)
+        public static Direction GetRandomCardinalDirection(ref Unity.Mathematics.Random random)
         {
             return (Direction)(1 << random.NextInt(0, 4));
+        }
+        
+        public static Vector2 WorldToCanvas(RectTransform canvasRect, Vector3 worldPosition, Camera camera)
+        {
+            var viewportPosition = camera.WorldToViewportPoint(worldPosition);
+
+            return new Vector2((viewportPosition.x * canvasRect.sizeDelta.x) - (canvasRect.sizeDelta.x * 0.5f),
+                (viewportPosition.y * canvasRect.sizeDelta.y) - (canvasRect.sizeDelta.y * 0.5f));
         }
     }
 }

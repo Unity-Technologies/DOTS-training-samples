@@ -26,21 +26,21 @@ namespace DOTSRATS
                     {
                         if (player.nextArrowTime < elapsedTime)
                         {
+                            int cellIndex;
+                            CellStruct cell;
+                            do
+                            {
+                                player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
+                                cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
+                                cell = cellStructs[cellIndex]; 
+                                // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
+                            } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
+                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
+                            
                             if (player.nextArrowTime != 0)
                             {
-                                int cellIndex;
-                                CellStruct cell;
-                                do
-                                {
-                                    player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
-                                    cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
-                                    cell = cellStructs[cellIndex]; 
-                                    // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
-                                } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
-
                                 cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
                                 cell = cellStructs[cellIndex];
-                                player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
                                 cell.arrow = player.arrowDirection;
                                 cellStructs[cellIndex] = cell;
                                 
@@ -52,14 +52,16 @@ namespace DOTSRATS
                             Debug.Log($"AI {player.playerNumber} will place next arrow after {player.nextArrowTime - elapsedTime}");
                         }
                     }
-
-                    //Check for new arrow and place them
-                    if (player.arrowToPlace.x != -1)
+                    else
                     {
-                        var cell = cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x];
-                        cell.arrow = player.arrowDirection;
-                        cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x] = cell;
-                        player.arrowToPlace = new int2(-1, -1);
+                        //Check for new arrow and place them
+                        if (player.arrowToPlace.x != -1)
+                        {
+                            var cell = cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x];
+                            cell.arrow = player.arrowDirection;
+                            cellStructs[player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x] = cell;
+                            player.arrowToPlace = new int2(-1, -1);
+                        }
                     }
                 }).Schedule();
         }

@@ -77,6 +77,7 @@ public class Movement : SystemBase
                             Interlocked.Increment(ref scoreUpdates.GetRef(goal.playerNumber).Cats);
                         // TODO: Give this a pretty animation...
                         ecb.DestroyEntity(entityInQueryIndex, entity);
+                        ecb.SetComponent(cell.goal.Index, cell.goal, new Scale { Value = 1.5f });
                     }
                     else if (cell.wallLayout == (Direction.North | Direction.South | Direction.East | Direction.West))
                     {

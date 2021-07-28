@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityCamera = UnityEngine.Camera;
 
@@ -9,6 +10,8 @@ using UnityCamera = UnityEngine.Camera;
 public class GameObjectRefs : IComponentData
 {
     public UnityCamera camera;
+    public Canvas uiCanvas;
     public Text timerText;
     public List<Text> playerScore;
+    public List<Image> playerCursors;
 }

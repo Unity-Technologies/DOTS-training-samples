@@ -42,7 +42,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4167350702819266}
   - component: {fileID: -8001013084479868963}
-  - component: {fileID: 8411870945040653379}
+  - component: {fileID: 6837051840007480330}
+  - component: {fileID: 1313925854912609957}
   m_Layer: 0
   m_Name: Homebase
   m_TagString: Untagged
@@ -78,7 +79,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNumber: 0
---- !u!114 &8411870945040653379
+--- !u!114 &6837051840007480330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633874070064508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1831c228e1a2724897b47ae911cf0c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetScale: 1
+--- !u!114 &1313925854912609957
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
