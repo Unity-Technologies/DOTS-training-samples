@@ -330,6 +330,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardSize: 13
+  matchDuration: 30
+  pauseBetweenMatches: 3
   tilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
   goalPrefab: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448, type: 3}
@@ -362,7 +364,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1203516334}
   - component: {fileID: 1203516333}
-  - component: {fileID: 1203516335}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -399,15 +400,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1203516335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1203516332}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8c63a000c614fa4fa2176e85875b997, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

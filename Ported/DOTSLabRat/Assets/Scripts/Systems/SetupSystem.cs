@@ -16,9 +16,20 @@ public class SetupSystem : SystemBase
         var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
         var random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : randomSeed);
 
+        if (!EntityManager.HasComponent<Initialized>(GetSingletonEntity<BoardSpawner>()))
+        {
+            // Cleanup anything that already exists!
+            // TBD: optimize using chunking
+            Entities
+                .WithStructuralChanges()
+                .WithAny<InPause, InPlay>()
+                .ForEach((Entity entity) => EntityManager.DestroyEntity(entity))
+                .Run();
+        }
+
         Entities
             .WithStructuralChanges()
-            .WithAll<BoardSpawner>()
+            .WithNone<Initialized>()
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
@@ -27,7 +38,8 @@ public class SetupSystem : SystemBase
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
-                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = 30f});
+                EntityManager.AddComponent<InPlay>(gameState);
+                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = boardSpawner.matchDuration});
                 var cellStructs = new NativeArray<CellStruct>(size * size, Allocator.TempJob);
                 
                 // Init hole coordinates
@@ -93,7 +105,7 @@ public class SetupSystem : SystemBase
                 EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
                 SetAnimalSpawners(boardSpawner, size, ref random);
 
-                EntityManager.DestroyEntity(entity);
+                EntityManager.AddComponent<Initialized>(entity);
                 holeCoords.Dispose();
                 wallGenParams.Dispose();
                 cellStructs.Dispose();

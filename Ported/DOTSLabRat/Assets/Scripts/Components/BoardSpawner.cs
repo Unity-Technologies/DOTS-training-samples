@@ -6,6 +6,8 @@ using UnityEngine;
 public struct BoardSpawner : IComponentData
 {
     public int boardSize;
+    public int matchDuration;
+    public int pauseBetweenMatches;
     public Entity tilePrefab;
     public Entity wallPrefab;
     public Entity goalPrefab;
