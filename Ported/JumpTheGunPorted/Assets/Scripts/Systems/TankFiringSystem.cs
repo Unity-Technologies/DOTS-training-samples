@@ -67,15 +67,7 @@ public class TankFiringystem : SystemBase
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol];
 
 
-                    // binary searching to determine height of cannonball arc
                     float height = CalculateHeight(startY, endY);
-
-                    // make height max of adjacent boxes when moving diagonally
-                    if (startBoxCol != endBoxCol && startBoxRow != endBoxRow)
-                    {
-                        height = math.max(height, math.max(heightMap[endBoxRow * terrainLength + startBoxCol], heightMap[startBoxRow * terrainLength + endBoxCol]));
-                    }
-                    height += Player.BOUNCE_HEIGHT;
 
                     JumpTheGun.Parabola.Create(startY, height, endY, out float a, out float b, out float c);
 
@@ -83,8 +75,8 @@ public class TankFiringystem : SystemBase
                     float2 endPos = new float2(endBoxCol, endBoxRow);
                     float dist = math.distance(startPos, endPos);
                     float duration = dist / Cannonball.SPEED;
-                    if (duration < .0001f)
-                        duration = 1;
+                    if (duration < 1f)
+                        duration = 1; // no less than 1 sec duration to reach target
 
                     // determine forward vector for the full parabola
                     float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
@@ -116,6 +108,12 @@ public class TankFiringystem : SystemBase
         ecb.Dispose();
     }
 
+    /// <summary>
+    /// Binary searching to determine height of cannonball arc
+    /// </summary>
+    /// <param name="startY"></param>
+    /// <param name="endY"></param>
+    /// <returns></returns>
     private static float CalculateHeight(float startY, float endY)
     {
         // TODO: implement the original arc checks to avoid collision with boxes
@@ -161,6 +159,6 @@ public class TankFiringystem : SystemBase
 
         // launch with calculated height
         float height = (low + high) / 2;*/
-        return math.max(startY, endY);
+        return math.max(startY, endY) + Player.BOUNCE_HEIGHT; // TODO: temp hack
     }
 }
