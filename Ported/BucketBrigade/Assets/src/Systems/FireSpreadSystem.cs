@@ -50,7 +50,7 @@ namespace src.Systems
                 Columns = configValues.Columns,
                 Rows = configValues.Rows,
                 HeatRadius = configValues.HeatRadius,
-                HeatTransferRate = configValues.HeatTransferRate,
+                HeatTransferRate = configValues.HeatTransferRate * configValues.FireSimUpdateRate,
                 Flashpoint = configValues.Flashpoint,
                 MaxIntensity = 1.0f
             };
