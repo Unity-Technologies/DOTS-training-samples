@@ -6,6 +6,9 @@ using Unity.Transforms;
 
 public class SpawnerSystem : SystemBase
 {
+    private static readonly float4 MIN_HEIGHT_COLOR = new float4(0, 1, 0, 1);
+    private static readonly float4 MAX_HEIGHT_COLOR = new float4(99 / 255f, 47 / 255f, 0 / 255f, 1);
+    
     private EntityQuery _PlayerEntityQuery;
     private EntityQuery _BoxEntityQuery;
     private EntityQuery _BoxMapEntityQuery;
@@ -35,19 +38,13 @@ public class SpawnerSystem : SystemBase
         var occupiedMapBuffer = EntityManager.GetBuffer<OccupiedBufferElement>(_BoxMapEntity);
 
         var refs = this.GetSingleton<GameObjectRefs>();
-        var boxPrefab = refs.BoxPrefab;
-        var playerPrefab = refs.PlayerPrefab;
-        var tankPrefab = refs.TankPrefab;
-
-        var config = refs.Config.Data;
-        var tankCnt = config.TankCount;
-        var reloadTime = config.TankReloadTime;
-
         Entities
             .WithAll<Spawner>()
             .WithoutBurst()
             .ForEach((Entity entity) =>
             {
+                
+                var config = refs.Config.Data;
                 
                 ecb.DestroyEntity(entity);
 
@@ -63,7 +60,7 @@ public class SpawnerSystem : SystemBase
                         heightMapBuffer.Add((HeightBufferElement) height);
                         occupiedMapBuffer.Add((OccupiedBufferElement)false);
 
-                        var box = ecb.Instantiate(boxPrefab);
+                        var box = ecb.Instantiate(refs.BoxPrefab);
                         ecb.SetComponent(box, new NonUniformScale
                         {
                             Value = new float3(1, height, 1)
@@ -76,20 +73,20 @@ public class SpawnerSystem : SystemBase
 
                         ecb.SetComponent(box, new Translation
                         {
-                            Value = new float3(j, height / 2, i) // reposition halfway to heigh to level all at 0 plane
+                            Value = new float3(j, height / 2, i) // reposition halfway to height to level all at 0 plane
                         });
                     }
                 }
 
                 // new fresh player at proper x/y and height and empty parabola t value
                 ecb.DestroyEntitiesForEntityQuery(_PlayerEntityQuery);
-                var player = ecb.Instantiate(playerPrefab);
-                int playerX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
-                int playerY = config.TerrainWidth / 2;
-                float playerHeight = heightMapBuffer[playerY * config.TerrainLength + playerX] + Player.Y_OFFSET; // use box height map to figure out starting y
+                var player = ecb.Instantiate(refs.PlayerPrefab);
+                int boxX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
+                int boxY = config.TerrainWidth / 2;
+                float boxHeight = heightMapBuffer[boxY * config.TerrainLength + boxX] + Player.Y_OFFSET; // use box height map to figure out starting y
                 ecb.SetComponent(player, new Translation
                 {
-                    Value = new float3(playerX, playerHeight, playerY)
+                    Value = new float3(boxX, boxHeight + Player.Y_OFFSET, boxY) // reposition halfway to height to level all at 0 plane
                 });
                 ecb.AddComponent(player, new ParabolaTValue
                 {
@@ -97,33 +94,20 @@ public class SpawnerSystem : SystemBase
                 });
 
                 // make tanks!
-                for (int i = 0; i < tankCnt; ++i)
+                for (int i = 0; i < config.TankCount; i++)
                 {
-                    var tank = ecb.Instantiate(tankPrefab);
-                    var tankX = random.NextInt(0, config.TerrainLength - 1);
-                    var tankY = random.NextInt(0, config.TerrainWidth - 1);
-                    int safetyCheckMax = config.TerrainLength * config.TerrainWidth;
-                    int safetyCheckCnt = 0; // we count how many loops below randomly picking a new unoccupied tile so this is just a sanity check to exit out if we try too long
-                    while (occupiedMapBuffer[tankY * config.TerrainLength + tankX] && safetyCheckCnt++ < safetyCheckMax)
+                    var turretPosX = random.NextInt(1, config.TerrainLength);
+                    var turretPosY = random.NextInt(1, config.TerrainWidth);
+                    var turretHeight = heightMapBuffer[turretPosY * config.TerrainLength + turretPosX];
+                    var turretBase = ecb.Instantiate(refs.TurretBase);
+
+                    ecb.SetComponent(turretBase, new Translation
                     {
-                        tankX = random.NextInt(0, config.TerrainLength - 1);
-                        tankY = random.NextInt(0, config.TerrainWidth - 1);
-                    }
-                    if (safetyCheckCnt >= safetyCheckMax)
-                    {
-                        UnityEngine.Debug.LogError("Couldn't find an empty box position for tank " + i); // NOTE: we could do a full iteration of the entire grid lookig for an empty one too, but mehhh
-                    }
-                    occupiedMapBuffer[tankY * config.TerrainLength + tankX] = true; // mark this tile as occupied
-                    float tankHeight = heightMapBuffer[tankY * config.TerrainLength + tankX] + TankBase.Y_OFFSET; // use box height map to figure out starting y
-                    ecb.SetComponent(tank, new Translation
-                    {
-                        Value = new float3(tankX, tankHeight, tankY)
-                    });
-                    ecb.SetComponent(tank, new FiringTimer
-                    {
-                        NextFiringTime = (float) Time.ElapsedTime + (float)random.NextDouble(0, reloadTime)
+                        Value = new float3(turretPosX, turretHeight, turretPosY) // TODO: figure out turret base offset needs
                     });
                 }
+                
+                
             }).Run();
 
         ecb.Playback(EntityManager);
@@ -146,11 +130,11 @@ public class SpawnerSystem : SystemBase
         // change color based on height
         if (math.abs(maxTerrainHeight - minTerrainHeight) < math.EPSILON) // special case, if max is close to min just color as min height
         {
-            color = Box.MIN_HEIGHT_COLOR;
+            color = MIN_HEIGHT_COLOR;
         }
         else
         {
-            color = math.lerp(Box.MIN_HEIGHT_COLOR, Box.MAX_HEIGHT_COLOR, (height - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
+            color = math.lerp(MIN_HEIGHT_COLOR, MAX_HEIGHT_COLOR, (height - minTerrainHeight) / (maxTerrainHeight - minTerrainHeight));
         }
 
         return color;
