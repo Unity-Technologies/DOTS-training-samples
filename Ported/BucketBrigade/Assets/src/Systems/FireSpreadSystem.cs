@@ -6,7 +6,7 @@ using UnityEngine;
 using Unity.Jobs;
 
 namespace src.Systems
-{    
+{
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class FireSpreadSystem : SystemBase
     {
@@ -17,11 +17,11 @@ namespace src.Systems
             base.OnCreate();
             RequireSingletonForUpdate<FireSimConfig>();
             RequireSingletonForUpdate<Temperature>();
-            
+
         }
 
         protected override void OnUpdate()
-        {            
+        {
             var configEntity = GetSingletonEntity<FireSimConfig>();
             var configValues = GetComponent<FireSimConfigValues>(configEntity);
 
@@ -52,6 +52,7 @@ namespace src.Systems
                 HeatRadius = configValues.HeatRadius,
                 HeatTransferRate = configValues.HeatTransferRate,
                 Flashpoint = configValues.Flashpoint,
+                MaxIntensity = 1.0f
             };
 
             Dependency = verticalSpreadJob.Schedule(temperatureBuffer.Length, 32, Dependency);
@@ -63,8 +64,9 @@ namespace src.Systems
                 Columns = configValues.Columns,
                 Rows = configValues.Rows,
                 HeatRadius = configValues.HeatRadius,
-                HeatTransferRate = configValues.HeatTransferRate,
+                HeatTransferRate = configValues.HeatTransferRate * configValues.FireSimUpdateRate,
                 Flashpoint = configValues.Flashpoint,
+                MaxIntensity = 1.0f
             };
 
             Dependency = horizontalSpreadJob.Schedule(temperatureBuffer.Length, 32, Dependency);
@@ -85,6 +87,7 @@ namespace src.Systems
         public int HeatRadius;
         public float HeatTransferRate;
         public float Flashpoint;
+        public float MaxIntensity;
 
         public void Execute(int index)
         {
@@ -108,6 +111,9 @@ namespace src.Systems
                 }
             }
 
+            if (temperature > MaxIntensity)
+                temperature = MaxIntensity;
+
             Destination[column + row * Columns] = new Temperature { Intensity = temperature };
         }
     }
@@ -122,6 +128,7 @@ namespace src.Systems
         public int HeatRadius;
         public float HeatTransferRate;
         public float Flashpoint;
+        public float MaxIntensity;
 
         public void Execute(int index)
         {
@@ -145,8 +152,10 @@ namespace src.Systems
                 }
             }
 
-            Destination[column + row * Columns] = new Temperature { Intensity = temperature };
+            if (temperature > MaxIntensity)
+                temperature = MaxIntensity;
 
+            Destination[column + row * Columns] = new Temperature { Intensity = temperature };
         }
     }
 }
