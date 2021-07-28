@@ -9,9 +9,14 @@ using UnityEngine.Analytics;
 
 public class ScooperBotSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+
     protected override void OnUpdate()
     {
-        var bucketQuery = EntityManager.CreateEntityQuery(typeof(BucketActiveComponent), typeof(Translation));
+        var bucketQuery = EntityManager.CreateEntityQuery(typeof(BucketActiveComponent), typeof(Translation), typeof(BucketFullComponent));
         var bucketEntities = bucketQuery.ToEntityArray(Allocator.TempJob);
         var bucketActive = bucketQuery.ToComponentDataArray<BucketActiveComponent>(Allocator.TempJob);
         var bucketTranslation = bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);

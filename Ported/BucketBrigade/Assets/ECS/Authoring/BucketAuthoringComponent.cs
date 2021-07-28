@@ -10,7 +10,7 @@ public class BucketAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntit
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new WaterVolumeComponent());
+        dstManager.AddComponentData(entity, new BucketVolumeComponent());
         dstManager.AddComponentData(entity, new WaterCapacityComponent(){Capacity = Capacity});
         dstManager.AddComponentData(entity, new BucketActiveComponent());
         dstManager.AddComponentData(entity, new BucketFullComponent());

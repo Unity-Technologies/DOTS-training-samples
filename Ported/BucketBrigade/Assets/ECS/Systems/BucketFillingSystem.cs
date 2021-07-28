@@ -7,6 +7,10 @@ using Unity.Transforms;
 
 public class BucketFillingSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
     protected override void OnUpdate()
     {
         var ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -14,7 +18,7 @@ public class BucketFillingSystem : SystemBase
         var config = GetSingleton<GameConfigComponent>();
         var waterRefill = config.WaterRefillRate;
 
-        Entities.ForEach((ref BucketStartFill fill, ref BucketFullComponent full, ref WaterVolumeComponent bucketVolume, in WaterCapacityComponent bucketCap) =>
+        Entities.ForEach((ref BucketStartFill fill, ref BucketFullComponent full, ref BucketVolumeComponent bucketVolume, in WaterCapacityComponent bucketCap) =>
         {
             var water = fill.Water;
             if (water == Entity.Null)
