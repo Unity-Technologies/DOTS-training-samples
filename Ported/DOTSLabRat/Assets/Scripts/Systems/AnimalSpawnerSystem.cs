@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+using UnityEngine;
 using Random = UnityEngine.Random;
 namespace DOTSRATS
 {
@@ -16,22 +17,23 @@ namespace DOTSRATS
 
             Entities
                 .WithAll<InPlay, AnimalSpawner, Cat>()
-                .ForEach((Entity entity, in AnimalSpawner animalSpawner, in Translation translation, in DirectionData direction) =>
+                .ForEach((in AnimalSpawner animalSpawner, in Translation translation, in DirectionData direction) =>
                 {
                     if (numCats < animalSpawner.maxAnimals)
                     {
                         if (Random.Range(0f, 1f) < animalSpawner.spawnRate)
-                        {
+                        {                            
                             var instance = ecb.Instantiate(animalSpawner.animalPrefab);
                             ecb.SetComponent(instance, translation);
                             ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = 1f});
+                            ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                         }
                     }
                 }).Run();
 
             Entities
                 .WithAll<InPlay, AnimalSpawner, Rat>()
-                .ForEach((Entity entity, in AnimalSpawner animalSpawner, in Translation translation, in DirectionData direction) =>
+                .ForEach((in AnimalSpawner animalSpawner, in Translation translation, in DirectionData direction) =>
                 {
                     if (numRats < animalSpawner.maxAnimals)
                     {
@@ -40,6 +42,7 @@ namespace DOTSRATS
                             var instance = ecb.Instantiate(animalSpawner.animalPrefab);
                             ecb.SetComponent(instance, translation);
                             ecb.AddComponent(instance, new Velocity { Direction = direction.Value, Speed = 1f });
+                            ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                         }
                     }
                 }).Run();
