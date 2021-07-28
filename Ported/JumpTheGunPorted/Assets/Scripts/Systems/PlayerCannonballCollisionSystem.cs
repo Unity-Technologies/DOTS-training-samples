@@ -1,40 +1,43 @@
-﻿using Unity.Entities;
-using Unity.Mathematics;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 
 public class PlayerCannonballCollisionSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        var query = GetEntityQuery(typeof(Player), typeof(Translation), typeof(NonUniformScale));
-        RequireForUpdate(query);
+        RequireForUpdate(GetEntityQuery(typeof(Player)));
+        RequireForUpdate(GetEntityQuery(typeof(Cannonball)));
     }
 
     protected override void OnUpdate()
     {
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var parallelWriter = ecb.AsParallelWriter();
+        
         var player = GetSingletonEntity<Player>();
         var playerPos = GetComponent<Translation>(player);
-        var playerScale = GetComponent<NonUniformScale>(player);
-
-        // TODO:
-        //var ballAabb = new AABB { Center = playerPos.Value.xy, Extents = playerScale.Value.xy / 2 };
+        var spawnerArchetype = EntityManager.CreateArchetype(typeof(Spawner));
 
         Entities
             .WithName("player_cannonball_collision_test")
-            .WithStructuralChanges()
-            .WithAll<Cannonball>()
             .ForEach((
-                in Translation translation,
-                in NonUniformScale scale) =>
+                in Cannonball cannonball,
+                in Translation translation) =>
             {
-                // TODO:
-                /*var cannonballAabb = new AABB { Center = translation.Value.xy, Extents = scale.Value.xy / 2 };
-
-                var axisFlip = new float2();
-                if (cannonballAabb.Intersects(ballAabb, ref axisFlip))
+                // TODO: Ensure we can never spawn multiple spawners in case
+                // multiple cannonballs hit the player at the same time
+                //if (HasSingleton<Spawner>())
+                //    return;
+                
+                if (Vector3.Distance(playerPos.Value, translation.Value) <= (Cannonball.RADIUS * 2))
                 {
-                    EntityManager.SetComponentData(player, new Velocity2D { Value = ballVelocity.Value * axisFlip });
-                }*/
-            }).Run();
+                    parallelWriter.CreateEntity(1, spawnerArchetype);
+                }
+            }).ScheduleParallel();
+        Dependency.Complete();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
