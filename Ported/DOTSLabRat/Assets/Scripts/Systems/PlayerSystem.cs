@@ -26,21 +26,21 @@ namespace DOTSRATS
                     {
                         if (player.nextArrowTime < elapsedTime)
                         {
+                            int cellIndex;
+                            CellStruct cell;
+                            do
+                            {
+                                player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
+                                cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
+                                cell = cellStructs[cellIndex]; 
+                                // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
+                            } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
+                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
+                            
                             if (player.nextArrowTime != 0)
                             {
-                                int cellIndex;
-                                CellStruct cell;
-                                do
-                                {
-                                    player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
-                                    cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
-                                    cell = cellStructs[cellIndex]; 
-                                    // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
-                                } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
-
                                 cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
                                 cell = cellStructs[cellIndex];
-                                player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
                                 cell.arrow = player.arrowDirection;
                                 cellStructs[cellIndex] = cell;
                                 

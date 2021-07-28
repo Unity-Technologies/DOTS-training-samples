@@ -155,7 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerNumber: 2
   PlayerColor: {r: 0.23233342, g: 1, b: 0, a: 1}
-  AIArrowPlaceDelayRange: {x: 7, y: 12}
+  AIArrowPlaceDelayRange: {x: 5, y: 8}
 --- !u!4 &95169171
 Transform:
   m_ObjectHideFlags: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerNumber: 3
   PlayerColor: {r: 0, g: 0.18722701, b: 1, a: 1}
-  AIArrowPlaceDelayRange: {x: 7, y: 12}
+  AIArrowPlaceDelayRange: {x: 5, y: 8}
 --- !u!4 &279270560
 Transform:
   m_ObjectHideFlags: 0
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerNumber: 1
   PlayerColor: {r: 1, g: 0, b: 0, a: 1}
-  AIArrowPlaceDelayRange: {x: 7, y: 12}
+  AIArrowPlaceDelayRange: {x: 5, y: 8}
 --- !u!4 &574490755
 Transform:
   m_ObjectHideFlags: 0
