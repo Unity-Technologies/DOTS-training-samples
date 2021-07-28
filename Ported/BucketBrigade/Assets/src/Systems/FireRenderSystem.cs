@@ -31,7 +31,7 @@ namespace src.Systems
 
             NativeArray<Temperature>.ReadOnly temperatureArray = temperatureBuffer.AsNativeArray().AsReadOnly();
 
-            var cellSize = configValues.CellSize * 100.0f;
+            var cellSize = configValues.CellSize;
 
             Color color_fireCell_neutral = Color.green;
             Color color_fireCell_cool = Color.red;
