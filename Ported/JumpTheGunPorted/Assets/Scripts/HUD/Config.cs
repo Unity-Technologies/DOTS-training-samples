@@ -19,6 +19,7 @@ public class ConfigData
 public class Config : MonoBehaviour
 {
     public ConfigData Data { get; private set; }
+    public ConfigData HUDData { get; private set; }
     public static Config Instance { get; private set; }
 
     [Header("Defaults")]
@@ -41,7 +42,19 @@ public class Config : MonoBehaviour
         }
 
         Instance = this;
-        Data = new ConfigData
+        Data = CreateConfigData();
+        HUDData = CreateConfigData();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private ConfigData CreateConfigData()
+    {
+        return new ConfigData()
         {
             TerrainWidth = _TerrainWidth,
             TerrainLength = _TerrainLength,
@@ -53,9 +66,14 @@ public class Config : MonoBehaviour
         };
     }
 
-    private void OnDestroy()
+    public void CommitHUDConfig()
     {
-        if (Instance == this)
-            Instance = null;
+        Data.TerrainWidth = HUDData.TerrainWidth;
+        Data.TerrainLength = HUDData.TerrainLength;
+        Data.MinTerrainHeight = HUDData.MinTerrainHeight;
+        Data.MaxTerrainHeight = HUDData.MaxTerrainHeight;
+        Data.HeightDamage = HUDData.HeightDamage;
+        Data.TankCount = HUDData.TankCount;
+        Data.TankReloadTime = HUDData.TankReloadTime;
     }
 }
