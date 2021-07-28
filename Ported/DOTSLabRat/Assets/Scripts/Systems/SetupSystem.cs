@@ -3,6 +3,7 @@ using DOTSRATS;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -11,7 +12,7 @@ public class SetupSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        const float k_yRangeSize = 0.03f;
+        const float k_yRangeSize = 0.05f;
 
         var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
         var random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : randomSeed);
@@ -64,6 +65,12 @@ public class SetupSystem : SystemBase
                             var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
                             var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
                             EntityManager.SetComponentData(tile, translation);
+                            EntityManager.AddComponent<URPMaterialPropertyBaseColor>(tile);
+                            EntityManager.SetComponentData(tile,
+                                new URPMaterialPropertyBaseColor()
+                                {
+                                    Value = cellIndex % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
+                                });
                         }
                         else
                             cell.hole = true;
