@@ -8,6 +8,7 @@ using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(ColonySpawnerSystem))]
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
+[UpdateAfter(typeof(PlayerSystem))]
 public class AntMovementSystem : SystemBase
 {
     private const int mapSize = 128;
@@ -61,10 +62,12 @@ public class AntMovementSystem : SystemBase
         ecb.Dispose();
         
         var time = Time.DeltaTime;
+        var playerEntity = GetSingletonEntity<PlayerInput>();
+        var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
         Entities
             .ForEach((ref Translation translation, ref Speed speed, in Acceleration acceleration, in FacingAngle facingAngle) =>
             {
-                var targetSpeed = antSpeed*time; //TODO: multiply by playingSpeed
+                var targetSpeed = antSpeed*time*playerSpeed;
                 speed.Value = targetSpeed * acceleration.Value;
                 float vx = math.cos(facingAngle.Value) * speed.Value;
                 float vy = Mathf.Sin(facingAngle.Value) * speed.Value;
