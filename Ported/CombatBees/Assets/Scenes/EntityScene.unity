@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
   BeeSpawnCount: 6
+  ResourcePrefab: {fileID: 4208794139011365288, guid: 3672875dcad95364baa455fe1f605f4d, type: 3}
 --- !u!4 &43967149
 Transform:
   m_ObjectHideFlags: 0
@@ -241,16 +242,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2ce95f9bdec22a43bb736259e1f626b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResourcePrefab: {fileID: 4208794139011365288, guid: 3672875dcad95364baa455fe1f605f4d, type: 3}
   SpawnLocation:
     x: 0
     y: 0.5
     z: 0
   SpawnAreaSize:
-    x: 1.5
+    x: 1.8
     y: 0.75
     z: 0.75
-  ResourceCount: 100
+  ResourceCount: 50000
 --- !u!4 &348313916
 Transform:
   m_ObjectHideFlags: 0
@@ -318,7 +318,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 100
+  BeeCount: 50000
 --- !u!1 &748618432
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,7 +358,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 100
+  BeeCount: 50000
 --- !u!4 &748618434
 Transform:
   m_ObjectHideFlags: 0

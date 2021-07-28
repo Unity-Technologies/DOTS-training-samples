@@ -17,7 +17,11 @@ class BeeSimulationSystem: SystemBase
     {
         float deltaTime = Time.DeltaTime;
         const float aggressivity = 0.5f;
-        const float speed = 1.0f;
+        
+        const float attackSpeed = 1.5f;
+        const float normalSpeed = 1.0f;
+        const float carryingSpeed = 0.5f;
+        
         const float beeSize = 0.01f;
         m_seed = m_seed + 1;
         var seed = m_seed;
@@ -88,10 +92,22 @@ class BeeSimulationSystem: SystemBase
                     bee.State = BeeState.Idle;
                     return;
                 }
-                float3 basePos = HasComponent<TeamA>(entity) ? new float3(-2.0f, 0.5f, 0.0f) : new float3(2.0f, 0.5f, 0.0f);
+                Random rng2 = Random.CreateFromIndex((uint)entity.Index);
+                float3 basePos = HasComponent<TeamA>(entity) ? new float3(-2.25f, 0.5f, 0.0f) : new float3(2.25f, 0.5f, 0.0f);
+                const float delta = 0.25f;
+                basePos += rng2.NextFloat3(-delta, delta); 
                 var targetPos = bee.Target == Entity.Null ? basePos : GetComponent<Translation>(bee.Target).Value;
                 float3 targetVec = targetPos - pos.translation.Value;
                 float3 dir = math.normalize(targetVec);
+
+                var speed = normalSpeed;
+                if (bee.State == BeeState.ChasingEnemy)
+                {
+                    speed = attackSpeed;
+                } else if (bee.State == BeeState.ReturningToBase)
+                {
+                    speed = carryingSpeed;
+                }
                 pos.translation.Value += dir * speed * deltaTime;
 
                 // check collision with target
