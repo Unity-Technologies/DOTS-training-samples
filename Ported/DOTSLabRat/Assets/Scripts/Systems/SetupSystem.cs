@@ -54,8 +54,9 @@ public class SetupSystem : SystemBase
                 {
                     for (int x = 0; x < size; ++x)
                     {
+                        var cellIndex = z * size + x;
                         // Spawn tiles / holes
-                        var cell = new CellStruct();
+                        var cell = cellStructs[cellIndex];
                         var cellCoord = new int2(x, z);
 
                         if (!CoordExistsInArray(new int2(x, z), holeCoords))
@@ -74,6 +75,7 @@ public class SetupSystem : SystemBase
                         if (z == 0 || z == size - 1)
                             SpawnWall(boardSpawner,cellCoord, z == 0 ? Direction.South : Direction.North, ref cell, cellStructs);
 
+                        // Spawn inner walls
                         if (wallGenParams.TryGetValue(cellCoord, out var spawnCount))
                             SpawnInnerWall(boardSpawner, cellCoord, spawnCount, ref cell, cellStructs);
 
@@ -81,10 +83,14 @@ public class SetupSystem : SystemBase
                         if (ShouldPlaceGoalTile(cellCoord, size))
                             SpawnGoal(boardSpawner, cellCoord, playerNumber++, ref cell);
 
-                        cellStructs[z * size + x] = cell;
+                        cellStructs[cellIndex] = cell;
                     }
                 }
 
+                /*for (int z = 0; z < size; ++z)
+                    for (int x = 0; x < size; ++x)
+                        Debug.Log($"Wall layout at: ({x},{z}): {cellStructs[z * size + x].wallLayout}");*/                    
+                    
                 EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
                 SetAnimalSpawners(boardSpawner, size);
 
