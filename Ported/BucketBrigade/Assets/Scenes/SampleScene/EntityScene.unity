@@ -174,6 +174,15 @@ MonoBehaviour:
   FlashPoint: 0.2
   startingFireCount: 1
   FlameScaleMax: 1
+  ChainsCount: 1
+  ChainSize: 5
+  ChainAssessPeriod: 1
+  BotPrefab: {fileID: 4315772449202162740, guid: 15576fd30b083d84d8efac4920211452, type: 3}
+  ScooperBotColor: {r: 0, g: 1, b: 0.15294118, a: 0}
+  ThrowerBotColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
+  PasserFullBotColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
+  PasserEmptyBotColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
+  BotSpeed: 0.075
 --- !u!4 &271051949
 Transform:
   m_ObjectHideFlags: 0
@@ -205,7 +214,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.y
@@ -343,7 +352,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.y
@@ -400,7 +409,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 9070413578565237373, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
       propertyPath: m_LocalPosition.y

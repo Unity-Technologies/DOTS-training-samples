@@ -8,6 +8,11 @@ using UnityEngine;
 
 public class FireSimSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+    
     protected override void OnUpdate()
     {
         var config = GetSingleton<GameConfigComponent>();

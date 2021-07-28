@@ -8,6 +8,11 @@ using UnityEngine;
 
 public class WaterSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+    
     protected override void OnUpdate()
     {
         var gameConfig = this.GetSingleton<GameConfigComponent>();

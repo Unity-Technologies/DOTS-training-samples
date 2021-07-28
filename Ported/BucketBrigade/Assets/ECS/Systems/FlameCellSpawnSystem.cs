@@ -11,6 +11,11 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class FlameCellSpawnSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -18,8 +23,8 @@ public class FlameCellSpawnSystem : SystemBase
         var grid = config.SimulationSize;
         var fireCount = config.startingFireCount;
         var flashpoint = config.FlashPoint;
-        Entity e = EntityManager.CreateEntity(typeof(HeatMapElement));
-        var buffer = EntityManager.GetBuffer<HeatMapElement>(e);
+        Entity e = ecb.CreateEntity();//typeof(HeatMapElement));
+        var buffer = ecb.AddBuffer<HeatMapElement>(e);
 
         buffer.ResizeUninitialized(grid * grid);
 

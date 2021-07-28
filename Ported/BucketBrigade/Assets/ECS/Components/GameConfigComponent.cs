@@ -28,4 +28,13 @@ public struct GameConfigComponent : IComponentData
     public float FlashPoint;
     public int startingFireCount;
     public float FlameScaleMax;
+    public int ChainsCount;
+    public int ChainSize;
+    public float ChainAssessPeriod;
+    public Entity BotPrefab;
+    public Color ScooperBotColor;
+    public Color ThrowerBotColor;
+    public Color PasserFullBotColor;
+    public Color PasserEmptyBotColor;
+    public float BotSpeed;
 }

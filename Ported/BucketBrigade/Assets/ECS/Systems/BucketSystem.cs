@@ -10,6 +10,11 @@ using UnityEngine;
 
 public class BucketSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+    
     protected override void OnUpdate()
     {
         float3 one = new float3(1F, 1F, 1F);

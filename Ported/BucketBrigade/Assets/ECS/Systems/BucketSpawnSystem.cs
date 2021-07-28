@@ -8,6 +8,11 @@ using Unity.Transforms;
 
 public class BucketSpawnSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfigComponent>();
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
