@@ -17,7 +17,7 @@ namespace DOTSRATS
                 .ForEach((ref Rotation rotation, in Velocity velocity) =>
                 {
                     quaternion lookRotation = quaternion.LookRotationSafe(DirectionExt.ToFloat3(velocity.Direction), new float3(0f, 1f, 0f));
-                    if (!rotation.Equals(lookRotation))
+                    if (!rotation.Value.Equals(lookRotation))
                     {
                         rotation.Value = Quaternion.Slerp((Quaternion)rotation.Value, (Quaternion)lookRotation, deltaTime*5);
                     }
