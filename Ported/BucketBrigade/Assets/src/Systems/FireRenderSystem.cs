@@ -33,9 +33,11 @@ namespace src.Systems
 
             var cellSize = configValues.CellSize;
 
-            Color color_fireCell_neutral = Color.green;
-            Color color_fireCell_cool = Color.red;
-            Color color_fireCell_hot = Color.yellow;
+            Color color_fireCell_neutral = new Color(0.49f, 0.79f, 0.45f);
+            Color color_fireCell_cool = new Color(1.0f, 0.98f, 0.51f);
+            Color color_fireCell_hot = Color.red;
+
+            double time = Time.ElapsedTime;
 
             var updateFireCells = Entities
                 .WithName("UpdateFireCellPresentation")                
@@ -50,20 +52,29 @@ namespace src.Systems
                {
                    float temperature = temperatureArray[column + row * configValues.Columns].Intensity; //configValues.GetTemperatureForCell(temperatureBuffer, row, column);
 
-                   var worldPosition = configValues.GetCellWorldPosition3D(row, column);
-                   float xPosition = worldPosition.x + cellSize * 0.5f;
-                   float yPosition = worldPosition.z + cellSize * 0.5f;
-                   float scaleX = cellSize;
-                   float scaleY = configValues.MaxFlameHeight * temperature * cellSize;
-                   float scaleZ = cellSize;
-
-                   localToWorld.Value = float4x4.TRS(new float3(xPosition, 0, yPosition), Quaternion.identity, new Vector3(scaleX, scaleY, scaleZ));
-
+                   float temperatureWithFlicker = temperature;
                    Color cellColor = color_fireCell_neutral;
+
                    if (temperature >= configValues.Flashpoint)
                    {
-                       cellColor = Color.Lerp(color_fireCell_cool, color_fireCell_hot, temperature);
+                       const float flickerAmount = 0.3f;
+                       const float flickerRate = 0.1f;
+                       float flickerNoise = Mathf.PerlinNoise(((float)entityInQueryIndex - (float)time) * flickerRate, temperature) - 0.5f;
+
+                       temperatureWithFlicker = temperature - flickerAmount * flickerNoise; 
+
+                       cellColor = Color.Lerp(color_fireCell_cool, color_fireCell_hot, temperatureWithFlicker);
                    }
+
+                   var worldPosition = configValues.GetCellWorldPosition3D(row, column);
+                   float xPosition = worldPosition.x + cellSize * 0.5f;
+                   float zPosition = worldPosition.z + cellSize * 0.5f;
+                   float yPosition = configValues.MaxFlameHeight * temperatureWithFlicker;
+                   float scaleX = cellSize;
+                   float scaleY = configValues.MaxFlameHeight; 
+                   float scaleZ = cellSize;
+
+                   localToWorld.Value = float4x4.TRS(new float3(xPosition, yPosition, zPosition), Quaternion.identity, new Vector3(scaleX, scaleY, scaleZ));
 
                    color.Value = new float4(cellColor.r, cellColor.g, cellColor.b, 1.0f);
                }

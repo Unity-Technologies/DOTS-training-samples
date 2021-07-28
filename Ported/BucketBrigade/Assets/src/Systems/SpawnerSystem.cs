@@ -33,8 +33,7 @@ namespace src.Systems
             EntityManager.RemoveComponent<LinkedEntityGroup>(config.BucketPrefab);
             
             // Spawn buckets:
-            const int numBucketsInMap = 30;
-            using var bucketEntities = new NativeArray<Entity>(numBucketsInMap, Allocator.Temp);
+            using var bucketEntities = new NativeArray<Entity>(configValues.BucketCount, Allocator.Temp);
             EntityManager.Instantiate(config.BucketPrefab, bucketEntities);
             for (var i = 0; i < bucketEntities.Length; i++)
             {
