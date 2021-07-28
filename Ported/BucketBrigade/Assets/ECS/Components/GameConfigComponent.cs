@@ -38,4 +38,5 @@ public struct GameConfigComponent : IComponentData
     public Color PasserEmptyBotColor;
     public float BotSpeed;
     public float TargetProximityThreshold;
+    public float BucketFillRate;
 }

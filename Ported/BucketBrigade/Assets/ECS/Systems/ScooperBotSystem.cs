@@ -15,6 +15,10 @@ public class ScooperBotSystem : SystemBase
         var bucketEntities = bucketQuery.ToEntityArray(Allocator.TempJob);
         var bucketActive = bucketQuery.ToComponentDataArray<BucketActiveComponent>(Allocator.TempJob);
         var bucketTranslation = bucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var bucketFullArray = bucketQuery.ToComponentDataArray<BucketFullComponent>(Allocator.TempJob);
+        
+        var config = GetSingleton<GameConfigComponent>();
+        var distanceThreshold = config.TargetProximityThreshold;
         //var ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         //var ecb = ecbs.CreateCommandBuffer();
 
@@ -22,15 +26,60 @@ public class ScooperBotSystem : SystemBase
             .WithDisposeOnCompletion(bucketEntities)
             .WithDisposeOnCompletion(bucketActive)
             .WithDisposeOnCompletion(bucketTranslation)
+            .WithDisposeOnCompletion(bucketFullArray)
             .ForEach((in BotsChainComponent chain) =>
         {
             var scooper = chain.scooper;
             var carriedBucket = GetComponent<CarriedBucket>(scooper);
+            var scooperPos = GetComponent<Translation>(scooper).Value.xz;
+            
             if (carriedBucket.bucket != Entity.Null)
+            {
+                var water = GetComponent<TargetWater>(scooper);
+                if (water.water == Entity.Null)
+                    return;
+                
+                var targetWaterPosition = GetComponent<Translation>(water.water).Value.xz;
+                
+                
+                //check current position vs water position
+                var dist = math.length(targetWaterPosition - scooperPos);
+
+                if (dist > distanceThreshold)
+                    return;
+                
+                //check bucket state
+                var bucketfull = GetComponent<BucketFullComponent>(carriedBucket.bucket).full;
+                if (bucketfull)
+                {
+                    //drop the bucket
+                    var bucketPos = new float3(scooperPos.x,0f, scooperPos.y);
+                    SetComponent(carriedBucket.bucket, new Translation(){Value = bucketPos});
+                    SetComponent(carriedBucket.bucket, new BucketActiveComponent(){active = false});
+                    SetComponent(scooper, new TargetBucket());
+                    SetComponent(scooper, new CarriedBucket());
+                }
+                else
+                {
+                    //fill the bucket
+                    //check first
+                    var fillingwater = GetComponent<BucketStartFill>(carriedBucket.bucket).Water;
+                    if (fillingwater != Entity.Null)
+                        return;
+                    
+                    SetComponent(carriedBucket.bucket, new BucketStartFill(){Water = water.water});
+                }
+
+                
+                
+                
                 return;
+            }
+
+           
 
             var currentTargetBucket = GetComponent<TargetBucket>(scooper);
-            var scooperPos = GetComponent<Translation>(scooper).Value.xz;
+            
             if (currentTargetBucket.bucket != Entity.Null)
             {
                 var targetBucket = currentTargetBucket.bucket;
@@ -47,20 +96,20 @@ public class ScooperBotSystem : SystemBase
 
                     var dist = math.length(bucketPos - scooperPos);
 
-                    var bucketProximityThreshold = 0.01F;
-                    if (dist > bucketProximityThreshold)
+                    if (dist > distanceThreshold)
                         return;
 
                     SetComponent(scooper, new CarriedBucket() {bucket = targetBucket});
                     SetComponent(currentTargetBucket.bucket, new BucketActiveComponent() { active = true });
-                    //ecb.AddComponent(targetBucket, new Parent() {Value = scooper});
-                    //ecb.AddComponent(targetBucket, new LocalToParent() { Value = float4x4.identity});
-                    var targetWaterPosition = float2.zero;
+                    var water = GetComponent<TargetWater>(scooper);
+                    var targetWaterPosition = GetComponent<Translation>(water.water).Value.xz;
                     SetComponent(scooper, new TargetLocationComponent(){location = targetWaterPosition});
                     Debug.Log("Carrying new bucket");
                     return;
                 }
             }
+
+            
             
             var bestBucketPosition = float2.zero;
 
@@ -68,8 +117,9 @@ public class ScooperBotSystem : SystemBase
             var bestBucket = Entity.Null;
             for (var i = 0; i < bucketEntities.Length; ++i)
             {
-                if (bucketActive[i].active)
+                if (bucketActive[i].active || bucketFullArray[i].full)
                     continue;
+                
 
                 var bucketPosition = bucketTranslation[i].Value.xz;
                 var distanceToBucket = math.distancesq(bucketPosition, scooperPos);

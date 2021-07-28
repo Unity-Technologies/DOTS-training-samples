@@ -32,6 +32,7 @@ public class BucketSpawnSystem : SystemBase
                 Value = pos
             };
             ecb.SetComponent(bucket, t);
+            ecb.AddComponent<BucketStartFill>(bucket);
         }
 
         ecb.Playback(EntityManager);

@@ -28,7 +28,7 @@ public class AssessChainSystem : SystemBase
         var query = GetEntityQuery(typeof(WaterTagComponent), typeof(Translation), typeof(WaterVolumeComponent));
         var waterTranslations = query.ToComponentDataArray<Translation>(Allocator.TempJob);
         var waterVolumes = query.ToComponentDataArray<WaterVolumeComponent>(Allocator.TempJob);
-        //var waterEntities = query.ToEntityArray(Allocator.Temp);
+        var waterEntities = query.ToEntityArray(Allocator.TempJob);
 
         var heatMapEntity = GetSingletonEntity<HeatMapElement>();
         var heatMap = GetBuffer<HeatMapElement>(heatMapEntity);
@@ -36,6 +36,7 @@ public class AssessChainSystem : SystemBase
         Entities
             .WithDisposeOnCompletion(waterTranslations)
             .WithDisposeOnCompletion(waterVolumes)
+            .WithDisposeOnCompletion(waterEntities)
             .ForEach((in BotsChainComponent chain, in DynamicBuffer<BotChainElementData> chainBuffer) =>
             {
                 var scooper = chain.scooper;
@@ -45,6 +46,7 @@ public class AssessChainSystem : SystemBase
                 // Find closest water
                 var minDistance = float.MaxValue;
                 var waterPos = float3.zero;
+                Entity water = Entity.Null;
                 for (int i = 0; i < waterTranslations.Length; ++i)
                 {
                     var waterVolume = waterVolumes[i];
@@ -57,10 +59,12 @@ public class AssessChainSystem : SystemBase
                     {
                         minDistance = distance;
                         waterPos = waterTrans.Value;
+                        water = waterEntities[i];
                     }
                 }
-
-                //SetComponent(scooper, new TargetLocationComponent() {location = waterPos.xz});
+    
+                SetComponent(scooper, new TargetWater() {water = water});
+                
 
                 // Find closest fire cell
                 var bestFirePos = float3.zero;

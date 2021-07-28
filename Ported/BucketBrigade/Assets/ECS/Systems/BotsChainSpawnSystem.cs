@@ -44,6 +44,7 @@ public class BotsChainSpawnSystem : SystemBase
         for (var i = 0; i < chainsCount; ++i)
         {
             var scooper = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, scooperColor);
+            ecb.AddComponent<TargetWater>(scooper);
             var thrower = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, throwerColor);
 
             var chain = ecb.CreateEntity();
@@ -76,6 +77,7 @@ public class BotsChainSpawnSystem : SystemBase
         ecb.SetComponent(bot, new TargetLocationComponent() {location = float2.zero});
         ecb.AddComponent<TargetBucket>(bot);
         ecb.AddComponent<CarriedBucket>(bot);
+        
         return bot;
     }
 }
