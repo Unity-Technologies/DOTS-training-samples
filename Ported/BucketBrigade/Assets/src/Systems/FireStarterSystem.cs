@@ -36,19 +36,21 @@ namespace src.Systems
             var rows = configValues.Rows;
             var columns = configValues.Columns;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR           
+            var offset = cellSize;
             for (int i = 0; i <= rows; ++i)
-                for (int j = 0; j <= columns; ++j)
-                {
-                    var cellWorldPos = configValues.GetCellWorldPosition3D(i, j);
-                    var offset = cellSize * 0.5f;
-                    var hor_from = cellWorldPos + new float3(-offset, .5f, 0f);
-                    var hor_to = cellWorldPos + new float3(offset, .5f, 0f);
-                    var ver_from = cellWorldPos + new float3(0f, .5f, -offset);
-                    var ver_to = cellWorldPos + new float3(0f, .5f, offset);
-                    UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.cyan, 0);
-                    UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.cyan, 0);
-                }
+            {
+                var hor_from = configValues.GetCellWorldPosition3D(i, 0) + new float3(-offset, .5f, 0f);
+                var hor_to = configValues.GetCellWorldPosition3D(i, columns) + new float3(offset, .5f, 0f);
+                UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.cyan, 0);
+            }
+
+            for (int j = 0; j <= columns; ++j)
+            { 
+                var ver_from = configValues.GetCellWorldPosition3D(0, j) + new float3(0f, .5f, -offset);
+                var ver_to = configValues.GetCellWorldPosition3D(rows, j) + new float3(0f, .5f, offset);
+                UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.cyan, 0);
+            }
 #endif                    
 
             if (UnityInput.GetMouseButtonDown(0))
