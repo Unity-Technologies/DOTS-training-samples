@@ -1,3 +1,4 @@
+using TreeEditor;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
@@ -46,7 +47,7 @@ class BeeSimulationSystem: SystemBase
                 // set target if not set
                 if(bee.Target == Entity.Null && bee.State != BeeState.ReturningToBase)
                 {
-                    bool fetchResource = resources.Length > 0 && rng.NextFloat() < aggressivity;
+                    bool fetchResource = resources.Length > 0 && rng.NextFloat() > aggressivity;
                     if(!fetchResource)
                     {
                         if(HasComponent<TeamA>(entity))
@@ -62,7 +63,7 @@ class BeeSimulationSystem: SystemBase
                         }
                         else
                         {
-                            if(teamBBees.Length>0)
+                            if(teamABees.Length>0)
                             {
                                 int beeIdx = rng.NextInt(teamABees.Length);
                                 bee.Target = teamABees[beeIdx];
@@ -114,6 +115,8 @@ class BeeSimulationSystem: SystemBase
 
         foreach (var beeEntity in list)
         {
+            if (!HasComponent<Translation>(beeEntity))
+                continue;
             var bee = GetComponent<Bee>(beeEntity);
             switch(bee.State)
             {
@@ -154,17 +157,21 @@ class BeeSimulationSystem: SystemBase
 
                 case BeeState.ChasingEnemy:
                 {
-                    var enemyBee = GetComponent<Bee>(bee.Target);
-                    if (enemyBee.resource != Entity.Null)
+                    if (HasComponent<Translation>(bee.Target))
                     {
-                        // drop the resource
-                        var resource = GetComponent<Resource>(enemyBee.resource);
-                        resource.CarryingBee = Entity.Null;
-                        SetComponent(enemyBee.resource, resource);
+                        var enemyBee = GetComponent<Bee>(bee.Target);
+                        if (enemyBee.resource != Entity.Null)
+                        {
+                            // drop the resource
+                            var resource = GetComponent<Resource>(enemyBee.resource);
+                            resource.CarryingBee = Entity.Null;
+                            SetComponent(enemyBee.resource, resource);
+                        }
+
+                        EntityManager.DestroyEntity(bee.Target);
+                        bee.Target = Entity.Null;
+                        bee.State = BeeState.Idle;
                     }
-                    EntityManager.DestroyEntity(bee.Target);
-                    bee.Target = Entity.Null;
-                    bee.State = BeeState.Idle;
                 } break;
             }
             
