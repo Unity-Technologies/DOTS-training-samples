@@ -26,7 +26,6 @@ class BeeSimulationSystem: SystemBase
         m_seed = m_seed + 1;
         var seed = m_seed;
 
-        EntityCommandBuffer ecb = new EntityCommandBuffer( Allocator.TempJob );
         var teamAQuery = GetEntityQuery(ComponentType.ReadOnly<TeamA>());
         NativeArray<Entity> teamABees = teamAQuery.ToEntityArray( Allocator.TempJob );
         var teamBQuery = GetEntityQuery(ComponentType.ReadOnly<TeamB>());
@@ -80,8 +79,17 @@ class BeeSimulationSystem: SystemBase
                     if(fetchResource && resources.Length > 0)
                     {
                         int resourceIdx = rng.NextInt(resources.Length);
-                        bee.Target = resources[resourceIdx];
-                        bee.State = BeeState.GettingResource;
+                        var resourceId = resources[resourceIdx];
+                        var resource = GetComponent<Resource>(resourceId);
+                        if (resource.CarryingBee == Entity.Null)
+                        {
+                            var translation = GetComponent<Translation>(resourceId);
+                            if (math.abs(translation.Value.x) < 2)
+                            {
+                                bee.Target = resourceId;
+                                bee.State = BeeState.GettingResource;
+                            }
+                        }
                     }
                 }
 
@@ -120,8 +128,7 @@ class BeeSimulationSystem: SystemBase
                 }
             }).ScheduleParallel();
         Dependency.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        
         teamABees.Dispose();
         teamBBees.Dispose();
         resources.Dispose();
