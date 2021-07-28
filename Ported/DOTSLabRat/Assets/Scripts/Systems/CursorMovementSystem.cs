@@ -45,5 +45,10 @@ namespace DOTSRATS
                     
                 }).Run();
         }
+
+        protected override void OnDestroy()
+        {
+            velocities.Dispose();
+        }
     }
 }
