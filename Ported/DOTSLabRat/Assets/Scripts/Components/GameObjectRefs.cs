@@ -8,6 +8,7 @@ using UnityCamera = UnityEngine.Camera;
 [GenerateAuthoringComponent]
 public class GameObjectRefs : IComponentData
 {
+    public UnityCamera camera;
     public Text timerText;
     public List<Text> playerScore;
 }
