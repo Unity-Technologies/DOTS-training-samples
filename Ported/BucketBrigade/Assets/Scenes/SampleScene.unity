@@ -207,20 +207,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d134c91abd7be446b24774b30004d13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartingFireCount: 1
-  MaxFlameHeight: 0.1
-  CellSize: 0.05
-  Rows: 20
-  Columns: 20
-  Flashpoint: 0.5
-  HeatRadius: 1
-  HeatTransferRate: 0.7
-  FireSimUpdateRate: 0.5
-  WorkerSpeed: 4
-  WorkerSpeedWhenHoldingBucket: 2
-  DistanceToPickupBucket: 1
-  WaterFillUpDuration: 4
-  WorkerCountPerTeam: 10
+  settings:
+    StartingFireCount: 1
+    MaxFlameHeight: 0.1
+    CellSize: 5
+    Rows: 20
+    Columns: 20
+    Flashpoint: 0.5
+    HeatRadius: 1
+    HeatTransferRate: 0.7
+    FireSimUpdateRate: 0.5
+    WorkerSpeed: 4
+    WorkerSpeedWhenHoldingBucket: 2
+    DistanceToPickupBucket: 1
+    WaterFillUpDuration: 4
+    WorkerCountPerTeam: 10
+    TeamCount: 2
+    BucketFetcherCount: 2
+    BucketCount: 30
 --- !u!1001 &42460135
 PrefabInstance:
   m_ObjectHideFlags: 0

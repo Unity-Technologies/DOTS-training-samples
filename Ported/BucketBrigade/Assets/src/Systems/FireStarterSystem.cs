@@ -14,11 +14,15 @@ namespace src.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class FireStarterSystem: SystemBase
     {
+        private Random random;
+
         protected override void OnCreate()
         {
             base.OnCreate();
             RequireSingletonForUpdate<FireSimConfig>();
             RequireSingletonForUpdate<Temperature>();
+
+            random = new Random((uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue));
         }
 
         protected override void OnUpdate()
@@ -28,7 +32,7 @@ namespace src.Systems
             // TODO: grid plane should be at the quad where the grid is projected. For now using a 
             // hardcoded scale and assuming the plane is on the XZ quadrant with bottom left at (0, 0, 0)
 
-            var cellSize = configValues.CellSize * 100;
+            var cellSize = configValues.CellSize;
             var rows = configValues.Rows;
             var columns = configValues.Columns;
 
@@ -65,7 +69,6 @@ namespace src.Systems
                         var temperatureEntity = GetSingletonEntity<Temperature>();
                         var temperatureBuffer = EntityManager.GetBuffer<Temperature>(temperatureEntity);
 
-                        var random = new Random((uint)Time.ElapsedTime);
                         var temperature = temperatureBuffer[row * columns + col];
                         temperature.Intensity = random.NextFloat(configValues.Flashpoint, 1f);
                         temperatureBuffer[row * columns + col] = temperature;
