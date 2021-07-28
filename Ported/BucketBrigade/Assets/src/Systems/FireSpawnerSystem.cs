@@ -3,6 +3,7 @@ using src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 namespace src.Systems
@@ -21,6 +22,7 @@ namespace src.Systems
             var configEntity = GetSingletonEntity<FireSimConfig>();
 
             var configValues = GetComponent<FireSimConfigValues>(configEntity);
+            var config = GetComponent<FireSimConfig>(configEntity);
 
             // Create temperature grid
             Entity temperatureEntity = EntityManager.CreateEntity(typeof(Temperature));
@@ -47,7 +49,21 @@ namespace src.Systems
                     Intensity = UnityEngine.Random.Range(configValues.Flashpoint, 1f)
                 };
             }
-            
+
+            // Create fire cell entities
+            if (config.FireCellPrefab != null)
+            {
+                using var fireCellEntities = new NativeArray<Entity>(totalCells, Allocator.Temp);
+                EntityManager.Instantiate(config.FireCellPrefab, fireCellEntities);
+
+                for (var i = 0; i < fireCellEntities.Length; i++)
+                {
+                    var entity = fireCellEntities[i];
+                    EntityManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
+
+                }
+            }
+
             // Once we've spawned, we can disable this system, as it's done its job.
             Enabled = false;
         }
