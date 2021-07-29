@@ -62,6 +62,9 @@ namespace src.Components
 
         [Range(0.0001f, 50f)] public float WaterFillUpDuration;
 
+        [Tooltip("How many omni workers we have")]
+        public int OmniWorkerCount;
+
         [Tooltip("How many workers for full and empty bucket passers we have")]
         public int WorkerCountPerTeam;
         
