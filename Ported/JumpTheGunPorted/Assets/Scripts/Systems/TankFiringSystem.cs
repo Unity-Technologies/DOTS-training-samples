@@ -111,8 +111,8 @@ public class TankFiringystem : SystemBase
                         UnityEngine.Debug.LogWarning("Cannonball height could not be determined, skipping launch");
                     }
                 }
-            }).Schedule();
-        Dependency.Complete();
+            }).Run();
+        //Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

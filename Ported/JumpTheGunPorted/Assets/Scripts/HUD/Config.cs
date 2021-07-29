@@ -17,6 +17,7 @@ public class ConfigData
     public float CollisionStepMultiplier;
 
     public bool Paused;
+    public bool Invincible;
 }
 
 public class Config : MonoBehaviour
@@ -38,6 +39,8 @@ public class Config : MonoBehaviour
 
     [SerializeField] private int _CollisionStepMultiplier = 4;
     [SerializeField] private float _PlayerParabolaPrecision = 0.1f;
+
+    [SerializeField] private bool _Invincible = false;
 
     private void Awake()
     {
@@ -70,7 +73,8 @@ public class Config : MonoBehaviour
             TankCount = _TankCount,
             TankReloadTime = _TankReloadTime,
             PlayerParabolaPrecision = _PlayerParabolaPrecision,
-            CollisionStepMultiplier = _CollisionStepMultiplier
+            CollisionStepMultiplier = _CollisionStepMultiplier,
+            Invincible = _Invincible
         };
     }
 
@@ -85,5 +89,6 @@ public class Config : MonoBehaviour
         Data.TankReloadTime = HUDData.TankReloadTime;
         Data.PlayerParabolaPrecision = HUDData.PlayerParabolaPrecision;
         Data.CollisionStepMultiplier = HUDData.CollisionStepMultiplier;
+        Data.Invincible = HUDData.Invincible;
     }
 }

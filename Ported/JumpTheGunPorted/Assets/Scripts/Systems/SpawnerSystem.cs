@@ -7,6 +7,7 @@ using Unity.Transforms;
 public class SpawnerSystem : SystemBase
 {
     private EntityQuery _PlayerEntityQuery;
+    private EntityQuery _TankEntityQuery;
     private EntityQuery _BoxEntityQuery;
     private EntityQuery _BoxMapEntityQuery;
 
@@ -15,6 +16,8 @@ public class SpawnerSystem : SystemBase
     protected override void OnCreate()
     {
         _PlayerEntityQuery = EntityManager.CreateEntityQuery(typeof(Player));
+        _TankEntityQuery = EntityManager.CreateEntityQuery(typeof(LookAtPlayer));
+
         _BoxEntityQuery = EntityManager.CreateEntityQuery(typeof(NonUniformScale)); // TODO: Reinforce this maybe
         _BoxMapEntityQuery = EntityManager.CreateEntityQuery(typeof(HeightBufferElement), typeof(OccupiedBufferElement));
 
@@ -98,6 +101,7 @@ public class SpawnerSystem : SystemBase
                 });
 
                 // make tanks!
+                ecb.DestroyEntitiesForEntityQuery(_TankEntityQuery); // find all things with LookAtPlayer which is both tank base and turret
                 for (int i = 0; i < tankCnt; ++i)
                 {
                     var tank = ecb.Instantiate(tankPrefab);
@@ -113,7 +117,7 @@ public class SpawnerSystem : SystemBase
                     }
                     if (safetyCheckCnt >= safetyCheckMax)
                     {
-                        UnityEngine.Debug.LogError("Couldn't find an empty box position for tank " + i); // NOTE: we could do a full iteration of the entire grid lookig for an empty one too, but mehhh
+                        UnityEngine.Debug.LogWarning("Couldn't find an empty box position for tank " + i); // NOTE: we could do a full iteration of the entire grid lookig for an empty one too, but mehhh
                     }
                     occupiedMapBuffer[tankY * config.TerrainLength + tankX] = true; // mark this tile as occupied
                     float tankHeight = heightMapBuffer[tankY * config.TerrainLength + tankX] + TankBase.Y_OFFSET; // use box height map to figure out starting y
