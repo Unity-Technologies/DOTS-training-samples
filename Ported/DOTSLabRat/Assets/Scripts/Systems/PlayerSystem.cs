@@ -1,8 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
@@ -21,7 +19,6 @@ namespace DOTSRATS
             var gameStateEntity = GetSingletonEntity<GameState>();
             var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
-            var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
             var elapsedTime = Time.ElapsedTime;
             
             Entities
@@ -39,12 +36,12 @@ namespace DOTSRATS
                             CellStruct cell;
                             do
                             {
-                                player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
+                                player.arrowToPlace = new int2(player.random.NextInt(0, gameState.boardSize), player.random.NextInt(0, gameState.boardSize));
                                 cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
                                 cell = cellStructs[cellIndex]; 
                                 // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
                             } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
-                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
+                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref player.random);
                         }
                     }
 
@@ -131,7 +128,7 @@ namespace DOTSRATS
                         if (player.playerNumber > 0 && player.nextArrowTime < elapsedTime)
                         {
                             var arrowDelayRange = player.arrowPlacementDelayRange;
-                            player.nextArrowTime = elapsedTime + random.NextFloat(arrowDelayRange.x, arrowDelayRange.y);
+                            player.nextArrowTime = elapsedTime + player.random.NextFloat(arrowDelayRange.x, arrowDelayRange.y);
                         }
                     }
                 }).Run();
