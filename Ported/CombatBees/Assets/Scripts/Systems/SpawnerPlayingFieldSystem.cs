@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -18,6 +19,8 @@ class SpawnerPlayingFieldSystem: SystemBase
                 var field = ecb.Instantiate(spawner.PlayingFieldPrefab);
                 ecb.SetComponent(field, new NonUniformScale()
                     { Value = playingFieldSize });
+                ecb.SetComponent(field, new Translation()
+                    { Value = new float3(0f, playingFieldSize.y / 2f, 0f) });
             }).Run();
 
         ecb.Playback(EntityManager);
