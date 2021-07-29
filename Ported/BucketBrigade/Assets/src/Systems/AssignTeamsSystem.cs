@@ -36,11 +36,13 @@ namespace src.Systems
             
             var temperatureEntity = GetSingletonEntity<Temperature>();
             var temperatures = EntityManager.GetBuffer<Temperature>(temperatureEntity);
-            
+
+            var fireSimConfigValues = GetSingleton<FireSimConfigValues>();
+
             for (var ourTeamId = 0; ourTeamId < teamDatas.Length; ourTeamId++)
             {
                 ref var teamData = ref teamDatas.ElementAt(ourTeamId);
-                var noKnownFireOrNoFireAtTargetFireCell = teamData.TargetFireCell < 0 || teamData.TargetFireCell >= temperatures.Length || ! temperatures[teamData.TargetFireCell].IsOnFire;
+                var noKnownFireOrNoFireAtTargetFireCell = teamData.TargetFireCell < 0 || teamData.TargetFireCell >= temperatures.Length || !fireSimConfigValues.IsOnFire(temperatures[teamData.TargetFireCell]);
                 if (noKnownFireOrNoFireAtTargetFireCell)
                 {
                     var averageTeamPos = GetTeamPos(ourTeamId);
@@ -48,7 +50,7 @@ namespace src.Systems
 
                     if (hasFoundFire)
                     {
-                        var fireSimConfigValues = GetSingleton<FireSimConfigValues>();
+                        
                         var closestFire = fireSimConfigValues.GetCellWorldPosition2D(closestFireCell);
                         
                         var closestWater = GetClosestWaterTo(averageTeamPos, out var closestWaterDistance);
@@ -103,7 +105,7 @@ namespace src.Systems
             for (var i = 0; i < temperatures.Length; i++)
             {
                 var temp = temperatures[i];
-                if (! temp.IsOnFire) continue;
+                if (! config.IsOnFire(temp)) continue;
                 
                 var firePos = config.GetCellWorldPosition2D(i);
                 

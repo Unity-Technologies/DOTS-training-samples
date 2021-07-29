@@ -49,7 +49,9 @@ namespace src.Systems
                         // Found a bucket, start carrying to team mate
                         if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                         {
-                            Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
+                            // NW: Knowing that ConcurrentECB's require a sort order, we can pass in our team position to make sure our teammates DOWN THE LINE have a higher priority of picking up the bucket. 
+                            var hackedSortPosition = teamPosition.Index;
+                            Utils.AddPickUpBucketRequest(concurrentEcb, hackedSortPosition, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
                         }
                     }
                 }).ScheduleParallel();

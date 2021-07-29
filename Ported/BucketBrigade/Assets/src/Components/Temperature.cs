@@ -10,7 +10,5 @@ namespace src.Components
     public struct Temperature : IBufferElementData
     {
         public float Intensity;
-
-        public bool IsOnFire => Intensity > 0;
     }
 }
