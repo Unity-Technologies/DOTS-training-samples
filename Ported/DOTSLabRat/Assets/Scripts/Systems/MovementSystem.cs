@@ -95,12 +95,12 @@ public class Movement : SystemBase
                             velocity.Direction = cell.arrow;
                         if ((velocity.Direction & cell.wallLayout) != Direction.None)
                         {
-                            var proposedDirection = RotateClockWise(velocity.Direction);
+                            var proposedDirection = Utils.RotateClockWise(velocity.Direction);
                             if ((proposedDirection & cell.wallLayout) != Direction.None)
                             {
-                                proposedDirection = RotateCounterClockWise(velocity.Direction);
+                                proposedDirection = Utils.RotateCounterClockWise(velocity.Direction);
                                 if ((proposedDirection & cell.wallLayout) != Direction.None)
-                                    proposedDirection = RotateCounterClockWise(proposedDirection);
+                                    proposedDirection = Utils.RotateCounterClockWise(proposedDirection);
                             }
                             velocity.Direction = proposedDirection;
                         }
@@ -124,37 +124,5 @@ public class Movement : SystemBase
                 player.score += update.Rats;
                 player.score = (int)(player.score * math.pow(0.666666f, update.Cats));
             }).ScheduleParallel(Dependency);
-    }
-
-    static Direction RotateClockWise(Direction dir)
-    {
-        // Optimization: use bitshifting
-        switch (dir)
-        {
-            case Direction.North: return Direction.East;
-            case Direction.South: return Direction.West;
-            case Direction.East:  return Direction.South;
-            case Direction.West:  return Direction.North;
-            case Direction.Up:    return Direction.Up;
-            case Direction.Down:  return Direction.Down;
-            case Direction.None:
-            default:              return Direction.None;
-        }
-    }
-    
-    static Direction RotateCounterClockWise(Direction dir)
-    {
-        // Optimization: use bitshifting
-        switch (dir)
-        {
-            case Direction.North: return Direction.West;
-            case Direction.South: return Direction.East;
-            case Direction.East:  return Direction.North;
-            case Direction.West:  return Direction.South;
-            case Direction.Up:    return Direction.Up;
-            case Direction.Down:  return Direction.Down;
-            case Direction.None:
-            default:              return Direction.None;
-        }
     }
 }
