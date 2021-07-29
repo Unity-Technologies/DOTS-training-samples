@@ -175,7 +175,7 @@ MonoBehaviour:
   FlameBurnColor: {r: 0.9528302, g: 0.085395135, b: 0.085395135, a: 1}
   FlameColdColor: {r: 0.8962264, g: 0.7177736, b: 0.2325116, a: 1}
   HeatTrasferRadius: 1
-  HeatFallOff: 0.0003
+  HeatFallOff: 0.003
   FlashPoint: 0.2
   startingFireCount: 1
   FlameScaleMax: 1
@@ -186,6 +186,7 @@ MonoBehaviour:
   ScooperPrefab: {fileID: 4937086038751440311, guid: 48011fc8002e3ef42a06bca9e43d7a9a, type: 3}
   ThrowerPrefab: {fileID: 4937086038751440311, guid: 595aec95a66714ce1b147a2302ec1599, type: 3}
   PasserFullPrefab: {fileID: 8756833687562630634, guid: 568d498088075e54487ae75d117c9e67, type: 3}
+  PasserEmptyPrefab: {fileID: 644560745179177308, guid: 26bebb4291d754194a83c584bf4a86a5, type: 3}
   ScooperBotColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   ThrowerBotColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
   PasserFullBotColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
