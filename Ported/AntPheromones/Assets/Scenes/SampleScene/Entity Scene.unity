@@ -291,12 +291,12 @@ MonoBehaviour:
   normalExcitement: 0.3
   holdingResourceExcitement: 1
   antSpeed: 0.2
-  randomSteering: 0.01
-  goalSteerStrength: 0.03
+  randomSteering: 2
+  goalSteerStrength: 0.6
   pheromoneSteeringDistance: 3
-  pheromoneSteerStrength: 0.015
-  inwardStrength: 0.003
-  outwardStrength: 0.003
+  pheromoneSteerStrength: 0.2
+  inwardStrength: 0.02
+  outwardStrength: 0.02
 --- !u!4 &717986573
 Transform:
   m_ObjectHideFlags: 0
@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 726478887858294159, guid: 8ffb3be10a7040f42b39f83f4393d662, type: 3}
-  AntCount: 340
+  AntCount: 1000
   Acceleration: 9.32
 --- !u!4 &1450744791
 Transform:
