@@ -72,6 +72,8 @@ namespace src.Systems
                     {
                         // Find water source.
                         var teamData = teamDatas[teamId.Id];
+                        if (!teamData.IsValid) return;
+                        
                         var waterSourcePosition = teamData.TargetWaterPos;
 
                         if(Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime))

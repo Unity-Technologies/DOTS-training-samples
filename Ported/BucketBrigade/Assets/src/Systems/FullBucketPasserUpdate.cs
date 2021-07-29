@@ -46,6 +46,8 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
+                    if (!teamData.IsValid) return;
+                    
                     var firePosition = teamData.TargetFirePos;
                     var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam);
 
@@ -72,6 +74,8 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition, in WorkerIsHoldingBucket workerIsHoldingBucket) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
+                    if (!teamData.IsValid) return;
+                    
                     var firePosition = teamData.TargetFirePos;
                     
                     // Since we're passing a bucket to team mate, specify target position with next index.

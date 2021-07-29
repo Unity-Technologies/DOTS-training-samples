@@ -39,6 +39,8 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
+                    if (!teamData.IsValid) return;
+                    
                     var firePosition = teamData.TargetFirePos;
 
                     var targetPosition = GetPositionInTeam(firePosition, teamData.TargetWaterPos, teamPosition.Index, workerCountPerTeam);
@@ -64,6 +66,8 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition, in WorkerIsHoldingBucket workerIsHoldingBucket) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
+                    if (!teamData.IsValid) return;
+                    
                     var firePosition = teamData.TargetFirePos;
 
                     // Passing bucket to team mater or putting back on the water source ground

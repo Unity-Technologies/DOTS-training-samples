@@ -76,7 +76,8 @@ namespace src.Systems
                 {
                     // First we find our teams water pos.
                     var teamData = teamDatas[ourTeamId.Id];
-
+                    if (!teamData.IsValid) return;
+                    
                     // Then we move towards it.
                     var deltaToTeam = teamData.TargetWaterPos - pos.Value;
                     var distanceToTeam = math.length(deltaToTeam);

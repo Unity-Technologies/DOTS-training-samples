@@ -29,6 +29,7 @@ namespace src.Components
             SplashRadius = 3,
             CoolingStrength = 1f,
             CoolingStrength_Falloff = 0.75f,
+            MaxTeamAssignmentsPerFrame = 5,
         };
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
