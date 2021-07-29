@@ -5,8 +5,12 @@ using UnityEngine;
 
 public class PlayerCannonballCollisionSystem : SystemBase
 {
+    private EndSimulationEntityCommandBufferSystem _ECBSys;
+    
     protected override void OnCreate()
     {
+        _ECBSys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
         RequireSingletonForUpdate<Player>();
         RequireForUpdate(GetEntityQuery(typeof(Cannonball)));
     }
@@ -17,7 +21,7 @@ public class PlayerCannonballCollisionSystem : SystemBase
         if (config.Invincible)
             return;
         
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = _ECBSys.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
         
         var player = GetSingletonEntity<Player>();
@@ -42,8 +46,6 @@ public class PlayerCannonballCollisionSystem : SystemBase
                 }
             }).ScheduleParallel();
         
-        Dependency.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        _ECBSys.AddJobHandleForProducer(Dependency);
     }
 }
