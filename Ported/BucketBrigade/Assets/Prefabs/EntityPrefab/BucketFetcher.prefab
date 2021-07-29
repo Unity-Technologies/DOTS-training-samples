@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4083940233795947759}
   - component: {fileID: 2505110312849827197}
   - component: {fileID: 3164034553371039734}
+  - component: {fileID: -8112971973031107440}
   m_Layer: 0
   m_Name: BucketFetcher
   m_TagString: Untagged
@@ -155,3 +156,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-8112971973031107440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e61a4bbf03a473782be8f806162bd7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -46,7 +46,7 @@ namespace src.Systems
 
                     if (Utils.MoveToPosition(ref pos, firePosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
                     {
-                        Utils.GetClosestBucket(pos, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+                        Utils.GetClosestBucket(pos.Value, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
 
                         if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                             Utils.ThrowBucketAtFire(concurrentEcb, entityInQueryIndex, bucketEntities[closestBucketEntityIndex], firePosition);

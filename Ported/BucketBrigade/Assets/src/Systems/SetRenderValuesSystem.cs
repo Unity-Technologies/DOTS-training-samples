@@ -20,15 +20,15 @@ namespace src.Systems
             }).ScheduleParallel();
     
             // Buckets:
-            Entities.WithName("BucketsRenderValues").WithBurst().WithNone<FillUpBucketTag>().ForEach((ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor color, in Position pos, in EcsBucket bucket) =>
+            Entities.WithName("BucketsRenderValues").WithBurst().WithNone<FillingUpBucketTag>().ForEach((ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor color, in Position pos, in EcsBucket bucket) =>
             {
                 WriteBucketRendererValues(ref localToWorld, ref color, pos, bucket, Quaternion.identity, new float3(0f, 1f, 0f));
             }).ScheduleParallel();  
             
             var fillingUpRotation = Quaternion.Euler(45f, 0f, 45f);
-            Entities.WithName("FillingUpBucketsRenderValues").WithBurst().WithAll<FillUpBucketTag>().ForEach((ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor color, in Position pos, in EcsBucket bucket) =>
+            Entities.WithName("FillingUpBucketsRenderValues").WithBurst().WithAll<FillingUpBucketTag>().ForEach((ref LocalToWorld localToWorld, ref URPMaterialPropertyBaseColor color, in Position pos, in EcsBucket bucket) =>
             {
-                WriteBucketRendererValues(ref localToWorld, ref color, pos, bucket, fillingUpRotation, new float3(0.5f, 0, 0.5f));
+                WriteBucketRendererValues(ref localToWorld, ref color, pos, bucket, fillingUpRotation, new float3(0.5f, 0, 0f));
             }).ScheduleParallel();
         }
         

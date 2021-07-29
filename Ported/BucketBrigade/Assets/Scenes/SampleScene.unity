@@ -162,6 +162,8 @@ MonoBehaviour:
     type: 3}
   BucketThrowerWorkerPrefab: {fileID: 4172664212239075065, guid: 4d50be49245d50044880b0d97b9c7535,
     type: 3}
+  BucketFillerPrefab: {fileID: 4172664212239075065, guid: 92ad51d63f60d3242b3c50722151e447,
+    type: 3}
   OmniWorkerPrefab: {fileID: 4172664212239075065, guid: f4a580c56fbb6c143a7b9f26533226e7,
     type: 3}
   BucketPrefab: {fileID: 4172664212239075065, guid: 9c0304f76ccc9e346930a59d5bb0df49,
@@ -219,10 +221,10 @@ MonoBehaviour:
     FireSimUpdateRate: 0.1
     WorkerSpeed: 8
     WorkerSpeedWhenHoldingBucket: 4
-    DistanceToPickupBucket: 1
+    DistanceToPickupBucket: 5
     WaterFillUpDuration: 4
     WorkerCountPerTeam: 10
-    TeamCount: 2
+    TeamCount: 1
     BucketFetcherCount: 2
     BucketCount: 50
 --- !u!1001 &145736978

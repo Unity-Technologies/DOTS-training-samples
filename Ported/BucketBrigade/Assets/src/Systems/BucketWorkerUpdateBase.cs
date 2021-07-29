@@ -31,7 +31,7 @@ namespace src.Systems
                         ComponentType.ReadOnly<EcsBucket>(),
                         ComponentType.ReadOnly<FullBucketTag>(),
                         ComponentType.Exclude<BucketIsHeld>(),
-                        ComponentType.Exclude<FillUpBucketTag>(),
+                        ComponentType.Exclude<FillingUpBucketTag>(),
                         ComponentType.Exclude<ThrowBucketAtFire>(),
                         ComponentType.ReadOnly<Position>());
                     break;
@@ -40,7 +40,7 @@ namespace src.Systems
                         ComponentType.ReadOnly<EcsBucket>(),
                         ComponentType.Exclude<FullBucketTag>(),
                         ComponentType.Exclude<BucketIsHeld>(),
-                        ComponentType.Exclude<FillUpBucketTag>(),
+                        ComponentType.Exclude<FillingUpBucketTag>(),
                         ComponentType.Exclude<ThrowBucketAtFire>(),
                         ComponentType.ReadOnly<Position>());
                     break;
