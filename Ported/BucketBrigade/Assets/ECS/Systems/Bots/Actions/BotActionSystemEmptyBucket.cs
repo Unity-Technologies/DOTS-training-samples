@@ -41,9 +41,9 @@ public class BotActionSystemEmptyBucket : SystemBase
                     
                     for (var col = math.max(0,targetFireColumn - 1) ; col < math.min(targetFireColumn + 2, grid); ++col)
                     {
-                        for (var row = math.max(0, targetFireRow - 1); row < math.min(targetFireColumn + 2, grid); ++row)
+                        for (var row = math.max(0, targetFireRow - 1); row < math.min(targetFireRow + 2, grid); ++row)
                         {
-                            var currentFireIndex = col * grid + row;
+                            var currentFireIndex = row * grid + col;
                             Debug.Log("Thrower with a full bucket emptying it on neighbour fire cell " + currentFireIndex);
                             heatMap[currentFireIndex] = new HeatMapElement() { temperature = 0 };
                         }

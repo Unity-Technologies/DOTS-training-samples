@@ -175,9 +175,9 @@ MonoBehaviour:
   FlameBurnColor: {r: 0.9528302, g: 0.085395135, b: 0.085395135, a: 1}
   FlameColdColor: {r: 0.8962264, g: 0.7177736, b: 0.2325116, a: 1}
   HeatTrasferRadius: 1
-  HeatFallOff: 0.003
+  HeatFallOff: 0.001
   FlashPoint: 0.2
-  startingFireCount: 1
+  startingFireCount: 2
   FlameScaleMax: 1
   ChainsCount: 1
   ChainSize: 5
