@@ -66,6 +66,7 @@ namespace src.Systems
                 SpawnPassers(config.FullBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnPassers(config.EmptyBucketPasserWorkerPrefab, configValues.WorkerCountPerTeam, teamId);
                 SpawnThrower(config.BucketThrowerWorkerPrefab, teamId);
+                SpawnFiller(config, teamId);
                 SpawnFetcher(config, teamId);
             }
 
@@ -85,8 +86,25 @@ namespace src.Systems
                 {
                     Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
                 });
-
-                // NW: Lets default to Team 1 for now.
+                EntityManager.SetComponentData(entity, new TeamId
+                {
+                    Id = teamId
+                });
+            }
+        } 
+        
+        void SpawnFiller(FireSimConfig config, int teamId)
+        {
+            const int numBucketFetcherWorkers = 1;
+            using var bucketFetcherWorkers = new NativeArray<Entity>(numBucketFetcherWorkers, Allocator.Temp);
+            EntityManager.Instantiate(config.BucketFillerPrefab, bucketFetcherWorkers);
+            for (var i = 0; i < bucketFetcherWorkers.Length; i++)
+            {
+                var entity = bucketFetcherWorkers[i];
+                EntityManager.SetComponentData(entity, new Position
+                {
+                    Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
+                });
                 EntityManager.SetComponentData(entity, new TeamId
                 {
                     Id = teamId

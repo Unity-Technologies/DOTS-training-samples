@@ -4,7 +4,8 @@ using Unity.Entities;
 namespace src.Systems
 {
     /// <summary>
-    ///     Denotes a worker is holding the bucket.
+    ///     Added to a Bucket.
+    ///     Denotes that a worker is holding this bucket.
     /// </summary>
     public struct BucketIsHeld : IComponentData
     {

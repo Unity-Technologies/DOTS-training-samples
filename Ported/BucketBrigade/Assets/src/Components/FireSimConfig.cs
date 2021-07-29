@@ -16,6 +16,7 @@ namespace src.Components
         public Entity EmptyBucketPasserWorkerPrefab;
         public Entity BucketFetcherPrefab;
         public Entity BucketThrowerWorkerPrefab;
+        public Entity BucketFillerPrefab;
         public Entity OmniWorkerPrefab;
         
         public Entity BucketPrefab;

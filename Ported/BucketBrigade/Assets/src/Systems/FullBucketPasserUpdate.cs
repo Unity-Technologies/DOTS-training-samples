@@ -13,6 +13,12 @@ namespace src.Systems
         protected override QueryBuckets WhichBucketsToQuery { get => QueryBuckets.Full; }
         protected static bool CurveLeft => true;
 
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireSingletonForUpdate<TeamData>();
+        }
+
         protected override void OnUpdate()
         {
             if (!TryGetSingletonEntity<TeamData>(out var teamContainerEntity))
@@ -45,7 +51,7 @@ namespace src.Systems
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
                     {
-                        Utils.GetClosestBucket(pos, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+                        Utils.GetClosestBucket(pos.Value, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
                         // Found a bucket, start carrying to team mate
                         if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                         {
@@ -70,9 +76,9 @@ namespace src.Systems
                     var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam);
 
                     if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed))
-                        Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket);
-
-                    concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position() { Value = pos.Value });
+                        Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket.Bucket, targetPosition);
+                    else
+                        concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position { Value = pos.Value });
 
                 }).ScheduleParallel();
 
