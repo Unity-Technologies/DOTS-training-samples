@@ -27,6 +27,25 @@ public class SetupSystem : SystemBase
                 .WithNone<Player>()
                 .ForEach((Entity entity) => EntityManager.DestroyEntity(entity))
                 .Run();
+            
+            Entities
+                .WithStructuralChanges()
+                .ForEach((Entity entity, ref Player player, in DynamicBuffer<PlacedArrow> placedArrows) =>
+                {
+                    player.arrowToPlace = new int2(-1, -1);
+                    player.arrowDirection = Direction.None;
+                    player.currentArrow = 0;
+                    player.arrowToRemove = new int2(-1, -1);
+                    
+                    for (int i = 0; i < placedArrows.Length; i++)
+                    {
+                        EntityManager.SetComponentData(placedArrows[i].entity, 
+                            new Translation() { Value = new float3(-100, 0, -100) });
+                    }
+
+                    EntityManager.RemoveComponent<InPause>(entity);
+                    EntityManager.AddComponent<InPlay>(entity);
+                }).Run();
         }
 
         Entities
