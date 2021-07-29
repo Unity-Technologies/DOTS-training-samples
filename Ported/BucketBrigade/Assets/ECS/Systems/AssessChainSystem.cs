@@ -1,13 +1,10 @@
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 public class AssessChainSystem : SystemBase
 {
-    float nextAssessTime = 0.0f;
-
     private int chainIndex;
 
     protected override void OnCreate()

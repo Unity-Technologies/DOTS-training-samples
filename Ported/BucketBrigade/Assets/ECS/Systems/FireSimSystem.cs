@@ -9,37 +9,40 @@ using UnityEngine;
 [BurstCompile]
 struct FireSimJob : IJobParallelFor
 {
-    public int grid;
-    public int rad;
+    public int   grid;
+    public int   rad;
     public float threshold;
     public float falloff;
+
+    [WriteOnly]
     public NativeArray<HeatMapElement> heatMap;
     [ReadOnly]
     public NativeArray<HeatMapElement> copyOfHeatMap;
+
     public void Execute(int i)
     {
-        int col = i % grid;
-        int row = i / grid;
+        var col = i % grid;
+        var row = i / grid;
 
         var heatContribution = 0f;
 
-        for (int j = math.max(row - rad, 0); j <= math.min(row + rad, grid-1); j++)
+        var minRow = math.max(row - rad, 0);
+        var maxRow = math.min(row + rad, grid - 1);
+        var minCol = math.max(col - rad, 0);
+        var maxCol = math.min(col + rad, grid - 1);
+        for (var j = minRow; j <= maxRow; j++)
         {
-            for (int k = math.max(col - rad, 0); k <= math.min(col + rad, grid-1); k++)
+            for (var k = minCol; k <= maxCol; k++)
             {
                 var index = k + j * grid;
                 var heat = copyOfHeatMap[index].temperature;
                 if (index != i)
                 {
                     if (heat >= threshold)
-                    {
                         heatContribution += heat * falloff;
-                    }
                 }
                 else
-                {
                     heatContribution += heat;
-                }
             }
         }
 
@@ -58,66 +61,21 @@ public class FireSimSystem : SystemBase
     protected override void OnUpdate()
     {
         var config = GetSingleton<GameConfigComponent>();
-        var rad = config.HeatTrasferRadius;
-        var falloff = config.HeatFallOff;
-        var grid = config.SimulationSize;
-        var threshold = config.FlashPoint;
 
         var heatMapEntity = GetSingletonEntity<HeatMapElement>();
         var heatMapBuffer = GetBuffer<HeatMapElement>(heatMapEntity);
-        var heatMapArray = heatMapBuffer.AsNativeArray();
         var copyOfHeatMap = heatMapBuffer.ToNativeArray(Allocator.TempJob);
 
         var job = new FireSimJob() {
-            grid = grid,
-            rad = rad, 
-            threshold = threshold, 
-            falloff = falloff,
-            heatMap = heatMapArray,
-            copyOfHeatMap = copyOfHeatMap 
+            grid = config.SimulationSize,
+            rad = config.HeatTrasferRadius,
+            threshold = config.FlashPoint,
+            falloff = config.HeatFallOff,
+            heatMap = heatMapBuffer.AsNativeArray(),
+            copyOfHeatMap = copyOfHeatMap
         };
 
         Dependency = job.Schedule(heatMapBuffer.Length, 128, Dependency);
         Dependency = copyOfHeatMap.Dispose(Dependency);
-
-        return;
-        
-        Entities
-            .ForEach((DynamicBuffer<HeatMapElement> heatMap) => {
-            for (int i = 0; i < heatMap.Length; i++)
-            {
-                int col = i % grid;
-                int row = i / grid;
-
-                var heatContribution = 0f;
-
-                for (int j = math.max(row - rad, 0); j <= math.min(row + rad, grid-1); j++)
-                {
-                    for (int k = math.max(col - rad, 0); k <= math.min(col + rad, grid-1); k++)
-                    {
-                        var index = k + j * grid;
-                        var heat = heatMap[index].temperature;
-                        if (index != i)
-                        {
-                            
-                            if (heat >= threshold)
-                            {
-                                heatContribution += heat * falloff;
-                                
-                            }
-                            
-                        }
-                        else
-                        {
-                            heatContribution += heat;
-                        }
-                        
-                    }
-                }
-
-                heatMap[i] = new HeatMapElement(){ temperature = math.min(heatContribution,1)};
-                
-            }
-        }).ScheduleParallel();
     }
 }
