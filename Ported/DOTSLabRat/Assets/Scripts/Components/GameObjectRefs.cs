@@ -14,4 +14,6 @@ public class GameObjectRefs : IComponentData
     public Text timerText;
     public List<Text> playerScore;
     public List<Image> playerCursors;
+    public Text gameOverText;
+    public Image gameOverOverlay;
 }
