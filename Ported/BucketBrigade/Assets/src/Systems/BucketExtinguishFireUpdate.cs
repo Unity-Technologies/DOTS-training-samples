@@ -14,6 +14,8 @@ namespace src.Systems
         {
             base.OnCreate();
             m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+            RequireSingletonForUpdate<Temperature>();
         }
 
         protected override void OnUpdate()
