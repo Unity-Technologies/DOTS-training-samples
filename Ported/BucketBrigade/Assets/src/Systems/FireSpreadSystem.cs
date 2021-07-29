@@ -5,6 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Burst;
 
 namespace src.Systems
 {
@@ -79,6 +80,7 @@ namespace src.Systems
         }
     }
 
+    [BurstCompile]
     struct HorizontalSpreadJob : IJobParallelFor
     {
         [ReadOnly]
@@ -123,6 +125,7 @@ namespace src.Systems
         }
     }
 
+    [BurstCompile]
     struct VerticalSpreadJob : IJobParallelFor
     {
         [ReadOnly]
