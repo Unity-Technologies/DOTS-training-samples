@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 412e6788713bcb542883e4f26d4bbcdb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SimulationSize: 5
+  SimulationSize: 10
   WaterRefillRate: 0.02
   WaterMaxScale: 0.2
   MinBucketScale: 0.1
@@ -178,12 +178,15 @@ MonoBehaviour:
   ChainSize: 5
   ChainAssessPeriod: 1
   BotPrefab: {fileID: 4315772449202162740, guid: 15576fd30b083d84d8efac4920211452, type: 3}
+  ScooperPrefab: {fileID: 4937086038751440311, guid: 48011fc8002e3ef42a06bca9e43d7a9a, type: 3}
+  PasserFullPrefab: {fileID: 8756833687562630634, guid: 568d498088075e54487ae75d117c9e67, type: 3}
   ScooperBotColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   ThrowerBotColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
   PasserFullBotColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   PasserEmptyBotColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
   BotSpeed: 0.075
-  TargetProximityThreshold: 0
+  TargetProximityThreshold: 0.05
+  BucketFillRate: 0.05
 --- !u!4 &271051949
 Transform:
   m_ObjectHideFlags: 0

@@ -62,9 +62,6 @@ public class AssessChainSystem : SystemBase
                         water = waterEntities[i];
                     }
                 }
-    
-                SetComponent(scooper, new TargetWater() {water = water});
-                
 
                 // Find closest fire cell
                 var bestFirePos = float3.zero;
@@ -85,14 +82,24 @@ public class AssessChainSystem : SystemBase
                     }
                 }
 
+                SetComponent(scooper, new TargetWater() {water = water});
+                SetComponent(scooper, new BotDropOffLocation() {Value = waterPos.xz});
+
                 SetComponent(thrower, new TargetLocationComponent() {location = bestFirePos.xz});
 
-                for (int i = 0; i < chainBuffer.Length; ++i)
+                for (int i = 1; i < chainBuffer.Length; ++i)
                 {
                     var passerFull = chainBuffer[i].passerFull;
+                    var pickUpPosFull = GetChainPosition(i - 1, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
+                    var dropOffPosFull = GetChainPosition(i, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
+                    SetComponent(passerFull, new BotPickUpLocation() {Value = pickUpPosFull});
+                    SetComponent(passerFull, new BotDropOffLocation() {Value = dropOffPosFull});
+
                     var passerEmpty = chainBuffer[i].passerEmpty;
-                    SetComponent(passerFull, new TargetLocationComponent() {location = GetChainPosition(i, chainBuffer.Length, waterPos.xz, bestFirePos.xz)});
-                    SetComponent(passerEmpty, new TargetLocationComponent() {location = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz)});
+                    var pickUpPosEmpty = GetChainPosition(i - 1, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    var dropOffPosEmpty = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    SetComponent(passerEmpty, new BotPickUpLocation() {Value = pickUpPosEmpty});
+                    SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
                 }
             }).Schedule();
 

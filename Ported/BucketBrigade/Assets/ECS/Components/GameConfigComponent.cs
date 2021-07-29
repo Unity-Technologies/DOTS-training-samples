@@ -32,6 +32,8 @@ public struct GameConfigComponent : IComponentData
     public int ChainSize;
     public float ChainAssessPeriod;
     public Entity BotPrefab;
+    public Entity ScooperPrefab;
+    public Entity PasserFullPrefab;
     public Color ScooperBotColor;
     public Color ThrowerBotColor;
     public Color PasserFullBotColor;

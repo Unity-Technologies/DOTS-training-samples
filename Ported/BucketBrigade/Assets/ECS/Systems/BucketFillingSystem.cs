@@ -16,7 +16,7 @@ public class BucketFillingSystem : SystemBase
         var ecbs = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = ecbs.CreateCommandBuffer();
         var config = GetSingleton<GameConfigComponent>();
-        var waterRefill = config.WaterRefillRate;
+        var bucketFillRate = config.BucketFillRate;
 
         Entities.ForEach((ref BucketStartFill fill, ref BucketFullComponent full, ref BucketVolumeComponent bucketVolume, in WaterCapacityComponent bucketCap) =>
         {
@@ -30,7 +30,7 @@ public class BucketFillingSystem : SystemBase
 
             var bucketRemainSpace = bucketCap.Capacity - bucketVolume.Volume;
 
-            var delta = math.min(waterRefill, math.min(bucketRemainSpace, waterVol.Volume));
+            var delta = math.min(bucketFillRate, math.min(bucketRemainSpace, waterVol.Volume));
             
             ecb.SetComponent(water, new WaterVolumeComponent(){Volume = waterVol.Volume- delta});
             bucketVolume.Volume += delta;

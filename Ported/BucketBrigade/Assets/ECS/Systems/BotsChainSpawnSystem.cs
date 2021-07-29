@@ -37,14 +37,15 @@ public class BotsChainSpawnSystem : SystemBase
         var passerFullColor = config.PasserFullBotColor;
         var passerEmptyColor = config.PasserEmptyBotColor;
         var botPrefab = config.BotPrefab;
+        var scooperPrefab = config.ScooperPrefab;
+        var passerFullPrefab = config.PasserFullPrefab;
 
         var rand = new Unity.Mathematics.Random();
         rand.InitState();
 
         for (var i = 0; i < chainsCount; ++i)
         {
-            var scooper = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, scooperColor);
-            ecb.AddComponent<TargetWater>(scooper);
+            var scooper = CreateBot(ref ecb, ref rand, simSize, ref scooperPrefab, scooperColor);
             var thrower = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, throwerColor);
 
             var chain = ecb.CreateEntity();
@@ -59,8 +60,8 @@ public class BotsChainSpawnSystem : SystemBase
             botsBuffer.ResizeUninitialized(chainSize);
             for (int b = 0; b < chainSize; ++b)
             {
-                var passerFull = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, passerFullColor);
-                var passerEmpty = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, passerEmptyColor);
+                var passerFull = CreateBot(ref ecb, ref rand, simSize, ref passerFullPrefab, passerFullColor);
+                var passerEmpty = CreateBot(ref ecb, ref rand, simSize, ref passerFullPrefab, passerEmptyColor);
                 botsBuffer[b] = new BotChainElementData() {passerFull = passerFull, passerEmpty = passerEmpty};
             }
         }

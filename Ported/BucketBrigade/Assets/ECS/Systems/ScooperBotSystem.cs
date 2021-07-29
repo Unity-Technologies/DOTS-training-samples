@@ -12,6 +12,7 @@ public class ScooperBotSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameConfigComponent>();
+        Enabled = false;
     }
 
     protected override void OnUpdate()
