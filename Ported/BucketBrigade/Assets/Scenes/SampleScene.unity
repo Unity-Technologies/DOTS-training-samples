@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -216,17 +216,21 @@ MonoBehaviour:
     Rows: 100
     Columns: 100
     Flashpoint: 0.2
-    HeatRadius: 2
+    HeatRadius: 1
     HeatTransferRate: 0.02
     FireSimUpdateRate: 0.1
-    WorkerSpeed: 8
-    WorkerSpeedWhenHoldingBucket: 4
+    WorkerSpeed: 12
+    WorkerSpeedWhenHoldingBucket: 8
     DistanceToPickupBucket: 5
     WaterFillUpDuration: 4
     WorkerCountPerTeam: 10
     TeamCount: 1
-    BucketFetcherCount: 2
+    BucketFetcherCountPerTeam: 2
     BucketCount: 50
+    SplashRadius: 5
+    CoolingStrength: 2
+    CoolingStrength_Falloff: 0.75
+    MaxTeamAssignmentsPerFrame: 5
 --- !u!1001 &145736978
 PrefabInstance:
   m_ObjectHideFlags: 0
