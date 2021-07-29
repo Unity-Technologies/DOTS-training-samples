@@ -158,7 +158,6 @@ MonoBehaviour:
   tilePrefab: {fileID: 1695157876856304, guid: c2ef2e9ce5dad494d916f59769e7d27f, type: 3}
   wallPrefab: {fileID: 1948033712935058, guid: eea26364a72844748944744db673f3f1, type: 3}
   goalPrefab: {fileID: 1633874070064508, guid: 9394fae3aa493460f81bfa9743f81448, type: 3}
-  arrowPrefab: {fileID: 0}
   maxWallsRange: {x: 20, y: 30}
   maxHoles: 5
   randomSeed: 0
@@ -209,6 +208,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 2063352471063064854, guid: a2414e2276e03644cbd05d307669dd7c, type: 3}
   arrowPrefab: {fileID: 2838162685212357534, guid: b538064cb7c5cdf429b0a495f4962632, type: 3}
+  arrowPreviewPrefab: {fileID: 2204504246194487268, guid: 6dad4040bb842f640a4106dd6c94b881, type: 3}
   maxArrows: 3
   AIArrowPlaceDelayRange: {x: 2, y: 3}
   player1Color: {r: 0, g: 0, b: 0, a: 1}

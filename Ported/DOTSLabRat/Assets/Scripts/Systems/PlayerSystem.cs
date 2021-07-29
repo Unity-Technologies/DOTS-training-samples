@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
@@ -21,6 +22,7 @@ namespace DOTSRATS
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
             var elapsedTime = Time.ElapsedTime;
             
+
             Entities
                 .WithAll<InPlay>()
                 .WithoutBurst()
@@ -50,12 +52,14 @@ namespace DOTSRATS
                         //Validate placed arrow
                         if (player.arrowToPlace.x != -1)
                         {
+                            var cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
+                            
                             for (int i = 0; i < placedArrows.Length; i++)
                             {
-                                var arrowTranslation =
-                                    EntityManager.GetComponentData<Translation>(placedArrows[i].entity);
-                                if ((int) arrowTranslation.Value.x == player.arrowToPlace.x &&
-                                    (int) arrowTranslation.Value.z == player.arrowToPlace.y)
+                                var arrowTranslation = EntityManager.GetComponentData<Translation>(placedArrows[i].entity);
+                                if (((int)arrowTranslation.Value.x == player.arrowToPlace.x &&
+                                    (int)arrowTranslation.Value.z == player.arrowToPlace.y) ||
+                                    cellStructs[cellIndex].arrow != Direction.None)
                                 {
                                     player.arrowToPlace = new int2(-1, -1);
                                     break;
@@ -83,32 +87,11 @@ namespace DOTSRATS
                             cell = cellStructs[cellIndex];
                             cell.arrow = player.arrowDirection;
                             cellStructs[cellIndex] = cell;
-
+                            
                             //update cell in board struct with newly placed arrow
                             Entity currentArrow = placedArrows[player.currentArrow].entity;
-                            EntityManager.SetComponentData(currentArrow,
-                                new Translation()
-                                    {Value = new float3(player.arrowToPlace.x, 0.05f, player.arrowToPlace.y)});
-
-                            //set arrow rotation
-                            quaternion rotation = quaternion.identity;
-                            switch (player.arrowDirection)
-                            {
-                                case Direction.North:
-                                    rotation = new quaternion(0.7071068f, 0, 0, 0.7071068f);
-                                    break;
-                                case Direction.East:
-                                    rotation = new quaternion(0.5f, 0.5f, -0.5f, 0.5f);
-                                    break;
-                                case Direction.South:
-                                    rotation = new quaternion(0, 0.7071068f, -0.7071068f, 0);
-                                    break;
-                                case Direction.West:
-                                    rotation = new quaternion(-0.5f, 0.5f, -0.5f, -0.5f);
-                                    break;
-                            }
-
-                            EntityManager.SetComponentData(currentArrow, new Rotation() {Value = rotation});
+                            EntityManager.SetComponentData(currentArrow, new Translation { Value = new float3(player.arrowToPlace.x, 0.05f, player.arrowToPlace.y) });
+                            EntityManager.SetComponentData(currentArrow, new Rotation { Value = player.arrowDirection.ToArrowRotation() });
 
                             //update arrow index
                             player.currentArrow++;

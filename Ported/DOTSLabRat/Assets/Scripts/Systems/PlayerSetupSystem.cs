@@ -53,6 +53,12 @@ namespace DOTSRATS
 
                         EntityManager.AddBuffer<PlacedArrow>(player).AddRange(arrows);
                     }
+                    
+                    var arrowPreview = EntityManager.Instantiate(playerSpawner.arrowPreviewPrefab);
+                    EntityManager.SetComponentData(arrowPreview, new Translation
+                    {
+                        Value = new float3(-100, 0, -100)
+                    });
 
                     EntityManager.DestroyEntity(entity);
                     arrows.Dispose();

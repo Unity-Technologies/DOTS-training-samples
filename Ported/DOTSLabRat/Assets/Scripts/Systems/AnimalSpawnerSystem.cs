@@ -13,7 +13,7 @@ namespace DOTSRATS
         protected override void OnCreate()
         {
             CommandBufferSystem
-                = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+                = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
@@ -43,14 +43,10 @@ namespace DOTSRATS
                         ecb.AddComponent(instance, new Velocity{Direction = direction.Value, Speed = animalSpawner.initialSpeed[spawnSmall?1:0]});
                         ecb.AddComponent(instance, new Scale { Value = spawnSmall ? 1f : 1.5f });
                         ecb.SetComponent(instance, new Scaling { targetScale = spawnSmall ? 1f : 1.5f });
-                        ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                     }
                 }).Schedule();
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-            //ecb.Playback(EntityManager);
-            //ecb.Dispose();
         }
 
         static bool SpawnBigOrSmall(ref Random random)
