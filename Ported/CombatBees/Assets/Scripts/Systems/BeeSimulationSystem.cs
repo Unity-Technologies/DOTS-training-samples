@@ -91,8 +91,8 @@ class BeeSimulationSystem: SystemBase
                         var resource = GetComponent<Resource>(resourceId);
                         if (resource.CarryingBee == Entity.Null)
                         {
-                            var translation = GetComponent<Translation>(resourceId);
-                            if (math.abs(translation.Value.x) < 2)
+                            var resourcePos = GetComponent<Translation>(resourceId);
+                            if (math.abs(resourcePos.Value.x) < fieldSize.x / 2 - baseWidth)
                             {
                                 bee.Target = resourceId;
                                 bee.State = BeeState.GettingResource;
