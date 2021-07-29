@@ -49,7 +49,7 @@ class BeeSimulationSystem: SystemBase
             .WithReadOnly(teamABees)
             .WithReadOnly(teamBBees)
             .WithReadOnly(resources)
-            .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos) =>
+            .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos, ref Rotation rotation) =>
             {
 
                 var rng = Random.CreateFromIndex(seed*175834927 + (uint) entity.Index);
@@ -142,6 +142,9 @@ class BeeSimulationSystem: SystemBase
                 }
                 else
                     pos.translation.Value = targetPos;
+
+                // rotate the bee into its direction
+                rotation.Value = math.mul(quaternion.RotateZ(90), quaternion.LookRotation(dir, new float3(0f, 1f, 0f)));
 
                 // check collision with target
                 const float targetSize = 0.01f;/*todo: set target size */
