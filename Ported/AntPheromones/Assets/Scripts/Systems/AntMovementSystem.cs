@@ -13,7 +13,7 @@ public class AntMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Random rand = new Random(1234);
+        Random rand = new Random((uint)UnityEngine.Random.Range(1, 1000000));
         var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
         var generalSettingsEntity = GetSingletonEntity<GeneralSettings>();
         var antSpeed = GetComponent<GeneralSettings>(generalSettingsEntity).AntSpeed;
@@ -23,19 +23,24 @@ public class AntMovementSystem : SystemBase
         var pheromoneSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteerStrength;
         var inwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).InwardStrength;
         var outwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).OutwardStrength;
+        var playerEntity = GetSingletonEntity<PlayerInput>();
+        var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
+        var colonyEntity = GetSingletonEntity<Colony>();
+        var colonyPosition = GetComponent<Translation>(colonyEntity).Value;
+        var mapSetting = GetSingleton<MapSetting>();
+        var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
+        var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
+        var resourceEntity = GetSingletonEntity<Resource>();
+        var resourcePosition = GetComponent<Translation>(resourceEntity).Value;
 
-        var time = Time.DeltaTime;
+        var time = Time.DeltaTime * playerSpeed;
 
         Entities
             .ForEach((ref FacingAngle facingAngle) =>
             {
-                facingAngle.Value += rand.NextFloat(-randomSteering, randomSteering);
+                facingAngle.Value += rand.NextFloat(-randomSteering, randomSteering) * time;
             }).ScheduleParallel();
 
-        var mapSetting = GetSingleton<MapSetting>();
-
-        var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
-        var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
         Entities
             //Need to add this so the job system stop complaining. We are simply reading and never setting.
             //I don't know if we can make a DynamicBuffer Readonly.
@@ -49,7 +54,7 @@ public class AntMovementSystem : SystemBase
                     Translation position = translation;
                     position.Value.x += math.cos(angle) * pheronomeSteeringDistance;
                     position.Value.y += math.sin(angle) * pheronomeSteeringDistance;
-
+        
                     if (PheromoneMapSystem.TryGetClosestPheronomoneIndexFromTranslation(position, mapSetting, out int index))
                     {
                         float value = pheromoneMapBuffer[index].x;
@@ -57,35 +62,31 @@ public class AntMovementSystem : SystemBase
                     }
                 }
                 facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength * time;
-
+        
             }).ScheduleParallel();
-
+        
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();
-        var colonyEntity = GetSingletonEntity<Colony>();
-        var colonyPosition = GetComponent<Translation>(colonyEntity).Value;
         Entities
             .WithAll<HoldingResource>()
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
             {
                 float3 targetPos = colonyPosition;
-                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
-
+                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength, time);
+        
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.RemoveComponent<HoldingResource>(entityInQueryIndex, entity);
                     facingAngle.Value += math.PI;
                 }
             }).ScheduleParallel();
-        var resourceEntity = GetSingletonEntity<Resource>();
-        var resourcePosition = GetComponent<Translation>(resourceEntity).Value;
         Entities
             .WithNone<HoldingResource>()
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
             {
                 float3 targetPos = resourcePosition;
-                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
-
+                facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength, time);
+        
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.AddComponent<HoldingResource>(entityInQueryIndex, entity);
@@ -96,12 +97,10 @@ public class AntMovementSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-        var playerEntity = GetSingletonEntity<PlayerInput>();
-        var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
         Entities
             .ForEach((ref Translation translation, ref Speed speed, in Acceleration acceleration, in FacingAngle facingAngle) =>
             {
-                var targetSpeed = antSpeed*time*playerSpeed;
+                var targetSpeed = antSpeed*time;
                 speed.Value = targetSpeed * acceleration.Value;
                 float vx = math.cos(facingAngle.Value) * speed.Value;
                 float vy = Mathf.Sin(facingAngle.Value) * speed.Value;
@@ -119,7 +118,7 @@ public class AntMovementSystem : SystemBase
                     translation.Value.y += vy;
                 }
             }).ScheduleParallel();
-
+        
         Entities
             .WithAll<HoldingResource>()
             .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
@@ -134,7 +133,7 @@ public class AntMovementSystem : SystemBase
             }).ScheduleParallel();
     }
 
-    private static float SteerToTarget(float3 targetPos, float3 antPos, float facingAngle, float goalSteerStrength)
+    private static float SteerToTarget(float3 targetPos, float3 antPos, float facingAngle, float goalSteerStrength, float time)
     {
         //TODO: handle obstacles
         //if (Linecast(ant.position,targetPos)==false)
@@ -151,7 +150,7 @@ public class AntMovementSystem : SystemBase
             else
             {
                 if (Mathf.Abs(targetAngle - facingAngle) < Mathf.PI * .5f)
-                    facingAngle += (targetAngle - facingAngle) * goalSteerStrength;
+                    facingAngle += (targetAngle - facingAngle) * goalSteerStrength * time;
             }
             return facingAngle;
         }
@@ -159,7 +158,6 @@ public class AntMovementSystem : SystemBase
 
     private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength)
     {
-	    rotation.Value = quaternion.AxisAngle(Vector3.forward,facingAngle.Value);
         float vx = math.cos(facingAngle.Value) * speed.Value;
         float vy = math.sin(facingAngle.Value) * speed.Value;
         float ovx = vx;
@@ -180,7 +178,7 @@ public class AntMovementSystem : SystemBase
         //TODO: Add collision resolution here
 
         float inwardOrOutward = -outwardStrength;
-        float pushRadius = mapSize * .4f;
+        float pushRadius = mapSize * .1f;
         if (holdingResource) {
             inwardOrOutward = inwardStrength;
             pushRadius = mapSize;
@@ -195,6 +193,7 @@ public class AntMovementSystem : SystemBase
         if (ovx != vx || ovy != vy) {
             facingAngle.Value = Mathf.Atan2(vy,vx);
         }
+        rotation.Value = quaternion.AxisAngle(Vector3.forward,facingAngle.Value);
     }
 }
 
