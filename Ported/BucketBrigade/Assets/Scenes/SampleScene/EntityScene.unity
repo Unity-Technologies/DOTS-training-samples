@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RandomSeed: 1
-  SimulationSize: 400
+  SimulationSize: 100
   WaterPrefab: {fileID: 9070413578565237346, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
   WaterPresenceProbability: 0.2
   WaterOffsetFromSimulation: 3
@@ -178,9 +178,11 @@ MonoBehaviour:
   HeatFallOff: 0.0004
   FlashPoint: 0.2
   startingFireCount: 30
-  FlameScaleMax: 1
-  ChainsCount: 40
-  ChainSize: 50
+  FlameScaleMax: 2
+  FlameFlickerRate: 1
+  FlameFlickerRange: 0.25
+  ChainsCount: 8
+  ChainSize: 10
   ChainAssessPeriod: 1
   BotPrefab: {fileID: 4315772449202162740, guid: 15576fd30b083d84d8efac4920211452, type: 3}
   ScooperPrefab: {fileID: 4937086038751440311, guid: 48011fc8002e3ef42a06bca9e43d7a9a, type: 3}

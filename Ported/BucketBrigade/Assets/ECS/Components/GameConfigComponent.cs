@@ -38,10 +38,10 @@ public struct GameConfigComponent : IComponentData
     public float FlashPoint;
     public int startingFireCount;
     public float FlameScaleMax;
+    public float FlameFlickerRate;
+    public float FlameFlickerRange;
     public int ChainsCount;
     public int ChainSize;
-    public float ChainAssessPeriod;
-    public Entity BotPrefab;
     public Entity ScooperPrefab;
     public Entity ThrowerPrefab;
     public Entity PasserFullPrefab;

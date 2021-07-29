@@ -36,7 +36,6 @@ public class BotsChainSpawnSystem : SystemBase
         var throwerColor = config.ThrowerBotColor;
         var passerFullColor = config.PasserFullBotColor;
         var passerEmptyColor = config.PasserEmptyBotColor;
-        var botPrefab = config.BotPrefab;
         var scooperPrefab = config.ScooperPrefab;
         var throwerPrefab = config.ThrowerPrefab;
         var passerFullPrefab = config.PasserFullPrefab;

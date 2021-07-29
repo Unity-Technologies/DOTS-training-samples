@@ -21,14 +21,15 @@ public class FlameCellSystem : SystemBase
         GameConfigComponent config = GetSingleton<GameConfigComponent>();
         var flashpoint = config.FlashPoint;
         float maxScale = config.FlameScaleMax;
-        Color _defaultColor = config.FlameDefaultColor;
-        Color _coldColor = config.FlameColdColor;
-        Color _flameColor = config.FlameBurnColor;
-        float4 defultColor = new float4(_defaultColor.r, _defaultColor.g, _defaultColor.b, 1f);
-        float4 coldColor = new float4(_coldColor.r, _coldColor.g, _coldColor.b, 1f);
-        float4 flameColor = new float4(_flameColor.r, _flameColor.g, _flameColor.b, 1f);
+        float4 defaultColor = ColorToFloat4.Cast(config.FlameDefaultColor);
+        float4 coldColor = ColorToFloat4.Cast(config.FlameColdColor);
+        float4 flameColor = ColorToFloat4.Cast(config.FlameBurnColor);
         Entity e =  GetSingletonEntity<HeatMapElement>();
         var buffer = GetBuffer<HeatMapElement>(e);
+        var time = UnityEngine.Time.time;
+        var flickerRate = config.FlameFlickerRate;
+        var flickerRange = config.FlameFlickerRange;
+
         Entities.WithReadOnly(buffer).ForEach((ref NonUniformScale scale, ref URPMaterialPropertyBaseColor col, in HeatMapIndex index, in FlameCellTagComponent tag 
             ) =>
         {
@@ -37,13 +38,14 @@ public class FlameCellSystem : SystemBase
             if (t >= flashpoint)
             {
                 var relativeBurn = (t - flashpoint) / (1f - flashpoint);
-                var y = math.lerp(0, maxScale, relativeBurn);
-                temp_s.y = y;
+                var height = math.lerp(0, maxScale, relativeBurn);
+                var flicker = Mathf.PerlinNoise((time - index.index) * flickerRate - t, t) * flickerRange; 
+                temp_s.y = height + flicker;
                 col.Value = math.lerp(coldColor, flameColor, relativeBurn);
             }
             else
             {
-                col.Value = defultColor;
+                col.Value = defaultColor;
                 temp_s.y = 0.05f;
             }
             scale.Value = temp_s;
