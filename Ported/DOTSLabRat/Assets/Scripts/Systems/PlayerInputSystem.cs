@@ -7,6 +7,7 @@ using UnityKeyCode = UnityEngine.KeyCode;
 
 namespace DOTSRATS
 {
+    [UpdateAfter(typeof(PlayerSetupSystem))]
     public class PlayerInputSystem : SystemBase
     {
         protected override void OnUpdate()
