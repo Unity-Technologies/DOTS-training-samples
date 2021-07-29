@@ -85,7 +85,11 @@ namespace src.Systems
         {
             float t = (float)id / (float)(teamCount - 1);
 
-            var position = math.lerp(startPosition, endPosition, t);
+            // Offset by n units so they don't sit on top of each other.
+            var offset = math.normalizesafe(endPosition - startPosition) * 0.8f;
+            
+            var position = math.lerp(startPosition + offset, endPosition - offset, t);
+            
             // Give it some curve
             var curveOffset = math.normalizesafe(endPosition - startPosition) * 10.0f;
             var tmp = curveOffset.x;
