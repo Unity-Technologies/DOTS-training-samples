@@ -1,4 +1,3 @@
-using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -13,6 +12,8 @@ namespace DOTSRATS
         {
             var boardPlane = new Plane(Vector3.up, Vector3.zero);
             var camera = this.GetSingleton<GameObjectRefs>().camera;
+            var gameStateEntity = GetSingletonEntity<GameState>();
+            var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
 
             Entities
                 .WithAll<InPlay>()
@@ -31,13 +32,16 @@ namespace DOTSRATS
                             {
                                 Vector3 hitPoint = ray.GetPoint(enter);
                                 var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
-                                player.arrowToPlace = coord;
 
-                                var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
-                                if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
-                                    player.arrowDirection = offset.y > 0 ? Direction.North : Direction.South;
-                                else
-                                    player.arrowDirection = offset.x > 0 ? Direction.East : Direction.West;
+                                if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize)
+                                {
+                                    player.arrowToPlace = coord;
+                                    var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
+                                    if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
+                                        player.arrowDirection = offset.y > 0 ? Direction.North : Direction.South;
+                                    else
+                                        player.arrowDirection = offset.x > 0 ? Direction.East : Direction.West;
+                                }
                             }
                         }
                     }
