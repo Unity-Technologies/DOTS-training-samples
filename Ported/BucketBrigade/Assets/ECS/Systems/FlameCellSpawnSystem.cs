@@ -23,12 +23,11 @@ public class FlameCellSpawnSystem : SystemBase
         var grid = config.SimulationSize;
         var fireCount = config.startingFireCount;
         var flashpoint = config.FlashPoint;
-        Entity e = ecb.CreateEntity();//typeof(HeatMapElement));
+        
+        Entity e = ecb.CreateEntity();
         var buffer = ecb.AddBuffer<HeatMapElement>(e);
-
         buffer.ResizeUninitialized(grid * grid);
 
-        
         for (int j = 0; j < grid; j++)
         {
             for (var i = 0; i < grid; ++i)
