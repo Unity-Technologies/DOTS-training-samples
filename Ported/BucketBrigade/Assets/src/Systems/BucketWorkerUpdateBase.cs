@@ -97,5 +97,34 @@ namespace src.Systems
 
             return position;
         }
+
+        protected static int MoveToPositionAndPickupBucket(
+            ref Position pos,
+            float2 destinationPosition,
+            float2 targetBucketPosition, 
+            float speed,
+            NativeArray<Position> bucketPositions,
+            float distanceToPickupBucketSqr)
+        {
+            if (!Utils.MoveToPosition(ref pos, destinationPosition, speed) && bucketPositions.Length > 0)
+                return -1;
+            
+            Utils.GetClosestBucket(pos.Value, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+
+            if (closestBucketEntityIndex < 0)
+                return closestBucketEntityIndex;
+
+            // Found a bucket
+            if (sqrDistanceToBucket < distanceToPickupBucketSqr)
+            {
+                // If the bucket is closer to the position where we want to put it, don't pick it up
+                var sqrTargetPlacementDistance = math.distancesq(targetBucketPosition, bucketPositions[closestBucketEntityIndex].Value);
+                if (sqrTargetPlacementDistance < sqrDistanceToBucket)
+                    return -1;
+                return closestBucketEntityIndex;
+            }
+
+            return -1;
+        }
     }
 }

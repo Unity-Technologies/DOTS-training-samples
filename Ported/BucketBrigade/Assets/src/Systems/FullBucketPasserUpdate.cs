@@ -50,20 +50,21 @@ namespace src.Systems
                     
                     var firePosition = teamData.TargetFirePos;
                     var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam);
+                    var targetBucketPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam);
 
-                    if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
+                    var bucketIndex = MoveToPositionAndPickupBucket(ref pos,
+                        targetPosition,
+                        targetBucketPosition,
+                        timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket,
+                        bucketPositions,
+                        distanceToPickupBucketSqr);
+
+                    if (bucketIndex >= 0)
                     {
-                        Utils.GetClosestBucket(pos.Value, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
-                        // Found a bucket, start carrying to team mate
-                        if (sqrDistanceToBucket < distanceToPickupBucketSqr)
-                        {
-                            // NW: Knowing that ConcurrentECB's require a sort order, we can pass in our team position to make sure our teammates DOWN THE LINE have a higher priority of picking up the bucket. 
-                            var hackedSortPosition = teamPosition.Index;
-                            Utils.AddPickUpBucketRequest(concurrentEcb, hackedSortPosition, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
-                        }
-
+                        // NW: Knowing that ConcurrentECB's require a sort order, we can pass in our team position to make sure our teammates DOWN THE LINE have a higher priority of picking up the bucket. 
+                        var hackedSortPosition = teamPosition.Index;
+                        Utils.AddPickUpBucketRequest(concurrentEcb, hackedSortPosition, workerEntity, bucketEntities[bucketIndex], Utils.PickupRequestType.Carry);
                     }
-
                 }).ScheduleParallel();
 
 
