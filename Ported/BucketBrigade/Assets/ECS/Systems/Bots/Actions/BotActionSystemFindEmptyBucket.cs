@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public class BotActionSystemFindBucket : SystemBase
+public class BotActionSystemFindEmptyBucket : SystemBase
 {
     EntityQuery bucketsQuery;
     protected override void OnCreate()
@@ -31,7 +31,7 @@ public class BotActionSystemFindBucket : SystemBase
             .WithDisposeOnCompletion(bucketActiveArray)
             .WithDisposeOnCompletion(bucketFullArray)
             .ForEach(
-                (ref BotActionFindBucket action, ref TargetLocationComponent targetLocation, ref TargetBucket targetBucket, ref CarriedBucket carriedBucket, in Translation trans) =>
+                (ref BotActionFindEmptyBucket action, ref TargetLocationComponent targetLocation, ref TargetBucket targetBucket, ref CarriedBucket carriedBucket, in Translation trans) =>
                 {
                     var botPos = trans.Value;
 
@@ -43,7 +43,7 @@ public class BotActionSystemFindBucket : SystemBase
                         var bestBucketPos = float3.zero;
                         for (int i = 0; i < buckets.Length; ++i)
                         {
-                            if (bucketActiveArray[i].active || bucketFullArray[i].full)
+                            if (bucketActiveArray[i].active || !bucketFullArray[i].full)
                                 continue;
 
                             var bucketPos = bucketTransArray[i].Value;
@@ -64,23 +64,15 @@ public class BotActionSystemFindBucket : SystemBase
 
                         return;
                     }
-                    
-                    // Bucket has been picked up => not a valid target
-                    if (GetComponent<BucketActiveComponent>(targetBucket.bucket).active)
-                    {
-                        targetBucket.bucket = Entity.Null;
-                        return;
-                    }
 
                     // Go to the selected bucket
                     var distanceSq = math.distancesq(targetLocation.location, botPos.xz);
-                    if (distanceSq > distanceThresholdSq)
-                        return;
-                    
-                    // Pick up the bucket
-                    carriedBucket.bucket = targetBucket.bucket;
-                    SetComponent(carriedBucket.bucket, new BucketActiveComponent() {active = true});
-                    action.ActionDone = true;
+                    if (distanceSq < distanceThresholdSq)
+                    {
+                        carriedBucket.bucket = targetBucket.bucket;
+                        SetComponent(carriedBucket.bucket, new BucketActiveComponent() {active = true});
+                        action.ActionDone = true;
+                    }
                 }
             ).Schedule();
     }

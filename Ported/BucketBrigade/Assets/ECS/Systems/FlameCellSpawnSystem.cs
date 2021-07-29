@@ -55,13 +55,10 @@ public class FlameCellSpawnSystem : SystemBase
 
         var rand = new Unity.Mathematics.Random(seed:(uint)System.DateTime.Now.Millisecond);
         
-        for (int i = 0; i < fireCount; i++)
+        for (var i = 0; i < fireCount; i++)
         {
-            //var index = rand.NextInt(0, grid * grid);
-            var index = 12;
+            var index = rand.NextInt(0, grid * grid);
             buffer[index] = new HeatMapElement(){temperature = rand.NextFloat(flashpoint, 1)};
-            
-
         }
 
         ecb.Playback(EntityManager);

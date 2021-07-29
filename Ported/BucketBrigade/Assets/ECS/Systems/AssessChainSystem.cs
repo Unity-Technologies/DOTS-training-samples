@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -43,25 +44,34 @@ public class AssessChainSystem : SystemBase
                 var scooperPos = GetComponent<Translation>(scooper).Value;
                 var thrower = chain.thrower;
 
-                // Find closest water
-                var minDistance = float.MaxValue;
-                var waterPos = float3.zero;
-                Entity water = Entity.Null;
-                for (int i = 0; i < waterTranslations.Length; ++i)
+                
+                Entity water = GetComponent<TargetWater>(scooper).water;
+                
+                // Find closest water if current water source is not valid
+                if (water == Entity.Null || GetComponent<WaterVolumeComponent>(water).Volume <= 0.0f)
                 {
-                    var waterVolume = waterVolumes[i];
-                    if (waterVolume.Volume <= 0.0f)
-                        continue;
-
-                    var waterTrans = waterTranslations[i];
-                    var distance = math.lengthsq(scooperPos - waterTrans.Value);
-                    if (distance < minDistance)
+                    
+                    var minDistance = float.MaxValue;
+                    for (int i = 0; i < waterTranslations.Length; ++i)
                     {
-                        minDistance = distance;
-                        waterPos = waterTrans.Value;
-                        water = waterEntities[i];
+                        var waterVolume = waterVolumes[i];
+                        if (waterVolume.Volume <= 0.0f)
+                            continue;
+
+                        var waterTrans = waterTranslations[i];
+                        var distance = math.lengthsq(scooperPos - waterTrans.Value);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            water = waterEntities[i];
+                        }
                     }
                 }
+
+                if (water == Entity.Null)
+                    return;
+
+                var waterPos = GetComponent<Translation>(water).Value;
 
                 // Find closest fire cell
                 var bestFirePos = float3.zero;
@@ -75,7 +85,7 @@ public class AssessChainSystem : SystemBase
                     int col = i % grid;
                     int row = i / grid;
                     var firePos = new float3(col, 0.0f, row);
-                    var distance = math.lengthsq(scooperPos - firePos);
+                    var distance = math.lengthsq(waterPos - firePos);
                     if (distance < minFireDistance)
                     {
                         minFireDistance = distance;
@@ -83,7 +93,7 @@ public class AssessChainSystem : SystemBase
                         bestFireIndex = i;
                     }
                 }
-
+                
                 SetComponent(scooper, new TargetWater() {water = water});
                 SetComponent(scooper, new BotDropOffLocation() {Value = waterPos.xz});
 

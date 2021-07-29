@@ -3,7 +3,9 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 public class BotActionSystemDropBucket : SystemBase
 {
@@ -41,6 +43,8 @@ public class BotActionSystemDropBucket : SystemBase
                     {
                         ecb.SetComponent(bucket, new Translation() {Value = botPos});
                         ecb.SetComponent(bucket, new BucketActiveComponent() {active = false});
+                        
+                        
                     }
                     targetBucket.bucket = Entity.Null;
                     carriedBucket.bucket = Entity.Null;

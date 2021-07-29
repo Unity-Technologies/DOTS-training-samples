@@ -10,7 +10,13 @@ using UnityEngine.Rendering;
 [GenerateAuthoringComponent]
 public struct GameConfigComponent : IComponentData
 {
+    [Min(1)]
+    public uint RandomSeed;
     public int SimulationSize;
+    public Entity WaterPrefab;
+    public float WaterPresenceProbability;
+    public int WaterOffsetFromSimulation;
+    public float WaterOffsetVariation;
     public float WaterRefillRate;
     public float WaterMaxScale;
     public float MinBucketScale;
@@ -39,6 +45,7 @@ public struct GameConfigComponent : IComponentData
     public Entity ScooperPrefab;
     public Entity ThrowerPrefab;
     public Entity PasserFullPrefab;
+    public Entity PasserEmptyPrefab; //To Do: combine the 2 prefabs into 1 passer prefab, add full/empty component on demand in chainspawn system 
     public Color ScooperBotColor;
     public Color ThrowerBotColor;
     public Color PasserFullBotColor;
