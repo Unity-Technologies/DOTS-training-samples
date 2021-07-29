@@ -6,6 +6,12 @@ using Unity.Mathematics;
 
 class ResourceSimulationSystem: SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameConfig>();
+        RequireSingletonForUpdate<ShaderOverrideCenterSize>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer( Allocator.TempJob );

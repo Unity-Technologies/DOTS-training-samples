@@ -10,6 +10,8 @@ class BeeSimulationSystem: SystemBase
     uint m_seed;
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<GameConfig>();
+        RequireSingletonForUpdate<ShaderOverrideCenterSize>();
         m_seed = 1234;
     }
 
