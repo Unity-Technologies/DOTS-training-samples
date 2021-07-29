@@ -114,11 +114,11 @@ public class AssessChainSystem : SystemBase
                         SetComponent(thrower, new BotDropOffLocation() {Value = dropOffPosFull});
                     }
 
-                    //var passerEmpty = chainBuffer[i].passerEmpty;
-                    //var pickUpPosEmpty = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
-                    //var dropOffPosEmpty = GetChainPosition(i + 1, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
-                    //SetComponent(passerEmpty, new BotPickUpLocation() {Value = pickUpPosEmpty});
-                    //SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
+                    var passerEmpty = chainBuffer[i].passerEmpty;
+                    var pickUpPosEmpty = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    var dropOffPosEmpty = GetChainPosition(i + 1, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    SetComponent(passerEmpty, new BotPickUpLocation() {Value = pickUpPosEmpty});
+                    SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
                 }
             }).Schedule();
 

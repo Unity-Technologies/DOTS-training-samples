@@ -48,13 +48,12 @@ public class BotActionSystemPickEmptyBucket : SystemBase
                         var bestBucketDistance = distanceThresholdSq * 2.0f;
                         for (int i = 0; i < buckets.Length; ++i)
                         {
-                            if (bucketActiveArray[i].active || !bucketFullArray[i].full)
+                            if (bucketActiveArray[i].active || bucketFullArray[i].full)
                                 continue;
 
                             var bucketPos = bucketTransArray[i].Value;
                             var distance = math.distancesq(pickUpPos, bucketPos.xz);
-                            //if (distance < bestBucketDistance)
-                            if (distance < 5f)
+                            if (distance < bestBucketDistance)
                             {
                                 bestBucketDistance = distance;
                                 bestBucket = buckets[i];
