@@ -77,12 +77,16 @@ public class SetupSystem : SystemBase
 
                 var wallGenParams = new NativeHashMap<int2, int>(innerWallsToSpawn, Allocator.Temp);
                 var paramsGenerated = 0;
+                var attempts = 0;
                 
                 while (paramsGenerated < innerWallsToSpawn)
                 {
-                    var spawnParam = GenerateNextWallSpawnParam(wallGenParams, size, ref random, innerWallsToSpawn - paramsGenerated);
+                    if (!GenerateNextWallSpawnParam(wallGenParams, size, ref random, out var spawnParam))
+                        break;
                     paramsGenerated += spawnParam.z;
                     wallGenParams.Add(new int2(spawnParam.x, spawnParam.y), spawnParam.z);
+                    if (++attempts > innerWallsToSpawn * 2)
+                        break;
                 }
 
                 for (int z = 0; z < size; ++z)
@@ -104,7 +108,7 @@ public class SetupSystem : SystemBase
                             EntityManager.SetComponentData(tile,
                                 new URPMaterialPropertyBaseColor()
                                 {
-                                    Value = cellIndex % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
+                                    Value = (x + z % 2) % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
                                 });
                         }
                         else
@@ -275,8 +279,7 @@ public class SetupSystem : SystemBase
 
         return goal;
     }
-
-    // TODO: also return player id as an out variable
+    
     public bool ShouldPlaceGoalTile(int2 coord, int boardSize)
     {
         var halfSize = boardSize / 2;
@@ -294,21 +297,22 @@ public class SetupSystem : SystemBase
 
     public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize, ref Random random)
     {
-        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, ref Random random)
+        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, int max, ref Random random)
         {
             Entity spawnPoint = EntityManager.Instantiate(prefab);
             EntityManager.AddComponent<InPlay>(spawnPoint);
             var animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(spawnPoint);
             animalSpawner.random = Random.CreateFromIndex(random.NextUInt());
+            animalSpawner.maxAnimals = max;
             EntityManager.SetComponentData(spawnPoint, animalSpawner);
             EntityManager.SetComponentData(spawnPoint, new Translation {Value = new float3(position.x, -0.5f, position.y)});
             EntityManager.AddComponentData(spawnPoint, new DirectionData {Value = direction});
         }
 
-        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, ref random);
-        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, ref random);
-        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, ref random);
-        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, boardSpawner.maxCats, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, boardSpawner.maxCats, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, boardSpawner.maxRats, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, boardSpawner.maxRats, ref random);
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, ref Random random)
@@ -324,22 +328,34 @@ public class SetupSystem : SystemBase
         return nextCoord;
     }
     
-    int3 GenerateNextWallSpawnParam(NativeHashMap<int2, int> spawnParams, int boardSize, ref Random random, int maxSpawnCount)
+    bool GenerateNextWallSpawnParam(NativeHashMap<int2, int> spawnParams, int boardSize, ref Random random, out int3 spawnParam)
     {
         int2 spawnCoord = int2.zero;
+        spawnParam = default;
         
-        // We want to spawn max up to 3 walls per cell, but not more than the number of pending walls to spawn
-        maxSpawnCount = math.min(3, maxSpawnCount);
-        var spawnCount = random.NextInt(1, maxSpawnCount + 1);
+        // We want to spawn max up to 2 walls per cell, but not more than the number of pending walls to spawn
+        int2 northCoord, southCoord, eastCoord, westCoord;
+        int attemps = 0;
 
         do
         {
             spawnCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
-        } while (ShouldPlaceGoalTile(spawnCoord, boardSize) ||
-                 IsCoordCorner(spawnCoord, boardSize) ||
-                 spawnParams.ContainsKey(spawnCoord));
+            GetOppositeCoord(spawnCoord, Direction.North, boardSize, out northCoord);
+            GetOppositeCoord(spawnCoord, Direction.South, boardSize, out southCoord);
+            GetOppositeCoord(spawnCoord, Direction.East, boardSize, out eastCoord);
+            GetOppositeCoord(spawnCoord, Direction.West, boardSize, out westCoord);
+            if (++attemps > 10)
+                return false;
+        } while (DoesCoordConnectToGoal(spawnCoord, boardSize) ||
+                 DoesCoordConnectToCorner(spawnCoord, boardSize) ||
+                 spawnParams.ContainsKey(spawnCoord) ||
+                 spawnParams.ContainsKey(northCoord) || 
+                 spawnParams.ContainsKey(southCoord) || 
+                 spawnParams.ContainsKey(eastCoord) || 
+                 spawnParams.ContainsKey(westCoord));
 
-        return new int3(spawnCoord.x, spawnCoord.y, spawnCount);
+        spawnParam = new int3(spawnCoord.x, spawnCoord.y, 1);
+        return true;
     }
 
     bool CoordExistsInArray(int2 coord, NativeArray<int2> coordArray)
@@ -378,7 +394,47 @@ public class SetupSystem : SystemBase
 
         return false;
     }
+
+    bool DoesCoordConnectToCorner(int2 coord, int boardSize)
+    {
+        if (IsCoordCorner(coord, boardSize))
+            return true;
+
+        for (int i = 0; i < 2; i++)
+        {
+            int sign = i == 0 ? 1 : -1;
+
+            if (IsCoordCorner(coord + new int2(sign, sign), boardSize))
+                return true;
+            if (IsCoordCorner(coord + new int2(sign, 0), boardSize))
+                return true;
+            if (IsCoordCorner(coord + new int2(0, sign), boardSize))
+                return true;
+        }
+
+        return false;
+    }
     
+    bool DoesCoordConnectToGoal(int2 coord, int boardSize)
+    {
+        if (ShouldPlaceGoalTile(coord, boardSize))
+            return true;
+
+        for (int i = 0; i < 2; i++)
+        {
+            int sign = i == 0 ? 1 : -1;
+
+            if (ShouldPlaceGoalTile(coord + new int2(sign, sign), boardSize))
+                return true;
+            if (ShouldPlaceGoalTile(coord + new int2(sign, 0), boardSize))
+                return true;
+            if (ShouldPlaceGoalTile(coord + new int2(0, sign), boardSize))
+                return true;
+        }
+
+        return false;
+    }
+
     bool IsCoordEdge(int2 coord, int boardSize)
     {
         if ((coord.x == 0 || coord.y == 0) ||

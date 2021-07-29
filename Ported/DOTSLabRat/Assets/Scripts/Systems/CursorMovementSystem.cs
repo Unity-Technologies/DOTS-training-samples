@@ -25,6 +25,7 @@ namespace DOTSRATS
 
             Entities
                 .WithoutBurst()
+                .WithAll<InPlay>()
                 .ForEach((in Player player) =>
                 {
                     if (player.playerNumber > 0)
