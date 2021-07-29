@@ -9,7 +9,7 @@ namespace DOTSRATS
     public struct AnimalSpawner : IComponentData
     {
         public Entity animalPrefab;
-        public int maxAnimals;
+        [HideInInspector] public int maxAnimals;
         public int2 initialSpeed;
         [HideInInspector] public Unity.Mathematics.Random random;
         [HideInInspector] public float timeToNextSpawn;
