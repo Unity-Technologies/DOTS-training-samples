@@ -162,8 +162,8 @@ MonoBehaviour:
   Gravity: 2
   ResourcePrefab: {fileID: 4208794139011365288, guid: 3672875dcad95364baa455fe1f605f4d, type: 3}
   PlayingFieldSize:
-    x: 7.14
-    y: 1
+    x: 8
+    y: 0.6
     z: 1
 --- !u!4 &43967149
 Transform:

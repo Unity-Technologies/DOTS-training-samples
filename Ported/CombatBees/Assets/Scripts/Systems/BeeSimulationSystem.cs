@@ -84,7 +84,7 @@ class BeeSimulationSystem: SystemBase
                         }
                     }
 
-                    if (fetchResource)
+                    if (fetchResource && resources.Length > 0)
                     {
                         int resourceIdx = rng.NextInt(resources.Length);
                         var resourceId = resources[resourceIdx];

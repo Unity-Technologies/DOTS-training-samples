@@ -20,8 +20,6 @@ public class MouseRaycaster : MonoBehaviour {
         marker.GetComponent<Renderer>().sharedMaterial = markerMaterial;
         marker.GetComponent<Transform>().localScale = new Vector3(0.05f, 0.05f, 0.05f);
         cam = Camera.main;
-        
-        
     }
 
     private static float3 GetPlayingFieldSize()
