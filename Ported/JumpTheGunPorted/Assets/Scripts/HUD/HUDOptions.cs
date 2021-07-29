@@ -76,5 +76,6 @@ public class HUDOptions : MonoBehaviour
 	{
 		World.DefaultGameObjectInjectionWorld.EntityManager.CreateEntity(typeof(Spawner));
 		Config.Instance.Data = _Data;
+		Config.Instance.TimeVal = 0.0f;
 	}
 }

@@ -46,6 +46,8 @@ public class Config : MonoBehaviour
 
     [SerializeField] private bool _Invincible = false;
 
+    public float TimeVal { get; set; }
+
     private void Awake()
     {
         if (Instance != null)
@@ -85,5 +87,13 @@ public class Config : MonoBehaviour
     public void TogglePause()
     {
         _Data.Paused = !_Data.Paused;
+    }
+
+    void Update()
+    {
+        if (!_Data.Paused)
+        {
+            TimeVal += Time.deltaTime;
+        }
     }
 }

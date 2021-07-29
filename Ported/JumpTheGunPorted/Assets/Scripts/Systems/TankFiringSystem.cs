@@ -21,7 +21,7 @@ public class TankFiringSystem : SystemBase
         var ecb = _ECBSys.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
 
-        var time = Time.ElapsedTime;
+        var time = Config.Instance.TimeVal;
 
         var boxMapEntity = GetSingletonEntity<HeightBufferElement>(); // ASSUMES the singleton that has height buffer also has occupied
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(boxMapEntity);
@@ -39,13 +39,14 @@ public class TankFiringSystem : SystemBase
         var reloadTime = config.TankReloadTime;
         var playerParabolaPrecision = config.PlayerParabolaPrecision;
         var collisionStepMultiplier = config.CollisionStepMultiplier;
+        var paused = config.Paused;
 
         Entities
             .WithReadOnly(heightMap)
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer, ref LookAtPlayer lookAt) =>
             {
                 // time to shoot yet?
-                if (time >= firingTimer.NextFiringTime)
+                if (!paused && time >= firingTimer.NextFiringTime)
                 {
                     firingTimer.NextFiringTime = (float) time + reloadTime;
 

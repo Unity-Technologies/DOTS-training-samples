@@ -55,6 +55,7 @@ public class SpawnerSystem : SystemBase
             .WithoutBurst()
             .ForEach((Entity entity) =>
             {
+                Config.Instance.TimeVal = 0.0f;
 
                 ecb.DestroyEntity(entity);
 
@@ -136,7 +137,7 @@ public class SpawnerSystem : SystemBase
                     });
                     ecb.SetComponent(barrel, new FiringTimer
                     {
-                        NextFiringTime = (float) Time.ElapsedTime + (float) random.NextDouble(0, reloadTime)
+                        NextFiringTime = (float) random.NextDouble(0, reloadTime)
                     });
                 }
             }).Run();
