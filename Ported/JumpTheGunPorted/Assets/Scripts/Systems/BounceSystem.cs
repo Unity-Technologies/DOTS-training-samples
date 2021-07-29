@@ -5,6 +5,12 @@ using Unity.Transforms;
 
 public class BounceSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameObjectRefs>();
+        RequireSingletonForUpdate<HeightBufferElement>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);

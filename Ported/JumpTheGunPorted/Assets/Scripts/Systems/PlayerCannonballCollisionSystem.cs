@@ -7,12 +7,16 @@ public class PlayerCannonballCollisionSystem : SystemBase
 {
     protected override void OnCreate()
     {
-        RequireForUpdate(GetEntityQuery(typeof(Player)));
+        RequireSingletonForUpdate<Player>();
         RequireForUpdate(GetEntityQuery(typeof(Cannonball)));
     }
 
     protected override void OnUpdate()
     {
+        var config = this.GetSingleton<GameObjectRefs>().Config.Data;
+        if (config.Invincible)
+            return;
+        
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();
         
@@ -20,29 +24,24 @@ public class PlayerCannonballCollisionSystem : SystemBase
         var playerPos = GetComponent<Translation>(player);
         var spawnerArchetype = EntityManager.CreateArchetype(typeof(Spawner));
 
-        var refs = this.GetSingleton<GameObjectRefs>();
-        var config = refs.Config.Data;
-        var invincible = config.Invincible;
-
         Entities
             .WithName("player_cannonball_collision_test")
             .ForEach((
+                int entityInQueryIndex,
                 in Cannonball cannonball,
                 in Translation translation) =>
             {
-                if (!invincible)
-                {
-                    // TODO: Ensure we can never spawn multiple spawners in case
-                    // multiple cannonballs hit the player at the same time
-                    //if (HasSingleton<Spawner>())
-                    //    return;
+                // TODO: Ensure we can never spawn multiple spawners in case
+                // multiple cannonballs hit the player at the same time
+                //if (HasSingleton<Spawner>())
+                //    return;
 
-                    if (Vector3.Distance(playerPos.Value, translation.Value) <= (Cannonball.RADIUS * 2))
-                    {
-                        parallelWriter.CreateEntity(1, spawnerArchetype);
-                    }
+                if (Vector3.Distance(playerPos.Value, translation.Value) <= (Cannonball.RADIUS * 2))
+                {
+                    parallelWriter.CreateEntity(entityInQueryIndex, spawnerArchetype);
                 }
             }).ScheduleParallel();
+        
         Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();

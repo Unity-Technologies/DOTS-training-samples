@@ -1,11 +1,17 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 
-public class TankFiringystem : SystemBase
+public class TankFiringSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameObjectRefs>();
+        RequireSingletonForUpdate<HeightBufferElement>();
+        RequireSingletonForUpdate<Player>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);

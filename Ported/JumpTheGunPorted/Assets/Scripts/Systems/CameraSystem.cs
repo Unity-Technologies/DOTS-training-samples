@@ -9,16 +9,21 @@ public class CameraSystem : SystemBase
     protected override void OnCreate()
     {
         EntityManager.CreateEntity(typeof(CameraData));
+        
+        RequireSingletonForUpdate<CameraData>();
+        RequireSingletonForUpdate<GameObjectRefs>();
+        RequireSingletonForUpdate<Player>();
     }
     
     protected override void OnUpdate()
     {
-        // Need to do this here instead of OnCreate to ensure GameObjectRefs has time to be created
-        if (!TryInitCameraDistance())
-            return;
+        if (!_Initialized)
+        {
+            InitCameraDistance();
+            _Initialized = true;
+        }
 
-        if (!TryGetSingletonEntity<Player>(out var playerEntity))
-            return;
+        var playerEntity = GetSingletonEntity<Player>();
         
         // Apply input
         var cameraEntity = GetSingletonEntity<CameraData>();
@@ -33,20 +38,11 @@ public class CameraSystem : SystemBase
         refs.Camera.transform.position = targetPos + (refs.CameraOffset * cameraData.Distance);
     }
 
-    private bool TryInitCameraDistance()
+    private void InitCameraDistance()
     {
-        if (_Initialized)
-            return true;
-
-        if (!HasSingleton<GameObjectRefs>())
-            return false;
-        
         var cameraEntity = GetSingletonEntity<CameraData>();
         var camera = GetComponent<CameraData>(cameraEntity);
         camera.Distance = this.GetSingleton<GameObjectRefs>().CameraInitialDistance;
         SetComponent(cameraEntity, camera);
-
-        _Initialized = true;
-        return true;
     }
 }
