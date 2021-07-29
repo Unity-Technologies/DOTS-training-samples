@@ -1,5 +1,6 @@
 ﻿using System;
 using src.Components;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -10,25 +11,38 @@ namespace src.Systems
     public class ResolvePickUpBucketRequests : SystemBase
     {
         EntityQuery m_Query;
+        EntityQuery m_InvalidRequests;
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            m_InvalidRequests = GetEntityQuery(ComponentType.ReadOnly<PickUpBucketRequest>(), ComponentType.ReadOnly<BucketIsHeld>());
+        }
 
         protected override void OnUpdate()
         {
-            Entities.WithName(nameof(ResolvePickUpBucketRequests)).WithStructuralChanges().WithStoreEntityQueryInField(ref m_Query).ForEach((Entity bucketEntity, PickUpBucketRequest request) =>
+            if (! m_InvalidRequests.IsEmpty)
             {
-                if (EntityManager.HasComponent<BucketIsHeld>(bucketEntity))
-                {
-                    // Some other Entity has beaten this entity to it!
-                    Debug.LogError($"Looks like you added a PickupBucketRequest to a HELD bucket: {bucketEntity}. Request type: {request.PickupRequestType} with worker: {request.WorkerRequestingToPickupBucket} '{EntityManager.GetName(request.WorkerRequestingToPickupBucket)}'");
-                    return;
-                }
-
+                using var invalidEntities = m_InvalidRequests.ToEntityArray(Allocator.Temp);
+                var errorString = "";
+                for (var i = 0; i < invalidEntities.Length; i++) 
+                    errorString += $"\n{invalidEntities[i]} '{EntityManager.GetName(invalidEntities[i])}'";
+                Debug.LogError($"You added {invalidEntities.Length} ResolvePickUpBucketRequest[s] to [a] HELD bucket[s]! {errorString}");
+                EntityManager.RemoveComponent<PickUpBucketRequest>(m_Query);
+            }
+            
+            var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.SinglePlayback);
+            var parallelEcb = ecb.AsParallelWriter();
+            
+            Entities.WithName("PickupBuckets").WithNone<BucketIsHeld>().WithBurst().WithStoreEntityQueryInField(ref m_Query).ForEach((Entity bucketEntity, int entityInQueryIndex, PickUpBucketRequest request) =>
+            {
                 // NW: We're using the quirk that the ECB will only allow 1 entity to ultimately set the
                 // final request on a bucket to denote who actually gets to pickup the bucket:
-                EntityManager.AddComponentData(bucketEntity, new BucketIsHeld
+                parallelEcb.AddComponent(entityInQueryIndex, bucketEntity, new BucketIsHeld
                 {
                     WorkerHoldingThis = request.WorkerRequestingToPickupBucket,
                 });
-                EntityManager.AddComponentData(request.WorkerRequestingToPickupBucket, new WorkerIsHoldingBucket
+                parallelEcb.AddComponent(entityInQueryIndex,request.WorkerRequestingToPickupBucket, new WorkerIsHoldingBucket
                 {
                     Bucket = bucketEntity,
                 });
@@ -36,7 +50,7 @@ namespace src.Systems
                 switch (request.PickupRequestType)
                 {
                     case Utils.PickupRequestType.FillUp:
-                        EntityManager.AddComponent<FillingUpBucketTag>(bucketEntity);
+                        parallelEcb.AddComponent<FillingUpBucketTag>(entityInQueryIndex, bucketEntity);
                         break;
                     case Utils.PickupRequestType.Carry:
                         // Do nothing.
@@ -44,8 +58,12 @@ namespace src.Systems
                     default:
                         throw new ArgumentOutOfRangeException(nameof(request.PickupRequestType), request.PickupRequestType, nameof(ResolvePickUpBucketRequests));
                 }
-            }).Run();
+            }).ScheduleParallel();
             EntityManager.RemoveComponent<PickUpBucketRequest>(m_Query);
+            
+            // Playback resolutions.
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
 }
