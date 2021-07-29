@@ -53,7 +53,7 @@ namespace src.Systems
                     .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId teamId) =>
                     {
                         var teamData = teamDatas[teamId.Id];
-                        var closestBucketPosition = Utils.GetClosestBucketOutsideTeamWaterSource(teamData.TargetWaterPos, bucketPositions, out _, out var closestBucketEntityIndex, distanceToPickupBucketSqr);
+                        var closestBucketPosition = Utils.GetClosestBucketOutsideTeamWaterSource(pos.Value, teamData.TargetWaterPos, bucketPositions, out _, out var closestBucketEntityIndex, distanceToPickupBucketSqr);
 
                         if (closestBucketEntityIndex >= 0)
                         {
@@ -85,11 +85,13 @@ namespace src.Systems
                     if (Unity.Burst.CompilerServices.Hint.Likely(distanceToTeam > configValues.DistanceToPickupBucket))
                     {
                         pos.Value += math.normalizesafe(deltaToTeam) * timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket;
-                        concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position() { Value = pos.Value });
+                        concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position { Value = pos.Value });
                     }
                     else
                     {
-                        Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket.Bucket, teamData.TargetWaterPos);
+                        // Drop it NEAR the middle of the water source, but not exactly AT it. Allows us to see hundreds of stacked buckets.
+                        var dropOffset = (teamData.TargetWaterPos - pos.Value) * 0.5f;
+                        Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket.Bucket, pos.Value + dropOffset);
                     }
                 }).ScheduleParallel();
 

@@ -82,7 +82,7 @@ namespace src.Systems
         /// <summary>
         /// Similar to <see cref="GetClosestBucket"/>, except we IGNORE buckets WITHIN our teams water position.
         /// </summary>
-        public static Position GetClosestBucketOutsideTeamWaterSource(float2 teamWaterPos, NativeArray<Position> bucketPositions, out float closestSqrDistance, out int closestBucketEntityIndex, float distanceToPickupBucketSqr)
+        public static Position GetClosestBucketOutsideTeamWaterSource(float2 ourPos, float2 teamWaterPos, NativeArray<Position> bucketPositions, out float closestSqrDistance, out int closestBucketEntityIndex, float distanceToPickupBucketSqr)
         {
             var closestBucketPosition = new Position();
             closestSqrDistance = float.PositiveInfinity;
@@ -90,12 +90,13 @@ namespace src.Systems
             for (var i = 0; i < bucketPositions.Length; i++)
             {
                 var bucketPosition = bucketPositions[i];
-                var bucketSqrDistance = math.distancesq(teamWaterPos, bucketPosition.Value);
-                var ignoreAsAlreadyFetched = bucketSqrDistance > distanceToPickupBucketSqr;
-                if (bucketSqrDistance < closestSqrDistance && ignoreAsAlreadyFetched)
+                var bucketSqrDistanceToUs = math.distancesq(ourPos, bucketPosition.Value);
+                var bucketSqrDistanceToWater = math.distancesq(teamWaterPos, bucketPosition.Value);
+                var ignoreAsAlreadyInWaterZone = bucketSqrDistanceToWater > distanceToPickupBucketSqr;
+                if (bucketSqrDistanceToUs < closestSqrDistance && ignoreAsAlreadyInWaterZone)
                 {
                     closestBucketPosition = bucketPosition;
-                    closestSqrDistance = bucketSqrDistance;
+                    closestSqrDistance = bucketSqrDistanceToUs;
                     closestBucketEntityIndex = i;
                 }
             }
