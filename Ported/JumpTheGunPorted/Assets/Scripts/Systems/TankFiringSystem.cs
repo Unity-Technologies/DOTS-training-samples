@@ -56,12 +56,11 @@ public class TankFiringystem : SystemBase
                     int endBoxRow = (int)playerBoxPos.y;
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol] + Cannonball.RADIUS;
 
-                    float3 start = new float3(startBoxCol, startY, startBoxRow);
+                    float3 start = new float3(startBoxCol, startY, startBoxRow) + Cannonball.RADIUS;
                     float3 end = new float3(endBoxCol, endY, endBoxRow);
                     
-                    //float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap);
-                    float height = math.max(startY, endY) + Player.BOUNCE_HEIGHT; // TODO: remove temp hack
-
+                    float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap);
+                    
                     if (height > 0)
                     {
                         var cannonball = ecb.Instantiate(cannonballPrefab);
@@ -130,7 +129,7 @@ public class TankFiringystem : SystemBase
         while (true)
         {
             JumpTheGun.Parabola.Create(start.y, high, end.y, out paraA, out paraB, out paraC);
-            if (!CheckBoxCollision(start.y, end.y, paraA, paraB, paraC, collisionStepMultiplier, terrainWidth, terrainLength, heightMap))
+            if (!CheckBoxCollision(start, end, paraA, paraB, paraC, collisionStepMultiplier, terrainWidth, terrainLength, heightMap))
             {
                 // high enough
                 break;
@@ -204,7 +203,6 @@ public class TankFiringystem : SystemBase
 
     public static bool HitsAnyCube(float3 center, float width, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap)
     {
-
         // check nearby boxes
         int colMin = (int) math.floor((center.x - width / 2) / Box.SPACING);
         int colMax = (int)math.ceil((center.x + width / 2) / Box.SPACING);
@@ -212,9 +210,9 @@ public class TankFiringystem : SystemBase
         int rowMax = (int)math.ceil((center.z + width / 2) / Box.SPACING);
 
         colMin = math.max(0, colMin);
-        colMax = math.min(terrainWidth - 1, colMax);
+        colMax = math.min(terrainLength - 1, colMax);
         rowMin = math.max(0, rowMin);
-        rowMax = math.min(terrainLength - 1, rowMax);
+        rowMax = math.min(terrainWidth - 1, rowMax);
 
         for (int c = colMin; c <= colMax; c++)
         {
@@ -236,10 +234,8 @@ public class TankFiringystem : SystemBase
 
     public static bool HitsCube(float3 center, float width, float3 boxLocalPos, float height)
     {
-        // TODO: hmm will this play nice with ECS? probably not
         UnityEngine.Bounds boxBounds = new UnityEngine.Bounds(boxLocalPos, new float3(Box.SPACING, height, Box.SPACING));
         UnityEngine.Bounds cubeBounds = new UnityEngine.Bounds(center, new float3(width, width, width));
-
         return boxBounds.Intersects(cubeBounds);
     }
 }
