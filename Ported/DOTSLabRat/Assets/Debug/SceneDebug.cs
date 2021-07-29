@@ -1,3 +1,4 @@
+using System;
 using DOTSRATS;
 using Unity.Collections;
 using Unity.Entities;
@@ -14,5 +15,11 @@ public class SceneDebug : MonoBehaviour
         if (CellStructs.IsCreated)
             CellStructs.Dispose();
         CellStructs = cellStructs.ToNativeArray(Allocator.Persistent);
+    }
+
+    public void OnDisable()
+    {
+        if (CellStructs.IsCreated)
+            CellStructs.Dispose();
     }
 }
