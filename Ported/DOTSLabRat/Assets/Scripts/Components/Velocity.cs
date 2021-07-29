@@ -11,7 +11,7 @@ namespace DOTSRATS
         public float Speed;
     }
 
-    public static class DirectionExt
+    public static partial class DirectionExt
     {
         public static float3 ToFloat3(this Direction dir)
         {

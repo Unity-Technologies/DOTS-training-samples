@@ -68,32 +68,11 @@ namespace DOTSRATS
                             cell = cellStructs[cellIndex];
                             cell.arrow = player.arrowDirection;
                             cellStructs[cellIndex] = cell;
-
+                            
                             //update cell in board struct with newly placed arrow
                             Entity currentArrow = placedArrows[player.currentArrow].entity;
-                            EntityManager.SetComponentData(currentArrow,
-                                new Translation()
-                                    {Value = new float3(player.arrowToPlace.x, 0.05f, player.arrowToPlace.y)});
-
-                            //set arrow rotation
-                            quaternion rotation = quaternion.identity;
-                            switch (player.arrowDirection)
-                            {
-                                case Direction.North:
-                                    rotation = new quaternion(0.7071068f, 0, 0, 0.7071068f);
-                                    break;
-                                case Direction.East:
-                                    rotation = new quaternion(0.5f, 0.5f, -0.5f, 0.5f);
-                                    break;
-                                case Direction.South:
-                                    rotation = new quaternion(0, 0.7071068f, -0.7071068f, 0);
-                                    break;
-                                case Direction.West:
-                                    rotation = new quaternion(-0.5f, 0.5f, -0.5f, -0.5f);
-                                    break;
-                            }
-
-                            EntityManager.SetComponentData(currentArrow, new Rotation() {Value = rotation});
+                            EntityManager.SetComponentData(currentArrow, new Translation { Value = new float3(player.arrowToPlace.x, 0.05f, player.arrowToPlace.y) });
+                            EntityManager.SetComponentData(currentArrow, new Rotation { Value = player.arrowDirection.ToArrowRotation() });
 
                             //update arrow index
                             player.currentArrow++;
