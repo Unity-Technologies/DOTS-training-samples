@@ -152,10 +152,10 @@ class BeeSimulationSystem: SystemBase
                     pos.translation.Value = targetPos;
 
                 // rotate the bee into its direction
-                rotation.Value = math.mul(quaternion.LookRotation(dir, new float3(0f, 1f, 0f)), quaternion.RotateX(math.PI/2));
+                rotation.Value = math.mul(quaternion.LookRotationSafe(dir, new float3(0f, 1f, 0f)), quaternion.RotateX(math.PI/2));
 
                 // check collision with target
-                const float targetSize = 0.01f;/*todo: set target size */
+                float targetSize = 0.01f + dist;/*todo: set target size */
                 float collR2 = beeSize + targetSize;
                 collR2 *= collR2;
                 if(math.lengthsq(targetVec) < collR2)

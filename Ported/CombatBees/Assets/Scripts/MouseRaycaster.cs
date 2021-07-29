@@ -31,7 +31,6 @@ public class MouseRaycaster : MonoBehaviour {
             {
                 fieldSize = query.GetSingleton<GameConfig>().PlayingFieldSize;
             }
-
         }
 
         return fieldSize.Value;
