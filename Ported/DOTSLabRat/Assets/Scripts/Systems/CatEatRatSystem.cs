@@ -23,7 +23,7 @@ namespace DOTSRATS
                     foreach (Entity cat in cats.ToEntityArray(Allocator.Temp))
                     {
                         Translation catTranslation = translationComponents[cat];
-                        if (Vector2.Distance(new Vector2(catTranslation.Value.x, catTranslation.Value.z), new Vector2(translation.Value.x, translation.Value.z)) < 0.5)
+                        if (Vector2.Distance(new Vector2(catTranslation.Value.x, catTranslation.Value.z), new Vector2(translation.Value.x, translation.Value.z)) < 0.5 && catTranslation.Value.y >= -0.5f)
                         {
                             ecb.DestroyEntity(entity);
                             ecb.SetComponent<Scale>(cat, new Scale { Value = 2 });

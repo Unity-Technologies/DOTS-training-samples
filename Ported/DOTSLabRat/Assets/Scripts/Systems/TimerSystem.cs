@@ -11,6 +11,18 @@ namespace DOTSRATS
         {
             var prevTime = GetSingleton<GameState>().timer;
 
+            // Hack to detect first ever time game is starting.
+            bool firstTime = this.GetSingleton<GameObjectRefs>().gameOverText.text.Length == 0;
+            if (firstTime)
+            {
+                Entities
+                    .WithoutBurst()
+                    .ForEach((ref GameState state) =>
+                    {
+                        state.timer = 0;
+                    }).Run();
+            }
+
             Entities
                 .WithoutBurst()
                 .ForEach((ref GameState state) =>
@@ -25,34 +37,39 @@ namespace DOTSRATS
             
             if (prevTime > 0 && gameState.timer < 0)
             {
-                List<int> winningPlayers = new List<int>();
-                int maxScore = -1;
                 var gameOverText = this.GetSingleton<GameObjectRefs>().gameOverText;
+                if (firstTime)
+                {
+                    gameOverText.text = "Ready...";
+                }
+                else
+                {
+                    List<int> winningPlayers = new List<int>();
+                    int maxScore = -1;
 
-                Entities
-                    .WithoutBurst()
-                    .ForEach((in Player player) =>
-                    {
-                        if(player.score > maxScore)
+                    Entities
+                        .WithoutBurst()
+                        .ForEach((in Player player) =>
                         {
-                            winningPlayers.Clear();
-                            winningPlayers.Add(player.playerNumber);
-                            maxScore = player.score;
-                        }
-                        else if(player.score == maxScore)
-                        {
-                            winningPlayers.Add(player.playerNumber);
-                        }
-                    }).Run();
+                            if(player.score > maxScore)
+                            {
+                                winningPlayers.Clear();
+                                winningPlayers.Add(player.playerNumber);
+                                maxScore = player.score;
+                            }
+                            else if(player.score == maxScore)
+                            {
+                                winningPlayers.Add(player.playerNumber);
+                            }
+                        }).Run();
 
-                gameOverText.text = GetGameOverText(winningPlayers);
+                    gameOverText.text = GetGameOverText(winningPlayers);
+                }
                 gameOverText.gameObject.SetActive(true);
 
                 // Optimize using chunking.
                 var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-
-
+                
                 Entities
                     .WithAll<InPlay>()
                     .ForEach((Entity entity) =>
@@ -75,6 +92,14 @@ namespace DOTSRATS
                     {
                         EntityManager.RemoveComponent<Initialized>(entity);
                     }).Run();
+            }
+            else if (gameState.timer < 0 && (int)prevTime != (int)gameState.timer)
+            {
+                var gameOverText = this.GetSingleton<GameObjectRefs>().gameOverText;
+                if (gameOverText.text.StartsWith("Ready"))
+                    gameOverText.text = "Set...";
+                else if (gameOverText.text.StartsWith("Set"))
+                    gameOverText.text = "Go!";
             }
         }
 
