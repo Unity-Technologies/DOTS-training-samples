@@ -256,8 +256,7 @@ public class SetupSystem : SystemBase
 
         return goal;
     }
-
-    // TODO: also return player id as an out variable
+    
     public bool ShouldPlaceGoalTile(int2 coord, int boardSize)
     {
         var halfSize = boardSize / 2;

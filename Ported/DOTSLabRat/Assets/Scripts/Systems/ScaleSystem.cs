@@ -13,11 +13,11 @@ namespace DOTSRATS
             var deltaTime = Time.DeltaTime;
 
             Entities
-                .ForEach((Entity entity, ref Scale currentScale, ref Scaling targetScale) =>
+                .ForEach((Entity entity, ref Scale currentScale, ref Scaling scaling) =>
                 {
-                    if(currentScale.Value != targetScale.targetScale)
+                    if(currentScale.Value != scaling.targetScale)
                     {
-                        currentScale.Value = Mathf.Lerp(currentScale.Value, targetScale.targetScale, deltaTime*5);
+                        currentScale.Value = Mathf.Lerp(currentScale.Value, scaling.targetScale, deltaTime*5);
                     }
                 }).ScheduleParallel();
         }
