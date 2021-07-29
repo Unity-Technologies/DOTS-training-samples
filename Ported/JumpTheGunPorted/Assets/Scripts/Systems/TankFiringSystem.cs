@@ -69,7 +69,7 @@ public class TankFiringystem : SystemBase
                         var cannonball = ecb.Instantiate(cannonballPrefab);
                         ecb.SetComponent(cannonball, new Translation
                         {
-                            Value = translation.Value // TODO: do we need to stick in front of the forward of the turret?
+                            Value = translation.Value
                         }); ;
                         ecb.AddComponent(cannonball, new ParabolaTValue
                         {
@@ -106,7 +106,7 @@ public class TankFiringystem : SystemBase
                         UnityEngine.Debug.LogWarning("Cannonball height could not be determined, skipping launch");
                     }
                 }
-            }).Run();
+            }).Run(); // TODO: can this be a job/parallel? problem is the timer/reload gets weird if its a job
         //Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
@@ -227,10 +227,7 @@ public class TankFiringystem : SystemBase
             }
         }
 
-        // TODO: check tanks
-
         return false;
-
     }
 
     public static bool HitsCube(float3 center, float width, float3 boxLocalPos, float height)

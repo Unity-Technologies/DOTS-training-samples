@@ -88,7 +88,7 @@ public class SpawnerSystem : SystemBase
                 // new fresh player at proper x/y and height and empty parabola t value
                 ecb.DestroyEntitiesForEntityQuery(_PlayerEntityQuery);
                 var player = ecb.Instantiate(playerPrefab);
-                int playerX = config.TerrainLength / 2; // TODO: spawn player at which box ??? look at original game logic I guess; assuming center for now
+                int playerX = config.TerrainLength / 2;
                 int playerY = config.TerrainWidth / 2;
                 float playerHeight = heightMapBuffer[playerY * config.TerrainLength + playerX] + Player.Y_OFFSET; // use box height map to figure out starting y
                 ecb.SetComponent(player, new Translation
@@ -150,7 +150,7 @@ public class SpawnerSystem : SystemBase
     /// <param name="minTerrainHeight"></param>
     /// <param name="maxTerrainHeight"></param>
     /// <returns></returns>
-    private static float4 GetColorForHeight(float height, float minTerrainHeight, float maxTerrainHeight)
+    public static float4 GetColorForHeight(float height, float minTerrainHeight, float maxTerrainHeight)
     {
         float4 color;
 
