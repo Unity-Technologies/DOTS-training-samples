@@ -17,7 +17,7 @@ namespace src.Systems
             if (UnityInput.GetKeyDown(UnityKeyCode.Space))
             {
                 var sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-            
+                EntityManager.CompleteAllJobs(); 
                 World.DisposeAllWorlds();
                 DefaultWorldInitialization.Initialize("Default World", false);
                 UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);                

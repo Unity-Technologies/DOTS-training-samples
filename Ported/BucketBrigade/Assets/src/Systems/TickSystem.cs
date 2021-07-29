@@ -12,7 +12,11 @@ namespace src.Systems
     {
         protected override void OnUpdate()
         {
-            if (!TryGetSingleton(out EcsTick tick)) EntityManager.CreateEntity(ComponentType.ReadWrite<EcsTick>());
+            if (!TryGetSingleton(out EcsTick tick))
+            {
+                var entity = EntityManager.CreateEntity(ComponentType.ReadWrite<EcsTick>());
+                EntityManager.SetName(entity, nameof(EcsTick));
+            }
             tick.CurrentTick++;
             SetSingleton(tick);
         }
