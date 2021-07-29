@@ -24,7 +24,7 @@ namespace src.Components
             WaterFillUpDuration = 4f, 
             WorkerCountPerTeam = 10,
             TeamCount = 2,
-            BucketFetcherCount = 2,
+            BucketFetcherCountPerTeam = 2,
             BucketCount = 30,
             SplashRadius = 3,
             CoolingStrength = 1f,

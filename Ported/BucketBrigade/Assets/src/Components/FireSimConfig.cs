@@ -68,8 +68,8 @@ namespace src.Components
         [Tooltip("How many teams we have")]
         [Min(0)] public int TeamCount;
 
-        [Tooltip("How many workers are fetching the buckets")]
-        public int BucketFetcherCount;
+        [Tooltip("How many workers are fetching the buckets Per Team")]
+        public int BucketFetcherCountPerTeam;
 
         [Tooltip("How many buckets we have on the map")]
         public int BucketCount;
@@ -83,6 +83,14 @@ namespace src.Components
 
         [Tooltip("Splash damage of water bucket. (1 = no loss of power over distance)")]
         public float CoolingStrength_Falloff;
+
+        [Range(0.0001f, 2f)]
+        [Tooltip("Water source update rate. 1 = once per second. Lower = faster")]
+        public float WaterSourceUpdateTime;
+
+        [Tooltip("Water source replenish rate.")]
+        public float WaterSourceReplenishRate;
+
 
         [Tooltip("Team Assignments are expensive. We can artificially limit the total number here to prevent spam.")]
         [Range(0, 100)]

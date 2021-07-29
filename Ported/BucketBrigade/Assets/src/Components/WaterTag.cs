@@ -9,5 +9,7 @@ namespace src.Components
     [GenerateAuthoringComponent]
     public struct WaterTag : IComponentData
     {
+        public float CurrentWaterVolume;
+        public float MaximumWaterVolume;
     }
 }

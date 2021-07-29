@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -14,7 +15,7 @@ namespace src.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
-            Enabled = Application.isEditor && Debug.isDebugBuild;
+            Enabled = false;
         }
 
         protected override void OnUpdate()

@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Burst;
 
 namespace src.Systems
 {
@@ -41,25 +43,13 @@ namespace src.Systems
             NativeArray<Temperature> temperatureArray = temperatureBuffer.AsNativeArray();
 
             NativeArray<Temperature> intermediateArray = new NativeArray<Temperature>(temperatureBuffer.Length, Allocator.TempJob);
-
-            VerticalSpreadJob verticalSpreadJob = new VerticalSpreadJob
-            {
-                Source = temperatureArray,
-                Destination = intermediateArray,
-                Columns = configValues.Columns,
-                Rows = configValues.Rows,
-                HeatRadius = configValues.HeatRadius,
-                HeatTransferRate = configValues.HeatTransferRate * configValues.FireSimUpdateRate,
-                Flashpoint = configValues.Flashpoint,
-                MaxIntensity = 1.0f
-            };
-
-            Dependency = verticalSpreadJob.Schedule(temperatureBuffer.Length, 32, Dependency);
+            NativeArray<Temperature> spreadArray = new NativeArray<Temperature>(temperatureBuffer.Length, Allocator.TempJob);
 
             HorizontalSpreadJob horizontalSpreadJob = new HorizontalSpreadJob
             {
-                Source = intermediateArray,
-                Destination = temperatureArray,
+                Source = temperatureArray,
+                Intermediate = intermediateArray,
+                Spread = spreadArray,
                 Columns = configValues.Columns,
                 Rows = configValues.Rows,
                 HeatRadius = configValues.HeatRadius,
@@ -70,16 +60,34 @@ namespace src.Systems
 
             Dependency = horizontalSpreadJob.Schedule(temperatureBuffer.Length, 32, Dependency);
 
+            VerticalSpreadJob verticalSpreadJob = new VerticalSpreadJob
+            {
+                Intermediate = intermediateArray,                
+                Spread = spreadArray,
+                Destination = temperatureArray,
+                Columns = configValues.Columns,
+                Rows = configValues.Rows,
+                HeatRadius = configValues.HeatRadius,
+                HeatTransferRate = configValues.HeatTransferRate * configValues.FireSimUpdateRate,
+                Flashpoint = configValues.Flashpoint,
+                MaxIntensity = 1.0f
+            };
+
+            Dependency = verticalSpreadJob.Schedule(temperatureBuffer.Length, 32, Dependency);
+
             intermediateArray.Dispose(Dependency);
+            spreadArray.Dispose(Dependency);
         }
     }
 
+    [BurstCompile]
     struct HorizontalSpreadJob : IJobParallelFor
     {
         [ReadOnly]
         public NativeArray<Temperature> Source;
 
-        public NativeArray<Temperature> Destination;
+        public NativeArray<Temperature> Intermediate;
+        public NativeArray<Temperature> Spread;
 
         public int Columns;
         public int Rows;
@@ -94,6 +102,7 @@ namespace src.Systems
             int row = index / Columns;
 
             float temperature = Source[column + row * Columns].Intensity;
+            float spreadTemperature = 0;
 
             for (int spread = -HeatRadius; spread <= HeatRadius; ++spread)
             {
@@ -101,26 +110,29 @@ namespace src.Systems
                     spread + column >= 0 &&
                     spread + column < Columns)
                 {
-                    float spreadTemperature = Source[column + spread + row * Columns].Intensity;
+                    float sourceTemperature = Source[column + spread + row * Columns].Intensity;
 
-                    if (spreadTemperature > Flashpoint)
+                    if (sourceTemperature > Flashpoint)
                     {
-                        temperature += spreadTemperature * HeatTransferRate;
+                        float distanceFalloff = math.rsqrt(math.max(1.0f, math.abs(spread)));
+                        spreadTemperature += sourceTemperature * HeatTransferRate * distanceFalloff;
                     }
                 }
             }
 
-            if (temperature > MaxIntensity)
-                temperature = MaxIntensity;
-
-            Destination[column + row * Columns] = new Temperature { Intensity = temperature };
+            Spread[column + row * Columns] = new Temperature { Intensity = spreadTemperature};
+            Intermediate[column + row * Columns] = new Temperature { Intensity = temperature };
         }
     }
 
+    [BurstCompile]
     struct VerticalSpreadJob : IJobParallelFor
     {
         [ReadOnly]
-        public NativeArray<Temperature> Source;
+        public NativeArray<Temperature> Intermediate;
+        [ReadOnly]
+        public NativeArray<Temperature> Spread;
+
         public NativeArray<Temperature> Destination;
         public int Columns;
         public int Rows;
@@ -134,20 +146,25 @@ namespace src.Systems
             int column = index % Columns;
             int row = index / Columns;
 
-            float temperature = Source[column + row * Columns].Intensity;
+            float temperature = Intermediate[column + row * Columns].Intensity;
 
             for (int spread = -HeatRadius; spread <= HeatRadius; ++spread)
             {
-                if (spread != 0 &&
-                    spread + row >= 0 &&
+                if (spread + row >= 0 &&
                     spread + row < Rows)
                 {
-                    float spreadTemperature = Source[column + (row + spread) * Columns].Intensity;
-
-                    if (spreadTemperature > Flashpoint)
+                    if (spread != 0)
                     {
-                        temperature += spreadTemperature * HeatTransferRate;
+                        float sourceTemperature = Intermediate[column + (row + spread) * Columns].Intensity;
+
+                        if (sourceTemperature > Flashpoint)
+                        {
+                            float distanceFalloff = math.rsqrt(math.max(1.0f, math.abs(spread)));
+                            temperature += sourceTemperature * HeatTransferRate * distanceFalloff;
+                        }
                     }
+
+                    temperature += Spread[column + (row + spread) * Columns].Intensity;
                 }
             }
 

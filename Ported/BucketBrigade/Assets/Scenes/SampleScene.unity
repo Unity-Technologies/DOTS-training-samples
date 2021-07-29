@@ -216,17 +216,23 @@ MonoBehaviour:
     Rows: 100
     Columns: 100
     Flashpoint: 0.2
-    HeatRadius: 2
+    HeatRadius: 1
     HeatTransferRate: 0.02
     FireSimUpdateRate: 0.1
-    WorkerSpeed: 8
-    WorkerSpeedWhenHoldingBucket: 4
+    WorkerSpeed: 12
+    WorkerSpeedWhenHoldingBucket: 8
     DistanceToPickupBucket: 5
     WaterFillUpDuration: 4
     WorkerCountPerTeam: 10
     TeamCount: 1
-    BucketFetcherCount: 2
+    BucketFetcherCountPerTeam: 2
     BucketCount: 50
+    SplashRadius: 5
+    CoolingStrength: 2
+    CoolingStrength_Falloff: 0.75
+    WaterSourceUpdateTime: 0.3
+    WaterSourceReplenishRate: 5
+    MaxTeamAssignmentsPerFrame: 5
 --- !u!1001 &145736978
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -372,7 +378,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 9.1858e-41, y: 4.959117e-39, z: 1.5078841e-19, w: 9.1858e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
