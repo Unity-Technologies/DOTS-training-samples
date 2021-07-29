@@ -100,13 +100,13 @@ class BeeSimulationSystem: SystemBase
                     }
                 }
 
-                // move bee towards the target
                 if(bee.Target != Entity.Null && !HasComponent<Translation>(bee.Target))
                 {
                     bee.Target = Entity.Null;
                     bee.State = BeeState.Idle;
                     return;
                 }
+                // move bee towards the target
                 Random rng2 = Random.CreateFromIndex((uint)entity.Index);
                 float3 basePos = HasComponent<TeamA>(entity) ? 
                     new float3(- (fieldSize.x / 2f - baseWidth / 2f), fieldSize.y / 2f, 0.0f) : 
@@ -120,8 +120,11 @@ class BeeSimulationSystem: SystemBase
                 var speed = normalSpeed;
                 if (bee.State == BeeState.ChasingEnemy)
                 {
-                    speed = attackSpeed;
-                } else if (bee.State == BeeState.ReturningToBase)
+                    // If within a close proximity, rush onto the enemy
+                    if (math.lengthsq(targetVec) < 0.6f)
+                        speed = attackSpeed;
+                } 
+                else if (bee.State == BeeState.ReturningToBase)
                 {
                     speed = carryingSpeed;
                 }
