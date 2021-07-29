@@ -116,14 +116,14 @@ public class Movement : SystemBase
             }).ScheduleParallel(Dependency);
 
         Dependency = Entities
+            .WithDisposeOnCompletion(scoreUpdates)
+            .WithReadOnly(scoreUpdates)
             .ForEach((ref Player player) =>
             {
                 var update = scoreUpdates[player.playerNumber];
                 player.score += update.Rats;
                 player.score = (int)(player.score * math.pow(0.666666f, update.Cats));
             }).ScheduleParallel(Dependency);
-
-        scoreUpdates.Dispose(Dependency);
     }
 
     static Direction RotateClockWise(Direction dir)

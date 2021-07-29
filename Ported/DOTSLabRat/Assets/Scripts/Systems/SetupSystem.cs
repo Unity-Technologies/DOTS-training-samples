@@ -24,6 +24,7 @@ public class SetupSystem : SystemBase
             Entities
                 .WithStructuralChanges()
                 .WithAny<InPause, InPlay>()
+                .WithNone<Player>()
                 .ForEach((Entity entity) => EntityManager.DestroyEntity(entity))
                 .Run();
         }
