@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
+using DOTSRATS;
+using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 public class SceneDebug : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public NativeArray<CellStruct> CellStructs { private set; get; }
+    public BoardSpawner BoardSpawner;
+    public GameState GameState;
 
-    // Update is called once per frame
-    void Update()
+    public void SetCellStructs(DynamicBuffer<CellStruct> cellStructs)
     {
-        
+        if (CellStructs.IsCreated)
+            CellStructs.Dispose();
+        CellStructs = cellStructs.ToNativeArray(Allocator.Persistent);
     }
 }

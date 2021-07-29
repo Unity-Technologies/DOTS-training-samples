@@ -16,4 +16,5 @@ public class GameObjectRefs : IComponentData
     public List<Image> playerCursors;
     public Text gameOverText;
     public Image gameOverOverlay;
+    public SceneDebug debug;
 }
