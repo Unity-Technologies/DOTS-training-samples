@@ -88,5 +88,36 @@ namespace DOTSRATS
                     return Direction.North;
             }
         }
+        public static Direction RotateClockWise(Direction dir)
+        {
+            // Optimization: use bitshifting
+            switch (dir)
+            {
+                case Direction.North: return Direction.East;
+                case Direction.South: return Direction.West;
+                case Direction.East: return Direction.South;
+                case Direction.West: return Direction.North;
+                case Direction.Up: return Direction.Up;
+                case Direction.Down: return Direction.Down;
+                case Direction.None:
+                default: return Direction.None;
+            }
+        }
+
+        public static Direction RotateCounterClockWise(Direction dir)
+        {
+            // Optimization: use bitshifting
+            switch (dir)
+            {
+                case Direction.North: return Direction.West;
+                case Direction.South: return Direction.East;
+                case Direction.East: return Direction.North;
+                case Direction.West: return Direction.South;
+                case Direction.Up: return Direction.Up;
+                case Direction.Down: return Direction.Down;
+                case Direction.None:
+                default: return Direction.None;
+            }
+        }
     }
 }
