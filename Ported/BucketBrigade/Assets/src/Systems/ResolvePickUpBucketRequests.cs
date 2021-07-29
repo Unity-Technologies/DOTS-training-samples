@@ -34,7 +34,7 @@ namespace src.Systems
             var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.SinglePlayback);
             var parallelEcb = ecb.AsParallelWriter();
             
-            Entities.WithName("PickupBuckets").WithNone<BucketIsHeld>().WithBurst().WithStoreEntityQueryInField(ref m_Query).ForEach((Entity bucketEntity, int entityInQueryIndex, PickUpBucketRequest request) =>
+            Entities.WithName("PickupBuckets").WithNone<BucketIsHeld>().WithBurst().WithStoreEntityQueryInField(ref m_Query).ForEach((Entity bucketEntity, int entityInQueryIndex, in PickUpBucketRequest request) =>
             {
                 // NW: We're using the quirk that the ECB will only allow 1 entity to ultimately set the
                 // final request on a bucket to denote who actually gets to pickup the bucket:
