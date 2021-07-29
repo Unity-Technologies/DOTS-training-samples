@@ -48,50 +48,46 @@ namespace src.Systems
                     }
                 }).ScheduleParallel();
 
-            if (bucketPositions.Length == 0)
-            {
-                bucketPositions.Dispose();
-            }
-            else
-            {
-                var bucketEntities = QueryBucketEntities();
-                var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
-                
-                // Start filling up bucket:
-                Entities
-                    .WithName("PickUpEmptyBucketsAtWaterSource")
-                    .WithBurst()
-                    .WithReadOnly(teamDatas)
-                    .WithReadOnly(bucketEntities)
-                    .WithReadOnly(bucketPositions)
-                    .WithDisposeOnCompletion(bucketPositions)
-                    .WithDisposeOnCompletion(bucketEntities)
-                    .WithAll<BucketFillersTag>()
-                    .WithNone<WorkerIsHoldingBucket>()
-                    .ForEach((Entity workerEntity, int entityInQueryIndex, ref Position workerPosition, in TeamId teamId) =>
+
+            var bucketEntities = QueryBucketEntities();
+            var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
+            
+            // Start filling up bucket:
+            Entities
+                .WithName("PickUpEmptyBucketsAtWaterSource")
+                .WithBurst()
+                .WithReadOnly(teamDatas)
+                .WithReadOnly(bucketEntities)
+                .WithReadOnly(bucketPositions)
+                .WithDisposeOnCompletion(bucketPositions)
+                .WithDisposeOnCompletion(bucketEntities)
+                .WithAll<BucketFillersTag>()
+                .WithNone<WorkerIsHoldingBucket>()
+                .ForEach((Entity workerEntity, int entityInQueryIndex, ref Position workerPosition, in TeamId teamId) =>
+                {
+                    // Find water source.
+                    var teamData = teamDatas[teamId.Id];
+                    if (!teamData.IsValid) 
+                        return;
+                    
+                    var waterSourcePosition = teamData.TargetWaterPos;
+
+                    if (Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime))
                     {
-                        // Find water source.
-                        var teamData = teamDatas[teamId.Id];
-                        if (!teamData.IsValid) return;
-                        
-                        var waterSourcePosition = teamData.TargetWaterPos;
+                        // Find NON-FULL buckets inside water source.
+                        Utils.GetClosestBucket(waterSourcePosition, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
 
-                        if(Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime))
+                        // Found a bucket, start carrying to team mate
+                        if (sqrDistanceToBucket < distanceToPickupBucketSqr && closestBucketEntityIndex >= 0)
                         {
-                            // Find NON-FULL buckets inside water source.
-                            Utils.GetClosestBucket(waterSourcePosition, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
-
-                            // Found a bucket, start carrying to team mate
-                            if (sqrDistanceToBucket < distanceToPickupBucketSqr)
-                            {
-                                var bucketEntity = bucketEntities[closestBucketEntityIndex];
-                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.FillUp);
-                            }
+                            var bucketEntity = bucketEntities[closestBucketEntityIndex];
+                            Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.FillUp);
                         }
+                    }
 
-                        // Pick one up.
-                    }).ScheduleParallel();
-            }
+                    // Pick one up.
+                }).ScheduleParallel();
+        
 
             AddECBAsDependency();
         }
