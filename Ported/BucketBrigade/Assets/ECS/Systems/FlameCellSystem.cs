@@ -47,9 +47,6 @@ public class FlameCellSystem : SystemBase
                 temp_s.y = 0.05f;
             }
             scale.Value = temp_s;
-            
-            
-            
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }

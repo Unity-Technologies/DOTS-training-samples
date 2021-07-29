@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -7,17 +8,17 @@ public class AssessChainSystem : SystemBase
 {
     float nextAssessTime = 0.0f;
 
+    private int chainIndex;
+
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameConfigComponent>();
         RequireSingletonForUpdate<HeatMapElement>();
+        chainIndex = 0;
     }
 
     protected override void OnUpdate()
     {
-        var curTime = UnityEngine.Time.time;
-        if (nextAssessTime > curTime)
-            return;
         var config = GetSingleton<GameConfigComponent>();
         var grid = config.SimulationSize;
         var flashPoint = config.FlashPoint;
@@ -29,24 +30,27 @@ public class AssessChainSystem : SystemBase
 
         var heatMapEntity = GetSingletonEntity<HeatMapElement>();
         var heatMap = GetBuffer<HeatMapElement>(heatMapEntity);
-
+        var currentChainIndex = chainIndex++;
+        chainIndex %= config.ChainSize;
+            
         Entities
             .WithDisposeOnCompletion(waterTranslations)
             .WithDisposeOnCompletion(waterVolumes)
             .WithDisposeOnCompletion(waterEntities)
-            .ForEach((in BotsChainComponent chain, in DynamicBuffer<BotChainElementData> chainBuffer) =>
+            .ForEach((int entityInQueryIndex, in BotsChainComponent chain, in DynamicBuffer<BotChainElementData> chainBuffer) =>
             {
+                if (entityInQueryIndex != currentChainIndex)
+                    return;
+                    
                 var scooper = chain.scooper;
                 var scooperPos = GetComponent<Translation>(scooper).Value;
                 var thrower = chain.thrower;
-
                 
                 Entity water = GetComponent<TargetWater>(scooper).water;
                 
                 // Find closest water if current water source is not valid
                 if (water == Entity.Null || GetComponent<WaterVolumeComponent>(water).Volume <= 0.0f)
                 {
-                    
                     var minDistance = float.MaxValue;
                     for (int i = 0; i < waterTranslations.Length; ++i)
                     {
@@ -117,8 +121,6 @@ public class AssessChainSystem : SystemBase
                     SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
                 }
             }).Schedule();
-
-        nextAssessTime = curTime + config.ChainAssessPeriod;
     }
 
     static float2 GetChainPosition(int _index, int _chainLength, float2 _startPos, float2 _endPos)
