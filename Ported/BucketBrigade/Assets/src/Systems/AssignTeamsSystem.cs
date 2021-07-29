@@ -30,7 +30,7 @@ namespace src.Systems
             RequireSingletonForUpdate<EcsTick>();
 
             // NW: When we look for the closest fire and water, rather than querying the ENTIRE team (which is slow), instead we just query one of the team subgroups (as there are fewer, but still representative).
-            m_WorkersQuery = GetEntityQuery(ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<TeamId>(), ComponentType.ReadOnly<FullBucketPasserTag>());
+            m_WorkersQuery = GetEntityQuery(ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<TeamId>(), ComponentType.ReadOnly<BucketFillersTag>());
             m_WaterTagQuery = GetEntityQuery(ComponentType.ReadOnly<LocalToWorld>(), ComponentType.ReadOnly<WaterTag>());
         }
 
