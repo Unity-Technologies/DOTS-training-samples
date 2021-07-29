@@ -4,3 +4,8 @@ public struct Obstacle : IComponentData
 {
 
 }
+
+public struct ObstacleBucketEntity : IComponentData
+{
+
+}
