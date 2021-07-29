@@ -25,7 +25,10 @@ namespace src.Components
             WorkerCountPerTeam = 10,
             TeamCount = 2,
             BucketFetcherCount = 2,
-            BucketCount = 30
+            BucketCount = 30,
+            SplashRadius = 3,
+            CoolingStrength = 1f,
+            CoolingStrength_Falloff = 0.75f,
         };
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {

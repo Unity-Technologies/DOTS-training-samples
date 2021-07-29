@@ -50,7 +50,7 @@ namespace src.Systems
 
                if (column < configValues.Columns && row < configValues.Rows)
                {
-                   float temperature = temperatureArray[column + row * configValues.Columns].Intensity; //configValues.GetTemperatureForCell(temperatureBuffer, row, column);
+                   float temperature = temperatureArray[column + row * configValues.Columns].Intensity;
 
                    float temperatureWithFlicker = temperature;
                    Color cellColor = color_fireCell_neutral;
@@ -66,7 +66,7 @@ namespace src.Systems
                        cellColor = Color.Lerp(color_fireCell_cool, color_fireCell_hot, temperatureWithFlicker);
                    }
 
-                   var worldPosition = configValues.GetCellWorldPosition3D(row, column);
+                   var worldPosition = configValues.GetPosition3DOfCellColRow(column, row);
                    float xPosition = worldPosition.x + cellSize * 0.5f;
                    float zPosition = worldPosition.z + cellSize * 0.5f;
                    float yPosition = -1f + configValues.MaxFlameHeight * temperatureWithFlicker;
