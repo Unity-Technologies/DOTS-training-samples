@@ -49,7 +49,7 @@ class BeeSimulationSystem: SystemBase
             .WithReadOnly(teamABees)
             .WithReadOnly(teamBBees)
             .WithReadOnly(resources)
-            .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos, ref Rotation rotation) =>
+            .ForEach((Entity entity, ref Bee bee, ref NewTranslation pos, ref Rotation rotation, ref NonUniformScale scale) =>
             {
 
                 var rng = Random.CreateFromIndex(seed*175834927 + (uint) entity.Index);
@@ -146,6 +146,9 @@ class BeeSimulationSystem: SystemBase
 
                 // rotate the bee into its direction
                 rotation.Value = math.mul(quaternion.LookRotation(dir, new float3(0f, 1f, 0f)), quaternion.RotateX(math.PI/2));
+
+                // stretch the bees
+                scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
 
                 // check collision with target
                 const float targetSize = 0.01f;/*todo: set target size */

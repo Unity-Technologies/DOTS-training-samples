@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
   BeeSpawnCountOnResourceDrop: 6
-  TeamABeeAggressivity: 0
-  TeamBBeeAggressivity: 0
+  TeamABeeAggressivity: 0.88
+  TeamBBeeAggressivity: 0.58
   NormalSpeed: 1
   CarryingSpeed: 0.5
   AttackSpeed: 5
