@@ -262,7 +262,7 @@ MonoBehaviour:
     x: 1.8
     y: 0.75
     z: 0.75
-  ResourceCount: 500
+  ResourceCount: 50000
 --- !u!4 &348313916
 Transform:
   m_ObjectHideFlags: 0
@@ -330,7 +330,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 500
+  BeeCount: 50000
 --- !u!1 &748618432
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,7 +370,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 500
+  BeeCount: 50000
 --- !u!4 &748618434
 Transform:
   m_ObjectHideFlags: 0
