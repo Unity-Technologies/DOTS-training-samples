@@ -85,18 +85,18 @@ namespace DOTSRATS
                 return "Nobody won...";
             }
 
-            string gameOverText = "Player ";
+            string gameOverText = "Player " + winningPlayers[0];
             if(winningPlayers.Count > 1)
             {
-                for(int i = 0; i < winningPlayers.Count - 2; i++)
+                for(int i = 1; i < winningPlayers.Count - 1; i++)
                 {
-                    gameOverText += "and Player " + winningPlayers[i];
+                    gameOverText += "\nand Player " + winningPlayers[i];
                 }
-                gameOverText += "and Player " + winningPlayers[winningPlayers.Count - 1] + " are tied!";
+                gameOverText += "\nand Player " + winningPlayers[winningPlayers.Count - 1] + "\nare tied!";
             }
             else
             {
-                gameOverText += winningPlayers[0] + " wins!";
+                gameOverText += " wins!";
             }
 
             return gameOverText;
