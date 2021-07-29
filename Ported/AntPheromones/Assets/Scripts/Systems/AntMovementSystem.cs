@@ -21,6 +21,8 @@ public class AntMovementSystem : SystemBase
         var goalSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).GoalSteerStrength;
         var pheronomeSteeringDistance = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteeringDistance;
         var pheromoneSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteerStrength;
+        var inwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).InwardStrength;
+        var outwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).OutwardStrength;
 
         var time = Time.DeltaTime;
 
@@ -117,6 +119,19 @@ public class AntMovementSystem : SystemBase
                     translation.Value.y += vy;
                 }
             }).ScheduleParallel();
+        
+        Entities
+            .WithAll<HoldingResource>()
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, in Speed speed) =>
+            {
+                ResolveMovement(ref facingAngle, ref translation, speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength);
+            }).ScheduleParallel();
+        Entities
+            .WithNone<HoldingResource>()
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, in Speed speed) =>
+            {
+                ResolveMovement(ref facingAngle, ref translation, speed, mapSize, colonyPosition, false, outwardStrength, inwardStrength);
+            }).ScheduleParallel();
     }
 
     private static float SteerToTarget(float3 targetPos, float3 antPos, float facingAngle, float goalSteerStrength)
@@ -139,6 +154,45 @@ public class AntMovementSystem : SystemBase
                     facingAngle += (targetAngle - facingAngle) * goalSteerStrength;
             }
             return facingAngle;
+        }
+    }
+
+    private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength)
+    {
+        float vx = math.cos(facingAngle.Value) * speed.Value;
+        float vy = math.sin(facingAngle.Value) * speed.Value;
+        float ovx = vx;
+        float ovy = vy;
+
+        if (translation.Value.x + vx < 0f || translation.Value.x + vx > mapSize) {
+            vx = -vx;
+        } else {
+            translation.Value.x += vx;
+        }
+        if (translation.Value.y + vy < 0f || translation.Value.y + vy > mapSize) {
+            vy = -vy;
+        } else {
+            translation.Value.y += vy;
+        }
+
+        float dx, dy, dist;
+        //TODO: Add collision resolution here
+                
+        float inwardOrOutward = -outwardStrength;
+        float pushRadius = mapSize * .4f;
+        if (holdingResource) {
+            inwardOrOutward = inwardStrength;
+            pushRadius = mapSize;
+        }
+        dx = colonyPosition.x - translation.Value.x;
+        dy = colonyPosition.y - translation.Value.y;
+        dist = Mathf.Sqrt(dx * dx + dy * dy);
+        inwardOrOutward *= 1f-Mathf.Clamp01(dist / pushRadius);
+        vx += dx / dist * inwardOrOutward;
+        vy += dy / dist * inwardOrOutward;
+
+        if (ovx != vx || ovy != vy) {
+            facingAngle.Value = Mathf.Atan2(vy,vx);
         }
     }
 }

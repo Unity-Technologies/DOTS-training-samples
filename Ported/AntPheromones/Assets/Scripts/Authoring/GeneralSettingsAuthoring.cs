@@ -14,6 +14,8 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
     [UnityRange(0, 0.1f)] public float goalSteerStrength = 0.03f;
     [UnityRange(0, 5)] public float pheromoneSteeringDistance = 3f;
     [UnityRange(0, .1f)] public float pheromoneSteerStrength = 0.015f;
+    [UnityRange(0, 0.01f)] public float inwardStrength = 0.003f;
+    [UnityRange(0, 0.01f)] public float outwardStrength = 0.003f;
 
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
@@ -26,7 +28,9 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
                 RandomSteering = randomSteering,
                 GoalSteerStrength = goalSteerStrength,
                 PheromoneSteeringDistance = pheromoneSteeringDistance,
-                PheromoneSteerStrength = pheromoneSteerStrength
+                PheromoneSteerStrength = pheromoneSteerStrength,
+                InwardStrength = inwardStrength,
+                OutwardStrength = outwardStrength
             });
     }
 }

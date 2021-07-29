@@ -10,4 +10,6 @@ public struct GeneralSettings : IComponentData
     public float GoalSteerStrength;
     public float PheromoneSteeringDistance;
     public float PheromoneSteerStrength;
+    public float InwardStrength;
+    public float OutwardStrength;
 }
