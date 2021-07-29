@@ -8,7 +8,7 @@ public class HUDPauseButton : MonoBehaviour
 
     public void OnPress()
     {
-        Config.Instance.Data.Paused = !Config.Instance.Data.Paused;
+        Config.Instance.TogglePause();
         _Text.text = Config.Instance.Data.Paused ? "Paused" : "Pause";
     }
 }

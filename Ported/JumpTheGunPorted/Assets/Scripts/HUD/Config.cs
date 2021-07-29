@@ -1,7 +1,6 @@
 using UnityEngine;
 
-// This is a ref type so it can be modified by the HUD
-public class ConfigData
+public struct ConfigData
 {
     public int TerrainWidth;
     public int TerrainLength;
@@ -22,8 +21,13 @@ public class ConfigData
 
 public class Config : MonoBehaviour
 {
-    public ConfigData Data { get; private set; }
-    public ConfigData HUDData { get; private set; }
+    private ConfigData _Data;
+    public ConfigData Data
+    {
+        get => _Data;
+        set => _Data = value;
+    }
+    
     public static Config Instance { get; private set; }
 
     [Header("Defaults")]
@@ -51,8 +55,7 @@ public class Config : MonoBehaviour
         }
 
         Instance = this;
-        Data = CreateConfigData();
-        HUDData = CreateConfigData();
+        _Data = CreateConfigData();
     }
 
     private void OnDestroy()
@@ -61,7 +64,7 @@ public class Config : MonoBehaviour
             Instance = null;
     }
 
-    private ConfigData CreateConfigData()
+    public ConfigData CreateConfigData()
     {
         return new ConfigData()
         {
@@ -74,21 +77,13 @@ public class Config : MonoBehaviour
             TankReloadTime = _TankReloadTime,
             PlayerParabolaPrecision = _PlayerParabolaPrecision,
             CollisionStepMultiplier = _CollisionStepMultiplier,
-            Invincible = _Invincible
+            Invincible = _Invincible,
+            Paused = false
         };
     }
 
-    public void CommitHUDConfig()
+    public void TogglePause()
     {
-        Data.TerrainWidth = HUDData.TerrainWidth;
-        Data.TerrainLength = HUDData.TerrainLength;
-        Data.MinTerrainHeight = HUDData.MinTerrainHeight;
-        Data.MaxTerrainHeight = HUDData.MaxTerrainHeight;
-        Data.HeightDamage = HUDData.HeightDamage;
-        Data.TankCount = HUDData.TankCount;
-        Data.TankReloadTime = HUDData.TankReloadTime;
-        Data.PlayerParabolaPrecision = HUDData.PlayerParabolaPrecision;
-        Data.CollisionStepMultiplier = HUDData.CollisionStepMultiplier;
-        Data.Invincible = HUDData.Invincible;
+        _Data.Paused = !_Data.Paused;
     }
 }

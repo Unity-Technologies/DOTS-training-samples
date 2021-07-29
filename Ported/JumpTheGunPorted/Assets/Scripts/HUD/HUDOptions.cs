@@ -13,29 +13,33 @@ public class HUDOptions : MonoBehaviour
 	
 	public HUDSlider _TankCount;
 	public HUDSlider _TankReloadTime;
+
+	private ConfigData _Data;
 	
 	private void Start()
 	{
+		_Data = Config.Instance.CreateConfigData();
+		
 		_TerrainWidth.SetBounds(1, 100);
-		_TerrainWidth.Value = Config.Instance.HUDData.TerrainWidth;
+		_TerrainWidth.Value = _Data.TerrainWidth;
 
 		_TerrainLength.SetBounds(1, 100);
-		_TerrainLength.Value = Config.Instance.HUDData.TerrainLength;
+		_TerrainLength.Value = _Data.TerrainLength;
 
 		_MinTerrainHeight.SetBounds(1, 10);
-		_MinTerrainHeight.Value = Config.Instance.HUDData.MinTerrainHeight;
+		_MinTerrainHeight.Value = _Data.MinTerrainHeight;
 
 		_MaxTerrainHeight.SetBounds(1, 10);
-		_MaxTerrainHeight.Value = Config.Instance.HUDData.MaxTerrainHeight;
+		_MaxTerrainHeight.Value = _Data.MaxTerrainHeight;
 
 		_HeightDamage.SetBounds(0, 10);
-		_HeightDamage.Value = Config.Instance.HUDData.HeightDamage;
+		_HeightDamage.Value = _Data.HeightDamage;
 
 		_TankCount.SetBounds(0, 1000);
-		_TankCount.Value = Config.Instance.HUDData.TankCount;
+		_TankCount.Value = _Data.TankCount;
 
 		_TankReloadTime.SetBounds(.1f, 20);
-		_TankReloadTime.Value = Config.Instance.HUDData.TankReloadTime;
+		_TankReloadTime.Value = _Data.TankReloadTime;
 	}
 	
 	private void Update()
@@ -45,15 +49,15 @@ public class HUDOptions : MonoBehaviour
 
 	private void UpdateSliders()
 	{
-		UpdateSlider(out Config.Instance.HUDData.TerrainWidth, _TerrainWidth, "Terrain Width");
-		UpdateSlider(out Config.Instance.HUDData.TerrainLength, _TerrainLength, "Terrain Length");
+		UpdateSlider(out _Data.TerrainWidth, _TerrainWidth, "Terrain Width");
+		UpdateSlider(out _Data.TerrainLength, _TerrainLength, "Terrain Length");
 		
-		UpdateSlider(out Config.Instance.HUDData.MinTerrainHeight, _MinTerrainHeight, "Min Terrain Height");
-		UpdateSlider(out Config.Instance.HUDData.MaxTerrainHeight, _MaxTerrainHeight, "Max Terrain Height");
-		UpdateSlider(out Config.Instance.HUDData.HeightDamage, _HeightDamage, "Height Damage");
+		UpdateSlider(out _Data.MinTerrainHeight, _MinTerrainHeight, "Min Terrain Height");
+		UpdateSlider(out _Data.MaxTerrainHeight, _MaxTerrainHeight, "Max Terrain Height");
+		UpdateSlider(out _Data.HeightDamage, _HeightDamage, "Height Damage");
 		
-		UpdateSlider(out Config.Instance.HUDData.TankCount, _TankCount, "Tank Count");
-		UpdateSlider(out Config.Instance.HUDData.TankReloadTime, _TankReloadTime, "Tank Reload Time");
+		UpdateSlider(out _Data.TankCount, _TankCount, "Tank Count");
+		UpdateSlider(out _Data.TankReloadTime, _TankReloadTime, "Tank Reload Time");
 	}
 
 	private static void UpdateSlider(out int configValue, HUDSlider slider, string label)
@@ -71,6 +75,6 @@ public class HUDOptions : MonoBehaviour
 	public void OnRestart()
 	{
 		World.DefaultGameObjectInjectionWorld.EntityManager.CreateEntity(typeof(Spawner));
-		Config.Instance.CommitHUDConfig();
+		Config.Instance.Data = _Data;
 	}
 }
