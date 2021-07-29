@@ -6,4 +6,8 @@ namespace DOTSRATS
     public struct InPlay : IComponentData
     {
     }
+
+    public struct InPause : IComponentData
+    {
+    }
 }

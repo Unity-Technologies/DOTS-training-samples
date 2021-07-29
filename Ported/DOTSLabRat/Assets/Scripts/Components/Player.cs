@@ -14,5 +14,9 @@ namespace DOTSRATS
         public Direction arrowDirection;
         public int currentArrow;
         public int2 arrowToRemove;
+
+        // AI players only
+        public double nextArrowTime;
+        public float2 arrowPlacementDelayRange;
     }
 }

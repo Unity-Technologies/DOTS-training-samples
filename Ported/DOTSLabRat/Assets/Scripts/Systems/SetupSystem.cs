@@ -3,6 +3,7 @@ using DOTSRATS;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -11,14 +12,25 @@ public class SetupSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        const float k_yRangeSize = 0.03f;
+        const float k_yRangeSize = 0.05f;
 
         var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
         var random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : randomSeed);
 
+        if (!EntityManager.HasComponent<Initialized>(GetSingletonEntity<BoardSpawner>()))
+        {
+            // Cleanup anything that already exists!
+            // TBD: optimize using chunking
+            Entities
+                .WithStructuralChanges()
+                .WithAny<InPause, InPlay>()
+                .ForEach((Entity entity) => EntityManager.DestroyEntity(entity))
+                .Run();
+        }
+
         Entities
             .WithStructuralChanges()
-            .WithAll<BoardSpawner>()
+            .WithNone<Initialized>()
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
@@ -27,7 +39,8 @@ public class SetupSystem : SystemBase
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
-                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = 30f});
+                EntityManager.AddComponent<InPlay>(gameState);
+                EntityManager.SetComponentData(gameState, new GameState{boardSize = size, timer = boardSpawner.matchDuration});
                 var cellStructs = new NativeArray<CellStruct>(size * size, Allocator.TempJob);
                 
                 // Init hole coordinates
@@ -64,6 +77,12 @@ public class SetupSystem : SystemBase
                             var yValue = random.NextFloat(-k_yRangeSize, k_yRangeSize);
                             var translation = new Translation() { Value = new float3(x, yValue - 0.5f, z) };
                             EntityManager.SetComponentData(tile, translation);
+                            EntityManager.AddComponent<URPMaterialPropertyBaseColor>(tile);
+                            EntityManager.SetComponentData(tile,
+                                new URPMaterialPropertyBaseColor()
+                                {
+                                    Value = cellIndex % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
+                                });
                         }
                         else
                             cell.hole = true;
@@ -91,9 +110,9 @@ public class SetupSystem : SystemBase
                         Debug.Log($"Wall layout at: ({x},{z}): {cellStructs[z * size + x].wallLayout}");*/
                     
                 EntityManager.AddBuffer<CellStruct>(gameState).AddRange(cellStructs);
-                SetAnimalSpawners(boardSpawner, size);
+                SetAnimalSpawners(boardSpawner, size, ref random);
 
-                EntityManager.DestroyEntity(entity);
+                EntityManager.AddComponent<Initialized>(entity);
                 holeCoords.Dispose();
                 wallGenParams.Dispose();
                 cellStructs.Dispose();
@@ -106,7 +125,7 @@ public class SetupSystem : SystemBase
         cellStruct.wallLayout |= direction;
         if (GetOppositeCoord(coord, direction, boardSpawner.boardSize, out var oppositeCoord))
         {
-            var oppositeDir = GetOppositeDirection(direction);
+            var oppositeDir = Utils.GetOppositeDirection(direction);
             var oppositeCellIndex = oppositeCoord.y * boardSpawner.boardSize + oppositeCoord.x;
             var oppositeCell = cellStructs[oppositeCellIndex];
             oppositeCell.wallLayout |= oppositeDir;
@@ -184,7 +203,7 @@ public class SetupSystem : SystemBase
             else
             {
                 var baseDir = (Direction)(1 << random.NextInt(0, 4));
-                var nextCardinalDir = GetNextCardinalCW(baseDir);
+                var nextCardinalDir = Utils.GetNextCardinalCW(baseDir);
                 
                 SpawnWall(boardSpawner, coord, baseDir, ref cellStruct, cellStructs);
                 SpawnWall(boardSpawner, coord, nextCardinalDir, ref cellStruct, cellStructs);
@@ -197,7 +216,7 @@ public class SetupSystem : SystemBase
             for (int i = 0; i < amount; ++i)
             {
                 SpawnWall(boardSpawner, coord,dir, ref cellStruct, cellStructs);
-                dir = GetNextCardinalCW(dir);
+                dir = Utils.GetNextCardinalCW(dir);
             }
         }
     }
@@ -210,6 +229,8 @@ public class SetupSystem : SystemBase
         goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
         EntityManager.SetComponentData(goal, new Translation() { Value = position });
         EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
+        EntityManager.AddComponent(goal, typeof(Scale));
+        EntityManager.SetComponentData(goal, new Scale { Value = 1f });
 
         cellStruct.goal = goal;
 
@@ -232,27 +253,23 @@ public class SetupSystem : SystemBase
         return false;
     }
 
-    public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize)
+    public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize, ref Random random)
     {
-        Entity catSpawnPointOne = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(catSpawnPointOne);
-        EntityManager.SetComponentData(catSpawnPointOne, new Translation { Value = new float3(0, -0.5f, 0) });
-        EntityManager.AddComponentData(catSpawnPointOne, new DirectionData { Value = Direction.North });
+        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, ref Random random)
+        {
+            Entity spawnPoint = EntityManager.Instantiate(prefab);
+            EntityManager.AddComponent<InPlay>(spawnPoint);
+            var animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(spawnPoint);
+            animalSpawner.random = Random.CreateFromIndex(random.NextUInt());
+            EntityManager.SetComponentData(spawnPoint, animalSpawner);
+            EntityManager.SetComponentData(spawnPoint, new Translation {Value = new float3(position.x, -0.5f, position.y)});
+            EntityManager.AddComponentData(spawnPoint, new DirectionData {Value = direction});
+        }
 
-        Entity catSpawnPointTwo = EntityManager.Instantiate(boardSpawner.catSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(catSpawnPointTwo);
-        EntityManager.SetComponentData(catSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, boardSize - 1) });
-        EntityManager.AddComponentData(catSpawnPointTwo, new DirectionData { Value = Direction.South });
-
-        Entity ratSpawnPointOne = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(ratSpawnPointOne);
-        EntityManager.SetComponentData(ratSpawnPointOne, new Translation { Value = new float3(0, -0.5f, boardSize - 1) });
-        EntityManager.AddComponentData(ratSpawnPointOne, new DirectionData { Value = Direction.East });
-
-        Entity ratSpawnPointTwo = EntityManager.Instantiate(boardSpawner.ratSpawnerPrefab);
-        EntityManager.AddComponent<InPlay>(ratSpawnPointTwo);
-        EntityManager.SetComponentData(ratSpawnPointTwo, new Translation { Value = new float3(boardSize - 1, -0.5f, 0) });
-        EntityManager.AddComponentData(ratSpawnPointTwo, new DirectionData { Value = Direction.West });
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, ref random);
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, ref Random random)
@@ -365,43 +382,5 @@ public class SetupSystem : SystemBase
 
         oppositeCoord = coord;
         return true;
-    }
-
-    Direction GetOppositeDirection(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.North:
-                return Direction.South;
-            case Direction.South:
-                return Direction.North;
-            case Direction.West:
-                return Direction.East;
-            case Direction.East:
-                return Direction.West;
-            case Direction.Up:
-                return Direction.Down;
-            case Direction.Down:
-                return Direction.Up;
-        }
-
-        return direction;
-    }
-    
-    Direction GetNextCardinalCW(Direction direction)
-    {
-        switch (direction)
-        {
-            case Direction.North:
-                return Direction.East;
-            case Direction.East:
-                return Direction.South;
-            case Direction.South:
-                return Direction.West;
-            case Direction.West:
-                return Direction.North;
-        }
-
-        return direction;
     }
 }

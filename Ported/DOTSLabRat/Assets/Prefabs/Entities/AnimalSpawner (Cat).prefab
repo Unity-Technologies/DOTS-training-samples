@@ -46,7 +46,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animalPrefab: {fileID: 1377909340170110, guid: 19268829cf75c415f8f14765efcab529, type: 3}
   maxAnimals: 5
-  spawnRate: 0.001
+  initialSpeed:
+    x: 3
+    y: 4
+  randomSeed: 0
+  timeToNextSpawn: 0
+  spawnRate: 1
 --- !u!114 &-6193899689120576212
 MonoBehaviour:
   m_ObjectHideFlags: 0
