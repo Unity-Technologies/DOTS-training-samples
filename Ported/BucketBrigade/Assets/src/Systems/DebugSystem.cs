@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -11,6 +12,12 @@ namespace src.Systems
     [AlwaysUpdateSystem]
     public class DebugSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            Enabled = false;
+        }
+
         protected override void OnUpdate()
         {
             Entities
