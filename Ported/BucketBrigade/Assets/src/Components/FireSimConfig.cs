@@ -68,8 +68,8 @@ namespace src.Components
         [Tooltip("How many teams we have")]
         [Min(0)] public int TeamCount;
 
-        [Tooltip("How many workers are fetching the buckets")]
-        public int BucketFetcherCount;
+        [Tooltip("How many workers are fetching the buckets Per Team")]
+        public int BucketFetcherCountPerTeam;
 
         [Tooltip("How many buckets we have on the map")]
         public int BucketCount;
