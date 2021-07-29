@@ -1,6 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace DOTSRATS
 {
@@ -18,5 +18,6 @@ namespace DOTSRATS
         // AI players only
         public double nextArrowTime;
         public float2 arrowPlacementDelayRange;
+        public Random random;
     }
 }

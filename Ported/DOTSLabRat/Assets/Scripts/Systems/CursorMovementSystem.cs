@@ -39,7 +39,7 @@ namespace DOTSRATS
                         var cursorVelocity = (Vector3)velocities[player.playerNumber - 1];
                         currentCursorPos = Vector3.SmoothDamp(currentCursorPos, targetCursorPos, ref cursorVelocity, 0.5f, 1000f, timeDelta);
                         velocities[player.playerNumber - 1] = cursorVelocity;
-                        
+
                         playerCursor.rectTransform.anchoredPosition3D = currentCursorPos;
                     }
                     
