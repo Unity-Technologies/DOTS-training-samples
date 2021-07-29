@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
@@ -21,6 +22,7 @@ namespace DOTSRATS
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
             var elapsedTime = Time.ElapsedTime;
             
+
             Entities
                 .WithAll<InPlay>()
                 .WithoutBurst()
@@ -50,12 +52,14 @@ namespace DOTSRATS
                         //Validate placed arrow
                         if (player.arrowToPlace.x != -1)
                         {
+                            var cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
+                            
                             for (int i = 0; i < placedArrows.Length; i++)
                             {
-                                var arrowTranslation =
-                                    EntityManager.GetComponentData<Translation>(placedArrows[i].entity);
-                                if ((int) arrowTranslation.Value.x == player.arrowToPlace.x &&
-                                    (int) arrowTranslation.Value.z == player.arrowToPlace.y)
+                                var arrowTranslation = EntityManager.GetComponentData<Translation>(placedArrows[i].entity);
+                                if (((int)arrowTranslation.Value.x == player.arrowToPlace.x &&
+                                    (int)arrowTranslation.Value.z == player.arrowToPlace.y) ||
+                                    cellStructs[cellIndex].arrow != Direction.None)
                                 {
                                     player.arrowToPlace = new int2(-1, -1);
                                     break;
