@@ -8,11 +8,21 @@ namespace DOTSRATS
     [UpdateAfter(typeof(SetupSystem))]
     public class AnimalSpawnerSystem : SystemBase
     {
+        EntityCommandBufferSystem CommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            CommandBufferSystem
+                = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
             var deltaTime = Time.DeltaTime;
 
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            //var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = CommandBufferSystem.CreateCommandBuffer();
+
             int numCats = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<InPlay>(), ComponentType.ReadOnly<Velocity>()).CalculateEntityCount();
             int numRats = GetEntityQuery(ComponentType.ReadOnly<Rat>(), ComponentType.ReadOnly<InPlay>(), ComponentType.ReadOnly<Velocity>()).CalculateEntityCount();
 
@@ -35,10 +45,12 @@ namespace DOTSRATS
                         ecb.SetComponent(instance, new Scaling { targetScale = spawnSmall ? 1f : 1.5f });
                         ecb.SetComponent(instance, new Rotation { Value = quaternion.LookRotationSafe(DirectionExt.ToFloat3(direction.Value), new float3(0f, 1f, 0f)) });
                     }
-                }).Run();
+                }).Schedule();
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
+
+            //ecb.Playback(EntityManager);
+            //ecb.Dispose();
         }
 
         static bool SpawnBigOrSmall(ref Random random)
