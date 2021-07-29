@@ -40,6 +40,7 @@ public struct GameConfigComponent : IComponentData
     public Entity BotPrefab;
     public Entity ScooperPrefab;
     public Entity PasserFullPrefab;
+    public Entity PasserEmptyPrefab; //To Do: combine the 2 prefabs into 1 passer prefab, add full/empty component on demand in chainspawn system 
     public Color ScooperBotColor;
     public Color ThrowerBotColor;
     public Color PasserFullBotColor;

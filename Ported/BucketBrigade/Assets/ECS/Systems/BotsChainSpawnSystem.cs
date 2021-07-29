@@ -39,6 +39,7 @@ public class BotsChainSpawnSystem : SystemBase
         var botPrefab = config.BotPrefab;
         var scooperPrefab = config.ScooperPrefab;
         var passerFullPrefab = config.PasserFullPrefab;
+        var passerEmptyPrefab = config.PasserEmptyPrefab; //To Do: combine the 2 and add different components on demand
 
         var rand = new Unity.Mathematics.Random();
         rand.InitState();
@@ -61,7 +62,7 @@ public class BotsChainSpawnSystem : SystemBase
             for (int b = 0; b < chainSize; ++b)
             {
                 var passerFull = CreateBot(ref ecb, ref rand, simSize, ref passerFullPrefab, passerFullColor);
-                var passerEmpty = CreateBot(ref ecb, ref rand, simSize, ref passerFullPrefab, passerEmptyColor);
+                var passerEmpty = CreateBot(ref ecb, ref rand, simSize, ref passerEmptyPrefab, passerEmptyColor);
                 botsBuffer[b] = new BotChainElementData() {passerFull = passerFull, passerEmpty = passerEmpty};
             }
         }
