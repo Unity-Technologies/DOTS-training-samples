@@ -8,6 +8,8 @@ using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
 using src.Components;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace src.Systems
 {
@@ -16,6 +18,8 @@ namespace src.Systems
     {
         private Random random;
 
+        int m_LastIgnitedCell, m_LastExtinguishedCell;
+        
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -52,9 +56,12 @@ namespace src.Systems
                 var ver_to = configValues.GetPosition3DOfCellColRow(j, rows) + new float3(0f, planeHeight, offset);
                 UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.grey, 0);
             }
-#endif                    
+#endif
 
-            if (UnityInput.GetMouseButtonDown(0))
+            var createFire = UnityInput.GetMouseButton(0);
+            var extinguishFire = UnityInput.GetMouseButton(1);
+     
+            if (createFire || extinguishFire)
             {              
                 var camera = this.GetSingleton<GameObjectRefs>().Camera;
                 if (camera)
@@ -64,17 +71,33 @@ namespace src.Systems
                     plane.Raycast(screenPointToRay, out float enter);
                     
                     var clickPosition = screenPointToRay.GetPoint(enter);
-                    var colRow = configValues.GetCellColRowOfPosition3D(new float3(clickPosition.x, clickPosition.y, clickPosition.z));                    
-                    var col = colRow.x;
-                    var row = colRow.y;
-                    if (row >= 0 && row < rows && col >= 0 && col < columns)
+                    var cellId = configValues.GetCellIdOfPosition3D(new float3(clickPosition.x, clickPosition.y, clickPosition.z));
+                    if (configValues.IsValidCell(cellId))
                     {
                         var temperatureEntity = GetSingletonEntity<Temperature>();
                         var temperatureBuffer = EntityManager.GetBuffer<Temperature>(temperatureEntity);
 
-                        var temperature = temperatureBuffer[row * columns + col];
-                        temperature.Intensity = random.NextFloat(configValues.Flashpoint, 1f);
-                        temperatureBuffer[row * columns + col] = temperature;
+                        ref var temperature = ref temperatureBuffer.ElementAt(cellId);
+
+                        if (createFire)
+                        {
+                            if (m_LastIgnitedCell != cellId)
+                            {
+                                temperature.Intensity = random.NextFloat(configValues.Flashpoint, 1f);
+                                m_LastIgnitedCell = cellId;
+                            }
+                        }
+                        else m_LastIgnitedCell = -1;
+
+                        if (extinguishFire)
+                        {
+                            if (m_LastExtinguishedCell != cellId)
+                            {
+                                temperature.Intensity = 0;
+                                m_LastExtinguishedCell = cellId;
+                            }
+                        }
+                        else m_LastExtinguishedCell = -1;
                     }
                 }
             }

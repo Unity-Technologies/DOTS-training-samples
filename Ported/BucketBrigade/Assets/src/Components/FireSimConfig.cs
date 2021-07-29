@@ -117,6 +117,7 @@ namespace src.Components
         }
 
         public int GetCellIdOfColRow(int column, int row) => column + row * Columns;
+        public int GetCellIdOfColRow(int2 rowCol) => GetCellIdOfColRow(rowCol.y, rowCol.x);
 
         public int2 GetColRowOfCell(int cellId)
         {
@@ -153,17 +154,17 @@ namespace src.Components
         /// </summary>
         public float3 GetPosition3DOfCellColRow(int col, int row, float3 origin = default) => origin + new float3(col, 0f, row) * CellSize;
 
-        public int2 GetCellColRowOfPosition3D(float3 worldPosition, float3 origin = default)
+        public int GetCellIdOfPosition3D(float3 worldPosition, float3 origin = default)
         {
             var localPosition = worldPosition - origin;
             // Convert to grid position
-            var row = (int)(localPosition.z / CellSize);
-            var col = (int)(localPosition.x / CellSize);
-            if (localPosition.z < 0)
-                row--;
-            if (localPosition.x < 0)
-                col--;
-            return new int2(col, row);
+            var row = Mathf.FloorToInt(localPosition.z / CellSize);
+            var col = Mathf.FloorToInt(localPosition.x / CellSize);
+            // if (localPosition.z < 0)
+            //     row--;
+            // if (localPosition.x < 0)
+            //     col--;
+            return GetCellIdOfColRow(col, row);
         }
 
 
@@ -171,5 +172,7 @@ namespace src.Components
         {
             return temperature.Intensity > Flashpoint;
         }
+
+        public bool IsValidCell(int cellId) => cellId >= 0 && cellId < (Rows * Columns);
     }
 }
