@@ -28,6 +28,8 @@ public class Movement : SystemBase
     {
         CommandBufferSystem
             = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<GameState>();
+        RequireSingletonForUpdate<CellStruct>();
     }
 
     protected override void OnUpdate()

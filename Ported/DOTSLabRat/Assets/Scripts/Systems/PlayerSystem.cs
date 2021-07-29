@@ -9,6 +9,12 @@ namespace DOTSRATS
 {
     public class PlayerSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            RequireSingletonForUpdate<GameState>();
+            RequireSingletonForUpdate<CellStruct>();
+        }
+
         protected override void OnUpdate()
         {
             var gameStateEntity = GetSingletonEntity<GameState>();
