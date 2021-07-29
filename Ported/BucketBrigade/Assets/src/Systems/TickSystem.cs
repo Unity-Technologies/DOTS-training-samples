@@ -5,6 +5,7 @@ using Unity.Entities;
 namespace src.Systems
 {
     /// <inheritdoc cref="EcsTick"/>>
+    [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateBefore(typeof(BeginInitializationEntityCommandBufferSystem))]
     public class TickSystem : SystemBase

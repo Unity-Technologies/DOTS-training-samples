@@ -27,8 +27,10 @@ namespace src.Systems
             RequireSingletonForUpdate<TeamData>();
             RequireSingletonForUpdate<Temperature>();
             RequireSingletonForUpdate<FireSimConfigValues>();
+            RequireSingletonForUpdate<EcsTick>();
 
-            m_WorkersQuery = GetEntityQuery(ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<TeamId>());
+            // NW: When we look for the closest fire and water, rather than querying the ENTIRE team (which is slow), instead we just query one of the team subgroups (as there are fewer, but still representative).
+            m_WorkersQuery = GetEntityQuery(ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<TeamId>(), ComponentType.ReadOnly<FullBucketPasserTag>());
             m_WaterTagQuery = GetEntityQuery(ComponentType.ReadOnly<LocalToWorld>(), ComponentType.ReadOnly<WaterTag>());
         }
 
@@ -59,7 +61,7 @@ namespace src.Systems
                 if (noKnownFireOrNoFireAtTargetFireCell)
                 {
                     // NW: Only use the EXPENSIVE GetTeamPos method if we can't already infer it using our teamData.MiddlePos.
-                    var averageTeamPos = teamData.IsValid ? teamData.MiddlePos : GetTeamPos(ourTeamId);
+                    var averageTeamPos = GetTeamPos(ourTeamId);
 
                     var hasFoundFire = TryGetClosestFireTo(averageTeamPos, in configValues, in temperatures, out var closestFireCell);
                     if (hasFoundFire)
