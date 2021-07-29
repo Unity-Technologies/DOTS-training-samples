@@ -7,6 +7,11 @@ namespace DOTSRATS
 {
     public class TimerSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            RequireSingletonForUpdate<GameState>();
+        }
+        
         protected override void OnUpdate()
         {
             var prevTime = GetSingleton<GameState>().timer;

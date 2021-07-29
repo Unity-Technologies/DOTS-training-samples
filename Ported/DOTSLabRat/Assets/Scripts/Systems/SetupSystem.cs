@@ -8,6 +8,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateAfter(typeof(PlayerSetupSystem))]
 public class SetupSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -54,8 +55,10 @@ public class SetupSystem : SystemBase
             .ForEach((Entity entity, in BoardSpawner boardSpawner) =>
             {
                 var size = boardSpawner.boardSize;
-                int playerNumber = 0;
                 
+                int playerNumber = 0;
+                var playerEntities = GetEntityQuery(ComponentType.ReadOnly<Player>()).ToEntityArray(Allocator.Temp);
+
                 // Spawn the GameState
                 var gameState = EntityManager.CreateEntity();
                 EntityManager.AddComponent<GameState>(gameState);
@@ -119,7 +122,7 @@ public class SetupSystem : SystemBase
 
                         //spawn goals
                         if (ShouldPlaceGoalTile(cellCoord, size))
-                            SpawnGoal(boardSpawner, cellCoord, playerNumber++, ref cell);
+                            SpawnGoal(boardSpawner, cellCoord, playerNumber++, ref cell, playerEntities);
 
                         cellStructs[cellIndex] = cell;
                     }
@@ -136,6 +139,7 @@ public class SetupSystem : SystemBase
                 holeCoords.Dispose();
                 wallGenParams.Dispose();
                 cellStructs.Dispose();
+                playerEntities.Dispose();
             }).Run();
     }
 
@@ -241,7 +245,7 @@ public class SetupSystem : SystemBase
         }
     }
     
-    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct)
+    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct, NativeArray<Entity> playerEntities)
     {
         Entity goal = default;
         float3 position = new float3(coord.x, -0.5f, coord.y);
@@ -249,8 +253,23 @@ public class SetupSystem : SystemBase
         goal = EntityManager.Instantiate(boardSpawner.goalPrefab);
         EntityManager.SetComponentData(goal, new Translation() { Value = position });
         EntityManager.SetComponentData(goal, new Goal() { playerNumber = playerNumber });
-        EntityManager.AddComponent(goal, typeof(Scale));
+        EntityManager.AddComponent<Scale>(goal);
         EntityManager.SetComponentData(goal, new Scale { Value = 1f });
+        EntityManager.AddComponent<PropagateColor>(goal);
+        
+        ComponentDataFromEntity<Player> playerComponents = GetComponentDataFromEntity<Player>(true);
+        float4 playerColor = new float4();
+        foreach (Entity player in playerEntities)
+        {
+            Player playerComponent = playerComponents[player];
+            if (playerComponent.playerNumber == playerNumber)
+            {
+                playerColor = new float4(playerComponent.color.r, playerComponent.color.g, playerComponent.color.b,
+                    playerComponent.color.a);
+            }
+        }
+
+        EntityManager.SetComponentData(goal, new PropagateColor { color = playerColor }); //Get player color
 
         cellStruct.goal = goal;
 
