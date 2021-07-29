@@ -29,7 +29,8 @@ namespace DOTSRATS
                             arrowToPlace = new int2(-1, -1),
                             arrowDirection = Direction.None,
                             currentArrow = 0,
-                            arrowToRemove = new int2(-1, -1)
+                            arrowToRemove = new int2(-1, -1),
+                            arrowPlacementDelayRange = playerSpawner.AIArrowPlaceDelayRange
                         });
 
                         for (int j = 0; j < playerSpawner.maxArrows; j++)
