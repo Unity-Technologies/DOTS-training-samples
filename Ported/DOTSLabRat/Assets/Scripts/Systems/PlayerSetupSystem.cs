@@ -33,6 +33,7 @@ namespace DOTSRATS
                             currentArrow = 0,
                             arrowToRemove = new int2(-1, -1),
                             arrowPlacementDelayRange = playerSpawner.AIArrowPlaceDelayRange,
+                            nextArrowTime = i > 0 ?  playerSpawner.AIArrowPlaceDelayRange.x : 0,
                             random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : ++randomSeed)
                         });
 
