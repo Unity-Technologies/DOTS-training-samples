@@ -67,22 +67,19 @@ namespace src.Systems
                 {
                     // Find water source.
                     var teamData = teamDatas[teamId.Id];
-                    if (!teamData.IsValid) 
-                        return;
-                    
+            
                     var waterSourcePosition = teamData.TargetWaterPos;
 
-                    if (Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime))
-                    {
-                        // Find NON-FULL buckets inside water source.
-                        Utils.GetClosestBucket(waterSourcePosition, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+                    Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime);
 
-                        // Found a bucket, start carrying to team mate
-                        if (sqrDistanceToBucket < distanceToPickupBucketSqr && closestBucketEntityIndex >= 0)
-                        {
-                            var bucketEntity = bucketEntities[closestBucketEntityIndex];
-                            Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.FillUp);
-                        }
+                    // Find NON-FULL buckets inside water source.
+                    Utils.GetClosestBucket(waterSourcePosition, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+
+                    // Found a bucket, start carrying to team mate
+                    if (sqrDistanceToBucket < distanceToPickupBucketSqr && closestBucketEntityIndex >= 0)
+                    {
+                        var bucketEntity = bucketEntities[closestBucketEntityIndex];
+                        Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.FillUp);
                     }
 
                     // Pick one up.
