@@ -10,7 +10,13 @@ using UnityEngine.Rendering;
 [GenerateAuthoringComponent]
 public struct GameConfigComponent : IComponentData
 {
+    [Min(1)]
+    public uint RandomSeed;
     public int SimulationSize;
+    public Entity WaterPrefab;
+    public float WaterPresenceProbability;
+    public int WaterOffsetFromSimulation;
+    public float WaterOffsetVariation;
     public float WaterRefillRate;
     public float WaterMaxScale;
     public float MinBucketScale;
