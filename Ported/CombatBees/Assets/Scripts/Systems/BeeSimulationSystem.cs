@@ -117,6 +117,11 @@ class BeeSimulationSystem: SystemBase
                 var targetPos = bee.Target == Entity.Null ? basePos : GetComponent<Translation>(bee.Target).Value;
                 float3 targetVec = targetPos - pos.translation.Value;
                 float3 dir = math.normalize(targetVec);
+                const float bobbleSize = 0.4f;
+                float3 dirBobble = new float3(math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                              math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                              math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f)) * bobbleSize;
+                dir = math.normalize(dir + dirBobble);
 
                 var speed = normalSpeed;
                 if (bee.State == BeeState.ChasingEnemy)
@@ -133,11 +138,7 @@ class BeeSimulationSystem: SystemBase
                 float dist = speed * deltaTime;
                 if(dist*dist < math.lengthsq(targetVec))
                 {
-                    const float bobbleSize = 0.4f;
-                    float3 dirBobble = new float3(math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
-                                                  math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
-                                                  math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f)) * bobbleSize;
-                    pos.translation.Value += (dir + dirBobble) * dist;
+                    pos.translation.Value += dir * dist;
                     pos.translation.Value = math.clamp(pos.translation.Value, -fieldSize / 2.0f + new float3(0.0f, fieldSize.y/2.0f, 0.0f), fieldSize / 2.0f + new float3(0.0f, fieldSize.y/2.0f, 0.0f));
                 }
                 else
