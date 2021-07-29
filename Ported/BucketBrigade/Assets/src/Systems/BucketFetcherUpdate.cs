@@ -19,7 +19,7 @@ namespace src.Systems
             RequireSingletonForUpdate<FireSimConfigValues>();
             RequireSingletonForUpdate<TeamData>();
             // TODO: Use the Worker base class as query should be the same as EmptyBucket query.
-            m_NotFullBucketsOnFloorQuery = GetEntityQuery(ComponentType.ReadOnly<EcsBucket>(), ComponentType.Exclude<BucketIsHeld>(), ComponentType.Exclude<PickUpBucketRequest>(), ComponentType.Exclude<FillingUpBucketTag>(), ComponentType.Exclude<FullBucketTag>(), ComponentType.ReadOnly<Position>());
+            m_NotFullBucketsOnFloorQuery = GetEntityQuery(ComponentType.ReadOnly<EcsBucket>(), ComponentType.Exclude<BucketIsHeld>(), ComponentType.Exclude<PickUpBucketRequest>(), ComponentType.Exclude<FillingUpBucketTag>(), ComponentType.ReadOnly<Position>());
             m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
