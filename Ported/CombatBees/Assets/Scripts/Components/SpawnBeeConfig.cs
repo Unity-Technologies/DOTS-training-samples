@@ -8,5 +8,5 @@ public struct SpawnBeeConfig : IComponentData
     public Entity BeePrefab;
     public float3 SpawnLocation;
     public float3 SpawnAreaSize;
-    public int BeeCount;
+    public uint BeeCount;
 }
