@@ -328,7 +328,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 50
+  BeeCount: 500
 --- !u!1 &748618432
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,7 +368,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 50
+  BeeCount: 500
 --- !u!4 &748618434
 Transform:
   m_ObjectHideFlags: 0

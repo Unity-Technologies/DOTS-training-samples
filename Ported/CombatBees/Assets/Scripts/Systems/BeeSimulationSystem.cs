@@ -124,12 +124,19 @@ class BeeSimulationSystem: SystemBase
                 dir = math.normalize(dir + dirBobble);
 
                 var speed = normalSpeed;
+                // stretch the bees
+                scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
+
                 if (bee.State == BeeState.ChasingEnemy)
                 {
                     // If within a close proximity, rush onto the enemy
                     if (math.lengthsq(targetVec) < 0.6f)
+                    {
                         speed = attackSpeed;
-                } 
+                        // stretch the bees
+                        scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
+                    }
+                }
                 else if (bee.State == BeeState.ReturningToBase)
                 {
                     speed = carryingSpeed;
@@ -146,9 +153,6 @@ class BeeSimulationSystem: SystemBase
 
                 // rotate the bee into its direction
                 rotation.Value = math.mul(quaternion.LookRotation(dir, new float3(0f, 1f, 0f)), quaternion.RotateX(math.PI/2));
-
-                // stretch the bees
-                scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
 
                 // check collision with target
                 const float targetSize = 0.01f;/*todo: set target size */
