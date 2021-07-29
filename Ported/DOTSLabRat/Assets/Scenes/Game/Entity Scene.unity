@@ -162,7 +162,9 @@ MonoBehaviour:
   maxHoles: 5
   randomSeed: 0
   catSpawnerPrefab: {fileID: 1794805736887354684, guid: 0c723309ab9e10a43892ac38a3c9122e, type: 3}
+  maxCats: 40
   ratSpawnerPrefab: {fileID: 6069298199091270840, guid: 4ed55f75bb21fcc4991d17525aee8f32, type: 3}
+  maxRats: 5
 --- !u!4 &1163757079
 Transform:
   m_ObjectHideFlags: 0

@@ -105,7 +105,7 @@ public class SetupSystem : SystemBase
                             EntityManager.SetComponentData(tile,
                                 new URPMaterialPropertyBaseColor()
                                 {
-                                    Value = cellIndex % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
+                                    Value = (x + z % 2) % 2 == 0 ? new float4(1f, 1f, 1f, 1f) : new float4(0.9f, 0.9f, 0.9f, 1f)
                                 });
                         }
                         else
@@ -278,21 +278,22 @@ public class SetupSystem : SystemBase
 
     public void SetAnimalSpawners(BoardSpawner boardSpawner, int boardSize, ref Random random)
     {
-        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, ref Random random)
+        void CreateAnimalSpawn(Entity prefab, float2 position, Direction direction, int max, ref Random random)
         {
             Entity spawnPoint = EntityManager.Instantiate(prefab);
             EntityManager.AddComponent<InPlay>(spawnPoint);
             var animalSpawner = EntityManager.GetComponentData<AnimalSpawner>(spawnPoint);
             animalSpawner.random = Random.CreateFromIndex(random.NextUInt());
+            animalSpawner.maxAnimals = max;
             EntityManager.SetComponentData(spawnPoint, animalSpawner);
             EntityManager.SetComponentData(spawnPoint, new Translation {Value = new float3(position.x, -0.5f, position.y)});
             EntityManager.AddComponentData(spawnPoint, new DirectionData {Value = direction});
         }
 
-        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, ref random);
-        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, ref random);
-        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, ref random);
-        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(0f, 0f), Direction.North, boardSpawner.maxCats, ref random);
+        CreateAnimalSpawn(boardSpawner.catSpawnerPrefab, new float2(boardSize - 1, boardSize - 1), Direction.South, boardSpawner.maxCats, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(0f, boardSize - 1), Direction.East, boardSpawner.maxRats, ref random);
+        CreateAnimalSpawn(boardSpawner.ratSpawnerPrefab, new float2(boardSize - 1, 0f), Direction.West, boardSpawner.maxRats, ref random);
     }
 
     int2 GenerateNextHoleCoord(NativeArray<int2> holeCoords, int boardSize, ref Random random)

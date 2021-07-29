@@ -16,5 +16,7 @@ public struct BoardSpawner : IComponentData
     public uint randomSeed;
 
     public Entity catSpawnerPrefab;
+    public int maxCats;
     public Entity ratSpawnerPrefab;
+    public int maxRats;
 }
