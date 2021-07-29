@@ -16,4 +16,5 @@ public struct GameConfig : IComponentData
     public Entity ResourcePrefab;
     public float3 PlayingFieldSize;
     public Entity BloodPrefab;
+    public double BloodLifeTime;
 }

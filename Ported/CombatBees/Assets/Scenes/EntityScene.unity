@@ -166,6 +166,7 @@ MonoBehaviour:
     y: 1
     z: 1
   BloodPrefab: {fileID: 2617129336901550016, guid: 781a433153c525348a4cf9ce9d751a5c, type: 3}
+  BloodLifeTime: 5
 --- !u!4 &43967149
 Transform:
   m_ObjectHideFlags: 0

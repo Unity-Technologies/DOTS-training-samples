@@ -10,6 +10,7 @@ class SpawnerBloodSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var gameConfig = GetSingleton<GameConfig>();
         var spawnAreaSize = new float3(0.1f, 0.1f, 0.1f);
+        var spawnTime = Time.ElapsedTime;
 
         Entities
             .ForEach((Entity entity, in SpawnBloodConfig spawner) =>
@@ -25,7 +26,8 @@ class SpawnerBloodSystem : SystemBase
                     ecb.SetComponent(instance, translation);
                     ecb.AddComponent(instance, new Blood
                     {
-                        Speed = new float3(rng.NextFloat(), 0, rng.NextFloat())
+                        Speed = new float3(rng.NextFloat(0.5f), 0, rng.NextFloat(0.5f)),
+                        SpawnTime = spawnTime
                     });
                 }
             }).Run();

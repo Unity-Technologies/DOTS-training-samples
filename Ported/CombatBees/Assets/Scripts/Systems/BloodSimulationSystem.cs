@@ -19,10 +19,13 @@ class BloodSimulationSystem : SystemBase
         var gameConfig = GetSingleton<GameConfig>();
 
         float deltaTime = Time.DeltaTime;
+        var elapsedTime = Time.ElapsedTime;
         var gravity = gameConfig.Gravity;
+        var bloodLifeTime = gameConfig.BloodLifeTime;
+        const float bloodSize = 0.02f;
 
         Entities
-            .ForEach((Entity entity, ref Blood blood, ref Translation pos) =>
+            .ForEach((Entity entity, ref Blood blood, ref Translation pos, ref NonUniformScale scale) =>
             {
                 if (pos.Value.y > 0.0f)
                 {
@@ -33,8 +36,15 @@ class BloodSimulationSystem : SystemBase
                 }
                 else
                 {
-                    // hit the ground
+                    var normalizedBleedingTime = (elapsedTime - blood.SpawnTime) / bloodLifeTime;
+                    // shrink the blood splatters
+                    scale.Value = new float3(bloodSize) * (float) (1d - normalizedBleedingTime);
 
+                    // hit the ground
+                    if (normalizedBleedingTime > 1d)
+                    {
+                        parallelECB.DestroyEntity(0, entity);
+                    }
                 }
             }).ScheduleParallel();
         Dependency.Complete();
