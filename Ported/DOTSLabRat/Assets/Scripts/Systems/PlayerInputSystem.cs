@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
@@ -14,6 +15,7 @@ namespace DOTSRATS
             var camera = this.GetSingleton<GameObjectRefs>().camera;
             var gameStateEntity = GetSingletonEntity<GameState>();
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
+            var arrowPreviewEntity = GetSingletonEntity<ArrowPreview>();
 
             Entities
                 .WithAll<InPlay>()
@@ -23,25 +25,35 @@ namespace DOTSRATS
                     //Input only for main player
                     if (player.playerNumber == 0)
                     {
-                        if (UnityInput.GetMouseButtonDown(0))
+                        Ray ray = camera.ScreenPointToRay(UnityInput.mousePosition);
+                        float enter = 0.0f;
+
+                        if (boardPlane.Raycast(ray, out enter))
                         {
-                            Ray ray = camera.ScreenPointToRay(UnityInput.mousePosition);
-                            float enter = 0.0f;
+                            Vector3 hitPoint = ray.GetPoint(enter);
+                            var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
 
-                            if (boardPlane.Raycast(ray, out enter))
+                            if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize)
                             {
-                                Vector3 hitPoint = ray.GetPoint(enter);
-                                var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
+                                Direction direction;
+                                var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
+                                if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
+                                    direction = offset.y > 0 ? Direction.North : Direction.South;
+                                else
+                                    direction = offset.x > 0 ? Direction.East : Direction.West;
+                                
+                                EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(coord.x, 0.05f, coord.y) });
+                                EntityManager.SetComponentData(arrowPreviewEntity, new Rotation { Value = direction.ToArrowRotation() });
 
-                                if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize)
+                                if (UnityInput.GetMouseButtonDown(0))
                                 {
                                     player.arrowToPlace = coord;
-                                    var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
-                                    if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
-                                        player.arrowDirection = offset.y > 0 ? Direction.North : Direction.South;
-                                    else
-                                        player.arrowDirection = offset.x > 0 ? Direction.East : Direction.West;
+                                    player.arrowDirection = direction;
                                 }
+                            }
+                            else
+                            {
+                                EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(-100, 0, -100) });
                             }
                         }
                     }

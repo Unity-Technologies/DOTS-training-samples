@@ -6,6 +6,7 @@ public struct PlayerSpawner : IComponentData
 {
     public Entity playerPrefab;
     public Entity arrowPrefab;
+    public Entity arrowPreviewPrefab;
     public int maxArrows;
     public Vector2 AIArrowPlaceDelayRange;
     public UnityEngine.Color player1Color;
