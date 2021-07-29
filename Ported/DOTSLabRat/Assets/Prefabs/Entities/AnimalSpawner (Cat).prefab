@@ -49,9 +49,10 @@ MonoBehaviour:
   initialSpeed:
     x: 3
     y: 4
-  randomSeed: 0
+  random:
+    state: 0
   timeToNextSpawn: 0
-  spawnRate: 1
+  spawnRate: 7
 --- !u!114 &-6193899689120576212
 MonoBehaviour:
   m_ObjectHideFlags: 0

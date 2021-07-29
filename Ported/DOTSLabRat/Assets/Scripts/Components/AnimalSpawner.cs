@@ -13,7 +13,7 @@ namespace DOTSRATS
         public int2 initialSpeed;
         [HideInInspector] public Unity.Mathematics.Random random;
         [HideInInspector] public float timeToNextSpawn;
-        [UnityRange(0, 1)] public float spawnRate;
+        [UnityRange(0, 10)] public float spawnRate;
     }
 }
 

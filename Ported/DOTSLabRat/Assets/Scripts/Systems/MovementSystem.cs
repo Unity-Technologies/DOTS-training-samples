@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 static class NativeArrayExt
 {
@@ -35,6 +36,12 @@ public class Movement : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        const float k_maxAnimalSpeed = 5;
+        if (deltaTime > 0.5f / k_maxAnimalSpeed)
+        {
+            deltaTime = 0.5f / k_maxAnimalSpeed;
+            Debug.LogWarning($"Game running too slow: Time.DeltaTime capped to {deltaTime}");
+        }
 
         var gameStateEntity = GetSingletonEntity<GameState>();
         var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);

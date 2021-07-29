@@ -496,7 +496,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 8.45
+  orthographic size: 39
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -520,7 +520,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.48066187, y: 0.3268136, z: -0.19909665, w: 0.7889978}
-  m_LocalPosition: {x: 0, y: 16.5, z: 0}
+  m_LocalPosition: {x: 0, y: 82.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -596,7 +596,7 @@ Canvas:
   m_CorrespondingSourceObject: {fileID: 223472999673926152, guid: 7c3dbdb484a2f4cbc9ed5f2dd4f71066, type: 3}
   m_PrefabInstance: {fileID: 188086841}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1972578487
+--- !u!1 &1716354516
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -604,43 +604,43 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1972578489}
-  - component: {fileID: 1972578488}
+  - component: {fileID: 1716354518}
+  - component: {fileID: 1716354517}
   m_Layer: 0
-  m_Name: Entity Scene
+  m_Name: Stress Test Entity Scene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1972578488
+--- !u!114 &1716354517
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1972578487}
+  m_GameObject: {fileID: 1716354516}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SceneAsset: {fileID: 102900000, guid: 3e318ee1405b64c4285008c15ccd5d45, type: 3}
+  _SceneAsset: {fileID: 102900000, guid: 8c068d18b5ea04c6c8f511955d3973e0, type: 3}
   _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 518525923
-      y: 1279702276
-      z: 478152066
-      w: 1423301829
---- !u!4 &1972578489
+      x: 2178441416
+      y: 1816178267
+      z: 1494310796
+      w: 238523349
+--- !u!4 &1716354518
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1972578487}
+  m_GameObject: {fileID: 1716354516}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
