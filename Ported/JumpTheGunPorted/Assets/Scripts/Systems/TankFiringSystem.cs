@@ -5,8 +5,12 @@ using Unity.Transforms;
 
 public class TankFiringSystem : SystemBase
 {
+    private EndSimulationEntityCommandBufferSystem _ECBSys;
+
     protected override void OnCreate()
     {
+        _ECBSys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
         RequireSingletonForUpdate<GameObjectRefs>();
         RequireSingletonForUpdate<HeightBufferElement>();
         RequireSingletonForUpdate<Player>();
@@ -14,7 +18,8 @@ public class TankFiringSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = _ECBSys.CreateCommandBuffer();
+        var parallelWriter = ecb.AsParallelWriter();
 
         var time = Time.ElapsedTime;
 
@@ -36,7 +41,8 @@ public class TankFiringSystem : SystemBase
         var collisionStepMultiplier = config.CollisionStepMultiplier;
 
         Entities
-            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer, ref LookAtPlayer lookAt) =>
+            .WithReadOnly(heightMap)
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer, ref LookAtPlayer lookAt) =>
             {
                 // time to shoot yet?
                 if (time >= firingTimer.NextFiringTime)
@@ -72,12 +78,12 @@ public class TankFiringSystem : SystemBase
                     {
                         lookAt.Pitch = pitch;
 
-                        var cannonball = ecb.Instantiate(cannonballPrefab);
-                        ecb.SetComponent(cannonball, new Translation
+                        var cannonball = parallelWriter.Instantiate(entityInQueryIndex, cannonballPrefab);
+                        parallelWriter.SetComponent(entityInQueryIndex, cannonball, new Translation
                         {
                             Value = translation.Value
                         }); ;
-                        ecb.AddComponent(cannonball, new ParabolaTValue
+                        parallelWriter.AddComponent(entityInQueryIndex, cannonball, new ParabolaTValue
                         {
                             Value = 0 // start moving right away
                         });
@@ -95,7 +101,7 @@ public class TankFiringSystem : SystemBase
                         float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
 
                         // construct the parabola data struct for use in the movement system
-                        ecb.AddComponent(cannonball, new Parabola
+                        parallelWriter.AddComponent(entityInQueryIndex, cannonball, new Parabola
                         {
                             StartY = startY,
                             Height = height,
@@ -112,15 +118,13 @@ public class TankFiringSystem : SystemBase
                         UnityEngine.Debug.LogWarning("Cannonball height could not be determined, skipping launch");
                     }
                 }
-            }).Run(); // TODO: can this be a job/parallel? problem is the timer/reload gets weird if its a job
-        //Dependency.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            }).ScheduleParallel();
+        _ECBSys.AddJobHandleForProducer(Dependency);
     }
 
 
     //Binary searching to determine height of cannonball arc (avoiding boxes in between)
-    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap, out float pitch)
+    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, in DynamicBuffer<HeightBufferElement> heightMap, out float pitch)
     {
         float low = math.max(start.y, end.y);
         float high = low * 2;
@@ -173,7 +177,7 @@ public class TankFiringSystem : SystemBase
         return height;
     }
 
-    public static bool CheckBoxCollision(float3 start, float3 end, float paraA, float paraB, float paraC, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap)
+    public static bool CheckBoxCollision(float3 start, float3 end, float paraA, float paraB, float paraC, float collisionStepMultiplier, int terrainWidth, int terrainLength, in DynamicBuffer<HeightBufferElement> heightMap)
     {
 
         float3 diff = end - start;
@@ -208,7 +212,7 @@ public class TankFiringSystem : SystemBase
         );
     }
 
-    public static bool HitsAnyCube(float3 center, float width, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap)
+    public static bool HitsAnyCube(float3 center, float width, int terrainWidth, in int terrainLength, in DynamicBuffer<HeightBufferElement> heightMap)
     {
         // check nearby boxes
         int colMin = (int) math.floor((center.x - width / 2) / Box.SPACING);
