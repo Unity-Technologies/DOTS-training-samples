@@ -128,7 +128,7 @@ public class SpawnerSystem : SystemBase
 
                     ecb.SetComponent(barrel, new Translation
                     {
-                        Value = new float3(tankX, tankHeight + 0.7f, tankY)
+                        Value = new float3(tankX, tankHeight + TankBase.TURRET__Y_OFFSET, tankY)
                     });
                     ecb.SetComponent(barrel, new FiringTimer
                     {

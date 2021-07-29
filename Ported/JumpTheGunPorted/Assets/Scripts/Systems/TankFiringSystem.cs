@@ -45,7 +45,7 @@ public class TankFiringystem : SystemBase
                     );
                     int startBoxCol = (int)currentPos.x;
                     int startBoxRow = (int)currentPos.y;
-                    float startY = heightMap[startBoxRow * terrainLength + startBoxCol];
+                    float startY = heightMap[startBoxRow * terrainLength + startBoxCol] + TankBase.TURRET__Y_OFFSET;
 
                     // target box is player's current position
                     float2 playerBoxPos = new float2(
@@ -56,10 +56,11 @@ public class TankFiringystem : SystemBase
                     int endBoxRow = (int)playerBoxPos.y;
                     float endY = heightMap[endBoxRow * terrainLength + endBoxCol] + Cannonball.RADIUS;
 
-                    float3 start = new float3(startBoxCol, startY, startBoxRow) + Cannonball.RADIUS;
+                    float3 start = new float3(startBoxCol, startY, startBoxRow);
                     float3 end = new float3(endBoxCol, endY, endBoxRow);
-                    
-                    float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap);
+
+                    quaternion newRotation = rotation.Value;
+                    float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap, out newRotation);
                     
                     if (height > 0)
                     {
@@ -98,13 +99,8 @@ public class TankFiringystem : SystemBase
                             Forward = forward
                         });
 
-                        // TODO: set cannon pitch (maybe also yaw too at this point)
-                        //SetCannonRotation(math.Atan2(Parabola.Solve(paraA, paraB, paraC, .1f) - Parabola.Solve(paraA, paraB, paraC, 0), .1f) * math.Rad2Deg);
-                        /*ecb.SetComponent(entity, new Rotation
-                        {
-                            Pitch = 0,
-                            Yaw = 0
-                        });*/
+                        // set cannon pitch/yaw
+                        rotation.Value = newRotation;
                     }
                     else
                     {
@@ -119,7 +115,7 @@ public class TankFiringystem : SystemBase
 
 
     //Binary searching to determine height of cannonball arc (avoiding boxes in between)
-    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap)
+    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap, out quaternion newRotation)
     {
         float low = math.max(start.y, end.y);
         float high = low * 2;
@@ -140,6 +136,7 @@ public class TankFiringystem : SystemBase
             // failsafe
             if (high > 9999)
             {
+                newRotation = new quaternion();
                 return -1; // skip launch
             }
         }
@@ -160,6 +157,11 @@ public class TankFiringystem : SystemBase
                 high = mid;
             }
         }
+
+        // use the above A/B/C to determine pitch
+        var radians = math.atan2(JumpTheGun.Parabola.Solve(paraA, paraB, paraC, .1f) - JumpTheGun.Parabola.Solve(paraA, paraB, paraC, 0), .1f);
+        var degrees = math.degrees(radians);
+        newRotation = quaternion.Euler(-degrees, 0, 0);
 
         // launch with calculated height
         float height = (low + high) / 2;

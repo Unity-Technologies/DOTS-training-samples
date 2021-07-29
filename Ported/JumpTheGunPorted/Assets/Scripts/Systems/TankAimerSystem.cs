@@ -14,17 +14,16 @@ public class TankAimerSystem : SystemBase
             .WithAll<LookAtPlayer>()
             .ForEach((ref Rotation rotation, ref Translation translation) =>
             {
-                
-                
                 // Get an angle
                 // quaternion yRot = Quaternion.LookRotation(mousePos, Vector3.up);
                 var forward = playerTranslation.Value - translation.Value;
                 forward.y = 0f;
-                
+
                 quaternion lookAtQuat = quaternion.LookRotation(forward, new float3(0f,1f,0));
                 //rotation.Value = math.normalize(new quaternion(0f, lookAtQuat.value.y, 0f, lookAtQuat.value.w));
                 
-                rotation.Value = lookAtQuat;
+                rotation.Value = lookAtQuat; // TODO: merge existing pitch (set in firing with the yaw set here)
+
                 // SetComponent the rotation
                 // rotation.Value = new quaternion(0f, lookAtQuat.value.y, 0f, lookAtQuat.value.w);
 
