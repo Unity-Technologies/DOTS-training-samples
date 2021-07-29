@@ -116,7 +116,11 @@ class BeeSimulationSystem: SystemBase
                 {
                     speed = carryingSpeed;
                 }
-                pos.translation.Value += dir * speed * deltaTime;
+                float dist = speed * deltaTime;
+                if(dist*dist < math.lengthsq(targetVec))
+                    pos.translation.Value += dir * dist;
+                else
+                    pos.translation.Value = targetPos;
 
                 // check collision with target
                 const float targetSize = 0.01f;/*todo: set target size */

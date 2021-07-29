@@ -25,7 +25,7 @@ class ResourceSimulationSystem: SystemBase
                 else
                     if(pos.translation.Value.y>0.0f)
                     {
-                        pos.translation.Value.y += resource.Speed * deltaTime;
+                        pos.translation.Value.y = math.max(0.0f, pos.translation.Value.y + resource.Speed * deltaTime);
                         resource.Speed -= gravity * deltaTime;
                     }
                     else
