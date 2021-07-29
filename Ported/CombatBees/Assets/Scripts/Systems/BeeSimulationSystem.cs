@@ -19,7 +19,7 @@ class BeeSimulationSystem: SystemBase
         float deltaTime = Time.DeltaTime;
         float time = (float)Time.ElapsedTime;
         
-        const float beeSize = 0.01f;
+        const float beeSize = 0.02f;
         m_seed = m_seed + 1;
         var seed = m_seed;
 
@@ -117,24 +117,20 @@ class BeeSimulationSystem: SystemBase
                 var targetPos = bee.Target == Entity.Null ? basePos : GetComponent<Translation>(bee.Target).Value;
                 float3 targetVec = targetPos - pos.translation.Value;
                 float3 dir = math.normalize(targetVec);
-                const float bobbleSize = 0.4f;
-                float3 dirBobble = new float3(math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
-                                              math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
-                                              math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f)) * bobbleSize;
+                const float bobbleSize = 0.7f;
+                float3 dirBobble = new float3(math.sin(time * rng2.NextFloat() * 10.0f) + math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                              math.sin(time * rng2.NextFloat() * 10.0f) + math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                              math.sin(time * rng2.NextFloat() * 10.0f) + math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f)) * bobbleSize;
                 dir = math.normalize(dir + dirBobble);
 
                 var speed = normalSpeed;
-                // stretch the bees
-                scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
-
                 if (bee.State == BeeState.ChasingEnemy)
                 {
                     // If within a close proximity, rush onto the enemy
                     if (math.lengthsq(targetVec) < 0.6f)
                     {
                         speed = attackSpeed;
-                        // stretch the bees
-                        scale.Value.y = /*bee size hardcoded*/ 0.02f * speed;
+                        scale.Value.y = beeSize * speed;
                     }
                 }
                 else if (bee.State == BeeState.ReturningToBase)
@@ -151,11 +147,16 @@ class BeeSimulationSystem: SystemBase
                 else
                     pos.translation.Value = targetPos;
 
+                // stretch the bees
+                scale.Value.x = beeSize;
+                scale.Value.y = beeSize * (1.0f + speed) * 0.5f;
+                scale.Value.z = beeSize;
+
                 // rotate the bee into its direction
                 rotation.Value = math.mul(quaternion.LookRotationSafe(dir, new float3(0f, 1f, 0f)), quaternion.RotateX(math.PI/2));
 
                 // check collision with target
-                float targetSize = 0.01f + dist;/*todo: set target size */
+                float targetSize = beeSize / 2.0f + dist;/*todo: set target size */
                 float collR2 = beeSize + targetSize;
                 collR2 *= collR2;
                 if(math.lengthsq(targetVec) < collR2)

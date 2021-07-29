@@ -154,16 +154,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
   BeeSpawnCountOnResourceDrop: 6
-  TeamABeeAggressivity: 0.56
-  TeamBBeeAggressivity: 0.58
-  NormalSpeed: 1
-  CarryingSpeed: 0.5
-  AttackSpeed: 5
-  Gravity: 2
+  TeamABeeAggressivity: 0.6
+  TeamBBeeAggressivity: 0.6
+  NormalSpeed: 0.3
+  CarryingSpeed: 0.15
+  AttackSpeed: 1
+  Gravity: 1
   ResourcePrefab: {fileID: 4208794139011365288, guid: 3672875dcad95364baa455fe1f605f4d, type: 3}
   PlayingFieldSize:
-    x: 8
-    y: 0.6
+    x: 5
+    y: 1
     z: 1
 --- !u!4 &43967149
 Transform:
