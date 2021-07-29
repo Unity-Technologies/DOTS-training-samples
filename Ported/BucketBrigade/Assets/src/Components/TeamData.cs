@@ -10,9 +10,9 @@ namespace src.Components
     public struct TeamData : IBufferElementData
     {
         /// <summary>
-        ///     False if this TeamData has no valid target.
+        ///     False if this TeamData has no valid target. Note (0, 0) is a valid position for the fire, so we only check for water here
         /// </summary>
-        public bool IsValid => math.all(TargetFirePos != default) && math.all(TargetWaterPos != default);
+        public bool IsValid => math.any(TargetWaterPos);
 
         public float2 MiddlePos => math.lerp(TargetFirePos, TargetWaterPos, 0.5f);
 
