@@ -33,18 +33,19 @@ namespace src.Systems
             }
         }
 
-        public static void PickUpBucket(EntityCommandBuffer.ParallelWriter ecb, int queryIndex, Entity workerEntity, Entity bucketEntity)
+        public enum PickupRequestType
         {
-            ecb.AddComponent(queryIndex, bucketEntity, new BucketIsHeld
-            {
-                WorkerHoldingThis = workerEntity,
-            });
-            ecb.AddComponent(queryIndex, workerEntity, new WorkerIsHoldingBucket
-            {
-                Bucket = bucketEntity,
-            });
+            FillUp,
+            Carry
         }
-        
+        public static void AddPickUpBucketRequest(EntityCommandBuffer.ParallelWriter ecb, int queryIndex, Entity workerEntity, Entity bucketEntity, PickupRequestType type)
+        {
+            ecb.AddComponent(queryIndex, bucketEntity, new PickUpBucketRequest
+            {
+                WorkerRequestingToPickupBucket = workerEntity,
+                PickupRequestType = type,
+            });
+        }       
         
 
         public static void ThrowBucketAtFire(EntityCommandBuffer.ParallelWriter ecb, int queryIndex, Entity bucketEntity, float2 firePosition)
@@ -103,12 +104,7 @@ namespace src.Systems
 
         public static float3 To3D(float2 pos2D) => new float3(pos2D.x, 0, pos2D.y);
         public static float2 To2D(float3 pos3D) => pos3D.xz;
-
-        public static void StartFillingUpBucket(EntityCommandBuffer.ParallelWriter concurrentEcb, int entityInQueryIndex, Entity bucketEntity)
-        {
-            concurrentEcb.AddComponent<FillingUpBucketTag>(entityInQueryIndex, bucketEntity);
-        }
-
+        
         public static void StopFillingUpBucket(EntityCommandBuffer.ParallelWriter concurrentEcb, int entityInQueryIndex, Entity bucketEntity)
         {
             concurrentEcb.RemoveComponent<FillingUpBucketTag>(entityInQueryIndex, bucketEntity);

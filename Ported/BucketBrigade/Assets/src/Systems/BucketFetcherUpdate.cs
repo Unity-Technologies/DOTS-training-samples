@@ -18,7 +18,8 @@ namespace src.Systems
             base.OnCreate();
             RequireSingletonForUpdate<FireSimConfigValues>();
             RequireSingletonForUpdate<TeamData>();
-            m_NotFullBucketsOnFloorQuery = GetEntityQuery(ComponentType.ReadOnly<EcsBucket>(), ComponentType.Exclude<BucketIsHeld>(), ComponentType.Exclude<FillingUpBucketTag>(), ComponentType.Exclude<FullBucketTag>(), ComponentType.ReadOnly<Position>());
+            // TODO: Use the Worker base class as query should be the same as EmptyBucket query.
+            m_NotFullBucketsOnFloorQuery = GetEntityQuery(ComponentType.ReadOnly<EcsBucket>(), ComponentType.Exclude<BucketIsHeld>(), ComponentType.Exclude<PickUpBucketRequest>(), ComponentType.Exclude<FillingUpBucketTag>(), ComponentType.Exclude<FullBucketTag>(), ComponentType.ReadOnly<Position>());
             m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         }
 
@@ -53,11 +54,15 @@ namespace src.Systems
                     {
                         var teamData = teamDatas[teamId.Id];
                         var closestBucketPosition = Utils.GetClosestBucketOutsideTeamWaterSource(teamData.TargetWaterPos, bucketPositions, out _, out var closestBucketEntityIndex, distanceToPickupBucketSqr);
-                        
-                        if (Utils.MoveToPosition(ref pos, closestBucketPosition.Value, configValues.WorkerSpeed * timeData.DeltaTime))
+
+                        if (closestBucketEntityIndex >= 0)
                         {
-                            Utils.PickUpBucket(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex]);
+                            if (Utils.MoveToPosition(ref pos, closestBucketPosition.Value, configValues.WorkerSpeed * timeData.DeltaTime))
+                            {
+                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
+                            }
                         }
+                        // Else idle as no buckets left.
                     }).ScheduleParallel();
             }
 

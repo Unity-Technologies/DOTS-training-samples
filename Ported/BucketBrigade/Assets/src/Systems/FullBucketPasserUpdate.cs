@@ -55,7 +55,7 @@ namespace src.Systems
                         // Found a bucket, start carrying to team mate
                         if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                         {
-                            Utils.PickUpBucket(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex]);
+                            Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.FillUp);
                         }
 
                     }

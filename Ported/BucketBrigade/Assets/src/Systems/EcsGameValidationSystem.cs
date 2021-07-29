@@ -21,7 +21,9 @@ namespace src.Systems
                 ARequiresB<BucketIsHeld, EcsBucket>();
                 ARequiresB<ThrowBucketAtFire, EcsBucket>();
                 ARequiresB<FillingUpBucketTag, BucketIsHeld>();
+                ARequiresB<PickUpBucketRequest, EcsBucket>();
                 CannotBeAddedToSameEntity<FillingUpBucketTag, FullBucketTag>();
+                CannotBeAddedToSameEntity<PickUpBucketRequest, BucketIsHeld>();
 
                 // Worker rules:
                 ARequiresB<OmniWorkerTag, WorkerTag>();

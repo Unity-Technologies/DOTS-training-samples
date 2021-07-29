@@ -1,5 +1,6 @@
 ﻿using System;
 using src.Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -82,8 +83,8 @@ namespace src.Systems
                             if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                             {
                                 var bucketEntity = bucketEntities[closestBucketEntityIndex];
-                                Utils.PickUpBucket(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity);
-                                Utils.StartFillingUpBucket(concurrentEcb, entityInQueryIndex, bucketEntity);
+                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.Carry);
+                              
                             }
                         }
 
