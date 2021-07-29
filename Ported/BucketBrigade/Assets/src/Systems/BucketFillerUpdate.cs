@@ -83,8 +83,7 @@ namespace src.Systems
                             if (sqrDistanceToBucket < distanceToPickupBucketSqr)
                             {
                                 var bucketEntity = bucketEntities[closestBucketEntityIndex];
-                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.Carry);
-                              
+                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntity, Utils.PickupRequestType.FillUp);
                             }
                         }
 
