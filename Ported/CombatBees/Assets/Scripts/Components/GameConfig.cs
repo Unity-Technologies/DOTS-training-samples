@@ -15,4 +15,5 @@ public struct GameConfig : IComponentData
     public float Gravity;
     public Entity ResourcePrefab;
     public float3 PlayingFieldSize;
+    public Entity BloodPrefab;
 }

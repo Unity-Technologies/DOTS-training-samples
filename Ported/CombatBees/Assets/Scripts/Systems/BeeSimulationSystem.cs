@@ -226,8 +226,16 @@ class BeeSimulationSystem: SystemBase
                     bee.resource = Entity.Null;
                     bee.Target = Entity.Null;
                     bee.State = BeeState.Idle;
-                        
-                        // we need blood 
+
+                    // we need blood
+                    var bloodSpawner = EntityManager.CreateEntity();
+                    EntityManager.AddComponent(bloodSpawner, typeof(SpawnBloodConfig));
+                    EntityManager.SetComponentData(bloodSpawner,
+                        new SpawnBloodConfig()
+                        {
+                            SpawnLocation = GetComponent<Translation>(beeEntity).Value,
+                            SplattersCount = 5
+                        });
                 }
                 break;
             }

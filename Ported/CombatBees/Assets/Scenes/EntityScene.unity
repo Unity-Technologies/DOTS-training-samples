@@ -165,6 +165,7 @@ MonoBehaviour:
     x: 8
     y: 0.6
     z: 1
+  BloodPrefab: {fileID: 2617129336901550016, guid: 781a433153c525348a4cf9ce9d751a5c, type: 3}
 --- !u!4 &43967149
 Transform:
   m_ObjectHideFlags: 0
@@ -205,7 +206,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 254255282}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2f35ee00976e214f9b6e19fe09151be, type: 3}
+  m_Script: {fileID: 11500000, guid: 74540b4cbc1d4d349953e992805a895f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   PlayingFieldPrefab: {fileID: 2681854699686935789, guid: c2802e8a8789dd04d828703294b13150, type: 3}
