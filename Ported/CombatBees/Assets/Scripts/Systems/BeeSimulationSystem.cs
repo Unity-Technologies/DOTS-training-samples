@@ -17,6 +17,7 @@ class BeeSimulationSystem: SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
+        float time = (float)Time.ElapsedTime;
         
         const float beeSize = 0.01f;
         m_seed = m_seed + 1;
@@ -125,9 +126,17 @@ class BeeSimulationSystem: SystemBase
                 {
                     speed = carryingSpeed;
                 }
+                speed *= 1.0f + rng2.NextFloat() * 0.1f;
                 float dist = speed * deltaTime;
                 if(dist*dist < math.lengthsq(targetVec))
-                    pos.translation.Value += dir * dist;
+                {
+                    const float bobbleSize = 0.4f;
+                    float3 dirBobble = new float3(math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                                  math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f),
+                                                  math.sin(time * (rng2.NextFloat() + 0.5f) * 10.0f)) * bobbleSize;
+                    pos.translation.Value += (dir + dirBobble) * dist;
+                    pos.translation.Value = math.clamp(pos.translation.Value, -fieldSize / 2.0f + new float3(0.0f, fieldSize.y/2.0f, 0.0f), fieldSize / 2.0f + new float3(0.0f, fieldSize.y/2.0f, 0.0f));
+                }
                 else
                     pos.translation.Value = targetPos;
 
