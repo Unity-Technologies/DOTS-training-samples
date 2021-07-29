@@ -5,6 +5,11 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+public struct LastPosition : IComponentData
+{
+    public float3 Value;
+}
+
 [UpdateAfter(typeof(AntMovementSystem))]
 [UpdateAfter(typeof(AntExcitementSystem))]
 public class PheromoneMapSystem : SystemBase
@@ -55,24 +60,45 @@ public class PheromoneMapSystem : SystemBase
         var playerEntity = GetSingletonEntity<PlayerInput>();
         var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
 
-        float deltaTime = Time.DeltaTime * playerSpeed;
+        float deltaTime = Time.DeltaTime;
 
         var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
         var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
 
         Entities
             .WithAll<Ant>()
-            .ForEach((in Translation translation, in Excitement excitement) =>
+            .ForEach((ref LastPosition lastPos, in Translation translation, in Excitement excitement) =>
             {
-                if (TryGetClosestPheronomoneIndexFromTranslation(translation, mapSetting, out int index))
+                float length = math.length(translation.Value - lastPos.Value);
+                float3 dir = (translation.Value - lastPos.Value) / length;
+
+                int lastIndex = -1;
+                float step = length / playerSpeed;
+                for (float currSteps = 0; currSteps < length; currSteps += step)
                 {
-                    float newPheromone = (trailSetting.Speed * excitement.Value * deltaTime) * (1f - pheromoneMapBuffer[index].x);
-                    pheromoneMapBuffer[index] += new float4(math.min(newPheromone, 1f), 0, 0, 0);
+                    if (TryGetClosestPheronomoneIndexFromTranslation(dir * currSteps + lastPos.Value, mapSetting, out int index) && lastIndex != index)
+                    {
+                        float newPheromone = (trailSetting.Speed * excitement.Value * deltaTime) * (1f - pheromoneMapBuffer[index].x);
+                        pheromoneMapBuffer[index] += new float4(math.min(newPheromone, 1f), 0, 0, 0);
+
+                        lastPos.Value = translation.Value;
+                        lastIndex = index;
+                    }
                 }
+
+                //if (TryGetClosestPheronomoneIndexFromTranslation(translation.Value, mapSetting, out int index) && 
+                //    TryGetClosestPheronomoneIndexFromTranslation(lastPos.Value, mapSetting, out int lastIndex) &&
+                //    index != lastIndex)
+                //{
+                //    float newPheromone = (trailSetting.Speed * excitement.Value * deltaTime) * (1f - pheromoneMapBuffer[index].x);
+                //    pheromoneMapBuffer[index] += new float4(math.min(newPheromone, 1f), 0, 0, 0);
+                //}
+
+                //lastPos.Value = translation.Value;
 
             }).Schedule();
 
-        float trailDecay = 1f - trailSetting.Decay * deltaTime;
+        float trailDecay = math.pow(1f - trailSetting.Decay * deltaTime, playerSpeed);
         var mapSize2 = mapSetting.Size * mapSetting.Size;
 
         Entities
@@ -94,10 +120,10 @@ public class PheromoneMapSystem : SystemBase
         texture.Apply();
     }
 
-    public static bool TryGetClosestPheronomoneIndexFromTranslation(Translation translation, in MapSetting mapSetting, out int index)
+    public static bool TryGetClosestPheronomoneIndexFromTranslation(float3 position, in MapSetting mapSetting, out int index)
     {
-        int x = (int)math.round((translation.Value.x - mapSetting.Offset.x) / mapSetting.WorldSize * mapSetting.Size);
-        int y = (int)math.round((translation.Value.y - mapSetting.Offset.y) / mapSetting.WorldSize * mapSetting.Size);
+        int x = (int)math.round((position.x - mapSetting.Offset.x) / mapSetting.WorldSize * mapSetting.Size);
+        int y = (int)math.round((position.y - mapSetting.Offset.y) / mapSetting.WorldSize * mapSetting.Size);
 
         //I need to check because sometime the ant is going beyond the bounds
         if (x < 0 || y < 0 || x >= mapSetting.Size || y >= mapSetting.Size)

@@ -291,10 +291,12 @@ MonoBehaviour:
   normalExcitement: 0.3
   holdingResourceExcitement: 1
   antSpeed: 0.2
-  randomSteering: 0.14
+  randomSteering: 0.01
   goalSteerStrength: 0.03
   pheromoneSteeringDistance: 3
   pheromoneSteerStrength: 0.015
+  inwardStrength: 0.003
+  outwardStrength: 0.003
 --- !u!4 &717986573
 Transform:
   m_ObjectHideFlags: 0
@@ -340,8 +342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1c868fe3292fa444b5cbe3b083b244a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trailDecay: 0.015
-  trailSpeed: 0.5
+  trailDecay: 0.05
+  trailSpeed: 5
   mapSize: 128
   offset:
     x: 0

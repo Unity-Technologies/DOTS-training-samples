@@ -22,9 +22,15 @@ public class AntSpawnerSystem : SystemBase
                     {
                         var spawnedEntity = ecb.Instantiate(spawner.AntPrefab);
                         ecb.AddComponent<Ant>(spawnedEntity);
+
+                        float3 position = new float3(rand.NextFloat(-5f, 5f) + mapSize * .5f, rand.NextFloat(-5f, 5f) + mapSize * .5f, 0);
                         ecb.SetComponent(spawnedEntity, new Translation
                         {
-                            Value = new float3(rand.NextFloat(-5f,5f)+mapSize*.5f,rand.NextFloat(-5f,5f) + mapSize * .5f, 0)
+                            Value = position
+                        });
+                        ecb.AddComponent(spawnedEntity, new LastPosition
+                        {
+                            Value = position
                         });
                         ecb.AddComponent(spawnedEntity, new Speed()
                         {

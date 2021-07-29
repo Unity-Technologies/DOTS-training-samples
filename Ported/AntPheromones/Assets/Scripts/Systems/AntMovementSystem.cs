@@ -50,7 +50,7 @@ public class AntMovementSystem : SystemBase
                     position.Value.x += math.cos(angle) * pheronomeSteeringDistance;
                     position.Value.y += math.sin(angle) * pheronomeSteeringDistance;
 
-                    if (PheromoneMapSystem.TryGetClosestPheronomoneIndexFromTranslation(position, mapSetting, out int index))
+                    if (PheromoneMapSystem.TryGetClosestPheronomoneIndexFromTranslation(position.Value, mapSetting, out int index))
                     {
                         float value = pheromoneMapBuffer[index].x;
                         pheroSteering += value * i;
