@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -16,6 +17,8 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
     [UnityRange(0, .5f)] public float pheromoneSteerStrength = 0.015f;
     [UnityRange(0, 0.1f)] public float inwardStrength = 0.06f;
     [UnityRange(0, 0.1f)] public float outwardStrength = 0.06f;
+    public UnityEngine.Color SearchColor;
+    public UnityEngine.Color CarryColor;
 
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
@@ -30,7 +33,9 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
                 PheromoneSteeringDistance = pheromoneSteeringDistance,
                 PheromoneSteerStrength = pheromoneSteerStrength,
                 InwardStrength = inwardStrength,
-                OutwardStrength = outwardStrength
+                OutwardStrength = outwardStrength,
+                SearchColor = new Color() {Value = new float4(SearchColor.r, SearchColor.g, SearchColor.b, SearchColor.a)},
+                CarryColor = new Color() {Value = new float4(CarryColor.r, CarryColor.g, CarryColor.b, CarryColor.a)}
             });
     }
 }

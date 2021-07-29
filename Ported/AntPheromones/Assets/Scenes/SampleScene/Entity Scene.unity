@@ -297,6 +297,8 @@ MonoBehaviour:
   pheromoneSteerStrength: 0.2
   inwardStrength: 0.02
   outwardStrength: 0.02
+  SearchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 1}
+  CarryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 1}
 --- !u!4 &717986573
 Transform:
   m_ObjectHideFlags: 0

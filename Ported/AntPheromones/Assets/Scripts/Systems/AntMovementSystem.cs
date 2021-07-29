@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -13,13 +14,13 @@ public class AntMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Random rand = new Random((uint)UnityEngine.Random.Range(1, 1000000));
+        var seed = (uint) UnityEngine.Random.Range(1, 1000000);
         var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
         var generalSettingsEntity = GetSingletonEntity<GeneralSettings>();
         var antSpeed = GetComponent<GeneralSettings>(generalSettingsEntity).AntSpeed;
         var randomSteering = GetComponent<GeneralSettings>(generalSettingsEntity).RandomSteering;
         var goalSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).GoalSteerStrength;
-        var pheronomeSteeringDistance = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteeringDistance;
+        var pheromoneSteeringDistance = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteeringDistance;
         var pheromoneSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteerStrength;
         var inwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).InwardStrength;
         var outwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).OutwardStrength;
@@ -36,8 +37,9 @@ public class AntMovementSystem : SystemBase
         var time = Time.DeltaTime * playerSpeed;
 
         Entities
-            .ForEach((ref FacingAngle facingAngle) =>
+            .ForEach((int entityInQueryIndex, ref FacingAngle facingAngle) =>
             {
+                var rand = new Random(seed+(uint)entityInQueryIndex);
                 facingAngle.Value += rand.NextFloat(-randomSteering, randomSteering) * time;
             }).ScheduleParallel();
 
@@ -52,8 +54,8 @@ public class AntMovementSystem : SystemBase
                 {
                     float angle = facingAngle.Value + i * math.PI * .25f;
                     Translation position = translation;
-                    position.Value.x += math.cos(angle) * pheronomeSteeringDistance;
-                    position.Value.y += math.sin(angle) * pheronomeSteeringDistance;
+                    position.Value.x += math.cos(angle) * pheromoneSteeringDistance;
+                    position.Value.y += math.sin(angle) * pheromoneSteeringDistance;
         
                     if (PheromoneMapSystem.TryGetClosestPheronomoneIndexFromTranslation(position.Value, mapSetting, out int index))
                     {
@@ -77,6 +79,7 @@ public class AntMovementSystem : SystemBase
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.RemoveComponent<HoldingResource>(entityInQueryIndex, entity);
+                    parallelWriter.AddComponent<RemoveHoldingResourceColor>(entityInQueryIndex, entity);
                     facingAngle.Value += math.PI;
                 }
             }).ScheduleParallel();
@@ -90,6 +93,7 @@ public class AntMovementSystem : SystemBase
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.AddComponent<HoldingResource>(entityInQueryIndex, entity);
+                    parallelWriter.AddComponent<AddHoldingResourceColor>(entityInQueryIndex, entity);
                     facingAngle.Value += math.PI;
                 }
             }).ScheduleParallel();

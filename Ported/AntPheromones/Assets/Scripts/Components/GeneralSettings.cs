@@ -12,4 +12,6 @@ public struct GeneralSettings : IComponentData
     public float PheromoneSteerStrength;
     public float InwardStrength;
     public float OutwardStrength;
+    public Color SearchColor;
+    public Color CarryColor;
 }
