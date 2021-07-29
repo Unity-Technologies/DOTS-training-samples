@@ -9,40 +9,23 @@ using src.Components;
 
 namespace src.Systems
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public class ResetSystem: SystemBase
     {
-        protected override void OnCreate()
-        {
-            base.OnCreate();
-            RequireSingletonForUpdate<TeamData>();
-            RequireSingletonForUpdate<FireSimConfigValues>();
-            RequireSingletonForUpdate<Temperature>();
-        }
-
         protected override void OnUpdate()
         {
             if (UnityInput.GetKeyDown(UnityKeyCode.Space))
             {
-                var configValues = GetSingleton<FireSimConfigValues>();
+                var sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                UnityEngine.SceneManagement.SceneManager.CreateScene("__temp");
 
-                // Reset temperatures
-                var temperatureEntity = GetSingletonEntity<Temperature>();
-                var temperatureBuffer = EntityManager.GetBuffer<Temperature>(temperatureEntity);
-                var totalCells = configValues.Columns * configValues.Rows;
-                for (int i = 0; i < totalCells; ++i)
-                    temperatureBuffer[i] = default;
+                Dependency.Complete();
+                World.DisposeAllWorlds();
+                ScriptBehaviourUpdateOrder.RemoveWorldFromCurrentPlayerLoop(World.DefaultGameObjectInjectionWorld);
 
-                // Reset team data
-                var teamContainerEntity = GetSingletonEntity<TeamData>();
-                var teamDatas = EntityManager.GetBuffer<TeamData>(teamContainerEntity);
-                for (int i = 0; i < teamDatas.Length; ++i)
-                    teamDatas = default;
-
-                // TODO: reset water source levels
-                // TODO: reset workers' positions and tags
-                // TODO: unparent all buckets, set random position and reset tags
-            }
+                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
+                DefaultWorldInitialization.Initialize("Default World", false);
+            }              
         }
     }
 }
