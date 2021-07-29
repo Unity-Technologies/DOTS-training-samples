@@ -10,6 +10,8 @@ namespace DOTSRATS
     {
         protected override void OnUpdate()
         {
+            var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
+
             Entities
                 .WithStructuralChanges()
                 .WithAll<PlayerSpawner>()
@@ -30,7 +32,8 @@ namespace DOTSRATS
                             arrowDirection = Direction.None,
                             currentArrow = 0,
                             arrowToRemove = new int2(-1, -1),
-                            arrowPlacementDelayRange = playerSpawner.AIArrowPlaceDelayRange
+                            arrowPlacementDelayRange = playerSpawner.AIArrowPlaceDelayRange,
+                            random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : ++randomSeed)
                         });
 
                         for (int j = 0; j < playerSpawner.maxArrows; j++)

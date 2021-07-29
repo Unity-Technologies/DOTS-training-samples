@@ -1,8 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
@@ -21,7 +19,6 @@ namespace DOTSRATS
             var gameStateEntity = GetSingletonEntity<GameState>();
             var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
-            var random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
             var elapsedTime = Time.ElapsedTime;
             
             Entities
@@ -38,12 +35,12 @@ namespace DOTSRATS
                             CellStruct cell;
                             do
                             {
-                                player.arrowToPlace = new int2(random.NextInt(0, gameState.boardSize), random.NextInt(0, gameState.boardSize));
+                                player.arrowToPlace = new int2(player.random.NextInt(0, gameState.boardSize), player.random.NextInt(0, gameState.boardSize));
                                 cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
                                 cell = cellStructs[cellIndex]; 
                                 // Look for a coordinate that's not a hole, goal and does not have an arrow placed 
                             } while (cell.hole || cell.goal != default || cell.arrow != Direction.None);
-                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref random);
+                            player.arrowDirection = Utils.GetRandomCardinalDirection(ref player.random);
                             
                             if (player.nextArrowTime != 0)
                             {
@@ -51,13 +48,10 @@ namespace DOTSRATS
                                 cell = cellStructs[cellIndex];
                                 cell.arrow = player.arrowDirection;
                                 cellStructs[cellIndex] = cell;
-                                
-                                Debug.Log($"AI {player.playerNumber} placed arrow {(int)cell.arrow} at {player.arrowToPlace}");
                             }
                             
                             var arrowDelayRange = player.arrowPlacementDelayRange;
-                            player.nextArrowTime = elapsedTime + random.NextFloat(arrowDelayRange.x, arrowDelayRange.y);
-                            Debug.Log($"AI {player.playerNumber} will place next arrow after {player.nextArrowTime - elapsedTime}");
+                            player.nextArrowTime = elapsedTime + player.random.NextFloat(arrowDelayRange.x, arrowDelayRange.y);
                         }
                     }
 
