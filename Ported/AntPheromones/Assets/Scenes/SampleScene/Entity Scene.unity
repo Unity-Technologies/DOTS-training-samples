@@ -344,8 +344,8 @@ MonoBehaviour:
   trailSpeed: 0.5
   mapSize: 128
   offset:
-    x: 14
-    y: 14
+    x: 0
+    y: 0
   worldSize: 100
 --- !u!23 &1031639572
 MeshRenderer:
@@ -404,7 +404,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1031639570}
   m_LocalRotation: {x: 0, y: 0.70710677, z: -0.70710677, w: 0}
-  m_LocalPosition: {x: 64, y: 64, z: 10}
+  m_LocalPosition: {x: 50, y: 50, z: 10}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
