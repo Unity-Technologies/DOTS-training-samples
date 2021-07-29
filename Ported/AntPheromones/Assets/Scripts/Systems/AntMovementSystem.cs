@@ -40,7 +40,7 @@ public class AntMovementSystem : SystemBase
             //Need to add this so the job system stop complaining. We are simply reading and never setting.
             //I don't know if we can make a DynamicBuffer Readonly.
             .WithNativeDisableParallelForRestriction(pheromoneMapBuffer)
-            .ForEach((ref FacingAngle facingAngle, in Translation translation) => 
+            .ForEach((ref FacingAngle facingAngle, in Translation translation) =>
             {
                 float pheroSteering = 0;
                 for (int i = -1; i <= 1; i += 2)
@@ -58,7 +58,7 @@ public class AntMovementSystem : SystemBase
                 }
                 facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength * time;
 
-            }).ScheduleParallel(); 
+            }).ScheduleParallel();
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();
@@ -70,7 +70,7 @@ public class AntMovementSystem : SystemBase
             {
                 float3 targetPos = colonyPosition;
                 facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
-                
+
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.RemoveComponent<HoldingResource>(entityInQueryIndex, entity);
@@ -85,7 +85,7 @@ public class AntMovementSystem : SystemBase
             {
                 float3 targetPos = resourcePosition;
                 facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength);
-                              
+
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.AddComponent<HoldingResource>(entityInQueryIndex, entity);
@@ -95,7 +95,7 @@ public class AntMovementSystem : SystemBase
         Dependency.Complete();
         ecb.Playback(EntityManager);
         ecb.Dispose();
-        
+
         var playerEntity = GetSingletonEntity<PlayerInput>();
         var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
         Entities
@@ -119,18 +119,18 @@ public class AntMovementSystem : SystemBase
                     translation.Value.y += vy;
                 }
             }).ScheduleParallel();
-        
+
         Entities
             .WithAll<HoldingResource>()
-            .ForEach((ref FacingAngle facingAngle, ref Translation translation, in Speed speed) =>
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
             {
-                ResolveMovement(ref facingAngle, ref translation, speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength);
+                ResolveMovement(ref facingAngle, ref translation, ref rotation, speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength);
             }).ScheduleParallel();
         Entities
             .WithNone<HoldingResource>()
-            .ForEach((ref FacingAngle facingAngle, ref Translation translation, in Speed speed) =>
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
             {
-                ResolveMovement(ref facingAngle, ref translation, speed, mapSize, colonyPosition, false, outwardStrength, inwardStrength);
+                ResolveMovement(ref facingAngle, ref translation, ref rotation, speed, mapSize, colonyPosition, false, outwardStrength, inwardStrength);
             }).ScheduleParallel();
     }
 
@@ -140,11 +140,11 @@ public class AntMovementSystem : SystemBase
         //if (Linecast(ant.position,targetPos)==false)
         {
             float targetAngle = Mathf.Atan2(targetPos.y-antPos.y,targetPos.x-antPos.x);
-            if (targetAngle - facingAngle > Mathf.PI) 
+            if (targetAngle - facingAngle > Mathf.PI)
             {
                 facingAngle += Mathf.PI * 2f;
-            } 
-            else if (targetAngle - facingAngle < -Mathf.PI) 
+            }
+            else if (targetAngle - facingAngle < -Mathf.PI)
             {
                 facingAngle -= Mathf.PI * 2f;
             }
@@ -157,8 +157,9 @@ public class AntMovementSystem : SystemBase
         }
     }
 
-    private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength)
+    private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength)
     {
+	    rotation.Value = quaternion.AxisAngle(Vector3.forward,facingAngle.Value);
         float vx = math.cos(facingAngle.Value) * speed.Value;
         float vy = math.sin(facingAngle.Value) * speed.Value;
         float ovx = vx;
@@ -177,7 +178,7 @@ public class AntMovementSystem : SystemBase
 
         float dx, dy, dist;
         //TODO: Add collision resolution here
-                
+
         float inwardOrOutward = -outwardStrength;
         float pushRadius = mapSize * .4f;
         if (holdingResource) {
