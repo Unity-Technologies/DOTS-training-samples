@@ -153,16 +153,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RandomSeed: 1
-  SimulationSize: 10
+  SimulationSize: 400
   WaterPrefab: {fileID: 9070413578565237346, guid: cbec3ef8d30eb32468b0e257ec9f5987, type: 3}
   WaterPresenceProbability: 0.2
   WaterOffsetFromSimulation: 3
   WaterOffsetVariation: 0.5
-  WaterRefillRate: 0.02
+  WaterRefillRate: 0.05
   WaterMaxScale: 0.2
   MinBucketScale: 0.1
   MaxBucketScale: 0.4
-  BucketCount: 5
+  BucketCount: 100
   EmptyBucketColor:
     serializedVersion: 2
     rgba: 4289506559
@@ -175,12 +175,12 @@ MonoBehaviour:
   FlameBurnColor: {r: 0.9528302, g: 0.085395135, b: 0.085395135, a: 1}
   FlameColdColor: {r: 0.8962264, g: 0.7177736, b: 0.2325116, a: 1}
   HeatTrasferRadius: 1
-  HeatFallOff: 0.001
+  HeatFallOff: 0.0004
   FlashPoint: 0.2
-  startingFireCount: 2
+  startingFireCount: 30
   FlameScaleMax: 1
-  ChainsCount: 1
-  ChainSize: 5
+  ChainsCount: 40
+  ChainSize: 50
   ChainAssessPeriod: 1
   BotPrefab: {fileID: 4315772449202162740, guid: 15576fd30b083d84d8efac4920211452, type: 3}
   ScooperPrefab: {fileID: 4937086038751440311, guid: 48011fc8002e3ef42a06bca9e43d7a9a, type: 3}
@@ -191,9 +191,9 @@ MonoBehaviour:
   ThrowerBotColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
   PasserFullBotColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   PasserEmptyBotColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
-  BotSpeed: 0.075
+  BotSpeed: 0.12
   TargetProximityThreshold: 0.05
-  BucketFillRate: 0.05
+  BucketFillRate: 0.1
 --- !u!4 &271051949
 Transform:
   m_ObjectHideFlags: 0
