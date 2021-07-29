@@ -1,8 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
@@ -50,13 +48,10 @@ namespace DOTSRATS
                                 cell = cellStructs[cellIndex];
                                 cell.arrow = player.arrowDirection;
                                 cellStructs[cellIndex] = cell;
-                                
-                                Debug.Log($"AI {player.playerNumber} placed arrow {(int)cell.arrow} at {player.arrowToPlace}");
                             }
                             
                             var arrowDelayRange = player.arrowPlacementDelayRange;
                             player.nextArrowTime = elapsedTime + player.random.NextFloat(arrowDelayRange.x, arrowDelayRange.y);
-                            Debug.Log($"AI {player.playerNumber} will place next arrow after {player.nextArrowTime - elapsedTime}");
                         }
                     }
 
