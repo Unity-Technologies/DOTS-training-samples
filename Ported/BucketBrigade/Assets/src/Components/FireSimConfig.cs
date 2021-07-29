@@ -153,5 +153,11 @@ namespace src.Components
                 col--;
             return new int2(col, row);
         }
+
+
+        public bool IsOnFire(Temperature temperature)
+        {
+            return temperature.Intensity > Flashpoint;
+        }
     }
 }
