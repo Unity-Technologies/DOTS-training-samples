@@ -15,6 +15,10 @@ public struct GameConfigComponent : IComponentData
     public float WaterMaxScale;
     public float MinBucketScale;
     public float MaxBucketScale;
+    //Stretch goal: make bucket throwing effect configurable.
+    //public float BucketSplashRadius;
+    //public float BucketCoolingFalloff;
+    //public float BucketCoolingStrength;
     public int BucketCount;
     public Color32 EmptyBucketColor;
     public Color32 FullBucketColor;
@@ -33,6 +37,7 @@ public struct GameConfigComponent : IComponentData
     public float ChainAssessPeriod;
     public Entity BotPrefab;
     public Entity ScooperPrefab;
+    public Entity ThrowerPrefab;
     public Entity PasserFullPrefab;
     public Color ScooperBotColor;
     public Color ThrowerBotColor;

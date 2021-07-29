@@ -179,6 +179,7 @@ MonoBehaviour:
   ChainAssessPeriod: 1
   BotPrefab: {fileID: 4315772449202162740, guid: 15576fd30b083d84d8efac4920211452, type: 3}
   ScooperPrefab: {fileID: 4937086038751440311, guid: 48011fc8002e3ef42a06bca9e43d7a9a, type: 3}
+  ThrowerPrefab: {fileID: 4937086038751440311, guid: 595aec95a66714ce1b147a2302ec1599, type: 3}
   PasserFullPrefab: {fileID: 8756833687562630634, guid: 568d498088075e54487ae75d117c9e67, type: 3}
   ScooperBotColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   ThrowerBotColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}

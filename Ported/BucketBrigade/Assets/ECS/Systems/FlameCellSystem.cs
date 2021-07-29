@@ -29,7 +29,7 @@ public class FlameCellSystem : SystemBase
         float4 flameColor = new float4(_flameColor.r, _flameColor.g, _flameColor.b, 1f);
         Entity e =  GetSingletonEntity<HeatMapElement>();
         var buffer = GetBuffer<HeatMapElement>(e);
-        Entities.WithReadOnly(buffer).ForEach((ref NonUniformScale scale, ref URPMaterialPropertyBaseColor col, in HeatMapIndex index 
+        Entities.WithReadOnly(buffer).ForEach((ref NonUniformScale scale, ref URPMaterialPropertyBaseColor col, in HeatMapIndex index, in FlameCellTagComponent tag 
             ) =>
         {
             var t = buffer[index.index].temperature;

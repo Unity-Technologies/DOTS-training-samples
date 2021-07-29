@@ -66,6 +66,7 @@ public class AssessChainSystem : SystemBase
                 // Find closest fire cell
                 var bestFirePos = float3.zero;
                 var minFireDistance = float.MaxValue;
+                var bestFireIndex = -1;
                 for (int i = 0; i < heatMap.Length; ++i)
                 {
                     if (heatMap[i].temperature < flashPoint)
@@ -79,6 +80,7 @@ public class AssessChainSystem : SystemBase
                     {
                         minFireDistance = distance;
                         bestFirePos = firePos;
+                        bestFireIndex = i;
                     }
                 }
 
@@ -86,20 +88,27 @@ public class AssessChainSystem : SystemBase
                 SetComponent(scooper, new BotDropOffLocation() {Value = waterPos.xz});
 
                 SetComponent(thrower, new TargetLocationComponent() {location = bestFirePos.xz});
+                SetComponent(thrower, new HeatMapIndex() { index = bestFireIndex });
 
-                for (int i = 1; i < chainBuffer.Length; ++i)
+                for (int i = 0; i < chainBuffer.Length; ++i)
                 {
                     var passerFull = chainBuffer[i].passerFull;
-                    var pickUpPosFull = GetChainPosition(i - 1, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
-                    var dropOffPosFull = GetChainPosition(i, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
+                    var pickUpPosFull = GetChainPosition(i, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
+                    var dropOffPosFull = GetChainPosition(i + 1, chainBuffer.Length, waterPos.xz, bestFirePos.xz);
                     SetComponent(passerFull, new BotPickUpLocation() {Value = pickUpPosFull});
                     SetComponent(passerFull, new BotDropOffLocation() {Value = dropOffPosFull});
 
-                    var passerEmpty = chainBuffer[i].passerEmpty;
-                    var pickUpPosEmpty = GetChainPosition(i - 1, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
-                    var dropOffPosEmpty = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
-                    SetComponent(passerEmpty, new BotPickUpLocation() {Value = pickUpPosEmpty});
-                    SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
+                    if (i == chainBuffer.Length - 1)
+                    {
+                        SetComponent(thrower, new BotPickUpLocation() {Value = dropOffPosFull});
+                        SetComponent(thrower, new BotDropOffLocation() {Value = dropOffPosFull});
+                    }
+
+                    //var passerEmpty = chainBuffer[i].passerEmpty;
+                    //var pickUpPosEmpty = GetChainPosition(i, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    //var dropOffPosEmpty = GetChainPosition(i + 1, chainBuffer.Length, bestFirePos.xz, waterPos.xz);
+                    //SetComponent(passerEmpty, new BotPickUpLocation() {Value = pickUpPosEmpty});
+                    //SetComponent(passerEmpty, new BotDropOffLocation() {Value = dropOffPosEmpty});
                 }
             }).Schedule();
 

@@ -38,6 +38,7 @@ public class BotsChainSpawnSystem : SystemBase
         var passerEmptyColor = config.PasserEmptyBotColor;
         var botPrefab = config.BotPrefab;
         var scooperPrefab = config.ScooperPrefab;
+        var throwerPrefab = config.ThrowerPrefab;
         var passerFullPrefab = config.PasserFullPrefab;
 
         var rand = new Unity.Mathematics.Random();
@@ -46,7 +47,7 @@ public class BotsChainSpawnSystem : SystemBase
         for (var i = 0; i < chainsCount; ++i)
         {
             var scooper = CreateBot(ref ecb, ref rand, simSize, ref scooperPrefab, scooperColor);
-            var thrower = CreateBot(ref ecb, ref rand, simSize, ref botPrefab, throwerColor);
+            var thrower = CreateBot(ref ecb, ref rand, simSize, ref throwerPrefab, throwerColor);
 
             var chain = ecb.CreateEntity();
             var chainComp = new BotsChainComponent()

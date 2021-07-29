@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6014207795691503531}
   - component: {fileID: 6014207795691503530}
   - component: {fileID: -4761873999872253201}
+  - component: {fileID: 7651657948906444362}
   m_Layer: 0
   m_Name: FlameCell
   m_TagString: Untagged
@@ -113,3 +114,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   index: 0
+--- !u!114 &7651657948906444362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6014207795691503529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de0a7de0f9f3f4a159c9853f54b2d2b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
