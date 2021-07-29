@@ -16,6 +16,7 @@ namespace DOTSRATS
             var gameStateEntity = GetSingletonEntity<GameState>();
             var gameState = EntityManager.GetComponentData<GameState>(gameStateEntity);
             var arrowPreviewEntity = GetSingletonEntity<ArrowPreview>();
+            var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
 
             Entities
                 .WithAll<InPlay>()
@@ -32,8 +33,11 @@ namespace DOTSRATS
                         {
                             Vector3 hitPoint = ray.GetPoint(enter);
                             var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
+                            
+                            var cellIndex = coord.y * gameState.boardSize + coord.x;
 
-                            if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize)
+                            if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize &&
+                                cellStructs[cellIndex].arrow == Direction.None && !cellStructs[cellIndex].hole && cellStructs[cellIndex].goal == default)
                             {
                                 Direction direction;
                                 var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);

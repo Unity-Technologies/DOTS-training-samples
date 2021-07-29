@@ -54,16 +54,11 @@ namespace DOTSRATS
                         {
                             var cellIndex = player.arrowToPlace.y * gameState.boardSize + player.arrowToPlace.x;
                             
-                            for (int i = 0; i < placedArrows.Length; i++)
+                            if (cellStructs[cellIndex].arrow != Direction.None || 
+                                cellStructs[cellIndex].hole || 
+                                cellStructs[cellIndex].goal != default)
                             {
-                                var arrowTranslation = EntityManager.GetComponentData<Translation>(placedArrows[i].entity);
-                                if (((int)arrowTranslation.Value.x == player.arrowToPlace.x &&
-                                    (int)arrowTranslation.Value.z == player.arrowToPlace.y) ||
-                                    cellStructs[cellIndex].arrow != Direction.None)
-                                {
-                                    player.arrowToPlace = new int2(-1, -1);
-                                    break;
-                                }
+                                player.arrowToPlace = new int2(-1, -1);
                             }
                         }
 
