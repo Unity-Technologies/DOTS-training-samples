@@ -7,4 +7,5 @@ using Unity.Entities;
 [GenerateAuthoringComponent]
 public struct LookAtPlayer : IComponentData
 {
+    public float Pitch; // in radians
 }

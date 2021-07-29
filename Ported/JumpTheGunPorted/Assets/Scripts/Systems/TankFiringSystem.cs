@@ -30,7 +30,7 @@ public class TankFiringystem : SystemBase
         var collisionStepMultiplier = config.CollisionStepMultiplier;
 
         Entities
-            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer) =>
+            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer, ref LookAtPlayer lookAt) =>
             {
                 // time to shoot yet?
                 if (time >= firingTimer.NextFiringTime)
@@ -59,11 +59,13 @@ public class TankFiringystem : SystemBase
                     float3 start = new float3(startBoxCol, startY, startBoxRow);
                     float3 end = new float3(endBoxCol, endY, endBoxRow);
 
-                    quaternion newRotation = rotation.Value;
-                    float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap, out newRotation);
+                    float pitch = 0;
+                    float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap, out pitch);
                     
                     if (height > 0)
                     {
+                        lookAt.Pitch = pitch;
+
                         var cannonball = ecb.Instantiate(cannonballPrefab);
                         ecb.SetComponent(cannonball, new Translation
                         {
@@ -98,9 +100,6 @@ public class TankFiringystem : SystemBase
                             Duration = duration,
                             Forward = forward
                         });
-
-                        // set cannon pitch/yaw
-                        rotation.Value = newRotation;
                     }
                     else
                     {
@@ -115,7 +114,7 @@ public class TankFiringystem : SystemBase
 
 
     //Binary searching to determine height of cannonball arc (avoiding boxes in between)
-    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap, out quaternion newRotation)
+    private static float CalculateHeight(float3 start, float3 end, float playerParabolaPrecision, float collisionStepMultiplier, int terrainWidth, int terrainLength, DynamicBuffer<HeightBufferElement> heightMap, out float pitch)
     {
         float low = math.max(start.y, end.y);
         float high = low * 2;
@@ -136,7 +135,7 @@ public class TankFiringystem : SystemBase
             // failsafe
             if (high > 9999)
             {
-                newRotation = new quaternion();
+                pitch = 0;
                 return -1; // skip launch
             }
         }
@@ -159,9 +158,9 @@ public class TankFiringystem : SystemBase
         }
 
         // use the above A/B/C to determine pitch
-        var radians = math.atan2(JumpTheGun.Parabola.Solve(paraA, paraB, paraC, .1f) - JumpTheGun.Parabola.Solve(paraA, paraB, paraC, 0), .1f);
-        var degrees = math.degrees(radians);
-        newRotation = quaternion.Euler(-degrees, 0, 0);
+        pitch = math.atan2(JumpTheGun.Parabola.Solve(paraA, paraB, paraC, .1f) - JumpTheGun.Parabola.Solve(paraA, paraB, paraC, 0), .1f);
+        //degrees = math.degrees(radians);
+        //newRotation = quaternion.Euler(-degrees, 0, 0);
 
         // launch with calculated height
         float height = (low + high) / 2;
