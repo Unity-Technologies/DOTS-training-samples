@@ -11,6 +11,12 @@ namespace src.Systems
     [AlwaysUpdateSystem]
     public class DebugSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            Enabled = Application.isEditor && Debug.isDebugBuild;
+        }
+
         protected override void OnUpdate()
         {
             Entities
