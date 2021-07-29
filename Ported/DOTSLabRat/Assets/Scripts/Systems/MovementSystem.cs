@@ -67,8 +67,8 @@ public class Movement : SystemBase
                     {
                         velocity.Direction = Direction.Down;
                         newTranslation = new float3(tileCenter.x, translation.Value.y - math.length(newTranslation.xz - tileCenter.xz), tileCenter.z);
-                        // TODO: Give this a pretty animation...
-                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                        ecb.SetComponent(entityInQueryIndex, entity, new Scaling { targetScale = 0.1f });
+                        ecb.AddComponent(entityInQueryIndex, entity, new Death { deathTimer = 5f });
                     }
                     else if (cell.goal != default)
                     {
