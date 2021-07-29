@@ -41,7 +41,7 @@ namespace src.Systems
             var columns = configValues.Columns;
             var planeHeight = 0f; // this must move up ro down depending on the height of the green ground above 0
 
-#if UNITY_EDITOR           
+#if UNITY_EDITOR && false      
             var offset = 0f;
             for (int i = 0; i <= rows; ++i)
             {
