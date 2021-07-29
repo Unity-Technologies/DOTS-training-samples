@@ -13,7 +13,7 @@ namespace DOTSRATS
         protected override void OnCreate()
         {
             CommandBufferSystem
-                = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+                = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
@@ -48,9 +48,6 @@ namespace DOTSRATS
                 }).Schedule();
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-            //ecb.Playback(EntityManager);
-            //ecb.Dispose();
         }
 
         static bool SpawnBigOrSmall(ref Random random)
