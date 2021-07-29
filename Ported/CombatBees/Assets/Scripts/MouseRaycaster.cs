@@ -14,7 +14,7 @@ public class MouseRaycaster : MonoBehaviour {
     public static bool isMouseTouchingField;
     public static Vector3 worldMousePosition;
 
-    new Camera camera;
+    Camera cam;
     Transform marker;
 
     void Start () {
@@ -22,11 +22,13 @@ public class MouseRaycaster : MonoBehaviour {
         marker.gameObject.name = "Mouse Raycast Marker";
         marker.GetComponent<Renderer>().sharedMaterial = markerMaterial;
         marker.GetComponent<Transform>().localScale = new Vector3(0.05f, 0.05f, 0.05f);
-        camera = Camera.main;
+        cam = Camera.main;
+        
+        
     }
 	
     void LateUpdate () {
-        Ray mouseRay = camera.ScreenPointToRay(Input.mousePosition);
+        Ray mouseRay = cam.ScreenPointToRay(Input.mousePosition);
 
         isMouseTouchingField = false;
         for (int i=0;i<3;i++) {
