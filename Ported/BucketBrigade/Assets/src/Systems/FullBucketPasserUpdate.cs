@@ -61,7 +61,7 @@ namespace src.Systems
                         teamData.TargetWaterPos,
                         targetPosition,
                         targetBucketPosition,
-                        timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket,
+                        timeData.DeltaTime * configValues.WorkerSpeed,
                         bucketPositions,
                         reachSqrd, 
                         false);
@@ -89,7 +89,7 @@ namespace src.Systems
                     // Since we're passing a bucket to team mate, specify target position with next index.
                     var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam);
 
-                    if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeed))
+                    if (Utils.MoveToPosition(ref pos, targetPosition, timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket))
                         Utils.DropBucket(concurrentEcb, entityInQueryIndex, workerEntity, workerIsHoldingBucket.Bucket, targetPosition);
                     else
                         concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position { Value = pos.Value });
