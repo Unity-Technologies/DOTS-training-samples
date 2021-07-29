@@ -12,6 +12,7 @@ namespace DOTSRATS
         protected override void OnUpdate()
         {
             var randomSeed = GetSingleton<BoardSpawner>().randomSeed;
+            var goRefs = this.GetSingleton<GameObjectRefs>();
 
             Entities
                 .WithStructuralChanges()
@@ -53,6 +54,10 @@ namespace DOTSRATS
                         }
 
                         EntityManager.AddBuffer<PlacedArrow>(player).AddRange(arrows);
+
+                        if (i > 0)
+                            goRefs.playerCursors[i].color = color;
+                        goRefs.playerScore[i].color = color;
                     }
                     
                     var arrowPreview = EntityManager.Instantiate(playerSpawner.arrowPreviewPrefab);
