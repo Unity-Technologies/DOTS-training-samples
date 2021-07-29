@@ -17,14 +17,10 @@ namespace src.Systems
             if (UnityInput.GetKeyDown(UnityKeyCode.Space))
             {
                 var sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                UnityEngine.SceneManagement.SceneManager.CreateScene("__temp");
-
-                Dependency.Complete();
+            
                 World.DisposeAllWorlds();
-                ScriptBehaviourUpdateOrder.RemoveWorldFromCurrentPlayerLoop(World.DefaultGameObjectInjectionWorld);
-
-                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);
                 DefaultWorldInitialization.Initialize("Default World", false);
+                UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Single);                
             }              
         }
     }
