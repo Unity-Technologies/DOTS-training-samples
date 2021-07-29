@@ -5,15 +5,19 @@ using Unity.Transforms;
 
 public class BounceSystem : SystemBase
 {
+    private EndSimulationEntityCommandBufferSystem _ECBSys;
+    
     protected override void OnCreate()
     {
+        _ECBSys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        
         RequireSingletonForUpdate<GameObjectRefs>();
         RequireSingletonForUpdate<HeightBufferElement>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = _ECBSys.CreateCommandBuffer();
 
         var boxMapEntity = GetSingletonEntity<HeightBufferElement>(); // ASSUMES the singleton that has height buffer also has occupied
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(boxMapEntity);
@@ -121,8 +125,7 @@ public class BounceSystem : SystemBase
                     tValue.Value = 0;
                 }
             }).Schedule();
-        Dependency.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        
+        _ECBSys.AddJobHandleForProducer(Dependency);
     }
 }
