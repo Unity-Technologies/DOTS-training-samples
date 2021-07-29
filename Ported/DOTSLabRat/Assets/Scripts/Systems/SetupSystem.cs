@@ -74,12 +74,16 @@ public class SetupSystem : SystemBase
 
                 var wallGenParams = new NativeHashMap<int2, int>(innerWallsToSpawn, Allocator.Temp);
                 var paramsGenerated = 0;
+                var attempts = 0;
                 
                 while (paramsGenerated < innerWallsToSpawn)
                 {
-                    var spawnParam = GenerateNextWallSpawnParam(wallGenParams, size, ref random, innerWallsToSpawn - paramsGenerated);
+                    if (!GenerateNextWallSpawnParam(wallGenParams, size, ref random, out var spawnParam))
+                        break;
                     paramsGenerated += spawnParam.z;
                     wallGenParams.Add(new int2(spawnParam.x, spawnParam.y), spawnParam.z);
+                    if (++attempts > innerWallsToSpawn * 2)
+                        break;
                 }
 
                 for (int z = 0; z < size; ++z)
@@ -304,22 +308,34 @@ public class SetupSystem : SystemBase
         return nextCoord;
     }
     
-    int3 GenerateNextWallSpawnParam(NativeHashMap<int2, int> spawnParams, int boardSize, ref Random random, int maxSpawnCount)
+    bool GenerateNextWallSpawnParam(NativeHashMap<int2, int> spawnParams, int boardSize, ref Random random, out int3 spawnParam)
     {
         int2 spawnCoord = int2.zero;
+        spawnParam = default;
         
-        // We want to spawn max up to 3 walls per cell, but not more than the number of pending walls to spawn
-        maxSpawnCount = math.min(3, maxSpawnCount);
-        var spawnCount = random.NextInt(1, maxSpawnCount + 1);
+        // We want to spawn max up to 2 walls per cell, but not more than the number of pending walls to spawn
+        int2 northCoord, southCoord, eastCoord, westCoord;
+        int attemps = 0;
 
         do
         {
             spawnCoord = new int2(random.NextInt(0, boardSize), random.NextInt(0, boardSize));
-        } while (ShouldPlaceGoalTile(spawnCoord, boardSize) ||
-                 IsCoordCorner(spawnCoord, boardSize) ||
-                 spawnParams.ContainsKey(spawnCoord));
+            GetOppositeCoord(spawnCoord, Direction.North, boardSize, out northCoord);
+            GetOppositeCoord(spawnCoord, Direction.South, boardSize, out southCoord);
+            GetOppositeCoord(spawnCoord, Direction.East, boardSize, out eastCoord);
+            GetOppositeCoord(spawnCoord, Direction.West, boardSize, out westCoord);
+            if (++attemps > 10)
+                return false;
+        } while (DoesCoordConnectToGoal(spawnCoord, boardSize) ||
+                 DoesCoordConnectToCorner(spawnCoord, boardSize) ||
+                 spawnParams.ContainsKey(spawnCoord) ||
+                 spawnParams.ContainsKey(northCoord) || 
+                 spawnParams.ContainsKey(southCoord) || 
+                 spawnParams.ContainsKey(eastCoord) || 
+                 spawnParams.ContainsKey(westCoord));
 
-        return new int3(spawnCoord.x, spawnCoord.y, spawnCount);
+        spawnParam = new int3(spawnCoord.x, spawnCoord.y, 1);
+        return true;
     }
 
     bool CoordExistsInArray(int2 coord, NativeArray<int2> coordArray)
@@ -358,7 +374,47 @@ public class SetupSystem : SystemBase
 
         return false;
     }
+
+    bool DoesCoordConnectToCorner(int2 coord, int boardSize)
+    {
+        if (IsCoordCorner(coord, boardSize))
+            return true;
+
+        for (int i = 0; i < 2; i++)
+        {
+            int sign = i == 0 ? 1 : -1;
+
+            if (IsCoordCorner(coord + new int2(sign, sign), boardSize))
+                return true;
+            if (IsCoordCorner(coord + new int2(sign, 0), boardSize))
+                return true;
+            if (IsCoordCorner(coord + new int2(0, sign), boardSize))
+                return true;
+        }
+
+        return false;
+    }
     
+    bool DoesCoordConnectToGoal(int2 coord, int boardSize)
+    {
+        if (ShouldPlaceGoalTile(coord, boardSize))
+            return true;
+
+        for (int i = 0; i < 2; i++)
+        {
+            int sign = i == 0 ? 1 : -1;
+
+            if (ShouldPlaceGoalTile(coord + new int2(sign, sign), boardSize))
+                return true;
+            if (ShouldPlaceGoalTile(coord + new int2(sign, 0), boardSize))
+                return true;
+            if (ShouldPlaceGoalTile(coord + new int2(0, sign), boardSize))
+                return true;
+        }
+
+        return false;
+    }
+
     bool IsCoordEdge(int2 coord, int boardSize)
     {
         if ((coord.x == 0 || coord.y == 0) ||
