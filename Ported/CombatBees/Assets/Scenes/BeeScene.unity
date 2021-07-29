@@ -281,6 +281,7 @@ GameObject:
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
   - component: {fileID: 963194230}
+  - component: {fileID: 963194231}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -398,3 +399,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   markerMaterial: {fileID: 2100000, guid: 8d28beb39d9a90444bf74af2578b4ce9, type: 2}
+--- !u!114 &963194231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be1cbae38ed5d641ad94c8872f8581b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sensitivity: 5000
+  zoomSensitivity: 0.2
+  stiffness: 12
