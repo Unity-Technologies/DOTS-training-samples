@@ -153,8 +153,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
-  BeeSpawnCount: 6
+  BeeSpawnCountOnResourceDrop: 6
+  TeamABeeAggressivity: 1
+  TeamBBeeAggressivity: 0.95
+  NormalSpeed: 1
+  CarryingSpeed: 0.5
+  AttackSpeed: 1.5
+  Gravity: 2
   ResourcePrefab: {fileID: 4208794139011365288, guid: 3672875dcad95364baa455fe1f605f4d, type: 3}
+  PlayingFieldSize:
+    x: 7.14
+    y: 1
+    z: 1
 --- !u!4 &43967149
 Transform:
   m_ObjectHideFlags: 0
@@ -250,7 +260,7 @@ MonoBehaviour:
     x: 1.8
     y: 0.75
     z: 0.75
-  ResourceCount: 50000
+  ResourceCount: 500
 --- !u!4 &348313916
 Transform:
   m_ObjectHideFlags: 0
@@ -318,7 +328,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 50000
+  BeeCount: 5000
 --- !u!1 &748618432
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,7 +368,7 @@ MonoBehaviour:
     x: 0.25
     y: 0.25
     z: 0.25
-  BeeCount: 50000
+  BeeCount: 5000
 --- !u!4 &748618434
 Transform:
   m_ObjectHideFlags: 0

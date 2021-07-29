@@ -9,17 +9,14 @@ class BeeSimulationSystem: SystemBase
     uint m_seed;
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<GameConfig>();
+        RequireSingletonForUpdate<ShaderOverrideCenterSize>();
         m_seed = 1234;
     }
 
     protected override void OnUpdate()
     {
         float deltaTime = Time.DeltaTime;
-        const float aggressivity = 0.5f;
-        
-        const float attackSpeed = 1.5f;
-        const float normalSpeed = 1.0f;
-        const float carryingSpeed = 0.5f;
         
         const float beeSize = 0.01f;
         m_seed = m_seed + 1;
@@ -35,7 +32,18 @@ class BeeSimulationSystem: SystemBase
         var capacity = teamABees.Length + teamBBees.Length;
         NativeList<Entity> list = new NativeList<Entity>(capacity, Allocator.TempJob);
         var parallelList = list.AsParallelWriter();
+
+        var gameConfig = GetSingleton<GameConfig>();
+        var teamABeeAggressivity = gameConfig.TeamABeeAggressivity;
+        var teamBBeeAggressivity = gameConfig.TeamBBeeAggressivity;
+        var attackSpeed = gameConfig.AttackSpeed;
+        var normalSpeed = gameConfig.NormalSpeed;
+        var carryingSpeed = gameConfig.CarryingSpeed;
         
+        var fieldConfig = GetSingleton<ShaderOverrideCenterSize>();
+        var fieldSize = gameConfig.PlayingFieldSize;
+        var baseWidth = (1 - fieldConfig.Value) * fieldSize.x / 2;
+
         Entities
             .WithReadOnly(teamABees)
             .WithReadOnly(teamBBees)
@@ -49,41 +57,41 @@ class BeeSimulationSystem: SystemBase
                 // set target if not set
                 if(bee.Target == Entity.Null && bee.State != BeeState.ReturningToBase)
                 {
-                    bool fetchResource = resources.Length > 0 && rng.NextFloat() > aggressivity;
-                    if(!fetchResource)
+                    bool fetchResource;
+                    if (HasComponent<TeamA>(entity))
                     {
-                        if(HasComponent<TeamA>(entity))
+                        fetchResource = (resources.Length > 0 && rng.NextFloat() > teamABeeAggressivity)
+                                        || teamBBees.Length == 0;
+
+                        if (!fetchResource)
                         {
-                            if(teamBBees.Length>0)
-                            {
-                                int beeIdx = rng.NextInt(teamBBees.Length);
-                                bee.Target = teamBBees[beeIdx];
-                                bee.State = BeeState.ChasingEnemy;
-                            }
-                            else
-                                fetchResource = true;
-                        }
-                        else
-                        {
-                            if(teamABees.Length>0)
-                            {
-                                int beeIdx = rng.NextInt(teamABees.Length);
-                                bee.Target = teamABees[beeIdx];
-                                bee.State = BeeState.ChasingEnemy;
-                            }
-                            else
-                                fetchResource = true;
+                            int beeIdx = rng.NextInt(teamBBees.Length);
+                            bee.Target = teamBBees[beeIdx];
+                            bee.State = BeeState.ChasingEnemy;
                         }
                     }
-                    if(fetchResource && resources.Length > 0)
+                    else
+                    {
+                        fetchResource = (resources.Length > 0 && rng.NextFloat() > teamBBeeAggressivity)
+                                        || teamABees.Length == 0;
+
+                        if (!fetchResource)
+                        {
+                            int beeIdx = rng.NextInt(teamABees.Length);
+                            bee.Target = teamABees[beeIdx];
+                            bee.State = BeeState.ChasingEnemy;
+                        }
+                    }
+
+                    if (fetchResource)
                     {
                         int resourceIdx = rng.NextInt(resources.Length);
                         var resourceId = resources[resourceIdx];
                         var resource = GetComponent<Resource>(resourceId);
                         if (resource.CarryingBee == Entity.Null)
                         {
-                            var translation = GetComponent<Translation>(resourceId);
-                            if (math.abs(translation.Value.x) < 2)
+                            var resourcePos = GetComponent<Translation>(resourceId);
+                            if (math.abs(resourcePos.Value.x) < fieldSize.x / 2 - baseWidth)
                             {
                                 bee.Target = resourceId;
                                 bee.State = BeeState.GettingResource;
@@ -100,8 +108,10 @@ class BeeSimulationSystem: SystemBase
                     return;
                 }
                 Random rng2 = Random.CreateFromIndex((uint)entity.Index);
-                float3 basePos = HasComponent<TeamA>(entity) ? new float3(-2.25f, 0.5f, 0.0f) : new float3(2.25f, 0.5f, 0.0f);
-                const float delta = 0.25f;
+                float3 basePos = HasComponent<TeamA>(entity) ? 
+                    new float3(- (fieldSize.x / 2f - baseWidth / 2f), fieldSize.y / 2f, 0.0f) : 
+                    new float3((fieldSize.x / 2f - baseWidth / 2f), fieldSize.y / 2f, 0.0f);
+                float3 delta = new float3(baseWidth / 2f, fieldSize.y / 2f, fieldSize.z / 2f) * 0.8f;
                 basePos += rng2.NextFloat3(-delta, delta); 
                 var targetPos = bee.Target == Entity.Null ? basePos : GetComponent<Translation>(bee.Target).Value;
                 float3 targetVec = targetPos - pos.translation.Value;
@@ -115,7 +125,11 @@ class BeeSimulationSystem: SystemBase
                 {
                     speed = carryingSpeed;
                 }
-                pos.translation.Value += dir * speed * deltaTime;
+                float dist = speed * deltaTime;
+                if(dist*dist < math.lengthsq(targetVec))
+                    pos.translation.Value += dir * dist;
+                else
+                    pos.translation.Value = targetPos;
 
                 // check collision with target
                 const float targetSize = 0.01f;/*todo: set target size */

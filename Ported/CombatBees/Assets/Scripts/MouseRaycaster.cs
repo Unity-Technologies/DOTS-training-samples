@@ -4,15 +4,12 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public static class Field {
-    public static Vector3 size = new Vector3(5f,1f,1f);
-}
-
 public class MouseRaycaster : MonoBehaviour {
     public Material markerMaterial;
 
     public static bool isMouseTouchingField;
     public static Vector3 worldMousePosition;
+    private static float3? fieldSize;
 
     Camera cam;
     Transform marker;
@@ -26,7 +23,22 @@ public class MouseRaycaster : MonoBehaviour {
         
         
     }
-	
+
+    private static float3 GetPlayingFieldSize()
+    {
+        if (fieldSize == null)
+        {
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            using (var query = entityManager.CreateEntityQuery(typeof(GameConfig)))
+            {
+                fieldSize = query.GetSingleton<GameConfig>().PlayingFieldSize;
+            }
+
+        }
+
+        return fieldSize.Value;
+    }
+
     void LateUpdate () {
         Ray mouseRay = cam.ScreenPointToRay(Input.mousePosition);
 
@@ -34,8 +46,9 @@ public class MouseRaycaster : MonoBehaviour {
         for (int i=0;i<3;i++) {
             for (int j=-1;j<=1;j+=2) {
                 Vector3 wallCenter = new Vector3();
-                wallCenter[i] = Field.size[i] * .5f * j;
-                Plane plane = new Plane(-wallCenter,wallCenter + new Vector3(0f, 0.5f, 0));
+                wallCenter[i] = GetPlayingFieldSize()[i] * .5f * j;
+                Plane plane = new Plane(-wallCenter,wallCenter + 
+                                                    new Vector3(0f, GetPlayingFieldSize().y / 2f, 0));
                 float hitDistance;
                 if (Vector3.Dot(plane.normal,mouseRay.direction) < 0f) {
                     if (plane.Raycast(mouseRay,out hitDistance)) {
@@ -43,8 +56,8 @@ public class MouseRaycaster : MonoBehaviour {
                         bool insideField = true;
                         for (int k = 0; k < 3; k++)
                         {
-                            var offset = (k == 1) ? 0.5f : 0;
-                            if (Mathf.Abs(hitPoint[k]) > Field.size[k] * .5f+.01f + offset) {
+                            var offset = (k == 1) ? GetPlayingFieldSize().y / 2f : 0;
+                            if (Mathf.Abs(hitPoint[k]) > GetPlayingFieldSize()[k] * .5f+.01f + offset) {
                                 insideField = false;
                                 break;
                             }
