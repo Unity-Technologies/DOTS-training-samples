@@ -74,7 +74,17 @@ namespace src.Components
         [Tooltip("How many buckets we have on the map")]
         public int BucketCount;
 
-        public float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int row, int column)
+        [Header("WATER")]
+        [Tooltip("Number of cells affected by a bucket of water")]
+        public int SplashRadius;
+
+        [Tooltip("Water bucket reduces fire temperature by this amount")]
+        public float CoolingStrength;
+
+        [Tooltip("Splash damage of water bucket. (1 = no loss of power over distance)")]
+        public float CoolingStrength_Falloff;
+
+        public float GetTemperatureForCell(in DynamicBuffer<Temperature> temperatureBuffer, int column, int row)
         {
             if (row < 0 || column < 0 || row >= Rows || column >= Columns)
                 return 0;
@@ -84,34 +94,44 @@ namespace src.Components
             return temperatureBuffer[cellIndex].Intensity;
         }
 
-        public void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int row, int column, float temperature)
+        public void SetTemperatureForCell(ref DynamicBuffer<Temperature> temperatureBuffer, int column, int row, float temperature)
         {
             if (row >= 0 && column >= 0 && row < Rows && column < Columns)
             {
-                int cellIndex = GetCellIdOfRowCol(row, column);
+                int cellIndex = GetCellIdOfColRow(column, row);
 
                 temperatureBuffer[cellIndex] = new Temperature {Intensity = temperature};
             }
         }
 
-        public int GetCellIdOfRowCol(int row, int column) => column + row * Columns;
+        public int GetCellIdOfColRow(int column, int row) => column + row * Columns;
 
-        public int2 GetRowColOfCell(int cellId)
+        public int2 GetColRowOfCell(int cellId)
         {
-            var rowColOfCell = new int2(cellId / Columns, cellId % Columns);
-            Debug.Assert(GetCellIdOfRowCol(rowColOfCell.x, rowColOfCell.y) == cellId, "'GetRowColOfCell' does not match 'GetCellIdOfRowCol'!");
-            return rowColOfCell;
+            var colRowOfCell = new int2(cellId % Columns, cellId / Columns);
+            Debug.Assert(GetCellIdOfColRow(colRowOfCell.x, colRowOfCell.y) == cellId, "'GetColRowOfCell' does not match 'GetCellIdOfRowCol'!");
+            return colRowOfCell;
         }
 
-        public int GetCellIdOfPosition2D(float2 pos) => GetCellIdOfRowCol(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y));
+        public int GetCellIdOfPosition2D(float2 pos) => GetCellIdOfColRow(Mathf.FloorToInt(pos.x / CellSize), Mathf.FloorToInt(pos.y / CellSize));
+
+        public int2 GetColRowOfPosition2D(float2 pos)
+        {
+            int column = Mathf.FloorToInt(pos.x / CellSize);
+            int row = Mathf.FloorToInt(pos.y / CellSize);
+
+            return new int2(column, row);
+        }
+
+        public float2 GetPosition2DOfColRow(int column, int row) => new float2(column, row) * CellSize;
 
         /// <summary>
         ///     Assumes world map starts at 0, 0.
         /// </summary>
         public float2 GetCellWorldPosition2D(int cellId)
         {
-            var rowCol = GetRowColOfCell(cellId);
-            var cellWorldPosition = GetCellWorldPosition3D(rowCol.x, rowCol.y);
+            var colRow = GetColRowOfCell(cellId);
+            var cellWorldPosition = GetPosition3DOfCellColRow(colRow.x, colRow.y);
             // Ignore Y axis when converting back to 2D.
             return new float2(cellWorldPosition.x, cellWorldPosition.z);
         }
@@ -119,9 +139,9 @@ namespace src.Components
         /// <summary>
         ///     Assumes world map starts at 0, 0.
         /// </summary>
-        public float3 GetCellWorldPosition3D(int row, int col, float3 origin = default) => origin + new float3(col, 0f, row) * CellSize;
+        public float3 GetPosition3DOfCellColRow(int col, int row, float3 origin = default) => origin + new float3(col, 0f, row) * CellSize;
 
-        public int2 GetCellRowCol(float3 worldPosition, float3 origin = default)
+        public int2 GetCellColRowOfPosition3D(float3 worldPosition, float3 origin = default)
         {
             var localPosition = worldPosition - origin;
             // Convert to grid position
@@ -131,7 +151,7 @@ namespace src.Components
                 row--;
             if (localPosition.x < 0)
                 col--;
-            return new int2(row, col);
+            return new int2(col, row);
         }
     }
 }

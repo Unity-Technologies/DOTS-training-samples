@@ -41,15 +41,15 @@ namespace src.Systems
             var offset = 0f;
             for (int i = 0; i <= rows; ++i)
             {
-                var hor_from = configValues.GetCellWorldPosition3D(i, 0) + new float3(-offset, planeHeight, 0f);
-                var hor_to = configValues.GetCellWorldPosition3D(i, columns) + new float3(offset, planeHeight, 0f);
+                var hor_from = configValues.GetPosition3DOfCellColRow(0, i) + new float3(-offset, planeHeight, 0f);
+                var hor_to = configValues.GetPosition3DOfCellColRow(columns, i) + new float3(offset, planeHeight, 0f);
                 UnityEngine.Debug.DrawLine(hor_from, hor_to, UnityEngine.Color.grey, 0);
             }
 
             for (int j = 0; j <= columns; ++j)
             { 
-                var ver_from = configValues.GetCellWorldPosition3D(0, j) + new float3(0f, planeHeight, -offset);
-                var ver_to = configValues.GetCellWorldPosition3D(rows, j) + new float3(0f, planeHeight, offset);
+                var ver_from = configValues.GetPosition3DOfCellColRow(j, 0) + new float3(0f, planeHeight, -offset);
+                var ver_to = configValues.GetPosition3DOfCellColRow(j, rows) + new float3(0f, planeHeight, offset);
                 UnityEngine.Debug.DrawLine(ver_from, ver_to, UnityEngine.Color.grey, 0);
             }
 #endif                    
@@ -64,9 +64,9 @@ namespace src.Systems
                     plane.Raycast(screenPointToRay, out float enter);
                     
                     var clickPosition = screenPointToRay.GetPoint(enter);
-                    var rowCol = configValues.GetCellRowCol(new float3(clickPosition.x, clickPosition.y, clickPosition.z));
-                    var row = rowCol.x;
-                    var col = rowCol.y;
+                    var colRow = configValues.GetCellColRowOfPosition3D(new float3(clickPosition.x, clickPosition.y, clickPosition.z));                    
+                    var col = colRow.x;
+                    var row = colRow.y;
                     if (row >= 0 && row < rows && col >= 0 && col < columns)
                     {
                         var temperatureEntity = GetSingletonEntity<Temperature>();
