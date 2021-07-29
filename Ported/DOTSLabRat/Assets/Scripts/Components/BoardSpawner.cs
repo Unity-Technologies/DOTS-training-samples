@@ -9,6 +9,7 @@ public struct BoardSpawner : IComponentData
     public Entity tilePrefab;
     public Entity wallPrefab;
     public Entity goalPrefab;
+    public Entity arrowPrefab;
     public Vector2Int maxWallsRange;
     public int maxHoles;
     public uint randomSeed;
