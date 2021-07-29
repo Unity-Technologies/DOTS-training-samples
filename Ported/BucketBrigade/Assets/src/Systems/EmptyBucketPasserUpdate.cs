@@ -45,12 +45,15 @@ namespace src.Systems
 
                     var targetPosition = GetPositionInTeam(firePosition, teamData.TargetWaterPos, teamPosition.Index, workerCountPerTeam);
                     var targetBucketPosition = GetPositionInTeam(firePosition, teamData.TargetWaterPos, teamPosition.Index + 1, workerCountPerTeam);
+                    var isLastWorker = teamPosition.Index >= workerCountPerTeam - 1;
                     var bucketIndex = MoveToPositionAndPickupBucket(ref pos,
+                        teamData.TargetWaterPos,
                         targetPosition,
                         targetBucketPosition,
                         timeData.DeltaTime * configValues.WorkerSpeed,
                         bucketPositions,
-                        distanceToPickupBucketSqr);
+                        distanceToPickupBucketSqr, 
+                        true);
 
                     if (bucketIndex >= 0)
                     {

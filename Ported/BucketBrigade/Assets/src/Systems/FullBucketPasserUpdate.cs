@@ -52,12 +52,19 @@ namespace src.Systems
                     var targetPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index, workerCountPerTeam);
                     var targetBucketPosition = GetPositionInTeam(teamData.TargetWaterPos, firePosition, teamPosition.Index + 1, workerCountPerTeam);
 
+                    // The first worker should be able to grab more full buckets from around.
+                    var isFirstWorker = teamPosition.Index <= 0;
+                    var reachSqrd = distanceToPickupBucketSqr;
+                    if (isFirstWorker) reachSqrd *= 2.5f;
+                    
                     var bucketIndex = MoveToPositionAndPickupBucket(ref pos,
+                        teamData.TargetWaterPos,
                         targetPosition,
                         targetBucketPosition,
                         timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket,
                         bucketPositions,
-                        distanceToPickupBucketSqr);
+                        reachSqrd, 
+                        false);
 
                     if (bucketIndex >= 0)
                     {

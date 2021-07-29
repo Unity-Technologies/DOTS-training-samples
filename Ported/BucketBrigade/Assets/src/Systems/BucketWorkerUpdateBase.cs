@@ -99,17 +99,27 @@ namespace src.Systems
         }
 
         protected static int MoveToPositionAndPickupBucket(
-            ref Position pos,
+            ref Position pos, float2 targetWaterPos,
             float2 destinationPosition,
             float2 targetBucketPosition, 
             float speed,
             NativeArray<Position> bucketPositions,
-            float distanceToPickupBucketSqr)
+            float distanceToPickupBucketSqr,
+            bool ignoreBucketsInsideWaterSource)
         {
             if (!Utils.MoveToPosition(ref pos, destinationPosition, speed) && bucketPositions.Length > 0)
                 return -1;
-            
-            Utils.GetClosestBucket(pos.Value, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
+
+            int closestBucketEntityIndex;
+            float sqrDistanceToBucket;
+            if (ignoreBucketsInsideWaterSource)
+            {
+                Utils.GetClosestBucketOutsideTeamWaterSource(pos.Value, targetWaterPos, bucketPositions, out sqrDistanceToBucket, out closestBucketEntityIndex, distanceToPickupBucketSqr);
+            }
+            else
+            {
+                Utils.GetClosestBucket(pos.Value, bucketPositions, out sqrDistanceToBucket, out closestBucketEntityIndex);
+            }
 
             if (closestBucketEntityIndex < 0)
                 return closestBucketEntityIndex;
