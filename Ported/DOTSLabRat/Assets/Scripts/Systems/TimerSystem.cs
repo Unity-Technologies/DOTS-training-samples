@@ -80,10 +80,31 @@ namespace DOTSRATS
 
         string GetGameOverText(List<int> winningPlayers)
         {
-            if (winningPlayers.Count > 1)
-                return "There is a tie!";
+            if(winningPlayers.Count < 1)
+            {
+                return "Nobody won...";
+            }
+
+            string gameOverText;
+            if(winningPlayers.Count > 1)
+            {
+                gameOverText = "Players ";
+                for(int i = 0; i < winningPlayers.Count; i++)
+                {
+                    if (i == winningPlayers.Count - 1)
+                        gameOverText += " and ";
+                    else if (i > 0)
+                        gameOverText += ", ";
+                    gameOverText += winningPlayers[i];
+                }
+                gameOverText += " are tied!";
+            }
             else
-                return "Player " + winningPlayers[0] + " won!";
+            {
+                gameOverText = "Player " + winningPlayers[0] + " wins!";
+            }
+
+            return gameOverText;
         }
     }
 }
