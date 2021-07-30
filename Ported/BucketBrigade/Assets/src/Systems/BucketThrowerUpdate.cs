@@ -42,6 +42,8 @@ namespace src.Systems
                 .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos, in TeamId ourTeamId, in TeamPosition teamPosition) =>
                 {
                     var teamData = teamDatas[ourTeamId.Id];
+                    if (! teamData.IsValid) return;
+                    
                     var firePosition = teamData.TargetFirePos;
 
                     if (Utils.MoveToPosition(ref pos, firePosition, timeData.DeltaTime * configValues.WorkerSpeed) && bucketPositions.Length > 0)
