@@ -7,6 +7,7 @@ using Unity.Transforms;
 namespace DOTSRATS
 {
     [UpdateBefore(typeof(TimerSystem))]
+    [UpdateBefore(typeof(SetupSystem))]
     public class PlayerSetupSystem : SystemBase
     {
         protected override void OnUpdate()

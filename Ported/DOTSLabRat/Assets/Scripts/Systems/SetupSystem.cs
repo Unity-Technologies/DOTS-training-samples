@@ -249,7 +249,7 @@ public class SetupSystem : SystemBase
         }
     }
     
-    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber,  ref CellStruct cellStruct, NativeArray<Entity> playerEntities)
+    public Entity SpawnGoal(BoardSpawner boardSpawner, int2 coord, int playerNumber, ref CellStruct cellStruct, NativeArray<Entity> playerEntities)
     {
         Entity goal = default;
         float3 position = new float3(coord.x, -0.5f, coord.y);
@@ -270,12 +270,16 @@ public class SetupSystem : SystemBase
             {
                 playerColor = new float4(playerComponent.color.r, playerComponent.color.g, playerComponent.color.b,
                     playerComponent.color.a);
+                playerComponent.goal = goal;
+                EntityManager.SetComponentData(player, playerComponent);
+                break;
             }
         }
 
         EntityManager.SetComponentData(goal, new PropagateColor { color = playerColor }); //Get player color
 
-        cellStruct.goal = goal;
+        cellStruct.goal = true;
+        cellStruct.goalPlayerNumber = (byte)playerNumber;
 
         return goal;
     }

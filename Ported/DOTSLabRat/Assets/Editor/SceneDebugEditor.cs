@@ -49,7 +49,7 @@ public class SceneDebugExample : Editor
             if (cell.arrow != Direction.None)
                 dbgStr += $"Arrow: {ToArrowString(cell.arrow)}";
 
-            if (cell.goal != default)
+            if (cell.goal)
                 dbgStr += "Goal";
 
             if (cell.hole)

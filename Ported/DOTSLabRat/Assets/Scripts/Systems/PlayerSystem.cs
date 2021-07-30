@@ -37,7 +37,7 @@ namespace DOTSRATS
                             
                             if (cellStructs[cellIndex].arrow != Direction.None || 
                                 cellStructs[cellIndex].hole || 
-                                cellStructs[cellIndex].goal != default)
+                                cellStructs[cellIndex].goal)
                             {
                                 player.arrowToPlace = new int2(-1, -1);
                             }

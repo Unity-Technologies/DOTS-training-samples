@@ -49,7 +49,6 @@ public class Movement : SystemBase
         var cellStructs = GetBuffer<CellStruct>(gameStateEntity);
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var cdfe = GetComponentDataFromEntity<Goal>();
 
         int numPlayers = GetEntityQuery(ComponentType.ReadOnly<Player>()).CalculateEntityCount();
 
@@ -57,7 +56,6 @@ public class Movement : SystemBase
 
         Dependency = Entities
             .WithAll<InPlay>()
-            .WithNativeDisableContainerSafetyRestriction(cdfe)
             .WithReadOnly(cellStructs)
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Velocity velocity) =>
             {
@@ -77,16 +75,14 @@ public class Movement : SystemBase
                         ecb.SetComponent(entityInQueryIndex, entity, new Scaling { targetScale = 0.1f });
                         ecb.AddComponent(entityInQueryIndex, entity, new Death { deathTimer = 5f });
                     }
-                    else if (cell.goal != default)
+                    else if (cell.goal)
                     {
-                        var goal = cdfe[cell.goal];
                         if (HasComponent<Rat>(entity))
-                            Interlocked.Increment(ref scoreUpdates.GetRef(goal.playerNumber).Rats);
+                            Interlocked.Increment(ref scoreUpdates.GetRef(cell.goalPlayerNumber).Rats);
                         else if (HasComponent<Cat>(entity))
-                            Interlocked.Increment(ref scoreUpdates.GetRef(goal.playerNumber).Cats);
+                            Interlocked.Increment(ref scoreUpdates.GetRef(cell.goalPlayerNumber).Cats);
                         // TODO: Give this a pretty animation...
                         ecb.DestroyEntity(entityInQueryIndex, entity);
-                        ecb.SetComponent(cell.goal.Index, cell.goal, new Scale { Value = 1.5f });
                     }
                     else if (cell.wallLayout == (Direction.North | Direction.South | Direction.East | Direction.West))
                     {
@@ -125,11 +121,13 @@ public class Movement : SystemBase
         Dependency = Entities
             .WithDisposeOnCompletion(scoreUpdates)
             .WithReadOnly(scoreUpdates)
-            .ForEach((ref Player player) =>
+            .ForEach((int entityInQueryIndex, ref Player player) =>
             {
                 var update = scoreUpdates[player.playerNumber];
                 player.score += update.Rats;
                 player.score = (int)(player.score * math.pow(0.666666f, update.Cats));
+                if (update.Cats > 0 ||  update.Rats > 0)
+                    ecb.SetComponent(entityInQueryIndex, player.goal, new Scale { Value = 1.5f });
             }).ScheduleParallel(Dependency);
     }
 }

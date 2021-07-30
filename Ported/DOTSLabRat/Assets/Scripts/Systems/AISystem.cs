@@ -45,7 +45,7 @@ namespace DOTSRATS
                                 player.arrowDirection = dirToGoal;
                                 // Look for a coordinate that's: a hole, goal and does not have an arrow placed 
                             } while (cell.hole || // not a hole
-                                     cell.goal != default || // does not have a goal
+                                     cell.goal || // does not have a goal
                                      cell.arrow != Direction.None || // no arrow is placed 
                                      (player.arrowDirection & cell.wallLayout) != 0); // AI's arrow would not be facing a wall
                         }

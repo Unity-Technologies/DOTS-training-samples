@@ -14,6 +14,7 @@ namespace DOTSRATS
         public Direction arrowDirection;
         public int currentArrow;
         public int2 arrowToRemove;
+        public Entity goal;
 
         // AI players only
         public double nextArrowTime;

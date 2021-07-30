@@ -38,7 +38,7 @@ namespace DOTSRATS
                             var cellIndex = coord.y * gameState.boardSize + coord.x;
 
                             if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize &&
-                                cellStructs[cellIndex].arrow == Direction.None && !cellStructs[cellIndex].hole && cellStructs[cellIndex].goal == default)
+                                cellStructs[cellIndex].arrow == Direction.None && !cellStructs[cellIndex].hole && !cellStructs[cellIndex].goal)
                             {
                                 Direction direction;
                                 var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
