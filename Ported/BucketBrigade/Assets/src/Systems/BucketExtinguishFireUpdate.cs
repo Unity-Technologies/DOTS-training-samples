@@ -32,7 +32,8 @@ namespace src.Systems
 
             int splashRadius = configValues.SplashRadius;
 
-            Entities//.WithBurst()
+            Entities
+                .WithBurst()
                 .WithName("BucketExtinguishingFire")
                 .WithAll<ThrowBucketAtFire, FullBucketTag>()
                 .ForEach((int entityInQueryIndex, Entity bucketEntity, ref ThrowBucketAtFire throwBucketAtFire, ref EcsBucket bucket) =>
