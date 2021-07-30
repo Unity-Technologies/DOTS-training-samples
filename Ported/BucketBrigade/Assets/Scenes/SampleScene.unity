@@ -223,6 +223,7 @@ MonoBehaviour:
     WorkerSpeedWhenHoldingBucket: 8
     DistanceToPickupBucket: 5
     WaterFillUpDuration: 4
+    OmniWorkerCount: 2
     WorkerCountPerTeam: 10
     TeamCount: 1
     BucketFetcherCountPerTeam: 2

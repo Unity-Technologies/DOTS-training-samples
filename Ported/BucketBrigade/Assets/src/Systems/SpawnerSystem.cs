@@ -70,8 +70,25 @@ namespace src.Systems
                 SpawnFetcher(config, configValues.BucketFetcherCountPerTeam, teamId);
             }
 
-            // Once we've spawned, we can disable this system, as it's done its job.
+            // Spawn omni workers
+            SpawnOmniWorkers(config, configValues.OmniWorkerCount);
+
+            // Once we've spawned, we can disable this system, as it's done is job.
             Enabled = false;
+        }
+
+        void SpawnOmniWorkers(FireSimConfig config, int count)
+        {
+            using var omniWorkers = new NativeArray<Entity>(count, Allocator.Temp);
+            EntityManager.Instantiate(config.OmniWorkerPrefab, omniWorkers);
+            for (var i = 0; i < omniWorkers.Length; i++)
+            {
+                var entity = omniWorkers[i];
+                EntityManager.SetComponentData(entity, new Position
+                {
+                    Value = new float2(UnityEngine.Random.value * mapSizeXZ, UnityEngine.Random.value * mapSizeXZ),
+                });
+            }
         }
 
         void SpawnFetcher(FireSimConfig config, int count, int teamId)

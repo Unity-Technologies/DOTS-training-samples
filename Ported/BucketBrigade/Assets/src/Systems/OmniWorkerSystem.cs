@@ -4,40 +4,71 @@ using Unity.Collections;
 
 using src.Components;
 
-public class OmniWorkerSystem: SystemBase
+namespace src.Systems
 {
-    protected override void OnUpdate()
+    public class OmniWorkerSystem: SystemBase
     {
-        var time = Time.ElapsedTime;
+        EntityQuery m_NotFullBucketsOnFloorQuery;
+        EndSimulationEntityCommandBufferSystem m_EndSimulationEntityCommandBufferSystem;
 
-        var updateWorkersWithoutBucket = Entities
-            .WithAll<OmniWorkerTag>()
-            .WithNone<WorkerIsHoldingBucket>()            
-            .ForEach((ref Translation translation, ref Position position) =>
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireSingletonForUpdate<FireSimConfigValues>();
+
+            m_NotFullBucketsOnFloorQuery = GetEntityQuery(ComponentType.ReadOnly<EcsBucket>(), ComponentType.Exclude<BucketIsHeld>(), ComponentType.Exclude<PickUpBucketRequest>(), ComponentType.Exclude<FillingUpBucketTag>(), ComponentType.Exclude<FullBucketTag>(), ComponentType.ReadOnly<Position>());
+            m_EndSimulationEntityCommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
+        protected override void OnUpdate()
+        {
+            var time = Time;
+            var configValues = GetSingleton<FireSimConfigValues>();
+            
+            var ecb = m_EndSimulationEntityCommandBufferSystem.CreateCommandBuffer();
+            var concurrentEcb = ecb.AsParallelWriter();
+
+            // Pickup a bucket. Omni workers never drop.
+            if (!m_NotFullBucketsOnFloorQuery.IsEmpty)
             {
-                // Get nearest empty bucket
-                // If close enough to the bucket
-                //     pick it up
-                // else
-                //     move towards the nearest bucket
-            }).ScheduleParallel(Dependency);
+                var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
+                var bucketEntities = m_NotFullBucketsOnFloorQuery.ToEntityArray(Allocator.TempJob);
+                var bucketPositions = m_NotFullBucketsOnFloorQuery.ToComponentDataArray<Position>(Allocator.TempJob);
 
-        var updateWorkerWithBucket = Entities
-            .WithAll<OmniWorkerTag>()
-            .WithAll<WorkerIsHoldingBucket>()
-            .ForEach((ref Translation translation, ref Position position) =>
-            {
-                // Get bucket reference
-                // If bucket is full
-                //     Get nearest fire spot
-                //     If not close enough to the fire spot 
-                //         move towards the fire spot                   
-                // Else
-                // Get nearest water spot
-                // If not close enough to the spot 
-                //      move towards the water spot                
-            }).ScheduleParallel(updateWorkersWithoutBucket);
+                Entities.WithBurst()
+                    .WithName("OmniMoveTowardsAndPickupBucket")
+                    .WithReadOnly(bucketPositions)
+                    .WithReadOnly(bucketEntities)
+                    .WithDisposeOnCompletion(bucketPositions)
+                    .WithDisposeOnCompletion(bucketEntities)
+                    .WithAll<OmniWorkerTag>()
+                    .WithNone<WorkerIsHoldingBucket>()
+                    .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos) =>
+                    {
+                        var closestBucketPosition = Utils.GetClosestBucketOutsideTeamWaterSource(pos.Value, pos.Value, bucketPositions, out _, out var closestBucketEntityIndex, distanceToPickupBucketSqr);
 
-        Dependency = updateWorkerWithBucket;
+                        if (closestBucketEntityIndex >= 0)
+                        {
+                            if (Utils.MoveToPosition(ref pos, closestBucketPosition.Value, configValues.WorkerSpeed * time.DeltaTime))
+                            {
+                                Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
+                            }
+                        }
+                        // Else idle as no buckets left.
+                    }).ScheduleParallel();
+            }
+
+            Entities.WithBurst()
+                    .WithName("OmniMoveTowardsClosestWaterSource")
+                    .WithAll<OmniWorkerTag>()
+                    .WithAll<WorkerIsHoldingBucket>()
+                    .ForEach((int entityInQueryIndex, Entity workerEntity, ref Position pos) =>
+                    {
+                        // TODO: Move to nearest water source
+                    }).ScheduleParallel();
+
+            // TODO: Fill up bucket
+            // TODO: Move to Fire
+        }
     }
 }
