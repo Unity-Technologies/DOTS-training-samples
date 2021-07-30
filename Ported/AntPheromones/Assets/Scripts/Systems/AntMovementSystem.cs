@@ -149,41 +149,18 @@ public class AntMovementSystem : SystemBase
         ecb.Dispose();
 
         Entities
-            .WithName("Movement")
-            .ForEach((ref Translation translation, ref Speed speed, in Acceleration acceleration, in FacingAngle facingAngle) =>
-            {
-                var targetSpeed = antSpeed*time;
-                speed.Value = targetSpeed * acceleration.Value;
-                float vx = math.cos(facingAngle.Value) * speed.Value;
-                float vy = Mathf.Sin(facingAngle.Value) * speed.Value;
-                float ovx = vx;
-                float ovy = vy;
-
-                if (translation.Value.x + vx < 0f || translation.Value.x + vx > mapSize) {
-                    vx = -vx;
-                } else {
-                    translation.Value.x += vx;
-                }
-                if (translation.Value.y + vy < 0f || translation.Value.y + vy > mapSize) {
-                    vy = -vy;
-                } else {
-                    translation.Value.y += vy;
-                }
-            }).ScheduleParallel();
-        
-        Entities
             .WithName("ResolveToColonyMovement")
             .WithAll<HoldingResource>()
-            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, ref Speed speed, in Acceleration acceleration) =>
             {
-                ResolveMovement(ref facingAngle, ref translation, ref rotation, speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength);
+                ResolveMovement(ref facingAngle, ref translation, ref rotation, ref speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength, time, acceleration.Value, antSpeed);
             }).ScheduleParallel();
         Entities
             .WithName("ResolveToResourceMovement")
             .WithNone<HoldingResource>()
-            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
+            .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, ref Speed speed, in Acceleration acceleration) =>
             {
-                ResolveMovement(ref facingAngle, ref translation, ref rotation, speed, mapSize, colonyPosition, false, outwardStrength, inwardStrength);
+                ResolveMovement(ref facingAngle, ref translation, ref rotation, ref speed, mapSize, colonyPosition, false, outwardStrength, inwardStrength, time, acceleration.Value, antSpeed);
             }).ScheduleParallel();
     }
 
@@ -210,8 +187,11 @@ public class AntMovementSystem : SystemBase
         }
     }
 
-    private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength)
+    
+    private static void ResolveMovement(ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, ref Speed speed, float mapSize, float3 colonyPosition, bool holdingResource, float outwardStrength, float inwardStrength, float time, float acceleration, float antSpeed)
     {
+        var targetSpeed = antSpeed*time;
+        speed.Value = (targetSpeed) * acceleration;
         float vx = math.cos(facingAngle.Value) * speed.Value;
         float vy = math.sin(facingAngle.Value) * speed.Value;
         float ovx = vx;
