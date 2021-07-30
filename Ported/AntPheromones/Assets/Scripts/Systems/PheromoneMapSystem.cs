@@ -18,8 +18,6 @@ public class PheromoneMapSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        //UnityEngine.Debug.Log("OnStartRunning");
-
         var mapEntity = GetSingletonEntity<MapSetting>();
         var mapSetting = GetComponent<MapSetting>(mapEntity);
 
@@ -35,26 +33,16 @@ public class PheromoneMapSystem : SystemBase
 
         var buffer = GetBuffer<Pheromone>(mapEntity).Reinterpret<float4>();
 
-        //Random rand = new Random(1234);
-        //for (int i = 0; i < buffer.Length; i++)
-        //{
-        //    buffer[i] = rand.NextFloat4();       
-        //}
-
         texture.LoadRawTextureData(buffer.AsNativeArray());
         texture.Apply();
 
         var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
         renderMesh.material.mainTexture = texture;
-
-        //UnityEngine.Debug.Log("OnStartRunning End");
     }
 
     protected override void OnUpdate()
     {
-        //Debug.Log("PheromoneMapSystem OnUpdate");
-
         var mapSetting = GetSingleton<MapSetting>();
         var trailSetting = GetSingleton<PheromoneTrailSetting>();
         var playerEntity = GetSingletonEntity<PlayerInput>();
@@ -64,6 +52,9 @@ public class PheromoneMapSystem : SystemBase
 
         var pheromoneMapEntity = GetSingletonEntity<Pheromone>();
         var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
+
+        texture.LoadRawTextureData(pheromoneMapBuffer.AsNativeArray());
+        texture.Apply();
 
         Entities
             .WithAll<Ant>()
@@ -111,13 +102,6 @@ public class PheromoneMapSystem : SystemBase
                 }
 
             }).Schedule();
-
-        //We need to complete the jobs to set the texture because we can't LoadRawTextureData or even have a Texture2D inside a job.
-        Dependency.Complete();
-
-        //PERFORMANCE: We probably can set the texture array with the DynamicBuffer reference one time and just do Apply to flush the array into the texture.
-        texture.LoadRawTextureData(pheromoneMapBuffer.AsNativeArray());
-        texture.Apply();
     }
 
     public static bool TryGetClosestPheronomoneIndexFromTranslation(float3 position, in MapSetting mapSetting, out int index)
