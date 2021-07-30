@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -5748742965950964847}
   - component: {fileID: 264515362709843736}
   - component: {fileID: -6597494300132018408}
+  - component: {fileID: 8615693655840166048}
   m_Layer: 0
   m_Name: OmniWorker
   m_TagString: Untagged
@@ -167,5 +168,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7e61a4bbf03a473782be8f806162bd7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8615693655840166048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172664212239075065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 985022ec7604406d91f3916f594e0955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
