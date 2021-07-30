@@ -63,7 +63,6 @@ public class BotActionSystemPickBucket : SystemBase
                         if (bestBucket != Entity.Null)
                         {
                             targetBucket.bucket = bestBucket;
-                            Debug.Log("BotActionSystemPickBucket => found Bucket");
                         }
                         else
                         {
@@ -75,7 +74,6 @@ public class BotActionSystemPickBucket : SystemBase
                     carriedBucket.bucket = targetBucket.bucket;
                     SetComponent(carriedBucket.bucket, new BucketActiveComponent() {active = true});
                     action.ActionDone = true;
-                    Debug.Log("BotActionSystemPickBucket => reached Bucket");
                 }
             ).Schedule();
     }

@@ -35,7 +35,6 @@ public class BotActionSystemEmptyBucket : SystemBase
                     if (!GetComponent<BucketFullComponent>(carriedBucket.bucket).full)
                         return;
 
-                    //Debug.Log("Thrower with a full bucket emptying it on fire cell " + targetFire.index);
                     var targetFireColumn = targetFire.index % grid;
                     var targetFireRow = targetFire.index / grid;
                     
@@ -44,7 +43,6 @@ public class BotActionSystemEmptyBucket : SystemBase
                         for (var row = math.max(0, targetFireRow - 1); row < math.min(targetFireRow + 2, grid); ++row)
                         {
                             var currentFireIndex = row * grid + col;
-                            //Debug.Log("Thrower with a full bucket emptying it on neighbour fire cell " + currentFireIndex);
                             heatMap[currentFireIndex] = new HeatMapElement() { temperature = 0 };
                         }
                     }

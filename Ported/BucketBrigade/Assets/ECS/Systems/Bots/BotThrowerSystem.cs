@@ -17,7 +17,6 @@ public class BotThrowerSystem : SystemBase
             {
                 ecb.RemoveComponent<BotActionUndefined>(bot);
                 ecb.AddComponent<BotActionPickBucket>(bot);
-                Debug.Log("Thrower => BotActionPickBucket (init)");
             }
         ).Schedule();
 
@@ -27,7 +26,6 @@ public class BotThrowerSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionPickBucket>(bot);
                     ecb.AddComponent<BotActionEmptyBucket>(bot);
-                    Debug.Log("Thrower => BotActionEmptyBucket");
                 }
             }
         ).Schedule();
@@ -38,7 +36,6 @@ public class BotThrowerSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionEmptyBucket>(bot);
                     ecb.AddComponent<BotActionDropBucket>(bot);
-                    Debug.Log("Thrower => BotActionDropBucket");
                 }
             }
         ).Schedule();
@@ -49,7 +46,6 @@ public class BotThrowerSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionDropBucket>(bot);
                     ecb.AddComponent<BotActionPickBucket>(bot);
-                    Debug.Log("Thrower => BotActionPickBucket (just dropped)");
                 }
             }
         ).Schedule();

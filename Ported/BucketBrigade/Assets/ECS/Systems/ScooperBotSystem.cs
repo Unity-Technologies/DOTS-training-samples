@@ -92,7 +92,6 @@ public class ScooperBotSystem : SystemBase
                 if (GetComponent<BucketActiveComponent>(targetBucket).active)
                 {
                     // Clear our own target bucket: it got stolen by another bot.
-                    Debug.Log("Clearing target bucket, someone stole it.");
                     SetComponent<TargetBucket>(scooper, new TargetBucket());
                 }
                 else
@@ -110,7 +109,6 @@ public class ScooperBotSystem : SystemBase
                     var water = GetComponent<TargetWater>(scooper);
                     var targetWaterPosition = GetComponent<Translation>(water.water).Value.xz;
                     SetComponent(scooper, new TargetLocationComponent(){location = targetWaterPosition});
-                    Debug.Log("Carrying new bucket");
                     return;
                 }
             }
@@ -132,7 +130,6 @@ public class ScooperBotSystem : SystemBase
 
                 if (distanceToBucket > bestBucketDistance)
                 {
-                    Debug.Log("This bucket is too far.");
                     continue;
                 }
 
@@ -143,7 +140,6 @@ public class ScooperBotSystem : SystemBase
 
             if (bestBucketDistance < float.MaxValue)
             {
-                Debug.Log("Targeting new bucket.");
                 SetComponent(scooper, new TargetBucket(){bucket = bestBucket});
                 SetComponent(scooper, new TargetLocationComponent(){location = bestBucketPosition});
             }

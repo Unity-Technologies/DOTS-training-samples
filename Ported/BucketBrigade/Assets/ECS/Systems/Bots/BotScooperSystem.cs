@@ -17,7 +17,6 @@ public class BotScooperSystem : SystemBase
             {
                 ecb.RemoveComponent<BotActionUndefined>(bot);
                 ecb.AddComponent<BotActionFindBucket>(bot);
-                Debug.Log("Scooper => BotActionFindBucket");
             }
         ).Schedule();
 
@@ -27,7 +26,6 @@ public class BotScooperSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionFindBucket>(bot);
                     ecb.AddComponent<BotActionFillBucket>(bot);
-                    Debug.Log("Scooper => BotActionFillBucket");
                 }
             }
         ).Schedule();
@@ -38,7 +36,6 @@ public class BotScooperSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionFillBucket>(bot);
                     ecb.AddComponent<BotActionDropBucket>(bot);
-                    Debug.Log("Scooper => BotActionDropBucket");
                 }
             }
         ).Schedule();
@@ -49,7 +46,6 @@ public class BotScooperSystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionDropBucket>(bot);
                     ecb.AddComponent<BotActionFindBucket>(bot);
-                    Debug.Log("Scooper => BotActionFindBucket");
                 }
             }
         ).Schedule();

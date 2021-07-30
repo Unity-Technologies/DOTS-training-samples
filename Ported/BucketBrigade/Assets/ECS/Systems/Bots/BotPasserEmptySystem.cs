@@ -12,7 +12,6 @@ public class BotPasserEmptySystem : SystemBase
             {
                 ecb.RemoveComponent<BotActionUndefined>(bot);
                 ecb.AddComponent<BotActionPickEmptyBucket>(bot);
-                Debug.Log("PasserEmpty => BotActionPickBucket");
             }
         ).Schedule();
 
@@ -22,7 +21,6 @@ public class BotPasserEmptySystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionPickEmptyBucket>(bot);
                     ecb.AddComponent<BotActionDropBucket>(bot);
-                    Debug.Log("PasserEmpty => BotActionDropBucket");
                 }
             }
         ).Schedule();
@@ -33,7 +31,6 @@ public class BotPasserEmptySystem : SystemBase
                 {
                     ecb.RemoveComponent<BotActionDropBucket>(bot);
                     ecb.AddComponent<BotActionPickEmptyBucket>(bot);
-                    Debug.Log("PasserEmpty => BotActionPickEmptyBucket");
                 }
             }
         ).Schedule();
