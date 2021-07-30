@@ -9,30 +9,48 @@ namespace DOTSRATS
 {
     public class CatEatRatSystem : SystemBase
     {
+        EntityCommandBufferSystem CommandBufferSystem;
+
+        protected override void OnCreate()
+        {
+            CommandBufferSystem
+                = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        }
+
         protected override void OnUpdate()
         {
-            EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
             ComponentDataFromEntity<Translation> translationComponents = GetComponentDataFromEntity<Translation>();
 
-            EntityQuery cats = GetEntityQuery(ComponentType.ReadWrite<Scaling>(), ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Velocity>(), ComponentType.ReadOnly<Translation>());
+            NativeArray<Entity> cats = GetEntityQuery(ComponentType.ReadWrite<Scaling>(), ComponentType.ReadOnly<Cat>()).ToEntityArray(Allocator.Temp);
+            NativeArray<Vector2> catTranslation = new NativeArray<Vector2>(cats.Length, Allocator.Temp);
+
+            for (int i = 0; i < cats.Length; i++)
+            {
+                if(translationComponents[cats[i]].Value.y == -0.5f)
+                {
+                    catTranslation[i] = new Vector2(translationComponents[cats[i]].Value.x, translationComponents[cats[i]].Value.z);
+                }
+            }
 
             Entities
                 .WithAll<Rat, Velocity, InPlay>()
-                .ForEach((Entity entity, in Translation translation) =>
+                .WithNativeDisableContainerSafetyRestriction(catTranslation)
+                .WithNativeDisableContainerSafetyRestriction(cats)
+                .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
                 {
-                    foreach (Entity cat in cats.ToEntityArray(Allocator.Temp))
+                    for (int i = 0; i < catTranslation.Length; i++)
                     {
-                        Translation catTranslation = translationComponents[cat];
-                        if (Vector2.Distance(new Vector2(catTranslation.Value.x, catTranslation.Value.z), new Vector2(translation.Value.x, translation.Value.z)) < 0.5 && catTranslation.Value.y >= -0.5f)
+                        if (Vector2.Distance(catTranslation[i], new Vector2(translation.Value.x, translation.Value.z)) < 0.5)
                         {
-                            ecb.DestroyEntity(entity);
-                            ecb.SetComponent<Scale>(cat, new Scale { Value = 2 });
+                            ecb.DestroyEntity(entityInQueryIndex, entity);
+                            ecb.SetComponent<Scale>(entityInQueryIndex, cats[i], new Scale { Value = 2 });
                         }
                     }
-                }).Run();
+                }).Schedule();
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            cats.Dispose();
+            catTranslation.Dispose();
         }
     }
 }
