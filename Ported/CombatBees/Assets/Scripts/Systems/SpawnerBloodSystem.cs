@@ -24,7 +24,7 @@ class SpawnerBloodSystem : SystemBase
                     float3 pos = rng.NextFloat3(spawner.SpawnLocation - spawnAreaSize, spawner.SpawnLocation + spawnAreaSize);
                     var translation = new Translation { Value = pos };
                     ecb.SetComponent(instance, translation);
-                    ecb.AddComponent(instance, new Blood
+                    ecb.SetComponent(instance, new Blood
                     {
                         Speed = new float3(rng.NextFloat(0.5f), 0, rng.NextFloat(0.5f)),
                         SpawnTime = spawnTime
