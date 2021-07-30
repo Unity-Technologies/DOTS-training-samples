@@ -6,32 +6,70 @@ using Unity.Transforms;
 
 public class ObstacleSpawnerSystem : SystemBase
 {
-    const int mapSize = 128;
-    const int bucketResolution = 32;
-    protected override void OnUpdate()
+    const int bucketResolution = 50;
+    int skip = 10;
+
+    protected override void OnCreate()
     {
+        var query = GetEntityQuery(typeof(ObstacleBucketEntity));
+        RequireForUpdate(query);
+
+        //Entity obstacleBucketEntity = GetSingletonEntity<ObstacleBucketEntity>();
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
-            Random rand = new Random(1234);
-            
-            int bucketResSq = bucketResolution * bucketResolution;
-
-            var bucketIndicesEntity = ecb.CreateEntity();
-            ecb.AddComponent<ObstacleBucketEntity>(bucketIndicesEntity);
-            var bucketIndicesBuffer = ecb.AddBuffer<ObstacleBucketIndices>(bucketIndicesEntity);
-            bucketIndicesBuffer.Length = bucketResSq;
-
-            for (int i = 0; i < bucketResSq; ++i)
+            var obstacleBucketEntity = ecb.CreateEntity();
+            ecb.AddComponent<ObstacleBucketEntity>(obstacleBucketEntity);
+            var bucketIndicesBuffer = ecb.AddBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
+            int bucketResolutionSq = bucketResolution * bucketResolution;
+            bucketIndicesBuffer.Length = bucketResolutionSq;
+            for (int i = 0; i < bucketResolutionSq; ++i)
             {
-                bucketIndicesBuffer[i] = ecb.CreateEntity();
-                ecb.AddBuffer<ObstacleBucket>(bucketIndicesBuffer[i]);
+                var bucketEntity = ecb.CreateEntity();
+                var bucket = ecb.AddBuffer<ObstacleBucket>(bucketEntity);
+                bucketIndicesBuffer[i] = bucketEntity;
             }
-            
+
+            ecb.Playback(EntityManager);
+        }
+    }
+
+    protected override void OnUpdate()
+    {
+        if (skip-- > 0)
+            return;
+        Random rand = new Random(1234);
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
+        UnityEngine.Debug.Log($"MapSize: {mapSize}");
+        Entity obstacleBucketEntity = GetSingletonEntity<ObstacleBucketEntity>();
+        //using (var ecb = new EntityCommandBuffer(Allocator.Temp))
+        //{
+        //    Entities
+        //        .WithStructuralChanges()
+        //        .ForEach((Entity entity, in ObstacleSpawner spawner) =>
+        //        {
+        //            var bucketIndicesBuffer = GetBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
+        //            int bucketResolutionSq = bucketResolution * bucketResolution;
+        //            bucketIndicesBuffer.Length = bucketResolutionSq;
+        //            for (int i = 0; i < bucketResolutionSq; ++i)
+        //            {
+        //                var bucketEntity = ecb.CreateEntity();
+        //                bucketIndicesBuffer[i] = bucketEntity;
+        //                var bucket = ecb.AddBuffer<ObstacleBucket>(bucketEntity);
+        //            }
+        //        }).Run();
+        //    ecb.Playback(EntityManager);
+        //}
+
+        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
+        {
             Entities
+                //.WithStructuralChanges()
                 .ForEach((Entity entity, in ObstacleSpawner spawner) =>
                 {
                     // Add logic for creating the obstacle rings
                     ecb.DestroyEntity(entity);
+
+                    var bucketIndicesBuffer = GetBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
 
                     for (int i = 0; i < spawner.obstacleRingCount; i++)
                     {
@@ -49,8 +87,9 @@ public class ObstacleSpawnerSystem : SystemBase
 
                                 float x = mapSize * .5f + math.cos(angle) * ringRadius;
                                 float y = mapSize * .5f + math.sin(angle) * ringRadius;
-
+                                
                                 var obstacleEntity = ecb.Instantiate(spawner.ObstaclePrefab);
+                                UnityEngine.Debug.Log("AFter Instantiate");
 
                                 var translation = new Translation
                                 {
@@ -62,8 +101,8 @@ public class ObstacleSpawnerSystem : SystemBase
                                     Value = spawner.ObstacleRadius
                                 });
 
-
-                                var pos = new float2 {
+                                var pos = new float2
+                                {
                                     x = translation.Value.x,
                                     y = translation.Value.y
                                 };
@@ -71,37 +110,48 @@ public class ObstacleSpawnerSystem : SystemBase
 
                                 float posX = translation.Value.x;
                                 float posY = translation.Value.y;
+
                                 for (int xx = (int)((posX - radius) / mapSize * bucketResolution); xx <= (int)((posX + radius) / mapSize * bucketResolution); ++xx)
                                 {
-                                    if (x < 0 || x > bucketResolution)
+                                    if (xx < 0 || xx > bucketResolution)
                                     {
+                                        UnityEngine.Debug.Log("Continue x");
                                         continue;
                                     }
 
                                     for (int yy = (int)((posY - radius) / mapSize * bucketResolution); yy <= (int)((posY + radius) / mapSize * bucketResolution); ++yy)
                                     {
-                                        if (y < 0 || y > bucketResolution)
+                                        if (yy < 0 || yy > bucketResolution)
                                         {
+                                            UnityEngine.Debug.Log("Continue y");
                                             continue;
                                         }
-                                        int xxx = (int)(xx / mapSize * bucketResolution);
-                                        int yyy = (int)(yy / mapSize * bucketResolution);
-                                        int bucketEntityIndex = xxx * bucketResolution + yyy;
-                                        var bucketEntity = bucketIndicesBuffer[bucketEntityIndex].Value;
-                                        var bucket = GetBuffer<ObstacleBucket>(bucketEntity);
-                                        bucket.Add(translation);
+                                        //int xxx = (int)((float)xx / mapSize * (float)bucketResolution);
+                                        //int yyy = (int)((float)yy / mapSize * (float)bucketResolution);
+                                        int bucketEntityIndex = xx * bucketResolution + yy;
+
+                                        UnityEngine.Debug.Log($"Start AddToBuffer to {xx} {yy} {bucketEntityIndex}");
+                                        var bucketEntity = bucketIndicesBuffer[bucketEntityIndex];
+                                        var buffer = GetBuffer<ObstacleBucket>(bucketEntity);
+                                        buffer.Add(translation);
+                                        //ecb.<ObstacleBucket>(bucketEntity, obstacleEntity);
+
+                                        //buffer.Add(obstacleEntity);
+                                        UnityEngine.Debug.Log("End AddToBuffer");
+
+                                        //var bucket = GetBuffer<ObstacleBucket>(bucketEntity);
+                                        //bucket.Add(translation);
+                                        //ecb.AppendToBuffer<ObstacleBucket>(bucketEntity, translation);
                                     }
                                 }
-                                
+
                             }
                         }
                     }
 
                 }).Run();
-            
+
             ecb.Playback(EntityManager);
         }
-
-
-        }
+    }
 }

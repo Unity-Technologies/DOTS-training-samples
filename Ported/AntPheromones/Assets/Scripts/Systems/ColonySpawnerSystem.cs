@@ -5,9 +5,9 @@ using Unity.Transforms;
 
 public class ColonySpawnerSystem : SystemBase
 {
-	const int mapSize = 128;
     protected override void OnUpdate()
     {
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
 	        Entities
@@ -20,6 +20,7 @@ public class ColonySpawnerSystem : SystemBase
                     {
                         Value = new float3(mapSize/2f,mapSize/2f,0f)
                     });
+                    ecb.AddComponent(colonyEntity, new Colony());
                 }).Run();
 
 

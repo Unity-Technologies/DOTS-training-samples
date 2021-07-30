@@ -6,14 +6,12 @@ using Unity.Transforms;
 
 public class AntSpawnerSystem : SystemBase
 {
-    const int mapSize = 128;
-
     protected override void OnUpdate()
     {
+        var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
+        Random rand = new Random(1234);
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
-            Random rand = new Random(1234);
-
             Entities
                 .ForEach((Entity entity, in AntSpawner spawner) =>
                 {
@@ -23,6 +21,7 @@ public class AntSpawnerSystem : SystemBase
                     for (int i = 0; i < spawner.AntCount; i++) 
                     {
                         var spawnedEntity = ecb.Instantiate(spawner.AntPrefab);
+                        ecb.AddComponent<Ant>(spawnedEntity);
                         ecb.SetComponent(spawnedEntity, new Translation
                         {
                             Value = new float3(rand.NextFloat(-5f,5f)+mapSize*.5f,rand.NextFloat(-5f,5f) + mapSize * .5f, 0)
@@ -42,6 +41,10 @@ public class AntSpawnerSystem : SystemBase
                         ecb.AddComponent(spawnedEntity, new Brightness()
                         {
                             Value = rand.NextFloat(.75f, 1.25f)
+                        });
+                        ecb.AddComponent(spawnedEntity, new Excitement
+                        {
+                            Value = 0
                         });
                     }
 
