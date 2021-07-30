@@ -18,6 +18,7 @@ public class BounceSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = _ECBSys.CreateCommandBuffer();
+        var parallelWriter = ecb.AsParallelWriter();
 
         var boxMapEntity = GetSingletonEntity<HeightBufferElement>(); // ASSUMES the singleton that has height buffer also has occupied
         var heightMap = EntityManager.GetBuffer<HeightBufferElement>(boxMapEntity);
@@ -38,7 +39,10 @@ public class BounceSystem : SystemBase
         float3 mouseLocalPos = mouseWorldPos;
 
         Entities
-            .ForEach((Entity entity, ref ParabolaTValue tValue, in Translation translation, in Player playerTag) =>
+            .WithAll<Player>()
+            .WithReadOnly(heightMap)
+            .WithReadOnly(occupiedMap)
+            .ForEach((Entity entity, int entityInQueryIndex, ref ParabolaTValue tValue, in Translation translation) =>
             {
                 if (tValue.Value < 0)
                 {
@@ -109,7 +113,7 @@ public class BounceSystem : SystemBase
                     float3 forward = new float3(endBoxCol, 0, endBoxRow) - new float3(startBoxCol, 0, startBoxRow);
 
                     // construct the parabola data struct for use in the movement system
-                    ecb.AddComponent(entity, new Parabola
+                    parallelWriter.AddComponent(entityInQueryIndex, entity, new Parabola
                     {
                         StartY = startY,
                         Height = height,
@@ -124,7 +128,7 @@ public class BounceSystem : SystemBase
                     // start the parabola movement
                     tValue.Value = 0;
                 }
-            }).Schedule();
+            }).ScheduleParallel();
         
         _ECBSys.AddJobHandleForProducer(Dependency);
     }
