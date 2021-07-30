@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Profiling;
 
 class BeeSimulationSystem: SystemBase
 {
@@ -13,6 +14,8 @@ class BeeSimulationSystem: SystemBase
         RequireSingletonForUpdate<ShaderOverrideCenterSize>();
         m_seed = 1234;
     }
+    
+    static readonly ProfilerMarker k_MyCodeMarker = new ProfilerMarker("Serial Bee Updates");
 
     protected override void OnUpdate()
     {
@@ -44,6 +47,9 @@ class BeeSimulationSystem: SystemBase
         var fieldConfig = GetSingleton<ShaderOverrideCenterSize>();
         var fieldSize = gameConfig.PlayingFieldSize;
         var baseWidth = (1 - fieldConfig.Value) * fieldSize.x / 2;
+        
+        GameStats.BeeCount.Sample(capacity);
+        GameStats.ResourceCount.Sample(resources.Length);
 
         Entities
             .WithReadOnly(teamABees)
@@ -170,6 +176,7 @@ class BeeSimulationSystem: SystemBase
         teamBBees.Dispose();
         resources.Dispose();
 
+        k_MyCodeMarker.Begin(list.Length); 
         foreach (var beeEntity in list)
         {
             if (!HasComponent<Translation>(beeEntity))
@@ -243,7 +250,8 @@ class BeeSimulationSystem: SystemBase
             
             SetComponent(beeEntity, bee);
         }
-
+        k_MyCodeMarker.End();
+        
         list.Dispose();
     }
 }

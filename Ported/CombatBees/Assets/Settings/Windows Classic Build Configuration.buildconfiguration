@@ -19,6 +19,11 @@
             "$version": 1,
             "Platform": "win",
             "Configuration": 2
+        },
+        {
+            "$type": "Unity.Build.Classic.PlayerConnectionSettings, Unity.Build.Classic",
+            "Mode": 1,
+            "WaitForConnection": true
         }
     ]
 }

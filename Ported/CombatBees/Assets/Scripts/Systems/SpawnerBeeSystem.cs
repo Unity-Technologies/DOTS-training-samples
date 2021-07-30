@@ -34,29 +34,45 @@ class SpawnerBeeSystem: SystemBase
                     var translation = new Translation {Value = pos};
                     ecb.SetComponent(instance, translation);
 
+                    const bool useNewShader = false;
+
                     if (spawner.Team == 0)
                     {
                         ecb.AddComponent<TeamA>(instance);
-                        // ecb.SetComponent(instance,new URPMaterialPropertyBaseColor
-                        //                 {
-                        //                     Value = leftColor
-                        //                 });
-                        ecb.SetComponent(instance, new BeeShaderOverrideColor
+
+                        if (useNewShader)
                         {
-                            Value = leftColor
-                        });
+                            ecb.SetComponent(instance, new BeeShaderOverrideColor
+                            {
+                                Value = leftColor
+                            });
+                        }
+                        else
+                        {
+                            ecb.SetComponent(instance,new URPMaterialPropertyBaseColor
+                            {
+                                Value = leftColor
+                            });
+                        }
                     }
                     else
                     {
                         ecb.AddComponent<TeamB>(instance);
-                        ecb.SetComponent(instance, new BeeShaderOverrideColor
+                        if (useNewShader)
                         {
-                            Value = rightColor
-                        });
-                        // ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
-                        // {
-                        //     Value = rightColor
-                        // });
+
+                            ecb.SetComponent(instance, new BeeShaderOverrideColor
+                            {
+                                Value = rightColor
+                            });
+                        }
+                        else
+                        {
+                            ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
+                            {
+                                Value = rightColor
+                            });
+                        }
                     }
 
                     ecb.SetComponent(instance, new NewTranslation {translation = translation});

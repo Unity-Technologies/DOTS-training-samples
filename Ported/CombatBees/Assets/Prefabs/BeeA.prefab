@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5419349648496032796}
   - component: {fileID: -2310027391171114576}
   - component: {fileID: 8960130586137357790}
-  - component: {fileID: 1776199642205153296}
+  - component: {fileID: 4501215697960927498}
   m_Layer: 0
   m_Name: BeeA
   m_TagString: Untagged
@@ -63,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 09cb8853ddf2f9343a0bfc4771843af1, type: 2}
+  - {fileID: 2100000, guid: 6d53622c962694b4883ea28fa04a226d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -131,7 +131,7 @@ MonoBehaviour:
   State: 0
   Target: {fileID: 0}
   resource: {fileID: 0}
---- !u!114 &1776199642205153296
+--- !u!114 &4501215697960927498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -140,9 +140,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5419349648496032795}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b6cb264f3fd4e75b184c1f442c80eee, type: 3}
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Threshold: 0.4
-  BeeColor: {r: 0.90588236, g: 0.082352914, b: 0.74550956, a: 1}
-  Period: 20
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
