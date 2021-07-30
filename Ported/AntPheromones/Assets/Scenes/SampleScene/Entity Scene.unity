@@ -288,15 +288,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62d44590bbf282b4e827a2d99fc11665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  normalExcitement: 0.3
-  holdingResourceExcitement: 1
+  normalExcitement: 0.1
+  holdingResourceExcitement: 0.4
   antSpeed: 0.2
   randomSteering: 2
-  goalSteerStrength: 0.6
+  goalSteerStrength: 0.8
   pheromoneSteeringDistance: 3
   pheromoneSteerStrength: 0.2
-  inwardStrength: 0.02
-  outwardStrength: 0.02
+  inwardStrength: 0.002
+  outwardStrength: 0.0015
   SearchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 1}
   CarryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 1}
 --- !u!4 &717986573
@@ -444,7 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 726478887858294159, guid: 8ffb3be10a7040f42b39f83f4393d662, type: 3}
-  AntCount: 1000
+  AntCount: 50000
   Acceleration: 9.32
 --- !u!4 &1450744791
 Transform:

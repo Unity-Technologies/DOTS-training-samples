@@ -9,7 +9,7 @@ public class AntSpawnerAuthoring : UnityMonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public UnityGameObject AntPrefab;
-    [UnityRange(1, 10000)] public int AntCount;
+    [UnityRange(1, 100000)] public int AntCount;
     [UnityRange(1, 10)] public float Acceleration;
 
     // This function is required by IDeclareReferencedPrefabs

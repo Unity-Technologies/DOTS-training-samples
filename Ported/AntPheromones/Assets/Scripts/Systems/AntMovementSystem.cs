@@ -43,6 +43,7 @@ public class AntMovementSystem : SystemBase
         var time = Time.DeltaTime * playerSpeed;
 
         Entities
+            .WithName("RandomSteering")
             .ForEach((int entityInQueryIndex, ref FacingAngle facingAngle) =>
             {
                 var rand = new Random(seed+(uint)entityInQueryIndex);
@@ -52,6 +53,7 @@ public class AntMovementSystem : SystemBase
         Entities
             //Need to add this so the job system stop complaining. We are simply reading and never setting.
             //I don't know if we can make a DynamicBuffer Readonly.
+            .WithName("PheroSteering")
             .WithNativeDisableParallelForRestriction(pheromoneMapBuffer)
             .ForEach((ref FacingAngle facingAngle, in Translation translation) =>
             {
@@ -75,6 +77,7 @@ public class AntMovementSystem : SystemBase
 
         var bucketIndicesBuffer = GetBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
         Entities
+            .WithName("WallSteering")
             .WithAny<Ant>()
             .ForEach((ref FacingAngle facingAngle, in Translation translation) =>
             {
@@ -112,6 +115,7 @@ public class AntMovementSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();
         Entities
+            .WithName("ColonySteering")
             .WithAll<HoldingResource>()
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, ref URPMaterialPropertyBaseColor color, in Brightness brightness, in Translation translation) =>
             {
@@ -126,6 +130,7 @@ public class AntMovementSystem : SystemBase
                 }
             }).ScheduleParallel();
         Entities
+            .WithName("ResourceSteering")
             .WithNone<HoldingResource>()
             .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, ref URPMaterialPropertyBaseColor color, in Brightness brightness, in Translation translation) =>
             {
@@ -144,6 +149,7 @@ public class AntMovementSystem : SystemBase
         ecb.Dispose();
 
         Entities
+            .WithName("Movement")
             .ForEach((ref Translation translation, ref Speed speed, in Acceleration acceleration, in FacingAngle facingAngle) =>
             {
                 var targetSpeed = antSpeed*time;
@@ -166,12 +172,14 @@ public class AntMovementSystem : SystemBase
             }).ScheduleParallel();
         
         Entities
+            .WithName("ResolveToColonyMovement")
             .WithAll<HoldingResource>()
             .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
             {
                 ResolveMovement(ref facingAngle, ref translation, ref rotation, speed, mapSize, colonyPosition, true, outwardStrength, inwardStrength);
             }).ScheduleParallel();
         Entities
+            .WithName("ResolveToResourceMovement")
             .WithNone<HoldingResource>()
             .ForEach((ref FacingAngle facingAngle, ref Translation translation, ref Rotation rotation, in Speed speed) =>
             {
