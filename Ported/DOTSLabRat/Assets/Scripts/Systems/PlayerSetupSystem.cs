@@ -40,6 +40,10 @@ namespace DOTSRATS
                             random = Random.CreateFromIndex(randomSeed == 0 ? (uint)System.DateTime.Now.Ticks : ++randomSeed)
                         });
 
+                        // Set as AI player
+                        if (i > 0)
+                            EntityManager.AddComponentData(player, new AIPlayer());
+
                         for (int j = 0; j < playerSpawner.maxArrows; j++)
                         {
                             var arrow = EntityManager.Instantiate(playerSpawner.arrowPrefab);

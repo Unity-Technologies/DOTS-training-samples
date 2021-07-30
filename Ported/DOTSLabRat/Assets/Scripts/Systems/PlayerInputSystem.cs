@@ -21,45 +21,42 @@ namespace DOTSRATS
 
             Entities
                 .WithAll<InPlay>()
+                .WithNone<AIPlayer>()
                 .WithoutBurst()
                 .ForEach((Entity entity, ref Player player) =>
                 {
-                    //Input only for main player
-                    if (player.playerNumber == 0)
+                    Ray ray = camera.ScreenPointToRay(UnityInput.mousePosition);
+                    float enter = 0.0f;
+
+                    if (boardPlane.Raycast(ray, out enter))
                     {
-                        Ray ray = camera.ScreenPointToRay(UnityInput.mousePosition);
-                        float enter = 0.0f;
+                        Vector3 hitPoint = ray.GetPoint(enter);
+                        var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
+                        
+                        var cellIndex = coord.y * gameState.boardSize + coord.x;
 
-                        if (boardPlane.Raycast(ray, out enter))
+                        if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize &&
+                            cellStructs[cellIndex].arrow == Direction.None && !cellStructs[cellIndex].hole && !cellStructs[cellIndex].goal)
                         {
-                            Vector3 hitPoint = ray.GetPoint(enter);
-                            var coord = new int2((int) (hitPoint.x + 0.5), (int) (hitPoint.z + 0.5));
-                            
-                            var cellIndex = coord.y * gameState.boardSize + coord.x;
-
-                            if (coord.x >= 0 && coord.x < gameState.boardSize && coord.y >= 0 && coord.y < gameState.boardSize &&
-                                cellStructs[cellIndex].arrow == Direction.None && !cellStructs[cellIndex].hole && !cellStructs[cellIndex].goal)
-                            {
-                                Direction direction;
-                                var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
-                                if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
-                                    direction = offset.y > 0 ? Direction.North : Direction.South;
-                                else
-                                    direction = offset.x > 0 ? Direction.East : Direction.West;
-                                
-                                EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(coord.x, 0.05f, coord.y) });
-                                EntityManager.SetComponentData(arrowPreviewEntity, new Rotation { Value = direction.ToArrowRotation() });
-
-                                if (UnityInput.GetMouseButtonDown(0))
-                                {
-                                    player.arrowToPlace = coord;
-                                    player.arrowDirection = direction;
-                                }
-                            }
+                            Direction direction;
+                            var offset = new float2(hitPoint.x - coord.x, hitPoint.z - coord.y);
+                            if (Mathf.Abs(offset.y) > Mathf.Abs(offset.x))
+                                direction = offset.y > 0 ? Direction.North : Direction.South;
                             else
+                                direction = offset.x > 0 ? Direction.East : Direction.West;
+                            
+                            EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(coord.x, 0.05f, coord.y) });
+                            EntityManager.SetComponentData(arrowPreviewEntity, new Rotation { Value = direction.ToArrowRotation() });
+
+                            if (UnityInput.GetMouseButtonDown(0))
                             {
-                                EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(-100, 0, -100) });
+                                player.arrowToPlace = coord;
+                                player.arrowDirection = direction;
                             }
+                        }
+                        else
+                        {
+                            EntityManager.SetComponentData(arrowPreviewEntity, new Translation { Value = new float3(-100, 0, -100) });
                         }
                     }
                 }).Run();

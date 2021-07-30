@@ -1,13 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using UnityInput = UnityEngine.Input;
 using UnityKeyCode = UnityEngine.KeyCode;
 
 namespace DOTSRATS
 {
-    public class PlayerSystem : SystemBase
+    public class ArrowPlacementSystem : SystemBase
     {
         protected override void OnCreate()
         {

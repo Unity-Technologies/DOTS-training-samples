@@ -25,25 +25,21 @@ namespace DOTSRATS
 
             Entities
                 .WithoutBurst()
-                .WithAll<InPlay>()
+                .WithAll<InPlay, AIPlayer>()
                 .ForEach((in Player player) =>
                 {
-                    if (player.playerNumber > 0)
-                    {
-                        var playerCursor = goRefs.playerCursors[player.playerNumber];
-                        var cellWorldPos = new Vector3(player.arrowToPlace.x, 0f, player.arrowToPlace.y);
-                        var cellScreenPos = camera.WorldToScreenPoint(cellWorldPos);
+                    var playerCursor = goRefs.playerCursors[player.playerNumber];
+                    var cellWorldPos = new Vector3(player.arrowToPlace.x, 0f, player.arrowToPlace.y);
+                    var cellScreenPos = camera.WorldToScreenPoint(cellWorldPos);
 
-                        var currentCursorPos = playerCursor.rectTransform.anchoredPosition;
-                        var targetCursorPos = Utils.WorldToCanvas(canvasRect, cellWorldPos, camera);
+                    var currentCursorPos = playerCursor.rectTransform.anchoredPosition;
+                    var targetCursorPos = Utils.WorldToCanvas(canvasRect, cellWorldPos, camera);
 
-                        var cursorVelocity = (Vector3)velocities[player.playerNumber - 1];
-                        currentCursorPos = Vector3.SmoothDamp(currentCursorPos, targetCursorPos, ref cursorVelocity, 0.5f, 1000f, timeDelta);
-                        velocities[player.playerNumber - 1] = cursorVelocity;
+                    var cursorVelocity = (Vector3)velocities[player.playerNumber - 1];
+                    currentCursorPos = Vector3.SmoothDamp(currentCursorPos, targetCursorPos, ref cursorVelocity, 0.5f, 1000f, timeDelta);
+                    velocities[player.playerNumber - 1] = cursorVelocity;
 
-                        playerCursor.rectTransform.anchoredPosition3D = currentCursorPos;
-                    }
-                    
+                    playerCursor.rectTransform.anchoredPosition3D = currentCursorPos;
                 }).Run();
         }
 
