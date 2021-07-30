@@ -70,7 +70,8 @@ namespace src.Systems
             
                     var waterSourcePosition = teamData.TargetWaterPos;
 
-                    Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime);
+                    if(teamData.IsValid)
+                        Utils.MoveToPosition(ref workerPosition, waterSourcePosition, configValues.WorkerSpeed * timeData.DeltaTime);
 
                     // Find NON-FULL buckets inside water source.
                     Utils.GetClosestBucket(waterSourcePosition, bucketPositions, out var sqrDistanceToBucket, out var closestBucketEntityIndex);
