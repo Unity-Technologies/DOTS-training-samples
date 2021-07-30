@@ -34,7 +34,7 @@ class SpawnerBeeSystem: SystemBase
                     var translation = new Translation {Value = pos};
                     ecb.SetComponent(instance, translation);
 
-                    const bool useNewShader = false;
+                    const bool useNewShader = true;
 
                     if (spawner.Team == 0)
                     {

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BeeMaterialA
-  m_Shader: {fileID: -6465566751694194690, guid: e876fbacb32d83d4487ac00c955c50fd, type: 3}
+  m_Name: BeeMaterialV2
+  m_Shader: {fileID: -6465566751694194690, guid: e01cf97afa92410439e9fe63e7ff422b, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -19,10 +19,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -36,11 +32,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_3a392b733a6d402e8cc73aa87833ce78: 0.2
-    - Vector1_7234e949b23949b082caa362ec876b37: 20
-    - _Glossiness: 0.668
-    - _Metallic: 0.358
+    - Vector1_3a392b733a6d402e8cc73aa87833ce78: 0.88
+    - Vector1_7234e949b23949b082caa362ec876b37: 9.4
     m_Colors:
-    - Color_b5f6e476e34e4699a387d4119c632d45: {r: 1, g: 0.90730923, b: 0, a: 0}
-    - _Color: {r: 0.36142504, g: 0.754717, b: 0.3109054, a: 1}
+    - Color_b5f6e476e34e4699a387d4119c632d45: {r: 1, g: 0.8942566, b: 0, a: 0}
   m_BuildTextureStacks: []
