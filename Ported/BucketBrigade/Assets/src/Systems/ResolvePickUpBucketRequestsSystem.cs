@@ -2,13 +2,14 @@
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace src.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(EndSimulationEntityCommandBufferSystem))]
-    public class ResolvePickUpBucketRequests : SystemBase
+    public class ResolvePickUpBucketRequestsSystem : SystemBase
     {
         EntityQuery m_Query;
         EntityQuery m_InvalidRequests;
@@ -21,6 +22,8 @@ namespace src.Systems
 
         protected override void OnUpdate()
         {
+            JobHandle.ScheduleBatchedJobs();
+            
             if (! m_InvalidRequests.IsEmpty)
             {
                 using var invalidEntities = m_InvalidRequests.ToEntityArray(Allocator.Temp);
@@ -30,7 +33,7 @@ namespace src.Systems
                 Debug.LogError($"You added {invalidEntities.Length} ResolvePickUpBucketRequest[s] to [a] HELD bucket[s]! {errorString}");
                 EntityManager.RemoveComponent<PickUpBucketRequest>(m_Query);
             }
-            
+
             var ecb = new EntityCommandBuffer(Allocator.TempJob, PlaybackPolicy.SinglePlayback);
             var parallelEcb = ecb.AsParallelWriter();
             
@@ -56,9 +59,10 @@ namespace src.Systems
                         // Do nothing.
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(request.PickupRequestType), request.PickupRequestType, nameof(ResolvePickUpBucketRequests));
+                        throw new ArgumentOutOfRangeException(nameof(request.PickupRequestType), request.PickupRequestType, nameof(ResolvePickUpBucketRequestsSystem));
                 }
-            }).ScheduleParallel();
+            }).Run();
+                        
             EntityManager.RemoveComponent<PickUpBucketRequest>(m_Query);
             
             // Playback resolutions.

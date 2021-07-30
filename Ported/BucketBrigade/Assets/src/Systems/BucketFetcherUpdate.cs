@@ -2,6 +2,7 @@
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ namespace src.Systems
         protected override void OnUpdate()
         {
             var configValues = GetSingleton<FireSimConfigValues>();
+            var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
             var timeData = Time;
             
             var ecb = m_EndSimulationEntityCommandBufferSystem.CreateCommandBuffer();
@@ -37,7 +39,7 @@ namespace src.Systems
             // Anyone with a BucketFetcherTag who hasn't got a bucket should find a bucket and move towards it.
             if (! m_NotFullBucketsOnFloorQuery.IsEmpty)
             {
-                var distanceToPickupBucketSqr = configValues.DistanceToPickupBucket * configValues.DistanceToPickupBucket;
+             
                 var bucketEntities = m_NotFullBucketsOnFloorQuery.ToEntityArray(Allocator.TempJob);
                 var bucketPositions = m_NotFullBucketsOnFloorQuery.ToComponentDataArray<Position>(Allocator.TempJob);
 
@@ -57,7 +59,9 @@ namespace src.Systems
 
                         if (closestBucketEntityIndex >= 0)
                         {
-                            if (Utils.MoveToPosition(ref pos, closestBucketPosition.Value, configValues.WorkerSpeed * timeData.DeltaTime))
+                            Debug.DrawLine(Utils.To3D(pos.Value), Utils.To3D(closestBucketPosition.Value), Color.blue);
+                            
+                            if (teamData.IsValid && Utils.MoveToPosition(ref pos, closestBucketPosition.Value, configValues.WorkerSpeed * timeData.DeltaTime))
                             {
                                 Utils.AddPickUpBucketRequest(concurrentEcb, entityInQueryIndex, workerEntity, bucketEntities[closestBucketEntityIndex], Utils.PickupRequestType.Carry);
                             }
@@ -80,10 +84,10 @@ namespace src.Systems
                     
                     // Then we move towards it.
                     var deltaToTeam = teamData.TargetWaterPos - pos.Value;
-                    var distanceToTeam = math.length(deltaToTeam);
+                    var distanceToTeamSqr = math.lengthsq(deltaToTeam);
 
                     // If in range, drop it at water location.
-                    if (Unity.Burst.CompilerServices.Hint.Likely(distanceToTeam > configValues.DistanceToPickupBucket))
+                    if (Unity.Burst.CompilerServices.Hint.Likely(distanceToTeamSqr > distanceToPickupBucketSqr))
                     {
                         pos.Value += math.normalizesafe(deltaToTeam) * timeData.DeltaTime * configValues.WorkerSpeedWhenHoldingBucket;
                         concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position { Value = pos.Value });
@@ -96,6 +100,8 @@ namespace src.Systems
                     }
                 }).ScheduleParallel();
 
+            JobHandle.ScheduleBatchedJobs();
+            
             m_EndSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
