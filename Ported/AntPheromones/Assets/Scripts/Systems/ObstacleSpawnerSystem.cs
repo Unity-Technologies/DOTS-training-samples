@@ -7,7 +7,7 @@ using Unity.Transforms;
 public class ObstacleSpawnerSystem : SystemBase
 {
     const int bucketResolution = 50;
-    int skip = 10;
+    int skip = 2;
 
     protected override void OnCreate()
     {
@@ -37,28 +37,10 @@ public class ObstacleSpawnerSystem : SystemBase
     {
         if (skip-- > 0)
             return;
-        Random rand = new Random(1234);
+        var seed = (uint)UnityEngine.Random.Range(1, 1000000);
+        var rand = new Random(seed + (uint)1);
         var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
-        UnityEngine.Debug.Log($"MapSize: {mapSize}");
         Entity obstacleBucketEntity = GetSingletonEntity<ObstacleBucketEntity>();
-        //using (var ecb = new EntityCommandBuffer(Allocator.Temp))
-        //{
-        //    Entities
-        //        .WithStructuralChanges()
-        //        .ForEach((Entity entity, in ObstacleSpawner spawner) =>
-        //        {
-        //            var bucketIndicesBuffer = GetBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
-        //            int bucketResolutionSq = bucketResolution * bucketResolution;
-        //            bucketIndicesBuffer.Length = bucketResolutionSq;
-        //            for (int i = 0; i < bucketResolutionSq; ++i)
-        //            {
-        //                var bucketEntity = ecb.CreateEntity();
-        //                bucketIndicesBuffer[i] = bucketEntity;
-        //                var bucket = ecb.AddBuffer<ObstacleBucket>(bucketEntity);
-        //            }
-        //        }).Run();
-        //    ecb.Playback(EntityManager);
-        //}
 
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
@@ -89,7 +71,6 @@ public class ObstacleSpawnerSystem : SystemBase
                                 float y = mapSize * .5f + math.sin(angle) * ringRadius;
                                 
                                 var obstacleEntity = ecb.Instantiate(spawner.ObstaclePrefab);
-                                UnityEngine.Debug.Log("AFter Instantiate");
 
                                 var translation = new Translation
                                 {
@@ -115,7 +96,6 @@ public class ObstacleSpawnerSystem : SystemBase
                                 {
                                     if (xx < 0 || xx > bucketResolution)
                                     {
-                                        UnityEngine.Debug.Log("Continue x");
                                         continue;
                                     }
 
@@ -123,21 +103,18 @@ public class ObstacleSpawnerSystem : SystemBase
                                     {
                                         if (yy < 0 || yy > bucketResolution)
                                         {
-                                            UnityEngine.Debug.Log("Continue y");
                                             continue;
                                         }
                                         //int xxx = (int)((float)xx / mapSize * (float)bucketResolution);
                                         //int yyy = (int)((float)yy / mapSize * (float)bucketResolution);
                                         int bucketEntityIndex = xx * bucketResolution + yy;
-
-                                        UnityEngine.Debug.Log($"Start AddToBuffer to {xx} {yy} {bucketEntityIndex}");
+                                        
                                         var bucketEntity = bucketIndicesBuffer[bucketEntityIndex];
                                         var buffer = GetBuffer<ObstacleBucket>(bucketEntity);
                                         buffer.Add(translation);
                                         //ecb.<ObstacleBucket>(bucketEntity, obstacleEntity);
 
                                         //buffer.Add(obstacleEntity);
-                                        UnityEngine.Debug.Log("End AddToBuffer");
 
                                         //var bucket = GetBuffer<ObstacleBucket>(bucketEntity);
                                         //bucket.Add(translation);

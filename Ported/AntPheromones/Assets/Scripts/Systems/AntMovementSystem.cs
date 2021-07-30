@@ -35,6 +35,10 @@ public class AntMovementSystem : SystemBase
         var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
         var resourceEntity = GetSingletonEntity<Resource>();
         var resourcePosition = GetComponent<Translation>(resourceEntity).Value;
+        var obstacleBucketEntity = GetSingletonEntity<ObstacleBucketEntity>();
+
+        // REPLACE ME
+        int bucketResolution = 50;
 
         var time = Time.DeltaTime * playerSpeed;
 
@@ -68,7 +72,43 @@ public class AntMovementSystem : SystemBase
                 facingAngle.Value += math.sign(pheroSteering) * pheromoneSteerStrength * time;
         
             }).ScheduleParallel();
-        
+
+        var bucketIndicesBuffer = GetBuffer<ObstacleBucketIndices>(obstacleBucketEntity);
+        Entities
+            .WithAny<Ant>()
+            .ForEach((ref FacingAngle facingAngle, in Translation translation) =>
+            {
+                int output = 0;
+                for (int i = -1; i <= 1; i += 2)
+                {
+                    float angle = facingAngle.Value + i * math.PI * .25f;
+                    float testX = translation.Value.x + math.cos(angle) * 1.5f;
+                    float testY = translation.Value.y + math.sin(angle) * 1.5f;
+
+                    if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize) { }
+                    else
+                    {
+
+                        int x = (int)(testX / mapSize * bucketResolution);
+                        int y = (int)(testY / mapSize * bucketResolution);
+                        if (x < 0 || y < 0 || x >= bucketResolution || y >= bucketResolution)
+                        { }
+                        else
+                        {
+                            int bucketEntityIndex = x * bucketResolution + y;
+                            var bucketEntity = bucketIndicesBuffer[bucketEntityIndex];
+                            var buffer = GetBuffer<ObstacleBucket>(bucketEntity);
+                            if (buffer.Length > 0)
+                            {
+                                output -= i;
+                            }
+                        }
+                    }
+                }
+
+                facingAngle.Value += output;
+            }).Run();
+
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelWriter = ecb.AsParallelWriter();
         Entities
