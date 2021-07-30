@@ -24,6 +24,8 @@ public class AntMovementSystem : SystemBase
         var pheromoneSteerStrength = GetComponent<GeneralSettings>(generalSettingsEntity).PheromoneSteerStrength;
         var inwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).InwardStrength;
         var outwardStrength = GetComponent<GeneralSettings>(generalSettingsEntity).OutwardStrength;
+        var carryColor = GetComponent<GeneralSettings>(generalSettingsEntity).CarryColor;
+        var searchColor = GetComponent<GeneralSettings>(generalSettingsEntity).SearchColor;
         var playerEntity = GetSingletonEntity<PlayerInput>();
         var playerSpeed = GetComponent<PlayerInput>(playerEntity).Speed;
         var colonyEntity = GetSingletonEntity<Colony>();
@@ -71,7 +73,7 @@ public class AntMovementSystem : SystemBase
         var parallelWriter = ecb.AsParallelWriter();
         Entities
             .WithAll<HoldingResource>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, ref URPMaterialPropertyBaseColor color, in Brightness brightness, in Translation translation) =>
             {
                 float3 targetPos = colonyPosition;
                 facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength, time);
@@ -79,13 +81,13 @@ public class AntMovementSystem : SystemBase
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.RemoveComponent<HoldingResource>(entityInQueryIndex, entity);
-                    parallelWriter.AddComponent<RemoveHoldingResourceColor>(entityInQueryIndex, entity);
+                    color.Value = new float4(searchColor.Value.x*brightness.Value, searchColor.Value.y*brightness.Value, searchColor.Value.z*brightness.Value, 1f);
                     facingAngle.Value += math.PI;
                 }
             }).ScheduleParallel();
         Entities
             .WithNone<HoldingResource>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref FacingAngle facingAngle, ref URPMaterialPropertyBaseColor color, in Brightness brightness, in Translation translation) =>
             {
                 float3 targetPos = resourcePosition;
                 facingAngle.Value = SteerToTarget(targetPos, translation.Value, facingAngle.Value, goalSteerStrength, time);
@@ -93,7 +95,7 @@ public class AntMovementSystem : SystemBase
                 if (math.lengthsq(translation.Value - targetPos) < 4f * 4f)
                 {
                     parallelWriter.AddComponent<HoldingResource>(entityInQueryIndex, entity);
-                    parallelWriter.AddComponent<AddHoldingResourceColor>(entityInQueryIndex, entity);
+                    color.Value = new float4(carryColor.Value.x*brightness.Value, carryColor.Value.y*brightness.Value, carryColor.Value.z*brightness.Value, 1f);
                     facingAngle.Value += math.PI;
                 }
             }).ScheduleParallel();
