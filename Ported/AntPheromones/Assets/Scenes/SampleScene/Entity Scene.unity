@@ -291,10 +291,14 @@ MonoBehaviour:
   normalExcitement: 0.3
   holdingResourceExcitement: 1
   antSpeed: 0.2
-  randomSteering: 0.14
-  goalSteerStrength: 0.03
+  randomSteering: 2
+  goalSteerStrength: 0.6
   pheromoneSteeringDistance: 3
-  pheromoneSteerStrength: 0.015
+  pheromoneSteerStrength: 0.2
+  inwardStrength: 0.02
+  outwardStrength: 0.02
+  SearchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 1}
+  CarryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 1}
 --- !u!4 &717986573
 Transform:
   m_ObjectHideFlags: 0
@@ -340,12 +344,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1c868fe3292fa444b5cbe3b083b244a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trailDecay: 0.015
-  trailSpeed: 0.5
+  trailDecay: 0.05
+  trailSpeed: 5
   mapSize: 128
   offset:
-    x: 14
-    y: 14
+    x: 0
+    y: 0
   worldSize: 100
 --- !u!23 &1031639572
 MeshRenderer:
@@ -404,7 +408,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1031639570}
   m_LocalRotation: {x: 0, y: 0.70710677, z: -0.70710677, w: 0}
-  m_LocalPosition: {x: 64, y: 64, z: 10}
+  m_LocalPosition: {x: 50, y: 50, z: 10}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
@@ -440,7 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 726478887858294159, guid: 8ffb3be10a7040f42b39f83f4393d662, type: 3}
-  AntCount: 340
+  AntCount: 1000
   Acceleration: 9.32
 --- !u!4 &1450744791
 Transform:

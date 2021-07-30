@@ -7,8 +7,8 @@ public class PheromoneMapAuthoring : UnityEngine.MonoBehaviour, IConvertGameObje
     public float trailSpeed = 0.3f;
 
     public int mapSize = 128;
-    public float2 offset = new float2(14,14);
-    public float worldSize = 100f;
+    public float2 offset = new float2(0,0);
+    public float worldSize = 128f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

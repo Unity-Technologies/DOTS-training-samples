@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -10,10 +11,14 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
     [UnityRange(0, 5)] public float normalExcitement = 0.3f;
     [UnityRange(0, 5)] public float holdingResourceExcitement = 1f;
     [UnityRange(0, 1)] public float antSpeed = 0.2f;
-    [UnityRange(0, 0.5f)] public float randomSteering = 0.14f;
-    [UnityRange(0, 0.1f)] public float goalSteerStrength = 0.03f;
+    [UnityRange(0, 5f)] public float randomSteering = 0.14f;
+    [UnityRange(0, 1f)] public float goalSteerStrength = 0.6f;
     [UnityRange(0, 5)] public float pheromoneSteeringDistance = 3f;
-    [UnityRange(0, .1f)] public float pheromoneSteerStrength = 0.015f;
+    [UnityRange(0, .5f)] public float pheromoneSteerStrength = 0.015f;
+    [UnityRange(0, 0.1f)] public float inwardStrength = 0.06f;
+    [UnityRange(0, 0.1f)] public float outwardStrength = 0.06f;
+    public UnityEngine.Color SearchColor;
+    public UnityEngine.Color CarryColor;
 
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
@@ -26,7 +31,11 @@ public class GeneralSettingsAuthoring : UnityMonoBehaviour
                 RandomSteering = randomSteering,
                 GoalSteerStrength = goalSteerStrength,
                 PheromoneSteeringDistance = pheromoneSteeringDistance,
-                PheromoneSteerStrength = pheromoneSteerStrength
+                PheromoneSteerStrength = pheromoneSteerStrength,
+                InwardStrength = inwardStrength,
+                OutwardStrength = outwardStrength,
+                SearchColor = new Color() {Value = new float4(SearchColor.r, SearchColor.g, SearchColor.b, SearchColor.a)},
+                CarryColor = new Color() {Value = new float4(CarryColor.r, CarryColor.g, CarryColor.b, CarryColor.a)}
             });
     }
 }

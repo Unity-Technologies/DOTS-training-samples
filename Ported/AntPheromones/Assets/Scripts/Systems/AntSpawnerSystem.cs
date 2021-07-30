@@ -9,6 +9,7 @@ public class AntSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var mapSize = GetComponent<MapSetting>(GetSingletonEntity<MapSetting>()).WorldSize;
+        var searchColor = GetComponent<GeneralSettings>(GetSingletonEntity<GeneralSettings>()).SearchColor;
         Random rand = new Random(1234);
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
@@ -22,9 +23,15 @@ public class AntSpawnerSystem : SystemBase
                     {
                         var spawnedEntity = ecb.Instantiate(spawner.AntPrefab);
                         ecb.AddComponent<Ant>(spawnedEntity);
+
+                        float3 position = new float3(rand.NextFloat(-5f, 5f) + mapSize * .5f, rand.NextFloat(-5f, 5f) + mapSize * .5f, 0);
                         ecb.SetComponent(spawnedEntity, new Translation
                         {
-                            Value = new float3(rand.NextFloat(-5f,5f)+mapSize*.5f,rand.NextFloat(-5f,5f) + mapSize * .5f, 0)
+                            Value = position
+                        });
+                        ecb.AddComponent(spawnedEntity, new LastPosition
+                        {
+                            Value = position
                         });
                         ecb.AddComponent(spawnedEntity, new Speed()
                         {
@@ -38,13 +45,18 @@ public class AntSpawnerSystem : SystemBase
                         {
                             Value = rand.NextFloat() * math.PI * 2f
                         });
+                        var brightness = rand.NextFloat(.75f, 1.25f);
                         ecb.AddComponent(spawnedEntity, new Brightness()
                         {
-                            Value = rand.NextFloat(.75f, 1.25f)
+                            Value = brightness
                         });
                         ecb.AddComponent(spawnedEntity, new Excitement
                         {
                             Value = 0
+                        });
+                        ecb.AddComponent(spawnedEntity, new URPMaterialPropertyBaseColor()
+                        {
+                            Value = new float4(searchColor.Value.x*brightness, searchColor.Value.y*brightness, searchColor.Value.z*brightness, 1f)
                         });
                     }
 
