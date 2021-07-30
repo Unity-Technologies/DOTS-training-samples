@@ -4,7 +4,7 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Product Name",
+            "ProductName": "Combat Bees",
             "CompanyName": "Company Name",
             "Version": "1.0.0"
         },

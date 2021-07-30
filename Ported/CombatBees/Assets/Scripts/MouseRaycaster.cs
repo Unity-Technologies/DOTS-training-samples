@@ -29,6 +29,9 @@ public class MouseRaycaster : MonoBehaviour {
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             using (var query = entityManager.CreateEntityQuery(typeof(GameConfig)))
             {
+                if (query.IsEmpty)
+                    return float3.zero;
+                
                 fieldSize = query.GetSingleton<GameConfig>().PlayingFieldSize;
             }
         }
@@ -36,7 +39,8 @@ public class MouseRaycaster : MonoBehaviour {
         return fieldSize.Value;
     }
 
-    void LateUpdate () {
+    void LateUpdate ()
+    {
         Ray mouseRay = cam.ScreenPointToRay(Input.mousePosition);
 
         isMouseTouchingField = false;
