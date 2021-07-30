@@ -8,7 +8,7 @@ namespace src.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(EndSimulationEntityCommandBufferSystem))]
-    public class ResolvePickUpBucketRequests : SystemBase
+    public class ResolvePickUpBucketRequestsSystem : SystemBase
     {
         EntityQuery m_Query;
         EntityQuery m_InvalidRequests;
@@ -56,7 +56,7 @@ namespace src.Systems
                         // Do nothing.
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(request.PickupRequestType), request.PickupRequestType, nameof(ResolvePickUpBucketRequests));
+                        throw new ArgumentOutOfRangeException(nameof(request.PickupRequestType), request.PickupRequestType, nameof(ResolvePickUpBucketRequestsSystem));
                 }
             }).ScheduleParallel();
             EntityManager.RemoveComponent<PickUpBucketRequest>(m_Query);
