@@ -10,4 +10,6 @@ public class GameStats
     public static readonly ProfilerCounter<int> ResourceCount =
         new ProfilerCounter<int>(BeeProfilerCategory, "Resource Count", ProfilerMarkerDataUnit.Count);
     
+    public static readonly ProfilerCounter<int> BloodCount =
+        new ProfilerCounter<int>(BeeProfilerCategory, "Blood Count", ProfilerMarkerDataUnit.Count);
 }

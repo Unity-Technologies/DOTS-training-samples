@@ -24,5 +24,10 @@ public class ScoreUpdater : MonoBehaviour
             var count = queryR.CalculateEntityCount();
             text.text += $"Resources : {count}\n";
         }
+        using (var queryBlood = entityManager.CreateEntityQuery(typeof(Blood)))
+        {
+            var count = queryBlood.CalculateEntityCount();
+            GameStats.BloodCount.Sample(count);
+        }
     }
 }
