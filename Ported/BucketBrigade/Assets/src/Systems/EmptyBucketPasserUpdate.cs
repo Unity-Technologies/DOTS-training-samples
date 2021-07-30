@@ -2,6 +2,7 @@ using System;
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -65,6 +66,7 @@ namespace src.Systems
 
                 }).ScheduleParallel();
 
+            JobHandle.ScheduleBatchedJobs();
             
             Entities.WithBurst()
                 .WithName("EmptyBucketPassersPassBuckets")
@@ -86,6 +88,8 @@ namespace src.Systems
                         concurrentEcb.SetComponent(entityInQueryIndex, workerIsHoldingBucket.Bucket, new Position() { Value = pos.Value });
 
                 }).ScheduleParallel();
+            
+            JobHandle.ScheduleBatchedJobs();
             
             AddECBAsDependency();
         }

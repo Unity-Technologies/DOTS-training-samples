@@ -2,6 +2,7 @@
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -99,6 +100,8 @@ namespace src.Systems
                     }
                 }).ScheduleParallel();
 
+            JobHandle.ScheduleBatchedJobs();
+            
             m_EndSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 

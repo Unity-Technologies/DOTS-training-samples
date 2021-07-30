@@ -2,6 +2,7 @@
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -73,7 +74,8 @@ namespace src.Systems
                         Utils.AddPickUpBucketRequest(concurrentEcb, hackedSortPosition, workerEntity, bucketEntities[bucketIndex], Utils.PickupRequestType.Carry);
                     }
                 }).ScheduleParallel();
-
+            
+            JobHandle.ScheduleBatchedJobs();
 
             Entities.WithBurst()
                 .WithName("FullBucketPassersPassBuckets")
@@ -96,6 +98,8 @@ namespace src.Systems
 
                 }).ScheduleParallel();
 
+            JobHandle.ScheduleBatchedJobs();
+            
             AddECBAsDependency();
         }
     }

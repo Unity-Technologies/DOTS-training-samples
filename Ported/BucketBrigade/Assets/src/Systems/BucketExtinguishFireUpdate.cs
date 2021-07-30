@@ -71,7 +71,7 @@ namespace src.Systems
                         }
                     }
 
-                }).Schedule();
+                }).Run();
 
             m_EndSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }

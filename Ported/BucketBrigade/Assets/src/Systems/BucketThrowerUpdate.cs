@@ -2,6 +2,8 @@
 using src.Components;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
+using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -54,7 +56,9 @@ namespace src.Systems
                             Utils.ThrowBucketAtFire(concurrentEcb, entityInQueryIndex, bucketEntities[closestBucketEntityIndex], firePosition);
                     }
                 }).ScheduleParallel();
-
+            
+            JobHandle.ScheduleBatchedJobs();
+            
             AddECBAsDependency();
         }
 

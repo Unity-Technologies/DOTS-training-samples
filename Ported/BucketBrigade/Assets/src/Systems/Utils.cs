@@ -17,20 +17,19 @@ namespace src.Systems
         /// </returns>
         public static bool MoveToPosition(ref Position pos, float2 targetPosition, float speed)
         {
-            // TODO: Simplify redundant math.
-            var deltaMovement = math.normalizesafe(targetPosition - pos.Value) * speed;
-            var currentDistanceSq = math.distancesq(pos.Value, targetPosition);
-
-            if (currentDistanceSq <= math.length(deltaMovement))
+            var deltaToTarget = targetPosition - pos.Value;
+            var distanceToTarget = math.distance(pos.Value, targetPosition);
+            
+            if (distanceToTarget <= speed)
             {
                 // Might make it look more obvious: pos.Value = targetPosition;
                 return true;
             }
-            else
-            {
-                pos.Value += deltaMovement;
-                return false;
-            }
+
+            // NW: Should never be a divide by zero as distanceToTarget must be < speed.
+            var deltaMovement = (deltaToTarget / distanceToTarget) * speed;
+            pos.Value += deltaMovement;
+            return false;
         }
 
         public enum PickupRequestType
