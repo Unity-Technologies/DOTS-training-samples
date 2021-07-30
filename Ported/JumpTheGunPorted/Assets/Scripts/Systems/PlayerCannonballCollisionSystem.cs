@@ -30,6 +30,9 @@ public class PlayerCannonballCollisionSystem : SystemBase
 
         Entities
             .WithName("player_cannonball_collision_test")
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((
                 int entityInQueryIndex,
                 in Cannonball cannonball,
@@ -44,8 +47,13 @@ public class PlayerCannonballCollisionSystem : SystemBase
                 {
                     parallelWriter.CreateEntity(entityInQueryIndex, spawnerArchetype);
                 }
-            }).ScheduleParallel();
-        
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
+
         _ECBSys.AddJobHandleForProducer(Dependency);
     }
 }

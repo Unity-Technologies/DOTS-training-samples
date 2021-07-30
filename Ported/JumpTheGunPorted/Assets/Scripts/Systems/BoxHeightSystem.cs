@@ -24,6 +24,9 @@ public class BoxHeightSystem : SystemBase
         Entities
             .WithName("box_height_update")
             .WithReadOnly(heightMap)
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((Entity box, int entityInQueryIndex, ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color, ref Translation translation) =>
             {
                 var x = (int) translation.Value.x;
@@ -33,9 +36,15 @@ public class BoxHeightSystem : SystemBase
                 scale.Value = new float3(1, height, 1);
                 color.Value = GetColorForHeight(height, config.MinTerrainHeight, config.MaxTerrainHeight);
                 translation.Value = new float3(translation.Value.x, height / 2, translation.Value.z);
-            }).ScheduleParallel();
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
+
     }
-    
+
     /// <summary>
     /// Helper function to calculate terrain color to use for a given height
     /// TODO: how/where do we put to share between spawner and ball collision system when it recalculates color based on new height

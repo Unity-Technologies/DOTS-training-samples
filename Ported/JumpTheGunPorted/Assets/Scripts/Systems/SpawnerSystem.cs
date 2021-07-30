@@ -51,6 +51,7 @@ public class SpawnerSystem : SystemBase
         var reloadTime = config.TankReloadTime;
 
         Entities
+            .WithName("spawner_update")
             .WithAll<Spawner>()
             .WithoutBurst()
             .ForEach((Entity entity) =>

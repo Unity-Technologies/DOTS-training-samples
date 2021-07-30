@@ -42,13 +42,17 @@ public class TankFiringSystem : SystemBase
         var paused = config.Paused;
 
         Entities
+            .WithName("tank_firing_update")
             .WithReadOnly(heightMap)
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref FiringTimer firingTimer, ref LookAtPlayer lookAt) =>
             {
                 // time to shoot yet?
                 if (!paused && time >= firingTimer.NextFiringTime)
                 {
-                    firingTimer.NextFiringTime = (float) time + reloadTime;
+                    firingTimer.NextFiringTime = (float)time + reloadTime;
 
                     // solving parabola path
                     //start at player and move towards the box the mouse is over
@@ -74,7 +78,7 @@ public class TankFiringSystem : SystemBase
 
                     float pitch = 0;
                     float height = CalculateHeight(start, end, playerParabolaPrecision, collisionStepMultiplier, terrainWidth, terrainLength, heightMap, out pitch);
-                    
+
                     if (height > 0)
                     {
                         lookAt.Pitch = pitch;
@@ -119,7 +123,12 @@ public class TankFiringSystem : SystemBase
                         UnityEngine.Debug.LogWarning("Cannonball height could not be determined, skipping launch");
                     }
                 }
-            }).ScheduleParallel();
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
         _ECBSys.AddJobHandleForProducer(Dependency);
     }
 

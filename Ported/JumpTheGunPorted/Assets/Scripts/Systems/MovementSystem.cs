@@ -12,6 +12,10 @@ public class MovementSystem : SystemBase
         var paused = config.Paused;
 
         Entities
+            .WithName("movement_update")
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((ref Translation translation, ref ParabolaTValue tValue, in Parabola parabola) =>
             {
                 if (tValue.Value >= 0 && !paused)
@@ -27,6 +31,12 @@ public class MovementSystem : SystemBase
                     // move forward in x/z, i.e. mouse input or cannon target,
                     translation.Value += parabola.Forward / (parabola.Duration / deltaTime); 
                 }
-            }).ScheduleParallel();
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
+
     }
 }

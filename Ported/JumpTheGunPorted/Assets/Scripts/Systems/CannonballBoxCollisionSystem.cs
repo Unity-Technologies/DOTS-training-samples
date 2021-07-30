@@ -41,6 +41,9 @@ public class CannonballBoxCollisionSystem : SystemBase
         Entities
             .WithName("cannonball_box_collision_check")
             .WithAll<Cannonball>()
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((Entity cannonball, int entityInQueryIndex, in Translation translation, in ParabolaTValue tValue) =>
             {
                 if (tValue.Value < 0.97f) // TODO: fix movement system so it actually gets to 1.0
@@ -53,7 +56,13 @@ public class CannonballBoxCollisionSystem : SystemBase
                 var y = (int) translation.Value.z;
                 changelistParallelWriter.AddNoResize(y * config.TerrainLength + x);
                 
-            }).ScheduleParallel();
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
+
 
         var heightMap = GetBuffer<HeightBufferElement>(boxMapEntity);
         

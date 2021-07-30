@@ -11,7 +11,11 @@ public class TankAimerSystem : SystemBase
         var playerTranslation = GetComponent<Translation>(player);
 
         Entities
+            .WithName("tank_aimer_update")
             .WithAll<LookAtPlayer>()
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((ref Rotation rotation, ref Translation translation, in LookAtPlayer lookAt) =>
             {
                 // make a forward vector to the player on the xz plane
@@ -27,7 +31,12 @@ public class TankAimerSystem : SystemBase
                 quaternion lookAtQuat = quaternion.LookRotation(forward, new float3(0f,1f,0));
                 rotation.Value = math.mul(lookAtQuat, quaternion.RotateX(-pitch));
 
-            }).ScheduleParallel();
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
     }
 
     /// <summary>

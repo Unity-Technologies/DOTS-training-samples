@@ -39,9 +39,13 @@ public class BounceSystem : SystemBase
         float3 mouseLocalPos = mouseWorldPos;
 
         Entities
+            .WithName("bounce_update")
             .WithAll<Player>()
             .WithReadOnly(heightMap)
             .WithReadOnly(occupiedMap)
+#if NO_BURST
+            .WithoutBurst()
+#endif
             .ForEach((Entity entity, int entityInQueryIndex, ref ParabolaTValue tValue, in Translation translation) =>
             {
                 if (tValue.Value < 0)
@@ -128,8 +132,13 @@ public class BounceSystem : SystemBase
                     // start the parabola movement
                     tValue.Value = 0;
                 }
-            }).ScheduleParallel();
-        
+            })
+#if NO_PARALLEL
+            .Schedule();
+#else
+            .ScheduleParallel();
+#endif
+
         _ECBSys.AddJobHandleForProducer(Dependency);
     }
 }
