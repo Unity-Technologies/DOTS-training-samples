@@ -51,6 +51,15 @@ class BeeSimulationSystem: SystemBase
         GameStats.BeeCount.Sample(capacity);
         GameStats.ResourceCount.Sample(resources.Length);
 
+        // check if there's a free resource for picking
+        bool hasFreeResource = false;
+        for(int i=0; i<resources.Length; ++i)
+            if(GetComponent<Resource>(resources[i]).CarryingBee == Entity.Null)
+            {
+                hasFreeResource = true;
+                break;
+            }
+
         Entities
             .WithReadOnly(teamABees)
             .WithReadOnly(teamBBees)
@@ -165,7 +174,8 @@ class BeeSimulationSystem: SystemBase
                 float targetSize = beeSize / 2.0f + dist;/*todo: set target size */
                 float collR2 = beeSize + targetSize;
                 collR2 *= collR2;
-                if(math.lengthsq(targetVec) < collR2)
+                int enemyBeeCount = HasComponent<TeamA>(entity) ? teamBBees.Length : teamABees.Length;
+                if(math.lengthsq(targetVec) < collR2 && (bee.State!=BeeState.Idle || (hasFreeResource && enemyBeeCount>0)))
                 {
                     parallelList.AddNoResize(entity);
                 }
