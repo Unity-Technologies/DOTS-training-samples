@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76e951be9bdd44a68b2e1011be4e7f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
+  BeePrefabA: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
+  BeePrefabB: {fileID: 5419349648496032795, guid: 3b143ac55959bbc4a9be143f9569e02d, type: 3}
   BeeSpawnCountOnResourceDrop: 6
   TeamABeeAggressivity: 0.6
   TeamBBeeAggressivity: 0.6
@@ -321,7 +322,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Team: 1
-  BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
   SpawnLocation:
     x: 2
     y: 0.5
@@ -361,7 +361,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Team: 0
-  BeePrefab: {fileID: 5419349648496032795, guid: b764ec4b140a02040b72ee37ee01e60a, type: 3}
   SpawnLocation:
     x: -2
     y: 0.5

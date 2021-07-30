@@ -5,7 +5,8 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct GameConfig : IComponentData
 {
-    public Entity BeePrefab;
+    public Entity BeePrefabA;
+    public Entity BeePrefabB;
     public uint BeeSpawnCountOnResourceDrop;
     [Range(0, 1)] public float TeamABeeAggressivity;
     [Range(0, 1)] public float TeamBBeeAggressivity;

@@ -110,4 +110,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CenterSize: 0.8
   LeftColor: {r: 1, g: 0.5019608, b: 0, a: 1}
-  RightColor: {r: 0, g: 0, b: 1, a: 1}
+  RightColor: {r: 0.16553926, g: 0.43411928, b: 0.8490566, a: 1}

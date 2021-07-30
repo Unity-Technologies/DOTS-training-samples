@@ -47,11 +47,10 @@ class ResourceSimulationSystem: SystemBase
                          {
                              parallelECB.DestroyEntity(0, entity);
                              // spawn new bees where it hit the ground
-                             var beePrefab = gameConfig.BeePrefab;
+                             var beePrefab = pos.translation.Value.x < 0f ? gameConfig.BeePrefabA : gameConfig.BeePrefabB;
                              var spawnerConfig = new SpawnBeeConfig
                              {
                                  BeeCount = gameConfig.BeeSpawnCountOnResourceDrop,
-                                 BeePrefab = beePrefab,
                                  SpawnAreaSize = new float3(0.01f, 0.01f, 0.01f),
                                  SpawnLocation = pos.translation.Value,
                                  Team = pos.translation.Value.x < 0f ? 0 : 1
