@@ -3,9 +3,11 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
+[UpdateInWorld(UpdateInWorld.TargetWorld.ClientAndServer)]
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public class ObstacleManagementSystem : SystemBase
 {
@@ -20,6 +22,7 @@ public class ObstacleManagementSystem : SystemBase
         base.OnCreate();
 
         RequireSingletonForUpdate<AntSimulationParams>();
+        RequireSingletonForUpdate<AntSimulationRuntimeData>();
         m_CircleObstacleGeneratorMarkerQuery = GetEntityQuery(ComponentType.ReadOnly<CircleObstacleGeneratorMarker>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
         obstaclesQuery = GetEntityQuery(ComponentType.ReadOnly<StaticObstacleFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
     }
@@ -28,19 +31,8 @@ public class ObstacleManagementSystem : SystemBase
     {
         var simParams = GetSingleton<AntSimulationParams>();
 
-        if (!TryGetSingleton(out AntSimulationRuntimeData simRuntimeData))
-        {
-            obstacleCollisionLookup = new NativeBitArray(simParams.mapSize * simParams.mapSize, Allocator.Persistent);
-
-            simRuntimeData.colonyPos = new float2(simParams.mapSize * .5f);
-            var resourceAngle = Random.value * 2f * math.PI;
-            simRuntimeData.foodPosition = simRuntimeData.colonyPos + (new float2(math.cos(resourceAngle), math.sin(resourceAngle)) * simParams.mapSize * .475f);
-            EntityManager.CreateEntity(ComponentType.ReadOnly<AntSimulationRuntimeData>());
-        }
-
-        simRuntimeData.perFrameRandomSeed = (uint)(Random.value * uint.MaxValue);
-        SetSingleton(simRuntimeData);
-        
+        if(! obstacleCollisionLookup.IsCreated) obstacleCollisionLookup = new NativeBitArray(simParams.mapSize * simParams.mapSize, Allocator.Persistent);
+       
         if (!m_CircleObstacleGeneratorMarkerQuery.IsEmpty)
         {
             var transforms = m_CircleObstacleGeneratorMarkerQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.Temp);

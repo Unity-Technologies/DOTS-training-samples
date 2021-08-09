@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Mono.Cecil;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Profiling;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+[UpdateInWorld(UpdateInWorld.TargetWorld.Client)]
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-public unsafe class AntSimulationRenderSystem : SystemBase
+public unsafe class ClientAntRenderSystem : SystemBase
 {
     public const int k_InstancesPerBatch = 1023;
 
@@ -25,7 +26,6 @@ public unsafe class AntSimulationRenderSystem : SystemBase
     long antsPerSecondCounter;
     double antsPerSecondDt;
     Matrix4x4 colonyMatrix;
-    AntSimulationSystem m_AntSimulationSystem;
     ObstacleManagementSystem m_ObstacleManagementSystem;
     public Material obstacleMaterial;
     Material pheromoneMaterialInstance;
@@ -36,19 +36,22 @@ public unsafe class AntSimulationRenderSystem : SystemBase
     NativeArray<Matrix4x4> rotationMatrixLookup;
     JobHandle simulationJobHandle;
     double simulationStepsPerRenderFrame;
+    AntQueriesSystem m_AntQueriesSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
-        m_ObstacleManagementSystem = World.GetOrCreateSystem<ObstacleManagementSystem>();
-        m_AntSimulationSystem = World.GetOrCreateSystem<AntSimulationSystem>();
-
+        m_ObstacleManagementSystem = World.GetExistingSystem<ObstacleManagementSystem>();
+        m_AntQueriesSystem = World.GetExistingSystem<AntQueriesSystem>();
+        
         RequireSingletonForUpdate<AntSimulationParams>();
         RequireSingletonForUpdate<AntSimulationRuntimeData>();
+        
+        RequireSingletonForUpdate<FoodPheromonesBufferData>();
+        RequireSingletonForUpdate<ColonyPheromonesBufferData>();
 
         reusableMatrices = new Matrix4x4[k_InstancesPerBatch];
-        new MaterialPropertyBlock();
     }
 
     protected override void OnDestroy()
@@ -91,7 +94,8 @@ public unsafe class AntSimulationRenderSystem : SystemBase
         // Prepare matrices as this is a render frame:
         using (s_RenderSetupMarker.Auto())
         {
-            if (pheromoneTextureInstance) // NWALKER: Find a way to determine if the entities have changed.
+            var obstacleCollisionLookup = m_ObstacleManagementSystem.obstacleCollisionLookup;
+            if (pheromoneTextureInstance && obstacleCollisionLookup.IsCreated) // NWALKER: Find a way to determine if the entities have changed.
             {
                 var rerenderStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
      
@@ -100,12 +104,15 @@ public unsafe class AntSimulationRenderSystem : SystemBase
                 {
                     var colors = pheromoneTextureInstance.GetPixelData<Color32>(0);
                     
+                    var pheromonesFood = this.GetSingletonBuffer<FoodPheromonesBufferData>().AsNativeArray().Reinterpret<float>();
+                    var pheromonesColony = this.GetSingletonBuffer<ColonyPheromonesBufferData>().AsNativeArray().Reinterpret<float>();
+                    
                     new PheromoneToColorJob
                     {
                         colors = colors,
-                        pheromonesColony = m_AntSimulationSystem.pheromonesColony,
-                        pheromonesFood = m_AntSimulationSystem.pheromonesFood,
-                        obstacleCollisionLookup = m_ObstacleManagementSystem.obstacleCollisionLookup,
+                        pheromonesColony = pheromonesColony,
+                        pheromonesFood = pheromonesFood,
+                        obstacleCollisionLookup = obstacleCollisionLookup,
                         addWallsToTexture = simParams.addWallsToTexture
                     }.Schedule(colors.Length, 4).Complete();
                 
@@ -126,25 +133,25 @@ public unsafe class AntSimulationRenderSystem : SystemBase
             
             if (simParams.renderAnts)
             {
-                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsHoldingFoodQuery, data.antMaerialHolding);
-                RenderForAntsInQuery(simParams, data, m_AntSimulationSystem.antsSearchingQuery, data.antMaterialSearching);
+                RenderForAntsInQuery(simParams, data, m_AntQueriesSystem.antsHoldingFoodQuery, data.antMaerialHolding);
+                RenderForAntsInQuery(simParams, data, m_AntQueriesSystem.antsSearchingQuery, data.antMaterialSearching);
             }
 
-            if (simParams.renderObstacles && !m_ObstacleManagementSystem.obstaclesQuery.IsEmpty)
-            {
-                var obstacleTransforms = m_ObstacleManagementSystem.obstaclesQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
-                var obstacleMatrices = new NativeArray<Matrix4x4>(obstacleTransforms.Length, Allocator.TempJob);
-                new ObstacleMatricesJob
-                {
-                    obstacleTransform2Ds = obstacleTransforms,
-                    matrices = obstacleMatrices,
-                    oneOverMapSize = 1f/simParams.mapSize,
-                    obstacleRadius = simParams.obstacleRadius / simParams.mapSize,
-                    
-                }.Schedule(obstacleTransforms.Length, 4).Complete();
-                RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial);
-                obstacleMatrices.Dispose();
-            }
+            // if (simParams.renderObstacles && !m_ObstacleManagementSystem.obstaclesQuery.IsEmpty)
+            // {
+            //     var obstacleTransforms = m_ObstacleManagementSystem.obstaclesQuery.ToComponentDataArray<AntSimulationTransform2D>(Allocator.TempJob);
+            //     var obstacleMatrices = new NativeArray<Matrix4x4>(obstacleTransforms.Length, Allocator.TempJob);
+            //     new ObstacleMatricesJob
+            //     {
+            //         obstacleTransform2Ds = obstacleTransforms,
+            //         matrices = obstacleMatrices,
+            //         oneOverMapSize = 1f/simParams.mapSize,
+            //         obstacleRadius = simParams.obstacleRadius / simParams.mapSize,
+            //         
+            //     }.Schedule(obstacleTransforms.Length, 4).Complete();
+            //     RenderAllNativeArrayMatrices(obstacleMatrices, data.obstacleMesh, data.obstacleMaterial);
+            //     obstacleMatrices.Dispose();
+            // }
 
             if (simParams.renderTargets)
             {
@@ -255,11 +262,11 @@ public unsafe class AntSimulationRenderSystem : SystemBase
     // }
     public string DumpStatusText()
     {
-        if (m_AntSimulationSystem.antsQuery == default) return "Waiting for AntSimulationSystem...";
+        if (m_AntQueriesSystem.antsQuery == default) return "Waiting for AntSimulationSystem...";
         
-        var antsCount = m_AntSimulationSystem.antsQuery.CalculateEntityCount();
-        var antsPerRenderFrame = antsCount * simulationStepsPerRenderFrame;
-        var antsPerMicros = antsPerSecond / 1000_000.0;
+        //var antsCount = m_AntQueriesSystem.antsQuery.CalculateEntityCount();
+        //var antsPerRenderFrame = antsCount * simulationStepsPerRenderFrame;
+        //var antsPerMicros = antsPerSecond / 1000_000.0;
 
         return $"Fps: {1.0 / UnityEngine.Time.unscaledDeltaTime:0.00}, Sim Steps per RFrame: {simulationStepsPerRenderFrame:0.000}\nRender CPU: {renderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render\nRerender CPU {rerenderElapsedSeconds.Average * 1000_000_000:#,000}ns per Render";
     }

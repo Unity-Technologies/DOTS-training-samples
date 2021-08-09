@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -23,5 +24,16 @@ public static class AntSimulationUtilities
         var y = Mathf.RoundToInt(pos.y);
         index = x + y * size;
         return new bool2(x >= 0 && x < size, y >= 0 && y < size);
+    }
+
+    public static DynamicBuffer<T> GetSingletonBuffer<T>(this SystemBase system) where T : struct, IBufferElementData
+    {
+        var entity = system.GetSingletonEntity<T>();
+        return system.GetBuffer<T>(entity);
+    }
+
+    public static uint GeneratePerFrameRandomSeed()
+    {
+        return (uint)(UnityEngine.Random.value * uint.MaxValue);
     }
 }

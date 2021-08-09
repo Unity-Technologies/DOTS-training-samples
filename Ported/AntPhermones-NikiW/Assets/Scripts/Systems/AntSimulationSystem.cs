@@ -7,20 +7,13 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.NetCode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-/// <summary>
-///     NW: Converted <see cref="AntSimulationRenderSystem" /> to this:
-/// </summary>
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateInGroup(typeof(ServerSimulationSystemGroup))] 
 public class AntSimulationSystem : SystemBase
 {
-    const float k_PIX2 = math.PI * 2f;
-
-    public EntityQuery antsHoldingFoodQuery;
-    public EntityQuery antsQuery;
-    public EntityQuery antsSearchingQuery;
     /// <summary>
     ///     0 = Number of times food was picked up.
     ///     1 = Number of times food was dropped off.
@@ -33,17 +26,19 @@ public class AntSimulationSystem : SystemBase
     ObstacleManagementSystem m_ObstacleManagementSystem;
 
     AverageState m_SimulationElapsedSeconds;
-
-    [NoAlias]
-    public NativeArray<float> pheromonesColony;
-    [NoAlias]
-    public NativeArray<float> pheromonesFood;
+    
+    AntQueriesSystem m_AntQueriesSystem;
 
     protected override void OnCreate()
-    {
+    { 
+        Debug.Log($"'{World.Name}' {this}.OnCreate!");
+        
         RequireSingletonForUpdate<AntSimulationParams>();
         RequireSingletonForUpdate<AntSimulationRuntimeData>();
         m_EndFixedStepSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
+        m_AntQueriesSystem = World.GetOrCreateSystem<AntQueriesSystem>();
+       
+        counters = new NativeArray<long>(3, Allocator.Persistent);
     }
 
     protected override void OnStartRunning()
@@ -56,24 +51,21 @@ public class AntSimulationSystem : SystemBase
             SetSingleton(simParams);
         }
 
-        Debug.Log($"Initializing {this}!");
-        counters = new NativeArray<long>(3, Allocator.Persistent);
-        pheromonesColony = new NativeArray<float>(simParams.mapSize * simParams.mapSize, Allocator.Persistent);
-        pheromonesFood = new NativeArray<float>(simParams.mapSize * simParams.mapSize, Allocator.Persistent);
-
-        m_ObstacleManagementSystem = World.GetOrCreateSystem<ObstacleManagementSystem>();
-
-        antsHoldingFoodQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<IsHoldingFoodFlag>());
-        antsSearchingQuery = GetEntityQuery(ComponentType.ReadOnly<AntSimulationTransform2D>(), ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.Exclude<IsHoldingFoodFlag>());
-        antsQuery = GetEntityQuery(ComponentType.ReadOnly<AntBehaviourFlag>(), ComponentType.ReadOnly<AntSimulationTransform2D>());
+        Debug.Log($"'{World.Name}' {this}.OnStartRunning!");
+        
+        m_ObstacleManagementSystem = World.GetExistingSystem<ObstacleManagementSystem>();
+        
+        // Init DynamicBuffers:
+        using var pheromonesBufferDatas = new NativeArray<FoodPheromonesBufferData>(simParams.mapSize * simParams.mapSize, Allocator.Temp);
+        var foodPheromonesBufferDatas = this.GetSingletonBuffer<FoodPheromonesBufferData>();
+        foodPheromonesBufferDatas.AddRange(pheromonesBufferDatas);
+        var colonyPheromonesBufferDatas = this.GetSingletonBuffer<ColonyPheromonesBufferData>();
+        colonyPheromonesBufferDatas.AddRange(pheromonesBufferDatas.Reinterpret<ColonyPheromonesBufferData>());
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-
-        if(pheromonesColony.IsCreated) pheromonesColony.Dispose();
-        if(pheromonesFood.IsCreated) pheromonesFood.Dispose();
         if(counters.IsCreated) counters.Dispose();
     }
 
@@ -87,8 +79,9 @@ public class AntSimulationSystem : SystemBase
         // NW: Need local variables to satisfy Entities Lambda.
         var countersLocal = counters;
         var obstacleCollisionLookupLocal = m_ObstacleManagementSystem.obstacleCollisionLookup;
-        var pheromonesFoodLocal = pheromonesFood;
-        var pheromonesColonyLocal = pheromonesColony;
+        if (!obstacleCollisionLookupLocal.IsCreated)
+            return;
+        
         var ecb = m_EndFixedStepSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         if (!simRuntimeData.hasSpawnedAnts)
@@ -96,18 +89,22 @@ public class AntSimulationSystem : SystemBase
             simRuntimeData.hasSpawnedAnts = true;
             SetSingleton(simRuntimeData);
 
-            var antEntities = EntityManager.Instantiate(simParams.antPrefab, simParams.antCount, Allocator.TempJob);
-            Debug.Assert(HasComponent<AntSimulationTransform2D>(simParams.antPrefab), "antPrefab MUST have a Transform2D!");
+            Debug.Log($"'{World.Name}' spawning {simParams.antCount} ants...");
+            
+            var antEntities = EntityManager.Instantiate(simParams.npcAntPrefab, simParams.antCount, Allocator.TempJob);
+            var minPos = new float2();
+            var maxPos = new float2(simParams.mapSize, simParams.mapSize);
+            Debug.Assert(HasComponent<AntSimulationTransform2D>(simParams.npcAntPrefab), "antPrefab MUST have a Transform2D!");
             for (var i = 0; i < antEntities.Length; i++)
             {
                 var antEntity = antEntities[i];
-                EntityManager.AddComponentData(antEntity, new LifeTicks
+                EntityManager.SetComponentData(antEntity, new LifeTicks
                 {
                     value = (ushort)(Random.value * 30)
                 });
                 EntityManager.SetComponentData(antEntity, new AntSimulationTransform2D
                 {
-                    position = simRuntimeData.colonyPos + (float2)Random.insideUnitCircle * simParams.colonyRadius,
+                    position = math.clamp(simRuntimeData.colonyPos + (float2)Random.insideUnitCircle * simParams.colonyRadius,minPos, maxPos),
                     facingAngle = (ushort)(Random.value * math.PI * 2)
                 });
             }
@@ -115,6 +112,7 @@ public class AntSimulationSystem : SystemBase
             antEntities.Dispose(Dependency);
         }
 
+        var perFrameRandomSeed = AntSimulationUtilities.GeneratePerFrameRandomSeed();
         Dependency = Entities
             .WithBurst()
             .ForEach((int nativeThreadIndex, ref AntSimulationTransform2D translation, ref LifeTicks lifeTicks) =>
@@ -123,14 +121,19 @@ public class AntSimulationSystem : SystemBase
                 {
                     // Ant died!
                     var seed = (uint)translation.position.x ^ (uint)translation.position.y;
-                    translation.position = simRuntimeData.colonyPos + new float2(math.cos(translation.facingAngle), math.sin(translation.facingAngle)) * Squirrel3.NextFloat(seed, simRuntimeData.perFrameRandomSeed, 0f, simParams.colonyRadius);
-                    lifeTicks.value = (ushort)(Squirrel3.NextDouble(seed, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                    translation.position = simRuntimeData.colonyPos + new float2(math.cos(translation.facingAngle), math.sin(translation.facingAngle)) * Squirrel3.NextFloat(seed, perFrameRandomSeed, 0f, simParams.colonyRadius);
+                    lifeTicks.value = (ushort)(Squirrel3.NextDouble(seed, perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
                     Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[2]);
                 }
 
                 lifeTicks.value--;
             }).ScheduleParallel(Dependency);
 
+        Dependency.Complete();
+        
+        var pheromonesFoodLocal = this.GetSingletonBuffer<FoodPheromonesBufferData>().AsNativeArray().Reinterpret<float>();
+        var pheromonesColonyLocal = this.GetSingletonBuffer<ColonyPheromonesBufferData>().AsNativeArray().Reinterpret<float>();
+        
         Dependency = new AntSteeringSimulationJob
         {
             ecb = ecb,
@@ -143,14 +146,17 @@ public class AntSimulationSystem : SystemBase
             EntityTypeHandle = GetEntityTypeHandle(),
             LifeTicksTypeHandle = GetComponentTypeHandle<LifeTicks>(),
             Transform2DTypeHandle = GetComponentTypeHandle<AntSimulationTransform2D>(),
-            IsHoldingFoodTypeHandle = GetComponentTypeHandle<IsHoldingFoodFlag>(true)
-        }.ScheduleParallel(antsQuery, 1, Dependency);
+            IsHoldingFoodTypeHandle = GetComponentTypeHandle<IsHoldingFoodFlag>(true),
+            perFrameRandomSeed = perFrameRandomSeed,
+        }.ScheduleParallel(m_AntQueriesSystem.antsQuery, 1, Dependency);
 
         m_EndFixedStepSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 
-        RunDropPheromonesJob(simParams, antsSearchingQuery, pheromonesColonyLocal, simParams.pheromoneAddSpeedWhenSearching);
-        RunDropPheromonesJob(simParams, antsHoldingFoodQuery, pheromonesFoodLocal, simParams.pheromoneAddSpeedWithFood);
+        RunDropPheromonesJob(simParams, m_AntQueriesSystem.antsSearchingQuery, pheromonesColonyLocal, simParams.pheromoneAddSpeedWhenSearching);
+        RunDropPheromonesJob(simParams, m_AntQueriesSystem.antsHoldingFoodQuery, pheromonesFoodLocal, simParams.pheromoneAddSpeedWithFood);
 
+        Dependency.Complete();
+       
         var weaken1 = new WeakenPotencyOfPheromonesJob
         {
             pheromones = pheromonesColonyLocal,
@@ -191,9 +197,9 @@ public class AntSimulationSystem : SystemBase
 
     public string DumpStatusText()
     {
-        if (antsQuery == default) return "Waiting for Query...";
+        if (m_AntQueriesSystem.antsQuery == default) return "Waiting for Query...";
 
-        var antsCount = antsQuery.CalculateEntityCount();
+        var antsCount = m_AntQueriesSystem.antsQuery.CalculateEntityCount();
         var found = counters[0];
         var gathered = counters[1];
         var gatheredPerc = (float)gathered / found;
@@ -240,12 +246,18 @@ public class AntSimulationSystem : SystemBase
         [NoAlias]
         public NativeArray<long> countersLocal;
 
+        [ReadOnly]
+        public uint perFrameRandomSeed;
+
         public unsafe void Execute(ArchetypeChunk chunk, int batchIndex)
         {
+            Debug.Assert(chunk.Has(LifeTicksTypeHandle), "No LifeTicks!");
+            Debug.Assert(chunk.Has(Transform2DTypeHandle), "No Transform2D!");
+            
             var entitiesPtr = chunk.GetNativeArray(EntityTypeHandle);
-            var lifeTicksPtr = (LifeTicks*)chunk.GetNativeArray(LifeTicksTypeHandle).GetUnsafePtr();
-            var transformsPtr = (AntSimulationTransform2D*)chunk.GetNativeArray(Transform2DTypeHandle).GetUnsafePtr();
-
+            var lifeTicksPtr = chunk.GetNativeArray(LifeTicksTypeHandle).GetUnsafePtr();
+            var transformsPtr = chunk.GetNativeArray(Transform2DTypeHandle).GetUnsafePtr();
+            
             var isHoldingFood = chunk.Has(IsHoldingFoodTypeHandle);
             
             NativeArray<float> pheromones;
@@ -269,11 +281,11 @@ public class AntSimulationSystem : SystemBase
 
             for (var i = 0; i < chunk.Count; i++)
             {
-                ref var trans = ref transformsPtr[i];
+                ref var trans = ref UnsafeUtility.ArrayElementAsRef<AntSimulationTransform2D>(transformsPtr, i);
                 var entity = entitiesPtr[i];
                 
                 // NW: Add some random rotation to indicate "curiosity"...
-                var randRotation = Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, -simParams.randomSteeringStrength, simParams.randomSteeringStrength);
+                var randRotation = Squirrel3.NextFloat((uint)entity.Index, perFrameRandomSeed, -simParams.randomSteeringStrength, simParams.randomSteeringStrength);
                 trans.facingAngle += randRotation;
 
                 // Avoid walls:
@@ -327,21 +339,24 @@ public class AntSimulationSystem : SystemBase
                     // Pick up / Drop off food only when we're within LOS and within distance.
                     if (distanceToTarget < simParams.colonyRadius)
                     {
+                        ref var lifeTicks = ref UnsafeUtility.ArrayElementAsRef<LifeTicks>(lifeTicksPtr, i);
+                        
                         // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                         if (isHoldingFood)
                         {
                             ecb.RemoveComponent<IsHoldingFoodFlag>(entity.Index, entity);
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[1]);
+
                             
-                            lifeTicksPtr[i].value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
-                            trans.facingAngle += Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, -math.PI, math.PI);
+                            lifeTicks.value = (ushort)(Squirrel3.NextFloat((uint)entity.Index, perFrameRandomSeed, 0.5f, 1.5f) * simParams.ticksForAntToDie);
+                            trans.facingAngle += Squirrel3.NextFloat((uint)entity.Index, perFrameRandomSeed, -math.PI, math.PI);
                         }
                         else
                         {
                             ecb.AddComponent<IsHoldingFoodFlag>(entity.Index, entity);
                             Interlocked.Increment(ref ((long*)countersLocal.GetUnsafePtr())[0]);
                             
-                            lifeTicksPtr[i].value += (ushort)(Squirrel3.NextFloat((uint)entity.Index, simRuntimeData.perFrameRandomSeed, 0.25f, 0.75f) * simParams.ticksForAntToDie);
+                            lifeTicks.value += (ushort)(Squirrel3.NextFloat((uint)entity.Index, perFrameRandomSeed, 0.25f, 0.75f) * simParams.ticksForAntToDie);
                             trans.facingAngle += math.PI;
                         }
                     }
@@ -432,14 +447,13 @@ public class AntSimulationSystem : SystemBase
             var y = Mathf.RoundToInt(position.y);
 
             var isInBounds = AntSimulationUtilities.CalculateIsInBounds(in x, in y, in mapSize, out var pheromoneIndex);
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            if (!math.any(isInBounds))
-                throw new InvalidOperationException("Attempting to DropPheromones outside the map bounds!");
-#endif
 
-            ref var value = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
-            var excitement = pheromoneAddSpeed;
-            value += excitement * simulationDt;
+            if (Unity.Burst.CompilerServices.Hint.Likely(math.any(isInBounds)))
+            {
+                ref var value = ref UnsafeUtility.ArrayElementAsRef<float>(pheromones.GetUnsafePtr(), pheromoneIndex);
+                var excitement = pheromoneAddSpeed;
+                value += excitement * simulationDt;
+            }
         }
     }
 

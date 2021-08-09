@@ -1,0 +1,32 @@
+{
+    "name": "Unity.NetCode.Generated",
+    "references": [
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:953adc2a6b8b4e3c8df5b728bcd546e9",
+        "GUID:a5baed0c9693541a5bd947d336ec7659",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:5f3cf485eb0554709a8abbeace890c86",
+        "GUID:e04e6c86a9f3947eb95fded39f9e60cc",
+        "GUID:363a3288c06c1c14cbbeedbda31215f9",
+        "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
+        "Unity.Networking.Transport"
+    ],
+    "includePlatforms": [
+        
+    ],
+    "excludePlatforms": [
+        
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

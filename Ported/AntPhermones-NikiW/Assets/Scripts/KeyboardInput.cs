@@ -9,7 +9,9 @@ public class KeyboardInput : MonoBehaviour
     static bool showText = true;
     public Text infoText;
     public Text statusText;
-    
+    ClientAntRenderSystem m_ClientAntRenderSystem;
+    AntSimulationSystem m_AntSimulationSystem;
+
     void Start()
     {
         statusText.enabled = infoText.enabled = showText;
@@ -48,38 +50,49 @@ public class KeyboardInput : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.Alpha9))
             Time.timeScale = 100f;
 
-        var world = World.DefaultGameObjectInjectionWorld;
-        var antRenderSystem = world.GetExistingSystem<AntSimulationRenderSystem>();
-        var antSimulationSystem = world.GetExistingSystem<AntSimulationSystem>();
+        m_AntSimulationSystem ??= FindSystemInAllWorlds<AntSimulationSystem>();
+        m_ClientAntRenderSystem ??= FindSystemInAllWorlds<ClientAntRenderSystem>();
 
-        if (antSimulationSystem != null)
+        if (m_AntSimulationSystem != null)
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
-                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                var simParams = m_AntSimulationSystem.GetSingleton<AntSimulationParams>();
                 simParams.addWallsToTexture ^= true;
-                antSimulationSystem.SetSingleton(simParams);
+                m_AntSimulationSystem.SetSingleton(simParams);
             }
             if (Input.GetKeyDown(KeyCode.A))
             {
-                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                var simParams = m_AntSimulationSystem.GetSingleton<AntSimulationParams>();
                 simParams.renderAnts ^= true;
-                antSimulationSystem.SetSingleton(simParams);
+                m_AntSimulationSystem.SetSingleton(simParams);
             }
             if (Input.GetKeyDown(KeyCode.W))
             {
-                var simParams = antSimulationSystem.GetSingleton<AntSimulationParams>();
+                var simParams = m_AntSimulationSystem.GetSingleton<AntSimulationParams>();
                 simParams.renderObstacles ^= true;
-                antSimulationSystem.SetSingleton(simParams);
+                m_AntSimulationSystem.SetSingleton(simParams);
             }
         }
         
         if (Time.frameCount <= 1 || Time.frameCount % 30 == 0)
         {
-            if (antRenderSystem == null || antSimulationSystem == null)
-                statusText.text = "No stats, cannot find Systems!";
-            else
-                statusText.text = antRenderSystem.DumpStatusText() + "\n\n" + antSimulationSystem.DumpStatusText();
+            var s = m_AntSimulationSystem == null ? "No Ant Simulation System in any World!" : m_AntSimulationSystem.DumpStatusText();
+            s += "\n\n";
+            s += m_ClientAntRenderSystem == null ? "No Ant Render System in any World!" : m_ClientAntRenderSystem.DumpStatusText();
+            statusText.text = s;
         }
+    }
+
+    static T FindSystemInAllWorlds<T>() where T : ComponentSystemBase
+    {
+        foreach (var world in World.All)
+        {
+            var componentSystemBase = world.GetExistingSystem<T>();
+            if (componentSystemBase != null)
+                return componentSystemBase;
+        }
+
+        return default;
     }
 }

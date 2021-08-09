@@ -36,8 +36,12 @@ public struct AntSimulationParams : IComponentData
     public bool renderTargets;
     public ushort ticksForAntToDie;
     public float colonyRadius;
-    public Entity antPrefab;
+    public Entity npcAntPrefab;
+    public Entity playerAntPrefab;
     public Entity obstaclePrefab;
+    public Entity antSimulationRuntimeDataPrefab;
+    public Entity foodPheromonesPrefab;
+    public Entity colonyPheromonesPrefab;
     
     public static AntSimulationParams Default = new AntSimulationParams
     {
@@ -65,5 +69,5 @@ public struct AntSimulationParams : IComponentData
         ticksForAntToDie = 5000,
         colonyRadius = 3,
     };
-   
+
 }

@@ -4,6 +4,7 @@ using Unity.Entities;
 /// <summary>
 ///     Ants die if away from the <see cref="ColonyFlag"/>/<see cref="FoodSourceFlag"/> for a while.
 /// </summary>
+[GenerateAuthoringComponent]
 public struct LifeTicks : IComponentData
 {
     /// <summary>
