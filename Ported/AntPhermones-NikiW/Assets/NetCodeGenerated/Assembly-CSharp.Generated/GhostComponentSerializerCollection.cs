@@ -11,6 +11,7 @@ namespace Assembly_CSharp.Generated
         protected override void OnCreate()
         {
             var ghostCollectionSystem = World.GetOrCreateSystem<GhostCollectionSystem>();
+            ghostCollectionSystem.AddSerializer(AntSimulationParamsGhostComponentSerializer.State);
             ghostCollectionSystem.AddSerializer(ColonyPheromonesBufferDataGhostComponentSerializer.State);
             ghostCollectionSystem.AddSerializer(AntSimulationRuntimeDataGhostComponentSerializer.State);
             ghostCollectionSystem.AddSerializer(AntSimulationTransform2DGhostComponentSerializer.State);

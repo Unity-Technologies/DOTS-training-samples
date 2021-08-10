@@ -15,4 +15,5 @@ public struct CircleObstacleGeneratorMarker : IComponentData
     public float radius;
     [Range(0f, 1f)]
     public float obstaclesPerRingNormalized;
+    public uint seed;
 }

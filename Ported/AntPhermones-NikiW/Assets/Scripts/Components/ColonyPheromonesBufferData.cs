@@ -8,9 +8,9 @@ using Unity.NetCode;
 ///     InternalBufferCapacity set to max out chunk memory, as singleton.
 /// </summary>
 [GenerateAuthoringComponent]
-[InternalBufferCapacity(2000)]
+[InternalBufferCapacity(3700)]
 public struct ColonyPheromonesBufferData : IBufferElementData
 {
-    [GhostField(Quantization = 1000)]
+    [GhostField(Quantization = 100, Smoothing = SmoothingAction.Clamp)]
     public float Value;
 }

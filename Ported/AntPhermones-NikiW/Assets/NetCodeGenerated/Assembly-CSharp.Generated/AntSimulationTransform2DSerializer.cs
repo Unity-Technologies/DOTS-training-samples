@@ -23,7 +23,7 @@ namespace Assembly_CSharp.Generated
             {
                 s_State = new GhostComponentSerializer.State
                 {
-                    GhostFieldsHash = 2539048204906628526,
+                    GhostFieldsHash = 62639027266352865,
                     ExcludeFromComponentCollectionHash = 0,
                     ComponentType = ComponentType.ReadWrite<AntSimulationTransform2D>(),
                     ComponentSize = UnsafeUtility.SizeOf<AntSimulationTransform2D>(),
@@ -75,9 +75,9 @@ namespace Assembly_CSharp.Generated
                 ref var snapshot = ref GhostComponentSerializer.TypeCast<Snapshot>(snapshotData, snapshotOffset + snapshotStride*i);
                 ref var component = ref GhostComponentSerializer.TypeCast<AntSimulationTransform2D>(componentData, componentStride*i);
                 ref var serializerState = ref GhostComponentSerializer.TypeCast<GhostSerializerState>(stateData, 0);
-                snapshot.position_x = (int) math.round(component.position.x * 1000);
-                snapshot.position_y = (int) math.round(component.position.y * 1000);
-                snapshot.facingAngle = (int) math.round(component.facingAngle * 360);
+                snapshot.position_x = (int) math.round(component.position.x * 100);
+                snapshot.position_y = (int) math.round(component.position.y * 100);
+                snapshot.facingAngle = (int) math.round(component.facingAngle * 180);
             }
         }
         [BurstCompile]
@@ -103,8 +103,17 @@ namespace Assembly_CSharp.Generated
                 float snapshotInterpolationFactorRaw = snapshotInterpolationData.InterpolationFactor;
                 float snapshotInterpolationFactor = snapshotInterpolationFactorRaw;
                 ref var component = ref GhostComponentSerializer.TypeCast<AntSimulationTransform2D>(componentData, componentStride*i);
-                component.position = new float2(snapshotBefore.position_x * 0.001f, snapshotBefore.position_y * 0.001f);
-                component.facingAngle = snapshotBefore.facingAngle * 0.002777778f;
+                snapshotInterpolationFactor = snapshotInterpolationFactorRaw;
+                var position_Before = new float2(snapshotBefore.position_x * 0.01f, snapshotBefore.position_y * 0.01f);
+                var position_After = new float2(snapshotAfter.position_x * 0.01f, snapshotAfter.position_y * 0.01f);
+                var position_DistSq = math.distancesq(position_Before, position_After);
+                if (position_DistSq > 100)
+                    snapshotInterpolationFactor = 0;
+                component.position = math.lerp(position_Before, position_After, snapshotInterpolationFactor);
+                snapshotInterpolationFactor = snapshotInterpolationFactorRaw;
+                var facingAngle_Before = snapshotBefore.facingAngle * 0.005555556f;
+                var facingAngle_After = snapshotAfter.facingAngle * 0.005555556f;
+                component.facingAngle = math.lerp(facingAngle_Before, facingAngle_After, snapshotInterpolationFactor);
 
             }
         }

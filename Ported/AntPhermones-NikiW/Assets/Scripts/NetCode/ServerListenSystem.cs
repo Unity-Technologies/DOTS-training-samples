@@ -10,23 +10,41 @@ using UnityEngine;
 [UpdateInGroup(typeof(ServerSimulationSystemGroup))]
 public partial class ServerListenSystem : SystemBase
 {
+    bool m_HasSetClientServerTickRate;
+    
     protected override void OnUpdate()
     {
+        if (!m_HasSetClientServerTickRate)
+        {
+            Debug.Log("Setting ClientServerTickRate!");
+            TryGetSingleton(out ClientServerTickRate clientServerTickRate);
+            clientServerTickRate.ResolveDefaults();
+            clientServerTickRate.SimulationTickRate = 60;
+            clientServerTickRate.NetworkTickRate = 15;
+            clientServerTickRate.MaxSimulationStepsPerFrame = 8;
+            SetSingleton(clientServerTickRate);
+            m_HasSetClientServerTickRate = true;
+            Application.targetFrameRate = 60;
+            QualitySettings.vSyncCount = 0;
+        }
+        
         // Ensure the AntSimulation singleton is setup:
-        if (!TryGetSingleton<AntSimulationParams>(out var simParams)) 
+        if (!TryGetSingleton<AntSimulationPrefabs>(out var prefabs)) 
             return;
         
         if (!TryGetSingleton(out AntSimulationRuntimeData simRuntimeData))
         {
-            Debug.Log("Server spawning replicated AntSimulationRuntimeParams...");
+            var simParams = EntityManager.GetComponentData<AntSimulationParams>(prefabs.antSimulationRuntimeDataPrefab);
+            Debug.Log($"Server spawning replicated AntSimulationRuntimeParams: mapSize: {simParams.mapSize}, antCount: {simParams.antCount}");
+            
             simRuntimeData.colonyPos = new float2(simParams.mapSize * .5f);
             var resourceAngle = UnityEngine.Random.value * 2f * math.PI;
             simRuntimeData.foodPosition = simRuntimeData.colonyPos + (new float2(math.cos(resourceAngle), math.sin(resourceAngle)) * simParams.mapSize * .475f);
-            var simRuntimeDataEntity = EntityManager.Instantiate(simParams.antSimulationRuntimeDataPrefab);
+            var simRuntimeDataEntity = EntityManager.Instantiate(prefabs.antSimulationRuntimeDataPrefab);
             EntityManager.SetComponentData(simRuntimeDataEntity, simRuntimeData);
 
-            EntityManager.Instantiate(simParams.foodPheromonesPrefab);
-            EntityManager.Instantiate(simParams.colonyPheromonesPrefab);
+            EntityManager.Instantiate(prefabs.foodPheromonesPrefab);
+            EntityManager.Instantiate(prefabs.colonyPheromonesPrefab);
         }
         
         // Server world automatically listen for connections from any host:
@@ -38,10 +56,8 @@ public partial class ServerListenSystem : SystemBase
             network.Listen(ep);
             Debug.Log($"Server in '{World.Name}' starting listening at address: '{ep.Address}'!");
         }
-
-        var antSimulationParams = GetSingleton<AntSimulationParams>();
-        var playerAntPrefab = antSimulationParams.playerAntPrefab;
-        var prefabName = new FixedString64($"{playerAntPrefab}:{EntityManager.GetName(playerAntPrefab)}");
+        
+        var prefabName = new FixedString64($"{prefabs.playerAntPrefab}:{EntityManager.GetName(prefabs.playerAntPrefab)}");
         
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
         var networkIdFromEntity = GetComponentDataFromEntity<NetworkIdComponent>(true);
@@ -52,7 +68,7 @@ public partial class ServerListenSystem : SystemBase
             
             Debug.Log($"Ant MP: Server setting NetworkConnection {networkId.Value} to in game, so spawning '{prefabName}' for player!");
 
-            var player = commandBuffer.Instantiate(playerAntPrefab);
+            var player = commandBuffer.Instantiate(prefabs.playerAntPrefab);
             commandBuffer.SetComponent(player, new GhostOwnerComponent { NetworkId = networkId.Value});
 
             commandBuffer.AddBuffer<AntInput>(player);

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5267409963977197040}
   - component: {fileID: 8844905478281787214}
   - component: {fileID: 7760303381279513365}
+  - component: {fileID: 9139403613322041124}
   m_Layer: 0
   m_Name: AntSimulationRuntimeData
   m_TagString: Untagged
@@ -60,9 +61,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ForcePrefabConversion: 0
   DefaultGhostMode: 2
-  SupportedGhostModes: 2
+  SupportedGhostModes: 1
   OptimizationMode: 1
-  Importance: 5
+  Importance: 1000
   prefabId: 290d6c8f173f9d04d819a646f4817c85
   Name: AntSimulationRuntimeData
   RefGameObjects: []
@@ -89,3 +90,39 @@ MonoBehaviour:
     x: 0
     y: 0
   hasSpawnedAnts: 0
+--- !u!114 &9139403613322041124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118689052044523085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb060e5f6daa83d429c3700216b755ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  antCount: 100
+  mapSize: 128
+  antSize:
+    x: 0.008
+    y: 0.004
+    z: 0.004
+  antSpeedSearching: 0.2
+  antSpeedHoldingFood: 0.15
+  pheromoneAddSpeedWithFood: 0.1
+  pheromoneAddSpeedWhenSearching: 0.03
+  pheromoneDecay: 0.995
+  randomSteeringStrength: 0.1
+  pheromoneSteerStrengthWithFood: 0.1
+  pheromoneSteerStrengthWhenSearching: 0.1
+  wallSteerStrength: 0.12
+  seenTargetSteerStrength: 0.05
+  colonySteerStrength: 0
+  antRotationResolution: 360
+  obstacleRadius: 1
+  renderAnts: 1
+  addWallsToTexture: 1
+  renderTargets: 1
+  ticksForAntToDie: 5000
+  colonyRadius: 8

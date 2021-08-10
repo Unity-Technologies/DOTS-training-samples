@@ -62,7 +62,7 @@ MonoBehaviour:
   DefaultGhostMode: 0
   SupportedGhostModes: 1
   OptimizationMode: 0
-  Importance: 2
+  Importance: 500
   prefabId: 24007d8543786e14cb0a1ff275ab4653
   Name: ColonyPheromones
   RefGameObjects: []

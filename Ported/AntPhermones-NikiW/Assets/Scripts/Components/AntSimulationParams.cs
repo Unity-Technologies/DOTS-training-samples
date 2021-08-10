@@ -1,48 +1,63 @@
 ﻿using System;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.NetCode;
 using UnityEngine;
 
 /// <summary>
-///     Singleton data for Ants.
+///     Singleton gameplay param data for the AntSimulation.
 /// </summary>
 [NoAlias]
 [GenerateAuthoringComponent]
 public struct AntSimulationParams : IComponentData
 {
+    [GhostField]
     [Range(0f, 500_000f)]
     public int antCount;
+    [GhostField]
     public int mapSize;
-    public Vector3 antSize;
+    [GhostField]
+    public float3 antSize;
+    [GhostField]
     public float antSpeedSearching;
+    [GhostField]
     public float antSpeedHoldingFood;
+    [GhostField]
     public float pheromoneAddSpeedWithFood;
+    [GhostField]
     public float pheromoneAddSpeedWhenSearching;
+    [GhostField]
     [Range(0f, 1f)]
     public float pheromoneDecay;
+    [GhostField]
     public float randomSteeringStrength;
+    [GhostField]
     public float pheromoneSteerStrengthWithFood;
+    [GhostField]
     public float pheromoneSteerStrengthWhenSearching;
+    [GhostField]
     public float wallSteerStrength;
-    public float unknownFoodResourceSteerStrength;
+    [GhostField]
     public float seenTargetSteerStrength;
+    [GhostField]
     public float colonySteerStrength;
+    [GhostField]
     public int antRotationResolution;
-    public int obstacleRingCount;
+    [GhostField]
     public float obstacleRadius;
+    [GhostField]
     public bool renderAnts;
-    public bool renderObstacles;
+    [GhostField]
     public bool addWallsToTexture;
+    [GhostField]
     public bool renderTargets;
+    [GhostField]
     public ushort ticksForAntToDie;
+    [GhostField]
     public float colonyRadius;
-    public Entity npcAntPrefab;
-    public Entity playerAntPrefab;
-    public Entity obstaclePrefab;
-    public Entity antSimulationRuntimeDataPrefab;
-    public Entity foodPheromonesPrefab;
-    public Entity colonyPheromonesPrefab;
-    
+
+
     public static AntSimulationParams Default = new AntSimulationParams
     {
         mapSize = 128,
@@ -56,18 +71,14 @@ public struct AntSimulationParams : IComponentData
         pheromoneSteerStrengthWithFood = 0.1f,
         pheromoneSteerStrengthWhenSearching = 0.05f,
         wallSteerStrength = 0.12f,
-        unknownFoodResourceSteerStrength = 0.01f,
         seenTargetSteerStrength = 1,
         colonySteerStrength = 0.05f,
         antRotationResolution = 360,
-        obstacleRingCount = 3,
         obstacleRadius = 2,
         renderAnts = true,
-        renderObstacles = false,
         addWallsToTexture = true,
         renderTargets = true,
         ticksForAntToDie = 5000,
-        colonyRadius = 3,
+        colonyRadius = 3
     };
-
 }

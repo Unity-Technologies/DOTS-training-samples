@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 [UpdateInWorld(UpdateInWorld.TargetWorld.ClientAndServer)]
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -54,8 +53,8 @@ public class ObstacleManagementSystem : SystemBase
             //             var ringRadius = i / (marker.ringCount + 1f) * (marker.radius);
             //             var circumference = ringRadius * 2f * math.PI;
             //             var maxCount = Mathf.CeilToInt(circumference / (2f * marker.radius) * 2f);
-            //             var offset = Random.Range(0, maxCount);
-            //             var holeCount = Random.Range(1, 3);
+            //             var offset = FIXRAND.Range(0, maxCount);
+            //             var holeCount = FIXRAND.Range(1, 3);
             //             for (var j = 0; j < maxCount; j++)
             //             {
             //                 var t = (float)j / maxCount;
@@ -120,14 +119,15 @@ public class ObstacleManagementSystem : SystemBase
         void GenerateObstacles(float2 basePosition, CircleObstacleGeneratorMarker marker, in AntSimulationParams simParams)
         {
             // Generate obstacles in a circle:
+            var rand = Unity.Mathematics.Random.CreateFromIndex(marker.seed);
             var obstaclePositions = new NativeList<float2>(1024, Allocator.Temp);
             for (var i = 1; i <= marker.ringCount; i++)
             {
                 var ringRadius = i / (marker.ringCount + 1f) * (marker.radius * .5f);
                 var circumference = ringRadius * 2f * math.PI;
                 var maxCount = Mathf.CeilToInt(circumference / (2f * simParams.obstacleRadius) * 2f);
-                var offset = Random.Range(0, maxCount);
-                var holeCount = Random.Range(1, 3);
+                var offset = rand.NextInt(0, maxCount);
+                var holeCount = rand.NextInt(1, 3);
                 for (var j = 0; j < maxCount; j++)
                 {
                     var t = (float)j / maxCount;

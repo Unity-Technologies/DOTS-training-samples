@@ -67,12 +67,6 @@ public class KeyboardInput : MonoBehaviour
                 simParams.renderAnts ^= true;
                 m_AntSimulationSystem.SetSingleton(simParams);
             }
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                var simParams = m_AntSimulationSystem.GetSingleton<AntSimulationParams>();
-                simParams.renderObstacles ^= true;
-                m_AntSimulationSystem.SetSingleton(simParams);
-            }
         }
         
         if (Time.frameCount <= 1 || Time.frameCount % 30 == 0)

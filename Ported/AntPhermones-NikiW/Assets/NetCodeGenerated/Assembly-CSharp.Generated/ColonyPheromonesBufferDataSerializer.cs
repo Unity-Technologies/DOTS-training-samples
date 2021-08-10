@@ -23,7 +23,7 @@ namespace Assembly_CSharp.Generated
             {
                 s_State = new GhostComponentSerializer.State
                 {
-                    GhostFieldsHash = 3762052560045977970,
+                    GhostFieldsHash = 3651089846548873950,
                     ExcludeFromComponentCollectionHash = 0,
                     ComponentType = ComponentType.ReadWrite<ColonyPheromonesBufferData>(),
                     ComponentSize = UnsafeUtility.SizeOf<ColonyPheromonesBufferData>(),
@@ -73,7 +73,7 @@ namespace Assembly_CSharp.Generated
                 ref var snapshot = ref GhostComponentSerializer.TypeCast<Snapshot>(snapshotData, snapshotOffset + snapshotStride*i);
                 ref var component = ref GhostComponentSerializer.TypeCast<ColonyPheromonesBufferData>(componentData, componentStride*i);
                 ref var serializerState = ref GhostComponentSerializer.TypeCast<GhostSerializerState>(stateData, 0);
-                snapshot.Value = (int) math.round(component.Value * 1000);
+                snapshot.Value = (int) math.round(component.Value * 100);
             }
         }
         [BurstCompile]
@@ -91,7 +91,7 @@ namespace Assembly_CSharp.Generated
                 float snapshotInterpolationFactorRaw = snapshotInterpolationData.InterpolationFactor;
                 float snapshotInterpolationFactor = snapshotInterpolationFactorRaw;
                 ref var component = ref GhostComponentSerializer.TypeCast<ColonyPheromonesBufferData>(componentData, componentStride*i);
-                component.Value = snapshotBefore.Value * 0.001f;
+                component.Value = snapshotBefore.Value * 0.01f;
 
             }
         }

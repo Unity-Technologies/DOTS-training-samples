@@ -95,8 +95,9 @@ public unsafe class ClientAntRenderSystem : SystemBase
         using (s_RenderSetupMarker.Auto())
         {
             var obstacleCollisionLookup = m_ObstacleManagementSystem.obstacleCollisionLookup;
-            if (pheromoneTextureInstance && obstacleCollisionLookup.IsCreated) // NWALKER: Find a way to determine if the entities have changed.
+            if (obstacleCollisionLookup.IsCreated) 
             {
+                // NWALKER: Find a way to determine if the entities have changed.
                 var rerenderStart = UnityEngine.Time.realtimeSinceStartupAsDouble;
      
                 // NW: Apply the pheromone float array to the texture:

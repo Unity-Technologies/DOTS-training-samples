@@ -35,6 +35,7 @@ public class AntSimulationSystem : SystemBase
         
         RequireSingletonForUpdate<AntSimulationParams>();
         RequireSingletonForUpdate<AntSimulationRuntimeData>();
+        RequireSingletonForUpdate<AntSimulationPrefabs>();
         m_EndFixedStepSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
         m_AntQueriesSystem = World.GetOrCreateSystem<AntQueriesSystem>();
        
@@ -75,6 +76,7 @@ public class AntSimulationSystem : SystemBase
 
         var simParams = GetSingleton<AntSimulationParams>();
         var simRuntimeData = GetSingleton<AntSimulationRuntimeData>();
+        var prefabs = GetSingleton<AntSimulationPrefabs>();
 
         // NW: Need local variables to satisfy Entities Lambda.
         var countersLocal = counters;
@@ -91,10 +93,10 @@ public class AntSimulationSystem : SystemBase
 
             Debug.Log($"'{World.Name}' spawning {simParams.antCount} ants...");
             
-            var antEntities = EntityManager.Instantiate(simParams.npcAntPrefab, simParams.antCount, Allocator.TempJob);
+            var antEntities = EntityManager.Instantiate(prefabs.npcAntPrefab, simParams.antCount, Allocator.TempJob);
             var minPos = new float2();
             var maxPos = new float2(simParams.mapSize, simParams.mapSize);
-            Debug.Assert(HasComponent<AntSimulationTransform2D>(simParams.npcAntPrefab), "antPrefab MUST have a Transform2D!");
+            Debug.Assert(HasComponent<AntSimulationTransform2D>(prefabs.npcAntPrefab), "antPrefab MUST have a Transform2D!");
             for (var i = 0; i < antEntities.Length; i++)
             {
                 var antEntity = antEntities[i];

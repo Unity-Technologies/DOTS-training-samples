@@ -64,9 +64,9 @@ MonoBehaviour:
   DefaultGhostMode: 0
   SupportedGhostModes: 1
   OptimizationMode: 0
-  Importance: 1
+  Importance: 200
   prefabId: 8443dffe054459046a5b44baa25cf673
-  Name: 
+  Name: NpcAnt
   RefGameObjects: []
   ComponentNames: []
   PrefabTypeOverrides: []

@@ -9,8 +9,8 @@ using UnityEngine;
 [NoAlias]
 public struct AntSimulationTransform2D : IComponentData
 {
-    [GhostField(Quantization = 1000)]
+    [GhostField(Quantization = 100, Smoothing = SmoothingAction.InterpolateAndExtrapolate, MaxSmoothingDistance = 10)]
     public float2 position;
-    [GhostField(Quantization = 360)]
+    [GhostField(Quantization = 180, Smoothing = SmoothingAction.InterpolateAndExtrapolate)]
     public float facingAngle;
 }
