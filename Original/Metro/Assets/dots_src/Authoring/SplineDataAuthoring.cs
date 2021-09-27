@@ -9,14 +9,13 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 {
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        
         foreach (var child in transform)
         {
             var railMarkers = GetComponentsInChildren<RailMarker>();
             var locations = railMarkers.Select(r => r.transform.position).ToList();
 
             BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
-            var newSplineBlobAsset =  splineBlobBuilder.ConstructRoot<SplineBlobAsset>();
+            ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<SplineBlobAsset>();
             splineBlobBuilder.Allocate(ref newSplineBlobAsset.points, locations.Count() + 1);
             splineBlobBuilder.Allocate(ref newSplineBlobAsset.platformPositions, 1);
             var nbPoints = locations.Count();
