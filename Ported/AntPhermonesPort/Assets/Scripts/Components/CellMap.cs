@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using UnityEngine;
 
 public enum CellState : byte
 {
@@ -11,7 +12,7 @@ public enum CellState : byte
 }
 
 [GenerateAuthoringComponent]
-public struct CellMap : IComponentData
+public struct CellMap : IBufferElementData
 {
-
+	public CellState state;
 }

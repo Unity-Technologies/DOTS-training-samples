@@ -1,26 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public static class CellMap_TRY
+public static class CellMapHelper
 {
     readonly static float2 worldLowerLeft = new float2(-5, -5);
     readonly static float2 worldUpperRight = new float2(5, 5);
 
     const int gridSize = 500;
 
-    public static NativeArray<CellState> CellMap = new NativeArray<CellState>(gridSize * gridSize, Allocator.Persistent);
+    public static void InitCellMap(DynamicBuffer<CellMap> cellmap)
+    {
+        cellmap.Length = gridSize * gridSize;
+        InitBorders(cellmap);
+    }
 
-    public static void InitBorders()
+    static void InitBorders(DynamicBuffer<CellMap> cellmap)
     {
         for(int i = 0; i < gridSize; ++i)
         {
-            CellMap[ConvertGridIndex2Dto1D(new int[] { i, 0 })] = CellState.IsObstacle;
-            CellMap[ConvertGridIndex2Dto1D(new int[] { i, gridSize })] = CellState.IsObstacle;
-            CellMap[ConvertGridIndex2Dto1D(new int[] { 0, i})] = CellState.IsObstacle;
-            CellMap[ConvertGridIndex2Dto1D(new int[] { gridSize, i })] = CellState.IsObstacle;
+            Set(cellmap, i, 0, CellState.IsObstacle);
+            Set(cellmap, i, gridSize -1, CellState.IsObstacle);
+            Set(cellmap, 0, i, CellState.IsObstacle);
+            Set(cellmap, gridSize -1, i, CellState.IsObstacle);
         }
     }
 
@@ -51,6 +56,14 @@ public static class CellMap_TRY
     public static int ConvertGridIndex2Dto1D(float2 index)
         => Mathf.RoundToInt(index.y * gridSize + index.x);
 
-    public static int ConvertGridIndex2Dto1D(int[] index)
-    => index[1] * gridSize + index[0];
+    public static void Set(DynamicBuffer<CellMap> cellmap, int x, int y, CellState state)
+    {
+        cellmap.ElementAt(y * gridSize + x).state = state;
+    }
+
+    public static CellState Get(DynamicBuffer<CellMap> cellmap, int x, int y)
+    {
+        return cellmap[y * gridSize + x].state;
+    }
+
 }

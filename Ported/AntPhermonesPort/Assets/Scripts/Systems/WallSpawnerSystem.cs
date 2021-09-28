@@ -8,12 +8,17 @@ public partial class WallSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var map = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
+
         var random = new Unity.Mathematics.Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities
             .ForEach((Entity entity, in WallSpawner wallSpawner) =>
             {
                 ecb.DestroyEntity(entity);
+
+                CellMapHelper.InitCellMap(map);
+
                 for (int i = 0; i < Config.RingCount; ++i)
                 {
                     // choose if 2 openings
@@ -26,8 +31,6 @@ public partial class WallSpawnerSystem : SystemBase
                         SpawnWallSegment(ecb, wallSpawner, (i + 1) * 10f, startAngle, startAngle+angleSize);
                     }
                 }
-
-
             }).Run();
 
         ecb.Playback(EntityManager);

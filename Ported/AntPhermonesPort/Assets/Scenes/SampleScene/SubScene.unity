@@ -123,23 +123,55 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &999092343 stripped
+--- !u!1 &663330103
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
-  m_PrefabInstance: {fileID: 4808208219489841990}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &999092344
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 663330105}
+  - component: {fileID: 663330104}
+  m_Layer: 0
+  m_Name: CellMapSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &663330104
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999092343}
+  m_GameObject: {fileID: 663330103}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f8af934e9230a498da2372a96b3a19ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Values: 
+--- !u!4 &663330105
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663330103}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &999092343 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
+  m_PrefabInstance: {fileID: 4808208219489841990}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &999092345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239,7 +271,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1651144885
 MonoBehaviour:
@@ -264,7 +296,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 9133318927489242588, guid: e970b42208b0f764facacb50843e6ef2, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 9133318927489242588, guid: e970b42208b0f764facacb50843e6ef2, type: 3}
       propertyPath: m_LocalPosition.x
