@@ -8,6 +8,6 @@ public class CarraigeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponent<Parent>(entity);
+        dstManager.AddComponent<TrainReference>(entity);
     }
 }

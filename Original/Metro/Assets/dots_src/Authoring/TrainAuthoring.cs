@@ -9,6 +9,5 @@ public class TrainAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<TrainMovement>(entity);
-        dstManager.AddComponent<Child>(entity);
     }
 }

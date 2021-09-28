@@ -15,16 +15,19 @@ public partial class TrainSpawnerSystem : SystemBase
         {
             ecb.DestroyEntity(entity);
             int trainCount = 1;
-            //int trainLength = 1;
+            int trainLength = 5;
 
             for (int i = 0; i < trainCount; i++)
             {
                 var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
                 var trainMovement = new TrainMovement {position = 1 / (float)i};
                 ecb.SetComponent(trainInstance, trainMovement);
-
-                var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
-                ecb.SetComponent(carriageInstance, new Parent{Value = trainInstance});
+                
+                for(int j = 0; j < trainLength; j++)
+                {
+                    var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
+                    ecb.SetComponent(carriageInstance, new TrainReference{Index = j, Train = trainInstance});
+                }
             }
             
         }).Run();

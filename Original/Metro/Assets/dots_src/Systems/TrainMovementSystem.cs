@@ -20,19 +20,29 @@ public partial class TrainMovementSystem : SystemBase
                 movement.position = 0;
             }
 
-            float3 from = splineData.Value.points[(int)math.floor(movement.position)];
-            float3 to = splineData.Value.points[(int)math.ceil(movement.position)];
-
-            float t = movement.position - math.floor(movement.position);
-
-            float3 lerpedPosition = math.lerp(from, to, t); 
+            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref splineData.Value.points);
 
             translation.Value = lerpedPosition;
 
-            float3 trainDirection = math.normalize(from - to);
+            //float3 trainDirection = math.normalize(from - to);
 
-            rotation.Value = Quaternion.LookRotation(new Vector3(trainDirection.x, trainDirection.y, trainDirection.z));
+            //rotation.Value = Quaternion.LookRotation(new Vector3(trainDirection.x, trainDirection.y, trainDirection.z));
 
         }).ScheduleParallel();
+    }
+
+    public static (float3, Quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
+    {
+        float3 from = points[(int)math.floor(trackPosition)];
+        float3 to = points[(int)math.ceil(trackPosition)];
+
+        float t = trackPosition - math.floor(trackPosition);
+
+        float3 lerpedPosition = math.lerp(from, to, t);
+        
+        float3 trainDirection = math.normalize(from - to);
+        Quaternion rotation = Quaternion.LookRotation(new Vector3(trainDirection.x, trainDirection.y, trainDirection.z));
+        
+        return (lerpedPosition, rotation);
     }
 }
