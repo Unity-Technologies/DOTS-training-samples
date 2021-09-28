@@ -1,7 +1,4 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -18,10 +15,12 @@ public partial class RenderPrepSystem : SystemBase
             var pointA = currentPointBuffer[beam.pointAIndex];
             var pointB = currentPointBuffer[beam.pointBIndex];
 
-            translation.Value = pointA.Value + (pointA.Value - pointB.Value) / 2f;
+            translation.Value = pointB.Value + (pointA.Value - pointB.Value) / 2f;
             scale.Value = new float3(beam.size, 1f, 1f);
-            rotation.Value = new quaternion();
-            
+
+            var direction = math.normalize(pointB.Value - pointA.Value);
+            rotation.Value = quaternion.LookRotation(direction, new float3(0f, 1f, 0f));
+
         }).Schedule();
     }
 }
