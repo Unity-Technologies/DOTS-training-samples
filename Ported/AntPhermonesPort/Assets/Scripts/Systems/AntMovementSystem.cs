@@ -19,7 +19,7 @@ public partial class AntMovementSystem : SystemBase
                 //_forward.y += random.NextFloat(-Config.RotationAngle, Config.RotationAngle);
                 
                 translation.Value += _forward * Config.MoveSpeed * (float) time;
-                //rotation.Value = Quaternion.Euler(_forward);
+                rotation.Value = Quaternion.Euler(_forward);
                 //translation.Value.x = (float)((time + Config.MoveSpeed) % 100) - 50f;
             }).Run();
 
