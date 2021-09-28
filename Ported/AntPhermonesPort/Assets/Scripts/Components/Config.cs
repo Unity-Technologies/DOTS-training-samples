@@ -12,6 +12,7 @@ public struct Config : IComponentData
 	public const int AntCount = 100;
 
 	public const float MoveSpeed = 0.025f;
+	public const float RotationSpeed = 2f; // degrees per second
 
 	public const float RotationAngle = 360f;
 	// GreenDotDistance

@@ -14,14 +14,23 @@ public partial class AntMovementSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, ref Rotation rotation, in AntMovement ant, in LocalToWorld ltw) =>
             {
-                Quaternion _rotation = Quaternion.Euler(0, random.NextFloat(-Config.RotationAngle, Config.RotationAngle), 0);
-                float3 _forward = _rotation * ltw.Forward;
-                //_forward.y += random.NextFloat(-Config.RotationAngle, Config.RotationAngle);
-                
-                translation.Value += _forward * Config.MoveSpeed * (float) time;
-                rotation.Value = Quaternion.Euler(_forward);
-                //translation.Value.x = (float)((time + Config.MoveSpeed) % 100) - 50f;
+                Quaternion _rotationDelta = Quaternion.Euler(0, 0.5f, 0);
+
+                // Need the amount the ant will rotate this frame
+                Quaternion _rotateThisFrame = Quaternion.RotateTowards(
+                    Quaternion.identity,
+                    _rotationDelta, 
+                    Config.RotationSpeed * (float)time
+                );
+
+                rotation.Value = rotation.Value * _rotateThisFrame;
+                translation.Value += ltw.Forward * Config.MoveSpeed * (float) time;
             }).Run();
+
+        // EXAMPLE CODE
+        int index = CellMap_TRY.GetNearestIndex(new float2(0, 0));
+        Debug.Log(CellMap_TRY.CellMap[index]);
+        CellMap_TRY.CellMap[index] = CellState.IsFood;
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
