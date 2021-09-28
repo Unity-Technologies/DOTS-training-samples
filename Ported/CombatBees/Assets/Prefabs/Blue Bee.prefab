@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Blue Bee
       objectReference: {fileID: 0}
+    - target: {fileID: 1369589980957254094, guid: 99acafb8336aa4672a581783e5f2a18b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: adf41ffc9de306549aab0b5cdc8729a0, type: 2}
     - target: {fileID: 4220711618552647987, guid: 99acafb8336aa4672a581783e5f2a18b, type: 3}
       propertyPath: m_RootOrder
       value: 0
