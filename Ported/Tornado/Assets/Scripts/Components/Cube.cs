@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
+[GenerateAuthoringComponent]
 public struct Cube : IComponentData
 {
     public float radius;
