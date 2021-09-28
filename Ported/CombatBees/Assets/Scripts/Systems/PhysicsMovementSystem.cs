@@ -16,7 +16,6 @@ public partial class PhysicsMovementSystem : SystemBase
             .WithNone<Grounded>()
             .ForEach((Entity food, ref Translation translation) =>
             {
-
                 translation.Value.y -= deltaTime * multiplier;
                 if (translation.Value.y < floorY)
                 {
