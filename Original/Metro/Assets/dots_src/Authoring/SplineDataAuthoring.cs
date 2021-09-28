@@ -21,7 +21,9 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             CalculatePoints(railMarkers, ref splinePoints);
         }
     }
-
+    
+    public const int pointCount = 100;
+    public const float increment = 1 / (float) pointCount;
     public void CalculatePoints(in RailMarker[] railMarkers, ref BlobBuilderArray<float3> outPoints)
     {
         var startPoint = railMarkers[0].transform.position;
@@ -35,9 +37,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         Debug.DrawLine(startPoint, endHandle, Color.black);
         Debug.DrawLine(endHandle, endPoint, Color.black);
 
-        const int pointCount = 5;
-        const float increment = 1 / (float) pointCount;
-        
         var lastPoint = startPoint;
         var distArray = new NativeArray<float>(pointCount, Allocator.Persistent);
         var totalDistance = 0f;
@@ -54,11 +53,10 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             lastPoint = point;
         }
 
-        var prevT = 0f;
         lastPoint = startPoint;
-        for (int i = 0; i < pointCount; i++)
+        for (float percentage = 0; percentage < 1; percentage += increment)
         {
-            var t = distArray.Sample(prevT)/totalDistance;
+            var t = distArray.Sample(percentage, totalDistance);
             
             var startToEndHandle = math.lerp(startPoint, endHandle, t);
             var endHandleToEnd = math.lerp(endHandle, endPoint, t);
@@ -67,10 +65,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             Debug.DrawLine(lastPoint, point, Color.magenta);
             Debug.DrawLine(point, point+math.up(), Color.red);
             lastPoint = point;
-            prevT = t;
         }
-        
-        Debug.Log(totalDistance);
 
         distArray.Dispose();
         
@@ -123,12 +118,24 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 public static class NativeFloatArrayExtensions
 {
     [BurstCompile]
-    public static float Sample(this NativeArray<float> points, float t)
+    public static float Sample(this NativeArray<float> distance, float t, in float totalLength)
     {
-        var iNormalized = t * (points.Length - 1);
-        var iLowerBound = (int) math.floor(iNormalized);
-        var iUpperBound = iLowerBound + 1;
+        if( t <= 0 )
+            return 0;
+        if( t >= 1 )
+            return 1;
+        var smpDist = t * totalLength;
+        for( var i = 0; i < SplineDataAuthoring.pointCount - 1; i++ ) {
+            if( smpDist >= distance[i] && smpDist < distance[i + 1] ) {
+                var ta = i / ((float) SplineDataAuthoring.pointCount - 1 );
+                var tb = ( i + 1 ) / ((float) SplineDataAuthoring.pointCount - 1 );
+                var dRange = distance[i + 1] - distance[i];
+                var dVal = smpDist - distance[i];
+                var tMid = dVal / dRange;
+                return math.lerp( ta, tb, tMid );
+            }
+        }
 
-        return math.lerp(points[iLowerBound], points[iUpperBound], math.frac(iNormalized));
+        return 0;
     }
 }
