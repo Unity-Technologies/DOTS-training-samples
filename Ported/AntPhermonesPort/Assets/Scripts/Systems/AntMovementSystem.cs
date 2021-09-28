@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public partial class AntMovementSystem : SystemBase
@@ -8,9 +9,9 @@ public partial class AntMovementSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities
-            .ForEach((Entity entity, in AntMovement ant) =>
+            .ForEach((ref Translation translation, in AntMovement ant) =>
             {
-                Debug.Log("I am an ant moving!");
+                //translation.Value += 1.0f;
             }).Run();
 
         ecb.Playback(EntityManager);

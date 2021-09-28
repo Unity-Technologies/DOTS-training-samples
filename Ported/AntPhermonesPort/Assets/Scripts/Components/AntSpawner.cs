@@ -7,4 +7,5 @@ public struct AntSpawner : IComponentData
 {
     public int AntsToSpawn;
     public Entity Ant;
+    public float SpawnAreaSize;
 }

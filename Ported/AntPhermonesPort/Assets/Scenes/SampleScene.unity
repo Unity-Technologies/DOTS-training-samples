@@ -391,3 +391,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AntsToSpawn: 1000
   Ant: {fileID: 6684270110135555796, guid: 976a59c87b3a058409b3070f69572795, type: 3}
+  SpawnAreaSize: 5
