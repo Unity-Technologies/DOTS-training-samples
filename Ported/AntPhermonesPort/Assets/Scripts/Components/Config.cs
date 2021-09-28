@@ -15,6 +15,8 @@ public struct Config : IComponentData
 	public const float RotationSpeed = 2f; // degrees per second
 
 	public const float RotationAngle = 360f;
+
+	public const int RingCount = 3;
 	// GreenDotDistance
 	// SphereRadius
 	// WallDistanceFromCenter

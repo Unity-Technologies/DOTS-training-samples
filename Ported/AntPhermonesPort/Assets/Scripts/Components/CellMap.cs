@@ -12,4 +12,6 @@ public enum CellState : byte
 
 [GenerateAuthoringComponent]
 public struct CellMap : IComponentData
-{}
+{
+
+}
