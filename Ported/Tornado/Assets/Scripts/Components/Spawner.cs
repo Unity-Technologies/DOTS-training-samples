@@ -5,4 +5,6 @@ public class Spawner : IComponentData
 {
     public int CubeCount;
     public Entity CubePrefab;
+    public Entity BeamPrefab;
+    public int TowerCount;
 }

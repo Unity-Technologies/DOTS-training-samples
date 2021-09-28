@@ -155,6 +155,9 @@ MonoBehaviour:
   CubeCount: 100
   CubePrefab: {fileID: 6712977035413625864, guid: 61c153b7b402a7f46a4de5ddbb58aea7,
     type: 3}
+  BeamPrefab: {fileID: 2543181246138698843, guid: 51790afa4f4396d40ab94e73b19b9cdf,
+    type: 3}
+  TowerCount: 10
 --- !u!4 &750255254
 Transform:
   m_ObjectHideFlags: 0
@@ -198,6 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 820b51210af374d4a8b4a89f878fc84a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  value: 0
 --- !u!4 &2059707964
 Transform:
   m_ObjectHideFlags: 0
