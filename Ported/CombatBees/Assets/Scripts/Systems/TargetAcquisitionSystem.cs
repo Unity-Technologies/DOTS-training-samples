@@ -24,6 +24,7 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithReadOnly(foodChunks)
             .WithReadOnly(teamBlueChunks)
             .WithReadOnly(entityHandles)
+            .WithDisposeOnCompletion(teamBlueChunks)
             .WithAll<TeamRed>()
             .ForEach((Entity beeEntity, ref Target target) =>
             {
@@ -42,12 +43,14 @@ public partial class TargetAcquisitionSystem : SystemBase
                         target.Value = entities[random.NextInt(0, entities.Length)];               
                     }
                 }
-            }).Run();
+            }).ScheduleParallel();
         
         Entities
             .WithReadOnly(foodChunks)
             .WithReadOnly(teamRedChunks)
             .WithReadOnly(entityHandles)
+            .WithDisposeOnCompletion(foodChunks)
+            .WithDisposeOnCompletion(teamRedChunks)
             .WithAll<TeamBlue>()
             .ForEach((Entity beeEntity, ref Target target) =>
             {
@@ -66,6 +69,7 @@ public partial class TargetAcquisitionSystem : SystemBase
                         target.Value = entities[random.NextInt(0, entities.Length)];               
                     }
                 }
-            }).Run();
+            }).ScheduleParallel();
+        
     }
 }
