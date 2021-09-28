@@ -4,8 +4,8 @@ using Unity.Transforms;
 
 public struct Config : IComponentData
 {
-    public int Speed = 1; // 1-9
-	
+    public const int Speed =1; // Will become dynamic
+
 	// Simulation Constants
 	public const int AntCount = 100;
 
@@ -13,4 +13,5 @@ public struct Config : IComponentData
 	// SphereRadius
 	// WallDistanceFromCenter
 	// Total simulation size CellMapResolution 
+
 }
