@@ -2,6 +2,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
+
+
 public partial class FoodSpawnerSystem : SystemBase
 {
     private uint Seed;
@@ -24,11 +26,10 @@ public partial class FoodSpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
                 float3 spawnMin = bounds.AABB.Min;
-                spawnMin.x += bounds.HiveOffset;
+                spawnMin.x += bounds.HiveOffset + 50;
 
                 float3 spawnMax = bounds.AABB.Max;
-                spawnMax.x -= bounds.HiveOffset;
-
+                spawnMax.x -= bounds.HiveOffset + 50;
                 for (int i = 0; i < spawner.InitialFoodCount; ++i)
                 {
                     float3 position = random.NextFloat3(spawnMin, spawnMax);
