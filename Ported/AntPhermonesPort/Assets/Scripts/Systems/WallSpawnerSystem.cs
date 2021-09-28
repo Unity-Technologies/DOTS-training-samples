@@ -17,27 +17,33 @@ public partial class WallSpawnerSystem : SystemBase
                 for (int i = 0; i < Config.RingCount; ++i)
                 {
                     // choose if 2 openings
-                    SpawnWallSegment(ecb, wallSpawner, 10 + (i * 10f), 0f, 270f);
+                    int segmentCount = random.NextInt(1, 2);
+                    float startAngle = random.NextFloat(0f, 360f);
+                    float angleSize = 270f / (float)segmentCount;
+
+                    for (int s = 0; s < segmentCount; ++s)
+                    {
+                        SpawnWallSegment(ecb, wallSpawner, (i + 1) * 10f, startAngle, startAngle+angleSize);
+                    }
                 }
 
-                
+
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
 
-    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, float distance, float startAngle, float endAngle, float stepAngle = 1.0f)
+    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, float distance, float startAngle, float endAngle, float stepAngle = 1f)
     {
-        stepAngle *= Mathf.Deg2Rad;
-
-        startAngle *= Mathf.Deg2Rad;
-        endAngle *= Mathf.Deg2Rad;
-
         for (float angle = startAngle; angle <= endAngle; angle += stepAngle)
         {
-            float x = Mathf.Cos(angle) * distance;
-            float y = Mathf.Sin(angle) * distance;
+            float tmpAngle = angle;
+            if (tmpAngle >= 360f)
+                tmpAngle -= 360f;
+            tmpAngle *= Mathf.Deg2Rad;
+            float x = Mathf.Cos(tmpAngle) * distance;
+            float y = Mathf.Sin(tmpAngle) * distance;
 
             var instance = ecb.Instantiate(wallSpawner.WallComponent);
             ecb.SetComponent(instance, new Translation
