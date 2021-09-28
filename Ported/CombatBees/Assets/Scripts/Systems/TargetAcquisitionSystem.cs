@@ -71,5 +71,6 @@ public partial class TargetAcquisitionSystem : SystemBase
                 }
             }).ScheduleParallel();
         
+        // alternate way to dispose: foodChunks.Dispose(Dependency);
     }
 }
