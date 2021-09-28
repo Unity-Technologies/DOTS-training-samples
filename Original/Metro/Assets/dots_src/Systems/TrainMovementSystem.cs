@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -20,14 +21,8 @@ public partial class TrainMovementSystem : SystemBase
                 movement.position = 0;
             }
 
-            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref splineData.Value.splineBlobAssets[0].points);
-
+            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref splineData.Value.splineBlobAssets[lineIndex.Index].points);
             translation.Value = lerpedPosition;
-
-            //float3 trainDirection = math.normalize(from - to);
-
-            //rotation.Value = Quaternion.LookRotation(new Vector3(trainDirection.x, trainDirection.y, trainDirection.z));
-
         }).ScheduleParallel();
     }
 
@@ -38,7 +33,14 @@ public partial class TrainMovementSystem : SystemBase
         if (floor == ceil)
         {
             ceil += 1;
+            
+            // check for overflow
+            if (ceil >= points.Length)
+            {
+                ceil = 0;
+            }
         }
+
         float3 from = points[floor];
         float3 to = points[ceil];
 
@@ -47,7 +49,8 @@ public partial class TrainMovementSystem : SystemBase
         float3 lerpedPosition = math.lerp(from, to, t);
         
         float3 trainDirection = math.normalize(from - to);
-        Quaternion rotation = Quaternion.LookRotation(new Vector3(trainDirection.x, trainDirection.y, trainDirection.z));
+        var vector = new Vector3(trainDirection.x, trainDirection.y, trainDirection.z);
+        Quaternion rotation = Quaternion.LookRotation(vector);
         
         return (lerpedPosition, rotation);
     }
