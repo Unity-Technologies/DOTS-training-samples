@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public partial class PhysicsMovement : SystemBase
+public partial class PhysicsMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {

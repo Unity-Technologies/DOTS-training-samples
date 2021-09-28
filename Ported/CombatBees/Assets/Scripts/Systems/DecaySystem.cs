@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public partial class BeeSpawner : SystemBase
+public partial class DecaySystem : SystemBase
 {
     protected override void OnUpdate()
     {
