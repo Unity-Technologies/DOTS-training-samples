@@ -14,7 +14,7 @@ public partial class AntSpawnerSystem : SystemBase
             .ForEach((Entity entity, in AntSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-                for (int i = 0; i < spawner.AntsToSpawn; i++)
+                for (int i = 0; i < Config.AntCount; i++)
                 {
                     var instance = ecb.Instantiate(spawner.Ant);
 

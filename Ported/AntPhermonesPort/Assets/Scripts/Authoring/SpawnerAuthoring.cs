@@ -9,7 +9,6 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public UnityGameObject Ant;
-    public int AntsToSpawn = 100;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -30,7 +29,6 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new AntSpawner
         {
             Ant = conversionSystem.GetPrimaryEntity(Ant),
-            AntsToSpawn = AntsToSpawn
         });
     }
 }

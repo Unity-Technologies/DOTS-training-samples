@@ -2,6 +2,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+
+
 public struct Config : IComponentData
 {
     public const int Speed =1; // Will become dynamic

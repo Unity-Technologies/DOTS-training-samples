@@ -2,10 +2,17 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public enum AntState : byte
+{
+    Searching,
+    LineOfSight,
+    ReturnHome
+};
+
 [GenerateAuthoringComponent]
 public struct AntMovement : IComponentData
 {
     public float2 Direction;
     public float2 Position;
-    public byte State;
+    public AntState State;
 }
