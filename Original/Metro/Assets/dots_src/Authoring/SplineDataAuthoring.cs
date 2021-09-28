@@ -120,7 +120,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     }
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-    
     {
         BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
 
