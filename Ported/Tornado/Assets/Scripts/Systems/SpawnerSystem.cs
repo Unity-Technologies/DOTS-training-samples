@@ -75,12 +75,12 @@ public partial class SpawnerSystem : SystemBase
             var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
             var beamA = new Beam()
             {
-                pointAIndex = 0,
-                pointBIndex = 1,
+                pointAIndex = i*3 + 0,
+                pointBIndex = i*3 + 1,
                 size = math.length(pointA.Value - pointB.Value)
             };
             ecb.SetComponent(beamAEntity, beamA);
-            var translationA = new Translation()
+            /*var translationA = new Translation()
             {
                 Value = pointA.Value + (pointA.Value - pointB.Value)/2f
             };
@@ -89,18 +89,18 @@ public partial class SpawnerSystem : SystemBase
             {
                 Value = new float3(beamA.size, 1f, 1f)
             };
-            ecb.SetComponent(beamAEntity, ScaleA);
+            ecb.SetComponent(beamAEntity, ScaleA);*/
 
 
             var beamBEntity =  ecb.Instantiate(spawner.BeamPrefab);
             var beamB = new Beam()
             {
-                pointAIndex = 1,
-                pointBIndex = 2,
+                pointAIndex = i*3 +1,
+                pointBIndex = i*3 +2,
                 size = math.length(pointB.Value - pointC.Value)
             };
             ecb.SetComponent(beamBEntity, beamB);
-            var translationB = new Translation()
+            /*var translationB = new Translation()
             {
                 Value = pointA.Value + (pointB.Value - pointC.Value)/2f
 
@@ -110,7 +110,7 @@ public partial class SpawnerSystem : SystemBase
             {
                 Value = new float3(beamB.size, 1f, 1f)
             };
-            ecb.SetComponent(beamBEntity, ScaleB);
+            ecb.SetComponent(beamBEntity, ScaleB);*/
         }
     }
 
