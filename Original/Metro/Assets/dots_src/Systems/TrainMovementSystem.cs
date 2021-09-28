@@ -9,24 +9,62 @@ public partial class TrainMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
+        var elapsedTime = Time.ElapsedTime;
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            float speed = 0.05f; //from global settings singleton
+            const float maxSpeed = 0.05f; //from global settings singleton
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
-            
+
             // TODO: platforms are positioned 0..1 range (relative to total track length). currently our train
             // position is absolute in terms of track length, e.g. 0..25 
             var trackRelativePosition = movement.position / points.Length;
             if (IsApproachingPlatform(trackRelativePosition, ref platformPositions))
             {
                 Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
-                speed = 0.005f;
+                movement.state = TrainMovemementStates.Stopping;
             }
 
-            movement.position += speed;
+            switch (movement.state)
+            {
+                case TrainMovemementStates.Starting:
+                    movement.speed += maxSpeed / 100;
+                    if (movement.speed >= maxSpeed)
+                    {
+                        movement.state = TrainMovemementStates.Running;
+                    }
+                    break;
+                
+                case TrainMovemementStates.Stopping:
+                    movement.speed -= maxSpeed / 100;
+                    if (movement.speed <= 0.0f)
+                    {
+                        movement.state = TrainMovemementStates.Stopped;
+                    }
+                    break;
+                
+                case TrainMovemementStates.Stopped:
+                    movement.speed = 0.0f;
+                    movement.timeWhenStoppedAtPlatform = elapsedTime;
+                    movement.state = TrainMovemementStates.Waiting;
+                    break;
+                
+                case TrainMovemementStates.Waiting:
+                    movement.speed = 0.0f;
+                    if (elapsedTime > movement.timeWhenStoppedAtPlatform + 1)
+                    {
+                        movement.state = TrainMovemementStates.Starting;
+                    }
+                    break;
+
+                case TrainMovemementStates.Running:
+                    movement.speed = maxSpeed;
+                    break;
+            }
+
+            movement.position += movement.speed;
             if (movement.position > points.Length - 1)
             {
                 movement.position = 0;
