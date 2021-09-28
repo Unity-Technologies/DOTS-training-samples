@@ -23,13 +23,13 @@ public partial class WallSpawnerSystem : SystemBase
                 for (int i = 0; i < config.RingCount; ++i)
                 {
                     // choose if 2 openings
-                    int segmentCount = random.NextInt(1, 2);
+                    int segmentCount = random.NextInt(1, config.MaxEntriesPerCircle);
                     float startAngle = random.NextFloat(0f, 360f);
-                    float angleSize = 270f / (float)segmentCount;
+                    float angleSize = config.AngleSize / (float)segmentCount;
 
                     for (int s = 0; s < segmentCount; ++s)
                     {
-                        SpawnWallSegment(ecb, wallSpawner, (i + 1) * 10f, startAngle, startAngle+angleSize);
+                        SpawnWallSegment(ecb, wallSpawner, (i + 1) * config.RingDistance, startAngle, startAngle+angleSize);
                     }
                 }
             }).Run();

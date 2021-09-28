@@ -181,11 +181,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 1
-  AntCount: 1000
+  AntCount: 60000
   MoveSpeed: 20
   RotationSpeed: 20
   RotationAngle: 15
-  RingCount: 3
+  RingCount: 5
+  RingDistance: 3
+  AngleSize: 270
+  MaxEntriesPerCircle: 2
 --- !u!1 &999092343 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
