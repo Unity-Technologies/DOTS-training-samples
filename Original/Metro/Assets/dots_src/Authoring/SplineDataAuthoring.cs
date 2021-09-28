@@ -23,22 +23,22 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 
     void Update()
     {
-        BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
-        
-        foreach (Transform child in transform)
-        {
-            var railMarkers = child.GetComponentsInChildren<RailMarker>();
-            ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<BlobArray<float3>>();
-            var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset, railMarkers.Length + 1);
-            CalculatePoints(railMarkers, ref splinePoints);
-
-            var markersPos = CreateActualRailMarkersWithAngles(railMarkers, false);
-            for (int i = 0; i < markersPos.Length - 1; i++)
-            {
-                Debug.DrawLine(markersPos[i], markersPos[i+1], i < markersPos.Length/2 ? Color.red : Color.green);
-            }
-            break;
-        }
+        // BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
+        //
+        // foreach (Transform child in transform)
+        // {
+        //     var railMarkers = child.GetComponentsInChildren<RailMarker>();
+        //     ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<BlobArray<float3>>();
+        //     var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset, railMarkers.Length + 1);
+        //     CalculatePoints(railMarkers, ref splinePoints);
+        //
+        //     var markersPos = CreateActualRailMarkersWithAngles(railMarkers, false);
+        //     // for (int i = 0; i < markersPos.Length - 1; i++)
+        //     // {
+        //     //     Debug.DrawLine(markersPos[i], markersPos[i+1], i < markersPos.Length/2 ? Color.red : Color.green);
+        //     // }
+        //     break;
+        // }
         
     }
 
@@ -50,7 +50,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     
     public const int pointCount = 1000;
     public const float increment = 1 / (float) pointCount;
-    public void CalculatePoints(in RailMarker[] railMarkers, ref BlobBuilderArray<float3> outPoints)
+    public void CalculatePoints(in RailMarker[] railMarkers, ref BlobBuilderArray<float3> outPoints, ref BlobBuilderArray<float> platformPositions, ref float splineDataDistance)
     {
         var distArray = new NativeArray<float>(pointCount, Allocator.Temp);
         var distMarkerSegment = new NativeArray<DistanceAndDistanceIndex>(railMarkers.Length, Allocator.Temp);
@@ -58,6 +58,8 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var pointCountPerMarkerSegment = pointCount/(railMarkers.Length);
         var tIntervalPerMarkerSegment = 1 / (float) pointCountPerMarkerSegment;
         var totalDistance = 0f;
+        bool writeMarker = false;
+        int platformIndex = 0;
         for (int markerIndex = 0; markerIndex < railMarkers.Length; markerIndex++)
         {
             var startPoint = railMarkers[markerIndex].transform.position;
@@ -79,6 +81,11 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             
             var lastPoint = startPoint;
             var distanceIndex = 0;
+            if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
+            {
+                writeMarker = true;
+            }
+                
             for (var i = 0; i < pointCountPerMarkerSegment; i++)
             {
                 var t = tIntervalPerMarkerSegment * (i+1);
@@ -91,7 +98,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 var startHandleToEndHandleToEnd = math.lerp(startHandleToEndHandle, endHandleToEnd, t);
                 
                 var point = math.lerp(startToStartHandleToEndHandle, startHandleToEndHandleToEnd, t);
-                
                 Debug.DrawLine(lastPoint, point, Color.yellow);
  
                 totalDistance += math.distance(point, lastPoint);
@@ -99,10 +105,19 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 distArray[distanceIndex] = totalDistance;
                 
                 lastPoint = point;
+
+                outPoints[markerIndex * pointCountPerMarkerSegment + i] = point;
+                if (writeMarker)
+                {
+                    platformPositions[platformIndex++] = t;
+                    writeMarker = false;
+                }
             }
 
             distMarkerSegment[markerIndex] = new DistanceAndDistanceIndex{Distance = totalDistance, DistanceIndex = distanceIndex};
         }
+
+        splineDataDistance = totalDistance;
         
         var lastDistancedPoint = Vector3.zero;
         
@@ -135,31 +150,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 
         distArray.Dispose();
         distMarkerSegment.Dispose();
-    }
-
-    public RailMarker[] CreateActualRailMarkers(in RailMarker[] srcRailMarkers)
-    {
-        var actualRailMarkers = new List<RailMarker>(srcRailMarkers);
-        var nbSrcPoints = srcRailMarkers.Length;
-        var parent = srcRailMarkers[0].transform.parent;
-        int curPointIndex = nbSrcPoints;
-        for (int i = nbSrcPoints - 1; i >= 0; i--)
-        {
-            var srcCurRailMarker = srcRailMarkers[i];
-            var srcNextRailMarker = i > 0 ? srcRailMarkers[i - 1] : srcRailMarkers[i + 1];
-            float flipDir = i > 0 ? 1.0f : -1.0f;
-            var railDir = flipDir * Vector3.Normalize(srcNextRailMarker.transform.position - srcCurRailMarker.transform.position);
-            var orthoDir = Vector3.Cross(Vector3.up, railDir).normalized;
-            RailMarker newRailMarker = Instantiate(srcCurRailMarker,parent);
-            newRailMarker.transform.position = srcCurRailMarker.transform.position + orthoDir * returnRailsOffset;
-            newRailMarker.pointIndex = curPointIndex++;
-            if (srcCurRailMarker.railMarkerType == RailMarkerType.PLATFORM_START)
-                newRailMarker.railMarkerType = RailMarkerType.PLATFORM_END;
-            if (srcCurRailMarker.railMarkerType == RailMarkerType.PLATFORM_END)
-                newRailMarker.railMarkerType = RailMarkerType.PLATFORM_START;
-            actualRailMarkers.Add((newRailMarker));
-        }
-        return actualRailMarkers.ToArray();
     }
     
     public Vector3[] CreateActualRailMarkersWithAngles(in RailMarker[] srcRailMarkers, bool createInstances)
@@ -214,11 +204,8 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
         return markersPos.ToArray();
     }
-
     
-
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-
     {
         using (var splineBlobBuilder = new BlobBuilder(Allocator.Temp))
         {
@@ -229,23 +216,11 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             foreach (Transform child in transform)
             {
                 var railMarkers = child.GetComponentsInChildren<RailMarker>();
-                var locations = railMarkers.Select(r => r.transform.position).ToList();
                 ref var newSplineBlobAsset = ref splineArray[lineId++];
-                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.points, locations.Count() + 1);
-                var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.platformPositions, 1);
-
-                var nbPoints = locations.Count();
-                var totalLength = 0.0f;
-                for (int i = 0; i < nbPoints; i++) 
-                {
-                    splinePoints[i] = locations[i];
-                    if (i < nbPoints - 1)
-                        totalLength += Vector3.Magnitude(locations[i + 1] - locations[i]);
-                }
-
-                splinePoints[nbPoints] = locations[0];
-                splinePlatformPositions[0] = 0.5f;
-                newSplineBlobAsset.length = totalLength;
+                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.points, pointCount);
+                int nbPlatforms = railMarkers.Count(r => r.railMarkerType == RailMarkerType.PLATFORM_END) * 2;
+                var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.platformPositions, nbPlatforms);
+                CalculatePoints(railMarkers, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
             }
 
             BlobAssetReference<SplineBlobAssetArray> blobAssetReference =
@@ -254,6 +229,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             {
                 BlobAssetReference = blobAssetReference
             });
+            
         }
     }
 }
