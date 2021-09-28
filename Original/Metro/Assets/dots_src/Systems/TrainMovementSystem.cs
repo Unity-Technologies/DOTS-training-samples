@@ -33,8 +33,14 @@ public partial class TrainMovementSystem : SystemBase
 
     public static (float3, Quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
-        float3 from = points[(int)math.floor(trackPosition)];
-        float3 to = points[(int)math.ceil(trackPosition)];
+        var floor = (int)math.floor(trackPosition);
+        var ceil = (int)math.ceil(trackPosition);
+        if (floor == ceil)
+        {
+            ceil += 1;
+        }
+        float3 from = points[floor];
+        float3 to = points[ceil];
 
         float t = trackPosition - math.floor(trackPosition);
 
