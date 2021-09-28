@@ -9,6 +9,7 @@ public struct Config : IComponentData
 	// Simulation Constants
 	public const int AntCount = 100;
 
+	public const float MoveSpeed = 0.002f;
 	// GreenDotDistance
 	// SphereRadius
 	// WallDistanceFromCenter

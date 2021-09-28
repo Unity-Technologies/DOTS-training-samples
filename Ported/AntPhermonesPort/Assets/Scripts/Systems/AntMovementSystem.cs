@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Mathematics;
 
 public partial class AntMovementSystem : SystemBase
 {
@@ -10,9 +11,10 @@ public partial class AntMovementSystem : SystemBase
         var time = Time.ElapsedTime;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         Entities
-            .ForEach((ref Translation translation, in AntMovement ant) =>
+            .ForEach((ref Translation translation, in AntMovement ant, in LocalToWorld ltw) =>
             {
-                translation.Value.x = (float)((time + 2.0f) % 100) - 50f;
+                translation.Value += ltw.Forward * (float)((time + Config.MoveSpeed) % 100);
+                //translation.Value.x = (float)((time + Config.MoveSpeed) % 100) - 50f;
             }).Run();
 
         ecb.Playback(EntityManager);

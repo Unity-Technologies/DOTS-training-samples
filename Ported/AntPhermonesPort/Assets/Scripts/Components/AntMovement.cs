@@ -8,4 +8,5 @@ public struct AntMovement : IComponentData
     public float2 Direction;
     public float2 Position;
     public byte State;
+    public float MoveSpeed;
 }
