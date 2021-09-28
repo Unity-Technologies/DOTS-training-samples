@@ -18,10 +18,10 @@ public partial class CarriageMovementSystem : SystemBase
             float offsetPosition = trainMovement.position - TrainReference.Index * carriageSizeWithMargins;
             if (offsetPosition < 0)
             {
-                offsetPosition = splineData.Value.points.Length - offsetPosition - 1;
+                offsetPosition = splineData.Value.splineBlobAssets[0].points.Length - offsetPosition - 1;
                 
             }
-            (float3 lerpedPosition, Quaternion newRotation) = TrainMovementSystem.TrackPositionToWorldPosition(offsetPosition, ref splineData.Value.points);
+            (float3 lerpedPosition, Quaternion newRotation) = TrainMovementSystem.TrackPositionToWorldPosition(offsetPosition, ref splineData.Value.splineBlobAssets[0].points);
             translation.Value = lerpedPosition;
             rotation.Value = newRotation;
         }).WithoutBurst().Run();

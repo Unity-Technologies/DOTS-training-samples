@@ -15,12 +15,12 @@ public partial class TrainMovementSystem : SystemBase
 
             movement.position += speed;
 
-            if (movement.position > splineData.Value.points.Length - 1)
+            if (movement.position > splineData.Value.splineBlobAssets[0].points.Length - 1)
             {
                 movement.position = 0;
             }
 
-            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref splineData.Value.points);
+            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref splineData.Value.splineBlobAssets[0].points);
 
             translation.Value = lerpedPosition;
 
