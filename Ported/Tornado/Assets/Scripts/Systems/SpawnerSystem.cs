@@ -10,15 +10,12 @@ using Random = Unity.Mathematics.Random;
 
 public partial class SpawnerSystem : SystemBase
 {
-
-
-    protected override void OnUpdate()
+	protected override void OnUpdate()
     {
         var random = new Random(0x1234567);   
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         Entities
-            .WithStructuralChanges()
             .ForEach((Entity entity, in Spawner spawner) =>
         {
             ecb.DestroyEntity(entity);
@@ -59,179 +56,103 @@ public partial class SpawnerSystem : SystemBase
 
     private static void SpawnBuildings(EntityCommandBuffer ecb, Spawner spawner, Random random)
     {
+	    const int maxTowerHeight = 12;
         var instance = ecb.CreateEntity();
         ecb.AddComponent<World>(instance);
-        //TODO: initialize the arrays to be beamsize*2
         var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
         var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
         var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
         var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
 
-
-        var tempCurrent = new List<CurrentPoint>();
-        var tempPrevious = new List<PreviousPoint>();
-        var tempAnchor = new List<AnchorPoint>();
-        
-/*
-        for (var i = 0; i < spawner.TowerCount; i++)
-        {
-            //var randPos = random.NextFloat3(new float3(-50f,0f,-50f),new float3(50f,0f,50f));
-            var randPos = new float3();
-            var pointA = new CurrentPoint()
-            {
-                Value = randPos + new float3(6f,0f,0f)
-            };
-            var pointB = new CurrentPoint(){
-                Value = randPos
-            };
-            var pointC = new CurrentPoint(){
-                Value = randPos + new float3(0f,0f,6f)
-            };
-
-            bufferCurrent.Add(pointA);
-            bufferCurrent.Add(pointB);
-            bufferCurrent.Add(pointC);
-
-            var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
-            var beamA = new Beam()
-            {
-                pointAIndex = i*3 + 0,
-                pointBIndex = i*3 + 1,
-                size = math.length(pointA.Value - pointB.Value)
-            };
-            ecb.SetComponent(beamAEntity, beamA);
-
-
-            var beamBEntity =  ecb.Instantiate(spawner.BeamPrefab);
-            var beamB = new Beam()
-            {
-                pointAIndex = i*3 +1,
-                pointBIndex = i*3 +2,
-                size = math.length(pointB.Value - pointC.Value)
-            };
-            ecb.SetComponent(beamBEntity, beamB);
-        }
+        var maxPoints = spawner.TowerCount * maxTowerHeight * 3 + spawner.GroundPoints * 2;
+        /*
+        var tempCurrent = new List<CurrentPoint>(maxPoints);
+        var tempPrevious = new List<PreviousPoint>(maxPoints);
+        var tempAnchor = new List<AnchorPoint>(maxPoints);
 */
-        //return;
-        //var pointsList = tempCurrent;
-        //Copied code:
+        var tempCurrent = new NativeArray<CurrentPoint>(maxPoints, Allocator.TempJob);
+        var tempPrevious = new NativeArray<PreviousPoint>(maxPoints, Allocator.TempJob);
+        var tempAnchor = new NativeArray<AnchorPoint>(maxPoints, Allocator.TempJob);
 
-		
-		//List<Bar> barsList = new List<Bar>();
-		//List<List<Matrix4x4>> matricesList = new List<List<Matrix4x4>>();
-		//matricesList.Add(new List<Matrix4x4>());
-
-		var pointCount = 0;
-
-		// buildings
+        var pointCount = 0;
+        // buildings
 		for (int i = 0; i < spawner.TowerCount; i++) {
-			int height = random.NextInt(4,12);
+			int height = random.NextInt(4,maxTowerHeight);
 			Vector3 pos = new Vector3(random.NextFloat(-45f,45f),0f,random.NextFloat(-45f,45f));
 			float spacing = 2f;
 			for (int j = 0; j < height; j++)
 			{
 				float3 currentPosition;
-					
-				//Point point = new Point();
+				
 				currentPosition.x = pos.x+spacing;
 				currentPosition.y = j * spacing;
 				currentPosition.z = pos.z-spacing;
-
-
-				tempCurrent.Add(new CurrentPoint() { Value = currentPosition});
-				tempPrevious.Add(new PreviousPoint() { Value = currentPosition });
-				tempAnchor.Add(new AnchorPoint() { Value = j == 0 });
+				
+				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
+				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
+				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				pointCount++;
 
 				currentPosition.x = pos.x-spacing;
 				currentPosition.y = j * spacing;
 				currentPosition.z = pos.z-spacing;
 				
-				tempCurrent.Add(new CurrentPoint() { Value = currentPosition});
-				tempPrevious.Add(new PreviousPoint() { Value = currentPosition });
-				tempAnchor.Add(new AnchorPoint() { Value = j == 0 });
-
+				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
+				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
+				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				pointCount++;
 
 				currentPosition.x = pos.x+0f;
 				currentPosition.y = j * spacing;
 				currentPosition.z = pos.z+spacing;
 
-				tempCurrent.Add(new CurrentPoint() { Value = currentPosition});
-				tempPrevious.Add(new PreviousPoint() { Value = currentPosition });
-				tempAnchor.Add(new AnchorPoint() { Value = j == 0 });
+				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
+				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
+				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				pointCount++;
 
-				
-				pointCount += 3;
 			}
 		}
 
 		// ground details
 		for (int i=0;i<spawner.GroundPoints;i++) {
 			float3 pos = new float3(random.NextFloat(-55f,55f),0f,random.NextFloat(-55f,55f));
-			//Point point = new Point();
 			float3 currentPosition;
 			currentPosition.x = pos.x + random.NextFloat(-.2f,-.1f);
 			currentPosition.y = pos.y + random.NextFloat(0f,3f);
 			currentPosition.z = pos.z + random.NextFloat(.1f,.2f);
-			
-			
-			tempCurrent.Add(new CurrentPoint() { Value = currentPosition});
-			tempPrevious.Add(new PreviousPoint() { Value = currentPosition });
-			tempAnchor.Add(new AnchorPoint() { Value = false });
+
+			tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
+			tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
+			tempAnchor[pointCount] = new AnchorPoint() { Value = false };
 			pointCount++;
-			
 
 			currentPosition.x = pos.x + random.NextFloat(.2f,.1f);
 			currentPosition.y = pos.y + random.NextFloat(0f,.2f);
 			currentPosition.z = pos.z + random.NextFloat(-.1f,-.2f);
 
-			tempCurrent.Add(new CurrentPoint() { Value = currentPosition});
-			tempPrevious.Add(new PreviousPoint() { Value = currentPosition });
+			tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
+			tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
+			tempAnchor[pointCount] = new AnchorPoint() { Value = (random.NextFloat()<.1f) };
 			pointCount++;
-			
-			tempAnchor.Add(new AnchorPoint() { Value = (random.NextFloat()<.1f) });
 		}
 
 
-		var tempNeighbor = new NeighborCount[tempCurrent.Count];
+		//var tempNeighbor = new NeighborCount[pointCount];
+		var tempNeighbor = new NativeArray<NeighborCount>(pointCount, Allocator.TempJob);
+
 
 		var beamCount = 0; 
-		for (int i = 0; i < tempCurrent.Count; i++) {
-			for (int j = i + 1; j < tempCurrent.Count; j++) {
-				//Bar bar = new Bar();
-				//bar.AssignPoints(pointsList[i],pointsList[j]);
+		for (int i = 0; i < pointCount; i++) {
+			for (int j = i + 1; j < pointCount; j++) {
 
 				var beamSize = math.length(tempCurrent[i].Value - tempCurrent[j].Value);
 
 				if (beamSize < 5f && beamSize>.2f) {
-					
-					/*var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
-					var beamA = new Beam()
-					{
-						pointAIndex = i,
-						pointBIndex = j,
-						size = beamSize
-					};
-					ecb.SetComponent(beamAEntity, beamA);*/
-					
 					tempNeighbor[i] = new NeighborCount { Value = tempNeighbor[i].Value + 1 };
 					tempNeighbor[j] = new NeighborCount { Value = tempNeighbor[j].Value + 1 };
-					beamCount++; 
-
-					/*bar.point1.neighborCount++;
-					bar.point2.neighborCount++;*/
-
-					//barsList.Add(bar);
-					//matricesList[batch].Add(bar.matrix);
-					/*if (matricesList[batch].Count == instancesPerBatch) {
-						batch++;
-						matricesList.Add(new List<Matrix4x4>());
-					}
-					if (barsList.Count % 500 == 0) {
-						yield return null;
-					}*/
+					beamCount++;
 				}
-				
-				
 			}
 		}
 		
@@ -240,30 +161,23 @@ public partial class SpawnerSystem : SystemBase
 		neighborBuffer.Capacity = beamCount * 2;
 		anchorBuffer.Capacity = beamCount * 2;
 		
-		pointCount = 0;
-		for (int i=0;i<tempCurrent.Count;i++) {
+		var fPointCount = 0;
+		for (int i=0;i<pointCount;i++) {
 			if (tempNeighbor[i].Value > 0)
 			{
 				bufferCurrent.Add(tempCurrent[i]);
 				bufferPrevious.Add(tempPrevious[i]);
 				anchorBuffer.Add(tempAnchor[i]);
 				neighborBuffer.Add(new NeighborCount() { Value = 0 });
-				/*
-				bufferCurrent[pointCount] = tempCurrent[i];
-				bufferPrevious[pointCount] = tempPrevious[i];
-				anchorBuffer[pointCount] = tempAnchor[i];
-				//we are able to remove this since the array is initialized with 0 automatically
-				//neighborBuffer[pointCount] = new NeighborCount(){ Value = 0 };
-				*/
-				pointCount++;
+				fPointCount++;
 			}
 		}
 
 
 		var barCount = 0;
 		//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
-		for (int i = 0; i < pointCount; i++) {
-			for (int j = i + 1; j < pointCount; j++) {
+		for (int i = 0; i < fPointCount; i++) {
+			for (int j = i + 1; j < fPointCount; j++) {
 				var delta = bufferCurrent[i].Value - bufferCurrent[j].Value;
 				var beamSize = math.length(delta);
 
@@ -281,18 +195,22 @@ public partial class SpawnerSystem : SystemBase
 					barCount++;
 					
 					float upDot = math.acos(math.abs(math.dot(new float3(0f,1f,0f), math.normalize(delta))))/math.PI;
-					ecb.SetComponent<URPMaterialPropertyBaseColor>(beamAEntity, new URPMaterialPropertyBaseColor()
+					ecb.SetComponent(beamAEntity, new URPMaterialPropertyBaseColor()
 					{
 						Value =  new float4(1f,1f,1f,1f) * upDot * random.NextFloat(.7f,1f)
 					});
-
 				}
 			}
 		}
 
-		Debug.Log(pointCount + " points, extra room for " + (bufferCurrent.Length - pointCount)  + " (" +barCount + " bars)");
-		
-		System.GC.Collect();
+		//Debug.Log(fPointCount + " points, extra room for " + (bufferCurrent.Length - fPointCount)  + " (" +barCount + " bars)");
+		 
+		//System.GC.Collect();
+
+		tempCurrent.Dispose();
+		tempPrevious.Dispose();
+		tempAnchor.Dispose();
+		tempNeighbor.Dispose();
 
     }
 
@@ -301,7 +219,6 @@ public partial class SpawnerSystem : SystemBase
         for (int i = 0; i < spawner.CubeCount; i++)
         {
             var instance = ecb.Instantiate(spawner.CubePrefab);
-
 
             float3 pos = new float3(random.NextFloat(-50f, 50f), random.NextFloat(0f, 50f), random.NextFloat(-50f, 50f));
             ecb.SetComponent(instance, new Translation()
