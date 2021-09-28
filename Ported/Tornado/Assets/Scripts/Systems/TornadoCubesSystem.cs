@@ -9,9 +9,9 @@ public partial class TornadoCubesSystem : SystemBase
     public float upwardSpeed = 6;
 
 	private static float internalTime = 0.0f;
-	public static float TornadoSway(float y)
+	public static float TornadoSway(float y, float t)
     {
-        return math.sin(y / 5.0f + internalTime / 4.0f) * 3.0f;
+        return math.sin(y / 5.0f + t / 4.0f) * 3.0f;
     }
 
     protected override void OnUpdate()
@@ -21,14 +21,14 @@ public partial class TornadoCubesSystem : SystemBase
 		float internalSpinRate = spinRate;
 		float internalUpwardSpeed = upwardSpeed;
 		internalTime += internalDeltaTime;
-
+		float t = internalTime;
         tornadoComponent.tornadoX = math.cos(internalTime / 6.0f) * 30.0f;
         tornadoComponent.tornadoZ = math.sin(internalTime / 6.0f * 1.618f) * 30.0f;
 
         Entities
             .ForEach((ref Cube tag, ref Translation translation) => 
 			{
-				float3 tornadoPos = new float3(tornadoComponent.tornadoX + TornadoCubesSystem.TornadoSway(translation.Value.y), translation.Value.y, tornadoComponent.tornadoZ);
+				float3 tornadoPos = new float3(tornadoComponent.tornadoX + TornadoCubesSystem.TornadoSway(translation.Value.y, t), translation.Value.y, tornadoComponent.tornadoZ);
             
 				float3 delta = (tornadoPos - translation.Value);
 				float dist = math.length( delta );
@@ -40,6 +40,6 @@ public partial class TornadoCubesSystem : SystemBase
 				if (translation.Value.y > 50.0f) {
 					translation.Value.y = 0.0f;
 				}
-			}).Run();
+			}).ScheduleParallel();
     }
 }
