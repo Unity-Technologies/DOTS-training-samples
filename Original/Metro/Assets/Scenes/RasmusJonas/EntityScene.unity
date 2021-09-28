@@ -123,64 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &320516179
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_Name
-      value: Carriage
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.14
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4059157056928284, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 114672226450690598, guid: 7913530af20624429bc67f560aa729fc, type: 3}
-  m_SourcePrefab: {fileID: 100100000, guid: 7913530af20624429bc67f560aa729fc, type: 3}
 --- !u!1001 &681801886
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -191,7 +133,7 @@ PrefabInstance:
     - target: {fileID: 8899542463604873520, guid: 118cfb6f92dbee64eaf684754f0c551d,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8899542463604873520, guid: 118cfb6f92dbee64eaf684754f0c551d,
         type: 3}
@@ -273,21 +215,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a70c29b5c54c261419741d07630227c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &2005005992 stripped
+--- !u!1 &2054078563
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
-    type: 3}
-  m_PrefabInstance: {fileID: 320516179}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2005005993
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054078565}
+  - component: {fileID: 2054078564}
+  m_Layer: 0
+  m_Name: TrainSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2054078564
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005005992}
+  m_GameObject: {fileID: 2054078563}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f6c0e94053d24f129b1a784e802ba15, type: 3}
+  m_Script: {fileID: 11500000, guid: 749c3b19336df49d3a91cc4b972baa38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TrainPrefab: {fileID: 8106599586059510996, guid: 1eb048b99d5254fe38bc40ef4a7cbbee,
+    type: 3}
+  CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+    type: 3}
+--- !u!4 &2054078565
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054078563}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
