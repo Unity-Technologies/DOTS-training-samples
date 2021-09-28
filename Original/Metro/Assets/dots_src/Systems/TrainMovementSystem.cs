@@ -9,13 +9,13 @@ public partial class TrainMovementSystem : SystemBase
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
         
-        Entities.WithAll<TrainMovement>().ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement) =>
+        Entities.WithAll<TrainMovement>().ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
             float speed = 0.05f; //from global settings singleton
 
             movement.position += speed;
 
-            if (movement.position > splineData.Value.splineBlobAssets[0].points.Length - 1)
+            if (movement.position > splineData.Value.splineBlobAssets[lineIndex.Index].points.Length - 1)
             {
                 movement.position = 0;
             }
