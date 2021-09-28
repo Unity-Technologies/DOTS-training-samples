@@ -5,4 +5,5 @@ using Unity.Mathematics;
 public struct WorldBounds : IComponentData
 {
     public MinMaxAABB AABB;
+    public float HiveOffset;
 }

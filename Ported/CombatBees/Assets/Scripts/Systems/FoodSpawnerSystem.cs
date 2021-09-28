@@ -23,10 +23,15 @@ public partial class FoodSpawnerSystem : SystemBase
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);
+                float3 spawnMin = bounds.AABB.Min;
+                spawnMin.x += bounds.HiveOffset;
+
+                float3 spawnMax = bounds.AABB.Max;
+                spawnMax.x -= bounds.HiveOffset;
 
                 for (int i = 0; i < spawner.InitialFoodCount; ++i)
                 {
-                    float3 position = random.NextFloat3(bounds.AABB.Min, bounds.AABB.Max);
+                    float3 position = random.NextFloat3(spawnMin, spawnMax);
 
                     var instance = ecb.Instantiate(spawner.FoodPrefab);
                     var translation = new Translation {Value = position};
