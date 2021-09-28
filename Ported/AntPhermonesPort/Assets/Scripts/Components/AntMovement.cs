@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[GenerateAuthoringComponent]
 public struct AntMovement : IComponentData
 {
     public float2 Direction;

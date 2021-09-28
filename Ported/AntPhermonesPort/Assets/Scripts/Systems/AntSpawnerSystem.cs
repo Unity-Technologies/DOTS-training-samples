@@ -4,27 +4,20 @@ using UnityEngine;
 
 public partial class AntSpawnerSystem : SystemBase
 {
-    //private EntityQuery query;
     protected override void OnUpdate()
     {
-        Debug.Log("Spawning Ants");
-        //int dataCount = query.CalculateEntityCount();
-        //NativeArray<float> dataSquared
-        //    = new NativeArray<float>(dataCount, Allocator.Temp);
-        //Entities
-        //    .WithStoreEntityQueryInField(ref query)
-        //    .ForEach((int entityInQueryIndex, in AntMovement data) =>
-        //    {
-        //        Debug.Log(data.Position);
-        //    }).ScheduleParallel();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        Entities
+            .ForEach((Entity entity, in AntSpawner spawner) =>
+            {
+                ecb.DestroyEntity(entity);
+                for (int i = 0; i < spawner.AntsToSpawn; i++)
+                {
+                    var instance = ecb.Instantiate(spawner.Ant);
+                }
+            }).Run();
 
-        //Job
-        //    .WithCode(() =>
-        //    {
-        //        //Use dataSquared array...
-        //        var v = dataSquared[dataSquared.Length - 1];
-        //    })
-        //    .WithDisposeOnCompletion(dataSquared)
-        //    .Schedule();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
