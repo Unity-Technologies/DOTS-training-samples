@@ -311,7 +311,7 @@ public partial class SpawnerSystem : SystemBase
 
             ecb.SetComponent(instance, new Cube()
             {
-                radius = random.NextFloat(0, 1f)
+                spinningRadius = random.NextFloat(0, 1f)
             });
 
             var color = random.NextFloat(.3f, .7f);
