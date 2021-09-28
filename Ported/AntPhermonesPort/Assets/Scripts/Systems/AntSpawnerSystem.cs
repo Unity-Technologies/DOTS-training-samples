@@ -17,15 +17,18 @@ public partial class AntSpawnerSystem : SystemBase
                 for (int i = 0; i < spawner.AntsToSpawn; i++)
                 {
                     var instance = ecb.Instantiate(spawner.Ant);
-                    var translation = new Translation { Value = new float3(0, 0, i) };
 
                     float randx = random.NextFloat(-spawner.SpawnAreaSize, spawner.SpawnAreaSize);
                     float randz = random.NextFloat(-spawner.SpawnAreaSize, spawner.SpawnAreaSize);
+
+                    var rotation = new Rotation { Value = Quaternion.Euler(0.0f, random.NextFloat(0, 360), 0.0f) };
 
                     ecb.SetComponent(instance, new Translation
                     {
                         Value = new float3(randx, 0, randz)
                     });
+
+                    ecb.SetComponent(instance, rotation);
                 }
             }).Run();
 
