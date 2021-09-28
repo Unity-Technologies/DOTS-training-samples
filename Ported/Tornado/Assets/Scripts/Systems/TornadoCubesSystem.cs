@@ -4,12 +4,18 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class TornadoCubesSystem : SystemBase
 {
     public float spinRate = 37;
     public float upwardSpeed = 6;
 
+    private float internalTime = 0.0f;
+    public float TornadoSway(float y)
+    {
+        return math.sin(y / 5f + internalTime / 4f) * 3f;
+    }
     protected override void OnUpdate()
     {
         // Assign values to local variables captured in your job here, so that it has
@@ -25,8 +31,11 @@ public partial class TornadoCubesSystem : SystemBase
 
         var tornadoEntity = GetSingletonEntity<Tornado>();
         var tornadoComponent = GetSingleton<Tornado>();
-        
-        
+
+        internalTime += Time.DeltaTime;
+
+        tornadoComponent.tornadoX = math.cos(internalTime / 6f) * 30f;
+        tornadoComponent.tornadoZ = math.sin(internalTime / 6f * 1.618f) * 30f;
         
         Entities
             .WithoutBurst()
@@ -42,7 +51,7 @@ public partial class TornadoCubesSystem : SystemBase
             //     translation.Value += math.mul(rotation.Value, new float3(0, 0, 1)) * deltaTime;
             
             
-            float3 tornadoPos = new float3(PointManager.tornadoX+PointManager.TornadoSway(translation.Value.y),translation.Value.y,PointManager.tornadoZ);
+            float3 tornadoPos = new float3(tornadoComponent.tornadoX+TornadoSway(translation.Value.y),translation.Value.y, tornadoComponent.tornadoZ);
             
             float3 delta = (tornadoPos - translation.Value);
             float dist = math.length( delta );

@@ -6,5 +6,6 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Tornado : IComponentData
 {
-  public int value;
+	public float tornadoX;
+	public float tornadoZ;
 }
