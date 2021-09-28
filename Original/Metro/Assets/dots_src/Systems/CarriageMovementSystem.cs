@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -17,16 +14,19 @@ public partial class CarriageMovementSystem : SystemBase
             TrainMovement trainMovement = EntityManager.GetComponentData<TrainMovement>(trainReference.Train);
             LineIndex lineIndex = EntityManager.GetComponentData<LineIndex>(trainReference.Train);
 
+            ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             float offsetPosition = trainMovement.position - trainReference.Index * carriageSizeWithMargins;
             if (offsetPosition < 0)
             {
-                var pointsLength = splineData.Value.splineBlobAssets[lineIndex.Index].points.Length;
+                var pointsLength = points.Length;
                 offsetPosition = pointsLength + offsetPosition - 1;
             }
 
             (translation.Value, rotation.Value) = TrainMovementSystem.TrackPositionToWorldPosition(
                 offsetPosition,
-                ref splineData.Value.splineBlobAssets[lineIndex.Index].points);
-        }).WithoutBurst().Run(); // TODO: `.WithoutBurst().Run()` likely makes this slower, can we use `.ScheduleParallel()`? 
+                ref points);
+        }).WithoutBurst().Run();
+        // TODO: since we reference `(this.)EntityManager`, we need `.WithoutBurst().Run()` which likely makes this slower
+        // how can we use `.ScheduleParallel()`? 
     }
 }
