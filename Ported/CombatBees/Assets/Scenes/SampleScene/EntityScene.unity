@@ -187,13 +187,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AABB:
     Min:
-      x: 0
-      y: 0
-      z: 0
+      x: -50
+      y: -10
+      z: -15
     Max:
-      x: 100
-      y: 20
-      z: 30
+      x: 50
+      y: 10
+      z: 15
 --- !u!1001 &2424916914372297942
 PrefabInstance:
   m_ObjectHideFlags: 0
