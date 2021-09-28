@@ -7,4 +7,5 @@ public class Spawner : IComponentData
     public Entity CubePrefab;
     public Entity BeamPrefab;
     public int TowerCount;
+    public int GroundPoints;
 }

@@ -75,21 +75,22 @@ public partial class SpawnerSystem : SystemBase
 /*
         for (var i = 0; i < spawner.TowerCount; i++)
         {
-            var randPos = random.NextFloat3(new float3(-50f,0f,-50f),new float3(50f,0f,50f));
+            //var randPos = random.NextFloat3(new float3(-50f,0f,-50f),new float3(50f,0f,50f));
+            var randPos = new float3();
             var pointA = new CurrentPoint()
             {
-                Value = randPos + new float3(5f,0f,0f)
+                Value = randPos + new float3(6f,0f,0f)
             };
             var pointB = new CurrentPoint(){
                 Value = randPos
             };
             var pointC = new CurrentPoint(){
-                Value = randPos + new float3(0f,0f,5f)
+                Value = randPos + new float3(0f,0f,6f)
             };
 
-            tempCurrent.Add(pointA);
-            tempCurrent.Add(pointB);
-            tempCurrent.Add(pointC);
+            bufferCurrent.Add(pointA);
+            bufferCurrent.Add(pointB);
+            bufferCurrent.Add(pointC);
 
             var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
             var beamA = new Beam()
@@ -111,7 +112,7 @@ public partial class SpawnerSystem : SystemBase
             ecb.SetComponent(beamBEntity, beamB);
         }
 */
-
+        //return;
         //var pointsList = tempCurrent;
         //Copied code:
 
@@ -123,7 +124,7 @@ public partial class SpawnerSystem : SystemBase
 		var pointCount = 0;
 
 		// buildings
-		for (int i = 0; i < 35; i++) {
+		for (int i = 0; i < spawner.TowerCount; i++) {
 			int height = random.NextInt(4,12);
 			Vector3 pos = new Vector3(random.NextFloat(-45f,45f),0f,random.NextFloat(-45f,45f));
 			float spacing = 2f;
@@ -164,7 +165,7 @@ public partial class SpawnerSystem : SystemBase
 		}
 
 		// ground details
-		for (int i=0;i<600;i++) {
+		for (int i=0;i<spawner.GroundPoints;i++) {
 			float3 pos = new float3(random.NextFloat(-55f,55f),0f,random.NextFloat(-55f,55f));
 			//Point point = new Point();
 			float3 currentPosition;

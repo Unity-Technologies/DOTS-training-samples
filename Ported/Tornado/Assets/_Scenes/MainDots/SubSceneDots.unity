@@ -158,6 +158,7 @@ MonoBehaviour:
   BeamPrefab: {fileID: 2543181246138698843, guid: 51790afa4f4396d40ab94e73b19b9cdf,
     type: 3}
   TowerCount: 10
+  GroundPoints: 600
 --- !u!4 &750255254
 Transform:
   m_ObjectHideFlags: 0
