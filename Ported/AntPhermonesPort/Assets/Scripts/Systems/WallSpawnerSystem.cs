@@ -12,6 +12,7 @@ public partial class WallSpawnerSystem : SystemBase
 
         var random = new Unity.Mathematics.Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var config = GetSingleton<Config>();
         Entities
             .ForEach((Entity entity, in WallSpawner wallSpawner) =>
             {
@@ -19,7 +20,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                 CellMapHelper.InitCellMap(map);
 
-                for (int i = 0; i < Config.RingCount; ++i)
+                for (int i = 0; i < config.RingCount; ++i)
                 {
                     // choose if 2 openings
                     int segmentCount = random.NextInt(1, 2);

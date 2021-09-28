@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 663330105}
   - component: {fileID: 663330104}
+  - component: {fileID: 663330106}
   m_Layer: 0
   m_Name: CellMapSpawner
   m_TagString: Untagged
@@ -167,6 +168,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &663330106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663330103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c113d231ef29648f0a26f982693c99d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Speed: 1
+  AntCount: 1000
+  MoveSpeed: 20
+  RotationSpeed: 20
+  RotationAngle: 15
+  RingCount: 3
 --- !u!1 &999092343 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}

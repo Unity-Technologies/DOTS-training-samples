@@ -2,24 +2,21 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
-
+[GenerateAuthoringComponent]
 public struct Config : IComponentData
 {
-    public const int Speed =1; // Will become dynamic
+    public int Speed; // Will become dynamic
 
 	// Simulation Constants
-	public const int AntCount = 100;
+	public int AntCount;
 
-	public const float MoveSpeed = 5f;
-	public const float RotationSpeed = 360f; // degrees per second
+	public float MoveSpeed;
+	public float RotationSpeed; // degrees per second
 
-	public const float RotationAngle = 360f;
+	public float RotationAngle;
+	public int RingCount;
+	public int RingDistance;
+	public int AngleSize;
 
-	public const int RingCount = 3;
-	// GreenDotDistance
-	// SphereRadius
-	// WallDistanceFromCenter
-	// Total simulation size CellMapResolution 
-
+	public int MaxEntriesPerCircle;
 }

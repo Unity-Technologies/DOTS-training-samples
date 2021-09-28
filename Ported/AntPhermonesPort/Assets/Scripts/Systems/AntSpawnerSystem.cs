@@ -6,15 +6,16 @@ using Unity.Transforms;
 
 public partial class AntSpawnerSystem : SystemBase
 {
-    protected override void OnUpdate()
+    protected override void OnStartRunning()
     {
         var random = new Unity.Mathematics.Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var config = GetSingleton<Config>();
         Entities
             .ForEach((Entity entity, in AntSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-                for (int i = 0; i < Config.AntCount; i++)
+                for (int i = 0; i < config.AntCount; i++)
                 {
                     var instance = ecb.Instantiate(spawner.Ant);
 
@@ -34,5 +35,10 @@ public partial class AntSpawnerSystem : SystemBase
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+    }
+
+    protected override void OnUpdate()
+    {
+        //throw new System.NotImplementedException();
     }
 }

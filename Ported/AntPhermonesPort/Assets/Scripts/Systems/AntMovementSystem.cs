@@ -28,6 +28,8 @@ public partial class AntMovementSystem : SystemBase
         bool isFirst = true;
         var map = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
 
+        var config = GetSingleton<Config>();
+
         Entities
             .WithReadOnly(map)
             .ForEach((ref Translation translation, ref Rotation rotation, ref AntMovement ant, in LocalToWorld ltw) =>
@@ -48,11 +50,11 @@ public partial class AntMovementSystem : SystemBase
                 Quaternion _rotateThisFrame = Quaternion.RotateTowards(
                     rotation.Value,
                     ant.Target,
-                    Config.RotationSpeed * time
+                    config.RotationSpeed * time
                 );
 
                 rotation.Value = _rotateThisFrame;
-                translation.Value += ltw.Forward * Config.MoveSpeed * time;
+                translation.Value += ltw.Forward * config.MoveSpeed * time;
 
                 //Temporarily just reference something in the map to avoid warning, eventually we will actually use it for collision detection
                 var len = map.Length;
