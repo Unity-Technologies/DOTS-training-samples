@@ -62,11 +62,8 @@ public struct CellMapHelper
     // using Bresenham's algorithm
     public NativeArray<int2> CreateCirclePattern(int r)
     {
-        // TEMP
-        return new NativeArray<int2>();
-
-        int xc = r + 1;
-        int yc = r + 1;
+        int xc = r;
+        int yc = r;
 
         NativeArray<int2> pattern = new NativeArray<int2>(r * 2 + 1, Allocator.Temp);
 
@@ -101,12 +98,14 @@ public struct CellMapHelper
         return pattern;
     }
 
-    public void StampPattern(int x, int y, int2[] pattern)
+    public void StampPattern(int x, int y, NativeArray<int2> pattern)
     {
         foreach (var pt in pattern)
         {
             for (int px = pt.x; px <= pt.y; ++px)
+            {
                 Set(x + px, y, CellState.IsObstacle);
+            }
         }
     }
 
@@ -135,6 +134,22 @@ public struct CellMapHelper
         return ConvertGridIndex2Dto1D(gridIndexXY);
     }
 
+    public void WorldToCellSpace(ref float x, ref float y)
+    {
+        if (x < worldLowerLeft .x) x = worldLowerLeft .x;
+        if (x > worldUpperRight.x) x = worldUpperRight.x;
+        if (y < worldLowerLeft .y) y = worldLowerLeft .y;
+        if (y > worldUpperRight.y) y = worldUpperRight.y;
+
+        float2 gridRelativeXY = new float2 { x = x, y = y } - worldLowerLeft;
+
+        float2 gridIndexScaleFactor = (worldUpperRight - worldLowerLeft) / gridSize;
+
+        x = gridRelativeXY.x / gridIndexScaleFactor.x;
+        y = gridRelativeXY.y / gridIndexScaleFactor.y;
+
+    }
+
     public CellState GetCellStateFrom2DPos(float2 xy)
     {
         int cellIndex = GetNearestIndex(xy);
@@ -152,7 +167,8 @@ public struct CellMapHelper
 
     public void Set(int x, int y, CellState state)
     {
-        cellmap.ElementAt(y * gridSize + x).state = state;
+        if (x >= 0 && x < gridSize && y >= 0 && y < gridSize)
+            cellmap.ElementAt(y * gridSize + x).state = state;
     }
 
     public CellState Get(int x, int y)

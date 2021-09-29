@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public struct WallSpawner : IComponentData
+public struct FoodSpawner : IComponentData
 {
-    public Entity WallComponent;
+    public Entity FoodComponent;
 }
