@@ -85,21 +85,27 @@ public partial class AntMovementSystem : SystemBase
                 //);
 
                 //rotation.Value = _rotateThisFrame;
-                rotation.Value = quaternion.Euler(0, ant.FacingAngle, 0);
+                var newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
 
                 //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, jitterAngle));
 
-                translation.Value += ltw.Forward * config.MoveSpeed * time;
+                var newPosDelta = ltw.Forward * config.MoveSpeed * time;
+                var newPos = translation.Value + newPosDelta;
 
                 Debug.Assert(cellMapHelper.IsInitialized());
                 if (cellMapHelper.IsInitialized())
                 {
-                    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
+                    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
                     if (cellState == CellState.IsObstacle)
                     {
-                        //translation.Value = new float3(0, 0, 0);
+                        newPos = translation.Value - newPosDelta;
+                        ant.FacingAngle += Mathf.PI;
+                        newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
                     }
                 }
+
+                rotation.Value = newRotation;
+                translation.Value = newPos;
 
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
