@@ -57,7 +57,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: Speed
-      value: 0.1
+      value: 0.31
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndColor.x
@@ -69,11 +69,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndColor.z
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: BeginColor.x
-      value: 1
+      value: 10.4
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: BeginColor.y
@@ -93,7 +93,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndSize
-      value: 10
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: BeginSize
