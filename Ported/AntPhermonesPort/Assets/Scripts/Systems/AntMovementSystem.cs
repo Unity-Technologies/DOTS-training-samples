@@ -48,7 +48,7 @@ public partial class AntMovementSystem : SystemBase
                     }
                 }
 
-                //Quaternion _rotationDelta = Quaternion.Euler(0, random.NextFloat(-15*time, 15*time), 0);
+                Quaternion _rotationDelta = Quaternion.Euler(0, random.NextFloat(-15*time, 15*time), 0);
 
                 // Need the amount the ant will rotate this frame
                 Quaternion _rotateThisFrame = Quaternion.RotateTowards(

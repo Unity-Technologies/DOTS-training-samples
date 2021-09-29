@@ -183,14 +183,14 @@ MonoBehaviour:
   Speed: 1
   WorldSize: 20
   CellMapResolution: 500
-  AntCount: 1
+  AntCount: 1000
   MoveSpeed: 20
   RotationSpeed: 20
-  RingCount: 0
+  RingCount: 1
   RingDistance: 3
   RingAngleSize: 270
   MaxEntriesPerRing: 2
-  PheromoneProductionPerSecond: 2
+  PheromoneProductionPerSecond: 0.5
 --- !u!1 &1059174680 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
