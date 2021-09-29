@@ -57,12 +57,16 @@ public partial class AntMovementSystem : SystemBase
                 translation.Value += ltw.Forward * config.MoveSpeed * time;
 
                 var cellMapHelper = new CellMapHelper(map, config.CellMapResolution, config.WorldSize);
-                var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
-                if (cellState == CellState.IsObstacle)
-                {
-                    translation.Value = new float3(0,0,0);
-                }
 
+                // TBD: This check necessary currently because this is getting invoked initially BEFORE WorldSpawnerSystem has run
+                if (cellMapHelper.IsInitialized())
+                {
+                    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
+                    if (cellState == CellState.IsObstacle)
+                    {
+                        translation.Value = new float3(0,0,0);
+                    }
+                }
             }).Run();
 
         ecb.Playback(EntityManager);

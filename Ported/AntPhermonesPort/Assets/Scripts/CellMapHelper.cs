@@ -24,6 +24,11 @@ public struct CellMapHelper
         worldUpperRight = new float2(halfSize, halfSize);
     }
 
+    public bool IsInitialized()
+    {
+        return cellmap.Length > 0;
+    }
+
     public void InitCellMap()
     {
         cellmap.Length = gridSize * gridSize;
