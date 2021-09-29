@@ -5,8 +5,8 @@ using Unity.Mathematics;
 public struct Size : IComponentData
 {
     // TODO: move Begin/End/Speed to constant data and store in Singleton
-    public float BeginSize;
-    public float EndSize;
+    public float3 BeginSize;
+    public float3 EndSize;
     public float Time;
     public float Speed;
 }

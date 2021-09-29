@@ -15,8 +15,8 @@ public partial class BeeSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
-        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        WorldBounds bounds = GetSingleton<WorldBounds>();
+        Prefabs prefabs = GetSingleton<Prefabs>();
         uint seed = random.NextUInt();
         
         Entities
@@ -35,7 +35,7 @@ public partial class BeeSpawnerSystem : SystemBase
                 {
                     float3 position = random.NextFloat3(bounds.AABB.Min, blueSpawnMax);
 
-                    var instance = ecb.Instantiate(spawner.BlueBeePrefab);
+                    var instance = ecb.Instantiate(prefabs.BlueBeePrefab);
                     var translation = new Translation { Value = position };
                     ecb.SetComponent(instance, translation);
                 }
@@ -48,7 +48,7 @@ public partial class BeeSpawnerSystem : SystemBase
                 {
                     float3 position = random.NextFloat3(redSpawnMin, bounds.AABB.Max);
 
-                    var instance = ecb.Instantiate(spawner.RedBeePrefab);
+                    var instance = ecb.Instantiate(prefabs.RedBeePrefab);
                     var translation = new Translation { Value = position };
                     ecb.SetComponent(instance, translation);
                 }

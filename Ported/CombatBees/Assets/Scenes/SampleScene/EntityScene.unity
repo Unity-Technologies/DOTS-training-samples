@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 485831332}
   - component: {fileID: 485831331}
   m_Layer: 0
-  m_Name: ParticlePrefabs
+  m_Name: Prefabs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -154,6 +154,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BloodPrefab: {fileID: 4808187811729036383, guid: 2e974bb683dd8428697e63d374782b19, type: 3}
   SpawnCloudPrefab: {fileID: 4218029034549389832, guid: 5d6e6c11c816d49ffbf3f3abf9f2707d, type: 3}
+  BlueBeePrefab: {fileID: 8605323344535136313, guid: 9802931337452ec4087eb9075388b0de, type: 3}
+  RedBeePrefab: {fileID: 5412096325887990999, guid: 70c3653d613592941876639289925a15, type: 3}
+  FoodPrefab: {fileID: 1386477806891177917, guid: be8ecf114c56e4502afd15bc09838109, type: 3}
 --- !u!4 &485831332
 Transform:
   m_ObjectHideFlags: 0
@@ -179,7 +182,7 @@ GameObject:
   - component: {fileID: 806115731}
   - component: {fileID: 806115730}
   m_Layer: 0
-  m_Name: BeeSpawner
+  m_Name: InitialBeeSpawnData
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -197,8 +200,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcf872cd182585f489c1d592d319bad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BlueBeePrefab: {fileID: 8605323344535136313, guid: 9802931337452ec4087eb9075388b0de, type: 3}
-  RedBeePrefab: {fileID: 5412096325887990999, guid: 70c3653d613592941876639289925a15, type: 3}
   InitialBeeCount: 12
 --- !u!4 &806115731
 Transform:
@@ -243,7 +244,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 861be2ceb8f694dccbabcf11b6b10da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FoodPrefab: {fileID: 1386477806891177917, guid: be8ecf114c56e4502afd15bc09838109, type: 3}
   InitialFoodCount: 100
 --- !u!4 &1061940011
 Transform:

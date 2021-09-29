@@ -6,15 +6,19 @@ using Unity.Mathematics;
 
 public partial class BeeMovementSystem : SystemBase
 {
+    private Random random;
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+    
     protected override void OnUpdate()
     {
         var transLookup = GetComponentDataFromEntity<Translation>(true);
-        var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
-        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
-        var hiveBluePosition = bounds.AABB.Min +
-                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
-        var hiveRedPosition = bounds.AABB.Max -
-                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
+        var bounds = GetSingleton<WorldBounds>();
+        uint seed = random.NextUInt();
+ 
         // Update our target position
         Entities
             .WithReadOnly(transLookup)
@@ -31,9 +35,8 @@ public partial class BeeMovementSystem : SystemBase
             }).ScheduleParallel();
         
         var dtTime = Time.DeltaTime;
-        Entity bloodPrefab = GetSingleton<ParticlePrefabs>().BloodPrefab;
-        var foodPrefab = GetSingleton<FoodSpawner>().FoodPrefab;
-        
+        Prefabs prefabs = GetSingleton<Prefabs>();
+
         float3 up = new float3( 0.0f, 1.0f, 0.0f );
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer().AsParallelWriter();
@@ -56,7 +59,7 @@ public partial class BeeMovementSystem : SystemBase
                         var bloodSpawnerEntity = ecb.CreateEntity(entityInQueryIndex, particleArchetype);
                         var bloodSpawner = new ParticleSpawner
                         {
-                            Prefab = bloodPrefab,
+                            Prefab = prefabs.BloodPrefab,
                             Position = translation.Value,
                             Direction = up,
                             Spread = 0.2f,
@@ -71,15 +74,18 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else if (target.TargetType == TargetType.Food)
                     {
+                        var random = new Random((uint)entityInQueryIndex + seed);
                         target.TargetType = TargetType.Hive;
-                        target.TargetPosition = (HasComponent<TeamRed>(beeEntity) ? hiveRedPosition : hiveBluePosition);
+                        target.TargetPosition = (HasComponent<TeamRed>(beeEntity) 
+                            ? WorldUtils.GetRedHiveRandomPosition(bounds, ref random) 
+                            : WorldUtils.GetBlueHiveRandomPosition(bounds, ref random));
                         ecb.DestroyEntity(entityInQueryIndex, target.TargetEntity);
                     }
                     else if (target.TargetType == TargetType.Hive)
                     {
                         //Dropping food.
                         target.Reset();
-                        var instance = ecb.Instantiate(entityInQueryIndex, foodPrefab);
+                        var instance = ecb.Instantiate(entityInQueryIndex, prefabs.FoodPrefab);
                         var foodInHive = new Translation {Value = translation.Value};
                         ecb.SetComponent(entityInQueryIndex, instance, foodInHive);
                         ecb.AddComponent(entityInQueryIndex, instance, new InHive{});

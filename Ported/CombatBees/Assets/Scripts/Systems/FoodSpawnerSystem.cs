@@ -16,8 +16,9 @@ public partial class FoodSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
-        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        WorldBounds bounds = GetSingleton<WorldBounds>();
+        Prefabs prefabs = GetSingleton<Prefabs>();
+
         uint seed = random.NextUInt();
 
         Entities
@@ -37,7 +38,7 @@ public partial class FoodSpawnerSystem : SystemBase
                     {
                         float3 position = random.NextFloat3(spawnMin, spawnMax);
 
-                        var instance = ecb.Instantiate(spawner.FoodPrefab);
+                        var instance = ecb.Instantiate(prefabs.FoodPrefab);
                         var translation = new Translation {Value = position};
                         ecb.SetComponent(instance, translation);
                     }
