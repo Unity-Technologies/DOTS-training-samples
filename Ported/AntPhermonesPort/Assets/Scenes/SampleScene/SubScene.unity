@@ -191,6 +191,7 @@ MonoBehaviour:
   RingAngleSize: 270
   MaxEntriesPerRing: 2
   PheromoneProductionPerSecond: 0.5
+  RandomSeed: 799
 --- !u!1 &1059174680 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}

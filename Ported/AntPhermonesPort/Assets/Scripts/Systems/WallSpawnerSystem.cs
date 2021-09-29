@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class WallSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()

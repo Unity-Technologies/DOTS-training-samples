@@ -5,7 +5,6 @@ using UnityEngine;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(AntSpawnerSystem))]
 public partial class AntMovementSystem : SystemBase
 {
     float timerElapsed = 0;

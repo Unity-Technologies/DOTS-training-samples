@@ -2,8 +2,7 @@
 using Unity.Mathematics;
 using Unity.Rendering;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(WallSpawnerSystem))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class PheromoneSystem : SystemBase
 {
     private UnityEngine.Texture2D texture;
