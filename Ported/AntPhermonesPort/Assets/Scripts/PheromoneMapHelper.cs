@@ -116,4 +116,12 @@ public struct PheromoneMapHelper
             math.clamp(currentValue.x + increaseValue, 0, 1), 0, 0, 1
         );
     }
+
+    public void DecrementIntensity(float decreaseValue)
+    {
+        for(int i = 0; i<pheromoneMap.Length; i++)
+        {
+            pheromoneMap.ElementAt(i).intensity -= new float4(decreaseValue, 0, 0, 0);
+        }
+    }
 }
