@@ -6,5 +6,5 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct Cube : IComponentData
 {
-    public float radius;
+    public float spinningRadius;
 }
