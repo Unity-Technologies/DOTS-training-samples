@@ -8,5 +8,7 @@ namespace Assets.Scripts.Components
     {
         public float friction;
         public float airResistance;
+        public float breakingDistance;
+        public float gravity;
     }
 }

@@ -18,22 +18,26 @@ public partial class PointSimulationSystem : SystemBase
 	private struct PointSimulationSystemJob : IJobParallelFor
 	{
 		[ReadOnly]
-		public NativeArray<SpawnerSystem.CurrentPoint> InputCurrentPoints;
+		public NativeArray<CurrentPoint> InputCurrentPoints;
 		[ReadOnly]
-		public NativeArray<SpawnerSystem.PreviousPoint> InputPreviousPoints;
+		public NativeArray<PreviousPoint> InputPreviousPoints;
+		[ReadOnly]
+		public NativeArray<AnchorPoint> Anchors;
 		[ReadOnly]
 		public Tornado tornado;
 		[ReadOnly]
 		public Random random;
 		[ReadOnly]
 		public PhysicalConstants constants;
+		[ReadOnly]
+		public float elapsedTime;
 
 		[WriteOnly]
 		[NativeDisableContainerSafetyRestriction]
-		public NativeArray<SpawnerSystem.CurrentPoint> OutputCurrentPoints;
+		public NativeArray<CurrentPoint> OutputCurrentPoints;
 		[WriteOnly]
 		[NativeDisableContainerSafetyRestriction]
-		public NativeArray<SpawnerSystem.PreviousPoint> OutputPreviousPoints;
+		public NativeArray<PreviousPoint> OutputPreviousPoints;
 		  
 		public void Execute(int i)
 		{
@@ -42,7 +46,7 @@ public partial class PointSimulationSystem : SystemBase
 
 			float3 point = InputCurrentPoints[i].Value;
 			float3 previousPoint = InputPreviousPoints[i].Value;
-			//	if (point.anchor == false)
+			if (Anchors[i].Value == false)
 			{
 				float startX = point.x;
 				float startY = point.y;
@@ -51,7 +55,7 @@ public partial class PointSimulationSystem : SystemBase
 				previousPoint.y += .01f;
 
 				// tornado force
-				float tdx = tornado.tornadoX + TornadoSway(point.y, tornado.internalTime) - point.x;
+				float tdx = tornado.tornadoX + TornadoSway(point.y, elapsedTime) - point.x;
 				float tdz = tornado.tornadoZ - point.z;
 				float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
 				tdx /= tornadoDist;
@@ -91,8 +95,8 @@ public partial class PointSimulationSystem : SystemBase
 					previousPoint.z += (point.z - previousPoint.z) * constants.friction;
 				}
 
-				OutputCurrentPoints[i] = new SpawnerSystem.CurrentPoint() { Value = point };
-				OutputPreviousPoints[i] = new SpawnerSystem.PreviousPoint() { Value = previousPoint };
+				OutputCurrentPoints[i] = new CurrentPoint() { Value = point };
+				OutputPreviousPoints[i] = new PreviousPoint() { Value = previousPoint };
 
 			}
 		}
@@ -105,28 +109,26 @@ public partial class PointSimulationSystem : SystemBase
 		var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 		var worldEntity = GetSingletonEntity<World>();
-		var currentPoints = GetBuffer<SpawnerSystem.CurrentPoint>(worldEntity);
-		var previousPoints = GetBuffer<SpawnerSystem.PreviousPoint>(worldEntity);
-		 
+		var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
+		var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
+		var anchors = GetBuffer<AnchorPoint>(worldEntity);
 
 		var tornado = GetSingleton<Tornado>();
 		var constants = GetSingleton<PhysicalConstants>();
 
-		tornado.internalTime += Time.DeltaTime;
-		var myTime = Time.DeltaTime;
-
 		var random = new Random(0x123467);
 
-		tornado.fader = math.clamp(tornado.fader + myTime / 10f, 0f, 1f);
+		tornado.fader = math.clamp(tornado.fader + Time.DeltaTime / 10f, 0f, 1f);
 		SetSingleton<Tornado>(tornado);
 
 		float invDamping = 1f - constants.airResistance;
 
 		var job = new PointSimulationSystemJob();
 
-
+		job.elapsedTime = (float)Time.ElapsedTime;
 		job.InputCurrentPoints = currentPoints.AsNativeArray();
 		job.InputPreviousPoints = previousPoints.AsNativeArray();
+		job.Anchors = anchors.AsNativeArray();
 		job.OutputCurrentPoints = currentPoints.AsNativeArray();
 		job.OutputPreviousPoints = previousPoints.AsNativeArray();
 		job.tornado = tornado;
