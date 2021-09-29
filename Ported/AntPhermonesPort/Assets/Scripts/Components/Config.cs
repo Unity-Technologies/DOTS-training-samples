@@ -22,7 +22,6 @@ public struct Config : IComponentData
 	public int RingAngleSize;
 	public int MaxEntriesPerRing;
 
-	public float PheromoneMax;
 	public float PheromoneProductionPerSecond; // per second pheromone dropped by ant
 
 }

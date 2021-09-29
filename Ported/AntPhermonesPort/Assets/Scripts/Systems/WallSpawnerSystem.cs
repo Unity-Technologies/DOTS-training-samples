@@ -24,7 +24,7 @@ public partial class WallSpawnerSystem : SystemBase
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();
 
-                var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize, config.PheromoneMax);
+                var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
                 pheromoneMapHelper.InitPheromoneMap();
 
                 for (int i = 0; i < config.RingCount; ++i)

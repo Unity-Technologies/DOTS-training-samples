@@ -13,14 +13,12 @@ public struct PheromoneMapHelper
     DynamicBuffer<PheromoneMap> pheromoneMap;
     int gridSize;
 
-    float max;
-
     public bool IsInitialized()
     {
         return pheromoneMap.Length > 0;
     }
 
-    public PheromoneMapHelper(DynamicBuffer<PheromoneMap> _cellmap, int _gridSize, float _worldSize, float _max)
+    public PheromoneMapHelper(DynamicBuffer<PheromoneMap> _cellmap, int _gridSize, float _worldSize)
     {
         pheromoneMap = _cellmap;
         gridSize = _gridSize;
@@ -29,13 +27,34 @@ public struct PheromoneMapHelper
         var halfSize = _worldSize / 2;
         worldLowerLeft = new float2(-halfSize, -halfSize);
         worldUpperRight = new float2(halfSize, halfSize);
-
-        max = _max;
     }
 
     public void InitPheromoneMap()
     {
         pheromoneMap.Length = gridSize * gridSize;
+
+        // UNCOMMENT TO GET A TEXTURE TEST
+        //for (int x = 0; x < gridSize / 2; x++)
+        //{
+        //    for (int y = 0; y < gridSize / 2; ++y)
+        //    {
+        //        pheromoneMap.ElementAt(y * gridSize + x).intensity = new float4(0, 0.2f, 0, 1);
+        //    }
+        //}
+
+        //for (int x = gridSize / 2; x < gridSize; x++)
+        //{
+        //    for (int y = gridSize / 2; y < gridSize; ++y)
+        //    {
+        //        pheromoneMap.ElementAt(y * gridSize + x).intensity = new float4(0, 0.6f, 0, 1);
+        //    }
+        //}
+
+        //// Optimize
+        for (int i = 0; i < pheromoneMap.Length; ++i)
+        {
+            pheromoneMap.ElementAt(i).intensity = new float4(0, 0, 0, 1);
+        }
     }
 
     /// <summary>
@@ -72,7 +91,7 @@ public struct PheromoneMapHelper
             return -1;
         }
 
-        return pheromoneMap[index].intensity;
+        return pheromoneMap[index].intensity.x;
     }
 
     public int ConvertGridIndex2Dto1D(float2 index)
@@ -85,13 +104,16 @@ public struct PheromoneMapHelper
 
     public float Get(int x, int y)
     {
-        return pheromoneMap[y * gridSize + x].intensity;
+        return pheromoneMap[y * gridSize + x].intensity.x;
     }
 
     public void IncrementIntensity(float2 position, float increaseValue)
     {
         int index = GetNearestIndex(position);
-        float currentValue = pheromoneMap[index].intensity;
-        pheromoneMap.ElementAt(index).intensity = math.clamp(currentValue + increaseValue, 0, max);
+        float4 currentValue = pheromoneMap[index].intensity;
+
+        pheromoneMap.ElementAt(index).intensity = new float4(
+            math.clamp(currentValue.x + increaseValue, 0, 1), 0, 0, 1
+        );
     }
 }

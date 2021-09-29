@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Rendering;
 
 public partial class PheromoneSystem : SystemBase
@@ -16,37 +17,50 @@ public partial class PheromoneSystem : SystemBase
         //if (texture != null)
         //    UnityEngine.GameObject.Destroy(texture);
 
-        //texture = new UnityEngine.Texture2D(500, 500, UnityEngine.TextureFormat.RGBAFloat, false);
-        //texture.hideFlags = UnityEngine.HideFlags.HideAndDontSave;
-        //texture.filterMode = UnityEngine.FilterMode.Point;
+        var config = GetSingleton<Config>();
 
-        //for(int x = 0; x < texture.width/2; x++)
-        //{
-        //    for(int y = 0; y<texture.height/2; ++y)
-        //    {
-        //        texture.SetPixel(x, y, new UnityEngine.Color(10000, 0, 0, 1));
-        //    }
-        //}
+        texture = new UnityEngine.Texture2D(
+            (int)config.CellMapResolution, 
+            (int)config.CellMapResolution, 
+            UnityEngine.TextureFormat.RGBAFloat, 
+            false
+        );
 
-        //var buffer = GetBuffer<Pheromone>(mapEntity).Reinterpret<float4>();
+        texture.hideFlags = UnityEngine.HideFlags.HideAndDontSave;
+        texture.filterMode = UnityEngine.FilterMode.Point;
 
-        //texture.LoadRawTextureData(buffer.AsNativeArray());
-        //texture.Apply();
+        Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
+
+        PheromoneMapHelper helper = new PheromoneMapHelper(EntityManager.GetBuffer<PheromoneMap>(pheromoneMapEntity), config.CellMapResolution, config.WorldSize);
+        helper.InitPheromoneMap();
+
+        var pheromoneMap = EntityManager
+            .GetBuffer<PheromoneMap>(pheromoneMapEntity)
+            .Reinterpret<float4>();
+
+        texture.LoadRawTextureData(pheromoneMap.AsNativeArray());
+        texture.Apply();
 
         //var pheromoneMapEntity = GetSingletonEntity<CellMap>();
-        //var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
+        var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
 
         //renderMesh.material = new UnityEngine.Material(renderMesh.material);
-        //renderMesh.material.mainTexture = texture;
+        renderMesh.material.mainTexture = texture;
     }
 
     protected override void OnUpdate()
     {
         // In the update
-        //var pheromoneMapEntity = GetSingletonEntity<CellMap>();
-        //var pheromoneMapBuffer = GetBuffer<Pheromone>(pheromoneMapEntity).Reinterpret<float4>();
+        Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
 
-        //texture.LoadRawTextureData(pheromoneMapBuffer.AsNativeArray());
-        //texture.Apply();
+        var pheromoneMap = EntityManager
+            .GetBuffer<PheromoneMap>(pheromoneMapEntity)
+            .Reinterpret<float4>();
+
+        texture.LoadRawTextureData(pheromoneMap.AsNativeArray());
+        texture.Apply();
+
+        var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
+        renderMesh.material.mainTexture = texture;
     }
 }

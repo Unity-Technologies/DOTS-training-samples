@@ -71,7 +71,7 @@ public partial class AntMovementSystem : SystemBase
                 }
 
                 // Pheromone
-                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize, config.PheromoneMax);
+                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
                 if (pheromoneHelper.IsInitialized())
                 {
                     pheromoneHelper.IncrementIntensity(

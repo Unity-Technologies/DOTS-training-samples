@@ -134,7 +134,6 @@ GameObject:
   - component: {fileID: 663330105}
   - component: {fileID: 663330104}
   - component: {fileID: 663330106}
-  - component: {fileID: 663330107}
   m_Layer: 0
   m_Name: ConfigAndSingletons
   m_TagString: Untagged
@@ -184,22 +183,26 @@ MonoBehaviour:
   Speed: 1
   WorldSize: 20
   CellMapResolution: 500
-  AntCount: 1000
+  AntCount: 1
   MoveSpeed: 20
   RotationSpeed: 20
-  RingCount: 3
+  RingCount: 0
   RingDistance: 3
   RingAngleSize: 270
   MaxEntriesPerRing: 2
-  PheromoneMax: 1
-  PheromoneProductionPerSecond: 0.02
---- !u!114 &663330107
+  PheromoneProductionPerSecond: 2
+--- !u!1 &1059174680 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
+  m_PrefabInstance: {fileID: 4808208219489841990}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1059174681
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 663330103}
+  m_GameObject: {fileID: 1059174680}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47f7509d1b0123b4fb3db435a97f5cf5, type: 3}
@@ -426,11 +429,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalScale.x
-      value: -5
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalScale.z
-      value: -5
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalPosition.x
