@@ -23,6 +23,7 @@ public partial class WallSpawnerSystem : SystemBase
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();
+                int2[] wallPattern = cellMapHelper.CreateCirclePattern(10);
 
                 var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
                 pheromoneMapHelper.InitPheromoneMap();
@@ -36,7 +37,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                     for (int s = 0; s < segmentCount; ++s)
                     {
-                        SpawnWallSegment(ecb, wallSpawner, (i + 1) * config.RingDistance, startAngle, startAngle+angleSize);
+                        SpawnWallSegment(ecb, wallSpawner, cellMapHelper, wallPattern, (i + 1) * config.RingDistance, startAngle, startAngle+angleSize);
                     }
                 }
             }).Run();
@@ -45,9 +46,9 @@ public partial class WallSpawnerSystem : SystemBase
         ecb.Dispose();
     }
 
-    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, float distance, float startAngle, float endAngle, float stepAngle = 1f)
+    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, int2[] wallPattern, float distance, float startAngle, float endAngle, float stepAngle = 10f)
     {
-        for (float angle = startAngle; angle <= endAngle; angle += stepAngle)
+        for (float angle = startAngle; angle <= endAngle; angle += stepAngle / distance)
         {
             float tmpAngle = angle;
             if (tmpAngle >= 360f)
@@ -57,10 +58,8 @@ public partial class WallSpawnerSystem : SystemBase
             float y = Mathf.Sin(tmpAngle) * distance;
 
             var instance = ecb.Instantiate(wallSpawner.WallComponent);
-            ecb.SetComponent(instance, new Translation
-            {
-                Value = new float3(x, 0, y)
-            });
+            ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
+            cellMapHelper.StampPattern((int)x, (int)y, wallPattern);
         }
     }
 }
