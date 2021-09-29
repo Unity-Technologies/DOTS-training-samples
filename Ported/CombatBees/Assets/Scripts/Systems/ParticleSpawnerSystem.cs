@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 
 public partial class ParticleSpawnerSystem : SystemBase
 {
@@ -35,10 +36,12 @@ public partial class ParticleSpawnerSystem : SystemBase
                     var translationComponent = new Translation { Value = spawner.Position };
                     ecb.SetComponent(instance, translationComponent);
 
-                    // Use Direction + Spread to calculate rotation (forward +x)
+                    // Use spawner.Direction + spawner.Spread to calculate rotation (forward +x)
                     quaternion rotation = quaternion.identity;
                     var rotationComponent = new Rotation { Value = rotation };
                     ecb.SetComponent(instance, rotationComponent);
+                    
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
                 }
             }).Run();
 

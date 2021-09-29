@@ -51,9 +51,57 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: Time
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: Speed
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: EndColor.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: EndColor.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: EndColor.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: BeginColor.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: BeginColor.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: BeginColor.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: Time
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: Speed
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: EndSize
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2371235656525291275, guid: c964d04abc2364a94800060d18860003, type: 3}
+      propertyPath: BeginSize
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291277, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: m_Name
-      value: Particle
+      value: Blood
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c964d04abc2364a94800060d18860003, type: 3}

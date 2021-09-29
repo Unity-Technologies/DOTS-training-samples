@@ -28,19 +28,21 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithAll<TeamRed>()
             .ForEach((Entity beeEntity, ref Target target) =>
             {
-                if (target.Value == Entity.Null)
+                if (target.TargetEntity == Entity.Null)
                 {
                     if (random.NextBool()) // Food
                     {
                         ArchetypeChunk randomChunk = foodChunks[random.NextInt(0, foodChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
-                        target.Value = entities[random.NextInt(0, entities.Length)];
+                        target.TargetEntity = entities[random.NextInt(0, entities.Length)];
+                        target.TargetType = TargetType.Food;
                     }
                     else // Blue Bee
                     {
                         ArchetypeChunk randomChunk = teamBlueChunks[random.NextInt(0, teamBlueChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
-                        target.Value = entities[random.NextInt(0, entities.Length)];               
+                        target.TargetEntity = entities[random.NextInt(0, entities.Length)];
+                        target.TargetType = TargetType.Bee;
                     }
                 }
             }).ScheduleParallel();
@@ -54,19 +56,21 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithAll<TeamBlue>()
             .ForEach((Entity beeEntity, ref Target target) =>
             {
-                if (target.Value == Entity.Null)
+                if (target.TargetEntity == Entity.Null)
                 {
                     if (random.NextBool()) // Food
                     {
                         ArchetypeChunk randomChunk = foodChunks[random.NextInt(0, foodChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
-                        target.Value = entities[random.NextInt(0, entities.Length)];
+                        target.TargetEntity = entities[random.NextInt(0, entities.Length)];
+                        target.TargetType = TargetType.Food;
                     }
                     else // Red Bee
                     {
                         ArchetypeChunk randomChunk = teamRedChunks[random.NextInt(0, teamRedChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
-                        target.Value = entities[random.NextInt(0, entities.Length)];               
+                        target.TargetEntity = entities[random.NextInt(0, entities.Length)];    
+                        target.TargetType = TargetType.Bee;
                     }
                 }
             }).ScheduleParallel();
