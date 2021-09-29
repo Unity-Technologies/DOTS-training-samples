@@ -181,12 +181,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 1
-  WorldSize: 20
-  CellMapResolution: 500
+  WorldSize: 30
+  CellMapResolution: 128
   AntCount: 1000
   MoveSpeed: 20
   RotationSpeed: 20
-  RingCount: 1
+  RingCount: 3
   RingDistance: 3
   RingAngleSize: 270
   MaxEntriesPerRing: 2
@@ -430,11 +430,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalScale.x
-      value: -2
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalScale.z
-      value: -2
+      value: -3
       objectReference: {fileID: 0}
     - target: {fileID: 4808208219933688637, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
       propertyPath: m_LocalPosition.x

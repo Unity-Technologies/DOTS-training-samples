@@ -32,6 +32,11 @@ public struct CellMapHelper
     public void InitCellMap()
     {
         cellmap.Length = gridSize * gridSize;
+
+        for (int i = 0; i < cellmap.Length - 1; ++i)
+        {
+            cellmap.ElementAt(i).state = CellState.Empty;
+        }
     }
 
     public void InitBorders()
