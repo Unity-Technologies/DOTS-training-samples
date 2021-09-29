@@ -26,12 +26,14 @@ public partial class AntMovementSystem : SystemBase
         }
 
         bool isFirst = true;
-        var map = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
+        var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
+
+        var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
         var config = GetSingleton<Config>();
 
         Entities
-            .WithReadOnly(map)
+            .WithReadOnly(cellMap)
             .ForEach((ref Translation translation, ref Rotation rotation, ref AntMovement ant, in LocalToWorld ltw) =>
             {
                 if (isNewTargetTick)
@@ -56,7 +58,7 @@ public partial class AntMovementSystem : SystemBase
                 rotation.Value = _rotateThisFrame;
                 translation.Value += ltw.Forward * config.MoveSpeed * time;
 
-                var cellMapHelper = new CellMapHelper(map, config.CellMapResolution, config.WorldSize);
+                var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
                 // TBD: This check necessary currently because this is getting invoked initially BEFORE WorldSpawnerSystem has run
                 if (cellMapHelper.IsInitialized())
@@ -66,6 +68,16 @@ public partial class AntMovementSystem : SystemBase
                     {
                         translation.Value = new float3(0,0,0);
                     }
+                }
+
+                // Pheromone
+                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize, config.PheromoneMax);
+                if (pheromoneHelper.IsInitialized())
+                {
+                    pheromoneHelper.IncrementIntensity(
+                        new float2(ltw.Position.x, ltw.Position.z),
+                        config.PheromoneProductionPerSecond * time
+                    );
                 }
             }).Run();
 

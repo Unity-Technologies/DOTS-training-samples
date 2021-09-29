@@ -8,19 +8,24 @@ public partial class WallSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var map = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
+        var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
+        var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
         var random = new Unity.Mathematics.Random(1234);
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var config = GetSingleton<Config>();
+
         Entities
             .ForEach((Entity entity, in WallSpawner wallSpawner) =>
             {
                 ecb.DestroyEntity(entity);
 
-                var cellMapHelper = new CellMapHelper(map, config.CellMapResolution, config.WorldSize);
+                var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();
+
+                var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize, config.PheromoneMax);
+                pheromoneMapHelper.InitPheromoneMap();
 
                 for (int i = 0; i < config.RingCount; ++i)
                 {
