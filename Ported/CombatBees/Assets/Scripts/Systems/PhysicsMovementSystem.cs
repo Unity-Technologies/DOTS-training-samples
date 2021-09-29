@@ -6,7 +6,9 @@ public partial class PhysicsMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = system.CreateCommandBuffer().AsParallelWriter();        
+        
         float deltaTime = Time.DeltaTime;
         float multiplier = 15f;
         float floorY = 0.5f;
@@ -14,14 +16,16 @@ public partial class PhysicsMovementSystem : SystemBase
         Entities
             .WithAll<Food>()
             .WithNone<Grounded>()
-            .ForEach((Entity food, ref Translation translation) =>
+            .ForEach((Entity food, int entityInQueryIndex, ref Translation translation) =>
             {
                 translation.Value.y -= deltaTime * multiplier;
                 if (translation.Value.y < floorY)
                 {
                     translation.Value.y = floorY;// this assume 0 is at the basis of the cylinder
-                    ecb.AddComponent(food, new Grounded{});
+                    ecb.AddComponent(entityInQueryIndex, food, new Grounded{});
                 }
-            }).Run();
+            }).ScheduleParallel();
+        
+        system.AddJobHandleForProducer(Dependency);
     }
 }
