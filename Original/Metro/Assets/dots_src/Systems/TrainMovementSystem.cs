@@ -15,7 +15,7 @@ public partial class TrainMovementSystem : SystemBase
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            float maxSpeed = settings.MaxSpeed * deltaTime;
+            float maxSpeed = settings.MaxSpeed * deltaTime / splineData.Value.splineBlobAssets[lineIndex.Index].length * 1000;
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
