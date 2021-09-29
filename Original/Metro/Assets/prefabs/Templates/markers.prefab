@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8907924559462468634}
   - component: {fileID: 8792501365273428370}
   m_Layer: 0
-  m_Name: 1_18
+  m_Name: 1_17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 18
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792501365273428370
 MonoBehaviour:
@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 18
+  pointIndex: 17
   railMarkerType: 2
 --- !u!1 &8904469133733492418
 GameObject:
@@ -358,7 +358,6 @@ Transform:
   - {fileID: 8899135937980538696}
   - {fileID: 8907961845178299844}
   - {fileID: 8899352994305539218}
-  - {fileID: 8908016889364506246}
   - {fileID: 8907849241211054876}
   - {fileID: 8907569379666694326}
   - {fileID: 8907980326178397466}
@@ -707,7 +706,7 @@ GameObject:
   - component: {fileID: 8907922020136395458}
   - component: {fileID: 8792652249445465380}
   m_Layer: 0
-  m_Name: 1_19
+  m_Name: 1_18
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -725,7 +724,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 19
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792652249445465380
 MonoBehaviour:
@@ -740,7 +739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 19
+  pointIndex: 18
   railMarkerType: 0
 --- !u!1 &8904767364722856736
 GameObject:
@@ -983,7 +982,7 @@ GameObject:
   - component: {fileID: 8899608103294406526}
   - component: {fileID: 8792461635210965718}
   m_Layer: 0
-  m_Name: 1_20
+  m_Name: 1_19
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1001,7 +1000,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 20
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792461635210965718
 MonoBehaviour:
@@ -1016,7 +1015,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 20
+  pointIndex: 19
   railMarkerType: 1
 --- !u!1 &8904834483676757316
 GameObject:
@@ -1443,7 +1442,7 @@ GameObject:
   - component: {fileID: 8907849241211054876}
   - component: {fileID: 8792993243311689808}
   m_Layer: 0
-  m_Name: 1_10
+  m_Name: 1_9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1461,7 +1460,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792993243311689808
 MonoBehaviour:
@@ -1476,7 +1475,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 10
+  pointIndex: 9
   railMarkerType: 2
 --- !u!1 &8904903136174987346
 GameObject:
@@ -1627,7 +1626,7 @@ GameObject:
   - component: {fileID: 8907569379666694326}
   - component: {fileID: 8793077804253545890}
   m_Layer: 0
-  m_Name: 1_11
+  m_Name: 1_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1645,7 +1644,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 11
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8793077804253545890
 MonoBehaviour:
@@ -1660,7 +1659,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 11
+  pointIndex: 10
   railMarkerType: 2
 --- !u!1 &8904954079767426938
 GameObject:
@@ -2271,7 +2270,7 @@ GameObject:
   - component: {fileID: 8899369431512431520}
   - component: {fileID: 8793150185622177556}
   m_Layer: 0
-  m_Name: 1_13
+  m_Name: 1_12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2289,7 +2288,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8793150185622177556
 MonoBehaviour:
@@ -2304,7 +2303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 13
+  pointIndex: 12
   railMarkerType: 0
 --- !u!1 &8905077497635242748
 GameObject:
@@ -2638,7 +2637,7 @@ GameObject:
   - component: {fileID: 8907973336025617344}
   - component: {fileID: 8792765094708045490}
   m_Layer: 0
-  m_Name: 1_14
+  m_Name: 1_13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2656,7 +2655,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 14
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792765094708045490
 MonoBehaviour:
@@ -2671,7 +2670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 14
+  pointIndex: 13
   railMarkerType: 1
 --- !u!1 &8905153749796145304
 GameObject:
@@ -2684,7 +2683,7 @@ GameObject:
   - component: {fileID: 8899262187474348190}
   - component: {fileID: 8792750274561822738}
   m_Layer: 0
-  m_Name: 1_21
+  m_Name: 1_20
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2702,7 +2701,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 21
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792750274561822738
 MonoBehaviour:
@@ -2717,7 +2716,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 21
+  pointIndex: 20
   railMarkerType: 2
 --- !u!1 &8905184510178553448
 GameObject:
@@ -2810,7 +2809,7 @@ GameObject:
   - component: {fileID: 8907980326178397466}
   - component: {fileID: 8792748932465983706}
   m_Layer: 0
-  m_Name: 1_12
+  m_Name: 1_11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2828,7 +2827,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 12
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792748932465983706
 MonoBehaviour:
@@ -2843,7 +2842,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 12
+  pointIndex: 11
   railMarkerType: 2
 --- !u!1 &8905243382142116782
 GameObject:
@@ -2856,7 +2855,7 @@ GameObject:
   - component: {fileID: 8899269995015054506}
   - component: {fileID: 8793197037562719028}
   m_Layer: 0
-  m_Name: 1_17
+  m_Name: 1_16
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2874,7 +2873,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 17
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8793197037562719028
 MonoBehaviour:
@@ -2889,7 +2888,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 17
+  pointIndex: 16
   railMarkerType: 2
 --- !u!1 &8905243938312704828
 GameObject:
@@ -3841,7 +3840,7 @@ GameObject:
   - component: {fileID: 8899189583618315254}
   - component: {fileID: 8792500351144945596}
   m_Layer: 0
-  m_Name: 1_15
+  m_Name: 1_14
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3859,7 +3858,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 15
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8792500351144945596
 MonoBehaviour:
@@ -3874,7 +3873,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 15
+  pointIndex: 14
   railMarkerType: 2
 --- !u!1 &8905529455619973964
 GameObject:
@@ -4060,52 +4059,6 @@ MonoBehaviour:
   metroLineID: 2
   pointIndex: 18
   railMarkerType: 2
---- !u!1 &8905566602604757604
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8908016889364506246}
-  - component: {fileID: 8793044406557772988}
-  m_Layer: 0
-  m_Name: 1_9
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8908016889364506246
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8905566602604757604}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -300, y: 0, z: -250}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8793044406557772988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8905566602604757604}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!1 &8905766348596845454
 GameObject:
   m_ObjectHideFlags: 0
@@ -4255,7 +4208,7 @@ GameObject:
   - component: {fileID: 8899587176728213162}
   - component: {fileID: 8793143045581662646}
   m_Layer: 0
-  m_Name: 1_16
+  m_Name: 1_15
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4273,7 +4226,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8907709955881998966}
-  m_RootOrder: 16
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8793143045581662646
 MonoBehaviour:
@@ -4288,5 +4241,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   metroLineID: 1
-  pointIndex: 16
+  pointIndex: 15
   railMarkerType: 2
