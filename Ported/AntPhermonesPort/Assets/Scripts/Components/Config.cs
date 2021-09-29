@@ -28,5 +28,6 @@ public struct Config : IComponentData
 	public uint RandomSeed;
 
 	public float RandomSteering;
-
+	public float PheromoneSteerStrength;
+	public float WallSteerStrength;
 }

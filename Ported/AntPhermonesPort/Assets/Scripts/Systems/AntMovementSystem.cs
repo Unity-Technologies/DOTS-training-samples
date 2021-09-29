@@ -39,10 +39,7 @@ public partial class AntMovementSystem : SystemBase
 
         bool isFirst = true;
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
-
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
-
-        
 
         Entities
             .WithReadOnly(cellMap)
@@ -52,8 +49,17 @@ public partial class AntMovementSystem : SystemBase
                 float jitterAngle = random.NextFloat(-config.RandomSteering, config.RandomSteering);
                 ant.FacingAngle += jitterAngle;
 
+                // Pheromone
+                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
+                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, .3f);
+			    ant.FacingAngle += pheroSteering * config.PheromoneSteerStrength;
 
+                //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, pheroSteering));
 
+                var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
+
+			    int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, .15f);
+			    ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
                 // ---
                 //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
@@ -81,36 +87,63 @@ public partial class AntMovementSystem : SystemBase
                 //rotation.Value = _rotateThisFrame;
                 rotation.Value = quaternion.Euler(0, ant.FacingAngle, 0);
 
-                Debug.Log(string.Format("{1} {0}", ant.FacingAngle, jitterAngle));
+                //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, jitterAngle));
 
+                translation.Value += ltw.Forward * config.MoveSpeed * time;
 
+                Debug.Assert(cellMapHelper.IsInitialized());
+                if (cellMapHelper.IsInitialized())
+                {
+                    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
+                    if (cellState == CellState.IsObstacle)
+                    {
+                        //translation.Value = new float3(0, 0, 0);
+                    }
+                }
 
-                //translation.Value += ltw.Forward * config.MoveSpeed * time;
+                pheromoneHelper.IncrementIntensity(
+                    new float2(ltw.Position.x, ltw.Position.z),
+                    config.PheromoneProductionPerSecond * time
+                );
 
-                var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
-
-                //Debug.Assert(cellMapHelper.IsInitialized());
-                //if (cellMapHelper.IsInitialized())
-                //{
-                //    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
-                //    if (cellState == CellState.IsObstacle)
-                //    {
-                //        translation.Value = new float3(0,0,0);
-                //    }
-                //}
-
-                //// Pheromone
-                //var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
-                //if (pheromoneHelper.IsInitialized())
-                //{
-                //    pheromoneHelper.IncrementIntensity(
-                //        new float2(ltw.Position.x, ltw.Position.z),
-                //        config.PheromoneProductionPerSecond * time
-                //    );
-                //}
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
+
+	static float PheromoneSteering(PheromoneMapHelper pheromone, float facingAngle, float3 antPosition, float distance)
+    {
+		float output = 0;
+
+		for (int i=-1;i<=1;i+=2) {
+			float angle = facingAngle + i * Mathf.PI*.25f;
+			float testX = antPosition.x + Mathf.Cos(angle) * distance;
+			float testY = antPosition.y + Mathf.Sin(angle) * distance;
+
+            var intensity = pheromone.GetPheromoneIntensityFrom2DPos(new float2(testX, testY));
+            if (intensity != -1)
+            {
+                output += intensity*i;
+            }
+		}
+		return Mathf.Sign(output);
+	}
+
+	static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance) {
+		int output = 0;
+
+		for (int i = -1; i <= 1; i+=2) {
+			float angle = facingAngle + i * Mathf.PI*.25f;
+			float testX = antPosition.x + Mathf.Cos(angle) * distance;
+			float testY = antPosition.y + Mathf.Sin(angle) * distance;
+
+            if (cellMapHelper.GetCellStateFrom2DPos(new float2(testX, testY)) == CellState.IsObstacle)
+            {
+			    output -= i;
+			}
+		}
+		return output;
+	}
+
 }
