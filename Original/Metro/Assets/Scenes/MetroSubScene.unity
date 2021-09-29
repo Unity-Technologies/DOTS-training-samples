@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a70c29b5c54c261419741d07630227c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  returnRailsOffset: 10
+  returnRailsOffset: 5
   splineHandleGain: 0.15
 --- !u!1 &1072343339
 GameObject:
@@ -243,7 +243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
   NbRails: 100
-  PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+  PlatformPrefab: {fileID: 3545593385418517891, guid: 4b1b9a8833c0e0a48879bb6417e47e93,
     type: 3}
 --- !u!4 &1072343341
 Transform:
