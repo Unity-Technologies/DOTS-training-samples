@@ -13,25 +13,28 @@ public partial class FoodSpawnerSystem : SystemBase
         var bounds = GetComponent<WorldBounds>(worldBoundsEntity); 
 
         Entities
-            .ForEach((Entity entity, int entityInQueryIndex, in FoodSpawner spawner) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref FoodSpawner spawner) =>
             {
-                Random random = new Random((uint)entityInQueryIndex + 1);
-
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
-                ecb.DestroyEntity(entity);
-                float3 spawnMin = bounds.AABB.Min;
-                spawnMin.x += bounds.HiveOffset + 50;
-
-                float3 spawnMax = bounds.AABB.Max;
-                spawnMax.x -= bounds.HiveOffset + 50;
-                for (int i = 0; i < spawner.InitialFoodCount; ++i)
+                if (!spawner.DidSpawn)
                 {
-                    float3 position = random.NextFloat3(spawnMin, spawnMax);
+                    Random random = new Random((uint)entityInQueryIndex + 1);    
+                    float3 spawnMin = bounds.AABB.Min;
+                    spawnMin.x += bounds.HiveOffset + 50;
 
-                    var instance = ecb.Instantiate(spawner.FoodPrefab);
-                    var translation = new Translation {Value = position};
-                    ecb.SetComponent(instance, translation);
+                    float3 spawnMax = bounds.AABB.Max;
+                    spawnMax.x -= bounds.HiveOffset + 50;
+                    for (int i = 0; i < spawner.InitialFoodCount; ++i)
+                    {
+                        float3 position = random.NextFloat3(spawnMin, spawnMax);
+
+                        var instance = ecb.Instantiate(spawner.FoodPrefab);
+                        var translation = new Translation {Value = position};
+                        ecb.SetComponent(instance, translation);
+                    }
+
+                    spawner.DidSpawn = true;
                 }
             }).Run();
 

@@ -32,6 +32,7 @@ public partial class BeeMovementSystem : SystemBase
         
         var dtTime = Time.DeltaTime;
         Entity bloodPrefab = GetSingleton<ParticlePrefabs>().BloodPrefab;
+        var foodPrefab = GetSingleton<FoodSpawner>().FoodPrefab;
         
         float3 up = new float3( 0.0f, 1.0f, 0.0f );
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -78,7 +79,10 @@ public partial class BeeMovementSystem : SystemBase
                     {
                         //Dropping food.
                         target.Reset();
-                        //target.TargetType = TargetType.None;
+                        var instance = ecb.Instantiate(entityInQueryIndex, foodPrefab);
+                        var foodInHive = new Translation {Value = translation.Value};
+                        ecb.SetComponent(entityInQueryIndex, instance, foodInHive);
+                        ecb.AddComponent(entityInQueryIndex, instance, new InHive{});
                     }
                 }
             }).ScheduleParallel();

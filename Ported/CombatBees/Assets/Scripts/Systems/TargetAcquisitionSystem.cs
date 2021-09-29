@@ -7,15 +7,22 @@ public partial class TargetAcquisitionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        EntityQuery foodQuery = GetEntityQuery(typeof(Food));
+        var foodNotInHiveQuery = new EntityQueryDesc
+        {
+            None = new ComponentType[]{ typeof(InHive) },
+            All = new ComponentType[]{ typeof(Food)}
+        };
+
+        EntityQuery foodQuery = GetEntityQuery(foodNotInHiveQuery);
         NativeArray<ArchetypeChunk> foodChunks = foodQuery.CreateArchetypeChunkArray(Allocator.TempJob);
         
         EntityQuery teamRedQuery = GetEntityQuery(typeof(TeamRed));
         NativeArray<ArchetypeChunk> teamRedChunks = teamRedQuery.CreateArchetypeChunkArray(Allocator.TempJob);
         
         EntityQuery teamBlueQuery = GetEntityQuery(typeof(TeamBlue));
-        NativeArray<ArchetypeChunk> teamBlueChunks = teamBlueQuery.CreateArchetypeChunkArray(Allocator.TempJob);        
+        NativeArray<ArchetypeChunk> teamBlueChunks = teamBlueQuery.CreateArchetypeChunkArray(Allocator.TempJob);
         
+        var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityTypeHandle entityHandles = GetEntityTypeHandle();
 
         Entities
@@ -30,20 +37,21 @@ public partial class TargetAcquisitionSystem : SystemBase
                 
                 if (target.TargetEntity == Entity.Null)
                 {
-                    if (random.NextBool()) // Food
+                    if (random.NextBool() && foodChunks.Length > 0) // Food
                     {
                         ArchetypeChunk randomChunk = foodChunks[random.NextInt(0, foodChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];
                         target.TargetType = TargetType.Food;
                     }
-                    else // Blue Bee
+                    else if (teamBlueChunks.Length > 0) // Blue Bee
                     {
                         ArchetypeChunk randomChunk = teamBlueChunks[random.NextInt(0, teamBlueChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];
                         target.TargetType = TargetType.Bee;
                     }
+                    //else todo add random movement
                 }
             }).ScheduleParallel();
         
@@ -60,23 +68,26 @@ public partial class TargetAcquisitionSystem : SystemBase
 
                 if (target.TargetEntity == Entity.Null)
                 {
-                    if (random.NextBool()) // Food
+                    if (random.NextBool() && (foodChunks.Length > 0 )) // Food
                     {
                         ArchetypeChunk randomChunk = foodChunks[random.NextInt(0, foodChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];
                         target.TargetType = TargetType.Food;
                     }
-                    else // Red Bee
+                    else if (teamRedChunks.Length > 0 )// Red Bee
                     {
                         ArchetypeChunk randomChunk = teamRedChunks[random.NextInt(0, teamRedChunks.Length)];
                         NativeArray<Entity> entities = randomChunk.GetNativeArray(entityHandles);
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];    
                         target.TargetType = TargetType.Bee;
                     }
+                    //else todo add random movement
                 }
+
             }).ScheduleParallel();
         
+        system.AddJobHandleForProducer(Dependency);
         // alternate way to dispose: foodChunks.Dispose(Dependency);
     }
 }

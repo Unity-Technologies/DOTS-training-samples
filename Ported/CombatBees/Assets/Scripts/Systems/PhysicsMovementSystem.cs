@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 public partial class PhysicsMovementSystem : SystemBase
 {
@@ -8,6 +9,13 @@ public partial class PhysicsMovementSystem : SystemBase
     {
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer().AsParallelWriter();        
+
+        var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
+        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        var hiveBluePosition = bounds.AABB.Min +
+                               new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
+        var hiveRedPosition = bounds.AABB.Max -
+                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
         
         float deltaTime = Time.DeltaTime;
         float multiplier = 15f;

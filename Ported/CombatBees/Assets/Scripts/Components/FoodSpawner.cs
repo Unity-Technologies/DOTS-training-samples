@@ -4,5 +4,5 @@ public struct FoodSpawner : IComponentData
 {
     public Entity FoodPrefab;
     public int InitialFoodCount;
-
+    public bool DidSpawn;
 }
