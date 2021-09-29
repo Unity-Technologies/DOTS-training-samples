@@ -67,7 +67,7 @@ public struct PheromoneMapHelper
     /// <returns></returns>
     public int GetNearestIndex(float2 xy)
     {
-        if (xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x > worldUpperRight.x || xy.y > worldUpperRight.y)
+        if (xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x >= worldUpperRight.x || xy.y >= worldUpperRight.y)
         {
             //TBD: Warnings are disabled currently because ant move might jump out past the boundary cell
             //Debug.LogError("[Cell Map] Trying to get index out of range");
@@ -110,6 +110,9 @@ public struct PheromoneMapHelper
     public void IncrementIntensity(float2 position, float increaseValue)
     {
         int index = GetNearestIndex(position);
+        if (index == -1 || index >= pheromoneMap.Length)
+            return;
+
         float4 currentValue = pheromoneMap[index].intensity;
 
         pheromoneMap.ElementAt(index).intensity = new float4(
