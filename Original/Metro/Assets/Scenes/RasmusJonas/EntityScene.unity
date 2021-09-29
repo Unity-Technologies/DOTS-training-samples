@@ -277,7 +277,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
-  NbRails: 100
+  RailsPerMeter: 100
 --- !u!4 &913079458
 Transform:
   m_ObjectHideFlags: 0
@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxSpeed: 15
-  CarriageSizeWithMargins: 3
+  CarriageSizeWithMargins: 5.5
   TimeAtStation: 5
 --- !u!4 &1394206085
 Transform:

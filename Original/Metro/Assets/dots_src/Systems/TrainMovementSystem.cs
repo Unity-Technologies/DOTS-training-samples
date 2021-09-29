@@ -70,7 +70,7 @@ public partial class TrainMovementSystem : SystemBase
                     var relativeDistanceToPlatform = DistanceToClosestPlatform(trackRelativePosition, ref platformPositions);
                     var distanceToPlatformInMeters = relativeDistanceToPlatform * lineLength;
 
-                    if (distanceToPlatformInMeters < 50)
+                    if (distanceToPlatformInMeters < settings.BreakingDistance)
                     {
                         movement.state = TrainMovemementStates.Stopping;
                     }
