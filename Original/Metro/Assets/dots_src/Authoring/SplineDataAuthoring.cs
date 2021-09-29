@@ -59,6 +59,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var totalDistance = 0f;
         bool writeMarker = false;
         int platformIndex = 0;
+        float[] platformDistances = new float[platformPositions.Length];
         for (int markerIndex = 0; markerIndex < railMarkers.Length; markerIndex++)
         {
             var startPoint = railMarkers[markerIndex].position;
@@ -84,7 +85,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             {
                 writeMarker = true;
             }
-                
+
             for (var i = 0; i < pointCountPerMarkerSegment; i++)
             {
                 var t = tIntervalPerMarkerSegment * (i+1);
@@ -108,12 +109,17 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 outPoints[markerIndex * pointCountPerMarkerSegment + i] = point;
                 if (writeMarker)
                 {
-                    platformPositions[platformIndex++] = t;
+                    platformDistances[platformIndex++] = totalDistance;
                     writeMarker = false;
                 }
             }
 
             distMarkerSegment[markerIndex] = new DistanceAndDistanceIndex{Distance = totalDistance, DistanceIndex = distanceIndex};
+        }
+
+        for (int platformId = 0; platformId < platformPositions.Length; platformId++)
+        {
+            platformPositions[platformId] = platformDistances[platformId] / totalDistance;
         }
 
         splineDataDistance = totalDistance;
