@@ -81,10 +81,7 @@ public partial class TrainMovementSystem : SystemBase
             // convert speed (m/s) to track positions/second
             var trackPositionsSpeed = movement.speed / lineLength * points.Length;
             movement.position += trackPositionsSpeed * deltaTime;
-            if (movement.position > points.Length - 1)
-            {
-                movement.position = 0;
-            }
+            movement.position = math.fmod(movement.position, points.Length);
 
             (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
             translation.Value = lerpedPosition;
