@@ -11,10 +11,10 @@ public partial class WallSpawnerSystem : SystemBase
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
-        var random = new Unity.Mathematics.Random(1234);
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
         var config = GetSingleton<Config>();
-
+        var random = new Unity.Mathematics.Random(config.RandomSeed);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
         Entities
             .ForEach((Entity entity, in WallSpawner wallSpawner) =>
             {

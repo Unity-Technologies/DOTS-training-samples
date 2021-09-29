@@ -24,4 +24,6 @@ public struct Config : IComponentData
 
 	public float PheromoneProductionPerSecond; // per second pheromone dropped by ant
 
+	public uint RandomSeed;
+
 }

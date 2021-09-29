@@ -13,7 +13,8 @@ public partial class AntMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var random = new Unity.Mathematics.Random(4567);
+        var config = GetSingleton<Config>();
+        var random = new Unity.Mathematics.Random(config.RandomSeed);
         var time = Time.DeltaTime;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -32,7 +33,7 @@ public partial class AntMovementSystem : SystemBase
 
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
-        var config = GetSingleton<Config>();
+        
 
         Entities
             .WithReadOnly(cellMap)
