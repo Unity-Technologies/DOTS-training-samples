@@ -24,24 +24,15 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 
     void Update()
     {
-        //BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
-        
         foreach (Transform child in transform)
         {
             var railMarkers = child.GetComponentsInChildren<RailMarker>();
-            // ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<BlobArray<float3>>();
-            // var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset, railMarkers.Length + 1);
-            // CalculatePoints(railMarkers, ref splinePoints);
-            //
             var markersData = CreateActualRailMarkers(railMarkers, false);
             for (int i = 0; i < markersData.Length - 1; i++)
             {
                 Debug.DrawLine(markersData[i].position, markersData[i+1].position, i < markersData.Length/2 ? Color.red : Color.green);
             }
-
-            break;
         }
-        
     }
 
     public struct DistanceAndDistanceIndex
