@@ -1,3 +1,4 @@
+/*
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -36,3 +37,4 @@ public partial class TrainMovementSystem : SystemBase
         }).ScheduleParallel();
     }
 }
+*/

@@ -17,28 +17,27 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         foreach (Transform child in transform)
         {
             var railMarkers = child.GetComponentsInChildren<RailMarker>();
-            CreateActualRailMarkersWithAngles(railMarkers, true);
+            CreateActualRailMarkers(railMarkers, true);
         }
     }
 
     void Update()
     {
-        // BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
-        //
-        // foreach (Transform child in transform)
-        // {
-        //     var railMarkers = child.GetComponentsInChildren<RailMarker>();
-        //     ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<BlobArray<float3>>();
-        //     var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset, railMarkers.Length + 1);
-        //     CalculatePoints(railMarkers, ref splinePoints);
-        //
-        //     var markersPos = CreateActualRailMarkersWithAngles(railMarkers, false);
-        //     // for (int i = 0; i < markersPos.Length - 1; i++)
-        //     // {
-        //     //     Debug.DrawLine(markersPos[i], markersPos[i+1], i < markersPos.Length/2 ? Color.red : Color.green);
-        //     // }
-        //     break;
-        // }
+        //BlobBuilder splineBlobBuilder = new BlobBuilder(Allocator.Temp);
+        
+        foreach (Transform child in transform)
+        {
+            var railMarkers = child.GetComponentsInChildren<RailMarker>();
+            // ref var newSplineBlobAsset =  ref splineBlobBuilder.ConstructRoot<BlobArray<float3>>();
+            // var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset, railMarkers.Length + 1);
+            // CalculatePoints(railMarkers, ref splinePoints);
+            //
+            var markersPos = CreateActualRailMarkers(railMarkers, false);
+            for (int i = 0; i < markersPos.Length - 1; i++)
+            {
+                Debug.DrawLine(markersPos[i], markersPos[i+1], i < markersPos.Length/2 ? Color.red : Color.green);
+            }
+        }
         
     }
 
@@ -152,7 +151,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         distMarkerSegment.Dispose();
     }
     
-    public Vector3[] CreateActualRailMarkersWithAngles(in RailMarker[] srcRailMarkers, bool createInstances)
+    public Vector3[] CreateActualRailMarkers(in RailMarker[] srcRailMarkers, bool createInstances)
     {
         var actualRailMarkers = new List<RailMarker>(srcRailMarkers);
         var markersPos = actualRailMarkers.Select(m => m.transform.position).ToList();
@@ -178,8 +177,9 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             }
             else
             {
-                var railDirNext = Vector3.Normalize(srcNextRailMarker.transform.position - srcCurRailMarker.transform.position);
-                var railDirPrev = Vector3.Normalize(srcPrevRailMarker.transform.position - srcCurRailMarker.transform.position);
+                var curPosition = srcCurRailMarker.transform.position;
+                var railDirNext = Vector3.Normalize(srcNextRailMarker.transform.position - curPosition);
+                var railDirPrev = Vector3.Normalize(srcPrevRailMarker.transform.position - curPosition);
                 railDirNext.y = 0;
                 railDirPrev.y = 0;
                 offsetDir = Vector3.Slerp(railDirPrev.normalized, railDirNext.normalized, 0.5f);
