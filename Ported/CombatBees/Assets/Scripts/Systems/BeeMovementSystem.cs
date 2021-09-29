@@ -11,9 +11,9 @@ public partial class BeeMovementSystem : SystemBase
         var transLookup = GetComponentDataFromEntity<Translation>(true);
         var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
         var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
-        var hiveRedPosition = bounds.AABB.Min +
-                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
         var hiveBluePosition = bounds.AABB.Min +
+                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
+        var hiveRedPosition = bounds.AABB.Max -
                               new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
         // Update our target position
         Entities
@@ -72,6 +72,7 @@ public partial class BeeMovementSystem : SystemBase
                     {
                         target.TargetType = TargetType.Hive;
                         target.TargetPosition = (HasComponent<TeamRed>(beeEntity) ? hiveRedPosition : hiveBluePosition);
+                        ecb.DestroyEntity(entityInQueryIndex, target.TargetEntity);
                     }
                     else if (target.TargetType == TargetType.Hive)
                     {
