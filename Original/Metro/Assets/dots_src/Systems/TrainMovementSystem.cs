@@ -23,9 +23,10 @@ public partial class TrainMovementSystem : SystemBase
             // TODO: platforms are positioned 0..1 range (relative to total track length). currently our train
             // position is absolute in terms of track length, e.g. 0..25 
             var trackRelativePosition = movement.position / points.Length;
-            if (IsApproachingPlatform(trackRelativePosition, ref platformPositions))
+            if (movement.state == TrainMovemementStates.Running
+                && IsApproachingPlatform(trackRelativePosition, ref platformPositions))
             {
-                Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
+                // Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
                 movement.state = TrainMovemementStates.Stopping;
             }
 
@@ -75,6 +76,7 @@ public partial class TrainMovementSystem : SystemBase
 
             (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
             translation.Value = lerpedPosition;
+        // }).WithoutBurst().Run(); // for debugging
         }).ScheduleParallel();
     }
 
