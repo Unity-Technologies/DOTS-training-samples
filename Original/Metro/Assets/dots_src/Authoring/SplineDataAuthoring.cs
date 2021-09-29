@@ -12,7 +12,7 @@ using UnityMeshRenderer = UnityEngine.MeshRenderer;
 public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public float returnRailsOffset = 10.0f;
-
+    [SerializeField] float splineHandleGain = 1f;
     void Start()
     {
         foreach (Transform child in transform)
@@ -211,7 +211,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         return point;
     }
 
-    static void GetSegmentPoints(RailMarkerData[] railMarkers, int markerIndex, out Vector3 startPoint, out Vector3 endPoint, out Vector3 startHandle, out Vector3 endHandle)
+    void GetSegmentPoints(RailMarkerData[] railMarkers, int markerIndex, out Vector3 startPoint, out Vector3 endPoint, out Vector3 startHandle, out Vector3 endHandle)
     {
         startPoint = railMarkers[markerIndex].position;
         var backFromStartPos = railMarkers[markerIndex - 1 < 0 ? railMarkers.Length - 1 : markerIndex - 1].position;
@@ -222,8 +222,8 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var backFromStartToStartDir = startPoint - backFromStartPos;
         var frontOfEndPointToEndDir = endPoint - frontOfEndPoint;
         
-        startHandle = startPoint+(startToEndDir.normalized+backFromStartToStartDir.normalized).normalized*startToEndDir.magnitude*.5f;
-        endHandle = endPoint+(frontOfEndPointToEndDir.normalized - startToEndDir.normalized).normalized*startToEndDir.magnitude*.5f;
+        startHandle = startPoint+(startToEndDir.normalized+backFromStartToStartDir.normalized).normalized*startToEndDir.magnitude*splineHandleGain;
+        endHandle = endPoint+(frontOfEndPointToEndDir.normalized - startToEndDir.normalized).normalized*startToEndDir.magnitude*splineHandleGain;
     }
     
     [BurstCompile]

@@ -211,6 +211,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   returnRailsOffset: 10
+  splineHandleGain: 0.15
 --- !u!1 &1072343339
 GameObject:
   m_ObjectHideFlags: 0
