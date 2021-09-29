@@ -20,6 +20,7 @@ public partial class PhysicsMovementSystem : SystemBase
         float deltaTime = Time.DeltaTime;
         float multiplier = 15f;
         float floorY = 0.5f;
+        float BloodMultiplier = 3f;
         
         Entities
             .WithAll<Food>()
@@ -31,6 +32,18 @@ public partial class PhysicsMovementSystem : SystemBase
                 {
                     translation.Value.y = floorY;// this assume 0 is at the basis of the cylinder
                     ecb.AddComponent(entityInQueryIndex, food, new Grounded{});
+                }
+            }).ScheduleParallel();
+        Entities
+            .WithAll<Particle>()
+            .WithNone<Grounded>()
+            .ForEach((Entity blood, int entityInQueryIndex, ref Translation translation) =>
+            {
+                translation.Value.y -= deltaTime * BloodMultiplier;
+                if (translation.Value.y < floorY)
+                {
+                    translation.Value.y = floorY;// this assume 0 is at the basis of the cylinder
+                    ecb.AddComponent(entityInQueryIndex, blood, new Grounded{});
                 }
             }).ScheduleParallel();
         
