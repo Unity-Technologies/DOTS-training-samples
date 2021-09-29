@@ -14,6 +14,5 @@ public struct Tornado : IComponentData
 	public float force;
 	public float upForce;
 	public float inwardForce;
-	public float internalTime;
 
 }

@@ -153,7 +153,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   friction: 0.4
-  airResistance: 0.12
+  airResistance: 0.012
+  breakingDistance: 0.55
+  gravity: 0.1
 --- !u!4 &672400066
 Transform:
   m_ObjectHideFlags: 0
@@ -252,10 +254,9 @@ MonoBehaviour:
   fader: 0
   maxForceDist: 30
   height: 50
-  force: 0.1
+  force: 0.022
   upForce: 1.4
   inwardForce: 9
-  internalTime: 0
 --- !u!4 &2059707964
 Transform:
   m_ObjectHideFlags: 0

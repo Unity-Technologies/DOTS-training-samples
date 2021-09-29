@@ -2,16 +2,21 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(PointSimulationSystem))]
+[UpdateAfter(typeof(ConstraintsSystem))]
 public partial class RenderPrepSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var worldEntity = GetSingletonEntity<World>();
-        var currentPointBuffer = GetBuffer<SpawnerSystem.CurrentPoint>(worldEntity);
+        var currentPointBuffer = GetBuffer<CurrentPoint>(worldEntity);
 
 
-        Entities.ForEach((Entity entity, ref Beam beam, ref Translation translation, ref NonUniformScale scale, ref Rotation rotation) =>
+        Entities.ForEach((
+            Entity entity, 
+            ref Beam beam, 
+            ref Translation translation, 
+            ref NonUniformScale scale, 
+            ref Rotation rotation) =>
         {
             var pointA = currentPointBuffer[beam.pointAIndex];
             var pointB = currentPointBuffer[beam.pointBIndex];

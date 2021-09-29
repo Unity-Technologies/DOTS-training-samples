@@ -18,18 +18,18 @@ public partial class PointSimulationSystem : SystemBase
 		var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 		var worldEntity = GetSingletonEntity<World>();
-		var currentPoints = GetBuffer<SpawnerSystem.CurrentPoint>(worldEntity);
-		var previousPoints = GetBuffer<SpawnerSystem.PreviousPoint>(worldEntity);
+		var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
+		var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
+		var anchors = GetBuffer<AnchorPoint>(worldEntity);
 
 		var tornado = GetSingleton<Tornado>();
 		var constants = GetSingleton<PhysicalConstants>();
 
-		tornado.internalTime += Time.DeltaTime;
-		var myTime = Time.DeltaTime;
+		var myTime = (float)Time.ElapsedTime;
 
 		var random = new Random(0x123467);
 
-		tornado.fader = math.clamp(tornado.fader + myTime / 10f, 0f, 1f);
+		tornado.fader = math.clamp(tornado.fader + Time.DeltaTime / 10f, 0f, 1f);
 		SetSingleton<Tornado>(tornado);
 
 		float invDamping = 1f - constants.airResistance;
@@ -37,16 +37,18 @@ public partial class PointSimulationSystem : SystemBase
 		{
 			float3 point = currentPoints[i].Value;
 			float3 previousPoint = previousPoints[i].Value;
-			//	if (point.anchor == false)
+
+			if (anchors[i].Value == false)
 			{
 				float startX = point.x;
 				float startY = point.y;
 				float startZ = point.z;
 
 				previousPoint.y += .01f;
+		//		previousPoint.y += constants.gravity * Time.DeltaTime;
 
 				// tornado force
-				float tdx = tornado.tornadoX + TornadoSway(point.y, tornado.internalTime) - point.x;
+				float tdx = tornado.tornadoX + TornadoSway(point.y, myTime) - point.x;
 				float tdz = tornado.tornadoZ - point.z;
 				float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
 				tdx /= tornadoDist;
@@ -76,6 +78,7 @@ public partial class PointSimulationSystem : SystemBase
 				previousPoint.y = startY;
 				previousPoint.z = startZ;
 
+				//collision with the ground
 				if (point.y < 0f)
 				{
 					point.y = 0f;
@@ -84,8 +87,8 @@ public partial class PointSimulationSystem : SystemBase
 					previousPoint.z += (point.z - previousPoint.z) * constants.friction;
 				}
 
-				currentPoints[i] = new SpawnerSystem.CurrentPoint() { Value = point };
-				previousPoints[i] = new SpawnerSystem.PreviousPoint() { Value = previousPoint };
+				currentPoints[i] = new CurrentPoint() { Value = point };
+				previousPoints[i] = new PreviousPoint() { Value = previousPoint };
 				
 				UnityEngine.Debug.DrawLine(new UnityEngine.Vector3(previousPoint.x, previousPoint.y, previousPoint.z), new UnityEngine.Vector3(point.x, point.y, point.z));
 			}
