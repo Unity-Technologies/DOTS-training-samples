@@ -45,22 +45,26 @@ public struct CellMapHelper
         }
     }
 
-    private void ApplyCircleBoundaries(int2[] pattern, int xc, int yc, int x, int y)
+    private void ApplyCircleBoundaries(NativeArray<int2> pattern, int xc, int yc, int x, int y)
     {
-        pattern[yc - y].x = xc - x; pattern[yc - y].y = xc + x;
-        pattern[yc + y].x = xc - x; pattern[yc + y].y = xc + x;
-        pattern[yc - x].x = xc - y; pattern[yc - x].y = xc + y;
-        pattern[yc + x].x = xc - y; pattern[yc + x].y = xc + y;
+        pattern[yc - y] = new int2(xc - x, xc + x);
+        pattern[yc + y] = new int2(xc - x, xc + x);
+        pattern[yc - x] = new int2(xc - y, xc + y);
+        pattern[yc + x] = new int2(xc - y, xc + y);
     }
 
     // Function for circle-generation
     // using Bresenham's algorithm
-    public int2[] CreateCirclePattern(int r)
+    public NativeArray<int2> CreateCirclePattern(int r)
     {
+        // TEMP
+        return new NativeArray<int2>();
+
         int xc = r + 1;
         int yc = r + 1;
 
-        int2[] pattern = new int2[r * 2 + 1];
+        NativeArray<int2> pattern = new NativeArray<int2>(r * 2 + 1, Allocator.Temp);
+
 
         int x = 0, y = r;
         int d = 3 - 2 * r;

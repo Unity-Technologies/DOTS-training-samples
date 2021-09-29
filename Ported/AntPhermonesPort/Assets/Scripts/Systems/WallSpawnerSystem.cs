@@ -23,7 +23,7 @@ public partial class WallSpawnerSystem : SystemBase
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();
-                int2[] wallPattern = cellMapHelper.CreateCirclePattern(10);
+                var wallPattern = cellMapHelper.CreateCirclePattern(10);
 
                 var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
                 pheromoneMapHelper.InitPheromoneMap();
@@ -46,7 +46,7 @@ public partial class WallSpawnerSystem : SystemBase
         ecb.Dispose();
     }
 
-    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, int2[] wallPattern, float distance, float startAngle, float endAngle, float stepAngle = 10f)
+    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, NativeArray<int2> wallPattern, float distance, float startAngle, float endAngle, float stepAngle = 10f)
     {
         for (float angle = startAngle; angle <= endAngle; angle += stepAngle / distance)
         {
@@ -59,7 +59,7 @@ public partial class WallSpawnerSystem : SystemBase
 
             var instance = ecb.Instantiate(wallSpawner.WallComponent);
             ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
-            cellMapHelper.StampPattern((int)x, (int)y, wallPattern);
+            //cellMapHelper.StampPattern((int)x, (int)y, wallPattern);
         }
     }
 }
