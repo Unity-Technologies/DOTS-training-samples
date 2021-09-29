@@ -42,7 +42,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     }
     
     public const int pointCount = 1000;
-    public const float increment = 1 / (float) pointCount;
+    public const float increment = 1 / ((float) pointCount-1);
     public void CalculatePoints(in RailMarkerData[] railMarkers, ref BlobBuilderArray<float3> outPoints, ref BlobBuilderArray<float> platformPositions, ref float splineDataDistance)
     {
         var distArray = new NativeArray<float>(pointCount, Allocator.Temp);
@@ -51,15 +51,8 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var pointCountPerMarkerSegment = pointCount/(railMarkers.Length);
         var tIntervalPerMarkerSegment = 1 / ((float) pointCountPerMarkerSegment-1);
         var totalDistance = 0f;
-        bool writeMarker = false;
-        int platformIndex = 0;
         for (int markerIndex = 0; markerIndex < railMarkers.Length; markerIndex++)
         {
-            if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
-            {
-                writeMarker = true;
-            }
-            
             GetSegmentPoints(railMarkers, markerIndex, 
                 out var startPoint, 
                 out var endPoint, 
@@ -78,13 +71,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 distArray[distanceIndex] = totalDistance;
                 
                 lastPoint = point;
-
-                outPoints[markerIndex * pointCountPerMarkerSegment + i] = point;
-                if (writeMarker)
-                {
-                    platformPositions[platformIndex++] = t;
-                    writeMarker = false;
-                }
             }
 
             distMarkerSegment[markerIndex] = totalDistance;
@@ -93,22 +79,27 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         splineDataDistance = totalDistance;
         
         var lastDistancedPoint = railMarkers.First().position;
-        
-        for (float percentage = 0; percentage <= 1; percentage += increment)
+        int platformIndex = 0;
+        for (var i = 0; i < pointCount; i++)
         {
+            var percentage = i*increment;
             var (t, markerIndex) = Sample(distArray, distMarkerSegment, percentage, totalDistance, pointCountPerMarkerSegment);
-           
+
             GetSegmentPoints(railMarkers, markerIndex, 
                 out var startPoint, 
                 out var endPoint, 
                 out var startHandle, 
                 out var endHandle);
-
-            var point = CubicBezierOfSegment(startPoint, startHandle, endHandle, endPoint, t);
             
-            Debug.DrawLine(lastDistancedPoint, point, Color.green);
+            outPoints[i] = CubicBezierOfSegment(startPoint, startHandle, endHandle, endPoint, t);
             
-            lastDistancedPoint = point;
+            Debug.DrawLine(lastDistancedPoint, outPoints[i], Color.green);
+            lastDistancedPoint = outPoints[i];
+            
+            if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
+            {
+                platformPositions[platformIndex++] = t;
+            }
         }
 
         distArray.Dispose();
