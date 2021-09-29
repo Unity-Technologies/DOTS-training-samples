@@ -180,7 +180,7 @@ GameObject:
   - component: {fileID: 663330106}
   - component: {fileID: 663330108}
   - component: {fileID: 663330107}
-  m_Layer: 0
+  m_Layer: 1
   m_Name: ConfigAndSingletons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
