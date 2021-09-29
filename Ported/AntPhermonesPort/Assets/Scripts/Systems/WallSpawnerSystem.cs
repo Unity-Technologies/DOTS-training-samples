@@ -81,8 +81,8 @@ public partial class WallSpawnerSystem : SystemBase
             float x = Mathf.Cos(tmpAngle) * distance;
             float y = Mathf.Sin(tmpAngle) * distance;
 
-            var instance = ecb.Instantiate(wallSpawner.WallComponent);
-            ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
+            //var instance = ecb.Instantiate(wallSpawner.WallComponent);
+            //ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
 
             cellMapHelper.WorldToCellSpace(ref x, ref y);
 

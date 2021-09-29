@@ -46,13 +46,13 @@ public partial class CellMapVisualizerSystem : SystemBase
             switch (cellMap[i].state)
             {
                 case CellState.Empty:
-                    arr[i] = new float4(255f, 0, 0, 255);
+                    arr[i] = new float4(1, 0, 0, 1);
                     break;
                 case CellState.IsFood:
                     arr[i] = new float4(0, 1, 0, 1);
                     break;
                 case CellState.IsObstacle:
-                    arr[i] = new float4(1, 0, 0, 1);
+                    arr[i] = new float4(0, 0.5f, 0.5f, 1);
                     break;
                 case CellState.LineOfSight:
                     arr[i] = new float4(0, 0, 1, 1);
@@ -87,7 +87,7 @@ public partial class CellMapVisualizerSystem : SystemBase
                     arr[i] = new float4(0, 1, 0, 1);
                     break;
                 case CellState.IsObstacle:
-                    arr[i] = new float4(1, 0, 0, 1);
+                    arr[i] = new float4(0, 0.5f, 0.5f, 1);
                     break;
                 case CellState.LineOfSight:
                     arr[i] = new float4(0, 0, 1, 1);
