@@ -12,11 +12,13 @@ public struct CellMapHelper
 
     DynamicBuffer<CellMap> cellmap;
     int gridSize;
+    float worldSize;
 
     public CellMapHelper(DynamicBuffer<CellMap> _cellmap, int _gridSize, float _worldSize)
     {
         cellmap = _cellmap;
         gridSize = _gridSize;
+        worldSize = _worldSize;
 
         // World centered at 0,0
         var halfSize = _worldSize / 2;
@@ -100,11 +102,11 @@ public struct CellMapHelper
 
     public void StampPattern(int x, int y, NativeArray<int2> pattern)
     {
-        foreach (var pt in pattern)
+        for (int dy = 0; dy < pattern.Length; dy++)
         {
-            for (int px = pt.x; px <= pt.y; ++px)
+            for (int px = pattern[dy].x; px <= pattern[dy].y; ++px)
             {
-                Set(x + px, y, CellState.IsObstacle);
+                Set(x + px, y + dy - pattern.Length / 2, CellState.IsObstacle);
             }
         }
     }
@@ -136,18 +138,8 @@ public struct CellMapHelper
 
     public void WorldToCellSpace(ref float x, ref float y)
     {
-        if (x < worldLowerLeft .x) x = worldLowerLeft .x;
-        if (x > worldUpperRight.x) x = worldUpperRight.x;
-        if (y < worldLowerLeft .y) y = worldLowerLeft .y;
-        if (y > worldUpperRight.y) y = worldUpperRight.y;
-
-        float2 gridRelativeXY = new float2 { x = x, y = y } - worldLowerLeft;
-
-        float2 gridIndexScaleFactor = (worldUpperRight - worldLowerLeft) / gridSize;
-
-        x = gridRelativeXY.x / gridIndexScaleFactor.x;
-        y = gridRelativeXY.y / gridIndexScaleFactor.y;
-
+        x = (Mathf.Clamp(x, -worldSize, worldSize) + worldSize / 2) * gridSize / worldSize;
+        y = (Mathf.Clamp(y, -worldSize, worldSize) + worldSize / 2) * gridSize / worldSize;
     }
 
     public CellState GetCellStateFrom2DPos(float2 xy)

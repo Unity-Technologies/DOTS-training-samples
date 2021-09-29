@@ -19,7 +19,7 @@ public partial class CellMapVisualizerSystem : SystemBase
 
         //if (texture != null)
         //    UnityEngine.GameObject.Destroy(texture);
-        
+
         var config = GetSingleton<Config>();
 
         texture = new UnityEngine.Texture2D(
@@ -43,21 +43,7 @@ public partial class CellMapVisualizerSystem : SystemBase
         NativeArray<float4> arr = new NativeArray<float4>(cellMap.Length, Allocator.Temp);
         for (int i = 0; i < cellMap.Length; ++i)
         {
-            switch (cellMap[i].state)
-            {
-                case CellState.Empty:
-                    arr[i] = new float4(1, 0, 0, 1);
-                    break;
-                case CellState.IsFood:
-                    arr[i] = new float4(0, 1, 0, 1);
-                    break;
-                case CellState.IsObstacle:
-                    arr[i] = new float4(0, 0.5f, 0.5f, 1);
-                    break;
-                case CellState.LineOfSight:
-                    arr[i] = new float4(0, 0, 1, 1);
-                    break;
-            }
+            arr[i] = new float4(0, 0, 0, 1);
         }
 
         texture.LoadRawTextureData(arr);
@@ -81,13 +67,13 @@ public partial class CellMapVisualizerSystem : SystemBase
             switch (cellMap[i].state)
             {
                 case CellState.Empty:
-                    arr[i] = new float4(1, 0, 0, 1f);
+                    arr[i] = new float4(0, 0, 0, 1f);
                     break;
                 case CellState.IsFood:
-                    arr[i] = new float4(0, 1, 0, 1);
+                    arr[i] = new float4(1, 1, 1, 1);
                     break;
                 case CellState.IsObstacle:
-                    arr[i] = new float4(0, 0.5f, 0.5f, 1);
+                    arr[i] = new float4(0.8f, 0.8f, 0.8f, 1);
                     break;
                 case CellState.LineOfSight:
                     arr[i] = new float4(0, 0, 1, 1);
