@@ -5,6 +5,13 @@ using Unity.Mathematics;
 [UpdateBefore(typeof(BeeMovementSystem))]
 public partial class TargetAcquisitionSystem : SystemBase
 {
+    private Random random;
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+
     protected override void OnUpdate()
     {
         var foodNotInHiveQuery = new EntityQueryDesc
@@ -24,6 +31,7 @@ public partial class TargetAcquisitionSystem : SystemBase
         
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         EntityTypeHandle entityHandles = GetEntityTypeHandle();
+        uint seed = random.NextUInt();
 
         Entities
             .WithReadOnly(foodChunks)
@@ -33,7 +41,7 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithAll<TeamRed>()
             .ForEach((Entity beeEntity, int entityInQueryIndex, ref Target target) =>
             {
-                Random random = new Random((uint)entityInQueryIndex + 1);
+                Random random = new Random((uint)entityInQueryIndex + seed);
                 
                 if (target.TargetEntity == Entity.Null)
                 {
@@ -64,7 +72,7 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithAll<TeamBlue>()
             .ForEach((Entity beeEntity, int entityInQueryIndex, ref Target target) =>
             {
-                Random random = new Random((uint)entityInQueryIndex + 1);
+                Random random = new Random((uint)entityInQueryIndex + seed);
 
                 if (target.TargetEntity == Entity.Null)
                 {

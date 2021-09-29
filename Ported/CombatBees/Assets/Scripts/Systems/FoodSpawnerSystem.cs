@@ -6,11 +6,19 @@ using Unity.Transforms;
 
 public partial class FoodSpawnerSystem : SystemBase
 {
+    private Random random;
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
-        var bounds = GetComponent<WorldBounds>(worldBoundsEntity); 
+        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        uint seed = random.NextUInt();
 
         Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref FoodSpawner spawner) =>
@@ -19,7 +27,7 @@ public partial class FoodSpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 if (!spawner.DidSpawn)
                 {
-                    Random random = new Random((uint)entityInQueryIndex + 1);    
+                    Random random = new Random((uint)entityInQueryIndex + seed);    
                     float3 spawnMin = bounds.AABB.Min;
                     spawnMin.x += bounds.HiveOffset + 50;
 

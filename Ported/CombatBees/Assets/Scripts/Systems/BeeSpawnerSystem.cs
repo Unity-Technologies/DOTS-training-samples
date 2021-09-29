@@ -5,16 +5,24 @@ using Unity.Transforms;
 
 public partial class BeeSpawnerSystem : SystemBase
 {
+    private Random random;
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
         var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        uint seed = random.NextUInt();
         
         Entities
             .ForEach((Entity entity, int entityInQueryIndex, in BeeSpawner spawner) =>
             {
-                Random random = new Random((uint)entityInQueryIndex + 1);
+                Random random = new Random((uint)entityInQueryIndex + seed);
 
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
