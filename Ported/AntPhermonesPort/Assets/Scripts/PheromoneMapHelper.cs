@@ -121,7 +121,11 @@ public struct PheromoneMapHelper
     {
         for(int i = 0; i<pheromoneMap.Length; i++)
         {
-            pheromoneMap.ElementAt(i).intensity -= new float4(decreaseValue, 0, 0, 0);
+            var newIntensity = pheromoneMap[i].intensity.x - decreaseValue;
+            if (newIntensity < 0)
+                newIntensity = 0;
+
+            pheromoneMap.ElementAt(i).intensity.x = newIntensity;
         }
     }
 }
