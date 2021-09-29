@@ -7,9 +7,11 @@ public partial class CarriageMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
+        var settings = GetSingleton<Settings>();
+        
         Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference) =>
         {
-            float carriageSizeWithMargins = 0.2f;
+            float carriageSizeWithMargins = settings.CarriageSizeWithMargins;
             
             TrainMovement trainMovement = GetComponent<TrainMovement>(trainReference.Train);
             LineIndex lineIndex = GetComponent<LineIndex>(trainReference.Train);

@@ -9,11 +9,13 @@ public partial class TrainMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
+        var settings = GetSingleton<Settings>();
         var elapsedTime = Time.ElapsedTime;
+        var deltaTime = Time.DeltaTime;
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            const float maxSpeed = 0.05f; //from global settings singleton
+            float maxSpeed = settings.MaxSpeed * deltaTime;
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
@@ -21,16 +23,17 @@ public partial class TrainMovementSystem : SystemBase
             // TODO: platforms are positioned 0..1 range (relative to total track length). currently our train
             // position is absolute in terms of track length, e.g. 0..25 
             var trackRelativePosition = movement.position / points.Length;
-            if (IsApproachingPlatform(trackRelativePosition, ref platformPositions))
+            if (movement.state == TrainMovemementStates.Running
+                && IsApproachingPlatform(trackRelativePosition, ref platformPositions))
             {
-                Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
+                // Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
                 movement.state = TrainMovemementStates.Stopping;
             }
 
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += maxSpeed / 100;
+                    movement.speed += maxSpeed / 10;
                     if (movement.speed >= maxSpeed)
                     {
                         movement.state = TrainMovemementStates.Running;
@@ -38,7 +41,7 @@ public partial class TrainMovementSystem : SystemBase
                     break;
                 
                 case TrainMovemementStates.Stopping:
-                    movement.speed -= maxSpeed / 100;
+                    movement.speed -= maxSpeed / 10;
                     if (movement.speed <= 0.0f)
                     {
                         movement.speed = 0.0f;
@@ -54,7 +57,7 @@ public partial class TrainMovementSystem : SystemBase
                 
                 case TrainMovemementStates.Waiting:
                     movement.speed = 0.0f;
-                    if (elapsedTime > movement.timeWhenStoppedAtPlatform + 1)
+                    if (elapsedTime > movement.timeWhenStoppedAtPlatform + settings.TimeAtStation)
                     {
                         movement.state = TrainMovemementStates.Starting;
                     }
@@ -73,6 +76,7 @@ public partial class TrainMovementSystem : SystemBase
 
             (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
             translation.Value = lerpedPosition;
+        // }).WithoutBurst().Run(); // for debugging
         }).ScheduleParallel();
     }
 
@@ -95,6 +99,9 @@ public partial class TrainMovementSystem : SystemBase
     {
         var floor = (int)math.floor(trackPosition);
         var ceil = (int)math.ceil(trackPosition);
+        
+        
+        /*
         if (floor == ceil)
         {
             ceil += 1;
@@ -105,10 +112,23 @@ public partial class TrainMovementSystem : SystemBase
                 ceil = 0;
             }
         }
+        */
 
         float3 from = points[floor];
         float3 to = points[ceil];
 
+        while (from.Equals(to))
+        {
+            ceil += 1;
+            
+            // check for overflow
+            if (ceil >= points.Length)
+            {
+                ceil = 0;
+            }
+            to = points[ceil];
+        }
+        
         float t = trackPosition - math.floor(trackPosition);
 
         float3 lerpedPosition = math.lerp(from, to, t);
