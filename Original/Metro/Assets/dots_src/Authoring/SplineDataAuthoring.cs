@@ -35,12 +35,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
     }
 
-    public struct DistanceAndDistanceIndex
-    {
-        public float Distance;
-        public int DistanceIndex;
-    }
-
     public struct RailMarkerData
     {
         public RailMarkerType railMarkerType;
@@ -52,55 +46,35 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     public void CalculatePoints(in RailMarkerData[] railMarkers, ref BlobBuilderArray<float3> outPoints, ref BlobBuilderArray<float> platformPositions, ref float splineDataDistance)
     {
         var distArray = new NativeArray<float>(pointCount, Allocator.Temp);
-        var distMarkerSegment = new NativeArray<DistanceAndDistanceIndex>(railMarkers.Length, Allocator.Temp);
+        var distMarkerSegment = new NativeArray<float>(railMarkers.Length, Allocator.Temp);
         
         var pointCountPerMarkerSegment = pointCount/(railMarkers.Length);
-        var tIntervalPerMarkerSegment = 1 / (float) pointCountPerMarkerSegment;
+        var tIntervalPerMarkerSegment = 1 / ((float) pointCountPerMarkerSegment-1);
         var totalDistance = 0f;
         bool writeMarker = false;
         int platformIndex = 0;
         for (int markerIndex = 0; markerIndex < railMarkers.Length; markerIndex++)
         {
-            var startPoint = railMarkers[markerIndex].position;
-            var backFromStartPos = railMarkers[markerIndex - 1 < 0 ? railMarkers.Length-1 : markerIndex-1].position;
-            var endPoint = railMarkers[(markerIndex+1) % railMarkers.Length].position;
-            var frontOfEndPoint = railMarkers[(markerIndex + 2) % railMarkers.Length].position;
-            
-            var startHandle = startPoint+(startPoint-backFromStartPos).normalized*5;
-            var endHandle = endPoint+(endPoint-frontOfEndPoint).normalized*5;
-
-            // Debug.DrawLine(startPoint, startPoint+Vector3.up, Color.green);
-            // Debug.DrawLine(startHandle, startHandle+Vector3.up);
-            // Debug.DrawLine(endHandle, endHandle+Vector3.up);
-            // Debug.DrawLine(endPoint, endPoint+Vector3.up, Color.green);
-            //
-            // Debug.DrawLine(startPoint, startHandle, Color.red);
-            // Debug.DrawLine(startHandle, endHandle, Color.blue);
-            // Debug.DrawLine(endHandle, endPoint, Color.cyan);
-            
-            var lastPoint = startPoint;
-            var distanceIndex = 0;
             if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
             {
                 writeMarker = true;
             }
-                
+            
+            GetSegmentPoints(railMarkers, markerIndex, 
+                out var startPoint, 
+                out var endPoint, 
+                out var startHandle, 
+                out var endHandle);
+            
+            var lastPoint = startPoint;
             for (var i = 0; i < pointCountPerMarkerSegment; i++)
             {
-                var t = tIntervalPerMarkerSegment * (i+1);
+                var t = tIntervalPerMarkerSegment * i;
                 
-                var startToStartHandle = math.lerp(startPoint, startHandle, t);
-                var startHandleToEndHandle = math.lerp(startHandle, endHandle, t);
-                var endHandleToEnd = math.lerp(endHandle, endPoint, t);
-
-                var startToStartHandleToEndHandle = math.lerp(startToStartHandle, startHandleToEndHandle, t);
-                var startHandleToEndHandleToEnd = math.lerp(startHandleToEndHandle, endHandleToEnd, t);
+                var point = CubicBezierOfSegment(startPoint, startHandle, endHandle, endPoint, t);
                 
-                var point = math.lerp(startToStartHandleToEndHandle, startHandleToEndHandleToEnd, t);
-                Debug.DrawLine(lastPoint, point, Color.yellow);
- 
                 totalDistance += math.distance(point, lastPoint);
-                distanceIndex = i + markerIndex * pointCountPerMarkerSegment;
+                var distanceIndex = i + markerIndex * pointCountPerMarkerSegment;
                 distArray[distanceIndex] = totalDistance;
                 
                 lastPoint = point;
@@ -113,36 +87,26 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 }
             }
 
-            distMarkerSegment[markerIndex] = new DistanceAndDistanceIndex{Distance = totalDistance, DistanceIndex = distanceIndex};
+            distMarkerSegment[markerIndex] = totalDistance;
         }
 
         splineDataDistance = totalDistance;
         
-        var lastDistancedPoint = Vector3.zero;
+        var lastDistancedPoint = railMarkers.First().position;
         
         for (float percentage = 0; percentage <= 1; percentage += increment)
         {
-            var (t, markerIndex) = NativeFloatArrayExtensions.Sample(distArray, distMarkerSegment, percentage, totalDistance, pointCountPerMarkerSegment);
+            var (t, markerIndex) = Sample(distArray, distMarkerSegment, percentage, totalDistance, pointCountPerMarkerSegment);
            
-            var startPoint = railMarkers[markerIndex].position;
-            var backFromStartPos = railMarkers[markerIndex - 1 < 0 ? railMarkers.Length-1 : markerIndex-1].position;
-            var endPoint = railMarkers[(markerIndex+1) % railMarkers.Length].position;
-            var frontOfEndPoint = railMarkers[(markerIndex + 2) % railMarkers.Length].position;
+            GetSegmentPoints(railMarkers, markerIndex, 
+                out var startPoint, 
+                out var endPoint, 
+                out var startHandle, 
+                out var endHandle);
+
+            var point = CubicBezierOfSegment(startPoint, startHandle, endHandle, endPoint, t);
             
-            var startHandle = startPoint+(startPoint-backFromStartPos).normalized*5;
-            var endHandle = endPoint+(endPoint-frontOfEndPoint).normalized*5;
-
-            var startToStartHandle = math.lerp(startPoint, startHandle, t); 
-            var startHandleToEndHandle = math.lerp(startHandle, endHandle, t);
-            var endHandleToEnd = math.lerp(endHandle, endPoint, t);
-
-            var startToStartHandleToEndHandle = math.lerp(startToStartHandle, startHandleToEndHandle, t);
-            var startHandleToEndHandleToEnd = math.lerp(startHandleToEndHandle, endHandleToEnd, t);
-                
-            var point = math.lerp(startToStartHandleToEndHandle, startHandleToEndHandleToEnd, t);
-                
-            Debug.DrawLine(lastDistancedPoint, point, Color.magenta);
-            Debug.DrawLine(point, point+math.up(), Color.blue);
+            Debug.DrawLine(lastDistancedPoint, point, Color.green);
             
             lastDistancedPoint = point;
         }
@@ -187,7 +151,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 if (Vector3.SignedAngle(offsetDir, railDirNext, Vector3.up) < 0)
                     offsetDir *= -1.0f;
             }
-
+            
             //if (createInstances)
             //{
                 //RailMarker newRailMarker = Instantiate(srcCurRailMarker, parent);
@@ -205,7 +169,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
         return markersData.ToArray();
     }
-    
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         using (var splineBlobBuilder = new BlobBuilder(Allocator.Temp))
@@ -231,29 +195,53 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             {
                 BlobAssetReference = blobAssetReference
             });
-            
         }
     }
-}
 
-public static class NativeFloatArrayExtensions
-{
-    [BurstCompile]
-    public static (float t, int markerIndex) Sample(NativeArray<float> distances, NativeArray<SplineDataAuthoring.DistanceAndDistanceIndex> distancesMarkerSegment, float percentage, in float totalLength, in int pointCountPerMarkerSegment)
+    static float3 CubicBezierOfSegment(Vector3 startPoint, Vector3 startHandle, Vector3 endHandle, Vector3 endPoint, float t)
     {
-        if( percentage <= 0 )
+        var startToStartHandle = math.lerp(startPoint, startHandle, t);
+        var startHandleToEndHandle = math.lerp(startHandle, endHandle, t);
+        var endHandleToEnd = math.lerp(endHandle, endPoint, t);
+
+        var startToStartHandleToEndHandle = math.lerp(startToStartHandle, startHandleToEndHandle, t);
+        var startHandleToEndHandleToEnd = math.lerp(startHandleToEndHandle, endHandleToEnd, t);
+
+        var point = math.lerp(startToStartHandleToEndHandle, startHandleToEndHandleToEnd, t);
+        return point;
+    }
+
+    static void GetSegmentPoints(RailMarkerData[] railMarkers, int markerIndex, out Vector3 startPoint, out Vector3 endPoint, out Vector3 startHandle, out Vector3 endHandle)
+    {
+        startPoint = railMarkers[markerIndex].position;
+        var backFromStartPos = railMarkers[markerIndex - 1 < 0 ? railMarkers.Length - 1 : markerIndex - 1].position;
+        endPoint = railMarkers[(markerIndex + 1) % railMarkers.Length].position;
+        var frontOfEndPoint = railMarkers[(markerIndex + 2) % railMarkers.Length].position;
+
+        var startToEndDir = endPoint - startPoint;
+        var backFromStartToStartDir = startPoint - backFromStartPos;
+        var frontOfEndPointToEndDir = endPoint - frontOfEndPoint;
+        
+        startHandle = startPoint+(startToEndDir.normalized+backFromStartToStartDir.normalized).normalized*startToEndDir.magnitude*.5f;
+        endHandle = endPoint+(frontOfEndPointToEndDir.normalized - startToEndDir.normalized).normalized*startToEndDir.magnitude*.5f;
+    }
+    
+    [BurstCompile]
+    public static (float t, int markerIndex) Sample(NativeArray<float> distances, NativeArray<float> distancesMarkerSegment, float percentage, in float totalLength, in int pointCountPerMarkerSegment)
+    {
+        percentage = math.frac(percentage);
+        if(percentage <= 0)
             return (0,0);
-        if( percentage >= 1 )
-            return (1, distancesMarkerSegment.Length-1);
         var smpDist = percentage * totalLength;
-        for(var markerIndex = 0; markerIndex < distancesMarkerSegment.Length-1; markerIndex++ )
+        for(var markerIndex = -1; markerIndex < distancesMarkerSegment.Length-1; markerIndex++ )
         {
-            var currentDistanceAtMarkerLevel = distancesMarkerSegment[markerIndex];
-            if( smpDist >= currentDistanceAtMarkerLevel.Distance && smpDist < distancesMarkerSegment[markerIndex + 1].Distance ) {
-                for (int i = 0; i < pointCountPerMarkerSegment; i++)
+            var currentDistanceAtMarkerLevel = markerIndex == -1 ? 0 : distancesMarkerSegment[markerIndex];
+            if( smpDist >= currentDistanceAtMarkerLevel && smpDist < distancesMarkerSegment[markerIndex + 1] ) {
+                var distanceIndex = (markerIndex+1) * pointCountPerMarkerSegment;
+                for (var i = 0; i < pointCountPerMarkerSegment-1; i++)
                 {
-                    var lowerDistance = distances[currentDistanceAtMarkerLevel.DistanceIndex+i];
-                    var upperDistance = distances[currentDistanceAtMarkerLevel.DistanceIndex+i+1];
+                    var lowerDistance = distances[distanceIndex+i];
+                    var upperDistance = distances[distanceIndex+i+1];
                     if (smpDist >= lowerDistance && smpDist < upperDistance)
                     {
                         var ta = i / ((float) pointCountPerMarkerSegment - 1 );
@@ -261,7 +249,7 @@ public static class NativeFloatArrayExtensions
                         var dRange = upperDistance - lowerDistance;
                         var dVal = smpDist - lowerDistance;
                         var tMid = dVal / dRange;
-                        return (math.lerp( ta, tb, tMid), markerIndex);
+                        return (math.lerp( ta, tb, tMid), markerIndex+1);
                     }
                 }
             }
