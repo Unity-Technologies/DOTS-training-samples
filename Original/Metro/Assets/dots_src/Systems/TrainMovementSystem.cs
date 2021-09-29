@@ -79,13 +79,9 @@ public partial class TrainMovementSystem : SystemBase
             }
 
             movement.position += movement.speed;
-            if (movement.position > points.Length - 1)
-            {
-                movement.position = 0;
-            }
+            movement.position = math.fmod(movement.position,points.Length);
 
-            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
-            translation.Value = lerpedPosition;
+            (translation.Value, _) = TrackPositionToWorldPosition(movement.position, ref points);
         // }).WithoutBurst().Run(); // for debugging
         }).ScheduleParallel();
     }
@@ -121,9 +117,9 @@ public partial class TrainMovementSystem : SystemBase
     
     public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
-        var floor = (int)math.floor(trackPosition%points.Length);
+        var floor = (int)math.floor(trackPosition);
         var ceil = (floor+1)%points.Length;
-        
+
         return (math.lerp(points[floor], points[ceil], math.frac(trackPosition)), 
                 quaternion.LookRotation(points[floor] - points[ceil], math.up()));
     }
