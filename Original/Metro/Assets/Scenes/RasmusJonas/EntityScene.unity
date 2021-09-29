@@ -277,7 +277,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
-  RailsPerMeter: 100
+  NbRails: 100
+  PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+    type: 3}
 --- !u!4 &913079458
 Transform:
   m_ObjectHideFlags: 0
@@ -321,9 +323,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1acc7c1fc47e143eaa9311b3dc049e49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 15
+  MaxSpeed: 30
   CarriageSizeWithMargins: 5.5
-  TimeAtStation: 5
+  TimeAtStation: 3
+  BreakingDistance: 20
 --- !u!4 &1394206085
 Transform:
   m_ObjectHideFlags: 0

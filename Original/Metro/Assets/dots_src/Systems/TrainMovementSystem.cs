@@ -109,7 +109,7 @@ public partial class TrainMovementSystem : SystemBase
     public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
         var floor = (int)math.floor(trackPosition);
-        var ceil = (int)math.ceil(trackPosition);
+        var ceil = (floor+1) % points.Length;
 
         return (math.lerp(points[floor], points[ceil], math.frac(trackPosition)), 
                 quaternion.LookRotation(points[floor] - points[ceil], math.up()));

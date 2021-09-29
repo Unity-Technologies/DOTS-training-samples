@@ -12,6 +12,7 @@ public enum TrainMovemementStates
     Waiting = 5,
 }
 
+[GenerateAuthoringComponent]
 public struct TrainMovement : IComponentData
 {
     public TrainMovemementStates state;

@@ -9,7 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2701255700621208520}
-  - component: {fileID: 44994636956491745}
+  - component: {fileID: 1289273099328262227}
+  - component: {fileID: 3817515992515814819}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &44994636956491745
+--- !u!114 &1289273099328262227
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,6 +41,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 8106599586059510996}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f6c0e94053d24f129b1a784e802ba15, type: 3}
+  m_Script: {fileID: 11500000, guid: 43c6d204710ae404d8fa9c8e6114a16e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: 1
+  speed: 0
+  position: 0
+  timeWhenStoppedAtPlatform: 0
+--- !u!114 &3817515992515814819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8106599586059510996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c269e91a4a0424d04a51c1713350054c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Index: 0
