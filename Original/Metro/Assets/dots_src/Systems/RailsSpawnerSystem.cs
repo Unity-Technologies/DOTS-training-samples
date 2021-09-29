@@ -26,7 +26,7 @@ public partial class RailsSpawnerSystem : SystemBase
                         if (i < splineData.points.Length - 1)
                             rotation = new Rotation
                             {
-                                Value = Quaternion.LookRotation(
+                                Value = quaternion.LookRotation(
                                     splineData.points[i + 1] - splineData.points[i], 
                                     Vector3.up)
                             };
