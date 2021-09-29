@@ -6,7 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-
+using UnityEngine;
 [UpdateAfter(typeof(PointSimulationSystem))]
 public partial class ConstraintsSystem : SystemBase
 {
@@ -20,7 +20,8 @@ public partial class ConstraintsSystem : SystemBase
 		currentPoints.Add(new CurrentPoint() { Value = currentPoints[indexTocopyFrom].Value });
 		previousPoints.Add(new PreviousPoint() { Value = previousPoints[indexTocopyFrom].Value });
 		anchors.Add(new AnchorPoint() { Value = anchors[indexTocopyFrom].Value });
-		return neighborBuffer.Add(new NeighborCount() { Value = 1 }) - 1;
+		neighborBuffer.Add(new NeighborCount() { Value = 1 });
+		return neighborBuffer.Length - 1;
 	}
 
     protected override void OnUpdate()
