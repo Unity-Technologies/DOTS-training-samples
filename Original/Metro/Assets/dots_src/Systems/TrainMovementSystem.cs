@@ -15,13 +15,17 @@ public partial class TrainMovementSystem : SystemBase
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            float maxSpeed = settings.MaxSpeed * deltaTime / splineData.Value.splineBlobAssets[lineIndex.Index].length * 1000;
+            float lineLength = splineData.Value.splineBlobAssets[lineIndex.Index].length;
+            float maxSpeed = settings.MaxSpeed * deltaTime / lineLength * 1000;
+
+            float breakingPoint = 0.05f;
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
 
             // TODO: platforms are positioned 0..1 range (relative to total track length). currently our train
-            // position is absolute in terms of track length, e.g. 0..25 
+            // position is absolute in terms of track length, e.g. 0..25
+            
             var trackRelativePosition = movement.position / points.Length;
             if (movement.state == TrainMovemementStates.Running
                 && IsApproachingPlatform(trackRelativePosition, ref platformPositions))
@@ -33,7 +37,7 @@ public partial class TrainMovementSystem : SystemBase
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += maxSpeed / 10;
+                    movement.speed += maxSpeed / 100 * 5;
                     if (movement.speed >= maxSpeed)
                     {
                         movement.state = TrainMovemementStates.Running;
@@ -41,7 +45,13 @@ public partial class TrainMovementSystem : SystemBase
                     break;
                 
                 case TrainMovemementStates.Stopping:
-                    movement.speed -= maxSpeed / 10;
+                    float distanceTraveledLastFrame = (movement.speed / lineLength) * deltaTime;
+
+                    float framesUntilStop = (distanceToClosestPlatform(trackRelativePosition, ref platformPositions) /
+                                           distanceTraveledLastFrame);
+
+                    //movement.speed -= movement.speed / framesUntilStop;
+                    movement.speed = (distanceTraveledLastFrame / 0.05f) * (maxSpeed);
                     if (movement.speed <= 0.0f)
                     {
                         movement.speed = 0.0f;
@@ -94,7 +104,21 @@ public partial class TrainMovementSystem : SystemBase
 
         return false;
     }
+    
+    static float distanceToClosestPlatform(float position, ref BlobArray<float> platformPositions)
+    {
+        for (int i = 0; i < platformPositions.Length; i++)
+        {
+            var platformPosition = platformPositions[i];
+            if (position < platformPosition)
+            {
+                return platformPosition - position;
+            }
+        }
 
+        return 1 - position + platformPositions[0];
+    }
+    
     public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
         var floor = (int)math.floor(trackPosition%points.Length);
