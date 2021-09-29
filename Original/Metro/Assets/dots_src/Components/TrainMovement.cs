@@ -15,7 +15,16 @@ public enum TrainMovemementStates
 public struct TrainMovement : IComponentData
 {
     public TrainMovemementStates state;
+    
+    /// <summary>
+    /// Speed in m/s
+    /// </summary>
     public float speed;
+    
+    /// <summary>
+    /// Position on track, relative to total length of points on track, e.g. position 800 of 1000 track points
+    /// </summary>
     public float position;
+
     public double timeWhenStoppedAtPlatform; // TODO: just for stopping train, will be removed later
 }

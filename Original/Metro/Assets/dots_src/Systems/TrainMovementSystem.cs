@@ -15,34 +15,34 @@ public partial class TrainMovementSystem : SystemBase
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            float maxSpeed = settings.MaxSpeed * deltaTime / splineData.Value.splineBlobAssets[lineIndex.Index].length * 1000;
+            float lineLength = splineData.Value.splineBlobAssets[lineIndex.Index].length;
+            float breakingPoint = 0.05f;
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
-
-            // TODO: platforms are positioned 0..1 range (relative to total track length). currently our train
-            // position is absolute in terms of track length, e.g. 0..25 
             var trackRelativePosition = movement.position / points.Length;
-            if (movement.state == TrainMovemementStates.Running
-                && IsApproachingPlatform(trackRelativePosition, ref platformPositions))
-            {
-                // Debug.Log($"Train on line #{lineIndex.Index} is approaching platform, slowing down!");
-                movement.state = TrainMovemementStates.Stopping;
-            }
 
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += maxSpeed / 10;
-                    if (movement.speed >= maxSpeed)
+                    movement.speed += settings.MaxSpeed / 100 * 5;
+                    if (movement.speed >= settings.MaxSpeed)
                     {
                         movement.state = TrainMovemementStates.Running;
                     }
                     break;
                 
                 case TrainMovemementStates.Stopping:
-                    movement.speed -= maxSpeed / 10;
-                    if (movement.speed <= 0.0f)
+                    // following are in meters 
+                    float distanceTraveledLastFrame = movement.speed * deltaTime;
+                    var distanceToPlatform = DistanceToClosestPlatform(trackRelativePosition, ref platformPositions) * lineLength;
+                    float framesUntilStop = distanceToPlatform/ distanceTraveledLastFrame;
+
+                    Debug.Log(distanceToPlatform);
+                    var reduceSpeedWith = math.max(0.1f * deltaTime, movement.speed / framesUntilStop); 
+                    movement.speed -= reduceSpeedWith;
+
+                    if (movement.speed <= 0.0f || distanceToPlatform < 1f)
                     {
                         movement.speed = 0.0f;
                         movement.state = TrainMovemementStates.Stopped;
@@ -64,79 +64,54 @@ public partial class TrainMovementSystem : SystemBase
                     break;
 
                 case TrainMovemementStates.Running:
-                    movement.speed = maxSpeed;
+                    movement.speed = settings.MaxSpeed;
+
+                    // are we approaching platform?
+                    var relativeDistanceToPlatform = DistanceToClosestPlatform(trackRelativePosition, ref platformPositions);
+                    var distanceToPlatformInMeters = relativeDistanceToPlatform * lineLength;
+
+                    if (distanceToPlatformInMeters < 50)
+                    {
+                        movement.state = TrainMovemementStates.Stopping;
+                    }
+
                     break;
             }
 
-            movement.position += movement.speed;
-            if (movement.position > points.Length - 1)
-            {
-                movement.position = 0;
-            }
+            // convert speed (m/s) to track positions/second
+            var trackPositionsSpeed = movement.speed / lineLength * points.Length;
+            movement.position += trackPositionsSpeed * deltaTime;
+            movement.position = math.fmod(movement.position, points.Length);
 
             (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
             translation.Value = lerpedPosition;
-        // }).WithoutBurst().Run(); // for debugging
-        }).ScheduleParallel();
+        }).WithoutBurst().Run(); // for debugging
+        // }).ScheduleParallel();
     }
 
-    static bool IsApproachingPlatform(float position, ref BlobArray<float> platformPositions)
+    /// <summary>
+    /// Returns distance to next platform in relative points, i.e. range [0..1[ 
+    /// </summary>
+    static float DistanceToClosestPlatform(float position, ref BlobArray<float> platformPositions)
     {
-        // platformPositions contains ends of platforms, in range 0..1 of whole track
         for (int i = 0; i < platformPositions.Length; i++)
         {
             var platformPosition = platformPositions[i];
-            if (position > platformPosition - 0.05 && position < platformPosition)
+            if (position < platformPosition)
             {
-                return true;
+                return platformPosition - position;
             }
         }
 
-        return false;
+        return 1 - position + platformPositions[0];
     }
-
-    public static (float3, Quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
+    
+    public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
         var floor = (int)math.floor(trackPosition);
         var ceil = (int)math.ceil(trackPosition);
-        
-        
-        /*
-        if (floor == ceil)
-        {
-            ceil += 1;
-            
-            // check for overflow
-            if (ceil >= points.Length)
-            {
-                ceil = 0;
-            }
-        }
-        */
 
-        float3 from = points[floor];
-        float3 to = points[ceil];
-
-        while (from.Equals(to))
-        {
-            ceil += 1;
-            
-            // check for overflow
-            if (ceil >= points.Length)
-            {
-                ceil = 0;
-            }
-            to = points[ceil];
-        }
-        
-        float t = trackPosition - math.floor(trackPosition);
-
-        float3 lerpedPosition = math.lerp(from, to, t);
-        
-        float3 trainDirection = math.normalize(from - to);
-        var vector = new Vector3(trainDirection.x, trainDirection.y, trainDirection.z);
-        Quaternion rotation = Quaternion.LookRotation(vector);
-        
-        return (lerpedPosition, rotation);
+        return (math.lerp(points[floor], points[ceil], math.frac(trackPosition)), 
+                quaternion.LookRotation(points[floor] - points[ceil], math.up()));
     }
 }

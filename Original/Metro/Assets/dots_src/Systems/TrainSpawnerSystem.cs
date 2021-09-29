@@ -16,7 +16,7 @@ public partial class TrainSpawnerSystem : SystemBase
         Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
-            int trainCount = 3;
+            int trainCount = 1;
             int trainLength = 5;
 
             for (int l = 0; l < splineData.Value.splineBlobAssets.Length; l++)
@@ -37,6 +37,8 @@ public partial class TrainSpawnerSystem : SystemBase
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
                         ecb.SetComponent(carriageInstance, new TrainReference{Index = j, Train = trainInstance});
                     }
+
+                    return;
                 }
             }
 
