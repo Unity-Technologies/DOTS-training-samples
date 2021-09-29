@@ -41,6 +41,7 @@ public partial class TrainMovementSystem : SystemBase
                     movement.speed -= maxSpeed / 100;
                     if (movement.speed <= 0.0f)
                     {
+                        movement.speed = 0.0f;
                         movement.state = TrainMovemementStates.Stopped;
                     }
                     break;
