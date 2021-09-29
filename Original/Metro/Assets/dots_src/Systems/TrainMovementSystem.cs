@@ -108,35 +108,13 @@ public partial class TrainMovementSystem : SystemBase
 
         return 1 - position + platformPositions[0];
     }
-
-    public static (float3, Quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
+    
+    public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
     {
         var floor = (int)math.floor(trackPosition);
         var ceil = (int)math.ceil(trackPosition);
 
-        float3 from = points[floor];
-        float3 to = points[ceil];
-
-        while (from.Equals(to))
-        {
-            ceil += 1;
-            
-            // check for overflow
-            if (ceil >= points.Length)
-            {
-                ceil = 0;
-            }
-            to = points[ceil];
-        }
-        
-        float t = trackPosition - math.floor(trackPosition);
-
-        float3 lerpedPosition = math.lerp(from, to, t);
-        
-        float3 trainDirection = math.normalize(from - to);
-        var vector = new Vector3(trainDirection.x, trainDirection.y, trainDirection.z);
-        Quaternion rotation = Quaternion.LookRotation(vector);
-        
-        return (lerpedPosition, rotation);
+        return (math.lerp(points[floor], points[ceil], math.frac(trackPosition)), 
+                quaternion.LookRotation(points[floor] - points[ceil], math.up()));
     }
 }
