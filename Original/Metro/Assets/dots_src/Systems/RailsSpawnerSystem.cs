@@ -26,7 +26,7 @@ public partial class RailsSpawnerSystem : SystemBase
                         var translation = new Translation {Value = splineData.points[i]};
                         if (i < splineData.points.Length - 1)
                             rotation = GetRailRotation(splineData.points[i], splineData.points[i + 1]);
-                        //ecb.SetComponent(instance, rotation);
+                        ecb.SetComponent(instance, rotation);
                         ecb.SetComponent(instance, translation);
                     }
                 }
@@ -40,11 +40,10 @@ public partial class RailsSpawnerSystem : SystemBase
     static Rotation GetRailRotation(float3 curPos, float3 nextPos)
     {
         Vector3 forwardDir = Vector3.Normalize(nextPos - curPos);
-
-        var angleY = Vector3.SignedAngle(forwardDir, Vector3.forward, Vector3.up);
+        
         Rotation rotation = new Rotation()
         {
-            Value = Quaternion.Euler(0, angleY, 0)
+            Value = Quaternion.LookRotation(forwardDir, Vector3.up)
         };
         return rotation;
     }
