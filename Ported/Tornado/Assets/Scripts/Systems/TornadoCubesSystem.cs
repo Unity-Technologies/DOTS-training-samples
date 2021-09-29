@@ -36,7 +36,16 @@ public partial class TornadoCubesSystem : SystemBase
 
         tornadoComponent.tornadoX = math.cos(internalTime / 6f) * 30f;
         tornadoComponent.tornadoZ = math.sin(internalTime / 6f * 1.618f) * 30f;
-        
+
+        Entities
+            .ForEach((ref Tornado tornado, ref Translation translation) =>
+            {
+                tornado.tornadoX = tornadoComponent.tornadoX;
+                tornado.tornadoZ = tornadoComponent.tornadoZ;
+
+            }).Run();
+
+
         Entities
             .WithoutBurst()
             .WithStructuralChanges()
