@@ -4,6 +4,8 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(WallSpawnerSystem))]
 public partial class AntSpawnerSystem : SystemBase
 {
     protected override void OnStartRunning()

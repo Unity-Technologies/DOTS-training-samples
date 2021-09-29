@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Rendering;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(WallSpawnerSystem))]
 public partial class PheromoneSystem : SystemBase
 {
     private UnityEngine.Texture2D texture;

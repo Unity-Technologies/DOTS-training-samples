@@ -4,6 +4,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Unity.Mathematics;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(AntSpawnerSystem))]
 public partial class AntMovementSystem : SystemBase
 {
     float timerElapsed = 0;
@@ -60,7 +62,7 @@ public partial class AntMovementSystem : SystemBase
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
-                // TBD: This check necessary currently because this is getting invoked initially BEFORE WorldSpawnerSystem has run
+                Debug.Assert(cellMapHelper.IsInitialized());
                 if (cellMapHelper.IsInitialized())
                 {
                     var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
