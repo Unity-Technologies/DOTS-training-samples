@@ -1,6 +1,7 @@
 using Assets.Scripts.Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -13,30 +14,34 @@ public partial class PointSimulationSystem : SystemBase
 		return math.sin(y / 5f + time / 4f) * 3f;
 	}
 
-	protected override void OnUpdate()
-    {
-		var ecb = new EntityCommandBuffer(Allocator.Temp);
+	[BurstCompile]
+	private struct PointSimulationSystemJob : IJobParallelFor
+	{
+		[ReadOnly]
+		public NativeArray<SpawnerSystem.CurrentPoint> InputCurrentPoints;
+		[ReadOnly]
+		public NativeArray<SpawnerSystem.PreviousPoint> InputPreviousPoints;
+		[ReadOnly]
+		public Tornado tornado;
+		[ReadOnly]
+		public Random random;
+		[ReadOnly]
+		public PhysicalConstants constants;
 
-		var worldEntity = GetSingletonEntity<World>();
-		var currentPoints = GetBuffer<SpawnerSystem.CurrentPoint>(worldEntity);
-		var previousPoints = GetBuffer<SpawnerSystem.PreviousPoint>(worldEntity);
-
-		var tornado = GetSingleton<Tornado>();
-		var constants = GetSingleton<PhysicalConstants>();
-
-		tornado.internalTime += Time.DeltaTime;
-		var myTime = Time.DeltaTime;
-
-		var random = new Random(0x123467);
-
-		tornado.fader = math.clamp(tornado.fader + myTime / 10f, 0f, 1f);
-		SetSingleton<Tornado>(tornado);
-
-		float invDamping = 1f - constants.airResistance;
-		for (int i = 0; i < currentPoints.Length; i++)
+		[WriteOnly]
+		[NativeDisableContainerSafetyRestriction]
+		public NativeArray<SpawnerSystem.CurrentPoint> OutputCurrentPoints;
+		[WriteOnly]
+		[NativeDisableContainerSafetyRestriction]
+		public NativeArray<SpawnerSystem.PreviousPoint> OutputPreviousPoints;
+		  
+		public void Execute(int i)
 		{
-			float3 point = currentPoints[i].Value;
-			float3 previousPoint = previousPoints[i].Value;
+
+			//var tornado = GetSingleton<Tornado>();
+
+			float3 point = InputCurrentPoints[i].Value;
+			float3 previousPoint = InputPreviousPoints[i].Value;
 			//	if (point.anchor == false)
 			{
 				float startX = point.x;
@@ -68,6 +73,8 @@ public partial class PointSimulationSystem : SystemBase
 					previousPoint.z -= forceZ * force;
 				}
 
+				float invDamping = 1f - constants.airResistance;
+
 				point.x += (point.x - previousPoint.x) * invDamping;
 				point.y += (point.y - previousPoint.y) * invDamping;
 				point.z += (point.z - previousPoint.z) * invDamping;
@@ -79,18 +86,58 @@ public partial class PointSimulationSystem : SystemBase
 				if (point.y < 0f)
 				{
 					point.y = 0f;
-					previousPoint.y = - previousPoint.y;
+					previousPoint.y = -previousPoint.y;
 					previousPoint.x += (point.x - previousPoint.x) * constants.friction;
 					previousPoint.z += (point.z - previousPoint.z) * constants.friction;
 				}
 
-				currentPoints[i] = new SpawnerSystem.CurrentPoint() { Value = point };
-				previousPoints[i] = new SpawnerSystem.PreviousPoint() { Value = previousPoint };
-				
-				UnityEngine.Debug.DrawLine(new UnityEngine.Vector3(previousPoint.x, previousPoint.y, previousPoint.z), new UnityEngine.Vector3(point.x, point.y, point.z));
+				OutputCurrentPoints[i] = new SpawnerSystem.CurrentPoint() { Value = point };
+				OutputPreviousPoints[i] = new SpawnerSystem.PreviousPoint() { Value = previousPoint };
+
 			}
 		}
-
-
+		 
     }
+
+
+	protected override void OnUpdate()
+    {
+		var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+		var worldEntity = GetSingletonEntity<World>();
+		var currentPoints = GetBuffer<SpawnerSystem.CurrentPoint>(worldEntity);
+		var previousPoints = GetBuffer<SpawnerSystem.PreviousPoint>(worldEntity);
+		 
+
+		var tornado = GetSingleton<Tornado>();
+		var constants = GetSingleton<PhysicalConstants>();
+
+		tornado.internalTime += Time.DeltaTime;
+		var myTime = Time.DeltaTime;
+
+		var random = new Random(0x123467);
+
+		tornado.fader = math.clamp(tornado.fader + myTime / 10f, 0f, 1f);
+		SetSingleton<Tornado>(tornado);
+
+		float invDamping = 1f - constants.airResistance;
+
+		var job = new PointSimulationSystemJob();
+
+
+		job.InputCurrentPoints = currentPoints.AsNativeArray();
+		job.InputPreviousPoints = previousPoints.AsNativeArray();
+		job.OutputCurrentPoints = currentPoints.AsNativeArray();
+		job.OutputPreviousPoints = previousPoints.AsNativeArray();
+		job.tornado = tornado;
+		job.random = random;
+		job.constants = constants;
+
+		var handle = job.Schedule(currentPoints.Length, 64, Dependency);
+
+		//TODO: complete in the optimal place
+		handle.Complete();
+		 
+
+	}
 }

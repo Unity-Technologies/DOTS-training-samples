@@ -58,7 +58,11 @@ public partial class SpawnerSystem : SystemBase
     {
 	    const int maxTowerHeight = 12;
         var instance = ecb.CreateEntity();
+
+
         ecb.AddComponent<World>(instance);
+
+
         var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
         var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
         var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
@@ -173,7 +177,10 @@ public partial class SpawnerSystem : SystemBase
 			}
 		}
 
-
+		ecb.RemoveComponent<Translation>(spawner.BeamPrefab);
+		ecb.RemoveComponent<Rotation>(spawner.BeamPrefab);
+		ecb.RemoveComponent<NonUniformScale>(spawner.BeamPrefab);
+		 
 		var barCount = 0;
 		//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
 		for (int i = 0; i < fPointCount; i++) {
@@ -182,7 +189,10 @@ public partial class SpawnerSystem : SystemBase
 				var beamSize = math.length(delta);
 
 				if (beamSize < 5f && beamSize>.2f) {
+
 					var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
+
+
 					var beamA = new Beam()
 					{
 						pointAIndex = i,
@@ -219,7 +229,7 @@ public partial class SpawnerSystem : SystemBase
         for (int i = 0; i < spawner.CubeCount; i++)
         {
             var instance = ecb.Instantiate(spawner.CubePrefab);
-
+			 
             float3 pos = new float3(random.NextFloat(-50f, 50f), random.NextFloat(0f, 50f), random.NextFloat(-50f, 50f));
             ecb.SetComponent(instance, new Translation()
             {
