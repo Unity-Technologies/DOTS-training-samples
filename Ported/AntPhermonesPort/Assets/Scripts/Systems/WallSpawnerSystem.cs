@@ -18,14 +18,16 @@ public partial class WallSpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
-                CellMapHelper.InitCellMap(map);
+                var cellMapHelper = new CellMapHelper(map, config.CellMapResolution, config.WorldSize);
+                cellMapHelper.InitCellMap();
+                cellMapHelper.InitBorders();
 
                 for (int i = 0; i < config.RingCount; ++i)
                 {
                     // choose if 2 openings
-                    int segmentCount = random.NextInt(1, config.MaxEntriesPerCircle);
+                    int segmentCount = random.NextInt(1, config.MaxEntriesPerRing);
                     float startAngle = random.NextFloat(0f, 360f);
-                    float angleSize = config.AngleSize / (float)segmentCount;
+                    float angleSize = config.RingAngleSize / (float)segmentCount;
 
                     for (int s = 0; s < segmentCount; ++s)
                     {

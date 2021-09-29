@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 663330104}
   - component: {fileID: 663330106}
   m_Layer: 0
-  m_Name: CellMapSpawner
+  m_Name: ConfigAndSingletons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,32 +181,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 1
-  AntCount: 60000
+  WorldSize: 20
+  CellMapResolution: 500
+  AntCount: 1000
   MoveSpeed: 20
   RotationSpeed: 20
-  RotationAngle: 15
-  RingCount: 5
+  RingCount: 3
   RingDistance: 3
-  AngleSize: 270
-  MaxEntriesPerCircle: 2
---- !u!1 &999092343 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4808208219933688625, guid: be63b1a93cd0e4526bcc012d42443b2d, type: 3}
-  m_PrefabInstance: {fileID: 4808208219489841990}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &999092345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 999092343}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b6bc4384ac6324af2a0eb1d1570279cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  WallComponent: {fileID: 4379158717642088787, guid: f769e55932caabc45b428bdf658f774e, type: 3}
+  RingAngleSize: 270
+  MaxEntriesPerRing: 2
 --- !u!1001 &1153049660
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -275,7 +258,7 @@ GameObject:
   - component: {fileID: 1455890781}
   - component: {fileID: 1455890780}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: WallSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -306,7 +289,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1651144879
 GameObject:

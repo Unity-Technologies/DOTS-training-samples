@@ -5,27 +5,38 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public static class CellMapHelper
+public struct CellMapHelper
 {
-    readonly static float2 worldLowerLeft = new float2(-5, -5);
-    readonly static float2 worldUpperRight = new float2(5, 5);
+    float2 worldLowerLeft;
+    float2 worldUpperRight;
 
-    const int gridSize = 500;
+    DynamicBuffer<CellMap> cellmap;
+    int gridSize;
 
-    public static void InitCellMap(DynamicBuffer<CellMap> cellmap)
+    public CellMapHelper(DynamicBuffer<CellMap> _cellmap, int _gridSize, float _worldSize)
     {
-        cellmap.Length = gridSize * gridSize;
-        InitBorders(cellmap);
+        cellmap = _cellmap;
+        gridSize = _gridSize;
+
+        // World centered at 0,0
+        var halfSize = _worldSize / 2;
+        worldLowerLeft = new float2(-halfSize, -halfSize);
+        worldUpperRight = new float2(halfSize, halfSize);
     }
 
-    static void InitBorders(DynamicBuffer<CellMap> cellmap)
+    public void InitCellMap()
+    {
+        cellmap.Length = gridSize * gridSize;
+    }
+
+    public void InitBorders()
     {
         for(int i = 0; i < gridSize; ++i)
         {
-            Set(cellmap, i, 0, CellState.IsObstacle);
-            Set(cellmap, i, gridSize -1, CellState.IsObstacle);
-            Set(cellmap, 0, i, CellState.IsObstacle);
-            Set(cellmap, gridSize -1, i, CellState.IsObstacle);
+            Set(i, 0, CellState.IsObstacle);
+            Set(i, gridSize -1, CellState.IsObstacle);
+            Set(0, i, CellState.IsObstacle);
+            Set(gridSize -1, i, CellState.IsObstacle);
         }
     }
 
@@ -37,11 +48,12 @@ public static class CellMapHelper
     /// <param name="xy"></param>
     /// <param name="originOffset"></param>
     /// <returns></returns>
-    public static int GetNearestIndex(float2 xy)
+    public int GetNearestIndex(float2 xy)
     {
         if(xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x > worldUpperRight.x || xy.y > worldUpperRight.y)
         {
-            Debug.LogError("[Cell Map] Trying to get index out of range");
+            //TBD: Warnings are disabled currently because ant move might jump out past the boundary cell
+            //Debug.LogError("[Cell Map] Trying to get index out of range");
             return -1;
         }
 
@@ -53,17 +65,28 @@ public static class CellMapHelper
         return ConvertGridIndex2Dto1D(gridIndexXY);
     }
 
-    public static int ConvertGridIndex2Dto1D(float2 index)
-        => Mathf.RoundToInt(index.y * gridSize + index.x);
+    public CellState GetCellStateFrom2DPos(float2 xy)
+    {
+        int cellIndex = GetNearestIndex(xy);
+        if (cellIndex < 0 || cellIndex > cellmap.Length)
+        {
+            //Debug.LogError(string.Format("[Cell Map] Position is outside cell map {0}, {1}", xy.x, xy.y));
+            return CellState.IsObstacle;
+        }
 
-    public static void Set(DynamicBuffer<CellMap> cellmap, int x, int y, CellState state)
+        return cellmap[cellIndex].state;
+    }
+
+    public int ConvertGridIndex2Dto1D(float2 index)
+        => Mathf.RoundToInt(index.y) * gridSize + Mathf.RoundToInt(index.x);
+
+    public void Set(int x, int y, CellState state)
     {
         cellmap.ElementAt(y * gridSize + x).state = state;
     }
 
-    public static CellState Get(DynamicBuffer<CellMap> cellmap, int x, int y)
+    public CellState Get(int x, int y)
     {
         return cellmap[y * gridSize + x].state;
     }
-
 }

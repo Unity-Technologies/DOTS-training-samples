@@ -56,14 +56,14 @@ public partial class AntMovementSystem : SystemBase
                 rotation.Value = _rotateThisFrame;
                 translation.Value += ltw.Forward * config.MoveSpeed * time;
 
-                //Temporarily just reference something in the map to avoid warning, eventually we will actually use it for collision detection
-                var len = map.Length;
-            }).Run();
+                var cellMapHelper = new CellMapHelper(map, config.CellMapResolution, config.WorldSize);
+                var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(translation.Value.x, translation.Value.z));
+                if (cellState == CellState.IsObstacle)
+                {
+                    translation.Value = new float3(0,0,0);
+                }
 
-        // EXAMPLE CODE
-        //int index = CellMap_TRY.GetNearestIndex(new float2(0, 0));
-        //Debug.Log(CellMap_TRY.CellMap[index]);
-        //CellMap_TRY.CellMap[index] = CellState.IsFood;
+            }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
