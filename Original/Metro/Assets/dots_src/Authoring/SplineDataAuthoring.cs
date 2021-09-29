@@ -51,8 +51,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var pointCountPerMarkerSegment = pointCount/(railMarkers.Length);
         var tIntervalPerMarkerSegment = 1 / ((float) pointCountPerMarkerSegment-1);
         var totalDistance = 0f;
-        bool writeMarker = false;
-        int platformIndex = 0;
         float[] platformDistances = new float[platformPositions.Length];
         for (int markerIndex = 0; markerIndex < railMarkers.Length; markerIndex++)
         {
@@ -64,11 +62,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             
             var lastPoint = startPoint;
             var distanceIndex = 0;
-            if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
-            {
-                writeMarker = true;
-            }
-
+            
             for (var i = 0; i < pointCountPerMarkerSegment; i++)
             {
                 var t = tIntervalPerMarkerSegment * i;
@@ -76,31 +70,24 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 var point = CubicBezierOfSegment(startPoint, startHandle, endHandle, endPoint, t);
                 
                 totalDistance += math.distance(point, lastPoint);
-                var distanceIndex = i + markerIndex * pointCountPerMarkerSegment;
+                distanceIndex = i + markerIndex * pointCountPerMarkerSegment;
                 distArray[distanceIndex] = totalDistance;
                 
                 lastPoint = point;
 
                 outPoints[markerIndex * pointCountPerMarkerSegment + i] = point;
-                if (writeMarker)
-                {
-                    platformDistances[platformIndex++] = totalDistance;
-                    writeMarker = false;
-                }
             }
 
             distMarkerSegment[markerIndex] = totalDistance;
         }
 
-        for (int platformId = 0; platformId < platformPositions.Length; platformId++)
-        {
-            platformPositions[platformId] = platformDistances[platformId] / totalDistance;
-        }
+
 
         splineDataDistance = totalDistance;
         
         var lastDistancedPoint = railMarkers.First().position;
         int platformIndex = 0;
+        int prevMarkerIndex = -1;
         for (var i = 0; i < pointCount; i++)
         {
             var percentage = i*increment;
@@ -117,12 +104,13 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             Debug.DrawLine(lastDistancedPoint, outPoints[i], Color.green);
             lastDistancedPoint = outPoints[i];
             
-            if (railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
+            if (prevMarkerIndex != markerIndex && railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
             {
-                platformPositions[platformIndex++] = t;
+                platformPositions[platformIndex++] = percentage;
             }
+            prevMarkerIndex = markerIndex;
         }
-
+        
         distArray.Dispose();
         distMarkerSegment.Dispose();
     }
