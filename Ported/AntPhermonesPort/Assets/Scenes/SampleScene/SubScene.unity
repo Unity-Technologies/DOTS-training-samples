@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 663330105}
   - component: {fileID: 663330104}
   - component: {fileID: 663330106}
+  - component: {fileID: 663330107}
   m_Layer: 0
   m_Name: ConfigAndSingletons
   m_TagString: Untagged
@@ -190,6 +191,21 @@ MonoBehaviour:
   RingDistance: 3
   RingAngleSize: 270
   MaxEntriesPerRing: 2
+  PheromoneMax: 1
+  PheromoneProductionPerSecond: 0.02
+--- !u!114 &663330107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663330103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47f7509d1b0123b4fb3db435a97f5cf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Values: []
 --- !u!1001 &1153049660
 PrefabInstance:
   m_ObjectHideFlags: 0
