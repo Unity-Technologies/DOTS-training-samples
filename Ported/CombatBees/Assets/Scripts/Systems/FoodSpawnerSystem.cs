@@ -6,22 +6,17 @@ using Unity.Transforms;
 
 public partial class FoodSpawnerSystem : SystemBase
 {
-    private uint Seed;
-
-    protected override void OnCreate()
-    {
-        Seed = (uint)System.DateTime.Now.Ticks;
-    }
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
-        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
-        var random = new Random(Seed);
+        var bounds = GetComponent<WorldBounds>(worldBoundsEntity); 
 
         Entities
-            .ForEach((Entity entity, in FoodSpawner spawner) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in FoodSpawner spawner) =>
             {
+                Random random = new Random((uint)entityInQueryIndex + 1);
+
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
                 ecb.DestroyEntity(entity);

@@ -6,17 +6,9 @@ using Unity.Rendering;
 
 public partial class ParticleSpawnerSystem : SystemBase
 {
-    private uint Seed;
-
-    protected override void OnCreate()
-    {
-        Seed = (uint)System.DateTime.Now.Ticks;
-    }
-    
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var random = new Random(Seed);
 
         Entities
             .ForEach((Entity entity, in ParticleSpawner spawner) =>

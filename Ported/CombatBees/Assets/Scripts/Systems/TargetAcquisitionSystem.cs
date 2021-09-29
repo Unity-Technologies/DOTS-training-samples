@@ -7,8 +7,6 @@ public partial class TargetAcquisitionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var random = new Random(1234);
-
         EntityQuery foodQuery = GetEntityQuery(typeof(Food));
         NativeArray<ArchetypeChunk> foodChunks = foodQuery.CreateArchetypeChunkArray(Allocator.TempJob);
         
@@ -26,8 +24,10 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithReadOnly(entityHandles)
             .WithDisposeOnCompletion(teamBlueChunks)
             .WithAll<TeamRed>()
-            .ForEach((Entity beeEntity, ref Target target) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Target target) =>
             {
+                Random random = new Random((uint)entityInQueryIndex + 1);
+                
                 if (target.TargetEntity == Entity.Null)
                 {
                     if (random.NextBool()) // Food
@@ -54,8 +54,10 @@ public partial class TargetAcquisitionSystem : SystemBase
             .WithDisposeOnCompletion(foodChunks)
             .WithDisposeOnCompletion(teamRedChunks)
             .WithAll<TeamBlue>()
-            .ForEach((Entity beeEntity, ref Target target) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Target target) =>
             {
+                Random random = new Random((uint)entityInQueryIndex + 1);
+
                 if (target.TargetEntity == Entity.Null)
                 {
                     if (random.NextBool()) // Food
