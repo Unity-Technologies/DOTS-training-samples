@@ -11,22 +11,26 @@ public partial class RenderPrepSystem : SystemBase
         var currentPointBuffer = GetBuffer<CurrentPoint>(worldEntity);
 
 
-        Entities.ForEach((
-            Entity entity, 
-            ref Beam beam, 
-            ref Translation translation, 
-            ref NonUniformScale scale, 
-            ref Rotation rotation) =>
-        {
+        Entities
+            .WithReadOnly(currentPointBuffer)
+            .ForEach((Entity entity, ref Beam beam, ref LocalToWorld localToWorld) =>
+        { 
+            //TODO: cache positions in beams?
             var pointA = currentPointBuffer[beam.pointAIndex];
             var pointB = currentPointBuffer[beam.pointBIndex];
-
-            translation.Value = pointB.Value + (pointA.Value - pointB.Value) / 2f;
-            scale.Value = new float3(.25f, .25f, beam.size);
-
+             
+            //TODO: separate from random access generation 
             var direction = math.normalize(pointB.Value - pointA.Value);
-            rotation.Value = quaternion.LookRotation(direction, new float3(0f, 1f, 0f));
+            localToWorld.Value = float4x4.TRS(pointB.Value + (pointA.Value - pointB.Value) / 2f, quaternion.LookRotation(direction, new float3(0f, 1f, 0f)), new float3(.25f, .25f, beam.size));
+             
 
-        }).Schedule();
+        }).ScheduleParallel(
+            
+        );
+
+        //TODO: complete in the optimal place
+        Dependency.Complete();
+
+
     }
 }
