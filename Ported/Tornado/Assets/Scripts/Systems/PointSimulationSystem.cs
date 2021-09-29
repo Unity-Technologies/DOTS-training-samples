@@ -134,67 +134,10 @@ public partial class PointSimulationSystem : SystemBase
 		job.constants = constants;
 
 		var handle = job.Schedule(currentPoints.Length, 64, Dependency);
+
+		//TODO: complete in the optimal place
 		handle.Complete();
-
-		/*
-		for (int i = 0; i < currentPointsNativeArray.Length; i++)
-		{
-			float3 point = currentPointsNativeArray[i].Value;
-			float3 previousPoint = previousPointsNativeArray[i].Value;
-			//	if (point.anchor == false)
-			{
-				float startX = point.x;
-				float startY = point.y;
-				float startZ = point.z;
-
-				previousPoint.y += .01f;
-
-				// tornado force
-				float tdx = tornado.tornadoX + TornadoSway(point.y, tornado.internalTime) - point.x;
-				float tdz = tornado.tornadoZ - point.z;
-				float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
-				tdx /= tornadoDist;
-				tdz /= tornadoDist;
-
-				if (tornadoDist < tornado.maxForceDist)
-				{
-					float force = (1f - tornadoDist / tornado.maxForceDist);
-					float yFader = math.clamp(1f - point.y / tornado.height, 0f, 1f);
-					force *= tornado.fader * tornado.force * random.NextFloat(-.3f, 1.3f);
-					float forceY = tornado.upForce;
-
-					previousPoint.y -= forceY * force;
-
-					float forceX = -tdz + tdx * tornado.inwardForce * yFader;
-					float forceZ = tdx + tdz * tornado.inwardForce * yFader;
-
-					previousPoint.x -= forceX * force;
-					previousPoint.z -= forceZ * force;
-				}
-
-				point.x += (point.x - previousPoint.x) * invDamping;
-				point.y += (point.y - previousPoint.y) * invDamping;
-				point.z += (point.z - previousPoint.z) * invDamping;
-
-				previousPoint.x = startX;
-				previousPoint.y = startY;
-				previousPoint.z = startZ;
-
-				if (point.y < 0f)
-				{
-					point.y = 0f;
-					previousPoint.y = - previousPoint.y;
-					previousPoint.x += (point.x - previousPoint.x) * constants.friction;
-					previousPoint.z += (point.z - previousPoint.z) * constants.friction;
-				}
-
-				currentPointsNativeArray[i] = new SpawnerSystem.CurrentPoint() { Value = point };
-				previousPointsNativeArray[i] = new SpawnerSystem.PreviousPoint() { Value = previousPoint };
-				 
-			}
-		}
-		*/
-
+		 
 
 	}
 }
