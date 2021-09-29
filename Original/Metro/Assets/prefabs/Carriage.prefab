@@ -109,7 +109,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4059157056928284}
   - component: {fileID: 114672226450690598}
-  - component: {fileID: 6184289206514583894}
+  - component: {fileID: 2429111381386643636}
   m_Layer: 0
   m_Name: Carriage
   m_TagString: Untagged
@@ -156,7 +156,7 @@ MonoBehaviour:
   door_RIGHT: {fileID: 114405514483781706}
   RecolouredObjects:
   - {fileID: 1004695669804718}
---- !u!114 &6184289206514583894
+--- !u!114 &2429111381386643636
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,9 +165,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1005656507454012}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09123cc9efea648d8b105727dcfc016a, type: 3}
+  m_Script: {fileID: 11500000, guid: 5308943b7ccf142e4acc71cd2d9b062b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Index: 0
+  Train: {fileID: 0}
 --- !u!1 &1010550110454968
 GameObject:
   m_ObjectHideFlags: 0

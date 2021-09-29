@@ -11,10 +11,10 @@ public partial class CarriageMovementSystem : SystemBase
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference) =>
         {
-            float carriageSizeWithMargins = settings.CarriageSizeWithMargins;
-            
             TrainMovement trainMovement = GetComponent<TrainMovement>(trainReference.Train);
             LineIndex lineIndex = GetComponent<LineIndex>(trainReference.Train);
+            
+            float carriageSizeWithMargins = settings.CarriageSizeWithMargins / splineData.Value.splineBlobAssets[lineIndex.Index].length * 1000;
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             float offsetPosition = trainMovement.position - trainReference.Index * carriageSizeWithMargins;
