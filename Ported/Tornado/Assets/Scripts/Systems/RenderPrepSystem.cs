@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(PointSimulationSystem))]
 public partial class RenderPrepSystem : SystemBase
 {
     protected override void OnUpdate()
