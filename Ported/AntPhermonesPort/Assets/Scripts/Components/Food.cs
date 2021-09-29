@@ -5,4 +5,5 @@ using Unity.Transforms;
 public struct Food : IComponentData
 {
     public float2 Position;
+    public int CellMapIndex;
 }

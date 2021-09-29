@@ -54,11 +54,16 @@ public partial class WallSpawnerSystem : SystemBase
                 float x = Mathf.Cos(angle) * 12;
                 float y = Mathf.Sin(angle) * 12;
 
+                float2 xy = new float2(x, y);
+
                 ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
+                
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
                 cellMapHelper.Set((int)x, (int)y, CellState.IsFood);
+
+                ecb.AddComponent(instance, new Food { Position = new float2(x, y), CellMapIndex = cellMapHelper.GetNearestIndex(xy) });
 
             }).Run();
 
