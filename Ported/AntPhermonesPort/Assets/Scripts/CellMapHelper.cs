@@ -45,6 +45,62 @@ public struct CellMapHelper
         }
     }
 
+    private void ApplyCircleBoundaries(int2[] pattern, int xc, int yc, int x, int y)
+    {
+        pattern[yc - y].x = xc - x; pattern[yc - y].y = xc + x;
+        pattern[yc + y].x = xc - x; pattern[yc + y].y = xc + x;
+        pattern[yc - x].x = xc - y; pattern[yc - x].y = xc + y;
+        pattern[yc + x].x = xc - y; pattern[yc + x].y = xc + y;
+    }
+
+    // Function for circle-generation
+    // using Bresenham's algorithm
+    public int2[] CreateCirclePattern(int r)
+    {
+        int xc = r + 1;
+        int yc = r + 1;
+
+        int2[] pattern = new int2[r * 2 + 1];
+
+        int x = 0, y = r;
+        int d = 3 - 2 * r;
+
+        ApplyCircleBoundaries(pattern, xc, yc, x, y);
+
+        while (y >= x)
+        {
+            // for each pixel we will
+            // draw all eight pixels
+            x++;
+
+            // check for decision parameter
+            // and correspondingly
+            // update d, x, y
+            if (d > 0)
+            {
+                y--;
+                d = d + 4 * (x - y) + 10;
+            }
+            else
+            {
+                d = d + 4 * x + 6;
+            }
+
+            ApplyCircleBoundaries(pattern, xc, yc, x, y);
+        }
+
+        return pattern;
+    }
+
+    public void StampPattern(int x, int y, int2[] pattern)
+    {
+        foreach (var pt in pattern)
+        {
+            for (int px = pt.x; px <= pt.y; ++px)
+                Set(x + px, y, CellState.IsObstacle);
+        }
+    }
+
     /// <summary>
     /// Returns the nearest index to a point in world space. The originOffset is used
     /// to align the [0,0] index with the start of the grid (since the grid origin in
