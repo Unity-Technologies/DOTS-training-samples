@@ -8,4 +8,12 @@ public struct Tornado : IComponentData
 {
 	public float tornadoX;
 	public float tornadoZ;
+	public float fader;
+	public float maxForceDist;
+	public float height;
+	public float force;
+	public float upForce;
+	public float inwardForce;
+	public float internalTime;
+
 }

@@ -123,6 +123,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &672400064
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 672400066}
+  - component: {fileID: 672400065}
+  m_Layer: 0
+  m_Name: PhysicalConstants
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &672400065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672400064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f506f3ff9a893c46934ad119bf200fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  friction: 0.4
+  airResistance: 0.12
+--- !u!4 &672400066
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 672400064}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &750255252
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,7 +247,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 820b51210af374d4a8b4a89f878fc84a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value: 0
+  tornadoX: 0
+  tornadoZ: 0
+  fader: 0
+  maxForceDist: 30
+  height: 50
+  force: 0.1
+  upForce: 1.4
+  inwardForce: 9
+  internalTime: 0
 --- !u!4 &2059707964
 Transform:
   m_ObjectHideFlags: 0

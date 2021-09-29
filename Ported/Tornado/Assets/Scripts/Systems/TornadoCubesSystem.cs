@@ -25,7 +25,9 @@ public partial class TornadoCubesSystem : SystemBase
         tornadoComponent.tornadoX = math.cos(internalTime / 6.0f) * 30.0f;
         tornadoComponent.tornadoZ = math.sin(internalTime / 6.0f * 1.618f) * 30.0f;
 
-        Entities
+		SetSingleton<Tornado>(tornadoComponent);
+
+		 Entities
             .ForEach((ref Cube tag, ref Translation translation) => 
 			{
 				float3 tornadoPos = new float3(tornadoComponent.tornadoX + TornadoCubesSystem.TornadoSway(translation.Value.y, t), translation.Value.y, tornadoComponent.tornadoZ);
