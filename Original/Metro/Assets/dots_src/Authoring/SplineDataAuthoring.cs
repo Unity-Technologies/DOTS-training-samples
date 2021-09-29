@@ -18,7 +18,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         foreach (Transform child in transform)
         {
             var railMarkers = child.GetComponentsInChildren<RailMarker>();
-            CreateActualRailMarkers(railMarkers, true);
+            CreateActualRailMarkers(railMarkers, out var nbPlatforms);
         }
     }
 
@@ -27,7 +27,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         foreach (Transform child in transform)
         {
             var railMarkers = child.GetComponentsInChildren<RailMarker>();
-            var markersData = CreateActualRailMarkers(railMarkers, false);
+            var markersData = CreateActualRailMarkers(railMarkers , out var nbPlatforms);
             for (int i = 0; i < markersData.Length - 1; i++)
             {
                 Debug.DrawLine(markersData[i].position, markersData[i+1].position, i < markersData.Length/2 ? Color.red : Color.green);
@@ -104,7 +104,9 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             Debug.DrawLine(lastDistancedPoint, outPoints[i], Color.green);
             lastDistancedPoint = outPoints[i];
             
-            if (prevMarkerIndex != markerIndex && railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END)
+            if (prevMarkerIndex != markerIndex
+                && railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END
+                && railMarkers[prevMarkerIndex].railMarkerType == RailMarkerType.PLATFORM_START)
             {
                 platformPositions[platformIndex++] = percentage;
             }
@@ -115,13 +117,14 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         distMarkerSegment.Dispose();
     }
     
-    public RailMarkerData[] CreateActualRailMarkers(in RailMarker[] srcRailMarkers, bool createInstances)
+    public RailMarkerData[] CreateActualRailMarkers(in RailMarker[] srcRailMarkers, out int nbPlatforms)
     {
         var actualRailMarkers = new List<RailMarker>(srcRailMarkers);
         var markersData = actualRailMarkers.Select(m => new RailMarkerData(){railMarkerType = m.railMarkerType, position = m.transform.position}).ToList();
         var nbSrcPoints = srcRailMarkers.Length;
         var parent = srcRailMarkers[0].transform.parent;
         int curPointIndex = nbSrcPoints;
+        nbPlatforms = 0;
         for (int i = nbSrcPoints - 1; i >= 0; i--)
         {
             Vector3 offsetDir;
@@ -132,12 +135,12 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             if (i == 0)
             {
                 var railDir = Vector3.Normalize(srcPrevRailMarker.transform.position - srcCurRailMarker.transform.position);
-                offsetDir =  Vector3.Cross(Vector3.up, railDir).normalized;
+                offsetDir = - Vector3.Cross(Vector3.up, railDir).normalized;
             }
             else if (i  == nbSrcPoints - 1)
             {
                 var railDir = Vector3.Normalize(srcNextRailMarker.transform.position - srcCurRailMarker.transform.position);
-                offsetDir =  - Vector3.Cross(Vector3.up, railDir).normalized;
+                offsetDir =  Vector3.Cross(Vector3.up, railDir).normalized;
             }
             else
             {
@@ -148,24 +151,21 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 railDirPrev.y = 0;
                 offsetDir = Vector3.Slerp(railDirPrev.normalized, railDirNext.normalized, 0.5f);
                 offsetDir = Vector3.Normalize(offsetDir);
-                if (Vector3.SignedAngle(offsetDir, railDirNext, Vector3.up) < 0)
+                if (Vector3.SignedAngle(offsetDir, railDirNext, Vector3.up) > 0)
                     offsetDir *= -1.0f;
             }
-            
-            //if (createInstances)
-            //{
-                //RailMarker newRailMarker = Instantiate(srcCurRailMarker, parent);
-                var returnPos = srcCurRailMarker.transform.position + offsetDir * returnRailsOffset;
-                //newRailMarker.transform.position = returnPos;
-                //newRailMarker.pointIndex = curPointIndex++;
+            var returnPos = srcCurRailMarker.transform.position + offsetDir * returnRailsOffset;
                 RailMarkerType newRailMarkerType = RailMarkerType.ROUTE;
                 if (srcCurRailMarker.railMarkerType == RailMarkerType.PLATFORM_START)
                     newRailMarkerType = RailMarkerType.PLATFORM_END;
                 if (srcCurRailMarker.railMarkerType == RailMarkerType.PLATFORM_END)
                     newRailMarkerType = RailMarkerType.PLATFORM_START;
-                //actualRailMarkers.Add((newRailMarker));
                 markersData.Add(new RailMarkerData(){railMarkerType = newRailMarkerType, position = returnPos});
-            //}
+
+                if (srcPrevRailMarker != null &&
+                    srcCurRailMarker.railMarkerType == RailMarkerType.PLATFORM_START &&
+                    srcPrevRailMarker.railMarkerType == RailMarkerType.PLATFORM_END)
+                    nbPlatforms += 2;
         }
         return markersData.ToArray();
     }
@@ -183,9 +183,8 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 var railMarkers = child.GetComponentsInChildren<RailMarker>();
                 ref var newSplineBlobAsset = ref splineArray[lineId++];
                 var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.points, pointCount);
-                int nbPlatforms = railMarkers.Count(r => r.railMarkerType == RailMarkerType.PLATFORM_END) * 2;
+                var fullMarkersData = CreateActualRailMarkers(railMarkers, out var nbPlatforms);
                 var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.platformPositions, nbPlatforms);
-                var fullMarkersData = CreateActualRailMarkers(railMarkers, true);
                 CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
             }
 

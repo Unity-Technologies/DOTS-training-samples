@@ -10,10 +10,13 @@ public class RailsSpawnerAuthoring : UnityMonoBehaviour
 
     public UnityGameObject RailPrefab;
     [UnityRange(100, 1000)] public int NbRails = 100; //Not actually used yet
+
+    public UnityGameObject PlatformPrefab;
     
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(RailPrefab);
+        referencedPrefabs.Add(PlatformPrefab);
     }
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -21,6 +24,7 @@ public class RailsSpawnerAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new RailsSpawner
         {
             RailPrefab = conversionSystem.GetPrimaryEntity(RailPrefab),
+            PlatformPrefab = conversionSystem.GetPrimaryEntity(PlatformPrefab),
             NbRails = NbRails,
         });
     }
