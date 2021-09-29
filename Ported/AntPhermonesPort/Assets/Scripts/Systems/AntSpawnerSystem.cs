@@ -24,14 +24,19 @@ public partial class AntSpawnerSystem : SystemBase
                     float randx = random.NextFloat(-spawner.SpawnAreaSize, spawner.SpawnAreaSize);
                     float randz = random.NextFloat(-spawner.SpawnAreaSize, spawner.SpawnAreaSize);
 
-                    var rotation = new Rotation { Value = Quaternion.Euler(0.0f, random.NextFloat(0, 360), 0.0f) };
-
                     ecb.SetComponent(instance, new Translation
                     {
                         Value = new float3(randx, 0, randz)
                     });
 
+                    float randomAngle = random.NextFloat(0,1) * Mathf.PI * 2f;
+                    var rotation = new Rotation { Value = quaternion.Euler(0,randomAngle, 0) };
+
                     ecb.SetComponent(instance, rotation);
+                    ecb.SetComponent(instance, new AntMovement()
+                    {
+                        FacingAngle = randomAngle,
+                    });
                 }
             }).Run();
 

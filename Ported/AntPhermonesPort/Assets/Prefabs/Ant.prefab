@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 250602017110239309}
   - component: {fileID: 4016607759957408239}
   - component: {fileID: 6878328006428621059}
-  - component: {fileID: 1939721866717762793}
+  - component: {fileID: -7036299367022092509}
   m_Layer: 0
   m_Name: Ant
   m_TagString: Untagged
@@ -83,7 +83,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1939721866717762793
+--- !u!114 &-7036299367022092509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,6 +102,7 @@ MonoBehaviour:
   Position:
     x: 0
     y: 0
+  FacingAngle: 0
   State: 0
 --- !u!1 &6997634380849526598
 GameObject:
