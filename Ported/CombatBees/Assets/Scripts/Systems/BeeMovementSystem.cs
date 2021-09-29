@@ -9,21 +9,30 @@ public partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var transLookup = GetComponentDataFromEntity<Translation>(true);
-
+        var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
+        var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
+        var hiveRedPosition = bounds.AABB.Min +
+                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
+        var hiveBluePosition = bounds.AABB.Min +
+                              new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
         // Update our target position
         Entities
             .WithReadOnly(transLookup)
             .WithAny<TeamRed, TeamBlue>()
             .ForEach((Entity beeEntity, ref Target target) =>
             {
-                if (target.TargetType != TargetType.None && transLookup.HasComponent(target.TargetEntity))
+                if (target.TargetType == TargetType.Food || target.TargetType == TargetType.Bee)
                 {
-                    target.TargetPosition = transLookup[target.TargetEntity].Value;
+                    if (transLookup.HasComponent(target.TargetEntity))
+                        target.TargetPosition = transLookup[target.TargetEntity].Value;
+                    else
+                        target.Reset();
                 }
             }).ScheduleParallel();
         
         var dtTime = Time.DeltaTime;
         Entity bloodPrefab = GetSingleton<ParticlePrefabs>().BloodPrefab;
+        
         float3 up = new float3( 0.0f, 1.0f, 0.0f );
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer().AsParallelWriter();
@@ -58,6 +67,17 @@ public partial class BeeMovementSystem : SystemBase
                         // destroy and reset target
                         ecb.DestroyEntity(entityInQueryIndex, target.TargetEntity);
                         target.Reset();
+                    }
+                    else if (target.TargetType == TargetType.Food)
+                    {
+                        target.TargetType = TargetType.Hive;
+                        target.TargetPosition = (HasComponent<TeamRed>(beeEntity) ? hiveRedPosition : hiveBluePosition);
+                    }
+                    else if (target.TargetType == TargetType.Hive)
+                    {
+                        //Dropping food.
+                        target.Reset();
+                        //target.TargetType = TargetType.None;
                     }
                 }
             }).ScheduleParallel();
