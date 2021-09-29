@@ -11,8 +11,8 @@ public partial class CarriageMovementSystem : SystemBase
         {
             float carriageSizeWithMargins = 0.2f;
             
-            TrainMovement trainMovement = EntityManager.GetComponentData<TrainMovement>(trainReference.Train);
-            LineIndex lineIndex = EntityManager.GetComponentData<LineIndex>(trainReference.Train);
+            TrainMovement trainMovement = GetComponent<TrainMovement>(trainReference.Train);
+            LineIndex lineIndex = GetComponent<LineIndex>(trainReference.Train);
 
             ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
             float offsetPosition = trainMovement.position - trainReference.Index * carriageSizeWithMargins;
@@ -25,8 +25,6 @@ public partial class CarriageMovementSystem : SystemBase
             (translation.Value, rotation.Value) = TrainMovementSystem.TrackPositionToWorldPosition(
                 offsetPosition,
                 ref points);
-        }).WithoutBurst().Run();
-        // TODO: since we reference `(this.)EntityManager`, we need `.WithoutBurst().Run()` which likely makes this slower
-        // how can we use `.ScheduleParallel()`? 
+        }).ScheduleParallel();
     }
 }
