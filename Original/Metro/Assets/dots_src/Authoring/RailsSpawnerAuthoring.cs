@@ -9,7 +9,7 @@ public class RailsSpawnerAuthoring : UnityMonoBehaviour
 {
 
     public UnityGameObject RailPrefab;
-    [UnityRange(100, 1000)] public int NbRails = 100; //Not actually used yet
+    [UnityRange(100, 1000)] public int RailsPerMeter = 100; //Not actually used yet
     
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -21,7 +21,7 @@ public class RailsSpawnerAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new RailsSpawner
         {
             RailPrefab = conversionSystem.GetPrimaryEntity(RailPrefab),
-            NbRails = NbRails,
+            NbRails = RailsPerMeter,
         });
     }
 }
