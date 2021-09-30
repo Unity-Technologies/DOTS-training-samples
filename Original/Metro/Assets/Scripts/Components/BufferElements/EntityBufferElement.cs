@@ -2,7 +2,7 @@
 
 namespace dots_src.Components
 {
-    [InternalBufferCapacity(8), GenerateAuthoringComponent]
+    [InternalBufferCapacity(8)]
     public struct EntityBufferElement : IBufferElementData
     {
         public Entity Value;

@@ -100,13 +100,12 @@ public partial class TrainMovementSystem : SystemBase
             }).ScheduleParallel();
 
         // update train positions based on current speed
-        Entities.ForEach((ref TrainPosition position, ref Translation translation, in LineIndex lineIndex, in TrainMovement movement) =>
+        Entities.ForEach((ref TrainPosition position, in LineIndex lineIndex, in TrainMovement movement) =>
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             
             position.Value += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
             position.Value = math.fmod(position.Value, splineBlobAsset.equalDistantPoints.Length);
-            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(position.Value);
         }).ScheduleParallel();
         
         m_SimulationECBSystem.AddJobHandleForProducer(Dependency);

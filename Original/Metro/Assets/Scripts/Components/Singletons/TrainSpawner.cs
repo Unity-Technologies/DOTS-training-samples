@@ -6,6 +6,5 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct TrainSpawner : IComponentData
 {
-    public Entity TrainPrefab;
     public Entity CarriagePrefab;
 }

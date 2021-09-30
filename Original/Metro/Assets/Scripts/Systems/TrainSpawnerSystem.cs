@@ -28,16 +28,17 @@ public partial class TrainSpawnerSystem : SystemBase
                 
                 for (var i = 0; i < trainCount; i++)
                 {
-                    var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
+                    var trainInstance = ecb.CreateEntity();
+                    ecb.AddComponent(trainInstance, new TrainInFront());
                     ecb.AddComponent(trainInstance, new TrainState{State = TrainMovementStates.Starting});
-                    ecb.SetComponent(trainInstance, new TrainMovement {speed = 0f});
-                    ecb.SetComponent(trainInstance, new TrainPosition {Value = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,});
-                    ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
+                    ecb.AddComponent(trainInstance, new TrainMovement {speed = 0f});
+                    ecb.AddComponent(trainInstance, new TrainPosition {Value = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,});
+                    ecb.AddComponent(trainInstance, new LineIndex{Index = lineId});
 
-                    if (previousTrain != Entity.Null)
-                        ecb.SetComponent(previousTrain, new TrainInFront { Train = trainInstance });
-                    else
+                    if (previousTrain == Entity.Null)
                         firstTrain = trainInstance;
+                    else
+                        ecb.SetComponent(previousTrain, new TrainInFront {Train = trainInstance});
 
                     for(var j = 0; j < carriagesPerTrain; j++)
                     {
