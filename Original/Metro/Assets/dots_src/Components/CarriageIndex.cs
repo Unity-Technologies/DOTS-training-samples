@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct TrainReference : IComponentData
+public struct CarriageIndex : IComponentData
 {
-    public Entity Train;
+    public int Value;
 }

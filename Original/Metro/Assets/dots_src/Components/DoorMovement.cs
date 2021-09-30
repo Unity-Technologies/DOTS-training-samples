@@ -4,7 +4,8 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct TrainReference : IComponentData
+public struct DoorMovement : IComponentData
 {
-    public Entity Train;
+    public bool leftDoor;
+    public float timeSpentAtStation;
 }

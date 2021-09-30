@@ -29,56 +29,89 @@ public partial class TrainMovementSystem : SystemBase
         
         var lookup = GetBufferFromEntity<EntityBufferElement>(true);
         var ecb = m_SimulationECBSystem.CreateCommandBuffer().AsParallelWriter();
-        
+
+        // update state of train, i.e. stopping, starting, etc
+        // this way we can access position of train in front, as we're not allowed to access `ref` components of other entities
         Entities.WithReadOnly(lookup).WithDisposeOnCompletion(lineEntities)
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref TrainMovement movement, ref TrainState state, in LineIndex lineIndex) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref TrainMovement movement, ref TrainState state,
+                in LineIndex lineIndex, in TrainInFront trainInFront, in TrainPosition position) =>
+            {
+                ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
+
+                switch (state.State)
+                {
+                    case TrainMovementStates.Starting:
+                        movement.speed += settings.MaxSpeed * settings.Acceleration * deltaTime;
+                        if (movement.speed >= settings.MaxSpeed)
+                            state.State = TrainMovementStates.Running;
+                        break;
+
+                    case TrainMovementStates.Stopping:
+                        var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.position);
+                        if (unitPointDistance > movement.distanceToStop) // Keep running if the platform was passed while transitioning to Stopped
+                        {
+                            state.State = TrainMovementStates.Running;
+                            break;
+                        }
+
+                        movement.speed = (unitPointDistance / movement.distanceToStop) * settings.MaxSpeed;
+
+                        if (movement.speed <= 0.0f || unitPointDistance < .1f)
+                        {
+                            movement.speed = 0.0f;
+                            state.State = TrainMovementStates.Waiting;
+                            var lineEntity = lineEntities[lineIndex.Index];
+                            var platformEntities = lookup[lineEntity];
+                            var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, unitPointDistance);
+                            ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy {Train = e, TimeLeft = settings.TimeAtStation});
+                        }
+
+                        break;
+
+                    case TrainMovementStates.Running:
+                        // are we approaching train in front?
+                        float unitPointsToTrainInFront;
+                        var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).position;
+
+                        if (position.position < trainInFrontPosition)
+                        {
+                            unitPointsToTrainInFront = trainInFrontPosition - position.position;
+                        }
+                        else
+                        {
+                            // train in front has "overflown" train line array
+                            unitPointsToTrainInFront = splineBlobAsset.equalDistantPoints.Length - position.position + trainInFrontPosition;
+                        }
+
+                        var unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBreakingDistance);
+                        if (unitPointsToTrainInFront < unitPointBreakingDistance)
+                        {
+                            movement.distanceToStop = unitPointsToTrainInFront;
+                            state.State = TrainMovementStates.Stopping;
+                            break;
+                        }
+
+                        // are we approaching platform?
+                        var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.position);
+                        unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBreakingDistance);
+                        if (unitPointDistToClosestPlatform < unitPointBreakingDistance)
+                        {
+                            movement.distanceToStop = unitPointDistToClosestPlatform;
+                            state.State = TrainMovementStates.Stopping;
+                        }
+
+                        break;
+                }
+            }).ScheduleParallel();
+
+        // update train positions based on current speed
+        Entities.ForEach((ref TrainPosition position, ref Translation translation, in LineIndex lineIndex, in TrainMovement movement) =>
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
-
-            switch (state.State)
-            {
-                case TrainMovementStates.Starting:
-                    movement.speed += settings.MaxSpeed*settings.Acceleration*deltaTime;
-                    if (movement.speed >= settings.MaxSpeed)
-                        state.State = TrainMovementStates.Running;
-                    break;
-                
-                case TrainMovementStates.Stopping:
-                    // following are in meters 
-                    var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
-                    if (unitPointDistance > movement.distanceToStation) // Keep running if the platform was passed while transitioning to Stopped
-                    {
-                        state.State = TrainMovementStates.Running;
-                        break;
-                    }
-                    movement.speed = (unitPointDistance / movement.distanceToStation) * settings.MaxSpeed;
-
-                    if (movement.speed <= 0.0f || unitPointDistance < .1f)
-                    {
-                        movement.speed = 0.0f;
-                        state.State = TrainMovementStates.Waiting;
-                        var lineEntity = lineEntities[lineIndex.Index];
-                        var platformEntities = lookup[lineEntity];
-                        var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, unitPointDistance);
-                        ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy{Train = e, TimeLeft = settings.TimeAtStation});
-                    }
-                    break;
-
-                case TrainMovementStates.Running:
-                    // are we approaching platform?
-                    var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
-                    if (unitPointDistToClosestPlatform < splineBlobAsset.DistanceToPointUnitDistance(settings.BreakingDistance))
-                    {
-                        movement.distanceToStation = unitPointDistToClosestPlatform;
-                        state.State = TrainMovementStates.Stopping;
-                    }
-
-                    break;
-            }
             
-            movement.position += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
-            movement.position = math.fmod(movement.position, splineBlobAsset.equalDistantPoints.Length);
-            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(movement.position);
+            position.position += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
+            position.position = math.fmod(position.position, splineBlobAsset.equalDistantPoints.Length);
+            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(position.position);
         }).ScheduleParallel();
         
         m_SimulationECBSystem.AddJobHandleForProducer(Dependency);

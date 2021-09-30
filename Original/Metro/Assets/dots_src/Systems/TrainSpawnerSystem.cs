@@ -16,32 +16,42 @@ public partial class TrainSpawnerSystem : SystemBase
         Entities.ForEach((Entity entity, DynamicBuffer<TrainCountBufferElement> trainCounts, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
-            const int trainLength = 5;
+            const int carriagesPerTrain = 5;
 
             for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
             {
                 ref var splineDataBlobAsset = ref splineData.Value.splineBlobAssets[lineId];
-
-                int trainCount = trainCounts[lineId].Count;
+                var trainCount = trainCounts[lineId].Count;
+                
+                var previousTrain = Entity.Null;
+                var firstTrain = Entity.Null;
+                
                 for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
                     ecb.AddComponent(trainInstance, new TrainState{State = TrainMovementStates.Starting});
-                    var trainMovement = new TrainMovement
-                    {
-                        position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,
-                        speed = 0f
-                    };
-                    ecb.SetComponent(trainInstance, trainMovement);
+                    ecb.SetComponent(trainInstance, new TrainMovement {speed = 0f});
+                    ecb.SetComponent(trainInstance, new TrainPosition {position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,});
                     ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
-                
-                    for(int j = 0; j < trainLength; j++)
+
+                    if (previousTrain != Entity.Null)
+                        ecb.SetComponent(previousTrain, new TrainInFront { Train = trainInstance });
+                    else
+                        firstTrain = trainInstance;
+
+                    for(var j = 0; j < carriagesPerTrain; j++)
                     {
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
-                        ecb.SetComponent(carriageInstance, new TrainReference{Index = j, Train = trainInstance});
+                        ecb.SetComponent(carriageInstance, new TrainReference { Train = trainInstance });
+                        ecb.SetComponent(carriageInstance, new CarriageIndex { Value = j });
                     }
 
+                    previousTrain = trainInstance;
                 }
+
+                // let last train (previousTrain) point to first train
+                if (trainCount != 0)
+                    ecb.SetComponent(previousTrain, new TrainInFront{Train = firstTrain});
             }
         }).Run();
         

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -27,12 +25,7 @@ public struct TrainMovement : IComponentData
     public float speed;
     
     /// <summary>
-    /// Position on track is defined in unit points
-    /// </summary>
-    public float position;
-
-    /// <summary>
     /// distance to station on train stop in unit points
     /// </summary>
-    public float distanceToStation;
+    public float distanceToStop;
 }
