@@ -108,7 +108,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 && railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END
                 && railMarkers[prevMarkerIndex].railMarkerType == RailMarkerType.PLATFORM_START)
             {
-                platformPositions[platformIndex++] = percentage;
+                platformPositions[platformIndex++] = percentage * pointCount;
             }
             prevMarkerIndex = markerIndex;
         }

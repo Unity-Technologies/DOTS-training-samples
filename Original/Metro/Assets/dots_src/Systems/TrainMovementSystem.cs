@@ -19,7 +19,7 @@ public partial class TrainMovementSystem : SystemBase
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += settings.MaxSpeed*.1f*deltaTime;
+                    movement.speed += settings.MaxSpeed*settings.Acceleration*deltaTime;
                     if (movement.speed >= settings.MaxSpeed)
                         movement.state = TrainMovemementStates.Running;
                     break;
@@ -83,6 +83,7 @@ public static class UnitConvertExtensionMethods
         unitPointPos %= splineBlob.equalDistantPoints.Length;
         for (var i = 0; i < splineBlob.unitPointPlatformPositions.Length; i++)
         {
+            var platformPosition = splineBlob.unitPointPlatformPositions[i];
             if (unitPointPos < splineBlob.unitPointPlatformPositions[i]) return splineBlob.unitPointPlatformPositions[i] - unitPointPos;
         }
 
