@@ -60,6 +60,16 @@ public partial class BeeMovementSystem : SystemBase
             {
                 translation.Value += (math.normalize(target.TargetPosition - translation.Value) * beeMovement.CurrentVelocity * dtTime);
 
+                // Add weave to movement
+                beeMovement.Weave += constants.BeeWeaveSpeed * dtTime;
+                translation.Value = translation.Value + new float3(
+                    0.0f, 
+                    math.sin(beeMovement.Weave.x + entityInQueryIndex) * constants.BeeWeaveAmplitude.x, 
+                    math.cos(beeMovement.Weave.y + entityInQueryIndex) * constants.BeeWeaveAmplitude.y);
+
+                // clamp to world bounds
+                translation.Value = WorldUtils.ClampToWorldBounds(bounds, translation.Value, 2.0f);
+
                 float distanceSqToTarget = math.distancesq(target.TargetPosition, translation.Value);
 
                 var random = new Random((uint)entityInQueryIndex + seed);

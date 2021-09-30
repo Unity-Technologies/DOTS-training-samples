@@ -6,4 +6,5 @@ public struct BeeMovement : IComponentData
 {
     public float CurrentVelocity;
     public float TimeToChangeVelocity;
+    public float2 Weave;
 }

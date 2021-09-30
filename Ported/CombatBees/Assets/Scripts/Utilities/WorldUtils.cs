@@ -35,4 +35,9 @@ public struct WorldUtils
             random.NextFloat(bounds.AABB.Min.y + 2.0f, bounds.AABB.Max.y),
             random.NextFloat(bounds.AABB.Min.z, bounds.AABB.Max.z));
     }
+
+    public static float3 ClampToWorldBounds(in WorldBounds bounds, in float3 position, float buffer)
+    {
+        return math.clamp(position, bounds.AABB.Min + buffer, bounds.AABB.Max - buffer);
+    }
 }
