@@ -6,9 +6,12 @@ using UnityEngine;
 public enum CellState : byte
 {
 	Empty,
-	LineOfSight, // Straight line to food
-	IsObstacle, // Contains wall or outer boundary
-	IsFood
+    IsNest,
+    IsFood,
+    IsObstacle,                 // Contains wall or outer boundary
+    HasLineOfSightToFood,       // Has direct line of sight with food
+    HasLineOfSightToNest,       // Has direct line of sight with nest
+    HasLineOfSightToBoth        // Has direct line of sight with both food and nest
 }
 
 [GenerateAuthoringComponent]

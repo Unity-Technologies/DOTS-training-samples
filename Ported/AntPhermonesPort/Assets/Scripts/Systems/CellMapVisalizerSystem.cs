@@ -70,12 +70,12 @@ public partial class CellMapVisualizerSystem : SystemBase
                     arr[i] = new float4(0, 0, 0, 1f);
                     break;
                 case CellState.IsFood:
-                    arr[i] = new float4(1, 1, 1, 1);
+                    arr[i] = new float4(0, 1, 0, 1);
                     break;
                 case CellState.IsObstacle:
                     arr[i] = new float4(0.8f, 0.8f, 0.8f, 1);
                     break;
-                case CellState.LineOfSight:
+                case CellState.HasLineOfSightToFood:
                     arr[i] = new float4(0, 0, 1, 1);
                     break;
             }
