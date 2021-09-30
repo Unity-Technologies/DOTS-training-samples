@@ -123,6 +123,28 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &299373232 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4545171114950833981, guid: d2704ce8da6c223468a9af1c359e347d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1131624571}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &299373233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 299373232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a52d8a36fd104510b42d65b14a53a2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrainPrefab: {fileID: 8106599586059510996, guid: 1eb048b99d5254fe38bc40ef4a7cbbee,
+    type: 3}
+  CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+    type: 3}
 --- !u!1001 &1131624571
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -190,7 +212,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: RasmusAndJonas
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4545171114950833978, guid: d2704ce8da6c223468a9af1c359e347d, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: d2704ce8da6c223468a9af1c359e347d, type: 3}
 --- !u!1001 &2076368932
 PrefabInstance:

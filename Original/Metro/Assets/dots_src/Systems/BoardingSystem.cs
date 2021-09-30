@@ -1,7 +1,11 @@
-﻿namespace dots_src.Systems
+﻿using Unity.Entities;
+
+namespace dots_src.Systems
 {
-    public class BoardingSystem
-    {
-        
+    public partial class BoardingSystem : SystemBase {
+        protected override void OnUpdate()
+        {
+            
+        }
     }
 }
