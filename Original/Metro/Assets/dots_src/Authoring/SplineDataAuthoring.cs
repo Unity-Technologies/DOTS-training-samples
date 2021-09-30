@@ -106,7 +106,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 && railMarkers[markerIndex].railMarkerType == RailMarkerType.PLATFORM_END
                 && railMarkers[prevMarkerIndex].railMarkerType == RailMarkerType.PLATFORM_START)
             {
-                platformPositions[platformIndex++] = percentage * pointCount;
+                platformPositions[platformIndex++] = (pointCount-1) * distMarkerSegment[prevMarkerIndex] / totalDistance;
             }
             prevMarkerIndex = markerIndex;
         }
