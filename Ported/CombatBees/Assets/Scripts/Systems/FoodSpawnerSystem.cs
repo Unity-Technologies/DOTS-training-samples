@@ -37,7 +37,8 @@ public partial class FoodSpawnerSystem : SystemBase
                     for (int i = 0; i < spawner.InitialFoodCount; ++i)
                     {
                         float3 position = random.NextFloat3(spawnMin, spawnMax);
-
+                        position = WorldUtils.ClampToWorldBounds(bounds, position, 0.5f);
+                        
                         var instance = ecb.Instantiate(prefabs.FoodPrefab);
                         var translation = new Translation {Value = position};
                         ecb.SetComponent(instance, translation);
