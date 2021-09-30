@@ -13,23 +13,24 @@ public partial class TrainSpawnerSystem : SystemBase
         
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
         
-        Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) =>
+        Entities.ForEach((Entity entity, DynamicBuffer<TrainCountBufferElement> trainCounts, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
-            const int trainCount = 3;
             const int trainLength = 5;
 
             for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
             {
                 ref var splineDataBlobAsset = ref splineData.Value.splineBlobAssets[lineId];
-                
+
+                int trainCount = trainCounts[lineId].Count;
                 for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
                     var trainMovement = new TrainMovement
                     {
                         state = TrainMovemementStates.Starting,
-                        position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i
+                        position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,
+                        speed = 0f
                     };
                     ecb.SetComponent(trainInstance, trainMovement);
                     ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
@@ -39,9 +40,10 @@ public partial class TrainSpawnerSystem : SystemBase
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
                         ecb.SetComponent(carriageInstance, new TrainReference{Index = j, Train = trainInstance});
                     }
+
                 }
             }
-        }).WithoutBurst().Run();
+        }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

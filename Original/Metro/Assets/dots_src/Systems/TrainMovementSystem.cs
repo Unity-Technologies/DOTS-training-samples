@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -12,7 +13,7 @@ public partial class TrainMovementSystem : SystemBase
         var settings = GetSingleton<Settings>();
         var deltaTime = Time.DeltaTime;
         
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
+        Entities.ForEach((ref Translation translation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             
@@ -68,8 +69,12 @@ public static class UnitConvertExtensionMethods
 {
     public static (float3, quaternion) PointUnitPosToWorldPos(this ref SplineBlobAsset splineBlob, float unitPointPos)
     {
+        
         var floor = (int)math.floor(unitPointPos);
         var ceil = (floor+1) % splineBlob.equalDistantPoints.Length;
+
+        var p1 = splineBlob.equalDistantPoints[floor];
+        var p2= splineBlob.equalDistantPoints[ceil];
 
         return (math.lerp(splineBlob.equalDistantPoints[floor], splineBlob.equalDistantPoints[ceil], math.frac(unitPointPos)), 
             quaternion.LookRotation(splineBlob.equalDistantPoints[floor] - splineBlob.equalDistantPoints[ceil], math.up()));
@@ -87,7 +92,7 @@ public static class UnitConvertExtensionMethods
             if (unitPointPos < splineBlob.unitPointPlatformPositions[i]) return splineBlob.unitPointPlatformPositions[i] - unitPointPos;
         }
 
-        return -1;
+        return splineBlob.unitPointPlatformPositions[0] + (splineBlob.equalDistantPoints.Length - unitPointPos);
     }
     
     public static float DistanceToPointUnitDistance(this ref SplineBlobAsset splineBlob, float distance)
