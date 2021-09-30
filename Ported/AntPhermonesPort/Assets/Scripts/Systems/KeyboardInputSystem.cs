@@ -18,7 +18,13 @@ public partial class KeyboardInputSystem : SystemBase
 	{
 		if (Input.GetKeyDown(KeyCode.R))
 		{
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			
+			var entityArray = EntityManager.GetAllEntities();
+			foreach (var e in entityArray)
+				EntityManager.DestroyEntity(e);
+			entityArray.Dispose();
+
+			SceneManager.LoadScene(0);
 			TimeScaleSpeed = 1;
 		}
 
