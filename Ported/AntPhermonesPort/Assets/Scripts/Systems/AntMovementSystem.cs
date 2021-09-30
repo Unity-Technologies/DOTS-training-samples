@@ -46,6 +46,12 @@ public partial class AntMovementSystem : SystemBase
                 int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 1.5f);
                 ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
+                float targetSpeed = config.MoveSpeed;
+                float slowDownFactor = 1f - (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f;
+
+                targetSpeed *= slowDownFactor;
+                ant.AntSpeed += (targetSpeed - ant.AntSpeed) * config.AntAcceleration;
+
                 // ---
                 //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
 
@@ -57,7 +63,7 @@ public partial class AntMovementSystem : SystemBase
                 //    pheroSteering * config.PheromoneSteerStrength,
                 //    wallSteering * config.WallSteerStrength));
 
-                var newPosDelta = ltw.Forward * config.MoveSpeed * time;
+                var newPosDelta = ltw.Forward * targetSpeed * time;
                 var newPos = translation.Value + newPosDelta;
 
                 Debug.Assert(cellMapHelper.IsInitialized());
@@ -75,9 +81,17 @@ public partial class AntMovementSystem : SystemBase
                 rotation.Value = newRotation;
                 translation.Value = newPos;
 
+                float excitement = config.PheromoneProductionPerSecond * time;
+                if (ant.State == AntState.ReturnHome)
+                {
+                    excitement *= 3f;
+                }
+                excitement *= ant.AntSpeed / config.MoveSpeed;
+
+
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
-                    config.PheromoneProductionPerSecond * time
+                    excitement
                 );
 
             }).Run();

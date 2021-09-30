@@ -16,6 +16,7 @@ public struct Config : IComponentData
 
 	public float MoveSpeed;
 	public float RotationSpeed; // degrees per second
+	public float AntAcceleration;
 
 	public int RingCount;
 	public int RingDistance;

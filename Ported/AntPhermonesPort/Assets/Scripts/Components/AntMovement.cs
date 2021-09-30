@@ -14,6 +14,7 @@ public enum AntState : byte
 public struct AntMovement : IComponentData
 {
     public float FacingAngle;
-    
+    public float AntSpeed;
+
     public AntState State;
 }

@@ -36,6 +36,7 @@ public partial class AntSpawnerSystem : SystemBase
                     ecb.SetComponent(instance, new AntMovement()
                     {
                         FacingAngle = randomAngle,
+                        AntSpeed = config.MoveSpeed
                     });
                 }
             }).Run();
