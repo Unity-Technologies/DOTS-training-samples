@@ -15,19 +15,14 @@ public partial class DoorMovementSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         Entities.ForEach((ref DoorMovement doorMovement, ref Translation translation, in TrainReference trainReference) =>
         {
-
             var trainState = GetComponent<TrainState>(trainReference.Train);
             if (trainState.State == TrainMovementStates.Waiting)
                 doorMovement.timeSpentAtStation += deltaTime;
             else
-            {
                 doorMovement.timeSpentAtStation = 0;
-            }
             
-            var openingProgress = math.clamp(doorMovement.timeSpentAtStation / openingDuration,0,1);
-
-            var closingProgress = math.clamp((settings.TimeAtStation - doorMovement.timeSpentAtStation) / openingDuration, 0,
-                1);
+            var openingProgress = math.saturate(doorMovement.timeSpentAtStation / openingDuration);
+            var closingProgress = math.saturate((settings.TimeAtStation - doorMovement.timeSpentAtStation) / openingDuration);
             var progress = math.min(openingProgress, closingProgress);
             translation.Value.x = (closedPos + progress * openingDistance) * (doorMovement.leftDoor ? 1.0f : -1.0f); 
 

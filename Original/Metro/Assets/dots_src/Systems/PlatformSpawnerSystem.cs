@@ -22,16 +22,11 @@ public partial class PlatformSpawnerSystem : SystemBase
             ForEach((Entity entity, in PlatformSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-
-                var marker = ecb.CreateEntity();
-                ecb.AddComponent<LineEntityHolder>(marker);
-                var lines = ecb.AddBuffer<EntityBufferElement>(marker);
                 for (var lineId = 0; lineId < splineDataArrayRef.Value.splineBlobAssets.Length; lineId++)
                 {
                     //Create the line entities
                     var lineInstance = ecb.Instantiate(spawner.LinePrefab);
                     var entityBuffer = ecb.SetBuffer<EntityBufferElement>(lineInstance);
-                    lines.Add(lineInstance);
                     
                     ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
                     int nbPlatforms = splineBlobAsset.unitPointPlatformPositions.Length;
@@ -100,5 +95,3 @@ public partial class PlatformSpawnerSystem : SystemBase
         return (translation, rotation);
     }
 }
-
-public struct LineEntityHolder : IComponentData { }

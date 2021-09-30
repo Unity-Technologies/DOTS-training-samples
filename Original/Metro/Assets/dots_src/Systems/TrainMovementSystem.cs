@@ -21,12 +21,7 @@ public partial class TrainMovementSystem : SystemBase
         var settings = GetSingleton<Settings>();
         var deltaTime = Time.DeltaTime;
 
-        var lineEntities = GetEntityQuery(new EntityQueryDesc()
-        {
-            All = new[] {ComponentType.ReadOnly<EntityBufferElement>()},
-            None = new ComponentType[] {typeof(LineEntityHolder)}
-        }).ToEntityArray(Allocator.TempJob);
-        
+        var lineEntities = GetEntityQuery(ComponentType.ReadOnly<EntityBufferElement>()).ToEntityArray(Allocator.TempJob);
         var lookup = GetBufferFromEntity<EntityBufferElement>(true);
         var ecb = m_SimulationECBSystem.CreateCommandBuffer().AsParallelWriter();
 
