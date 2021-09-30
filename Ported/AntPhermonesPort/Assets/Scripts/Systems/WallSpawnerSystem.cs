@@ -33,12 +33,12 @@ public partial class WallSpawnerSystem : SystemBase
                 for (int i = 0; i < config.RingCount; ++i)
                 {
                     // choose if 2 openings
-                    int segmentCount = random.NextInt(1, config.MaxEntriesPerRing);
+                    int segmentCount = random.NextInt(1, config.MaxEntriesPerRing+1);
                     float startAngle = random.NextFloat(0f, 360f);
 
                     for (int s = 0; s < segmentCount; ++s)
                     {
-                        SpawnWallSegment(ecb, wallSpawner, cellMapHelper, circlePattern, config, i, startAngle, segmentCount);
+                        SpawnWallSegment(ecb, wallSpawner, cellMapHelper, circlePattern, config, i, startAngle, s, segmentCount);
                     }
                 }
             }).Run();
@@ -84,8 +84,9 @@ public partial class WallSpawnerSystem : SystemBase
         ecb.Dispose();
     }
 
-    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, NativeArray<int2> circlePattern, Config config, int ringIndex, float startAngle, int segmentCount)
+    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, NativeArray<int2> circlePattern, Config config, int ringIndex, float startAngle, int segmentIndex, int segmentCount)
     {
+        startAngle += segmentIndex * 360 / segmentCount;
         float distance = (ringIndex + 1) * config.RingDistance;
         float angleSize = config.RingAngleSize / (float)segmentCount;
         float endAngle = startAngle + angleSize;
