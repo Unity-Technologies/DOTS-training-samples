@@ -43,6 +43,79 @@ public struct CellMapHelper
         }
     }
 
+    public void InitLOSData(int2 food)
+    {
+        // init Nest
+        int2 nest = new int2 { x = grid.gridDimLength / 2, y = grid.gridDimLength / 2 };
+        int end = grid.gridDimLength - 1;
+
+        for (int i = 0; i < grid.gridDimLength; ++i)
+        {
+            ComputeLOS(new int2 { x = i,   y = 0   }, nest, false);
+            ComputeLOS(new int2 { x = i,   y = end }, nest, false);
+            ComputeLOS(new int2 { x = 0,   y = i   }, nest, false);
+            ComputeLOS(new int2 { x = end, y = i   }, nest, false);
+            ComputeLOS(new int2 { x = i,   y = 0   }, food, true);
+            ComputeLOS(new int2 { x = i,   y = end }, food, true);
+            ComputeLOS(new int2 { x = 0,   y = i   }, food, true);
+            ComputeLOS(new int2 { x = end, y = i   }, food, true);
+        }
+
+        // init Food
+    }
+
+    private void ComputeLOS(int2 source, int2 target, bool isFood)
+    {
+        float diffX = Mathf.Abs(source.x - target.x);
+        float diffY = Mathf.Abs(source.y - target.y);
+
+        float incX, incY;
+
+        if (diffX >= diffY)
+        {
+            incX = source.x < target.x ? -1 : 1;
+            incY = diffY / diffX * (source.y < target.y ? -1f : 1f);
+        }
+        else
+        {
+            incX = diffX / diffY * (source.x < target.x ? -1f : 1f);
+            incY = source.y < target.y ? -1 : 1;
+        }
+
+        float x = target.x;
+        float y = target.y;
+
+        for (; true; x += incX, y += incY)
+        {
+            var xy = new int2 { x = (int)x, y = (int)y };
+            if (!StampCellLOS(xy, isFood) || xy.x == source.x && xy.y == source.y)
+                return;
+        }
+    }
+
+    private bool StampCellLOS(int2 xy, bool isFood)
+    {
+        var state = Get(xy);
+
+        if (state != CellState.IsObstacle)
+        {
+            // already stamped?
+            if (state != CellState.HasLineOfSightToBoth && state != (isFood ? CellState.HasLineOfSightToFood : CellState.HasLineOfSightToNest))
+            {
+                if (isFood)
+                    state = state == CellState.HasLineOfSightToNest ? CellState.HasLineOfSightToBoth : CellState.HasLineOfSightToFood;
+                else
+                    state = state == CellState.HasLineOfSightToFood ? CellState.HasLineOfSightToBoth : CellState.HasLineOfSightToNest;
+
+                Set(xy, state);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     private void ApplyCircleBoundaries(NativeArray<int2> pattern, int xc, int yc, int x, int y)
     {
         pattern[yc - y] = new int2(xc - x, xc + x);
@@ -122,6 +195,12 @@ public struct CellMapHelper
             cellmap.ElementAt(y * grid.gridDimLength + x).state = state;
     }
 
+    public void Set(int2 xy, CellState state)
+    {
+        if (xy.x >= 0 && xy.x < grid.gridDimLength && xy.y >= 0 && xy.y < grid.gridDimLength)
+            cellmap.ElementAt(xy.y * grid.gridDimLength + xy.x).state = state;
+    }
+
     public void Set(int index, CellState state)
     {
         if (index >= 0 && index < cellmap.Length)
@@ -131,5 +210,10 @@ public struct CellMapHelper
     public CellState Get(int x, int y)
     {
         return cellmap[y * grid.gridDimLength + x].state;
+    }
+
+    public CellState Get(int2 xy)
+    {
+        return cellmap[xy.y * grid.gridDimLength + xy.x].state;
     }
 }

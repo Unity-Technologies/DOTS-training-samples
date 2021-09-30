@@ -55,7 +55,7 @@ public partial class WallSpawnerSystem : SystemBase
                 float y = Mathf.Sin(angle) * (config.RingCount + 1) * config.RingDistance;
 
                 ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
-               
+
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
                 float2 xy = new float2(x, y);
@@ -67,12 +67,16 @@ public partial class WallSpawnerSystem : SystemBase
 
                 cellMapHelper.grid.WorldToCellSpace(ref x, ref y);
 
-                cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsFood);
+                int2 food = new int2 { x = (int)(x - (float)circlePattern.Length / 2), y = (int)(y - (float)circlePattern.Length / 2) };
+                cellMapHelper.StampPattern(food.x, food.y, circlePattern, CellState.IsFood);
 
                 x = config.CellMapResolution / 2f;
                 y = config.CellMapResolution / 2f;
 
                 cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsNest);
+
+                cellMapHelper.InitLOSData(food);
+
             }).Run();
 
         ecb.Playback(EntityManager);
