@@ -65,7 +65,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                 var circlePattern = cellMapHelper.CreateCirclePattern(2);
 
-                cellMapHelper.WorldToCellSpace(ref x, ref y);
+                cellMapHelper.grid.WorldToCellSpace(ref x, ref y);
 
                 cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsFood);
 
