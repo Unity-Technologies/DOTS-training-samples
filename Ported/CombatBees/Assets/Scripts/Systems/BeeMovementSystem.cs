@@ -45,7 +45,7 @@ public partial class BeeMovementSystem : SystemBase
         // Movement Update
         Entities
             .WithAny<TeamRed, TeamBlue>()
-            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, in DynamicBuffer<LinkedEntityGroup> group) =>
             {
                 translation.Value += (math.normalize(target.TargetPosition - translation.Value) * 5.0f * dtTime);
 
@@ -79,6 +79,7 @@ public partial class BeeMovementSystem : SystemBase
                         target.TargetPosition = (HasComponent<TeamRed>(beeEntity) 
                             ? WorldUtils.GetRedHiveRandomPosition(bounds, ref random) 
                             : WorldUtils.GetBlueHiveRandomPosition(bounds, ref random));
+                        ecb.RemoveComponent<Disabled>(entityInQueryIndex, group[1].Value);
                         ecb.DestroyEntity(entityInQueryIndex, target.TargetEntity);
                     }
                     else if (target.TargetType == TargetType.Hive)
@@ -89,6 +90,7 @@ public partial class BeeMovementSystem : SystemBase
                         var foodInHive = new Translation {Value = translation.Value};
                         ecb.SetComponent(entityInQueryIndex, instance, foodInHive);
                         ecb.AddComponent(entityInQueryIndex, instance, new InHive{});
+                        ecb.AddComponent<Disabled>(entityInQueryIndex, group[1].Value);
                     }
                 }
             }).ScheduleParallel();
