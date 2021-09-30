@@ -23,11 +23,17 @@ public struct TrainMovement : IComponentData
     public float speed;
     
     /// <summary>
-    /// Position on track, relative to total length of points on track, e.g. position 800 of 1000 track points
+    /// Position on track is defined in unit points
     /// </summary>
     public float position;
 
+    /// <summary>
+    /// distance to station on train stop in unit points
+    /// </summary>
     public float distanceToStation;
     
+    /// <summary>
+    /// How much time in seconds before setting state to start
+    /// </summary>
     public float restingTimeLeft; // TODO: just for stopping train, will be removed later
 }

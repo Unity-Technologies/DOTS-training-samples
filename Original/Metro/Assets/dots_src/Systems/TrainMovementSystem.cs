@@ -19,7 +19,7 @@ public partial class TrainMovementSystem : SystemBase
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += settings.MaxSpeed*.1f;
+                    movement.speed += settings.MaxSpeed*.1f*deltaTime;
                     if (movement.speed >= settings.MaxSpeed)
                         movement.state = TrainMovemementStates.Running;
                     break;
@@ -48,7 +48,7 @@ public partial class TrainMovementSystem : SystemBase
                 case TrainMovemementStates.Running:
                     // are we approaching platform?
                     var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
-                    if (unitPointDistToClosestPlatform < settings.BreakingDistance)
+                    if (unitPointDistToClosestPlatform < splineBlobAsset.DistanceToPointUnitDistance(settings.BreakingDistance))
                     {
                         movement.distanceToStation = unitPointDistToClosestPlatform;
                         movement.state = TrainMovemementStates.Stopping;
