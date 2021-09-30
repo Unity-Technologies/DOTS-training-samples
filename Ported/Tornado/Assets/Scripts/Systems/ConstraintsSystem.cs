@@ -15,6 +15,9 @@ using UnityEngine.Rendering;
 [UpdateAfter(typeof(PointSimulationSystem))]
 public partial class ConstraintsSystem : SystemBase
 {
+	private ComponentTypeHandle<Beam> m_BeamComponentTypeHandle;
+	private ComponentTypeHandle<URPMaterialPropertyBaseColor> m_ColorComponentTypeHandle;
+
 	private static int AddNewPoint(
 		DynamicBuffer<CurrentPoint> inputCurrentPoints,
 		DynamicBuffer<PreviousPoint> inputPreviousPoints,
@@ -56,7 +59,15 @@ public partial class ConstraintsSystem : SystemBase
 		}
 	}
 
-	
+	protected override void OnCreate()
+	{
+		
+			m_BeamComponentTypeHandle = EntityManager.GetComponentTypeHandle<Beam>(true);
+			m_ColorComponentTypeHandle = EntityManager.GetComponentTypeHandle<URPMaterialPropertyBaseColor>(true);
+			
+			
+	}
+
 
 	[BurstCompile]
 	private struct ConstraintsSystemJob : IJob
@@ -65,8 +76,8 @@ public partial class ConstraintsSystem : SystemBase
 		[ReadOnly] 
 		public PhysicalConstants InputConstants;
 
-		[ReadOnly]
-		public NativeArray<Beam> InputBeams;
+		//[ReadOnly]
+		//public NativeArray<Beam> InputBeams;
 
 		[ReadOnly]
 		public DynamicBuffer<CurrentPoint> InputCurrentPoints;
@@ -80,13 +91,13 @@ public partial class ConstraintsSystem : SystemBase
 		[ReadOnly]
 		public DynamicBuffer<AnchorPoint> InputAnchors;
 		
-		[WriteOnly]
-		[NativeDisableContainerSafetyRestriction]
-		public NativeArray<Beam> OutputBeams;
+		//[WriteOnly]
+		//[NativeDisableContainerSafetyRestriction]
+		//public NativeArray<Beam> OutputBeams;
 		
-		[WriteOnly]
+		/*[WriteOnly]
 		[NativeDisableContainerSafetyRestriction]
-		public NativeArray<URPMaterialPropertyBaseColor> OutputColors;
+		public NativeArray<URPMaterialPropertyBaseColor> OutputColors;*/
 		
 		[WriteOnly]
 		[NativeDisableContainerSafetyRestriction]
@@ -104,82 +115,103 @@ public partial class ConstraintsSystem : SystemBase
 		[NativeDisableContainerSafetyRestriction]
 		public DynamicBuffer<AnchorPoint> OutputAnchors;
 
+		
+		public NativeArray<ArchetypeChunk> BeamEntityArchetypeChunks;
+
+		//[ReadOnly] 
+		[NativeDisableContainerSafetyRestriction]
+		public ComponentTypeHandle<Beam> BeamComponentTypeHandle;
+
+		//[ReadOnly] 
+		[NativeDisableContainerSafetyRestriction]
+		public ComponentTypeHandle<URPMaterialPropertyBaseColor> ColorComponentTypeHandle;
+
 
 
 		public void Execute()
 		{
-			for (var i = 0; i < InputBeams.Length; i++)
+			for (var j = 0; j < BeamEntityArchetypeChunks.Length; j++)
 			{
-				var beam = InputBeams[i];
-				float3 point1 = InputCurrentPoints[beam.pointAIndex].Value;
-				float3 point2 = InputCurrentPoints[beam.pointBIndex].Value;
+				var chunck = BeamEntityArchetypeChunks[j];
+				var BeamNativeChunk = chunck.GetNativeArray(BeamComponentTypeHandle);
+				var ColorNativeChunk = chunck.GetNativeArray(ColorComponentTypeHandle);
 
-				float3 delta = point2 - point1;
-				float dist = math.length(delta);
-				float extraDist = dist - beam.size;
-
-				float3 push = delta / dist * extraDist * .5f;
-
-				if (InputAnchors[beam.pointAIndex].Value == false
-				    && InputAnchors[beam.pointBIndex].Value == false)
+				for (var i = 0; i < chunck.Count; i++)
 				{
-					point1 += push;
-					point2 -= push;
-				}
-				else if (InputAnchors[beam.pointAIndex].Value)
-				{
-					point2 -= push * 2f;
-				}
-				else if (InputAnchors[beam.pointBIndex].Value)
-				{
-					point1 += push * 2f;
-				}
 
-				OutputCurrentPoints[beam.pointAIndex] = new CurrentPoint() { Value = point1 };
-				OutputCurrentPoints[beam.pointBIndex] = new CurrentPoint() { Value = point2 };
-				
-				if (math.abs(extraDist) > InputConstants.breakingDistance)
-				{
-					var pointANeighbourCount = InputNeighborCounts[beam.pointAIndex].Value;
-					var pointBNeighbourCount = InputNeighborCounts[beam.pointBIndex].Value;
-					
-					OutputColors[i] = new URPMaterialPropertyBaseColor() { Value = new float4(0.6f, 0.3f, 0.2f, 1f) };
+					var beam = BeamNativeChunk[i];
+					float3 point1 = InputCurrentPoints[beam.pointAIndex].Value;
+					float3 point2 = InputCurrentPoints[beam.pointBIndex].Value;
 
-					if (pointBNeighbourCount > 1)
+					float3 delta = point2 - point1;
+					float dist = math.length(delta);
+					float extraDist = dist - beam.size;
+
+					float3 push = delta / dist * extraDist * .5f;
+
+					if (InputAnchors[beam.pointAIndex].Value == false
+					    && InputAnchors[beam.pointBIndex].Value == false)
 					{
-						OutputNeighborCounts[beam.pointBIndex] = new NeighborCount()
-							{ Value = pointBNeighbourCount - 1 };
-
-						beam.pointBIndex = AddNewPointNativeArray(
-							InputCurrentPoints,
-							InputPreviousPoints,
-							InputAnchors,
-							
-							OutputCurrentPoints,
-							OutputPreviousPoints,
-							OutputAnchors,
-							OutputNeighborCounts,
-							
-							beam.pointBIndex);
-						OutputBeams[i] = beam;
+						point1 += push;
+						point2 -= push;
 					}
-					else if (pointANeighbourCount > 1)
+					else if (InputAnchors[beam.pointAIndex].Value)
 					{
-						OutputNeighborCounts[beam.pointAIndex] = new NeighborCount()
-							{ Value = pointANeighbourCount - 1 };
+						point2 -= push * 2f;
+					}
+					else if (InputAnchors[beam.pointBIndex].Value)
+					{
+						point1 += push * 2f;
+					}
 
-						beam.pointAIndex = AddNewPointNativeArray(
-							InputCurrentPoints,
-							InputPreviousPoints,
-							InputAnchors,
-							
-							OutputCurrentPoints,
-							OutputPreviousPoints,
-							OutputAnchors,
-							OutputNeighborCounts,
-							
-							beam.pointAIndex);
-						OutputBeams[i] = beam;
+					OutputCurrentPoints[beam.pointAIndex] = new CurrentPoint() { Value = point1 };
+					OutputCurrentPoints[beam.pointBIndex] = new CurrentPoint() { Value = point2 };
+
+					if (math.abs(extraDist) > InputConstants.breakingDistance)
+					{
+						var pointANeighbourCount = InputNeighborCounts[beam.pointAIndex].Value;
+						var pointBNeighbourCount = InputNeighborCounts[beam.pointBIndex].Value;
+
+						var color = ColorNativeChunk[i];
+						color.Value = new float4(0.6f, 0.3f, 0.2f, 1f);
+						ColorNativeChunk[i] = color;
+
+						if (pointBNeighbourCount > 1)
+						{
+							OutputNeighborCounts[beam.pointBIndex] = new NeighborCount()
+								{ Value = pointBNeighbourCount - 1 };
+
+							beam.pointBIndex = AddNewPointNativeArray(
+								InputCurrentPoints,
+								InputPreviousPoints,
+								InputAnchors,
+
+								OutputCurrentPoints,
+								OutputPreviousPoints,
+								OutputAnchors,
+								OutputNeighborCounts,
+
+								beam.pointBIndex);
+							BeamNativeChunk[i] = beam;
+						}
+						else if (pointANeighbourCount > 1)
+						{
+							OutputNeighborCounts[beam.pointAIndex] = new NeighborCount()
+								{ Value = pointANeighbourCount - 1 };
+
+							beam.pointAIndex = AddNewPointNativeArray(
+								InputCurrentPoints,
+								InputPreviousPoints,
+								InputAnchors,
+
+								OutputCurrentPoints,
+								OutputPreviousPoints,
+								OutputAnchors,
+								OutputNeighborCounts,
+
+								beam.pointAIndex);
+							BeamNativeChunk[i] = beam;
+						}
 					}
 				}
 			}
@@ -192,11 +224,11 @@ public partial class ConstraintsSystem : SystemBase
 		
 		var beamBatches = new List<BeamBatch>();
 		EntityManager.GetAllUniqueSharedComponentData(beamBatches);
-		for (int i = 0; i < beamBatches.Count; i++)
+		/*for (int i = 0; i < beamBatches.Count; i++)
 		{
 			Debug.Log("beamBatch["+ i +"]: " + beamBatches[i].Value);
-		}
-		Assert.AreEqual(1, beamBatches.Count);
+		}*/
+		//Assert.AreEqual(1, beamBatches.Count);
 
 
 
@@ -212,7 +244,7 @@ public partial class ConstraintsSystem : SystemBase
 			//worldQuery.SetSharedComponentFilter(beamBatches[i]);
 			
 			var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
-			Assert.AreEqual(1, worldEntities.Length);
+			//Assert.AreEqual(1, worldEntities.Length);
 			var worldEntity = worldEntities[0];
 			
 			var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
@@ -223,31 +255,44 @@ public partial class ConstraintsSystem : SystemBase
 			
 			//var entities = beamQuery.ToEntityArray(Allocator.TempJob);
 			
-			var beamComponents = beamQuery.ToComponentDataArray<Beam>(Allocator.TempJob);
-			var colors = beamQuery.ToComponentDataArray<URPMaterialPropertyBaseColor>(Allocator.TempJob);
+			//var beamComponents = beamQuery.ToComponentDataArray<Beam>(Allocator.TempJob);
+			//var colors = beamQuery.ToComponentDataArray<URPMaterialPropertyBaseColor>(Allocator.TempJob);
+			
+			var archetypeChuncks = beamQuery.CreateArchetypeChunkArray(Allocator.TempJob);
+
+
+			//m_BeamComponentTypeHandle.Update(this);
+			//m_ColorComponentTypeHandle.Update(this);
+			m_BeamComponentTypeHandle = GetComponentTypeHandle<Beam>();
+			m_ColorComponentTypeHandle = GetComponentTypeHandle<URPMaterialPropertyBaseColor>();
+
 
 			//dispatch job
 			var job = new ConstraintsSystemJob
 			{
 				InputConstants = constants,
-				InputBeams = beamComponents,
+				//InputBeams = beamComponents,
 				InputCurrentPoints = currentPoints,
 				InputPreviousPoints = previousPoints,
 				InputNeighborCounts = neighborCounts,
 				InputAnchors = anchors,
-				OutputBeams = beamComponents,
-				OutputColors = colors,
+				//OutputBeams = beamComponents,
+				//OutputColors = colors,
 				OutputCurrentPoints = currentPoints,
 				OutputPreviousPoints = previousPoints,
 				OutputNeighborCounts = neighborCounts,
 				OutputAnchors = anchors,
+				BeamComponentTypeHandle = m_BeamComponentTypeHandle,
+				BeamEntityArchetypeChunks = archetypeChuncks,
+				ColorComponentTypeHandle = m_ColorComponentTypeHandle,
+					
 			};
 			//TODO: this should run each job in parallel
 			var handle = job.Schedule();
-			handle.Complete();
+			//handle.Complete();
 			
-			beamQuery.CopyFromComponentDataArray(job.OutputBeams);
-			beamQuery.CopyFromComponentDataArray(job.OutputColors);
+			//beamQuery.CopyFromComponentDataArray(job.OutputBeams);
+			//beamQuery.CopyFromComponentDataArray(job.OutputColors);
 			
 			
 			Dependency = JobHandle.CombineDependencies(Dependency, handle);
