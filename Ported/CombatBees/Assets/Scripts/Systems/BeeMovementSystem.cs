@@ -68,8 +68,10 @@ public partial class BeeMovementSystem : SystemBase
                 {
                     beeMovement.CurrentVelocity = random.NextFloat(constants.MinBeeVelocity, constants.MaxBeeVelocity);
 
-                    var newYScale = ((beeMovement.CurrentVelocity - constants.MinBeeVelocity) / (constants.MaxBeeVelocity - constants.MinBeeVelocity));
-                    var nonUniformScale = new NonUniformScale { Value = new float3(1.0f, newYScale, 1.0f)};
+                    var normalizedVelocity = ((beeMovement.CurrentVelocity - constants.MinBeeVelocity) / (constants.MaxBeeVelocity - constants.MinBeeVelocity));
+                    var newYScale = (0.5f + (normalizedVelocity / 2.0f));
+                    var newXScale = (0.33f + (normalizedVelocity / 1.5f));
+                    var nonUniformScale = new NonUniformScale { Value = new float3(newXScale, newYScale, 1.0f)};
                     ecb.SetComponent<NonUniformScale>(entityInQueryIndex, group[2].Value, nonUniformScale);
 
                     beeMovement.TimeToChangeVelocity = random.NextFloat(constants.MinBeeChangeVelocityTime, constants.MaxBeeChangeVelocityTime);
