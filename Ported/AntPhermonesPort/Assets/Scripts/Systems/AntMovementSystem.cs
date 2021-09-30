@@ -65,18 +65,30 @@ public partial class AntMovementSystem : SystemBase
 
                 var newPosDelta = ltw.Forward * targetSpeed * time;
                 var newPos = translation.Value + newPosDelta;
+                bool turnAround = false;
 
                 Debug.Assert(cellMapHelper.IsInitialized());
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
                 if (cellState == CellState.IsObstacle)
                 {
+                    turnAround = true;
+                }
+                else if (cellState == CellState.IsFood && ant.State != AntState.ReturnHome)
+                {
+                    ant.State = AntState.ReturnHome;
+                    turnAround = true;
+                }
+                else if (cellState == CellState.IsNest && ant.State == AntState.ReturnHome)
+                {
+                    ant.State = AntState.Searching;
+                    turnAround = true;
+                }
+
+                if (turnAround)
+                {
                     newPos = translation.Value - newPosDelta;
                     ant.FacingAngle += Mathf.PI;
                     newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
-                }
-                else if (cellState == CellState.IsFood)
-                {
-                    ant.State = AntState.ReturnHome;
                 }
 
                 rotation.Value = newRotation;
