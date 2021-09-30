@@ -30,6 +30,8 @@ public partial class AntMovementSystem : SystemBase
             .WithReadOnly(cellMap)
             .ForEach((ref Translation translation, ref Rotation rotation, ref AntMovement ant, in LocalToWorld ltw) =>
             {
+                UnityEngine.Time.timeScale = config.Speed;
+
                 // JITTER
                 float jitterAngle = random.NextFloat(-config.RandomSteering, config.RandomSteering);
                 ant.FacingAngle += jitterAngle;

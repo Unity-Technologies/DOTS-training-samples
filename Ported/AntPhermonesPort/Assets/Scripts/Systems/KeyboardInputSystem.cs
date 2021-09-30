@@ -62,7 +62,7 @@ public partial class KeyboardInputSystem : SystemBase
 			.WithoutBurst()
 			.ForEach((ref Config config) =>
 			{
-				config.Speed = TimeScaleSpeed;
+				config.MoveSpeed = TimeScaleSpeed;
             })
 			.Run();
 	}
