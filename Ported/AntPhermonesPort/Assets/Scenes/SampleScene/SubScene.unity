@@ -244,6 +244,7 @@ MonoBehaviour:
   RandomSteering: 0.1
   PheromoneSteerStrength: 0.01
   WallSteerStrength: 0.2
+  GoalSteerStrength: 0.04
 --- !u!33 &663330107
 MeshFilter:
   m_ObjectHideFlags: 0

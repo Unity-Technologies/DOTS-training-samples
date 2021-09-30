@@ -32,4 +32,5 @@ public struct Config : IComponentData
 	public float RandomSteering;
 	public float PheromoneSteerStrength;
 	public float WallSteerStrength;
+	public float GoalSteerStrength;
 }

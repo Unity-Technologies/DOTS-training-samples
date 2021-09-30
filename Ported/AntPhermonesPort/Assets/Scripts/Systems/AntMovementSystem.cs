@@ -25,6 +25,7 @@ public partial class AntMovementSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
+        var foodSingleton = GetSingleton<Food>();
 
         Entities
             .WithReadOnly(cellMap)
@@ -54,6 +55,35 @@ public partial class AntMovementSystem : SystemBase
                 targetSpeed *= slowDownFactor;
                 ant.AntSpeed += (targetSpeed - ant.AntSpeed) * config.AntAcceleration;
 
+                if ((ant.State == AntState.LineOfSightToFood) || (ant.State == AntState.ReturnToNestWithLineOfSight))
+                {
+                    Vector2 targetPos;
+                    if (ant.State == AntState.LineOfSightToFood)
+                    {
+                        targetPos = foodSingleton.Position;
+                    }
+                    else
+                    {
+                        targetPos.x = 0; // Nest position
+                        targetPos.y = 0;
+                    }
+
+                    float targetAngle = Mathf.Atan2(targetPos.y - ltw.Position.y, targetPos.x - ltw.Position.x);
+                    if (targetAngle - ant.FacingAngle > Mathf.PI)
+                    {
+                        ant.FacingAngle += Mathf.PI * 2f;
+                    }
+                    else if (targetAngle - ant.FacingAngle < -Mathf.PI)
+                    {
+                        ant.FacingAngle -= Mathf.PI * 2f;
+                    }
+                    else
+                    {
+                        if (Mathf.Abs(targetAngle-ant.FacingAngle) < Mathf.PI*.5f)
+                            ant.FacingAngle += (targetAngle-ant.FacingAngle) * config.GoalSteerStrength;
+                    }
+                }
+
                 // ---
                 //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
 
@@ -71,16 +101,22 @@ public partial class AntMovementSystem : SystemBase
 
                 Debug.Assert(cellMapHelper.IsInitialized());
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
+
+                //TEMP until Line of sight Stamped
+                if (cellState == CellState.Empty && config.RingCount == 0)
+                    cellState = CellState.HasLineOfSightToBoth;
+                //
+
                 if (cellState == CellState.IsObstacle)
                 {
                     turnAround = true;
                 }
-                else if (cellState == CellState.IsFood && ant.State != AntState.ReturnHome)
+                else if (cellState == CellState.IsFood && ant.State != AntState.ReturnToNest)
                 {
-                    ant.State = AntState.ReturnHome;
+                    ant.State = AntState.ReturnToNest;
                     turnAround = true;
                 }
-                else if (cellState == CellState.IsNest && ant.State == AntState.ReturnHome)
+                else if (cellState == CellState.IsNest && ant.State != AntState.Searching)
                 {
                     ant.State = AntState.Searching;
                     turnAround = true;
@@ -92,12 +128,24 @@ public partial class AntMovementSystem : SystemBase
                     ant.FacingAngle += Mathf.PI;
                     newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
                 }
+                else
+                {
+                    // State transitions that will impact movement in the next call
+                    if (ant.State == AntState.Searching && (cellState == CellState.HasLineOfSightToBoth || cellState == CellState.HasLineOfSightToFood))
+                    {
+                        ant.State = AntState.LineOfSightToFood;
+                    }
+                    else if (ant.State == AntState.ReturnToNest && (cellState == CellState.HasLineOfSightToBoth || cellState == CellState.HasLineOfSightToNest))
+                    {
+                        ant.State = AntState.ReturnToNestWithLineOfSight;
+                    }
+                }
 
                 rotation.Value = newRotation;
                 translation.Value = newPos;
 
                 float excitement = config.PheromoneProductionPerSecond * time;
-                if (ant.State == AntState.ReturnHome)
+                if (ant.State == AntState.ReturnToNest || ant.State == AntState.ReturnToNestWithLineOfSight)
                 {
                     excitement *= config.AntHasFoodPeromoneMultiplier;
                 }

@@ -5,9 +5,10 @@ using UnityEngine;
 
 public enum AntState : byte
 {
-    Searching,
-    LineOfSight,
-    ReturnHome
+    Searching,          // Can't see food yet
+    LineOfSightToFood,  // Can see the food
+    ReturnToNest,
+    ReturnToNestWithLineOfSight
 };
 
 [GenerateAuthoringComponent]
