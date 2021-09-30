@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using dots_src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -10,17 +11,18 @@ public partial class TrainSpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
-        var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
-        
+
+        var lineStorageEntity = GetSingletonEntity<MarkersTag>();
+        var lineEntities = GetBuffer<EntityBufferElement>(lineStorageEntity);
+
         Entities.ForEach((Entity entity, DynamicBuffer<TrainCountBufferElement> trainCounts, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
             const int trainLength = 5;
 
-            for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
+            for (var lineId = 0; lineId < lineEntities.Length; lineId++)
             {
-                ref var splineDataBlobAsset = ref splineData.Value.splineBlobAssets[lineId];
+                ref var splineDataBlobAsset = ref GetComponent<SplineDataReference>(lineEntities[lineId]).SplineBlobAsset.Value;
 
                 int trainCount = trainCounts[lineId].Count;
                 for (var i = 0; i < trainCount; i++)
@@ -33,7 +35,7 @@ public partial class TrainSpawnerSystem : SystemBase
                         speed = 0f
                     };
                     ecb.SetComponent(trainInstance, trainMovement);
-                    ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
+                    ecb.SetComponent(trainInstance, new LineEntity{Index = lineId});
                 
                     for(int j = 0; j < trainLength; j++)
                     {

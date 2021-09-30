@@ -13,7 +13,7 @@ public partial class TrainMovementSystem : SystemBase
         var settings = GetSingleton<Settings>();
         var deltaTime = Time.DeltaTime;
         
-        Entities.ForEach((ref Translation translation, ref TrainMovement movement, in LineIndex lineIndex) =>
+        Entities.ForEach((ref Translation translation, ref TrainMovement movement, in LineEntity lineIndex) =>
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             

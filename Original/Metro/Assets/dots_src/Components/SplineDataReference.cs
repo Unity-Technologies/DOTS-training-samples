@@ -5,5 +5,5 @@ using UnityEngine;
 
 public struct SplineDataReference : IComponentData
 {
-    public BlobAssetReference<SplineBlobAssetArray> BlobAssetReference;
+    public BlobAssetReference<SplineBlobAsset> SplineBlobAsset;
 }

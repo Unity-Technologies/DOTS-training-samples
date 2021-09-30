@@ -7,8 +7,3 @@ public struct SplineBlobAsset
     public BlobArray<float> unitPointPlatformPositions;
     public float length;
 }
-
-public struct SplineBlobAssetArray
-{
-    public BlobArray<SplineBlobAsset> splineBlobAssets;
-}

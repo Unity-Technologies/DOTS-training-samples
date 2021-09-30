@@ -1,7 +1,7 @@
-﻿namespace dots_src.Components
+﻿using Unity.Entities;
+
+namespace dots_src.Components
 {
-    public struct MarkersTag
-    {
-        
-    }
+    [GenerateAuthoringComponent]
+    public struct MarkersTag : IComponentData {}
 }

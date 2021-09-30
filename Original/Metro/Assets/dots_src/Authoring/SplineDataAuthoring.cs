@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using dots_src.Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -9,10 +10,11 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityMeshRenderer = UnityEngine.MeshRenderer;
-public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
+public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public float returnRailsOffset = 10.0f;
     [SerializeField] float splineHandleGain = 1f;
+    [SerializeField] GameObject linePrefab;
     void Start()
     {
         foreach (Transform child in transform)
@@ -170,27 +172,27 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        using (var splineBlobBuilder = new BlobBuilder(Allocator.Temp))
+        var lineInstanceBuffer = dstManager.AddBuffer<EntityBufferElement>(entity);
+        lineInstanceBuffer.ResizeUninitialized(transform.childCount);
+        dstManager.AddComponent<MarkersTag>(entity);
+
+        for (var i = 0; i < transform.childCount; i++)
         {
-            ref var splineDataArray = ref splineBlobBuilder.ConstructRoot<SplineBlobAssetArray>();
-
-            var splineArray = splineBlobBuilder.Allocate(ref splineDataArray.splineBlobAssets, transform.childCount);
-            int lineId = 0;
-            foreach (Transform child in transform)
-            {
-                var railMarkers = child.GetComponentsInChildren<RailMarker>();
-                ref var newSplineBlobAsset = ref splineArray[lineId++];
-                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.equalDistantPoints, pointCount -1 );
-                var fullMarkersData = CreateActualRailMarkers(railMarkers, out var nbPlatforms);
-                var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.unitPointPlatformPositions, nbPlatforms);
-                CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
-            }
-
-            BlobAssetReference<SplineBlobAssetArray> blobAssetReference =
-                splineBlobBuilder.CreateBlobAssetReference<SplineBlobAssetArray>(Allocator.Persistent);
-            dstManager.AddComponentData(entity, new SplineDataReference
-            {
-                BlobAssetReference = blobAssetReference
+            using var splineBlobBuilder = new BlobBuilder(Allocator.Temp);
+            
+            var child = transform.GetChild(i);
+            lineInstanceBuffer[i] = dstManager.Instantiate(conversionSystem.GetPrimaryEntity(linePrefab));
+                
+            ref var splineBlobAsset = ref splineBlobBuilder.ConstructRoot<SplineBlobAsset>();
+            var fullMarkersData = CreateActualRailMarkers(child.GetComponentsInChildren<RailMarker>(), out var nbPlatforms);
+                
+            var splinePoints = splineBlobBuilder.Allocate(ref splineBlobAsset.equalDistantPoints, pointCount -1 );
+            var splinePlatformPositions = splineBlobBuilder.Allocate(ref splineBlobAsset.unitPointPlatformPositions, nbPlatforms);
+                
+            CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref splineBlobAsset.length);
+            
+            dstManager.AddComponentData(lineInstanceBuffer[i], new SplineDataReference {
+                SplineBlobAsset = splineBlobBuilder.CreateBlobAssetReference<SplineBlobAsset>(Allocator.Persistent)
             });
         }
     }
@@ -253,5 +255,10 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
 
         return (0,0);
+    }
+
+    public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
+    {
+        referencedPrefabs.Add(linePrefab);
     }
 }

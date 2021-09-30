@@ -5,7 +5,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
-public struct LineIndex : IComponentData
+public struct LineEntity : IComponentData
 {
-    public Entity entity;
+    public Entity Value;
 }
