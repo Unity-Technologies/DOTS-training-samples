@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcf872cd182585f489c1d592d319bad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialBeeCount: 12
+  InitialBeeCount: 100
 --- !u!4 &806115731
 Transform:
   m_ObjectHideFlags: 0
@@ -294,6 +294,15 @@ MonoBehaviour:
   MaxBeeVelocity: 20
   MinBeeChangeVelocityTime: 0.1
   MaxBeeChangeVelocityTime: 0.2
+  BeeWeaveSpeed:
+    x: 0
+    y: 0
+  BeeWeaveAmplitude:
+    x: 0
+    y: 0
+  BeeWanderSpeedModifier: 0.5
+  BeeCombatSpeedModifier: 1.2
+  BeeCarrySpeedModifier: 0.8
 --- !u!4 &1784043514
 Transform:
   m_ObjectHideFlags: 0

@@ -12,4 +12,7 @@ public struct Constants : IComponentData
     public float MaxBeeChangeVelocityTime;
     public float2 BeeWeaveSpeed;
     public float2 BeeWeaveAmplitude;
+    public float BeeWanderSpeedModifier;
+    public float BeeCombatSpeedModifier;
+    public float BeeCarrySpeedModifier;
 }

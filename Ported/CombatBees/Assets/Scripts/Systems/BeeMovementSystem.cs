@@ -58,7 +58,22 @@ public partial class BeeMovementSystem : SystemBase
             .WithAny<TeamRed, TeamBlue>()
             .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, ref BeeMovement beeMovement, ref NonUniformScale scale, in DynamicBuffer<LinkedEntityGroup> group) =>
             {
-                translation.Value += (math.normalize(target.TargetPosition - translation.Value) * beeMovement.CurrentVelocity * dtTime);
+                float3 velocity = beeMovement.CurrentVelocity;
+
+                switch (target.TargetType)
+                {
+                    case TargetType.Bee: 
+                        velocity *= constants.BeeCombatSpeedModifier; 
+                        break;
+                    case TargetType.Wander: 
+                        velocity *= constants.BeeWanderSpeedModifier;
+                        break;
+                    case TargetType.Hive:
+                        velocity *= constants.BeeCarrySpeedModifier;
+                        break;
+                }
+
+                translation.Value += (math.normalize(target.TargetPosition - translation.Value) * velocity * dtTime);
 
                 // Add weave to movement
                 beeMovement.Weave += constants.BeeWeaveSpeed * dtTime;
