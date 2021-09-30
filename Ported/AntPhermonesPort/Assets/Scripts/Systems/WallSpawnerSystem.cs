@@ -70,6 +70,11 @@ public partial class WallSpawnerSystem : SystemBase
                 cellMapHelper.WorldToCellSpace(ref x, ref y);
 
                 cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsFood);
+
+                x = config.CellMapResolution / 2f;
+                y = config.CellMapResolution / 2f;
+
+                cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsNest);
             }).Run();
 
         ecb.Playback(EntityManager);

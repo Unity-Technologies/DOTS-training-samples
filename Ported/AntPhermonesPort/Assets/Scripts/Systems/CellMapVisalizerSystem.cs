@@ -69,6 +69,9 @@ public partial class CellMapVisualizerSystem : SystemBase
                 case CellState.Empty:
                     arr[i] = new float4(0, 0, 0, 1f);
                     break;
+                case CellState.IsNest:
+                    arr[i] = new float4(0, 0, 1, 1);
+                    break;
                 case CellState.IsFood:
                     arr[i] = new float4(0, 1, 0, 1);
                     break;
