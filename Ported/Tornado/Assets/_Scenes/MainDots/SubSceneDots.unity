@@ -155,7 +155,7 @@ MonoBehaviour:
   friction: 0.4
   airResistance: 0.012
   breakingDistance: 0.55
-  gravity: 0.1
+  gravity: 0.008
 --- !u!4 &672400066
 Transform:
   m_ObjectHideFlags: 0
@@ -199,13 +199,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2becb318fd074fd38dd7a63308d6c984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CubeCount: 100
-  CubePrefab: {fileID: 6712977035413625864, guid: 61c153b7b402a7f46a4de5ddbb58aea7,
+  CubeCount: 700
+  CubePrefab: {fileID: 2647801882627682958, guid: 0f93562bc414d774c974cd9a9eb52afd,
     type: 3}
   BeamPrefab: {fileID: 2543181246138698843, guid: 51790afa4f4396d40ab94e73b19b9cdf,
     type: 3}
-  TowerCount: 10
+  TowerCount: 1200
   GroundPoints: 600
+  maxTowerHeight: 18
+  groundToCoverSize: 200
 --- !u!4 &750255254
 Transform:
   m_ObjectHideFlags: 0
@@ -253,10 +255,11 @@ MonoBehaviour:
   tornadoZ: 0
   fader: 0
   maxForceDist: 30
-  height: 50
-  force: 0.022
-  upForce: 1.4
-  inwardForce: 9
+  height: 100
+  force: 0.08
+  upForce: 0.8
+  inwardForce: 1
+  groundToCoverSize: 180
 --- !u!4 &2059707964
 Transform:
   m_ObjectHideFlags: 0

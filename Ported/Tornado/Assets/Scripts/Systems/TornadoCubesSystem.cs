@@ -1,3 +1,4 @@
+using Assets.Scripts.Components;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -5,8 +6,9 @@ using Unity.Transforms;
 
 public partial class TornadoCubesSystem : SystemBase
 {
-    public float spinRate = 37;
-    public float upwardSpeed = 6;
+    public float spinRate = 67;
+    public float upwardSpeed = 7;
+	public static float groundToCoverSize;
 
 	private static float internalTime = 0.0f;
 	public static float TornadoSway(float y, float t)
@@ -14,16 +16,18 @@ public partial class TornadoCubesSystem : SystemBase
         return math.sin(y / 5.0f + t / 4.0f) * 3.0f;
     }
 
-    protected override void OnUpdate()
+	protected override void OnUpdate()
     {
-        var tornadoComponent = GetSingleton<Tornado>();
+		var tornadoComponent = GetSingleton<Tornado>();
+		groundToCoverSize = tornadoComponent.groundToCoverSize;
+
 		float internalDeltaTime = Time.DeltaTime;
 		float internalSpinRate = spinRate;
 		float internalUpwardSpeed = upwardSpeed;
 		internalTime += internalDeltaTime;
 		float t = internalTime;
-        tornadoComponent.tornadoX = math.cos(internalTime / 6.0f) * 30.0f;
-        tornadoComponent.tornadoZ = math.sin(internalTime / 6.0f * 1.618f) * 30.0f;
+        tornadoComponent.tornadoX = math.cos(internalTime / 12.0f) * groundToCoverSize;
+        tornadoComponent.tornadoZ = math.sin(internalTime / 12.0f * 1.618f) * groundToCoverSize;
 
 		SetSingleton<Tornado>(tornadoComponent);
 

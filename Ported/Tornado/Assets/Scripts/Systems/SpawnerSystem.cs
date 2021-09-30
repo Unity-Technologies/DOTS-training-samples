@@ -31,7 +31,7 @@ public partial class SpawnerSystem : SystemBase
 
     private static void SpawnBuildings(EntityCommandBuffer ecb, Spawner spawner, Random random)
     {
-	    const int maxTowerHeight = 12;
+	    int maxTowerHeight = spawner.maxTowerHeight;
         var instance = ecb.CreateEntity();
 
 
@@ -54,10 +54,13 @@ public partial class SpawnerSystem : SystemBase
         var tempAnchor = new NativeArray<AnchorPoint>(maxPoints, Allocator.TempJob);
 
         var pointCount = 0;
-        // buildings
+		// buildings
 		for (int i = 0; i < spawner.TowerCount; i++) {
 			int height = random.NextInt(4,maxTowerHeight);
-			Vector3 pos = new Vector3(random.NextFloat(-45f,45f),0f,random.NextFloat(-45f,45f));
+			Vector3 pos = new Vector3(
+				random.NextFloat(-spawner.groundToCoverSize, spawner.groundToCoverSize),
+				0f, 
+				random.NextFloat(-spawner.groundToCoverSize, spawner.groundToCoverSize));
 			float spacing = 2f;
 			for (int j = 0; j < height; j++)
 			{
@@ -95,7 +98,7 @@ public partial class SpawnerSystem : SystemBase
 
 		// ground details
 		for (int i=0;i<spawner.GroundPoints;i++) {
-			float3 pos = new float3(random.NextFloat(-55f,55f),0f,random.NextFloat(-55f,55f));
+			float3 pos = new float3(random.NextFloat(-spawner.groundToCoverSize, spawner.groundToCoverSize),0f,random.NextFloat(-spawner.groundToCoverSize, spawner.groundToCoverSize));
 			float3 currentPosition;
 			currentPosition.x = pos.x + random.NextFloat(-.2f,-.1f);
 			currentPosition.y = pos.y + random.NextFloat(0f,3f);
@@ -205,7 +208,7 @@ public partial class SpawnerSystem : SystemBase
         {
             var instance = ecb.Instantiate(spawner.CubePrefab);
 			 
-            float3 pos = new float3(random.NextFloat(-50f, 50f), random.NextFloat(0f, 50f), random.NextFloat(-50f, 50f));
+            float3 pos = new float3(random.NextFloat(-50f, 50f), random.NextFloat(0f, 100f), random.NextFloat(-50f, 50f));
             ecb.SetComponent(instance, new Translation()
             {
                 Value = pos
