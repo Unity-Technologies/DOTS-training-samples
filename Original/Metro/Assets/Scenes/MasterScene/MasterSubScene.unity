@@ -130,6 +130,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4545171114572485338, guid: d2704ce8da6c223468a9af1c359e347d,
+        type: 3}
+      propertyPath: Acceleration
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545171114572485338, guid: d2704ce8da6c223468a9af1c359e347d,
+        type: 3}
+      propertyPath: TimeAtStation
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545171114572485338, guid: d2704ce8da6c223468a9af1c359e347d,
+        type: 3}
+      propertyPath: BreakingDistance
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 4545171115101662940, guid: d2704ce8da6c223468a9af1c359e347d,
         type: 3}
       propertyPath: m_RootOrder

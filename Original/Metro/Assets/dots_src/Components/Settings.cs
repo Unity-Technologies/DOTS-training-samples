@@ -22,4 +22,9 @@ public struct Settings : IComponentData
     /// How far from the station does the train start breaking (in meters)
     /// </summary>
     public float BreakingDistance;
+
+    /// <summary>
+    /// Acceleration in m/s^2
+    /// </summary>
+    public float Acceleration;
 }
