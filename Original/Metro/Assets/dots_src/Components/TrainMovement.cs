@@ -7,7 +7,8 @@ public enum TrainMovementStates
     Running = 2,
     Stopping = 3,
     Stopped = 4,
-    Waiting = 5,
+    WaitingAtPlatform = 5,
+    WaitingBehindTrain = 6,
 }
 
 public struct TrainState : IComponentData
@@ -25,7 +26,18 @@ public struct TrainMovement : IComponentData
     public float speed;
     
     /// <summary>
-    /// distance to station on train stop in unit points
+    /// distance to station on train stop in unit points, from when we initiate stopping
+    /// so we can calculate speed
     /// </summary>
     public float distanceToStop;
+
+    /// <summary>
+    /// Keep track of where we want to stop
+    /// </summary>
+    public float stopPosition;
+
+    /// <summary>
+    /// What waiting state will we enter when stopped? either WaitingAtPlatfor or WaitingBehindTrain
+    /// </summary>
+    public TrainMovementStates WaitingForState;
 }

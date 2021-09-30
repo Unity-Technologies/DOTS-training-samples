@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cbfb523311a24051b9917418179edfc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Values: 03000000030000000300000003000000
+  Values: 02000000000000000000000000000000
 --- !u!1001 &1131624571
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -173,7 +173,7 @@ PrefabInstance:
     - target: {fileID: 4545171114572485338, guid: d2704ce8da6c223468a9af1c359e347d,
         type: 3}
       propertyPath: TimeAtStation
-      value: 0.2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4545171114572485338, guid: d2704ce8da6c223468a9af1c359e347d,
         type: 3}
@@ -380,4 +380,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
-  NbRails: 100

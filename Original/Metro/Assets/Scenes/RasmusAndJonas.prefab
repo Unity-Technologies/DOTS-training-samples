@@ -46,9 +46,9 @@ MonoBehaviour:
   MaxSpeed: 30
   CarriageSizeWithMargins: 5.5
   TimeAtStation: 2
-  PlatformBreakingDistance: 20
+  PlatformBrakingDistance: 20
   Acceleration: 0.5
-  TrainBreakingDistance: 20
+  TrainBrakingDistance: 20
 --- !u!1 &4545171114950833981
 GameObject:
   m_ObjectHideFlags: 0

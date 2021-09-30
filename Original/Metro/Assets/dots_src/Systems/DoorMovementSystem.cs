@@ -17,7 +17,7 @@ public partial class DoorMovementSystem : SystemBase
         {
 
             var trainState = GetComponent<TrainState>(trainReference.Train);
-            if (trainState.State == TrainMovementStates.Waiting)
+            if (trainState.State == TrainMovementStates.WaitingAtPlatform)
                 doorMovement.timeSpentAtStation += deltaTime;
             else
             {
