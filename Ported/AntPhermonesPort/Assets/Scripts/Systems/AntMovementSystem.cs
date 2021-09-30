@@ -8,6 +8,11 @@ using Unity.Rendering;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class AntMovementSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<Food>();
+    }
+
     protected override void OnUpdate()
     {
         // weighted rotation
