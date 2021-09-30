@@ -24,7 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7925353965989131838}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 210.07079, y: -5.7872868, z: 305.49524}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSpeed: 30
   CarriageSizeWithMargins: 5.5
-  TimeAtStation: 10
+  TimeAtStation: 2
   PlatformBreakingDistance: 20
   Acceleration: 0.5
   TrainBreakingDistance: 20

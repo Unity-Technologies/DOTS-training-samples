@@ -34,14 +34,13 @@ public partial class TrainMovementSystem : SystemBase
                 ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
 
                 // are we moving and approaching train in front or platform?
-                if (state.State == TrainMovementStates.Running
-                    || state.State == TrainMovementStates.Starting)
+                if (state.IsMoving)
                 {
                     var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).Value;
                     var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
 
                     // when calculating stop position, include length of train
-                    var unitPointsLengthOfTrainInFront = splineBlobAsset.DistanceToPointUnitDistance(5 * settings.CarriageSizeWithMargins);
+                    var unitPointsLengthOfTrainInFront = splineBlobAsset.DistanceToPointUnitDistance(splineBlobAsset.CarriagesPerTrain * settings.CarriageSizeWithMargins);
                     var unitPointActualDistance = unitPointsToTrainInFront - unitPointsLengthOfTrainInFront;
 
                     var unitPointBrakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance);

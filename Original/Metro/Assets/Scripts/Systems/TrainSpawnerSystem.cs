@@ -16,7 +16,6 @@ public partial class TrainSpawnerSystem : SystemBase
         Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
-            const int carriagesPerTrain = 5;
 
             for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
             {
@@ -30,7 +29,6 @@ public partial class TrainSpawnerSystem : SystemBase
                 {
                     var trainInstance = ecb.CreateEntity();
                     ecb.SetName(trainInstance, $"Train {lineId}-{i}");
-                    ecb.AddComponent(trainInstance, new TrainInFront());
                     ecb.AddComponent(trainInstance, new TrainState{State = TrainMovementStates.Starting});
                     ecb.AddComponent(trainInstance, new TrainMovement {speed = 0f});
                     ecb.AddComponent(trainInstance, new TrainPosition {Value = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,});
@@ -39,9 +37,9 @@ public partial class TrainSpawnerSystem : SystemBase
                     if (previousTrain == Entity.Null)
                         firstTrain = trainInstance;
                     else
-                        ecb.SetComponent(previousTrain, new TrainInFront {Train = trainInstance});
+                        ecb.AddComponent(previousTrain, new TrainInFront {Train = trainInstance});
 
-                    for(var j = 0; j < carriagesPerTrain; j++)
+                    for(var j = 0; j < splineDataBlobAsset.CarriagesPerTrain; j++)
                     {
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
                         ecb.SetComponent(carriageInstance, new TrainReference { Train = trainInstance });
@@ -53,7 +51,7 @@ public partial class TrainSpawnerSystem : SystemBase
 
                 // let last train (previousTrain) point to first train
                 if (trainCount != 0)
-                    ecb.SetComponent(previousTrain, new TrainInFront{Train = firstTrain});
+                    ecb.AddComponent(previousTrain, new TrainInFront{Train = firstTrain});
             }
         }).Run();
         

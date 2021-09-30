@@ -7,6 +7,7 @@ public struct SplineBlobAsset
     public BlobArray<float> unitPointPlatformPositions;
     public float length;
     public int TrainCount;
+    public int CarriagesPerTrain;
 }
 
 public struct SplineBlobAssetArray

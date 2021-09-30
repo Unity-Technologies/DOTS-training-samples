@@ -19,6 +19,10 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     [SerializeField] int trainCountLower = 3;
     [SerializeField] int trainCountUpper = 6;
     
+    [Header("Carriages Per Train Range")]
+    [SerializeField] int carriagesPerTrainLower = 3;
+    [SerializeField] int carriagesPerTrainUpper = 8;
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         using (var splineBlobBuilder = new BlobBuilder(Allocator.Temp))
@@ -39,6 +43,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 
                 CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
                 newSplineBlobAsset.TrainCount = randomizer.NextInt(trainCountLower, trainCountUpper);
+                newSplineBlobAsset.CarriagesPerTrain = randomizer.NextInt(carriagesPerTrainLower, carriagesPerTrainUpper);
             }
 
             dstManager.AddComponentData(entity, new SplineDataReference

@@ -14,6 +14,8 @@ public struct TrainState : IComponentData
 {
     public TrainMovementStates State;
     public static implicit operator TrainMovementStates(TrainState _trainState) => _trainState.State;
+
+    public bool IsMoving => State == TrainMovementStates.Running || State == TrainMovementStates.Starting;
 }
 
 [GenerateAuthoringComponent]
