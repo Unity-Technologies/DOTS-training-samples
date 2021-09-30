@@ -34,15 +34,45 @@ public partial class PhysicsMovementSystem : SystemBase
         float floorY = 0.5f;
 
         var grid = GridOccupancy;
+        float delta = deltaTime * multiplier;
+
+
+        Entities
+            .WithoutBurst()
+            .WithAll<Food,Grounded>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
+            {
+                int GridX = (int) (translation.Value.x - bounds.AABB.Min.x) *
+                            (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) +
+                            (int) (translation.Value.z - bounds.AABB.Min.z);
+                int GridY = (int) (translation.Value.y - bounds.AABB.Min.y);
+                grid[GridX, GridY] = true;
+            }).Run();
 
         Entities
             .WithoutBurst()
             .WithAny<Food>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            .WithNone<Grounded>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
             {
-                grid[(int) (translation.Value.x - bounds.AABB.Min.x) * (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) + 
-                     (int)(translation.Value.z - bounds.AABB.Min.z),
-                    (int) (translation.Value.y - bounds.AABB.Min.y)] = true;
+                int GridX = (int) (translation.Value.x - bounds.AABB.Min.x) *
+                            (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) +
+                            (int) (translation.Value.z - bounds.AABB.Min.z);
+                int GridY = (int) (translation.Value.y - bounds.AABB.Min.y);
+                if (grid[GridX, GridY] == true)
+                {
+                    translation.Value.y = math.ceil(translation.Value.y);
+                    GridY = (int) translation.Value.y;
+                    while (grid[GridX, GridY] != false && GridY < bounds.AABB.Max.y)
+                    {
+                        GridY += 1;
+                        translation.Value.y += 1.0f;
+                    }
+                }
+
+                if (GridY < bounds.AABB.Max.y)
+                    grid[GridX, GridY] = true;
+                    
             }).Run();
         
 
@@ -57,14 +87,17 @@ public partial class PhysicsMovementSystem : SystemBase
                             (int) (translation.Value.z - bounds.AABB.Min.z);
                 int GridY = (int)(translation.Value.y - bounds.AABB.Min.y);
 
-                float delta = deltaTime * multiplier;
 
                 int newGridY = (int)((translation.Value.y - delta) - 0.5f - bounds.AABB.Min.y);
                 if (newGridY < GridY)
                 {
-                    grid[GridX, GridY] = false;
                     if (grid[GridX, newGridY] == false)
+                    {
+                        grid[GridX, GridY] = false;
                         translation.Value.y -= delta;
+                    }
+                    else
+                        translation.Value.y = GridY * 1.0f + floorY;
                 }
                 else
                 {
