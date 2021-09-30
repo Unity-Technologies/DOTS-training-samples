@@ -43,7 +43,7 @@ public partial class TrainSpawnerSystem : SystemBase
 
                 }
             }
-        }).WithoutBurst().Run();
+        }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();
