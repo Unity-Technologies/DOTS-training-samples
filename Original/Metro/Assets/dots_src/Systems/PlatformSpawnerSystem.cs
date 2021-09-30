@@ -4,8 +4,8 @@ using dots_src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class PlatformSpawnerSystem : SystemBase
 {
@@ -16,8 +16,7 @@ public partial class PlatformSpawnerSystem : SystemBase
 
         const float platformSize = 30.0f;
         float3 returnPlatformOffset = new float3(20, 0, -8);
-        
-        
+        var random = new Random(11);
         
         Entities.
             ForEach((Entity entity, in PlatformSpawner spawner) =>
@@ -27,23 +26,25 @@ public partial class PlatformSpawnerSystem : SystemBase
                 {
                     //Create the line entities
                     var lineInstance = ecb.Instantiate(spawner.LinePrefab);
-                    var entityBuffer = ecb.AddBuffer<EntityBufferElement>(lineInstance);
+                    var entityBuffer = ecb.SetBuffer<EntityBufferElement>(lineInstance);
                     
                     ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
                     int nbPlatforms = splineBlobAsset.unitPointPlatformPositions.Length;
                     int halfPlatforms = nbPlatforms / 2;
                     NativeArray<Rotation> outBoundsRotations = new NativeArray<Rotation>(halfPlatforms, Allocator.Temp);
                     NativeArray<float3> outBoundsTranslations = new NativeArray<float3>(halfPlatforms, Allocator.Temp);
+
+                    var lineColor = 0.5f * (random.NextFloat4() + new float4(0.5f,0.5f,0.5f,0.5f));
                     for (int i = 0; i < nbPlatforms; i++)
                     {
                         var platformInstance = ecb.Instantiate(spawner.PlatformPrefab);
-                        int pointIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i]);
+                        int pointIndex = (int)math.floor(splineBlobAsset.unitPointPlatformPositions[i]);
 
                         Translation translation;
                         Rotation rotation = default;
                         if (i < halfPlatforms)
                         {
-                            int centerPlatformIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i] - splineBlobAsset.DistanceToPointUnitDistance(platformSize/2) );
+                            int centerPlatformIndex = (int)math.floor(splineBlobAsset.unitPointPlatformPositions[i] - splineBlobAsset.DistanceToPointUnitDistance(platformSize/2) );
                             var centerPos = splineBlobAsset.equalDistantPoints[centerPlatformIndex];
                             var centerNextPos = splineBlobAsset.equalDistantPoints[centerPlatformIndex + 1];
                             (translation ,rotation) = GetStationTransform(splineBlobAsset.equalDistantPoints[pointIndex],
@@ -63,6 +64,9 @@ public partial class PlatformSpawnerSystem : SystemBase
 
                         ecb.SetComponent(platformInstance, rotation);
                         ecb.SetComponent(platformInstance, translation);
+                        ecb.AddComponent(platformInstance,
+                           new URPMaterialPropertyBaseColor {Value = lineColor});
+     
                         entityBuffer.Add(new EntityBufferElement(){Value = platformInstance});
                     }
 
