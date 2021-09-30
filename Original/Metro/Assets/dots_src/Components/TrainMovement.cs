@@ -27,5 +27,7 @@ public struct TrainMovement : IComponentData
     /// </summary>
     public float position;
 
-    public double timeWhenStoppedAtPlatform; // TODO: just for stopping train, will be removed later
+    public float distanceToStation;
+    
+    public float restingTimeLeft; // TODO: just for stopping train, will be removed later
 }

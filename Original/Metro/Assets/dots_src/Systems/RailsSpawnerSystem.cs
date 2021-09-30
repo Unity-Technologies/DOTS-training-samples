@@ -20,38 +20,38 @@ public partial class RailsSpawnerSystem : SystemBase
                 Rotation rotation = default;
                 for (var lineId = 0; lineId < splineDataArrayRef.Value.splineBlobAssets.Length; lineId++)
                 {
-                    ref var splineData = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
-                    for (var i = 0; i < splineData.points.Length; i++)
+                    ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
+                    for (var i = 0; i < splineBlobAsset.equalDistantPoints.Length; i++)
                     {
                         var instance = ecb.Instantiate(spawner.RailPrefab);
-                        if (i < splineData.points.Length - 1)
+                        if (i < splineBlobAsset.equalDistantPoints.Length - 1)
                             rotation = new Rotation
                             {
                                 Value = quaternion.LookRotation(
-                                    splineData.points[i + 1] - splineData.points[i], 
+                                    splineBlobAsset.equalDistantPoints[i + 1] - splineBlobAsset.equalDistantPoints[i], 
                                     Vector3.up)
                             };
                         ecb.SetComponent(instance, rotation);
-                        ecb.SetComponent(instance, new Translation {Value = splineData.points[i]});
+                        ecb.SetComponent(instance, new Translation {Value = splineBlobAsset.equalDistantPoints[i]});
                     }
 
-                    int nbPlatforms = splineData.platformPositions.Length;
+                    int nbPlatforms = splineBlobAsset.unitPointPlatformPositions.Length;
                     int halfPlatforms = nbPlatforms / 2;
                     NativeArray<Rotation> outBoundsRotations = new NativeArray<Rotation>(halfPlatforms, Allocator.Temp);
                     for (int i = 0; i < nbPlatforms; i++)
                     {
                         var instance = ecb.Instantiate(spawner.PlatformPrefab);
-                        int pointIndex = Mathf.FloorToInt(splineData.platformPositions[i] * splineData.points.Length);
+                        int pointIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i] * splineBlobAsset.equalDistantPoints.Length);
                         Translation translation;
                         if (i < halfPlatforms)
                         {
-                            (translation ,rotation) = GetStationTransform(splineData.points[pointIndex],
-                                splineData.points[pointIndex + 1]);
+                            (translation ,rotation) = GetStationTransform(splineBlobAsset.equalDistantPoints[pointIndex],
+                                splineBlobAsset.equalDistantPoints[pointIndex + 1]);
                             outBoundsRotations[i] = rotation;
                         }
                         else
                         {
-                            translation = new Translation {Value = splineData.points[pointIndex]};
+                            translation = new Translation {Value = splineBlobAsset.equalDistantPoints[pointIndex]};
                             var outBoundQuaternion = outBoundsRotations[nbPlatforms - i - 1].Value;
                             rotation = new Rotation() {Value = math.mul(quaternion.RotateY(math.PI), outBoundQuaternion)};
                         }
@@ -66,17 +66,8 @@ public partial class RailsSpawnerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
-
-    static Rotation GetRailRotation(float3 curPos, float3 nextPos)
-    {
-        Vector3 forwardDir = Vector3.Normalize(nextPos - curPos);
-        Rotation rotation = new Rotation()
-        {
-            Value = Quaternion.LookRotation(forwardDir, Vector3.up)
-        };
-        return rotation;
-    }
-
+    
+    // @Todo: This is isolated, so try experimenting with making it use Unity.Mathematics
     static (Translation, Rotation) GetStationTransform(float3 curPos, float3 nextPos)
     {
         Vector3 backTrackDir =  - Vector3.Normalize(nextPos - curPos);
