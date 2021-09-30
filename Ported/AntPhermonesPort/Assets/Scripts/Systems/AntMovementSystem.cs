@@ -52,7 +52,7 @@ public partial class AntMovementSystem : SystemBase
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
-                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (cellMapHelper.grid.worldDimLength/cellMapHelper.grid.gridDimLength) * 1.5f, time);
+                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (cellMapHelper.grid.worldDimLength/cellMapHelper.grid.gridDimLength) * 1.5f, /*time*/ 0);
                 ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
                 float targetSpeed = config.MoveSpeed;
@@ -118,14 +118,14 @@ public partial class AntMovementSystem : SystemBase
                 else if (cellState == CellState.IsFood && ant.State != AntState.ReturnToNest)
                 {
                     ant.State = AntState.ReturnToNest;
-                    color.Value = new float4(1, 1, 0, 1);
+                    color.Value = new float4(0.7250f, 0.7116f, 0.3973f, 1);
                     turnAround = true;
 
                 }
                 else if (cellState == CellState.IsNest && ant.State != AntState.Searching)
                 {
                     ant.State = AntState.Searching;
-                    color.Value = new float4(1, 0, 0, 1);
+                    color.Value = new float4(0.188f, 0.2108f, 0.3529f, 1);
                     turnAround = true;
                 }
 
@@ -162,7 +162,8 @@ public partial class AntMovementSystem : SystemBase
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
                     excitement,
-                    time
+                    //time
+                    0
                 );
 
             }).Run();

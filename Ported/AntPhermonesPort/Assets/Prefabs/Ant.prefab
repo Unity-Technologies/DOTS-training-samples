@@ -112,9 +112,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
-    y: 1
-    z: 0
+    x: 0.188
+    y: 0.2108
+    z: 0.3529
     w: 1
 --- !u!1 &6997634380849526598
 GameObject:
