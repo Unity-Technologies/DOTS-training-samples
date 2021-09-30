@@ -19,7 +19,7 @@ public partial class CarriageMovementSystem : SystemBase
 
                 var carriageSizeWithMargins = splineBlobAsset.DistanceToPointUnitDistance(settings.CarriageSizeWithMargins);
 
-                var pointUnitPos = trainPosition.position - index.Value * carriageSizeWithMargins;
+                var pointUnitPos = trainPosition.Value - index.Value * carriageSizeWithMargins;
                 if (pointUnitPos < 0) pointUnitPos += splineBlobAsset.equalDistantPoints.Length - 1;
 
                 (translation.Value, rotation.Value) = splineBlobAsset.PointUnitPosToWorldPos(pointUnitPos);

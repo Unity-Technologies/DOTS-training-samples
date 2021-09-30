@@ -42,7 +42,7 @@ public partial class TrainMovementSystem : SystemBase
                         break;
 
                     case TrainMovementStates.Stopping:
-                        var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.position);
+                        var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
                         if (unitPointDistance > movement.distanceToStop) // Keep running if the platform was passed while transitioning to Stopped
                         {
                             state.State = TrainMovementStates.Running;
@@ -66,16 +66,16 @@ public partial class TrainMovementSystem : SystemBase
                     case TrainMovementStates.Running:
                         // are we approaching train in front?
                         float unitPointsToTrainInFront;
-                        var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).position;
+                        var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).Value;
 
-                        if (position.position < trainInFrontPosition)
+                        if (position.Value < trainInFrontPosition)
                         {
-                            unitPointsToTrainInFront = trainInFrontPosition - position.position;
+                            unitPointsToTrainInFront = trainInFrontPosition - position.Value;
                         }
                         else
                         {
                             // train in front has "overflown" train line array
-                            unitPointsToTrainInFront = splineBlobAsset.equalDistantPoints.Length - position.position + trainInFrontPosition;
+                            unitPointsToTrainInFront = splineBlobAsset.equalDistantPoints.Length - position.Value + trainInFrontPosition;
                         }
 
                         var unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBreakingDistance);
@@ -87,7 +87,7 @@ public partial class TrainMovementSystem : SystemBase
                         }
 
                         // are we approaching platform?
-                        var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.position);
+                        var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
                         unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBreakingDistance);
                         if (unitPointDistToClosestPlatform < unitPointBreakingDistance)
                         {
@@ -104,9 +104,9 @@ public partial class TrainMovementSystem : SystemBase
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             
-            position.position += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
-            position.position = math.fmod(position.position, splineBlobAsset.equalDistantPoints.Length);
-            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(position.position);
+            position.Value += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
+            position.Value = math.fmod(position.Value, splineBlobAsset.equalDistantPoints.Length);
+            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(position.Value);
         }).ScheduleParallel();
         
         m_SimulationECBSystem.AddJobHandleForProducer(Dependency);
