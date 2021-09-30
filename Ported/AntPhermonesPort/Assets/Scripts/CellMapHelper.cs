@@ -100,13 +100,13 @@ public struct CellMapHelper
         return pattern;
     }
 
-    public void StampPattern(int x, int y, NativeArray<int2> pattern)
+    public void StampPattern(int x, int y, NativeArray<int2> pattern, CellState cellState)
     {
         for (int dy = 0; dy < pattern.Length; dy++)
         {
             for (int px = pattern[dy].x; px <= pattern[dy].y; ++px)
             {
-                Set(x + px, y + dy - pattern.Length / 2, CellState.IsObstacle);
+                Set(x + px, y + dy - pattern.Length / 2, cellState);
             }
         }
     }

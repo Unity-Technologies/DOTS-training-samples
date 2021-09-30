@@ -27,7 +27,7 @@ public partial class WallSpawnerSystem : SystemBase
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();
-                var wallPattern = cellMapHelper.CreateCirclePattern(2);
+                var circlePattern = cellMapHelper.CreateCirclePattern(2);
 
                 var pheromoneMapHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
                 pheromoneMapHelper.InitPheromoneMap();
@@ -40,7 +40,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                     for (int s = 0; s < segmentCount; ++s)
                     {
-                        SpawnWallSegment(ecb, wallSpawner, cellMapHelper, wallPattern, config, i, startAngle, segmentCount);
+                        SpawnWallSegment(ecb, wallSpawner, cellMapHelper, circlePattern, config, i, startAngle, segmentCount);
                     }
                 }
             }).Run();
@@ -53,8 +53,8 @@ public partial class WallSpawnerSystem : SystemBase
                 var instance = ecb.Instantiate(foodSpawner.FoodComponent);
 
                 float angle = random.NextFloat(0f, 360f) *  Mathf.Deg2Rad;
-                float x = Mathf.Cos(angle) * 12;
-                float y = Mathf.Sin(angle) * 12;
+                float x = Mathf.Cos(angle) * (config.RingCount + 1) * config.RingDistance;
+                float y = Mathf.Sin(angle) * (config.RingCount + 1) * config.RingDistance;
 
                 ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
                
@@ -63,17 +63,20 @@ public partial class WallSpawnerSystem : SystemBase
                 float2 xy = new float2(x, y);
                 int cellIndex = cellMapHelper.GetNearestIndex(xy);
 
-                cellMapHelper.Set(cellIndex, CellState.IsFood);
-
                 ecb.AddComponent(instance, new Food { Position = new float2(x, y), CellMapIndex = cellIndex });
 
+                var circlePattern = cellMapHelper.CreateCirclePattern(2);
+
+                cellMapHelper.WorldToCellSpace(ref x, ref y);
+
+                cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsFood);
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
 
-    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, NativeArray<int2> wallPattern, Config config, int ringIndex, float startAngle, int segmentCount)
+    static void SpawnWallSegment(EntityCommandBuffer ecb, WallSpawner wallSpawner, CellMapHelper cellMapHelper, NativeArray<int2> circlePattern, Config config, int ringIndex, float startAngle, int segmentCount)
     {
         float distance = (ringIndex + 1) * config.RingDistance;
         float angleSize = config.RingAngleSize / (float)segmentCount;
@@ -93,7 +96,7 @@ public partial class WallSpawnerSystem : SystemBase
 
             cellMapHelper.WorldToCellSpace(ref x, ref y);
 
-            cellMapHelper.StampPattern((int)(x - (float)wallPattern.Length / 2),(int)( y - (float)wallPattern.Length / 2), wallPattern);
+            cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2),(int)( y - (float)circlePattern.Length / 2), circlePattern, CellState.IsObstacle);
         }
     }
 }
