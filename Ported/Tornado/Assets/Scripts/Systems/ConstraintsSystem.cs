@@ -17,6 +17,12 @@ public partial class ConstraintsSystem : SystemBase
 {
 	private ComponentTypeHandle<Beam> m_BeamComponentTypeHandle;
 	private ComponentTypeHandle<URPMaterialPropertyBaseColor> m_ColorComponentTypeHandle;
+	private NativeArray<Entity>[] m_WorldEntititesCache = null;
+	private NativeArray<ArchetypeChunk>[] m_ArchetypeChuncksCache;
+	private DynamicBuffer<CurrentPoint>[] m_CurrentPointsCache;
+	private DynamicBuffer<PreviousPoint>[] m_PreviousPointsCache;
+	private DynamicBuffer<AnchorPoint>[] m_AnchorsCache;
+	private DynamicBuffer<NeighborCount>[] m_NeighborCountsCache;
 
 	private static int AddNewPoint(
 		DynamicBuffer<CurrentPoint> inputCurrentPoints,
@@ -234,21 +240,47 @@ public partial class ConstraintsSystem : SystemBase
 
 		var allHandle = new JobHandle();
 		var aggregatedHandle = new JobHandle();
+
+		
+		if(m_WorldEntititesCache == null && beamBatches.Count > 0) {
+			m_WorldEntititesCache = new NativeArray<Entity>[beamBatches.Count];
+			m_ArchetypeChuncksCache = new NativeArray<ArchetypeChunk>[beamBatches.Count];
+			m_CurrentPointsCache = new DynamicBuffer<CurrentPoint>[beamBatches.Count];
+			m_PreviousPointsCache = new DynamicBuffer<PreviousPoint>[beamBatches.Count];
+			m_AnchorsCache = new DynamicBuffer<AnchorPoint>[beamBatches.Count];
+			m_NeighborCountsCache = new DynamicBuffer<NeighborCount>[beamBatches.Count];
+			for (var i = 0; i < beamBatches.Count; i++)
+			{
+				worldQuery.SetSharedComponentFilter(beamBatches[i]);
+				beamQuery.SetSharedComponentFilter(beamBatches[i]);
+
+				m_WorldEntititesCache[i] = worldQuery.ToEntityArray(Allocator.Persistent);
+				m_ArchetypeChuncksCache[i] = beamQuery.CreateArchetypeChunkArray(Allocator.Persistent);
+				
+				var worldEntity = m_WorldEntititesCache[i][0];
+				m_CurrentPointsCache[i] = GetBuffer<CurrentPoint>(worldEntity);
+				m_PreviousPointsCache[i] = GetBuffer<PreviousPoint>(worldEntity);
+				m_AnchorsCache[i] = GetBuffer<AnchorPoint>(worldEntity);
+				m_NeighborCountsCache[i] = GetBuffer<NeighborCount>(worldEntity);
+
+			}
+		}
 		
 
 		for (var i = 0; i < beamBatches.Count; i++) {
 			
 			beamQuery.SetSharedComponentFilter(beamBatches[i]);
-			worldQuery.SetSharedComponentFilter(beamBatches[i]);
-			
-			var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
+			//worldQuery.SetSharedComponentFilter(beamBatches[i]);
+
+			//var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
 			//Assert.AreEqual(1, worldEntities.Length);
-			var worldEntity = worldEntities[0];
+			//m_WorldEntititesCache[i] = worldQuery.ToEntityArray(Allocator.Temp);
+			/*var worldEntity = m_WorldEntititesCache[i][0];
 			
 			var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
 			var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
 			var anchors = GetBuffer<AnchorPoint>(worldEntity);
-			var neighborCounts = GetBuffer<NeighborCount>(worldEntity);
+			var neighborCounts = GetBuffer<NeighborCount>(worldEntity);*/
 
 			
 			//var entities = beamQuery.ToEntityArray(Allocator.TempJob);
@@ -256,7 +288,7 @@ public partial class ConstraintsSystem : SystemBase
 			//var beamComponents = beamQuery.ToComponentDataArray<Beam>(Allocator.TempJob);
 			//var colors = beamQuery.ToComponentDataArray<URPMaterialPropertyBaseColor>(Allocator.TempJob);
 			
-			var archetypeChuncks = beamQuery.CreateArchetypeChunkArray(Allocator.TempJob);
+			//var archetypeChuncks = beamQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
 
 			m_BeamComponentTypeHandle.Update(this);
@@ -270,18 +302,18 @@ public partial class ConstraintsSystem : SystemBase
 			{
 				InputConstants = constants,
 				//InputBeams = beamComponents,
-				InputCurrentPoints = currentPoints,
-				InputPreviousPoints = previousPoints,
-				InputNeighborCounts = neighborCounts,
-				InputAnchors = anchors,
+				InputCurrentPoints = m_CurrentPointsCache[i],
+				InputPreviousPoints = m_PreviousPointsCache[i],
+				InputNeighborCounts = m_NeighborCountsCache[i],
+				InputAnchors = m_AnchorsCache[i],
 				//OutputBeams = beamComponents,
 				//OutputColors = colors,
-				OutputCurrentPoints = currentPoints,
-				OutputPreviousPoints = previousPoints,
-				OutputNeighborCounts = neighborCounts,
-				OutputAnchors = anchors,
+				OutputCurrentPoints = m_CurrentPointsCache[i],
+				OutputPreviousPoints = m_PreviousPointsCache[i],
+				OutputNeighborCounts = m_NeighborCountsCache[i],
+				OutputAnchors = m_AnchorsCache[i],
 				BeamComponentTypeHandle = m_BeamComponentTypeHandle,
-				BeamEntityArchetypeChunks = archetypeChuncks,
+				BeamEntityArchetypeChunks = m_ArchetypeChuncksCache[i],
 				ColorComponentTypeHandle = m_ColorComponentTypeHandle,
 					
 			};
