@@ -17,6 +17,7 @@ public struct Config : IComponentData
 	public float MoveSpeed;
 	public float RotationSpeed; // degrees per second
 	public float AntAcceleration;
+	public float AntHasFoodPeromoneMultiplier; // Multiplier for pheromones once an ant has food
 
 	public int RingCount;
 	public int RingDistance;

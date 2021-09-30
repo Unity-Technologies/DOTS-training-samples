@@ -67,15 +67,16 @@ public partial class AntMovementSystem : SystemBase
                 var newPos = translation.Value + newPosDelta;
 
                 Debug.Assert(cellMapHelper.IsInitialized());
-                if (cellMapHelper.IsInitialized())
+                var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
+                if (cellState == CellState.IsObstacle)
                 {
-                    var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
-                    if (cellState == CellState.IsObstacle)
-                    {
-                        newPos = translation.Value - newPosDelta;
-                        ant.FacingAngle += Mathf.PI;
-                        newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
-                    }
+                    newPos = translation.Value - newPosDelta;
+                    ant.FacingAngle += Mathf.PI;
+                    newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
+                }
+                else if (cellState == CellState.IsFood)
+                {
+                    ant.State = AntState.ReturnHome;
                 }
 
                 rotation.Value = newRotation;
@@ -84,11 +85,11 @@ public partial class AntMovementSystem : SystemBase
                 float excitement = config.PheromoneProductionPerSecond * time;
                 if (ant.State == AntState.ReturnHome)
                 {
-                    excitement *= 3f;
+                    excitement *= config.AntHasFoodPeromoneMultiplier;
                 }
                 excitement *= ant.AntSpeed / config.MoveSpeed;
 
-
+                Debug.Assert(pheromoneHelper.IsInitialized());
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
                     excitement
