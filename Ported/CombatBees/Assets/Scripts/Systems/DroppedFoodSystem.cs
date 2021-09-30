@@ -4,15 +4,24 @@ using Unity.Transforms;
 
 public partial class DroppedFoodSystem : SystemBase
 {
+    private Random random;
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+    
     protected override void OnUpdate()
     {
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer().AsParallelWriter();
         Prefabs prefabs = GetSingleton<Prefabs>();
         WorldBounds bounds = GetSingleton<WorldBounds>();
+        Constants constants = GetSingleton<Constants>();
         var particleArchetype = EntityManager.CreateArchetype(typeof(ParticleSpawner));
         float3 direction = new float3(1.0f, 0.0f, 0.0f);
-
+        var seed = random.NextUInt();
+        
         Entities
             .WithAll<Food, Grounded, InHive>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
@@ -41,10 +50,16 @@ public partial class DroppedFoodSystem : SystemBase
                 {
                     prefab = prefabs.BlueBeePrefab;
                 }
-                
-                var instance = ecb.Instantiate(entityInQueryIndex, prefab);
-                var position = new Translation { Value = translation.Value };
-                ecb.SetComponent(entityInQueryIndex, instance, position);
+
+                Random random = new Random(seed);
+                uint numberToSpawn = random.NextUInt(constants.MinBeesToSpawnFromFood, constants.MaxBeesToSpawnFromFood);
+
+                for (uint i = 0; i < numberToSpawn; ++i)
+                {
+                    var instance = ecb.Instantiate(entityInQueryIndex, prefab);
+                    var position = new Translation { Value = translation.Value };
+                    ecb.SetComponent(entityInQueryIndex, instance, position);            
+                }
             }).ScheduleParallel();
         
         system.AddJobHandleForProducer(Dependency);
