@@ -33,6 +33,39 @@ public partial class TrainMovementSystem : SystemBase
             {
                 ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
 
+                // are we moving and approaching train in front or platform?
+                if (state.State == TrainMovementStates.Running
+                    || state.State == TrainMovementStates.Starting)
+                {
+                    var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).Value;
+                    var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
+
+                    // when calculating stop position, include length of train
+                    var unitPointsLengthOfTrainInFront = splineBlobAsset.DistanceToPointUnitDistance(5 * settings.CarriageSizeWithMargins);
+                    var unitPointActualDistance = unitPointsToTrainInFront - unitPointsLengthOfTrainInFront;
+
+                    var unitPointBrakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance);
+
+                    if (unitPointActualDistance < unitPointBrakingDistance)
+                    {
+                        movement.stopPosition = (position.Value + unitPointActualDistance - 2) % splineBlobAsset.equalDistantPoints.Length;
+                        movement.distanceToStop = splineBlobAsset.UnitPointDistance(position.Value, movement.stopPosition);
+                        movement.WaitingForState = TrainMovementStates.WaitingBehindTrain;
+                        state.State = TrainMovementStates.Stopping;
+                    }
+
+                    // are we approaching platform?
+                    var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
+                    unitPointBrakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBrakingDistance);
+                    if (2 < unitPointDistToClosestPlatform && unitPointDistToClosestPlatform < unitPointBrakingDistance)
+                    {
+                        movement.stopPosition = (position.Value + unitPointDistToClosestPlatform) % splineBlobAsset.equalDistantPoints.Length;
+                        movement.distanceToStop = unitPointDistToClosestPlatform;
+                        movement.WaitingForState = TrainMovementStates.WaitingAtPlatform;
+                        state.State = TrainMovementStates.Stopping;
+                    }
+                }
+
                 switch (state.State)
                 {
                     case TrainMovementStates.Starting:
@@ -42,7 +75,7 @@ public partial class TrainMovementSystem : SystemBase
                         break;
 
                     case TrainMovementStates.Stopping:
-                        var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
+                        var unitPointDistance = splineBlobAsset.UnitPointDistance(position.Value, movement.stopPosition);
                         if (unitPointDistance > movement.distanceToStop) // Keep running if the platform was passed while transitioning to Stopped
                         {
                             state.State = TrainMovementStates.Running;
@@ -54,47 +87,35 @@ public partial class TrainMovementSystem : SystemBase
                         if (movement.speed <= 0.0f || unitPointDistance < .1f)
                         {
                             movement.speed = 0.0f;
-                            state.State = TrainMovementStates.Waiting;
-                            var lineEntity = lineEntities[lineIndex.Index];
-                            var platformEntities = lookup[lineEntity];
-                            var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, unitPointDistance);
-                            ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy {Train = e, TimeLeft = settings.TimeAtStation});
-                        }
+                            state.State = movement.WaitingForState; // either waiting at platform or behind another train
 
+                            if (state.State == TrainMovementStates.WaitingAtPlatform)
+                            {
+                                var lineEntity = lineEntities[lineIndex.Index];
+                                var platformEntities = lookup[lineEntity];
+                                var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, unitPointDistance);
+                                ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy {Train = e, TimeLeft = settings.TimeAtStation});
+                            }
+                        }
                         break;
-
-                    case TrainMovementStates.Running:
-                        // are we approaching train in front?
-                        float unitPointsToTrainInFront;
+                    
+                    case TrainMovementStates.WaitingBehindTrain:
+                        // do we still have a train in front of us?
+                        
+                        // TODO: Duplicate code, let's clean up Friday if time
                         var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).Value;
+                        var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
 
-                        if (position.Value < trainInFrontPosition)
+                        // when calculating stop position, include length of train
+                        var unitPointsLengthOfTrainInFront = splineBlobAsset.DistanceToPointUnitDistance(5 * settings.CarriageSizeWithMargins);
+                        var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - unitPointsLengthOfTrainInFront;
+                        var unitPointBrakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance);
+                        
+                        if (unitPointDistanceToEndOfTrainInFront > unitPointBrakingDistance)
                         {
-                            unitPointsToTrainInFront = trainInFrontPosition - position.Value;
+                            // train in front moved out of our braking distance, so we can continue, 
+                            state.State = TrainMovementStates.Starting;
                         }
-                        else
-                        {
-                            // train in front has "overflown" train line array
-                            unitPointsToTrainInFront = splineBlobAsset.equalDistantPoints.Length - position.Value + trainInFrontPosition;
-                        }
-
-                        var unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBreakingDistance);
-                        if (unitPointsToTrainInFront < unitPointBreakingDistance)
-                        {
-                            movement.distanceToStop = unitPointsToTrainInFront;
-                            state.State = TrainMovementStates.Stopping;
-                            break;
-                        }
-
-                        // are we approaching platform?
-                        var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
-                        unitPointBreakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBreakingDistance);
-                        if (unitPointDistToClosestPlatform < unitPointBreakingDistance)
-                        {
-                            movement.distanceToStop = unitPointDistToClosestPlatform;
-                            state.State = TrainMovementStates.Stopping;
-                        }
-
                         break;
                 }
             }).ScheduleParallel();
@@ -134,7 +155,24 @@ public static class UnitConvertExtensionMethods
             if (unitPointPos < splineBlob.unitPointPlatformPositions[i]) return splineBlob.unitPointPlatformPositions[i] - unitPointPos;
         }
 
+        // return distance to first platform (with overflow)
         return splineBlob.unitPointPlatformPositions[0] + (splineBlob.equalDistantPoints.Length - unitPointPos);
+    }
+
+    /// <summary>
+    /// Returns distance between two points, handling overflow
+    /// </summary>
+    /// <param name="from">From position</param> 
+    /// <param name="to">To position</param>
+    /// <returns>Absolute distance in unit points</returns> 
+    public static float UnitPointDistance(this ref SplineBlobAsset splineBlob, float from, float to)
+    {
+        if (from <= to)
+            // without overflow, just return diff 
+            return to - from;
+        
+        // overflow, so calculate remainder of line 
+        return splineBlob.equalDistantPoints.Length - from + to;
     }
     
     public static Entity GetNextPlatformEntity(this ref SplineBlobAsset splineBlob, ref DynamicBuffer<EntityBufferElement> platformEntities, float unitPointPos)

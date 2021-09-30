@@ -16,7 +16,7 @@ public partial class DoorMovementSystem : SystemBase
         Entities.ForEach((ref DoorMovement doorMovement, ref Translation translation, in TrainReference trainReference) =>
         {
             var trainState = GetComponent<TrainState>(trainReference.Train);
-            if (trainState.State == TrainMovementStates.Waiting)
+            if (trainState.State == TrainMovementStates.WaitingAtPlatform)
                 doorMovement.timeSpentAtStation += deltaTime;
             else
                 doorMovement.timeSpentAtStation = 0;

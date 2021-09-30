@@ -29,6 +29,7 @@ public partial class TrainSpawnerSystem : SystemBase
                 for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.CreateEntity();
+                    ecb.SetName(trainInstance, $"Train {lineId}-{i}");
                     ecb.AddComponent(trainInstance, new TrainInFront());
                     ecb.AddComponent(trainInstance, new TrainState{State = TrainMovementStates.Starting});
                     ecb.AddComponent(trainInstance, new TrainMovement {speed = 0f});
