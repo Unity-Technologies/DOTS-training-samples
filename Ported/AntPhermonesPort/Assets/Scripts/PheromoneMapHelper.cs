@@ -7,11 +7,8 @@ using UnityEngine;
 
 public struct PheromoneMapHelper
 {
-    float2 worldLowerLeft;
-    float2 worldUpperRight;
-
-    DynamicBuffer<PheromoneMap> pheromoneMap;
-    int gridSize;
+    public GridHelper grid;
+    public DynamicBuffer<PheromoneMap> pheromoneMap;
 
     public bool IsInitialized()
     {
@@ -21,17 +18,12 @@ public struct PheromoneMapHelper
     public PheromoneMapHelper(DynamicBuffer<PheromoneMap> _cellmap, int _gridSize, float _worldSize)
     {
         pheromoneMap = _cellmap;
-        gridSize = _gridSize;
-
-        // World centered at 0,0
-        var halfSize = _worldSize / 2;
-        worldLowerLeft = new float2(-halfSize, -halfSize);
-        worldUpperRight = new float2(halfSize, halfSize);
+        grid = new GridHelper(_gridSize, _worldSize);
     }
 
     public void InitPheromoneMap()
     {
-        pheromoneMap.Length = gridSize * gridSize;
+        pheromoneMap.Length = grid.gridDimLength * grid.gridDimLength;
 
         // UNCOMMENT TO GET A TEXTURE TEST
         //for (int x = 0; x < gridSize / 2; x++)
@@ -57,34 +49,9 @@ public struct PheromoneMapHelper
         }
     }
 
-    /// <summary>
-    /// Returns the nearest index to a point in world space. The originOffset is used
-    /// to align the [0,0] index with the start of the grid (since the grid origin in
-    /// worldspace might be [-5.0, -5.0] for example if the plane of size 5 is at [0,0])
-    /// </summary>
-    /// <param name="xy"></param>
-    /// <param name="originOffset"></param>
-    /// <returns></returns>
-    public int GetNearestIndex(float2 xy)
-    {
-        if (xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x >= worldUpperRight.x || xy.y >= worldUpperRight.y)
-        {
-            //TBD: Warnings are disabled currently because ant move might jump out past the boundary cell
-            //Debug.LogError("[Cell Map] Trying to get index out of range");
-            return -1;
-        }
-
-        float2 gridRelativeXY = xy - worldLowerLeft;
-
-        float2 gridIndexScaleFactor = (worldUpperRight - worldLowerLeft) / gridSize;
-        float2 gridIndexXY = gridRelativeXY / gridIndexScaleFactor;
-
-        return ConvertGridIndex2Dto1D(gridIndexXY);
-    }
-
     public float GetPheromoneIntensityFrom2DPos(float2 xy)
     {
-        int index = GetNearestIndex(xy);
+        int index = grid.GetNearestIndex(xy);
         if (index < 0 || index > pheromoneMap.Length)
         {
             //Debug.LogError(string.Format("[Cell Map] Position is outside cell map {0}, {1}", xy.x, xy.y));
@@ -94,22 +61,19 @@ public struct PheromoneMapHelper
         return pheromoneMap[index].intensity.x;
     }
 
-    public int ConvertGridIndex2Dto1D(float2 index)
-        => Mathf.RoundToInt(index.y) * gridSize + Mathf.RoundToInt(index.x);
-
     public void Set(int x, int y, float state)
     {
-        pheromoneMap.ElementAt(y * gridSize + x).intensity = state;
+        pheromoneMap.ElementAt(y * grid.gridDimLength + x).intensity = state;
     }
 
     public float Get(int x, int y)
     {
-        return pheromoneMap[y * gridSize + x].intensity.x;
+        return pheromoneMap[y * grid.gridDimLength + x].intensity.x;
     }
 
-    public void IncrementIntensity(float2 position, float increaseValue)
+    public void IncrementIntensity(float2 position, float increaseValue, float debugLineTime = 0)
     {
-        int index = GetNearestIndex(position);
+        int index = grid.GetNearestIndex(position);
         if (index == -1 || index >= pheromoneMap.Length)
             return;
 
@@ -118,6 +82,8 @@ public struct PheromoneMapHelper
         pheromoneMap.ElementAt(index).intensity = new float4(
             math.clamp(currentValue.x + increaseValue, 0, 1), 0, 0, 1
         );
+
+        if(debugLineTime != 0) grid.DrawDebugRay(index, new Color(1, 0, 0.2f, 1), debugLineTime);
     }
 
     public void DecrementIntensity(float decreaseValue)

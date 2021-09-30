@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,23 +5,16 @@ using UnityEngine;
 
 public struct CellMapHelper
 {
-    float2 worldLowerLeft;
-    float2 worldUpperRight;
-
-    DynamicBuffer<CellMap> cellmap;
-    int gridSize;
-    float worldSize;
+    public GridHelper grid;
+    public DynamicBuffer<CellMap> cellmap;
 
     public CellMapHelper(DynamicBuffer<CellMap> _cellmap, int _gridSize, float _worldSize)
     {
+        // STAY
         cellmap = _cellmap;
-        gridSize = _gridSize;
-        worldSize = _worldSize;
 
-        // World centered at 0,0
-        var halfSize = _worldSize / 2;
-        worldLowerLeft = new float2(-halfSize, -halfSize);
-        worldUpperRight = new float2(halfSize, halfSize);
+        // NEW
+        grid = new GridHelper(_gridSize, _worldSize);
     }
 
     public bool IsInitialized()
@@ -33,7 +24,7 @@ public struct CellMapHelper
 
     public void InitCellMap()
     {
-        cellmap.Length = gridSize * gridSize;
+        cellmap.Length = grid.gridDimLength * grid.gridDimLength;
 
         for (int i = 0; i < cellmap.Length - 1; ++i)
         {
@@ -43,12 +34,12 @@ public struct CellMapHelper
 
     public void InitBorders()
     {
-        for(int i = 0; i < gridSize; ++i)
+        for(int i = 0; i < grid.gridDimLength; ++i)
         {
             Set(i, 0, CellState.IsObstacle);
-            Set(i, gridSize -1, CellState.IsObstacle);
+            Set(i, grid.gridDimLength - 1, CellState.IsObstacle);
             Set(0, i, CellState.IsObstacle);
-            Set(gridSize -1, i, CellState.IsObstacle);
+            Set(grid.gridDimLength - 1, i, CellState.IsObstacle);
         }
     }
 
@@ -111,41 +102,12 @@ public struct CellMapHelper
         }
     }
 
-    /// <summary>
-    /// Returns the nearest index to a point in world space. The originOffset is used
-    /// to align the [0,0] index with the start of the grid (since the grid origin in
-    /// worldspace might be [-5.0, -5.0] for example if the plane of size 5 is at [0,0])
-    /// </summary>
-    /// <param name="xy"></param>
-    /// <param name="originOffset"></param>
-    /// <returns></returns>
-    public int GetNearestIndex(float2 xy)
+    public CellState GetCellStateFrom2DPos(float2 xy, float debugLineTime = 0)
     {
-        if(xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x >= worldUpperRight.x || xy.y >= worldUpperRight.y)
-        {
-            //TBD: Warnings are disabled currently because ant move might jump out past the boundary cell
-            //Debug.LogError("[Cell Map] Trying to get index out of range");
-            return -1;
-        }
+        int cellIndex = grid.GetNearestIndex(xy);
+        if(debugLineTime != 0) grid.DrawDebugRay(cellIndex, Color.blue, debugLineTime);
 
-        float2 gridRelativeXY = xy - worldLowerLeft;
-
-        float2 gridIndexScaleFactor = (worldUpperRight - worldLowerLeft) / gridSize;
-        float2 gridIndexXY = gridRelativeXY/gridIndexScaleFactor;
-
-        return ConvertGridIndex2Dto1D(gridIndexXY);
-    }
-
-    public void WorldToCellSpace(ref float x, ref float y)
-    {
-        x = (Mathf.Clamp(x, -worldSize, worldSize) + worldSize / 2) * gridSize / worldSize;
-        y = (Mathf.Clamp(y, -worldSize, worldSize) + worldSize / 2) * gridSize / worldSize;
-    }
-
-    public CellState GetCellStateFrom2DPos(float2 xy)
-    {
-        int cellIndex = GetNearestIndex(xy);
-        if (cellIndex < 0 || cellIndex >= cellmap.Length)
+        if (cellIndex < 0 || cellIndex > cellmap.Length)
         {
             //Debug.LogError(string.Format("[Cell Map] Position is outside cell map {0}, {1}", xy.x, xy.y));
             return CellState.IsObstacle;
@@ -154,13 +116,10 @@ public struct CellMapHelper
         return cellmap[cellIndex].state;
     }
 
-    public int ConvertGridIndex2Dto1D(float2 index)
-        => Mathf.RoundToInt(index.y) * gridSize + Mathf.RoundToInt(index.x);
-
     public void Set(int x, int y, CellState state)
     {
-        if (x >= 0 && x < gridSize && y >= 0 && y < gridSize)
-            cellmap.ElementAt(y * gridSize + x).state = state;
+        if (x >= 0 && x < grid.gridDimLength && y >= 0 && y < grid.gridDimLength)
+            cellmap.ElementAt(y * grid.gridDimLength + x).state = state;
     }
 
     public void Set(int index, CellState state)
@@ -171,6 +130,6 @@ public struct CellMapHelper
 
     public CellState Get(int x, int y)
     {
-        return cellmap[y * gridSize + x].state;
+        return cellmap[y * grid.gridDimLength + x].state;
     }
 }

@@ -46,7 +46,7 @@ public partial class AntMovementSystem : SystemBase
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
-                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 1.5f);
+                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (cellMapHelper.grid.worldDimLength/cellMapHelper.grid.gridDimLength) * 1.5f, time);
                 ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
                 float targetSpeed = config.MoveSpeed;
@@ -154,7 +154,8 @@ public partial class AntMovementSystem : SystemBase
                 Debug.Assert(pheromoneHelper.IsInitialized());
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
-                    excitement
+                    excitement,
+                    time
                 );
 
             }).Run();
@@ -183,7 +184,7 @@ public partial class AntMovementSystem : SystemBase
         return output == 0f ? 0f : Mathf.Sign(output);
     }
 
-    static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance)
+    static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance, float delta)
     {
         // If wall detected to the right or left of the current direction then return -1 / 1 so that we steer away from it
         // If no wall then it returns 0
@@ -193,9 +194,9 @@ public partial class AntMovementSystem : SystemBase
         for (int i = -1; i <= 1; i+=2) {
             float angle = facingAngle + i * Mathf.PI*.25f;
             float testX = antPosition.x + Mathf.Cos(angle) * distance;
-            float testY = antPosition.y + Mathf.Sin(angle) * distance;
+            float testY = antPosition.z + Mathf.Sin(angle) * distance;
 
-            if (cellMapHelper.GetCellStateFrom2DPos(new float2(testX, testY)) == CellState.IsObstacle)
+            if (cellMapHelper.GetCellStateFrom2DPos(new float2(testX, testY), delta) == CellState.IsObstacle)
             {
                 output -= i;
             }
