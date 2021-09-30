@@ -24,22 +24,22 @@ public partial class RailsSpawnerSystem : SystemBase
                 Rotation rotation = default;
                 for (var lineId = 0; lineId < splineDataArrayRef.Value.splineBlobAssets.Length; lineId++)
                 {
-                    ref var splineData = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
-                    for (var i = 0; i < splineData.points.Length; i++)
+                    ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
+                    for (var i = 0; i < splineBlobAsset.equalDistantPoints.Length; i++)
                     {
                         var instance = ecb.Instantiate(spawner.RailPrefab);
-                        if (i < splineData.points.Length - 1)
+                        if (i < splineBlobAsset.equalDistantPoints.Length - 1)
                             rotation = new Rotation
                             {
                                 Value = quaternion.LookRotation(
-                                    splineData.points[i + 1] - splineData.points[i], 
+                                    splineBlobAsset.equalDistantPoints[i + 1] - splineBlobAsset.equalDistantPoints[i], 
                                     Vector3.up)
                             };
                         ecb.SetComponent(instance, rotation);
-                        ecb.SetComponent(instance, new Translation {Value = splineData.points[i]});
+                        ecb.SetComponent(instance, new Translation {Value = splineBlobAsset.equalDistantPoints[i]});
                     }
 
-                    int nbPlatforms = splineData.platformPositions.Length;
+                    int nbPlatforms = splineBlobAsset.unitPointPlatformPositions.Length;
                     int halfPlatforms = nbPlatforms / 2;
                     NativeArray<Rotation> outBoundsRotations = new NativeArray<Rotation>(halfPlatforms, Allocator.Temp);
                     NativeArray<float3> outBoundsTranslations = new NativeArray<float3>(halfPlatforms, Allocator.Temp);

@@ -16,21 +16,23 @@ public partial class TrainSpawnerSystem : SystemBase
         Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
-            int trainCount = 3;
-            int trainLength = 5;
+            const int trainCount = 3;
+            const int trainLength = 5;
 
-            for (int l = 0; l < splineData.Value.splineBlobAssets.Length; l++)
+            for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
             {
-                for (int i = 0; i < trainCount; i++)
+                ref var splineDataBlobAsset = ref splineData.Value.splineBlobAssets[lineId];
+                
+                for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
                     var trainMovement = new TrainMovement
                     {
                         state = TrainMovemementStates.Starting,
-                        position = (splineData.Value.splineBlobAssets[l].points.Length / trainCount) * i
+                        position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i
                     };
                     ecb.SetComponent(trainInstance, trainMovement);
-                    ecb.SetComponent(trainInstance, new LineIndex{Index = l});
+                    ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
                 
                     for(int j = 0; j < trainLength; j++)
                     {
@@ -39,10 +41,7 @@ public partial class TrainSpawnerSystem : SystemBase
                     }
                 }
             }
-
-            
-            
-        }).Run();
+        }).WithoutBurst().Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

@@ -182,9 +182,9 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             {
                 var railMarkers = child.GetComponentsInChildren<RailMarker>();
                 ref var newSplineBlobAsset = ref splineArray[lineId++];
-                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.points, pointCount);
+                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.equalDistantPoints, pointCount);
                 var fullMarkersData = CreateActualRailMarkers(railMarkers, out var nbPlatforms);
-                var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.platformPositions, nbPlatforms);
+                var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.unitPointPlatformPositions, nbPlatforms);
                 CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
             }
 

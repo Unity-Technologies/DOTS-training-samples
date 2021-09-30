@@ -10,108 +10,88 @@ public partial class TrainMovementSystem : SystemBase
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
         var settings = GetSingleton<Settings>();
-        var elapsedTime = Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
         
         Entities.ForEach((ref Translation translation, ref Rotation rotation, ref TrainMovement movement, in LineIndex lineIndex) =>
         {
-            float lineLength = splineData.Value.splineBlobAssets[lineIndex.Index].length;
-            float breakingPoint = 0.05f;
-
-            ref var points = ref splineData.Value.splineBlobAssets[lineIndex.Index].points;
-            ref var platformPositions = ref splineData.Value.splineBlobAssets[lineIndex.Index].platformPositions;
-            var trackRelativePosition = movement.position / points.Length;
-
+            ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
+            
             switch (movement.state)
             {
                 case TrainMovemementStates.Starting:
-                    movement.speed += settings.MaxSpeed / 100 * 5;
+                    movement.speed += settings.MaxSpeed*.1f*deltaTime;
                     if (movement.speed >= settings.MaxSpeed)
-                    {
                         movement.state = TrainMovemementStates.Running;
-                    }
                     break;
                 
                 case TrainMovemementStates.Stopping:
                     // following are in meters 
-                    float distanceTraveledLastFrame = movement.speed * deltaTime;
-                    var distanceToPlatform = DistanceToClosestPlatform(trackRelativePosition, ref platformPositions) * lineLength;
-                    float framesUntilStop = distanceToPlatform/ distanceTraveledLastFrame;
+                    var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
+                    movement.speed = (unitPointDistance / movement.distanceToStation) * settings.MaxSpeed;
 
-                    Debug.Log(distanceToPlatform);
-                    var reduceSpeedWith = math.max(0.1f * deltaTime, movement.speed / framesUntilStop); 
-                    movement.speed -= reduceSpeedWith;
-
-                    if (movement.speed <= 0.0f || distanceToPlatform < 1f)
+                    if (movement.speed <= 0.0f || unitPointDistance < .1f)
                     {
                         movement.speed = 0.0f;
-                        movement.state = TrainMovemementStates.Stopped;
+                        movement.restingTimeLeft = settings.TimeAtStation;
+                        movement.state = TrainMovemementStates.Waiting;
                     }
-                    break;
-                
-                case TrainMovemementStates.Stopped:
-                    movement.speed = 0.0f;
-                    movement.timeWhenStoppedAtPlatform = elapsedTime;
-                    movement.state = TrainMovemementStates.Waiting;
                     break;
                 
                 case TrainMovemementStates.Waiting:
-                    movement.speed = 0.0f;
-                    if (elapsedTime > movement.timeWhenStoppedAtPlatform + settings.TimeAtStation)
-                    {
+                    if (movement.restingTimeLeft < 0)
                         movement.state = TrainMovemementStates.Starting;
-                    }
+                    else 
+                        movement.restingTimeLeft -= deltaTime;
+                    
                     break;
 
                 case TrainMovemementStates.Running:
-                    movement.speed = settings.MaxSpeed;
-
                     // are we approaching platform?
-                    var relativeDistanceToPlatform = DistanceToClosestPlatform(trackRelativePosition, ref platformPositions);
-                    var distanceToPlatformInMeters = relativeDistanceToPlatform * lineLength;
-
-                    if (distanceToPlatformInMeters < settings.BreakingDistance)
+                    var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
+                    if (unitPointDistToClosestPlatform < splineBlobAsset.DistanceToPointUnitDistance(settings.BreakingDistance))
                     {
+                        movement.distanceToStation = unitPointDistToClosestPlatform;
                         movement.state = TrainMovemementStates.Stopping;
                     }
 
                     break;
             }
-
-            // convert speed (m/s) to track positions/second
-            var trackPositionsSpeed = movement.speed / lineLength * points.Length;
-            movement.position += trackPositionsSpeed * deltaTime;
-            movement.position = math.fmod(movement.position, points.Length);
-
-            (float3 lerpedPosition, _) = TrackPositionToWorldPosition(movement.position, ref points);
-            translation.Value = lerpedPosition;
+            
+            movement.position += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
+            movement.position = math.fmod(movement.position, splineBlobAsset.unitPointPlatformPositions.Length);
+            (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(movement.position);
         }).WithoutBurst().Run(); // for debugging
         // }).ScheduleParallel();
     }
+}
 
-    /// <summary>
-    /// Returns distance to next platform in relative points, i.e. range [0..1[ 
-    /// </summary>
-    static float DistanceToClosestPlatform(float position, ref BlobArray<float> platformPositions)
+public static class UnitConvertExtensionMethods
+{
+    public static (float3, quaternion) PointUnitPosToWorldPos(this ref SplineBlobAsset splineBlob, float unitPointPos)
     {
-        for (int i = 0; i < platformPositions.Length; i++)
-        {
-            var platformPosition = platformPositions[i];
-            if (position < platformPosition)
-            {
-                return platformPosition - position;
-            }
-        }
+        var floor = (int)math.floor(unitPointPos);
+        var ceil = (floor+1) % splineBlob.equalDistantPoints.Length;
 
-        return 1 - position + platformPositions[0];
+        return (math.lerp(splineBlob.equalDistantPoints[floor], splineBlob.equalDistantPoints[ceil], math.frac(unitPointPos)), 
+            quaternion.LookRotation(splineBlob.equalDistantPoints[floor] - splineBlob.equalDistantPoints[ceil], math.up()));
     }
     
-    public static (float3, quaternion) TrackPositionToWorldPosition(float trackPosition, ref BlobArray<float3> points)
+    /// <summary>
+    /// Returns distance to next platform in unit point distance, i.e. range [0..number_of_points[ 
+    /// </summary>
+    public static float UnitPointDistanceToClosestPlatform(this ref SplineBlobAsset splineBlob, float unitPointPos)
     {
-        var floor = (int)math.floor(trackPosition);
-        var ceil = (floor+1) % points.Length;
+        unitPointPos %= splineBlob.equalDistantPoints.Length;
+        for (var i = 0; i < splineBlob.unitPointPlatformPositions.Length; i++)
+        {
+            if (unitPointPos < splineBlob.unitPointPlatformPositions[i]) return splineBlob.unitPointPlatformPositions[i] - unitPointPos;
+        }
 
-        return (math.lerp(points[floor], points[ceil], math.frac(trackPosition)), 
-                quaternion.LookRotation(points[floor] - points[ceil], math.up()));
+        return -1;
+    }
+    
+    public static float DistanceToPointUnitDistance(this ref SplineBlobAsset splineBlob, float distance)
+    {
+        return distance / splineBlob.length * splineBlob.equalDistantPoints.Length;
     }
 }
