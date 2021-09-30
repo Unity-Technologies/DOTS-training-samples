@@ -132,7 +132,8 @@ public partial class AntMovementSystem : SystemBase
                 if (turnAround)
                 {
                     newPos = translation.Value - newPosDelta;
-                    ant.FacingAngle += Mathf.PI;
+                    float reflectRandom =  random.NextBool() ? -Mathf.PI /8 * 3 : Mathf.PI / 8 * 3;
+                    ant.FacingAngle += Mathf.PI + reflectRandom;
                     newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
                 }
                 else
