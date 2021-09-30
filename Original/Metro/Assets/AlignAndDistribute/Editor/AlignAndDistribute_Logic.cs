@@ -162,7 +162,7 @@ public class AlignAndDistribute_Logic
 
 			#if UNITY_4_2
 			Undo.CreateSnapshot();
-			Undo.RegisterUndo(selectedObjects, "Align by "+a.ToString()+" Axis"); // make an undo state for this action
+			Undo.RegisterUndo(selectedObjects, "Align by "+a.ToString()+" Axis"); // make an undo stateMike for this action
 			#else
 			Undo.RecordObjects(Selection.transforms, "Align by "+a.ToString()+" Axis");
 			#endif
@@ -288,7 +288,7 @@ public class AlignAndDistribute_Logic
 			
 			#if UNITY_4_2
 			Undo.CreateSnapshot();
-			Undo.RegisterUndo(selectedObjects, "Distribute by by "+a.ToString()+" Axis"); // make an undo state for this action
+			Undo.RegisterUndo(selectedObjects, "Distribute by by "+a.ToString()+" Axis"); // make an undo stateMike for this action
 			#else
 			Undo.RecordObjects(Selection.transforms, "Distribute by "+a.ToString()+" Axis");
 			#endif

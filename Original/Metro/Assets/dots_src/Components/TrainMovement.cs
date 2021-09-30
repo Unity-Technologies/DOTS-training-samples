@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public enum TrainMovemementStates
+public enum TrainMovementStates
 {
     Starting = 1,
     Running = 2,
@@ -12,11 +12,15 @@ public enum TrainMovemementStates
     Waiting = 5,
 }
 
+public struct TrainState : IComponentData
+{
+    public TrainMovementStates State;
+    public static implicit operator TrainMovementStates(TrainState _trainState) => _trainState.State;
+}
+
 [GenerateAuthoringComponent]
 public struct TrainMovement : IComponentData
 {
-    public TrainMovemementStates state;
-    
     /// <summary>
     /// Speed in m/s
     /// </summary>
@@ -31,9 +35,4 @@ public struct TrainMovement : IComponentData
     /// distance to station on train stop in unit points
     /// </summary>
     public float distanceToStation;
-    
-    /// <summary>
-    /// How much time in seconds before setting state to start
-    /// </summary>
-    public float restingTimeLeft; // TODO: just for stopping train, will be removed later
 }

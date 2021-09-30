@@ -26,9 +26,9 @@ public partial class TrainSpawnerSystem : SystemBase
                 for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.Instantiate(trainSpawner.TrainPrefab);
+                    ecb.AddComponent(trainInstance, new TrainState{State = TrainMovementStates.Starting});
                     var trainMovement = new TrainMovement
                     {
-                        state = TrainMovemementStates.Starting,
                         position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,
                         speed = 0f
                     };
