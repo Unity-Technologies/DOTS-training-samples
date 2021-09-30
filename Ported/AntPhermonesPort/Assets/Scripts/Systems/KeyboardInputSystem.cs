@@ -19,6 +19,7 @@ public partial class KeyboardInputSystem : SystemBase
 		if (Input.GetKeyDown(KeyCode.R))
 		{
 			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			TimeScaleSpeed = 1;
 		}
 
 		if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -27,43 +28,43 @@ public partial class KeyboardInputSystem : SystemBase
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha2))
 		{
-			TimeScaleSpeed = 10;
+			TimeScaleSpeed = 2;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha3))
 		{
-			TimeScaleSpeed = 20;
+			TimeScaleSpeed = 3;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha4))
 		{
-			TimeScaleSpeed = 30;
+			TimeScaleSpeed = 4;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha5))
 		{
-			TimeScaleSpeed = 40;
+			TimeScaleSpeed = 5;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha6))
 		{
-			TimeScaleSpeed = 50;
+			TimeScaleSpeed = 6;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha7))
 		{
-			TimeScaleSpeed = 60;
+			TimeScaleSpeed = 7;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha8))
 		{
-			TimeScaleSpeed = 70;
+			TimeScaleSpeed = 8;
 		}
 		else if (Input.GetKeyDown(KeyCode.Alpha9))
 		{
-			TimeScaleSpeed = 80;
+			TimeScaleSpeed = 9;
 		}
-		
+
 		Entities
 			.WithoutBurst()
 			.ForEach((ref Config config) =>
 			{
 				config.Speed = TimeScaleSpeed;
-            })
+			})
 			.Run();
 	}
 }
