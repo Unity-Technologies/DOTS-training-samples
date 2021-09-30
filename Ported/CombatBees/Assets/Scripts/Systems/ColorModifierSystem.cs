@@ -6,13 +6,11 @@ public partial class ColorModifierSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var deltaTime = Time.DeltaTime;
-
         Entities
-            .ForEach((Entity entity, ref Color color, ref URPMaterialPropertyBaseColor material) =>
+            .ForEach((Entity entity, ref Color color, ref URPMaterialPropertyBaseColor material, in LifeTime lifetime) =>
             {
-                color.Time += deltaTime * color.Speed;
-                material.Value = math.lerp(color.BeginColor, color.EndColor, math.frac(color.Time));
+                float t = lifetime.TimeRemaining / lifetime.TotalTime;
+                material.Value = math.lerp(color.BeginColor, color.EndColor, 1.0f - t);
             }).ScheduleParallel();
     }
 }

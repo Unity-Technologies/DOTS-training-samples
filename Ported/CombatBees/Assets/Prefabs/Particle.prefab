@@ -13,6 +13,9 @@ GameObject:
   - component: {fileID: 2371235656525291273}
   - component: {fileID: 2371235656525291275}
   - component: {fileID: 2371235656525291274}
+  - component: {fileID: 6135131703921838906}
+  - component: {fileID: 5558492124792764272}
+  - component: {fileID: -4917691502324905809}
   m_Layer: 0
   m_Name: Particle
   m_TagString: Untagged
@@ -95,8 +98,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70edf04b6dfc74daabdf86f7d5cf1afd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeginSize: 0
-  EndSize: 0
+  BeginSize:
+    x: 0
+    y: 0
+    z: 0
+  EndSize:
+    x: 0
+    y: 0
+    z: 0
   Time: 0
   Speed: 0
 --- !u!114 &2371235656525291274
@@ -115,9 +124,53 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+    w: 0
   EndColor:
     x: 0
     y: 0
     z: 0
+    w: 0
   Time: 0
   Speed: 0
+--- !u!114 &6135131703921838906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371235656525291277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f87080a22187d4f26b09605cb6b1a7ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+--- !u!114 &5558492124792764272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371235656525291277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 050de5d2fbe9d4984addecf51b11b8c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-4917691502324905809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2371235656525291277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95c54b6b84ca74c1c84c1578cbe2a00a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TimeRemaining: 0
+  TotalTime: 0

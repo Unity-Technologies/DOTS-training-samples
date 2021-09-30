@@ -18,11 +18,11 @@ public partial class PhysicsMovementSystem : SystemBase
                               new float3(bounds.HiveOffset / 2.0f, (bounds.AABB.Max.y - bounds.AABB.Min.y)/2.0f, (bounds.AABB.Max.z - bounds.AABB.Min.z)/2.0f);
         
         float deltaTime = Time.DeltaTime;
-        float multiplier = 7f;
+        float multiplier = 9.8f;
         float floorY = 0.5f;
         
         Entities
-            .WithAny<Food, Particle>()
+            .WithAny<Food>()
             .WithNone<Grounded>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
             {

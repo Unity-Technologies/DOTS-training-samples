@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 
-public partial class DecaySystem : SystemBase
+public partial class LifeTimeSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -10,11 +10,11 @@ public partial class DecaySystem : SystemBase
         var ecb = system.CreateCommandBuffer().AsParallelWriter();
 
         Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref Particle particle) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref LifeTime lifetime) =>
             {
-                particle.LifeRemaining -= deltaTime;
+                lifetime.TimeRemaining -= deltaTime;
 
-                if (particle.LifeRemaining <= 0.0f)
+                if (lifetime.TimeRemaining <= 0.0f)
                 {
                     ecb.DestroyEntity(entityInQueryIndex, entity);
                 }

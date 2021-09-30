@@ -19,7 +19,6 @@ public partial class DroppedFoodSystem : SystemBase
         WorldBounds bounds = GetSingleton<WorldBounds>();
         Constants constants = GetSingleton<Constants>();
         var particleArchetype = EntityManager.CreateArchetype(typeof(ParticleSpawner));
-        float3 direction = new float3(1.0f, 0.0f, 0.0f);
         var seed = random.NextUInt();
         
         Entities
@@ -35,9 +34,8 @@ public partial class DroppedFoodSystem : SystemBase
                 {
                     Prefab = prefabs.SpawnCloudPrefab,
                     Position = translation.Value,
-                    Direction = direction,
-                    Spread = 0.2f,
-                    Lifetime = 5.0f,
+                    Lifetime = 2.0f,
+                    Speed = 5.0f,
                     Count = 5,
                 };
                 ecb.SetComponent(entityInQueryIndex, spawnCloudEntity, spawnCloudSpawner);
@@ -51,7 +49,7 @@ public partial class DroppedFoodSystem : SystemBase
                     prefab = prefabs.BlueBeePrefab;
                 }
 
-                Random random = new Random(seed);
+                Random random = new Random(seed + (uint)entityInQueryIndex);
                 uint numberToSpawn = random.NextUInt(constants.MinBeesToSpawnFromFood, constants.MaxBeesToSpawnFromFood);
 
                 for (uint i = 0; i < numberToSpawn; ++i)

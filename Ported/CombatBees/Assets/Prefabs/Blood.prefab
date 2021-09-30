@@ -61,11 +61,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndColor.x
-      value: 1
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndColor.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2371235656525291274, guid: c964d04abc2364a94800060d18860003, type: 3}
       propertyPath: EndColor.z

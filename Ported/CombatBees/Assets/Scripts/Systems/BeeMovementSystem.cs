@@ -38,7 +38,6 @@ public partial class BeeMovementSystem : SystemBase
         var dtTime = Time.DeltaTime;
         Prefabs prefabs = GetSingleton<Prefabs>();
 
-        float3 up = new float3( 0.0f, 1.0f, 0.0f );
         var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = system.CreateCommandBuffer().AsParallelWriter();
         var particleArchetype = EntityManager.CreateArchetype(typeof(ParticleSpawner));
@@ -73,9 +72,8 @@ public partial class BeeMovementSystem : SystemBase
                         {
                             Prefab = prefabs.BloodPrefab,
                             Position = translation.Value,
-                            Direction = up,
-                            Spread = 0.2f,
                             Lifetime = 10.0f,
+                            Speed = 8.0f,
                             Count = 5,
                         };
                         ecb.SetComponent(entityInQueryIndex, bloodSpawnerEntity, bloodSpawner);

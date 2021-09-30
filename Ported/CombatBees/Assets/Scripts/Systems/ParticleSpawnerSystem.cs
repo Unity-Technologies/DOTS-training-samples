@@ -1,43 +1,57 @@
 using Unity.Entities;
-using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 
 public partial class ParticleSpawnerSystem : SystemBase
 {
+    private static readonly float3 up = new float3(0.0f, 1.0f, 0.0f);
+    private Random random;
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        random = new Random((uint)System.DateTime.Now.Ticks);
+    }
+    
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var system = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = system.CreateCommandBuffer().AsParallelWriter();
+        uint seed = random.NextUInt();
 
         Entities
-            .ForEach((Entity entity, in ParticleSpawner spawner) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in ParticleSpawner spawner) =>
             {
-                ecb.DestroyEntity(entity);
+                Random random = new Random(seed + (uint)entityInQueryIndex);
+                
+                ecb.DestroyEntity(entityInQueryIndex, entity);
 
                 for (int i = 0; i < spawner.Count; ++i)
                 {
-                    var instance = ecb.Instantiate(spawner.Prefab);
+                    var instance = ecb.Instantiate(entityInQueryIndex, spawner.Prefab);
 
-                    var particleComponent = new Particle
+                    var lifetime = new LifeTime
                     {
-                        LifeRemaining = spawner.Lifetime,
+                        TimeRemaining = spawner.Lifetime,
+                        TotalTime = spawner.Lifetime,
                     };
-                    ecb.AddComponent(instance, particleComponent);
+                    ecb.SetComponent(entityInQueryIndex, instance, lifetime);
                     
                     var translationComponent = new Translation { Value = spawner.Position };
-                    ecb.SetComponent(instance, translationComponent);
+                    ecb.SetComponent(entityInQueryIndex, instance, translationComponent);
 
-                    // Use spawner.Direction + spawner.Spread to calculate rotation (forward +x)
-                    quaternion rotation = quaternion.identity;
-                    var rotationComponent = new Rotation { Value = rotation };
-                    ecb.SetComponent(instance, rotationComponent);
+                    float3 direction = up;
+                    direction = math.rotate(quaternion.EulerXYZ(0.785398f, 0.0f, 0.0f), direction);
+                    direction = math.rotate(quaternion.RotateY(random.NextFloat(0.0f, 6.28f)), direction);
+                    float3 velocity = direction * spawner.Speed;
+                    var velocityComponent = new Velocity { Value = velocity };
+                    ecb.SetComponent(entityInQueryIndex, instance, velocityComponent);
                     
-                    ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(entityInQueryIndex, instance);
                 }
-            }).Run();
+            }).ScheduleParallel();
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        system.AddJobHandleForProducer(Dependency);
     }
 }

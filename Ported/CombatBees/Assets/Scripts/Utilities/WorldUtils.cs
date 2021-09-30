@@ -16,7 +16,7 @@ public struct WorldUtils
     {
         return new float3(
             bounds.AABB.Min.x + bounds.HiveOffset * 0.5f,
-            random.NextFloat(bounds.AABB.Min.y, bounds.AABB.Max.y),
+            random.NextFloat(bounds.AABB.Min.y + 2.0f, bounds.AABB.Max.y),
             random.NextFloat(bounds.AABB.Min.z, bounds.AABB.Max.z));
     }
     
@@ -24,7 +24,7 @@ public struct WorldUtils
     {
         return new float3(
             bounds.AABB.Max.x - bounds.HiveOffset * 0.5f,
-            random.NextFloat(bounds.AABB.Min.y, bounds.AABB.Max.y),
+            random.NextFloat(bounds.AABB.Min.y + 2.0f, bounds.AABB.Max.y),
             random.NextFloat(bounds.AABB.Min.z, bounds.AABB.Max.z));
     }
 }
