@@ -9,7 +9,9 @@ public partial class CarriageMovementSystem : SystemBase
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
         var settings = GetSingleton<Settings>();
         
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference, in CarriageIndex index) =>
+        Entities.
+            WithNone<DoorMovement>().
+            ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference, in CarriageIndex index) =>
         {
             var trainPosition = GetComponent<TrainPosition>(trainReference.Train);
             var lineIndex = GetComponent<LineIndex>(trainReference.Train);

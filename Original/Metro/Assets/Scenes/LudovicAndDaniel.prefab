@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a70c29b5c54c261419741d07630227c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  returnRailsOffset: 10
+  returnRailsOffset: 7.5
   splineHandleGain: 0.2
 --- !u!1 &4181877798982289799
 GameObject:
@@ -54,9 +54,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4181877798982289799}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 628fa124bbb80c54bb2623c9338fc013, type: 3}
+  m_Script: {fileID: 11500000, guid: ee9415eb02337c746b6f2c547e0c5ff0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LinePrefab: {fileID: 8459717698011699773, guid: a38a61c15ca137541b57c184501122f4,
+    type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
     type: 3}
 --- !u!1 &8056101332655951678
@@ -99,11 +101,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 8056101332655951678}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e0cc28b2e83f8b439c304c6395ef933, type: 3}
+  m_Script: {fileID: 11500000, guid: 0bd9063f6e9645444821d20e7ad3dd37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
-  NbRails: 100
 --- !u!1 &8056101333303379389
 GameObject:
   m_ObjectHideFlags: 0
