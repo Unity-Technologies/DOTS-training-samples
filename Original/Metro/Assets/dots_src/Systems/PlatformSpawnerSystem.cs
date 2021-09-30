@@ -30,13 +30,13 @@ public partial class PlatformSpawnerSystem : SystemBase
                     for (int i = 0; i < nbPlatforms; i++)
                     {
                         var instance = ecb.Instantiate(spawner.PlatformPrefab);
-                        int pointIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i] * splineBlobAsset.equalDistantPoints.Length);
+                        int pointIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i]);
 
                         Translation translation;
                         Rotation rotation = default;
                         if (i < halfPlatforms)
                         {
-                            int centerPlatformIndex = Mathf.FloorToInt((splineBlobAsset.unitPointPlatformPositions[i] - platformSize/(2 * splineBlobAsset.length))  * splineBlobAsset.equalDistantPoints.Length );
+                            int centerPlatformIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i] - splineBlobAsset.DistanceToPointUnitDistance(platformSize/2) );
                             var centerPos = splineBlobAsset.equalDistantPoints[centerPlatformIndex];
                             var centerNextPos = splineBlobAsset.equalDistantPoints[centerPlatformIndex + 1];
                             (translation ,rotation) = GetStationTransform(splineBlobAsset.equalDistantPoints[pointIndex],
