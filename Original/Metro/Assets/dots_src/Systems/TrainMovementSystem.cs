@@ -28,8 +28,14 @@ public partial class TrainMovementSystem : SystemBase
                 case TrainMovemementStates.Stopping:
                     // following are in meters 
                     var unitPointDistance = splineBlobAsset.UnitPointDistanceToClosestPlatform(movement.position);
+                    if (unitPointDistance > movement.distanceToStation) // Keep running if the platform was passed while transitioning to Stopped
+                    {
+                        movement.state = TrainMovemementStates.Running;
+                        break;
+                    }
                     movement.speed = (unitPointDistance / movement.distanceToStation) * settings.MaxSpeed;
 
+                    
                     if (movement.speed <= 0.0f || unitPointDistance < .1f)
                     {
                         movement.speed = 0.0f;
