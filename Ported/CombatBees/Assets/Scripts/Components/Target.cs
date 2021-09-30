@@ -7,7 +7,8 @@ public enum TargetType
     None,
     Food,
     Bee,
-    Hive
+    Hive,
+    Wander,
 };
 
 [GenerateAuthoringComponent]

@@ -24,14 +24,25 @@ public partial class BeeMovementSystem : SystemBase
         Entities
             .WithReadOnly(transLookup)
             .WithAny<TeamRed, TeamBlue>()
-            .ForEach((Entity beeEntity, ref Target target) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Target target) =>
             {
                 if (target.TargetType == TargetType.Food || target.TargetType == TargetType.Bee)
                 {
                     if (transLookup.HasComponent(target.TargetEntity))
+                    {
                         target.TargetPosition = transLookup[target.TargetEntity].Value;
+                    }
                     else
+                    {
                         target.Reset();
+                        target.TargetType = TargetType.Wander;
+                    }
+                }
+
+                if (target.TargetType == TargetType.Wander && math.all(target.TargetPosition == float3.zero))
+                {
+                    var random = new Random((uint)entityInQueryIndex + seed);
+                    target.TargetPosition = WorldUtils.GetRandomInBoundsPosition(bounds, ref random);
                 }
             }).ScheduleParallel();
         
@@ -100,6 +111,10 @@ public partial class BeeMovementSystem : SystemBase
                         ecb.SetComponent(entityInQueryIndex, instance, foodInHive);
                         ecb.AddComponent(entityInQueryIndex, instance, new InHive{});
                         ecb.AddComponent<Disabled>(entityInQueryIndex, group[1].Value);
+                    }
+                    else // Wander
+                    {
+                        target.Reset();
                     }
                 }
             }).ScheduleParallel();

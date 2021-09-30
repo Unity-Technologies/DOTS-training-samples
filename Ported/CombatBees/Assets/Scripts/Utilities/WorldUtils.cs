@@ -27,4 +27,12 @@ public struct WorldUtils
             random.NextFloat(bounds.AABB.Min.y + 2.0f, bounds.AABB.Max.y),
             random.NextFloat(bounds.AABB.Min.z, bounds.AABB.Max.z));
     }
+    
+    public static float3 GetRandomInBoundsPosition(in WorldBounds bounds, ref Random random)
+    {
+        return new float3(
+            random.NextFloat(bounds.AABB.Min.x + bounds.HiveOffset, bounds.AABB.Max.x - bounds.HiveOffset),
+            random.NextFloat(bounds.AABB.Min.y + 2.0f, bounds.AABB.Max.y),
+            random.NextFloat(bounds.AABB.Min.z, bounds.AABB.Max.z));
+    }
 }

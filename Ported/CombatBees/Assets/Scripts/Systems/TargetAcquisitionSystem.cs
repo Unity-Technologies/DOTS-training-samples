@@ -59,7 +59,10 @@ public partial class TargetAcquisitionSystem : SystemBase
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];
                         target.TargetType = TargetType.Bee;
                     }
-                    //else todo add random movement
+                    else
+                    {
+                        target.TargetType = TargetType.Wander;
+                    }
                 }
             }).ScheduleParallel();
         
@@ -90,9 +93,10 @@ public partial class TargetAcquisitionSystem : SystemBase
                         target.TargetEntity = entities[random.NextInt(0, entities.Length)];    
                         target.TargetType = TargetType.Bee;
                     }
-                    //else todo add random movement
-                }
-
+                    else
+                    {
+                        target.TargetType = TargetType.Wander;
+                    }                }
             }).ScheduleParallel();
         
         system.AddJobHandleForProducer(Dependency);
