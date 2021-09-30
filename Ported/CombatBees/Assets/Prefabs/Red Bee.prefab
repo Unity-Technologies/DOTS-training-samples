@@ -23,6 +23,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Red Bee
       objectReference: {fileID: 0}
+    - target: {fileID: 794174672637345370, guid: 99acafb8336aa4672a581783e5f2a18b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: bc2a11bb451fe9a4a8560afe15afdf81, type: 2}
     - target: {fileID: 1369589980957254094, guid: 99acafb8336aa4672a581783e5f2a18b, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

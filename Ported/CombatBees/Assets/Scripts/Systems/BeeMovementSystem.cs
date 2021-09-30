@@ -56,7 +56,7 @@ public partial class BeeMovementSystem : SystemBase
         // Movement Update
         Entities
             .WithAny<TeamRed, TeamBlue>()
-            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, ref BeeMovement beeMovement, ref NonUniformScale scale, in DynamicBuffer<LinkedEntityGroup> group) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, ref BeeMovement beeMovement, in DynamicBuffer<LinkedEntityGroup> group) =>
             {
                 translation.Value += (math.normalize(target.TargetPosition - translation.Value) * beeMovement.CurrentVelocity * dtTime);
 
@@ -69,7 +69,9 @@ public partial class BeeMovementSystem : SystemBase
                     beeMovement.CurrentVelocity = random.NextFloat(constants.MinBeeVelocity, constants.MaxBeeVelocity);
 
                     var newYScale = ((beeMovement.CurrentVelocity - constants.MinBeeVelocity) / (constants.MaxBeeVelocity - constants.MinBeeVelocity));
-                    scale.Value = new float3(1.0f, newYScale, 1.0f);
+                    var nonUniformScale = new NonUniformScale { Value = new float3(1.0f, newYScale, 1.0f)};
+                    ecb.SetComponent<NonUniformScale>(entityInQueryIndex, group[2].Value, nonUniformScale);
+
                     beeMovement.TimeToChangeVelocity = random.NextFloat(constants.MinBeeChangeVelocityTime, constants.MaxBeeChangeVelocityTime);
                 }
 
