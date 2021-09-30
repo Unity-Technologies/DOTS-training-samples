@@ -297,5 +297,49 @@ PrefabInstance:
       propertyPath: m_Name
       value: LudovicAndDaniel
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8056101332655951679, guid: 5cd72967fdf571e46ab6ed8cd2374713, type: 3}
+    - {fileID: 3795091004710104826, guid: 5cd72967fdf571e46ab6ed8cd2374713, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 5cd72967fdf571e46ab6ed8cd2374713, type: 3}
+--- !u!1 &2076368933 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4181877798982289799, guid: 5cd72967fdf571e46ab6ed8cd2374713,
+    type: 3}
+  m_PrefabInstance: {fileID: 2076368932}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2076368934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076368933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9415eb02337c746b6f2c547e0c5ff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LinePrefab: {fileID: 8459717698011699773, guid: a38a61c15ca137541b57c184501122f4,
+    type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+    type: 3}
+--- !u!1 &2076368935 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8056101332655951678, guid: 5cd72967fdf571e46ab6ed8cd2374713,
+    type: 3}
+  m_PrefabInstance: {fileID: 2076368932}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2076368936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2076368935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bd9063f6e9645444821d20e7ad3dd37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  NbRails: 100

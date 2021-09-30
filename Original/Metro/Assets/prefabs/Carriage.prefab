@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Index: 0
-  Train: {fileID: 0}
+  Train: {fileID: 8106599586059510996, guid: 1eb048b99d5254fe38bc40ef4a7cbbee, type: 3}
 --- !u!1 &1010550110454968
 GameObject:
   m_ObjectHideFlags: 0
