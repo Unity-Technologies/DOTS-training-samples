@@ -74,8 +74,6 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 distArray[distanceIndex] = totalDistance;
                 
                 lastPoint = point;
-
-                outPoints[markerIndex * pointCountPerMarkerSegment + i] = point;
             }
 
             distMarkerSegment[markerIndex] = totalDistance;
@@ -88,7 +86,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         var lastDistancedPoint = railMarkers.First().position;
         int platformIndex = 0;
         int prevMarkerIndex = -1;
-        for (var i = 0; i < pointCount; i++)
+        for (var i = 0; i < pointCount - 1 ; i++)
         {
             var percentage = i*increment;
             var (t, markerIndex) = Sample(distArray, distMarkerSegment, percentage, totalDistance, pointCountPerMarkerSegment);
@@ -182,7 +180,7 @@ public class SplineDataAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
             {
                 var railMarkers = child.GetComponentsInChildren<RailMarker>();
                 ref var newSplineBlobAsset = ref splineArray[lineId++];
-                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.equalDistantPoints, pointCount);
+                var splinePoints = splineBlobBuilder.Allocate(ref newSplineBlobAsset.equalDistantPoints, pointCount -1 );
                 var fullMarkersData = CreateActualRailMarkers(railMarkers, out var nbPlatforms);
                 var splinePlatformPositions = splineBlobBuilder.Allocate(ref newSplineBlobAsset.unitPointPlatformPositions, nbPlatforms);
                 CalculatePoints(fullMarkersData, ref splinePoints, ref splinePlatformPositions, ref newSplineBlobAsset.length);
