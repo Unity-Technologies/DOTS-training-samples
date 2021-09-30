@@ -108,7 +108,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4059157056928284}
-  - component: {fileID: 114672226450690598}
   - component: {fileID: 2429111381386643636}
   - component: {fileID: 170550510048211646}
   - component: {fileID: 2393194544853719189}
@@ -137,27 +136,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114672226450690598
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1005656507454012}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 000f607d4bc524def8c1ef5a1df73255, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  positionOnRail: 0
-  passengers: []
-  seats_FREE: []
-  seats_TAKEN: []
-  passengerCount: 0
-  door_LEFT: {fileID: 114486245202198112}
-  door_RIGHT: {fileID: 114405514483781706}
-  RecolouredObjects:
-  - {fileID: 1004695669804718}
 --- !u!114 &2429111381386643636
 MonoBehaviour:
   m_ObjectHideFlags: 0
