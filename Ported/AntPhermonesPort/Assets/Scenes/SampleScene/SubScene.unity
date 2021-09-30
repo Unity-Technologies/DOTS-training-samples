@@ -400,7 +400,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Ant: {fileID: 6684270110135555796, guid: 976a59c87b3a058409b3070f69572795, type: 3}
-  SpawnAreaSize: 2.5
+  SpawnAreaSize: 0.5
 --- !u!1001 &1934243182
 PrefabInstance:
   m_ObjectHideFlags: 0
