@@ -67,7 +67,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                 cellMapHelper.grid.WorldToCellSpace(ref x, ref y);
 
-                int2 food = new int2 { x = (int)(x - (float)circlePattern.Length / 2), y = (int)(y - (float)circlePattern.Length / 2) };
+                int2 food = new int2 { x = (int)(x - (float)circlePattern.Length / 2) + 1, y = (int)y };
                 cellMapHelper.StampPattern(food.x, food.y, circlePattern, CellState.IsFood);
 
                 x = config.CellMapResolution / 2f;
