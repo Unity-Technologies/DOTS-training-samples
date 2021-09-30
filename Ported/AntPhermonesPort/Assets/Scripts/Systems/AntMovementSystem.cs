@@ -50,14 +50,14 @@ public partial class AntMovementSystem : SystemBase
 
                 // Pheromone
                 var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
-                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/128f) * 3f);
+                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 3f);
                 ant.FacingAngle += pheroSteering * config.PheromoneSteerStrength;
 
                 //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, pheroSteering));
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
-                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/128f) * 1.5f);
+                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 1.5f);
                 ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
                 // ---
