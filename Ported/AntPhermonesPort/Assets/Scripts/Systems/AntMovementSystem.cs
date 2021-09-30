@@ -1,4 +1,4 @@
-﻿using Unity.Collections;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
@@ -28,6 +28,7 @@ public partial class AntMovementSystem : SystemBase
         var config = GetSingleton<Config>();
         var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         var time = Time.DeltaTime;
+        var elapsed = Time.ElapsedTime;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
@@ -44,9 +45,11 @@ public partial class AntMovementSystem : SystemBase
                 ant.FacingAngle += jitterAngle;
 
                 // Pheromone
+                float pheroSteering = 0;
                 var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
-                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 3f);
-                ant.FacingAngle += pheroSteering * config.PheromoneSteerStrength;
+                pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/(float)config.CellMapResolution) * 3f);
+                ant.FacingAngle += ant.HasSeenFood > 0? pheroSteering * config.PheromoneSteerStrength : pheroSteering * config.PheromoneSteerStrength * 0.1f;
+
 
                 //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, pheroSteering));
 
@@ -121,6 +124,7 @@ public partial class AntMovementSystem : SystemBase
                     ant.State = AntState.ReturnToNest;
                     color.Value = new float4(0.7250f, 0.7116f, 0.3973f, 1);
                     turnAroundOther = true;
+                    ant.HasSeenFood = 1;
 
                 }
                 else if (cellState == CellState.IsNest && ant.State != AntState.Searching)
@@ -133,7 +137,7 @@ public partial class AntMovementSystem : SystemBase
                 if (turnAroundWall)
                 {
                     newPos = translation.Value - newPosDelta;
-                    float reflectRandom =  random.NextBool() ? -Mathf.PI /8 * 3 : Mathf.PI / 8 * 3;
+                    float reflectRandom = random.NextBool() ? -Mathf.PI / 8 * 1 : Mathf.PI / 8 * 1;
                     ant.FacingAngle += Mathf.PI + reflectRandom;
                     newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
                 }

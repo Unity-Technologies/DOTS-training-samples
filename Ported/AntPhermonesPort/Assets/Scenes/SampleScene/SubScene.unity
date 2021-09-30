@@ -230,21 +230,21 @@ MonoBehaviour:
   WorldSize: 30
   CellMapResolution: 128
   AntCount: 1000
-  MoveSpeed: 20
-  RotationSpeed: 20
+  MoveSpeed: 10
+  RotationSpeed: 30
   AntAcceleration: 0.07
-  AntHasFoodPeromoneMultiplier: 10
+  AntHasFoodPeromoneMultiplier: 3
   RingCount: 3
   RingDistance: 3
-  RingAngleSize: 120
+  RingAngleSize: 160
   MaxEntriesPerRing: 2
-  PheromoneProductionPerSecond: 0.2
-  PheromoneDecayRate: 0.99
+  PheromoneProductionPerSecond: 0.01
+  PheromoneDecayRate: 0.997
   RandomSeed: 799
-  RandomSteering: 0.1
+  RandomSteering: 0.25
   PheromoneSteerStrength: 0.02
   WallSteerStrength: 0.2
-  GoalSteerStrength: 0.04
+  GoalSteerStrength: 0.1
 --- !u!33 &663330107
 MeshFilter:
   m_ObjectHideFlags: 0
