@@ -76,7 +76,7 @@ public partial class WallSpawnerSystem : SystemBase
                 x = config.CellMapResolution / 2f;
                 y = config.CellMapResolution / 2f;
 
-                cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2), (int)(y - (float)circlePattern.Length / 2), circlePattern, CellState.IsNest);
+                cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2) + 1, (int)y, circlePattern, CellState.IsNest);
 
             }).Run();
 
@@ -101,12 +101,12 @@ public partial class WallSpawnerSystem : SystemBase
             float y = Mathf.Sin(tmpAngle) * distance;
 
             var instance = ecb.Instantiate(wallSpawner.WallComponent);
-            ecb.SetComponent(instance, new Translation { Value = new float3(x-0.2f, 0, y-0.6f) });
+            ecb.SetComponent(instance, new Translation { Value = new float3(x, 0, y) });
 
             // convert back. I know this is dumb, but I'm doing this quick
             cellMapHelper.grid.WorldToCellSpace(ref x, ref y);
 
-            cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2),(int)( y - (float)circlePattern.Length / 2), circlePattern, CellState.IsObstacle);
+            cellMapHelper.StampPattern((int)(x - (float)circlePattern.Length / 2) + 1 ,(int)y, circlePattern, CellState.IsObstacle);
         }
     }
 }
