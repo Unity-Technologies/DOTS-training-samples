@@ -68,7 +68,7 @@ public partial class BeeMovementSystem : SystemBase
                     math.cos(beeMovement.Weave.y + entityInQueryIndex) * constants.BeeWeaveAmplitude.y);
 
                 // clamp to world bounds
-                translation.Value = WorldUtils.ClampToWorldBounds(bounds, translation.Value, 2.0f);
+                translation.Value = WorldUtils.ClampToWorldBounds(bounds, translation.Value, 0.5f);
 
                 float distanceSqToTarget = math.distancesq(target.TargetPosition, translation.Value);
 
