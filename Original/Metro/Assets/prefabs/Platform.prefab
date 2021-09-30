@@ -4328,6 +4328,7 @@ GameObject:
   - component: {fileID: 4472932178448170}
   - component: {fileID: 114896601653018800}
   - component: {fileID: 4134127816469671448}
+  - component: {fileID: 5238713887558483187}
   m_Layer: 0
   m_Name: Platform
   m_TagString: Untagged
@@ -4395,6 +4396,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Train: {fileID: 0}
+--- !u!114 &5238713887558483187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891511846621564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a20f0c403e3944bfa5338a4da9cdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1917900291829536
 GameObject:
   m_ObjectHideFlags: 0
