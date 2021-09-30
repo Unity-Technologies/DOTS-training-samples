@@ -290,6 +290,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MinBeesToSpawnFromFood: 2
   MaxBeesToSpawnFromFood: 5
+  MinBeeVelocity: 1
+  MaxBeeVelocity: 20
+  MinBeeChangeVelocityTime: 0.1
+  MaxBeeChangeVelocityTime: 0.2
 --- !u!4 &1784043514
 Transform:
   m_ObjectHideFlags: 0

@@ -17,6 +17,7 @@ public partial class BeeMovementSystem : SystemBase
     {
         var transLookup = GetComponentDataFromEntity<Translation>(true);
         var bounds = GetSingleton<WorldBounds>();
+        Constants constants = GetSingleton<Constants>();
         uint seed = random.NextUInt();
  
         // Update our target position
@@ -45,11 +46,19 @@ public partial class BeeMovementSystem : SystemBase
         // Movement Update
         Entities
             .WithAny<TeamRed, TeamBlue>()
-            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, in DynamicBuffer<LinkedEntityGroup> group) =>
+            .ForEach((Entity beeEntity, int entityInQueryIndex, ref Translation translation, ref Target target, ref BeeMovement beeMovement, in DynamicBuffer<LinkedEntityGroup> group) =>
             {
-                translation.Value += (math.normalize(target.TargetPosition - translation.Value) * 5.0f * dtTime);
+                translation.Value += (math.normalize(target.TargetPosition - translation.Value) * beeMovement.CurrentVelocity * dtTime);
 
                 float distanceSqToTarget = math.distancesq(target.TargetPosition, translation.Value);
+
+                var random = new Random((uint)entityInQueryIndex + seed);
+                beeMovement.TimeToChangeVelocity -= dtTime;
+                if(beeMovement.TimeToChangeVelocity < 0.0f)
+                {
+                    beeMovement.CurrentVelocity = random.NextFloat(constants.MinBeeVelocity, constants.MaxBeeVelocity);
+                    beeMovement.TimeToChangeVelocity = random.NextFloat(constants.MinBeeChangeVelocityTime, constants.MaxBeeChangeVelocityTime);
+                }
 
                 if (distanceSqToTarget <= 4.0f)
                 {
@@ -74,7 +83,6 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else if (target.TargetType == TargetType.Food)
                     {
-                        var random = new Random((uint)entityInQueryIndex + seed);
                         target.TargetType = TargetType.Hive;
                         target.TargetPosition = (HasComponent<TeamRed>(beeEntity) 
                             ? WorldUtils.GetRedHiveRandomPosition(bounds, ref random) 
