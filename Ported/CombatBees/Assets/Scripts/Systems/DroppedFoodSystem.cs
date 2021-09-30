@@ -34,7 +34,7 @@ public partial class DroppedFoodSystem : SystemBase
                 {
                     Prefab = prefabs.SpawnCloudPrefab,
                     Position = translation.Value,
-                    Lifetime = 2.0f,
+                    Lifetime = 1.5f,
                     Speed = 5.0f,
                     Count = 5,
                 };

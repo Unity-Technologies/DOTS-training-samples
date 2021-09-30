@@ -99,7 +99,7 @@ public partial class BeeMovementSystem : SystemBase
                             Position = translation.Value,
                             Lifetime = 10.0f,
                             Speed = 8.0f,
-                            Count = 5,
+                            Count = 3,
                         };
                         ecb.SetComponent(entityInQueryIndex, bloodSpawnerEntity, bloodSpawner);
                         
