@@ -8,4 +8,6 @@ public struct Spawner : IComponentData
     public Entity BeamPrefab;
     public int TowerCount;
     public int GroundPoints;
+    public int maxTowerHeight;
+    public float groundToCoverSize;
 }

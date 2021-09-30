@@ -52,7 +52,7 @@ public partial class PointSimulationSystem : SystemBase
 				float startY = point.y;
 				float startZ = point.z;
 
-				previousPoint.y += .01f;
+				previousPoint.y += constants.gravity;
 
 				// tornado force
 				float tdx = tornado.tornadoX + TornadoSway(point.y, elapsedTime) - point.x;
