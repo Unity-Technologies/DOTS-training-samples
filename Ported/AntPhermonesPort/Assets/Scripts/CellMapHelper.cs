@@ -163,6 +163,12 @@ public struct CellMapHelper
             cellmap.ElementAt(y * gridSize + x).state = state;
     }
 
+    public void Set(int index, CellState state)
+    {
+        if (index >= 0 && index < cellmap.Length)
+            cellmap.ElementAt(index).state = state;
+    }
+
     public CellState Get(int x, int y)
     {
         return cellmap[y * gridSize + x].state;
