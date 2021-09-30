@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Assets.Scripts.Components;
 using Unity.Burst;
 using Unity.Collections;
@@ -18,10 +19,13 @@ public partial class PointSimulationSystem : SystemBase
 	private struct PointSimulationSystemJob : IJobParallelFor
 	{
 		[ReadOnly]
+		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<CurrentPoint> InputCurrentPoints;
 		[ReadOnly]
+		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<PreviousPoint> InputPreviousPoints;
 		[ReadOnly]
+		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<AnchorPoint> Anchors;
 		[ReadOnly]
 		public Tornado tornado;
@@ -106,12 +110,12 @@ public partial class PointSimulationSystem : SystemBase
 
 	protected override void OnUpdate()
     {
-		var ecb = new EntityCommandBuffer(Allocator.Temp);
+		/*var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 		var worldEntity = GetSingletonEntity<World>();
 		var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
 		var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
-		var anchors = GetBuffer<AnchorPoint>(worldEntity);
+		var anchors = GetBuffer<AnchorPoint>(worldEntity);*/
 
 		var tornado = GetSingleton<Tornado>();
 		var constants = GetSingleton<PhysicalConstants>();
@@ -122,23 +126,43 @@ public partial class PointSimulationSystem : SystemBase
 		SetSingleton<Tornado>(tornado);
 
 		float invDamping = 1f - constants.airResistance;
+		
+		var beamBatches = new List<BeamBatch>();
+		EntityManager.GetAllUniqueSharedComponentData(beamBatches);
+		var worldQuery = GetEntityQuery(typeof(World), typeof(BeamBatch));
 
-		var job = new PointSimulationSystemJob();
 
-		job.elapsedTime = (float)Time.ElapsedTime;
-		job.InputCurrentPoints = currentPoints.AsNativeArray();
-		job.InputPreviousPoints = previousPoints.AsNativeArray();
-		job.Anchors = anchors.AsNativeArray();
-		job.OutputCurrentPoints = currentPoints.AsNativeArray();
-		job.OutputPreviousPoints = previousPoints.AsNativeArray();
-		job.tornado = tornado;
-		job.random = random;
-		job.constants = constants;
+		for (var i = 0; i < beamBatches.Count; i++) {
+			
+			worldQuery.SetSharedComponentFilter(beamBatches[i]);
+			
+			var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
+			//Assert.AreEqual(1, worldEntities.Length);
+			var worldEntity = worldEntities[0];
+			
+			var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
+			var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
+			var anchors = GetBuffer<AnchorPoint>(worldEntity);
+			//var neighborCounts = GetBuffer<NeighborCount>(worldEntity);
 
-		var handle = job.Schedule(currentPoints.Length, 64, Dependency);
+			var job = new PointSimulationSystemJob();
+
+			job.elapsedTime = (float)Time.ElapsedTime;
+			job.InputCurrentPoints = currentPoints.AsNativeArray();
+			job.InputPreviousPoints = previousPoints.AsNativeArray();
+			job.Anchors = anchors.AsNativeArray();
+			job.OutputCurrentPoints = currentPoints.AsNativeArray();
+			job.OutputPreviousPoints = previousPoints.AsNativeArray();
+			job.tornado = tornado;
+			job.random = random;
+			job.constants = constants;
+
+			var handle = job.Schedule(currentPoints.Length, 64, Dependency);
+			Dependency = JobHandle.CombineDependencies(Dependency, handle);
+		}
 
 		//TODO: complete in the optimal place
-		handle.Complete();
+		Dependency.Complete();
 		 
 
 	}

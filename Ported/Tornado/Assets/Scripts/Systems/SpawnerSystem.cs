@@ -34,19 +34,9 @@ public partial class SpawnerSystem : SystemBase
     private static void SpawnBuildings(EntityCommandBuffer ecb, Spawner spawner, Random random)
     {
 	    const int maxTowerHeight = 12;
-        var instance = ecb.CreateEntity();
 
 
-        ecb.AddComponent<World>(instance);
-
-        var beamBatch = new BeamBatch() { Value = 0 };
-        ecb.AddSharedComponent(instance, beamBatch);
-
-
-        var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
-        var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
-        var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
-        var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
+      
 
         var maxPoints = spawner.TowerCount * maxTowerHeight * 3 + spawner.GroundPoints * 2;
         /*
@@ -58,7 +48,11 @@ public partial class SpawnerSystem : SystemBase
         var tempPrevious = new NativeArray<PreviousPoint>(maxPoints, Allocator.TempJob);
         var tempAnchor = new NativeArray<AnchorPoint>(maxPoints, Allocator.TempJob);
 
+        var towerOwnership = new NativeArray<int>(maxPoints, Allocator.TempJob);
+
+
         var pointCount = 0;
+        var towerID = 0;
         // buildings
 		for (int i = 0; i < spawner.TowerCount; i++) {
 			int height = random.NextInt(4,maxTowerHeight);
@@ -75,6 +69,7 @@ public partial class SpawnerSystem : SystemBase
 				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
 				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
 				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				towerOwnership[pointCount] = towerID;
 				pointCount++;
 
 				currentPosition.x = pos.x-spacing;
@@ -84,6 +79,7 @@ public partial class SpawnerSystem : SystemBase
 				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
 				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
 				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				towerOwnership[pointCount] = towerID;
 				pointCount++;
 
 				currentPosition.x = pos.x+0f;
@@ -93,9 +89,10 @@ public partial class SpawnerSystem : SystemBase
 				tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
 				tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
 				tempAnchor[pointCount] = new AnchorPoint() { Value = j == 0 };
+				towerOwnership[pointCount] = towerID;
 				pointCount++;
-
 			}
+			towerID++;
 		}
 
 		// ground details
@@ -109,6 +106,7 @@ public partial class SpawnerSystem : SystemBase
 			tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
 			tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
 			tempAnchor[pointCount] = new AnchorPoint() { Value = false };
+			towerOwnership[pointCount] = towerID;
 			pointCount++;
 
 			currentPosition.x = pos.x + random.NextFloat(.2f,.1f);
@@ -118,8 +116,11 @@ public partial class SpawnerSystem : SystemBase
 			tempCurrent[pointCount] = new CurrentPoint() { Value = currentPosition};
 			tempPrevious[pointCount] = new PreviousPoint() { Value = currentPosition };
 			tempAnchor[pointCount] = new AnchorPoint() { Value = (random.NextFloat()<.1f) };
+			towerOwnership[pointCount] = towerID;
 			pointCount++;
 		}
+
+		towerID++;
 
 
 		//var tempNeighbor = new NeighborCount[pointCount];
@@ -131,6 +132,10 @@ public partial class SpawnerSystem : SystemBase
 		for (int i = 0; i < pointCount; i++) {
 			for (int j = i + 1; j < pointCount; j++) {
 
+				//TODO: this changes the initial behavior, since now it means towers cannot interconnect
+				if(towerOwnership[i] != towerOwnership[j])
+					continue;
+				
 				var beamSize = math.length(tempCurrent[i].Value - tempCurrent[j].Value);
 
 				if (beamSize < 5f && beamSize>.2f) {
@@ -140,59 +145,87 @@ public partial class SpawnerSystem : SystemBase
 				}
 			}
 		}
-		
-		bufferCurrent.Capacity = beamCount * 2;
-		bufferPrevious.Capacity = beamCount * 2;
-		neighborBuffer.Capacity = beamCount * 2;
-		anchorBuffer.Capacity = beamCount * 2;
-		
-		var fPointCount = 0;
-		for (int i=0;i<pointCount;i++) {
-			if (tempNeighbor[i].Value > 0)
-			{
-				bufferCurrent.Add(tempCurrent[i]);
-				bufferPrevious.Add(tempPrevious[i]);
-				anchorBuffer.Add(tempAnchor[i]);
-				neighborBuffer.Add(new NeighborCount() { Value = 0 });
-				fPointCount++;
-			}
-		}
 
-		ecb.RemoveComponent<Translation>(spawner.BeamPrefab);
-		ecb.RemoveComponent<Rotation>(spawner.BeamPrefab);
-		ecb.RemoveComponent<NonUniformScale>(spawner.BeamPrefab);
-		 
-		var barCount = 0;
-		//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
-		for (int i = 0; i < fPointCount; i++) {
-			for (int j = i + 1; j < fPointCount; j++) {
-				var delta = bufferCurrent[i].Value - bufferCurrent[j].Value;
-				var beamSize = math.length(delta);
+		for (int t = 0; t < towerID; t++)
+		{
+			var instance = ecb.CreateEntity();
+			ecb.AddComponent<World>(instance);
 
-				if (beamSize < 5f && beamSize>.2f) {
+			var beamBatch = new BeamBatch() { Value = t };
+			ecb.AddSharedComponent(instance, beamBatch);
+			
+			var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
+			var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
+			var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
+			var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
+			
+			bufferCurrent.Capacity = beamCount * 2;
+			bufferPrevious.Capacity = beamCount * 2;
+			neighborBuffer.Capacity = beamCount * 2;
+			anchorBuffer.Capacity = beamCount * 2;
 
-					var beamEntity =  ecb.Instantiate(spawner.BeamPrefab);
-					ecb.AddSharedComponent(beamEntity, beamBatch);
-					
-					var beam = new Beam()
-					{
-						pointAIndex = i,
-						pointBIndex = j,
-						size = beamSize
-					};
-					neighborBuffer[i] = new NeighborCount { Value = neighborBuffer[i].Value + 1 };
-					neighborBuffer[j] = new NeighborCount { Value = neighborBuffer[j].Value + 1 };
-					ecb.SetComponent(beamEntity, beam);
-					barCount++;
-					
-					float upDot = math.acos(math.abs(math.dot(new float3(0f,1f,0f), math.normalize(delta))))/math.PI;
-					ecb.SetComponent(beamEntity, new URPMaterialPropertyBaseColor()
-					{
-						Value =  new float4(1f,1f,1f,1f) * upDot * random.NextFloat(.7f,1f)
-					});
+			var compactOwnership = new List<int>();
+			
+			var fPointCount = 0;
+			for (int i=0;i<pointCount;i++) {
+				if (tempNeighbor[i].Value > 0 && towerOwnership[i] == t )
+				{
+					bufferCurrent.Add(tempCurrent[i]);
+					bufferPrevious.Add(tempPrevious[i]);
+					anchorBuffer.Add(tempAnchor[i]);
+					neighborBuffer.Add(new NeighborCount() { Value = 0 });
+					compactOwnership.Add(towerOwnership[i]);
+					fPointCount++;
 				}
 			}
+
+			ecb.RemoveComponent<Translation>(spawner.BeamPrefab);
+			ecb.RemoveComponent<Rotation>(spawner.BeamPrefab);
+			ecb.RemoveComponent<NonUniformScale>(spawner.BeamPrefab);
+			 
+			var barCount = 0;
+			//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
+			for (int i = 0; i < fPointCount; i++) {
+				for (int j = i + 1; j < fPointCount; j++) {
+					
+					//TODO: this changes the initial behavior, since now it means towers cannot interconnect
+					if(compactOwnership[i] != compactOwnership[j])
+						continue;
+					
+					var delta = bufferCurrent[i].Value - bufferCurrent[j].Value;
+					var beamSize = math.length(delta);
+
+					if (beamSize < 5f && beamSize>.2f) {
+
+						var beamEntity =  ecb.Instantiate(spawner.BeamPrefab);
+						ecb.AddSharedComponent(beamEntity, beamBatch);
+						
+						var beam = new Beam()
+						{
+							pointAIndex = i,
+							pointBIndex = j,
+							size = beamSize
+						};
+						neighborBuffer[i] = new NeighborCount { Value = neighborBuffer[i].Value + 1 };
+						neighborBuffer[j] = new NeighborCount { Value = neighborBuffer[j].Value + 1 };
+						ecb.SetComponent(beamEntity, beam);
+						barCount++;
+						
+						float upDot = math.acos(math.abs(math.dot(new float3(0f,1f,0f), math.normalize(delta))))/math.PI;
+						ecb.SetComponent(beamEntity, new URPMaterialPropertyBaseColor()
+						{
+							Value =  new float4(1f,1f,1f,1f) * upDot * random.NextFloat(.7f,1f)
+						});
+					}
+				}
+			}
+			
 		}
+		
+		
+
+
+		
 
 		//Debug.Log(fPointCount + " points, extra room for " + (bufferCurrent.Length - fPointCount)  + " (" +barCount + " bars)");
 		 

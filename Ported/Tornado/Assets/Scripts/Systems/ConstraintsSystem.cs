@@ -50,14 +50,6 @@ public partial class ConstraintsSystem : SystemBase
 		return outputNeighborBuffer.Length-1;
 	}
 
-	[BurstCompile]
-	private struct PointSimulationSystemJob : IJobParallelFor
-	{
-		public void Execute(int index)
-		{
-			throw new System.NotImplementedException();
-		}
-	}
 
 	protected override void OnCreate()
 	{
@@ -80,15 +72,20 @@ public partial class ConstraintsSystem : SystemBase
 		//public NativeArray<Beam> InputBeams;
 
 		[ReadOnly]
+		[NativeDisableContainerSafetyRestriction]
 		public DynamicBuffer<CurrentPoint> InputCurrentPoints;
 
 		[ReadOnly] 
+		[NativeDisableContainerSafetyRestriction]
 		public DynamicBuffer<PreviousPoint> InputPreviousPoints;
 
 		[ReadOnly] 
+		[NativeDisableContainerSafetyRestriction]
+
 		public DynamicBuffer<NeighborCount> InputNeighborCounts;
 		
 		[ReadOnly]
+		[NativeDisableContainerSafetyRestriction]
 		public DynamicBuffer<AnchorPoint> InputAnchors;
 		
 		//[WriteOnly]
@@ -234,14 +231,15 @@ public partial class ConstraintsSystem : SystemBase
 
 		var worldQuery = GetEntityQuery(typeof(World), typeof(BeamBatch));
 		var beamQuery = GetEntityQuery(typeof(Beam), typeof(URPMaterialPropertyBaseColor), typeof(BeamBatch));
-		
-		
+
+		var allHandle = new JobHandle();
+		var aggregatedHandle = new JobHandle();
 		
 
 		for (var i = 0; i < beamBatches.Count; i++) {
 			
-			//beamQuery.SetSharedComponentFilter(beamBatches[i]);
-			//worldQuery.SetSharedComponentFilter(beamBatches[i]);
+			beamQuery.SetSharedComponentFilter(beamBatches[i]);
+			worldQuery.SetSharedComponentFilter(beamBatches[i]);
 			
 			var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
 			//Assert.AreEqual(1, worldEntities.Length);
@@ -261,10 +259,10 @@ public partial class ConstraintsSystem : SystemBase
 			var archetypeChuncks = beamQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
 
-			//m_BeamComponentTypeHandle.Update(this);
-			//m_ColorComponentTypeHandle.Update(this);
-			m_BeamComponentTypeHandle = GetComponentTypeHandle<Beam>();
-			m_ColorComponentTypeHandle = GetComponentTypeHandle<URPMaterialPropertyBaseColor>();
+			m_BeamComponentTypeHandle.Update(this);
+			m_ColorComponentTypeHandle.Update(this);
+			//m_BeamComponentTypeHandle = GetComponentTypeHandle<Beam>();
+			//m_ColorComponentTypeHandle = GetComponentTypeHandle<URPMaterialPropertyBaseColor>();
 
 
 			//dispatch job
@@ -288,19 +286,22 @@ public partial class ConstraintsSystem : SystemBase
 					
 			};
 			//TODO: this should run each job in parallel
-			var handle = job.Schedule();
+			var handle = job.Schedule(allHandle);
 			//handle.Complete();
 			
 			//beamQuery.CopyFromComponentDataArray(job.OutputBeams);
 			//beamQuery.CopyFromComponentDataArray(job.OutputColors);
 			
+			aggregatedHandle = JobHandle.CombineDependencies(handle, aggregatedHandle);
+
 			
-			Dependency = JobHandle.CombineDependencies(Dependency, handle);
 
 
 			//TODO: do we need to dispose the arrays?
 			
 		}
+		aggregatedHandle.Complete();
+		//Dependency = JobHandle.CombineDependencies(Dependency, allHandle);
 		
 		Dependency.Complete();
 
