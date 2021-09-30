@@ -52,7 +52,7 @@ public struct PheromoneMapHelper
     public float GetPheromoneIntensityFrom2DPos(float2 xy)
     {
         int index = grid.GetNearestIndex(xy);
-        if (index < 0 || index > pheromoneMap.Length)
+        if (index < 0 || index >= pheromoneMap.Length)
         {
             //Debug.LogError(string.Format("[Cell Map] Position is outside cell map {0}, {1}", xy.x, xy.y));
             return -1;
