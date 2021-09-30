@@ -7,8 +7,12 @@ using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class AntMovementSystem : SystemBase
 {
-    float timerElapsed = 0;
-    float timerTick = 2f;
+    Unity.Mathematics.Random seededRandom;
+
+    protected override void OnStartRunning()
+    {
+        seededRandom = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
+    }
 
     protected override void OnUpdate()
     {
@@ -16,27 +20,16 @@ public partial class AntMovementSystem : SystemBase
         // - jitter factor LOW (.14 for jitter)
         // - pheromone factor LOW .015
         // - collision factor HIGH .12
-        // - LOS factor 
+        // - LOS factor
         // - Nest factor
 
         // METHOD
-        // 
+        //
 
-        var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         var config = GetSingleton<Config>();
+        var random = seededRandom;
         var time = Time.DeltaTime;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        //bool isNewTargetTick = false;
-        //timerElapsed += time;
-
-        //if (timerElapsed > timerTick)
-        //{
-        //    timerElapsed -= timerTick;
-        //    isNewTargetTick = true;
-        //    //Debug.Log(string.Format("Tick"));
-        //}
-
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
@@ -63,29 +56,7 @@ public partial class AntMovementSystem : SystemBase
                 // ---
                 //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
 
-
-                //if (isNewTargetTick)
-                //{
-                //    ant.Target = rotation.Value * Quaternion.Euler(0, random.NextFloat(0, 360), 0);
-
-                //    if (isFirst)
-                //    {
-                //        //Debug.Log(string.Format("Tick {0}", ant.Target.eulerAngles.y));
-                //    }
-                //}
-
-                //Quaternion _rotationDelta = Quaternion.Euler(0, random.NextFloat(-15*time, 15*time), 0);
-
-                // Need the amount the ant will rotate this frame
-                //Quaternion _rotateThisFrame = Quaternion.RotateTowards(
-                //    rotation.Value,
-                //    ant.Target,
-                //    config.RotationSpeed * time
-                //);
-
-                //rotation.Value = _rotateThisFrame;
                 var newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
-
 
                 //Debug.Log(string.Format("{0} {1} {2} {3}",
                 //    ant.FacingAngle,
@@ -126,7 +97,8 @@ public partial class AntMovementSystem : SystemBase
     {
         float output = 0;
 
-        for (int i=-1;i<=1;i+=2) {
+        for (int i=-1;i<=1;i+=2)
+        {
             float angle = facingAngle + i * Mathf.PI*.25f;
             float testX = antPosition.x + Mathf.Cos(angle) * distance;
             float testY = antPosition.y + Mathf.Sin(angle) * distance;
@@ -141,7 +113,11 @@ public partial class AntMovementSystem : SystemBase
         return output == 0f ? 0f : Mathf.Sign(output);
     }
 
-    static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance) {
+    static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance)
+    {
+        // If wall detected to the right or left of the current direction then return -1 / 1 so that we steer away from it
+        // If no wall then it returns 0
+        // TBD: if wall detected in both checked directions then it continues towards collision, is that desirable?
         int output = 0;
 
         for (int i = -1; i <= 1; i+=2) {
