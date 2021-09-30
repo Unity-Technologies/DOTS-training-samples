@@ -11,4 +11,6 @@ public struct World : IComponentData
 struct BeamBatch : ISharedComponentData
 {
     public int Value;
+    public int pointStartIndex;
+    public int pointEndIndex;
 }

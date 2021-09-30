@@ -127,6 +127,7 @@ public partial class SpawnerSystem : SystemBase
 		var tempNeighbor = new NativeArray<NeighborCount>(pointCount, Allocator.TempJob);
 
 
+		var towerBeamCount = new Dictionary<int,int>();
 		//TODO: this seems to be 10x bigger than it should be, debug and fix
 		var beamCount = 0; 
 		for (int i = 0; i < pointCount; i++) {
@@ -142,28 +143,27 @@ public partial class SpawnerSystem : SystemBase
 					tempNeighbor[i] = new NeighborCount { Value = tempNeighbor[i].Value + 1 };
 					tempNeighbor[j] = new NeighborCount { Value = tempNeighbor[j].Value + 1 };
 					beamCount++;
+					towerBeamCount[towerOwnership[i]]++;
 				}
 			}
 		}
+		
+		var instance = ecb.CreateEntity();
+		ecb.AddComponent<World>(instance);
+		
+		var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
+		var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
+		var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
+		var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
+		
+		bufferCurrent.Capacity = beamCount * 2;
+		bufferPrevious.Capacity = beamCount * 2;
+		neighborBuffer.Capacity = beamCount * 2;
+		anchorBuffer.Capacity = beamCount * 2;
 
+		var beamsUsedByPreviousTower = 0;
 		for (int t = 0; t < towerID; t++)
 		{
-			var instance = ecb.CreateEntity();
-			ecb.AddComponent<World>(instance);
-
-			var beamBatch = new BeamBatch() { Value = t };
-			ecb.AddSharedComponent(instance, beamBatch);
-			
-			var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
-			var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
-			var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
-			var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
-			
-			bufferCurrent.Capacity = beamCount * 2;
-			bufferPrevious.Capacity = beamCount * 2;
-			neighborBuffer.Capacity = beamCount * 2;
-			anchorBuffer.Capacity = beamCount * 2;
-
 			var compactOwnership = new List<int>();
 			
 			var fPointCount = 0;
@@ -182,6 +182,15 @@ public partial class SpawnerSystem : SystemBase
 			ecb.RemoveComponent<Translation>(spawner.BeamPrefab);
 			ecb.RemoveComponent<Rotation>(spawner.BeamPrefab);
 			ecb.RemoveComponent<NonUniformScale>(spawner.BeamPrefab);
+			var beamBatch = new BeamBatch()
+			{
+				Value = t,
+				pointStartIndex = beamsUsedByPreviousTower * 2,
+				pointEndIndex = (beamsUsedByPreviousTower + towerBeamCount[t]) * 2,
+				
+			};
+			beamsUsedByPreviousTower += towerBeamCount[t];
+
 			 
 			var barCount = 0;
 			//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
@@ -219,6 +228,8 @@ public partial class SpawnerSystem : SystemBase
 					}
 				}
 			}
+			
+			
 			
 		}
 		
