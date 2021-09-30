@@ -22,6 +22,8 @@ public partial class WallSpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
+                UnityEngine.Time.timeScale = config.Speed;
+
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
                 cellMapHelper.InitCellMap();
                 cellMapHelper.InitBorders();

@@ -13,11 +13,6 @@ public enum AntState : byte
 [GenerateAuthoringComponent]
 public struct AntMovement : IComponentData
 {
-    public Quaternion Target; // old
-
-    public float2 Direction;
-    public float2 Position;
-    
     public float FacingAngle;
     
     public AntState State;
