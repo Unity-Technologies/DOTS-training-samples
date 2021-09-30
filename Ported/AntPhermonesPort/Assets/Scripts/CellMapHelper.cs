@@ -209,11 +209,17 @@ public struct CellMapHelper
 
     public CellState Get(int x, int y)
     {
-        return cellmap[y * grid.gridDimLength + x].state;
+        int pos = y * grid.gridDimLength + x;
+        if (pos < 0 || pos >= cellmap.Length)
+            return CellState.IsObstacle;
+        return cellmap[pos].state;
     }
 
     public CellState Get(int2 xy)
     {
-        return cellmap[xy.y * grid.gridDimLength + xy.x].state;
+        int pos = xy.y * grid.gridDimLength + xy.x;
+        if (pos < 0 || pos >= cellmap.Length)
+            return CellState.IsObstacle;
+        return cellmap[pos].state;
     }
 }

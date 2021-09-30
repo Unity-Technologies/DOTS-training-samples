@@ -63,12 +63,20 @@ public struct PheromoneMapHelper
 
     public void Set(int x, int y, float state)
     {
-        pheromoneMap.ElementAt(y * grid.gridDimLength + x).intensity = state;
+        int pos = y * grid.gridDimLength + x;
+        if (pos < 0 || pos >= pheromoneMap.Length)
+            return;
+
+        pheromoneMap.ElementAt(pos).intensity = state;
     }
 
     public float Get(int x, int y)
     {
-        return pheromoneMap[y * grid.gridDimLength + x].intensity.x;
+        int pos = y * grid.gridDimLength + x;
+        if (pos < 0 || pos >= pheromoneMap.Length)
+            return 0f;
+
+        return pheromoneMap[pos].intensity.x;
     }
 
     public void IncrementIntensity(float2 position, float increaseValue, float debugLineTime = 0)
@@ -86,11 +94,11 @@ public struct PheromoneMapHelper
         if(debugLineTime != 0) grid.DrawDebugRay(index, new Color(1, 0, 0.2f, 1), debugLineTime);
     }
 
-    public void DecrementIntensity(float decreaseValue)
+    public void DecrementIntensity(float decayRate)
     {
         for(int i = 0; i<pheromoneMap.Length; i++)
         {
-            var newIntensity = pheromoneMap[i].intensity.x - decreaseValue;
+            var newIntensity = pheromoneMap[i].intensity.x * decayRate;
             if (newIntensity < 0)
                 newIntensity = 0;
 

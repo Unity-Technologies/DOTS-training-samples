@@ -239,7 +239,7 @@ MonoBehaviour:
   RingAngleSize: 120
   MaxEntriesPerRing: 2
   PheromoneProductionPerSecond: 0.2
-  PheromoneDecayPerSecond: 0.02
+  PheromoneDecayRate: 0.99
   RandomSeed: 799
   RandomSteering: 0.1
   PheromoneSteerStrength: 0.02

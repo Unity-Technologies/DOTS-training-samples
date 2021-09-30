@@ -14,6 +14,6 @@ public partial class PheromoneDecaySystem : SystemBase
         Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
         PheromoneMapHelper helper = new PheromoneMapHelper(EntityManager.GetBuffer<PheromoneMap>(pheromoneMapEntity), config.CellMapResolution, config.WorldSize);
 
-        helper.DecrementIntensity(config.PheromoneDecayPerSecond * Time.DeltaTime);
+        helper.DecrementIntensity(config.PheromoneDecayRate);
     }
 }

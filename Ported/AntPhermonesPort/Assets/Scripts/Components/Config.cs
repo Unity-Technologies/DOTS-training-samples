@@ -25,7 +25,8 @@ public struct Config : IComponentData
 	public int MaxEntriesPerRing;
 
 	public float PheromoneProductionPerSecond; // per second pheromone dropped by ant
-	public float PheromoneDecayPerSecond; // per second pheromone decay for all phermone
+
+	public float PheromoneDecayRate; // 0 is instant decay, 1 is no decay at all
 
 	public uint RandomSeed;
 
