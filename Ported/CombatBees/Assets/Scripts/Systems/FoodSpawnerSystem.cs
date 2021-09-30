@@ -28,20 +28,35 @@ public partial class FoodSpawnerSystem : SystemBase
                 // when something should only be processed once then forgotten.
                 if (!spawner.DidSpawn)
                 {
-                    Random random = new Random((uint)entityInQueryIndex + seed);    
-                    float3 spawnMin = bounds.AABB.Min;
-                    spawnMin.x += bounds.HiveOffset + 50;
-
-                    float3 spawnMax = bounds.AABB.Max;
-                    spawnMax.x -= bounds.HiveOffset + 50;
-                    for (int i = 0; i < spawner.InitialFoodCount; ++i)
+                    //check if we are placing food and check if we dropped in a hive
+                    if (spawner.PlaceFood)
                     {
-                        float3 position = random.NextFloat3(spawnMin, spawnMax);
-                        position = WorldUtils.ClampToWorldBounds(bounds, position, 0.5f);
-                        
+                        float3 position = WorldUtils.ClampToWorldBounds(bounds, spawner.SpawnLocation, 0.5f);
                         var instance = ecb.Instantiate(prefabs.FoodPrefab);
                         var translation = new Translation {Value = position};
                         ecb.SetComponent(instance, translation);
+                        if (WorldUtils.IsInBlueHive(bounds, spawner.SpawnLocation)|| WorldUtils.IsInRedHive(bounds, spawner.SpawnLocation))
+                        {
+                            ecb.AddComponent(instance, new InHive(){});
+                        }
+                        spawner.PlaceFood = false;
+                    }
+                    else
+                    {
+                        Random random = new Random((uint) entityInQueryIndex + seed);
+                        float3 spawnMin = bounds.AABB.Min;
+                        spawnMin.x += bounds.HiveOffset + 50;
+
+                        float3 spawnMax = bounds.AABB.Max;
+                        spawnMax.x -= bounds.HiveOffset + 50;
+                        for (int i = 0; i < spawner.InitialFoodCount; ++i)
+                        {
+                            float3 position = random.NextFloat3(spawnMin, spawnMax);
+                            position = WorldUtils.ClampToWorldBounds(bounds, position, 0.5f);
+                            var instance = ecb.Instantiate(prefabs.FoodPrefab);
+                            var translation = new Translation {Value = position};
+                            ecb.SetComponent(instance, translation);
+                        }
                     }
 
                     spawner.DidSpawn = true;
