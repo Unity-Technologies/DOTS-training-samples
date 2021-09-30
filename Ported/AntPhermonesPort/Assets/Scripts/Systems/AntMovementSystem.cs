@@ -7,13 +7,6 @@ using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class AntMovementSystem : SystemBase
 {
-    Unity.Mathematics.Random seededRandom;
-
-    protected override void OnStartRunning()
-    {
-        seededRandom = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
-    }
-
     protected override void OnUpdate()
     {
         // weighted rotation
@@ -27,7 +20,7 @@ public partial class AntMovementSystem : SystemBase
         //
 
         var config = GetSingleton<Config>();
-        var random = seededRandom;
+        var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         var time = Time.DeltaTime;
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
