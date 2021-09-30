@@ -37,7 +37,7 @@ public partial class TrainSpawnerSystem : SystemBase
 
                     ecb.SetComponent(trainInstance, new TrainPosition
                     {
-                        position = i * 25 // (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,
+                        position = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,
                     });
 
                     ecb.SetComponent(trainInstance, new LineIndex{Index = lineId});
