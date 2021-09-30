@@ -58,10 +58,9 @@ public partial class TrainMovementSystem : SystemBase
             }
             
             movement.position += splineBlobAsset.DistanceToPointUnitDistance(movement.speed * deltaTime);
-            movement.position = math.fmod(movement.position, splineBlobAsset.unitPointPlatformPositions.Length);
+            movement.position = math.fmod(movement.position, splineBlobAsset.equalDistantPoints.Length);
             (translation.Value, _) = splineBlobAsset.PointUnitPosToWorldPos(movement.position);
-        }).WithoutBurst().Run(); // for debugging
-        // }).ScheduleParallel();
+        }).ScheduleParallel();
     }
 }
 
