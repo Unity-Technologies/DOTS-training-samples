@@ -208,7 +208,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 663330103}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.00001, z: 0}
   m_LocalScale: {x: -3, y: 1, z: -3}
   m_Children: []
   m_Father: {fileID: 0}
@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c113d231ef29648f0a26f982693c99d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 5
+  Speed: 1
   WorldSize: 30
   CellMapResolution: 128
   AntCount: 1000
@@ -236,12 +236,12 @@ MonoBehaviour:
   RingDistance: 3
   RingAngleSize: 270
   MaxEntriesPerRing: 2
-  PheromoneProductionPerSecond: 0.5
-  PheromoneDecayPerSecond: 0.05
+  PheromoneProductionPerSecond: 0.05
+  PheromoneDecayPerSecond: 0.03
   RandomSeed: 799
-  RandomSteering: 0.14
-  PheromoneSteerStrength: 0.015
-  WallSteerStrength: 0.12
+  RandomSteering: 0.1
+  PheromoneSteerStrength: 0.01
+  WallSteerStrength: 0.2
 --- !u!33 &663330107
 MeshFilter:
   m_ObjectHideFlags: 0

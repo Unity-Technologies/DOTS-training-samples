@@ -37,7 +37,6 @@ public partial class AntMovementSystem : SystemBase
         //    //Debug.Log(string.Format("Tick"));
         //}
 
-        bool isFirst = true;
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
 
@@ -51,15 +50,15 @@ public partial class AntMovementSystem : SystemBase
 
                 // Pheromone
                 var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
-                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, .3f);
-			    ant.FacingAngle += pheroSteering * config.PheromoneSteerStrength;
+                float pheroSteering = PheromoneSteering(pheromoneHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/128f) * 3f);
+                ant.FacingAngle += pheroSteering * config.PheromoneSteerStrength;
 
                 //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, pheroSteering));
 
                 var cellMapHelper = new CellMapHelper(cellMap, config.CellMapResolution, config.WorldSize);
 
-			    int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, .15f);
-			    ant.FacingAngle += wallSteering * config.WallSteerStrength;
+                int wallSteering = WallSteering(cellMapHelper, ant.FacingAngle, ltw.Position, (config.WorldSize/128f) * 1.5f);
+                ant.FacingAngle += wallSteering * config.WallSteerStrength;
 
                 // ---
                 //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
@@ -87,7 +86,12 @@ public partial class AntMovementSystem : SystemBase
                 //rotation.Value = _rotateThisFrame;
                 var newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
 
-                //Debug.Log(string.Format("{1} {0}", ant.FacingAngle, jitterAngle));
+
+                //Debug.Log(string.Format("{0} {1} {2} {3}",
+                //    ant.FacingAngle,
+                //    jitterAngle,
+                //    pheroSteering * config.PheromoneSteerStrength,
+                //    wallSteering * config.WallSteerStrength));
 
                 var newPosDelta = ltw.Forward * config.MoveSpeed * time;
                 var newPos = translation.Value + newPosDelta;
@@ -118,38 +122,39 @@ public partial class AntMovementSystem : SystemBase
         ecb.Dispose();
     }
 
-	static float PheromoneSteering(PheromoneMapHelper pheromone, float facingAngle, float3 antPosition, float distance)
+    static float PheromoneSteering(PheromoneMapHelper pheromone, float facingAngle, float3 antPosition, float distance)
     {
-		float output = 0;
+        float output = 0;
 
-		for (int i=-1;i<=1;i+=2) {
-			float angle = facingAngle + i * Mathf.PI*.25f;
-			float testX = antPosition.x + Mathf.Cos(angle) * distance;
-			float testY = antPosition.y + Mathf.Sin(angle) * distance;
+        for (int i=-1;i<=1;i+=2) {
+            float angle = facingAngle + i * Mathf.PI*.25f;
+            float testX = antPosition.x + Mathf.Cos(angle) * distance;
+            float testY = antPosition.y + Mathf.Sin(angle) * distance;
 
             var intensity = pheromone.GetPheromoneIntensityFrom2DPos(new float2(testX, testY));
             if (intensity != -1)
             {
                 output += intensity*i;
             }
-		}
-		return Mathf.Sign(output);
-	}
+        }
 
-	static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance) {
-		int output = 0;
+        return output == 0f ? 0f : Mathf.Sign(output);
+    }
 
-		for (int i = -1; i <= 1; i+=2) {
-			float angle = facingAngle + i * Mathf.PI*.25f;
-			float testX = antPosition.x + Mathf.Cos(angle) * distance;
-			float testY = antPosition.y + Mathf.Sin(angle) * distance;
+    static int WallSteering(CellMapHelper cellMapHelper, float facingAngle, float3 antPosition, float distance) {
+        int output = 0;
+
+        for (int i = -1; i <= 1; i+=2) {
+            float angle = facingAngle + i * Mathf.PI*.25f;
+            float testX = antPosition.x + Mathf.Cos(angle) * distance;
+            float testY = antPosition.y + Mathf.Sin(angle) * distance;
 
             if (cellMapHelper.GetCellStateFrom2DPos(new float2(testX, testY)) == CellState.IsObstacle)
             {
-			    output -= i;
-			}
-		}
-		return output;
-	}
+                output -= i;
+            }
+        }
+        return output;
+    }
 
 }
