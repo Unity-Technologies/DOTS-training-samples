@@ -180,7 +180,7 @@ public struct CellMapHelper
         int cellIndex = grid.GetNearestIndex(xy);
         if(debugLineTime != 0) grid.DrawDebugRay(cellIndex, Color.blue, debugLineTime);
 
-        if (cellIndex < 0 || cellIndex > cellmap.Length)
+        if (cellIndex < 0 || cellIndex >= cellmap.Length)
         {
             //Debug.LogError(string.Format("[Cell Map] Position is outside cell map {0}, {1}", xy.x, xy.y));
             return CellState.IsObstacle;

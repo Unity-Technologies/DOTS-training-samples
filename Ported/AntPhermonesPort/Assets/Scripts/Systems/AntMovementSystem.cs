@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class AntMovementSystem : SystemBase
@@ -29,11 +30,11 @@ public partial class AntMovementSystem : SystemBase
 
         Entities
             .WithReadOnly(cellMap)
-            .ForEach((ref Translation translation, ref Rotation rotation, ref AntMovement ant, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref AntMovement ant, ref URPMaterialPropertyBaseColor color, in LocalToWorld ltw) =>
             {
                 UnityEngine.Time.timeScale = config.Speed;
 
-                // JITTER
+                // Initial jittering motion
                 float jitterAngle = random.NextFloat(-config.RandomSteering, config.RandomSteering);
                 ant.FacingAngle += jitterAngle;
 
@@ -64,11 +65,12 @@ public partial class AntMovementSystem : SystemBase
                     }
                     else
                     {
-                        targetPos.x = 0; // Nest position
+                        targetPos.x = 0; // Nest assumed at center
                         targetPos.y = 0;
                     }
 
-                    float targetAngle = Mathf.Atan2(targetPos.y - ltw.Position.y, targetPos.x - ltw.Position.x);
+                    float targetAngle = Mathf.Atan2(targetPos.x - ltw.Position.x, targetPos.y - ltw.Position.z);
+
                     if (targetAngle - ant.FacingAngle > Mathf.PI)
                     {
                         ant.FacingAngle += Mathf.PI * 2f;
@@ -79,13 +81,10 @@ public partial class AntMovementSystem : SystemBase
                     }
                     else
                     {
-                        if (Mathf.Abs(targetAngle-ant.FacingAngle) < Mathf.PI*.5f)
-                            ant.FacingAngle += (targetAngle-ant.FacingAngle) * config.GoalSteerStrength;
+                        if (Mathf.Abs(targetAngle - ant.FacingAngle) < Mathf.PI * .5f)
+                            ant.FacingAngle += (targetAngle - ant.FacingAngle) * config.GoalSteerStrength;
                     }
                 }
-
-                // ---
-                //Debug.DrawLine(ltw.Position, new Vector3(1, 0, 1), Color.blue);
 
                 var newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
 
@@ -102,10 +101,10 @@ public partial class AntMovementSystem : SystemBase
                 Debug.Assert(cellMapHelper.IsInitialized());
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
 
-                //TEMP until Line of sight Stamped
-                if (cellState == CellState.Empty && config.RingCount == 0)
+                //TEMP until Line of Sight Stamped
+                if (cellState == CellState.Empty && config.RingCount != 3)
                     cellState = CellState.HasLineOfSightToBoth;
-                //
+                //END TEMP
 
                 if (cellState == CellState.IsObstacle)
                 {
@@ -114,11 +113,14 @@ public partial class AntMovementSystem : SystemBase
                 else if (cellState == CellState.IsFood && ant.State != AntState.ReturnToNest)
                 {
                     ant.State = AntState.ReturnToNest;
+                    color.Value = new float4(1, 1, 0, 1);
                     turnAround = true;
+
                 }
                 else if (cellState == CellState.IsNest && ant.State != AntState.Searching)
                 {
                     ant.State = AntState.Searching;
+                    color.Value = new float4(1, 0, 0, 1);
                     turnAround = true;
                 }
 
@@ -172,7 +174,7 @@ public partial class AntMovementSystem : SystemBase
         {
             float angle = facingAngle + i * Mathf.PI*.25f;
             float testX = antPosition.x + Mathf.Cos(angle) * distance;
-            float testY = antPosition.y + Mathf.Sin(angle) * distance;
+            float testY = antPosition.z + Mathf.Sin(angle) * distance;
 
             var intensity = pheromone.GetPheromoneIntensityFrom2DPos(new float2(testX, testY));
             if (intensity != -1)

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4016607759957408239}
   - component: {fileID: 6878328006428621059}
   - component: {fileID: -7036299367022092509}
+  - component: {fileID: 529249694824265532}
   m_Layer: 0
   m_Name: Ant
   m_TagString: Untagged
@@ -95,15 +96,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69c35b10ef826415287a7e0623a4e8ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {x: 0, y: 0, z: 0, w: 0}
-  Direction:
-    x: 0
-    y: 0
-  Position:
-    x: 0
-    y: 0
   FacingAngle: 0
+  AntSpeed: 0
   State: 0
+--- !u!114 &529249694824265532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6684270110135555796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 1
+    z: 0
+    w: 1
 --- !u!1 &6997634380849526598
 GameObject:
   m_ObjectHideFlags: 0

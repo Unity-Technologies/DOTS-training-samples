@@ -60,7 +60,7 @@ public struct GridHelper
     /// <returns></returns>
     public int GetNearestIndex(float2 xy)
     {
-        if (xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x > worldUpperRight.x || xy.y > worldUpperRight.y)
+        if (xy.x < worldLowerLeft.x || xy.y < worldLowerLeft.y || xy.x >= worldUpperRight.x || xy.y >= worldUpperRight.y)
         {
             //TBD: Warnings are disabled currently because ant move might jump out past the boundary cell
             //Debug.LogError("[Cell Map] Trying to get index out of range");
