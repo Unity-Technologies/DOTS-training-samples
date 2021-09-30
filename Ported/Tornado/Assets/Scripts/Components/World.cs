@@ -6,3 +6,9 @@ using Unity.Mathematics;
 [Serializable]
 public struct World : IComponentData
 { }
+
+
+struct BeamBatch : ISharedComponentData
+{
+    public int Value;
+}

@@ -10,12 +10,14 @@ using Random = Unity.Mathematics.Random;
 
 public partial class SpawnerSystem : SystemBase
 {
+	
 	protected override void OnUpdate()
     {
         var random = new Random(0x1234567);   
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);  
         
         Entities
+	        .WithoutBurst() //TODO: see with Fabrice if there is a way to add a SharedComponent with burst
             .ForEach((Entity entity, in Spawner spawner) =>
         {
             ecb.DestroyEntity(entity);
@@ -36,6 +38,9 @@ public partial class SpawnerSystem : SystemBase
 
 
         ecb.AddComponent<World>(instance);
+
+        var beamBatch = new BeamBatch() { Value = 0 };
+        ecb.AddSharedComponent(instance, beamBatch);
 
 
         var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
@@ -121,6 +126,7 @@ public partial class SpawnerSystem : SystemBase
 		var tempNeighbor = new NativeArray<NeighborCount>(pointCount, Allocator.TempJob);
 
 
+		//TODO: this seems to be 10x bigger than it should be, debug and fix
 		var beamCount = 0; 
 		for (int i = 0; i < pointCount; i++) {
 			for (int j = i + 1; j < pointCount; j++) {
@@ -165,10 +171,10 @@ public partial class SpawnerSystem : SystemBase
 
 				if (beamSize < 5f && beamSize>.2f) {
 
-					var beamAEntity =  ecb.Instantiate(spawner.BeamPrefab);
-
-
-					var beamA = new Beam()
+					var beamEntity =  ecb.Instantiate(spawner.BeamPrefab);
+					ecb.AddSharedComponent(beamEntity, beamBatch);
+					
+					var beam = new Beam()
 					{
 						pointAIndex = i,
 						pointBIndex = j,
@@ -176,11 +182,11 @@ public partial class SpawnerSystem : SystemBase
 					};
 					neighborBuffer[i] = new NeighborCount { Value = neighborBuffer[i].Value + 1 };
 					neighborBuffer[j] = new NeighborCount { Value = neighborBuffer[j].Value + 1 };
-					ecb.SetComponent(beamAEntity, beamA);
+					ecb.SetComponent(beamEntity, beam);
 					barCount++;
 					
 					float upDot = math.acos(math.abs(math.dot(new float3(0f,1f,0f), math.normalize(delta))))/math.PI;
-					ecb.SetComponent(beamAEntity, new URPMaterialPropertyBaseColor()
+					ecb.SetComponent(beamEntity, new URPMaterialPropertyBaseColor()
 					{
 						Value =  new float4(1f,1f,1f,1f) * upDot * random.NextFloat(.7f,1f)
 					});
