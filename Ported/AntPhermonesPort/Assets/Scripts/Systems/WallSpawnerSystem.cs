@@ -65,7 +65,7 @@ public partial class WallSpawnerSystem : SystemBase
 
                 cellMapHelper.Set(cellIndex, CellState.IsFood);
 
-                ecb.AddComponent(instance, new Food { Position = new float2(x, y), CellMapIndex = cellMapHelper.GetNearestIndex(xy) });
+                ecb.AddComponent(instance, new Food { Position = new float2(x, y), CellMapIndex = cellIndex });
 
             }).Run();
 
