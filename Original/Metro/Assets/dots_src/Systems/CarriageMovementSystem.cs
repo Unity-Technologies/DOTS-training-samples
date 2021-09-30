@@ -9,16 +9,16 @@ public partial class CarriageMovementSystem : SystemBase
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
         var settings = GetSingleton<Settings>();
         
-        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference) =>
+        Entities.ForEach((ref Translation translation, ref Rotation rotation, in TrainReference trainReference, in CarriageIndex index) =>
         {
-            var trainMovement = GetComponent<TrainMovement>(trainReference.Train);
+            var trainPosition = GetComponent<TrainPosition>(trainReference.Train);
             var lineIndex = GetComponent<LineIndex>(trainReference.Train);
             
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             
             var carriageSizeWithMargins = splineBlobAsset.DistanceToPointUnitDistance(settings.CarriageSizeWithMargins);
 
-            var pointUnitPos = trainMovement.position - trainReference.Index * carriageSizeWithMargins;
+            var pointUnitPos = trainPosition.position - index.Value * carriageSizeWithMargins;
             if (pointUnitPos < 0) pointUnitPos += splineBlobAsset.equalDistantPoints.Length - 1;
 
             (translation.Value, rotation.Value) = splineBlobAsset.PointUnitPosToWorldPos(pointUnitPos);

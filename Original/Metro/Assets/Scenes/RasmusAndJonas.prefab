@@ -45,8 +45,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSpeed: 30
   CarriageSizeWithMargins: 5.5
-  TimeAtStation: 5
-  BreakingDistance: 0.01
+  TimeAtStation: 2
+  PlatformBreakingDistance: 20
+  Acceleration: 0.5
+  TrainBreakingDistance: 20
 --- !u!1 &4545171114950833981
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,7 +89,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4545171114950833981}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 749c3b19336df49d3a91cc4b972baa38, type: 3}
+  m_Script: {fileID: 11500000, guid: 7a52d8a36fd104510b42d65b14a53a2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   TrainPrefab: {fileID: 8106599586059510996, guid: 1eb048b99d5254fe38bc40ef4a7cbbee,

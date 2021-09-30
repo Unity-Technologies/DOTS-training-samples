@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 2701255700621208520}
   - component: {fileID: 1289273099328262227}
   - component: {fileID: 3817515992515814819}
+  - component: {fileID: 4370728276905948584}
+  - component: {fileID: 6701399716608960357}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -46,8 +48,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   state: 1
   speed: 0
-  position: 0
-  timeWhenStoppedAtPlatform: 0
+  distanceToStop: 0
+  TrainInFront: {fileID: 0}
+  restingTimeLeft: 0
 --- !u!114 &3817515992515814819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,3 +64,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Index: 0
+--- !u!114 &4370728276905948584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8106599586059510996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20d098da57ef4e088491c58300664a49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  position: 0
+--- !u!114 &6701399716608960357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8106599586059510996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c5c3e9af5d5410abe9b0bacfc6a7033, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Train: {fileID: 0}
