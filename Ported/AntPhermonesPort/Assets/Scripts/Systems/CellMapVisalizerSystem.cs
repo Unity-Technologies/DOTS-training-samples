@@ -79,7 +79,13 @@ public partial class CellMapVisualizerSystem : SystemBase
                     arr[i] = new float4(0.8f, 0.8f, 0.8f, 1);
                     break;
                 case CellState.HasLineOfSightToFood:
-                    arr[i] = new float4(0, 0, 1, 1);
+                    arr[i] = new float4(1, 1, 0, 1);
+                    break;
+                case CellState.HasLineOfSightToNest:
+                    arr[i] = new float4(0, 1, 1, 1);
+                    break;
+                case CellState.HasLineOfSightToBoth:
+                    arr[i] = new float4(1, 1, 1, 1);
                     break;
             }
         }
