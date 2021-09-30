@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using dots_src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -16,12 +17,18 @@ public partial class PlatformSpawnerSystem : SystemBase
         const float platformSize = 30.0f;
         float3 returnPlatformOffset = new float3(20, 0, -8);
         
+        
+        
         Entities.
             ForEach((Entity entity, in PlatformSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
                 for (var lineId = 0; lineId < splineDataArrayRef.Value.splineBlobAssets.Length; lineId++)
                 {
+                    //Create the line entities
+                    var lineInstance = ecb.Instantiate(spawner.LinePrefab);
+                    var entityBuffer = ecb.AddBuffer<EntityBufferElement>(lineInstance);
+                    
                     ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
                     int nbPlatforms = splineBlobAsset.unitPointPlatformPositions.Length;
                     int halfPlatforms = nbPlatforms / 2;
@@ -29,7 +36,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                     NativeArray<float3> outBoundsTranslations = new NativeArray<float3>(halfPlatforms, Allocator.Temp);
                     for (int i = 0; i < nbPlatforms; i++)
                     {
-                        var instance = ecb.Instantiate(spawner.PlatformPrefab);
+                        var platformInstance = ecb.Instantiate(spawner.PlatformPrefab);
                         int pointIndex = Mathf.FloorToInt(splineBlobAsset.unitPointPlatformPositions[i]);
 
                         Translation translation;
@@ -54,9 +61,13 @@ public partial class PlatformSpawnerSystem : SystemBase
                             rotation = new Rotation() {Value = math.mul(quaternion.RotateY(math.PI), outBoundQuaternion)};
                         }
 
-                        ecb.SetComponent(instance, rotation);
-                        ecb.SetComponent(instance, translation);
+                        ecb.SetComponent(platformInstance, rotation);
+                        ecb.SetComponent(platformInstance, translation);
+                        entityBuffer.Add(new EntityBufferElement(){Value = platformInstance});
                     }
+
+                    outBoundsRotations.Dispose();
+                    outBoundsTranslations.Dispose();
                 }
             }
         ).Run();
