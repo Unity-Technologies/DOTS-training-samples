@@ -233,16 +233,16 @@ MonoBehaviour:
   MoveSpeed: 20
   RotationSpeed: 20
   AntAcceleration: 0.07
-  AntHasFoodPeromoneMultiplier: 3
+  AntHasFoodPeromoneMultiplier: 10
   RingCount: 3
   RingDistance: 3
-  RingAngleSize: 270
+  RingAngleSize: 120
   MaxEntriesPerRing: 2
-  PheromoneProductionPerSecond: 0.5
-  PheromoneDecayPerSecond: 0.03
+  PheromoneProductionPerSecond: 0.2
+  PheromoneDecayPerSecond: 0.02
   RandomSeed: 799
   RandomSteering: 0.1
-  PheromoneSteerStrength: 0.01
+  PheromoneSteerStrength: 0.02
   WallSteerStrength: 0.2
   GoalSteerStrength: 0.04
 --- !u!33 &663330107

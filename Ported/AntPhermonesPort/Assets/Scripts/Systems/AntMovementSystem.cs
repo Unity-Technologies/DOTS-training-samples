@@ -101,7 +101,8 @@ public partial class AntMovementSystem : SystemBase
 
                 var newPosDelta = ltw.Forward * targetSpeed * time;
                 var newPos = translation.Value + newPosDelta;
-                bool turnAround = false;
+                bool turnAroundWall = false;
+                bool turnAroundOther = false;
 
                 Debug.Assert(cellMapHelper.IsInitialized());
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
@@ -113,27 +114,33 @@ public partial class AntMovementSystem : SystemBase
 
                 if (cellState == CellState.IsObstacle)
                 {
-                    turnAround = true;
+                    turnAroundWall = true;
                 }
                 else if (cellState == CellState.IsFood && ant.State != AntState.ReturnToNest)
                 {
                     ant.State = AntState.ReturnToNest;
                     color.Value = new float4(0.7250f, 0.7116f, 0.3973f, 1);
-                    turnAround = true;
+                    turnAroundOther = true;
 
                 }
                 else if (cellState == CellState.IsNest && ant.State != AntState.Searching)
                 {
                     ant.State = AntState.Searching;
                     color.Value = new float4(0.188f, 0.2108f, 0.3529f, 1);
-                    turnAround = true;
+                    turnAroundOther = true;
                 }
 
-                if (turnAround)
+                if (turnAroundWall)
                 {
                     newPos = translation.Value - newPosDelta;
                     float reflectRandom =  random.NextBool() ? -Mathf.PI /8 * 3 : Mathf.PI / 8 * 3;
                     ant.FacingAngle += Mathf.PI + reflectRandom;
+                    newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
+                }
+                else if(turnAroundOther)
+                {
+                    newPos = translation.Value - newPosDelta;
+                    ant.FacingAngle += Mathf.PI;
                     newRotation = quaternion.Euler(0, ant.FacingAngle, 0);
                 }
                 else
