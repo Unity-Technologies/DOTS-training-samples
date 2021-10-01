@@ -6,7 +6,27 @@ using Unity.Mathematics;
 public partial class PhysicsMovementSystem : SystemBase
 {
 
-    private bool[,] GridOccupancy = null;
+    private NativeArray<bool> _voxelOccupancy;
+
+    private static int GetVoxelIndex(in WorldBounds bounds, in Translation trans)
+    {
+        int xSize = (int) (bounds.AABB.Max.x - bounds.AABB.Min.x);
+        int ySize = (int) (bounds.AABB.Max.y - bounds.AABB.Min.y);
+
+        return (int) (trans.Value.x - bounds.AABB.Min.x) * ySize +
+                    (int) (trans.Value.z - bounds.AABB.Min.z) * xSize*ySize  +
+               (int) (trans.Value.y - bounds.AABB.Min.y);
+    } 
+
+    private static int GetTopVoxelIndex(in WorldBounds bounds, in Translation trans)
+    {
+        int xSize = (int) (bounds.AABB.Max.x - bounds.AABB.Min.x);
+        int ySize = (int) (bounds.AABB.Max.y - bounds.AABB.Min.y);
+
+        return (int) (trans.Value.x - bounds.AABB.Min.x) * ySize +
+               (int) (trans.Value.z - bounds.AABB.Min.z) * xSize*ySize +
+               ySize;
+    }
 
     protected override void OnUpdate()
     {
@@ -16,101 +36,95 @@ public partial class PhysicsMovementSystem : SystemBase
         var worldBoundsEntity = GetSingletonEntity<WorldBounds>();
         var bounds = GetComponent<WorldBounds>(worldBoundsEntity);
 
-        int MaxX = ((int) (bounds.AABB.Max.x - bounds.AABB.Min.x) +1) * (int) (bounds.AABB.Max.z - bounds.AABB.Min.z);
-        int MaxY = (int) (bounds.AABB.Max.y - bounds.AABB.Min.y);
-        if (GridOccupancy == null)
+        int totalSize = ((int) (bounds.AABB.Max.x - bounds.AABB.Min.x) +1) * (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) * (int)(bounds.AABB.Max.y - bounds.AABB.Min.y);
+
+        if (_voxelOccupancy.Length == 0)
         {
-            GridOccupancy = new bool[MaxX, MaxY];
+            _voxelOccupancy= new NativeArray<bool>(totalSize, Allocator.Persistent);
         }
 
-        for (int i = 0; i < MaxX; ++i)
+        var voxelOccupancy = _voxelOccupancy;
+        for (int i = 0; i < totalSize; ++i)
         {
-            for (int j = 0; j < MaxY; ++j)
-                GridOccupancy[i, j] = false;
+            voxelOccupancy[i] = false;
         }
         
-        float deltaTime = Time.DeltaTime;
-        float multiplier = 9.8f;
+        float deltaTime = Time.fixedDeltaTime;
+        float gravity = 9.8f;
         float floorY = 0.5f;
+        float yDelta = deltaTime * gravity;
 
-        var grid = GridOccupancy;
-        float delta = deltaTime * multiplier;
-
-
+        //Initialize voxel occupancy for food already on the floor
         Entities
-            .WithoutBurst()
+            .WithNativeDisableParallelForRestriction(voxelOccupancy)
             .WithAll<Food,Grounded>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
+            .ForEach((Entity entity, ref Translation translation) =>
             {
-                int GridX = (int) (translation.Value.x - bounds.AABB.Min.x) *
-                            (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) +
-                            (int) (translation.Value.z - bounds.AABB.Min.z);
-                int GridY = (int) (translation.Value.y - bounds.AABB.Min.y);
-                grid[GridX, GridY] = true;
-            }).Run();
+                voxelOccupancy[GetVoxelIndex(bounds, translation)] = true;
+            }).ScheduleParallel();
 
+        //Initialize voxel occupancy for food in the air
         Entities
-            .WithoutBurst()
             .WithAny<Food>()
             .WithNone<Grounded>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
+            .ForEach((Entity entity, ref Translation translation) =>
             {
-                int GridX = (int) (translation.Value.x - bounds.AABB.Min.x) *
-                            (int) (bounds.AABB.Max.z - bounds.AABB.Min.z) +
-                            (int) (translation.Value.z - bounds.AABB.Min.z);
-                int GridY = (int) (translation.Value.y - bounds.AABB.Min.y);
-                if (grid[GridX, GridY] == true)
+                int voxelIndex = GetVoxelIndex(bounds, translation);
+                int topVoxelIndex = GetTopVoxelIndex(bounds, translation);
+
+                //If voxel is already occupied stack up until we find an empty space
+                if (voxelOccupancy[voxelIndex] == true)
                 {
                     translation.Value.y = math.ceil(translation.Value.y);
-                    GridY = (int) translation.Value.y;
-                    while (grid[GridX, GridY] != false && GridY < bounds.AABB.Max.y)
+                    voxelIndex = GetVoxelIndex(bounds, translation);
+
+                    while (voxelOccupancy[voxelIndex] != false && voxelIndex < topVoxelIndex)
                     {
-                        GridY += 1;
+                        voxelIndex += 1;
                         translation.Value.y += 1.0f;
                     }
                 }
 
-                if (GridY < bounds.AABB.Max.y)
-                    grid[GridX, GridY] = true;
-                    
-            }).Run();
+                if (voxelIndex < topVoxelIndex)
+                    voxelOccupancy[voxelIndex] = true;
+            }).Schedule();
         
 
+        //Apply gravity
         Entities
-            .WithoutBurst()
             .WithAny<Food>()
             .WithNone<Grounded>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation) =>
             {
-                int GridX = (int)(translation.Value.x - bounds.AABB.Min.x) *
-                            (int)(bounds.AABB.Max.z - bounds.AABB.Min.z) + 
-                            (int) (translation.Value.z - bounds.AABB.Min.z);
-                int GridY = (int)(translation.Value.y - bounds.AABB.Min.y);
-
-
-                int newGridY = (int)((translation.Value.y - delta) - 0.5f - bounds.AABB.Min.y);
-                if (newGridY < GridY)
+                Translation tmpTranslation = translation;
+                tmpTranslation.Value.y = tmpTranslation.Value.y - yDelta - floorY;
+                int voxelIndex = GetVoxelIndex(bounds, translation);
+                int newVoxelIndex = GetVoxelIndex(bounds, tmpTranslation);
+                if (newVoxelIndex < voxelIndex)
                 {
-                    if (grid[GridX, newGridY] == false)
+                    if (voxelOccupancy[newVoxelIndex] == false)
                     {
-                        grid[GridX, GridY] = false;
-                        translation.Value.y -= delta;
+                        voxelOccupancy[voxelIndex] = false;
+                        translation.Value.y -= yDelta;
                     }
-                    else
-                        translation.Value.y = GridY * 1.0f + floorY;
+                    else //If there is something below us clamp our position
+                        translation.Value.y = math.floor(translation.Value.y) + floorY;
                 }
                 else
-                {
-                    translation.Value.y -= delta;
-                }
+                    translation.Value.y -= yDelta;
 
-                if (translation.Value.y < floorY)
+                if (translation.Value.y <= floorY)
                 {
                     translation.Value.y = floorY;// this assume 0 is at the basis of the cylinder
                     ecb.AddComponent(entityInQueryIndex, entity, new Grounded{});
                 }
-            }).Run();
+            }).Schedule();
 
         system.AddJobHandleForProducer(Dependency);
+    }
+
+    protected override void OnDestroy()
+    {
+        _voxelOccupancy.Dispose();
     }
 }
