@@ -172,12 +172,12 @@ public partial class AntMovementSystem : SystemBase
             }).ScheduleParallel();
 
         Entities
-            .ForEach((Entity entity, ref AntMovement ant, in LocalToWorld ltw) =>
+            .ForEach((Entity entity, ref AntMovement ant, ref Translation translation) =>
             {
                 var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
 
                 pheromoneHelper.IncrementIntensity(
-                    new float2(ltw.Position.x, ltw.Position.z),
+                    new float2(translation.Value.x, translation.Value.z),
                     ant.Excitement,
                     //time
                     0
