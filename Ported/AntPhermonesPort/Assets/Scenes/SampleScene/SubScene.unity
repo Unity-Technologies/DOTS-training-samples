@@ -228,8 +228,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Speed: 1
   WorldSize: 30
-  CellMapResolution: 128
-  AntCount: 1000
+  CellMapResolution: 256
+  DisplayCellMap: 0
+  AntCount: 10000
   MoveSpeed: 10
   RotationSpeed: 30
   AntAcceleration: 0.07
