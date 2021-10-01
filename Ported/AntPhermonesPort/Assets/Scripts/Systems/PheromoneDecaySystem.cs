@@ -2,7 +2,7 @@
 using Unity.Mathematics;
 using Unity.Rendering;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class PheromoneDecaySystem : SystemBase
 {
     private UnityEngine.Texture2D texture;

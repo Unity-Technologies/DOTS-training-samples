@@ -96,13 +96,11 @@ public struct PheromoneMapHelper
 
     public void DecrementIntensity(float decayRate)
     {
-        for(int i = 0; i<pheromoneMap.Length; i++)
+        int len = pheromoneMap.Length;
+        for(int i = 0; i < len; i++)
         {
-            var newIntensity = pheromoneMap[i].intensity.x * decayRate;
-            if (newIntensity < 0)
-                newIntensity = 0;
-
-            pheromoneMap.ElementAt(i).intensity.x = newIntensity;
+            ref PheromoneMap item = ref pheromoneMap.ElementAt(i);
+            item.intensity.x *= decayRate;
         }
     }
 }
