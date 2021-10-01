@@ -19,4 +19,5 @@ public struct AntMovement : IComponentData
     public float Excitement;
     public AntState State;
     public byte HasSeenFood;
+    public int ActiveCellIndex;
 }

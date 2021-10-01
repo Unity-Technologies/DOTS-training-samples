@@ -168,20 +168,16 @@ public partial class AntMovementSystem : SystemBase
                     excitement *= config.AntHasFoodPeromoneMultiplier;
                 }
                 ant.Excitement = excitement * ant.AntSpeed / config.MoveSpeed;
+                ant.ActiveCellIndex = pheromoneHelper.grid.GetNearestIndex(new float2(newPos.x, newPos.z));
+
 
             }).ScheduleParallel();
 
         Entities
-            .ForEach((Entity entity, ref AntMovement ant, ref Translation translation) =>
+            .ForEach((Entity entity, ref AntMovement ant) =>
             {
-                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
-
-                pheromoneHelper.IncrementIntensity(
-                    new float2(translation.Value.x, translation.Value.z),
-                    ant.Excitement,
-                    //time
-                    0
-                );
+                ref PheromoneMap ph = ref pheromoneMap.ElementAt(ant.ActiveCellIndex);
+                ph.intensity = math.clamp(ph.intensity + ant.Excitement, 0, 1);
             }).Schedule();
 
         Dependency.Complete();

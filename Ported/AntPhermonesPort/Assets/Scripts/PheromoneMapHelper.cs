@@ -88,8 +88,20 @@ public struct PheromoneMapHelper
         float4 currentValue = pheromoneMap[index].intensity;
 
         pheromoneMap.ElementAt(index).intensity = math.clamp(currentValue.x + increaseValue, 0, 1);
-        
+
         if(debugLineTime != 0) grid.DrawDebugRay(index, new Color(1, 0, 0.2f, 1), debugLineTime);
+    }
+
+    public void IncrementIntensity(int index, float increaseValue, float debugLineTime = 0)
+    {
+        if (index == -1 || index >= pheromoneMap.Length)
+            return;
+
+        float4 currentValue = pheromoneMap[index].intensity;
+
+        pheromoneMap.ElementAt(index).intensity = math.clamp(currentValue.x + increaseValue, 0, 1);
+
+        //if(debugLineTime != 0) grid.DrawDebugRay(index, new Color(1, 0, 0.2f, 1), debugLineTime);
     }
 
     public void DecrementIntensity(float decayRate)
