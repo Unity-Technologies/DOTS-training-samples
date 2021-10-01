@@ -7,7 +7,7 @@ using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 public class FoodSpawnerAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
 {
-    [UnityRange(0, 1000)] public int InitialFoodCount;
+    [UnityRange(0, 10000)] public int InitialFoodCount;
 
     // This function is required by IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager

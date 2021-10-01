@@ -8,7 +8,7 @@ using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 public class BeeSpawnerAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
 {
-    [UnityRange(0, 1000)] public int InitialBeeCount;
+    [UnityRange(0, 10000)] public int InitialBeeCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {

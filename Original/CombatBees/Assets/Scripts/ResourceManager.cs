@@ -13,8 +13,10 @@ public class ResourceManager : MonoBehaviour {
 	[Space(10)]
 	public int startResourceCount;
 
+    int activeBatch = 0;
+    const int resourcesPerBatch=1023;
 	List<Resource> resources;
-	List<Matrix4x4> matrices;
+    List<List<Matrix4x4>> matrices;
 	Vector2Int gridCounts;
 	Vector2 gridSize;
 	Vector2 minGridPos;
@@ -69,12 +71,12 @@ public class ResourceManager : MonoBehaviour {
 		Resource resource = new Resource(pos);
 
 		resources.Add(resource);
-		matrices.Add(Matrix4x4.identity);
+		matrices[activeBatch].Add(Matrix4x4.identity);
 	}
 	void DeleteResource(Resource resource) {
 		resource.dead = true;
 		resources.Remove(resource);
-		matrices.RemoveAt(matrices.Count - 1);
+		matrices[activeBatch].RemoveAt(matrices[activeBatch].Count - 1);
 	}
 
 	public static void GrabResource(Bee bee, Resource resource) {
@@ -88,14 +90,21 @@ public class ResourceManager : MonoBehaviour {
 	}
 	void Start () {
 		resources = new List<Resource>();
-		matrices = new List<Matrix4x4>();
+		matrices = new List<List<Matrix4x4>>();
 
 		gridCounts = Vector2Int.RoundToInt(new Vector2(Field.size.x,Field.size.z) / resourceSize);
 		gridSize = new Vector2(Field.size.x/gridCounts.x,Field.size.z/gridCounts.y);
 		minGridPos = new Vector2((gridCounts.x-1f)*-.5f*gridSize.x,(gridCounts.y-1f)*-.5f*gridSize.y);
 		stackHeights = new int[gridCounts.x,gridCounts.y];
+        matrices.Add(new List<Matrix4x4>());
 
 		for (int i=0;i<startResourceCount;i++) {
+            if (matrices[activeBatch].Count == resourcesPerBatch) {
+                activeBatch++;
+                if (matrices.Count==activeBatch) {
+                    matrices.Add(new List<Matrix4x4>());
+                }
+            }
 			SpawnResource();
 		}
 	}
@@ -163,10 +172,15 @@ public class ResourceManager : MonoBehaviour {
 
 		Vector3 scale = new Vector3(resourceSize,resourceSize * .5f,resourceSize);
 		for (int i=0;i<resources.Count;i++) {
-			matrices[i] = Matrix4x4.TRS(resources[i].position,Quaternion.identity,scale);
+            matrices[i/resourcesPerBatch][i%resourcesPerBatch] = Matrix4x4.TRS(resources[i].position,Quaternion.identity,scale);
+
 		}
-		Graphics.DrawMeshInstanced(resourceMesh,0,resourceMaterial,matrices);
-	}
+        for (int i = 0; i <= activeBatch; i++) {
+            if (matrices[i].Count > 0) {
+                Graphics.DrawMeshInstanced(resourceMesh,0,resourceMaterial,matrices[i]);
+            }
+        }
+    }
 
 	private void OnDrawGizmosSelected() {
 		Gizmos.color = Color.white;
