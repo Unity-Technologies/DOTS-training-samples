@@ -111,6 +111,7 @@ GameObject:
   - component: {fileID: 2429111381386643636}
   - component: {fileID: 170550510048211646}
   - component: {fileID: 2393194544853719189}
+  - component: {fileID: 6241828580873518109}
   m_Layer: 0
   m_Name: Carriage
   m_TagString: Untagged
@@ -172,6 +173,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1507d5ca407070f45815d19f98d44cb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6241828580873518109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1005656507454012}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 162a20f0c403e3944bfa5338a4da9cdd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1010550110454968
@@ -687,7 +700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leftDoor: 1
-  timeSpentAtStation: 0
+  timeSpentAtPlatform: 0
 --- !u!114 &1526409942221265496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1333,7 +1346,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leftDoor: 0
-  timeSpentAtStation: 0
+  timeSpentAtPlatform: 0
 --- !u!114 &2853800391198228148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1805,7 +1818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leftDoor: 1
-  timeSpentAtStation: 0
+  timeSpentAtPlatform: 0
 --- !u!114 &1884424145945579569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2564,7 +2577,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   leftDoor: 0
-  timeSpentAtStation: 0
+  timeSpentAtPlatform: 0
 --- !u!114 &983727369651114482
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -12,10 +13,13 @@ public partial class TrainSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
+        var settings = GetSingleton<Settings>().SettingsBlobRef;
+
         
         Entities.ForEach((Entity entity, in TrainSpawner trainSpawner) =>
         {
             ecb.DestroyEntity(entity);
+            ref var lineColors = ref settings.Value.LineColors ;
 
             for (var lineId = 0; lineId < splineData.Value.splineBlobAssets.Length; lineId++)
             {
@@ -25,6 +29,8 @@ public partial class TrainSpawnerSystem : SystemBase
                 var previousTrain = Entity.Null;
                 var firstTrain = Entity.Null;
                 
+                var lineColor = lineColors[lineId % lineColors.Length];
+
                 for (var i = 0; i < trainCount; i++)
                 {
                     var trainInstance = ecb.CreateEntity();
@@ -42,6 +48,7 @@ public partial class TrainSpawnerSystem : SystemBase
                     for(var j = 0; j < splineDataBlobAsset.CarriagesPerTrain; j++)
                     {
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
+                        ecb.AddComponent(carriageInstance, new URPMaterialPropertyBaseColor() {Value = lineColor});
                         ecb.SetComponent(carriageInstance, new TrainReference { Train = trainInstance });
                         ecb.SetComponent(carriageInstance, new CarriageIndex { Value = j });
                     }
