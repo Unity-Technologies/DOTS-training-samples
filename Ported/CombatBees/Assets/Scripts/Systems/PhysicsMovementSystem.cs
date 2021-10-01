@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics;
 
@@ -44,24 +45,25 @@ public partial class PhysicsMovementSystem : SystemBase
         }
 
         var voxelOccupancy = _voxelOccupancy;
-        for (int i = 0; i < totalSize; ++i)
-        {
-            voxelOccupancy[i] = false;
-        }
-        
+
+        var nativeArrayJob = new MemsetNativeArray<bool>();
+        nativeArrayJob.Value = false;
+        nativeArrayJob.Source = voxelOccupancy;
+        var jobHandle = nativeArrayJob.Schedule(voxelOccupancy.Length,256, Dependency);
+
         float deltaTime = Time.fixedDeltaTime;
         float gravity = 9.8f;
         float floorY = 0.5f;
         float yDelta = deltaTime * gravity;
 
         //Initialize voxel occupancy for food already on the floor
-        Entities
+        Dependency = Entities
             .WithNativeDisableParallelForRestriction(voxelOccupancy)
             .WithAll<Food,Grounded>()
             .ForEach((Entity entity, ref Translation translation) =>
             {
                 voxelOccupancy[GetVoxelIndex(bounds, translation)] = true;
-            }).ScheduleParallel();
+            }).ScheduleParallel(jobHandle);
 
         //Initialize voxel occupancy for food in the air
         Entities
@@ -88,7 +90,7 @@ public partial class PhysicsMovementSystem : SystemBase
                 if (voxelIndex < topVoxelIndex)
                     voxelOccupancy[voxelIndex] = true;
             }).Schedule();
-        
+
 
         //Apply gravity
         Entities
