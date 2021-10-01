@@ -10,6 +10,14 @@ using Unity.Transforms;
 
 public partial class PointSimulationSystem : SystemBase
 {
+	private Random m_Random;
+	private List<BeamBatch> m_BeamBatches;
+	private NativeArray<Entity>[] m_WorldEntititesCache = null;
+	private NativeArray<CurrentPoint>[] m_CurrentPointsCache;
+	private NativeArray<PreviousPoint>[] m_PreviousPointsCache;
+	private NativeArray<AnchorPoint>[] m_AnchorsCache;
+	private NativeArray<NeighborCount>[] m_NeighborCountsCache;
+
 	public static float TornadoSway(float y, float time)
 	{
 		return math.sin(y / 5f + time / 4f) * 3f;
@@ -107,6 +115,13 @@ public partial class PointSimulationSystem : SystemBase
 		 
     }
 
+	protected override void OnCreate()
+	{
+		m_Random = new Random(0x123467);
+		m_BeamBatches = new List<BeamBatch>();
+
+	}
+
 
 	protected override void OnUpdate()
     {
@@ -120,44 +135,53 @@ public partial class PointSimulationSystem : SystemBase
 		var tornado = GetSingleton<Tornado>();
 		var constants = GetSingleton<PhysicalConstants>();
 
-		var random = new Random(0x123467);
 
 		tornado.fader = math.clamp(tornado.fader + Time.DeltaTime / 10f, 0f, 1f);
-		SetSingleton<Tornado>(tornado);
+		SetSingleton(tornado);
 
-		float invDamping = 1f - constants.airResistance;
-		
-		var beamBatches = new List<BeamBatch>();
-		EntityManager.GetAllUniqueSharedComponentData(beamBatches);
+		if (m_BeamBatches.Count == 0)
+		{
+			EntityManager.GetAllUniqueSharedComponentData(m_BeamBatches);
+		}
 		var worldQuery = GetEntityQuery(typeof(World), typeof(BeamBatch));
+		
+		if(m_WorldEntititesCache == null && m_BeamBatches.Count > 0) {
+			m_WorldEntititesCache = new NativeArray<Entity>[m_BeamBatches.Count];
+			m_CurrentPointsCache = new NativeArray<CurrentPoint>[m_BeamBatches.Count];
+			m_PreviousPointsCache = new NativeArray<PreviousPoint>[m_BeamBatches.Count];
+			m_AnchorsCache = new NativeArray<AnchorPoint>[m_BeamBatches.Count];
+			m_NeighborCountsCache = new NativeArray<NeighborCount>[m_BeamBatches.Count];
+			for (var i = 0; i < m_BeamBatches.Count; i++)
+			{
+				worldQuery.SetSharedComponentFilter(m_BeamBatches[i]);
+
+				m_WorldEntititesCache[i] = worldQuery.ToEntityArray(Allocator.Persistent);
+				
+				var worldEntity = m_WorldEntititesCache[i][0];
+				m_CurrentPointsCache[i] = GetBuffer<CurrentPoint>(worldEntity).AsNativeArray();
+				m_PreviousPointsCache[i] = GetBuffer<PreviousPoint>(worldEntity).AsNativeArray();
+				m_AnchorsCache[i] = GetBuffer<AnchorPoint>(worldEntity).AsNativeArray();
+				m_NeighborCountsCache[i] = GetBuffer<NeighborCount>(worldEntity).AsNativeArray();
+
+			}
+		}
 
 
-		for (var i = 0; i < beamBatches.Count; i++) {
-			
-			worldQuery.SetSharedComponentFilter(beamBatches[i]);
-			
-			var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
-			//Assert.AreEqual(1, worldEntities.Length);
-			var worldEntity = worldEntities[0];
-			
-			var currentPoints = GetBuffer<CurrentPoint>(worldEntity);
-			var previousPoints = GetBuffer<PreviousPoint>(worldEntity);
-			var anchors = GetBuffer<AnchorPoint>(worldEntity);
-			//var neighborCounts = GetBuffer<NeighborCount>(worldEntity);
+		for (var i = 0; i < m_BeamBatches.Count; i++) {
 
 			var job = new PointSimulationSystemJob();
 
 			job.elapsedTime = (float)Time.ElapsedTime;
-			job.InputCurrentPoints = currentPoints.AsNativeArray();
-			job.InputPreviousPoints = previousPoints.AsNativeArray();
-			job.Anchors = anchors.AsNativeArray();
-			job.OutputCurrentPoints = currentPoints.AsNativeArray();
-			job.OutputPreviousPoints = previousPoints.AsNativeArray();
+			job.InputCurrentPoints = m_CurrentPointsCache[i];
+			job.InputPreviousPoints = m_PreviousPointsCache[i];
+			job.Anchors = m_AnchorsCache[i];
+			job.OutputCurrentPoints = m_CurrentPointsCache[i];
+			job.OutputPreviousPoints = m_PreviousPointsCache[i];
 			job.tornado = tornado;
-			job.random = random;
+			job.random = m_Random;
 			job.constants = constants;
 
-			var handle = job.Schedule(currentPoints.Length, 1024*1024*64, Dependency);
+			var handle = job.Schedule(m_CurrentPointsCache[i].Length, 1024*1024*64, Dependency);
 			Dependency = JobHandle.CombineDependencies(Dependency, handle);
 		}
 
