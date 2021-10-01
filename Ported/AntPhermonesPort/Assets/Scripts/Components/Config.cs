@@ -10,6 +10,7 @@ public struct Config : IComponentData
 	public float WorldSize; // e.g. Lower left of bounding box is at -WorldSize/2, -WorldSize/2
 
 	public int CellMapResolution;
+	public bool DisplayCellMap;
 
 	// Simulation Constants
 	public int AntCount;
@@ -34,4 +35,5 @@ public struct Config : IComponentData
 	public float PheromoneSteerStrength;
 	public float WallSteerStrength;
 	public float GoalSteerStrength;
+
 }

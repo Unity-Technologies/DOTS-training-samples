@@ -4,23 +4,18 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
 
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+
 public partial class CellMapVisualizerSystem : SystemBase
 {
     private UnityEngine.Texture2D texture;
 
     protected override void OnStartRunning()
     {
-        //var mapEntity = GetSingletonEntity<MapSetting>();
-        //var mapSetting = GetComponent<MapSetting>(mapEntity);
-
-        //if (texture != null && texture.width == mapSetting.Size && texture.height == mapSetting.Size)
-        //    return;
-
-        //if (texture != null)
-        //    UnityEngine.GameObject.Destroy(texture);
+        return;
 
         var config = GetSingleton<Config>();
+
+        //if (!config.DisplayCellMap) return;
 
         texture = new UnityEngine.Texture2D(
             (int)config.CellMapResolution,
@@ -36,27 +31,6 @@ public partial class CellMapVisualizerSystem : SystemBase
 
         CellMapHelper helper = new CellMapHelper(EntityManager.GetBuffer<CellMap>(cellMapEntity), config.CellMapResolution, config.WorldSize);
         helper.InitCellMap();
-
-        var cellMap = EntityManager
-            .GetBuffer<CellMap>(cellMapEntity);
-
-        NativeArray<float4> arr = new NativeArray<float4>(cellMap.Length, Allocator.Temp);
-        for (int i = 0; i < cellMap.Length; ++i)
-        {
-            arr[i] = new float4(0, 0, 0, 1);
-        }
-
-        texture.LoadRawTextureData(arr);
-        texture.Apply();
-
-        var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(cellMapEntity);
-
-        renderMesh.material.mainTexture = texture;
-    }
-
-    protected override void OnUpdate()
-    {
-        Entity cellMapEntity = GetSingletonEntity<CellMap>();
 
         var cellMap = EntityManager
             .GetBuffer<CellMap>(cellMapEntity);
@@ -94,6 +68,12 @@ public partial class CellMapVisualizerSystem : SystemBase
         texture.Apply();
 
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(cellMapEntity);
+
         renderMesh.material.mainTexture = texture;
+    }
+
+    protected override void OnUpdate()
+    {
+        
     }
 }
