@@ -2,6 +2,8 @@
 using Unity.Mathematics;
 using Unity.Rendering;
 
+// Render Pheromone Map
+
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class PheromoneSystem : SystemBase
 {
@@ -9,21 +11,12 @@ public partial class PheromoneSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        //var mapEntity = GetSingletonEntity<MapSetting>();
-        //var mapSetting = GetComponent<MapSetting>(mapEntity);
-
-        //if (texture != null && texture.width == mapSetting.Size && texture.height == mapSetting.Size)
-        //    return;
-
-        //if (texture != null)
-        //    UnityEngine.GameObject.Destroy(texture);
-
         var config = GetSingleton<Config>();
 
         texture = new UnityEngine.Texture2D(
-            (int)config.CellMapResolution, 
-            (int)config.CellMapResolution, 
-            UnityEngine.TextureFormat.RFloat, 
+            (int)config.CellMapResolution,
+            (int)config.CellMapResolution,
+            UnityEngine.TextureFormat.RFloat,
             false
         );
 
@@ -32,9 +25,6 @@ public partial class PheromoneSystem : SystemBase
 
         Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
 
-        PheromoneMapHelper helper = new PheromoneMapHelper(EntityManager.GetBuffer<PheromoneMap>(pheromoneMapEntity), config.CellMapResolution, config.WorldSize);
-        helper.InitPheromoneMap();
-
         var pheromoneMap = EntityManager
             .GetBuffer<PheromoneMap>(pheromoneMapEntity)
             .Reinterpret<float>();
@@ -42,16 +32,12 @@ public partial class PheromoneSystem : SystemBase
         texture.LoadRawTextureData(pheromoneMap.AsNativeArray());
         texture.Apply();
 
-        //var pheromoneMapEntity = GetSingletonEntity<CellMap>();
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(pheromoneMapEntity);
-
-        //renderMesh.material = new UnityEngine.Material(renderMesh.material);
         renderMesh.material.mainTexture = texture;
     }
 
     protected override void OnUpdate()
     {
-        // In the update
         Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
 
         var pheromoneMap = EntityManager

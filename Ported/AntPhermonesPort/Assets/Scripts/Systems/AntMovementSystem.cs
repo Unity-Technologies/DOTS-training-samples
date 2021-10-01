@@ -15,16 +15,6 @@ public partial class AntMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // weighted rotation
-        // - jitter factor LOW (.14 for jitter)
-        // - pheromone factor LOW .015
-        // - collision factor HIGH .12
-        // - LOS factor
-        // - Nest factor
-
-        // METHOD
-        //
-
         var config = GetSingleton<Config>();
         var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         var time = Time.DeltaTime;
@@ -109,11 +99,6 @@ public partial class AntMovementSystem : SystemBase
 
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
 
-                //TEMP until Line of Sight Stamped
-                if (cellState == CellState.Empty && config.RingCount != 3)
-                    cellState = CellState.HasLineOfSightToBoth;
-                //END TEMP
-
                 if (cellState == CellState.IsObstacle)
                 {
                     turnAroundWall = true;
@@ -169,8 +154,6 @@ public partial class AntMovementSystem : SystemBase
                 }
                 ant.Excitement = excitement * ant.AntSpeed / config.MoveSpeed;
                 ant.ActiveCellIndex = pheromoneHelper.grid.GetNearestIndex(new float2(newPos.x, newPos.z));
-
-
             }).ScheduleParallel();
 
         Entities

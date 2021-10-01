@@ -29,13 +29,11 @@ public partial class PheromoneDecaySystem : SystemBase
         var config = GetSingleton<Config>();
 
         Entity pheromoneMapEntity = GetSingletonEntity<PheromoneMap>();
-        PheromoneMapHelper helper = new PheromoneMapHelper(EntityManager.GetBuffer<PheromoneMap>(pheromoneMapEntity), config.CellMapResolution, config.WorldSize);
+        var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(pheromoneMapEntity);
 
-        DecayJob job = new DecayJob { pheromoneMap = helper.pheromoneMap, decayRate = config.PheromoneDecayRate };
+        DecayJob job = new DecayJob { pheromoneMap = pheromoneMap, decayRate = config.PheromoneDecayRate };
 
-        Dependency = job.Schedule(helper.pheromoneMap.Length, config.CellMapResolution, Dependency);
+        Dependency = job.Schedule(pheromoneMap.Length, config.CellMapResolution, Dependency);
 
-// TODO: cleanup/remove
-  //      helper.DecrementIntensity(config.PheromoneDecayRate);
     }
 }

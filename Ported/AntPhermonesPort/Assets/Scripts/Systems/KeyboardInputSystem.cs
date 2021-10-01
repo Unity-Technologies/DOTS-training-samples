@@ -18,7 +18,6 @@ public partial class KeyboardInputSystem : SystemBase
 	{
 		if (Input.GetKeyDown(KeyCode.R))
 		{
-			
 			var entityArray = EntityManager.GetAllEntities();
 			foreach (var e in entityArray)
 				EntityManager.DestroyEntity(e);

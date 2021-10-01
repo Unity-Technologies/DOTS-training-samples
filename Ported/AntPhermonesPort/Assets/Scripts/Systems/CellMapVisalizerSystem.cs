@@ -11,8 +11,8 @@ public partial class CellMapVisualizerSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        return;
-
+        // Disabled for profiling because this is only needed for debugging
+#if ENABLE_CELL_MAP_VISUALIZER
         var config = GetSingleton<Config>();
 
         //if (!config.DisplayCellMap) return;
@@ -70,10 +70,10 @@ public partial class CellMapVisualizerSystem : SystemBase
         var renderMesh = EntityManager.GetSharedComponentData<RenderMesh>(cellMapEntity);
 
         renderMesh.material.mainTexture = texture;
+#endif
     }
 
     protected override void OnUpdate()
     {
-        
     }
 }
