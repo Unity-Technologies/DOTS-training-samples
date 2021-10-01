@@ -29,17 +29,17 @@ public partial class AntMovementSystem : SystemBase
         var random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         var time = Time.DeltaTime;
         var elapsed = Time.ElapsedTime;
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
         var cellMap = EntityManager.GetBuffer<CellMap>(GetSingletonEntity<CellMap>());
         var pheromoneMap = EntityManager.GetBuffer<PheromoneMap>(GetSingletonEntity<PheromoneMap>());
         var foodSingleton = GetSingleton<Food>();
 
+        UnityEngine.Time.timeScale = config.Speed;
+
         Entities
             .WithReadOnly(cellMap)
+            .WithReadOnly(pheromoneMap)
             .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref AntMovement ant, ref URPMaterialPropertyBaseColor color, in LocalToWorld ltw) =>
             {
-                UnityEngine.Time.timeScale = config.Speed;
-
                 // Initial jittering motion
                 float jitterAngle = random.NextFloat(-config.RandomSteering, config.RandomSteering);
                 ant.FacingAngle += jitterAngle;
@@ -107,7 +107,6 @@ public partial class AntMovementSystem : SystemBase
                 bool turnAroundWall = false;
                 bool turnAroundOther = false;
 
-                Debug.Assert(cellMapHelper.IsInitialized());
                 var cellState = cellMapHelper.GetCellStateFrom2DPos(new float2(newPos.x, newPos.z));
 
                 //TEMP until Line of Sight Stamped
@@ -168,20 +167,24 @@ public partial class AntMovementSystem : SystemBase
                 {
                     excitement *= config.AntHasFoodPeromoneMultiplier;
                 }
-                excitement *= ant.AntSpeed / config.MoveSpeed;
+                ant.Excitement = excitement * ant.AntSpeed / config.MoveSpeed;
 
-                Debug.Assert(pheromoneHelper.IsInitialized());
+            }).ScheduleParallel();
+
+        Entities
+            .ForEach((Entity entity, ref AntMovement ant, in LocalToWorld ltw) =>
+            {
+                var pheromoneHelper = new PheromoneMapHelper(pheromoneMap, config.CellMapResolution, config.WorldSize);
+
                 pheromoneHelper.IncrementIntensity(
                     new float2(ltw.Position.x, ltw.Position.z),
-                    excitement,
+                    ant.Excitement,
                     //time
                     0
                 );
+            }).Schedule();
 
-            }).Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        Dependency.Complete();
     }
 
     static float PheromoneSteering(PheromoneMapHelper pheromone, float facingAngle, float3 antPosition, float distance)

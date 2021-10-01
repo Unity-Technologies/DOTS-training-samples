@@ -14,9 +14,9 @@ public enum AntState : byte
 [GenerateAuthoringComponent]
 public struct AntMovement : IComponentData
 {
-    public byte HasSeenFood;
     public float FacingAngle;
     public float AntSpeed;
-
+    public float Excitement;
     public AntState State;
+    public byte HasSeenFood;
 }
