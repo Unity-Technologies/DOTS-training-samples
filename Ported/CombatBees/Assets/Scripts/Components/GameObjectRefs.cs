@@ -25,7 +25,7 @@ public class GameObjectRefs : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene(0); //or whatever number your scene is
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         if (Input.GetKey(KeyCode.Mouse1)) 
