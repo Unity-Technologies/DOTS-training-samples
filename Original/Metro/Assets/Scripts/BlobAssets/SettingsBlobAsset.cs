@@ -6,7 +6,8 @@ public struct SettingsBlobAsset
     public float MaxSpeed;
     public float CarriageSizeWithMargins;
     public float TimeAtStation;
-    public float BreakingDistance;
+    public float TrainBrakingDistance;
+    public float PlatformBrakingDistance;
     public float Acceleration;
     public BlobArray<float4> LineColors;
 }

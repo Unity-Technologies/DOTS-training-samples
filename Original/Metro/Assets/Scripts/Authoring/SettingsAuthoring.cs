@@ -20,10 +20,9 @@ public class SettingsAuthoring : UnityMonoBehavior, IConvertGameObjectToEntity
     /// </summary>
     public float TimeAtStation;
 
-    /// <summary>
-    /// How far from the station does the train start breaking (in meters)
-    /// </summary>
-    public float BreakingDistance;
+    public float TrainBrakingDistance;
+    
+    public float PlatformBrakingDistance;
 
     /// <summary>
     /// Acceleration in m/s^2
@@ -39,7 +38,8 @@ public class SettingsAuthoring : UnityMonoBehavior, IConvertGameObjectToEntity
             settingsBlobAsset.MaxSpeed = MaxSpeed;
             settingsBlobAsset.CarriageSizeWithMargins = CarriageSizeWithMargins;
             settingsBlobAsset.TimeAtStation = TimeAtStation;
-            settingsBlobAsset.BreakingDistance = BreakingDistance;
+            settingsBlobAsset.TrainBrakingDistance = TrainBrakingDistance;
+            settingsBlobAsset.PlatformBrakingDistance = PlatformBrakingDistance;
             settingsBlobAsset.Acceleration = Acceleration;
 
             var settingsLineColors = blobBuilder.Allocate(ref settingsBlobAsset.LineColors, LineColors.Length);

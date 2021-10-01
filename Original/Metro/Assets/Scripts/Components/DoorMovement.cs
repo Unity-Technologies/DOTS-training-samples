@@ -7,5 +7,5 @@ using UnityEngine;
 public struct DoorMovement : IComponentData
 {
     public bool leftDoor;
-    public float timeSpentAtStation;
+    public float timeSpentAtPlatform;
 }
