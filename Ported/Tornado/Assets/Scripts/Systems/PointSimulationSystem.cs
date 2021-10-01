@@ -157,7 +157,7 @@ public partial class PointSimulationSystem : SystemBase
 			job.random = random;
 			job.constants = constants;
 
-			var handle = job.Schedule(currentPoints.Length, 64, Dependency);
+			var handle = job.Schedule(currentPoints.Length, 1024*1024*64, Dependency);
 			Dependency = JobHandle.CombineDependencies(Dependency, handle);
 		}
 

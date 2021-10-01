@@ -23,6 +23,8 @@ public partial class ConstraintsSystem : SystemBase
 	private DynamicBuffer<PreviousPoint>[] m_PreviousPointsCache;
 	private DynamicBuffer<AnchorPoint>[] m_AnchorsCache;
 	private DynamicBuffer<NeighborCount>[] m_NeighborCountsCache;
+	private PhysicalConstants m_Constants;
+	private List<BeamBatch> m_BeamBatches;
 
 	private static int AddNewPoint(
 		DynamicBuffer<CurrentPoint> inputCurrentPoints,
@@ -57,14 +59,6 @@ public partial class ConstraintsSystem : SystemBase
 	}
 
 
-	protected override void OnCreate()
-	{
-		
-			m_BeamComponentTypeHandle = EntityManager.GetComponentTypeHandle<Beam>(true);
-			m_ColorComponentTypeHandle = EntityManager.GetComponentTypeHandle<URPMaterialPropertyBaseColor>(true);
-			
-			
-	}
 
 
 	[BurstCompile]
@@ -220,13 +214,28 @@ public partial class ConstraintsSystem : SystemBase
 			}
 		}
 	}
+	
+	
+	protected override void OnCreate()
+	{
+		
+		m_BeamComponentTypeHandle = EntityManager.GetComponentTypeHandle<Beam>(true);
+		m_ColorComponentTypeHandle = EntityManager.GetComponentTypeHandle<URPMaterialPropertyBaseColor>(true);
 
+		m_BeamBatches = new List<BeamBatch>();
+	}
+	
 	protected override void OnUpdate()
 	{
-		var constants = GetSingleton<PhysicalConstants>();
 		
-		var beamBatches = new List<BeamBatch>();
-		EntityManager.GetAllUniqueSharedComponentData(beamBatches);
+		m_Constants = GetSingleton<PhysicalConstants>();
+		
+
+		if (m_BeamBatches.Count == 0)
+		{
+			EntityManager.GetAllUniqueSharedComponentData(m_BeamBatches);
+		}
+		
 		/*for (int i = 0; i < beamBatches.Count; i++)
 		{
 			Debug.Log("beamBatch["+ i +"]: " + beamBatches[i].Value);
@@ -242,17 +251,17 @@ public partial class ConstraintsSystem : SystemBase
 		var aggregatedHandle = new JobHandle();
 
 		
-		if(m_WorldEntititesCache == null && beamBatches.Count > 0) {
-			m_WorldEntititesCache = new NativeArray<Entity>[beamBatches.Count];
-			m_ArchetypeChuncksCache = new NativeArray<ArchetypeChunk>[beamBatches.Count];
-			m_CurrentPointsCache = new DynamicBuffer<CurrentPoint>[beamBatches.Count];
-			m_PreviousPointsCache = new DynamicBuffer<PreviousPoint>[beamBatches.Count];
-			m_AnchorsCache = new DynamicBuffer<AnchorPoint>[beamBatches.Count];
-			m_NeighborCountsCache = new DynamicBuffer<NeighborCount>[beamBatches.Count];
-			for (var i = 0; i < beamBatches.Count; i++)
+		if(m_WorldEntititesCache == null && m_BeamBatches.Count > 0) {
+			m_WorldEntititesCache = new NativeArray<Entity>[m_BeamBatches.Count];
+			m_ArchetypeChuncksCache = new NativeArray<ArchetypeChunk>[m_BeamBatches.Count];
+			m_CurrentPointsCache = new DynamicBuffer<CurrentPoint>[m_BeamBatches.Count];
+			m_PreviousPointsCache = new DynamicBuffer<PreviousPoint>[m_BeamBatches.Count];
+			m_AnchorsCache = new DynamicBuffer<AnchorPoint>[m_BeamBatches.Count];
+			m_NeighborCountsCache = new DynamicBuffer<NeighborCount>[m_BeamBatches.Count];
+			for (var i = 0; i < m_BeamBatches.Count; i++)
 			{
-				worldQuery.SetSharedComponentFilter(beamBatches[i]);
-				beamQuery.SetSharedComponentFilter(beamBatches[i]);
+				worldQuery.SetSharedComponentFilter(m_BeamBatches[i]);
+				beamQuery.SetSharedComponentFilter(m_BeamBatches[i]);
 
 				m_WorldEntititesCache[i] = worldQuery.ToEntityArray(Allocator.Persistent);
 				m_ArchetypeChuncksCache[i] = beamQuery.CreateArchetypeChunkArray(Allocator.Persistent);
@@ -266,10 +275,15 @@ public partial class ConstraintsSystem : SystemBase
 			}
 		}
 		
+		
+		m_BeamComponentTypeHandle.Update(this);
+		m_ColorComponentTypeHandle.Update(this);
+		//m_BeamComponentTypeHandle = GetComponentTypeHandle<Beam>();
+		//m_ColorComponentTypeHandle = GetComponentTypeHandle<URPMaterialPropertyBaseColor>();
 
-		for (var i = 0; i < beamBatches.Count; i++) {
+		for (var i = 0; i < m_BeamBatches.Count; i++) {
 			
-			beamQuery.SetSharedComponentFilter(beamBatches[i]);
+			beamQuery.SetSharedComponentFilter(m_BeamBatches[i]);
 			//worldQuery.SetSharedComponentFilter(beamBatches[i]);
 
 			//var worldEntities = worldQuery.ToEntityArray(Allocator.TempJob);
@@ -290,17 +304,10 @@ public partial class ConstraintsSystem : SystemBase
 			
 			//var archetypeChuncks = beamQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
-
-			m_BeamComponentTypeHandle.Update(this);
-			m_ColorComponentTypeHandle.Update(this);
-			//m_BeamComponentTypeHandle = GetComponentTypeHandle<Beam>();
-			//m_ColorComponentTypeHandle = GetComponentTypeHandle<URPMaterialPropertyBaseColor>();
-
-
 			//dispatch job
 			var job = new ConstraintsSystemJob
 			{
-				InputConstants = constants,
+				InputConstants = m_Constants,
 				//InputBeams = beamComponents,
 				InputCurrentPoints = m_CurrentPointsCache[i],
 				InputPreviousPoints = m_PreviousPointsCache[i],

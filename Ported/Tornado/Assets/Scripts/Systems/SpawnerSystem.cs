@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
+using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -145,28 +147,50 @@ public partial class SpawnerSystem : SystemBase
 				}
 			}
 		}
+		
+		var instance = Entity.Null;
+		var beamBatch = new BeamBatch();
+		DynamicBuffer<CurrentPoint> bufferCurrent = default;
+		DynamicBuffer<PreviousPoint> bufferPrevious = default;
+		DynamicBuffer<AnchorPoint> anchorBuffer = default;
+		DynamicBuffer<NeighborCount> neighborBuffer = default;
+		var newTowerId = 0;
+		var currentBatchCount = int.MaxValue;
+		var fPointCount = 0;
+		var compactOwnership = new List<int>();
+		var maxBeamsPerBatch = beamCount / (JobsUtility.JobWorkerCount * 2) ;
+
+
 
 		for (int t = 0; t < towerID; t++)
 		{
-			var instance = ecb.CreateEntity();
-			ecb.AddComponent<World>(instance);
+			if (currentBatchCount > maxBeamsPerBatch)
+			{
+				fPointCount = 0;
+				currentBatchCount = 0;
+				instance = ecb.CreateEntity();
+				ecb.AddComponent<World>(instance);
+				
+				beamBatch = new BeamBatch() { Value = newTowerId };
+				ecb.AddSharedComponent(instance, beamBatch);
+				
+				bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
+				bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
+				anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
+				neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
+				
+				bufferCurrent.Capacity = beamCount * 2;
+				bufferPrevious.Capacity = beamCount * 2;
+				neighborBuffer.Capacity = beamCount * 2;
+				anchorBuffer.Capacity = beamCount * 2;
+				compactOwnership.Clear();
+				newTowerId++;
+			}
 
-			var beamBatch = new BeamBatch() { Value = t };
-			ecb.AddSharedComponent(instance, beamBatch);
-			
-			var bufferCurrent = ecb.AddBuffer<CurrentPoint>(instance);
-			var bufferPrevious = ecb.AddBuffer<PreviousPoint>(instance);
-			var anchorBuffer = ecb.AddBuffer<AnchorPoint>(instance);
-			var neighborBuffer = ecb.AddBuffer<NeighborCount>(instance);
-			
-			bufferCurrent.Capacity = beamCount * 2;
-			bufferPrevious.Capacity = beamCount * 2;
-			neighborBuffer.Capacity = beamCount * 2;
-			anchorBuffer.Capacity = beamCount * 2;
 
-			var compactOwnership = new List<int>();
+
+			var fPointCountStart = fPointCount;
 			
-			var fPointCount = 0;
 			for (int i=0;i<pointCount;i++) {
 				if (tempNeighbor[i].Value > 0 && towerOwnership[i] == t )
 				{
@@ -183,9 +207,8 @@ public partial class SpawnerSystem : SystemBase
 			ecb.RemoveComponent<Rotation>(spawner.BeamPrefab);
 			ecb.RemoveComponent<NonUniformScale>(spawner.BeamPrefab);
 			 
-			var barCount = 0;
 			//TODO: Profile this, if its expensive, we might be able to move this loop above, then merge this loop with the one before the loop above, and use a map to remap the beams indexes
-			for (int i = 0; i < fPointCount; i++) {
+			for (int i = fPointCountStart; i < fPointCount; i++) {
 				for (int j = i + 1; j < fPointCount; j++) {
 					
 					//TODO: this changes the initial behavior, since now it means towers cannot interconnect
@@ -209,7 +232,7 @@ public partial class SpawnerSystem : SystemBase
 						neighborBuffer[i] = new NeighborCount { Value = neighborBuffer[i].Value + 1 };
 						neighborBuffer[j] = new NeighborCount { Value = neighborBuffer[j].Value + 1 };
 						ecb.SetComponent(beamEntity, beam);
-						barCount++;
+						currentBatchCount++;
 						
 						float upDot = math.acos(math.abs(math.dot(new float3(0f,1f,0f), math.normalize(delta))))/math.PI;
 						ecb.SetComponent(beamEntity, new URPMaterialPropertyBaseColor()
