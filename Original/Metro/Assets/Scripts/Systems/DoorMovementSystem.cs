@@ -1,36 +1,32 @@
+using dots_src.Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class DoorMovementSystem : SystemBase
 {
     private const float openingDistance = 0.3f;
     private const float closedPos = 0.15f;
-    private const float openingDuration = 1.0f;
     
     protected override void OnUpdate()
     {
-        ref var settings = ref GetSingleton<Settings>().SettingsBlobRef.Value;
-        var settingsTimeAtStation = settings.TimeAtStation;
-
         var deltaTime = Time.DeltaTime;
-        Entities.ForEach((ref DoorMovement doorMovement, ref Translation translation, in TrainReference trainReference) =>
+        Entities.ForEach((ref DoorMovement doorMovement, ref Translation translation, in PlatformRef platform) =>
         {
-
-            var trainState = GetComponent<TrainState>(trainReference.Train);
-            if (trainState.State == TrainMovementStates.WaitingAtPlatform)
-                doorMovement.timeSpentAtPlatform += deltaTime;
-            else
-            {
-                doorMovement.timeSpentAtPlatform = 0;
-            }
+            if (platform.Platform.Equals(Entity.Null)) return;
+            var trainState = GetComponent<BoardingState>(platform.Platform);
             
-            var openingProgress = math.clamp(doorMovement.timeSpentAtPlatform / openingDuration,0,1);
+            if (doorMovement.LeftTrainSide) return;
+            
+            if (trainState == BoardingStates.Arriving && doorMovement.Progress < 1f)
+                doorMovement.Progress += deltaTime*10f;
+            else if (trainState == BoardingStates.Leaving && doorMovement.Progress > 0f)
+                doorMovement.Progress -= deltaTime*10f;
 
-            var closingProgress = math.clamp((settingsTimeAtStation - doorMovement.timeSpentAtPlatform) / openingDuration, 0,
-                1);
-            var progress = math.min(openingProgress, closingProgress);
-            translation.Value.x = (closedPos + progress * openingDistance) * (doorMovement.leftDoor ? 1.0f : -1.0f); 
+            doorMovement.Progress = math.saturate(doorMovement.Progress);
+            
+            translation.Value.x = (closedPos + doorMovement.Progress  * openingDistance) * (doorMovement.LeftDoor ? 1.0f : -1.0f); 
 
         }).ScheduleParallel();
     }

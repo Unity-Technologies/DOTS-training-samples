@@ -66,6 +66,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                         ecb.SetComponent(platformInstance, translation);
                         ecb.AddComponent(platformInstance,
                            new URPMaterialPropertyBaseColor {Value = lineColor});
+                        ecb.AddComponent(platformInstance, new Side{IsLeft = i < halfPlatforms});
      
                         entityBuffer.Add(platformInstance);
                     }
@@ -82,17 +83,11 @@ public partial class PlatformSpawnerSystem : SystemBase
     
     static (Translation, Rotation) GetStationTransform(float3 curPos, float3 centerPos, float3 centerNextPos)
     {
-        float3 backTrackDir =  - math.normalize(centerNextPos - centerPos);
-        float3 forwardPlatformDir = math.cross(backTrackDir, math.up());
-        Rotation rotation = new Rotation()
-        {
-            Value = quaternion.LookRotation(forwardPlatformDir, math.up())
-        };
+        var backTrackDir =  math.normalize(centerPos - centerNextPos);
+        var forwardPlatformDir = math.cross(backTrackDir, math.up());
+        var rotation = new Rotation {Value = quaternion.LookRotation(forwardPlatformDir, math.up())};
 
-        Translation translation = new Translation()
-        {
-            Value = curPos,
-        };
+        var translation = new Translation {Value = curPos,};
         return (translation, rotation);
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using dots_src.Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
@@ -39,7 +40,7 @@ public partial class TrainSpawnerSystem : SystemBase
                     ecb.AddComponent(trainInstance, new TrainMovement {speed = 0f});
                     ecb.AddComponent(trainInstance, new TrainPosition {Value = (splineDataBlobAsset.equalDistantPoints.Length / trainCount) * i,});
                     ecb.AddComponent(trainInstance, new LineIndex{Index = lineId});
-
+                    ecb.AddComponent<PlatformRef>(trainInstance);
                     if (previousTrain == Entity.Null)
                         firstTrain = trainInstance;
                     else
@@ -51,6 +52,7 @@ public partial class TrainSpawnerSystem : SystemBase
                         ecb.AddComponent(carriageInstance, new URPMaterialPropertyBaseColor() {Value = lineColor});
                         ecb.SetComponent(carriageInstance, new TrainReference { Train = trainInstance });
                         ecb.SetComponent(carriageInstance, new CarriageIndex { Value = j });
+                        ecb.SetName(carriageInstance, $"Car {lineId}-{i}-{j}");
                     }
 
                     previousTrain = trainInstance;

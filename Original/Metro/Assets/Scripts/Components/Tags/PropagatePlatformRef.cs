@@ -1,6 +1,6 @@
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct PropagateTrainRef : IComponentData
+public struct PropagatePlatformRef : IComponentData
 {
 }

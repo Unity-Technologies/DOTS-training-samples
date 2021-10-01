@@ -6,6 +6,7 @@ using UnityEngine;
 [GenerateAuthoringComponent]
 public struct DoorMovement : IComponentData
 {
-    public bool leftDoor;
-    public float timeSpentAtPlatform;
+    public bool LeftDoor;
+    public float Progress;
+    public bool LeftTrainSide;
 }

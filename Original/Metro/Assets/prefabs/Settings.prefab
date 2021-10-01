@@ -45,10 +45,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxSpeed: 20
   CarriageSizeWithMargins: 5
-  TimeAtStation: 4
+  TimeAtStation: 10
   TrainBrakingDistance: 20
   PlatformBrakingDistance: 20
-  Acceleration: 5
+  LeavingPlatformMarginDistance: 5
+  MarginToTrainInFrontDistance: 5
+  Acceleration: 0.5
   LineColors:
   - {r: 0.5716981, g: 0.90601754, b: 1, a: 0}
   - {r: 0.609434, g: 1, b: 0.6164011, a: 0}

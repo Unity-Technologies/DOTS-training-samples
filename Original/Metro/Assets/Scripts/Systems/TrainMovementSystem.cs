@@ -6,6 +6,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial class TrainMovementSystem : SystemBase
 {
@@ -28,7 +29,8 @@ public partial class TrainMovementSystem : SystemBase
         // update state of train, i.e. stopping, starting, etc
         // this way we can access position of train in front, as we're not allowed to access `ref` components of other entities
         Entities.WithReadOnly(lookup).WithDisposeOnCompletion(lineEntities)
-            .ForEach((Entity e, int entityInQueryIndex, ref TrainMovement movement, ref TrainState state,
+            .ForEach((Entity e, int entityInQueryIndex, 
+                ref TrainMovement movement, ref TrainState state, ref PlatformRef _platformRef,
                 in LineIndex lineIndex, in TrainInFront trainInFront, in TrainPosition position) =>
             {
                 ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
@@ -88,7 +90,12 @@ public partial class TrainMovementSystem : SystemBase
                                 var lineEntity = lineEntities[lineIndex.Index];
                                 var platformEntities = lookup[lineEntity];
                                 var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, position.Value);
-                                ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy {Train = e, TimeLeft = settings.TimeAtStation});
+                                ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy
+                                {
+                                    Train = e,
+                                    TimeLeft = Random.CreateFromIndex((uint) entityInQueryIndex).NextFloat(0.2f, settings.TimeAtStation)
+                                });
+                                _platformRef.Platform = platformEntity;
                             }
                         }
                         break;
