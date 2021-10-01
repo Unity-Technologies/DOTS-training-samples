@@ -31,6 +31,7 @@ public partial class RailsSpawnerSystem : SystemBase
                                     splineBlobAsset.equalDistantPoints[i + 1] - splineBlobAsset.equalDistantPoints[i], 
                                     Vector3.up)
                             };
+                        ecb.SetName(instance, $"Rail {lineId}-{i}");
                         ecb.SetComponent(instance, rotation);
                         ecb.SetComponent(instance, new Translation {Value = splineBlobAsset.equalDistantPoints[i]});
                     }
