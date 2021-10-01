@@ -160,7 +160,7 @@ public partial class AntMovementSystem : SystemBase
             .ForEach((Entity entity, ref AntMovement ant) =>
             {
                 ref PheromoneMap ph = ref pheromoneMap.ElementAt(ant.ActiveCellIndex);
-                ph.intensity = math.clamp(ph.intensity + ant.Excitement, 0, 1);
+                ph.Intensity = math.clamp(ph.Intensity + ant.Excitement, 0, 1);
             }).Schedule();
 
         Dependency.Complete();
