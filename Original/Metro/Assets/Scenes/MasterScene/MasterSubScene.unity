@@ -461,6 +461,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7925353965989131833, guid: 834d373bad3066d46b6ccf1587347d2a,
+        type: 3}
+      propertyPath: TrainBrakingDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7925353965989131833, guid: 834d373bad3066d46b6ccf1587347d2a,
+        type: 3}
+      propertyPath: PlatformBrakingDistance
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7925353965989131833, guid: 834d373bad3066d46b6ccf1587347d2a,
+        type: 3}
+      propertyPath: MarginToTrainInFrontDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7925353965989131833, guid: 834d373bad3066d46b6ccf1587347d2a,
+        type: 3}
+      propertyPath: LeavingPlatformMarginDistance
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7925353965989131838, guid: 834d373bad3066d46b6ccf1587347d2a,
         type: 3}
       propertyPath: m_Name

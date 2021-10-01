@@ -39,7 +39,7 @@ public partial class TrainMovementSystem : SystemBase
                     var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
 
                     // when calculating stop position, include length of train
-                    var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(settings);
+                    var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(settings) - splineBlobAsset.DistanceToPointUnitDistance(settings.MarginToTrainInFrontDistance);
                     //Debug.Log($"T{e},{unitPointDistanceToEndOfTrainInFront}");
                     if (unitPointDistanceToEndOfTrainInFront < splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance))
                     {
@@ -51,8 +51,8 @@ public partial class TrainMovementSystem : SystemBase
 
                     // are we approaching platform?
                     var unitPointDistToClosestPlatform = splineBlobAsset.UnitPointDistanceToClosestPlatform(position.Value);
-                    //Debug.Log($"P{e},{unitPointDistToClosestPlatform}");
-                    if (unitPointDistToClosestPlatform < splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBrakingDistance))
+                    if (splineBlobAsset.DistanceToPointUnitDistance(settings.LeavingPlatformMarginDistance) < unitPointDistToClosestPlatform 
+                        && unitPointDistToClosestPlatform < splineBlobAsset.DistanceToPointUnitDistance(settings.PlatformBrakingDistance))
                     {
                         movement.stopPosition = (position.Value + unitPointDistToClosestPlatform) % splineBlobAsset.equalDistantPoints.Length;
                         movement.distanceToStop = unitPointDistToClosestPlatform;
@@ -88,7 +88,7 @@ public partial class TrainMovementSystem : SystemBase
                             {
                                 var lineEntity = lineEntities[lineIndex.Index];
                                 var platformEntities = lookup[lineEntity];
-                                var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, upToTrainDistance);
+                                var platformEntity = splineBlobAsset.GetNextPlatformEntity(ref platformEntities, position.Value);
                                 ecb.SetComponent(entityInQueryIndex, platformEntity, new Occupancy {Train = e, TimeLeft = settings.TimeAtStation});
                             }
                         }

@@ -28,5 +28,18 @@ public struct Settings : IComponentData
     /// </summary>
     public float Acceleration;
 
+    /// <summary>
+    /// When do we initiate braking when approaching train in front
+    /// </summary>
     public float TrainBrakingDistance;
+
+    /// <summary>
+    /// If we're leaving platform, keep running if we're within this margin
+    /// </summary>
+    public float LeavingPlatformMarginDistance;
+
+    /// <summary>
+    /// How far from train in front should we stop?
+    /// </summary>
+    public float MarginToTrainInFrontDistance;
 }

@@ -61,6 +61,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                             rotation = new Rotation() {Value = math.mul(quaternion.RotateY(math.PI), outBoundQuaternion)};
                         }
 
+                        ecb.SetName(platformInstance, $"Platform {lineId}-{i}");
                         ecb.SetComponent(platformInstance, rotation);
                         ecb.SetComponent(platformInstance, translation);
                         ecb.AddComponent(platformInstance,

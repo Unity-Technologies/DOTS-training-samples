@@ -11,7 +11,7 @@ namespace dots_src.Systems
             var trainStates = GetComponentDataFromEntity<TrainState>();
             
             Entities.WithNativeDisableParallelForRestriction(trainStates)
-                .ForEach((int entityInQueryIndex, ref Occupancy occupancy) =>
+                .ForEach((ref Occupancy occupancy) =>
                 {
                     if (occupancy.Train == Entity.Null) return;
 
