@@ -23,7 +23,7 @@ public partial class PheromoneSystem : SystemBase
         texture = new UnityEngine.Texture2D(
             (int)config.CellMapResolution, 
             (int)config.CellMapResolution, 
-            UnityEngine.TextureFormat.RGBAFloat, 
+            UnityEngine.TextureFormat.RFloat, 
             false
         );
 
@@ -37,7 +37,7 @@ public partial class PheromoneSystem : SystemBase
 
         var pheromoneMap = EntityManager
             .GetBuffer<PheromoneMap>(pheromoneMapEntity)
-            .Reinterpret<float4>();
+            .Reinterpret<float>();
 
         texture.LoadRawTextureData(pheromoneMap.AsNativeArray());
         texture.Apply();
@@ -56,7 +56,7 @@ public partial class PheromoneSystem : SystemBase
 
         var pheromoneMap = EntityManager
             .GetBuffer<PheromoneMap>(pheromoneMapEntity)
-            .Reinterpret<float4>();
+            .Reinterpret<float>();
 
         texture.LoadRawTextureData(pheromoneMap.AsNativeArray());
         texture.Apply();

@@ -45,7 +45,7 @@ public struct PheromoneMapHelper
         //// Optimize
         for (int i = 0; i < pheromoneMap.Length; ++i)
         {
-            pheromoneMap.ElementAt(i).intensity = new float4(0, 0, 0, 1);
+            pheromoneMap.ElementAt(i).intensity = 0;
         }
     }
 
@@ -58,7 +58,7 @@ public struct PheromoneMapHelper
             return -1;
         }
 
-        return pheromoneMap[index].intensity.x;
+        return pheromoneMap[index].intensity;
     }
 
     public void Set(int x, int y, float state)
@@ -76,7 +76,7 @@ public struct PheromoneMapHelper
         if (pos < 0 || pos >= pheromoneMap.Length)
             return 0f;
 
-        return pheromoneMap[pos].intensity.x;
+        return pheromoneMap[pos].intensity;
     }
 
     public void IncrementIntensity(float2 position, float increaseValue, float debugLineTime = 0)
@@ -87,10 +87,8 @@ public struct PheromoneMapHelper
 
         float4 currentValue = pheromoneMap[index].intensity;
 
-        pheromoneMap.ElementAt(index).intensity = new float4(
-            math.clamp(currentValue.x + increaseValue, 0, 1), 0, 0, 1
-        );
-
+        pheromoneMap.ElementAt(index).intensity = math.clamp(currentValue.x + increaseValue, 0, 1);
+        
         if(debugLineTime != 0) grid.DrawDebugRay(index, new Color(1, 0, 0.2f, 1), debugLineTime);
     }
 
@@ -100,7 +98,7 @@ public struct PheromoneMapHelper
         for(int i = 0; i < len; i++)
         {
             ref PheromoneMap item = ref pheromoneMap.ElementAt(i);
-            item.intensity.x *= decayRate;
+            item.intensity *= decayRate;
         }
     }
 }

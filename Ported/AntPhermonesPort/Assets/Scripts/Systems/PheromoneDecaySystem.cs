@@ -15,7 +15,7 @@ struct DecayJob : IJobParallelFor
     public void Execute(int index)
     {
         ref PheromoneMap item = ref pheromoneMap.ElementAt(index);
-        item.intensity.x *= decayRate;
+        item.intensity *= decayRate;
     }
 }
 
