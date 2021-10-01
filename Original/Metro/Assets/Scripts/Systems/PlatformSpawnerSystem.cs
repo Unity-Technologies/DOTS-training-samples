@@ -16,11 +16,12 @@ public partial class PlatformSpawnerSystem : SystemBase
 
         const float platformSize = 30.0f;
         float3 returnPlatformOffset = new float3(20, 0, -8);
-        var random = new Random(11);
+        var settings = GetSingleton<Settings>().SettingsBlobRef;
         
         Entities.
             ForEach((Entity entity, in PlatformSpawner spawner) =>
             {
+                ref var lineColors = ref settings.Value.LineColors ;
                 ecb.DestroyEntity(entity);
                 for (var lineId = 0; lineId < splineDataArrayRef.Value.splineBlobAssets.Length; lineId++)
                 {
@@ -33,8 +34,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                     int halfPlatforms = nbPlatforms / 2;
                     NativeArray<Rotation> outBoundsRotations = new NativeArray<Rotation>(halfPlatforms, Allocator.Temp);
                     NativeArray<float3> outBoundsTranslations = new NativeArray<float3>(halfPlatforms, Allocator.Temp);
-
-                    var lineColor = 0.5f * (random.NextFloat4() + new float4(0.5f,0.5f,0.5f,0.5f));
+                    var lineColor = lineColors[lineId % lineColors.Length];
                     for (int i = 0; i < nbPlatforms; i++)
                     {
                         var platformInstance = ecb.Instantiate(spawner.PlatformPrefab);

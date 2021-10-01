@@ -10,19 +10,25 @@ public partial class DoorMovementSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        var settings = GetSingleton<Settings>();
+        ref var settings = ref GetSingleton<Settings>().SettingsBlobRef.Value;
+        var settingsTimeAtStation = settings.TimeAtStation;
 
         var deltaTime = Time.DeltaTime;
         Entities.ForEach((ref DoorMovement doorMovement, ref Translation translation, in TrainReference trainReference) =>
         {
+
             var trainState = GetComponent<TrainState>(trainReference.Train);
             if (trainState.State == TrainMovementStates.WaitingAtPlatform)
-                doorMovement.timeSpentAtStation += deltaTime;
+                doorMovement.timeSpentAtPlatform += deltaTime;
             else
-                doorMovement.timeSpentAtStation = 0;
+            {
+                doorMovement.timeSpentAtPlatform = 0;
+            }
             
-            var openingProgress = math.saturate(doorMovement.timeSpentAtStation / openingDuration);
-            var closingProgress = math.saturate((settings.TimeAtStation - doorMovement.timeSpentAtStation) / openingDuration);
+            var openingProgress = math.clamp(doorMovement.timeSpentAtPlatform / openingDuration,0,1);
+
+            var closingProgress = math.clamp((settingsTimeAtStation - doorMovement.timeSpentAtPlatform) / openingDuration, 0,
+                1);
             var progress = math.min(openingProgress, closingProgress);
             translation.Value.x = (closedPos + progress * openingDistance) * (doorMovement.leftDoor ? 1.0f : -1.0f); 
 

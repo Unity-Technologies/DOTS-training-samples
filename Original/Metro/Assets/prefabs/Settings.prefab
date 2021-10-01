@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7925353965989131832}
-  - component: {fileID: 7925353965989131833}
+  - component: {fileID: 4949872354303122947}
   m_Layer: 0
   m_Name: Settings
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7925353965989131833
+--- !u!114 &4949872354303122947
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,12 +40,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 7925353965989131838}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1acc7c1fc47e143eaa9311b3dc049e49, type: 3}
+  m_Script: {fileID: 11500000, guid: 58a90d7df82a1ba498f1f7ec719d18ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 30
-  CarriageSizeWithMargins: 5.5
-  TimeAtStation: 2
-  PlatformBreakingDistance: 20
-  Acceleration: 0.5
-  TrainBreakingDistance: 20
+  MaxSpeed: 20
+  CarriageSizeWithMargins: 5
+  TimeAtStation: 4
+  TrainBrakingDistance: 20
+  PlatformBrakingDistance: 20
+  Acceleration: 5
+  LineColors:
+  - {r: 0.5716981, g: 0.90601754, b: 1, a: 0}
+  - {r: 0.609434, g: 1, b: 0.6164011, a: 0}
+  - {r: 1, g: 0.53396225, b: 0.53396225, a: 0}
+  - {r: 0.9811321, g: 0.94852465, b: 0.47760776, a: 0}
+  - {r: 0.9191097, g: 0.54339623, b: 1, a: 0}
+  - {r: 0.49622643, g: 1, b: 0.7951131, a: 0}
+  - {r: 0.5277918, g: 0.4867925, b: 1, a: 0}
+  - {r: 1, g: 0.37477478, b: 0.34528303, a: 0}
+  - {r: 0.51422524, g: 1, b: 0.4113208, a: 0}

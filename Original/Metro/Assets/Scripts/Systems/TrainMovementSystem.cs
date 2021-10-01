@@ -18,7 +18,7 @@ public partial class TrainMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var splineData = GetSingleton<SplineDataReference>().BlobAssetReference;
-        var settings = GetSingleton<Settings>();
+        var settingsRef = GetSingleton<Settings>().SettingsBlobRef;
         var deltaTime = Time.DeltaTime;
 
         var lineEntities = GetEntityQuery(ComponentType.ReadOnly<EntityBufferElement>()).ToEntityArray(Allocator.TempJob);
@@ -32,15 +32,14 @@ public partial class TrainMovementSystem : SystemBase
                 in LineIndex lineIndex, in TrainInFront trainInFront, in TrainPosition position) =>
             {
                 ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
-
+                ref var settings = ref settingsRef.Value;
                 if (state.IsMoving)
                 {
                     var trainInFrontPosition = GetComponent<TrainPosition>(trainInFront.Train).Value;
                     var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
 
                     // when calculating stop position, include length of train
-                    var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(settings) - splineBlobAsset.DistanceToPointUnitDistance(settings.MarginToTrainInFrontDistance);
-                    //Debug.Log($"T{e},{unitPointDistanceToEndOfTrainInFront}");
+                    var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(ref settings) - splineBlobAsset.DistanceToPointUnitDistance(settings.MarginToTrainInFrontDistance);
                     if (unitPointDistanceToEndOfTrainInFront < splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance))
                     {
                         movement.stopPosition = (position.Value + unitPointDistanceToEndOfTrainInFront) % splineBlobAsset.equalDistantPoints.Length;
@@ -100,7 +99,7 @@ public partial class TrainMovementSystem : SystemBase
                         var unitPointsToTrainInFront = splineBlobAsset.UnitPointDistance(position.Value, trainInFrontPosition);
 
                         // when calculating stop position, include length of train
-                        var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(settings);
+                        var unitPointDistanceToEndOfTrainInFront = unitPointsToTrainInFront - splineBlobAsset.GetSizeOfTrainInUnitPoint(ref settings);
                         var unitPointBrakingDistance = splineBlobAsset.DistanceToPointUnitDistance(settings.TrainBrakingDistance);
                         
                         if (unitPointDistanceToEndOfTrainInFront > unitPointBrakingDistance)
@@ -181,7 +180,7 @@ public static class UnitConvertExtensionMethods
         return distance / splineBlob.length * splineBlob.equalDistantPoints.Length;
     }
     
-    public static float GetSizeOfTrainInUnitPoint(this ref SplineBlobAsset splineBlob, Settings settings)
+    public static float GetSizeOfTrainInUnitPoint(this ref SplineBlobAsset splineBlob, ref SettingsBlobAsset settings)
     {
         return splineBlob.DistanceToPointUnitDistance(splineBlob.CarriagesPerTrain * settings.CarriageSizeWithMargins);
     }

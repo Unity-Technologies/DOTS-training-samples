@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
-using UnityEngine;
+using UnityMonoBehavior = UnityEngine.MonoBehaviour;
 
-[GenerateAuthoringComponent]
 public struct Settings : IComponentData
 {
     /// <summary>
@@ -42,4 +39,6 @@ public struct Settings : IComponentData
     /// How far from train in front should we stop?
     /// </summary>
     public float MarginToTrainInFrontDistance;
+
+    public BlobAssetReference<SettingsBlobAsset> SettingsBlobRef;
 }
