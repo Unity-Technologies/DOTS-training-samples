@@ -4,8 +4,9 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+// Main spawner for map components - Walls (WallComponent), Cellmap, Food and PheromoneMap
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public partial class WallSpawnerSystem : SystemBase
+public partial class MapSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {

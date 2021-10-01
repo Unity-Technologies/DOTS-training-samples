@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-[UpdateAfter(typeof(WallSpawnerSystem))]
+[UpdateAfter(typeof(MapSpawnerSystem))]
 public partial class AntSpawnerSystem : SystemBase
 {
     protected override void OnStartRunning()
