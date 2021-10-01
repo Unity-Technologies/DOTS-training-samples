@@ -22,13 +22,14 @@ public partial class TrainMovementSystem : SystemBase
         var settingsRef = GetSingleton<Settings>().SettingsBlobRef;
         var deltaTime = Time.DeltaTime;
 
+        
         var lineEntities = GetEntityQuery(ComponentType.ReadOnly<EntityBufferElement>()).ToEntityArray(Allocator.TempJob);
         var lookup = GetBufferFromEntity<EntityBufferElement>(true);
         var ecb = m_SimulationECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         // update state of train, i.e. stopping, starting, etc
         // this way we can access position of train in front, as we're not allowed to access `ref` components of other entities
-        Entities.WithReadOnly(lookup).WithDisposeOnCompletion(lineEntities)
+        Entities.WithName("SetSpeed").WithReadOnly(lookup).WithDisposeOnCompletion(lineEntities)
             .ForEach((Entity e, int entityInQueryIndex, 
                 ref TrainMovement movement, ref TrainState state, ref PlatformRef _platformRef,
                 in LineIndex lineIndex, in TrainInFront trainInFront, in TrainPosition position) =>
@@ -116,7 +117,7 @@ public partial class TrainMovementSystem : SystemBase
             }).ScheduleParallel();
 
         // update train positions based on current speed
-        Entities.ForEach((ref TrainPosition position, in LineIndex lineIndex, in TrainMovement movement) =>
+        Entities.WithName("SetPosition").ForEach((ref TrainPosition position, in LineIndex lineIndex, in TrainMovement movement) =>
         {
             ref var splineBlobAsset = ref splineData.Value.splineBlobAssets[lineIndex.Index];
             

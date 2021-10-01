@@ -49,6 +49,7 @@ public partial class TrainSpawnerSystem : SystemBase
                     for(var j = 0; j < splineDataBlobAsset.CarriagesPerTrain; j++)
                     {
                         var carriageInstance = ecb.Instantiate(trainSpawner.CarriagePrefab);
+                        ecb.SetName(carriageInstance, $"Carriage {lineId}-{i}-{j}");
                         ecb.AddComponent(carriageInstance, new URPMaterialPropertyBaseColor() {Value = lineColor});
                         ecb.SetComponent(carriageInstance, new TrainReference { Train = trainInstance });
                         ecb.SetComponent(carriageInstance, new CarriageIndex { Value = j });

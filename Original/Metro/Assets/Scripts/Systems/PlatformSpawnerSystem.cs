@@ -27,6 +27,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                 {
                     //Create the line entities
                     var lineInstance = ecb.Instantiate(spawner.LinePrefab);
+                    ecb.SetName(lineInstance, $"Line {lineId}");
                     var entityBuffer = ecb.SetBuffer<EntityBufferElement>(lineInstance);
                     
                     ref var splineBlobAsset = ref splineDataArrayRef.Value.splineBlobAssets[lineId];
