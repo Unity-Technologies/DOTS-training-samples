@@ -4,32 +4,23 @@ using UnityEngine;
 
 public class PointManager : MonoBehaviour
 {
-    public Material barMaterial;
     public Mesh barMesh;
+    public Material barMaterial;
+    public Tornado tornado;
+
+    public float expForce;
+    public float breakResistance;
     [Range(0f, 1f)] public float damping;
     [Range(0f, 1f)] public float friction;
-    public float breakResistance;
-    public float expForce;
-    [Range(0f, 1f)] public float tornadoForce;
-    public float tornadoMaxForceDist;
-    public float tornadoHeight;
-    public float tornadoUpForce;
-    public float tornadoInwardForce;
 
     Point[] points;
     Bar[] bars;
     public int pointCount;
 
-    bool generating;
-    public static float tornadoX;
-    public static float tornadoZ;
-
     float tornadoFader = 0f;
 
     Matrix4x4[][] matrices;
     MaterialPropertyBlock[] matProps;
-
-    Transform cam;
 
     const int instancesPerBatch = 1023;
 
@@ -40,8 +31,7 @@ public class PointManager : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(Generate());
-        cam = Camera.main.transform;
+        Generate();
     }
 
     public static float TornadoSway(float y)
@@ -49,15 +39,12 @@ public class PointManager : MonoBehaviour
         return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
     }
 
-    IEnumerator Generate()
+    void Generate()
     {
-        generating = true;
-
-        var pointsList = new List<Point>();
-        var barsList = new List<Bar>();
-        var matricesList = new List<List<Matrix4x4>> { new List<Matrix4x4>() };
+        tornado.active = false;
 
         // buildings
+        var pointsList = new List<Point>();
         for (int i = 0; i < 35; i++)
         {
             int height = Random.Range(4, 12);
@@ -132,7 +119,8 @@ public class PointManager : MonoBehaviour
         }
 
         int batch = 0;
-
+        var barsList = new List<Bar>();
+        var matricesList = new List<List<Matrix4x4>> { new List<Matrix4x4>() };
         for (int i = 0; i < pointsList.Count; i++)
         {
             for (int j = i + 1; j < pointsList.Count; j++)
@@ -151,15 +139,12 @@ public class PointManager : MonoBehaviour
                         batch++;
                         matricesList.Add(new List<Matrix4x4>());
                     }
-                    if (barsList.Count % 500 == 0)
-                    {
-                        yield return null;
-                    }
                 }
             }
         }
-        points = new Point[barsList.Count * 2];
+        
         pointCount = 0;
+        points = new Point[barsList.Count * 2];
         for (int i = 0; i < pointsList.Count; i++)
         {
             if (pointsList[i].neighborCount > 0)
@@ -194,13 +179,13 @@ public class PointManager : MonoBehaviour
         barsList = null;
         matricesList = null;
         System.GC.Collect();
-        generating = false;
+        tornado.active = true;
         Time.timeScale = 1f;
     }
 
     void FixedUpdate()
     {
-        if (generating != false)
+        if (!tornado.active || !tornado.simulate)
             return;
         
         tornadoFader = Mathf.Clamp01(tornadoFader + Time.deltaTime / 10f);
@@ -218,20 +203,20 @@ public class PointManager : MonoBehaviour
                 point.oldY += .01f;
 
                 // tornado force
-                float tdx = tornadoX + TornadoSway(point.y) - point.x;
-                float tdz = tornadoZ - point.z;
+                float tdx = tornado.x + TornadoSway(point.y) - point.x;
+                float tdz = tornado.y - point.z;
                 float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
                 tdx /= tornadoDist;
                 tdz /= tornadoDist;
-                if (tornadoDist < tornadoMaxForceDist)
+                if (tornadoDist < tornado.maxForceDist)
                 {
-                    float force = (1f - tornadoDist / tornadoMaxForceDist);
-                    float yFader = Mathf.Clamp01(1f - point.y / tornadoHeight);
-                    force *= tornadoFader * tornadoForce * Random.Range(-.3f, 1.3f);
-                    float forceY = tornadoUpForce;
+                    float force = (1f - tornadoDist / tornado.maxForceDist);
+                    float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
+                    force *= tornadoFader * tornado.force * Random.Range(-.3f, 1.3f);
+                    float forceY = tornado.upForce;
                     point.oldY -= forceY * force;
-                    float forceX = -tdz + tdx * tornadoInwardForce * yFader;
-                    float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+                    float forceX = -tdz + tdx * tornado.inwardForce * yFader;
+                    float forceZ = tdx + tdz * tornado.inwardForce * yFader;
                     point.oldX -= forceX * force;
                     point.oldZ -= forceZ * force;
                 }
@@ -352,10 +337,6 @@ public class PointManager : MonoBehaviour
     {
         if (matrices == null)
             return;
-
-        tornadoX = Mathf.Cos(Time.time / 6f) * 30f;
-        tornadoZ = Mathf.Sin(Time.time / 6f * 1.618f) * 30f;
-        cam.position = new Vector3(tornadoX, 10f, tornadoZ) - cam.forward * 60f;
         
         for (int i = 0; i < matrices.Length; i++)
             Graphics.DrawMeshInstanced(barMesh, 0, barMaterial, matrices[i], matrices[i].Length, matProps[i]);
