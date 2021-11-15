@@ -15,6 +15,7 @@ public class Tornado : MonoBehaviour
 
     [Range(0f, 1f)] public float force = 0.022f;
     public float maxForceDist = 30f;
+    public float rotationModulation;
     public float height = 50f;
     public float upForce = 1.4f;
     public float inwardForce = 9;
@@ -35,6 +36,7 @@ public class Tornado : MonoBehaviour
         var colors = new Vector4[1000];
 
         initialPosition = transform.position;
+        rotationModulation = Random.Range(-1f, 1f) * maxForceDist;
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -75,7 +77,9 @@ public class Tornado : MonoBehaviour
         if (!simulate)
             return;
 
-        transform.position = new Vector3(initialPosition.x + Mathf.Cos(Time.time / 6f) * maxForceDist, transform.position.y, initialPosition.z + Mathf.Sin(Time.time / 6f * 1.618f) * maxForceDist);
+        
+        var tmod = Time.time / 6f;
+        transform.position = new Vector3(initialPosition.x + Mathf.Cos(tmod) * rotationModulation, transform.position.y, initialPosition.z + Mathf.Sin(tmod * 1.618f) * rotationModulation);
 
         SimulateFrame();
 
