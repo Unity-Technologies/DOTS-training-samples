@@ -6,9 +6,9 @@ public class Tornado : MonoBehaviour
     public Mesh particleMesh;
     public Material particleMaterial;
 
-    public bool active = false;
     public bool simulate = true;
 
+    public Vector3 initialPosition;
     public float spinRate;
     public float upwardSpeed;
     public float initRange = 10f;
@@ -33,6 +33,8 @@ public class Tornado : MonoBehaviour
         matrices = new Matrix4x4[1000];
         radiusMults = new float[1000];
         var colors = new Vector4[1000];
+
+        initialPosition = transform.position;
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -70,14 +72,15 @@ public class Tornado : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!simulate || !active)
+        if (!simulate)
             return;
 
-        transform.position = new Vector3(Mathf.Cos(Time.time / 6f) * maxForceDist, transform.position.y, Mathf.Sin(Time.time / 6f * 1.618f) * maxForceDist);
+        transform.position = new Vector3(initialPosition.x + Mathf.Cos(Time.time / 6f) * maxForceDist, transform.position.y, initialPosition.z + Mathf.Sin(Time.time / 6f * 1.618f) * maxForceDist);
 
         SimulateFrame();
 
-        cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
+        if (cam != null)
+            cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
     }
 
     internal void Update()
