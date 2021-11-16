@@ -46,3 +46,4 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+Ported/Tornado/Assets/SceneDependencyCache/

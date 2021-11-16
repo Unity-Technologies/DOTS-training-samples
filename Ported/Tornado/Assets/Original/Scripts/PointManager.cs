@@ -88,7 +88,7 @@ public class PointManager : MonoBehaviour
                 pointsList.Add(point);
             }
         }
-
+        
         // ground details
         for (int i = 0; i < 600; i++)
         {
@@ -114,7 +114,7 @@ public class PointManager : MonoBehaviour
                 point.anchor = true;
             }
             pointsList.Add(point);
-        }
+        }        
 
         int batch = 0;
         var barsList = new List<Bar>();

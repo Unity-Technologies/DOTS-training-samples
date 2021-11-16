@@ -8,9 +8,9 @@ using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
+    /*
     public partial class BuildingSpawner : SystemBase
     {
-        
         protected override void OnUpdate()
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -154,4 +154,5 @@ namespace Dots
             ecb.Dispose();
         }
     }
+    */
 }
