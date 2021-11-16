@@ -153,6 +153,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 734812879360647095, guid: 1cb53a0f2b0cbfe47be6db3b5bf2653e, type: 3}
+  FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
+  StartingFoodCount: 100
+  Length: 30
+  Width: 10
+  HiveDepth: 5
 --- !u!4 &208139341
 Transform:
   m_ObjectHideFlags: 0
@@ -181,6 +186,18 @@ PrefabInstance:
     - target: {fileID: 9004783884440907020, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9004783884440907020, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 9004783884440907020, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 9004783884440907020, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 9004783884440907020, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -361,7 +378,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1276993947}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.5, y: 0, z: 0}
+  m_LocalPosition: {x: 12.5, y: 0, z: 0}
   m_LocalScale: {x: 5, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
@@ -463,7 +480,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3299796727686374861}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.5, y: 0, z: 0}
+  m_LocalPosition: {x: -12.5, y: 0, z: 0}
   m_LocalScale: {x: 5, y: 10, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
