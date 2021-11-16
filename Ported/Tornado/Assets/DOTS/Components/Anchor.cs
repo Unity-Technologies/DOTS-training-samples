@@ -4,7 +4,8 @@ using Unity.Entities;
 namespace Dots
 {
     [Serializable]
-    public struct AnchorTag : IComponentData
+    public struct Anchor : IComponentData
     {
+        public int NeighborCount;
     }
 }

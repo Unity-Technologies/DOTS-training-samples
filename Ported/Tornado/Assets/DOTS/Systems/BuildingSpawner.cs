@@ -19,6 +19,7 @@ namespace Dots
             var random = new Random(1234);
             var pointEntityList = new NativeArray<Entity>(20000, Allocator.Temp);
             var pointPosList = new NativeArray<float3>(20000, Allocator.Temp);
+            var pointNeighborList = new NativeArray<int>(20000, Allocator.Temp);
             var pointGroupIdList = new NativeArray<int>(20000, Allocator.Temp);
             
             int pointCount = 0;
@@ -31,7 +32,7 @@ namespace Dots
                     void PointEntityList(float3 pointPosition, int groupId, bool allowFixedAnchor)
                     {
                         var pointEntity = ecb.CreateEntity();
-                        ecb.AddComponent(pointEntity, new AnchorTag());
+                        ecb.AddComponent(pointEntity, new Anchor());
                         ecb.AddComponent(pointEntity, new Point { value = pointPosition });
                         if (pointPosition.y == 0)
                         {
@@ -39,6 +40,7 @@ namespace Dots
                         }
                         pointEntityList[pointCount] = pointEntity;
                         pointPosList[pointCount] = pointPosition;
+                        pointNeighborList[pointCount] = 0;
                         pointGroupIdList[pointCount] = groupId;
                         ++pointCount;
                     }
@@ -94,8 +96,7 @@ namespace Dots
                             if (areBothPointInSameGroup && length < 5f && length > .2f)
                             {
                                 var beamEntity = ecb.Instantiate(spawner.BeamPrefab);
-                                ecb.AddComponent(beamEntity, new BeamTag());
-                                ecb.AddComponent(beamEntity, new AnchorList {
+                                ecb.AddComponent(beamEntity, new Beam {
                                     p1 = pointEntityList[i],
                                     p2 = pointEntityList[j]
                                 });
@@ -114,15 +115,23 @@ namespace Dots
                                 ecb.SetComponent(beamEntity, new Translation { Value = pos } );
                                 ecb.SetComponent(beamEntity, new Rotation { Value = rot } );
                                 ecb.AddComponent(beamEntity, new NonUniformScale { Value = scale } );
-                                ecb.AddComponent(beamEntity, new Thickness { value = thickness });
                                 
-                                // TODO : Add neighbor count somewhere !
-                                //bar.point1.neighborCount++;
-                                //bar.point2.neighborCount++;
+                                // TODO : may not need to store thickness/length since the mesh scale should not change over time and the NonUniformScale already have it
+                                ecb.AddComponent(beamEntity, new Thickness { value = thickness });
+                                ecb.AddComponent(beamEntity, new Length { value = length });
+                                
+                                pointNeighborList[i]++;
+                                pointNeighborList[j]++;
 
                                 beamCount++;
                             }
                         }
+                    }
+
+                    // Update all the Neighbor data for each points
+                    for (int i = 0; i < pointCount; i++)
+                    {
+                        ecb.SetComponent(pointEntityList[i], new Anchor { NeighborCount = pointNeighborList[i] });
                     }
                 }).Run();
 
@@ -138,6 +147,7 @@ namespace Dots
             Debug.Log(pointCount + " points, room for " + pointPosList.Length + " (" + beamCount + " beams)");
             pointEntityList.Dispose();
             pointPosList.Dispose();
+            pointNeighborList.Dispose();
             pointGroupIdList.Dispose();
         
             ecb.Playback(EntityManager);
