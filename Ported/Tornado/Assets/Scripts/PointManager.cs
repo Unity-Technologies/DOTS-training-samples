@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#define DEBUG_DOTS
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,12 +8,15 @@ using UnityEngine;
 
 class PointManager : MonoBehaviour
 {
+    const float spacing = 2f;
+    const int instancesPerBatch = 1023;
+
     public Mesh barMesh;
     public Material barMaterial;
 
-    public int buildingCount;
-    public int groundDetailCount;
-    public float breakResistance;
+    [Range(0, 999)] public int buildingCount;
+    [Range(0, 10000)] public int groundDetailCount;
+    [Range(0f, 1f)] public float breakResistance;
     [Range(0f, 1f)] public float damping;
     [Range(0f, 1f)] public float friction;
 
@@ -22,15 +26,14 @@ class PointManager : MonoBehaviour
     MaterialPropertyBlock[] matProps;
     float3 groundExtents;
     int maxTornadoHeight;
-
-    const float spacing = 2f;
-    const int instancesPerBatch = 1023;
+    int frameCount = 1;
+    double totalTimeMs = 0;
 
     internal void Awake()
     {
         Time.timeScale = 0f;
 
-        ground = FindObjectOfType<Ground>().gameObject.GetComponent<MeshRenderer>();
+        ground = GetComponent<MeshRenderer>();
         tornados = Resources.FindObjectsOfTypeAll<Tornado>();
 
         groundExtents = ground.bounds.extents;
@@ -39,22 +42,35 @@ class PointManager : MonoBehaviour
 
     internal void Start()
     {
-        using (new DebugTimer("Generate buildings"))
+        #if DEBUG_DOTS
+        using (new DebugTimer("Generate buildings", 1000d))
+        #endif
+        { 
             Generate();
-
-        Time.timeScale = 1f;
+            Time.timeScale = 1f;
+        }
     }
 
     internal void FixedUpdate()
     {
-        using (new DebugTimer("Simulate"))
+        #if DEBUG_DOTS
+        using (var t = new DebugTimer($"Simulate ({frameCount} frames, avg. {totalTimeMs / frameCount:F1} ms)", frameCount++ % 300 == 0 ? 8d : double.MaxValue))
+        #endif
+        {
             Simulate();
+            totalTimeMs += t.timeMs;
+        }
     }
 
     internal void Update()
     {
-        for (int i = 0; i < matrices.Length; i++)
-            Graphics.DrawMeshInstanced(barMesh, 0, barMaterial, matrices[i], matrices[i].Length, matProps[i]);
+        #if DEBUG_DOTS
+        using (var t = new DebugTimer($"Rendering {matrices.Length} batches", 1d))
+        #endif
+        {
+            for (int i = 0; i < matrices.Length; i++)
+                Graphics.DrawMeshInstanced(barMesh, 0, barMaterial, matrices[i], matrices[i].Length, matProps[i]);
+        }
     }
 
     static Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
@@ -71,8 +87,8 @@ class PointManager : MonoBehaviour
 
     void Generate()
     {
-        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         var random = new Unity.Mathematics.Random(1234);
+        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
 
         // Create buildings
         var groundLimits = groundExtents;
@@ -194,8 +210,10 @@ class PointManager : MonoBehaviour
             }
         }
 
+        #if DEBUG_DOTS
         Debug.Log($"Generated {buildingCount} buildings and {groundDetailCount} " +
             $"ground details for a total {pointCount} points and {beamCount} beams");
+        #endif
     }
 
     void Simulate()

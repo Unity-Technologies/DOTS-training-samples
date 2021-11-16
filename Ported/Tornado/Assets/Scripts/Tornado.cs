@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#define DEBUG_DOTS
+using UnityEngine;
 
 public class Tornado : MonoBehaviour
 {
@@ -7,28 +8,28 @@ public class Tornado : MonoBehaviour
     public Material particleMaterial;
 
     public bool simulate = true;
-    public float speed = 0.5f;
-    public float spinRate;
-    public float upwardSpeed;
-    public float initRange = 10f;
+    [Range(0f, 2f)] public float speed = 0.5f;
+    [Range(0f, 99f)] public float spinRate;
+    [Range(0f, 99f)] public float upwardSpeed;
+    [Range(2f, 30f)] public float initRange = 10f;
 
     [Range(0f, 1f)] public float force = 0.022f;
-    public float maxForceDist = 32f;
-    public float height = 50f;
-    public float upForce = 1.4f;
-    public float inwardForce = 9;
-    public float fader = 0f;
+    [Range(2f, 99f)] public float maxForceDist = 32f;
+    [Range(1f, 100f)] public float height = 50f;
+    [Range(0f, 10f)] public float upForce = 1.4f;
+    [Range(0f, 100f)] public float inwardForce = 9;
 
-    public float x => transform.position.x;
-    public float y => transform.position.z;
-
+    internal float fader = 0f;
+    internal float rotationModulation;
     Vector3 initialPosition;
     Vector3[] points;
     Matrix4x4[] matrices;
     MaterialPropertyBlock matProps;
     float[] radiusMults;
-    float rotationModulation;
     MeshRenderer ground;
+
+    public float x => transform.position.x;
+    public float y => transform.position.z;
 
     internal void Start()
     {
@@ -38,7 +39,7 @@ public class Tornado : MonoBehaviour
         matrices = new Matrix4x4[pointCount];
         radiusMults = new float[pointCount];
 
-        ground = FindObjectOfType<Ground>().gameObject.GetComponent<MeshRenderer>();
+        ground = GetComponentInParent<MeshRenderer>();
         initialPosition = transform.position;
         rotationModulation = ground.bounds.extents.magnitude / 2f * Random.Range(-0.9f, 0.9f);
 
@@ -57,6 +58,41 @@ public class Tornado : MonoBehaviour
     public static float Sway(float y)
     {
         return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
+    }
+
+    internal void FixedUpdate()
+    {
+        if (!simulate)
+            return;
+
+        #if DEBUG_DOTS
+        using (new DebugTimer("Simulate Tornado", 1d))
+        #endif
+        { 
+            Simulate();
+        }
+    }
+
+    internal void Update()
+    {
+        #if DEBUG_DOTS
+        using (new DebugTimer("Render Tornado", 1d))
+        #endif
+        {
+            Graphics.DrawMeshInstanced(particleMesh, 0, particleMaterial, matrices, matrices.Length, matProps);
+        }
+    }
+
+    void Simulate()
+    {
+        var tmod = Time.time / 6f * speed;
+        fader = Mathf.Clamp01(fader + Time.deltaTime / 10f);
+        transform.position = new Vector3(initialPosition.x + Mathf.Cos(tmod) * rotationModulation, transform.position.y, initialPosition.z + Mathf.Sin(tmod * 1.618f) * rotationModulation);
+
+        Advance();
+
+        if (cam != null)
+            cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
     }
 
     void Advance()
@@ -79,25 +115,5 @@ public class Tornado : MonoBehaviour
             matrix.m23 = points[i].z;
             matrices[i] = matrix;
         }
-    }
-
-    internal void FixedUpdate()
-    {
-        if (!simulate)
-            return;
-
-        var tmod = Time.time / 6f * speed;
-        fader = Mathf.Clamp01(fader + Time.deltaTime / 10f);
-        transform.position = new Vector3(initialPosition.x + Mathf.Cos(tmod) * rotationModulation, transform.position.y, initialPosition.z + Mathf.Sin(tmod * 1.618f) * rotationModulation);
-
-        Advance();
-
-        if (cam != null)
-            cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
-    }
-
-    internal void Update()
-    {
-        Graphics.DrawMeshInstanced(particleMesh, 0, particleMaterial, matrices, matrices.Length, matProps);
     }
 }
