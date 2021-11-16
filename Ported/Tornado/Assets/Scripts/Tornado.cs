@@ -33,6 +33,16 @@ public class Tornado : MonoBehaviour
 
     internal void Start()
     {
+        #if DEBUG_DOTS
+        using (new DebugTimer("Generate Tornado", 500d))
+        #endif
+        { 
+            Generate();
+        }
+    }
+
+    void Generate()
+    {
         int pointCount = System.Math.Min(Mathf.RoundToInt(force * 20000), 1023);
         var colors = new Vector4[pointCount];
         points = new Vector3[pointCount];

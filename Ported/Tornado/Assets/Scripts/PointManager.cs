@@ -43,7 +43,7 @@ class PointManager : MonoBehaviour
     internal void Start()
     {
         #if DEBUG_DOTS
-        using (new DebugTimer("Generate buildings", 1000d))
+        using (new DebugTimer("Generate buildings", 500d))
         #endif
         { 
             Generate();
@@ -65,7 +65,7 @@ class PointManager : MonoBehaviour
     internal void Update()
     {
         #if DEBUG_DOTS
-        using (var t = new DebugTimer($"Rendering {matrices.Length} batches", 1d))
+        using (var t = new DebugTimer($"Rendering {matrices.Length} batches", 2d))
         #endif
         {
             for (int i = 0; i < matrices.Length; i++)

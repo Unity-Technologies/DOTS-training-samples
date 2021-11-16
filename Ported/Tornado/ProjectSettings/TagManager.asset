@@ -35,8 +35,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Entity
+  - Debug
   m_SortingLayers:
   - name: Default
     uniqueID: 0
