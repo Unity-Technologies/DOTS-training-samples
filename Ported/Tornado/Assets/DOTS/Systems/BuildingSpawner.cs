@@ -28,6 +28,21 @@ namespace Dots
             Entities
                 .ForEach((Entity entity, in BuildingSpawnerData spawner) =>
                 {
+                    void PointEntityList(float3 pointPosition, int groupId, bool allowFixedAnchor)
+                    {
+                        var pointEntity = ecb.CreateEntity();
+                        ecb.AddComponent(pointEntity, new AnchorTag());
+                        ecb.AddComponent(pointEntity, new Point { value = pointPosition });
+                        if (pointPosition.y == 0)
+                        {
+                            ecb.AddComponent(pointEntity, new FixedAnchor());
+                        }
+                        pointEntityList[pointCount] = pointEntity;
+                        pointPosList[pointCount] = pointPosition;
+                        pointGroupIdList[pointCount] = groupId;
+                        ++pointCount;
+                    }
+
                     // Destroying the current entity is a classic ECS pattern,
                     // when something should only be processed once then forgotten.
                     ecb.DestroyEntity(entity);
@@ -41,51 +56,9 @@ namespace Dots
                         float3 pos = new float3(random.NextFloat(-45.0f, 45.0f), 0f, random.NextFloat(-45.0f, 45.0f));
                         for (int j = 0; j < height; j++)
                         {
-                            {
-                                var pointEntity = ecb.CreateEntity();
-                                float3 pointPosition = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
-                                ecb.AddComponent(pointEntity, new AnchorTag());
-                                ecb.AddComponent(pointEntity, new Point { value = pointPosition });
-                                if (pointPosition.y == 0)
-                                {
-                                    ecb.AddComponent(pointEntity, new FixedAnchor());
-                                }
-                                //ecb.AddSharedComponent(pointEntity, new BeamGroup { groupId = i});
-                                pointEntityList[pointCount] = pointEntity;
-                                pointPosList[pointCount] = pointPosition;
-                                pointGroupIdList[pointCount] = i;
-                                ++pointCount;
-                            }
-                            {
-                                var pointEntity = ecb.CreateEntity();
-                                float3 pointPosition = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
-                                ecb.AddComponent(pointEntity, new AnchorTag());
-                                ecb.AddComponent(pointEntity, new Point { value = pointPosition });
-                                if (pointPosition.y == 0)
-                                {
-                                    ecb.AddComponent(pointEntity, new FixedAnchor());
-                                }
-                                //ecb.AddSharedComponent(pointEntity, new BeamGroup { groupId = i});
-                                pointEntityList[pointCount] = pointEntity;
-                                pointPosList[pointCount] = pointPosition;
-                                pointGroupIdList[pointCount] = i;
-                                ++pointCount;
-                            }
-                            {
-                                var pointEntity = ecb.CreateEntity();
-                                float3 pointPosition = new float3(pos.x - 0f, j * spacing, pos.z + spacing);
-                                ecb.AddComponent(pointEntity, new AnchorTag());
-                                ecb.AddComponent(pointEntity, new Point { value = pointPosition });
-                                if (pointPosition.y == 0)
-                                {
-                                    ecb.AddComponent(pointEntity, new FixedAnchor());
-                                }
-                                //ecb.AddSharedComponent(pointEntity, new BeamGroup { groupId = i});
-                                pointEntityList[pointCount] = pointEntity;
-                                pointPosList[pointCount] = pointPosition;
-                                pointGroupIdList[pointCount] = i;
-                                ++pointCount;
-                            }
+                            PointEntityList(new float3(pos.x + spacing, j * spacing, pos.z - spacing), i, true);
+                            PointEntityList(new float3(pos.x - spacing, j * spacing, pos.z - spacing), i, true);
+                            PointEntityList(new float3(pos.x - 0f, j * spacing, pos.z + spacing), i, true);
                         }
                     }
 
@@ -94,38 +67,14 @@ namespace Dots
                     for (int i = 0; i < 600; i++)
                     {
                         float3 pos = new float3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f));
-                        {
-                            var pointEntity = ecb.CreateEntity();
-                            float3 pointPosition = new float3(
-                                pos.x + random.NextFloat(-.2f, -.1f),
-                                pos.y + random.NextFloat(0f, 3f),
-                                pos.z + random.NextFloat(.1f, .2f));
-                            ecb.AddComponent(pointEntity, new AnchorTag());
-                            ecb.AddComponent(pointEntity, new Point { value = pointPosition });
-                            //ecb.AddSharedComponent(pointEntity, new BeamGroup { groupId = groundDetailGroupId});
-                            pointEntityList[pointCount] = pointEntity;
-                            pointPosList[pointCount] = pointPosition;
-                            pointGroupIdList[pointCount] = groundDetailGroupId;
-                            ++pointCount;
-                        }
-                        {
-                            var pointEntity = ecb.CreateEntity();
-                            float3 pointPosition = new float3(
-                                pos.x + random.NextFloat(.2f, .1f),
-                                pos.y + random.NextFloat(0f, .2f),
-                                pos.z + random.NextFloat(-.1f, -.2f));
-                            ecb.AddComponent(pointEntity, new AnchorTag());
-                            ecb.AddComponent(pointEntity, new Point { value = pointPosition });
-                            if (pointPosition.y == 0)
-                            {
-                                ecb.AddComponent(pointEntity, new FixedAnchor());
-                            }
-                            //ecb.AddSharedComponent(pointEntity, new BeamGroup { groupId = groundDetailGroupId});
-                            pointEntityList[pointCount] = pointEntity;
-                            pointPosList[pointCount] = pointPosition;
-                            pointGroupIdList[pointCount] = groundDetailGroupId;
-                            ++pointCount;
-                        }
+                        PointEntityList(new float3(
+                            pos.x + random.NextFloat(-.2f, -.1f),
+                            pos.y + random.NextFloat(0f, 3f),
+                            pos.z + random.NextFloat(.1f, .2f)), groundDetailGroupId, false);
+                        PointEntityList(new float3(
+                            pos.x + random.NextFloat(.2f, .1f),
+                            pos.y + random.NextFloat(0f, .2f),
+                            pos.z + random.NextFloat(-.1f, -.2f)), groundDetailGroupId, true);
                     }
 
                     float4 white = new float4(1f, 1f, 1f, 1f);
