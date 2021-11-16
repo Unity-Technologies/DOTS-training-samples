@@ -10,5 +10,6 @@ namespace Dots
     {
         public Entity BeamPrefab;
         public int BuildingCount;
+        public bool UseBeamGroups;
     }
 }

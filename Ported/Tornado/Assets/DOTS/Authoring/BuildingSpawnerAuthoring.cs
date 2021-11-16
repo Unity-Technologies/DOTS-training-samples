@@ -16,6 +16,8 @@ namespace Dots
         public UnityGameObject BeamPrefab;
         [UnityRange(1, 100)]
         public int BuildingCount = 35;
+
+        public bool UseBeamGroups = true;
         
         // This function is required by IDeclareReferencedPrefabs
         public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -28,7 +30,8 @@ namespace Dots
             dstManager.AddComponentData(entity, new Dots.BuildingSpawnerData
             {
                 BeamPrefab = conversionSystem.GetPrimaryEntity(BeamPrefab),
-                BuildingCount = BuildingCount
+                BuildingCount = BuildingCount,
+                UseBeamGroups = UseBeamGroups
             });
         }
     }

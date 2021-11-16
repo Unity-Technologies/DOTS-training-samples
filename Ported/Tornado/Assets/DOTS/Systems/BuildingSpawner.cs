@@ -23,7 +23,7 @@ namespace Dots
             
             int pointCount = 0;
             int beamCount = 0;
-            
+            bool useBeamGroup = true;
             
             Entities
                 .ForEach((Entity entity, in BuildingSpawnerData spawner) =>
@@ -43,6 +43,8 @@ namespace Dots
                         ++pointCount;
                     }
 
+                    useBeamGroup = spawner.UseBeamGroups;
+
                     // Destroying the current entity is a classic ECS pattern,
                     // when something should only be processed once then forgotten.
                     ecb.DestroyEntity(entity);
@@ -56,14 +58,15 @@ namespace Dots
                         float3 pos = new float3(random.NextFloat(-45.0f, 45.0f), 0f, random.NextFloat(-45.0f, 45.0f));
                         for (int j = 0; j < height; j++)
                         {
-                            PointEntityList(new float3(pos.x + spacing, j * spacing, pos.z - spacing), i, true);
-                            PointEntityList(new float3(pos.x - spacing, j * spacing, pos.z - spacing), i, true);
-                            PointEntityList(new float3(pos.x - 0f, j * spacing, pos.z + spacing), i, true);
+                            int groupId = spawner.UseBeamGroups ? i : 0;
+                            PointEntityList(new float3(pos.x + spacing, j * spacing, pos.z - spacing), groupId, true);
+                            PointEntityList(new float3(pos.x - spacing, j * spacing, pos.z - spacing), groupId, true);
+                            PointEntityList(new float3(pos.x - 0f, j * spacing, pos.z + spacing), groupId, true);
                         }
                     }
 
                     // ground details
-                    int groundDetailGroupId = spawner.BuildingCount;
+                    int groundDetailGroupId = spawner.UseBeamGroups ? spawner.BuildingCount : 0;
                     for (int i = 0; i < 600; i++)
                     {
                         float3 pos = new float3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f));
@@ -122,11 +125,14 @@ namespace Dots
                         }
                     }
                 }).Run();
-            
-            // Since AddSharedComponent is not allowed in burst-able code, we'll add them now...
-            for (int i = 0; i < pointCount; i++)
+
+            if (useBeamGroup)
             {
-                ecb.AddSharedComponent(pointEntityList[i], new BeamGroup { groupId = pointGroupIdList[i] });
+                // Since AddSharedComponent is not allowed in burst-able code, we'll add them now...
+                for (int i = 0; i < pointCount; i++)
+                {
+                    ecb.AddSharedComponent(pointEntityList[i], new BeamGroup { groupId = pointGroupIdList[i] });
+                }
             }
 
             Debug.Log(pointCount + " points, room for " + pointPosList.Length + " (" + beamCount + " beams)");
