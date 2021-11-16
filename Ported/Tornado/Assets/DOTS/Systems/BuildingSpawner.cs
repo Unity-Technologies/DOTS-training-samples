@@ -29,6 +29,11 @@ namespace Dots
             Entities
                 .ForEach((Entity entity, in BuildingSpawnerData spawner) =>
                 {
+                    // Destroying the current entity is a classic ECS pattern,
+                    // when something should only be processed once then forgotten.
+                    ecb.DestroyEntity(entity);
+                    
+                    
                     void PointEntityList(float3 pointPosition, int groupId, bool allowFixedAnchor)
                     {
                         var pointEntity = ecb.CreateEntity();
@@ -50,10 +55,6 @@ namespace Dots
                     }
 
                     useBeamGroup = spawner.UseBeamGroups;
-
-                    // Destroying the current entity is a classic ECS pattern,
-                    // when something should only be processed once then forgotten.
-                    ecb.DestroyEntity(entity);
                     
                     float spacing = 2f; // spawner config ??
                     

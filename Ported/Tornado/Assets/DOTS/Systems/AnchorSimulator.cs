@@ -50,7 +50,7 @@ namespace Dots
             // An ECB system will play back later in the frame the buffers it creates.
             // This is useful to defer the structural changes that would cause sync points.
             var ecb = CommandBufferSystem.CreateCommandBuffer();
-            var parallelEcb = ecb.AsParallelWriter();
+            //var parallelEcb = ecb.AsParallelWriter();
             
             Random random = new Random(randomSeeds.NextUInt());
             var time = Time.ElapsedTime;
@@ -60,7 +60,7 @@ namespace Dots
             int tornadoCount = TornadoQuery.CalculateEntityCount();
             var tornadoInfos = new NativeArray<TornadoInfo>(tornadoCount, Allocator.TempJob);
 
-            Entities.WithoutBurst()
+            Entities
                 .WithStoreEntityQueryInField(ref TornadoQuery)
                 .ForEach((int entityInQueryIndex, ref TornadoFader fade, in TornadoConfig config, in Translation translation) =>
                 {
@@ -77,7 +77,7 @@ namespace Dots
             var worldConfigEntity = GetSingletonEntity<WorldConfig>();
             var worldConfig = GetComponent<WorldConfig>(worldConfigEntity);
             var anchorPointMap = new NativeHashMap<Entity, PointNeighbor>(AnchorPointQuery.CalculateEntityCount(),Allocator.TempJob);
-            Entities.WithoutBurst()
+            Entities
                 .WithReadOnly(tornadoInfos)
                 .WithDisposeOnCompletion(tornadoInfos)
                 .WithStoreEntityQueryInField(ref AnchorPointQuery)
@@ -133,60 +133,59 @@ namespace Dots
                     anchorPointMap[entity] = new PointNeighbor { point = point, neighborCount = anchorPoint.NeighborCount };
                 }).Schedule();
             
-            Entities.WithoutBurst()
+            Entities
                 .WithStoreEntityQueryInField(ref BeamQuery)
-                .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref Beam beam, in Entity entity, in Length length) =>
+                .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref Beam beam, in Entity beamEntity, in Length length) =>
                 {
                     bool point1IsFixedAnchor = HasComponent<FixedAnchor>(beam.p1);
                     bool point2IsFixedAnchor = HasComponent<FixedAnchor>(beam.p2);
 
                     PointNeighbor p1 = anchorPointMap[beam.p1];
                     PointNeighbor p2 = anchorPointMap[beam.p2];
-                    Point point1 = p1.point;
-                    Point point2 = p2.point;
+                    Point oldP1 = p1.point;
+                    Point oldP2 = p2.point;
 
-                    float3 delta = point2.value - point1.value;
-                    float dist = math.length(delta);
+                    float3 delta = p2.point.value - p1.point.value;
+                    float  dist = math.length(delta);
+                    float  extraDist = dist - length.value;
                     float3 normalizedDelta = delta / dist;
-                    float extraDist = dist - length.value;
                     float3 push = (normalizedDelta * extraDist) * .5f;
 
                     if (!point1IsFixedAnchor && !point2IsFixedAnchor)
                     {
-                        point1.value += push;
-                        point2.value -= push;
+                        p1.point.value += push;
+                        p2.point.value -= push;
                     }
                     else if (point1IsFixedAnchor)
                     {
-                        point2.value -= push * 2f;
+                        p2.point.value -= push * 2f;
                     }
                     else if (point2IsFixedAnchor)
                     {
-                        point1.value += push * 2f;
+                        p1.point.value += push * 2f;
                     }
 
-                    translation.Value = point1.value + point2.value * 0.5f;
-                    
                     if (math.dot(normalizedDelta, beam.oldDelta) < .99f)
                     {
                         rotation.Value = Quaternion.LookRotation(delta);
                         beam.oldDelta = normalizedDelta;
                     }
+                    translation.Value = p1.point.value + p2.point.value * 0.5f;
 
                     if (math.abs(extraDist) > worldConfig.breakResistance)
                     {
                         if (p2.neighborCount > 1)
                         {
+                            p2.point = oldP2;
                             p2.neighborCount--;
-                            anchorPointMap[beam.p2] = p2;
                             
-                            // Queue point creation and update in the ECB
+                            // Queue a new point creation that duplicate P2 and update it on the beam
                             var pointEntity = ecb.CreateEntity();
                             ecb.AddComponent(pointEntity, new Anchor { NeighborCount = 1});
-                            ecb.AddComponent(pointEntity, point2);
+                            ecb.AddComponent(pointEntity, p2.point);
                             
-                            //we can't update the Beam point right now since the Entity is not fully created yet
-                            ecb.SetComponent(entity, new Beam
+                            // We can't update the Beam point right now since the Entity is not fully created yet
+                            ecb.SetComponent(beamEntity, new Beam
                             {
                                 p1 = beam.p1, 
                                 p2 = pointEntity, 
@@ -195,16 +194,16 @@ namespace Dots
                         }
                         else if (p1.neighborCount > 1)
                         {
+                            p1.point = oldP1;
                             p1.neighborCount--;
-                            anchorPointMap[beam.p1] = p1;
                             
-                            // Queue point creation and update in the ECB
+                            // Queue a new point creation that duplicate P2 and update it on the beam
                             var pointEntity = ecb.CreateEntity();
                             ecb.AddComponent(pointEntity, new Anchor { NeighborCount = 1});
-                            ecb.AddComponent(pointEntity, point1);
+                            ecb.AddComponent(pointEntity, p1.point);
                             
-                            //we can't update the Beam point right now since the Entity is not fully created yet
-                            ecb.SetComponent(entity, new Beam
+                            // We can't update the Beam point right now since the Entity is not fully created yet
+                            ecb.SetComponent(beamEntity, new Beam
                             {
                                 p1 = pointEntity, 
                                 p2 = beam.p2, 
@@ -212,26 +211,23 @@ namespace Dots
                             });
                         }
                     }
-
-                    p1.point = point1;
-                    p2.point = point2;
                     
                     anchorPointMap[beam.p1] = p1;
                     anchorPointMap[beam.p2] = p2;
                 }).Schedule();
             CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
             
-            // Now that everything is simulated, update the points position and neighborCount
-            Entities.WithoutBurst()
+            // Now that everything is simulated, update the AnchorPoint's position and neighborCount
+            Entities
                 .WithReadOnly(anchorPointMap)
                 .WithDisposeOnCompletion(anchorPointMap)
                 .ForEach((int entityInQueryIndex, ref Anchor anchorPoint, ref Point point, in Entity entity) =>
                 {
                     var anchorData = anchorPointMap[entity];
-                    parallelEcb.SetComponent(entityInQueryIndex, entity, new Anchor { NeighborCount = anchorData.neighborCount});
-                    parallelEcb.SetComponent(entityInQueryIndex, entity, anchorData.point);
+                    anchorPoint.NeighborCount = anchorData.neighborCount;
+                    point.value = anchorData.point.value;
+                    point.old = anchorData.point.old;
                 }).ScheduleParallel();
-            CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
         }
     }
 }
