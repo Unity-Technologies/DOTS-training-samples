@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 734812879360647095, guid: 1cb53a0f2b0cbfe47be6db3b5bf2653e, type: 3}
   FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
-  GibletPrefab: {fileID: 0}
+  GibletPrefab: {fileID: 8032040333273944177, guid: 52dd431af163e6248a5683f57ba82946, type: 3}
   StartingFoodCount: 100
   Length: 30
   Width: 10
