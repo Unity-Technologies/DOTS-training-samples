@@ -16,5 +16,5 @@ public class FoodAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
                 size = new float3(transform.localScale.x, transform.localScale.y*2.0f, transform.localScale.z)
             }
         );
-    }
+    }g
 }

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7213274290902625609}
   - component: {fileID: 3010710010422366830}
   - component: {fileID: 2723902080090226775}
+  - component: {fileID: -1016204407201353736}
   m_Layer: 0
   m_Name: Hive
   m_TagString: Untagged
@@ -143,3 +144,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 0
+--- !u!114 &-1016204407201353736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3059123134677546468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
