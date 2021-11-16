@@ -43,7 +43,7 @@ namespace Dots
                     };
                 }).Schedule();
             
-            Entities.WithoutBurst()
+            Entities
                 .WithReadOnly(tornadoInfos)
                 .WithDisposeOnCompletion(tornadoInfos)
                 .ForEach((ref Translation translation, in DebrisTag debris) =>
