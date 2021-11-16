@@ -9,5 +9,6 @@ namespace Dots
     public struct DebrisTag : IComponentData
     {
         public Entity tornado;
+        public float radiusMult;
     }
 }

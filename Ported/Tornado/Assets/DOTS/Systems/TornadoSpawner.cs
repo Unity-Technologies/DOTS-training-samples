@@ -32,14 +32,18 @@ namespace Dots
                             random.NextFloat(-spawner.initRange, spawner.initRange));
                         ecb.SetComponent(debris, new Translation { Value = position });
                         
-                        ecb.AddComponent(debris, new DebrisTag { tornado = entity} );
+                        ecb.AddComponent(debris, new DebrisTag
+                        {
+                            tornado = entity, 
+                            radiusMult = random.NextFloat()
+                        } );
                         
                         float4 color = white * random.NextFloat(.3f, .7f);
                         ecb.AddComponent(debris, new URPMaterialPropertyBaseColor { Value = color });
                         
                         // Make the debris a child of the tornado
-                        ecb.AddComponent(debris, new Parent { Value = entity });
-                        ecb.AddComponent(debris, new LocalToParent { });
+                        //ecb.AddComponent(debris, new Parent { Value = entity });
+                        //ecb.AddComponent(debris, new LocalToParent { });
                     }
                 }).Run();
         
