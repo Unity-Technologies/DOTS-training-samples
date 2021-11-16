@@ -57,13 +57,24 @@ class PointManager : MonoBehaviour
             Graphics.DrawMeshInstanced(barMesh, 0, barMaterial, matrices[i], matrices[i].Length, matProps[i]);
     }
 
+    static Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
+    {
+        var point = em.CreateEntity();
+        em.AddComponent<Point>(point);
+        em.SetComponentData(point, new Point(pos) { neighborCount = neighborCount });
+        if (anchored)
+            em.AddComponent<AnchoredPoint>(point);
+        else
+            em.AddComponent<DynamicPoint>(point);
+        return point;
+    }
+
     void Generate()
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         var random = new Unity.Mathematics.Random(1234);
 
         // Create buildings
-        const float spacing = 2f;
         var groundLimits = groundExtents;
         var buildingGroundLimits = groundLimits * 0.9f;
 
@@ -76,17 +87,9 @@ class PointManager : MonoBehaviour
                 var anchored = j == 0;
                 var jspace = j * spacing;
 
-                var point = em.CreateEntity();
-                em.AddComponent<Point>(point);
-                em.SetComponentData(point, new Point(pos.x + spacing, jspace, pos.z - spacing, anchored));
-
-                point = em.CreateEntity();
-                em.AddComponent<Point>(point);
-                em.SetComponentData(point, new Point(pos.x - spacing, jspace, pos.z - spacing, anchored));
-
-                point = em.CreateEntity();
-                em.AddComponent<Point>(point);
-                em.SetComponentData(point, new Point(pos.x + 0f, jspace, pos.z + spacing, anchored));
+                CreatePoint(em, new float3(pos.x + spacing, jspace, pos.z - spacing), anchored);
+                CreatePoint(em, new float3(pos.x - spacing, jspace, pos.z - spacing), anchored);
+                CreatePoint(em, new float3(pos.x + 0f, jspace, pos.z + spacing), anchored);
             }
         }
 
@@ -95,19 +98,14 @@ class PointManager : MonoBehaviour
         {
             var pos = random.NextFloat3(-groundLimits, groundLimits);
 
-            var point = em.CreateEntity();
-            em.AddComponent<Point>(point);
-            em.SetComponentData(point, new Point(pos.x + random.NextFloat(-.2f, -.1f), pos.y + random.NextFloat(0f, 3f), pos.z + random.NextFloat(.1f, .2f), false));
-
-            point = em.CreateEntity();
-            em.AddComponent<Point>(point);
-            em.SetComponentData(point, new Point(pos.x + random.NextFloat(.2f, .1f), pos.y + random.NextFloat(0f, .2f), pos.z + random.NextFloat(-.1f, -.2f), UnityEngine.Random.value < .1f));
+            CreatePoint(em, new float3(pos.x + random.NextFloat(-.2f, -.1f), pos.y + random.NextFloat(0f, 3f), pos.z + random.NextFloat(.1f, .2f)), false);
+            CreatePoint(em, new float3(pos.x + random.NextFloat(.2f, .1f), pos.y + random.NextFloat(0f, .2f), pos.z + random.NextFloat(-.1f, -.2f)), random.NextFloat() < .1f);
         }
 
         // Create beams
-        int batch = 0;
-        var matricesList = new List<List<Matrix4x4>> { new List<Matrix4x4>() };
         int beamCount = 0;
+        int matrixBatchIndex = 0;
+        var matricesList = new List<List<Matrix4x4>> { new List<Matrix4x4>() };
         using (var pointQuery = em.CreateEntityQuery(typeof(Point)))
         using (var points = pointQuery.ToEntityArray(Allocator.TempJob))
         {
@@ -128,7 +126,7 @@ class PointManager : MonoBehaviour
                     em.SetComponentData(points[i], a);
                     em.SetComponentData(points[j], b);
 
-                    var beam = new Beam(points[i], points[j], random.NextFloat(.25f, .35f), length, batch, matricesList[batch].Count);
+                    var beam = new Beam(points[i], points[j], random.NextFloat(.25f, .35f), length, matrixBatchIndex, matricesList[matrixBatchIndex].Count);
                     var barLength = math.length(delta);
                     var norm = delta / barLength;
 
@@ -137,10 +135,10 @@ class PointManager : MonoBehaviour
                     var scale = new Vector3(beam.thickness, beam.thickness, barLength);
                     var beamMatrix = Matrix4x4.TRS(pos, rot, scale);
 
-                    matricesList[batch].Add(beamMatrix);
-                    if (matricesList[batch].Count == instancesPerBatch)
+                    matricesList[matrixBatchIndex].Add(beamMatrix);
+                    if (matricesList[matrixBatchIndex].Count == instancesPerBatch)
                     {
-                        batch++;
+                        matrixBatchIndex++;
                         matricesList.Add(new List<Matrix4x4>());
                     }
 
@@ -196,7 +194,8 @@ class PointManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Generated {pointCount} points and {beamCount} beams");
+        Debug.Log($"Generated {buildingCount} buildings and {groundDetailCount} " +
+            $"ground details for a total {pointCount} points and {beamCount} beams");
     }
 
     void Simulate()
@@ -206,16 +205,12 @@ class PointManager : MonoBehaviour
         var random = new Unity.Mathematics.Random(1234);
 
         float invDamping = 1f - damping;
-        using (var pointQuery = em.CreateEntityQuery(typeof(Point)))
+        using (var pointQuery = em.CreateEntityQuery(typeof(Point), typeof(DynamicPoint)))
         using (var points = pointQuery.ToEntityArray(Allocator.TempJob))
         {
             for (int i = 0; i < points.Length; i++)
             {
                 var point = em.GetComponentData<Point>(points[i]);
-                // TODO: Create AnchoredPointData and NonAchoredPointData
-                if (point.anchor)
-                    continue;
-
                 var start = point.pos;
                 point.old.y += .01f;
 
@@ -268,6 +263,9 @@ class PointManager : MonoBehaviour
                 var point1 = em.GetComponentData<Point>(beam.point1);
                 var point2 = em.GetComponentData<Point>(beam.point2);
 
+                var point1Anchored = em.HasComponent<AnchoredPoint>(beam.point1);
+                var point2Anchored = em.HasComponent<AnchoredPoint>(beam.point2);
+
                 var delta = point2.pos - point1.pos; // TODO: precompute delta and length
                 var dist = math.length(delta);
                 var extraDist = dist - beam.length;
@@ -278,18 +276,18 @@ class PointManager : MonoBehaviour
                 var writeBackPoint2 = false;
                 var writeBackBeam = false;
 
-                if (!point1.anchor && !point2.anchor)
+                if (!point1Anchored && !point2Anchored)
                 {
                     point1.pos += push;
                     point2.pos -= push;
                     writeBackPoint1 = writeBackPoint2 = true;
                 }
-                else if (point1.anchor)
+                else if (point1Anchored)
                 {
                     point2.pos -= push * 2f;
                     writeBackPoint2 = true;
                 }
-                else if (point2.anchor)
+                else if (point2Anchored)
                 {
                     point1.pos += push * 2f;
                     writeBackPoint1 = true;
@@ -320,11 +318,7 @@ class PointManager : MonoBehaviour
                         point2.neighborCount--;
                         writeBackPoint2 = true;
 
-                        var newPoint = em.CreateEntity();
-                        em.AddComponent<Point>(newPoint);
-                        em.SetComponentData(newPoint, new Point(point2.pos.x, point2.pos.y, point2.pos.z, false) { neighborCount = 1} );
-
-                        beam.point2 = newPoint;
+                        beam.point2 = CreatePoint(em, point2.pos, false, 1);
                         writeBackBeam = true;
                     }
                     else if (point1.neighborCount > 1)
@@ -332,11 +326,7 @@ class PointManager : MonoBehaviour
                         point1.neighborCount--;
                         writeBackPoint1 = true;
 
-                        var newPoint = em.CreateEntity();
-                        em.AddComponent<Point>(newPoint);
-                        em.SetComponentData(newPoint, new Point(point1.pos.x, point1.pos.y, point1.pos.z, false) { neighborCount = 1 });
-
-                        beam.point1 = newPoint;
+                        beam.point1 = CreatePoint(em, point1.pos, false, 1);
                         writeBackBeam = true;
                     }
                 }

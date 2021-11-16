@@ -5,19 +5,17 @@ struct Point : IComponentData
 {
     public float3 pos;
     public float3 old;
-    public bool anchor;
     public int neighborCount;
 
-    public Point(float x, float y, float z, bool anchored)
+    public Point(in float3 pos)
     {
-        old = pos = new float3(x, y, z);
-        anchor = anchored;
+        old = this.pos = pos;
         neighborCount = 0;
     }
 }
 
 struct DynamicPoint : IComponentData {}
-struct AnchoredPoint : IComponentData { }
+struct AnchoredPoint : IComponentData {}
 
 struct Beam : IComponentData
 {
