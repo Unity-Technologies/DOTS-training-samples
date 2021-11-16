@@ -7,6 +7,5 @@ namespace Dots
 {
     public struct FixedAnchor : IComponentData
     {
-        
     }
 }

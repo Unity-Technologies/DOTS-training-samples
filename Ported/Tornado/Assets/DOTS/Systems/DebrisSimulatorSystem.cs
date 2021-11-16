@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace Dots
 {
-    public partial class TornadoSpawner : SystemBase
+    public partial class DebrisSimulatorSystem : SystemBase
     {
         protected override void OnUpdate()
         {
