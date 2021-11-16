@@ -13,7 +13,8 @@ public partial class BeeMover : SystemBase
         Entities
             .ForEach((ref Translation translation, in Velocity velocity) => 
         {
-            translation.Value = translation.Value + velocity.Value * time;
+             translation.Value = translation.Value + velocity.Value * time;
         }).Schedule();
+        //dying bee , restore bee to its original position
     }
 }
