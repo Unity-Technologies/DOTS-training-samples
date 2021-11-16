@@ -15,8 +15,8 @@ public partial class FoodSpawner : SystemBase
         var spawnerComponent = GetComponent<Spawner>(spawner);
         var foodBox = GetComponent<AABB>(spawnerComponent.FoodPrefab);
 
-        var foodWidth = foodBox.size.x+0.1f;
-        var foodHeight = foodBox.size.y+0.1f;
+        var foodWidth = foodBox.halfSize.x*2.0f+0.1f;
+        var foodHeight = foodBox.halfSize.y*2.0f+0.1f;
         
         var columnCount = (int)((spawnerComponent.BoundsMax.z - spawnerComponent.BoundsMin.z)/foodWidth);
         var rowCount = spawnerComponent.StartingFoodCount / columnCount;

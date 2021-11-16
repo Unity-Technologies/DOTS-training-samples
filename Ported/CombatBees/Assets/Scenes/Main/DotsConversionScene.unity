@@ -305,10 +305,10 @@ MonoBehaviour:
     x: -12.5
     y: 0
     z: 0
-  size:
-    x: 5
-    y: 10
-    z: 10
+  halfSize:
+    x: 2.5
+    y: 5
+    z: 5
 --- !u!65 &1276993951
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -474,10 +474,10 @@ MonoBehaviour:
     x: 12.5
     y: 0
     z: 0
-  size:
-    x: 5
-    y: 10
-    z: 10
+  halfSize:
+    x: 2.5
+    y: 5
+    z: 5
 --- !u!114 &3299796727686374865
 MonoBehaviour:
   m_ObjectHideFlags: 0

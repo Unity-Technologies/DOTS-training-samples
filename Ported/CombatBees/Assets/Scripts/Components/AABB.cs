@@ -7,5 +7,5 @@ using Unity.Mathematics;
 public struct AABB : IComponentData
 {
     public float3 center;
-    public float3 size;
+    public float3 halfSize;
 }
