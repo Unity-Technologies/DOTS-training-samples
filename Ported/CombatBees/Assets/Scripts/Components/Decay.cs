@@ -3,8 +3,8 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[GenerateAuthoringComponent]
-public struct Gravity : IComponentData
+[Serializable]
+public struct Decay : IComponentData
 {
-   
+    public float Rate;   
 }
