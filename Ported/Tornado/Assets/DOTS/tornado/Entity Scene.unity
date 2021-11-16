@@ -191,5 +191,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: BeamSpawner
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 89347083194249584, guid: 13727bd081ca2544390636db184b08b5, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 13727bd081ca2544390636db184b08b5, type: 3}
+--- !u!1 &3636730022867630458 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8997331202694096997, guid: 13727bd081ca2544390636db184b08b5,
+    type: 3}
+  m_PrefabInstance: {fileID: 3636730022867630457}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3636730022867630459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3636730022867630458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba4ce14c08658bb42acd57aa67c2def1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingCount: 1

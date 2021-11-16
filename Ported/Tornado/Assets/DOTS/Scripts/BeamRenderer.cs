@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class BeamRenderer : MonoBehaviour
 {
-    Matrix4x4[][] matrices;
-    MaterialPropertyBlock[] matProps;
+    static Matrix4x4[][] matrices;
+    static MaterialPropertyBlock[] matProps;
 
     public Mesh beamMesh;
     public Material beamMaterial;
 
-    void Setup(int nbBeam, int nbBatch, int instancesPerBatch)
+    public static void Setup(int nbBeam, int nbBatch, int instancesPerBatch)
     {
+        if (matrices != null)
+            return;
+
         matrices = new Matrix4x4[nbBatch][];
         for (int i = 0; i < matrices.Length; i++)
             matrices[i] = new Matrix4x4[instancesPerBatch];
@@ -38,6 +41,9 @@ public class BeamRenderer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        // Debug.Log("Mesh Renderer Update!");
+
         if (matrices == null)
             return;
 

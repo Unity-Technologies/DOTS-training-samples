@@ -47,3 +47,6 @@ sysinfo.txt
 
 *.DS_Store
 Ported/Tornado/Assets/SceneDependencyCache/
+Ported/TornadoJo/Assets/Icons.meta
+Ported/TornadoJo/
+Ported/TornadoSpawner/

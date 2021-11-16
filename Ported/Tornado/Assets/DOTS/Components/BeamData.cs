@@ -6,9 +6,14 @@ using Unity.Mathematics;
 namespace Dots
 {
     [Serializable]
-    public struct BeamData : IComponentData
+    public struct TransformMatrix : IComponentData
     {
         public float4x4 matrix;
+    }
+
+    [Serializable]
+    public struct BeamData : IComponentData
+    {
         public float3 p1;
         public float3 p2;
     }

@@ -5,7 +5,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
-using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 namespace Dots
@@ -20,13 +19,14 @@ namespace Dots
         protected override void OnUpdate()
         {
             Entities
+                .WithoutBurst()
                 .WithStructuralChanges()
                 .ForEach((Entity entity, in BeamSpawnerData spawner) =>
             {
                 Debug.Log("BeamSpawner.OnUpdate");
-
+                
                 var random = new Random(1234);
-                var pointPosList = new NativeArray<float3>(20000, Allocator.Temp);
+                var pointPosList = new NativeArray<float3>(2000, Allocator.Temp);
                 var pointCount = 0;
                 for (int i = 0; i < spawner.buildingCount; i++)
                 {
@@ -55,44 +55,48 @@ namespace Dots
                     }
                 }
 
-                // Setup beams:
-                for (int i = 0; i < pointPosList.Length; i++)
+                Debug.Log($"BeamSpawner has created {pointCount} points");
+                for (var i = 0; i < pointCount; ++i)
                 {
-                    for (int j = i + 1; j < pointPosList.Length; j++)
-                    {
-                        var beam = EntityManager.CreateEntity();
-                        EntityManager.AddComponent<BeamData>(beam);
+                    Debug.Log(pointPosList[i]);
+                }
 
+                // Setup beams:
+                
+                for (int i = 0; i < pointCount; i++)
+                {
+                    for (int j = i + 1; j < pointCount; j++)
+                    {
+                        // var beam = ecb.CreateEntity();
+                        var beam = EntityManager.CreateEntity();
                         var p1 = pointPosList[i];
                         var p2 = pointPosList[j];
-                        var delta = p2 - p1;
-                        var length = math.length(delta);
-                        var thickness = random.NextFloat(.25f, .35f);
 
-                        var pos = (p1 + p2) * 0.5f;
-                        // var rot = Quaternion.LookRotation(delta);
-                        var scale = new float3(thickness, thickness, length);
-                        var matrix = Matrix4x4.TRS(pos, rot, scale);
-
-                        EntityManager.SetComponentData(beam, new BeamData()
+                        EntityManager.AddComponentData(beam, new BeamData()
                         {
                             p1 = pointPosList[i],
-                            p2 = pointPosList[j],
+                            p2 = pointPosList[j]
+                        });
+                        
+                        
+                        var delta = p2 - p1;                        
+                        var length = math.length(delta);                        
+                        var thickness = random.NextFloat(.25f, .35f);
+                        var pos = (p1 + p2) * 0.5f;                        
+                        var rot = Quaternion.LookRotation(delta);                        
+                        var scale = new float3(thickness, thickness, length);                        
+                        var matrix = float4x4.TRS(pos, rot, scale);                        
+                        EntityManager.AddComponentData(beam, new TransformMatrix()
+                        {
+                            matrix = matrix
                         });
                     }
                 }
-
-
                 // We only want to call this once. 
                 Enabled = false;
                 // Alternative to being called once...
                 // EntityManager.DestroyEntity(entity);
-
-
-                // No ground Details
-
-
-
+                
             }).Run();
         }
     }
