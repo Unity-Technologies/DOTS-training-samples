@@ -239,6 +239,7 @@ GameObject:
   - component: {fileID: 1276993950}
   - component: {fileID: 1276993949}
   - component: {fileID: 1276993948}
+  - component: {fileID: 1276993955}
   m_Layer: 0
   m_Name: YellowHive
   m_TagString: Untagged
@@ -284,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center:
-    x: 12.5
+    x: -12.5
     y: 0
     z: 0
   size:
@@ -367,6 +368,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1276993955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1276993947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 1
+    y: 1
+    z: 0
+    w: 0.45
 --- !u!33 &1791795584638545579
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -390,6 +408,7 @@ GameObject:
   - component: {fileID: 3299796727686374864}
   - component: {fileID: 3299796727686374863}
   - component: {fileID: 3299796727686374862}
+  - component: {fileID: 3299796727686374865}
   m_Layer: 0
   m_Name: BlueHive
   m_TagString: Untagged
@@ -435,13 +454,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center:
-    x: -12.5
+    x: 12.5
     y: 0
     z: 0
   size:
     x: 5
     y: 10
     z: 10
+--- !u!114 &3299796727686374865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3299796727686374861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 1
+    w: 0.5
 --- !u!65 &3840419977030917644
 BoxCollider:
   m_ObjectHideFlags: 0
