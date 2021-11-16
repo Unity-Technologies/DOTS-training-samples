@@ -3,40 +3,43 @@
 public class Tornado : MonoBehaviour
 {
     public Transform cam;
+    public MeshRenderer ground;
     public Mesh particleMesh;
     public Material particleMaterial;
 
     public bool simulate = true;
-
-    public Vector3 initialPosition;
+    public float speed = 0.5f;
     public float spinRate;
     public float upwardSpeed;
     public float initRange = 10f;
 
     [Range(0f, 1f)] public float force = 0.022f;
-    public float maxForceDist = 30f;
-    public float rotationModulation;
+    public float maxForceDist = 32f;
     public float height = 50f;
     public float upForce = 1.4f;
     public float inwardForce = 9;
+    public float fader = 0f;
 
     public float x => transform.position.x;
     public float y => transform.position.z;
 
+    Vector3 initialPosition;
     Vector3[] points;
     Matrix4x4[] matrices;
     MaterialPropertyBlock matProps;
     float[] radiusMults;
+    float rotationModulation;
 
-    private void Start()
+    internal void Start()
     {
-        points = new Vector3[1000];
-        matrices = new Matrix4x4[1000];
-        radiusMults = new float[1000];
-        var colors = new Vector4[1000];
+        int pointCount = System.Math.Min(Mathf.RoundToInt(force * 20000), 1023);
+        var colors = new Vector4[pointCount];
+        points = new Vector3[pointCount];
+        matrices = new Matrix4x4[pointCount];
+        radiusMults = new float[pointCount];
 
         initialPosition = transform.position;
-        rotationModulation = Random.Range(-1f, 1f) * maxForceDist;
+        rotationModulation = ground.bounds.extents.magnitude / 2f * Random.Range(-0.9f, 0.9f);
 
         for (int i = 0; i < points.Length; i++)
         {
@@ -45,16 +48,21 @@ public class Tornado : MonoBehaviour
             radiusMults[i] = Random.value;
             colors[i] = Color.white * Random.Range(.3f, .7f);
         }
-        SimulateFrame();
+
         matProps = new MaterialPropertyBlock();
         matProps.SetVectorArray("_Color", colors);
     }
 
-    void SimulateFrame()
+    public static float Sway(float y)
+    {
+        return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
+    }
+
+    void Advance()
     {
         for (int i = 0; i < points.Length; i++)
         {
-            var tornadoPos = new Vector3(x + PointManager.TornadoSway(points[i].y), points[i].y, y);
+            var tornadoPos = new Vector3(x + Sway(points[i].y), points[i].y, y);
             var delta = tornadoPos - points[i];
             var dist = delta.magnitude;
             float inForce = dist - Mathf.Clamp01(tornadoPos.y / height) * maxForceDist * radiusMults[i] + 2f;
@@ -72,16 +80,16 @@ public class Tornado : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    internal void FixedUpdate()
     {
         if (!simulate)
             return;
 
-        
-        var tmod = Time.time / 6f;
+        var tmod = Time.time / 6f * speed;
+        fader = Mathf.Clamp01(fader + Time.deltaTime / 10f);
         transform.position = new Vector3(initialPosition.x + Mathf.Cos(tmod) * rotationModulation, transform.position.y, initialPosition.z + Mathf.Sin(tmod * 1.618f) * rotationModulation);
 
-        SimulateFrame();
+        Advance();
 
         if (cam != null)
             cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
