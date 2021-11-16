@@ -7,8 +7,9 @@ public class PointManager : MonoBehaviour, IConvertGameObjectToEntity
 {
     public Mesh barMesh;
     public Material barMaterial;
-    public MeshRenderer ground;
-    public Tornado[] tornados;
+
+    Tornado[] tornados;
+    MeshRenderer ground;
 
     public int buildingCount = 35;
     public int groundDetailCount = 600;
@@ -17,9 +18,8 @@ public class PointManager : MonoBehaviour, IConvertGameObjectToEntity
     [Range(0f, 1f)] public float damping;
     [Range(0f, 1f)] public float friction;
 
-    Bar[] bars;
-    Point[] points;
-    int pointCount;
+    Bars bars;
+    Points points;    
 
     Matrix4x4[][] matrices;
     MaterialPropertyBlock[] matProps;
@@ -33,6 +33,8 @@ public class PointManager : MonoBehaviour, IConvertGameObjectToEntity
 
     internal void Start()
     {
+        ground = FindObjectOfType<Ground>().gameObject.GetComponent<MeshRenderer>();
+        tornados = Resources.FindObjectsOfTypeAll<Tornado>();
         using (new DebugTimer("Generate buildings"))
             Generate();
     }
@@ -69,60 +71,71 @@ public class PointManager : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         int batch = 0;
-        var barsList = new List<Bar>();
+        var beams = new List<Beam>();
         var matricesList = new List<List<Matrix4x4>> { new List<Matrix4x4>() };
         for (int i = 0; i < pointsList.Count; i++)
         {
             for (int j = i + 1; j < pointsList.Count; j++)
             {
-                Bar bar = new Bar(pointsList[i], pointsList[j]);
-                if (bar.length < 5f && bar.length > .2f)
-                {
-                    bar.point1.neighborCount++;
-                    bar.point2.neighborCount++;
+                var a = pointsList[i];
+                var b = pointsList[j];
+                var delta = (b.position - a.position);
+                var length = delta.magnitude;
+                if (length >= 5f || length <= .2f)
+                    continue;
 
-                    barsList.Add(bar);
-                    matricesList[batch].Add(bar.matrix);
-                    if (matricesList[batch].Count == instancesPerBatch)
-                    {
-                        batch++;
-                        matricesList.Add(new List<Matrix4x4>());
-                    }
-                }
+                ++a.neighborCount;
+                ++b.neighborCount;
+
+                var beam = new Beam(i, j);
+                beams.Add(beam);
             }
         }
         
-        pointCount = 0;
-        points = new Point[barsList.Count * 2];
-        for (int i = 0; i < pointsList.Count; i++)
+        points = new Points(beams.Count * 2);
+        for (int i = 0; i < pointsList.Count; ++i)
         {
             if (pointsList[i].neighborCount > 0)
-            {
-                points[pointCount] = pointsList[i];
-                pointCount++;
-            }
+                points.Add(pointsList[i]);
         }
         
-        Debug.Log(pointCount + " points, room for " + points.Length + " (" + barsList.Count + " bars)");
+        Debug.Log($"{points.count} ({pointsList.Count}) points, room for {points.capacity} ({beams.Count} bars)");
 
-        bars = barsList.ToArray();
-
-        matrices = new Matrix4x4[matricesList.Count][];
-        for (int i = 0; i < matrices.Length; i++)
-            matrices[i] = matricesList[i].ToArray();
-
-        matProps = new MaterialPropertyBlock[barsList.Count];
+        bars = new Bars(beams);
+        matProps = new MaterialPropertyBlock[beams.Count];
         var colors = new Vector4[instancesPerBatch];
-        for (int i = 0; i < barsList.Count; i++)
+        for (int i = 0; i < beams.Count; i++)
         {
-            colors[i % instancesPerBatch] = barsList[i].color;
-            if ((i + 1) % instancesPerBatch == 0 || i == barsList.Count - 1)
+            var delta = points.pos[beams[i].point2] - points.pos[beams[i].point1];
+
+            bars.length[i] = delta.magnitude;
+            var pos = (points.pos[beams[i].point1] + points.pos[beams[i].point2]) * .5f;
+            var rot = Quaternion.LookRotation(delta);
+            var scale = new Vector3(beams[i].thickness, beams[i].thickness, bars.length[i]);
+            bars.matrix[i] = Matrix4x4.TRS(pos, rot, scale);
+
+            matricesList[batch].Add(bars.matrix[i]);
+            if (matricesList[batch].Count == instancesPerBatch)
+            {
+                batch++;
+                matricesList.Add(new List<Matrix4x4>());
+            }
+
+            float upDot = Mathf.Acos(Mathf.Abs(Vector3.Dot(Vector3.up, delta.normalized))) / Mathf.PI;
+            var color = Color.white * upDot * Random.Range(.7f, 1f);
+
+            colors[i % instancesPerBatch] = color;
+            if ((i + 1) % instancesPerBatch == 0 || i == beams.Count - 1)
             {
                 var block = new MaterialPropertyBlock();
                 block.SetVectorArray("_Color", colors);
                 matProps[i / instancesPerBatch] = block;
             }
         }
+
+        matrices = new Matrix4x4[matricesList.Count][];
+        for (int i = 0; i < matrices.Length; i++)
+            matrices[i] = matricesList[i].ToArray();
 
         Time.timeScale = 1f;
     }
@@ -135,118 +148,110 @@ public class PointManager : MonoBehaviour, IConvertGameObjectToEntity
                 continue;
 
             float invDamping = 1f - damping;
-            for (int i = 0; i < pointCount; i++)
+            for (int i = 0; i < points.count; i++)
             {
-                Point point = points[i];
-                if (point.anchor != false)
+                if (points.anchor[i])
                     continue;
 
-                var start = point.position;
-                point.oldPosition.y += .01f;
+                var start = points.pos[i];
+                points.old[i].y += .01f;
 
                 // tornado force
-                float tdx = tornado.x + Tornado.Sway(point.y) - point.x;
-                float tdz = tornado.y - point.z;
+                float tdx = tornado.x + Tornado.Sway(points.pos[i].y) - points.pos[i].x;
+                float tdz = tornado.y - points.pos[i].z;
                 float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
                 tdx /= tornadoDist;
                 tdz /= tornadoDist;
                 if (tornadoDist < tornado.maxForceDist)
                 {
                     float force = (1f - tornadoDist / tornado.maxForceDist);
-                    float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
+                    float yFader = Mathf.Clamp01(1f - points.pos[i].y / tornado.height);
                     force *= tornado.fader * tornado.force * Random.Range(-.3f, 1.3f);
                     float forceY = tornado.upForce;
-                    point.oldPosition.y -= forceY * force;
+                    points.old[i].y -= forceY * force;
                     float forceX = -tdz + tdx * tornado.inwardForce * yFader;
                     float forceZ = tdx + tdz * tornado.inwardForce * yFader;
-                    point.oldPosition.x -= forceX * force;
-                    point.oldPosition.z -= forceZ * force;
+                    points.old[i].x -= forceX * force;
+                    points.old[i].z -= forceZ * force;
                 }
 
-                point.Damp(invDamping);
-                point.SetPrevious(start);
+                points.pos[i] += (points.pos[i] - points.old[i]) * invDamping;
+				points.old[i] = start;
 
-                if (point.y < 0f)
+                if (points.pos[i].y < 0f)
                 {
-                    point.y = 0f;
-                    point.oldPosition.y = -point.oldPosition.y;
-                    point.oldPosition.x += (point.x - point.oldPosition.x) * friction;
-                    point.oldPosition.z += (point.z - point.oldPosition.z) * friction;
+                    points.pos[i].y = 0f;
+                    points.old[i].y = -points.old[i].y;
+                    points.old[i].x += (points.pos[i].x - points.old[i].x) * friction;
+                    points.old[i].z += (points.pos[i].z - points.old[i].z) * friction;
                 }
-
-                points[i] = point;
             }
 
-            for (int i = 0; i < bars.Length; i++)
+            for (int i = 0; i < bars.count; i++)
             {
-                Bar bar = bars[i];
-
-                Point point1 = bar.point1;
-                Point point2 = bar.point2;
-
-                var delta = point2.position - point1.position;
+                var beam = bars.beams[i];
+                var delta = points.pos[beam.point2] - points.pos[beam.point1]; // TODO: precompute delta and length
                 var dist = delta.magnitude;
-                var extraDist = dist - bar.length;
+                var extraDist = dist - bars.length[i];
                 var push = (delta / dist * extraDist) * .5f;
 
-                if (point1.anchor == false && point2.anchor == false)
+                if (!points.anchor[beam.point1] && !points.anchor[beam.point2])
                 {
-                    point1.position += push;
-                    point2.position -= push;
+                    points.pos[beam.point1] += push;
+                    points.pos[beam.point2] -= push;
                 }
-                else if (point1.anchor)
+                else if (points.anchor[beam.point1])
                 {
-                    point2.position -= push * 2f;
+                    points.pos[beam.point2] -= push * 2f;
                 }
-                else if (point2.anchor)
+                else if (points.anchor[beam.point2])
                 {
-                    point1.position += push * 2f;
+                    points.pos[beam.point1] += push * 2f;
                 }
 
-                if (delta.x / dist * bar.delta.x + delta.y / dist * bar.delta.y + delta.z / dist * bar.delta.z < .99f)
+                var translate = (points.pos[beam.point1] + points.pos[beam.point2]) * .5f;
+                if (delta.x / dist * bars.delta[i].x + delta.y / dist * bars.delta[i].y + delta.z / dist * bars.delta[i].z < .99f)
                 {
                     // bar has rotated: expensive full-matrix computation
-                    bar.matrix = Matrix4x4.TRS((point1.position + point2.position) * .5f,
-                                           Quaternion.LookRotation(new Vector3(delta.x, delta.y, delta.z)),
-                                           new Vector3(bar.thickness, bar.thickness, bar.length));
-                    bar.delta = delta / dist;
+                    bars.matrix[i] = Matrix4x4.TRS(translate, Quaternion.LookRotation(delta), new Vector3(beam.thickness, beam.thickness, bars.length[i]));
+                    bars.delta[i] = delta / dist;
                 }
                 else
                 {
                     // bar hasn't rotated: only update the position elements
-                    var matrix = bar.matrix;
-                    var translate = (point1.position + point2.position) * .5f;
+                    var matrix = bars.matrix[i];
                     matrix.m03 = translate.x;
                     matrix.m13 = translate.y;
                     matrix.m23 = translate.z;
-                    bar.matrix = matrix;
+                    bars.matrix[i] = matrix;
                 }
 
                 if (Mathf.Abs(extraDist) > breakResistance)
                 {
-                    if (point2.neighborCount > 1)
+                    if (points.neighbors[beam.point2] > 1)
                     {
-                        point2.neighborCount--;
-                        var newPoint = new Point(point2, 1);
-                        points[pointCount++] = newPoint;
-                        bar.point2 = newPoint;
+                        points.neighbors[beam.point2]--;
+                        var newIndex = points.count++;
+                        points.old[newIndex] = points.pos[newIndex] = points.pos[beam.point2];
+                        points.anchor[newIndex] = points.anchor[beam.point2];
+                        points.neighbors[newIndex] = 1;
+
+                        bars.beams[i] = new Beam(beam.point1, newIndex);
                     }
-                    else if (point1.neighborCount > 1)
+                    else if (points.neighbors[beam.point1] > 1)
                     {
-                        point1.neighborCount--;
-                        var newPoint = new Point(point1, 1);
-                        points[pointCount++] = newPoint;
-                        bar.point1 = newPoint;
+                        points.neighbors[beam.point1]--;
+
+                        var newIndex = points.count++;
+                        points.old[newIndex] = points.pos[newIndex] = points.pos[beam.point1];
+                        points.anchor[newIndex] = points.anchor[beam.point1];
+                        points.neighbors[newIndex] = 1;
+
+                        bars.beams[i] = new Beam(newIndex, beam.point2);
                     }
                 }
 
-                bar.min = new Vector3(Mathf.Min(point1.x, point2.x), Mathf.Min(point1.y, point2.y), Mathf.Min(point1.z, point2.z));
-                bar.max = new Vector3(Mathf.Max(point1.x, point2.x), Mathf.Max(point1.y, point2.y), Mathf.Max(point1.z, point2.z));
-
-                matrices[i / instancesPerBatch][i % instancesPerBatch] = bar.matrix;
-
-//                 bar.point1 = point1;
-//                 bar.point2 = point2;
+                matrices[i / instancesPerBatch][i % instancesPerBatch] = bars.matrix[i];
             }
         }
     }

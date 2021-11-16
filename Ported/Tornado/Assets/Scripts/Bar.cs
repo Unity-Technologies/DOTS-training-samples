@@ -1,38 +1,36 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
-class Bar
+struct Beam
 {
-    public Point point1;
-    public Point point2;
-    public Vector3 delta;
+    public readonly int point1;
+    public readonly int point2;
 
-    public Vector3 min;
-    public Vector3 max;
-    public Matrix4x4 matrix;
-
-    public readonly Color color;
     public readonly float thickness;
-    public readonly float length;
 
-    public Bar(in Point a, in Point b)
+    public Beam(int point1, int point2)
     {
-        point1 = a;
-        point2 = b;
-
-        delta = point2.position - point1.position;
-        length = delta.magnitude;
-
+        this.point1 = point1;
+        this.point2 = point2;
         thickness = Random.Range(.25f, .35f);
+    }
+}
 
-        var pos = (point1.position + point2.position) * .5f;
-        var rot = Quaternion.LookRotation(delta);
-        var scale = new Vector3(thickness, thickness, length);
-        matrix = Matrix4x4.TRS(pos, rot, scale);
+struct Bars
+{
+    public Beam[] beams;
+    public Vector3[] delta;
+    public float[] length;
+    public Matrix4x4[] matrix;
 
-        min = new Vector3(Mathf.Min(point1.x, point2.x), Mathf.Min(point1.y, point2.y), Mathf.Min(point1.z, point2.z));
-        max = new Vector3(Mathf.Max(point1.x, point2.x), Mathf.Max(point1.y, point2.y), Mathf.Max(point1.z, point2.z));
+    public int count => beams.Length;
 
-        float upDot = Mathf.Acos(Mathf.Abs(Vector3.Dot(Vector3.up, delta.normalized))) / Mathf.PI;
-        color = Color.white * upDot * Random.Range(.7f, 1f);
+    public Bars(IList<Beam> beams)
+    {
+        this.beams = beams.ToArray();
+        this.delta = new Vector3[beams.Count];
+        this.length = new float[beams.Count];
+        this.matrix = new Matrix4x4[beams.Count];
     }
 }

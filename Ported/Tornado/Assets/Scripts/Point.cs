@@ -1,23 +1,45 @@
 ﻿using System;
+using Unity.Entities;
 using UnityEngine;
 
-class Point
+struct Points
 {
-    public Vector3 position;
-    public Vector3 oldPosition;
+    public int count;
+    public int capacity;
 
-    public bool anchor;
+    public Vector3[] pos;
+    public Vector3[] old;
+    public bool[] anchor;
+    public int[] neighbors;
+
+    public Points(int capacity)
+    {
+        count = 0;
+        this.capacity = capacity;
+        pos = new Vector3[capacity];
+        old = new Vector3[capacity];
+        anchor = new bool[capacity];
+        neighbors = new int[capacity];
+    }
+
+    public void Add(in Point point)
+    {
+        var index = count++;
+        old[index] = pos[index] = point.position;
+        anchor[index] = point.anchor;
+        neighbors[index] = point.neighborCount;
+    }
+}
+
+class Point// : IComponentData
+{
+    public readonly Vector3 position;
+    public readonly bool anchor;
     public int neighborCount;
-
-    public float x { get => position.x; set => position.x = value; }
-    public float y { get => position.y; set => position.y = value; }
-    public float z { get => position.z; set => position.z = value; }
 
     public Point(Point other, int neighborCount)
     {
         position = other.position;
-        oldPosition = other.position;
-
         anchor = other.anchor;
         this.neighborCount = neighborCount;
     }
@@ -29,23 +51,8 @@ class Point
 
     public Point(float x, float y, float z, bool anchor)
     {
-        oldPosition = position = new Vector3(x, y, z);
+        position = new Vector3(x, y, z);
         this.anchor = anchor;
         neighborCount = 0;
-    }
-
-    public void Damp(in float invDamping)
-    {
-        position += (position - oldPosition) * invDamping;
-    }
-
-    public void SetPrevious(in float startX, in float startY, in float startZ)
-    {
-        oldPosition = new Vector3(startX, startY, startZ);
-    }
-
-    internal void SetPrevious(in Vector3 v)
-    {
-        oldPosition = v;
     }
 }

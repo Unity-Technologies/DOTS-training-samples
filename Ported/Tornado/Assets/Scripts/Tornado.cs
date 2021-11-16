@@ -3,7 +3,6 @@
 public class Tornado : MonoBehaviour
 {
     public Transform cam;
-    public MeshRenderer ground;
     public Mesh particleMesh;
     public Material particleMaterial;
 
@@ -29,6 +28,7 @@ public class Tornado : MonoBehaviour
     MaterialPropertyBlock matProps;
     float[] radiusMults;
     float rotationModulation;
+    MeshRenderer ground;
 
     internal void Start()
     {
@@ -38,6 +38,7 @@ public class Tornado : MonoBehaviour
         matrices = new Matrix4x4[pointCount];
         radiusMults = new float[pointCount];
 
+        ground = FindObjectOfType<Ground>().gameObject.GetComponent<MeshRenderer>();
         initialPosition = transform.position;
         rotationModulation = ground.bounds.extents.magnitude / 2f * Random.Range(-0.9f, 0.9f);
 
