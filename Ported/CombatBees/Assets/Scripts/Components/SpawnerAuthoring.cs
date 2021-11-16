@@ -15,6 +15,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
 {
     public UnityGameObject BeePrefab;
     public UnityGameObject FoodPrefab;
+    public UnityGameObject GibletPrefab;
     public int StartingFoodCount;
     public float Length;
     public float Width;
@@ -24,6 +25,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     {
         referencedPrefabs.Add(BeePrefab);
         referencedPrefabs.Add(FoodPrefab);
+        referencedPrefabs.Add(GibletPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -40,6 +42,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         {
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
+            GibletPrefab = conversionSystem.GetPrimaryEntity(GibletPrefab),
             BoundsMax = max,
             BoundsMin = min,
             BlueHiveCenter = minHive,
