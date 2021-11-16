@@ -139,6 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 600afaa8f8c5a1f44a5c9566cfb04ccb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulate: 1
   spinRate: 37
   upwardSpeed: 6
   initRange: 10
@@ -147,3 +148,7 @@ MonoBehaviour:
   height: 50
   upForce: 1.4
   inwardForce: 9
+  debrisPrefab: {fileID: 116934094101532319, guid: 3c43aefa150f3b5439ed4a4e0fbf763b,
+    type: 3}
+  debrisCount: 1000
+  debrisInitRange: 10

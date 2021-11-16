@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
+using Unity.Rendering;
 using UnityEngine;
+using Random = UnityEngine.Random;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -12,6 +13,7 @@ namespace Dots
     [DisallowMultipleComponent]
     public class TornadoSpawnerAuthoring : UnityMonoBehaviour
         , IConvertGameObjectToEntity
+        , IDeclareReferencedPrefabs
     {
         public bool simulate = true;
         
@@ -25,9 +27,20 @@ namespace Dots
         public float upForce = 1.4f;
         public float inwardForce = 9;
         
+        public UnityGameObject debrisPrefab;
+        [Range(1f, 10000f)] public float debrisCount = 1000;
+        public float debrisInitRange = 10f;
+        
+        // This function is required by IDeclareReferencedPrefabs
+        public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
+        {
+            if (debrisPrefab != null)
+                referencedPrefabs.Add(debrisPrefab);
+        }
+        
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new Dots.TornadoConfig
+            dstManager.AddComponentData(entity, new TornadoConfig
             {
                 simulate = simulate,
                 spinRate = spinRate,
@@ -40,6 +53,14 @@ namespace Dots
                 inwardForce = inwardForce
             });
             dstManager.AddComponentData(entity, new TornadoFader { value = 0f });
+            
+            dstManager.AddComponentData(entity, new DebrisSpawnerData
+            {
+                debrisPrefab = conversionSystem.GetPrimaryEntity(debrisPrefab),
+                debrisCount = debrisCount,
+                initRange = debrisInitRange,
+                height = height
+            });
         }
     }
 }

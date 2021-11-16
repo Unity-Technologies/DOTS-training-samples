@@ -249,7 +249,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   barMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   barMaterial: {fileID: 2100000, guid: d8350e13b3cd00d4bb07415d3bb10c67, type: 2}
-  tornado: {fileID: 1007835487}
+  tornados:
+  - {fileID: 1007835487}
   expForce: 0.4
   breakResistance: 0.55
   damping: 0.012
@@ -455,13 +456,14 @@ MonoBehaviour:
   particleMesh: {fileID: 1316333937215503975, guid: 0000000000000000d000000000000000,
     type: 0}
   particleMaterial: {fileID: 2100000, guid: d8350e13b3cd00d4bb07415d3bb10c67, type: 2}
-  active: 0
   simulate: 1
+  initialPosition: {x: 0, y: 0, z: 0}
   spinRate: 37
   upwardSpeed: 6
   initRange: 10
   force: 0.022
   maxForceDist: 30
+  rotationModulation: 0
   height: 50
   upForce: 1.4
   inwardForce: 9
