@@ -33,7 +33,11 @@ namespace Dots
                     {
                         var pointEntity = ecb.CreateEntity();
                         ecb.AddComponent(pointEntity, new Anchor());
-                        ecb.AddComponent(pointEntity, new Point { value = pointPosition });
+                        ecb.AddComponent(pointEntity, new Point
+                        {
+                            value = pointPosition,
+                            old = pointPosition
+                        });
                         if (pointPosition.y == 0)
                         {
                             ecb.AddComponent(pointEntity, new FixedAnchor());
@@ -98,7 +102,8 @@ namespace Dots
                                 var beamEntity = ecb.Instantiate(spawner.BeamPrefab);
                                 ecb.AddComponent(beamEntity, new Beam {
                                     p1 = pointEntityList[i],
-                                    p2 = pointEntityList[j]
+                                    p2 = pointEntityList[j],
+                                    oldDelta = float3.zero
                                 });
 
                                 float3 up = new float3(0f, 1f, 0f);
@@ -115,9 +120,6 @@ namespace Dots
                                 ecb.SetComponent(beamEntity, new Translation { Value = pos } );
                                 ecb.SetComponent(beamEntity, new Rotation { Value = rot } );
                                 ecb.AddComponent(beamEntity, new NonUniformScale { Value = scale } );
-                                
-                                // TODO : may not need to store thickness/length since the mesh scale should not change over time and the NonUniformScale already have it
-                                ecb.AddComponent(beamEntity, new Thickness { value = thickness });
                                 ecb.AddComponent(beamEntity, new Length { value = length });
                                 
                                 pointNeighborList[i]++;

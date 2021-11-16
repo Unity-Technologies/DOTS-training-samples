@@ -169,7 +169,7 @@ public class PointManager : MonoBehaviour
             {
                 
                 // Warning, MaterialPropertyBlock is not supported in URP...
-                // beams color will not work, but keeping the code here for now
+                
                 MaterialPropertyBlock block = new MaterialPropertyBlock();
                 block.SetVectorArray("_Color", colors);
                 matProps[i / instancesPerBatch] = block;

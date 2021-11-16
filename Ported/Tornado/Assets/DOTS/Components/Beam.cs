@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Dots
 {
@@ -8,5 +9,6 @@ namespace Dots
     {
         public Entity p1;
         public Entity p2;
+        public float3 oldDelta;
     }
 }

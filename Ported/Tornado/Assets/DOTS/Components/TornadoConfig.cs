@@ -7,6 +7,7 @@ namespace Dots
 {
     public struct TornadoConfig : IComponentData
     {
+        public bool simulate;
         public float spinRate;
         public float upwardSpeed;
         public float initRange;
