@@ -27,9 +27,9 @@ namespace Dots
                         var debris = ecb.Instantiate(spawner.debrisPrefab);
                         
                         float3 position = new float3(
-                            random.NextFloat(-spawner.initRange, spawner.initRange), 
+                            initialPosition.x + random.NextFloat(-spawner.initRange, spawner.initRange), 
                             random.NextFloat(0f, spawner.height), 
-                            random.NextFloat(-spawner.initRange, spawner.initRange));
+                            initialPosition.z + random.NextFloat(-spawner.initRange, spawner.initRange));
                         ecb.SetComponent(debris, new Translation { Value = position });
                         
                         ecb.AddComponent(debris, new DebrisTag
@@ -40,10 +40,6 @@ namespace Dots
                         
                         float4 color = white * random.NextFloat(.3f, .7f);
                         ecb.AddComponent(debris, new URPMaterialPropertyBaseColor { Value = color });
-                        
-                        // Make the debris a child of the tornado
-                        //ecb.AddComponent(debris, new Parent { Value = entity });
-                        //ecb.AddComponent(debris, new LocalToParent { });
                     }
                 }).Run();
         

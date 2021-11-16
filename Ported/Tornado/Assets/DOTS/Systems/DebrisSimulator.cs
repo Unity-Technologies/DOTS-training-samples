@@ -24,7 +24,8 @@ namespace Dots
         protected override void OnUpdate()
         {
             Random random = new Random(randomSeeds.NextUInt());
-            var time = Time.ElapsedTime;
+            var elapsedTime = Time.ElapsedTime;
+            var deltaTime = Time.DeltaTime;
             
             if (TornadoQuery.IsEmpty)
                 return;
@@ -56,7 +57,7 @@ namespace Dots
                     float3 tornadoEntityPosition = tornadoInfos[debris.tornado].position; 
                     
                     var tornadoPos = new float3(
-                        tornadoEntityPosition.x + AnchorSimulator.TornadoSway(translation.Value.y, (float)time), 
+                        tornadoEntityPosition.x + TornadoUtils.TornadoSway(translation.Value.y, (float)elapsedTime), 
                         translation.Value.y, 
                         tornadoEntityPosition.z);
                     
@@ -67,7 +68,7 @@ namespace Dots
                     delta /= dist;
                     translation.Value += new float3(-delta.z * config.spinRate + delta.x * inForce, 
                         config.upwardSpeed, 
-                        delta.x * config.spinRate + delta.z * inForce) * (float)time;
+                        delta.x * config.spinRate + delta.z * inForce) * (float)deltaTime;
                     
                     if (translation.Value.y>config.height) 
                         translation.Value.y = 0f;

@@ -40,11 +40,6 @@ namespace Dots
             randomSeeds = new Random(1234);
         }
         
-        public static float TornadoSway(float y, float time)
-        {
-            return math.sin(y / 5f + time / 4f) * 3f;
-        }
-        
         protected override void OnUpdate()
         {
             // An ECB system will play back later in the frame the buffers it creates.
@@ -53,7 +48,8 @@ namespace Dots
             //var parallelEcb = ecb.AsParallelWriter();
             
             Random random = new Random(randomSeeds.NextUInt());
-            var time = Time.ElapsedTime;
+            var elapsedTime = Time.ElapsedTime;
+            var deltaTime = Time.DeltaTime;
 
             if (TornadoQuery.IsEmpty)
                 return;
@@ -65,7 +61,7 @@ namespace Dots
                 .ForEach((int entityInQueryIndex, ref TornadoFader fade, in TornadoConfig config, in Translation translation) =>
                 {
 
-                    fade.value = math.saturate(fade.value + (float)time / 10f);
+                    fade.value = math.saturate(fade.value + (float)deltaTime / 10f);
                     tornadoInfos[entityInQueryIndex] = new TornadoInfo
                         {
                             position = translation.Value,
@@ -102,7 +98,7 @@ namespace Dots
 
                             // tornado force
                             float2 tdXZ = new float2(
-                                tornadoPos.x + TornadoSway(point.value.y, (float)time) - point.value.x, 
+                                tornadoPos.x + TornadoUtils.TornadoSway(point.value.y, (float)elapsedTime) - point.value.x, 
                                 tornadoPos.z - point.value.z);
                             float tornadoDist = math.length(tdXZ);
                             tdXZ /= tornadoDist;
