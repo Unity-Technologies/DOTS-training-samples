@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   barMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   barMaterial: {fileID: 2100000, guid: 4012e1b21a491ab44899652bc98c3d02, type: 2}
-  buildingCount: 32
-  groundDetailCount: 5
+  buildingCount: 110
+  groundDetailCount: 105
   breakResistance: 0.55
   damping: 0.027
   friction: 0.369

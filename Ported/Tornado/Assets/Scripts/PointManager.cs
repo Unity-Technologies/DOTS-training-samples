@@ -111,14 +111,13 @@ class PointManager : MonoBehaviour
         using (var pointQuery = em.CreateEntityQuery(typeof(Point)))
         using (var points = pointQuery.ToEntityArray(Allocator.TempJob))
         {
-            Debug.Log($"{points.Length} points");
             for (int i = 0; i < points.Length; i++)
             {
                 for (int j = i + 1; j < points.Length; j++)
                 {
                     var a = em.GetComponentData<Point>(points[i]);
                     var b = em.GetComponentData<Point>(points[j]);
-                    var delta = (b.position - a.position);
+                    var delta = (b.pos - a.pos);
                     var length = math.length(delta);
                     if (length >= 5f || length <= .2f)
                         continue;
@@ -129,18 +128,15 @@ class PointManager : MonoBehaviour
                     em.SetComponentData(points[i], a);
                     em.SetComponentData(points[j], b);
 
-                    var beam = new Beam(points[i], points[j], random.NextFloat(.25f, .35f), length);
-
+                    var beam = new Beam(points[i], points[j], random.NextFloat(.25f, .35f), length, batch, matricesList[batch].Count);
                     var barLength = math.length(delta);
                     var norm = delta / barLength;
 
-                    var pos = (a.position + b.position) * .5f;
+                    var pos = (a.pos + b.pos) * .5f;
                     var rot = Quaternion.LookRotation(delta);
                     var scale = new Vector3(beam.thickness, beam.thickness, barLength);
                     var beamMatrix = Matrix4x4.TRS(pos, rot, scale);
 
-                    beam.m1i = batch;
-                    beam.m2i = matricesList[batch].Count;
                     matricesList[batch].Add(beamMatrix);
                     if (matricesList[batch].Count == instancesPerBatch)
                     {
@@ -185,7 +181,7 @@ class PointManager : MonoBehaviour
                 var beamData = em.GetComponentData<Beam>(beams[i]);
                 var point1 = em.GetComponentData<Point>(beamData.point1);
                 var point2 = em.GetComponentData<Point>(beamData.point2);
-                var delta = point2.position - point1.position;
+                var delta = point2.pos - point1.pos;
 
                 float upDot = math.acos(math.abs(math.dot(math.up(), math.normalize(delta)))) / math.PI;
                 var color = Color.white * upDot * random.NextFloat(.7f, 1f);
@@ -220,21 +216,21 @@ class PointManager : MonoBehaviour
                 if (point.anchor)
                     continue;
 
-                var start = point.position;
+                var start = point.pos;
                 point.old.y += .01f;
 
                 foreach (var tornado in activeTornados)
                 {
                     // tornado force
-                    float tdx = tornado.x + Tornado.Sway(point.position.y) - point.position.x;
-                    float tdz = tornado.y - point.position.z;
+                    float tdx = tornado.x + Tornado.Sway(point.pos.y) - point.pos.x;
+                    float tdz = tornado.y - point.pos.z;
                     float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
                     tdx /= tornadoDist;
                     tdz /= tornadoDist;
                     if (tornadoDist < tornado.maxForceDist)
                     {
                         float force = (1f - tornadoDist / tornado.maxForceDist);
-                        float yFader = Mathf.Clamp01(1f - point.position.y / tornado.height);
+                        float yFader = Mathf.Clamp01(1f - point.pos.y / tornado.height);
                         force *= tornado.fader * tornado.force * random.NextFloat(-.3f, 1.3f);
                         float forceY = tornado.upForce;
                         point.old.y -= forceY * force;
@@ -247,15 +243,15 @@ class PointManager : MonoBehaviour
                     }
                 }
 
-                point.position += (point.position - point.old) * invDamping;
+                point.pos += (point.pos - point.old) * invDamping;
                 point.old = start;
 
-                if (point.position.y < 0f)
+                if (point.pos.y < 0f)
                 {
-                    point.position.y = 0f;
+                    point.pos.y = 0f;
                     point.old.y = -point.old.y;
-                    point.old.x += (point.position.x - point.position.x) * friction;
-                    point.old.z += (point.position.z - point.position.z) * friction;
+                    point.old.x += (point.pos.x - point.pos.x) * friction;
+                    point.old.z += (point.pos.z - point.pos.z) * friction;
                 }
 
                 // Write back point data
@@ -272,7 +268,7 @@ class PointManager : MonoBehaviour
                 var point1 = em.GetComponentData<Point>(beam.point1);
                 var point2 = em.GetComponentData<Point>(beam.point2);
 
-                var delta = point2.position - point1.position; // TODO: precompute delta and length
+                var delta = point2.pos - point1.pos; // TODO: precompute delta and length
                 var dist = math.length(delta);
                 var extraDist = dist - beam.length;
                 var norm = delta / dist;
@@ -284,23 +280,23 @@ class PointManager : MonoBehaviour
 
                 if (!point1.anchor && !point2.anchor)
                 {
-                    point1.position += push;
-                    point2.position -= push;
+                    point1.pos += push;
+                    point2.pos -= push;
                     writeBackPoint1 = writeBackPoint2 = true;
                 }
                 else if (point1.anchor)
                 {
-                    point2.position -= push * 2f;
+                    point2.pos -= push * 2f;
                     writeBackPoint2 = true;
                 }
                 else if (point2.anchor)
                 {
-                    point1.position += push * 2f;
+                    point1.pos += push * 2f;
                     writeBackPoint1 = true;
                 }
 
                 var matrix = matrices[beam.m1i][beam.m2i];
-                var translate = (point1.position + point2.position) * .5f;
+                var translate = (point1.pos + point2.pos) * .5f;
                 if (norm.x * beam.norm.x + norm.y * beam.norm.y + norm.z * beam.norm.z < .99f)
                 {
                     // bar has rotated: expensive full-matrix computation
@@ -326,7 +322,7 @@ class PointManager : MonoBehaviour
 
                         var newPoint = em.CreateEntity();
                         em.AddComponent<Point>(newPoint);
-                        em.SetComponentData(newPoint, new Point(point2.position.x, point2.position.y, point2.position.z, false) { neighborCount = 1} );
+                        em.SetComponentData(newPoint, new Point(point2.pos.x, point2.pos.y, point2.pos.z, false) { neighborCount = 1} );
 
                         beam.point2 = newPoint;
                         writeBackBeam = true;
@@ -338,19 +334,16 @@ class PointManager : MonoBehaviour
 
                         var newPoint = em.CreateEntity();
                         em.AddComponent<Point>(newPoint);
-                        em.SetComponentData(newPoint, new Point(point1.position.x, point1.position.y, point1.position.z, false) { neighborCount = 1 });
+                        em.SetComponentData(newPoint, new Point(point1.pos.x, point1.pos.y, point1.pos.z, false) { neighborCount = 1 });
 
                         beam.point1 = newPoint;
                         writeBackBeam = true;
                     }
                 }
 
-                if (writeBackPoint1)
-                    em.SetComponentData(beam.point1, point1);
-                if (writeBackPoint2)
-                    em.SetComponentData(beam.point2, point2);
-                if (writeBackBeam)
-                    em.SetComponentData(beams[i], beam);
+                if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
+                if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
+                if (writeBackBeam) em.SetComponentData(beams[i], beam);
             }
         }
     }
