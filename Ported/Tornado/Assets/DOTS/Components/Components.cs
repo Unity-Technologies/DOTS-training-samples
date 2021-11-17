@@ -9,6 +9,7 @@ namespace Dots
     public struct BeamSpawnerData : IComponentData
     {
         public int buildingCount;
+        public int debrisCount;
         public Entity beamPrefab;
     }
 

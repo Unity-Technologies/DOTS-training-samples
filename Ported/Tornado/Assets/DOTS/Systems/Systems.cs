@@ -80,6 +80,7 @@ namespace Dots
 
                 Debug.Log($"BeamSpawner has created {pointCount} points");
 
+
                 // Setup beams:
                 var white = new float4(1f, 1f, 1f, 1f);
                 var up = new float3(0f, 1f, 0f);
@@ -87,31 +88,39 @@ namespace Dots
                 {
                     for (int j = i + 1; j < pointCount; j++)
                     {
-                        var beam = EntityManager.Instantiate(spawner.beamPrefab);
+                        
                         var p1 = pointPosList[i];
                         var p2 = pointPosList[j];
-
-                        EntityManager.AddComponentData(beam, new BeamData()
-                        {
-                            p1 = pointPosList[i],
-                            p2 = pointPosList[j]
-                        });
-
                         var delta = p2 - p1;
-                        var pointDeltaNorm = math.normalize(delta);
-                        var upDot = math.acos(math.abs(math.dot(up, pointDeltaNorm))) / Mathf.PI;
-                        var color = white * upDot * random.NextFloat(.7f, 1f);
-                        EntityManager.AddComponentData(beam, new URPMaterialPropertyBaseColor() { Value = color });
-
                         var length = math.length(delta);
-                        var thickness = random.NextFloat(.25f, .35f);
-                        var pos = (p1 + p2) * 0.5f;
-                        var rot = Quaternion.LookRotation(delta);
-                        var scale = new float3(thickness, thickness, length);
 
-                        EntityManager.AddComponentData(beam, new Unity.Transforms.Translation() { Value = pos });
-                        EntityManager.AddComponentData(beam, new Unity.Transforms.Rotation() { Value = rot });
-                        EntityManager.AddComponentData(beam, new Unity.Transforms.NonUniformScale() { Value = scale });
+                        if (length < 5f && length > .2f)
+                        {
+                            var beam = EntityManager.Instantiate(spawner.beamPrefab);
+
+                            EntityManager.AddComponentData(beam, new BeamData()
+                            {
+                                p1 = pointPosList[i],
+                                p2 = pointPosList[j]
+                            });
+
+                            var pointDeltaNorm = math.normalize(delta);
+                            var upDot = math.acos(math.abs(math.dot(up, pointDeltaNorm))) / Mathf.PI;
+                            var color = white * upDot * random.NextFloat(.7f, 1f);
+                            EntityManager.AddComponentData(beam, new URPMaterialPropertyBaseColor() { Value = color });
+
+
+                            var thickness = random.NextFloat(.25f, .35f);
+                            var pos = (p1 + p2) * 0.5f;
+                            var rot = Quaternion.LookRotation(delta);
+                            var scale = new float3(thickness, thickness, length);
+
+                            EntityManager.AddComponentData(beam, new Unity.Transforms.Translation() { Value = pos });
+                            EntityManager.AddComponentData(beam, new Unity.Transforms.Rotation() { Value = rot });
+                            EntityManager.AddComponentData(beam, new Unity.Transforms.NonUniformScale() { Value = scale });
+                        }
+
+                            
                     }
                 }
                 // We only want to call this once. 

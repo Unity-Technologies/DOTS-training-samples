@@ -142,6 +142,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 6945379747211018676, guid: 784e3a16ef8b1a243bdbba9904b13180,
         type: 3}
+    - target: {fileID: 1117236294782432657, guid: 13727bd081ca2544390636db184b08b5,
+        type: 3}
+      propertyPath: buildingCount
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 1117236294782432658, guid: 13727bd081ca2544390636db184b08b5,
         type: 3}
       propertyPath: m_RootOrder

@@ -12,6 +12,7 @@ namespace Dots
     {
         public int buildingCount = 1;
         public UnityEngine.GameObject beamPrefab;
+        public int debrisCount = 600;
 
         // This function is required by IDeclareReferencedPrefabs
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -25,7 +26,8 @@ namespace Dots
             dstManager.AddComponentData(entity, new BeamSpawnerData
             {                
                 buildingCount = buildingCount,
-                beamPrefab = beamEntity
+                beamPrefab = beamEntity,
+                debrisCount = debrisCount
             });
         }
     }
