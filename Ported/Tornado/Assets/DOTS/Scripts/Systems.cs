@@ -5,33 +5,11 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public partial class BeamRendererSystem : SystemBase
-    {
-        NativeArray<Matrix4x4> transforms;
-
-        protected override void OnCreate()
-        {
-            transforms = new NativeArray<Matrix4x4>(2000, Allocator.Persistent);
-        }
-
-        protected override void OnUpdate()
-        {
-            Debug.Log("BeamRendererSystem.OnUpdate");
-            var i = 0;
-            Entities
-            .WithoutBurst()
-            .ForEach((in TransformMatrix t) =>
-            {
-                transforms[i++] = t.matrix;
-            }).Run();
-        }
-    }
-
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class BeamSpawner : SystemBase
     {
@@ -43,12 +21,9 @@ namespace Dots
         protected override void OnUpdate()
         {
             Entities
-                .WithoutBurst()
                 .WithStructuralChanges()
                 .ForEach((Entity entity, in BeamSpawnerData spawner) =>
             {
-                Debug.Log("BeamSpawner.OnUpdate");
-                
                 var random = new Random(1234);
                 var pointPosList = new NativeList<float3>(2000, Allocator.Temp);
                 for (int i = 0; i < spawner.buildingCount; i++)
@@ -88,7 +63,6 @@ namespace Dots
                 {
                     for (int j = i + 1; j < pointCount; j++)
                     {
-                        
                         var p1 = pointPosList[i];
                         var p2 = pointPosList[j];
                         var delta = p2 - p1;
@@ -97,7 +71,6 @@ namespace Dots
                         if (length < 5f && length > .2f)
                         {
                             var beam = EntityManager.Instantiate(spawner.beamPrefab);
-
                             EntityManager.AddComponentData(beam, new BeamData()
                             {
                                 p1 = pointPosList[i],
@@ -109,26 +82,95 @@ namespace Dots
                             var color = white * upDot * random.NextFloat(.7f, 1f);
                             EntityManager.AddComponentData(beam, new URPMaterialPropertyBaseColor() { Value = color });
 
-
                             var thickness = random.NextFloat(.25f, .35f);
                             var pos = (p1 + p2) * 0.5f;
                             var rot = Quaternion.LookRotation(delta);
                             var scale = new float3(thickness, thickness, length);
 
-                            EntityManager.AddComponentData(beam, new Unity.Transforms.Translation() { Value = pos });
-                            EntityManager.AddComponentData(beam, new Unity.Transforms.Rotation() { Value = rot });
-                            EntityManager.AddComponentData(beam, new Unity.Transforms.NonUniformScale() { Value = scale });
+                            EntityManager.AddComponentData(beam, new Translation() { Value = pos });
+                            EntityManager.AddComponentData(beam, new Rotation() { Value = rot });
+                            EntityManager.AddComponentData(beam, new NonUniformScale() { Value = scale });
                         }
-
-                            
                     }
                 }
-                // We only want to call this once. 
-                Enabled = false;
-                // Alternative to being called once...
-                // EntityManager.DestroyEntity(entity);
-                
+
             }).Run();
+            Enabled = false;
+        }
+    }
+
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    [UpdateAfter(typeof(InitializationSystemGroup))]
+    public partial class TornadoSpawner : SystemBase
+    {
+        protected override void OnCreate()
+        {
+            Debug.Log("TornadoSpawner.OnCreate");
+        }
+
+        protected override void OnUpdate()
+        {
+            Entities
+                .WithoutBurst()
+                .WithStructuralChanges()
+                .ForEach((Entity tornado, in TornadoConfigData tornadoConfig) =>
+                {
+                    // Debug.Log($"TornadoSpawner.OnUpdate");
+                    EntityManager.AddComponentData(tornado, new Translation() { Value = tornadoConfig.position });
+
+                    var random = new Random(5678);
+                    // var white = new float4(1, 1, 1, 1);
+                    var baseColor = new float4(1, 0, 0, 1);
+
+                    for (var i = 0; i < tornadoConfig.particleCount; ++i)
+                    {
+                        var particle = EntityManager.Instantiate(tornadoConfig.particlePrefab);
+                        EntityManager.AddComponent<ParticleTag>(particle);
+                        var color = baseColor * random.NextFloat(.7f, 1f);
+                        EntityManager.AddComponentData(particle, new URPMaterialPropertyBaseColor() { Value = color });
+
+                        var pos = new float3(
+                            random.NextFloat(-tornadoConfig.initRange, tornadoConfig.initRange),
+                            random.NextFloat(0, tornadoConfig.height),
+                            random.NextFloat(-tornadoConfig.initRange, tornadoConfig.initRange)
+                            );
+                        EntityManager.AddComponentData(particle, new Translation() { Value = pos });
+                        EntityManager.AddComponentData(particle, new Rotation() { Value = new quaternion() });
+
+                        var scale = new float3(1, 1, 1);
+                        scale *= random.NextFloat(.3f,.7f);
+                        EntityManager.AddComponentData(particle, new NonUniformScale() { Value = scale });
+                    }
+
+                    Enabled = false;
+                }).Run();
+        }
+    }
+
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public partial class MoveTornado : SystemBase
+    {
+        protected override void OnCreate()
+        {
+
+        }
+
+        protected override void OnUpdate()
+        {
+            // Debug.Log("AnimateTornado.OnUpdate");
+            Translation tornadoPosition = new Translation();
+            Entities
+                .ForEach((ref Translation pos, in Entity tornado, in TornadoConfigData tornadoConfig) =>
+                {
+                    pos.Value = new float3(pos.Value.x + 1, pos.Value.y + 1, pos.Value.z);
+                    tornadoPosition = pos;
+                }).Run();
+
+            Entities
+                .ForEach((ref Translation pos, in Entity particle, in ParticleTag tag) =>
+            {
+                
+            }).ScheduleParallel();
         }
     }
 }

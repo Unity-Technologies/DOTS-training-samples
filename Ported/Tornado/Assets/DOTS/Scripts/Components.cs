@@ -25,4 +25,26 @@ namespace Dots
         public float3 p1;
         public float3 p2;
     }
+
+    [Serializable]
+    public struct ParticleTag : IComponentData
+    {
+    }
+
+    [Serializable]
+    public struct TornadoConfigData : IComponentData
+    {
+        public Entity particlePrefab;
+        public float3 position;
+        public int particleCount;
+        public int spinRate;
+        public int upwardSpeed;
+        public int initRange;
+        public float force;
+        public float maxForceDist;
+        public float rotationModulation;
+        public int height;
+        public float upForce;
+        public float inwardForce;
+    }
 }
