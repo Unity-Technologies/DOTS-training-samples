@@ -32,6 +32,7 @@ namespace Dots
         }
     }
 
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class BeamSpawner : SystemBase
     {
         protected override void OnCreate()
@@ -78,9 +79,7 @@ namespace Dots
                 }
 
                 var pointCount = pointPosList.Length;
-
                 Debug.Log($"BeamSpawner has created {pointCount} points");
-
 
                 // Setup beams:
                 var white = new float4(1f, 1f, 1f, 1f);
