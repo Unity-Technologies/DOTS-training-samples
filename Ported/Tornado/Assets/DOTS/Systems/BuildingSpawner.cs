@@ -22,6 +22,9 @@ namespace Dots
             var pointNeighborList = new NativeArray<int>(20000, Allocator.Temp);
             var pointGroupIdList = new NativeArray<int>(20000, Allocator.Temp);
             
+            var beamEntityList = new NativeArray<Entity>(20000, Allocator.Temp);
+            var beamGroupIdList = new NativeArray<int>(20000, Allocator.Temp);
+            
             int pointCount = 0;
             int beamCount = 0;
             bool useBeamGroup = true;
@@ -45,7 +48,7 @@ namespace Dots
                         });
                         if (allowFixedAnchor && pointPosition.y == 0)
                         {
-                            ecb.AddComponent(pointEntity, new FixedAnchor());
+                            ecb.AddComponent(pointEntity, new FixedAnchorTag());
                         }
                         pointEntityList[pointCount] = pointEntity;
                         pointPosList[pointCount] = pointPosition;
@@ -126,6 +129,12 @@ namespace Dots
                                 pointNeighborList[i]++;
                                 pointNeighborList[j]++;
 
+                                if (useBeamGroup)
+                                {
+                                    beamEntityList[beamCount] = beamEntity;
+                                    beamGroupIdList[beamCount] = pointGroupIdList[i];
+                                }
+
                                 beamCount++;
                             }
                         }
@@ -144,6 +153,10 @@ namespace Dots
                 for (int i = 0; i < pointCount; i++)
                 {
                     ecb.AddSharedComponent(pointEntityList[i], new BeamGroup { groupId = pointGroupIdList[i] });
+                }
+                for (int i = 0; i < beamCount; i++)
+                {
+                    ecb.AddSharedComponent(beamEntityList[i], new BeamGroup { groupId = beamGroupIdList[i] });
                 }
             }
 

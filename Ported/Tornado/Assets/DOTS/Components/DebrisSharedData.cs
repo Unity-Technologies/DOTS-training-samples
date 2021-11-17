@@ -6,9 +6,8 @@ using Unity.Mathematics;
 namespace Dots
 {
     [Serializable]
-    public struct DebrisTag : IComponentData
+    public struct DebrisSharedData : ISharedComponentData
     {
         public Entity tornado;
-        public float radiusMult;
     }
 }

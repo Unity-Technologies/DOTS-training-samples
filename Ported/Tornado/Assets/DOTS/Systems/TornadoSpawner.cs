@@ -32,10 +32,13 @@ namespace Dots
                             initialPosition.z + random.NextFloat(-spawner.initRange, spawner.initRange));
                         ecb.SetComponent(debris, new Translation { Value = position });
                         
-                        ecb.AddComponent(debris, new DebrisTag
+                        ecb.AddComponent(debris, new Debris
+                        {
+                            radiusMult = random.NextFloat()
+                        } );
+                        ecb.AddSharedComponent(debris, new DebrisSharedData()
                         {
                             tornado = entity, 
-                            radiusMult = random.NextFloat()
                         } );
                         
                         float4 color = white * random.NextFloat(.3f, .7f);

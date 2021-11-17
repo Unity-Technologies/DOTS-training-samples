@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Dots
 {
@@ -16,5 +14,7 @@ namespace Dots
         public float height;
         public float upForce;
         public float inwardForce;
+        public float rotationModulation;
+        public float3 initialPosition;
     }
 }

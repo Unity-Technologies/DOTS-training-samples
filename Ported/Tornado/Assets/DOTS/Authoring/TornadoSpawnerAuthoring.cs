@@ -23,6 +23,7 @@ namespace Dots
         public float height = 50f;
         public float upForce = 1.4f;
         public float inwardForce = 9;
+        public float rotationModulation = 0;
         
         public UnityGameObject debrisPrefab;
         [Range(1f, 10000f)] public float debrisCount = 1000;
@@ -47,7 +48,9 @@ namespace Dots
                 maxForceDist = maxForceDist,
                 height = height,
                 upForce = upForce,
-                inwardForce = inwardForce
+                inwardForce = inwardForce,
+                rotationModulation = rotationModulation,
+                initialPosition = transform.position
             });
             dstManager.AddComponentData(entity, new TornadoFader { value = 0f });
             

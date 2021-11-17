@@ -51,6 +51,7 @@ namespace Dots
 
             if (m_TornadoQuery.IsEmpty)
                 return;
+            
             int tornadoCount = m_TornadoQuery.CalculateEntityCount();
             var tornadoInfos = new NativeArray<TornadoInfo>(tornadoCount, Allocator.TempJob);
 
@@ -58,7 +59,6 @@ namespace Dots
                 .WithStoreEntityQueryInField(ref m_TornadoQuery)
                 .ForEach((int entityInQueryIndex, ref TornadoFader fade, in TornadoConfig config, in Translation translation) =>
                 {
-
                     fade.value = math.saturate(fade.value + deltaTime / 10f);
                     tornadoInfos[entityInQueryIndex] = new TornadoInfo
                         {
@@ -88,7 +88,7 @@ namespace Dots
                         var tornadoPos = tornadoInfos[tornadoId].position;
 
                         float invDamping = 1f - worldConfig.damping;
-                        bool isFixedAnchor = HasComponent<FixedAnchor>(entity);
+                        bool isFixedAnchor = HasComponent<FixedAnchorTag>(entity);
                         if (!isFixedAnchor)
                         {
                             float3 start = point.value;
@@ -131,8 +131,8 @@ namespace Dots
                 .WithStoreEntityQueryInField(ref m_BeamQuery)
                 .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref Beam beam, in Entity beamEntity, in Length length) =>
                 {
-                    bool point1IsFixedAnchor = HasComponent<FixedAnchor>(beam.p1);
-                    bool point2IsFixedAnchor = HasComponent<FixedAnchor>(beam.p2);
+                    bool point1IsFixedAnchor = HasComponent<FixedAnchorTag>(beam.p1);
+                    bool point2IsFixedAnchor = HasComponent<FixedAnchorTag>(beam.p2);
 
                     PointNeighbor p1 = anchorPointMap[beam.p1];
                     PointNeighbor p2 = anchorPointMap[beam.p2];
