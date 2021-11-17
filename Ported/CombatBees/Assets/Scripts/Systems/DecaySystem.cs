@@ -21,10 +21,9 @@ public partial class DecaySystem : SystemBase
 
     protected override void OnUpdate()
     {
+        // Burn down decaying objects, and remove them once they've expired
         var deltaTime = Time.DeltaTime;
-
         var bees = GetComponentDataFromEntity<Bee>(true);
-        
         var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer();
         Entities
             .WithStructuralChanges()
@@ -33,7 +32,6 @@ public partial class DecaySystem : SystemBase
             if (decay.RemainingTime != Decay.Never)
             {
                 decay.RemainingTime -= deltaTime;
-
                 if (decay.RemainingTime < 0)
                 {
                     Debug.Log("destroy me!");
@@ -41,7 +39,6 @@ public partial class DecaySystem : SystemBase
                 }
             }
         }).Run();
-
         m_EndSimulationEcbSystem.AddJobHandleForProducer(this.Dependency);
     }
 }

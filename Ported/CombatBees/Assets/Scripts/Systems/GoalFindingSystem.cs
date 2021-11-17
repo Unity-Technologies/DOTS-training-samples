@@ -55,6 +55,25 @@ public partial class PathingSystem : SystemBase
             }
         }).Run();
 
+        // Drop food 
+        Entities
+            .WithNone<Gravity>()
+            .WithStructuralChanges()
+            .ForEach((Entity entity, ref Food food, in Translation translation) =>
+        {
+            if (translation.Value.x < -15 || translation.Value.x > 15)
+            {
+                if (food.CarriedBy != Entity.Null)
+                {
+                    beeData[food.CarriedBy] = new Bee { Carried = Entity.Null, Mode = Bee.ModeCategory.Searching };
+                    food.CarriedBy = Entity.Null;
+                }
+
+                EntityManager.AddComponent<Gravity>(entity);
+                EntityManager.RemoveComponent<Decay>(entity);
+                EntityManager.AddComponentData<Velocity>(entity, new Velocity());
+            }
+        }).Run();
 
         var globals = GetSingletonEntity<Globals>();
         var globalsComponent = GetComponent<Globals>(globals);
@@ -92,6 +111,7 @@ public partial class PathingSystem : SystemBase
             }
         }).Run();
 
+        // Update goal and target for each living bee
         Entities
             .ForEach((ref Bee bee, ref Goal goal, ref Translation translation, in TeamID team) =>
         {

@@ -15,12 +15,12 @@ public partial class BeeSpawner : SystemBase
         this.RequireSingletonForUpdate<Globals>();
     }
 
-    // May run before scene is loaded
     protected override void OnUpdate()
     {
         var globals = GetSingletonEntity<Globals>();
         var globalsComponent = GetComponent<Globals>(globals);
 
+        // A spawner instantiates some bees, then destroys itself
         var random = new Random(1234);
         Entities
             .WithStructuralChanges()
