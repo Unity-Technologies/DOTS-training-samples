@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct Food : IComponentData
+public struct Goal : IComponentData
 {
-    public Entity CarriedBy;
+    public float3 target;
 }

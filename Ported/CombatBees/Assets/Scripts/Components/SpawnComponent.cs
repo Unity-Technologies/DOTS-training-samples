@@ -4,7 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
-public struct Food : IComponentData
+public struct SpawnComponent : IComponentData
 {
-    public Entity CarriedBy;
+    public float3 SpawnPosition;
+    public int Count;    
 }

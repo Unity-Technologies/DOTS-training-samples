@@ -11,10 +11,9 @@ public class FoodAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         
         dstManager.AddComponent<Food>(entity);
         dstManager.AddComponentData(entity, new AABB
-            {
-                center = new float3(0, 0, 0),
-                halfSize = new float3(transform.localScale.x*.5f, transform.localScale.y, transform.localScale.z*0.5f)
-            }
-        );
+        {
+            center = new float3(0, 0, 0),
+            halfSize = new float3(transform.localScale.x*.5f, transform.localScale.y, transform.localScale.z*0.5f)
+        });
     }
 }
