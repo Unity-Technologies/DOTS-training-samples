@@ -225,18 +225,35 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
 [UpdateAfter(typeof(Tornado2ApplyBeamForcesSystem))]
 partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
 {
+    private bool m_CaptureMatrices = true;
+
     protected override void OnUpdate(EntityCommandBuffer ecb)
     {
+        if (m_CaptureMatrices)
+        {
+            var matrices = m_Matrices;
+            Entities.WithoutBurst().ForEach((ref Beam beam) =>
+            {
+                var batch = matrices[beam.m1i];
+                unsafe
+                {
+                    fixed (Matrix4x4* p = &batch[beam.m2i])
+                        beam.matrix = p;
+                }
+            }).Run();
+            m_CaptureMatrices = false;
+        }
+
         var damping = m_Damping;
         var friction = m_Friction;
-        var matrices = m_Matrices;
+        var FixedPointArchType = PointTypes.FixedPointArchType;
+        var DynamicPointArchType = PointTypes.DynamicPointArchType;
 
-        Entities.WithoutBurst().ForEach((in Entity entity, in Beam _beam, in BeamModif bm) =>
+        Entities.ForEach((in Entity entity, in Beam _beam, in BeamModif bm) =>
         {
             ecb.RemoveComponent<BeamModif>(entity);
 
             var beam = _beam;
-            var matrix = matrices[beam.m1i][beam.m2i];
             var translate = (bm.p1 + bm.p2) * .5f;
             var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
             var writeBackBeam = false;
@@ -244,30 +261,34 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
             if (dd < .99f)
             {
                 // bar has rotated: expensive full-matrix computation
-                matrix = Matrix4x4.TRS(translate, Quaternion.LookRotation(bm.delta), new Vector3(beam.thickness, beam.thickness, bm.dist));
+                unsafe
+                {
+                    *beam.matrix = Matrix4x4.TRS(translate, Quaternion.LookRotation(bm.delta), new Vector3(beam.thickness, beam.thickness, bm.dist));
+                }
                 beam.norm = bm.norm;
                 writeBackBeam = true;
             }
             else
             {
                 // bar hasn't rotated: only update the position elements
-                matrix.m03 = translate.x;
-                matrix.m13 = translate.y;
-                matrix.m23 = translate.z;
+                unsafe
+                {
+                    (*beam.matrix).m03 = translate.x;
+                    (*beam.matrix).m13 = translate.y;
+                    (*beam.matrix).m23 = translate.z;
+                }
             }
-
-            matrices[beam.m1i][beam.m2i] = matrix;
 
             if (bm.breaks)
             {
                 if (bm.pi == 2)
                 {
-                    beam.point2 = CreatePoint(ecb, bm.p2, false, 1, damping, friction);
+                    beam.point2 = CreatePoint(ecb, bm.p2, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
                 else if (bm.pi == 1)
                 {
-                    beam.point1 = CreatePoint(ecb, bm.p1, false, 1, damping, friction);
+                    beam.point1 = CreatePoint(ecb, bm.p1, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
             }
@@ -277,9 +298,10 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
         }).Run();
     }
 
-    static Entity CreatePoint(EntityCommandBuffer ecb, in float3 pos, bool anchored, int neighborCount, float damping, float friction)
+    static Entity CreatePoint(EntityCommandBuffer ecb, in float3 pos, bool anchored, int neighborCount, float damping, float friction,
+                                in EntityArchetype fixedPointArchType, in EntityArchetype dynamicPointArchType)
     {
-        var point = ecb.CreateEntity(anchored ? PointTypes.FixedPointArchType : PointTypes.DynamicPointArchType);
+        var point = ecb.CreateEntity(anchored ? fixedPointArchType : dynamicPointArchType);
         ecb.SetComponent(point, new Point(pos) { neighborCount = neighborCount });
         ecb.SetComponent(point, new PointDamping(1f - damping, friction));
         return point;

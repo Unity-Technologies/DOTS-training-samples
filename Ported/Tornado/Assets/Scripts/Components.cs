@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 struct Point : IComponentData
 {
@@ -59,6 +60,7 @@ struct Beam : IComponentData
     public Entity point1;
     public Entity point2;
     public float3 norm;
+    public unsafe Matrix4x4* matrix; // TODO: Move to its own component
 
     public readonly float length;
     public readonly float thickness;
@@ -74,6 +76,11 @@ struct Beam : IComponentData
         this.m1i = m1i;
         this.m2i = m2i;
         this.norm = float3.zero;
+
+        unsafe
+        {
+            matrix = null;
+        }
     }
 }
 
