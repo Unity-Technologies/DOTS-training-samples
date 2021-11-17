@@ -6,6 +6,12 @@ using Unity.Mathematics;
 namespace Dots
 {
     [Serializable]
+    public struct BeamSpawnerData : IComponentData
+    {
+        public int buildingCount;
+    }
+
+    [Serializable]
     public struct TransformMatrix : IComponentData
     {
         public float4x4 matrix;
