@@ -160,6 +160,11 @@ MonoBehaviour:
   Length: 30
   Width: 10
   HiveDepth: 5
+  TeamDefinitions:
+  - Speed: 0
+    Aggression: 0.497
+  - Speed: 0
+    Aggression: 0.508
 --- !u!4 &208139341
 Transform:
   m_ObjectHideFlags: 0

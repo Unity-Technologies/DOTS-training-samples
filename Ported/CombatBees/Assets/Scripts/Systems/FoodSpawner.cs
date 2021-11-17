@@ -11,8 +11,8 @@ public partial class FoodSpawner : SystemBase
 {
     protected override void OnUpdate()
     {
-        var spawner = GetSingletonEntity<Spawner>();
-        var spawnerComponent = GetComponent<Spawner>(spawner);
+        var spawner = GetSingletonEntity<GlobalData>();
+        var spawnerComponent = GetComponent<GlobalData>(spawner);
         var foodBox = GetComponent<AABB>(spawnerComponent.FoodPrefab);
 
         var foodWidth = foodBox.halfSize.x*2.0f+0.1f;
@@ -44,6 +44,7 @@ public partial class FoodSpawner : SystemBase
                 {
                     var entity = EntityManager.Instantiate(spawnerComponent.FoodPrefab);
                     EntityManager.AddComponentData(entity, new Ballistic());
+                    EntityManager.AddComponentData(entity, new TargetedBy {Value = Entity.Null});
                     EntityManager.AddComponentData(entity, new Velocity { Value = new float3(0,0,0) });
                     EntityManager.SetComponentData(entity, new Translation {
                         Value = walk

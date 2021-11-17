@@ -10,14 +10,14 @@ public partial class BeeSpawner : SystemBase
 {
     protected override void OnCreate()
     {
-        this.RequireSingletonForUpdate<Spawner>();
+        this.RequireSingletonForUpdate<GlobalData>();
     }
    
     // May run before scene is loaded
     protected override void OnUpdate()
     {
-        var spawner = GetSingletonEntity<Spawner>();
-        var spawnerComponent = GetComponent<Spawner>(spawner);
+        var spawner = GetSingletonEntity<GlobalData>();
+        var spawnerComponent = GetComponent<GlobalData>(spawner);
 
         var totalBees = spawnerComponent.BeeCount;
 
@@ -38,6 +38,7 @@ public partial class BeeSpawner : SystemBase
                 EntityManager.AddComponentData(entity, new Bee());
                 EntityManager.AddComponentData(entity, new BeeIdleMode());
                 EntityManager.AddComponentData(entity, teamID);
+                EntityManager.AddComponentData(entity, new TargetedBy { Value = Entity.Null });
                 
                 // Move bee to hive location
                 EntityManager.SetComponentData<Translation>(entity, new Translation { Value = aabb.center });

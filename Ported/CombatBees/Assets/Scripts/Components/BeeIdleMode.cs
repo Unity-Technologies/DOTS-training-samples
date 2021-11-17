@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public class BeeIdleMode : IComponentData
+public struct BeeIdleMode : IComponentData
 {
     
 }

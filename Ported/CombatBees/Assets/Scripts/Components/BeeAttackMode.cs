@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public class BeeAttackMode : IComponentData
+public struct BeeAttackMode : IComponentData
 {
     
 }

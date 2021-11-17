@@ -10,7 +10,7 @@ public partial class KillAllBees : SystemBase
     {
         Enabled = false;
 
-        this.RequireSingletonForUpdate<Spawner>();
+        this.RequireSingletonForUpdate<GlobalData>();
     }
 
     protected override void OnUpdate()
@@ -18,8 +18,8 @@ public partial class KillAllBees : SystemBase
         if (Time.ElapsedTime < 2.0)
             return;
 
-        var spawner = GetSingletonEntity<Spawner>();
-        var spawnerComponent = GetComponent<Spawner>(spawner);
+        var spawner = GetSingletonEntity<GlobalData>();
+        var spawnerComponent = GetComponent<GlobalData>(spawner);
 
         Entities
             .WithStructuralChanges()

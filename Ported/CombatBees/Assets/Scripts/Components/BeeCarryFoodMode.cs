@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public class BeeFoodMode : IComponentData
+public struct BeeCarryFoodMode : IComponentData
 {
     
 }
