@@ -27,8 +27,9 @@ namespace Dots
     }
 
     [Serializable]
-    public struct ParticleTag : IComponentData
+    public struct Particle : IComponentData
     {
+        public float radiusMult;
     }
 
     [Serializable]

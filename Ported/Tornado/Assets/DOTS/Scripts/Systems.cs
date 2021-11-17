@@ -100,7 +100,6 @@ namespace Dots
     }
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    [UpdateAfter(typeof(InitializationSystemGroup))]
     public partial class TornadoSpawner : SystemBase
     {
         protected override void OnCreate()
@@ -113,7 +112,7 @@ namespace Dots
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
-                .ForEach((Entity tornado, in TornadoConfigData tornadoConfig) =>
+                .ForEach((Entity tornado, ref TornadoConfigData tornadoConfig) =>
                 {
                     // Debug.Log($"TornadoSpawner.OnUpdate");
                     EntityManager.AddComponentData(tornado, new Translation() { Value = tornadoConfig.position });
@@ -125,7 +124,7 @@ namespace Dots
                     for (var i = 0; i < tornadoConfig.particleCount; ++i)
                     {
                         var particle = EntityManager.Instantiate(tornadoConfig.particlePrefab);
-                        EntityManager.AddComponent<ParticleTag>(particle);
+                        EntityManager.AddComponentData(particle, new Particle() { radiusMult = random.NextFloat(0, 1) });
                         var color = baseColor * random.NextFloat(.7f, 1f);
                         EntityManager.AddComponentData(particle, new URPMaterialPropertyBaseColor() { Value = color });
 
@@ -140,6 +139,9 @@ namespace Dots
                         var scale = new float3(1, 1, 1);
                         scale *= random.NextFloat(.3f,.7f);
                         EntityManager.AddComponentData(particle, new NonUniformScale() { Value = scale });
+
+                        if (tornadoConfig.rotationModulation == 0f)
+                            tornadoConfig.rotationModulation = random.NextFloat(-1, 1) * tornadoConfig.maxForceDist;
                     }
 
                     Enabled = false;
@@ -155,21 +157,52 @@ namespace Dots
 
         }
 
+        public static float TornadoSway(float y, float elapsedTime)
+        {
+            return Mathf.Sin(y / 5f + elapsedTime / 4f) * 3f;
+        }
+
         protected override void OnUpdate()
         {
-            // Debug.Log("AnimateTornado.OnUpdate");
-            Translation tornadoPosition = new Translation();
+            Translation tp = new Translation();
+            TornadoConfigData tc = new TornadoConfigData();
+            var elapsedTime = (float)Time.ElapsedTime;
             Entities
                 .ForEach((ref Translation pos, in Entity tornado, in TornadoConfigData tornadoConfig) =>
                 {
-                    pos.Value = new float3(pos.Value.x + 1, pos.Value.y + 1, pos.Value.z);
-                    tornadoPosition = pos;
+                    var tmod = elapsedTime / 6f;
+                    pos.Value = new float3(
+                        tornadoConfig.position.x + math.cos(tmod) * tornadoConfig.rotationModulation,
+                        tornadoConfig.position.y,
+                        tornadoConfig.position.z + math.sin(tmod * 1.618f) * tornadoConfig.rotationModulation);
+
+                    tp.Value = pos.Value;
+                    tc = tornadoConfig;
                 }).Run();
 
+            var deltaTime = Time.DeltaTime;
             Entities
-                .ForEach((ref Translation pos, in Entity particle, in ParticleTag tag) =>
+                .ForEach((ref Translation pos, in Particle particle) =>
             {
-                
+                var point = pos.Value;
+                var tornadoPos = new float3(
+                    tp.Value.x + TornadoSway(point.y, elapsedTime), 
+                    point.y, 
+                    tp.Value.z);
+                var delta = tornadoPos - point;
+                var dist = math.length(delta);
+                float inForce = dist - math.clamp(tornadoPos.y / tc.height, 0f, 1f) * tc.maxForceDist * particle.radiusMult + 2f;
+
+                delta /= dist;
+                point += new float3(
+                    -delta.z * tc.spinRate + delta.x * inForce, 
+                    tc.upwardSpeed, 
+                    delta.x * tc.spinRate + delta.z * inForce) * deltaTime;
+                if (point.y > tc.height)
+                {
+                    point = new float3(point.x, 0f, point.z);
+                }
+                pos.Value = point;
             }).ScheduleParallel();
         }
     }
