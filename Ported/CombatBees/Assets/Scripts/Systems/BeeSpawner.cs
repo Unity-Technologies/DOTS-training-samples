@@ -8,8 +8,6 @@ using Unity.Rendering;
 
 public partial class BeeSpawner : SystemBase
 {
-    public int totalBees = 100;
-    
     protected override void OnCreate()
     {
         this.RequireSingletonForUpdate<Spawner>();
@@ -21,6 +19,8 @@ public partial class BeeSpawner : SystemBase
         var spawner = GetSingletonEntity<Spawner>();
         var spawnerComponent = GetComponent<Spawner>(spawner);
 
+        var totalBees = spawnerComponent.BeeCount;
+
         var random = new Random(1234);
 
         Entities
@@ -31,10 +31,14 @@ public partial class BeeSpawner : SystemBase
             for (int i = 0; i < totalBees; ++i)
             {
                 var entity = EntityManager.Instantiate(spawnerComponent.BeePrefab);
-
+                
                 var vel = math.normalize(random.NextFloat3Direction());
                 // Optimize by Setting the velocity instead of adding.
-                EntityManager.SetComponentData<Velocity>(entity, new Velocity { Value = vel });
+                EntityManager.AddComponentData(entity, new Velocity { Value = vel });
+                EntityManager.AddComponentData(entity, new Bee());
+                EntityManager.AddComponentData(entity, new BeeIdleMode());
+                EntityManager.AddComponentData(entity, teamID);
+                
                 // Move bee to hive location
                 EntityManager.SetComponentData<Translation>(entity, new Translation { Value = aabb.center });
                 // Set bee color based off the hive

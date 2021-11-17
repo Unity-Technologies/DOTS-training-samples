@@ -8,6 +8,8 @@ public partial class KillAllBees : SystemBase
 
     protected override void OnCreate()
     {
+        Enabled = false;
+
         this.RequireSingletonForUpdate<Spawner>();
     }
 
@@ -23,7 +25,7 @@ public partial class KillAllBees : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity entity, in Bee bee, in Translation translation, in Velocity velocity) =>
         {
-            EntityManager.AddComponentData(entity, new Gravity());
+            EntityManager.AddComponentData(entity, new Ballistic());
 
             int totalGiblets = random.NextInt(5, 10);
             for (int i = 0; i < totalGiblets; ++i)

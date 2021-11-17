@@ -17,6 +17,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public UnityGameObject FoodPrefab;
     public UnityGameObject GibletPrefab;
     public int StartingFoodCount;
+    public int BeeCount;
     public float Length;
     public float Width;
     public float HiveDepth;
@@ -48,7 +49,8 @@ public class SpawnerAuthoring : UnityMonoBehaviour
             BlueHiveCenter = minHive,
             YellowHiveCenter = maxHive,
             HiveDepth = HiveDepth,
-            StartingFoodCount = StartingFoodCount
+            StartingFoodCount = StartingFoodCount,
+            BeeCount = BeeCount
         });
     }
 }

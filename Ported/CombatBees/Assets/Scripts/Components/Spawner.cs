@@ -10,6 +10,7 @@ public struct Spawner : IComponentData
     public Entity FoodPrefab;
     public Entity GibletPrefab;
     public int StartingFoodCount;
+    public int BeeCount;
     public float3 BoundsMin;
     public float3 BoundsMax;
     public float3 BlueHiveCenter;

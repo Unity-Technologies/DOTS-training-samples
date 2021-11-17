@@ -43,7 +43,7 @@ public partial class FoodSpawner : SystemBase
                 for (int x = 0; x < columnCount && foodCount < spawnerComponent.StartingFoodCount; x++)
                 {
                     var entity = EntityManager.Instantiate(spawnerComponent.FoodPrefab);
-                    //EntityManager.AddComponentData(entity, new Gravity());
+                    EntityManager.AddComponentData(entity, new Ballistic());
                     EntityManager.AddComponentData(entity, new Velocity { Value = new float3(0,0,0) });
                     EntityManager.SetComponentData(entity, new Translation {
                         Value = walk

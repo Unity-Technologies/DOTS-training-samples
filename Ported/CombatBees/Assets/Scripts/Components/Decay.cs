@@ -6,5 +6,5 @@ using Unity.Mathematics;
 [Serializable]
 public struct Decay : IComponentData
 {
-    public float Rate;   
+    public float Rate;
 }
