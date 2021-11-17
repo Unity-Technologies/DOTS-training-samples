@@ -71,7 +71,15 @@ namespace Dots
                         if (length < 5f && length > .2f)
                         {
                             var beam = EntityManager.Instantiate(spawner.beamPrefab);
-                            EntityManager.AddComponentData(beam, new BeamData()
+                            EntityManager.AddComponents(beam, new ComponentTypes(
+                                new ComponentType(typeof(BeamData)),
+                                new ComponentType(typeof(URPMaterialPropertyBaseColor)),
+                                new ComponentType(typeof(Translation)),
+                                new ComponentType(typeof(Rotation)),
+                                new ComponentType(typeof(NonUniformScale))
+                            ));
+
+                            EntityManager.SetComponentData(beam, new BeamData()
                             {
                                 p1 = pointPosList[i],
                                 p2 = pointPosList[j]
@@ -80,16 +88,16 @@ namespace Dots
                             var pointDeltaNorm = math.normalize(delta);
                             var upDot = math.acos(math.abs(math.dot(up, pointDeltaNorm))) / Mathf.PI;
                             var color = white * upDot * random.NextFloat(.7f, 1f);
-                            EntityManager.AddComponentData(beam, new URPMaterialPropertyBaseColor() { Value = color });
+                            EntityManager.SetComponentData(beam, new URPMaterialPropertyBaseColor() { Value = color });
 
                             var thickness = random.NextFloat(.25f, .35f);
                             var pos = (p1 + p2) * 0.5f;
                             var rot = Quaternion.LookRotation(delta);
                             var scale = new float3(thickness, thickness, length);
 
-                            EntityManager.AddComponentData(beam, new Translation() { Value = pos });
-                            EntityManager.AddComponentData(beam, new Rotation() { Value = rot });
-                            EntityManager.AddComponentData(beam, new NonUniformScale() { Value = scale });
+                            EntityManager.SetComponentData(beam, new Translation() { Value = pos });
+                            EntityManager.SetComponentData(beam, new Rotation() { Value = rot });
+                            EntityManager.SetComponentData(beam, new NonUniformScale() { Value = scale });
                         }
                     }
                 }
@@ -124,21 +132,29 @@ namespace Dots
                     for (var i = 0; i < tornadoConfig.particleCount; ++i)
                     {
                         var particle = EntityManager.Instantiate(tornadoConfig.particlePrefab);
-                        EntityManager.AddComponentData(particle, new Particle() { radiusMult = random.NextFloat(0, 1) });
+                        EntityManager.AddComponents( particle, new ComponentTypes(
+                            new ComponentType(typeof(Particle)), 
+                            new ComponentType(typeof(URPMaterialPropertyBaseColor)),
+                            new ComponentType(typeof(Translation)),
+                            new ComponentType(typeof(Rotation)),
+                            new ComponentType(typeof(NonUniformScale))
+                            ));
+
+                        EntityManager.SetComponentData(particle, new Particle() { radiusMult = random.NextFloat(0, 1) });
                         var color = baseColor * random.NextFloat(.7f, 1f);
-                        EntityManager.AddComponentData(particle, new URPMaterialPropertyBaseColor() { Value = color });
+                        EntityManager.SetComponentData(particle, new URPMaterialPropertyBaseColor() { Value = color });
 
                         var pos = new float3(
                             random.NextFloat(-tornadoConfig.initRange, tornadoConfig.initRange),
                             random.NextFloat(0, tornadoConfig.height),
                             random.NextFloat(-tornadoConfig.initRange, tornadoConfig.initRange)
                             );
-                        EntityManager.AddComponentData(particle, new Translation() { Value = pos });
-                        EntityManager.AddComponentData(particle, new Rotation() { Value = new quaternion() });
+                        EntityManager.SetComponentData(particle, new Translation() { Value = pos });
+                        EntityManager.SetComponentData(particle, new Rotation() { Value = new quaternion() });
 
                         var scale = new float3(1, 1, 1);
                         scale *= random.NextFloat(.3f,.7f);
-                        EntityManager.AddComponentData(particle, new NonUniformScale() { Value = scale });
+                        EntityManager.SetComponentData(particle, new NonUniformScale() { Value = scale });
 
                         if (tornadoConfig.rotationModulation == 0f)
                             tornadoConfig.rotationModulation = random.NextFloat(-1, 1) * tornadoConfig.maxForceDist;
