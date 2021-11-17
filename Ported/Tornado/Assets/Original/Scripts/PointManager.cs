@@ -36,7 +36,12 @@ public class PointManager : MonoBehaviour
 
     public static float TornadoSway(float y)
     {
-        return Mathf.Sin(y / 5f + Time.time / 4f) * 3f;
+        return TornadoSway(y, Time.time);
+    }
+
+    public static float TornadoSway(float y, float time)
+    {
+        return Mathf.Sin(y / 5f + time / 4f) * 3f;
     }
 
     void Generate()

@@ -11,20 +11,12 @@ namespace Dots
 {
     public partial class BuildingSpawnerSystem : SystemBase
     {
-
         private EntityQuery m_BuildingSpawnerQuery;
 
-        static readonly ComponentType k_PointComponent = ComponentType.ReadWrite(typeof(Dots.Point));
         static readonly ComponentType k_AnchorComponent = ComponentType.ReadOnly(typeof(Dots.FixedAnchor));
-        static readonly ComponentType k_AnchorListComponent = ComponentType.ReadWrite(typeof(Dots.AnchorList));
-        static readonly ComponentType k_TranslationComponent = ComponentType.ReadWrite(typeof(Translation));
-        static readonly ComponentType k_RotationComponent = ComponentType.ReadWrite(typeof(Rotation));
-        static readonly ComponentType k_ScaleComponent = ComponentType.ReadWrite(typeof(NonUniformScale));
-        static readonly ComponentTypes k_TransformComponent = new ComponentTypes(k_TranslationComponent, k_RotationComponent, k_ScaleComponent);
 
         protected override void OnCreate()
         {
-
             m_BuildingSpawnerQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[] { typeof(BuildingSpawner) }
@@ -48,8 +40,8 @@ namespace Dots
                     var debrisCount = spawner.debrisCount;
                     var minBuildingHeight = spawner.minHeight;
                     var maxBuildingHeight = spawner.maxHeight;
-                    var thicknessMin = .25f;
-                    var thicknessMax = .35f;
+                    var thicknessMin = spawner.thicknessMin;
+                    var thicknessMax = spawner.thicknessMax;
 
                     var pointPosList = new NativeArray<float3>(buildingCount * maxBuildingHeight * 3 + debrisCount * 2, Allocator.Temp);
                     var pointCount = 0;
@@ -96,9 +88,9 @@ namespace Dots
                         pointEntities.Add(pointEntity);
                     }
 
-                    for (int i = 0; i < pointEntities.Count; i++)
+                    for (int i = 0; i < pointCount; i++)
                     {
-                        for (int j = i + 1; j < pointEntities.Count; j++)
+                        for (int j = i + 1; j < pointCount; j++)
                         {
                             var p1 = pointEntities[i];
                             var p2 = pointEntities[j];
@@ -116,19 +108,17 @@ namespace Dots
                             Vector3 pos = new Vector3(point1.x + point2.x, point1.y + point2.y, point1.z + point2.z) * .5f;
                             Quaternion rot = Quaternion.LookRotation(delta);
                             Vector3 scale = new Vector3(thickness, thickness, length);
-                            var matrix = Matrix4x4.TRS(pos, rot, scale);
 
                             var barEntity = EntityManager.CreateEntity();
-                            EntityManager.AddComponents(barEntity, k_TransformComponent);
-                            EntityManager.SetComponentData(barEntity, new Translation
+                            EntityManager.AddComponentData(barEntity, new Translation
                             {
                                 Value = pos
                             });
-                            EntityManager.SetComponentData(barEntity, new Rotation()
+                            EntityManager.AddComponentData(barEntity, new Rotation()
                             {
                                 Value = rot
                             });
-                            EntityManager.SetComponentData(barEntity, new NonUniformScale()
+                            EntityManager.AddComponentData(barEntity, new NonUniformScale()
                             {
                                 Value = scale
                             });
@@ -136,8 +126,7 @@ namespace Dots
                             var desc = new RenderMeshDescription(spawner.mesh, spawner.material);
                             RenderMeshUtility.AddComponents(barEntity, EntityManager, desc);
 
-                            EntityManager.AddComponent(barEntity, k_AnchorListComponent);
-                            EntityManager.SetComponentData(barEntity, new AnchorList()
+                            EntityManager.AddComponentData(barEntity, new AnchorList()
                             {
                                 p1 = p1,
                                 p2 = p2
@@ -151,8 +140,7 @@ namespace Dots
         Entity CreatePoint(float3 position)
         {
             var pointEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponent(pointEntity, k_PointComponent);
-            EntityManager.SetComponentData(pointEntity, new Point()
+            EntityManager.AddComponentData(pointEntity, new Point()
             {
                 value = position
             });

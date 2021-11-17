@@ -14,5 +14,7 @@ namespace Dots
         public int minHeight;
         public int maxHeight;
         public int debrisCount;
+        public float thicknessMin;
+        public float thicknessMax;
     }
 }

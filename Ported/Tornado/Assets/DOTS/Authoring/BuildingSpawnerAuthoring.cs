@@ -7,21 +7,16 @@ namespace Dots
 {
     public class BuildingSpawnerAuthoring : MonoBehaviour
         , IConvertGameObjectToEntity
-        , IDeclareReferencedPrefabs
     {
         public Mesh mesh;
         public Material material;
 
         public int buildingCount = 35;
-
         public int minHeight = 4;
         public int maxHeight = 11;
         public int debrisCount = 600;
-
-        // This function is required by IDeclareReferencedPrefabs
-        public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
-        {
-        }
+        public float thicknessMin = 0.25f;
+        public float thicknessMax = 0.35f;
 
         // This function is required by IConvertGameObjectToEntity
         public void Convert(Entity entity, EntityManager dstManager
@@ -37,7 +32,9 @@ namespace Dots
                 buildingCount = buildingCount,
                 debrisCount = debrisCount,
                 minHeight = minHeight,
-                maxHeight = maxHeight
+                maxHeight = maxHeight,
+                thicknessMin = thicknessMin,
+                thicknessMax = thicknessMax
             });
         }
     }

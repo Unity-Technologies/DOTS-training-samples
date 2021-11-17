@@ -1,19 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Dots
 {
-    public struct TornadoConfig : IComponentData
+    public struct Tornado : IComponentData
     {
+        public float3 initialPosition;
         public float spinRate;
         public float upwardSpeed;
-        public float initRange;
         public float force;
         public float maxForceDist;
         public float height;
         public float upForce;
         public float inwardForce;
+        public float rotationModulation;
     }
 }
