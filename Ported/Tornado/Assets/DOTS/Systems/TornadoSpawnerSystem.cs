@@ -36,9 +36,11 @@ namespace Dots
                     EntityManager.DestroyEntity(entity);
 
                     var tornadoEntity = EntityManager.CreateEntity();
+                    var tornadoPos = new float3(position.Value.x, position.Value.y, position.Value.z);
                     EntityManager.AddComponentData(tornadoEntity, new Tornado()
                     {
-                        initialPosition = new float3(position.Value.x, position.Value.y, position.Value.z),
+                        initialPosition = tornadoPos,
+                        position = tornadoPos,
                         force = spawner.force,
                         height = spawner.height,
                         inwardForce = spawner.inwardForce,
@@ -47,10 +49,6 @@ namespace Dots
                         upForce = spawner.upForce,
                         upwardSpeed = spawner.upwardSpeed,
                         rotationModulation = random.NextFloat(-1f, 1f) * spawner.maxForceDist
-                    });
-                    EntityManager.AddComponentData(tornadoEntity, new Point()
-                    {
-                        value = new float3(position.Value.x, position.Value.y, position.Value.z)
                     });
                     if (spawner.simulate)
                         EntityManager.AddComponent(tornadoEntity, k_SimulatedComponent);

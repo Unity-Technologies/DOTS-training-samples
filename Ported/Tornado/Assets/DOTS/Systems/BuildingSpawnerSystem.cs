@@ -13,7 +13,7 @@ namespace Dots
     {
         private EntityQuery m_BuildingSpawnerQuery;
 
-        static readonly ComponentType k_AnchorComponent = ComponentType.ReadOnly(typeof(Dots.FixedAnchor));
+        static readonly ComponentType k_FixedAnchorComponent = ComponentType.ReadOnly(typeof(Dots.FixedAnchor));
 
         protected override void OnCreate()
         {
@@ -126,10 +126,13 @@ namespace Dots
                             var desc = new RenderMeshDescription(spawner.mesh, spawner.material);
                             RenderMeshUtility.AddComponents(barEntity, EntityManager, desc);
 
-                            EntityManager.AddComponentData(barEntity, new AnchorList()
+                            EntityManager.AddComponentData(barEntity, new Beam()
                             {
                                 p1 = p1,
-                                p2 = p2
+                                p2 = p2,
+                                oldD = new float3(0, 0, 0),
+                                newD = new float3(0, 0, 0),
+                                length = length
                             });
                         }
                     }
@@ -140,13 +143,14 @@ namespace Dots
         Entity CreatePoint(float3 position)
         {
             var pointEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(pointEntity, new Point()
+            EntityManager.AddComponentData(pointEntity, new Anchor()
             {
-                value = position
+                position = position,
+                oldPosition = position
             });
             if (position.y == 0)
             {
-                EntityManager.AddComponent(pointEntity, k_AnchorComponent);
+                EntityManager.AddComponent(pointEntity, k_FixedAnchorComponent);
             }
 
             return pointEntity;

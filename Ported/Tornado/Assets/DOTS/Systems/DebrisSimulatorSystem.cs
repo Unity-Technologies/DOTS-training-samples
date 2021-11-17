@@ -12,18 +12,15 @@ namespace Dots
             var deltaTime = Time.DeltaTime;
             var elapsedTime = Time.ElapsedTime;
 
-            ComponentDataFromEntity<Point> translations = GetComponentDataFromEntity<Point>(true);
-
             Entities
                 .WithAll<Simulated>()
-                .WithReadOnly(translations)
                 .ForEach((ref Translation translation, in Debris debris) =>
                 {
                     var tornado = debris.tornado;
                     var tornadoData = GetComponent<Tornado>(tornado);
-                    var tornadoTranslation = translations[tornado];
+                    var tornadoTranslation = tornadoData.position;
 
-                    var tornadoPos = new Vector3(tornadoTranslation.value.x + PointManager.TornadoSway(translation.Value.y, (float)elapsedTime), translation.Value.y, tornadoTranslation.value.z);
+                    var tornadoPos = new Vector3(tornadoTranslation.x + PointManager.TornadoSway(translation.Value.y, (float)elapsedTime), translation.Value.y, tornadoTranslation.z);
                     var delta = tornadoPos - new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
                     var dist = delta.magnitude;
                     float inForce = dist - Mathf.Clamp01(tornadoPos.y / tornadoData.height) * tornadoData.maxForceDist * debris.radiusMult + 2f;
