@@ -110,7 +110,7 @@ public class Tornado : MonoBehaviour, IConvertGameObjectToEntity
             cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
 
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
-        em.SetComponentData(entity, new TornadoFader { fader = fader });
+        em.SetComponentData(entity, new TornadoFader(fader));
         em.SetComponentData(entity, new Translation { Value = transform.position });
     }
 
@@ -139,7 +139,7 @@ public class Tornado : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         this.entity = entity;
-        dstManager.AddComponentData(entity, new TornadoFader { fader = fader });
+        dstManager.AddComponentData(entity, new TornadoFader(fader));
         dstManager.AddComponentData(entity, new TornadoData()
         {
             force = force,

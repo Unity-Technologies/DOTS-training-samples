@@ -288,6 +288,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Buildings
       objectReference: {fileID: 0}
+    - target: {fileID: 6016402559835642238, guid: b40e15ac3040d0a4099873effd1ade93,
+        type: 3}
+      propertyPath: buildingCount
+      value: 115
+      objectReference: {fileID: 0}
     - target: {fileID: 6016402559835642239, guid: b40e15ac3040d0a4099873effd1ade93,
         type: 3}
       propertyPath: m_RootOrder

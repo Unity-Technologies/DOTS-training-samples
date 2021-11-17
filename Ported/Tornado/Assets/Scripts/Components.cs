@@ -32,15 +32,25 @@ readonly struct PointDamping : IComponentData
 
 readonly struct AffectedPoint : IComponentData 
 {
-    public readonly Entity tornado;
     public readonly float distance;
     public readonly float2 tdir;
+    public readonly float fader;
+    public readonly float force;
+    public readonly float height;
+    public readonly float inwardForce;
+    public readonly float upForce;
+    public readonly float maxForceDist;
 
-    public AffectedPoint(in Entity tornado, in float distance, in float2 dir)
+    public AffectedPoint(in TornadoState ts, in float distance, in float2 dir)
     {
-        this.tornado = tornado;
         this.distance = distance;
         this.tdir = dir;
+        this.fader = ts.fader;
+        this.force = ts.data.force;
+        this.height = ts.data.height;
+        this.inwardForce = ts.data.inwardForce;
+        this.upForce = ts.data.upForce;
+        this.maxForceDist = ts.data.maxForceDist;
     }
 }
 
@@ -63,7 +73,6 @@ struct Beam : IComponentData
         this.length = length;
         this.m1i = m1i;
         this.m2i = m2i;
-
         this.norm = float3.zero;
     }
 }
@@ -77,9 +86,14 @@ struct TornadoData : IComponentData
     public float inwardForce;
 }
 
-struct TornadoFader : IComponentData
+readonly struct TornadoFader : IComponentData
 {
-    public float fader;
+    public readonly float value;
+
+    public TornadoFader(in float value)
+    {
+        this.value = value;
+    }
 }
 
 struct BeamModif : IComponentData

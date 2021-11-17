@@ -127,8 +127,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  particleMesh: {fileID: 1316333937215503975, guid: 0000000000000000d000000000000000,
-    type: 0}
+  particleMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   particleMaterial: {fileID: 2100000, guid: d8350e13b3cd00d4bb07415d3bb10c67, type: 2}
   simulate: 1
   speed: 0.5
