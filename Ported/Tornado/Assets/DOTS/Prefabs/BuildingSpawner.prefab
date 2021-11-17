@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5739ba7e21ccd31499de63de6bb8e291, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeamPrefab: {fileID: 6945379747211018676, guid: 784e3a16ef8b1a243bdbba9904b13180,
+  beamPrefab: {fileID: 6945379747211018676, guid: 784e3a16ef8b1a243bdbba9904b13180,
     type: 3}
-  BuildingCount: 35
-  UseBeamGroups: 1
+  buildingCount: 35
+  useBeamGroups: 1

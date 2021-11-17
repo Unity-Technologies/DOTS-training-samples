@@ -13,7 +13,7 @@ namespace Dots
         , IDeclareReferencedPrefabs
     {
         public UnityGameObject beamPrefab;
-        [UnityRange(1, 100)]
+        [UnityRange(1, 500)]
         public int buildingCount = 35;
 
         public bool useBeamGroups = true;
