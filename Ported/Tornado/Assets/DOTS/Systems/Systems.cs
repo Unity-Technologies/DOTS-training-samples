@@ -49,8 +49,7 @@ namespace Dots
                 Debug.Log("BeamSpawner.OnUpdate");
                 
                 var random = new Random(1234);
-                var pointPosList = new NativeArray<float3>(2000, Allocator.Temp);
-                var pointCount = 0;
+                var pointPosList = new NativeList<float3>(2000, Allocator.Temp);
                 for (int i = 0; i < spawner.buildingCount; i++)
                 {
                     var height = random.NextInt(4, 12);
@@ -62,21 +61,23 @@ namespace Dots
                         point.x = pos.x + spacing;
                         point.y = j * spacing;
                         point.z = pos.z - spacing;
-                        pointPosList[pointCount++] = point;
+                        pointPosList.Add(point);
 
                         point = new float3();
                         point.x = pos.x - spacing;
                         point.y = j * spacing;
                         point.z = pos.z - spacing;
-                        pointPosList[pointCount++] = point;
+                        pointPosList.Add(point);
 
                         point = new float3();
                         point.x = pos.x + 0f;
                         point.y = j * spacing;
                         point.z = pos.z + spacing;
-                        pointPosList[pointCount++] = point;
+                        pointPosList.Add(point);
                     }
                 }
+
+                var pointCount = pointPosList.Length;
 
                 Debug.Log($"BeamSpawner has created {pointCount} points");
 
