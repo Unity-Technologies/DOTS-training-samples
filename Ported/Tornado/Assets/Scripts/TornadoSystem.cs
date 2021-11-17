@@ -1,6 +1,5 @@
 #define DOTS_SIMULATION
 #if DOTS_SIMULATION
-#define PROFILE_SIMULATION
 using Unity.Jobs;
 using Unity.Entities;
 using Unity.Transforms;
@@ -32,6 +31,7 @@ abstract partial class BaseTornadoSystem : SystemBase
     private PointManager m_PointManager;
     protected float m_Damping;
     protected float m_Friction;
+    protected float m_BreakResistance;
     protected Matrix4x4[][] m_Matrices;
 
     public const double showProfileTrackerThreshold = 10d;
@@ -41,6 +41,7 @@ abstract partial class BaseTornadoSystem : SystemBase
         m_PointManager = GameObject.FindObjectOfType<PointManager>();
         m_Damping = m_PointManager.damping;
         m_Friction = m_PointManager.friction;
+        m_BreakResistance = m_PointManager.breakResistance;
         m_Matrices = m_PointManager.matrices;
     }
 
@@ -49,9 +50,6 @@ abstract partial class BaseTornadoSystem : SystemBase
         if (m_PointManager == null)
             Initialize();
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer(GetType().Name, showProfileTrackerThreshold))
-        #endif
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
             OnUpdate(ecb);
@@ -62,75 +60,61 @@ abstract partial class BaseTornadoSystem : SystemBase
     protected abstract void OnUpdate(EntityCommandBuffer ecb);
 }
 
-partial class TornadoSystem_0 : SystemBase
+partial class TornadoSetupSystem_0 : SystemBase
 {
     protected override void OnUpdate()
     {
         var time = (float)Time.ElapsedTime;
         var tornados = new NativeList<TornadoState>(1, Allocator.Persistent);
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Fetch Tornados", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
+        Entities.WithAll<TornadoData>().ForEach((in Entity entity, in Translation translation, in TornadoData data, in TornadoFader fader) =>
         {
-            Entities.WithAll<TornadoData>().ForEach((in Entity entity, in Translation translation, in TornadoData data, in TornadoFader fader) =>
-            {
-                tornados.Add(new TornadoState(entity, translation.Value, fader.fader, data));
-            }).Run();
-        }
+            tornados.Add(new TornadoState(entity, translation.Value, fader.fader, data));
+        }).Run();
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Drop points", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
+        // Drop
+        var j1 = Entities.ForEach((ref Point point) =>
         {
-            Entities.ForEach((ref Point point) =>
-            {
-                point.start = point.pos;
-                point.old.y += .01f;
-            }).Run();
-        }
+            point.start = point.pos;
+            point.old.y += .01f;
+        }).ScheduleParallel(Dependency);
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Compute tornado distance", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
-        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
+        // Compute distance
+        var _ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = _ecb.AsParallelWriter();
+        var j2 = Entities.WithReadOnly(tornados).ForEach((in Entity e, in int entityInQueryIndex, in Point point) =>
         {
-            // Compute distance
-            Entities.ForEach((in Entity e, in Point point) =>
+            // Apply tornado force
+            foreach (var t in tornados)
             {
-                // Apply tornado force
-                foreach (var t in tornados)
-                {
-                    float sway = math.sin(point.pos.y / 5f + time / 4f) * 3f;
-                    float tdx = t.x + sway - point.pos.x;
-                    float tdz = t.y - point.pos.z;
-                    float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
-                    tdx /= tornadoDist;
-                    tdz /= tornadoDist;
+                float sway = math.sin(point.pos.y / 5f + time / 4f) * 3f;
+                float tdx = t.x + sway - point.pos.x;
+                float tdz = t.y - point.pos.z;
+                float tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
+                tdx /= tornadoDist;
+                tdz /= tornadoDist;
 
-                    if (tornadoDist < t.data.maxForceDist)
-                        ecb.AddComponent(e, new AffectedPoint(t.entity, tornadoDist, new float2(tdx, tdz)));
-                }
-            }).Run();
+                if (tornadoDist < t.data.maxForceDist)
+                    ecb.AddComponent(entityInQueryIndex, e, new AffectedPoint(t.entity, tornadoDist, new float2(tdx, tdz)));
+            }
+        }).ScheduleParallel(j1);
+        
+        tornados.Dispose(j2);
+        j2.Complete();
 
-            ecb.Playback(EntityManager);
-        }
-
-        tornados.Dispose();
+        _ecb.Playback(EntityManager);
+        _ecb.Dispose();
     }
 }
 
-[UpdateAfter(typeof(TornadoSystem_0))]
-partial class TornadoSystem_1 : SystemBase
+[UpdateAfter(typeof(TornadoSetupSystem_0))]
+partial class TornadoApplyForcesSystem_1 : SystemBase
 {
     protected override void OnUpdate()
     {
         var em = EntityManager;
         var random = new Unity.Mathematics.Random(1234);
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Apply tornado forces", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
         using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
             Entities.ForEach((Entity entity, ref Point point, in AffectedPoint a) =>
@@ -153,124 +137,90 @@ partial class TornadoSystem_1 : SystemBase
             ecb.Playback(EntityManager);
         }
 
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Update positions", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
+        Entities.ForEach((ref Point point, in PointDamping d) =>
         {
-            Entities.ForEach((ref Point point, in PointDamping d) =>
-            {
-                point.pos += (point.pos - point.old) * d.invDamping;
-                point.old = point.start;
+            point.pos += (point.pos - point.old) * d.invDamping;
+            point.old = point.start;
 
-                if (point.pos.y < 0f)
-                {
-                    point.pos.y = 0f;
-                    point.old.y = -point.old.y;
-                    point.old.x += (point.pos.x - point.pos.x) * d.friction;
-                    point.old.z += (point.pos.z - point.pos.z) * d.friction;
-                }
-            }).Run();
-        }
+            if (point.pos.y < 0f)
+            {
+                point.pos.y = 0f;
+                point.old.y = -point.old.y;
+                point.old.x += (point.pos.x - point.pos.x) * d.friction;
+                point.old.z += (point.pos.z - point.pos.z) * d.friction;
+            }
+        }).Run();
     }
 }
 
-[UpdateAfter(typeof(TornadoSystem_1))]
-partial class TornadoSystem_2 : SystemBase
+[UpdateAfter(typeof(TornadoApplyForcesSystem_1))]
+partial class TornadoApplyBeamForcesSystem_2 : BaseTornadoSystem
 {
-    private EntityQuery m_BeamQuery;
-    private float m_BreakResistance;
-
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-
-        var em = EntityManager;
-        m_BeamQuery = em.CreateEntityQuery(typeof(Beam));
-
-        var pm = GameObject.FindObjectOfType<PointManager>();
-        m_BreakResistance = pm.breakResistance;
-    }
-
-    protected override void OnDestroy()
-    {
-        m_BeamQuery.Dispose();
-
-        base.OnDestroy();
-    }
-
-    protected override void OnUpdate()
+    protected override void OnUpdate(EntityCommandBuffer ecb)
     {
         var em = EntityManager;
         var breakResistance = m_BreakResistance;
-
-        #if PROFILE_SIMULATION
-        using (new DebugTimer("Apply beam forces", BaseTornadoSystem.showProfileTrackerThreshold))
-        #endif
-        using (var beams = m_BeamQuery.ToEntityArray(Allocator.TempJob))
+        Entities.ForEach((in Entity entity, in Beam beam) =>
         {
-            for (int i = 0; i < beams.Length; ++i)
+            var point1 = em.GetComponentData<Point>(beam.point1);
+            var point2 = em.GetComponentData<Point>(beam.point2);
+
+            var point1Anchored = em.HasComponent<AnchoredPoint>(beam.point1);
+            var point2Anchored = em.HasComponent<AnchoredPoint>(beam.point2);
+
+            var delta = point2.pos - point1.pos; // TODO: precompute delta and length
+            var dist = math.length(delta);
+            var extraDist = dist - beam.length;
+            var norm = delta / dist;
+            var push = norm * extraDist * .5f;
+            var breaks = Mathf.Abs(extraDist) > breakResistance;
+            var writeBackPoint1 = false;
+            var writeBackPoint2 = false;
+
+            if (!point1Anchored && !point2Anchored)
             {
-                var beam = em.GetComponentData<Beam>(beams[i]);
-                var point1 = em.GetComponentData<Point>(beam.point1);
-                var point2 = em.GetComponentData<Point>(beam.point2);
-
-                var point1Anchored = em.HasComponent<AnchoredPoint>(beam.point1);
-                var point2Anchored = em.HasComponent<AnchoredPoint>(beam.point2);
-
-                var delta = point2.pos - point1.pos; // TODO: precompute delta and length
-                var dist = math.length(delta);
-                var extraDist = dist - beam.length;
-                var norm = delta / dist;
-                var push = norm * extraDist * .5f;
-                var breaks = Mathf.Abs(extraDist) > breakResistance;
-                var writeBackPoint1 = false;
-                var writeBackPoint2 = false;
-
-                if (!point1Anchored && !point2Anchored)
-                {
-                    point1.pos += push;
-                    point2.pos -= push;
-                    writeBackPoint1 = writeBackPoint2 = true;
-                }
-                else if (point1Anchored)
-                {
-                    point2.pos -= push * 2f;
-                    writeBackPoint2 = true;
-                }
-                else if (point2Anchored)
-                {
-                    point1.pos += push * 2f;
-                    writeBackPoint1 = true;
-                }
-
-                int pi = 0;
-                if (breaks)
-                {
-                    if (point2.neighborCount > 1)
-                    {
-                        point2.neighborCount--;
-                        writeBackPoint2 = true;
-                        pi = 2;
-                    }
-                    else if (point1.neighborCount > 1)
-                    {
-                        point1.neighborCount--;
-                        writeBackPoint1 = true;
-                        pi = 1;
-                    }
-                }
-
-                if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
-                if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
-
-                em.AddComponentData(beams[i], new BeamModif { p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
+                point1.pos += push;
+                point2.pos -= push;
+                writeBackPoint1 = writeBackPoint2 = true;
             }
-        }
+            else if (point1Anchored)
+            {
+                point2.pos -= push * 2f;
+                writeBackPoint2 = true;
+            }
+            else if (point2Anchored)
+            {
+                point1.pos += push * 2f;
+                writeBackPoint1 = true;
+            }
+
+            int pi = 0;
+            if (breaks)
+            {
+                if (point2.neighborCount > 1)
+                {
+                    point2.neighborCount--;
+                    writeBackPoint2 = true;
+                    pi = 2;
+                }
+                else if (point1.neighborCount > 1)
+                {
+                    point1.neighborCount--;
+                    writeBackPoint1 = true;
+                    pi = 1;
+                }
+            }
+
+            if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
+            if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
+
+            ecb.AddComponent(entity, new BeamModif { p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
+        }).Run();
     }
 }
 
-[UpdateAfter(typeof(TornadoSystem_2))]
-partial class TornadoUpdateBeamsSystem : BaseTornadoSystem
+[UpdateAfter(typeof(TornadoApplyBeamForcesSystem_2))]
+partial class TornadoUpdateBeamsSystem_3 : BaseTornadoSystem
 {
     protected override void OnUpdate(EntityCommandBuffer ecb)
     {
