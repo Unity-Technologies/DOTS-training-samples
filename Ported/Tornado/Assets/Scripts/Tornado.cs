@@ -81,7 +81,7 @@ public class Tornado : MonoBehaviour, IConvertGameObjectToEntity
             return;
 
         #if DEBUG_DOTS
-        using (new DebugTimer("Simulate Tornado", 1d))
+        using (new DebugTimer("Simulate Tornado", 2d))
         #endif
         { 
             Simulate();

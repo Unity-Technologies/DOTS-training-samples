@@ -1,5 +1,6 @@
 #define DOTS_SIMULATION
 #if DOTS_SIMULATION
+#define PROFILE_SIMULATION
 using Unity.Jobs;
 using Unity.Entities;
 using Unity.Transforms;
@@ -26,26 +27,62 @@ readonly struct TornadoState
     public float y => position.z;
 }
 
-public partial class TornadoSystem_0 : SystemBase
+abstract partial class BaseTornadoSystem : SystemBase
+{
+    private PointManager m_PointManager;
+    protected float m_Damping;
+    protected float m_Friction;
+    protected Matrix4x4[][] m_Matrices;
+
+    public const double showProfileTrackerThreshold = 10d;
+
+    private void Initialize()
+    {
+        m_PointManager = GameObject.FindObjectOfType<PointManager>();
+        m_Damping = m_PointManager.damping;
+        m_Friction = m_PointManager.friction;
+        m_Matrices = m_PointManager.matrices;
+    }
+
+    protected override void OnUpdate()
+    {
+        if (m_PointManager == null)
+            Initialize();
+
+        #if PROFILE_SIMULATION
+        using (new DebugTimer(GetType().Name, showProfileTrackerThreshold))
+        #endif
+        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
+        {
+            OnUpdate(ecb);
+            ecb.Playback(EntityManager);
+        }
+    }
+
+    protected abstract void OnUpdate(EntityCommandBuffer ecb);
+}
+
+partial class TornadoSystem_0 : SystemBase
 {
     protected override void OnUpdate()
     {
         var time = (float)Time.ElapsedTime;
         var tornados = new NativeList<TornadoState>(1, Allocator.Persistent);
 
-        // Fetch Tornados
-        //using (new DebugTimer("r"))
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Fetch Tornados", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
         {
             Entities.WithAll<TornadoData>().ForEach((in Entity entity, in Translation translation, in TornadoData data, in TornadoFader fader) =>
             {
-                //UnityEngine.Debug.Log("1");
                 tornados.Add(new TornadoState(entity, translation.Value, fader.fader, data));
             }).Run();
         }
 
-        //using (new DebugTimer("r"))
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Drop points", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
         {
-            // Drop point
             Entities.ForEach((ref Point point) =>
             {
                 point.start = point.pos;
@@ -53,8 +90,10 @@ public partial class TornadoSystem_0 : SystemBase
             }).Run();
         }
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        //using (new DebugTimer("r"))
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Compute tornado distance", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
+        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
             // Compute distance
             Entities.ForEach((in Entity e, in Point point) =>
@@ -73,23 +112,26 @@ public partial class TornadoSystem_0 : SystemBase
                         ecb.AddComponent(e, new AffectedPoint(t.entity, tornadoDist, new float2(tdx, tdz)));
                 }
             }).Run();
+
+            ecb.Playback(EntityManager);
         }
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
         tornados.Dispose();
     }
 }
 
 [UpdateAfter(typeof(TornadoSystem_0))]
-public partial class TornadoSystem_1 : SystemBase
+partial class TornadoSystem_1 : SystemBase
 {
     protected override void OnUpdate()
     {
         var em = EntityManager;
         var random = new Unity.Mathematics.Random(1234);
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        //using (new DebugTimer("r"))
+
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Apply tornado forces", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
+        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
         {
             Entities.ForEach((Entity entity, ref Point point, in AffectedPoint a) =>
             {
@@ -107,12 +149,13 @@ public partial class TornadoSystem_1 : SystemBase
 
                 ecb.RemoveComponent<AffectedPoint>(entity);
             }).Run();
+
+            ecb.Playback(EntityManager);
         }
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-
-        //using (new DebugTimer("r"))
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Update positions", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
         {
             Entities.ForEach((ref Point point, in PointDamping d) =>
             {
@@ -132,16 +175,38 @@ public partial class TornadoSystem_1 : SystemBase
 }
 
 [UpdateAfter(typeof(TornadoSystem_1))]
-public partial class TornadoSystem_2 : SystemBase
+partial class TornadoSystem_2 : SystemBase
 {
+    private EntityQuery m_BeamQuery;
+    private float m_BreakResistance;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        var em = EntityManager;
+        m_BeamQuery = em.CreateEntityQuery(typeof(Beam));
+
+        var pm = GameObject.FindObjectOfType<PointManager>();
+        m_BreakResistance = pm.breakResistance;
+    }
+
+    protected override void OnDestroy()
+    {
+        m_BeamQuery.Dispose();
+
+        base.OnDestroy();
+    }
+
     protected override void OnUpdate()
     {
         var em = EntityManager;
-        var pm = GameObject.FindObjectOfType<PointManager>();
-        var breakResistance = pm.breakResistance;
+        var breakResistance = m_BreakResistance;
 
-        using (var bq = em.CreateEntityQuery(typeof(Beam)))
-        using (var beams = bq.ToEntityArray(Allocator.TempJob))
+        #if PROFILE_SIMULATION
+        using (new DebugTimer("Apply beam forces", BaseTornadoSystem.showProfileTrackerThreshold))
+        #endif
+        using (var beams = m_BeamQuery.ToEntityArray(Allocator.TempJob))
         {
             for (int i = 0; i < beams.Length; ++i)
             {
@@ -205,63 +270,63 @@ public partial class TornadoSystem_2 : SystemBase
 }
 
 [UpdateAfter(typeof(TornadoSystem_2))]
-public partial class TornadoSystem_3 : SystemBase
+partial class TornadoUpdateBeamsSystem : BaseTornadoSystem
 {
-    protected override void OnUpdate()
+    protected override void OnUpdate(EntityCommandBuffer ecb)
     {
-        var pm = GameObject.FindObjectOfType<PointManager>();
-        var matrices = pm.matrices;
-        var friction = pm.friction;
-        var damping = pm.damping;
+        var damping = m_Damping;
+        var friction = m_Friction;
+        var matrices = m_Matrices;
 
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithoutBurst().ForEach((in Entity entity, in Beam _beam, in BeamModif bm) =>
+        Entities.WithoutBurst().ForEach((in Entity entity, in Beam beam, in BeamModif bm) =>
         {
-            ecb.RemoveComponent<BeamModif>(entity);
+            UpdateBeams(ecb, entity, beam, matrices, bm, damping, friction);
+        }).Run();
+    }
 
-            var beam = _beam;
-            var matrix = matrices[beam.m1i][beam.m2i];
-            var translate = (bm.p1 + bm.p2) * .5f;
-            var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
-            var writeBackBeam = false;
+    static void UpdateBeams(in EntityCommandBuffer ecb, in Entity entity, in Beam _beam, Matrix4x4[][] matrices, in BeamModif bm, in float damping, in float friction)
+    {
+        ecb.RemoveComponent<BeamModif>(entity);
 
-            if (dd < .99f)
+        var beam = _beam;
+        var matrix = matrices[beam.m1i][beam.m2i];
+        var translate = (bm.p1 + bm.p2) * .5f;
+        var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
+        var writeBackBeam = false;
+
+        if (dd < .99f)
+        {
+            // bar has rotated: expensive full-matrix computation
+            matrix = Matrix4x4.TRS(translate, Quaternion.LookRotation(bm.delta), new Vector3(beam.thickness, beam.thickness, bm.dist));
+            beam.norm = bm.norm;
+            writeBackBeam = true;
+        }
+        else
+        {
+            // bar hasn't rotated: only update the position elements
+            matrix.m03 = translate.x;
+            matrix.m13 = translate.y;
+            matrix.m23 = translate.z;
+        }
+
+        matrices[beam.m1i][beam.m2i] = matrix;
+
+        if (bm.breaks)
+        {
+            if (bm.pi == 2)
             {
-                // bar has rotated: expensive full-matrix computation
-                matrix = Matrix4x4.TRS(translate, Quaternion.LookRotation(bm.delta), new Vector3(beam.thickness, beam.thickness, bm.dist));
-                beam.norm = bm.norm;
+                beam.point2 = CreatePoint(ecb, bm.p2, false, 1, damping, friction);
                 writeBackBeam = true;
             }
-            else
+            else if (bm.pi == 1)
             {
-                // bar hasn't rotated: only update the position elements
-                matrix.m03 = translate.x;
-                matrix.m13 = translate.y;
-                matrix.m23 = translate.z;
+                beam.point1 = CreatePoint(ecb, bm.p1, false, 1, damping, friction);
+                writeBackBeam = true;
             }
+        }
 
-            matrices[beam.m1i][beam.m2i] = matrix;
-
-            if (bm.breaks)
-            {
-                if (bm.pi == 2)
-                {
-                    beam.point2 = CreatePoint(ecb, bm.p2, false, 1, damping, friction);
-                    writeBackBeam = true;
-                }
-                else if (bm.pi == 1)
-                {
-                    beam.point1 = CreatePoint(ecb, bm.p1, false, 1, damping, friction);
-                    writeBackBeam = true;
-                }
-            }
-
-            if (writeBackBeam)
-                ecb.SetComponent(entity, beam);
-        }).Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+        if (writeBackBeam)
+            ecb.SetComponent(entity, beam);
     }
 
     static Entity CreatePoint(EntityCommandBuffer ecb, in float3 pos, bool anchored, int neighborCount, float damping, float friction)
