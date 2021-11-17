@@ -3,39 +3,41 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityGameObject = UnityEngine.GameObject;
-using UnityTransform = UnityEngine.Transform;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 
-public class GlobalsAuthoring : UnityMonoBehaviour
+public class HiveAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
-    public UnityGameObject FoodPrefab;
-    public UnityGameObject GibletPrefab;
-    public int StartingFoodCount;
-
-    //30 10 5
+    public UnityGameObject BeePrefab;
+    public int Team;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
-        referencedPrefabs.Add(FoodPrefab);
-        referencedPrefabs.Add(GibletPrefab);
+        referencedPrefabs.Add(BeePrefab);
     }
 
-    // This function is required by IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new Globals
+        if (Team == 0)
         {
-            FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
-            GibletPrefab = conversionSystem.GetPrimaryEntity(GibletPrefab),
-            StartingFoodCount = StartingFoodCount
-        });
+            dstManager.AddComponentData(entity, new HiveTeam0
+            {
+                BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab)
+            });
+            dstManager.AddComponentData(entity, new TeamID { Value = 0 });
+        }
+        else if (Team == 1)
+        {
+            dstManager.AddComponentData(entity, new HiveTeam1
+            {
+                BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab)
+            });
+            dstManager.AddComponentData(entity, new TeamID { Value = 1 });
+        }
 
         var mesh = GetComponent<MeshFilter>().mesh;
-
         Vector3 extents = mesh.bounds.extents;
         extents.Scale(transform.localScale);
         dstManager.AddComponentData(entity, new Bounds

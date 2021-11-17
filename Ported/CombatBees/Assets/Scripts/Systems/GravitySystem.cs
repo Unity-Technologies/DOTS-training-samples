@@ -18,7 +18,6 @@ public partial class GravitySystem : SystemBase
             .ForEach((ref Translation translation, ref Velocity velocity, in Gravity gravity) =>
             {
                 velocity.Value += g * deltaTime;
-              //  translation.Value += new float3(velocity.Value) * deltaTime;
             }).Run();
     }
 }

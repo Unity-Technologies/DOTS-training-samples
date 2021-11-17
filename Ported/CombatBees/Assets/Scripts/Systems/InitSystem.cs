@@ -12,6 +12,8 @@ public partial class InitSystem : SystemBase
     protected override void OnCreate()
     {
         this.RequireSingletonForUpdate<Globals>();
+        this.RequireSingletonForUpdate<HiveTeam0>();
+        this.RequireSingletonForUpdate<HiveTeam1>();
     }
 
     protected override void OnUpdate()
@@ -38,15 +40,19 @@ public partial class InitSystem : SystemBase
         }
 
         // Create initial spawners
-        Entities
-            .WithAll<HiveTag>()
-            .WithStructuralChanges()
-            .ForEach((in Bounds aabb, in TeamID teamID) =>
-        {
-            var spawnEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(spawnEntity, new Spawner { SpawnPosition = aabb.Value.Center, Count = 10 });
-            EntityManager.AddComponentData(spawnEntity, new TeamID { Value = teamID.Value });
-        }).Run();
+        var hive0 = GetSingletonEntity<HiveTeam0>();
+        var hive0Data = GetComponent<HiveTeam0>(hive0);
+        var hive0Bounds = GetComponent<Bounds>(hive0);
+        var hive0Spawner = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(hive0Spawner, new Spawner { Prefab = hive0Data.BeePrefab, SpawnPosition = hive0Bounds.Value.Center, Count = 10 });
+        EntityManager.AddComponentData(hive0Spawner, new TeamID { Value = 0 });
+
+        var hive1 = GetSingletonEntity<HiveTeam1>();
+        var hive1Data = GetComponent<HiveTeam1>(hive1);
+        var hive1Bounds = GetComponent<Bounds>(hive1);
+        var hive1Spawner = EntityManager.CreateEntity();
+        EntityManager.AddComponentData(hive1Spawner, new Spawner { Prefab = hive1Data.BeePrefab, SpawnPosition = hive1Bounds.Value.Center, Count = 10 });
+        EntityManager.AddComponentData(hive1Spawner, new TeamID { Value = 1 });
 
         this.Enabled = false;
     }

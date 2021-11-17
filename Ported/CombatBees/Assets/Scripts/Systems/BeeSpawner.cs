@@ -28,7 +28,7 @@ public partial class BeeSpawner : SystemBase
         {
             for (int i = 0; i < spawnComponent.Count; ++i)
             {
-                var spawnedBee = EntityManager.Instantiate(globalsComponent.BeePrefab);
+                Entity spawnedBee = EntityManager.Instantiate(spawnComponent.Prefab);
 
                 var vel = math.normalize(random.NextFloat3Direction());
                 EntityManager.SetComponentData<Velocity>(spawnedBee, new Velocity { Value = vel });
@@ -36,15 +36,6 @@ public partial class BeeSpawner : SystemBase
                 EntityManager.SetComponentData<Bee>(spawnedBee, new Bee { Mode = Bee.ModeCategory.Searching });
                 EntityManager.SetComponentData<Goal>(spawnedBee, new Goal { target = new float3(0) });
                 EntityManager.SetComponentData<TeamID>(spawnedBee, new TeamID { Value = teamID.Value });
-
-                if (teamID.Value == 0)
-                {
-                    EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(spawnedBee, new URPMaterialPropertyBaseColor { Value = new float4(0, 0, 1, 1)});
-                }
-                else
-                {
-                    EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(spawnedBee, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 0, 1)});
-                }
             }
 
             EntityManager.DestroyEntity(entity);
