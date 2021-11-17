@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
@@ -13,25 +12,25 @@ namespace Dots
         , IConvertGameObjectToEntity
         , IDeclareReferencedPrefabs
     {
-        public UnityGameObject BeamPrefab;
+        public UnityGameObject beamPrefab;
         [UnityRange(1, 100)]
-        public int BuildingCount = 35;
+        public int buildingCount = 35;
 
-        public bool UseBeamGroups = true;
+        public bool useBeamGroups = true;
         
         // This function is required by IDeclareReferencedPrefabs
         public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
         {
-            referencedPrefabs.Add(BeamPrefab);
+            referencedPrefabs.Add(beamPrefab);
         }
         
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new Dots.BuildingSpawnerData
+            dstManager.AddComponentData(entity, new BuildingSpawnerData
             {
-                BeamPrefab = conversionSystem.GetPrimaryEntity(BeamPrefab),
-                BuildingCount = BuildingCount,
-                UseBeamGroups = UseBeamGroups
+                BeamPrefab = conversionSystem.GetPrimaryEntity(beamPrefab),
+                BuildingCount = buildingCount,
+                UseBeamGroups = useBeamGroups
             });
         }
     }

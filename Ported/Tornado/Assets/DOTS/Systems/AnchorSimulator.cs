@@ -1,22 +1,20 @@
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
     public partial class AnchorSimulator : SystemBase
     {
-        private EntityQuery TornadoQuery;
-        private EntityQuery AnchorPointQuery;
-        private EntityQuery BeamQuery;
-        private EntityCommandBufferSystem CommandBufferSystem;
+        private EntityQuery m_TornadoQuery;
+        private EntityQuery m_AnchorPointQuery;
+        private EntityQuery m_BeamQuery;
+        private EntityCommandBufferSystem m_CommandBufferSystem;
 
-        private Random randomSeeds;
+        private Random m_RandomSeeds;
 
         struct PointNeighbor
         {
@@ -34,34 +32,34 @@ namespace Dots
         {
             // Looking up another system in the world is an expensive operation.
             // In order to not do it every frame, we store the reference in a field.
-            CommandBufferSystem
+            m_CommandBufferSystem
                 = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
             
-            randomSeeds = new Random(1234);
+            m_RandomSeeds = new Random(1234);
         }
         
         protected override void OnUpdate()
         {
             // An ECB system will play back later in the frame the buffers it creates.
             // This is useful to defer the structural changes that would cause sync points.
-            var ecb = CommandBufferSystem.CreateCommandBuffer();
+            var ecb = m_CommandBufferSystem.CreateCommandBuffer();
             //var parallelEcb = ecb.AsParallelWriter();
             
-            Random random = new Random(randomSeeds.NextUInt());
+            Random random = new Random(m_RandomSeeds.NextUInt());
             var elapsedTime = Time.ElapsedTime;
             var deltaTime = Time.DeltaTime;
 
-            if (TornadoQuery.IsEmpty)
+            if (m_TornadoQuery.IsEmpty)
                 return;
-            int tornadoCount = TornadoQuery.CalculateEntityCount();
+            int tornadoCount = m_TornadoQuery.CalculateEntityCount();
             var tornadoInfos = new NativeArray<TornadoInfo>(tornadoCount, Allocator.TempJob);
 
             Entities
-                .WithStoreEntityQueryInField(ref TornadoQuery)
+                .WithStoreEntityQueryInField(ref m_TornadoQuery)
                 .ForEach((int entityInQueryIndex, ref TornadoFader fade, in TornadoConfig config, in Translation translation) =>
                 {
 
-                    fade.value = math.saturate(fade.value + (float)deltaTime / 10f);
+                    fade.value = math.saturate(fade.value + deltaTime / 10f);
                     tornadoInfos[entityInQueryIndex] = new TornadoInfo
                         {
                             position = translation.Value,
@@ -72,11 +70,11 @@ namespace Dots
 
             var worldConfigEntity = GetSingletonEntity<WorldConfig>();
             var worldConfig = GetComponent<WorldConfig>(worldConfigEntity);
-            var anchorPointMap = new NativeHashMap<Entity, PointNeighbor>(AnchorPointQuery.CalculateEntityCount(),Allocator.TempJob);
+            var anchorPointMap = new NativeHashMap<Entity, PointNeighbor>(m_AnchorPointQuery.CalculateEntityCount(),Allocator.TempJob);
             Entities
                 .WithReadOnly(tornadoInfos)
                 .WithDisposeOnCompletion(tornadoInfos)
-                .WithStoreEntityQueryInField(ref AnchorPointQuery)
+                .WithStoreEntityQueryInField(ref m_AnchorPointQuery)
                 .ForEach((int entityInQueryIndex, in Point inputPoint, in Entity entity, in Anchor anchorPoint) =>
                 {
                     Point point = inputPoint;
@@ -130,7 +128,7 @@ namespace Dots
                 }).Schedule();
             
             Entities
-                .WithStoreEntityQueryInField(ref BeamQuery)
+                .WithStoreEntityQueryInField(ref m_BeamQuery)
                 .ForEach((int entityInQueryIndex, ref Translation translation, ref Rotation rotation, ref Beam beam, in Entity beamEntity, in Length length) =>
                 {
                     bool point1IsFixedAnchor = HasComponent<FixedAnchor>(beam.p1);
@@ -211,7 +209,7 @@ namespace Dots
                     anchorPointMap[beam.p1] = p1;
                     anchorPointMap[beam.p2] = p2;
                 }).Schedule();
-            CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
+            m_CommandBufferSystem.AddJobHandleForProducer(this.Dependency);
             
             // Now that everything is simulated, update the AnchorPoint's position and neighborCount
             Entities

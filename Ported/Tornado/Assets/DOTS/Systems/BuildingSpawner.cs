@@ -43,7 +43,7 @@ namespace Dots
                             value = pointPosition,
                             old = pointPosition
                         });
-                        if (pointPosition.y == 0)
+                        if (allowFixedAnchor && pointPosition.y == 0)
                         {
                             ecb.AddComponent(pointEntity, new FixedAnchor());
                         }
@@ -94,7 +94,7 @@ namespace Dots
                         {
                             float3 p1 = pointPosList[i];
                             float3 p2 = pointPosList[j];
-                            bool areBothPointInSameGroup = (pointGroupIdList[i] == pointGroupIdList[j] ? true: false);
+                            bool areBothPointInSameGroup = pointGroupIdList[i] == pointGroupIdList[j];
                             
                             float3 pointDelta = p2 - p1;
                             float length = math.length(pointDelta);

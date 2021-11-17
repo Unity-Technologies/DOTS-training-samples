@@ -7,8 +7,7 @@ namespace Dots
 {
     public partial class DebrisSimulator : SystemBase
     {
-        private EntityQuery TornadoQuery;
-        private Random randomSeeds;
+        private EntityQuery m_TornadoQuery;
         
         struct TornadoInfo
         {
@@ -16,24 +15,19 @@ namespace Dots
             public TornadoConfig config;
         }
         
-        protected override void OnCreate()
-        {
-            randomSeeds = new Random(1234);
-        }
-        
         protected override void OnUpdate()
         {
-            Random random = new Random(randomSeeds.NextUInt());
             var elapsedTime = Time.ElapsedTime;
             var deltaTime = Time.DeltaTime;
             
-            if (TornadoQuery.IsEmpty)
+            if (m_TornadoQuery.IsEmpty)
                 return;
-            int tornadoCount = TornadoQuery.CalculateEntityCount();
+            
+            int tornadoCount = m_TornadoQuery.CalculateEntityCount();
             var tornadoInfos = new NativeHashMap<Entity, TornadoInfo>(tornadoCount, Allocator.TempJob);
 
             Entities
-                .WithStoreEntityQueryInField(ref TornadoQuery)
+                .WithStoreEntityQueryInField(ref m_TornadoQuery)
                 .ForEach((in Entity entity, in TornadoConfig config, in Translation translation) =>
                 {
                     tornadoInfos[entity] = new TornadoInfo
@@ -68,7 +62,7 @@ namespace Dots
                     delta /= dist;
                     translation.Value += new float3(-delta.z * config.spinRate + delta.x * inForce, 
                         config.upwardSpeed, 
-                        delta.x * config.spinRate + delta.z * inForce) * (float)deltaTime;
+                        delta.x * config.spinRate + delta.z * inForce) * deltaTime;
                     
                     if (translation.Value.y>config.height) 
                         translation.Value.y = 0f;
