@@ -10,22 +10,46 @@ using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    public struct Point
+    {
+        public Point(float x, float y, float z)
+        {
+            pos = oldPos = new float3(x, y, z);
+            anchor = false;
+            neighborCount = 0;
+        }
+        public float3 pos;
+        public float3 oldPos;
+        public bool anchor;
+        public int neighborCount;
+    }
+
+    public static class SimulationState
+    {
+        public static NativeList<Point> points;
+        public static TornadoConfigData tornadoConfig;
+
+        public static void Init()
+        {
+            points = new NativeList<Point>(2000, Allocator.Persistent);
+        }
+    }
+
     public partial class BeamSpawner : SystemBase
     {
         protected override void OnCreate()
         {
-            Debug.Log("BeamSpawner.OnCreate");
         }
 
         protected override void OnUpdate()
         {
+            // Debug.Log($"BeamSpawner.OnUpdate");
+            SimulationState.Init();
             Entities
                 .WithStructuralChanges()
                 .ForEach((Entity entity, in BeamSpawnerData spawner) =>
             {
                 var random = new Random(1234);
-                var pointPosList = new NativeList<float3>(2000, Allocator.Temp);
                 for (int i = 0; i < spawner.buildingCount; i++)
                 {
                     var height = random.NextInt(4, 12);
@@ -33,28 +57,31 @@ namespace Dots
                     float spacing = 2f;
                     for (int j = 0; j < height; j++)
                     {
-                        var point = new float3();
-                        point.x = pos.x + spacing;
-                        point.y = j * spacing;
-                        point.z = pos.z - spacing;
-                        pointPosList.Add(point);
+                        var point = new Point(
+                            pos.x + spacing,
+                            j * spacing,
+                            pos.z - spacing
+                            );
+                        SimulationState.points.Add(point);
 
-                        point = new float3();
-                        point.x = pos.x - spacing;
-                        point.y = j * spacing;
-                        point.z = pos.z - spacing;
-                        pointPosList.Add(point);
+                        point = new Point(
+                            pos.x - spacing,
+                            j * spacing,
+                            pos.z - spacing
+                            );
+                        SimulationState.points.Add(point);
 
-                        point = new float3();
-                        point.x = pos.x + 0f;
-                        point.y = j * spacing;
-                        point.z = pos.z + spacing;
-                        pointPosList.Add(point);
+                        point = new Point(
+                            pos.x,
+                            j * spacing,
+                            pos.z + spacing
+                            );
+                        SimulationState.points.Add(point);
                     }
                 }
 
-                var pointCount = pointPosList.Length;
-                Debug.Log($"BeamSpawner has created {pointCount} points");
+                var pointCount = SimulationState.points.Length;
+                // Debug.Log($"BeamSpawner has created {pointCount} points");
 
                 // Setup beams:
                 var white = new float4(1f, 1f, 1f, 1f);
@@ -63,8 +90,8 @@ namespace Dots
                 {
                     for (int j = i + 1; j < pointCount; j++)
                     {
-                        var p1 = pointPosList[i];
-                        var p2 = pointPosList[j];
+                        var p1 = SimulationState.points[i].pos;
+                        var p2 = SimulationState.points[j].pos;
                         var delta = p2 - p1;
                         var length = math.length(delta);
 
@@ -81,8 +108,8 @@ namespace Dots
 
                             EntityManager.SetComponentData(beam, new BeamData()
                             {
-                                p1 = pointPosList[i],
-                                p2 = pointPosList[j]
+                                p1 = 1,
+                                p2 = j
                             });
 
                             var pointDeltaNorm = math.normalize(delta);
@@ -107,22 +134,22 @@ namespace Dots
         }
     }
 
-    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class TornadoSpawner : SystemBase
     {
         protected override void OnCreate()
         {
-            Debug.Log("TornadoSpawner.OnCreate");
         }
 
         protected override void OnUpdate()
         {
+            // Debug.Log($"TornadoSpawner.OnUpdate");
+
             Entities
                 .WithoutBurst()
                 .WithStructuralChanges()
                 .ForEach((Entity tornado, ref TornadoConfigData tornadoConfig) =>
                 {
-                    // Debug.Log($"TornadoSpawner.OnUpdate");
+                    // Debug.Log($"TornadoSpawner.OnUpdate.Run");
                     EntityManager.AddComponentData(tornado, new Translation() { Value = tornadoConfig.position });
 
                     var random = new Random(5678);
@@ -155,17 +182,19 @@ namespace Dots
                         var scale = new float3(1, 1, 1);
                         scale *= random.NextFloat(.3f,.7f);
                         EntityManager.SetComponentData(particle, new NonUniformScale() { Value = scale });
-
-                        if (tornadoConfig.rotationModulation == 0f)
-                            tornadoConfig.rotationModulation = random.NextFloat(-1, 1) * tornadoConfig.maxForceDist;
                     }
+
+                    if (tornadoConfig.rotationModulation == 0f)
+                        tornadoConfig.rotationModulation = random.NextFloat(-1, 1) * tornadoConfig.maxForceDist;
+
+                    SimulationState.tornadoConfig = tornadoConfig;
 
                     Enabled = false;
                 }).Run();
         }
     }
 
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateAfter(typeof(TornadoSpawner))]
     public partial class MoveTornado : SystemBase
     {
         protected override void OnCreate()
@@ -180,12 +209,17 @@ namespace Dots
 
         protected override void OnUpdate()
         {
+            // Debug.Log($"MoveTornado.OnUpdate");
+
             Translation tp = new Translation();
-            TornadoConfigData tc = new TornadoConfigData();
+            TornadoConfigData tornadoConfig = SimulationState.tornadoConfig;
             var elapsedTime = (float)Time.ElapsedTime;
             Entities
-                .ForEach((ref Translation pos, in Entity tornado, in TornadoConfigData tornadoConfig) =>
+                .ForEach((ref Translation pos, in TornadoConfigData tc) =>
                 {
+
+                    // Debug.Log($"MoveTornado.OnUpdate.Run1");
+
                     var tmod = elapsedTime / 6f;
                     pos.Value = new float3(
                         tornadoConfig.position.x + math.cos(tmod) * tornadoConfig.rotationModulation,
@@ -193,13 +227,14 @@ namespace Dots
                         tornadoConfig.position.z + math.sin(tmod * 1.618f) * tornadoConfig.rotationModulation);
 
                     tp.Value = pos.Value;
-                    tc = tornadoConfig;
+                    // tornadoConfig = tc;
                 }).Run();
 
             var deltaTime = Time.DeltaTime;
             Entities
                 .ForEach((ref Translation pos, in Particle particle) =>
             {
+                // Debug.Log($"MoveTornado.OnUpdate.Run1");
                 var point = pos.Value;
                 var tornadoPos = new float3(
                     tp.Value.x + TornadoSway(point.y, elapsedTime), 
@@ -207,14 +242,14 @@ namespace Dots
                     tp.Value.z);
                 var delta = tornadoPos - point;
                 var dist = math.length(delta);
-                float inForce = dist - math.clamp(tornadoPos.y / tc.height, 0f, 1f) * tc.maxForceDist * particle.radiusMult + 2f;
+                float inForce = dist - math.clamp(tornadoPos.y / tornadoConfig.height, 0f, 1f) * tornadoConfig.maxForceDist * particle.radiusMult + 2f;
 
                 delta /= dist;
                 point += new float3(
-                    -delta.z * tc.spinRate + delta.x * inForce, 
-                    tc.upwardSpeed, 
-                    delta.x * tc.spinRate + delta.z * inForce) * deltaTime;
-                if (point.y > tc.height)
+                    -delta.z * tornadoConfig.spinRate + delta.x * inForce,
+                    tornadoConfig.upwardSpeed, 
+                    delta.x * tornadoConfig.spinRate + delta.z * inForce) * deltaTime;
+                if (point.y > tornadoConfig.height)
                 {
                     point = new float3(point.x, 0f, point.z);
                 }
@@ -222,4 +257,24 @@ namespace Dots
             }).ScheduleParallel();
         }
     }
+    
+    /*
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public partial class SimulateCarnage : SystemBase
+    {
+        protected override void OnCreate()
+        {
+
+        }
+
+        protected override void OnUpdate()
+        {
+            Entities
+                .ForEach((ref Translation pos, in Entity tornado, in TornadoConfigData tornadoConfig) =>
+                {
+                    
+                }).ScheduleParallel();
+        }
+    }
+    */
 }

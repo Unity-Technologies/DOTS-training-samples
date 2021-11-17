@@ -22,8 +22,8 @@ namespace Dots
     [Serializable]
     public struct BeamData : IComponentData
     {
-        public float3 p1;
-        public float3 p2;
+        public int p1;
+        public int p2;
     }
 
     [Serializable]
