@@ -9,7 +9,7 @@ using UnityTransform = UnityEngine.Transform;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 
-public class SpawnerAuthoring : UnityMonoBehaviour
+public class GlobalsAuthoring : UnityMonoBehaviour
     , IConvertGameObjectToEntity
     , IDeclareReferencedPrefabs
 {
@@ -20,6 +20,8 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public float Length;
     public float Width;
     public float HiveDepth;
+
+    //30 10 5
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
@@ -38,7 +40,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         float3 minHive = new float3(min.x + hd, 0.0f, 0.0f);
         float3 maxHive = new float3(max.x - hd, 0.0f, 0.0f);
         
-        dstManager.AddComponentData(entity, new Spawner
+        dstManager.AddComponentData(entity, new Globals
         {
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),

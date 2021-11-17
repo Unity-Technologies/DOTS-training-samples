@@ -56,8 +56,8 @@ public partial class PathingSystem : SystemBase
         }).Run();
 
 
-        var spawner = GetSingletonEntity<Spawner>();
-        var spawnerComponent = GetComponent<Spawner>(spawner);
+        var globals = GetSingletonEntity<Globals>();
+        var globalsComponent = GetComponent<Globals>(globals);
 
         // Kill a Nearby Bee 
         Entities
@@ -73,15 +73,12 @@ public partial class PathingSystem : SystemBase
                     var distanceSqr = math.lengthsq(translation.Value - entityPositions[ithBee].Value);
                     if (distanceSqr < 1.0f && teams[ithBee].Value != teamID.Value)
                     {
-                        //ithBee
-                        //beeData[ithBee] = new Bee { Carried = entity, Mode = Bee.ModeCategory.Returning };
-                        //EntityManager.AddComponentData(ithBee, new Gravity*()
                         EntityManager.AddComponentData(ithBee, new Gravity());
 
                         int totalGiblets = random.NextInt(5, 10);
                         for (int j = 0; j < totalGiblets; ++j)
                         {
-                            var giblet = EntityManager.Instantiate(spawnerComponent.GibletPrefab);
+                            var giblet = EntityManager.Instantiate(globalsComponent.GibletPrefab);
                             EntityManager.SetComponentData<Translation>(giblet, translation);
                             EntityManager.SetComponentData<Velocity>(giblet, new Velocity
                             {

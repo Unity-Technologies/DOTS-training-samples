@@ -12,30 +12,30 @@ public partial class BeeSpawner : SystemBase
     
     protected override void OnCreate()
     {
-        this.RequireSingletonForUpdate<Spawner>();
+        this.RequireSingletonForUpdate<Globals>();
     }
 
     // May run before scene is loaded
     protected override void OnUpdate()
     {
-        var spawner = GetSingletonEntity<Spawner>();
-        var spawnerComponent = GetComponent<Spawner>(spawner);
+        var globals = GetSingletonEntity<Globals>();
+        var globalsComponent = GetComponent<Globals>(globals);
 
         var random = new Random(1234);
         Entities
             .WithStructuralChanges()
-            .ForEach((Entity entity, in SpawnComponent spawnComponent, in TeamID teamID) => 
+            .ForEach((Entity entity, in Spawner spawnComponent, in TeamID teamID) => 
         {
             for (int i = 0; i < spawnComponent.Count; ++i)
             {
-                var spawnedBee = EntityManager.Instantiate(spawnerComponent.BeePrefab);
+                var spawnedBee = EntityManager.Instantiate(globalsComponent.BeePrefab);
 
                 var vel = math.normalize(random.NextFloat3Direction());
                 EntityManager.SetComponentData<Velocity>(spawnedBee, new Velocity { Value = vel });
                 EntityManager.SetComponentData<Translation>(spawnedBee, new Translation { Value = spawnComponent.SpawnPosition });
                 EntityManager.SetComponentData<Bee>(spawnedBee, new Bee { Mode = Bee.ModeCategory.Searching });
-                EntityManager.AddComponentData<Goal>(spawnedBee, new Goal { target = new float3(0) });
-                EntityManager.AddComponentData<TeamID>(spawnedBee, new TeamID { Value = teamID.Value });
+                EntityManager.SetComponentData<Goal>(spawnedBee, new Goal { target = new float3(0) });
+                EntityManager.SetComponentData<TeamID>(spawnedBee, new TeamID { Value = teamID.Value });
 
                 if (teamID.Value == 0)
                 {
@@ -49,7 +49,5 @@ public partial class BeeSpawner : SystemBase
 
             EntityManager.DestroyEntity(entity);
         }).Run();
-
-        //this.Enabled = false;
     }
 }

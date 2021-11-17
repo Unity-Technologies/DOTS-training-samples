@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 using UnityEngine;
 
-public partial class BeeMover : SystemBase
+public partial class MoveSystem : SystemBase
 {
     public Unity.Mathematics.Random random = new Unity.Mathematics.Random(11111);
     protected override void OnUpdate()
@@ -60,7 +60,7 @@ public partial class BeeMover : SystemBase
 
                     var spawnEntity = EntityManager.CreateEntity();
                     EntityManager.AddComponentData(spawnEntity, new TeamID { Value = translation.Value.x < -12.5 ? 0 : 1 });
-                    EntityManager.AddComponentData(spawnEntity, new SpawnComponent { SpawnPosition = translation.Value, Count = random.NextInt(1, 3) });
+                    EntityManager.AddComponentData(spawnEntity, new Spawner { SpawnPosition = translation.Value, Count = random.NextInt(1, 3) });
 
                     EntityManager.DestroyEntity(entity);
                 }

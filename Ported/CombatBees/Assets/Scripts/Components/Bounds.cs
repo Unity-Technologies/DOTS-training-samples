@@ -4,8 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
-public struct AABB : IComponentData
+public struct Bounds : IComponentData
 {
-    public float3 center;
-    public float3 halfSize;
+    public AABB Value;
 }
