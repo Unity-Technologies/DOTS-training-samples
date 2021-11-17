@@ -82,33 +82,7 @@ struct TornadoFader : IComponentData
     public float fader;
 }
 
-readonly struct PointPush : IComponentData
-{
-    public readonly float3 force;
-    public readonly bool breaks;
-
-    public PointPush(in float3 force, in bool breaks)
-    {
-        this.force = force;
-        this.breaks = breaks;
-    }
-}
-
-readonly struct BeamModif : IComponentData
-{
-    public readonly int pointIndex;
-    public readonly Entity newPointEntity;
-    public readonly float3 norm;
-
-    public BeamModif(in int pointIndex, in Entity newPointEntity, in float3 norm)
-    {
-        this.pointIndex = pointIndex;
-        this.newPointEntity = newPointEntity;
-        this.norm = norm;
-    }
-}
-
-struct BeamModif2 : IComponentData
+struct BeamModif : IComponentData
 {
     public float3 p1;
     public float3 p2;
@@ -117,18 +91,4 @@ struct BeamModif2 : IComponentData
     public float dist;
     public bool breaks;
     public int pi;
-}
-
-readonly struct SetBeamMatrix : IComponentData
-{
-    public readonly float3 norm;
-    public readonly float3 delta;
-    public readonly float dist;
-
-    public SetBeamMatrix(float3 norm, float3 delta, float dist)
-    {
-        this.norm = norm;
-        this.delta = norm;
-        this.dist = dist;
-    }
 }
