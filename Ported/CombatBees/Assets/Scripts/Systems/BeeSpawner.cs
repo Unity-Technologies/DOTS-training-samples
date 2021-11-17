@@ -16,21 +16,31 @@ public partial class BeeSpawner : SystemBase
     // May run before scene is loaded
     protected override void OnUpdate()
     {
-        var spawner = GetSingletonEntity<GlobalData>();
-        var spawnerComponent = GetComponent<GlobalData>(spawner);
+        var globalDataEntity = GetSingletonEntity<GlobalData>();
+        var globalData = GetComponent<GlobalData>(globalDataEntity);
+        var beeDefinitions = GetBuffer<TeamDefinition>(globalDataEntity);
 
-        var totalBees = spawnerComponent.BeeCount;
+        var totalBees = globalData.BeeCount;
 
         var random = new Random(1234);
 
         Entities
             .WithAll<HiveTag>()
+            .ForEach((Entity hiveEntity, in TeamID teamID) =>
+            {
+                var def = beeDefinitions[teamID.Value];
+                def.hive = hiveEntity;
+                beeDefinitions[teamID.Value] = def;
+            }).Run();
+
+        Entities
+            .WithAll<HiveTag>()
             .WithStructuralChanges()
-            .ForEach((in AABB aabb, in TeamID teamID, in URPMaterialPropertyBaseColor urpColor) => 
+            .ForEach((Entity hiveEntity, in AABB aabb, in TeamID teamID, in URPMaterialPropertyBaseColor urpColor) => 
         {
             for (int i = 0; i < totalBees; ++i)
             {
-                var entity = EntityManager.Instantiate(spawnerComponent.BeePrefab);
+                var entity = EntityManager.Instantiate(globalData.BeePrefab); 
                 
                 var vel = math.normalize(random.NextFloat3Direction());
                 // Optimize by Setting the velocity instead of adding.

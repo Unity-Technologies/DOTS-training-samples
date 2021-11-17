@@ -25,6 +25,7 @@ public partial class KillAllBees : SystemBase
             .WithStructuralChanges()
             .ForEach((Entity entity, in Bee bee, in Translation translation, in Velocity velocity) =>
         {
+            
             EntityManager.AddComponentData(entity, new Ballistic());
 
             int totalGiblets = random.NextInt(5, 10);

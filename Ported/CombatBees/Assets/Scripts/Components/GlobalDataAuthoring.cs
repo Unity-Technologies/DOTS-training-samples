@@ -17,8 +17,10 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
     [Serializable]
     public class LocalTeamDef
     {
-        [Range(1.0f,20.0f)]
         public float Speed;
+        public float AttackRange;
+        public float PickupFoodRange;
+        public float HuntTimeout;
         [Range(0.0f,1.0f)]
         public float Aggression;
     }
@@ -31,6 +33,7 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
     public float Length;
     public float Width;
     public float HiveDepth;
+    public float MinimumSpeed;
     public LocalTeamDef[] TeamDefinitions;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -61,7 +64,8 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             YellowHiveCenter = maxHive,
             HiveDepth = HiveDepth,
             StartingFoodCount = StartingFoodCount,
-            BeeCount = BeeCount
+            BeeCount = BeeCount,
+            MinimumSpeed = MinimumSpeed
         });
 
         var buffer = dstManager.AddBuffer<TeamDefinition>(entity);
@@ -71,6 +75,9 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             {
                 aggression = team.Aggression,
                 speed = team.Speed,
+                attackRange = team.AttackRange,
+                huntTimeout = team.HuntTimeout,
+                pickupFoodRange = team.PickupFoodRange
             });
         }
     }

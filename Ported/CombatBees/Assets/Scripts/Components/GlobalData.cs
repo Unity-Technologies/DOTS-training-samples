@@ -16,4 +16,5 @@ public struct GlobalData : IComponentData
     public float3 BlueHiveCenter;
     public float3 YellowHiveCenter;
     public float HiveDepth;
+    public float MinimumSpeed;
 }

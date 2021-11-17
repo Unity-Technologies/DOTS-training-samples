@@ -31,7 +31,6 @@ public partial class BeeIdleBehavior : SystemBase
             typeof(Food),
             typeof(Translation),
             typeof(TargetedBy),
-            ComponentType.Exclude<Ballistic>(),  
             ComponentType.Exclude<Decay>());
         
         ecbs = World
@@ -40,12 +39,9 @@ public partial class BeeIdleBehavior : SystemBase
 
     protected override void OnUpdate()
     {
-        var spawner = GetSingletonEntity<GlobalData>();
-        var spawnerComponent = GetComponent<GlobalData>(spawner);
-        var beeDefinitions = GetBuffer<TeamDefinition>(spawner);
-
-        var beeCount = BeeQuery.CalculateEntityCount();
-        var foodCount = FoodQuery.CalculateEntityCount();
+        var globalDataEntity = GetSingletonEntity<GlobalData>();
+        var globalData = GetComponent<GlobalData>(globalDataEntity);
+        var beeDefinitions = GetBuffer<TeamDefinition>(globalDataEntity);
 
         var foodPositions = FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var foodEntities = FoodQuery.ToEntityArray(Allocator.TempJob);
@@ -75,6 +71,7 @@ public partial class BeeIdleBehavior : SystemBase
             .WithDisposeOnCompletion(foodEntities)
             .WithDisposeOnCompletion(foodTargetedBy)
             .WithReadOnly(beeDefinitions)
+            .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team, in Velocity velocity) =>
                 {
                     var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameCount));
@@ -116,7 +113,7 @@ public partial class BeeIdleBehavior : SystemBase
                             }
                             else
                             {
-                                dot = math.lengthsq(velocity.Value) > 0.5f
+                                dot = math.lengthsq(velocity.Value) > globalData.MinimumSpeed
                                     ? 1.0f - math.dot(math.normalize(vecToTarget), math.normalize(velocity.Value))
                                     : -1.0f;
                             }
@@ -138,12 +135,14 @@ public partial class BeeIdleBehavior : SystemBase
                         SetComponent(myself.TargetEntity, new TargetedBy { Value = entity });
                         ecb.RemoveComponent<BeeIdleMode>(entity);
                         if (hunting)
-                            ecb.AddComponent(entity, new BeeAttackMode());
+                            ecb.AddComponent(entity, new BeeHuntMode());
                         else
                             ecb.AddComponent(entity, new BeeSeekFoodMode());
                     }
+                    
                 }
-            ).Run();
-
+            ).Schedule();
+        
+        ecbs.AddJobHandleForProducer(Dependency);
     }
 }
