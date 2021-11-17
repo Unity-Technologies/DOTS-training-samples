@@ -4,18 +4,45 @@ using Unity.Mathematics;
 struct Point : IComponentData
 {
     public float3 pos;
-    public float3 old;
-    public int neighborCount;
+    public float3 old; // TODO: Split pos, old and start into 3 components
+    public float3 start;
+    public int neighborCount; // TODO: Put it its own component
 
     public Point(in float3 pos)
     {
-        old = this.pos = pos;
+        start = old = this.pos = pos;
         neighborCount = 0;
     }
 }
 
 struct DynamicPoint : IComponentData {}
 struct AnchoredPoint : IComponentData {}
+
+readonly struct PointDamping : IComponentData 
+{
+    public readonly float invDamping;
+    public readonly float friction;
+
+    public PointDamping(float invDamping, float friction)
+    {
+        this.invDamping = invDamping;
+        this.friction = friction;
+    }
+}
+
+readonly struct AffectedPoint : IComponentData 
+{
+    public readonly Entity tornado;
+    public readonly float distance;
+    public readonly float2 tdir;
+
+    public AffectedPoint(in Entity tornado, in float distance, in float2 dir)
+    {
+        this.tornado = tornado;
+        this.distance = distance;
+        this.tdir = dir;
+    }
+}
 
 struct Beam : IComponentData
 {
@@ -41,3 +68,67 @@ struct Beam : IComponentData
     }
 }
 
+struct TornadoData : IComponentData
+{
+    public float force;
+    public float maxForceDist;
+    public float height;
+    public float upForce;
+    public float inwardForce;
+}
+
+struct TornadoFader : IComponentData
+{
+    public float fader;
+}
+
+readonly struct PointPush : IComponentData
+{
+    public readonly float3 force;
+    public readonly bool breaks;
+
+    public PointPush(in float3 force, in bool breaks)
+    {
+        this.force = force;
+        this.breaks = breaks;
+    }
+}
+
+readonly struct BeamModif : IComponentData
+{
+    public readonly int pointIndex;
+    public readonly Entity newPointEntity;
+    public readonly float3 norm;
+
+    public BeamModif(in int pointIndex, in Entity newPointEntity, in float3 norm)
+    {
+        this.pointIndex = pointIndex;
+        this.newPointEntity = newPointEntity;
+        this.norm = norm;
+    }
+}
+
+struct BeamModif2 : IComponentData
+{
+    public float3 p1;
+    public float3 p2;
+    public float3 norm;
+    public float3 delta;
+    public float dist;
+    public bool breaks;
+    public int pi;
+}
+
+readonly struct SetBeamMatrix : IComponentData
+{
+    public readonly float3 norm;
+    public readonly float3 delta;
+    public readonly float dist;
+
+    public SetBeamMatrix(float3 norm, float3 delta, float dist)
+    {
+        this.norm = norm;
+        this.delta = norm;
+        this.dist = dist;
+    }
+}

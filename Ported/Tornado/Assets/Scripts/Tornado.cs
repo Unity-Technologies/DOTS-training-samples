@@ -1,7 +1,10 @@
 ﻿#define DEBUG_DOTS
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
-public class Tornado : MonoBehaviour
+public class Tornado : MonoBehaviour, IConvertGameObjectToEntity
 {
     public Transform cam;
     public Mesh particleMesh;
@@ -27,6 +30,7 @@ public class Tornado : MonoBehaviour
     MaterialPropertyBlock matProps;
     float[] radiusMults;
     MeshRenderer ground;
+    Entity entity;
 
     public float x => transform.position.x;
     public float y => transform.position.z;
@@ -43,6 +47,7 @@ public class Tornado : MonoBehaviour
 
     void Generate()
     {
+        var random = new Unity.Mathematics.Random(1234);
         int pointCount = System.Math.Min(Mathf.RoundToInt(force * 20000), 1023);
         var colors = new Vector4[pointCount];
         points = new Vector3[pointCount];
@@ -51,14 +56,14 @@ public class Tornado : MonoBehaviour
 
         ground = GetComponentInParent<MeshRenderer>();
         initialPosition = transform.position;
-        rotationModulation = ground.bounds.extents.magnitude / 2f * Random.Range(-0.9f, 0.9f);
+        rotationModulation = ground.bounds.extents.magnitude / 2f * random.NextFloat(-0.9f, 0.9f);
 
         for (int i = 0; i < points.Length; i++)
         {
-            points[i] = new Vector3(Random.Range(-initRange, initRange), Random.Range(0f, height), Random.Range(-initRange, initRange));
-            matrices[i] = Matrix4x4.TRS(points[i], Quaternion.identity, Vector3.one * Random.Range(.2f, .7f));
-            radiusMults[i] = Random.value;
-            colors[i] = Color.white * Random.Range(.3f, .7f);
+            points[i] = new Vector3(random.NextFloat(-initRange, initRange), random.NextFloat(0f, height), random.NextFloat(-initRange, initRange));
+            matrices[i] = Matrix4x4.TRS(points[i], Quaternion.identity, Vector3.one * random.NextFloat(.2f, .7f));
+            radiusMults[i] = random.NextFloat();
+            colors[i] = Color.white * random.NextFloat(.3f, .7f);
         }
 
         matProps = new MaterialPropertyBlock();
@@ -103,6 +108,10 @@ public class Tornado : MonoBehaviour
 
         if (cam != null)
             cam.position = new Vector3(transform.position.x, 10f, transform.position.z) - cam.forward * 60f;
+
+        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
+        em.SetComponentData(entity, new TornadoFader { fader = fader });
+        em.SetComponentData(entity, new Translation { Value = transform.position });
     }
 
     void Advance()
@@ -125,5 +134,19 @@ public class Tornado : MonoBehaviour
             matrix.m23 = points[i].z;
             matrices[i] = matrix;
         }
+    }
+
+    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    {
+        this.entity = entity;
+        dstManager.AddComponentData(entity, new TornadoFader { fader = fader });
+        dstManager.AddComponentData(entity, new TornadoData()
+        {
+            force = force,
+            height = height,
+            inwardForce = inwardForce,
+            maxForceDist = maxForceDist,
+            upForce = upForce
+        });
     }
 }

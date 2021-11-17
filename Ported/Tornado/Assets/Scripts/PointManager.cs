@@ -1,4 +1,5 @@
 ﻿#define DEBUG_DOTS
+//#define SYNCED_SIMULATION
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -22,12 +23,10 @@ class PointManager : MonoBehaviour
 
     Tornado[] tornados;
     MeshRenderer ground;
-    Matrix4x4[][] matrices;
+    internal Matrix4x4[][] matrices;
     MaterialPropertyBlock[] matProps;
     float3 groundExtents;
     int maxTornadoHeight;
-    int frameCount = 1;
-    double totalTimeMs = 0;
 
     internal void Awake()
     {
@@ -51,6 +50,9 @@ class PointManager : MonoBehaviour
         }
     }
 
+    #if SYNCED_SIMULATION
+    int frameCount = 1;
+    double totalTimeMs = 0;
     internal void FixedUpdate()
     {
         #if DEBUG_DOTS
@@ -61,11 +63,12 @@ class PointManager : MonoBehaviour
             totalTimeMs += t.timeMs;
         }
     }
+    #endif
 
     internal void Update()
     {
         #if DEBUG_DOTS
-        using (var t = new DebugTimer($"Rendering {matrices.Length} batches", 2d))
+        using (var t = new DebugTimer($"Rendering {matrices.Length} batches", 3d))
         #endif
         {
             for (int i = 0; i < matrices.Length; i++)
@@ -73,11 +76,11 @@ class PointManager : MonoBehaviour
         }
     }
 
-    static Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
+    internal Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
     {
         var point = em.CreateEntity();
-        em.AddComponent<Point>(point);
-        em.SetComponentData(point, new Point(pos) { neighborCount = neighborCount });
+        em.AddComponentData(point, new Point(pos) { neighborCount = neighborCount });
+        em.AddComponentData(point, new PointDamping(1f - damping, friction));
         if (anchored)
             em.AddComponent<AnchoredPoint>(point);
         else
@@ -216,6 +219,7 @@ class PointManager : MonoBehaviour
         #endif
     }
 
+    #if SYNCED_SIMULATION
     void Simulate()
     {
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -223,7 +227,7 @@ class PointManager : MonoBehaviour
         var random = new Unity.Mathematics.Random(1234);
 
         float invDamping = 1f - damping;
-        using (var pointQuery = em.CreateEntityQuery(typeof(Point), typeof(DynamicPoint)))
+        using (var pointQuery = em.CreateEntityQuery(typeof(DynamicPoint), typeof(Point)))
         using (var points = pointQuery.ToEntityArray(Allocator.TempJob))
         {
             for (int i = 0; i < points.Length; i++)
@@ -355,4 +359,5 @@ class PointManager : MonoBehaviour
             }
         }
     }
+    #endif
 }

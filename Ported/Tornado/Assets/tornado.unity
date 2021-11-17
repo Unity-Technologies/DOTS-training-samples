@@ -288,6 +288,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: Buildings
       objectReference: {fileID: 0}
+    - target: {fileID: 6016402559835642238, guid: b40e15ac3040d0a4099873effd1ade93,
+        type: 3}
+      propertyPath: buildingCount
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6016402559835642238, guid: b40e15ac3040d0a4099873effd1ade93,
+        type: 3}
+      propertyPath: groundDetailCount
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6016402559835642239, guid: b40e15ac3040d0a4099873effd1ade93,
         type: 3}
       propertyPath: m_RootOrder
@@ -308,6 +318,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 796118734}
     m_Modifications:
+    - target: {fileID: 1075553736579218326, guid: 510befd4cf5f5934cb5b44ac0d855280,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1075553737450839796, guid: 510befd4cf5f5934cb5b44ac0d855280,
         type: 3}
       propertyPath: cam
