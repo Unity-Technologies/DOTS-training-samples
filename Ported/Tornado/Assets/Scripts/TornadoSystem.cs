@@ -34,7 +34,20 @@ abstract partial class BaseTornadoSystem : SystemBase
     protected float m_BreakResistance;  
     protected Matrix4x4[][] m_Matrices;
 
+    private Allocator m_ECBAllocator;
+
     public const double showProfileTrackerThreshold = 10d;
+
+    public BaseTornadoSystem()
+        : this(Allocator.Temp)
+    {
+    }
+
+    public BaseTornadoSystem(Allocator ecbAllocator)
+        : base()
+    {
+        m_ECBAllocator = ecbAllocator;
+    }
 
     private void Initialize()
     {
@@ -49,7 +62,7 @@ abstract partial class BaseTornadoSystem : SystemBase
     {
         if (m_PointManager == null)
             Initialize();
-        using (var ecb = new EntityCommandBuffer(Allocator.Temp))
+        using (var ecb = new EntityCommandBuffer(m_ECBAllocator))
         {
             OnUpdate(ecb);
             ecb.Playback(EntityManager);
@@ -227,6 +240,11 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
 {
     private bool m_CaptureMatrices = true;
 
+    public Tornado3UpdateBeamsSystem()
+        : base(Allocator.TempJob)
+    {
+    }
+
     protected override void OnUpdate(EntityCommandBuffer ecb)
     {
         if (m_CaptureMatrices)
@@ -249,20 +267,21 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
         var FixedPointArchType = PointTypes.FixedPointArchType;
         var DynamicPointArchType = PointTypes.DynamicPointArchType;
 
-        Entities.ForEach((in Entity entity, in Beam _beam, in BeamModif bm) =>
+        var cmd = ecb.AsParallelWriter();
+        Entities.ForEach((in Entity entity, in int entityInQueryIndex, in Beam _beam, in BeamModif bm) =>
         {
-            ecb.RemoveComponent<BeamModif>(entity);
+            cmd.RemoveComponent<BeamModif>(entityInQueryIndex, entity);
 
             var beam = _beam;
-            var translate = (bm.p1 + bm.p2) * .5f;
-            var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
             var writeBackBeam = false;
 
+            var translate = (bm.p1 + bm.p2) * .5f;
+            var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
             if (dd < .99f)
             {
-                // bar has rotated: expensive full-matrix computation
                 unsafe
                 {
+                    // Bar has rotated: expensive full-matrix computation
                     *beam.matrix = Matrix4x4.TRS(translate, Quaternion.LookRotation(bm.delta), new Vector3(beam.thickness, beam.thickness, bm.dist));
                 }
                 beam.norm = bm.norm;
@@ -270,9 +289,9 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
             }
             else
             {
-                // bar hasn't rotated: only update the position elements
                 unsafe
                 {
+                    // Bar hasn't rotated: only update the position elements
                     (*beam.matrix).m03 = translate.x;
                     (*beam.matrix).m13 = translate.y;
                     (*beam.matrix).m23 = translate.z;
@@ -283,27 +302,27 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
             {
                 if (bm.pi == 2)
                 {
-                    beam.point2 = CreatePoint(ecb, bm.p2, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
+                    beam.point2 = CreatePoint(cmd, entityInQueryIndex, bm.p2, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
                 else if (bm.pi == 1)
                 {
-                    beam.point1 = CreatePoint(ecb, bm.p1, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
+                    beam.point1 = CreatePoint(cmd, entityInQueryIndex, bm.p1, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
             }
 
             if (writeBackBeam)
-                ecb.SetComponent(entity, beam);
-        }).Run();
+                cmd.SetComponent(entityInQueryIndex, entity, beam);
+        }).ScheduleParallel(Dependency).Complete();
     }
 
-    static Entity CreatePoint(EntityCommandBuffer ecb, in float3 pos, bool anchored, int neighborCount, float damping, float friction,
+    static Entity CreatePoint(EntityCommandBuffer.ParallelWriter ecb, in int sortKey, in float3 pos, bool anchored, int neighborCount, float damping, float friction,
                                 in EntityArchetype fixedPointArchType, in EntityArchetype dynamicPointArchType)
     {
-        var point = ecb.CreateEntity(anchored ? fixedPointArchType : dynamicPointArchType);
-        ecb.SetComponent(point, new Point(pos) { neighborCount = neighborCount });
-        ecb.SetComponent(point, new PointDamping(1f - damping, friction));
+        var point = ecb.CreateEntity(sortKey, anchored ? fixedPointArchType : dynamicPointArchType);
+        ecb.SetComponent(sortKey, point, new Point(pos) { neighborCount = neighborCount });
+        ecb.SetComponent(sortKey, point, new PointDamping(1f - damping, friction));
         return point;
     }
 }
