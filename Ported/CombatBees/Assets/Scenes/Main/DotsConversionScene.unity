@@ -155,8 +155,8 @@ MonoBehaviour:
   BeePrefab: {fileID: 734812879360647095, guid: 1cb53a0f2b0cbfe47be6db3b5bf2653e, type: 3}
   FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
   GibletPrefab: {fileID: 8032040333273944177, guid: 52dd431af163e6248a5683f57ba82946, type: 3}
-  StartingFoodCount: 100
-  BeeCount: 100
+  StartingFoodCount: 4
+  BeeCount: 4
   Length: 30
   Width: 10
   HiveDepth: 5
@@ -166,12 +166,12 @@ MonoBehaviour:
     AttackRange: 0.5
     PickupFoodRange: 0.1
     HuntTimeout: 2
-    Aggression: 0.49
+    Aggression: 0.44
   - Speed: 5
     AttackRange: 1
     PickupFoodRange: 0.1
     HuntTimeout: 4
-    Aggression: 0.5
+    Aggression: 0.49
 --- !u!4 &208139341
 Transform:
   m_ObjectHideFlags: 0

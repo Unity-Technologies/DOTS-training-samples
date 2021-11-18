@@ -50,6 +50,7 @@ public partial class FoodSpawner : SystemBase
                         Value = walk
                     });
                     walk.z += foodWidth;
+                    foodCount++;
                 }
             }
         // }).Run();

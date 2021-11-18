@@ -46,16 +46,17 @@ public partial class BeeHuntBehavior : SystemBase
                     {
                         ecb.RemoveComponent<BeeHuntMode>(entity);
                         ecb.AddComponent(entity, new BeeIdleMode());
-                        SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
+                        ecb.SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
                         myself.TargetEntity = Entity.Null;
-                        return;
                     }
-
-                    var otherpos = GetComponent<Translation>(myself.TargetEntity);
-                    if (math.distancesq(otherpos.Value, position.Value) < teamDef.attackRange)
+                    else
                     {
-                        ecb.RemoveComponent<BeeHuntMode>(entity);
-                        ecb.AddComponent(entity, new BeeAttackMode());
+                        var otherpos = GetComponent<Translation>(myself.TargetEntity);
+                        if (math.distancesq(otherpos.Value, position.Value) < teamDef.attackRange)
+                        {
+                            ecb.RemoveComponent<BeeHuntMode>(entity);
+                            ecb.AddComponent(entity, new BeeAttackMode());
+                        }
                     }
                 }
             ).Schedule();

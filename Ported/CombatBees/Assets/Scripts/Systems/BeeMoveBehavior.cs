@@ -23,22 +23,23 @@ public partial class BeeMoveBehavior : SystemBase
             .ForEach((Entity entity, ref Translation position, ref Velocity velocity, in Bee myself, in TeamID team) =>
                 {
                     var teamDef = beeDefinitions[team.Value];
-                    var isMoving = math.lengthsq(velocity.Value) > globalData.MinimumSpeed; 
+                    var isMoving = math.lengthsq(velocity.Value) > globalData.MinimumSpeed;
+                    var desiredVelocity = float3.zero;
 
                     if (myself.TargetEntity == Entity.Null)
                     {
                         // no target so just wander back and forth
                         if (position.Value.x > globalData.BoundsMax.x * .75f)
-                            velocity.Value = new float3(-teamDef.speed, 0, 0);
+                            desiredVelocity = new float3(-teamDef.speed, 0, 0);
                         else if (position.Value.x < globalData.BoundsMin.x * .75f)
-                            velocity.Value = new float3(teamDef.speed, 0, 0);
+                            desiredVelocity = new float3(teamDef.speed, 0, 0);
                         else if (isMoving)
                         {
-                            velocity.Value = math.normalize(velocity.Value) * teamDef.speed;
+                            desiredVelocity = math.normalize(velocity.Value) * teamDef.speed;
                         }
                         else
                         {
-                            velocity.Value = new float3(-teamDef.speed, 0, 0);
+                            desiredVelocity = new float3(-teamDef.speed, 0, 0);
                         }
                     }
                     else
@@ -46,8 +47,18 @@ public partial class BeeMoveBehavior : SystemBase
                         var targetPos = lookupTranslation[myself.TargetEntity].Value + myself.TargetOffset;
                         var vectorToTarget = targetPos - position.Value;
                         if (math.lengthsq(vectorToTarget) > math.EPSILON)
-                            velocity.Value = math.normalize(vectorToTarget) * teamDef.speed;
+                            desiredVelocity = math.normalize(vectorToTarget) * teamDef.speed;
                     }
+                    
+                    // desiredVelocity =math.lerp(velocity.Value, desiredVelocity, 0.05f);
+                    //
+                    // var axialSpeed = new float3(teamDef.speed * .3f, teamDef.speed * 0.2f, teamDef.speed * 0.3f);
+                    // var flutterVelocity = float3.zero;
+                    // flutterVelocity.x = math.
+                    
+                    
+
+                    velocity.Value = math.lerp(velocity.Value, desiredVelocity, 0.05f);
 
                     position.Value += velocity.Value * dt;
                 }
