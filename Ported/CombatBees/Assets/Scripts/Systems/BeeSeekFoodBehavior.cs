@@ -54,7 +54,24 @@ public partial class BeeSeekFoodBehavior : SystemBase
                     }
                 }
             ).Schedule();
-        
+
+        var distanceToHive = 1f;
+
+        Entities
+            .WithAll<BeeCarryFoodMode>()
+            .WithNone<Ballistic, Decay>()
+            .ForEach((Entity entity, ref Bee myself, in Translation position) =>
+            {
+                var otherpos = GetComponent<Translation>(myself.TargetEntity);
+                if (math.distancesq(otherpos.Value, position.Value) < distanceToHive)
+                {
+                    // We have made it to our hive so return to idle
+                    myself.TargetEntity = Entity.Null;
+                    ecb.RemoveComponent<BeeCarryFoodMode>(entity);
+                    ecb.AddComponent<BeeIdleMode>(entity);
+                }
+            }).Schedule();
+
         ecbs.AddJobHandleForProducer(Dependency);
     }
 }
