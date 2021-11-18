@@ -22,14 +22,13 @@ public partial class FollowTargetSystem : SystemBase
             .ForEach((Entity entity, ref Translation position, ref TargetedBy targetedBy) => 
             {
                 // Stop carrying the food if our TargetedBy Bee is dead
-                if (HasComponent<Ballistic>(targetedBy.Value))
+                if (HasComponent<Ballistic>(targetedBy.Value) || HasComponent<Decay>(targetedBy.Value))
                 {
                     targetedBy.Value = Entity.Null;
                     ecb.AddComponent<Ballistic>(entity);
                     ecb.RemoveComponent<IsCarried>(entity);
                     return;
                 }
-
                 
                 // Stop carrying our food if our TargetedBy Bee isn't in hunt mode
                 if (!HasComponent<BeeCarryFoodMode>(targetedBy.Value))

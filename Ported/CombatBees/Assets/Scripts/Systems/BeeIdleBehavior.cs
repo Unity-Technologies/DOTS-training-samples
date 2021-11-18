@@ -52,6 +52,8 @@ public partial class BeeIdleBehavior : SystemBase
         var beeEntities = BeeQuery.ToEntityArray(Allocator.TempJob);
         var beeTargetedBy = BeeQuery.ToComponentDataArray<TargetedBy>(Allocator.TempJob);
 
+        var targetChosenSet = new NativeHashSet<Entity>(globalData.BeeCount * 2, Allocator.TempJob);
+
         var storage = GetStorageInfoFromEntity();
 
         var frameCount = UnityEngine.Time.frameCount +1;
@@ -70,6 +72,7 @@ public partial class BeeIdleBehavior : SystemBase
             .WithDisposeOnCompletion(foodPositions)
             .WithDisposeOnCompletion(foodEntities)
             .WithDisposeOnCompletion(foodTargetedBy)
+            .WithDisposeOnCompletion(targetChosenSet)
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team, in Velocity velocity) =>
@@ -128,7 +131,7 @@ public partial class BeeIdleBehavior : SystemBase
                         }
                     }
 
-                    if (closestIndex != -1)
+                    if (closestIndex != -1 && targetChosenSet.Add(entityArray[closestIndex]))
                     {
                         myself.TargetEntity = entityArray[closestIndex];
                         myself.TargetOffset = float3.zero;

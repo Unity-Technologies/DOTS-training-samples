@@ -21,6 +21,10 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
         public float AttackRange;
         public float PickupFoodRange;
         public float HuntTimeout;
+        [Range(0.0f, 1.0f)]
+        public float FlutterMagnitude;
+        [Range(0.1f, 2.0f)]
+        public float FlutterInterval;
         [Range(0.0f,1.0f)]
         public float Aggression;
     }
@@ -34,6 +38,10 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
     public float Width;
     public float HiveDepth;
     public float MinimumSpeed;
+    public float TurnbackWidth;
+    public float3 FlutterMagnitude;
+    public float3 FlutterInterval;
+    public float DecayTime;
     public LocalTeamDef[] TeamDefinitions;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -65,7 +73,10 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             HiveDepth = HiveDepth,
             StartingFoodCount = StartingFoodCount,
             BeeCount = BeeCount,
-            MinimumSpeed = MinimumSpeed
+            MinimumSpeed = MinimumSpeed,
+            TurnbackZone = max - new float3(TurnbackWidth),
+            TurnbackWidth = TurnbackWidth,
+            DecayTime = math.max(DecayTime,0.01f)
         });
 
         var buffer = dstManager.AddBuffer<TeamDefinition>(entity);
@@ -77,7 +88,9 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
                 speed = team.Speed,
                 attackRange = team.AttackRange,
                 huntTimeout = team.HuntTimeout,
-                pickupFoodRange = team.PickupFoodRange
+                pickupFoodRange = team.PickupFoodRange,
+                flutterMagnitude = team.FlutterMagnitude * FlutterMagnitude,
+                flutterInterval = team.FlutterInterval * FlutterInterval
             });
         }
     }

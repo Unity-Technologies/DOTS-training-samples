@@ -36,29 +36,31 @@ public partial class BeeSpawner : SystemBase
         Entities
             .WithAll<HiveTag>()
             .WithStructuralChanges()
-            .ForEach((Entity hiveEntity, in AABB aabb, in TeamID teamID, in URPMaterialPropertyBaseColor urpColor) => 
-        {
-            for (int i = 0; i < totalBees; ++i)
+            .ForEach((Entity hiveEntity, in AABB aabb, in TeamID teamID, in URPMaterialPropertyBaseColor urpColor) =>
             {
-                var entity = EntityManager.Instantiate(globalData.BeePrefab); 
-                
-                var vel = math.normalize(random.NextFloat3Direction());
-                // Optimize by Setting the velocity instead of adding.
-                EntityManager.AddComponentData(entity, new Velocity { Value = vel });
-                EntityManager.AddComponentData(entity, new Bee());
-                EntityManager.AddComponentData(entity, new BeeIdleMode());
-                EntityManager.AddComponentData(entity, teamID);
-                EntityManager.AddComponentData(entity, new TargetedBy { Value = Entity.Null });
-                
-                // Move bee to hive location
-                EntityManager.SetComponentData<Translation>(entity, new Translation { Value = aabb.center });
-                // Set bee color based off the hive
-                URPMaterialPropertyBaseColor color = urpColor;
-                color.Value.w = 1;
-                EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(entity, color);
+                for (int i = 0; i < totalBees; ++i)
+                {
+                    var entity = EntityManager.Instantiate(globalData.BeePrefab);
 
-            }
-        }).Run();
+                    var vel = math.normalize(random.NextFloat3Direction())*10.0f;
+                    // Optimize by Setting the velocity instead of adding.
+                    EntityManager.AddComponentData(entity, new Velocity { Value = vel });
+                    EntityManager.AddComponentData(entity, new Bee());
+                    EntityManager.AddComponentData(entity, new BeeIdleMode());
+                    EntityManager.AddComponentData(entity, teamID);
+                    EntityManager.AddComponentData(entity, new TargetedBy { Value = Entity.Null });
+                    EntityManager.AddComponentData(entity, new Flutter());
+                    EntityManager.AddComponentData(entity, new NonUniformScale { Value = new float3(1.0f) });
+
+                    // Move bee to hive location
+                    EntityManager.SetComponentData<Translation>(entity, new Translation { Value = aabb.center });
+                    // Set bee color based off the hive
+                    URPMaterialPropertyBaseColor color = urpColor;
+                    color.Value.w = 1;
+                    EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(entity, color);
+
+                }
+            }).Run();
 
         this.Enabled = false;
     }
