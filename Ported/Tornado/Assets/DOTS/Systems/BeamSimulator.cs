@@ -55,7 +55,7 @@ namespace Dots
             Entities
                 .WithNativeDisableParallelForRestriction(anchorPoints)
                 .WithName("Simulation")
-                .ForEach((int entityInQueryIndex, ref Building buildingComponent) =>
+                .ForEach((ref Building buildingComponent) =>
                 {
                     int anchorPointStart = buildingComponent.index.x;
                     int anchorPointCount = buildingComponent.index.y;
@@ -110,7 +110,7 @@ namespace Dots
                 .WithNativeDisableParallelForRestriction(anchorPoints)
                 .WithNativeDisableParallelForRestriction(beams)
                 .WithName("SimulationBeams")
-                .ForEach((int entityInQueryIndex, ref Building buildingComponent) =>
+                .ForEach((ref Building buildingComponent) =>
                 {
                     int anchorPointStart = buildingComponent.index.x;
                     int anchorPointCount = buildingComponent.index.y;
@@ -206,12 +206,12 @@ namespace Dots
                 }).ScheduleParallel();
 
             Entities
-                .WithName("BeamUpdate")
-                .WithNone<FixedTag>()
+                .WithName("BeamRenderUpdate")
+                .WithNone<FixedTag>() // Only update beams that can move ! 
                 .WithNativeDisableParallelForRestriction(beams)
                 .ForEach((ref Translation translation, ref Rotation rotation, in BeamComponent beamComponent) =>
                 {
-                    Beam beam = beams[beamComponent.Value];
+                    Beam beam = beams[beamComponent.beamIndex];
                     translation.Value = beam.position;
                     rotation.Value = beam.rotation;
                 }).ScheduleParallel();

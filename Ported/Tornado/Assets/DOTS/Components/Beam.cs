@@ -8,6 +8,6 @@ namespace Dots
     [Serializable]
     public struct BeamComponent : IComponentData
     {
-        public int Value;
+        public int beamIndex;
     }
 }

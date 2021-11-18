@@ -26,22 +26,30 @@ namespace Dots
             
             var buildingSpawnerEntity = GetSingletonEntity<BuildingSpawnerData>();
             var buildingSpawner = GetComponent<BuildingSpawnerData>(buildingSpawnerEntity);
-
+            var buildingsAreaSize = new float2(140, 140);
+            var buildingsAreaSizeHalfSize = buildingsAreaSize / 2f;
+            
             // ground details
-            var groundSectionAreas = new NativeArray<float4>(9, Allocator.TempJob);
-            for (int i = 0; i < 3; ++i)
+            int2 groundTiles = new int2(3, 3);
+            int2 groundSectionSize = new int2(120, 120);
+            int grountTileCount = groundTiles.x * groundTiles.y;
+            float2 groundSectionHalfSize = new float2(groundSectionSize.x, groundSectionSize.y) / 2f;
+            float2 groundSectionAreaSize = groundSectionSize / groundTiles;
+            int  groundSectionPointByArea = 600 / grountTileCount;
+            var groundSectionAreas = new NativeArray<float4>(grountTileCount, Allocator.TempJob);
+            for (int i = 0; i < groundTiles.x; ++i)
             {
-                for (int j = 0; j < 3; ++j)
+                for (int j = 0; j < groundTiles.y; ++j)
                 {
                     groundSectionAreas[i * 3 + j] = new float4(
-                        i * 40f - 60f,
-                        (i + 1) * 40f - 60f,
-                        j * 40f - 60f,
-                        (j + 1) * 40f - 60f);
+                        i * groundSectionAreaSize.x - groundSectionHalfSize.x,
+                        (i + 1) * groundSectionAreaSize.x - groundSectionHalfSize.x,
+                        j * groundSectionAreaSize.y - groundSectionHalfSize.y,
+                        (j + 1) * groundSectionAreaSize.y - groundSectionHalfSize.y);
                 }
             }
 
-            var buildingCount = buildingSpawner.BuildingCount + 9; // we have 9 ground areas
+            var buildingCount = buildingSpawner.BuildingCount + grountTileCount; // we have 9 ground areas
             var beamCountApprox = buildingCount * 12 * 3 * 16; // Max 12 stairs, 3 point by stair, ~16 beam by stair
             
             //var buildingsIndices = new NativeArray<int4>(buildingCount, Allocator.Persistent);
@@ -101,7 +109,7 @@ namespace Dots
                                     ecb.SetComponent(beamEntity, new Translation { Value = pos });
                                     ecb.SetComponent(beamEntity, new Rotation { Value = rot });
                                     ecb.AddComponent(beamEntity, new NonUniformScale { Value = scale });
-                                    ecb.AddComponent(beamEntity, new BeamComponent { Value = beamIndex });
+                                    ecb.AddComponent(beamEntity, new BeamComponent { beamIndex = beamIndex });
 
                                     beam.position = pos;
                                     beam.rotation = rot;
@@ -136,7 +144,7 @@ namespace Dots
                         int height = random.NextInt(4, 12);
                         int anchorStart = anchorPointTotal;
                         int anchorCount = height * 3;
-                        float3 pos = new float3(random.NextFloat(-45.0f, 45.0f), 0f, random.NextFloat(-45.0f, 45.0f));
+                        float3 pos = new float3(random.NextFloat(-buildingsAreaSizeHalfSize.x, buildingsAreaSizeHalfSize.x), 0f, random.NextFloat(-buildingsAreaSizeHalfSize.y, buildingsAreaSizeHalfSize.y));
                         for (int j = 0; j < height; j++)
                         {
                             int index = anchorStart + j * 3;
@@ -164,12 +172,14 @@ namespace Dots
                         int beamStart = beamTotal;
                         int beamCount = generateBeamsForBuilding(anchorStart, anchorCount, beamStart, spawner);
                         
-                        //Debug.LogFormat("#{3} Added building{2} group with {0} points and {1} beams.", anchorCount, beamCount, i, buildingCount);
-                        
                         var pointEntity = ecb.CreateEntity();
                         ecb.AddComponent(pointEntity, new Building
                         {
                             index = new int4(anchorStart, anchorCount, beamStart, beamCount)
+                        });
+                        ecb.AddSharedComponent(pointEntity, new ChunkIndex
+                        {
+                            index = buildingCount
                         });
                         ++buildingCount;
 
@@ -181,8 +191,8 @@ namespace Dots
                     for (int groundSection = 0; groundSection < 9; ++groundSection)
                     {
                         int anchorStart = anchorPointTotal;
-                        int anchorCount = 80;
-                        for (int i = 0; i < 80; i++)
+                        int anchorCount = groundSectionPointByArea;
+                        for (int i = 0; i < groundSectionPointByArea; i++)
                         {
                             float4 area = groundSectionAreas[groundSection];
                             float3 pos = new float3(random.NextFloat(area.x, area.y), 0f, random.NextFloat(area.z, area.w));
@@ -212,12 +222,14 @@ namespace Dots
                         int beamStart = beamTotal;
                         int beamCount = generateBeamsForBuilding(anchorStart, anchorCount, beamStart, spawner);
                         
-                        //Debug.LogFormat("#{2} Added ground beam group with {0} points and {1} beams.", anchorCount, beamCount, buildingCount);
-                        
                         var pointEntity = ecb.CreateEntity();
                         ecb.AddComponent(pointEntity, new Building
                         {
                             index = new int4(anchorStart, anchorCount, beamStart, beamCount)
+                        });
+                        ecb.AddSharedComponent(pointEntity, new ChunkIndex
+                        {
+                            index = buildingCount
                         });
                         ++buildingCount;
                         
