@@ -98,9 +98,9 @@ partial class Tornado0SetupSystem : SystemBase
         }).Schedule(Dependency);
 
         // Drop
-        var j1 = Entities.WithNone<AnchoredPoint>().ForEach((ref Point point) =>
+        var j1 = Entities.WithNone<AnchoredPoint>().ForEach((ref Point point, ref PointStart ps) =>
         {
-            point.start = point.pos;
+            ps.start = point.pos;
             point.old.y += .01f;
         }).ScheduleParallel(Dependency);
 
@@ -169,10 +169,10 @@ partial class Tornado1ApplyForcesSystem : SystemBase
             a.enabled = false;
         }).ScheduleParallel(Dependency);
 
-        Dependency = Entities.ForEach((ref Point point, in PointDamping d) =>
+        Dependency = Entities.ForEach((ref Point point, in PointStart ps, in PointDamping d) =>
         {
             point.pos += (point.pos - point.old) * d.invDamping;
-            point.old = point.start;
+            point.old = ps.start;
             if (point.pos.y < 0f)
             {
                 point.pos.y = 0f;
@@ -225,25 +225,31 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
                 writeBackPoint1 = true;
             }
 
+            if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
+            if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
+
             int pi = 0;
             if (breaks)
             {
-                if (point2.neighborCount > 1)
+                var n2 = em.GetComponentData<PointNeighbors>(beam.point2);
+
+                if (n2.neighborCount > 1)
                 {
-                    point2.neighborCount--;
-                    writeBackPoint2 = true;
+                    n2.neighborCount--;
+                    em.SetComponentData(beam.point2, n2);
                     pi = 2;
                 }
-                else if (point1.neighborCount > 1)
+                else
                 {
-                    point1.neighborCount--;
-                    writeBackPoint1 = true;
-                    pi = 1;
+                    var n1 = em.GetComponentData<PointNeighbors>(beam.point1);
+                    if (n1.neighborCount > 1)
+                    {
+                        n1.neighborCount--;
+                        em.SetComponentData(beam.point1, n1);
+                        pi = 1;
+                    }
                 }
             }
-
-            if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
-            if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
 
             ecb.SetComponent(entity, new BeamModif { enabled = true, p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
         }).Run();
@@ -273,7 +279,7 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
                 return;
 
             var beam = _beam;
-            var writeBackBeam = false;
+            var writeBackBeam = false; // Used to serialize beam modifications
 
             var translate = (bm.p1 + bm.p2) * .5f;
             var dd = bm.norm.x * beam.norm.x + bm.norm.y * beam.norm.y + bm.norm.z * beam.norm.z;
@@ -322,7 +328,8 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
                                 in EntityArchetype fixedPointArchType, in EntityArchetype dynamicPointArchType)
     {
         var point = ecb.CreateEntity(sortKey, anchored ? fixedPointArchType : dynamicPointArchType);
-        ecb.SetComponent(sortKey, point, new Point(pos) { neighborCount = neighborCount });
+        ecb.SetComponent(sortKey, point, new Point(pos));
+        ecb.SetComponent(sortKey, point, new PointNeighbors(neighborCount));
         ecb.SetComponent(sortKey, point, new PointDamping(1f - damping, friction));
         return point;
     }

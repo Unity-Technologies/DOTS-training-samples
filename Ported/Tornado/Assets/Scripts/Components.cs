@@ -6,13 +6,30 @@ struct Point : IComponentData
 {
     public float3 pos;
     public float3 old; // TODO: Split pos, old and start into 3 components
-    public float3 start;
-    public int neighborCount; // TODO: Put it its own component
 
     public Point(in float3 pos)
     {
-        start = old = this.pos = pos;
-        neighborCount = 0;
+        old = this.pos = pos;
+    }
+}
+
+struct PointNeighbors : IComponentData
+{
+    public int neighborCount;
+
+    public PointNeighbors(int neighborCount)
+    {
+        this.neighborCount = neighborCount;
+    }
+}
+
+struct PointStart : IComponentData
+{
+    public float3 start;
+
+    public PointStart(in float3 pos)
+    {
+        start = pos;
     }
 }
 
@@ -119,8 +136,8 @@ struct BeamModif : IComponentData
 
 static class ArcheTypes
 {
-    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint) };
-    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint) };
+    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint), typeof(PointNeighbors) };
+    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint), typeof(PointStart), typeof(PointNeighbors) };
     public static readonly ComponentType[] BeamTypes = new ComponentType[] { typeof(Beam), typeof(BeamModif) };
 
     public static readonly EntityArchetype Beam;

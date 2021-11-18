@@ -65,7 +65,8 @@ class PointManager : MonoBehaviour
     internal Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
     {
         var point = em.CreateEntity(anchored ? ArcheTypes.FixedPoint : ArcheTypes.DynamicPoint);
-        em.SetComponentData(point, new Point(pos) { neighborCount = neighborCount });
+        em.SetComponentData(point, new Point(pos));
+        em.SetComponentData(point, new PointNeighbors(neighborCount));
         em.SetComponentData(point, new PointDamping(1f - damping, friction));
         return point;
     }
@@ -121,11 +122,15 @@ class PointManager : MonoBehaviour
                     if (length >= 5f || length <= .2f)
                         continue;
 
-                    ++a.neighborCount;
-                    ++b.neighborCount;
+                    var na = em.GetComponentData<PointNeighbors>(points[i]);
+                    var nb = em.GetComponentData<PointNeighbors>(points[j]);
+                    ++na.neighborCount;
+                    ++nb.neighborCount;
 
                     em.SetComponentData(points[i], a);
                     em.SetComponentData(points[j], b);
+                    em.SetComponentData(points[i], na);
+                    em.SetComponentData(points[j], nb);
 
                     var beam = new Beam(points[i], points[j], random.NextFloat(.25f, .35f), length, matrixBatchIndex, matricesList[matrixBatchIndex].Count);
                     var barLength = math.length(delta);
@@ -157,7 +162,7 @@ class PointManager : MonoBehaviour
         {
             for (int i = 0; i < points.Length; i++)
             {
-                var point = em.GetComponentData<Point>(points[i]);
+                var point = em.GetComponentData<PointNeighbors>(points[i]);
                 if (point.neighborCount == 0)
                     em.DestroyEntity(points[i]);
                 else
