@@ -10,7 +10,7 @@ using UnityEngine;
 static class PointTypes
 {
     public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint) };
-    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint) };
+    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint) };
 
     public static readonly EntityArchetype FixedPointArchType;
     public static readonly EntityArchetype DynamicPointArchType;

@@ -31,8 +31,9 @@ readonly struct PointDamping : IComponentData
     }
 }
 
-readonly struct AffectedPoint : IComponentData 
+struct AffectedPoint : IComponentData 
 {
+    public bool enabled;
     public readonly float distance;
     public readonly float2 tdir;
     public readonly float fader;
@@ -44,6 +45,7 @@ readonly struct AffectedPoint : IComponentData
 
     public AffectedPoint(in TornadoState ts, in float distance, in float2 dir)
     {
+        enabled = true;
         this.distance = distance;
         this.tdir = dir;
         this.fader = ts.fader;

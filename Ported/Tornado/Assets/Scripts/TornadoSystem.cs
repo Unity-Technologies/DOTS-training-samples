@@ -98,7 +98,7 @@ partial class Tornado0SetupSystem : SystemBase
         }).Schedule(Dependency);
 
         // Drop
-        var j1 = Entities.ForEach((ref Point point) =>
+        var j1 = Entities.WithNone<AnchoredPoint>().ForEach((ref Point point) =>
         {
             point.start = point.pos;
             point.old.y += .01f;
@@ -108,7 +108,7 @@ partial class Tornado0SetupSystem : SystemBase
         using (var ecb = new EntityCommandBuffer(Allocator.TempJob))
         {
             var cmd = ecb.AsParallelWriter();
-            var j2 = Entities.WithReadOnly(tornados).ForEach((in Entity e, in int entityInQueryIndex, in Point point) =>
+            var j2 = Entities.WithNone<AnchoredPoint>().WithReadOnly(tornados).ForEach((in Entity e, in int entityInQueryIndex, in Point point) =>
             {
                 // Apply tornado force
                 foreach (var t in tornados)
@@ -117,7 +117,7 @@ partial class Tornado0SetupSystem : SystemBase
                     var td = new float2(t.x + sway - point.pos.x, t.y - point.pos.z);
                     var tornadoDist = math.length(td);
                     if (tornadoDist < t.data.maxForceDist)
-                        cmd.AddComponent(entityInQueryIndex, e, new AffectedPoint(t, tornadoDist, td / tornadoDist));
+                        cmd.SetComponent(entityInQueryIndex, e, new AffectedPoint(t, tornadoDist, td / tornadoDist));
                 }
             }).ScheduleParallel(JobHandle.CombineDependencies(setupJob, j1));
 
@@ -134,21 +134,23 @@ partial class Tornado1ApplyForcesSystem : SystemBase
     protected override void OnUpdate()
     {
         var em = EntityManager;
-        var random = new Unity.Mathematics.Random(1234);
+        var random = new Unity.Mathematics.Random((uint)Time.ElapsedTime + 1);
 
         using (var ecb = new EntityCommandBuffer(Allocator.TempJob))
         {
             var cmd = ecb.AsParallelWriter();
-            var j1 = Entities.ForEach((ref Point point, in Entity entity, in int entityInQueryIndex, in AffectedPoint a) =>
+            var j1 = Entities.ForEach((ref Point point, ref AffectedPoint a, in Entity entity, in int entityInQueryIndex) =>
             {
-                cmd.RemoveComponent<AffectedPoint>(entityInQueryIndex, entity);
+                if (!a.enabled)
+                    return;
 
                 var yFader = math.saturate(1f - point.pos.y / a.height) * a.inwardForce;
                 var fv = new float3(-a.tdir.y + a.tdir.x * yFader, a.upForce, a.tdir.x + a.tdir.y * yFader);
                 var force = (1f - a.distance / a.maxForceDist) * (a.fader * a.force * random.NextFloat(-.3f, 1.3f));
 
                 point.old -= fv * force;
-            }).WithName("tornado_apply_force").ScheduleParallel(Dependency);
+                a.enabled = false;
+            }).ScheduleParallel(Dependency);
 
             Dependency = Entities.ForEach((ref Point point, in PointDamping d) =>
             {
