@@ -9,4 +9,5 @@ public struct Bee : IComponentData
     public float3 TargetOffset;
     public Entity TargetEntity;
     public Entity CarriedFoodEntity;
+    public float TimeLeftTilIdleUpdate;
 }

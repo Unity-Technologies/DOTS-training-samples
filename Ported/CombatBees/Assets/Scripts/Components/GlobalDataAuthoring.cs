@@ -42,6 +42,7 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
     public float3 FlutterMagnitude;
     public float3 FlutterInterval;
     public float DecayTime;
+    public float TimeBetweenIdleUpdates;
     public LocalTeamDef[] TeamDefinitions;
 
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -76,7 +77,8 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             MinimumSpeed = MinimumSpeed,
             TurnbackZone = max - new float3(TurnbackWidth),
             TurnbackWidth = TurnbackWidth,
-            DecayTime = math.max(DecayTime,0.01f)
+            DecayTime = math.max(DecayTime,0.01f),
+            TimeBetweenIdleUpdates = TimeBetweenIdleUpdates
         });
 
         var buffer = dstManager.AddBuffer<TeamDefinition>(entity);

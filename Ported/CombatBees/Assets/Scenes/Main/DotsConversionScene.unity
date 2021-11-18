@@ -156,8 +156,8 @@ MonoBehaviour:
   BeePrefab: {fileID: 734812879360647095, guid: 1cb53a0f2b0cbfe47be6db3b5bf2653e, type: 3}
   FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
   GibletPrefab: {fileID: 8032040333273944177, guid: 52dd431af163e6248a5683f57ba82946, type: 3}
-  StartingFoodCount: 25
-  BeeCount: 100
+  StartingFoodCount: 100
+  BeeCount: 500
   Length: 60
   Width: 20
   HiveDepth: 10
@@ -172,6 +172,7 @@ MonoBehaviour:
     y: 0.15
     z: 0.25
   DecayTime: 3
+  TimeBetweenIdleUpdates: 0
   TeamDefinitions:
   - Speed: 15
     AttackRange: 0.5
@@ -214,6 +215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spaceKey: 32
+  leftMouse: 0
 --- !u!1001 &1166647613
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -281,7 +283,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: a87e316bfb2acf646963c84cc02fb5d4, type: 3}
 --- !u!1 &1276993947
 GameObject:
@@ -294,7 +297,6 @@ GameObject:
   - component: {fileID: 1276993954}
   - component: {fileID: 1276993953}
   - component: {fileID: 1276993952}
-  - component: {fileID: 1276993951}
   - component: {fileID: 1276993950}
   - component: {fileID: 1276993949}
   - component: {fileID: 1276993948}
@@ -351,19 +353,6 @@ MonoBehaviour:
     x: 5
     y: 10
     z: 10
---- !u!65 &1276993951
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1276993947}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1276993952
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -463,7 +452,6 @@ GameObject:
   - component: {fileID: 3908719082027551663}
   - component: {fileID: 1791795584638545579}
   - component: {fileID: 5894183175616424732}
-  - component: {fileID: 3840419977030917644}
   - component: {fileID: 3299796727686374864}
   - component: {fileID: 3299796727686374863}
   - component: {fileID: 3299796727686374862}
@@ -537,19 +525,6 @@ MonoBehaviour:
     y: 0
     z: 1
     w: 0.5
---- !u!65 &3840419977030917644
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3299796727686374861}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &3908719082027551663
 Transform:
   m_ObjectHideFlags: 0

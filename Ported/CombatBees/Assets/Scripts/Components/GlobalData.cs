@@ -21,4 +21,5 @@ public struct GlobalData : IComponentData
     public float3 FlutterMagnitude;
     public float3 FlutterInterval;
     public float DecayTime;
+    public float TimeBetweenIdleUpdates;
 }

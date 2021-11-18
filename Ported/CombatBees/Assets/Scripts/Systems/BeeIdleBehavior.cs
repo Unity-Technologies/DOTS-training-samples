@@ -77,9 +77,17 @@ public partial class BeeIdleBehavior : SystemBase
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team, in Velocity velocity) =>
                 {
+                    if (myself.TimeLeftTilIdleUpdate > dt)
+                    {
+                        myself.TimeLeftTilIdleUpdate -= dt;
+                        return;
+                    }
+
                     var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameCount));
                     var teamDef = beeDefinitions[team.Value];
                     bool hunting;
+                    myself.TimeLeftTilIdleUpdate += globalData.TimeBetweenIdleUpdates - dt;
+
                     NativeArray<Translation> translationArray;
                     NativeArray<TargetedBy> targetedArray;
                     NativeArray<Entity> entityArray;

@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: 546c3904e1c359c468cb553a5fbe10f4
+  - enabled: 1
+    path: Assets/Scenes/Main/DotsConversionScene.unity
+    guid: ff606780ef2096b468e1c9f7022a0be2
   m_configObjects: {}

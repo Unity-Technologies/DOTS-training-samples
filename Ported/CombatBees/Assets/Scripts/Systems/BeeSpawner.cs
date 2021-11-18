@@ -45,7 +45,10 @@ public partial class BeeSpawner : SystemBase
                     var vel = math.normalize(random.NextFloat3Direction())*10.0f;
                     // Optimize by Setting the velocity instead of adding.
                     EntityManager.AddComponentData(entity, new Velocity { Value = vel });
-                    EntityManager.AddComponentData(entity, new Bee());
+                    EntityManager.AddComponentData(entity, new Bee
+                    {
+                        TimeLeftTilIdleUpdate = random.NextFloat(0, globalData.TimeBetweenIdleUpdates)
+                    });
                     EntityManager.AddComponentData(entity, new BeeIdleMode());
                     EntityManager.AddComponentData(entity, teamID);
                     EntityManager.AddComponentData(entity, new TargetedBy { Value = Entity.Null });

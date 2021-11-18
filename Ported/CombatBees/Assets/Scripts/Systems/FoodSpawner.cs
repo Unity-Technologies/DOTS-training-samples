@@ -1,11 +1,6 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.Rendering;
-using UnityEditorInternal;
 
 public partial class FoodSpawner : SystemBase
 {
