@@ -7,22 +7,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-static class PointTypes
-{
-    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint) };
-    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint) };
-
-    public static readonly EntityArchetype FixedPointArchType;
-    public static readonly EntityArchetype DynamicPointArchType;
-
-    static PointTypes()
-    {
-        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
-        FixedPointArchType = em.CreateArchetype(FixedPointTypes);
-        DynamicPointArchType = em.CreateArchetype(DynamicPointTypes);
-    }
-}
-
 class PointManager : MonoBehaviour
 {
     const float spacing = 2f;
@@ -80,7 +64,7 @@ class PointManager : MonoBehaviour
 
     internal Entity CreatePoint(EntityManager em, in float3 pos, in bool anchored, in int neighborCount = 0)
     {
-        var point = em.CreateEntity(anchored ? PointTypes.FixedPointArchType : PointTypes.DynamicPointArchType);
+        var point = em.CreateEntity(anchored ? ArcheTypes.FixedPoint : ArcheTypes.DynamicPoint);
         em.SetComponentData(point, new Point(pos) { neighborCount = neighborCount });
         em.SetComponentData(point, new PointDamping(1f - damping, friction));
         return point;
@@ -159,7 +143,7 @@ class PointManager : MonoBehaviour
                         matricesList.Add(new List<Matrix4x4>());
                     }
 
-                    var beamEntity = em.CreateEntity(typeof(Beam));
+                    var beamEntity = em.CreateEntity(ArcheTypes.Beam);
                     em.SetComponentData(beamEntity, beam);
 
                     beamCount++;

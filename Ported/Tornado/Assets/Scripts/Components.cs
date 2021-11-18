@@ -107,6 +107,7 @@ readonly struct TornadoFader : IComponentData
 
 struct BeamModif : IComponentData
 {
+    public bool enabled;
     public float3 p1;
     public float3 p2;
     public float3 norm;
@@ -114,4 +115,23 @@ struct BeamModif : IComponentData
     public float dist;
     public bool breaks;
     public int pi;
+}
+
+static class ArcheTypes
+{
+    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint) };
+    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint) };
+    public static readonly ComponentType[] BeamTypes = new ComponentType[] { typeof(Beam), typeof(BeamModif) };
+
+    public static readonly EntityArchetype Beam;
+    public static readonly EntityArchetype FixedPoint;
+    public static readonly EntityArchetype DynamicPoint;
+
+    static ArcheTypes()
+    {
+        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
+        Beam = em.CreateArchetype(BeamTypes);
+        FixedPoint = em.CreateArchetype(FixedPointTypes);
+        DynamicPoint = em.CreateArchetype(DynamicPointTypes);
+    }
 }

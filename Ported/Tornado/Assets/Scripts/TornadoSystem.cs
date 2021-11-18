@@ -122,9 +122,31 @@ partial class Tornado0SetupSystem : SystemBase
             }).ScheduleParallel(JobHandle.CombineDependencies(setupJob, j1));
 
             j2.Complete();
-
             ecb.Playback(EntityManager);
         }
+    }
+}
+
+partial class Tornado0BindMatrices : BaseTornadoSystem
+{
+    private bool m_CaptureMatrices = true;
+
+    protected override void OnUpdate(EntityCommandBuffer _)
+    {
+        if (!m_CaptureMatrices)
+            return;
+        m_CaptureMatrices = false;
+
+        var matrices = m_Matrices;
+        Entities.WithoutBurst().ForEach((ref Beam beam) =>
+        {
+            var batch = matrices[beam.m1i];
+            unsafe
+            {
+                fixed (Matrix4x4* p = &batch[beam.m2i])
+                    beam.matrix = p;
+            }
+        }).Run();
     }
 }
 
@@ -133,40 +155,31 @@ partial class Tornado1ApplyForcesSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var em = EntityManager;
         var random = new Unity.Mathematics.Random((uint)Time.ElapsedTime + 1);
-
-        using (var ecb = new EntityCommandBuffer(Allocator.TempJob))
+        var j1 = Entities.ForEach((ref Point point, ref AffectedPoint a) =>
         {
-            var cmd = ecb.AsParallelWriter();
-            var j1 = Entities.ForEach((ref Point point, ref AffectedPoint a, in Entity entity, in int entityInQueryIndex) =>
+            if (!a.enabled)
+                return;
+
+            var yFader = math.saturate(1f - point.pos.y / a.height) * a.inwardForce;
+            var fv = new float3(-a.tdir.y + a.tdir.x * yFader, a.upForce, a.tdir.x + a.tdir.y * yFader);
+            var force = (1f - a.distance / a.maxForceDist) * (a.fader * a.force * random.NextFloat(-.3f, 1.3f));
+
+            point.old -= fv * force;
+            a.enabled = false;
+        }).ScheduleParallel(Dependency);
+
+        Dependency = Entities.ForEach((ref Point point, in PointDamping d) =>
+        {
+            point.pos += (point.pos - point.old) * d.invDamping;
+            point.old = point.start;
+            if (point.pos.y < 0f)
             {
-                if (!a.enabled)
-                    return;
-
-                var yFader = math.saturate(1f - point.pos.y / a.height) * a.inwardForce;
-                var fv = new float3(-a.tdir.y + a.tdir.x * yFader, a.upForce, a.tdir.x + a.tdir.y * yFader);
-                var force = (1f - a.distance / a.maxForceDist) * (a.fader * a.force * random.NextFloat(-.3f, 1.3f));
-
-                point.old -= fv * force;
-                a.enabled = false;
-            }).ScheduleParallel(Dependency);
-
-            Dependency = Entities.ForEach((ref Point point, in PointDamping d) =>
-            {
-                point.pos += (point.pos - point.old) * d.invDamping;
-                point.old = point.start;
-                if (point.pos.y < 0f)
-                {
-                    point.pos.y = 0f;
-                    point.old += (point.pos.x - point.old.x) * d.friction;
-                    point.old.y = -point.old.y;
-                }
-            }).ScheduleParallel(j1);
-
-            j1.Complete();
-            ecb.Playback(EntityManager);
-        }
+                point.pos.y = 0f;
+                point.old += (point.pos.x - point.old.x) * d.friction;
+                point.old.y = -point.old.y;
+            }
+        }).ScheduleParallel(j1);
     }
 }
 
@@ -232,16 +245,15 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
             if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
             if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
 
-            ecb.AddComponent(entity, new BeamModif { p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
+            ecb.SetComponent(entity, new BeamModif { enabled = true, p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
         }).Run();
     }
 }
 
+[UpdateAfter(typeof(Tornado0BindMatrices))]
 [UpdateAfter(typeof(Tornado2ApplyBeamForcesSystem))]
 partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
 {
-    private bool m_CaptureMatrices = true;
-
     public Tornado3UpdateBeamsSystem()
         : base(Allocator.TempJob)
     {
@@ -249,30 +261,16 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
 
     protected override void OnUpdate(EntityCommandBuffer ecb)
     {
-        if (m_CaptureMatrices)
-        {
-            var matrices = m_Matrices;
-            Entities.WithoutBurst().ForEach((ref Beam beam) =>
-            {
-                var batch = matrices[beam.m1i];
-                unsafe
-                {
-                    fixed (Matrix4x4* p = &batch[beam.m2i])
-                        beam.matrix = p;
-                }
-            }).Run();
-            m_CaptureMatrices = false;
-        }
-
         var damping = m_Damping;
         var friction = m_Friction;
-        var FixedPointArchType = PointTypes.FixedPointArchType;
-        var DynamicPointArchType = PointTypes.DynamicPointArchType;
+        var FixedPointArchType = ArcheTypes.FixedPoint;
+        var DynamicPointArchType = ArcheTypes.DynamicPoint;
 
         var cmd = ecb.AsParallelWriter();
-        Entities.ForEach((in Entity entity, in int entityInQueryIndex, in Beam _beam, in BeamModif bm) =>
+        Entities.ForEach((ref BeamModif bm, in Entity entity, in int entityInQueryIndex, in Beam _beam) =>
         {
-            cmd.RemoveComponent<BeamModif>(entityInQueryIndex, entity);
+            if (!bm.enabled)
+                return;
 
             var beam = _beam;
             var writeBackBeam = false;
@@ -314,6 +312,7 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
                 }
             }
 
+            bm.enabled = false;
             if (writeBackBeam)
                 cmd.SetComponent(entityInQueryIndex, entity, beam);
         }).ScheduleParallel(Dependency).Complete();
