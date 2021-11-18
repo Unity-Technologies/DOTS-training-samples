@@ -185,22 +185,33 @@ partial class Tornado1ApplyForcesSystem : SystemBase
 }
 
 [UpdateAfter(typeof(Tornado1ApplyForcesSystem))]
-partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
+partial class Tornado2ApplyBeamForcesSystem : SystemBase
 {
     struct CachedPoint
     {
         public float3 pos;
         public float3 old;
         public int neighbors;
-        public bool anchored;
+        readonly public bool anchored;
+
+        public CachedPoint(in float3 pos, in float3 old, int neighbors, bool anchored)
+        {
+            this.pos = pos;
+            this.old = old;
+            this.neighbors = neighbors;
+            this.anchored = anchored;
+        }
     }
 
     EntityQuery m_PointQuery;
+    float m_BreakResistance;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
+        var pm = GameObject.FindObjectOfType<PointManager>();
+        m_BreakResistance = pm.breakResistance;
         m_PointQuery = EntityManager.CreateEntityQuery(typeof(Point));
     }
 
@@ -210,51 +221,66 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
         base.OnDestroy();
     }
 
-    protected override void OnUpdate(EntityCommandBuffer ecb)
+    protected override void OnUpdate()
     {
-        var em = EntityManager;
         var breakResistance = m_BreakResistance;
 
-        var pointCache = new NativeHashMap<int, CachedPoint>(m_PointQuery.CalculateEntityCount(), Allocator.TempJob);
-        var pcw = pointCache.AsParallelWriter();
-        var j1 = Entities.WithAll<DynamicPoint>().ForEach((in Entity entity, in Point p, in PointNeighbors pn) =>
+        // Create point cache for parallel job
+        int pointIndex = 0;
+        //var pointIndex = new NativeReference<int>(-1, Allocator.TempJob);
+        int totalPointCount = m_PointQuery.CalculateEntityCount();
+        var pointIndexMap = new NativeHashMap<int, int>(totalPointCount, Allocator.TempJob);
+        var pointCache = new NativeArray<CachedPoint>(totalPointCount, Allocator.TempJob);
+        Entities.ForEach((ref PointIndex index, in Entity e) =>
         {
-            var k = entity.GetHashCode();
-            pcw.TryAdd(k, new CachedPoint 
-            { 
-                anchored = false,
-                pos = p.pos,
-                old = p.old,
-                neighbors = pn.neighborCount
-            });
+//             unsafe
+//             {
+//                 int* pp = (int*)NativeReferenceUnsafeUtility.GetUnsafePtr(pointIndex);
+//                 index.value = Interlocked.Increment(pointIndex);
+//             }
+            
+            var k = e.GetHashCode();
+            //index.value = Interlocked.Increment(ref pointIndex[0]);
+            index.value = pointIndex++;
+            pointIndexMap[k] = index.value; 
+        }).Run();
+
+        var j1 = Entities.
+            WithAll<DynamicPoint>().
+            WithNativeDisableParallelForRestriction(pointCache).
+            WithNativeDisableContainerSafetyRestriction(pointCache).
+            ForEach((in PointIndex index, in Point p, in PointNeighbors pn) => 
+        {
+            if (index.value == -1)
+                throw new System.Exception("Failed to get point index");
+            pointCache[index.value] = new CachedPoint(p.pos, p.old, pn.neighborCount, false);
         }).ScheduleParallel(Dependency);
 
-        var j2 = Entities.WithAll<AnchoredPoint>().ForEach((in Entity entity, in Point p, in PointNeighbors pn) =>
+        var j2 = Entities.
+            WithAll<AnchoredPoint>().
+            WithNativeDisableParallelForRestriction(pointCache).
+            WithNativeDisableContainerSafetyRestriction(pointCache).
+            ForEach((in PointIndex index, in Point p, in PointNeighbors pn) =>
         {
-            var k = entity.GetHashCode();
-            pcw.TryAdd(k, new CachedPoint
-            {
-                anchored = true,
-                pos = p.pos,
-                old = p.old,
-                neighbors = pn.neighborCount
-            });
-        }).ScheduleParallel(j1);
+            if (index.value == -1)
+                throw new System.Exception("Failed to get point index");
+            pointCache[index.value] = new CachedPoint(p.pos, p.old, pn.neighborCount, true);
 
-        j2.Complete();
+        }).ScheduleParallel(Dependency);
 
-        //UnityEngine.Debug.Log($"{pointCache.Count()} points");
-
-        Entities.ForEach((in Entity entity, in Beam beam) =>
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var cmd = ecb.AsParallelWriter();
+        var j3 = Entities.
+            WithDisposeOnCompletion(pointIndexMap).
+            WithNativeDisableParallelForRestriction(pointCache).
+            WithNativeDisableContainerSafetyRestriction(pointCache).
+            WithReadOnly(pointIndexMap).ForEach((in Entity entity, in int entityInQueryIndex, in Beam beam) =>
         {
             var k1 = beam.point1.GetHashCode();
             var k2 = beam.point2.GetHashCode();
 
-            //UnityEngine.Debug.Log($"{k1},{k2} points");
-
-            var c1 = pointCache[k1];
-            var c2 = pointCache[k2];
-
+            var c1 = pointCache[pointIndexMap[k1]];
+            var c2 = pointCache[pointIndexMap[k2]];
             var point1Anchored = c1.anchored;
             var point2Anchored = c2.anchored;
 
@@ -284,17 +310,6 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
                 writeBackPoint1 = true;
             }
 
-            if (writeBackPoint1) 
-            {
-                em.SetComponentData(beam.point1, new Point(c1.pos, c1.old));
-                pointCache[k1] = c1;
-            }
-            if (writeBackPoint2)
-            {
-                em.SetComponentData(beam.point2, new Point(c2.pos, c2.old));
-                pointCache[k2] = c2;
-            }
-
             int pi = 0;
             if (breaks)
             {
@@ -302,7 +317,6 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
                 {
                     --c2.neighbors;
                     writeBackPoint2 = true;
-                    em.SetComponentData(beam.point2, new PointNeighbors(c2.neighbors));
                     pi = 2;
                 }
                 else
@@ -311,19 +325,31 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
                     {
                         --c1.neighbors;
                         writeBackPoint1 = true;
-                        em.SetComponentData(beam.point1, new PointNeighbors(c1.neighbors));
                         pi = 1;
                     }
                 }
             }
 
+            if (writeBackPoint1) pointCache[pointIndexMap[k1]] = c1;
+            if (writeBackPoint2) pointCache[pointIndexMap[k2]] = c2;
             if (writeBackPoint1 || writeBackPoint2)
-                ecb.SetComponent(entity, new BeamModif(c1.pos, c2.pos, norm, delta, dist, breaks, pi));
-            //else
-              //  UnityEngine.Debug.Log("test");
-        }).Run();
+                cmd.SetComponent(entityInQueryIndex, entity, new BeamModif(c1.pos, c2.pos, norm, delta, dist, breaks, pi));
+        }).ScheduleParallel(JobHandle.CombineDependencies(j1, j2));
 
-        pointCache.Dispose();
+        j3.Complete();
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+
+        // Write point cache
+        Dependency = Entities.
+            WithReadOnly(pointCache).
+            ForEach((ref Point p, ref PointNeighbors n, in PointIndex index) =>
+        {
+            var pc = pointCache[index.value];
+            p.pos = pc.pos;
+            p.old = pc.old;
+            n.neighborCount = pc.neighbors;
+        }).WithDisposeOnCompletion(pointCache).ScheduleParallel(j3);
     }
 }
 

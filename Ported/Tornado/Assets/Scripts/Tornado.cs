@@ -1,4 +1,4 @@
-﻿#define DEBUG_DOTS
+﻿//#define DEBUG_DOTS
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;

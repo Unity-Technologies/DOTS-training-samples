@@ -37,6 +37,11 @@ struct PointStart : IComponentData
     }
 }
 
+struct PointIndex : IComponentData
+{
+    public int value;
+}
+
 struct DynamicPoint : IComponentData {}
 struct AnchoredPoint : IComponentData {}
 
@@ -126,16 +131,6 @@ readonly struct TornadoFader : IComponentData
     }
 }
 
-/*
-struct BeamModifMask : IComponentData
-{
-    public bool enabled;
-    public BeamModifMask(bool enabled)
-    {
-        this.enabled = enabled;
-    }
-}*/
-
 struct BeamModif : IComponentData
 {
     public bool enabled;
@@ -162,9 +157,23 @@ struct BeamModif : IComponentData
 
 static class ArcheTypes
 {
-    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint), typeof(PointNeighbors) };
-    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint), typeof(PointStart), typeof(PointNeighbors) };
-    public static readonly ComponentType[] BeamTypes = new ComponentType[] { typeof(Beam), /*typeof(BeamModifMask),*/ typeof(BeamModif) };
+    public static readonly ComponentType[] FixedPointTypes = new ComponentType[] 
+    {
+        typeof(AnchoredPoint),
+        typeof(Point), typeof(PointDamping), 
+        typeof(PointNeighbors), typeof(PointIndex)
+    };
+    public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] 
+    {
+        typeof(DynamicPoint),
+        typeof(Point), typeof(PointDamping), 
+        typeof(AffectedPoint), typeof(PointStart), 
+        typeof(PointNeighbors), typeof(PointIndex)
+    };
+    public static readonly ComponentType[] BeamTypes = new ComponentType[] 
+    { 
+        typeof(Beam), typeof(BeamModif) 
+    };
 
     public static readonly EntityArchetype Beam;
     public static readonly EntityArchetype FixedPoint;
