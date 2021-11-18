@@ -17,12 +17,19 @@ public partial class PlayerInputSystem : SystemBase
             .ForEach((in InputData inputData) =>
         {
             bool isSpaceKeyPressed = Input.GetKey(inputData.spaceKey);
+            bool isLeftMousePressed = Input.GetMouseButton(inputData.leftMouse);
+            
             if (isSpaceKeyPressed)
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 World.GetExistingSystem<BeeSpawner>().Enabled = true;
                 World.GetExistingSystem<FoodSpawner>().Enabled = true;
             }
+            if (isLeftMousePressed)
+            {
+                World.GetExistingSystem<FoodSpawner>().Enabled = true;
+            }
+            
         }).Run();
     }
 }
