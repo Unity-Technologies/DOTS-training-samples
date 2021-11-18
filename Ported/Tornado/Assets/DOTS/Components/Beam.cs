@@ -8,6 +8,11 @@ namespace Dots
 {
     public struct Beam : IComponentData
     {
+        public int beamDataIndex;
+    }
+
+    public struct BeamData
+    {
         public Entity p1;
         public Entity p2;
 

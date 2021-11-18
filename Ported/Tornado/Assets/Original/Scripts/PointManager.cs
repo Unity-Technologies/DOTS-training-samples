@@ -191,8 +191,8 @@ public class PointManager : MonoBehaviour
 
         foreach (var tornado in tornados)
         {
-            if (!tornado.simulate)
-                continue;
+            // if (!tornado.simulate)
+            //     continue;
 
             float invDamping = 1f - damping;
             for (int i = 0; i < pointCount; i++)
@@ -207,22 +207,25 @@ public class PointManager : MonoBehaviour
                     point.oldY += .01f;
 
                     // tornado force
-                    float tdx = tornado.x + TornadoSway(point.y) - point.x;
-                    float tdz = tornado.y - point.z;
-                    float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
-                    tdx /= tornadoDist;
-                    tdz /= tornadoDist;
-                    if (tornadoDist < tornado.maxForceDist)
+                    if (tornado.simulate)
                     {
-                        float force = (1f - tornadoDist / tornado.maxForceDist);
-                        float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
-                        force *= tornadoFader * tornado.force * Random.Range(-.3f, 1.3f);
-                        float forceY = tornado.upForce;
-                        point.oldY -= forceY * force;
-                        float forceX = -tdz + tdx * tornado.inwardForce * yFader;
-                        float forceZ = tdx + tdz * tornado.inwardForce * yFader;
-                        point.oldX -= forceX * force;
-                        point.oldZ -= forceZ * force;
+                        float tdx = tornado.x + TornadoSway(point.y) - point.x;
+                        float tdz = tornado.y - point.z;
+                        float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+                        tdx /= tornadoDist;
+                        tdz /= tornadoDist;
+                        if (tornadoDist < tornado.maxForceDist)
+                        {
+                            float force = (1f - tornadoDist / tornado.maxForceDist);
+                            float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
+                            force *= tornadoFader * tornado.force * Random.Range(-.3f, 1.3f);
+                            float forceY = tornado.upForce;
+                            point.oldY -= forceY * force;
+                            float forceX = -tdz + tdx * tornado.inwardForce * yFader;
+                            float forceZ = tdx + tdz * tornado.inwardForce * yFader;
+                            point.oldX -= forceX * force;
+                            point.oldZ -= forceZ * force;
+                        }
                     }
 
                     point.x += (point.x - point.oldX) * invDamping;

@@ -8,6 +8,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class TornadoSpawnerSystem : SystemBase
     {
         private EntityQuery m_TornadoSpawnerQuery;

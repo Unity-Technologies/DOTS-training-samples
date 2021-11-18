@@ -9,11 +9,14 @@ using Random = Unity.Mathematics.Random;
 
 namespace Dots
 {
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class BuildingSpawnerSystem : SystemBase
     {
         private EntityQuery m_BuildingSpawnerQuery;
 
         static readonly ComponentType k_FixedAnchorComponent = ComponentType.ReadOnly(typeof(Dots.FixedAnchor));
+
+        public NativeArray<BeamData> beams;
 
         protected override void OnCreate()
         {
@@ -24,9 +27,13 @@ namespace Dots
             RequireForUpdate(m_BuildingSpawnerQuery);
         }
 
+        protected override void OnDestroy()
+        {
+            beams.Dispose();
+        }
+
         protected override void OnUpdate()
         {
-
             var random = new Random(1234);
 
             using (var entities = m_BuildingSpawnerQuery.ToEntityArray(Allocator.TempJob))
@@ -88,6 +95,9 @@ namespace Dots
                         pointEntities.Add(pointEntity);
                     }
 
+                    var beamDatas = new List<BeamData>();
+                    var connectedComponents = new List<ConnectedComponent>();
+                    var pointToCC = new Dictionary<int, ConnectedComponent>();
                     for (int i = 0; i < pointCount; i++)
                     {
                         for (int j = i + 1; j < pointCount; j++)
@@ -126,14 +136,64 @@ namespace Dots
                             var desc = new RenderMeshDescription(spawner.mesh, spawner.material);
                             RenderMeshUtility.AddComponents(barEntity, EntityManager, desc);
 
-                            EntityManager.AddComponentData(barEntity, new Beam()
+                            var beamData = new BeamData()
                             {
                                 p1 = p1,
                                 p2 = p2,
                                 oldD = new float3(0, 0, 0),
                                 newD = new float3(0, 0, 0),
                                 length = length
+                            };
+                            beamDatas.Add(beamData);
+                            var beamIndex = beamDatas.Count - 1;
+                            EntityManager.AddComponentData(barEntity, new Beam()
+                            {
+                                beamDataIndex = beamDatas.Count - 1
                             });
+
+
+                            if (!pointToCC.ContainsKey(i) && !pointToCC.ContainsKey(j))
+                            {
+                                var currentComponent = new ConnectedComponent(i);
+                                currentComponent.AddBeam(beamIndex);
+                                pointToCC.Add(i, currentComponent);
+                                pointToCC.Add(j, currentComponent);
+                                connectedComponents.Add(currentComponent);
+                            }
+                            else if (pointToCC.ContainsKey(i) && pointToCC.ContainsKey(j))
+                            {
+                                var cc1 = pointToCC[i];
+                                var cc2 = pointToCC[j];
+                                cc1.Merge(cc2);
+                                cc1.AddBeam(beamIndex);
+                            }
+                            else if (pointToCC.ContainsKey(i))
+                            {
+                                var cc = pointToCC[i];
+                                cc.AddBeam(beamIndex);
+                                pointToCC.Add(j, cc);
+                            }
+                            else
+                            {
+                                var cc = pointToCC[j];
+                                cc.AddBeam(beamIndex);
+                                pointToCC.Add(i, cc);
+                            }
+                        }
+                    }
+
+                    beams = new NativeArray<BeamData>(beamDatas.ToArray(), Allocator.Persistent);
+
+                    foreach (var connectedComponent in connectedComponents)
+                    {
+                        if (connectedComponent.root != null)
+                            continue;
+
+                        var beamGroup = EntityManager.CreateEntity();
+                        var entityBuffer = EntityManager.AddBuffer<BeamBufferElement>(beamGroup);
+                        foreach (var beam in connectedComponent.beams)
+                        {
+                            entityBuffer.Add(beam);
                         }
                     }
                 }
@@ -146,7 +206,8 @@ namespace Dots
             EntityManager.AddComponentData(pointEntity, new Anchor()
             {
                 position = position,
-                oldPosition = position
+                oldPosition = position,
+                neighborCount = 0
             });
             if (position.y == 0)
             {
@@ -155,5 +216,85 @@ namespace Dots
 
             return pointEntity;
         }
+    }
+
+    class ConnectedComponent
+    {
+        public ConnectedComponent root { get; set; }
+
+        public List<int> beams;
+        public int id { get; private set; }
+
+        public ConnectedComponent(int id)
+        {
+            beams = new List<int>();
+            root = null;
+            this.id = id;
+        }
+
+        public void Merge(ConnectedComponent other)
+        {
+            if (id == other.id)
+                return;
+
+            if (id < other.id)
+            {
+                GetRoot().beams.AddRange(other.beams);
+                other.beams.Clear();
+                other.id = id;
+                other.root = this;
+            }
+            else
+            {
+                other.GetRoot().beams.AddRange(beams);
+                beams.Clear();
+                id = other.id;
+                root = other;
+            }
+        }
+
+        public ConnectedComponent GetRoot()
+        {
+            var currentCC = this;
+            while (currentCC.root != null)
+                currentCC = currentCC.root;
+            return currentCC;
+        }
+
+        public void AddBeam(int beamId)
+        {
+            GetRoot().beams.Add(beamId);
+        }
+    }
+
+    // InternalBufferCapacity specifies how many elements a buffer can have before
+    // the buffer storage is moved outside the chunk.
+    [InternalBufferCapacity(8)]
+    public struct BeamBufferElement : IBufferElementData
+    {
+        // Actual value each buffer element will store.
+        public int Value;
+
+        // The following implicit conversions are optional, but can be convenient.
+        public static implicit operator int(BeamBufferElement e)
+        {
+            return e.Value;
+        }
+
+        public static implicit operator BeamBufferElement(int e)
+        {
+            return new BeamBufferElement { Value = e };
+        }
+    }
+
+    struct BeamDataSpawn
+    {
+        public int p1Id;
+        public int p2Id;
+
+        public Vector3 pos;
+        public Quaternion rot;
+        public Vector3 scale;
+        public float length;
     }
 }
