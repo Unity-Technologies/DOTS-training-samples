@@ -7,19 +7,50 @@ using Unity.Transforms;
 
 public partial class DecaySystem : SystemBase
 {
+    EndSimulationEntityCommandBufferSystem ecbs;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        ecbs = World
+            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
-        //var deltaTime = Time.DeltaTime;
-        //Entities
-        //    .WithStructuralChanges()
-        //    .ForEach((Entity entity, ref Decay decay, ref Scale scale) =>
-        //{
-        //    scale.Value -= decay.Rate * deltaTime;
+        var globalDataEntity = GetSingletonEntity<GlobalData>();
+        var globalData = GetComponent<GlobalData>(globalDataEntity);
 
-        //    if (scale.Value < 0)
-        //    {
-        //        EntityManager.DestroyEntity(entity);
-        //    }
-        //}).Schedule();
+        var ecb = ecbs.CreateCommandBuffer();
+
+        var dt = (float)Time.DeltaTime;
+
+        Entities
+            .ForEach((Entity entity, ref Decay decay, ref NonUniformScale scale, in AABB aabb) =>
+            {
+                if (decay.DecayTimeRemaing == 0.0f)
+                {
+                    decay.DecayTimeRemaing = globalData.DecayTime - dt;
+                    decay.originalScale = scale.Value;
+                }
+                else
+                {
+                    decay.DecayTimeRemaing -= dt;
+                }
+
+                if (decay.DecayTimeRemaing <= 0.0f)
+                {
+                    ecb.DestroyEntity(entity);
+                }
+                else
+                {
+                    scale.Value = math.lerp(decay.originalScale * 0.01f, decay.originalScale,
+                        decay.DecayTimeRemaing / globalData.DecayTime);
+                }
+
+            }).Schedule();
+        
+        ecbs.AddJobHandleForProducer(Dependency);
+
     }
 }

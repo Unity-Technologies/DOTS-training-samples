@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[Serializable]
 public struct GlobalData : IComponentData
 {
     public Entity BeePrefab;
@@ -17,4 +16,9 @@ public struct GlobalData : IComponentData
     public float3 YellowHiveCenter;
     public float HiveDepth;
     public float MinimumSpeed;
+    public float3 TurnbackZone;
+    public float TurnbackWidth;
+    public float3 FlutterMagnitude;
+    public float3 FlutterInterval;
+    public float DecayTime;
 }

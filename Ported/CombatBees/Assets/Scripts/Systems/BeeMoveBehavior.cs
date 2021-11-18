@@ -1,9 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial class BeeMoveBehavior : SystemBase
 {
+
     protected override void OnUpdate()
     {
         var globalDataEntity = GetSingletonEntity<GlobalData>();
@@ -12,6 +15,8 @@ public partial class BeeMoveBehavior : SystemBase
         var lookupTranslation = GetComponentDataFromEntity<Translation>(true);
 
         var frameCount = UnityEngine.Time.frameCount +1;
+
+        var elapsedTime = (float)Time.ElapsedTime;
         
         var dt = Time.DeltaTime;
         
@@ -20,8 +25,10 @@ public partial class BeeMoveBehavior : SystemBase
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(lookupTranslation)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
-            .ForEach((Entity entity, ref Translation position, ref Velocity velocity, in Bee myself, in TeamID team) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation position, ref Velocity velocity, ref Flutter flutter, in Bee myself, in TeamID team) =>
                 {
+                    var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameCount));
+
                     var teamDef = beeDefinitions[team.Value];
                     var isMoving = math.lengthsq(velocity.Value) > globalData.MinimumSpeed;
                     var desiredVelocity = float3.zero;
@@ -50,15 +57,85 @@ public partial class BeeMoveBehavior : SystemBase
                             desiredVelocity = math.normalize(vectorToTarget) * teamDef.speed;
                     }
                     
-                    // desiredVelocity =math.lerp(velocity.Value, desiredVelocity, 0.05f);
-                    //
-                    // var axialSpeed = new float3(teamDef.speed * .3f, teamDef.speed * 0.2f, teamDef.speed * 0.3f);
-                    // var flutterVelocity = float3.zero;
-                    // flutterVelocity.x = math.
-                    
-                    
+                    desiredVelocity =math.lerp(velocity.Value, desiredVelocity, 0.05f);
 
-                    velocity.Value = math.lerp(velocity.Value, desiredVelocity, 0.05f);
+                    if (!flutter.initialized)
+                    {
+                        flutter.initialized = true;
+                        
+                        flutter.nextValue = new float3(
+                            random.NextFloat(-1, 1),
+                            random.NextFloat(-1, 1),
+                            random.NextFloat(-1, 1)
+                        ) * teamDef.flutterMagnitude;
+
+                        flutter.localSpeed = random.NextFloat(2.5f, 4.5f);
+                    }
+                    
+                    var t = flutter.t;
+
+                    t += new float3(dt, dt, dt);
+                    if (t.x > teamDef.flutterInterval.x)
+                    {
+                        t.x -= teamDef.flutterInterval.x;
+                        flutter.prevValue.x = flutter.nextValue.x;
+                        flutter.nextValue.x = random.NextFloat(-1, 1) * teamDef.flutterMagnitude.x;
+                    }
+                    if (t.y > teamDef.flutterInterval.y)
+                    {
+                        t.y -= teamDef.flutterInterval.y;
+                        flutter.prevValue.y = flutter.nextValue.y;
+                        flutter.nextValue.y = random.NextFloat(-1, 1) * teamDef.flutterMagnitude.y;
+                    }
+                    if (t.z > teamDef.flutterInterval.z)
+                    {
+                        t.z -= teamDef.flutterInterval.z;
+                        flutter.prevValue.z = flutter.nextValue.z;
+                        flutter.nextValue.z = random.NextFloat(-1, 1) * teamDef.flutterMagnitude.z;
+                    }
+
+                    flutter.t = t;
+
+                    t /= teamDef.flutterInterval;
+                        
+                    var flutterVel = math.lerp(flutter.prevValue, flutter.nextValue, t);
+
+                    float flutterT = math.abs(math.sin(elapsedTime * flutter.localSpeed)); 
+
+                    desiredVelocity = math.lerp(desiredVelocity, flutterVel, 0.15f * flutterT);
+
+                    // move away from the edges
+                    float3 absPos = (math.abs(position.Value) - globalData.TurnbackZone) / new float3(globalData.TurnbackWidth);
+
+                    if (absPos.x > 0)
+                    {
+                        if ((position.Value.x * desiredVelocity.x) >= 0)
+                        {
+                            desiredVelocity = math.lerp(desiredVelocity, desiredVelocity * new float3(-1, 1, 1),
+                                math.max(absPos.x, 1));
+                        }
+                    }
+                    
+                    if (absPos.y > 0)
+                    {
+                        if ((position.Value.y * desiredVelocity.y) >= 0)
+                        {
+                            desiredVelocity = math.lerp(desiredVelocity, desiredVelocity * new float3(1, -1, 1),
+                                math.max(absPos.y, 1));
+                        }
+                    }
+
+                    if (absPos.z > 0)
+                    {
+                        if ((position.Value.z * desiredVelocity.z) >= 0)
+                        {
+                            desiredVelocity = math.lerp(desiredVelocity, desiredVelocity * new float3(1, 1, -1),
+                                math.max(absPos.z, 1));
+                        }
+                    }
+
+
+                    velocity.Value = desiredVelocity;
 
                     position.Value += velocity.Value * dt;
                 }

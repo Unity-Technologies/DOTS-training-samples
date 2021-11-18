@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8032040333273944172}
   - component: {fileID: 8032040333273944175}
   - component: {fileID: 8032040333273944178}
+  - component: {fileID: 6548375451089916692}
   m_Layer: 0
   m_Name: Giblet
   m_TagString: Untagged
@@ -111,3 +112,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0cd7a6721612b94fb69b1ce5569604d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6548375451089916692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8032040333273944177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9646430db3c4fec41b74912be07e75c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  center:
+    x: 0
+    y: 0.1
+    z: 0
+  halfSize:
+    x: 0.1
+    y: 0.1
+    z: 0.1

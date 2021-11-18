@@ -34,9 +34,10 @@ public partial class BeeHuntBehavior : SystemBase
                     var teamDef = beeDefinitions[team.Value];
                     huntMode.timeHunting += dt;
 
-                    var cancelHunt = huntMode.timeHunting > teamDef.huntTimeout;
+                    var timedOut = huntMode.timeHunting > teamDef.huntTimeout;
+                    var cancelHunt = timedOut;
 
-                    if (!cancelHunt)
+                    if (!timedOut)
                     {
                         var targeted = GetComponent<TargetedBy>(myself.TargetEntity);
                         cancelHunt = targeted.Value != entity;
@@ -46,7 +47,8 @@ public partial class BeeHuntBehavior : SystemBase
                     {
                         ecb.RemoveComponent<BeeHuntMode>(entity);
                         ecb.AddComponent(entity, new BeeIdleMode());
-                        ecb.SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
+                        if (timedOut)
+                            ecb.SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
                         myself.TargetEntity = Entity.Null;
                     }
                     else
