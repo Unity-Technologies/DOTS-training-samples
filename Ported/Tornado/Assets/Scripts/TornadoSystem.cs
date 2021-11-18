@@ -227,20 +227,12 @@ partial class Tornado2ApplyBeamForcesSystem : SystemBase
 
         // Create point cache for parallel job
         int pointIndex = 0;
-        //var pointIndex = new NativeReference<int>(-1, Allocator.TempJob);
         int totalPointCount = m_PointQuery.CalculateEntityCount();
         var pointIndexMap = new NativeHashMap<int, int>(totalPointCount, Allocator.TempJob);
         var pointCache = new NativeArray<CachedPoint>(totalPointCount, Allocator.TempJob);
         Entities.ForEach((ref PointIndex index, in Entity e) =>
         {
-//             unsafe
-//             {
-//                 int* pp = (int*)NativeReferenceUnsafeUtility.GetUnsafePtr(pointIndex);
-//                 index.value = Interlocked.Increment(pointIndex);
-//             }
-            
             var k = e.GetHashCode();
-            //index.value = Interlocked.Increment(ref pointIndex[0]);
             index.value = pointIndex++;
             pointIndexMap[k] = index.value; 
         }).Run();
@@ -268,13 +260,11 @@ partial class Tornado2ApplyBeamForcesSystem : SystemBase
 
         }).ScheduleParallel(Dependency);
 
-        var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        var cmd = ecb.AsParallelWriter();
         var j3 = Entities.
             WithDisposeOnCompletion(pointIndexMap).
             WithNativeDisableParallelForRestriction(pointCache).
             WithNativeDisableContainerSafetyRestriction(pointCache).
-            WithReadOnly(pointIndexMap).ForEach((in Entity entity, in int entityInQueryIndex, in Beam beam) =>
+            WithReadOnly(pointIndexMap).ForEach((ref BeamModif bm, in Entity entity, in int entityInQueryIndex, in Beam beam) =>
         {
             var k1 = beam.point1.GetHashCode();
             var k2 = beam.point2.GetHashCode();
@@ -310,14 +300,14 @@ partial class Tornado2ApplyBeamForcesSystem : SystemBase
                 writeBackPoint1 = true;
             }
 
-            int pi = 0;
+            BeamModifState pi = BeamModifState.None;
             if (breaks)
             {
                 if (c2.neighbors > 1)
                 {
                     --c2.neighbors;
                     writeBackPoint2 = true;
-                    pi = 2;
+                    pi = BeamModifState.Point2;
                 }
                 else
                 {
@@ -325,20 +315,17 @@ partial class Tornado2ApplyBeamForcesSystem : SystemBase
                     {
                         --c1.neighbors;
                         writeBackPoint1 = true;
-                        pi = 1;
+                        pi = BeamModifState.Point1;
                     }
                 }
             }
 
             if (writeBackPoint1) pointCache[pointIndexMap[k1]] = c1;
             if (writeBackPoint2) pointCache[pointIndexMap[k2]] = c2;
-            if (writeBackPoint1 || writeBackPoint2)
-                cmd.SetComponent(entityInQueryIndex, entity, new BeamModif(c1.pos, c2.pos, norm, delta, dist, breaks, pi));
-        }).ScheduleParallel(JobHandle.CombineDependencies(j1, j2));
 
-        j3.Complete();
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            bm = new BeamModif(c1.pos, c2.pos, norm, delta, dist, breaks, pi);
+
+        }).ScheduleParallel(JobHandle.CombineDependencies(j1, j2));
 
         // Write point cache
         Dependency = Entities.
@@ -372,7 +359,7 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
         var cmd = ecb.AsParallelWriter();
         Entities.ForEach((ref BeamModif bm, in Entity entity, in int entityInQueryIndex, in Beam _beam) =>
         {
-            if (!bm.enabled)
+            if ((bm.state & BeamModifState.Enabled) == 0)
                 return;
 
             var beam = _beam;
@@ -403,19 +390,19 @@ partial class Tornado3UpdateBeamsSystem : BaseTornadoSystem
 
             if (bm.breaks)
             {
-                if (bm.pi == 2)
+                if ((bm.state & BeamModifState.Point2) == BeamModifState.Point2)
                 {
                     beam.point2 = CreatePoint(cmd, entityInQueryIndex, bm.p2, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
-                else if (bm.pi == 1)
+                else if ((bm.state & BeamModifState.Point1) == BeamModifState.Point1)
                 {
                     beam.point1 = CreatePoint(cmd, entityInQueryIndex, bm.p1, false, 1, damping, friction, FixedPointArchType, DynamicPointArchType);
                     writeBackBeam = true;
                 }
             }
 
-            bm.enabled = false;
+            bm.state &= ~BeamModifState.Enabled;
             if (writeBackBeam)
                 cmd.SetComponent(entityInQueryIndex, entity, beam);
         }).ScheduleParallel(Dependency).Complete();

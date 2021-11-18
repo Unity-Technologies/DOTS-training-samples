@@ -131,27 +131,35 @@ readonly struct TornadoFader : IComponentData
     }
 }
 
+[System.Flags]
+enum BeamModifState : byte
+{
+    None = 0,
+    Point1 = 1 << 0,
+    Point2 = 1 << 1,
+
+    Enabled = 0x80
+}
+
 struct BeamModif : IComponentData
 {
-    public bool enabled;
+    public BeamModifState state;
     public readonly float3 p1;
     public readonly float3 p2;
     public readonly float3 norm;
     public readonly float3 delta;
     public readonly float dist;
     public readonly bool breaks;
-    public readonly int pi;
 
-    public BeamModif(in float3 p1, in float3 p2, in float3 norm, in float3 delta, float dist, bool breaks, int pi)
+    public BeamModif(in float3 p1, in float3 p2, in float3 norm, in float3 delta, float dist, bool breaks, BeamModifState state)
     {
-        enabled = true;
+        this.state = BeamModifState.Enabled | state;
         this.p1 = p1;
         this.p2 = p2;
         this.norm = norm;
         this.delta = delta;
         this.dist = dist;
         this.breaks = breaks;
-        this.pi = pi;
     }
 }
 
