@@ -45,6 +45,8 @@ public partial class BeeSeekFoodBehavior : SystemBase
                     var otherpos = GetComponent<Translation>(myself.TargetEntity);
                     if (math.distancesq(otherpos.Value, position.Value) < teamDef.pickupFoodRange)
                     {
+                        // If the food is falling
+                        ecb.RemoveComponent<Ballistic>(myself.TargetEntity);
                         ecb.RemoveComponent<BeeSeekFoodMode>(entity);
                         ecb.AddComponent(entity, new BeeCarryFoodMode());
                         ecb.AddComponent(myself.TargetEntity, new IsCarried());

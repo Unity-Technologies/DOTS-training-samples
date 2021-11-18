@@ -47,6 +47,7 @@ public partial class BeeHuntBehavior : SystemBase
                         ecb.RemoveComponent<BeeHuntMode>(entity);
                         ecb.AddComponent(entity, new BeeIdleMode());
                         ecb.SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
+                        myself.CarriedFoodEntity = myself.TargetEntity;
                         myself.TargetEntity = Entity.Null;
                     }
                     else
