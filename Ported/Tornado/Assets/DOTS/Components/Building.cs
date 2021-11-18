@@ -6,8 +6,8 @@ using Unity.Mathematics;
 namespace Dots
 {
     [Serializable]
-    public struct BeamComponent : IComponentData
+    public struct Building : IComponentData
     {
-        public int Value;
+        public int4 index;
     }
 }

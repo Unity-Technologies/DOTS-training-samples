@@ -14,6 +14,7 @@ namespace Dots
             var random = new Random(1234);
             
             Entities.WithoutBurst()
+                .WithName("TornadoSpawner")
                 .ForEach((Entity entity, in Translation translation, in DebrisSpawnerData spawner) =>
                 {
                     // Destroying the current component is a classic ECS pattern,

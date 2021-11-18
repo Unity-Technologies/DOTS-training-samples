@@ -5,6 +5,7 @@ using Unity.Transforms;
 
 namespace Dots
 {
+    [UpdateAfter(typeof(TornadoMover))]
     public partial class DebrisSimulator : SystemBase
     {
         private EntityQuery m_TornadoQuery;
@@ -50,6 +51,7 @@ namespace Dots
                 float3 tornadoEntityPosition = tornadoData.position; 
 
                 Entities
+                    .WithName("DebrisSimulator")
                     .WithSharedComponentFilter(new DebrisSharedData { tornado = tornadoData.tornado })
                     .ForEach((ref Translation translation, in Debris debris) =>
                     {
