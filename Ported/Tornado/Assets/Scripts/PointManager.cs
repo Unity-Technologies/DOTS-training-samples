@@ -42,6 +42,7 @@ class PointManager : MonoBehaviour
 
     internal void Start()
     {
+
         #if DEBUG_DOTS
         using (new DebugTimer("Generate buildings", 500d))
         #endif
@@ -49,6 +50,7 @@ class PointManager : MonoBehaviour
             Generate();
             Time.timeScale = 1f;
         }
+
     }
 
     internal void Update()

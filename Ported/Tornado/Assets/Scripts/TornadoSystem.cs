@@ -68,6 +68,7 @@ abstract partial class BaseTornadoSystem : SystemBase
             ecb.Playback(EntityManager);
         }
     }
+
     protected abstract void OnUpdate(EntityCommandBuffer ecb);
 }
 
@@ -186,20 +187,78 @@ partial class Tornado1ApplyForcesSystem : SystemBase
 [UpdateAfter(typeof(Tornado1ApplyForcesSystem))]
 partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
 {
+    struct CachedPoint
+    {
+        public float3 pos;
+        public float3 old;
+        public int neighbors;
+        public bool anchored;
+    }
+
+    EntityQuery m_PointQuery;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+
+        m_PointQuery = EntityManager.CreateEntityQuery(typeof(Point));
+    }
+
+    protected override void OnDestroy()
+    {
+        m_PointQuery.Dispose();
+        base.OnDestroy();
+    }
+
     protected override void OnUpdate(EntityCommandBuffer ecb)
     {
         var em = EntityManager;
         var breakResistance = m_BreakResistance;
 
+        var pointCache = new NativeHashMap<int, CachedPoint>(m_PointQuery.CalculateEntityCount(), Allocator.TempJob);
+        var pcw = pointCache.AsParallelWriter();
+        var j1 = Entities.WithAll<DynamicPoint>().ForEach((in Entity entity, in Point p, in PointNeighbors pn) =>
+        {
+            var k = entity.GetHashCode();
+            pcw.TryAdd(k, new CachedPoint 
+            { 
+                anchored = false,
+                pos = p.pos,
+                old = p.old,
+                neighbors = pn.neighborCount
+            });
+        }).ScheduleParallel(Dependency);
+
+        var j2 = Entities.WithAll<AnchoredPoint>().ForEach((in Entity entity, in Point p, in PointNeighbors pn) =>
+        {
+            var k = entity.GetHashCode();
+            pcw.TryAdd(k, new CachedPoint
+            {
+                anchored = true,
+                pos = p.pos,
+                old = p.old,
+                neighbors = pn.neighborCount
+            });
+        }).ScheduleParallel(j1);
+
+        j2.Complete();
+
+        //UnityEngine.Debug.Log($"{pointCache.Count()} points");
+
         Entities.ForEach((in Entity entity, in Beam beam) =>
         {
-            var point1 = em.GetComponentData<Point>(beam.point1);
-            var point2 = em.GetComponentData<Point>(beam.point2);
+            var k1 = beam.point1.GetHashCode();
+            var k2 = beam.point2.GetHashCode();
 
-            var point1Anchored = em.HasComponent<AnchoredPoint>(beam.point1);
-            var point2Anchored = em.HasComponent<AnchoredPoint>(beam.point2);
+            //UnityEngine.Debug.Log($"{k1},{k2} points");
 
-            var delta = point2.pos - point1.pos; // TODO: precompute delta and length
+            var c1 = pointCache[k1];
+            var c2 = pointCache[k2];
+
+            var point1Anchored = c1.anchored;
+            var point2Anchored = c2.anchored;
+
+            var delta = c2.pos - c1.pos;
             var dist = math.length(delta);
             var extraDist = dist - beam.length;
             var norm = delta / dist;
@@ -210,49 +269,61 @@ partial class Tornado2ApplyBeamForcesSystem : BaseTornadoSystem
 
             if (!point1Anchored && !point2Anchored)
             {
-                point1.pos += push;
-                point2.pos -= push;
+                c1.pos += push;
+                c2.pos -= push;
                 writeBackPoint1 = writeBackPoint2 = true;
             }
             else if (point1Anchored)
             {
-                point2.pos -= push * 2f;
+                c2.pos -= push * 2f;
                 writeBackPoint2 = true;
             }
             else if (point2Anchored)
             {
-                point1.pos += push * 2f;
+                c2.pos += push * 2f;
                 writeBackPoint1 = true;
             }
 
-            if (writeBackPoint1) em.SetComponentData(beam.point1, point1);
-            if (writeBackPoint2) em.SetComponentData(beam.point2, point2);
+            if (writeBackPoint1) 
+            {
+                em.SetComponentData(beam.point1, new Point(c1.pos, c1.old));
+                pointCache[k1] = c1;
+            }
+            if (writeBackPoint2)
+            {
+                em.SetComponentData(beam.point2, new Point(c2.pos, c2.old));
+                pointCache[k2] = c2;
+            }
 
             int pi = 0;
             if (breaks)
             {
-                var n2 = em.GetComponentData<PointNeighbors>(beam.point2);
-
-                if (n2.neighborCount > 1)
+                if (c2.neighbors > 1)
                 {
-                    n2.neighborCount--;
-                    em.SetComponentData(beam.point2, n2);
+                    --c2.neighbors;
+                    writeBackPoint2 = true;
+                    em.SetComponentData(beam.point2, new PointNeighbors(c2.neighbors));
                     pi = 2;
                 }
                 else
                 {
-                    var n1 = em.GetComponentData<PointNeighbors>(beam.point1);
-                    if (n1.neighborCount > 1)
+                    if (c1.neighbors > 1)
                     {
-                        n1.neighborCount--;
-                        em.SetComponentData(beam.point1, n1);
+                        --c1.neighbors;
+                        writeBackPoint1 = true;
+                        em.SetComponentData(beam.point1, new PointNeighbors(c1.neighbors));
                         pi = 1;
                     }
                 }
             }
 
-            ecb.SetComponent(entity, new BeamModif { enabled = true, p1 = point1.pos, p2 = point2.pos, delta = delta, dist = dist, norm = norm, breaks = breaks, pi = pi });
+            if (writeBackPoint1 || writeBackPoint2)
+                ecb.SetComponent(entity, new BeamModif(c1.pos, c2.pos, norm, delta, dist, breaks, pi));
+            //else
+              //  UnityEngine.Debug.Log("test");
         }).Run();
+
+        pointCache.Dispose();
     }
 }
 

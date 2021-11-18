@@ -5,19 +5,23 @@ using UnityEngine;
 struct Point : IComponentData
 {
     public float3 pos;
-    public float3 old; // TODO: Split pos, old and start into 3 components
-
+    public float3 old;
     public Point(in float3 pos)
     {
         old = this.pos = pos;
+    }
+
+    public Point(in float3 pos, in float3 old)
+    {
+        this.pos = pos;
+        this.old = old;
     }
 }
 
 struct PointNeighbors : IComponentData
 {
     public int neighborCount;
-
-    public PointNeighbors(int neighborCount)
+    public PointNeighbors(in int neighborCount)
     {
         this.neighborCount = neighborCount;
     }
@@ -122,23 +126,45 @@ readonly struct TornadoFader : IComponentData
     }
 }
 
+/*
+struct BeamModifMask : IComponentData
+{
+    public bool enabled;
+    public BeamModifMask(bool enabled)
+    {
+        this.enabled = enabled;
+    }
+}*/
+
 struct BeamModif : IComponentData
 {
     public bool enabled;
-    public float3 p1;
-    public float3 p2;
-    public float3 norm;
-    public float3 delta;
-    public float dist;
-    public bool breaks;
-    public int pi;
+    public readonly float3 p1;
+    public readonly float3 p2;
+    public readonly float3 norm;
+    public readonly float3 delta;
+    public readonly float dist;
+    public readonly bool breaks;
+    public readonly int pi;
+
+    public BeamModif(in float3 p1, in float3 p2, in float3 norm, in float3 delta, float dist, bool breaks, int pi)
+    {
+        enabled = true;
+        this.p1 = p1;
+        this.p2 = p2;
+        this.norm = norm;
+        this.delta = delta;
+        this.dist = dist;
+        this.breaks = breaks;
+        this.pi = pi;
+    }
 }
 
 static class ArcheTypes
 {
     public static readonly ComponentType[] FixedPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(AnchoredPoint), typeof(PointNeighbors) };
     public static readonly ComponentType[] DynamicPointTypes = new ComponentType[] { typeof(Point), typeof(PointDamping), typeof(DynamicPoint), typeof(AffectedPoint), typeof(PointStart), typeof(PointNeighbors) };
-    public static readonly ComponentType[] BeamTypes = new ComponentType[] { typeof(Beam), typeof(BeamModif) };
+    public static readonly ComponentType[] BeamTypes = new ComponentType[] { typeof(Beam), /*typeof(BeamModifMask),*/ typeof(BeamModif) };
 
     public static readonly EntityArchetype Beam;
     public static readonly EntityArchetype FixedPoint;
