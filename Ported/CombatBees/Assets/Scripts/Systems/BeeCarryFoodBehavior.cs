@@ -29,7 +29,7 @@ public partial class BeeCarryFoodBehavior : SystemBase
                     var teamDef = beeDefinitions[team.Value];
 
                     var otherpos = GetComponent<Translation>(myself.TargetEntity);
-                    if (math.distancesq(otherpos.Value, position.Value) < teamDef.attackRange)
+                    if (math.distancesq(otherpos.Value + myself.TargetOffset, position.Value) < teamDef.attackRange)
                     {
                         ecb.RemoveComponent<BeeCarryFoodMode>(entity);
                         ecb.AddComponent(entity, new BeeIdleMode());

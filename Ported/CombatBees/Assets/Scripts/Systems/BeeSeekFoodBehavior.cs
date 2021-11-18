@@ -29,7 +29,7 @@ public partial class BeeSeekFoodBehavior : SystemBase
             .WithNone<Ballistic, Decay>()
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
-            .ForEach((Entity entity, ref Bee myself, in Translation position, in TeamID team) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team) =>
                 {
                     var teamDef = beeDefinitions[team.Value];
                     var targeted = GetComponent<TargetedBy>(myself.TargetEntity);
@@ -45,32 +45,23 @@ public partial class BeeSeekFoodBehavior : SystemBase
                     var otherpos = GetComponent<Translation>(myself.TargetEntity);
                     if (math.distancesq(otherpos.Value, position.Value) < teamDef.pickupFoodRange)
                     {
+                        var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameCount));
+
                         // If the food is falling
                         ecb.RemoveComponent<Ballistic>(myself.TargetEntity);
                         ecb.RemoveComponent<BeeSeekFoodMode>(entity);
                         ecb.AddComponent(entity, new BeeCarryFoodMode());
                         ecb.AddComponent(myself.TargetEntity, new IsCarried());
+                        myself.CarriedFoodEntity = myself.TargetEntity;
                         myself.TargetEntity = teamDef.hive;
+                        myself.TargetOffset = new float3(
+                            random.NextFloat(-4, 4),
+                            random.NextFloat(-8, 8),
+                            random.NextFloat(-8, 8)
+                        );
                     }
                 }
             ).Schedule();
-
-        var distanceToHive = 1f;
-
-        Entities
-            .WithAll<BeeCarryFoodMode>()
-            .WithNone<Ballistic, Decay>()
-            .ForEach((Entity entity, ref Bee myself, in Translation position) =>
-            {
-                var otherpos = GetComponent<Translation>(myself.TargetEntity);
-                if (math.distancesq(otherpos.Value, position.Value) < distanceToHive)
-                {
-                    // We have made it to our hive so return to idle
-                    myself.TargetEntity = Entity.Null;
-                    ecb.RemoveComponent<BeeCarryFoodMode>(entity);
-                    ecb.AddComponent<BeeIdleMode>(entity);
-                }
-            }).Schedule();
 
         ecbs.AddJobHandleForProducer(Dependency);
     }

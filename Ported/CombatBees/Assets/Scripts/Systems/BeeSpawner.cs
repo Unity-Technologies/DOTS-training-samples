@@ -42,7 +42,7 @@ public partial class BeeSpawner : SystemBase
                 {
                     var entity = EntityManager.Instantiate(globalData.BeePrefab);
 
-                    var vel = math.normalize(random.NextFloat3Direction());
+                    var vel = math.normalize(random.NextFloat3Direction())*10.0f;
                     // Optimize by Setting the velocity instead of adding.
                     EntityManager.AddComponentData(entity, new Velocity { Value = vel });
                     EntityManager.AddComponentData(entity, new Bee());
