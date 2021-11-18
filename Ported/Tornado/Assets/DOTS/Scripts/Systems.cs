@@ -28,6 +28,7 @@ namespace Dots
     {
         public static NativeList<Point> points;
         public static TornadoConfigData tornadoConfig;
+        public static BeamSpawnerData beamConfig;
 
         public static void Init()
         {
@@ -49,6 +50,7 @@ namespace Dots
                 .WithStructuralChanges()
                 .ForEach((Entity entity, in BeamSpawnerData spawner) =>
             {
+                SimulationState.beamConfig = spawner;
                 var random = new Random(1234);
                 for (int i = 0; i < spawner.buildingCount; i++)
                 {
@@ -257,10 +259,74 @@ namespace Dots
             }).ScheduleParallel();
         }
     }
-    
-    /*
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public partial class SimulateCarnage : SystemBase
+
+    [UpdateAfter(typeof(MoveTornado))]
+    public partial class SimulatePoints : SystemBase
+    {
+        float tornadoFader = 0f;
+        protected override void OnCreate()
+        {
+
+        }
+
+        protected override void OnUpdate()
+        {
+            /*
+            // Create multi batch???
+            tornadoFader = Mathf.Clamp01(tornadoFader + Time.DeltaTime / 10f);
+            float invDamping = 1f - damping;
+            for (int i = 0; i < pointCount; i++)
+            {
+                Point point = points[i];
+                if (point.anchor == false)
+                {
+                    float startX = point.x;
+                    float startY = point.y;
+                    float startZ = point.z;
+
+                    point.oldY += .01f;
+
+                    // tornado force
+                    float tdx = tornado.x + TornadoSway(point.y) - point.x;
+                    float tdz = tornado.y - point.z;
+                    float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+                    tdx /= tornadoDist;
+                    tdz /= tornadoDist;
+                    if (tornadoDist < tornado.maxForceDist)
+                    {
+                        float force = (1f - tornadoDist / tornado.maxForceDist);
+                        float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
+                        force *= tornadoFader * tornado.force * Random.Range(-.3f, 1.3f);
+                        float forceY = tornado.upForce;
+                        point.oldY -= forceY * force;
+                        float forceX = -tdz + tdx * tornado.inwardForce * yFader;
+                        float forceZ = tdx + tdz * tornado.inwardForce * yFader;
+                        point.oldX -= forceX * force;
+                        point.oldZ -= forceZ * force;
+                    }
+
+                    point.x += (point.x - point.oldX) * invDamping;
+                    point.y += (point.y - point.oldY) * invDamping;
+                    point.z += (point.z - point.oldZ) * invDamping;
+
+                    point.oldX = startX;
+                    point.oldY = startY;
+                    point.oldZ = startZ;
+                    if (point.y < 0f)
+                    {
+                        point.y = 0f;
+                        point.oldY = -point.oldY;
+                        point.oldX += (point.x - point.oldX) * friction;
+                        point.oldZ += (point.z - point.oldZ) * friction;
+                    }
+                }
+            }
+            */
+        }
+    }
+
+    [UpdateAfter(typeof(SimulatePoints))]
+    public partial class SimulateBeam : SystemBase
     {
         protected override void OnCreate()
         {
@@ -272,9 +338,8 @@ namespace Dots
             Entities
                 .ForEach((ref Translation pos, in Entity tornado, in TornadoConfigData tornadoConfig) =>
                 {
-                    
+
                 }).ScheduleParallel();
         }
     }
-    */
 }

@@ -11,6 +11,10 @@ namespace Dots
         public int buildingCount;
         public int debrisCount;
         public Entity beamPrefab;
+        public float expForce;
+        public float breakResistance;
+        public float damping;
+        public float friction;
     }
 
     [Serializable]
@@ -47,5 +51,7 @@ namespace Dots
         public int height;
         public float upForce;
         public float inwardForce;
+        public float damping;
+        public float friction;
     }
 }
