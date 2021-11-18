@@ -34,6 +34,11 @@ namespace Dots
         {
             points = new NativeList<Point>(2000, Allocator.Persistent);
         }
+
+        public static float TornadoSway(float y, float elapsedTime)
+        {
+            return Mathf.Sin(y / 5f + elapsedTime / 4f) * 3f;
+        }
     }
 
     public partial class BeamSpawner : SystemBase
@@ -203,25 +208,17 @@ namespace Dots
         {
 
         }
-
-        public static float TornadoSway(float y, float elapsedTime)
-        {
-            return Mathf.Sin(y / 5f + elapsedTime / 4f) * 3f;
-        }
-
+        
         protected override void OnUpdate()
         {
             // Debug.Log($"MoveTornado.OnUpdate");
-
             Translation tp = new Translation();
             TornadoConfigData tornadoConfig = SimulationState.tornadoConfig;
             var elapsedTime = (float)Time.ElapsedTime;
             Entities
                 .ForEach((ref Translation pos, in TornadoConfigData tc) =>
                 {
-
                     // Debug.Log($"MoveTornado.OnUpdate.Run1");
-
                     var tmod = elapsedTime / 6f;
                     pos.Value = new float3(
                         tornadoConfig.position.x + math.cos(tmod) * tornadoConfig.rotationModulation,
@@ -239,7 +236,7 @@ namespace Dots
                 // Debug.Log($"MoveTornado.OnUpdate.Run1");
                 var point = pos.Value;
                 var tornadoPos = new float3(
-                    tp.Value.x + TornadoSway(point.y, elapsedTime), 
+                    tp.Value.x + SimulationState.TornadoSway(point.y, elapsedTime), 
                     point.y, 
                     tp.Value.z);
                 var delta = tornadoPos - point;
@@ -271,57 +268,66 @@ namespace Dots
 
         protected override void OnUpdate()
         {
-            /*
+            // Debug.Log($"SimulatePoints.OnUpdate");
+
+            Translation tp = new Translation();
+            var elapsedTime = (float)Time.ElapsedTime;
+            Entities
+                .ForEach((in Translation pos, in TornadoConfigData tc) =>
+                {
+                    tp.Value = pos.Value;
+                }).Run();
+
+            var random = new Random(1234);
             // Create multi batch???
-            tornadoFader = Mathf.Clamp01(tornadoFader + Time.DeltaTime / 10f);
-            float invDamping = 1f - damping;
-            for (int i = 0; i < pointCount; i++)
+            tornadoFader = math.clamp(tornadoFader + Time.DeltaTime / 10f, 0f, 1f);
+            float invDamping = 1f - SimulationState.beamConfig.damping;
+            for (int i = 0; i < SimulationState.points.Length; i++)
             {
-                Point point = points[i];
+                var point = SimulationState.points[i];
                 if (point.anchor == false)
                 {
-                    float startX = point.x;
-                    float startY = point.y;
-                    float startZ = point.z;
+                    var startX = point.pos.x;
+                    var startY = point.pos.y;
+                    var startZ = point.pos.z;
 
-                    point.oldY += .01f;
+                    point.oldPos.y += .01f;
 
                     // tornado force
-                    float tdx = tornado.x + TornadoSway(point.y) - point.x;
-                    float tdz = tornado.y - point.z;
-                    float tornadoDist = Mathf.Sqrt(tdx * tdx + tdz * tdz);
+                    var tdx = tp.Value.x + SimulationState.TornadoSway(point.pos.y, elapsedTime) - point.pos.x;
+                    var tdz = tp.Value.y - point.pos.z;
+                    var tornadoDist = math.sqrt(tdx * tdx + tdz * tdz);
                     tdx /= tornadoDist;
                     tdz /= tornadoDist;
-                    if (tornadoDist < tornado.maxForceDist)
+                    if (tornadoDist < SimulationState.tornadoConfig.maxForceDist)
                     {
-                        float force = (1f - tornadoDist / tornado.maxForceDist);
-                        float yFader = Mathf.Clamp01(1f - point.y / tornado.height);
-                        force *= tornadoFader * tornado.force * Random.Range(-.3f, 1.3f);
-                        float forceY = tornado.upForce;
-                        point.oldY -= forceY * force;
-                        float forceX = -tdz + tdx * tornado.inwardForce * yFader;
-                        float forceZ = tdx + tdz * tornado.inwardForce * yFader;
-                        point.oldX -= forceX * force;
-                        point.oldZ -= forceZ * force;
+                        var force = (1f - tornadoDist / SimulationState.tornadoConfig.maxForceDist);
+                        var yFader = math.clamp(1f - point.pos.y / SimulationState.tornadoConfig.height, 0, 1);
+                        force *= tornadoFader * SimulationState.tornadoConfig.force * random.NextFloat(-.3f, 1.3f);
+                        var forceY = SimulationState.tornadoConfig.upForce;
+                        point.oldPos.y -= forceY * force;
+                        var forceX = -tdz + tdx * SimulationState.tornadoConfig.inwardForce * yFader;
+                        var forceZ = tdx + tdz * SimulationState.tornadoConfig.inwardForce * yFader;
+                        point.oldPos.x -= forceX * force;
+                        point.oldPos.z -= forceZ * force;
                     }
 
-                    point.x += (point.x - point.oldX) * invDamping;
-                    point.y += (point.y - point.oldY) * invDamping;
-                    point.z += (point.z - point.oldZ) * invDamping;
+                    SimulationState.points.ElementAt(i).pos = (point.pos - point.oldPos) * invDamping;
+                    SimulationState.points.ElementAt(i).oldPos = new float3(startX, startY, startZ);
 
-                    point.oldX = startX;
-                    point.oldY = startY;
-                    point.oldZ = startZ;
-                    if (point.y < 0f)
+                    if (SimulationState.points.ElementAt(i).pos.y < 0f)
                     {
-                        point.y = 0f;
-                        point.oldY = -point.oldY;
-                        point.oldX += (point.x - point.oldX) * friction;
-                        point.oldZ += (point.z - point.oldZ) * friction;
+                        SimulationState.points.ElementAt(i).pos.y = 0f;
+
+                        var oldPos = SimulationState.points.ElementAt(i).oldPos;
+                        var pos = SimulationState.points.ElementAt(i).pos;
+                        oldPos.y = -oldPos.y;
+                        oldPos.x += (pos.x - oldPos.x) * SimulationState.beamConfig.friction;
+                        oldPos.z += (pos.z - oldPos.z) * SimulationState.beamConfig.friction;
+                        SimulationState.points.ElementAt(i).oldPos = oldPos;
                     }
                 }
             }
-            */
         }
     }
 
