@@ -62,6 +62,7 @@ namespace Dots
 
             buildingCount = 0;
             Entities
+                .WithoutBurst()
                 .WithName("BuildingSpawner")
                 .WithReadOnly(groundSectionAreas)
                 .WithDisposeOnCompletion(groundSectionAreas)
@@ -118,7 +119,7 @@ namespace Dots
                                     if (p1.fixedPoint && p2.fixedPoint)
                                     {
                                         beam.fixedBeam = true;
-                                        ecb.AddComponent(beamEntity, new FixedTag());
+                                        ecb.AddComponent(beamEntity, new FixedBeamTag());
                                     }
                                     else
                                     {

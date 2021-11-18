@@ -207,7 +207,7 @@ namespace Dots
 
             Entities
                 .WithName("BeamRenderUpdate")
-                .WithNone<FixedTag>() // Only update beams that can move ! 
+                .WithNone<FixedBeamTag>() // Only update beams that can move ! 
                 .WithNativeDisableParallelForRestriction(beams)
                 .ForEach((ref Translation translation, ref Rotation rotation, in BeamComponent beamComponent) =>
                 {
