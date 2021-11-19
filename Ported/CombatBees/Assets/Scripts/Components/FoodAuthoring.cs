@@ -8,8 +8,10 @@ public class FoodAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, 
         GameObjectConversionSystem conversionSystem)
     {
-        
         dstManager.AddComponent<Food>(entity);
+        dstManager.AddComponentData(entity, new Ballistic());
+        dstManager.AddComponentData(entity, new TargetedBy {Value = Entity.Null});
+        dstManager.AddComponentData(entity, new Velocity { Value = new float3(0,0,0) });
         dstManager.AddComponentData(entity, new AABB
             {
                 center = new float3(0, 0, 0),

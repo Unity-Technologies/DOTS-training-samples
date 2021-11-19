@@ -1,7 +1,7 @@
 using System;
 using Unity.Entities;
 
-[Serializable]
+[GenerateAuthoringComponent]
 public struct TargetedBy : IComponentData
 {
     public Entity Value;

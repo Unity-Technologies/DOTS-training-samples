@@ -23,6 +23,7 @@ public partial class BeeMoveBehavior : SystemBase
         Entities
             .WithNone<Ballistic, Decay, BeeAttackMode>()
             .WithReadOnly(beeDefinitions)
+            .WithReadOnly(lookupTranslation)
             .WithNativeDisableContainerSafetyRestriction(lookupTranslation)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation position, ref Velocity velocity, ref Flutter flutter, in Bee myself, in TeamID team) =>

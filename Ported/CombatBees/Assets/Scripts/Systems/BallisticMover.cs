@@ -29,6 +29,7 @@ public partial class BallisticMover : SystemBase
 
         var time = Time.DeltaTime;
         float3 gravityVector = new float3(0, -2, 0);
+        var frameNumber = UnityEngine.Time.frameCount;
 
         var becb = becbs.CreateCommandBuffer().AsParallelWriter();
         var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
@@ -82,6 +83,7 @@ public partial class BallisticMover : SystemBase
         .WithNone<Decay>()
         .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in AABB aabb, in TargetedBy targetedby) =>
         {
+            var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameNumber));
             var height = translation.Value.y + aabb.center.y - aabb.halfSize.y;
 
             if (height < globalData.BoundsMin.y)
@@ -95,8 +97,8 @@ public partial class BallisticMover : SystemBase
                 for (int i = 0; i < globalData.BeeExplosionCount; ++i)
                 {
                     var bee = becb.Instantiate(entityInQueryIndex, globalData.BeePrefab);
-                    becb.SetComponent<Translation>(entityInQueryIndex, bee, translation);
-                    BeeSpawner.SetBees(bee, entityInQueryIndex, becb, GetComponent<TeamID>(entity));
+                    var vel = BeeSpawner.SetBees(bee, entityInQueryIndex, becb, GetComponent<TeamID>(entity), ref random);
+                    becb.SetComponent<Translation>(entityInQueryIndex, bee, new Translation {Value = translation.Value + vel*.25f});
                 }
             }
         }).ScheduleParallel();

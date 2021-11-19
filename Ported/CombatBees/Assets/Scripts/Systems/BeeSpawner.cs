@@ -38,14 +38,15 @@ public partial class BeeSpawner : SystemBase
             .WithAll<HiveTag>()
             .ForEach((Entity hiveEntity, int entityInQueryIndex, in AABB aabb, in TeamID teamID) =>
             {
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex);
                 for (int i = 0; i < totalBees; ++i)
                 {
                     var entity = ecb.Instantiate(entityInQueryIndex, globalData.BeePrefab);
-                    SetBees(entity, entityInQueryIndex, ecb, teamID);
+                    var vel = SetBees(entity, entityInQueryIndex, ecb, teamID, ref random);
 
                     // Move bee to hive location
                     ecb.SetComponent<Translation>(entityInQueryIndex, entity, new Translation
-                        { Value = aabb.center });
+                        { Value = aabb.center + vel*0.25f });
                 }
             }).Run();
         sys.AddJobHandleForProducer(Dependency);
@@ -53,17 +54,11 @@ public partial class BeeSpawner : SystemBase
         this.Enabled = false;
     }
 
-    public static void SetBees(Entity entity, int entityIndex, EntityCommandBuffer.ParallelWriter myecb, TeamID teamID)
+    public static float3 SetBees(Entity entity, int entityIndex, EntityCommandBuffer.ParallelWriter myecb, TeamID teamID, ref Random random)
     {
-        var random = new Random(1234);
-        var vel = math.normalize(random.NextFloat3Direction()) * 10.0f;
+        var vel = math.normalize(random.NextFloat3Direction()) * random.NextFloat(1, 10);
         myecb.AddComponent(entityIndex, entity, new Velocity { Value = vel });
-        myecb.AddComponent(entityIndex, entity, new Bee());
-        myecb.AddComponent(entityIndex, entity, new BeeIdleMode());
         myecb.AddComponent(entityIndex, entity, teamID);
-        myecb.AddComponent(entityIndex, entity, new TargetedBy { Value = Entity.Null });
-        myecb.AddComponent(entityIndex, entity, new Flutter());
-        myecb.AddComponent(entityIndex, entity, new NonUniformScale { Value = new float3(1.0f) });
 
         // Set bee color based off the teamID
         URPMaterialPropertyBaseColor color = new URPMaterialPropertyBaseColor();
@@ -81,5 +76,7 @@ public partial class BeeSpawner : SystemBase
         }
         color.Value.w = 1;
         myecb.SetComponent<URPMaterialPropertyBaseColor>(entityIndex, entity, color);
+
+        return vel;
     }
 }
