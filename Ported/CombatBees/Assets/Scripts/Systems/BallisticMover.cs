@@ -47,7 +47,7 @@ public partial class BallisticMover : SystemBase
 
         Entities
             .WithAll<Ballistic>()
-            .WithNone<Decay, InHive>()
+            .WithNone<Food>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Velocity velocity, in AABB aabb) =>
             {
                 var abspos = math.abs(translation.Value + aabb.center)+aabb.halfSize;
@@ -73,32 +73,40 @@ public partial class BallisticMover : SystemBase
             {
                 translation.Value.y = globalData.BoundsMin.y + aabb.halfSize.y - aabb.center.y;
                 ecb.RemoveComponent<Ballistic>(entityInQueryIndex, entity);
-                if (!HasComponent<Food>(entity))
-                    ecb.AddComponent(entityInQueryIndex, entity, new Decay());
+                ecb.AddComponent(entityInQueryIndex, entity, new Decay());
             }
         }).ScheduleParallel();
 
         Entities
         .WithAll<Ballistic, Food>()
-        .WithNone<Decay>()
-        .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in AABB aabb, in TargetedBy targetedby) =>
+        .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in AABB aabb) =>
         {
             var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameNumber));
             var height = translation.Value.y + aabb.center.y - aabb.halfSize.y;
 
             if (height < globalData.BoundsMin.y)
             {
-                // Despawn the food object
-                ecb.DestroyEntity(entityInQueryIndex, entity);
-
-                var explosion = becb.Instantiate(entityInQueryIndex, globalData.ExplosionPrefab);
-                becb.SetComponent<Translation>(entityInQueryIndex, explosion, translation);
-
-                for (int i = 0; i < globalData.BeeExplosionCount; ++i)
+                if (!HasComponent<InHive>(entity))
                 {
-                    var bee = becb.Instantiate(entityInQueryIndex, globalData.BeePrefab);
-                    var vel = BeeSpawner.SetBees(bee, entityInQueryIndex, becb, GetComponent<TeamID>(entity), ref random);
-                    becb.SetComponent<Translation>(entityInQueryIndex, bee, new Translation {Value = translation.Value + vel*.25f});
+                    translation.Value.y = globalData.BoundsMin.y + aabb.halfSize.y - aabb.center.y;
+                    ecb.RemoveComponent<Ballistic>(entityInQueryIndex, entity);
+                }
+                else
+                {
+                    // Despawn the food object
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+
+                    var explosion = becb.Instantiate(entityInQueryIndex, globalData.ExplosionPrefab);
+                    becb.SetComponent<Translation>(entityInQueryIndex, explosion, translation);
+
+                    for (int i = 0; i < globalData.BeeExplosionCount; ++i)
+                    {
+                        var bee = becb.Instantiate(entityInQueryIndex, globalData.BeePrefab);
+                        var vel = BeeSpawner.SetBees(bee, entityInQueryIndex, becb, GetComponent<TeamID>(entity),
+                            ref random);
+                        becb.SetComponent<Translation>(entityInQueryIndex, bee,
+                            new Translation { Value = translation.Value + vel * .25f });
+                    }
                 }
             }
         }).ScheduleParallel();
