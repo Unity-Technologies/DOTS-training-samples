@@ -14,7 +14,10 @@ public partial class BeeIdleBehavior : SystemBase
 {
     private EntityQuery BeeQuery;
     private EntityQuery FoodQuery;
+    private 
     EndSimulationEntityCommandBufferSystem ecbs;
+    NativeHashSet<Entity> entityHashSet;
+    private bool hashSetInitialized = false;
 
     protected override void OnCreate()
     {
@@ -37,11 +40,26 @@ public partial class BeeIdleBehavior : SystemBase
             .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
+    protected override void OnDestroy()
+    {
+        entityHashSet.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         var globalDataEntity = GetSingletonEntity<GlobalData>();
         var globalData = GetComponent<GlobalData>(globalDataEntity);
         var beeDefinitions = GetBuffer<TeamDefinition>(globalDataEntity);
+
+        if (!hashSetInitialized)
+        {
+            hashSetInitialized = true;
+            entityHashSet = new NativeHashSet<Entity>(globalData.BeeCount*2 + globalData.StartingFoodCount, Allocator.Persistent);
+        }
+        
+        entityHashSet.Clear();
+
+        var targetChosenSet = entityHashSet;
 
         var foodPositions = FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var foodEntities = FoodQuery.ToEntityArray(Allocator.TempJob);
@@ -51,8 +69,6 @@ public partial class BeeIdleBehavior : SystemBase
         var beeTeams = BeeQuery.ToComponentDataArray<TeamID>(Allocator.TempJob);
         var beeEntities = BeeQuery.ToEntityArray(Allocator.TempJob);
         var beeTargetedBy = BeeQuery.ToComponentDataArray<TargetedBy>(Allocator.TempJob);
-
-        var targetChosenSet = new NativeHashSet<Entity>(globalData.BeeCount * 2, Allocator.TempJob);
 
         var storage = GetStorageInfoFromEntity();
 
@@ -72,7 +88,6 @@ public partial class BeeIdleBehavior : SystemBase
             .WithDisposeOnCompletion(foodPositions)
             .WithDisposeOnCompletion(foodEntities)
             .WithDisposeOnCompletion(foodTargetedBy)
-            .WithDisposeOnCompletion(targetChosenSet)
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team, in Velocity velocity) =>

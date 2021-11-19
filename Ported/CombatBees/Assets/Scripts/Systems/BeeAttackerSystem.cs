@@ -7,6 +7,14 @@ using Unity.Transforms;
 
 public partial class BeeAttackerSystem : SystemBase
 {
+    NativeHashSet<Entity> entityHashSet;
+    private bool hashSetInitialized = false;
+
+    protected override void OnDestroy()
+    {
+        entityHashSet.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         var globalDataEntity = GetSingletonEntity<GlobalData>();
@@ -19,15 +27,22 @@ public partial class BeeAttackerSystem : SystemBase
         var lookUpVelocity = GetComponentDataFromEntity<Velocity>(true);
         var lookUpBee = GetComponentDataFromEntity<Bee>(true);
         
-        var beeProcessed = new NativeHashSet<Entity>(globalData.BeeCount, Allocator.TempJob);
+        if (!hashSetInitialized)
+        {
+            hashSetInitialized = true;
+            entityHashSet = new NativeHashSet<Entity>(globalData.BeeCount, Allocator.Persistent);
+        }
+        
+        entityHashSet.Clear();
 
+        var beeProcessed = entityHashSet;
+        
         Random random = new Random(3045);
 
         Entities
             .WithNativeDisableContainerSafetyRestriction(lookUpTraslation)
             .WithNativeDisableContainerSafetyRestriction(lookUpVelocity)
             .WithNativeDisableContainerSafetyRestriction(lookUpBee)
-            .WithDisposeOnCompletion(beeProcessed)
             .WithAll<BeeAttackMode>()
             .WithNone<Ballistic, Decay>()
             .WithReadOnly(lookUpTraslation)
