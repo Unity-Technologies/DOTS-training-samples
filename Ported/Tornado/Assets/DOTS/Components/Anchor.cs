@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Dots
 {
-    public struct Anchor : IComponentData
+    public struct Anchor
     {
         public float3 position;
         public float3 oldPosition;

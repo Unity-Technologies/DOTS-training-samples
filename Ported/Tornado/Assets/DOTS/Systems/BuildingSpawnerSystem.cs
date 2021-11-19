@@ -15,16 +15,10 @@ namespace Dots
     {
         private EntityQuery m_BuildingSpawnerQuery;
 
-        public static readonly ComponentType k_AnchorComponentType = ComponentType.ReadWrite<Anchor>();
-        static readonly ComponentType k_FixedAnchorComponent = ComponentType.ReadOnly(typeof(FixedAnchor));
-
         public NativeArray<BeamData> beams;
         public NativeArray<Anchor> anchors;
         public NativeArray<int> components;
         public NativeArray<int> componentsData;
-
-        EntityArchetype m_AnchorArchetype;
-        EntityArchetype m_FixedAnchorArchetype;
         EntityArchetype m_BeamArchetype;
 
         public NativeReference<int> pointCount;
@@ -33,8 +27,6 @@ namespace Dots
 
         protected override void OnCreate()
         {
-            m_AnchorArchetype = EntityManager.CreateArchetype(k_AnchorComponentType);
-            m_FixedAnchorArchetype = EntityManager.CreateArchetype(k_AnchorComponentType, k_FixedAnchorComponent);
             m_BeamArchetype = EntityManager.CreateArchetype(
                 ComponentType.ReadWrite<Translation>(),
                 ComponentType.ReadWrite<Rotation>(),
@@ -61,6 +53,12 @@ namespace Dots
         {
             var random = new Random(1234);
 
+            var go = this.GetSingleton<GameObjectRefs>().Ground;
+            var ground = go.GetComponent<Transform>();
+            var groundSize = ground.localScale;
+            var groundHalfX = groundSize.x / 2;
+            var groundHalfY = groundSize.y / 2;
+
             using (var entities = m_BuildingSpawnerQuery.ToEntityArray(Allocator.TempJob))
             {
                 foreach (Entity entity in entities)
@@ -83,7 +81,7 @@ namespace Dots
                     for (int i = 0; i < buildingCount; i++)
                     {
                         int height = random.NextInt(minBuildingHeight, maxBuildingHeight);
-                        Vector3 pos = new Vector3(random.NextFloat(-45f, 45f), 0f, random.NextFloat(-45f, 45f));
+                        Vector3 pos = new Vector3(random.NextFloat(-(groundHalfX - 10), groundHalfX - 10), 0f, random.NextFloat(-(groundHalfX - 10), groundHalfX - 10));
                         float spacing = 2f;
                         for (int j = 0; j < height; j++)
                         {
@@ -110,7 +108,7 @@ namespace Dots
                     // ground details
                     for (int i = 0; i < debrisCount; i++)
                     {
-                        Vector3 pos = new Vector3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f));
+                        Vector3 pos = new Vector3(random.NextFloat(-groundHalfX, groundHalfX), 0f, random.NextFloat(-groundHalfY, groundHalfY));
 
                         var anchor = new Anchor();
                         anchor.position = anchor.oldPosition = new float3(pos.x + random.NextFloat(-.2f, -.1f), pos.y + random.NextFloat(0f, 3f), pos.z + random.NextFloat(.1f, .2f));
@@ -252,19 +250,6 @@ namespace Dots
             }
 
             initialized = true;
-        }
-
-        Entity CreatePointEntity(Anchor anchor)
-        {
-            Entity anchorEntity;
-
-            if (anchor.position.y == 0)
-                anchorEntity = EntityManager.CreateEntity(m_FixedAnchorArchetype);
-            else
-                anchorEntity = EntityManager.CreateEntity(m_AnchorArchetype);
-            EntityManager.SetComponentData(anchorEntity, anchor);
-
-            return anchorEntity;
         }
 
         Entity CreateBeamEntity(BeamDataSpawn beamData, int index, Mesh mesh, Material material)

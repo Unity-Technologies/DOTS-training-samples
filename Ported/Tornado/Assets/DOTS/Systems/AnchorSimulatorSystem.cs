@@ -73,6 +73,7 @@ namespace Dots
             var localBeams = m_BuildingSpawnerSystem.beams;
             var localAnchors = m_BuildingSpawnerSystem.anchors;
             var localPointCount = m_BuildingSpawnerSystem.pointCount;
+            NativeStream stream = new NativeStream(m_BuildingSpawnerSystem.components.Length / 2, Allocator.TempJob);
             var beamConstraintsJob = new BeamConstraintJob()
             {
                 anchors = localAnchors,
@@ -80,43 +81,61 @@ namespace Dots
                 beamDamping = beamDamping,
                 breakResistance = breakResistance,
                 connectedComponents = m_BuildingSpawnerSystem.components,
-                connectedComponentsData = m_BuildingSpawnerSystem.componentsData
+                connectedComponentsData = m_BuildingSpawnerSystem.componentsData,
+                stream = stream
             };
             var beamConstraintsJobHandle = beamConstraintsJob.Schedule(m_BuildingSpawnerSystem.components.Length / 2, 1, applyForcesJobHandle);
 
-            var breakBeamsJob = Entities
-                .WithName("BreakBeams")
-                .WithNativeDisableContainerSafetyRestriction(localBeams)
-                .WithNativeDisableContainerSafetyRestriction(localAnchors)
-                .ForEach((int entityInQueryIndex, in Beam beam) =>
-                {
-                    var beamData = localBeams[beam.beamDataIndex];
-                    if (beamData.toBreakP2)
-                    {
-                        Anchor a2 = localAnchors[beamData.p2];
-                        var newAnchorIndex = localPointCount.Value++;
-                        beamData.p2 = newAnchorIndex;
-                        Anchor newPoint = a2;
-                        newPoint.neighborCount = 1;
-                        beamData.toBreakP2 = false;
-                        localAnchors[newAnchorIndex] = newPoint;
-                    }
-                    else if (beamData.toBreakP1)
-                    {
-                        Anchor a1 = localAnchors[beamData.p1];
-                        var newAnchorIndex = localPointCount.Value++;
-                        beamData.p1 = newAnchorIndex;
-                        Anchor newPoint = a1;
-                        newPoint.neighborCount = 1;
-                        beamData.toBreakP1 = false;
-                        localAnchors[newAnchorIndex] = newPoint;
-                    }
+            beamConstraintsJobHandle.Complete();
 
-                    localBeams[beam.beamDataIndex] = beamData;
-                }).Schedule(beamConstraintsJobHandle);
+            var allBrokenBeams = stream.ToNativeArray<int>(Allocator.TempJob);
+            var brokenBeamCount = allBrokenBeams.Length;
 
-            this.Dependency = breakBeamsJob;
+            var breakBeamsJob = new BreakBeamJob()
+            {
+                anchors = localAnchors,
+                beams = localBeams,
+                brokenBeams = allBrokenBeams,
+                currentPointCount = localPointCount.Value
+            };
+            var breakBeamsJobHandle = breakBeamsJob.Schedule(brokenBeamCount, 1);
+            breakBeamsJobHandle.Complete();
+            m_BuildingSpawnerSystem.pointCount.Value += brokenBeamCount;
+
+            // var breakBeamsJob = Entities
+            //     .WithName("BreakBeams")
+            //     .WithNativeDisableContainerSafetyRestriction(localBeams)
+            //     .WithNativeDisableContainerSafetyRestriction(localAnchors)
+            //     .ForEach((int entityInQueryIndex, in Beam beam) =>
+            //     {
+            //         var beamData = localBeams[beam.beamDataIndex];
+            //         if (beamData.toBreakP2)
+            //         {
+            //             Anchor a2 = localAnchors[beamData.p2];
+            //             var newAnchorIndex = localPointCount.Value++;
+            //             beamData.p2 = newAnchorIndex;
+            //             Anchor newPoint = a2;
+            //             newPoint.neighborCount = 1;
+            //             beamData.toBreakP2 = false;
+            //             localAnchors[newAnchorIndex] = newPoint;
+            //         }
+            //         else if (beamData.toBreakP1)
+            //         {
+            //             Anchor a1 = localAnchors[beamData.p1];
+            //             var newAnchorIndex = localPointCount.Value++;
+            //             beamData.p1 = newAnchorIndex;
+            //             Anchor newPoint = a1;
+            //             newPoint.neighborCount = 1;
+            //             beamData.toBreakP1 = false;
+            //             localAnchors[newAnchorIndex] = newPoint;
+            //         }
+            //
+            //         localBeams[beam.beamDataIndex] = beamData;
+            //     }).Schedule(beamConstraintsJobHandle);
+
+            this.Dependency = breakBeamsJobHandle;
             tornados.Dispose(Dependency);
+            stream.Dispose(Dependency);
         }
     }
 
@@ -234,6 +253,10 @@ namespace Dots
         [NativeDisableParallelForRestriction]
         public NativeArray<BeamData> beams;
 
+        [NativeDisableContainerSafetyRestriction]
+        [NativeDisableParallelForRestriction]
+        public NativeStream stream;
+
         [ReadOnly]
         public NativeArray<int> connectedComponents;
         [ReadOnly]
@@ -251,6 +274,8 @@ namespace Dots
             var ccIndex = ccId * 2;
             var ccDataIndex = connectedComponents[ccIndex];
             var ccLength = connectedComponents[ccIndex + 1];
+            var writer = stream.AsWriter();
+            writer.BeginForEachIndex(ccId);
             for (var i = 0; i < ccLength; ++i)
             {
                 var beamIndex = connectedComponentsData[ccDataIndex + i];
@@ -305,11 +330,13 @@ namespace Dots
                     {
                         beam.toBreakP2 = true;
                         a2.neighborCount--;
+                        writer.Write(beamIndex);
                     }
                     else if (a1.neighborCount > 1)
                     {
                         beam.toBreakP1 = true;
                         a1.neighborCount--;
+                        writer.Write(beamIndex);
                     }
                 }
 
@@ -317,6 +344,7 @@ namespace Dots
                 anchors[point1] = a1;
                 anchors[point2] = a2;
             }
+            writer.EndForEachIndex();
         }
 
         public void Execute()
@@ -325,6 +353,53 @@ namespace Dots
             {
                 Execute(i);
             }
+        }
+    }
+
+    [BurstCompile]
+    struct BreakBeamJob : IJobParallelFor
+    {
+        // By default containers are assumed to be read & write
+        [NativeDisableContainerSafetyRestriction]
+        [NativeDisableParallelForRestriction]
+        public NativeArray<Anchor> anchors;
+
+        [NativeDisableContainerSafetyRestriction]
+        [NativeDisableParallelForRestriction]
+        public NativeArray<BeamData> beams;
+
+        [ReadOnly]
+        [DeallocateOnJobCompletion]
+        public NativeArray<int> brokenBeams;
+
+        public int currentPointCount;
+
+        // The code actually running on the job
+        public void Execute(int newAnchorId)
+        {
+            var beamData = beams[brokenBeams[newAnchorId]];
+            if (beamData.toBreakP2)
+            {
+                Anchor a2 = anchors[beamData.p2];
+                var newAnchorIndex = currentPointCount + newAnchorId;
+                beamData.p2 = newAnchorIndex;
+                Anchor newPoint = a2;
+                newPoint.neighborCount = 1;
+                beamData.toBreakP2 = false;
+                anchors[newAnchorIndex] = newPoint;
+            }
+            else if (beamData.toBreakP1)
+            {
+                Anchor a1 = anchors[beamData.p1];
+                var newAnchorIndex = currentPointCount + newAnchorId;
+                beamData.p1 = newAnchorIndex;
+                Anchor newPoint = a1;
+                newPoint.neighborCount = 1;
+                beamData.toBreakP1 = false;
+                anchors[newAnchorIndex] = newPoint;
+            }
+
+            beams[brokenBeams[newAnchorId]] = beamData;
         }
     }
 }
