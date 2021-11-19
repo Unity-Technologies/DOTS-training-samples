@@ -21,12 +21,12 @@ public partial class DecaySystem : SystemBase
         var globalDataEntity = GetSingletonEntity<GlobalData>();
         var globalData = GetComponent<GlobalData>(globalDataEntity);
 
-        var ecb = ecbs.CreateCommandBuffer();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         var dt = (float)Time.DeltaTime;
 
         Entities
-            .ForEach((Entity entity, ref Decay decay, ref NonUniformScale scale) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Decay decay, ref NonUniformScale scale) =>
             {
                 if (decay.DecayTimeRemaing == 0.0f)
                 {
@@ -40,7 +40,7 @@ public partial class DecaySystem : SystemBase
 
                 if (decay.DecayTimeRemaing <= 0.0f)
                 {
-                    ecb.DestroyEntity(entity);
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
                 }
                 else
                 {
@@ -48,7 +48,7 @@ public partial class DecaySystem : SystemBase
                         decay.DecayTimeRemaing / globalData.DecayTime);
                 }
 
-            }).Schedule();
+            }).ScheduleParallel();
         
         ecbs.AddJobHandleForProducer(Dependency);
 

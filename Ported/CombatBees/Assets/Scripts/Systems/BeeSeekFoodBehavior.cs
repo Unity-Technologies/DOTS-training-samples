@@ -61,7 +61,7 @@ public partial class BeeSeekFoodBehavior : SystemBase
                         );
                     }
                 }
-            ).Schedule();
+            ).ScheduleParallel();
 
         ecbs.AddJobHandleForProducer(Dependency);
     }

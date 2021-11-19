@@ -30,7 +30,7 @@ public partial class BallisticMover : SystemBase
         var time = Time.DeltaTime;
         float3 gravityVector = new float3(0, -2, 0);
 
-        var becb = becbs.CreateCommandBuffer();
+        var becb = becbs.CreateCommandBuffer().AsParallelWriter();
         var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities
@@ -71,35 +71,35 @@ public partial class BallisticMover : SystemBase
             if (height < globalData.BoundsMin.y)
             {
                 translation.Value.y = globalData.BoundsMin.y + aabb.halfSize.y - aabb.center.y;
-                ecb.RemoveComponent<Ballistic>(entity);
+                ecb.RemoveComponent<Ballistic>(entityInQueryIndex, entity);
                 if (!HasComponent<Food>(entity))
-                    ecb.AddComponent(entity, new Decay());
+                    ecb.AddComponent(entityInQueryIndex, entity, new Decay());
             }
-        }).Schedule();
+        }).ScheduleParallel();
 
         Entities
         .WithAll<Ballistic, Food>()
         .WithNone<Decay>()
-        .ForEach((Entity entity, ref Translation translation, in AABB aabb, in TargetedBy targetedby) =>
+        .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in AABB aabb, in TargetedBy targetedby) =>
         {
             var height = translation.Value.y + aabb.center.y - aabb.halfSize.y;
 
             if (height < globalData.BoundsMin.y)
             {
                 // Despawn the food object
-                ecb.DestroyEntity(entity);
+                ecb.DestroyEntity(entityInQueryIndex, entity);
 
-                var explosion = becb.Instantiate(globalData.ExplosionPrefab);
-                becb.SetComponent<Translation>(explosion, translation);
+                var explosion = becb.Instantiate(entityInQueryIndex, globalData.ExplosionPrefab);
+                becb.SetComponent<Translation>(entityInQueryIndex, explosion, translation);
 
                 for (int i = 0; i < globalData.BeeExplosionCount; ++i)
                 {
-                    var bee = becb.Instantiate(globalData.BeePrefab);
-                    becb.SetComponent<Translation>(bee, translation);
-                    BeeSpawner.SetBees(bee, becb, GetComponent<TeamID>(entity));
+                    var bee = becb.Instantiate(entityInQueryIndex, globalData.BeePrefab);
+                    becb.SetComponent<Translation>(entityInQueryIndex, bee, translation);
+                    BeeSpawner.SetBees(bee, entityInQueryIndex, becb, GetComponent<TeamID>(entity));
                 }
             }
-        }).Schedule();
+        }).ScheduleParallel();
 
         ecbs.AddJobHandleForProducer(Dependency);
         becbs.AddJobHandleForProducer(Dependency);

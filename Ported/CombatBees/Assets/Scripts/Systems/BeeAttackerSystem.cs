@@ -57,7 +57,9 @@ public partial class BeeAttackerSystem : SystemBase
                     if (lookUpBee.HasComponent(bee.TargetEntity))
                     {
                         var otherBee = lookUpBee[bee.TargetEntity];
-                        if (otherBee.TargetEntity != Entity.Null && HasComponent<TargetedBy>(otherBee.TargetEntity))
+                        if (otherBee.TargetEntity != Entity.Null && 
+                            HasComponent<TargetedBy>(otherBee.TargetEntity) &&
+                            !HasComponent<IsCarried>(otherBee.TargetEntity))
                         {
                             ecb.SetComponent(entityInQueryIndex, otherBee.TargetEntity, new TargetedBy { Value = Entity.Null });
                         }
