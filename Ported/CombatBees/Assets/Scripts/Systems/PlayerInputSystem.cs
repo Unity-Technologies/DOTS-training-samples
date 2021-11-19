@@ -36,14 +36,11 @@ public partial class PlayerInputSystem : SystemBase
                 if (Input.GetMouseButton(1))
                 {
                     camera.transform.Rotate(rotateValue);
-                    //Debug.Log("Pressed Right click.");
                 }
 
                 if (Input.GetMouseButtonDown(2))
                 {
                     camera.fieldOfView = Mathf.MoveTowards(camera.fieldOfView, defaultFov / 2, angle);
-
-                    Debug.Log("Pressed Middle click.");
                 }
 
                 if (Input.GetKey(inputData.spaceKey))
