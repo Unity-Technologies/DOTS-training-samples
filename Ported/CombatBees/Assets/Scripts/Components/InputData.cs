@@ -10,5 +10,5 @@ using UnityEngine.UIElements;
 public struct InputData : IComponentData
 {
     public KeyCode spaceKey;
-    public int leftMouse;
+    public MouseButton mouseButton;
 }
