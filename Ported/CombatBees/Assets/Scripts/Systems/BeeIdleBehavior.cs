@@ -34,7 +34,8 @@ public partial class BeeIdleBehavior : SystemBase
             typeof(Food),
             typeof(Translation),
             typeof(TargetedBy),
-            ComponentType.Exclude<Decay>());
+            ComponentType.Exclude<InHive>(),
+            ComponentType.Exclude<IsCarried>());
         
         ecbs = World
             .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -121,7 +122,7 @@ public partial class BeeIdleBehavior : SystemBase
                     NativeArray<TargetedBy> targetedArray;
                     NativeArray<Entity> entityArray;
 
-                    if (random.NextFloat() < teamDef.aggression)
+                    if (foodPositions.Length == 0 || random.NextFloat() < teamDef.aggression)
                     {
                         hunting = true;
                         translationArray = beePositions;

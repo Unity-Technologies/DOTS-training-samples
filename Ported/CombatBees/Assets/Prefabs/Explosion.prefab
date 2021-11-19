@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6380324400515718743}
   - component: {fileID: 2329960098522219744}
   - component: {fileID: 7958402478169443036}
-  - component: {fileID: 9208354473532099014}
   m_Layer: 0
   m_Name: Explosion (2)
   m_TagString: Untagged
@@ -82,18 +81,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &9208354473532099014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2575208272628592273}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 889ea424348b42d18d0025f4d5f256ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2909474418180569984
 GameObject:
   m_ObjectHideFlags: 0
@@ -105,7 +92,6 @@ GameObject:
   - component: {fileID: 6400672346435063371}
   - component: {fileID: 1197353080928043744}
   - component: {fileID: 5005254462197562713}
-  - component: {fileID: 7712601536891669823}
   m_Layer: 0
   m_Name: Explosion (1)
   m_TagString: Untagged
@@ -176,18 +162,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7712601536891669823
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2909474418180569984}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 889ea424348b42d18d0025f4d5f256ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &4980732412112144923
 GameObject:
   m_ObjectHideFlags: 0
@@ -302,7 +276,6 @@ GameObject:
   - component: {fileID: 8747502852525695573}
   - component: {fileID: 6559847432839856008}
   - component: {fileID: 6656399093266499174}
-  - component: {fileID: 6695294726915981886}
   m_Layer: 0
   m_Name: Explosion (3)
   m_TagString: Untagged
@@ -373,18 +346,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6695294726915981886
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6462890443221945923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 889ea424348b42d18d0025f4d5f256ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9091977589029791410
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +357,6 @@ GameObject:
   - component: {fileID: 4548981097015612442}
   - component: {fileID: 6783559014206389499}
   - component: {fileID: 4390384016142446915}
-  - component: {fileID: 2536823865564178212}
   m_Layer: 0
   m_Name: Explosion
   m_TagString: Untagged
@@ -467,15 +427,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &2536823865564178212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9091977589029791410}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 889ea424348b42d18d0025f4d5f256ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -157,9 +157,9 @@ MonoBehaviour:
   FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
   GibletPrefab: {fileID: 8032040333273944177, guid: 52dd431af163e6248a5683f57ba82946, type: 3}
   ExplosionPrefab: {fileID: 4980732412112144923, guid: 82feaa3620bd66c45b0cf544b5def159, type: 3}
-  StartingFoodCount: 100
-  BeeCount: 500
-  BeeExplosionCount: 3
+  StartingFoodCount: 500
+  BeeCount: 50
+  BeeExplosionCount: 1
   Length: 60
   Width: 20
   HiveDepth: 10
