@@ -139,7 +139,16 @@ public partial class BeeIdleBehavior : SystemBase
                     var closestScore = float.MaxValue;
                     var closestIndex = -1;
 
-                    for (int i = 0; i < translationArray.Length; i++)
+                    var step = 1;
+                    var start = 0;
+
+                    if (translationArray.Length > 100)
+                    {
+                        step = translationArray.Length / 50;
+                        start = random.NextInt(step);
+                    }
+
+                    for (int i = start; i < translationArray.Length; i += step)
                     {
                         if (targetedArray[i].Value == Entity.Null && (!hunting || beeTeams[i].Value != team.Value))
                         {
