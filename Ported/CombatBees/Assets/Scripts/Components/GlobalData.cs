@@ -8,8 +8,10 @@ public struct GlobalData : IComponentData
     public Entity BeePrefab;
     public Entity FoodPrefab;
     public Entity GibletPrefab;
+    public Entity ExplosionPrefab;
     public int StartingFoodCount;
     public int BeeCount;
+    public int BeeExplosionCount;
     public float3 BoundsMin;
     public float3 BoundsMax;
     public float3 BlueHiveCenter;

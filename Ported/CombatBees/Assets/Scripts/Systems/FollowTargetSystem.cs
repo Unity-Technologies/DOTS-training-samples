@@ -33,6 +33,9 @@ public partial class FollowTargetSystem : SystemBase
                 // Stop carrying our food if our TargetedBy Bee isn't in hunt mode
                 if (!HasComponent<BeeCarryFoodMode>(targetedBy.Value))
                 {
+                    ecb.AddComponent<InHive>(entity);
+                    var teamID = GetComponent<TeamID>(targetedBy.Value);
+                    ecb.AddComponent<TeamID>(entity, new TeamID { Value = teamID.Value });
                     ecb.AddComponent<Ballistic>(entity);
                     ecb.RemoveComponent<IsCarried>(entity);
                     return;

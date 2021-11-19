@@ -26,7 +26,7 @@ public partial class DecaySystem : SystemBase
         var dt = (float)Time.DeltaTime;
 
         Entities
-            .ForEach((Entity entity, ref Decay decay, ref NonUniformScale scale, in AABB aabb) =>
+            .ForEach((Entity entity, ref Decay decay, ref NonUniformScale scale) =>
             {
                 if (decay.DecayTimeRemaing == 0.0f)
                 {

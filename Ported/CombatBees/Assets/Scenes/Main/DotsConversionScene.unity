@@ -156,8 +156,10 @@ MonoBehaviour:
   BeePrefab: {fileID: 734812879360647095, guid: 1cb53a0f2b0cbfe47be6db3b5bf2653e, type: 3}
   FoodPrefab: {fileID: 4980732412112144923, guid: dc621b05a59594bc4a417755fcdbf858, type: 3}
   GibletPrefab: {fileID: 8032040333273944177, guid: 52dd431af163e6248a5683f57ba82946, type: 3}
+  ExplosionPrefab: {fileID: 4980732412112144923, guid: 82feaa3620bd66c45b0cf544b5def159, type: 3}
   StartingFoodCount: 100
-  BeeCount: 500
+  BeeCount: 1
+  BeeExplosionCount: 5
   Length: 60
   Width: 20
   HiveDepth: 10
@@ -180,14 +182,14 @@ MonoBehaviour:
     HuntTimeout: 2
     FlutterMagnitude: 1
     FlutterInterval: 0.947
-    Aggression: 0.44
+    Aggression: 0.547
   - Speed: 15
     AttackRange: 0.5
     PickupFoodRange: 0.25
     HuntTimeout: 4
     FlutterMagnitude: 1
     FlutterInterval: 1.024
-    Aggression: 0.49
+    Aggression: 0.564
 --- !u!4 &208139341
 Transform:
   m_ObjectHideFlags: 0
@@ -346,7 +348,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center:
-    x: -25
+    x: 25
     y: 0
     z: 0
   halfSize:
@@ -501,7 +503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center:
-    x: 25
+    x: -25
     y: 0
     z: 0
   halfSize:

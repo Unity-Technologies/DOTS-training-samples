@@ -32,8 +32,10 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
     public UnityGameObject BeePrefab;
     public UnityGameObject FoodPrefab;
     public UnityGameObject GibletPrefab;
+    public UnityGameObject ExplosionPrefab;
     public int StartingFoodCount;
     public int BeeCount;
+    public int BeeExplosionCount;
     public float Length;
     public float Width;
     public float HiveDepth;
@@ -50,6 +52,7 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(BeePrefab);
         referencedPrefabs.Add(FoodPrefab);
         referencedPrefabs.Add(GibletPrefab);
+        referencedPrefabs.Add(ExplosionPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -67,6 +70,7 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
             FoodPrefab = conversionSystem.GetPrimaryEntity(FoodPrefab),
             GibletPrefab = conversionSystem.GetPrimaryEntity(GibletPrefab),
+            ExplosionPrefab = conversionSystem.GetPrimaryEntity(ExplosionPrefab),
             BoundsMax = max,
             BoundsMin = min,
             BlueHiveCenter = minHive,
@@ -74,6 +78,7 @@ public class GlobalDataAuthoring : UnityMonoBehaviour
             HiveDepth = HiveDepth,
             StartingFoodCount = StartingFoodCount,
             BeeCount = BeeCount,
+            BeeExplosionCount = BeeExplosionCount,
             MinimumSpeed = MinimumSpeed,
             TurnbackZone = max - new float3(TurnbackWidth),
             TurnbackWidth = TurnbackWidth,
