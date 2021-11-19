@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -14,22 +15,46 @@ namespace Dots
     {
         private EntityQuery m_BuildingSpawnerQuery;
 
-        static readonly ComponentType k_FixedAnchorComponent = ComponentType.ReadOnly(typeof(Dots.FixedAnchor));
+        public static readonly ComponentType k_AnchorComponentType = ComponentType.ReadWrite<Anchor>();
+        static readonly ComponentType k_FixedAnchorComponent = ComponentType.ReadOnly(typeof(FixedAnchor));
 
         public NativeArray<BeamData> beams;
+        public NativeArray<Anchor> anchors;
+        public NativeArray<int> components;
+        public NativeArray<int> componentsData;
+
+        EntityArchetype m_AnchorArchetype;
+        EntityArchetype m_FixedAnchorArchetype;
+        EntityArchetype m_BeamArchetype;
+
+        public NativeReference<int> pointCount;
+
+        public bool initialized;
 
         protected override void OnCreate()
         {
+            m_AnchorArchetype = EntityManager.CreateArchetype(k_AnchorComponentType);
+            m_FixedAnchorArchetype = EntityManager.CreateArchetype(k_AnchorComponentType, k_FixedAnchorComponent);
+            m_BeamArchetype = EntityManager.CreateArchetype(
+                ComponentType.ReadWrite<Translation>(),
+                ComponentType.ReadWrite<Rotation>(),
+                ComponentType.ReadWrite<NonUniformScale>(),
+                ComponentType.ReadWrite<Beam>());
             m_BuildingSpawnerQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new ComponentType[] { typeof(BuildingSpawner) }
             });
             RequireForUpdate(m_BuildingSpawnerQuery);
+            pointCount = new NativeReference<int>(0, Allocator.Persistent);
         }
 
         protected override void OnDestroy()
         {
             beams.Dispose();
+            anchors.Dispose();
+            pointCount.Dispose();
+            components.Dispose();
+            componentsData.Dispose();
         }
 
         protected override void OnUpdate()
@@ -50,11 +75,11 @@ namespace Dots
                     var thicknessMin = spawner.thicknessMin;
                     var thicknessMax = spawner.thicknessMax;
 
-                    var pointPosList = new NativeArray<float3>(buildingCount * maxBuildingHeight * 3 + debrisCount * 2, Allocator.Temp);
+                    var anchorList = new List<Anchor>();
+                    var beamList = new List<BeamDataSpawn>();
                     var pointCount = 0;
 
                     // buildings
-                    var pointEntities = new List<Entity>();
                     for (int i = 0; i < buildingCount; i++)
                     {
                         int height = random.NextInt(minBuildingHeight, maxBuildingHeight);
@@ -62,20 +87,23 @@ namespace Dots
                         float spacing = 2f;
                         for (int j = 0; j < height; j++)
                         {
-                            var position = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
-                            pointPosList[pointCount++] = position;
-                            var pointEntity = CreatePoint(position);
-                            pointEntities.Add(pointEntity);
+                            var anchor = new Anchor();
+                            anchor.position = anchor.oldPosition = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                            if (anchor.position.y == 0)
+                                anchor.anchored = true;
+                            anchorList.Add(anchor);
 
-                            position = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
-                            pointPosList[pointCount++] = position;
-                            pointEntity = CreatePoint(position);
-                            pointEntities.Add(pointEntity);
+                            anchor = new Anchor();
+                            anchor.position = anchor.oldPosition = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
+                            if (anchor.position.y == 0)
+                                anchor.anchored = true;
+                            anchorList.Add(anchor);
 
-                            position = new float3(pos.x + 0f, j * spacing, pos.z + spacing);
-                            pointPosList[pointCount++] = position;
-                            pointEntity = CreatePoint(position);
-                            pointEntities.Add(pointEntity);
+                            anchor = new Anchor();
+                            anchor.position = anchor.oldPosition = new float3(pos.x + 0f, j * spacing, pos.z + spacing);
+                            if (anchor.position.y == 0)
+                                anchor.anchored = true;
+                            anchorList.Add(anchor);
                         }
                     }
 
@@ -84,73 +112,56 @@ namespace Dots
                     {
                         Vector3 pos = new Vector3(random.NextFloat(-55f, 55f), 0f, random.NextFloat(-55f, 55f));
 
-                        var position = new float3(pos.x + random.NextFloat(-.2f, -.1f), pos.y + random.NextFloat(0f, 3f), pos.z + random.NextFloat(.1f, .2f));
-                        pointPosList[pointCount++] = position;
-                        var pointEntity = CreatePoint(position);
-                        pointEntities.Add(pointEntity);
+                        var anchor = new Anchor();
+                        anchor.position = anchor.oldPosition = new float3(pos.x + random.NextFloat(-.2f, -.1f), pos.y + random.NextFloat(0f, 3f), pos.z + random.NextFloat(.1f, .2f));
+                        if (anchor.position.y == 0)
+                            anchor.anchored = true;
+                        anchorList.Add(anchor);
 
-                        position = new float3(pos.x + random.NextFloat(.2f, .1f), pos.y + random.NextFloat(0f, .2f), pos.z + random.NextFloat(-.1f, -.2f));
-                        pointPosList[pointCount++] = position;
-                        pointEntity = CreatePoint(position);
-                        pointEntities.Add(pointEntity);
+                        anchor = new Anchor();
+                        anchor.position = anchor.oldPosition = new float3(pos.x + random.NextFloat(.2f, .1f), pos.y + random.NextFloat(0f, .2f), pos.z + random.NextFloat(-.1f, -.2f));
+                        if (anchor.position.y == 0)
+                            anchor.anchored = true;
+                        anchorList.Add(anchor);
                     }
 
-                    var beamDatas = new List<BeamData>();
+
                     var connectedComponents = new List<ConnectedComponent>();
                     var pointToCC = new Dictionary<int, ConnectedComponent>();
-                    for (int i = 0; i < pointCount; i++)
+                    for (int i = 0; i < anchorList.Count; i++)
                     {
-                        for (int j = i + 1; j < pointCount; j++)
+                        for (int j = i + 1; j < anchorList.Count; j++)
                         {
-                            var p1 = pointEntities[i];
-                            var p2 = pointEntities[j];
+                            var point1 = anchorList[i];
+                            var point2 = anchorList[j];
 
-                            var point1 = pointPosList[i];
-                            var point2 = pointPosList[j];
-
-                            Vector3 delta = new Vector3(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z);
+                            Vector3 delta = point2.position - point1.position;
                             var length = delta.magnitude;
 
                             var thickness = random.NextFloat(thicknessMin, thicknessMax);
                             if (length <= .2f || length >= 5f)
                                 continue;
 
-                            Vector3 pos = new Vector3(point1.x + point2.x, point1.y + point2.y, point1.z + point2.z) * .5f;
+                            point1.neighborCount++;
+                            point2.neighborCount++;
+                            anchorList[i] = point1;
+                            anchorList[j] = point2;
+
+                            Vector3 pos = (point1.position + point2.position) * .5f;
                             Quaternion rot = Quaternion.LookRotation(delta);
                             Vector3 scale = new Vector3(thickness, thickness, length);
 
-                            var barEntity = EntityManager.CreateEntity();
-                            EntityManager.AddComponentData(barEntity, new Translation
+                            var beamDataSpawn = new BeamDataSpawn()
                             {
-                                Value = pos
-                            });
-                            EntityManager.AddComponentData(barEntity, new Rotation()
-                            {
-                                Value = rot
-                            });
-                            EntityManager.AddComponentData(barEntity, new NonUniformScale()
-                            {
-                                Value = scale
-                            });
-
-                            var desc = new RenderMeshDescription(spawner.mesh, spawner.material);
-                            RenderMeshUtility.AddComponents(barEntity, EntityManager, desc);
-
-                            var beamData = new BeamData()
-                            {
-                                p1 = p1,
-                                p2 = p2,
-                                oldD = new float3(0, 0, 0),
-                                newD = new float3(0, 0, 0),
-                                length = length
+                                p1Id = i,
+                                p2Id = j,
+                                length = length,
+                                pos = pos,
+                                rot = rot,
+                                scale = scale
                             };
-                            beamDatas.Add(beamData);
-                            var beamIndex = beamDatas.Count - 1;
-                            EntityManager.AddComponentData(barEntity, new Beam()
-                            {
-                                beamDataIndex = beamDatas.Count - 1
-                            });
-
+                            beamList.Add(beamDataSpawn);
+                            var beamIndex = beamList.Count - 1;
 
                             if (!pointToCC.ContainsKey(i) && !pointToCC.ContainsKey(j))
                             {
@@ -182,39 +193,105 @@ namespace Dots
                         }
                     }
 
+                    anchors = new NativeArray<Anchor>(beamList.Count * 2, Allocator.Persistent);
+                    for (var i = 0; i < anchorList.Count; ++i)
+                    {
+                        anchors[i] = anchorList[i];
+                    }
+
+                    this.pointCount.Value = anchorList.Count;
+
+                    var beamDatas = new List<BeamData>();
+                    foreach (var beamDataSpawn in beamList)
+                    {
+                        CreateBeamEntity(beamDataSpawn, beamDatas.Count, spawner.mesh, spawner.material);
+
+                        var beamData = new BeamData()
+                        {
+                            p1 = beamDataSpawn.p1Id,
+                            p2 = beamDataSpawn.p2Id,
+                            oldD = new float3(0, 0, 0),
+                            newD = new float3(0, 0, 0),
+                            length = beamDataSpawn.length
+                        };
+                        beamDatas.Add(beamData);
+                    }
+
                     beams = new NativeArray<BeamData>(beamDatas.ToArray(), Allocator.Persistent);
 
+                    var componentCount = connectedComponents.Count(cc => cc.root == null);
+                    var maxComponentSize = connectedComponents.Where(cc => cc.root == null).Max(cc => cc.beams.Count);
+                    var componentList = new int[componentCount * 2];
+                    var componentDataList = new int[componentCount * maxComponentSize];
+                    var componentIndex = 0;
+                    var componentDataIndex = 0;
                     foreach (var connectedComponent in connectedComponents)
                     {
                         if (connectedComponent.root != null)
                             continue;
 
-                        var beamGroup = EntityManager.CreateEntity();
-                        var entityBuffer = EntityManager.AddBuffer<BeamBufferElement>(beamGroup);
+                        var beamCount = connectedComponent.beams.Count;
+                        componentList[componentIndex] = componentDataIndex;
+                        componentList[componentIndex+1] = beamCount;
+                        var currentDataIndex = componentDataIndex;
                         foreach (var beam in connectedComponent.beams)
                         {
-                            entityBuffer.Add(beam);
+                            componentDataList[currentDataIndex] = beam;
+                            ++currentDataIndex;
                         }
+
+                        componentIndex += 2;
+                        componentDataIndex += maxComponentSize;
                     }
+
+                    components = new NativeArray<int>(componentList, Allocator.Persistent);
+                    componentsData = new NativeArray<int>(componentDataList, Allocator.Persistent);
+
+                    Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, $"Built {connectedComponents.Count(cc => cc.root == null)} connected components");
                 }
             }
+
+            initialized = true;
         }
 
-        Entity CreatePoint(float3 position)
+        Entity CreatePointEntity(Anchor anchor)
         {
-            var pointEntity = EntityManager.CreateEntity();
-            EntityManager.AddComponentData(pointEntity, new Anchor()
-            {
-                position = position,
-                oldPosition = position,
-                neighborCount = 0
-            });
-            if (position.y == 0)
-            {
-                EntityManager.AddComponent(pointEntity, k_FixedAnchorComponent);
-            }
+            Entity anchorEntity;
 
-            return pointEntity;
+            if (anchor.position.y == 0)
+                anchorEntity = EntityManager.CreateEntity(m_FixedAnchorArchetype);
+            else
+                anchorEntity = EntityManager.CreateEntity(m_AnchorArchetype);
+            EntityManager.SetComponentData(anchorEntity, anchor);
+
+            return anchorEntity;
+        }
+
+        Entity CreateBeamEntity(BeamDataSpawn beamData, int index, Mesh mesh, Material material)
+        {
+            var beamEntity = EntityManager.CreateEntity(m_BeamArchetype);
+            EntityManager.SetComponentData(beamEntity, new Translation
+            {
+                Value = beamData.pos
+            });
+            EntityManager.AddComponentData(beamEntity, new Rotation()
+            {
+                Value = beamData.rot
+            });
+            EntityManager.AddComponentData(beamEntity, new NonUniformScale()
+            {
+                Value = beamData.scale
+            });
+
+            EntityManager.AddComponentData(beamEntity, new Beam()
+            {
+                beamDataIndex = index
+            });
+
+            var desc = new RenderMeshDescription(mesh, material);
+            RenderMeshUtility.AddComponents(beamEntity, EntityManager, desc);
+
+            return beamEntity;
         }
     }
 

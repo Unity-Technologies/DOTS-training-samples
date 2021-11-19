@@ -48,9 +48,9 @@ public class PointManager : MonoBehaviour
     {
         // buildings
         var pointsList = new List<Point>();
-        for (int i = 0; i < 35; i++)
+        for (int i = 0; i < 100; i++)
         {
-            int height = Random.Range(4, 12);
+            int height = Random.Range(6, 15);
             Vector3 pos = new Vector3(Random.Range(-45f, 45f), 0f, Random.Range(-45f, 45f));
             float spacing = 2f;
             for (int j = 0; j < height; j++)
@@ -95,7 +95,7 @@ public class PointManager : MonoBehaviour
         }
 
         // ground details
-        for (int i = 0; i < 600; i++)
+        for (int i = 0; i < 0; i++)
         {
             Vector3 pos = new Vector3(Random.Range(-55f, 55f), 0f, Random.Range(-55f, 55f));
             Point point = new Point();

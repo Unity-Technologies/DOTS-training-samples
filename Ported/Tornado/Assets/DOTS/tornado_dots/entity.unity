@@ -383,6 +383,6 @@ MonoBehaviour:
   buildingCount: 100
   minHeight: 6
   maxHeight: 15
-  debrisCount: 600
+  debrisCount: 0
   thicknessMin: 0.25
   thicknessMax: 0.35

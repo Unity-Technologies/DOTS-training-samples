@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Dots
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(FixedStepSimulationSystemGroup))]
+    [UpdateAfter(typeof(AnchorSimulatorSystem))]
     public partial class BeamRenderUpdateSystem : SystemBase
     {
         BuildingSpawnerSystem m_BuildingSpawnerSystem;
@@ -19,16 +19,19 @@ namespace Dots
         protected override void OnUpdate()
         {
             var localBeams = m_BuildingSpawnerSystem.beams;
+            var localAnchors = m_BuildingSpawnerSystem.anchors;
             Entities
+                .WithoutBurst()
                 .WithNativeDisableContainerSafetyRestriction(localBeams)
+                .WithReadOnly(localAnchors)
                 .ForEach((ref Translation t, ref Rotation r, ref Beam beam) =>
             {
                 var beamData = localBeams[beam.beamDataIndex];
                 var point1 = beamData.p1;
                 var point2 = beamData.p2;
 
-                var a1 = GetComponent<Anchor>(point1);
-                var a2 = GetComponent<Anchor>(point2);
+                var a1 = localAnchors[point1];
+                var a2 = localAnchors[point2];
 
                 var newD = beamData.newD;
 

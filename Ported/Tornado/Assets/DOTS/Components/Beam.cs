@@ -13,8 +13,11 @@ namespace Dots
 
     public struct BeamData
     {
-        public Entity p1;
-        public Entity p2;
+        public int p1;
+        public int p2;
+
+        public bool toBreakP1;
+        public bool toBreakP2;
 
         public float3 newD;
         public float3 oldD;

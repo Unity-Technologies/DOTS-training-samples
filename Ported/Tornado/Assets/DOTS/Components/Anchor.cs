@@ -11,6 +11,7 @@ namespace Dots
         public float3 position;
         public float3 oldPosition;
         public int neighborCount;
+        public bool anchored;
     }
 }
 
