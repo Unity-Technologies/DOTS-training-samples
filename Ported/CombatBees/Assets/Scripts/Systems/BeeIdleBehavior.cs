@@ -100,11 +100,11 @@ public partial class BeeIdleBehavior : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team,
                     in Velocity velocity) =>
                 {
-                    if (foodPositions.Length > 0)
-                    {
-                        var t1 = (beeDefinitions, beePositions, beeEntities, beeTeams, beeTargetedBy, foodPositions,
-                            foodEntities, foodTargetedBy);
-                    }
+                    // if (foodPositions.Length > 0)
+                    // {
+                    //     var t1 = (beeDefinitions, beePositions, beeEntities, beeTeams, beeTargetedBy, foodPositions,
+                    //         foodEntities, foodTargetedBy);
+                    // }
 
                     if (myself.TimeLeftTilIdleUpdate > dt)
                     {
