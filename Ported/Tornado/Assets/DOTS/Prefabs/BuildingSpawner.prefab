@@ -45,5 +45,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   beamPrefab: {fileID: 6945379747211018676, guid: 784e3a16ef8b1a243bdbba9904b13180,
     type: 3}
-  buildingCount: 35
-  useBeamGroups: 1
+  buildingCount: 100
+  buildingAreaSize: 120
+  buildingMaxFloorCount: 12
+  groundBeamsPointCount: 600
+  groundBeamsAreaSize: 100
+  groundBeamsCells: 5

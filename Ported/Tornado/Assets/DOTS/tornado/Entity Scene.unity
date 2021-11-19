@@ -263,7 +263,7 @@ PrefabInstance:
     - target: {fileID: 7885430937900669108, guid: 0407bc607f3fa3546ab4d173b0e70c3f,
         type: 3}
       propertyPath: rotationModulation
-      value: 30
+      value: 50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0407bc607f3fa3546ab4d173b0e70c3f, type: 3}
@@ -333,16 +333,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8468233497155469321, guid: b4e10dfe0c8b2734aba92d87317f701c,
-        type: 3}
-      propertyPath: buildingCount
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 8468233497155469321, guid: b4e10dfe0c8b2734aba92d87317f701c,
-        type: 3}
-      propertyPath: useBeamGroups
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b4e10dfe0c8b2734aba92d87317f701c, type: 3}

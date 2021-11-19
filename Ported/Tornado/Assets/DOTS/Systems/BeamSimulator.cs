@@ -54,6 +54,7 @@ namespace Dots
 
             Entities
                 .WithNativeDisableParallelForRestriction(anchorPoints)
+                .WithNativeDisableParallelForRestriction(beams)
                 .WithName("Simulation")
                 .ForEach((ref Building buildingComponent) =>
                 {
@@ -104,16 +105,16 @@ namespace Dots
                             anchorPoints[anchorPointStart + i] = anchorPoint;
                         }
                     }
-                }).ScheduleParallel();
-
-            Entities
-                .WithNativeDisableParallelForRestriction(anchorPoints)
-                .WithNativeDisableParallelForRestriction(beams)
-                .WithName("SimulationBeams")
-                .ForEach((ref Building buildingComponent) =>
-                {
-                    int anchorPointStart = buildingComponent.index.x;
-                    int anchorPointCount = buildingComponent.index.y;
+            //    }).ScheduleParallel();
+            //
+            //Entities
+            //    .WithNativeDisableParallelForRestriction(anchorPoints)
+            //    .WithNativeDisableParallelForRestriction(beams)
+            //    .WithName("SimulationBeams")
+            //    .ForEach((ref Building buildingComponent) =>
+            //    {
+            //        int anchorPointStart = buildingComponent.index.x;
+            //        int anchorPointCount = buildingComponent.index.y;
                     int beamStart = buildingComponent.index.z;
                     int beamCount = buildingComponent.index.w;
                     

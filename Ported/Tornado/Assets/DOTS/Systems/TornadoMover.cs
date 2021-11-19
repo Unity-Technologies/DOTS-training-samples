@@ -24,8 +24,8 @@ namespace Dots
                     
                     var tmod = (float)elapsedTime / 6f;
                     translation.Value.xz = new float2(
-                        config.initialPosition.x + math.cos(tmod) * config.rotationModulation, 
-                        config.initialPosition.z + math.sin(tmod * 1.618f) * config.rotationModulation);
+                        config.initialPosition.x + math.sin(tmod * 1.618f) * config.rotationModulation, 
+                        config.initialPosition.z + math.cos(tmod) * config.rotationModulation);
                 }).Schedule();
         }
     }

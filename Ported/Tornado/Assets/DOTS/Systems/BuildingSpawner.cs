@@ -26,22 +26,22 @@ namespace Dots
             
             var buildingSpawnerEntity = GetSingletonEntity<BuildingSpawnerData>();
             var buildingSpawner = GetComponent<BuildingSpawnerData>(buildingSpawnerEntity);
-            var buildingsAreaSize = new float2(140, 140);
+            var buildingsAreaSize = new float2(buildingSpawner.buildingAreaSize, buildingSpawner.buildingAreaSize);
             var buildingsAreaSizeHalfSize = buildingsAreaSize / 2f;
             
             // ground details
-            int2 groundTiles = new int2(3, 3);
-            int2 groundSectionSize = new int2(120, 120);
+            int2 groundTiles = new int2(buildingSpawner.groundBeamsCells, buildingSpawner.groundBeamsCells);
+            int2 groundSectionSize = new int2(buildingSpawner.groundBeamsAreaSize, buildingSpawner.groundBeamsAreaSize);
             int grountTileCount = groundTiles.x * groundTiles.y;
             float2 groundSectionHalfSize = new float2(groundSectionSize.x, groundSectionSize.y) / 2f;
             float2 groundSectionAreaSize = groundSectionSize / groundTiles;
-            int  groundSectionPointByArea = 600 / grountTileCount;
+            int  groundSectionPointByArea = buildingSpawner.groundBeamsPointCount / grountTileCount;
             var groundSectionAreas = new NativeArray<float4>(grountTileCount, Allocator.TempJob);
             for (int i = 0; i < groundTiles.x; ++i)
             {
                 for (int j = 0; j < groundTiles.y; ++j)
                 {
-                    groundSectionAreas[i * 3 + j] = new float4(
+                    groundSectionAreas[i * groundTiles.y + j] = new float4(
                         i * groundSectionAreaSize.x - groundSectionHalfSize.x,
                         (i + 1) * groundSectionAreaSize.x - groundSectionHalfSize.x,
                         j * groundSectionAreaSize.y - groundSectionHalfSize.y,
@@ -49,8 +49,8 @@ namespace Dots
                 }
             }
 
-            var buildingCount = buildingSpawner.BuildingCount + grountTileCount; // we have 9 ground areas
-            var beamCountApprox = buildingCount * 12 * 3 * 16; // Max 12 stairs, 3 point by stair, ~16 beam by stair
+            var buildingCount = buildingSpawner.buildingCount + grountTileCount; // we have 9 ground areas
+            var beamCountApprox = buildingCount * buildingSpawner.buildingMaxFloorCount * 32 + buildingSpawner.groundBeamsPointCount * 3;
             
             //var buildingsIndices = new NativeArray<int4>(buildingCount, Allocator.Persistent);
             var anchorPoints = new NativeArray<AnchorPoint>(beamCountApprox * 2, Allocator.Persistent);
@@ -96,7 +96,7 @@ namespace Dots
                                     beam.points = new int2(i,j);
                                     beam.oldDelta = new float3(0f, 0f, 0f);
 
-                                    var beamEntity = ecb.Instantiate(spawner.BeamPrefab);
+                                    var beamEntity = ecb.Instantiate(spawner.beamPrefab);
                                     float3 up = new float3(0f, 1f, 0f);
                                     float3 pointDeltaNorm = math.normalize(pointDelta);
                                     float upDot = math.acos(math.abs(math.dot(up, pointDeltaNorm))) / Mathf.PI;
@@ -140,9 +140,9 @@ namespace Dots
                     }
 
                     // buildings
-                    for (int i = 0; i < spawner.BuildingCount; i++)
+                    for (int i = 0; i < spawner.buildingCount; i++)
                     {
-                        int height = random.NextInt(4, 12);
+                        int height = random.NextInt(4, spawner.buildingMaxFloorCount);
                         int anchorStart = anchorPointTotal;
                         int anchorCount = height * 3;
                         float3 pos = new float3(random.NextFloat(-buildingsAreaSizeHalfSize.x, buildingsAreaSizeHalfSize.x), 0f, random.NextFloat(-buildingsAreaSizeHalfSize.y, buildingsAreaSizeHalfSize.y));
@@ -189,7 +189,7 @@ namespace Dots
                         beamTotal += beamCount;
                     }
 
-                    for (int groundSection = 0; groundSection < 9; ++groundSection)
+                    for (int groundSection = 0; groundSection < grountTileCount; ++groundSection)
                     {
                         int anchorStart = anchorPointTotal;
                         int anchorCount = groundSectionPointByArea;
