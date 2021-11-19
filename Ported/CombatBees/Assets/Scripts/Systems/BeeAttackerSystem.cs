@@ -22,7 +22,7 @@ public partial class BeeAttackerSystem : SystemBase
 
         var dt = World.Time.DeltaTime;
         var sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        var ecb = sys.CreateCommandBuffer();
+        var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         var lookUpTraslation = GetComponentDataFromEntity<Translation>(true);
         var lookUpVelocity = GetComponentDataFromEntity<Velocity>(true);
         var lookUpBee = GetComponentDataFromEntity<Bee>(true);
@@ -35,7 +35,7 @@ public partial class BeeAttackerSystem : SystemBase
         
         entityHashSet.Clear();
 
-        var beeProcessed = entityHashSet;
+        var beeProcessed = entityHashSet.AsParallelWriter();
         
         Random random = new Random(3045);
 
@@ -48,7 +48,7 @@ public partial class BeeAttackerSystem : SystemBase
             .WithReadOnly(lookUpTraslation)
             .WithReadOnly(lookUpBee)
             .WithReadOnly(lookUpVelocity)
-            .ForEach((Entity entity, ref Bee bee, in Velocity velocity, in Translation position) =>
+            .ForEach((Entity entity,int entityInQueryIndex, ref Bee bee, in Velocity velocity, in Translation position) =>
             {
                 if (beeProcessed.Add(entity))
                 {
@@ -59,29 +59,29 @@ public partial class BeeAttackerSystem : SystemBase
                         var otherBee = lookUpBee[bee.TargetEntity];
                         if (otherBee.TargetEntity != Entity.Null && HasComponent<TargetedBy>(otherBee.TargetEntity))
                         {
-                            ecb.SetComponent(otherBee.TargetEntity, new TargetedBy { Value = Entity.Null });
+                            ecb.SetComponent(entityInQueryIndex, otherBee.TargetEntity, new TargetedBy { Value = Entity.Null });
                         }
                     }
 
-                    ecb.AddComponent(bee.TargetEntity, new Ballistic());
+                    ecb.AddComponent(entityInQueryIndex, bee.TargetEntity, new Ballistic());
                     beeProcessed.Add(bee.TargetEntity);
 
-                    ecb.RemoveComponent<BeeAttackMode>(entity);
-                    ecb.AddComponent<BeeIdleMode>(entity);
+                    ecb.RemoveComponent<BeeAttackMode>(entityInQueryIndex, entity);
+                    ecb.AddComponent<BeeIdleMode>(entityInQueryIndex, entity);
                     bee.TargetEntity = Entity.Null;
 
                     int totalGiblets = random.NextInt(5, 10);
                     for (int i = 0; i < totalGiblets; ++i)
                     {
-                        var giblet = ecb.Instantiate(globalData.GibletPrefab);
-                        ecb.SetComponent<Translation>(giblet, otherPos);
-                        ecb.SetComponent<Velocity>(giblet, new Velocity
+                        var giblet = ecb.Instantiate(entityInQueryIndex, globalData.GibletPrefab);
+                        ecb.SetComponent<Translation>(entityInQueryIndex, giblet, otherPos);
+                        ecb.SetComponent<Velocity>(entityInQueryIndex, giblet, new Velocity
                         {
                             Value = othervel.Value + (random.NextFloat3Direction() * 2.0f)
                         });
                     }
                 }
-            }).Schedule();
+            }).ScheduleParallel();
         sys.AddJobHandleForProducer(Dependency);
     }
 }

@@ -24,23 +24,23 @@ public partial class BallisticMover : SystemBase
         var time = Time.DeltaTime;
         float3 gravityVector = new float3(0, -2, 0);
 
-        var ecb = ecbs.CreateCommandBuffer();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<Ballistic>()
-            .ForEach((ref Velocity velocity) => { velocity.Value += gravityVector * time; }).Schedule();
+            .ForEach((ref Velocity velocity) => { velocity.Value += gravityVector * time; }).ScheduleParallel();
 
         Entities
             .WithAll<Ballistic>()
             .ForEach((ref Translation translation, in Velocity velocity) =>
             {
                 translation.Value = translation.Value + velocity.Value * time;
-            }).Schedule();
+            }).ScheduleParallel();
 
         Entities
             .WithAll<Ballistic>()
             .WithNone<Decay>()
-            .ForEach((Entity entity, ref Translation translation, ref Velocity velocity, in AABB aabb) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Velocity velocity, in AABB aabb) =>
             {
                 var abspos = math.abs(translation.Value + aabb.center)+aabb.halfSize;
                 if (abspos.x > globalData.BoundsMax.x)
@@ -64,15 +64,15 @@ public partial class BallisticMover : SystemBase
                 if (height < globalData.BoundsMin.y)
                 {
                     translation.Value.y = globalData.BoundsMin.y + aabb.halfSize.y - aabb.center.y;
-                    ecb.RemoveComponent<Ballistic>(entity);
+                    ecb.RemoveComponent<Ballistic>(entityInQueryIndex, entity);
                     if (HasComponent<Food>(entity))
                     {
                         // if food is in hive, spawn new bees
                     }
                     else
-                        ecb.AddComponent(entity, new Decay());
+                        ecb.AddComponent(entityInQueryIndex, entity, new Decay());
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         ecbs.AddJobHandleForProducer(Dependency);
     }

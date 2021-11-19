@@ -22,14 +22,14 @@ public partial class BeeHuntBehavior : SystemBase
         
         var dt = Time.DeltaTime;
         
-        var ecb = ecbs.CreateCommandBuffer();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<BeeHuntMode>()
             .WithNone<Ballistic, Decay>()
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
-            .ForEach((Entity entity, ref Bee myself, ref BeeHuntMode huntMode, in Translation position, in TeamID team) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, ref BeeHuntMode huntMode, in Translation position, in TeamID team) =>
                 {
                     var teamDef = beeDefinitions[team.Value];
                     huntMode.timeHunting += dt;
@@ -45,10 +45,10 @@ public partial class BeeHuntBehavior : SystemBase
 
                     if (cancelHunt)
                     {
-                        ecb.RemoveComponent<BeeHuntMode>(entity);
-                        ecb.AddComponent(entity, new BeeIdleMode());
+                        ecb.RemoveComponent<BeeHuntMode>(entityInQueryIndex, entity);
+                        ecb.AddComponent(entityInQueryIndex, entity, new BeeIdleMode());
                         if (timedOut)
-                            ecb.SetComponent(myself.TargetEntity, new TargetedBy { Value = Entity.Null });
+                            ecb.SetComponent(entityInQueryIndex, myself.TargetEntity, new TargetedBy { Value = Entity.Null });
                         myself.TargetEntity = Entity.Null;
                     }
                     else
@@ -56,12 +56,12 @@ public partial class BeeHuntBehavior : SystemBase
                         var otherpos = GetComponent<Translation>(myself.TargetEntity);
                         if (math.distancesq(otherpos.Value, position.Value) < teamDef.attackRange)
                         {
-                            ecb.RemoveComponent<BeeHuntMode>(entity);
-                            ecb.AddComponent(entity, new BeeAttackMode());
+                            ecb.RemoveComponent<BeeHuntMode>(entityInQueryIndex, entity);
+                            ecb.AddComponent(entityInQueryIndex, entity, new BeeAttackMode());
                         }
                     }
                 }
-            ).Schedule();
+            ).ScheduleParallel();
         
         ecbs.AddJobHandleForProducer(Dependency);
     }

@@ -22,7 +22,7 @@ public partial class BeeSeekFoodBehavior : SystemBase
         
         var dt = Time.DeltaTime;
         
-        var ecb = ecbs.CreateCommandBuffer();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<BeeSeekFoodMode>()
@@ -37,8 +37,8 @@ public partial class BeeSeekFoodBehavior : SystemBase
                     if (targeted.Value != entity)
                     {
                         myself.TargetEntity = Entity.Null;
-                        ecb.RemoveComponent<BeeSeekFoodMode>(entity);
-                        ecb.AddComponent(entity, new BeeIdleMode());
+                        ecb.RemoveComponent<BeeSeekFoodMode>(entityInQueryIndex, entity);
+                        ecb.AddComponent(entityInQueryIndex, entity, new BeeIdleMode());
                         return;
                     }
 
@@ -48,10 +48,10 @@ public partial class BeeSeekFoodBehavior : SystemBase
                         var random = Random.CreateFromIndex((uint)(entityInQueryIndex + frameCount));
 
                         // If the food is falling
-                        ecb.RemoveComponent<Ballistic>(myself.TargetEntity);
-                        ecb.RemoveComponent<BeeSeekFoodMode>(entity);
-                        ecb.AddComponent(entity, new BeeCarryFoodMode());
-                        ecb.AddComponent(myself.TargetEntity, new IsCarried());
+                        ecb.RemoveComponent<Ballistic>(entityInQueryIndex, myself.TargetEntity);
+                        ecb.RemoveComponent<BeeSeekFoodMode>(entityInQueryIndex, entity);
+                        ecb.AddComponent(entityInQueryIndex, entity, new BeeCarryFoodMode());
+                        ecb.AddComponent(entityInQueryIndex, myself.TargetEntity, new IsCarried());
                         myself.CarriedFoodEntity = myself.TargetEntity;
                         myself.TargetEntity = teamDef.hive;
                         myself.TargetOffset = new float3(

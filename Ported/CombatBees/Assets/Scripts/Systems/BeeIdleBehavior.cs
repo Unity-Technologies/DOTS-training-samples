@@ -59,7 +59,7 @@ public partial class BeeIdleBehavior : SystemBase
         
         entityHashSet.Clear();
 
-        var targetChosenSet = entityHashSet;
+        var targetChosenSet = entityHashSet.AsParallelWriter();
 
         var foodPositions = FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var foodEntities = FoodQuery.ToEntityArray(Allocator.TempJob);
@@ -76,7 +76,7 @@ public partial class BeeIdleBehavior : SystemBase
         
         var dt = Time.DeltaTime;
         
-        var ecb = ecbs.CreateCommandBuffer();
+        var ecb = ecbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .WithAll<BeeIdleMode>()
@@ -88,10 +88,24 @@ public partial class BeeIdleBehavior : SystemBase
             .WithDisposeOnCompletion(foodPositions)
             .WithDisposeOnCompletion(foodEntities)
             .WithDisposeOnCompletion(foodTargetedBy)
+            .WithReadOnly(beePositions)
+            .WithReadOnly(beeEntities)
+            .WithReadOnly(beeTeams)
+            .WithReadOnly(beeTargetedBy)
+            .WithReadOnly(foodPositions)
+            .WithReadOnly(foodEntities)
+            .WithReadOnly(foodTargetedBy)
             .WithReadOnly(beeDefinitions)
             .WithNativeDisableContainerSafetyRestriction(beeDefinitions)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team, in Velocity velocity) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee myself, in Translation position, in TeamID team,
+                    in Velocity velocity) =>
                 {
+                    if (foodPositions.Length > 0)
+                    {
+                        var t1 = (beeDefinitions, beePositions, beeEntities, beeTeams, beeTargetedBy, foodPositions,
+                            foodEntities, foodTargetedBy);
+                    }
+
                     if (myself.TimeLeftTilIdleUpdate > dt)
                     {
                         myself.TimeLeftTilIdleUpdate -= dt;
@@ -132,7 +146,7 @@ public partial class BeeIdleBehavior : SystemBase
                             var vecToTarget = translationArray[i].Value - position.Value;
                             float dot;
                             var dsq = math.lengthsq(vecToTarget);
-
+                    
                             if (dsq < 0.1f)
                             {
                                 dot = -1.0f;
@@ -143,12 +157,12 @@ public partial class BeeIdleBehavior : SystemBase
                                     ? 1.0f - math.dot(math.normalize(vecToTarget), math.normalize(velocity.Value))
                                     : -1.0f;
                             }
-
+                    
                             var score = dot * dsq;
-                            
+                    
                             if (score >= closestScore)
                                 continue;
-
+                    
                             closestScore = score;
                             closestIndex = i;
                         }
@@ -158,16 +172,15 @@ public partial class BeeIdleBehavior : SystemBase
                     {
                         myself.TargetEntity = entityArray[closestIndex];
                         myself.TargetOffset = float3.zero;
-                        SetComponent(myself.TargetEntity, new TargetedBy { Value = entity });
-                        ecb.RemoveComponent<BeeIdleMode>(entity);
+                        ecb.SetComponent(entityInQueryIndex, myself.TargetEntity, new TargetedBy { Value = entity });
+                        ecb.RemoveComponent<BeeIdleMode>(entityInQueryIndex, entity);
                         if (hunting)
-                            ecb.AddComponent(entity, new BeeHuntMode());
+                            ecb.AddComponent(entityInQueryIndex, entity, new BeeHuntMode());
                         else
-                            ecb.AddComponent(entity, new BeeSeekFoodMode());
+                            ecb.AddComponent(entityInQueryIndex, entity, new BeeSeekFoodMode());
                     }
-                    
                 }
-            ).Schedule();
+            ).ScheduleParallel();
         
         ecbs.AddJobHandleForProducer(Dependency);
     }

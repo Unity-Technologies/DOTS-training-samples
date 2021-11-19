@@ -139,6 +139,6 @@ public partial class BeeMoveBehavior : SystemBase
 
                     position.Value += velocity.Value * dt;
                 }
-            ).Schedule();
+            ).ScheduleParallel();
     }
 }
