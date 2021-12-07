@@ -112,20 +112,20 @@ public class BeeManager : MonoBehaviour {
 	void FixedUpdate() {
 		float deltaTime = Time.fixedDeltaTime;
 
-		for (int i = 0; i < bees.Count; i++) {
+		for (int i = 0; i < bees.Count; i++) { // Loop through the bees
 			Bee bee = bees[i];
 			bee.isAttacking = false;
 			bee.isHoldingResource = false;
-			if (bee.dead == false) {
-				bee.velocity += Random.insideUnitSphere * (flightJitter * deltaTime);
-				bee.velocity *= (1f-damping);
+			if (bee.dead == false) { // If the current bee is ALIVE
+				bee.velocity += Random.insideUnitSphere * (flightJitter * deltaTime); // add random jitter
+				bee.velocity *= (1f-damping); // Multiply velocity with 0.0 - 1.0 to dampen
 
 				List<Bee> allies = teamsOfBees[bee.team];
-				Bee attractiveFriend = allies[Random.Range(0,allies.Count)];
-				Vector3 delta = attractiveFriend.position - bee.position;
-				float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+				Bee attractiveFriend = allies[Random.Range(0,allies.Count)]; // Randomly choose an ally bee
+				Vector3 delta = attractiveFriend.position - bee.position; // distance between this bee and the ally
+				float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z); // The Pythagorean theorem extended to 3D
 				if (dist > 0f) {
-					bee.velocity += delta * (teamAttraction * deltaTime / dist);
+					bee.velocity += delta * (teamAttraction * deltaTime / dist); // Add velocity towards an ally
 				}
 
 				Bee repellentFriend = allies[Random.Range(0,allies.Count)];
@@ -135,52 +135,55 @@ public class BeeManager : MonoBehaviour {
 					bee.velocity -= delta * (teamRepulsion * deltaTime / dist);
 				}
 
-				if (bee.enemyTarget == null && bee.resourceTarget == null) {
-					if (Random.value < aggression) {
+				if (bee.enemyTarget == null && bee.resourceTarget == null) { // if no target && no resource target
+					if (Random.value < aggression) { // choose enemy target
 						List<Bee> enemyTeam = teamsOfBees[1 - bee.team];
 						if (enemyTeam.Count > 0) {
 							bee.enemyTarget = enemyTeam[Random.Range(0,enemyTeam.Count)];
 						}
-					} else {
+					} else { // choose resource
 						bee.resourceTarget = ResourceManager.TryGetRandomResource();
 					}
-				} else if (bee.enemyTarget != null) {
+				} else if (bee.enemyTarget != null) { // if has enemy target
 					if (bee.enemyTarget.dead) {
-						bee.enemyTarget = null;
+						bee.enemyTarget = null; // reset target if dead
 					} else {
 						delta = bee.enemyTarget.position - bee.position;
 						float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-						if (sqrDist > attackDistance * attackDistance) {
-							bee.velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+						if (sqrDist > attackDistance * attackDistance) { // is target out of range
+							// (attackDistance is squared for performance, so we dont have to make a square root of "sqrDist")
+							bee.velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist)); // add velocity towards enemy (chase)
 						} else {
 							bee.isAttacking = true;
-							bee.velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
-							if (sqrDist < hitDistance * hitDistance) {
+							bee.velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist)); // add more velocity towards enemy (attack)
+							if (sqrDist < hitDistance * hitDistance) { // if within hit distance, kill other bee and spawn blood
 								ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
-								bee.enemyTarget.dead = true;
+								bee.enemyTarget.dead = true; // enemy bee dies
 								bee.enemyTarget.velocity *= .5f;
 								bee.enemyTarget = null;
 							}
 						}
 					}
-				} else if (bee.resourceTarget != null) {
+				} else if (bee.resourceTarget != null) { // if has resource target
 					Resource resource = bee.resourceTarget;
-					if (resource.holder == null) {
+					if (resource.holder == null) { // if the resource doesn't have a holder
 						if (resource.dead) {
 							bee.resourceTarget = null;
 						} else if (resource.stacked && ResourceManager.IsTopOfStack(resource) == false) {
-							bee.resourceTarget = null;
+							bee.resourceTarget = null; // if resource is in a stack but is not the top one, don't choose that one
 						} else {
 							delta = resource.position - bee.position;
 							float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-							if (sqrDist > grabDistance * grabDistance) {
+							if (sqrDist > grabDistance * grabDistance) { // if out of grab distance, chase the resource
 								bee.velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
 							} else if (resource.stacked) {
-								ResourceManager.GrabResource(bee,resource);
+								ResourceManager.GrabResource(bee,resource); // Grab resource if it is not the bottom one?
 							}
 						}
-					} else if (resource.holder == bee) {
-						Vector3 targetPos = new Vector3(-Field.size.x * .45f + Field.size.x * .9f * bee.team,0f,bee.position.z);
+					} else if (resource.holder == bee) { // if this bee is the holder
+						// Sets the target position to
+						// (x: negative half of the field + the full field if the bee is from team 1 (opposite corner), y: 0f = the ground, z: the bee's z)
+						Vector3 targetPos = new Vector3((-Field.size.x * 0.45f) + (Field.size.x * .9f * bee.team),0f,bee.position.z);
 						delta = targetPos - bee.position;
 						dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
 						bee.velocity += (targetPos - bee.position) * (carryForce * deltaTime / dist);
@@ -190,28 +193,42 @@ public class BeeManager : MonoBehaviour {
 						} else {
 							bee.isHoldingResource = true;
 						}
-					} else if (resource.holder.team != bee.team) {
-						bee.enemyTarget = resource.holder;
+					} else if (resource.holder.team != bee.team) { // if the holder of the target resource is from the other team
+						bee.enemyTarget = resource.holder; // target the enemy holder
 					} else if (resource.holder.team == bee.team) {
-						bee.resourceTarget = null;
+						bee.resourceTarget = null; // if the target resource is held by an ally, reset resource target
 					}
 				}
-			} else {
-				if (Random.value<(bee.deathTimer-.5f)*.5f) {
+			} else { // If the current bee is DEAD
+				if (Random.value < (bee.deathTimer - .5f) * .5f) {
+					// Spawn blood particles with decreasing probability as the death timer decreases in value
 					ParticleManager.SpawnParticle(bee.position,ParticleType.Blood,Vector3.zero);
 				}
 
-				bee.velocity.y += Field.gravity * deltaTime;
+				bee.velocity.y += Field.gravity * deltaTime; // Make bee fall
 				bee.deathTimer -= deltaTime / 10f;
 				if (bee.deathTimer < 0f) {
-					DeleteBee(bee);
+					DeleteBee(bee); // Add dead bee to the pool so that it can be re-used (performance optimisation)
 				}
 			}
-			bee.position += deltaTime * bee.velocity;
+			
+			bee.position += deltaTime * bee.velocity; // DEAD or ALIVE, update the bee's position
 
 			
 			if (System.Math.Abs(bee.position.x) > Field.size.x * .5f) {
 				bee.position.x = (Field.size.x * .5f) * Mathf.Sign(bee.position.x);
+				// The above line translates to:
+				//
+				// if (bee.position.x >= 0){
+				//		bee.position.x = (Field.size.x * .5f) * 1;
+				// } else {
+				//		bee.position.x = (Field.size.x * .5f) * -1;
+				// }
+				//
+				// Meaning: If the bee is behind the left/right wall of the container, set its position to the left/right wall's position
+				// left = negative x coordinates
+				// right = positive x coordinates (from the perspective of the camera)
+				
 				bee.velocity.x *= -.5f;
 				bee.velocity.y *= .8f;
 				bee.velocity.z *= .8f;
