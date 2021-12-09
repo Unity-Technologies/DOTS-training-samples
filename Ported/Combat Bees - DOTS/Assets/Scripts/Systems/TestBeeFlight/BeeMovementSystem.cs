@@ -5,6 +5,11 @@ using UnityEngine;
 
 public partial class BeeMovementSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+       RequireSingletonForUpdate<SingeltonBeeMovement>();
+    }
+
     protected override void OnUpdate()
     {
         float deltaTime = World.Time.DeltaTime;

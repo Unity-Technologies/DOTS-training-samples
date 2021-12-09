@@ -462,7 +462,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 5.669922, y: -5.529999}
+  m_AnchoredPosition: {x: 5.669922, y: -5.5300293}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &669731901
@@ -620,6 +620,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1496960979}
   - component: {fileID: 1496960978}
+  - component: {fileID: 1496960980}
   m_Layer: 0
   m_Name: Keyboard Commands
   m_TagString: Untagged
@@ -654,6 +655,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1496960980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1496960977}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d057b912a230f5646924976237f75c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slowMoSpeed: 0.1
 --- !u!1 &1710081621
 GameObject:
   m_ObjectHideFlags: 0
