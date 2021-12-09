@@ -25,12 +25,16 @@ public class ResourceManager : MonoBehaviour {
 
 	public static ResourceManager instance;
 
+	//randomly chooses one resource 
 	public static Resource TryGetRandomResource() {
+		//check if there is any resource left
 		if (instance.resources.Count==0) {
 			return null;
 		} else {
+			
 			Resource resource = instance.resources[Random.Range(0,instance.resources.Count)];
 			int stackHeight = instance.stackHeights[resource.gridX,resource.gridY];
+			//check if anyone is holding the resource and if it is the toppest resource or not (resources can be stacked on top of each other) 
 			if (resource.holder == null || resource.stackIndex==stackHeight-1) {
 				return resource;
 			} else {
@@ -38,12 +42,13 @@ public class ResourceManager : MonoBehaviour {
 			}
 		}
 	}
-
+	//check if the resource is on the top or not 
 	public static bool IsTopOfStack(Resource resource) {
 		int stackHeight = instance.stackHeights[resource.gridX,resource.gridY];
 		return resource.stackIndex == stackHeight - 1;
 	}
 
+	// again why multiply by 0.5 ? 
 	Vector3 GetStackPos(int x, int y, int height) {
 		return new Vector3(minGridPos.x+x*gridSize.x,-Field.size.y*.5f+(height+.5f)*resourceSize,minGridPos.y+y*gridSize.y);
 	}
@@ -53,6 +58,7 @@ public class ResourceManager : MonoBehaviour {
 		GetGridIndex(pos,out x,out y);
 		return new Vector3(minGridPos.x + x * gridSize.x,pos.y,minGridPos.y + y * gridSize.y);
 	}
+	//converts the vector3 positions of resources to a custom grid system ? how does this affects in the scene  (only affects the initial spawn of the resources) 
 	void GetGridIndex(Vector3 pos,out int gridX,out int gridY) {
 		gridX=Mathf.FloorToInt((pos.x - minGridPos.x + gridSize.x * .5f) / gridSize.x);
 		gridY=Mathf.FloorToInt((pos.z - minGridPos.y + gridSize.y * .5f) / gridSize.y);
@@ -61,10 +67,12 @@ public class ResourceManager : MonoBehaviour {
 		gridY = Mathf.Clamp(gridY,0,gridCounts.y - 1);
 	}
 
+	// here the initial resources in the scene are spawned (the ones in the middle at the start and it only called once in the start()) 
 	void SpawnResource() {
 		Vector3 pos = new Vector3(minGridPos.x * .25f + Random.value * Field.size.x * .25f,Random.value * 10f,minGridPos.y + Random.value * Field.size.z);
 		SpawnResource(pos);
 	}
+	// actual spawnresource function which is used when we spawn them by clicking 
 	void SpawnResource(Vector3 pos) {
 		Resource resource = new Resource(pos);
 
@@ -101,6 +109,7 @@ public class ResourceManager : MonoBehaviour {
 	}
 
 	void Update() {
+		//spawns resources by clicking 
 		if (resources.Count < 1000 && MouseRaycaster.isMouseTouchingField) {
 			if (Input.GetKey(KeyCode.Mouse0)) {
 				spawnTimer += Time.deltaTime;
@@ -112,15 +121,23 @@ public class ResourceManager : MonoBehaviour {
 		}
 
 		for (int i=0;i<resources.Count;i++) {
+			//why new variable? why not using resource[i] for more performance ? 
 			Resource resource = resources[i];
+			
+			//if some alive bee is holding the resource
 			if (resource.holder != null) {
 				if (resource.holder.dead) {
 					resource.holder = null;
-				} else {
-					Vector3 targetPos = resource.holder.position - Vector3.up * (resourceSize + resource.holder.size)*.5f;
-					resource.position = Vector3.Lerp(resource.position,targetPos,carryStiffness * Time.deltaTime);
+				}
+				else
+				{
+					Vector3 targetPos = resource.holder.position -
+					                    Vector3.up * (resourceSize + resource.holder.size) * .5f;
+					//updating the resource position based on the bee holding it 
+					resource.position = Vector3.Lerp(resource.position, targetPos, carryStiffness * Time.deltaTime);
 					resource.velocity = resource.holder.velocity;
 				}
+				//goes through the else if below for the resources that are falling (ones that bees drop in their base)? 
 			} else if (resource.stacked == false) {
 				resource.position = Vector3.Lerp(resource.position,NearestSnappedPos(resource.position),snapStiffness * Time.deltaTime);
 				resource.velocity.y += Field.gravity * Time.deltaTime;
@@ -137,6 +154,7 @@ public class ResourceManager : MonoBehaviour {
 				}
 				if (resource.position.y < floorY) {
 					resource.position.y = floorY;
+					//if the resource reaches the ground we find the relative team and spawn new bees and flash particle 
 					if (Mathf.Abs(resource.position.x) > Field.size.x * .4f) {
 						int team = 0;
 						if (resource.position.x > 0f) {
@@ -147,7 +165,8 @@ public class ResourceManager : MonoBehaviour {
 						}
 						ParticleManager.SpawnParticle(resource.position,ParticleType.SpawnFlash,Vector3.zero,6f,5);
 						DeleteResource(resource);
-					} else {
+					}//goes through this else, if the holder dies and the falling resource doesnt reach the base of either of bee teams  
+					else {
 						resource.stacked = true;
 						resource.stackIndex = stackHeights[resource.gridX,resource.gridY];
 						if ((resource.stackIndex + 1) * resourceSize < Field.size.y) {
