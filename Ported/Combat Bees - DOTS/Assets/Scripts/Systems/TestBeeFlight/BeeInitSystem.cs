@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-[DisableAutoCreation]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class BeeInitSystem : SystemBase
 {
     protected override void OnUpdate()
