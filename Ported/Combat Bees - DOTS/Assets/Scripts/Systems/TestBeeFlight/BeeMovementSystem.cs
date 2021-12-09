@@ -2,7 +2,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[DisableAutoCreation]
 public partial class BeeMovementSystem : SystemBase
 {
     private float SquaredTargetReach;
