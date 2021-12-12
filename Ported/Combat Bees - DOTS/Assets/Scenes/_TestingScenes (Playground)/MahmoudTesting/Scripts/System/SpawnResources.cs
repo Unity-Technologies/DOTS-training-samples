@@ -8,11 +8,13 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 public partial class SpawnResources : SystemBase
 {
-    private bool spawn;
+    
+    public static bool spawn;
     private int j = 0;
     protected override void OnCreate()
     {
@@ -34,14 +36,16 @@ public partial class SpawnResources : SystemBase
             .ForEach((Entity entity, in ResourceComponent resourceComponent) =>
             {
                // ecb.DestroyEntity(entity);
-                if (Input.GetKey(KeyCode.I))
+                if (Input.GetKey(KeyCode.Mouse0))
                 {
                     var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
                     //j++;
-                    var translation = new Translation {Value = new float3(Input.mousePosition.x,0,Input.mousePosition.z)};
-                    ecb.SetComponent(instance, translation);
-                    
-                  //  spawn = false;
+                    if(CameraRay.isMouseTouchingField)
+                    { 
+                        var translation = new Translation {Value = CameraRay.worldMousePosition};
+                        ecb.SetComponent(instance, translation);
+                    }
+                    //  spawn = false;
                 }
                 // {
                 //    // Debug.Log("sss");
@@ -53,7 +57,7 @@ public partial class SpawnResources : SystemBase
                 // // }
                 // // }
                 // // }
-            }).Run();
+            }).WithoutBurst().Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();

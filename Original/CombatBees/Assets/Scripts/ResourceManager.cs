@@ -112,11 +112,11 @@ public class ResourceManager : MonoBehaviour {
 		//spawns resources by clicking 
 		if (resources.Count < 1000 && MouseRaycaster.isMouseTouchingField) {
 			if (Input.GetKey(KeyCode.Mouse0)) {
-				spawnTimer += Time.deltaTime;
-				while (spawnTimer > 1f/spawnRate) {
-					spawnTimer -= 1f/spawnRate;
+				// spawnTimer += Time.deltaTime;
+				// while (spawnTimer > 1f/spawnRate) {
+				// 	spawnTimer -= 1f/spawnRate;
 					SpawnResource(MouseRaycaster.worldMousePosition);
-				}
+				// }
 			}
 		}
 

@@ -1,8 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MouseRaycaster : MonoBehaviour {
+public class CameraRay : MonoBehaviour {
 	public Material markerMaterial;
 
 	public static bool isMouseTouchingField;
@@ -10,7 +10,7 @@ public class MouseRaycaster : MonoBehaviour {
 
 	new Camera camera;
 	Transform marker;
-
+	public static Vector3 Field= new Vector3(40f,1f,40f);
 	void Start () {
 		marker = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
 		marker.gameObject.name = "Mouse Raycast Marker";
@@ -27,7 +27,7 @@ public class MouseRaycaster : MonoBehaviour {
 			for (int j=-1;j<=1;j+=2) {// this for runs twice with j -1 and 1 
 				//so we are going through all 6 faces of the field container(2*3) and doing the below calculation  
 				Vector3 wallCenter = new Vector3();
-				wallCenter[i] = Field.size[i] * .5f*j;
+				wallCenter[i] = Field[i] * .5f*j;
 				Plane plane = new Plane(-wallCenter,wallCenter);
 				float hitDistance;
 				//plane.normal values are 1 0 0 , -1 0 0 ... 0 0 -1 
@@ -39,7 +39,7 @@ public class MouseRaycaster : MonoBehaviour {
 						Vector3 hitPoint = mouseRay.GetPoint(hitDistance);
 						bool insideField = true;
 						for (int k = 0; k < 3; k++) {//check if any of the variables in the vector3 is outside of the field 
-							if (Mathf.Abs(hitPoint[k]) > Field.size[k] * .5f+.01f) {
+							if (Mathf.Abs(hitPoint[k]) > Field[k] * .5f+.01f) {
 								insideField = false;
 								break;
 							}
