@@ -57,7 +57,7 @@ public class MouseRaycaster : MonoBehaviour {
 				break;
 			}
 		}
-		//if the mouse cursor is inside the field (the box that everything is happening inside it) the material displayed on the mouse cursor
+		//if the mouse cursor is inside the field  the marker will be displayed on the mouse cursor
 		if (isMouseTouchingField) {
 			marker.position = worldMousePosition;
 			if (marker.gameObject.activeSelf == false) {

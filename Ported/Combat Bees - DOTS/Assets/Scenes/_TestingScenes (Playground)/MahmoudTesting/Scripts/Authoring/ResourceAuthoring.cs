@@ -26,7 +26,9 @@ public class ResourceAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new ResourceComponent()
         {
             gridX = GridX,
-            gridY = GridY
+            gridY = GridY,
+            resourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab)
+            
         });
     }
 }

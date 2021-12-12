@@ -1,44 +1,61 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.CodeGeneratedJobForEach;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+
 public partial class SpawnResources : SystemBase
 {
-    //List<Resource> resources;
-    // private List<Matrix4x4> matrices;
-    // use render mesh utility to add mesh? 
+    private bool spawn;
+    private int j = 0;
     protected override void OnCreate()
     {
        RequireSingletonForUpdate<SingeltonSpawner>();
+       spawn = false;
+
     }
 
+    
     protected override void OnUpdate()
     {
-       // var ecb = new EntityCommandBuffer(Allocator.Temp);
+       var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities.WithStructuralChanges()
+       // if (Input.GetKeyDown(KeyCode.Mouse0))
+       // {
+       //     spawn = true;
+       // }
+        Entities
             .ForEach((Entity entity, in ResourceComponent resourceComponent) =>
             {
-                //ecb.DestroyEntity(entity);
-
-                // for (int i = 0; i < resourceComponent.gridX; i++)
+               // ecb.DestroyEntity(entity);
+                if (Input.GetKey(KeyCode.I))
+                {
+                    var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+                    //j++;
+                    var translation = new Translation {Value = new float3(Input.mousePosition.x,0,Input.mousePosition.z)};
+                    ecb.SetComponent(instance, translation);
+                    
+                  //  spawn = false;
+                }
                 // {
-                    //Debug.Log("sss");
-                    // for (int j = 0; j < resourceComponent.gridY; j++)
-                    // {
-                    var instance = EntityManager.Instantiate(resourceComponent.resourcePrefab);
-                    // var translation = new Translation {Value = new float3(0, 0, 4)};
-                    // EntityManager.SetComponentData(instance, translation);
-                    // }
-                // }
+                //    // Debug.Log("sss");
+                //     var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+                //     j++;
+                //     var translation = new Translation {Value = new float3(Input.mousePosition.x,0,Input.mousePosition.z)};
+                //     ecb.SetComponent(instance, translation);
+                //     spawn = false;
+                // // }
+                // // }
+                // // }
             }).Run();
 
-        /*ecb.Playback(EntityManager);
-        ecb.Dispose();*/
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
