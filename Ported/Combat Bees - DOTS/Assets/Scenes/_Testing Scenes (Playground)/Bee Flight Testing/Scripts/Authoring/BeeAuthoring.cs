@@ -8,6 +8,8 @@ namespace CombatBees.Testing.BeeFlight
     public class BeeAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     {
         [UnityRange(0.0f, 15.0f)] public float BeeSpeed = 5.0f;
+        [UnityRange(0.0f, 100f)] public float BeeChaseForce = 50f;
+        [UnityRange(0.0f, 1f)] public float BeeDamping = 0.1f;
         public float TargetWithinReach = 0.1f;
 
         public Transform LeftTargetObject;
@@ -21,7 +23,9 @@ namespace CombatBees.Testing.BeeFlight
 
             dstManager.AddComponentData(entity, new BeeMovement
             {
-                Speed = BeeSpeed
+                Speed = BeeSpeed,
+                ChaseForce = BeeChaseForce,
+                Damping = BeeDamping
             });
 
             dstManager.AddComponentData(entity, new BeeTargets

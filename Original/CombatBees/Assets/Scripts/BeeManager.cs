@@ -172,6 +172,7 @@ public class BeeManager : MonoBehaviour {
 						} else if (resource.stacked && ResourceManager.IsTopOfStack(resource) == false) {
 							bee.resourceTarget = null; // if resource is in a stack but is not the top one, don't choose that one
 						} else {
+							// Bee has a resource target + resource has no holder + resource is on the top => GO for it!
 							delta = resource.position - bee.position;
 							float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 							if (sqrDist > grabDistance * grabDistance) { // if out of grab distance, chase the resource

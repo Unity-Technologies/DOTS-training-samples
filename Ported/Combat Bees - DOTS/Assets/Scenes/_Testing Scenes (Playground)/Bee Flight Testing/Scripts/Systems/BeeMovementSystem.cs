@@ -43,11 +43,11 @@ namespace CombatBees.Testing.BeeFlight
                     }
 
                     // Add velocity towards the current target
-                    // (not used because it was flying too far past the target)
-                    // beeMovement.Velocity += delta * beeMovement.Speed * deltaTime / distanceFromTarget;
+                    beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+                    beeMovement.Velocity *= 1f - beeMovement.Damping;
 
                     // Move bee closer to the target
-                    translation.Value += math.normalize(delta) * beeMovement.Speed * deltaTime; //beeMovement.Velocity;
+                    translation.Value += beeMovement.Velocity * deltaTime;
                 }).ScheduleParallel();
         }
     }
