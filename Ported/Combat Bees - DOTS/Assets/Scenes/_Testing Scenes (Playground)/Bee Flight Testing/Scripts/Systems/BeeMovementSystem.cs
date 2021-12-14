@@ -16,23 +16,27 @@ namespace CombatBees.Testing.BeeFlight
         {
             float deltaTime = World.Time.DeltaTime;
 
-
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets) =>
                 {
-                    if (beeTargets.ResourceTarget != null)
+                    if (beeTargets.ResourceTarget != Entity.Null)
                     {
                         float3 targetPos = allTranslations[beeTargets.ResourceTarget].Value;
-                        //float3 targetPos = GetComponent<Translation>(beeTargets.ResourceTarget).Value;
-                        Debug.Log(beeTargets.CurrentTarget);
                         float3 delta = targetPos - translation.Value;
                         float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-                        
-                        // Add velocity towards the current target
-                        beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+
+                        if (distanceFromTarget < beeTargets.TargetReach)
+                        {
+                            beeTargets.ResourceTarget = Entity.Null;
+                        }
+                        else
+                        {
+                            // Add velocity towards the current target
+                            beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+                        }
                     }
                     
                     // // If within reach of the target, switch targets

@@ -29,7 +29,7 @@ namespace CombatBees.Testing.BeeFlight
 
             dstManager.AddComponentData(entity, new BeeTargets
             {
-                ResourceTarget = conversionSystem.GetPrimaryEntity(ResourceTargetObject),
+                ResourceTarget = Entity.Null,
                 TargetReach = TargetWithinReach
                 // LeftTarget = LeftTargetObject.position,
                 // RightTarget = RightTargetObject.position,
