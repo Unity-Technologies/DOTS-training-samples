@@ -20,7 +20,6 @@ public partial class SpawnResources : SystemBase
     {
        RequireSingletonForUpdate<SingeltonSpawner>();
        spawn = false;
-
     }
 
     

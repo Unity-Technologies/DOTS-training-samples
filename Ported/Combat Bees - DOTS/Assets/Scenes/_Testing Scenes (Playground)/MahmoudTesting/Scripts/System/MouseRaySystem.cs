@@ -17,10 +17,17 @@ public partial class MouseRaySystem : SystemBase
 	
     protected override void OnCreate()
     {
-        
-        marker = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
-        marker.gameObject.name = "Mouse Raycast Marker";
-        marker.GetComponent<Renderer>().sharedMaterial = markerMaterial;
+	    // This prevents OnUpdate() from running if the singleton is not present in the scene
+	    RequireSingletonForUpdate<SingeltonSpawner>();
+	    
+	    // The code below is affecting other scenes (a sphere is instantiated and visible)
+	    
+	    // marker = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
+		// marker.gameObject.name = "Mouse Raycast Marker";
+		// marker.GetComponent<Renderer>().sharedMaterial = markerMaterial;
+		
+		// Maybe we should instantiate the sphere as an entity in the "MouseRayInitSystem" and then do a query here
+		// to be able to modify its Transform?
     }
 
     protected override void OnUpdate()
