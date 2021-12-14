@@ -16,13 +16,17 @@ namespace CombatBees.Testing.BeeFlight
         {
             float deltaTime = World.Time.DeltaTime;
 
-            Entities.WithAll<Bee>().ForEach(
+
+            var allTranslations = GetComponentDataFromEntity<Translation>(true);
+
+            Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets) =>
                 {
                     if (beeTargets.ResourceTarget != null)
                     {
-                        float3 targetPos = GetComponent<Translation>(beeTargets.ResourceTarget).Value;
+                        float3 targetPos = allTranslations[beeTargets.ResourceTarget].Value;
+                        //float3 targetPos = GetComponent<Translation>(beeTargets.ResourceTarget).Value;
                         Debug.Log(beeTargets.CurrentTarget);
                         float3 delta = targetPos - translation.Value;
                         float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
