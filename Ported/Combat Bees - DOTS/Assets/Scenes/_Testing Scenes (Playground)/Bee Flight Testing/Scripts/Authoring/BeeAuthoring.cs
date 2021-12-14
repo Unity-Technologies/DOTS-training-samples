@@ -12,8 +12,7 @@ namespace CombatBees.Testing.BeeFlight
         [UnityRange(0.0f, 1f)] public float BeeDamping = 0.1f;
         public float TargetWithinReach = 0.1f;
 
-        public Transform LeftTargetObject;
-        public Transform RightTargetObject;
+        public GameObject ResourceTargetObject;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
@@ -30,9 +29,10 @@ namespace CombatBees.Testing.BeeFlight
 
             dstManager.AddComponentData(entity, new BeeTargets
             {
-                TargetReach = TargetWithinReach,
-                LeftTarget = LeftTargetObject.position,
-                RightTarget = RightTargetObject.position,
+                ResourceTarget = conversionSystem.GetPrimaryEntity(ResourceTargetObject),
+                TargetReach = TargetWithinReach
+                // LeftTarget = LeftTargetObject.position,
+                // RightTarget = RightTargetObject.position,
             });
         }
     }

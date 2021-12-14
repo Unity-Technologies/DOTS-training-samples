@@ -14,10 +14,10 @@ namespace CombatBees.Testing.BeeFlight
         {
             Enabled = false; // Run only once
 
-            Entities.ForEach((ref BeeTargets beeTargets) =>
-            {
-                beeTargets.CurrentTarget = beeTargets.LeftTarget; // Set initial target
-            }).ScheduleParallel();
+            // Entities.ForEach((ref BeeTargets beeTargets) =>
+            // {
+            //     beeTargets.CurrentTarget = beeTargets.LeftTarget; // Set initial target
+            // }).ScheduleParallel();
         }
     }
 }

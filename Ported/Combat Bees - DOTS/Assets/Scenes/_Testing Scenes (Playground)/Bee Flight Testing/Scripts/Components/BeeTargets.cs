@@ -5,8 +5,8 @@ namespace CombatBees.Testing.BeeFlight
 {
     public struct BeeTargets : IComponentData
     {
-        public float3 LeftTarget;
-        public float3 RightTarget;
+        public Entity ResourceTarget;
+        public float3 HomeTarget;
         public float3 CurrentTarget;
         public float TargetReach;
     }
