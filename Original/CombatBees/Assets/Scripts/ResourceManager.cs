@@ -98,9 +98,13 @@ public class ResourceManager : MonoBehaviour {
 		resources = new List<Resource>();
 		matrices = new List<Matrix4x4>();
 
+		// How many resources can fit in the grid (x,y)
 		gridCounts = Vector2Int.RoundToInt(new Vector2(Field.size.x,Field.size.z) / resourceSize);
+		// Size of each tile (x,y)
 		gridSize = new Vector2(Field.size.x/gridCounts.x,Field.size.z/gridCounts.y);
+		// Bottom left corner of the field (the calculation is not clear)
 		minGridPos = new Vector2((gridCounts.x-1f)*-.5f*gridSize.x,(gridCounts.y-1f)*-.5f*gridSize.y);
+		// How many resources are stacked on a particular grid tile
 		stackHeights = new int[gridCounts.x,gridCounts.y];
 
 		for (int i=0;i<startResourceCount;i++) {
