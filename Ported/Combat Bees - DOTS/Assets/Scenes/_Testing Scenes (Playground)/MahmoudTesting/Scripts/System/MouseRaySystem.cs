@@ -15,7 +15,7 @@ namespace Combatbees.Testing.Mahmoud
 		private Transform marker;
 		bool isMouseTouchingField;
 		static Vector3 worldMousePosition;
-		Vector3 Field = new Vector3(40f, 1f, 40f);
+		Vector3 Field = new Vector3(40f, 5f, 40f);
 		private bool markerCreated = false;
 		protected override void OnCreate()
 		{

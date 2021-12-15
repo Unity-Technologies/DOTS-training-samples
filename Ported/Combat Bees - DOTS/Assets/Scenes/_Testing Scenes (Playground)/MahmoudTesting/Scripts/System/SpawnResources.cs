@@ -20,7 +20,7 @@ namespace Combatbees.Testing.Mahmoud
 
         protected override void OnCreate()
         {
-            RequireSingletonForUpdate<SingeltonSpawner>();
+            RequireSingletonForUpdate<SingeltonHybridSpawner>();
             spawn = false;
         }
 
