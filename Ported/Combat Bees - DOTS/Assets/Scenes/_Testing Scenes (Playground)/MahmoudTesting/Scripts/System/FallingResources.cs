@@ -11,6 +11,9 @@ namespace Combatbees.Testing.Mahmoud
     
     public partial class FallingResources : SystemBase
     {
+        // will be moved to field component in future 
+        
+        
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonSpawner>();
@@ -18,15 +21,14 @@ namespace Combatbees.Testing.Mahmoud
 
         protected override void OnUpdate()
         {
-
-
-
+            float gravity = -20f;
+            float deltaTime = World.Time.DeltaTime;
             Entities.WithAll<ResourceTag>().ForEach((ref Translation translation, in Rotation rotation) =>
                 {
 
                     if (translation.Value.y > -10)
                     {
-                        translation.Value.y--;
+                        translation.Value.y+=gravity*deltaTime;
                     }
                     
                     

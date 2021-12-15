@@ -143,8 +143,11 @@ public class ResourceManager : MonoBehaviour {
 				}
 				//goes through the else if below for the resources that are falling (ones that bees drop in their base)? 
 			} else if (resource.stacked == false) {
+				//comment to see the effect this lane lerps the position to the nearest grid so all the resources will be on grid 
 				resource.position = Vector3.Lerp(resource.position,NearestSnappedPos(resource.position),snapStiffness * Time.deltaTime);
+				//calculates the velocity for gravity and falling 
 				resource.velocity.y += Field.gravity * Time.deltaTime;
+				//simulates the falling 
 				resource.position += resource.velocity * Time.deltaTime;
 				GetGridIndex(resource.position,out resource.gridX,out resource.gridY);
 				float floorY = GetStackPos(resource.gridX,resource.gridY,stackHeights[resource.gridX,resource.gridY]).y;
