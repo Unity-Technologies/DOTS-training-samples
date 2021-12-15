@@ -3,13 +3,12 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+
 namespace Combatbees.Testing.Mahmoud
 {
     [GenerateAuthoringComponent]
-    public struct SingeltonSpawner : IComponentData
+    public struct MarkerTag : IComponentData
     {
-
-
 
     }
 }

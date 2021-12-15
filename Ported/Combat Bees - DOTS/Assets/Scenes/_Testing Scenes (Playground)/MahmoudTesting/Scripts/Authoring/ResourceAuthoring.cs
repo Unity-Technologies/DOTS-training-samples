@@ -5,30 +5,32 @@ using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 
-
-public class ResourceAuthoring : UnityMonoBehaviour
-    , IConvertGameObjectToEntity
-    , IDeclareReferencedPrefabs
+namespace Combatbees.Testing.Mahmoud
 {
-    public UnityGameObject ResourcePrefab; 
-    public int GridX;
-    public int GridY;
-    
-    public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
+    public class ResourceAuthoring : UnityMonoBehaviour
+        , IConvertGameObjectToEntity
+        , IDeclareReferencedPrefabs
     {
-        referencedPrefabs.Add(ResourcePrefab);
-    }
+        public UnityGameObject ResourcePrefab;
+        public int GridX;
+        public int GridY;
 
-  
-    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-    {
-      
-        dstManager.AddComponentData(entity, new ResourceComponent()
+        public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
         {
-            gridX = GridX,
-            gridY = GridY,
-            resourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab)
-            
-        });
+            referencedPrefabs.Add(ResourcePrefab);
+        }
+
+
+        public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+        {
+
+            dstManager.AddComponentData(entity, new ResourceComponent()
+            {
+                gridX = GridX,
+                gridY = GridY,
+                resourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab)
+
+            });
+        }
     }
 }

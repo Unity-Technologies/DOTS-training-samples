@@ -10,55 +10,58 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-
-public partial class SpawnResources : SystemBase
+namespace Combatbees.Testing.Mahmoud
 {
-    
-    public static bool spawn;
-    private int j = 0;
-    protected override void OnCreate()
+    public partial class SpawnResources : SystemBase
     {
-       RequireSingletonForUpdate<SingeltonSpawner>();
-       spawn = false;
-    }
 
-    
-    protected override void OnUpdate()
-    {
-       var ecb = new EntityCommandBuffer(Allocator.Temp);
+        public static bool spawn;
+        private int j = 0;
 
-       // if (Input.GetKeyDown(KeyCode.Mouse0))
-       // {
-       //     spawn = true;
-       // }
-        Entities
-            .ForEach((Entity entity, in ResourceComponent resourceComponent) =>
-            {
-               // ecb.DestroyEntity(entity);
-                if (Input.GetKey(KeyCode.Mouse0))
+        protected override void OnCreate()
+        {
+            RequireSingletonForUpdate<SingeltonSpawner>();
+            spawn = false;
+        }
+
+
+        protected override void OnUpdate()
+        {
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            // if (Input.GetKeyDown(KeyCode.Mouse0))
+            // {
+            //     spawn = true;
+            // }
+            Entities
+                .ForEach((Entity entity, in ResourceComponent resourceComponent) =>
                 {
-                    var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
-                    //j++;
-                    if(CameraRay.isMouseTouchingField)
-                    { 
-                        var translation = new Translation {Value = CameraRay.worldMousePosition};
-                        ecb.SetComponent(instance, translation);
+                    // ecb.DestroyEntity(entity);
+                    if (Input.GetKey(KeyCode.Mouse0))
+                    {
+                        var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+                        //j++;
+                        if (CameraRay.isMouseTouchingField)
+                        {
+                            var translation = new Translation {Value = CameraRay.worldMousePosition};
+                            ecb.SetComponent(instance, translation);
+                        }
+                        //  spawn = false;
                     }
-                    //  spawn = false;
-                }
-                // {
-                //    // Debug.Log("sss");
-                //     var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
-                //     j++;
-                //     var translation = new Translation {Value = new float3(Input.mousePosition.x,0,Input.mousePosition.z)};
-                //     ecb.SetComponent(instance, translation);
-                //     spawn = false;
-                // // }
-                // // }
-                // // }
-            }).WithoutBurst().Run();
+                    // {
+                    //    // Debug.Log("sss");
+                    //     var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+                    //     j++;
+                    //     var translation = new Translation {Value = new float3(Input.mousePosition.x,0,Input.mousePosition.z)};
+                    //     ecb.SetComponent(instance, translation);
+                    //     spawn = false;
+                    // // }
+                    // // }
+                    // // }
+                }).WithoutBurst().Run();
 
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
     }
 }

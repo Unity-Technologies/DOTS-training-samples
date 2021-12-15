@@ -3,9 +3,12 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[GenerateAuthoringComponent]
-public struct ResourceTag : IComponentData
+namespace Combatbees.Testing.Mahmoud
 {
+    [GenerateAuthoringComponent]
+    public struct ResourceTag : IComponentData
+    {
 
-    
+
+    }
 }

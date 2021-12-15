@@ -3,12 +3,14 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-
-public struct ResourceComponent : IComponentData
+namespace Combatbees.Testing.Mahmoud
 {
-   public Entity resourcePrefab;
+   public struct ResourceComponent : IComponentData
+   {
+      public Entity resourcePrefab;
 
-   public int gridX;
-   public int gridY;
+      public int gridX;
+      public int gridY;
 
+   }
 }

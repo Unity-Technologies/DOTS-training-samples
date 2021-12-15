@@ -1,17 +1,22 @@
 using Unity.Entities;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))] // Ensures that it will be executed before the "MouseRaySystem"
-public partial class MouseRayInitSystem : SystemBase
-{
-    protected override void OnCreate()
-    {
-        RequireSingletonForUpdate<SingeltonSpawner>();
-    }
+ // Ensures that it will be executed before the "MouseRaySystem"
 
-    protected override void OnUpdate()
+namespace Combatbees.Testing.Mahmoud
+{
+    [UpdateInGroup(typeof(InitializationSystemGroup))]
+    public partial class MouseRayInitSystem : SystemBase
     {
-        Enabled = false; // Run only once
-        
-        // Create a sphere entity here?
+        protected override void OnCreate()
+        {
+            RequireSingletonForUpdate<SingeltonSpawner>();
+        }
+
+        protected override void OnUpdate()
+        {
+            Enabled = false; // Run only once
+
+            // Create a sphere entity here?
+        }
     }
 }
