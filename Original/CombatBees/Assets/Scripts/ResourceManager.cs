@@ -158,7 +158,7 @@ public class ResourceManager : MonoBehaviour {
 				}
 				if (resource.position.y < floorY) {
 					resource.position.y = floorY;
-					//if the resource reaches the ground we find the relative team and spawn new bees and flash particle 
+					//if the resource falls in one two bases we find the team and spawn new bees and flash particle 
 					if (Mathf.Abs(resource.position.x) > Field.size.x * .4f) {
 						int team = 0;
 						if (resource.position.x > 0f) {

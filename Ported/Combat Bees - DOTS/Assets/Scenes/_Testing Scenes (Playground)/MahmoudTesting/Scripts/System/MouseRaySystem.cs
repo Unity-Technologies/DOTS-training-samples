@@ -15,8 +15,10 @@ namespace Combatbees.Testing.Mahmoud
 		private Transform marker;
 		bool isMouseTouchingField;
 		static Vector3 worldMousePosition;
-		Vector3 Field = new Vector3(40f, 5f, 40f);
+		Vector3 Field = new Vector3(40f, 20f, 40f);
 		private bool markerCreated = false;
+		private float spawnTimer=0;
+		private float spawnRate = 10;
 		protected override void OnCreate()
 		{
 			// This prevents OnUpdate() from running if the singleton is not present in the scene
@@ -44,7 +46,7 @@ namespace Combatbees.Testing.Mahmoud
 			camera = this.GetSingleton<GameObjectRef>().Camera;
 			markerMaterial = this.GetSingleton<GameObjectRef>().MarkerMaterial;
 			Ray mouseRay = camera.ScreenPointToRay(Input.mousePosition);
-
+			float deltaTime = World.Time.DeltaTime;
 			isMouseTouchingField = false;
 
 			for (int i = 0; i < 3; i++)
@@ -107,15 +109,21 @@ namespace Combatbees.Testing.Mahmoud
 			Entities
 				.ForEach((Entity entity, in ResourceComponent resourceComponent) =>
 				{
-
+					
 					// ecb.DestroyEntity(entity);
-					if (Input.GetKey(KeyCode.Mouse0))
+					if (isMouseTouchingField)
 					{
-						var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
-						if (isMouseTouchingField)
+						
+						if (Input.GetKey(KeyCode.Mouse0))
 						{
-							var translation = new Translation {Value = worldMousePosition};
-							ecb.SetComponent(instance, translation);
+							spawnTimer += deltaTime;
+							while (spawnTimer > 1f/spawnRate) {
+							    spawnTimer -= 1f/spawnRate;
+							    var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+							    var translation = new Translation {Value = worldMousePosition};
+							    ecb.SetComponent(instance, translation);
+							}
+							
 						}
 
 					}

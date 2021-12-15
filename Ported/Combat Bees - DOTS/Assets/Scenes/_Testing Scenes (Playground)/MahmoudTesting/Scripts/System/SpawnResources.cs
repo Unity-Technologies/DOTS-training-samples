@@ -15,13 +15,13 @@ namespace Combatbees.Testing.Mahmoud
     public partial class SpawnResources : SystemBase
     {
 
-        public static bool spawn;
+        // public static bool spawn;
         private int j = 0;
-
+        
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonHybridSpawner>();
-            spawn = false;
+            // spawn = false;
         }
 
 
@@ -39,10 +39,16 @@ namespace Combatbees.Testing.Mahmoud
                     // ecb.DestroyEntity(entity);
                     if (Input.GetKey(KeyCode.Mouse0))
                     {
-                        var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
+                        
                         //j++;
                         if (CameraRay.isMouseTouchingField)
-                        {
+                        {	
+                            // spawnTimer += Time.deltaTime;
+                            // while (spawnTimer > 1f/spawnRate) {
+                            //     spawnTimer -= 1f/spawnRate;
+                            //     SpawnResource(MouseRaycaster.worldMousePosition);
+                            // }
+                            var instance = ecb.Instantiate(resourceComponent.resourcePrefab);
                             var translation = new Translation {Value = CameraRay.worldMousePosition};
                             ecb.SetComponent(instance, translation);
                         }
