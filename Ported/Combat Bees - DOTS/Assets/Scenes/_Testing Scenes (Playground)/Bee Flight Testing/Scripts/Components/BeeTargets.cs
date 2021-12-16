@@ -7,7 +7,6 @@ namespace CombatBees.Testing.BeeFlight
     {
         public Entity ResourceTarget;
         public float3 HomeTarget;
-        public float3 CurrentTarget;
         public float TargetReach;
     }
 }

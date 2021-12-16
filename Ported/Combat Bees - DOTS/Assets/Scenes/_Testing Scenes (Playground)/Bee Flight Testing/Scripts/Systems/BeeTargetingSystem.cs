@@ -1,7 +1,6 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace CombatBees.Testing.BeeFlight

@@ -1,5 +1,5 @@
 using Unity.Entities;
-using UnityEngine;
+using UnityGameObject = UnityEngine.GameObject;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRange = UnityEngine.RangeAttribute;
 
@@ -7,22 +7,23 @@ namespace CombatBees.Testing.BeeFlight
 {
     public class BeeAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     {
-        [UnityRange(0.0f, 15.0f)] public float BeeSpeed = 5.0f;
         [UnityRange(0.0f, 100f)] public float BeeChaseForce = 50f;
         [UnityRange(0.0f, 1f)] public float BeeDamping = 0.1f;
         public float TargetWithinReach = 0.1f;
 
-        public GameObject ResourceTargetObject;
+        public UnityGameObject HomeMarker;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
+            // Add Components
             dstManager.AddComponent<BeeMovement>(entity);
             dstManager.AddComponent<BeeTargets>(entity);
+            dstManager.AddComponent<IsHoldingResource>(entity);
             dstManager.AddComponent<Bee>(entity);
 
+            // Set the Data of Components
             dstManager.AddComponentData(entity, new BeeMovement
             {
-                Speed = BeeSpeed,
                 ChaseForce = BeeChaseForce,
                 Damping = BeeDamping
             });
@@ -30,9 +31,8 @@ namespace CombatBees.Testing.BeeFlight
             dstManager.AddComponentData(entity, new BeeTargets
             {
                 ResourceTarget = Entity.Null,
-                TargetReach = TargetWithinReach
-                // LeftTarget = LeftTargetObject.position,
-                // RightTarget = RightTargetObject.position,
+                TargetReach = TargetWithinReach,
+                HomeTarget = HomeMarker.transform.position
             });
         }
     }

@@ -7,6 +7,8 @@ namespace CombatBees.Testing.BeeFlight
 {
     public partial class BeeMovementSystem : SystemBase
     {
+        private EntityQuery resourceQuery;
+        
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
@@ -15,53 +17,60 @@ namespace CombatBees.Testing.BeeFlight
         protected override void OnUpdate()
         {
             float deltaTime = World.Time.DeltaTime;
+            float3 currentTarget = float3.zero;
 
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
+            var allHolders = GetComponentDataFromEntity<Holder>();
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
-                (ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
-                    ref BeeTargets beeTargets) =>
+                (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
+                    ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource) =>
                 {
-                    if (beeTargets.ResourceTarget != Entity.Null)
-                    {
-                        float3 targetPos = allTranslations[beeTargets.ResourceTarget].Value;
-                        float3 delta = targetPos - translation.Value;
-                        float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    // float3 delta;
+                    // float distanceFromTarget;
 
-                        if (distanceFromTarget < beeTargets.TargetReach)
+                    if (isHoldingResource.Value)
+                    {
+                        currentTarget = beeTargets.HomeTarget;
+                        // delta = currentTarget - translation.Value;
+                        // distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    }
+                    else if (beeTargets.ResourceTarget != Entity.Null)
+                    {
+                        currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
+                    }
+
+                    //float3 targetPos = allTranslations[beeTargets.ResourceTarget].Value;
+                    float3 delta = currentTarget - translation.Value;
+                    float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+
+                    if (distanceFromTarget < beeTargets.TargetReach)
+                    {
+                        if (!isHoldingResource.Value)
                         {
-                            beeTargets.ResourceTarget = Entity.Null;
+                            Holder targetResourceHolder = allHolders[beeTargets.ResourceTarget];
+                            targetResourceHolder.Value = entity;
+                            isHoldingResource.Value = true;
                         }
                         else
                         {
-                            // Add velocity towards the current target
-                            beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+                            Holder targetResourceHolder = allHolders[beeTargets.ResourceTarget];
+                            targetResourceHolder.Value = Entity.Null;
+                            beeTargets.ResourceTarget = Entity.Null;
+                            isHoldingResource.Value = false;
                         }
                     }
-                    
-                    // // If within reach of the target, switch targets
-                    // if (distanceFromTarget < beeTargets.TargetReach)
-                    // {
-                    //     // Used "math.all()" because the comparison returns bool3
-                    //     if (math.all(beeTargets.CurrentTarget == beeTargets.LeftTarget))
-                    //     {
-                    //         beeTargets.CurrentTarget = beeTargets.RightTarget;
-                    //         // Rotate 180 degrees
-                    //         rotation.Value = math.mul(rotation.Value, quaternion.RotateY(math.radians(180)));
-                    //     }
-                    //     else
-                    //     {
-                    //         beeTargets.CurrentTarget = beeTargets.LeftTarget;
-                    //         // Rotate 180 degrees
-                    //         rotation.Value = math.mul(rotation.Value, quaternion.RotateY(math.radians(180)));
-                    //     }
-                    // }
 
+                    // Add velocity towards the current target
+                    beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+                    // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     beeMovement.Velocity *= 1f - beeMovement.Damping;
 
                     // Move bee closer to the target
                     translation.Value += beeMovement.Velocity * deltaTime;
-                }).ScheduleParallel();
+                }).Schedule();
+
+            //resourceChunks.Dispose();
         }
     }
 }
