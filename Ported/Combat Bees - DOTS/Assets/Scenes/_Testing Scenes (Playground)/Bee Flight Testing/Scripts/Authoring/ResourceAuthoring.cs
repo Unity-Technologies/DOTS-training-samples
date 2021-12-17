@@ -12,7 +12,8 @@ namespace CombatBees.Testing.BeeFlight
             
             dstManager.AddComponentData(entity, new Holder
             {
-                Value =  Entity.Null
+                Value =  Entity.Null,
+                TestNumber =  0
             });
         }
     }

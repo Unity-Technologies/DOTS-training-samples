@@ -19,6 +19,7 @@ namespace CombatBees.Testing.BeeFlight
             dstManager.AddComponent<BeeMovement>(entity);
             dstManager.AddComponent<BeeTargets>(entity);
             dstManager.AddComponent<IsHoldingResource>(entity);
+            dstManager.AddComponent<HeldResource>(entity);
             dstManager.AddComponent<Bee>(entity);
 
             // Set the Data of Components
@@ -33,6 +34,16 @@ namespace CombatBees.Testing.BeeFlight
                 ResourceTarget = Entity.Null,
                 TargetReach = TargetWithinReach,
                 HomeTarget = HomeMarker.transform.position
+            });
+            
+            dstManager.AddComponentData(entity, new IsHoldingResource
+            {
+                Value = false
+            });
+            
+            dstManager.AddComponentData(entity, new HeldResource()
+            {
+                Value = Entity.Null
             });
         }
     }
