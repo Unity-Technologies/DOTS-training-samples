@@ -1,6 +1,12 @@
 using Unity.Entities;
 
-public struct IsHoldingResource : IComponentData
+namespace CombatBees.Testing.BeeFlight
 {
-    public bool Value;
+
+
+    public struct IsHoldingResource : IComponentData
+    {
+        public bool Value;
+        public bool PickedUp;
+    }
 }

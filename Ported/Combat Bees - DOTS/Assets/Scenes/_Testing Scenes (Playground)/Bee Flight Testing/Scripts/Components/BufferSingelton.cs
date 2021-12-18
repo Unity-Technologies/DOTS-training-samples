@@ -3,10 +3,11 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[GenerateAuthoringComponent]
-public struct BufferSingelton : IComponentData
+namespace  CombatBees.Testing.BeeFlight
 {
+    [GenerateAuthoringComponent]
+    public struct BufferSingelton : IComponentData
+    {
     // Add fields to your component here. Remember that:
-    
-    
+    }
 }

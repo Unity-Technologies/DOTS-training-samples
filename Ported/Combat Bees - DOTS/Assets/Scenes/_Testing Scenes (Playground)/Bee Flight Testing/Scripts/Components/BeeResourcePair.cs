@@ -7,5 +7,6 @@ namespace CombatBees.Testing.BeeFlight
     {
         public Entity BeeEntity;
         public Entity ResourceEntity;
+        public int index;
     }
 }

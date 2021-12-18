@@ -11,6 +11,7 @@ namespace CombatBees.Testing.BeeFlight
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
+           
         }
 
         protected override void OnUpdate()
@@ -19,7 +20,7 @@ namespace CombatBees.Testing.BeeFlight
             float3 currentTarget = float3.zero;
 
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
-            var buffer = GetBuffer<BeeResourcePair>(GetSingletonEntity<BufferSingelton>());
+            // var buffer = GetBuffer<BeeResourcePair>(GetSingletonEntity<BufferSingelton>());
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
@@ -46,6 +47,7 @@ namespace CombatBees.Testing.BeeFlight
                         {
                             // Not holding a resource and reached a target resource
                             isHoldingResource.Value = true;
+                            isHoldingResource.PickedUp = true;
                         }
                         else
                         {
