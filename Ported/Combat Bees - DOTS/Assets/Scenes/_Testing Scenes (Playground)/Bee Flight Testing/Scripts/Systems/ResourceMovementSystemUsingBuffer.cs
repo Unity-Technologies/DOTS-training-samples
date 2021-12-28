@@ -60,7 +60,7 @@ namespace CombatBees.Testing.BeeFlight
                                 Bee = pair.BeeEntity
                             });
                             isHoldingResource.JustPickedUp = false;
-                           
+
                         }
                         
                     }
@@ -74,23 +74,25 @@ namespace CombatBees.Testing.BeeFlight
                                 heldBuffer.RemoveAt(i);
                             }
                         }
+
+                        isHoldingResource.ReachedHome = false;
                     }
                 }
             }).Schedule();
             Entities.WithAll<Resource>().ForEach(
                 (Entity entity, ref Translation translation, ref Holder holder) =>
                 {
-                    bool inList = false;
+                    bool inBuffer = false;
                     foreach (var pair in heldBuffer)
                     {
                         if (entity == pair.Resource)
                         {
-                             inList = true;
+                             inBuffer = true;
                              translation.Value = allTranslations[pair.Bee].Value;
                             
                         }
                     }
-                    if(!inList)
+                    if(!inBuffer)
                     {
                         if (translation.Value.y > 0.5f)
                         {

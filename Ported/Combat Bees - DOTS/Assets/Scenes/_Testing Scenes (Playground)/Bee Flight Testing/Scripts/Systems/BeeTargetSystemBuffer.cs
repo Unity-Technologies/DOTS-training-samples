@@ -93,8 +93,7 @@ namespace CombatBees.Testing.BeeFlight
                         }
                         if (isHoldingResource.ReachedHome)
                         {
-                            isHoldingResource.ReachedHome = false;
-                            Debug.Log("first if ");
+                            
                             pairBuffer.Add(new BeeResourcePair
                             {
                                 ResourceEntity = Entity.Null,
