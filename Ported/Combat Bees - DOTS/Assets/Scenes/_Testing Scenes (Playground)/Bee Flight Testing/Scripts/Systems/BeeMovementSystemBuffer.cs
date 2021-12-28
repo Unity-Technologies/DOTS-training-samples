@@ -4,14 +4,15 @@ using Unity.Transforms;
 
 namespace CombatBees.Testing.BeeFlight
 {
-    public partial class BeeMovementSystem : SystemBase
-    {
+    public partial class BeeMovementSystemBuffer : SystemBase
+         {
         private EntityQuery resourceQuery;
         
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
-            RequireSingletonForUpdate<ListSingelton>();
+            RequireSingletonForUpdate<BufferSingelton>();
+           
         }
 
         protected override void OnUpdate()
@@ -20,22 +21,43 @@ namespace CombatBees.Testing.BeeFlight
             float3 currentTarget = float3.zero;
 
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
-            // var buffer = GetBuffer<BeeResourcePair>(GetSingletonEntity<BufferSingelton>());
+            var PairBuffer = GetBuffer<BeeResourcePair>(GetSingletonEntity<BufferSingelton>());
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource, ref HeldResource heldResource) =>
                 {
-                    if (isHoldingResource.Value)
+                    // if (isHoldingResource.Value)
+                    // {
+                    //     // Switch target to home if holding a resource
+                    //      currentTarget = beeTargets.HomeTarget;
+                    // }
+                    // // else if (beeTargets.ResourceTarget != Entity.Null)
+                    // // {
+                    // //     // If a resource target is assigned to the current bee select it as the current target
+                    // //     // (if not holding a resource => bee is home => go for a new resource)
+                    // //     currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
+                    // // }
+                    // else if (beeTargets.ResourceTarget != Entity.Null)
+                    // {
+                    //     // If a resource target is assigned to the current bee select it as the current target
+                    //     // (if not holding a resource => bee is home => go for a new resource)
+                    //     currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
+                    // }
+
+                    foreach (var pair in PairBuffer)
                     {
-                        // Switch target to home if holding a resource
-                        currentTarget = beeTargets.HomeTarget;
-                    }
-                    else if (beeTargets.ResourceTarget != Entity.Null)
-                    {
-                        // If a resource target is assigned to the current bee select it as the current target
-                        // (if not holding a resource => bee is home => go for a new resource)
-                        currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
+                        if (pair.BeeEntity == entity)
+                        {
+                            if (isHoldingResource.Value)
+                            {
+                                currentTarget = beeTargets.HomeTarget;
+                            }
+                            else if(pair.ResourceEntity!=Entity.Null)
+                            {
+                                currentTarget = allTranslations[pair.ResourceEntity].Value;
+                            }
+                        }
                     }
                     
                     float3 delta = currentTarget - translation.Value;
@@ -54,6 +76,7 @@ namespace CombatBees.Testing.BeeFlight
                             // Holding a resource and reached home
                             beeTargets.ResourceTarget = Entity.Null;
                             isHoldingResource.Value = false;
+                            isHoldingResource.ReachedHome = true;
                         }
                     }
 

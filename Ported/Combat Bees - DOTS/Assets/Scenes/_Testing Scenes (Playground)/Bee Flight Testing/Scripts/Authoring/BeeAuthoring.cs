@@ -38,7 +38,9 @@ namespace CombatBees.Testing.BeeFlight
             
             dstManager.AddComponentData(entity, new IsHoldingResource
             {
-                Value = false
+                Value = false,
+                JustPickedUp = false,
+                ReachedHome = false
             });
             
             dstManager.AddComponentData(entity, new HeldResource()

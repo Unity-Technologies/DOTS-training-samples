@@ -14,6 +14,7 @@ namespace CombatBees.Testing.BeeFlight
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
+            RequireSingletonForUpdate<ListSingelton>();
             random = new Random(123);
         }
 
