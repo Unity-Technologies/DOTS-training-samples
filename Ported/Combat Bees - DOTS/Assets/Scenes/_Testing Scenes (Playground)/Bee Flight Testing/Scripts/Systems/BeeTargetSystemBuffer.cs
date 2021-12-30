@@ -7,6 +7,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace CombatBees.Testing.BeeFlight
 {
+    [UpdateAfter(typeof(BeeMovementSystemBuffer))]
     public partial class BeeTargetingSystemBuffer : SystemBase
     {
         // TODO: Don't assign resources that have been already brought home
