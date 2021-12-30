@@ -76,7 +76,7 @@ namespace CombatBees.Testing.BeeFlight
                     if (pairBuffer[i].BeeEntity == entity)
                     {
                         
-                        if (pairBuffer[i].ResourceEntity == Entity.Null && resourceBuffer.Length > 0)
+                        if (pairBuffer[i].ResourceEntity == Entity.Null && resourceBuffer.Length > 0&&!isHoldingResource.ReachedHome)
                         {
                             int randomIndex = random.NextInt(resourceBuffer.Length);
                             var selectedResource = resourceBuffer[randomIndex];
