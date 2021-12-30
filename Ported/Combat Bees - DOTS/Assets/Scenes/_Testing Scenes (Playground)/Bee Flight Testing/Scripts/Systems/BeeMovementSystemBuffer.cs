@@ -27,24 +27,7 @@ namespace CombatBees.Testing.BeeFlight
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource, ref HeldResource heldResource) =>
                 {
-                    // if (isHoldingResource.Value)
-                    // {
-                    //     // Switch target to home if holding a resource
-                    //      currentTarget = beeTargets.HomeTarget;
-                    // }
-                    // // else if (beeTargets.ResourceTarget != Entity.Null)
-                    // // {
-                    // //     // If a resource target is assigned to the current bee select it as the current target
-                    // //     // (if not holding a resource => bee is home => go for a new resource)
-                    // //     currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
-                    // // }
-                    // else if (beeTargets.ResourceTarget != Entity.Null)
-                    // {
-                    //     // If a resource target is assigned to the current bee select it as the current target
-                    //     // (if not holding a resource => bee is home => go for a new resource)
-                    //     currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
-                    // }
-
+                   
                     foreach (var pair in PairBuffer)
                     {
                         if (pair.BeeEntity == entity)
@@ -63,7 +46,7 @@ namespace CombatBees.Testing.BeeFlight
                     float3 delta = currentTarget - translation.Value;
                     float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
 
-                    if (distanceFromTarget < beeTargets.TargetReach) // Target reached
+                    if (distanceFromTarget < beeTargets.TargetReach) // Target reached could be home or resource 
                     {
                         if (!isHoldingResource.Value)
                         {

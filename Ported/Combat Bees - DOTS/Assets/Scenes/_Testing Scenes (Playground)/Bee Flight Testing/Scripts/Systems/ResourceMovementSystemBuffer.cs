@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CombatBees.Testing.BeeFlight
 {
-    [UpdateAfter(typeof(BeeMovementSystemBuffer))]
+    [UpdateBefore(typeof(BeeMovementSystemBuffer))]
     public partial class ResourceMovementSystemBuffer : SystemBase
     {
         private int k = 0;
@@ -24,28 +24,6 @@ namespace CombatBees.Testing.BeeFlight
             //buffer.Clear();
             Entities.WithAll<Bee>().ForEach((Entity entity, int entityInQueryIndex,ref IsHoldingResource isHoldingResource, in BeeTargets beeTargets) =>
             {
-                // Entity beeResourceTarget = beeTargets.ResourceTarget;
-                //
-                // if (isHoldingResource.PickedUp)
-                // {  
-                //     heldBuffer.Add(new HeldResourceBuffer
-                //     {
-                //         Resource = beeResourceTarget,
-                //         Bee = entity,
-                //     });
-                //     isHoldingResource.PickedUp = false;
-                // }
-                //
-                // if (!isHoldingResource.Value)
-                // {
-                //     for (int i=0;i<heldBuffer.Length;i++)
-                //     {
-                //         if (heldBuffer[i].Bee == entity)
-                //         {
-                //             heldBuffer.RemoveAt(i);
-                //         }
-                //     }
-                // }
                 
                 foreach (var pair in pairBuffer)
                 {
@@ -88,7 +66,7 @@ namespace CombatBees.Testing.BeeFlight
                         if (entity == pair.Resource)
                         {
                              inBuffer = true;
-                             translation.Value = allTranslations[pair.Bee].Value;
+                            translation.Value = allTranslations[pair.Bee].Value;
                             
                         }
                     }
