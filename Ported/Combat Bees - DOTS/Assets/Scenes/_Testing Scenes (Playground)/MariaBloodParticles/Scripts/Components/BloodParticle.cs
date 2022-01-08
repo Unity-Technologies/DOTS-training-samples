@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Random = System.Random;
 
 namespace Combatbees.Testing.Maria
 {

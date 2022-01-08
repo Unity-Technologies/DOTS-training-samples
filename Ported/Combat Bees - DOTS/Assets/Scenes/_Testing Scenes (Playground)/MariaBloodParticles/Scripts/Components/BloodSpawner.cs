@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Random = Unity.Mathematics.Random;
 
 namespace Combatbees.Testing.Maria
 {
@@ -6,5 +7,6 @@ namespace Combatbees.Testing.Maria
     public struct BloodSpawner : IComponentData
     {
         public Entity bloodEntity;
+        public Random random;
     }
 }

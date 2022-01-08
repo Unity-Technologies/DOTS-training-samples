@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using System.Collections;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 
 namespace Combatbees.Testing.Maria
@@ -34,15 +35,16 @@ namespace Combatbees.Testing.Maria
                     EntityManager.DestroyEntity(entity);           
                 }).WithStructuralChanges().Run();
 
-                Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>{
+                Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>
+                {
                     Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity); 
-                    // EntityManager.SetComponentData(e, new Translation
-                    // {
-                    //     Value = trans.Value + new float3(
-                    //         chaserSpawn.random.NextFloat(-11, 11),
-                    //         0,
-                    //         chaserSpawn.random.NextFloat(-8, 8))       
-                    // });
+                    EntityManager.SetComponentData(e, new Translation
+                    {
+                        Value = trans.Value + new float3(
+                            bloodSpawner.random.NextFloat(-3, 3),
+                            0f,
+                            bloodSpawner.random.NextFloat(-3, 3))       
+                    });
                     // EntityManager.SetComponentData(e, new moveData
                     // {
                     //     moveSpeed = chaserSpawn.random.NextFloat(2, 6),
