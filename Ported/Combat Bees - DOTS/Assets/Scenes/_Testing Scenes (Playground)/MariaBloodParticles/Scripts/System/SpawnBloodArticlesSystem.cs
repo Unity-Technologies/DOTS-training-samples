@@ -25,48 +25,67 @@ namespace Combatbees.Testing.Maria
         protected override void OnUpdate()
         {
             Debug.Log("System has successfully started: Maria");
+            letBeeDisappearAndInitBloodParticles();
+            moveBloodParticles();
+
+
+        }
+
+        private void letBeeDisappearAndInitBloodParticles(){
             if (Input.GetKeyDown(KeyCode.Space)){
                 float3 pos = new float3(0);
-
+                float steps = 0f;
                 Entities.ForEach((Entity entity, ref Bee bee, ref Translation translation) =>
                 {
                     bee.dead = true;
                     pos = translation.Value;
                     Debug.Log("Maria: Space pressed, Bee-entity destroyed");
-                    EntityManager.DestroyEntity(entity);           
+                    // EntityManager.DestroyEntity(entity);           
                 }).WithStructuralChanges().Run();
 
                 Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>
                 {
-                    for (int i = 0; i < bloodSpawner.amountParticles; i++)
+                    // To make the bloodparticles only spawn once 
+                    if (!bloodSpawner.dead)
                     {
-                        Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity); 
-                        EntityManager.SetComponentData(e, new Translation
+                        bloodSpawner.dead = true;
+                        for (int i = 0; i < bloodSpawner.amountParticles; i++)
                         {
-                            Value = trans.Value + new float3(
-                                pos.x + bloodSpawner.random.NextFloat(-3, 3),
-                                pos.y,
-                                pos.z + bloodSpawner.random.NextFloat(-3, 3))       
-                        });
-                        // EntityManager.SetComponentData(e, new moveData
-                        // {
-                        //     moveSpeed = chaserSpawn.random.NextFloat(2, 6),
-                        //     rotationSpeed = chaserSpawn.random.NextFloat(.3f, .7f)
-                        // });
+                            Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity);
+                            EntityManager.SetComponentData(e, new Translation
+                            {
+                                Value = trans.Value + new float3(pos)    
+                            });
+                            float x = bloodSpawner.random.NextFloat(-3, 3);
+                            float y = bloodSpawner.random.NextFloat(0, 3);
+                            float z = bloodSpawner.random.NextFloat(-3, 3);
+                            
+                            EntityManager.SetComponentData(e, new BloodParticle
+                            {
+                                direction = new float3(x, y, z),
+                                destination = trans.Value + new float3(x+pos.x, y + pos.y, z + pos.z),
+                                steps = bloodSpawner.steps
+                            });
+                        }
                     }
-                    
                 }).WithStructuralChanges().Run();
-                
-                
             }
-            
-            
-            
-            
         }
 
-        private void letBeeDisappear(){
-
+        private void moveBloodParticles()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.steps )
+                {
+                    bloodparticle.steps -= Time.DeltaTime;
+                    translation.Value = translation.Value + new float3(bloodparticle.direction * Time.DeltaTime);
+                }
+                else
+                {
+                    if(translation.Value.y > 0) translation.Value.y += -10 * Time.DeltaTime;
+                }
+            }).WithStructuralChanges().Run();
         }
     }
 }

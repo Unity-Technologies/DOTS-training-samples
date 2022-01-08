@@ -170,6 +170,8 @@ MonoBehaviour:
   random:
     state: 4
   amountParticles: 50
+  steps: 0.5
+  dead: 0
 --- !u!1 &1671705367
 GameObject:
   m_ObjectHideFlags: 0
@@ -273,7 +275,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1671705367}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 2.71, y: 3, z: 7.63}
+  m_LocalPosition: {x: 0.2, y: 4, z: 7.7}
   m_LocalScale: {x: 0.5, y: 1, z: 2}
   m_Children:
   - {fileID: 1631863610}
