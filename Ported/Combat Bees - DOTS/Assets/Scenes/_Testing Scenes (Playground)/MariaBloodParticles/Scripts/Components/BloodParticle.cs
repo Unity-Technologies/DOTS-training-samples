@@ -10,7 +10,7 @@ namespace Combatbees.Testing.Maria
     public struct BloodParticle : IComponentData
     {
         public float3 direction;
-        public float3 destination;
+        public float timeToLive;
         public float steps;
     }
 }

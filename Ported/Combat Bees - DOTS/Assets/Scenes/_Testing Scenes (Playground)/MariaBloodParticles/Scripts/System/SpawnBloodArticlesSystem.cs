@@ -27,6 +27,7 @@ namespace Combatbees.Testing.Maria
             Debug.Log("System has successfully started: Maria");
             letBeeDisappearAndInitBloodParticles();
             moveBloodParticles();
+            timeToLive();
 
 
         }
@@ -40,7 +41,7 @@ namespace Combatbees.Testing.Maria
                     bee.dead = true;
                     pos = translation.Value;
                     Debug.Log("Maria: Space pressed, Bee-entity destroyed");
-                    // EntityManager.DestroyEntity(entity);           
+                    EntityManager.DestroyEntity(entity);           
                 }).WithStructuralChanges().Run();
 
                 Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>
@@ -63,8 +64,8 @@ namespace Combatbees.Testing.Maria
                             EntityManager.SetComponentData(e, new BloodParticle
                             {
                                 direction = new float3(x, y, z),
-                                destination = trans.Value + new float3(x+pos.x, y + pos.y, z + pos.z),
-                                steps = bloodSpawner.steps
+                                steps = bloodSpawner.steps,
+                                timeToLive = bloodSpawner.random.NextFloat(0, 5)
                             });
                         }
                     }
@@ -86,6 +87,21 @@ namespace Combatbees.Testing.Maria
                     if(translation.Value.y > 0) translation.Value.y += -10 * Time.DeltaTime;
                 }
             }).WithStructuralChanges().Run();
+        }
+
+        private void timeToLive()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.timeToLive )
+                {
+                    bloodparticle.timeToLive -= Time.DeltaTime;
+                }
+                else
+                {
+                    EntityManager.DestroyEntity(entity);
+                }
+            }).WithStructuralChanges().Run();   
         }
     }
 }
