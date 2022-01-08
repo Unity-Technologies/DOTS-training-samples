@@ -24,9 +24,10 @@ namespace Combatbees.Testing.Maria
 
         protected override void OnUpdate()
         {
-            float3 pos = new float3(0);
             Debug.Log("System has successfully started: Maria");
             if (Input.GetKeyDown(KeyCode.Space)){
+                float3 pos = new float3(0);
+
                 Entities.ForEach((Entity entity, ref Bee bee, ref Translation translation) =>
                 {
                     bee.dead = true;
@@ -37,19 +38,23 @@ namespace Combatbees.Testing.Maria
 
                 Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>
                 {
-                    Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity); 
-                    EntityManager.SetComponentData(e, new Translation
+                    for (int i = 0; i < bloodSpawner.amountParticles; i++)
                     {
-                        Value = trans.Value + new float3(
-                            bloodSpawner.random.NextFloat(-3, 3),
-                            0f,
-                            bloodSpawner.random.NextFloat(-3, 3))       
-                    });
-                    // EntityManager.SetComponentData(e, new moveData
-                    // {
-                    //     moveSpeed = chaserSpawn.random.NextFloat(2, 6),
-                    //     rotationSpeed = chaserSpawn.random.NextFloat(.3f, .7f)
-                    // });
+                        Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity); 
+                        EntityManager.SetComponentData(e, new Translation
+                        {
+                            Value = trans.Value + new float3(
+                                pos.x + bloodSpawner.random.NextFloat(-3, 3),
+                                pos.y,
+                                pos.z + bloodSpawner.random.NextFloat(-3, 3))       
+                        });
+                        // EntityManager.SetComponentData(e, new moveData
+                        // {
+                        //     moveSpeed = chaserSpawn.random.NextFloat(2, 6),
+                        //     rotationSpeed = chaserSpawn.random.NextFloat(.3f, .7f)
+                        // });
+                    }
+                    
                 }).WithStructuralChanges().Run();
                 
                 

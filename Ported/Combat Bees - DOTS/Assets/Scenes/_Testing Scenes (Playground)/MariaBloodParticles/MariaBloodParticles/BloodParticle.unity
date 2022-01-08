@@ -167,6 +167,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bloodEntity: {fileID: 5992582591906006101, guid: e708abb54b34b4133a48d4a75e1dcb34, type: 3}
+  random:
+    state: 4
+  amountParticles: 50
 --- !u!1 &1671705367
 GameObject:
   m_ObjectHideFlags: 0

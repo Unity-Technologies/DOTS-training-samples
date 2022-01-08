@@ -8,5 +8,6 @@ namespace Combatbees.Testing.Maria
     {
         public Entity bloodEntity;
         public Random random;
+        public int amountParticles;
     }
 }
