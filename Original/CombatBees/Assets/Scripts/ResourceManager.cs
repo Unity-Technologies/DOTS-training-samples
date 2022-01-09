@@ -34,7 +34,7 @@ public class ResourceManager : MonoBehaviour {
 			
 			Resource resource = instance.resources[Random.Range(0,instance.resources.Count)];
 			int stackHeight = instance.stackHeights[resource.gridX,resource.gridY];
-			//check if anyone is holding the resource and if it is the toppest resource or not (resources can be stacked on top of each other) 
+			//check if anyone is holding the resource and if it is the top most resource or not (resources can be stacked on top of each other) 
 			if (resource.holder == null || resource.stackIndex==stackHeight-1) {
 				return resource;
 			} else {

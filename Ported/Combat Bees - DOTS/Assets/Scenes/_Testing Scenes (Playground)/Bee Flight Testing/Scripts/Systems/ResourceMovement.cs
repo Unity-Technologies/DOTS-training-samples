@@ -1,13 +1,12 @@
-using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace CombatBees.Testing.BeeFlight
 {
     public partial class ResourceMovement : SystemBase
     {
-        private int k = 0;
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
@@ -19,7 +18,8 @@ namespace CombatBees.Testing.BeeFlight
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
             
             // Building a list of (Bee, Resource) pairs
-            List<(Entity, Entity)> beeResourcePairs = new List<(Entity, Entity)>();
+            NativeList<(Entity, Entity)> beeResourcePairs = new NativeList<(Entity, Entity)>(Allocator.TempJob);
+            
             Entities.WithAll<Bee>().ForEach((Entity entity, int entityInQueryIndex,ref IsHoldingResource isHoldingResource, in BeeTargets beeTargets) =>
             {
                 Entity beeResourceTarget = beeTargets.ResourceTarget;
@@ -28,7 +28,9 @@ namespace CombatBees.Testing.BeeFlight
                 {
                     beeResourcePairs.Add((entity, beeResourceTarget));
                 }
-            }).WithoutBurst().Run();
+            }).Run();
+
+            float deltaTime = Time.DeltaTime;
             
             Entities.WithAll<Resource>().ForEach(
                 (Entity entity, ref Translation translation, ref Holder holder) =>
@@ -45,16 +47,16 @@ namespace CombatBees.Testing.BeeFlight
                             // Apply gravity
                             if (translation.Value.y > 0.5f)
                             {
-                                translation.Value.y -= 3.0f * World.Time.DeltaTime;
+                                translation.Value.y -= 3.0f * deltaTime;
                             } else if (translation.Value.y < 0.5f)
                             {
                                 translation.Value.y = 0.5f;
                             }
                         }
                     }
-                    
-                }).WithoutBurst().Run();
+                }).Run();
 
+            beeResourcePairs.Dispose();
         }
     }
 }

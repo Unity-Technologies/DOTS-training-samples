@@ -64,7 +64,7 @@ namespace CombatBees.Testing.BeeFlight
 
                     // Move bee closer to the target
                     translation.Value += beeMovement.Velocity * deltaTime;
-                }).WithoutBurst().Run();
+                }).ScheduleParallel();
         }
     }
 }
