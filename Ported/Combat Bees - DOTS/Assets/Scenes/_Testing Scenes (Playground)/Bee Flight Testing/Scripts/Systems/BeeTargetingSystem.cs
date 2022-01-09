@@ -1,69 +1,58 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Random = Unity.Mathematics.Random;
 
 namespace CombatBees.Testing.BeeFlight
 {
     public partial class BeeTargetingSystem : SystemBase
     {
-        // TODO: Don't assign resources that have been already brought home
-        
-        private Random random;
-        
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<SingeltonBeeMovement>();
             RequireSingletonForUpdate<ListSingelton>();
-            random = new Random(123);
         }
 
         protected override void OnUpdate()
         {
-            // Get all resources
-            EntityQuery resourcesQuery = GetEntityQuery(typeof(Resource));
-            NativeArray<Entity> allResourceEntities = resourcesQuery.ToEntityArray(Allocator.TempJob);
-
-            // Copy resources from a Native Array to a List (for easy removal of items)
-            List<Entity> resourceEntitiesList = new List<Entity>();
-
-            foreach (var resourceEntity in allResourceEntities)
+            NativeList<Entity> freeResources = new NativeList<Entity>(Allocator.TempJob);
+            NativeList<Entity> assignedResources = new NativeList<Entity>(Allocator.TempJob);
+        
+            Entities.WithAll<Resource>().ForEach((Entity entity, in ResourceState resourceState) =>
             {
-                resourceEntitiesList.Add(resourceEntity);
+                if (resourceState.Free) freeResources.Add(entity); // Find free resources (not targeted or home)
+            }).Run();
+
+            if (freeResources.Length > 0)
+            {
+                Entities.WithAll<Bee>().ForEach((ref BeeTargets beeTargets) =>
+                {
+                    if (beeTargets.ResourceTarget == Entity.Null) // if bee does not have a target
+                    {
+                        // Assign a random resource
+                        int randomResourceIndex = beeTargets.random.NextInt(freeResources.Length);
+                        beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
+                        freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
+                        assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
+                    }
+                }).Run();
             }
             
-            // Initialize a random resource variable
-            Entity randomResource = Entity.Null;
-
-            
-            List<Entity> assignedResources = new List<Entity>();
-            
-            Entities.WithAll<Bee>().ForEach((Entity entity, ref BeeTargets beeTargets) =>
+            Entities.WithAll<Resource>().ForEach((Entity entity, ref ResourceState resourceState) =>
             {
-                if (beeTargets.ResourceTarget != Entity.Null)
+                bool assigned = false;
+                
+                foreach (var assignedResource in assignedResources)
                 {
-                    // Remove the already assigned resources from the list
-                    resourceEntitiesList.Remove(beeTargets.ResourceTarget);
+                    if (entity == assignedResource) assigned = true; // The resource been assigned to a bee
                 }
-            }).WithoutBurst().Run();
-
-            Entities.WithAll<Bee>().ForEach((Entity entity, ref BeeTargets beeTargets) =>
-            {
-                if (beeTargets.ResourceTarget == Entity.Null && resourceEntitiesList.Count > 0)
+                
+                if (assigned)
                 {
-                    // Pick a random unassigned resource and assign it to a bee
-                    int randomIndex = random.NextInt(resourceEntitiesList.Count);
-                    randomResource = resourceEntitiesList[randomIndex];
-                    beeTargets.ResourceTarget = randomResource;
-                    resourceEntitiesList.RemoveAt(randomIndex);
+                    resourceState.Free = false; // Mark the resource as not available
                 }
-            }).WithoutBurst().Run();
-            // if we use ScheduleParallel(), we can't write to variables defined outside of EFE
-            
-            // if we remove WithoutBurst(), we can't use "List<Entity>" (if we use "NativeList<Entity>" we get error
-            // "The UNKNOWN_OBJECT_TYPE has been deallocated"
+            }).Run();
 
-            allResourceEntities.Dispose();
+            freeResources.Dispose();
+            assignedResources.Dispose();
         }
     }
 }

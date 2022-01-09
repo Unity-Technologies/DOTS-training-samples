@@ -2,6 +2,7 @@ using Unity.Entities;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityRange = UnityEngine.RangeAttribute;
+using Random = Unity.Mathematics.Random;
 
 namespace CombatBees.Testing.BeeFlight
 {
@@ -33,7 +34,8 @@ namespace CombatBees.Testing.BeeFlight
             {
                 ResourceTarget = Entity.Null,
                 TargetReach = TargetWithinReach,
-                HomePosition = HomeMarker.transform.position
+                HomePosition = HomeMarker.transform.position,
+                random = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0
             });
             
             dstManager.AddComponentData(entity, new IsHoldingResource

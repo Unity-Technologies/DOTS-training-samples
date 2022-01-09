@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Random = Unity.Mathematics.Random;
 
 namespace CombatBees.Testing.BeeFlight
 {
@@ -8,5 +9,6 @@ namespace CombatBees.Testing.BeeFlight
         public Entity ResourceTarget;
         public float3 HomePosition;
         public float TargetReach;
+        public Random random;
     }
 }

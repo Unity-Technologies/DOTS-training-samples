@@ -9,10 +9,16 @@ namespace CombatBees.Testing.BeeFlight
         {
             dstManager.AddComponent<Resource>(entity);
             dstManager.AddComponent<Holder>(entity);
+            dstManager.AddComponent<ResourceState>(entity);
             
             dstManager.AddComponentData(entity, new Holder
             {
                 Value =  Entity.Null
+            });
+            
+            dstManager.AddComponentData(entity, new ResourceState
+            {
+                Free =  true
             });
         }
     }
