@@ -30,28 +30,40 @@ namespace CombatBees.Testing.BeeFlight
                 }
             }).Run();
 
-            float deltaTime = Time.DeltaTime;
+            var deltaTime = Time.DeltaTime;
+            float gravity = 4.0f;
+            float halfResourceHeight = 0.5f;
             
             Entities.WithAll<Resource>().ForEach(
                 (Entity entity, ref Translation translation, ref Holder holder) =>
                 {
+                    bool resourceHeld = false;
+                    float3 holderPosition = float3.zero;
+                    
                     foreach (var beeResourcePair in beeResourcePairs)
                     {
                         if (entity == beeResourcePair.Item2)
-                        { 
-                            // Move resource to the bee's position
-                            translation.Value = allTranslations[beeResourcePair.Item1].Value;
+                        {
+                            resourceHeld = true;
+                            holderPosition = allTranslations[beeResourcePair.Item1].Value;
+                            break;
                         }
-                        else
+                    }
+
+                    if (resourceHeld)
+                    {
+                        // Move the resource to the bee's position
+                        translation.Value = holderPosition;
+                    }
+                    else
+                    {
+                        if (translation.Value.y > halfResourceHeight) // If above ground
                         {
                             // Apply gravity
-                            if (translation.Value.y > 0.5f)
-                            {
-                                translation.Value.y -= 3.0f * deltaTime;
-                            } else if (translation.Value.y < 0.5f)
-                            {
-                                translation.Value.y = 0.5f;
-                            }
+                            translation.Value.y -= gravity * deltaTime;
+                        } else if (translation.Value.y < halfResourceHeight) // if below ground
+                        {
+                            translation.Value.y = halfResourceHeight; // put on the ground
                         }
                     }
                 }).Run();
