@@ -18,7 +18,7 @@ namespace CombatBees.Testing.BeeFlight
         {
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
             
-            // list of entities
+            // Building a list of (Bee, Resource) pairs
             List<(Entity, Entity)> beeResourcePairs = new List<(Entity, Entity)>();
             Entities.WithAll<Bee>().ForEach((Entity entity, int entityInQueryIndex,ref IsHoldingResource isHoldingResource, in BeeTargets beeTargets) =>
             {
@@ -28,15 +28,15 @@ namespace CombatBees.Testing.BeeFlight
                 {
                     beeResourcePairs.Add((entity, beeResourceTarget));
                 }
-                
-            }).WithoutBurst().Run();    
+            }).WithoutBurst().Run();
+            
             Entities.WithAll<Resource>().ForEach(
                 (Entity entity, ref Translation translation, ref Holder holder) =>
                 {
                     foreach (var beeResourcePair in beeResourcePairs)
                     {
                         if (entity == beeResourcePair.Item2)
-                        {
+                        { 
                             // Move resource to the bee's position
                             translation.Value = allTranslations[beeResourcePair.Item1].Value;
                         }

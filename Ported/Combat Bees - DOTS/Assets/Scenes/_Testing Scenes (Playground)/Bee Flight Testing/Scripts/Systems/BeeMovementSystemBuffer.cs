@@ -34,7 +34,7 @@ namespace CombatBees.Testing.BeeFlight
                         {
                             if (isHoldingResource.Value)
                             {
-                                currentTarget = beeTargets.HomeTarget;
+                                currentTarget = beeTargets.HomePosition;
                             }
                             else if(pair.ResourceEntity!=Entity.Null)
                             {

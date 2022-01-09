@@ -17,7 +17,7 @@ namespace CombatBees.Testing.BeeFlight
         protected override void OnUpdate()
         {
             float deltaTime = World.Time.DeltaTime;
-            float3 currentTarget = float3.zero;
+            float3 currentTargetPosition = float3.zero;
 
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
             // var buffer = GetBuffer<BeeResourcePair>(GetSingletonEntity<BufferSingelton>());
@@ -29,16 +29,16 @@ namespace CombatBees.Testing.BeeFlight
                     if (isHoldingResource.Value)
                     {
                         // Switch target to home if holding a resource
-                        currentTarget = beeTargets.HomeTarget;
+                        currentTargetPosition = beeTargets.HomePosition;
                     }
                     else if (beeTargets.ResourceTarget != Entity.Null)
                     {
                         // If a resource target is assigned to the current bee select it as the current target
                         // (if not holding a resource => bee is home => go for a new resource)
-                        currentTarget = allTranslations[beeTargets.ResourceTarget].Value;
+                        currentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
                     }
                     
-                    float3 delta = currentTarget - translation.Value;
+                    float3 delta = currentTargetPosition - translation.Value;
                     float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
 
                     if (distanceFromTarget < beeTargets.TargetReach) // Target reached

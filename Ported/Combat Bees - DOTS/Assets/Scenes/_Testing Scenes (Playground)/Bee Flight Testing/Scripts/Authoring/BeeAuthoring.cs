@@ -33,7 +33,7 @@ namespace CombatBees.Testing.BeeFlight
             {
                 ResourceTarget = Entity.Null,
                 TargetReach = TargetWithinReach,
-                HomeTarget = HomeMarker.transform.position
+                HomePosition = HomeMarker.transform.position
             });
             
             dstManager.AddComponentData(entity, new IsHoldingResource
