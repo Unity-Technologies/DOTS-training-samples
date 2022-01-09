@@ -1,13 +1,7 @@
-using Combatbees.Testing.Maria;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using System.Collections;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 
 namespace Combatbees.Testing.Maria
@@ -28,8 +22,6 @@ namespace Combatbees.Testing.Maria
             letBeeDisappearAndInitBloodParticles();
             moveBloodParticles();
             timeToLive();
-
-
         }
 
         private void letBeeDisappearAndInitBloodParticles(){
