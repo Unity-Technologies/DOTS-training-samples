@@ -33,7 +33,7 @@ namespace Combatbees.Testing.Mahmoud
                     
                     
                     
-                }).Schedule();
+                }).ScheduleParallel();
         }
     }
 }
