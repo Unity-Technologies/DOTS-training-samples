@@ -138,6 +138,16 @@
       },
       "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
     },
+    "com.unity.platforms.macos": {
+      "version": "0.13.0-preview.7",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.platforms": "0.13.0-preview.7",
+        "com.unity.platforms.desktop": "0.13.0-preview.7"
+      },
+      "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
+    },
     "com.unity.platforms.windows": {
       "version": "0.13.0-preview.7",
       "depth": 0,
