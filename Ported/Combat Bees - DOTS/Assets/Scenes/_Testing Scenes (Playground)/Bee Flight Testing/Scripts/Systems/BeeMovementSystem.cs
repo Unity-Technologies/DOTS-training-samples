@@ -39,7 +39,7 @@ namespace CombatBees.Testing.BeeFlight
             
             Debug.Log("Added entities: " + beeEntities.Length);
 
-            Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).WithNativeDisableContainerSafetyRestriction(beeEntities).ForEach(
+            Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource, ref HeldResource heldResource) =>
                 {
@@ -84,10 +84,8 @@ namespace CombatBees.Testing.BeeFlight
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     beeMovement.Velocity *= 1f - beeMovement.Damping;
                     
-                    // 1. Get all bee entities
-                    // 2. Choose a random bee entity
-                    // 3. Get a bee's position from "allTranslations"
-
+                    Debug.Log(beeEntities.Length);
+                    // Attraction to a random bee
                     if (beeEntities.Length > 0)
                     {
                         Debug.Log("Not zero");
@@ -103,14 +101,6 @@ namespace CombatBees.Testing.BeeFlight
                             beeMovement.Velocity += beeDelta * (beeMovement.TeamAttraction / beeDistance);
                         }
                     }
-                    
-                    // List<Bee> allies = teamsOfBees[bee.team];
-                    // Bee attractiveFriend = allies[Random.Range(0,allies.Count)]; // Randomly choose an ally bee
-                    // Vector3 delta = attractiveFriend.position - bee.position; // distance between this bee and the ally
-                    // float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z); // The Pythagorean theorem extended to 3D
-                    // if (dist > 0f) {
-                    //     bee.velocity += delta * (teamAttraction * deltaTime / dist); // Add velocity towards an ally
-                    // }
 
                     // Move bee closer to the target
                     translation.Value += beeMovement.Velocity * deltaTime;
@@ -120,8 +110,9 @@ namespace CombatBees.Testing.BeeFlight
                     beeMovement.SmoothPosition = math.lerp(beeMovement.SmoothPosition, translation.Value,deltaTime * beeMovement.RotationStiffness);
                     float3 smoothDirection = beeMovement.SmoothPosition - oldSmoothPosition;
                     rotation.Value = quaternion.LookRotation(smoothDirection, new float3(0,1,0));
-                }).ScheduleParallel();
+                }).Run(); // Why is beeEntities empty when Scheduled parallel?
 
+            Dependency.Complete();
             beeEntities.Dispose();
         }
     }

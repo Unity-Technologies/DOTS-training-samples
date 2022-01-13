@@ -845,7 +845,7 @@ MonoBehaviour:
   BeeDamping: 0.1
   TargetWithinReach: 0.5
   RotationStiffness: 10
-  FlightJitter: 0
+  FlightJitter: 2
   TeamAttraction: 50
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &816747317
@@ -1720,7 +1720,7 @@ MonoBehaviour:
   BeeDamping: 0.1
   TargetWithinReach: 0.5
   RotationStiffness: 10
-  FlightJitter: 0
+  FlightJitter: 2
   TeamAttraction: 50
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &1699446017
@@ -1915,7 +1915,7 @@ MonoBehaviour:
   BeeDamping: 0.1
   TargetWithinReach: 0.5
   RotationStiffness: 10
-  FlightJitter: 0
+  FlightJitter: 2
   TeamAttraction: 50
   HomeMarker: {fileID: 1042611712}
 --- !u!1001 &1833765942
@@ -2172,7 +2172,7 @@ MonoBehaviour:
   BeeDamping: 0.1
   TargetWithinReach: 0.5
   RotationStiffness: 10
-  FlightJitter: 0
+  FlightJitter: 2
   TeamAttraction: 50
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &1929019278
