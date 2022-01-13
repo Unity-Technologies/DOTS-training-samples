@@ -37,7 +37,7 @@ namespace CombatBees.Testing.BeeFlight
                 beeEntities.Add(entity);
             }).Run();
             
-            Debug.Log("Added entities: " + beeEntities.Length);
+            // Debug.Log("Added entities: " + beeEntities.Length);
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
@@ -84,13 +84,13 @@ namespace CombatBees.Testing.BeeFlight
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     beeMovement.Velocity *= 1f - beeMovement.Damping;
                     
-                    Debug.Log(beeEntities.Length);
+                    // Debug.Log(beeEntities.Length);
                     // Attraction to a random bee
                     if (beeEntities.Length > 0)
                     {
-                        Debug.Log("Not zero");
+                        // Debug.Log("Not zero");
                         int randomBeeIndex = beeTargets.random.NextInt(beeEntities.Length);
-                        Debug.Log("Random bee index: " + randomBeeIndex);
+                        // Debug.Log("Random bee index: " + randomBeeIndex);
                         Entity randomBee = beeEntities.ElementAt(randomBeeIndex);
                         float3 randomBeePosition = allTranslations[randomBee].Value;
                         float3 beeDelta = randomBeePosition - translation.Value;
@@ -112,7 +112,7 @@ namespace CombatBees.Testing.BeeFlight
                     rotation.Value = quaternion.LookRotation(smoothDirection, new float3(0,1,0));
                 }).Run(); // Why is beeEntities empty when Scheduled parallel?
 
-            Dependency.Complete();
+            
             beeEntities.Dispose();
         }
     }

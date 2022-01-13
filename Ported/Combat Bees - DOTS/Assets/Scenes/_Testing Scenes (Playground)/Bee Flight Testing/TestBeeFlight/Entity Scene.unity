@@ -846,7 +846,7 @@ MonoBehaviour:
   TargetWithinReach: 0.5
   RotationStiffness: 10
   FlightJitter: 2
-  TeamAttraction: 50
+  TeamAttraction: 2
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &816747317
 BoxCollider:
@@ -1721,7 +1721,7 @@ MonoBehaviour:
   TargetWithinReach: 0.5
   RotationStiffness: 10
   FlightJitter: 2
-  TeamAttraction: 50
+  TeamAttraction: 2
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &1699446017
 BoxCollider:
@@ -1916,7 +1916,7 @@ MonoBehaviour:
   TargetWithinReach: 0.5
   RotationStiffness: 10
   FlightJitter: 2
-  TeamAttraction: 50
+  TeamAttraction: 2
   HomeMarker: {fileID: 1042611712}
 --- !u!1001 &1833765942
 PrefabInstance:
@@ -2173,7 +2173,7 @@ MonoBehaviour:
   TargetWithinReach: 0.5
   RotationStiffness: 10
   FlightJitter: 2
-  TeamAttraction: 50
+  TeamAttraction: 2
   HomeMarker: {fileID: 1042611712}
 --- !u!65 &1929019278
 BoxCollider:

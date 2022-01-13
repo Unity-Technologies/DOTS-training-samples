@@ -15,17 +15,16 @@ namespace CombatBees.Testing.BeeFlight
         {
             NativeList<Entity> freeResources = new NativeList<Entity>(Allocator.TempJob);
             NativeList<Entity> assignedResources = new NativeList<Entity>(Allocator.TempJob);
-        
-            Dependency = Entities.WithAll<Resource>().ForEach((Entity entity, in ResourceState resourceState) =>
+            Entities.WithAll<Resource>().ForEach((Entity entity, in ResourceState resourceState) =>
             {
                 if (resourceState.Free) freeResources.Add(entity); // Find free resources (not targeted or home)
-            }).Schedule(Dependency);
+            }).Run();
             
-            Dependency.Complete();
+           
 
             if (freeResources.Length > 0)
             {
-                Dependency = Entities.WithAll<Bee>().ForEach((ref BeeTargets beeTargets) =>
+                Entities.WithAll<Bee>().ForEach((ref BeeTargets beeTargets) =>
                 {
                     if (beeTargets.ResourceTarget == Entity.Null) // if bee does not have a target
                     {
@@ -35,12 +34,12 @@ namespace CombatBees.Testing.BeeFlight
                         freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
                         assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
                     }
-                }).Schedule(Dependency);
+                }).Run();
             }
             
-            Dependency.Complete();
+           
             
-            Dependency = Entities.WithAll<Resource>().ForEach((Entity entity, ref ResourceState resourceState) =>
+             Entities.WithAll<Resource>().ForEach((Entity entity, ref ResourceState resourceState) =>
             {
                 bool assigned = false;
                 
@@ -53,9 +52,9 @@ namespace CombatBees.Testing.BeeFlight
                 {
                     resourceState.Free = false; // Mark the resource as not available
                 }
-            }).Schedule(Dependency);
+            }).Run();
             
-            Dependency.Complete();
+            
 
             freeResources.Dispose();
             assignedResources.Dispose();
