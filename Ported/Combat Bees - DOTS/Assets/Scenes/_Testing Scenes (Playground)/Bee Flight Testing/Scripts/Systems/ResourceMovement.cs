@@ -34,39 +34,38 @@ namespace CombatBees.Testing.BeeFlight
             float gravity = 4.0f;
             float halfResourceHeight = 0.5f;
             
-            Entities.WithAll<Resource>().ForEach(
-                (Entity entity, ref Translation translation, ref Holder holder) =>
+            Entities.WithAll<Resource>().ForEach((Entity entity, ref Translation translation, ref Holder holder) =>
+            {
+                bool resourceHeld = false;
+                float3 holderPosition = float3.zero;
+                
+                foreach (var beeResourcePair in beeResourcePairs)
                 {
-                    bool resourceHeld = false;
-                    float3 holderPosition = float3.zero;
-                    
-                    foreach (var beeResourcePair in beeResourcePairs)
+                    if (entity == beeResourcePair.Item2) // Item2 = Resource
                     {
-                        if (entity == beeResourcePair.Item2)
-                        {
-                            resourceHeld = true;
-                            holderPosition = allTranslations[beeResourcePair.Item1].Value;
-                            break;
-                        }
+                        resourceHeld = true;
+                        holderPosition = allTranslations[beeResourcePair.Item1].Value; // Item1 = Bee
+                        break;
                     }
+                }
 
-                    if (resourceHeld)
+                if (resourceHeld)
+                {
+                    // Move the resource to the bee's position
+                    translation.Value = holderPosition + holder.Offset;
+                }
+                else
+                {
+                    if (translation.Value.y > halfResourceHeight) // If above ground
                     {
-                        // Move the resource to the bee's position
-                        translation.Value = holderPosition + holder.Offset;
-                    }
-                    else
+                        // Apply gravity
+                        translation.Value.y -= gravity * deltaTime;
+                    } else if (translation.Value.y < halfResourceHeight) // if below ground
                     {
-                        if (translation.Value.y > halfResourceHeight) // If above ground
-                        {
-                            // Apply gravity
-                            translation.Value.y -= gravity * deltaTime;
-                        } else if (translation.Value.y < halfResourceHeight) // if below ground
-                        {
-                            translation.Value.y = halfResourceHeight; // put on the ground
-                        }
+                        translation.Value.y = halfResourceHeight; // put on the ground
                     }
-                }).Run();
+                }
+            }).Run();
 
             beeResourcePairs.Dispose();
         }

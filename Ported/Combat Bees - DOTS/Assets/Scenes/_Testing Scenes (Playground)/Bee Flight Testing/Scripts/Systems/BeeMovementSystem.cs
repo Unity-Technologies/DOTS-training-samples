@@ -1,10 +1,7 @@
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = System.Random;
 
 namespace CombatBees.Testing.BeeFlight
 {
@@ -67,7 +64,6 @@ namespace CombatBees.Testing.BeeFlight
                         {
                             // Not holding a resource and reached a target resource
                             isHoldingResource.Value = true;
-                            isHoldingResource.JustPickedUp = true;
                         }
                         else
                         {
@@ -87,14 +83,12 @@ namespace CombatBees.Testing.BeeFlight
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     beeMovement.Velocity *= 1f - beeMovement.Damping;
                     
-                    // Debug.Log(beeEntities.Length);
                     // Attraction to a random bee
                     Entity randomBee;
-                        // Debug.Log("Not zero");
+                    
                     if (beeMovement.TeamA)
                     {
                         int randomBeeIndex = beeTargets.random.NextInt(beeAEntities.Length);
-                        // Debug.Log("Random bee index: " + randomBeeIndex);
                         randomBee = beeAEntities.ElementAt(randomBeeIndex);
                             
                     }
@@ -103,15 +97,16 @@ namespace CombatBees.Testing.BeeFlight
                         int randomBeeIndex = beeTargets.random.NextInt(beeBEntities.Length);
                         randomBee = beeBEntities.ElementAt(randomBeeIndex);
                     }
+                    
                     float3 randomBeePosition = allTranslations[randomBee].Value;
                     float3 beeDelta = randomBeePosition - translation.Value;
                     float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
+                    
                     if (beeDistance > 0f)
                     { 
                         beeMovement.Velocity += beeDelta * (beeMovement.TeamAttraction / beeDistance);
                     }
                     
-
                     // Move bee closer to the target
                     translation.Value += beeMovement.Velocity * deltaTime;
 

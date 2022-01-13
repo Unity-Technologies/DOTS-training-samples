@@ -20,8 +20,6 @@ namespace CombatBees.Testing.BeeFlight
                 if (resourceState.Free) freeResources.Add(entity); // Find free resources (not targeted or home)
             }).Run();
             
-           
-
             if (freeResources.Length > 0)
             {
                 Entities.WithAll<Bee>().ForEach((ref BeeTargets beeTargets) =>
@@ -37,9 +35,7 @@ namespace CombatBees.Testing.BeeFlight
                 }).Run();
             }
             
-           
-            
-             Entities.WithAll<Resource>().ForEach((Entity entity, ref ResourceState resourceState) =>
+            Entities.WithAll<Resource>().ForEach((Entity entity, ref ResourceState resourceState) =>
             {
                 bool assigned = false;
                 
@@ -54,8 +50,6 @@ namespace CombatBees.Testing.BeeFlight
                 }
             }).Run();
             
-            
-
             freeResources.Dispose();
             assignedResources.Dispose();
         }
