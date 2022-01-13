@@ -53,7 +53,7 @@ namespace CombatBees.Testing.BeeFlight
                     if (resourceHeld)
                     {
                         // Move the resource to the bee's position
-                        translation.Value = holderPosition;
+                        translation.Value = holderPosition + holder.Offset;
                     }
                     else
                     {

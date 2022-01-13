@@ -65,6 +65,7 @@ namespace CombatBees.Testing.BeeFlight
 
                     // Add velocity towards the current target
                     beeMovement.Velocity += delta * (beeMovement.ChaseForce * deltaTime / distanceFromTarget);
+                    
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     beeMovement.Velocity *= 1f - beeMovement.Damping;
 

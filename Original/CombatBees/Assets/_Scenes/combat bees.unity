@@ -356,9 +356,9 @@ MonoBehaviour:
   speedStretch: 0.2
   rotationStiffness: 5
   aggression: 0.5
-  flightJitter: 200
-  teamAttraction: 5
-  teamRepulsion: 4
+  flightJitter: 0
+  teamAttraction: 50
+  teamRepulsion: 50
   damping: 0.1
   chaseForce: 50
   carryForce: 25
@@ -367,7 +367,7 @@ MonoBehaviour:
   attackForce: 500
   hitDistance: 0.5
   maxSpawnSpeed: 75
-  startBeeCount: 100
+  startBeeCount: 50
 --- !u!4 &374635490
 Transform:
   m_ObjectHideFlags: 0

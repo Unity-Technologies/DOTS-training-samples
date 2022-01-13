@@ -11,6 +11,9 @@ namespace CombatBees.Testing.BeeFlight
         [UnityRange(0.0f, 100f)] public float BeeChaseForce = 50f;
         [UnityRange(0.0f, 1f)] public float BeeDamping = 0.1f;
         public float TargetWithinReach = 0.1f;
+        public float RotationStiffness = 5f;
+        public float FlightJitter = 3f;
+        public float TeamAttraction = 5f;
 
         public UnityGameObject HomeMarker;
 
@@ -27,7 +30,10 @@ namespace CombatBees.Testing.BeeFlight
             dstManager.AddComponentData(entity, new BeeMovement
             {
                 ChaseForce = BeeChaseForce,
-                Damping = BeeDamping
+                Damping = BeeDamping,
+                RotationStiffness = RotationStiffness,
+                FlightJitter = FlightJitter,
+                TeamAttraction = TeamAttraction
             });
 
             dstManager.AddComponentData(entity, new BeeTargets

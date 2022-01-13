@@ -7,6 +7,7 @@ using UnityEngine;
 namespace CombatBees.Testing.BeeFlight
 {
     [UpdateBefore(typeof(BeeMovementSystemBuffer))]
+    [DisableAutoCreation]
     public partial class ResourceMovementSystemBuffer : SystemBase
     {
         private int k = 0;

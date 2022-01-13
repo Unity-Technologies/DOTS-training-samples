@@ -8,5 +8,9 @@ namespace CombatBees.Testing.BeeFlight
         public float3 Velocity;
         public float ChaseForce;
         public float Damping;
+        public float FlightJitter;
+        public float RotationStiffness;
+        public float TeamAttraction;
+        public float3 SmoothPosition;
     }
 }
