@@ -30,11 +30,14 @@ namespace CombatBees.Testing.BeeFlight
             float3 currentTargetPosition = float3.zero;
 
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
-            NativeList<Entity> beeEntities = new NativeList<Entity>(Allocator.TempJob);
-            
-            Entities.WithAll<Bee>().ForEach((Entity entity) =>
+            NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);
+            NativeList<Entity> beeBEntities = new NativeList<Entity>(Allocator.TempJob);
+            Entities.WithAll<Bee>().ForEach((Entity entity, in BeeMovement beeMovement) =>
             {
-                beeEntities.Add(entity);
+                if(beeMovement.TeamA)
+                    beeAEntities.Add(entity);
+                else
+                    beeBEntities.Add(entity);
             }).Run();
             
             // Debug.Log("Added entities: " + beeEntities.Length);
@@ -86,21 +89,28 @@ namespace CombatBees.Testing.BeeFlight
                     
                     // Debug.Log(beeEntities.Length);
                     // Attraction to a random bee
-                    if (beeEntities.Length > 0)
-                    {
+                    Entity randomBee;
                         // Debug.Log("Not zero");
-                        int randomBeeIndex = beeTargets.random.NextInt(beeEntities.Length);
+                    if (beeMovement.TeamA)
+                    {
+                        int randomBeeIndex = beeTargets.random.NextInt(beeAEntities.Length);
                         // Debug.Log("Random bee index: " + randomBeeIndex);
-                        Entity randomBee = beeEntities.ElementAt(randomBeeIndex);
-                        float3 randomBeePosition = allTranslations[randomBee].Value;
-                        float3 beeDelta = randomBeePosition - translation.Value;
-                        float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
-
-                        if (beeDistance > 0f)
-                        {
-                            beeMovement.Velocity += beeDelta * (beeMovement.TeamAttraction / beeDistance);
-                        }
+                        randomBee = beeAEntities.ElementAt(randomBeeIndex);
+                            
                     }
+                    else
+                    {
+                        int randomBeeIndex = beeTargets.random.NextInt(beeBEntities.Length);
+                        randomBee = beeBEntities.ElementAt(randomBeeIndex);
+                    }
+                    float3 randomBeePosition = allTranslations[randomBee].Value;
+                    float3 beeDelta = randomBeePosition - translation.Value;
+                    float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
+                    if (beeDistance > 0f)
+                    { 
+                        beeMovement.Velocity += beeDelta * (beeMovement.TeamAttraction / beeDistance);
+                    }
+                    
 
                     // Move bee closer to the target
                     translation.Value += beeMovement.Velocity * deltaTime;
@@ -113,7 +123,8 @@ namespace CombatBees.Testing.BeeFlight
                 }).Run(); // Why is beeEntities empty when Scheduled parallel?
 
             
-            beeEntities.Dispose();
+            beeAEntities.Dispose();
+            beeBEntities.Dispose();
         }
     }
 }

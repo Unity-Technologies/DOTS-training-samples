@@ -14,7 +14,7 @@ namespace CombatBees.Testing.BeeFlight
         public float RotationStiffness = 5f;
         public float FlightJitter = 3f;
         public float TeamAttraction = 5f;
-
+        public bool TeamA = false;
         public UnityGameObject HomeMarker;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -33,7 +33,8 @@ namespace CombatBees.Testing.BeeFlight
                 Damping = BeeDamping,
                 RotationStiffness = RotationStiffness,
                 FlightJitter = FlightJitter,
-                TeamAttraction = TeamAttraction
+                TeamAttraction = TeamAttraction,
+                TeamA = TeamA
             });
 
             dstManager.AddComponentData(entity, new BeeTargets

@@ -12,5 +12,6 @@ namespace CombatBees.Testing.BeeFlight
         public float RotationStiffness;
         public float TeamAttraction;
         public float3 SmoothPosition;
+        public bool TeamA;
     }
 }
