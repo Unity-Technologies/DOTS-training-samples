@@ -188,7 +188,7 @@
       "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
     },
     "com.unity.render-pipelines.core": {
-      "version": "10.7.0",
+      "version": "10.8.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -262,11 +262,11 @@
       "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
     },
     "com.unity.shadergraph": {
-      "version": "10.7.0",
+      "version": "10.8.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.render-pipelines.core": "10.7.0",
+        "com.unity.render-pipelines.core": "10.8.0",
         "com.unity.searcher": "4.3.2"
       },
       "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
