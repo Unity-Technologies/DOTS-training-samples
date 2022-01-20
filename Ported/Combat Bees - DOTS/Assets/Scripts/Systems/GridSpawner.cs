@@ -25,7 +25,7 @@ public partial class GridSpawner : SystemBase
                 
                 for (int i = 0; i < spawner.SpawnedCount; i++)
                 {
-                    var instance = ecb.Instantiate(spawner.PrefabToSpawn);
+                    var prefabInstance = ecb.Instantiate(spawner.PrefabToSpawn);
                     var translation = new Translation();
 
                     int gridCellX = spawner.Random.NextInt(0, gridDimensions.CellsX);
@@ -38,8 +38,9 @@ public partial class GridSpawner : SystemBase
                         gridCellX * gridDimensions.CellSize - centeringOffsetX,
                         0,
                         gridCellZ * gridDimensions.CellSize - centeringOffsetZ) + halfCellSize;
-                    ecb.SetComponent(instance, translation);
-                    ecb.RemoveComponent<Spawner>(entity);
+                    
+                    ecb.SetComponent(prefabInstance, translation);
+                    ecb.RemoveComponent<Spawner>(entity); // Prevents repeated spawning
                 }
             }).WithoutBurst().Run();
         
