@@ -19,7 +19,7 @@ public partial class GridSpawner : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
-            .ForEach((Entity entity, ref Spawner spawner, in GridDimensions gridDimensions) =>
+            .ForEach((Entity entity, ref GridSpawnerData spawner, in GridDimensions gridDimensions) =>
             {
                 float halfCellSize = gridDimensions.CellSize / 2;
                 
@@ -40,7 +40,7 @@ public partial class GridSpawner : SystemBase
                         spawner.Position.z + gridCellZ * gridDimensions.CellSize - centeringOffsetZ) + halfCellSize;
                     
                     ecb.SetComponent(prefabInstance, translation);
-                    ecb.RemoveComponent<Spawner>(entity); // Prevents repeated spawning
+                    ecb.RemoveComponent<GridSpawnerData>(entity); // Prevents repeated spawning
                 }
             }).WithoutBurst().Run();
         

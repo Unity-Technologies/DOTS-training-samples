@@ -1,40 +1,31 @@
 using System.Collections.Generic;
 using Unity.Entities;
-using UnityGameObject = UnityEngine.GameObject;
-using UnityRangeAttribute = UnityEngine.RangeAttribute;
+using UnityDisallowMultipleComponent = UnityEngine.DisallowMultipleComponent;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
+using UnityGameObject = UnityEngine.GameObject;
 using Random = Unity.Mathematics.Random;
 
-public class GridSpawnerAuthoring : UnityMonoBehaviour
-    , IConvertGameObjectToEntity
-    , IDeclareReferencedPrefabs
+[UnityDisallowMultipleComponent]
+public class RandomVelocitySpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public UnityGameObject SpawnedPrefab;
-    public int GridCellsX;
-    public int GridCellsZ;
-    public float CellSize;
-    public int SpawnedCount;
-
+    public int SpawnedCount = 10;
+    public float MaxInitVelocity = 10f;
+    
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
     {
         referencedPrefabs.Add(SpawnedPrefab);
     }
-
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new GridDimensions
-        {
-            CellsX = GridCellsX,
-            CellsZ = GridCellsZ,
-            CellSize = CellSize,
-        });
-        
-        dstManager.AddComponentData(entity, new GridSpawnerData
+        dstManager.AddComponentData(entity, new RandomVelocitySpawnerData
         {
             PrefabToSpawn = conversionSystem.GetPrimaryEntity(SpawnedPrefab),
             Random = new Random((uint) (entity.Index + 1)), // +1 because seed can't be 0,
             SpawnedCount = SpawnedCount,
-            Position = transform.position
+            Position = transform.position,
+            MaxInitVelocity = MaxInitVelocity
         });
     }
 }
