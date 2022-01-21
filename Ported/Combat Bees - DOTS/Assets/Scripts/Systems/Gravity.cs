@@ -1,0 +1,38 @@
+using Unity.Entities;
+using Unity.Mathematics;
+
+public partial class Gravity : SystemBase
+{
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
+    
+    protected override void OnUpdate()
+    {
+        float resourceGravity = GetResourceGravity();
+
+        Entities.WithAll<ResourceTag>().ForEach((ref Velocity velocity, in Holder holder) => {
+            if (holder.Value == Entity.Null)
+            {
+                velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
+            }
+        }).ScheduleParallel();
+    }
+
+    /// <summary>
+    /// Collects the value from the "GravityConstants" entity.
+    /// </summary>
+    /// <returns></returns>
+    private float GetResourceGravity()
+    {
+        float resourceGravity = 0f;
+        
+        Entities.ForEach((in GravityConstants gravityConstants) =>
+        {
+            resourceGravity = gravityConstants.ResourceGravity;
+        }).Run();
+
+        return resourceGravity;
+    } 
+}

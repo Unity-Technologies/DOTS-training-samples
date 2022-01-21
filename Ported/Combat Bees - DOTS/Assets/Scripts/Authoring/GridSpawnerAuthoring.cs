@@ -26,7 +26,7 @@ public class GridSpawnerAuthoring : UnityMonoBehaviour
         {
             CellsX = GridCellsX,
             CellsZ = GridCellsZ,
-            CellSize = CellSize
+            CellSize = CellSize,
         });
         
         dstManager.AddComponentData(entity, new Spawner
@@ -34,6 +34,7 @@ public class GridSpawnerAuthoring : UnityMonoBehaviour
             PrefabToSpawn = conversionSystem.GetPrimaryEntity(SpawnedPrefab),
             Random = new Random((uint) (entity.Index + 1)), // +1 because seed can't be 0,
             SpawnedCount = SpawnedCount,
+            Position = transform.position
         });
     }
 }

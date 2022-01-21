@@ -5,7 +5,7 @@ using Unity.Transforms;
 
 /// <summary>
 /// Spawns prefabs on a grid.
-/// The grid is offset so that it is centered around (x: 0, y: 0, z: 0)
+/// The grid is offset so that it is centered around the spawner position.
 /// </summary>
 public partial class GridSpawner : SystemBase
 {
@@ -35,9 +35,9 @@ public partial class GridSpawner : SystemBase
                     float centeringOffsetZ = gridDimensions.CellsZ * gridDimensions.CellSize / 2;
 
                     translation.Value = new float3(
-                        gridCellX * gridDimensions.CellSize - centeringOffsetX,
-                        0,
-                        gridCellZ * gridDimensions.CellSize - centeringOffsetZ) + halfCellSize;
+                        spawner.Position.x + gridCellX * gridDimensions.CellSize - centeringOffsetX,
+                        spawner.Position.y,
+                        spawner.Position.z + gridCellZ * gridDimensions.CellSize - centeringOffsetZ) + halfCellSize;
                     
                     ecb.SetComponent(prefabInstance, translation);
                     ecb.RemoveComponent<Spawner>(entity); // Prevents repeated spawning
