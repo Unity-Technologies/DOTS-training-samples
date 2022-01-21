@@ -11,6 +11,9 @@ public class FieldContainerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponentData(entity, new Container
         {
+            Center = FieldContainer.position,
+            // Used for resource spawn on click
+            Dimensions = FieldContainer.localScale,
             // Used for calculating collisions etc.
             MinPosition = new float3(
                 FieldContainer.position.x - FieldContainer.localScale.x/2,
