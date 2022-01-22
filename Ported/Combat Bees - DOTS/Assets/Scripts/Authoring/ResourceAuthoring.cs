@@ -15,7 +15,12 @@ public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
         dstManager.AddComponentData(entity, new Velocity
         {
-            Value = new float3(0.0f,0.0f,0.0f)
+            Value = float3.zero
+        });
+
+        dstManager.AddComponentData(entity, new Targeted
+        {
+            Value = false
         });
     }
 }

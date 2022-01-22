@@ -6,6 +6,5 @@ public struct BeeTargets : IComponentData
 {
     public Entity ResourceTarget;
     public float3 HomePosition;
-    public float TargetReach;
     public Random Random;
 }

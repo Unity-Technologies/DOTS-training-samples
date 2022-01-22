@@ -19,11 +19,7 @@ public partial class Gravity : SystemBase
             }
         }).ScheduleParallel();
     }
-
-    /// <summary>
-    /// Collects the value from the "GravityConstants" entity.
-    /// </summary>
-    /// <returns></returns>
+    
     private float GetResourceGravity()
     {
         float resourceGravity = 0f;

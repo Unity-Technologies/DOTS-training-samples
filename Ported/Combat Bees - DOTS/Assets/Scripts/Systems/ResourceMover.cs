@@ -21,9 +21,13 @@ public partial class ResourceMover : SystemBase
         }).Run();
         
         float deltaTime = Time.DeltaTime;
+        var allTranslations = GetComponentDataFromEntity<Translation>(true);
+        var allVelocities = GetComponentDataFromEntity<Velocity>(true);
         
-        Entities.WithAll<ResourceTag>().ForEach((ref Translation translation, ref Velocity velocity, in Holder holder) => {
-            if (holder.Value == Entity.Null)
+        Entities.WithAll<ResourceTag>().WithNativeDisableContainerSafetyRestriction(allTranslations)
+            .WithNativeDisableContainerSafetyRestriction(allVelocities)
+            .ForEach((ref Translation translation, ref Velocity velocity, in Holder holder) => {
+            if (holder.Value == Entity.Null) // if no holder, apply gravity
             {
                 float3 newPosition = translation.Value + velocity.Value * deltaTime;
                 
@@ -36,6 +40,12 @@ public partial class ResourceMover : SystemBase
                 // TODO: Check collisions with walls 
                 
                 translation.Value = clampedPosition;
+            }
+            else // if holder, follow his position + offset
+            {
+                translation.Value = allTranslations[holder.Value].Value;
+                // Comment out the line below to make resources drop straight to the ground
+                velocity.Value = allVelocities[holder.Value].Value;
             }
         }).ScheduleParallel();
     }

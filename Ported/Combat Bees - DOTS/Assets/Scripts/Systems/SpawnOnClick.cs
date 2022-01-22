@@ -19,7 +19,7 @@ public partial class SpawnOnClick : SystemBase
 		RequireSingletonForUpdate<SingletonMainScene>();
 	}
 
-	protected override void OnUpdate()
+	protected override void OnUpdate() // TODO: Extract some parts into methods for better readability and re-usability
 	{
 		Vector3 field = new Vector3();
 		Vector3 fieldCenter = new Vector3();

@@ -108,3 +108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04ad6d6204e0f81408fec1cd557acc17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TeamName: 1
+  HomePosition:
+    x: -45
+    y: 0
+    z: 0

@@ -177,7 +177,7 @@ GameObject:
   - component: {fileID: 434348334}
   - component: {fileID: 434348333}
   m_Layer: 0
-  m_Name: Radial Resource Spawner - A
+  m_Name: Radial Resource Spawner - A (extra)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -210,7 +210,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1125149968
 GameObject:
@@ -241,7 +241,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1125149970
 MonoBehaviour:
@@ -272,6 +272,7 @@ GameObject:
   - component: {fileID: 1148196122}
   - component: {fileID: 1148196124}
   - component: {fileID: 1148196125}
+  - component: {fileID: 1148196126}
   m_Layer: 0
   m_Name: Simulation Settings
   m_TagString: Untagged
@@ -304,7 +305,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1148196124
 MonoBehaviour:
@@ -332,6 +333,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 4595328995100758318, guid: 474f38c7b5e86b64a932eed20c785251, type: 3}
+--- !u!114 &1148196126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148196121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750804d5319b99f4fad1f99c51b39328, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ChaseForce: 2
+  Damping: 0.1
+  FlightJitter: 1.8
+  RotationStiffness: 1
+  TeamAttraction: -0.4
+  TargetReach: 0.1
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,7 +367,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1627788071
 Transform:
   m_ObjectHideFlags: 0
@@ -376,8 +395,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
-  SpawnedCount: 20
-  MaxInitVelocity: 10
+  SpawnedCount: 10
+  MaxInitVelocity: 80
 --- !u!1 &1957685094
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,7 +503,7 @@ GameObject:
   - component: {fileID: 2024735734}
   - component: {fileID: 2024735733}
   m_Layer: 0
-  m_Name: Radial Resource Spawner - B
+  m_Name: Radial Resource Spawner - B (extra)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -517,5 +536,51 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2045680675
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2045680677}
+  - component: {fileID: 2045680676}
+  m_Layer: 0
+  m_Name: Bee Spawner - Team B
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2045680676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045680675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75078aae8622b764fb8898f0ff4c645e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
+  SpawnedCount: 10
+  MaxInitVelocity: 80
+--- !u!4 &2045680677
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2045680675}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 40, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
