@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
-public class Intersection {
-	public int id;
+public class Intersection : IComponentData
+{
+	public int id; // In the DOTS world we really shouldn't need this
 	public Vector3 position;
 	public Vector3Int index;
 	public Vector3Int normal;
@@ -13,7 +14,13 @@ public class Intersection {
 
 	public bool[] occupied;
 
-	public Intersection(Vector3Int intPos, Vector3 pos, Vector3Int norm) {
+	public Intersection()
+	{
+		
+	}
+
+	public Intersection(Vector3Int intPos, Vector3 pos, Vector3Int norm)
+	{
 		index = intPos;
 		position = pos;
 		normal = norm;

@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
 
-public class TrackSpline{
+public class TrackSpline : IComponentData
+{
 	public Intersection startIntersection;
 	public Intersection endIntersection;
 
