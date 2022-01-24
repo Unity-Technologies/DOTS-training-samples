@@ -8,6 +8,6 @@ public class TileAuthoring: MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
         dstManager.AddComponent<Tile>(entity);
-        //dstManager.AddComponent<Direction>(entity);
+        dstManager.AddComponent<Direction>(entity);
     }
 }

@@ -34,9 +34,10 @@ public partial class MapSpawningSystem : SystemBase
                         // introduce random walls here, later 
                         ecb.SetComponent(tile, new Tile
                         {
-                            Coords = new int2(x, y),
-                            Walls = walls
-                                
+                            Coords = new int2(x, y)
+                        });
+                        ecb.SetComponent(tile, new Direction {
+                            Value = walls
                         });
                         ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
                         {
