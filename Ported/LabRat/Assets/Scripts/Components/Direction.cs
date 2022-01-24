@@ -1,18 +1,18 @@
-﻿
 
 using System;
 using Unity.Entities;
 
 [Flags]
-public enum Dir
+public enum DirectionEnum : byte
 {
-    East = 1,
-    West = 2,
-    North = 4,
-    South = 8
+    None = 0,
+    North = 1,
+    East = 2,
+    South = 4,
+    West = 8
 }
 
-public struct Direction : IComponentData
+public struct Direction: IComponentData
 {
-    public Dir Value;
+    public DirectionEnum Value;
 }

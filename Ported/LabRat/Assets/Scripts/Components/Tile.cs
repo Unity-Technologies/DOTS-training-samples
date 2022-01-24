@@ -1,9 +1,7 @@
-﻿
-
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct Tile : IComponentData
+public struct Tile: IComponentData
 {
-    public int2 Value;
+    public int2 Coords;
 }
