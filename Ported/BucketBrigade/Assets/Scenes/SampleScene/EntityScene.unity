@@ -221,3 +221,5 @@ MonoBehaviour:
   FireHeatFlashPoint: 0
   FireHeatTransferRadius: 0
   FireHeatTransferRate: 0
+  FlamePrefab: {fileID: 1306931638197496, guid: 98c7d39c32a0ccc439822c55b2115767,
+    type: 3}

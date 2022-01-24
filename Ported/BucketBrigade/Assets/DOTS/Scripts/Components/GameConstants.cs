@@ -21,5 +21,7 @@ struct GameConstants : IComponentData
     public float FireHeatFlashPoint; // When ground catches fire (0.2 in original code)
     public float FireHeatTransferRadius;
     public float FireHeatTransferRate;
+
+    public Entity FlamePrefab;
 }
 
