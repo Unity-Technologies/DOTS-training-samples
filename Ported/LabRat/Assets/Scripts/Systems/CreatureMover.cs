@@ -21,8 +21,8 @@ public partial class CreatureMover : SystemBase
                     // Use bitfield to determine next tile
                     // TODO: Check playing field boundaries (probably already done with wall check if boundary has one)
                     // TODO: Add wall check
-                    tile.Value += new int2(new bool2((dir.Value & Dir.East) != 0, (dir.Value & Dir.South) != 0));
-                    tile.Value -= new int2(new bool2((dir.Value & Dir.West) != 0, (dir.Value & Dir.North) != 0));
+                    tile.Coords += new int2(new bool2((dir.Value & DirectionEnum.East) != 0, (dir.Value & DirectionEnum.South) != 0));
+                    tile.Coords -= new int2(new bool2((dir.Value & DirectionEnum.West) != 0, (dir.Value & DirectionEnum.North) != 0));
                 }
             }).ScheduleParallel();
     }

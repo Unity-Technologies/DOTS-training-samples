@@ -37,7 +37,7 @@ public partial class CreatureCollider : SystemBase
                 {
                     Tile cattile = GetComponent<Tile>(cat);
                     // If cat and mouse on the same tile, destroy it - could change to a range based check
-                    if (mousetile.Value.x == cattile.Value.x && mousetile.Value.y == cattile.Value.y)
+                    if (mousetile.Coords.x == cattile.Coords.x && mousetile.Coords.y == cattile.Coords.y)
                     {
                         ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
