@@ -157,7 +157,7 @@ MonoBehaviour:
   TileMapHeight: 20
   TileOddColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
   TileEvenColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
-  WallPrefab: {fileID: 0}
+  WallPrefab: {fileID: 954947033187080506, guid: b734731af7270914889d951940830c95, type: 3}
   CatPrefab: {fileID: 0}
   MousePrefab: {fileID: 0}
   ArrowPrefab: {fileID: 0}

@@ -14,6 +14,9 @@ public class SpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDecl
 
     public Color TileOddColor;
     public Color TileEvenColor;
+
+    [Range(0, 0.5f)]
+    public float WallFrequency;
     
     public GameObject WallPrefab;
     public GameObject CatPrefab;
@@ -29,6 +32,7 @@ public class SpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDecl
             MapWidth = TileMapWidth,
             MapHeight = TileMapHeight,
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
+            WallFrequency = WallFrequency,
             TileEvenColor = new float4(TileEvenColor.r, TileEvenColor.g, TileEvenColor.b, TileEvenColor.a),
             TileOddColor = new float4(TileOddColor.r, TileOddColor.g, TileOddColor.b, TileOddColor.a)
         });

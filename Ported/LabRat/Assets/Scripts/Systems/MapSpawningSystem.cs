@@ -25,13 +25,13 @@ public partial class MapSpawningSystem : SystemBase
                         var tile = ecb.Instantiate(spawner.TilePrefab);
                         ecb.SetComponent(tile, new Translation
                         {
-                            Value = new float3(x, 0, y)
+                            Value = new float3(x, -0.5f, y)
                         });
-                        var walls = (y == 0 ? DirectionEnum.North : DirectionEnum.None) |
-                                    (y == spawner.MapHeight - 1 ? DirectionEnum.South : DirectionEnum.None) |
-                                    (x == 0 ? DirectionEnum.West : DirectionEnum.None) |
-                                    (x == spawner.MapWidth - 1 ? DirectionEnum.East : DirectionEnum.None);
-                        // introduce random walls here, later 
+                        var walls = (y == 0 ? DirectionEnum.North : spawner.WallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
+                                    (y == spawner.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
+                                    (x == 0 ? DirectionEnum.West : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
+                                    (x == spawner.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
+                        
                         ecb.SetComponent(tile, new Tile
                         {
                             Coords = new int2(x, y)
@@ -43,6 +43,50 @@ public partial class MapSpawningSystem : SystemBase
                         {
                             Value = (x & 1) == (y & 1)? spawner.TileEvenColor : spawner.TileOddColor
                         });
+
+                        if ((walls & DirectionEnum.North) == DirectionEnum.North)
+                        {
+                            var wall = ecb.Instantiate(spawner.WallPrefab);
+                            ecb.SetComponent(wall, new Translation
+                            {
+                                Value = new float3(x, 0, y-0.5f)
+                            });
+                            ecb.SetComponent(wall, new Rotation
+                            {
+                                Value = quaternion.Euler(0, math.PI * 0.5f, 0)
+                            });
+                        }
+                        
+                        if ((walls & DirectionEnum.South) == DirectionEnum.South)
+                        {
+                            var wall = ecb.Instantiate(spawner.WallPrefab);
+                            ecb.SetComponent(wall, new Translation
+                            {
+                                Value = new float3(x, 0, y+0.5f)
+                            });
+                            ecb.SetComponent(wall, new Rotation
+                            {
+                                Value = quaternion.Euler(0, math.PI * 0.5f, 0)
+                            });
+                        }
+
+                        if ((walls & DirectionEnum.West) == DirectionEnum.West)
+                        {
+                            var wall = ecb.Instantiate(spawner.WallPrefab);
+                            ecb.SetComponent(wall, new Translation
+                            {
+                                Value = new float3(x - 0.5f, 0, y)
+                            });
+                        }
+
+                        if ((walls & DirectionEnum.East) == DirectionEnum.East)
+                        {
+                            var wall = ecb.Instantiate(spawner.WallPrefab);
+                            ecb.SetComponent(wall, new Translation
+                            {
+                                Value = new float3(x + 0.5f, 0, y)
+                            });
+                        }
                     }
                 }
             }).Run();
