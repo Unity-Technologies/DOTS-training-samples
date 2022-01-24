@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 7359959795559144034, guid: fcddbb9946a7f6a4cb1a8b15e22f2842, type: 3}
-  TileMapWidth: 33
+  TileMapWidth: 20
   TileMapHeight: 20
   TileOddColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
   TileEvenColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
