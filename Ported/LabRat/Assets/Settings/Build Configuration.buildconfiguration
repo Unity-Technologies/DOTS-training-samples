@@ -1,0 +1,27 @@
+{
+    "Show": true,
+    "Dependencies": [],
+    "Components": [
+        {
+            "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
+            "$version": 1,
+            "Platform": "StandaloneWindows64",
+            "Configuration": 2
+        },
+        {
+            "$type": "Unity.Build.Common.SceneList, Unity.Build",
+            "$version": 1,
+            "BuildCurrentScene": false,
+            "SceneInfos": [
+                {
+                    "Scene": "GlobalObjectId_V1-1-9fc0d4010bbf28b4594072e72b8655ab-102900000-0",
+                    "AutoLoad": true
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-275d1f1a29113c54e88b2daa03c7620b-102900000-0",
+                    "AutoLoad": false
+                }
+            ]
+        }
+    ]
+}
