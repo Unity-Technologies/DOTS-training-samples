@@ -24,6 +24,7 @@
 
 # Visual Studio cache directory
 .vs/
+.vsconfig
 
 # Rider cache directory
 .idea/
@@ -48,6 +49,7 @@ ExportedObj/
 *.mdb
 *.opendb
 *.VC.db
+*.bak
 
 # Unity3D generated meta files
 *.pidb.meta
