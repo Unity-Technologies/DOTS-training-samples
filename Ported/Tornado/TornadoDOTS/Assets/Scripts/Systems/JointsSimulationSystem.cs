@@ -9,8 +9,6 @@ public partial class JointsSimulationSystem : SystemBase
 	private float tornadoForceFader;
     protected override void OnUpdate()
     {
-	    //TODO: Turning it off until we have constraint resolution
-	    return;
         var tornado = GetSingletonEntity<TornadoSimulationParameters>();
         var parameters = GetComponent<TornadoSimulationParameters>(tornado);
         var tornadoPos = GetComponent<Translation>(tornado).Value;
