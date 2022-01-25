@@ -199,6 +199,8 @@ public partial class MapSpawningSystem : SystemBase
                 });
 
             }).Run();
+
+        players.Dispose();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();
