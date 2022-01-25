@@ -17,7 +17,7 @@ public partial class MapSpawningSystem : SystemBase
 
         var playersQuery = GetEntityQuery(typeof(Score));
         var players = playersQuery.ToEntityArray(Allocator.TempJob);
-        
+
 
         Entities
             .ForEach((Entity entity, in MapSpawner spawner) =>
@@ -141,24 +141,59 @@ public partial class MapSpawningSystem : SystemBase
                 {
                     var cat = ecb.Instantiate(config.CatPrefab);
                     var coords = random.NextInt2(int2.zero, new int2(config.MapWidth, config.MapHeight));
-                    var nextDirection = random.NextInt(4) switch
-                    {
-                        0 => DirectionEnum.North,
-                        1 => DirectionEnum.East,
-                        2 => DirectionEnum.South,
-                        3 => DirectionEnum.West,
-                        _ => DirectionEnum.North
-                    };
                     ecb.SetComponent(cat, new Tile
                     {
                         Coords = coords
                     });
                     ecb.SetComponent(cat, new Direction
                     {
-                        Value = nextDirection
+                        Value = random.NextInt(4) switch
+                        {
+                            0 => DirectionEnum.North,
+                            1 => DirectionEnum.East,
+                            2 => DirectionEnum.South,
+                            3 => DirectionEnum.West,
+                            _ => DirectionEnum.North
+                        }
                     });
                 }
+
+                // spawn the mice spawners
+                var timeToStartSpawning = 0f;
+                for (int i = 0; i < config.MiceSpawnerInMap; ++i)
+                {
+                    // spread out the seeds of random generation
+                    for (int j = 0; j < 1000; ++j)
+                    {
+                        random.NextUInt();
+                    }
+                    var miceSpawner = ecb.CreateEntity();
+                    ecb.AddComponent(miceSpawner, new MiceSpawner
+                    {
+                        RandomizerState = random.state,
+                        SpawnCooldown = timeToStartSpawning
+                    });
+                    ecb.AddComponent(miceSpawner, new Tile
+                    {
+                        Coords = random.NextInt2(new int2(config.MapWidth, config.MapHeight)) 
+                    });
+                    ecb.AddComponent(miceSpawner, new Direction
+                    {
+                        Value = random.NextInt(4) switch
+                        {
+                            0 => DirectionEnum.North,
+                            1 => DirectionEnum.East,
+                            2 => DirectionEnum.South,
+                            3 => DirectionEnum.West,
+                            _ => DirectionEnum.North
+                        }
+                    });
+                    // make it so that each following spawner takes a longer time to start spawning
+                    timeToStartSpawning +=
+                        random.NextFloat(config.MouseSpawnCooldown.x, config.MouseSpawnCooldown.y);
+                }
                 
+                // set up MapData
                 ecb.SetComponent(mapData, new MapData
                 {
                     Size = new int2(config.MapWidth, config.MapHeight),
