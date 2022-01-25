@@ -251,8 +251,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MouseMovementSpeed: 0.2
-  CatMovementSpeed: 0.3
-  MouseSpawnRate: 0.1
+  CatMovementSpeed: 1
+  MouseSpawnRate: 0
   MapSeed: 1234
   MapWidth: 20
   MapHeight: 20
