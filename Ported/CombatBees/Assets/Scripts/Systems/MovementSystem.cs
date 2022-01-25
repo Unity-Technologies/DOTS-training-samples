@@ -64,12 +64,8 @@ public partial class MovementSystem : SystemBase
             .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
             {
                 // do bee movement
-                if (ppMovement.t <= 1)
-                {
-                    ppMovement.t += tAdd / (ppMovement.timeToTravel + math.EPSILON);
+                translation.Value = ppMovement.Progress(tAdd);
 
-                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, ppMovement.t);
-                }
             }).Schedule();
 
         //food, dependant on Bees.
@@ -77,12 +73,7 @@ public partial class MovementSystem : SystemBase
             .WithAll<FoodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
-                if (ppMovement.t <= 1)
-                {
-                    ppMovement.t += tAdd / (ppMovement.timeToTravel + math.EPSILON);
-
-                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, ppMovement.t);
-                }
+                translation.Value = ppMovement.Progress(tAdd);
 
             }).Schedule();
     }

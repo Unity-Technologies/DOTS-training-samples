@@ -88,16 +88,13 @@ public partial class UpdateStateSystem : SystemBase
 
                             movement.endLocation = endLocation;
                             movement.startLocation = translation.Value;
-                            movement.timeToTravel = distance(endLocation, translation.Value) / 3;
+                            movement.timeToTravel = distance(endLocation, translation.Value) / 10;
                             movement.t = 0.0f;
                             // Add updated movement information to food entity;
-                            ecb.AddComponent(foodEntityData[i], new PP_Movement
-                            {
-                                endLocation = movement.endLocation + float3(0f, -1f, 0f),
-                                startLocation = movement.startLocation + float3(0f, -1f, 0f),
-                                t = 0.0f,
-                                timeToTravel = distance(movement.endLocation + float3(0f, -1f, 0f), movement.startLocation + float3(0f, -1f, 0f)) / 3
-                            });
+                            ecb.AddComponent(foodEntityData[i],
+                                PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
+                                    movement.endLocation + float3(0f, -1f, 0f)));
+
                             break;
                         }
                     }
@@ -109,10 +106,8 @@ public partial class UpdateStateSystem : SystemBase
                 int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
                 Translation randomFoodTranslation = foodTranslationData[randomInt];
 
-                movement.endLocation = randomFoodTranslation.Value;
-                movement.startLocation = translation.Value;
-                movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
-                movement.t = 0.0f;
+                movement.GoTo(translation.Value, randomFoodTranslation.Value);
+
                 state.value = StateValues.Seeking;
 
             }).WithDisposeOnCompletion(foodTranslationData)
