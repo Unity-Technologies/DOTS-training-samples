@@ -15,4 +15,9 @@ public enum DirectionEnum : byte
 public struct Direction: IComponentData
 {
     public DirectionEnum Value;
+
+    public Direction(DirectionEnum direction)
+    {
+        Value = direction;
+    }
 }

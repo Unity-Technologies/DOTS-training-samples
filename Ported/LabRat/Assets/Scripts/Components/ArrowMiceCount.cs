@@ -1,11 +1,11 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct ArrowMiceCountComponent : IComponentData
+public struct ArrowMiceCount : IComponentData
 {
     public int arrowUsages;
 
-    public ArrowMiceCountComponent(int maxUsages)
+    public ArrowMiceCount(int maxUsages)
     {
         arrowUsages = maxUsages;
     }
