@@ -35,22 +35,21 @@ public partial class CitySpawnerSystem : SystemBase
                     });
                     ecb.AddBuffer<Joint>(cluster);
                     ecb.AddBuffer<Connection>(cluster);
+                    ecb.AddComponent<GenerateCluster>(cluster);
                 }
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
         
         Entities
+            .WithAll<GenerateCluster>()
             .ForEach((Entity entity, 
                 DynamicBuffer<Joint> joints,
                 DynamicBuffer<Connection> connections, 
                 in Cluster cluster) =>
             {
-                if (!joints.IsEmpty || !connections.IsEmpty)
-                {
-                    return; // TODO: instead of this, we could have a tag component on cluster to signal that it has been generated, and then filter on that
-                }
                 var clusterPosition = cluster.Position;
                 float spacing = 2f;
                 float clusterSize = cluster.NumberOfSubClusters * spacing;
@@ -99,8 +98,13 @@ public partial class CitySpawnerSystem : SystemBase
                         connections.Add(CreateConnection(j+2, j-3, joints));
                         connections.Add(CreateConnection(j+2, j-2, joints));
                     }
+                    
+                    ecb.RemoveComponent<GenerateCluster>(entity);
                 }
-            }).ScheduleParallel();
+            }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 
     static Connection CreateConnection(int j1, int j2, DynamicBuffer<Joint> joints)

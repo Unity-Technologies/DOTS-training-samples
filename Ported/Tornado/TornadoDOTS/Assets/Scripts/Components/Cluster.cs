@@ -10,7 +10,7 @@ public struct Cluster : IComponentData
     public int MaxTowerHeight;
 }
 
-public struct ClusterGenerated : IComponentData
+public struct GenerateCluster : IComponentData
 {
 }
 
