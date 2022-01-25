@@ -48,7 +48,7 @@ public partial class UpdateStateSystem : SystemBase
         
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation) =>
+            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation, in BeeTeam team) =>
             {
                 // If Bee is carrying -> continue
                 //           seeking -> check for attack option then check for carry option
@@ -68,12 +68,29 @@ public partial class UpdateStateSystem : SystemBase
                         {
                             state.value = StateValues.Carrying;
                             ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
-                            var randomX = random.NextInt(arenaExtents.x + 1, arenaExtents.x + goalDepth - 1);
-                            var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
-                            var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
-                            movement.endLocation = float3(randomX, randomY, randomZ);
+                            
+                            // Calculate end location based on team value;
+                            float3 endLocation;
+                            if (team.Value == TeamValue.Yellow)
+                            {
+                                var randomX = random.NextInt(arenaExtents.x + 1, arenaExtents.x + goalDepth - 1);
+                                var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
+                                var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
+                                endLocation = float3(randomX, randomY, randomZ);
+                            }
+                            else
+                            {
+                                var randomX = random.NextInt(-arenaExtents.x - goalDepth + 1, -arenaExtents.x - 1);
+                                var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
+                                var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
+                                endLocation = float3(randomX, randomY, randomZ);
+                            }
+                            
+                            movement.endLocation = endLocation;
                             movement.startLocation = translation.Value;
                             movement.t = 0.0f;
+                            // Add updated movement information to food entity;
+                            ecb.AddComponent(foodEntityData[i], new PP_Movement{endLocation = endLocation, startLocation = foodTranslationData[i].Value, t = 0.0f});
                             break;
                         }
                     }
