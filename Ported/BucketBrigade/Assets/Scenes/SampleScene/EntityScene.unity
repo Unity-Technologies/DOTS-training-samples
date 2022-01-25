@@ -210,16 +210,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FieldSize:
-    x: 512
-    y: 512
+    x: 50
+    y: 50
   BucketSpawnDensity: 0
-  FireSpawnDensity: 0.05
-  FireFighterMovementSpeedNoBucket: 0
-  FireFighterMovementSpeedBucket: 0
+  FireSpawnDensity: 0.004
+  FireFighterMovementSpeedNoBucket: 0.5
+  FireFighterMovementSpeedBucket: 1
   FireFighterBucketPickupRadius: 0
-  BucketFillRate: 0
-  FireHeatFlashPoint: 0
-  FireHeatTransferRadius: 0
-  FireHeatTransferRate: 0
+  BucketFillRate: 0.01
+  FireHeatFlashPoint: 0.2
+  FireHeatTransferRadius: 2
+  FireHeatTransferRate: 0.0003
   FlamePrefab: {fileID: 1306931638197496, guid: 98c7d39c32a0ccc439822c55b2115767,
     type: 3}

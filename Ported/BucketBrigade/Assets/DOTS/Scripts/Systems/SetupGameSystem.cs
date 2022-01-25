@@ -4,8 +4,8 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateBefore(typeof(FireSystem))]
-public partial class SetupGame : SystemBase
+[UpdateBefore(typeof(PropagateFireSystem))]
+public partial class SetupGameSystem : SystemBase
 {
     [NotBurstCompatible]
     protected override void OnUpdate()

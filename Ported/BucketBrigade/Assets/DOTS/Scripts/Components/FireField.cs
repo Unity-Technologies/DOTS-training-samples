@@ -6,6 +6,7 @@ using Unity.Transforms;
 [GenerateAuthoringComponent]
 public struct FireField : IComponentData
 {
+    public float TimeUntilNextUpdate;
 }
 
 public struct FireHeat : IBufferElementData

@@ -19,8 +19,9 @@ struct GameConstants : IComponentData
     // TODO: How buckets affect fire
     // TODO: How fire propogates and grows
     public float FireHeatFlashPoint; // When ground catches fire (0.2 in original code)
-    public float FireHeatTransferRadius;
+    public int FireHeatTransferRadius;
     public float FireHeatTransferRate;
+    public float FireSimUpdateRate;
 
     public Entity FlamePrefab;
 }
