@@ -32,7 +32,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
         Entities
             .WithAll<HoldsEmptyBucket>()
             .WithNone<TargetDestination>()
-            .WithDisposeOnCompletion(readonlyLakeTranslations)
+            .WithDisposeOnCompletion(lakeTranslations)
             .ForEach((Entity e, in Translation translation) =>
             {
                 // HACK: We assume that a flame exists here...
