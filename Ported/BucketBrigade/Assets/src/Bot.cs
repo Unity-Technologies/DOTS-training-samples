@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+namespace Original
+{
+    
 public enum BotType
 {
     SCOOP,
@@ -494,4 +497,5 @@ public class Bot : MonoBehaviour
 
 	}
 	#endregion ---------------------------------> GIZMOS - delete
+}
 }

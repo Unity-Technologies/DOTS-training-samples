@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+namespace Original
+{
 public class BucketChain {
 
     public int chainID;
@@ -136,3 +137,4 @@ public class BucketChain_Config {
     }
 }
 
+}

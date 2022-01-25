@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+namespace Original
+{
 public class Bucket : MonoBehaviour {
 
     public int bucketID;
@@ -35,4 +36,5 @@ public class Bucket : MonoBehaviour {
         float _SCALE = Mathf.Lerp(fireSim.bucketSize_EMPTY, fireSim.bucketSize_FULL, _fillFactor);
         t.localScale = Vector3.one * _SCALE;
     }
+}
 }
