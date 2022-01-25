@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &817444655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,7 +219,8 @@ MonoBehaviour:
   FireFighterBucketPickupRadius: 0
   BucketFillRate: 0.01
   FireHeatFlashPoint: 0.2
-  FireHeatTransferRadius: 2
+  FireHeatTransferRadius: 1
   FireHeatTransferRate: 0.0003
+  FireSimUpdateRate: 0.033333335
   FlamePrefab: {fileID: 1306931638197496, guid: 98c7d39c32a0ccc439822c55b2115767,
     type: 3}
