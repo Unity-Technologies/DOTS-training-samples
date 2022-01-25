@@ -1,6 +1,4 @@
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct TornadoParticle : IComponentData
-{
-}
+public struct Tornado : IComponentData{}
