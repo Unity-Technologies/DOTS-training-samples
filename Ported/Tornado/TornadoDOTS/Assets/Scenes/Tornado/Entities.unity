@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BarPrefab: {fileID: 3706129638398974240, guid: f012066dc3b7a4b809b415ece990c0ad, type: 3}
-  NumberOfClusters: 100
+  NumberOfClusters: 30
   TowerMinHeight: 5
   TowerMaxHeight: 30
   CityWidth: 100
