@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
@@ -12,4 +13,19 @@ public struct Spawner : IComponentData
 
     [Min(0)]
     public int StartingBees;
+
+    public int GoalDepth
+    {
+        get { return 10; }
+    }
+    
+    public int2 ArenaExtents
+    {
+        get { return new int2(40, 15); }
+    }
+    
+    public int ArenaHeight
+    {
+        get { return 20; }
+    }
 }
