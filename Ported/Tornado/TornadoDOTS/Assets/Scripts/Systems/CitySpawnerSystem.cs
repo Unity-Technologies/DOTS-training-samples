@@ -68,24 +68,11 @@ public partial class CitySpawnerSystem : SystemBase
         var bar = ecb.Instantiate(barPrefab);
         var delta = pos2 - pos1;
         var length = math.length(delta);
-        delta /= length;
         ecb.AddComponent(bar, new BarConnection
         {
             Joint1 = j1, 
             Joint2 = j2, 
             Length = length,
-        });
-        ecb.SetComponent(bar, new Translation
-        {
-            Value = (pos1 + pos2) / 2f,
-        });
-        ecb.SetComponent(bar, new Rotation
-        {
-            Value = quaternion.LookRotation(delta, up),
-        });
-        ecb.AddComponent(bar, new NonUniformScale
-        {
-            Value = new float3(0.3f, 0.3f, length),
         });
     }
 
