@@ -1,8 +1,10 @@
+using System.Net;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 using static Unity.Mathematics.math;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(SpawnerSystem))]
 public partial class UpdateStateSystem : SystemBase
@@ -31,23 +33,49 @@ public partial class UpdateStateSystem : SystemBase
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         
-        // Get "closest" Food based on distance calculation
-        Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, in Translation translation) =>
+        // Get "close enough" Food based on distance calculation
+        Dependency = Entities.WithAll<BeeTag>()
+            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation) =>
             {
-                for (int i = 0; i < foodCount; i++)
+                // If Bee is carrying -> continue
+                //           seeking -> check for attack option then check for carry option
+                //           attacking -> check for carry option then check for seeking
+                if (state.value == StateValues.Carrying)
                 {
-                    float translationDistance = abs(distance(translation.Value, foodTranslationData[i].Value));
-                    if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
-                    {
-                        Debug.Log("Found Match");
-                        ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
-                        break;
-                    }
+                    return;
                 }
+
+                if (state.value == StateValues.Seeking)
+                {
+                    // Also potentially check for attack here
+                    for (int i = 0; i < foodCount; i++)
+                    {
+                        float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
+                        if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
+                        {
+                            state.value = StateValues.Carrying;
+                            ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
+                            break;
+                        }
+                    }
+
+                    return;
+                }
+                // Fall through to seeking
+                // Choose food at random here
+                
+                Random r = new Random((uint)entity.Index);
+                int randomInt = r.NextInt(0, foodTranslationData.Length - 1);
+                Translation randomFoodTranslation = foodTranslationData[randomInt];
+
+                movement.endLocation = randomFoodTranslation.Value;
+                movement.startLocation = translation.Value;
+
             }).WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodEntityData)
-            .Run();
+            .Schedule(Dependency);
+        
+        Dependency.Complete();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();
