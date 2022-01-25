@@ -160,7 +160,7 @@ public partial class MapSpawningSystem : SystemBase
                 
                 ecb.SetComponent(mapData, new MapData
                 {
-                    Size = new int2(spawner.MapWidth, spawner.MapHeight),
+                    Size = new int2(config.MapWidth, config.MapHeight),
                 });
 
             }).Run();
