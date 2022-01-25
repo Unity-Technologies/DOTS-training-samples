@@ -39,7 +39,7 @@ public partial class MapSpawningSystem : SystemBase
                     for (int x = 0; x < config.MapWidth; ++x)
                     {
                         // Add no Tile Geometry when there is a hole
-                        if (spawner.HoleFrequency > random.NextFloat())
+                        if (config.MapHoleFrequency > random.NextFloat())
                         {
                             mapDataBuffer.Add(new TileData
                             {
@@ -53,10 +53,10 @@ public partial class MapSpawningSystem : SystemBase
                         {
                             Value = new float3(x, -0.5f, y)
                         });
-                        var walls = (y == 0 ? DirectionEnum.North : spawner.WallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
-                                    (y == config.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
-                                    (x == 0 ? DirectionEnum.West : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
-                                    (x == config.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
+                        var walls = (y == 0 ? DirectionEnum.North : config.MapWallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
+                                    (y == config.MapHeight - 1 ? DirectionEnum.South : config.MapWallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
+                                    (x == 0 ? DirectionEnum.West : config.MapWallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
+                                    (x == config.MapWidth - 1 ? DirectionEnum.East : config.MapWallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
                         
                         ecb.SetComponent(tile, new Tile
                         {

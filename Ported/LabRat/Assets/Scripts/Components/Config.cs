@@ -26,6 +26,9 @@ public struct Config : IComponentData
     public int MapWidth;
     public int MapHeight;
 
+    public float MapWallFrequency;
+    public float MapHoleFrequency;
+
     public int CatsInMap;
 
     public CollisionMode CollisionMode;

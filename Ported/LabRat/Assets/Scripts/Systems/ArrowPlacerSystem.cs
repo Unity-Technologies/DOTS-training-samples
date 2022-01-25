@@ -43,8 +43,8 @@ public partial class ArrowPlacerSystem : SystemBase
                 {
                     var arrow = ecb.Instantiate(nativeThreadIndex, config.ArrowPrefab);
                     ecb.SetComponent(nativeThreadIndex, arrow, new Arrow { PlacedTime = time });
-                    ecb.SetComponent(nativeThreadIndex, arrow, new Tile(coordinate));
-                    ecb.SetComponent(nativeThreadIndex, arrow, new Direction(direction));
+                    ecb.SetComponent(nativeThreadIndex, arrow, new Tile { Coords = coordinate });
+                    ecb.SetComponent(nativeThreadIndex, arrow, new Direction { Value = direction });
                     ecb.SetComponent(nativeThreadIndex, arrow, new URPMaterialPropertyBaseColor { Value = playerColor.Value });
                     ecb.SetComponent(nativeThreadIndex, arrow, new PlayerOwned { Owner = playerEntity });
                     ecb.SetComponent(nativeThreadIndex, arrow, new Translation

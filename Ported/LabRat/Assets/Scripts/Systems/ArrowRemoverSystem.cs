@@ -14,7 +14,7 @@ public partial class ArrowRemoverSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var arrowsQuery = GetEntityQuery(typeof(Arrow), typeof(PlayerOwned));
+        var arrowsQuery = GetEntityQuery(typeof(Arrow), typeof(PlayerOwned), typeof(Tile));
         if (arrowsQuery.IsEmpty)
             return;
 
@@ -23,6 +23,7 @@ public partial class ArrowRemoverSystem : SystemBase
         var arrows = arrowsQuery.ToEntityArray(Allocator.TempJob);
         var arrowTimes = arrowsQuery.ToComponentDataArray<Arrow>(Allocator.TempJob);
         var arrowOwners = arrowsQuery.ToComponentDataArray<PlayerOwned>(Allocator.TempJob);
+        var arrowTiles = arrowsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
         
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
@@ -31,9 +32,11 @@ public partial class ArrowRemoverSystem : SystemBase
             .WithReadOnly(arrows)
             .WithReadOnly(arrowTimes)
             .WithReadOnly(arrowOwners)
+            .WithReadOnly(arrowTiles)
             .WithDisposeOnCompletion(arrows)
             .WithDisposeOnCompletion(arrowTimes)
             .WithDisposeOnCompletion(arrowOwners)
+            .WithDisposeOnCompletion(arrowTiles)
             .ForEach((Entity player, int nativeThreadIndex) =>
             {
                 int playerArrows = 0;
@@ -54,6 +57,27 @@ public partial class ArrowRemoverSystem : SystemBase
                             // just pick the first match and destroy it - no need to clear all of the arrows
                             // we're supposed to see just one single arrow generated per frame per player at most
                             ecb.DestroyEntity(nativeThreadIndex, oldestArrowForThisPlayerSoFar);
+                            return;
+                        }
+                    }
+
+                    // loop through the rest of the arrows to see if somebody placed an arrow on top of this one
+                    for (int j = i+1; j < arrows.Length; j++)
+                    {
+                        // if coordinates are equal, these two arrows were spawned in the same place
+                        // we need to destroy the older of them both
+                        if (arrowTiles[i].Coords.Equals(arrowTiles[j].Coords))
+                        {
+                            // if arrow j is older, destroy j
+                            if (arrowTimes[i].PlacedTime > arrowTimes[j].PlacedTime)
+                            {
+                                ecb.DestroyEntity(nativeThreadIndex, arrows[j]);
+                            }
+                            // else destroy i
+                            else
+                            {
+                                ecb.DestroyEntity(nativeThreadIndex, arrows[i]);
+                            }
                             return;
                         }
                     }

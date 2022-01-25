@@ -11,12 +11,6 @@ public class MapSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     public UnityEngine.Color TileOddColor;
     public UnityEngine.Color TileEvenColor;
 
-    [Range(0, 0.5f)]
-    public float WallFrequency;
-
-    [Range(0, 0.5f)]
-    public float HoleFrequency;
-
     public GameObject WallPrefab;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
@@ -25,8 +19,6 @@ public class MapSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
         {
             TilePrefab = conversionSystem.GetPrimaryEntity(TilePrefab),
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
-            WallFrequency = WallFrequency,
-            HoleFrequency = HoleFrequency,
             TileEvenColor = new float4(TileEvenColor.r, TileEvenColor.g, TileEvenColor.b, TileEvenColor.a),
             TileOddColor = new float4(TileOddColor.r, TileOddColor.g, TileOddColor.b, TileOddColor.a)
         });
