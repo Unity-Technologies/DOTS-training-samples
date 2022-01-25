@@ -17,7 +17,6 @@ public partial class DestroyerSystem : SystemBase
                 .WithAny<FoodTag>()
                 .ForEach((Entity entity) =>
                 {
-                    Debug.Log("go!");
                     ecb.DestroyEntity(entity);
                 }).Run();
         }
