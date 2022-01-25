@@ -22,22 +22,22 @@ public partial class SpawnerSystem : SystemBase
         return new int3(spawner.ArenaExtents.x + spawner.GoalDepth - 1, minBeeBounds.y * 3 + 1, spawner.ArenaExtents.y);
     }
     
-    public static float GetRandomYellowBeeX(Random random, int3 minBeeBounds, int3 maxBeeBounds)
+    public static float GetRandomYellowBeeX(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.x, maxBeeBounds.x + 1);
     }
     
-    public static float GetRandomBlueBeeX(Random random, int3 minBeeBounds, int3 maxBeeBounds)
+    public static float GetRandomBlueBeeX(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(-maxBeeBounds.x, -minBeeBounds.x + 1);
     }
     
-    public static float GetRandomBeeY(Random random, int3 minBeeBounds, int3 maxBeeBounds)
+    public static float GetRandomBeeY(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.y, maxBeeBounds.y);
     }
     
-    public static float GetRandomBeeZ(Random random, int3 minBeeBounds, int3 maxBeeBounds)
+    public static float GetRandomBeeZ(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.z, maxBeeBounds.z);
     }
@@ -86,13 +86,13 @@ public partial class SpawnerSystem : SystemBase
 
                     for (var i = 0; i < spawner.StartingBees * 2; i++)
                     {
-                        var beeRandomY = GetRandomBeeY(random, minBeeBounds, maxBeeBounds);
-                        var beeRandomZ = GetRandomBeeZ(random, minBeeBounds, maxBeeBounds);
+                        var beeRandomY = GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
+                        var beeRandomZ = GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
 
                         if (i < spawner.StartingBees)
                         {
                             // Yellow Bees
-                            var beeRandomX = GetRandomYellowBeeX(random, minBeeBounds, maxBeeBounds);
+                            var beeRandomX = GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                             BufferEntityInstantiation(spawner.YellowBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -101,7 +101,7 @@ public partial class SpawnerSystem : SystemBase
                         else
                         {
                             // Blue Bees
-                            var beeRandomX = GetRandomBlueBeeX(random, minBeeBounds, maxBeeBounds);
+                            var beeRandomX = GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                             BufferEntityInstantiation(spawner.BlueBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
