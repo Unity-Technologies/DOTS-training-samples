@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 public class RoadGenerator:MonoBehaviour {
@@ -135,6 +138,35 @@ public class RoadGenerator:MonoBehaviour {
 	}
 
 	IEnumerator SpawnRoads() {
+		EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+		EntityArchetype trackSplineArchetype = entityManager.CreateArchetype(
+			typeof(Translation),
+			typeof(Rotation),
+			typeof(RenderMesh),
+			typeof(LocalToWorld),
+			typeof(RenderBounds)
+		);
+
+		EntityArchetype intersectionArchetype = entityManager.CreateArchetype(
+			typeof(int), // index
+			typeof(Translation),
+			typeof(Rotation),
+			typeof(RenderMesh),
+			typeof(LocalToWorld),
+			typeof(RenderBounds)
+		);
+
+		EntityArchetype carArchetype = entityManager.CreateArchetype(
+			typeof(Translation),
+			typeof(Rotation),
+			typeof(RenderMesh),
+			typeof(LocalToWorld),
+			typeof(RenderBounds),
+			typeof(Color),
+			typeof(float) // speed
+		);
+		
+		
 		// first generation pass: plan roads as basic voxel data only
 		trackVoxels = new bool[voxelCount,voxelCount,voxelCount];
 		List<Vector3Int> activeVoxels = new List<Vector3Int>();
@@ -205,6 +237,15 @@ public class RoadGenerator:MonoBehaviour {
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
 			Vector3Int axesWithNeighbors = Vector3Int.zero;
+			
+			Entity intersectionEntity = entityManager.CreateEntity(intersectionArchetype);
+			entityManager.AddComponentData(intersectionEntity, new Translation { Value = intersection.position });
+			entityManager.AddSharedComponentData(intersectionEntity, new RenderMesh
+			{
+				mesh = intersectionMesh,
+				material = roadMaterial
+			});
+
 			for (int j=0;j<dirs.Length;j++) {
 				if (GetVoxel(intersection.index+dirs[j],false)) {
 					axesWithNeighbors.x += Mathf.Abs(dirs[j].x);
