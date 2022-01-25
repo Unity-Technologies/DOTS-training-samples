@@ -66,6 +66,14 @@ public partial class SetupGameSystem : SystemBase
                     EntityManager.SetComponentData(flameEntity, new Translation { Value = new float3(x, 0, y) });
                 }
             }
+            
+            Entities
+                .ForEach((ref OriginalLake originalLake, ref Lake lake, in NonUniformScale scale) =>
+                {
+                    originalLake.Scale = scale.Value;
+                    originalLake.Volume = originalLake.Scale.x * originalLake.Scale.z * gameConstants.LakeMaxVolume;
+                    lake.Volume = originalLake.Volume;
+                }).ScheduleParallel();
         }
     }
 }

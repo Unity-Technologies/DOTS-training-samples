@@ -28,5 +28,6 @@ struct GameConstants : IComponentData
     public float FireOSCRange;
     public Entity FlamePrefab;
     
+    public float LakeMaxVolume;
 }
 

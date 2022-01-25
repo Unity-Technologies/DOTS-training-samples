@@ -28,7 +28,6 @@ public partial class RenderFireSystem : SystemBase
             .ForEach((Entity e, ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color,
             in Translation pos, in FireRenderer renderer) =>
         {
-            
             int id = (int) (pos.Value.x + fieldSize.x * pos.Value.z);
             float heat = field[id];
             float4 finalColor = math.lerp(minColor, maxColor, heat);
@@ -38,14 +37,4 @@ public partial class RenderFireSystem : SystemBase
             //TODO: setup with noise.pnoise;
         }).ScheduleParallel();
     }
-    
-   /* void Update()
-    {
-            Vector3 _POS = t.localPosition;
-            _POS.y = (-flameHeight*0.5f + (temperature * flameHeight)) - flickerRange;
-            //_POS.y += (flickerRange*0.5f) + Mathf.PerlinNoise((Time.time -index)* flickerRate - temperature,index) * flickerRange;
-            _POS.y += (flickerRange * 0.5f) + Mathf.PerlinNoise((Time.time - index) * flickerRate - temperature, temperature) * flickerRange;
-            t.localPosition = _POS;
-            SetColour(Color.Lerp(fireSim.colour_fireCell_cool, fireSim.colour_fireCell_hot, temperature));
-    }*/
 }
