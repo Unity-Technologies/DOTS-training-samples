@@ -7,9 +7,8 @@ using Random = Unity.Mathematics.Random;
 
 public partial class CitySpawnerSystem : SystemBase
 {
-    static readonly int s_MinTowerHeight = 1;
-    static readonly int s_MaxTowerHeight = 30;
-    NativeArray<float4> m_Colors;
+    static readonly float3 k_Up = new float3(0, 1, 0);
+    static readonly float3 k_Left = new float3(-1, 0, 0);
     
     protected override void OnCreate()
     {
@@ -19,11 +18,7 @@ public partial class CitySpawnerSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        var random = new Random(1234);
-        
-        var up = new float3(0, 1, 0);
-        var left = new float3(1, 0, 0);
+        var random = new Random(1337);
 
         Entities
             .ForEach((Entity entity, in CitySpawner spawner) =>
@@ -31,11 +26,14 @@ public partial class CitySpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
                 for (int i = 0; i < spawner.NumberOfTowers; ++i)
                 {
-                    int height = random.NextInt(s_MinTowerHeight, s_MaxTowerHeight);
+                    int height = random.NextInt(spawner.MinTowerHeight, spawner.MaxTowerHeight);
                     var joints = new NativeArray<Entity>(height * 3, Allocator.Temp);
                     var jointPosition = new NativeArray<float3>(height * 3, Allocator.Temp);
                     int towerIndex = 0;
-                    var pos = new Vector3(random.NextFloat(-45f,45f), 0f, random.NextFloat(-45f,45f));
+                    var pos = new Vector3(
+                        random.NextFloat(-spawner.CityWidth, spawner.CityWidth), 
+                        0f, 
+                        random.NextFloat(-spawner.CityLength, spawner.CityLength));
                     float spacing = 2f;
                     for (int j = 0; j < height; j++)
                     {
@@ -46,13 +44,13 @@ public partial class CitySpawnerSystem : SystemBase
 
                     for (int j = 0; j < joints.Length; j += 3)
                     {
-                        SpawnBar(ecb, spawner.BarPrefab, joints[j], jointPosition[j], joints[j+1], jointPosition[j+1], up);
-                        SpawnBar(ecb, spawner.BarPrefab, joints[j+1], jointPosition[j+1], joints[j+2], jointPosition[j+2], up);
-                        SpawnBar(ecb, spawner.BarPrefab, joints[j+2], jointPosition[j+2], joints[j], jointPosition[j], up);
+                        SpawnBar(ecb, spawner.BarPrefab, joints[j], jointPosition[j], joints[j+1], jointPosition[j+1], k_Up);
+                        SpawnBar(ecb, spawner.BarPrefab, joints[j+1], jointPosition[j+1], joints[j+2], jointPosition[j+2], k_Up);
+                        SpawnBar(ecb, spawner.BarPrefab, joints[j+2], jointPosition[j+2], joints[j], jointPosition[j], k_Up);
                     }
                     for (int j = 0; j < joints.Length - 3; ++j)
                     {
-                        SpawnBar(ecb, spawner.BarPrefab, joints[j], jointPosition[j], joints[j+3], jointPosition[j+3], left);
+                        SpawnBar(ecb, spawner.BarPrefab, joints[j], jointPosition[j], joints[j+3], jointPosition[j+3], k_Left);
                     }
 
                     joints.Dispose();
