@@ -20,20 +20,22 @@ public partial class SetLakeAsTargetSystem : SystemBase
     protected override void OnUpdate()
     {
         var config = GetSingleton<GameConstants>();
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
+        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+
+        //var chunks = LakeQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
         var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         var readonlyLakeTranslations = lakeTranslations.AsReadOnly();
 
-        CompleteDependency();
+        //CompleteDependency();
 
         // TODO: if there are no flames don't do anything
         Entities
             .WithAll<HoldsEmptyBucket>()
             .WithNone<TargetDestination>()
-            .WithDisposeOnCompletion(lakeTranslations)
-            .ForEach((Entity e, in Translation translation) =>
+            .WithDisposeOnCompletion(readonlyLakeTranslations)
+            .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
             {
                 // HACK: We assume that a flame exists here...
                 var closest = new float2(10000000, 100000); // This is bad HACK
@@ -51,9 +53,9 @@ public partial class SetLakeAsTargetSystem : SystemBase
                     }
                 }
 
-                ecb.AddComponent(e, new TargetDestination { Value = closest });
+                ecb.AddComponent(entityInQueryIndex, e, new TargetDestination { Value = closest });
 
-            }).Schedule();
+            }).ScheduleParallel();
 
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);

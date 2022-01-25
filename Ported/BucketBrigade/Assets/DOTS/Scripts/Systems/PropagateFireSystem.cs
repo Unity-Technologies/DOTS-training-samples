@@ -4,6 +4,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(SetupGameSystem))]
 public partial class PropagateFireSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
