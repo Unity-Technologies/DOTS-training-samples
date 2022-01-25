@@ -1,7 +1,15 @@
 using Unity.Entities;
 
+public enum TeamValue
+{
+    Blue,
+    Yellow
+}
+
+
+
 [GenerateAuthoringComponent]
 public struct BeeTeam : IComponentData
 {
-    public int Value;
+    public TeamValue Value;
 }

@@ -1,7 +1,15 @@
 using Unity.Entities;
 
+public enum StateValues
+{
+    Attacking,
+    Carrying,
+    Seeking
+}
+
+
 [GenerateAuthoringComponent]
 public struct State : IComponentData
 {
-    public int value;
+    public StateValues value;
 }

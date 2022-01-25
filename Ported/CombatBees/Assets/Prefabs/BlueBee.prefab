@@ -59,5 +59,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: BlueBee
       objectReference: {fileID: 0}
+    - target: {fileID: 7313901404179120902, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
+      propertyPath: Value
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
