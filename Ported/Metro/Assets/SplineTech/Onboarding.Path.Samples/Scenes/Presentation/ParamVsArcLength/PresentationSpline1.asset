@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dbe14cbe4bbd484197fabc614f3b7b0, type: 3}
+  m_Name: PresentationSpline1
+  m_EditorClassIdentifier: 
+  m_BezierControlPoints:
+  - {x: 55.1, y: 0.38384247, z: 80.61304}
+  - {x: 152.3, y: 0.38384247, z: 92.01304}
+  - {x: 17.25, y: 0.38384247, z: 133.50305}
+  - {x: -16.400002, y: 0.38384247, z: 116.47304}
+  m_DistanceToParametric:
+  - p0: 0
+    p1: 0.027250722
+    p2: 0.0017248113
+    p3: 0.00021978561
+    start: 0
+    end: 8
+    bezierIndex: 0
+  - p0: 0.029195318
+    p1: 0.039280206
+    p2: 0.0036538895
+    p3: 0.0010893028
+    start: 8
+    end: 18
+    bezierIndex: 0
+  - p0: 0.07321872
+    p1: 0.029969752
+    p2: 0.002569534
+    p3: 0.00056233257
+    start: 18
+    end: 24
+    bezierIndex: 0
+  - p0: 0.10632034
+    p1: 0.030781567
+    p2: 0.0029177964
+    p3: 0.00085930526
+    start: 24
+    end: 29
+    bezierIndex: 0
+  - p0: 0.140879
+    p1: 0.039399102
+    p2: 0.0050931126
+    p3: 0.0024414659
+    start: 29
+    end: 34
+    bezierIndex: 0
+  - p0: 0.18781269
+    p1: 0.034113318
+    p2: 0.005133033
+    p3: 0.00021076202
+    start: 34
+    end: 37
+    bezierIndex: 0
+  - p0: 0.2272698
+    p1: 0.059913933
+    p2: 0.0086526275
+    p3: -0.0068326592
+    start: 37
+    end: 41
+    bezierIndex: 0
+  - p0: 0.2890037
+    p1: 0.08613619
+    p2: -0.019858807
+    p3: 0.004026413
+    start: 41
+    end: 47
+    bezierIndex: 0
+  - p0: 0.3593075
+    p1: 0.067904145
+    p2: -0.010634512
+    p3: 0.0021085143
+    start: 47
+    end: 54
+    bezierIndex: 0
+  - p0: 0.41868564
+    p1: 0.07541183
+    p2: -0.009322822
+    p3: 0.0018477142
+    start: 54
+    end: 64
+    bezierIndex: 0
+  - p0: 0.48662236
+    p1: 0.080748886
+    p2: -0.006758362
+    p3: 0.001301676
+    start: 64
+    end: 77
+    bezierIndex: 0
+  - p0: 0.56191456
+    p1: 0.08745825
+    p2: -0.004427612
+    p3: 0.0011560321
+    start: 77
+    end: 93
+    bezierIndex: 0
+  - p0: 0.64610124
+    p1: 0.07690984
+    p2: -0.000980258
+    p3: 0.00072962046
+    start: 93
+    end: 108
+    bezierIndex: 0
+  - p0: 0.72276044
+    p1: 0.097791374
+    p2: 0.0016676188
+    p3: 0.002044022
+    start: 108
+    end: 127
+    bezierIndex: 0
+  - p0: 0.82426345
+    p1: 0.07351488
+    p2: 0.0036252737
+    p3: 0.0015816092
+    start: 127
+    end: 140
+    bezierIndex: 0
+  - p0: 0.9029852
+    p1: 0.032952547
+    p2: 0.0012804866
+    p3: 0.0002079606
+    start: 140
+    end: 145
+    bezierIndex: 0
+  - p0: 0.9374262
+    p1: 0.056854248
+    p2: 0.0044973493
+    p3: 0.0012221932
+    start: 145
+    end: 152.86508
+    bezierIndex: 0
+  PathLength: 152.86508
+  BiggestError: 0.0009937268
+  DataSizeApproximation: 524
