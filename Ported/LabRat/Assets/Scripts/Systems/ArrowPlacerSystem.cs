@@ -19,7 +19,7 @@ public partial class ArrowPlacerSystem : SystemBase
         var mapSpawner = GetSingleton<MapSpawner>();
         var maxArrowUsages = GetSingleton<MaxArrowUsagesPerPlayer>();
 
-        cellSize = new float2(mapSpawner.MapWidth, mapSpawner.MapHeight);
+        cellSize = new float2(config.MapWidth, config.MapHeight);
 
         var players = GetEntityQuery(ComponentType.ReadOnly<Score>()).ToEntityArray(Allocator.Temp);
 
