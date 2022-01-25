@@ -148,7 +148,6 @@ public class RoadGenerator:MonoBehaviour {
 		);
 
 		EntityArchetype intersectionArchetype = entityManager.CreateArchetype(
-			typeof(int), // index
 			typeof(Translation),
 			typeof(Rotation),
 			typeof(RenderMesh),
@@ -161,9 +160,7 @@ public class RoadGenerator:MonoBehaviour {
 			typeof(Rotation),
 			typeof(RenderMesh),
 			typeof(LocalToWorld),
-			typeof(RenderBounds),
-			typeof(Color),
-			typeof(float) // speed
+			typeof(RenderBounds)
 		);
 		
 		
