@@ -260,9 +260,7 @@ public class RoadGenerator:MonoBehaviour {
 							TrackSpline spline = new TrackSpline(intersection,dirs[j],neighbor,connectDir);
 							trackSplines.Add(spline);
 
-							intersection.neighbors.Add(neighbor);
 							intersection.neighborSplines.Add(spline);
-							neighbor.neighbors.Add(intersection);
 							neighbor.neighborSplines.Add(spline);
 						}
 					}

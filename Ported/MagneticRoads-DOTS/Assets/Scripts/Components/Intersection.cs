@@ -9,7 +9,6 @@ public class Intersection : IComponentData
 	public Vector3Int index;
 	public Vector3Int normal;
 
-	public List<Intersection> neighbors;
 	public List<TrackSpline> neighborSplines;
 
 	public bool[] occupied;
@@ -24,7 +23,6 @@ public class Intersection : IComponentData
 		index = intPos;
 		position = pos;
 		normal = norm;
-		neighbors = new List<Intersection>();
 		neighborSplines = new List<TrackSpline>();
 
 		// each side (top/bottom) has its own "occupied" flag
