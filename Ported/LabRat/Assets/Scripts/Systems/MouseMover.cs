@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public partial class CreatureMover : SystemBase
+public partial class MouseMover : SystemBase
 {
     private static DirectionEnum NextDirection(DirectionEnum dir)
     {

@@ -28,9 +28,10 @@ public partial class MapSpawningSystem : SystemBase
                 for (int i = 0; i < 1000; i++)
                     random.NextFloat();
                 
-                for (int y = 0; y < spawner.MapHeight; ++y)
+                // spawn tiles and random walls
+                for (int y = 0; y < config.MapHeight; ++y)
                 {
-                    for (int x = 0; x < spawner.MapWidth; ++x)
+                    for (int x = 0; x < config.MapWidth; ++x)
                     {
                         var tile = ecb.Instantiate(spawner.TilePrefab);
                         ecb.SetComponent(tile, new Translation
@@ -100,11 +101,12 @@ public partial class MapSpawningSystem : SystemBase
                     }
                 }
 
+                // spawn one exit per player
                 foreach (var playerEntity in players)
                 {
                     var player = GetComponent<Player>(playerEntity);
                     var exit = ecb.Instantiate(config.ExitPrefab);
-                    var coords = random.NextInt2(int2.zero, new int2(spawner.MapWidth, spawner.MapHeight));
+                    var coords = random.NextInt2(int2.zero, new int2(config.MapWidth, config.MapHeight));
                     ecb.SetComponent(exit, new Translation
                     {
                         Value = new float3(coords.x, 0, coords.y)
@@ -120,6 +122,29 @@ public partial class MapSpawningSystem : SystemBase
                     ecb.SetComponent(exit, new URPMaterialPropertyBaseColor
                     {
                         Value = player.Color
+                    });
+                }
+
+                // spawn the cats
+                for (int i = 0; i < config.CatsInMap; ++i)
+                {
+                    var cat = ecb.Instantiate(config.CatPrefab);
+                    var coords = random.NextInt2(int2.zero, new int2(config.MapWidth, config.MapHeight));
+                    var nextDirection = random.NextInt(4) switch
+                    {
+                        0 => DirectionEnum.North,
+                        1 => DirectionEnum.East,
+                        2 => DirectionEnum.South,
+                        3 => DirectionEnum.West,
+                        _ => DirectionEnum.North
+                    };
+                    ecb.SetComponent(cat, new Tile
+                    {
+                        Coords = coords
+                    });
+                    ecb.SetComponent(cat, new Direction
+                    {
+                        Value = nextDirection
                     });
                 }
             }).Run();
