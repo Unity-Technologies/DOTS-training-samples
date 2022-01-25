@@ -5,5 +5,6 @@ using Unity.Entities;
 public struct Follower : IComponentData
 {
     public Entity Leader;
+    public Entity TrackData;
     public int CartIndexInTrain;
 }

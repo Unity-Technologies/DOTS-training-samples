@@ -12,12 +12,23 @@ public partial class FollowerMovement : SystemBase
     protected override void OnUpdate()
     {
 
-        Entities.ForEach((ref Translation translation, in Follower follower, in Rotation rotation) =>
+        Entities.ForEach((ref Translation translation, ref Rotation rotation, in Follower follower) =>
         {
 
             var leaderTrackProgress = GetComponent<TrackProgress>(follower.Leader);
-
-            translation.Value.x = leaderTrackProgress.Value - follower.CartIndexInTrain * CartLength;
+            var trackData = GetComponent<TrackSimulatedData>(follower.TrackData);
+            
+            var followerProgress = leaderTrackProgress.Value - follower.CartIndexInTrain * CartLength;
+            if (followerProgress < 0)
+            {
+                translation.Value = trackData.GetPositionForProgress(trackData.TotalLength + followerProgress);
+                rotation.Value = trackData.GetQuaternionForProgress(trackData.TotalLength + followerProgress);
+            }
+            else
+            {
+                translation.Value = trackData.GetPositionForProgress(followerProgress);
+                rotation.Value = trackData.GetQuaternionForProgress(followerProgress);
+            }
 
         }).Schedule();
     }
