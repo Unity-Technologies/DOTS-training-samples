@@ -7,3 +7,6 @@ using Unity.Mathematics;
 public struct FireFighter : IComponentData
 {
 }
+
+public struct HoldsEmptyBucket : IComponentData { }
+public struct HoldsFullBucket : IComponentData { }
