@@ -90,7 +90,7 @@ public partial class UpdateStateSystem : SystemBase
                             movement.startLocation = translation.Value;
                             movement.t = 0.0f;
                             // Add updated movement information to food entity;
-                            ecb.AddComponent(foodEntityData[i], new PP_Movement{endLocation = endLocation, startLocation = foodTranslationData[i].Value, t = 0.0f});
+                            ecb.AddComponent(foodEntityData[i], new PP_Movement{endLocation = endLocation + float3(0f, -1f, 0f), startLocation = translation.Value + float3(0f, -1f, 0f), t = 0.0f});
                             break;
                         }
                     }
