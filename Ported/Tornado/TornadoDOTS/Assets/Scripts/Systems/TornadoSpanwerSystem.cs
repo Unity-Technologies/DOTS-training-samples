@@ -14,12 +14,13 @@ using Random = Unity.Mathematics.Random;
 /// </summary>
 public partial class TornadoSpanwerSystem : SystemBase
 {
+    const int padding = 4;
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = new Random((uint)DateTime.Now.Millisecond+1);
         var floor = GetSingletonEntity<Floor>();
-        var scale = GetComponent<NonUniformScale>(floor).Value*4; //'four' is a magic number to allow filling the scenario with particles and a padding from the edges
+        var scale = GetComponent<NonUniformScale>(floor).Value*padding;
         
         Entities
             .ForEach((Entity entity, in TornadoSpawner spawner) =>
