@@ -24,6 +24,11 @@ public partial class MapSpawningSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
                 
+                // Create MapData
+                var mapData = ecb.CreateEntity();
+                ecb.AddComponent<MapData>(mapData);
+                var mapDataBuffer = ecb.AddBuffer<TileData>(mapData);
+
                 // warm up the random generator
                 for (int i = 0; i < 1000; i++)
                     random.NextFloat();
@@ -39,9 +44,9 @@ public partial class MapSpawningSystem : SystemBase
                             Value = new float3(x, -0.5f, y)
                         });
                         var walls = (y == 0 ? DirectionEnum.North : spawner.WallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
-                                    (y == spawner.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
+                                    (y == config.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
                                     (x == 0 ? DirectionEnum.West : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
-                                    (x == spawner.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
+                                    (x == config.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
                         
                         ecb.SetComponent(tile, new Tile
                         {
@@ -53,6 +58,11 @@ public partial class MapSpawningSystem : SystemBase
                         ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
                         {
                             Value = (x & 1) == (y & 1)? spawner.TileEvenColor : spawner.TileOddColor
+                        });
+
+                        mapDataBuffer.Add(new TileData
+                        {
+                            Walls = new Direction { Value = walls }
                         });
 
                         if ((walls & DirectionEnum.North) == DirectionEnum.North)
@@ -148,6 +158,12 @@ public partial class MapSpawningSystem : SystemBase
                         Value = nextDirection
                     });
                 }
+                
+                ecb.SetComponent(mapData, new MapData
+                {
+                    Size = new int2(config.MapWidth, config.MapHeight),
+                });
+
             }).Run();
         
         ecb.Playback(EntityManager);

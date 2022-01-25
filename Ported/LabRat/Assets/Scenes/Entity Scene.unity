@@ -251,9 +251,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6460444c67a54bf9afadb279d9185339, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MouseMovementSpeed: 0.2
-  CatMovementSpeed: 0.3
-  MouseSpawnRate: 0.1
+  MouseMovementSpeed: 1.5
+  CatMovementSpeed: 1
+  MouseSpawnRate: 0.5
   MapSeed: 1234
   MapWidth: 20
   MapHeight: 20
@@ -402,8 +402,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 7359959795559144034, guid: fcddbb9946a7f6a4cb1a8b15e22f2842, type: 3}
-  TileMapWidth: 20
-  TileMapHeight: 20
   TileOddColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
   TileEvenColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
   WallFrequency: 0.101

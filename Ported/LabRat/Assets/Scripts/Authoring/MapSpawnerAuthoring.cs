@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,10 +6,6 @@ using UnityEngine;
 public class MapSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public GameObject TilePrefab;
-    [Range(2, 200)]
-    public int TileMapWidth;
-    [Range(2, 200)]
-    public int TileMapHeight;
 
     public UnityEngine.Color TileOddColor;
     public UnityEngine.Color TileEvenColor;
@@ -25,8 +20,6 @@ public class MapSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
         dstManager.AddComponentData(entity, new MapSpawner
         {
             TilePrefab = conversionSystem.GetPrimaryEntity(TilePrefab),
-            MapWidth = TileMapWidth,
-            MapHeight = TileMapHeight,
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             WallFrequency = WallFrequency,
             TileEvenColor = new float4(TileEvenColor.r, TileEvenColor.g, TileEvenColor.b, TileEvenColor.a),
