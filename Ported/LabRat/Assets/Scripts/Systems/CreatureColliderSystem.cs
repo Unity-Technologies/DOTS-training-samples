@@ -45,7 +45,7 @@ public partial class CreatureColliderSystem : SystemBase
                         ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
                 }
-            }).WithDisposeOnCompletion(cattiles).ScheduleParallel();
+            }).ScheduleParallel();
 
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
@@ -77,7 +77,7 @@ public partial class CreatureColliderSystem : SystemBase
                         ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
                 }
-            }).WithDisposeOnCompletion(catTranslations).ScheduleParallel();
+            }).ScheduleParallel();
 
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
