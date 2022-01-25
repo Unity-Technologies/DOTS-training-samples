@@ -29,17 +29,18 @@ public partial class CreatureColliderSystem : SystemBase
 
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var cattiles = query.ToComponentDataArray<Tile>(Allocator.TempJob);
+        var catTiles = query.ToComponentDataArray<Tile>(Allocator.TempJob);
 
         Entities
             .WithAll<Mouse>()
-            .WithReadOnly(cattiles)
-            .ForEach((Entity entity, int entityInQueryIndex, in Tile mousetile) =>
+            .WithReadOnly(catTiles)
+            .WithDisposeOnCompletion(catTiles)
+            .ForEach((Entity entity, int entityInQueryIndex, in Tile mouseTile) =>
             {
-                foreach (var cattile in cattiles)
+                foreach (var catTile in catTiles)
                 {
                     // If cat and mouse on the same tile, destroy it - could change to a range based check
-                    if (mousetile.Coords.x == cattile.Coords.x && mousetile.Coords.y == cattile.Coords.y)
+                    if (mouseTile.Coords.x == catTile.Coords.x && mouseTile.Coords.y == catTile.Coords.y)
                     {
                         ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
@@ -66,6 +67,7 @@ public partial class CreatureColliderSystem : SystemBase
         Entities
             .WithAll<Mouse>()
             .WithReadOnly(catTranslations)
+            .WithDisposeOnCompletion(catTranslations)
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
                 foreach (var transform in catTranslations)
