@@ -24,7 +24,7 @@ public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDe
         dstManager.AddComponentData(entity, new CitySpawner
         {
             BarPrefab = conversionSystem.GetPrimaryEntity(BarPrefab),
-            NumberOfTowers = NumberOfTowers,
+            NumberOfClusters = NumberOfTowers,
             CityWidth = CityWidth,
             CityLength = CityLength,
             MaxTowerHeight = TowerMaxHeight,
