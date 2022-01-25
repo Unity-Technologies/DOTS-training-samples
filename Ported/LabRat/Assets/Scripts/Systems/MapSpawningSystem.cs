@@ -39,9 +39,9 @@ public partial class MapSpawningSystem : SystemBase
                             Value = new float3(x, -0.5f, y)
                         });
                         var walls = (y == 0 ? DirectionEnum.North : spawner.WallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
-                                    (y == spawner.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
+                                    (y == config.MapHeight - 1 ? DirectionEnum.South : spawner.WallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
                                     (x == 0 ? DirectionEnum.West : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
-                                    (x == spawner.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
+                                    (x == config.MapWidth - 1 ? DirectionEnum.East : spawner.WallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
                         
                         ecb.SetComponent(tile, new Tile
                         {
