@@ -12,8 +12,8 @@ public class MapSpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, ID
     [Range(2, 200)]
     public int TileMapHeight;
 
-    public Color TileOddColor;
-    public Color TileEvenColor;
+    public UnityEngine.Color TileOddColor;
+    public UnityEngine.Color TileEvenColor;
 
     [Range(0, 0.5f)]
     public float WallFrequency;

@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 public partial class ArrowPlacerSystem : SystemBase
@@ -12,27 +13,71 @@ public partial class ArrowPlacerSystem : SystemBase
     float2 cellSize;
     protected override void OnUpdate()
     {
-        //TODO: need cellsize;
-        var mapSpawner = GetSingleton<MapSpawner>();
-        cellSize = new float2(mapSpawner.MapWidth, mapSpawner.MapHeight);
-
-        var maxArrowUsages = GetSingleton<MaxArrowUsagesPerPlayer>();
-        var playerInputEntity = GetSingletonEntity<PlayerInputTag>();
-        var playerPos = GetComponent<Position>(playerInputEntity);
-        var playerColor = GetComponent<Color>(playerInputEntity);
-
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            var (coordinate, direction) = FromSceneToTableCoords(playerPos.Value);
+        var config = GetSingleton<Config>();
+        var mapSpawner = GetSingleton<MapSpawner>();
+        var maxArrowUsages = GetSingleton<MaxArrowUsagesPerPlayer>();
 
-            var entity = ecb.CreateEntity();
-            ecb.AddComponent<Tile>(entity, new Tile(coordinate));
-            ecb.AddComponent<Direction>(entity, new Direction(direction));
-            ecb.AddComponent<Color>(entity, playerColor);
-            ecb.AddComponent(entity, new ArrowMiceCount(maxArrowUsages.MaxArrowUsages));
-            //TODO: Add time since placed if we need it.
+        cellSize = new float2(mapSpawner.MapWidth, mapSpawner.MapHeight);
+
+        var players = GetEntityQuery(ComponentType.ReadOnly<Score>()).ToEntityArray(Allocator.Temp);
+
+        var arrowsQuery = GetEntityQuery(
+            ComponentType.ReadOnly<PlayTime>(),
+            ComponentType.ReadOnly<Tile>(),
+            ComponentType.ReadOnly<Direction>());
+        var arrows = arrowsQuery.ToEntityArray(Allocator.TempJob);
+
+        (int, float, int)[] arrowsCount = new (int, float, int)[players.Length];
+        for (int i = 0; i < players.Length; i++)
+        {
+            arrowsCount[i] = (0, 0f, -1);
+        }
+
+        if (arrows.Length > 0)
+        {
+            for (int i = 0; i < arrows.Length; i++)
+            {
+                var playerEntity = GetComponent<Player>(arrows[i]);
+                for (int j = 0; j < players.Length; j++)
+                {
+                    if (playerEntity.PlayerEntity == players[j])
+                    {
+                        var (count, time, loc) = arrowsCount[j];
+                        var arrowTime = GetComponent<PlayTime>(arrows[i]);
+                        arrowsCount[j] = time < arrowTime.Value ? (count + 1, arrowTime.Value, i) : (count + 1, time, loc);
+                    }
+                }
+            }
+        }
+
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            var shouldSpawn = GetComponent<PlayerSpawnArrow>(players[i]);
+            if (shouldSpawn.Value)
+            {
+                if (arrowsCount[i].Item1 > maxArrowUsages.MaxArrowUsages)
+                {
+                    ecb.DestroyEntity(arrows[arrowsCount[i].Item3]);
+                }
+
+                var playerPos = GetComponent<Position>(players[i]);
+                var playerColor = GetComponent<Color>(players[i]);
+
+                var (coordinate, direction) = FromSceneToTableCoords(playerPos.Value);
+
+                var arrow = ecb.Instantiate(config.ArrowPrefab);
+                SetComponent(arrow, new Tile(coordinate));
+                SetComponent(arrow, new Direction(direction));
+                SetComponent(arrow, new URPMaterialPropertyBaseColor { Value = playerColor.Value });
+                SetComponent(arrow, new PlayTime { Value = UnityEngine.Time.realtimeSinceStartup });
+                SetComponent(arrow, new Player { PlayerEntity = players[i] });
+
+                shouldSpawn.Value = false;
+                SetComponent(players[i], shouldSpawn);
+            }
         }
 
         ecb.Playback(EntityManager);

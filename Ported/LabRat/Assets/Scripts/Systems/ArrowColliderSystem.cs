@@ -10,7 +10,7 @@ public partial class ArrowColliderSystem : SystemBase
         EntityQuery arrowsQuery = GetEntityQuery(
             ComponentType.ReadOnly<Tile>(),
             ComponentType.ReadOnly<Direction>(),
-            typeof(ArrowMiceCount));
+            ComponentType.ReadOnly<PlayTime>());
 
         if (arrowsQuery.IsEmpty) return;
 
@@ -19,13 +19,11 @@ public partial class ArrowColliderSystem : SystemBase
         {
             Tile arrowTile = GetComponent<Tile>(arrow);
             Direction arrowDir = GetComponent<Direction>(arrow);
-            ArrowMiceCount arrowMiceCount = GetComponent<ArrowMiceCount>(arrow);
 
             Entities.WithAll<Mouse>().ForEach((Direction dir, ref Tile tile) =>
             {
-                if (tile.Coords.Equals(arrowTile.Coords) && arrowMiceCount.arrowUsages > 0)
+                if (tile.Coords.Equals(arrowTile.Coords))
                 {
-                    arrowMiceCount.arrowUsages--;
                     dir.Value = arrowDir.Value;
                 }
             }).Schedule();

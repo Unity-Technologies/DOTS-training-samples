@@ -15,7 +15,7 @@ public partial class MapSpawningSystem : SystemBase
         var config = GetComponent<Config>(configEntity);
         var random = new Unity.Mathematics.Random(config.MapSeed);
 
-        var playersQuery = GetEntityQuery(typeof(Player));
+        var playersQuery = GetEntityQuery(typeof(Score));
         var players = playersQuery.ToEntityArray(Allocator.TempJob);
         
 
@@ -105,6 +105,7 @@ public partial class MapSpawningSystem : SystemBase
                 foreach (var playerEntity in players)
                 {
                     var player = GetComponent<Player>(playerEntity);
+                    var color = GetComponent<Color>(playerEntity);
                     var exit = ecb.Instantiate(config.ExitPrefab);
                     var coords = random.NextInt2(int2.zero, new int2(config.MapWidth, config.MapHeight));
                     ecb.SetComponent(exit, new Translation
@@ -121,7 +122,7 @@ public partial class MapSpawningSystem : SystemBase
                     });
                     ecb.SetComponent(exit, new URPMaterialPropertyBaseColor
                     {
-                        Value = player.Color
+                        Value = color.Value
                     });
                 }
 
