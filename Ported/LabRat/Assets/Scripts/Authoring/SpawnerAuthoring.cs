@@ -17,6 +17,8 @@ public class SpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDecl
 
     [Range(0, 0.5f)]
     public float WallFrequency;
+
+    public uint MapSeed = 1234;
     
     public GameObject WallPrefab;
     public GameObject CatPrefab;
@@ -31,6 +33,7 @@ public class SpawnerAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDecl
             TilePrefab = conversionSystem.GetPrimaryEntity(TilePrefab),
             MapWidth = TileMapWidth,
             MapHeight = TileMapHeight,
+            MapSeed = MapSeed,
             WallPrefab = conversionSystem.GetPrimaryEntity(WallPrefab),
             WallFrequency = WallFrequency,
             TileEvenColor = new float4(TileEvenColor.r, TileEvenColor.g, TileEvenColor.b, TileEvenColor.a),

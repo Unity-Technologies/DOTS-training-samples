@@ -11,13 +11,17 @@ public partial class MapSpawningSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var random = new Unity.Mathematics.Random(1234);
-
         Entities
             .ForEach((Entity entity, in MapSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-
+                
+                var random = new Unity.Mathematics.Random(spawner.MapSeed);
+                
+                // warm up the random generator
+                for (int i = 0; i < 1000; i++)
+                    random.NextFloat();
+                
                 for (int y = 0; y < spawner.MapHeight; ++y)
                 {
                     for (int x = 0; x < spawner.MapWidth; ++x)
