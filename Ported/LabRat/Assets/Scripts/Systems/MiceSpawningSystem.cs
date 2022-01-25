@@ -2,7 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[UpdateBefore(typeof(CreatureMover))]
+[UpdateBefore(typeof(CreatureMovementSystem))]
 public partial class MiceSpawningSystem : SystemBase
 {
     protected override void OnUpdate()
