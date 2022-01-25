@@ -131,13 +131,8 @@ public partial class SpawnerSystem : SystemBase
         };
         ecb.SetComponent(instance, translation);
 
-        var movement = new PP_Movement
-        {
-            startLocation = position,
-            endLocation = position,
-            timeToTravel = 0,
-            t = 0
-        };
+        var movement = PP_Movement.Create(position, position);
+
         ecb.SetComponent(instance, movement);
     }
 }
