@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cef0c3a905c78e645a081ffd01f2cfef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeePrefab: {fileID: 4367470969325399639, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
+  YellowBeePrefab: {fileID: 4367470969325399639, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
+  BlueBeePrefab: {fileID: 3814113054627964803, guid: f03fa475d5b9e7e419f21aeaaf784992, type: 3}
   BloodPrefab: {fileID: 4367470969325399639, guid: c23e9ca35c64cd643adf4ef813306447, type: 3}
   ResourcePrefab: {fileID: 4367470969325399639, guid: 84eba2e00c574bb45a527264ee848334, type: 3}
 --- !u!4 &323677541
