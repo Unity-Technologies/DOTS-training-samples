@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(CreatureMovementSystem))]
 public partial class CreatureTransformUpdateSystem : SystemBase
 {
     private static int3 DirectionToVector(DirectionEnum dir)
@@ -29,6 +30,8 @@ public partial class CreatureTransformUpdateSystem : SystemBase
                 };
                 rot.Value = quaternion.Euler(0, dirRotation, 0);
             }).ScheduleParallel();
+        
+        
 
     }
 }
