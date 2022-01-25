@@ -10,7 +10,7 @@ public partial class MovementSystem : SystemBase
         var tAdd = Time.DeltaTime;
 
         //bees and bits and blood
-        var beeHandle = Entities.ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
+        Dependency = Entities.ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
         {
             // do bee movement
             ppMovement.t += tAdd;
@@ -18,7 +18,7 @@ public partial class MovementSystem : SystemBase
         }).Schedule(Dependency);
 
         //food, dependant on Bees.
-        Entities
+        Dependency = Entities
             .WithAll<FoodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
@@ -30,6 +30,6 @@ public partial class MovementSystem : SystemBase
 
                 // do orientation later
 
-            }).Schedule(beeHandle);
+            }).Schedule(Dependency);
     }
 }
