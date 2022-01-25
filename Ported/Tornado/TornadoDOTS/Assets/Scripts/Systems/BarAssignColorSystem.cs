@@ -21,10 +21,10 @@ public partial class BarAssignColorSystem : SystemBase
         
         ecb.RemoveComponentForEntityQuery<BarAssignColor>(barAssignColorEntitiesQuery);
 
-        var gcfe = GetComponentDataFromEntity<Translation>();
+        var gcfe = GetComponentDataFromEntity<Translation>(true);
         var rnd = new Random(1234);
         Entities
-            .WithNativeDisableContainerSafetyRestriction(gcfe)
+            .WithReadOnly(gcfe)
             .WithStoreEntityQueryInField(ref barAssignColorEntitiesQuery)
             .WithAll<BarAssignColor>()
             .ForEach((ref URPMaterialPropertyBaseColor color, in BarConnection connection) =>

@@ -10,9 +10,9 @@ public partial class BarConstraintSolverSystem : SystemBase
     {
         var getTranslation = GetComponentDataFromEntity<Translation>();
         var getAnchorPoint = GetComponentDataFromEntity<AnchorPoint>(true);
-        Entities
+        Entities 
             .WithNativeDisableContainerSafetyRestriction(getTranslation)
-            .WithNativeDisableContainerSafetyRestriction(getAnchorPoint)
+            .WithReadOnly(getAnchorPoint)
             .ForEach((in BarConnection bar) =>
             {
                 var joint1Pos = getTranslation[bar.Joint1].Value;
