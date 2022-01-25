@@ -9,7 +9,7 @@ public partial class JointsSimulationSystem : SystemBase
 	private float tornadoForceFader;
     protected override void OnUpdate()
     {
-        var tornado = GetSingletonEntity<TornadoSimulationParameters>();
+        var tornado = GetSingletonEntity<Tornado>();
         var parameters = GetComponent<TornadoSimulationParameters>(tornado);
         var tornadoPos = GetComponent<Translation>(tornado).Value;
 
@@ -23,53 +23,64 @@ public partial class JointsSimulationSystem : SystemBase
         var rnd = new Random(1234);
         
         Entities
-	        .WithAll<Point>()
-	        .ForEach((ref Translation translation, ref PointOldTranslation oldTranslation) =>
+            .ForEach((ref DynamicBuffer<Joint> joints) =>
 	        {
-		        var start = translation.Value;
-
-		        var jointPos = translation.Value;
-		        var jointOldPos = oldTranslation.Value;
-
-		        jointOldPos.y += parameters.Gravity * dt;
-
-		        //TODO: We could use float2, or two floats, but whatever
-		        var td = new float3(
-			        tornadoPos.x + TornadoSway(jointPos.y, time) - jointPos.x,
-			        0,
-			        tornadoPos.z - jointPos.z
-		        );
-
-		        var tornadoXZDist = math.sqrt(td.x * td.x + td.z * td.z);
-		        td /= tornadoXZDist;
-
-		        if (tornadoXZDist < parameters.TornadoMaxForceDist)
+		        for (var i = 0; i < joints.Length; i++)
 		        {
-			        var forceScalar = (1.0f - tornadoXZDist / parameters.TornadoMaxForceDist);
-			        var yFader = math.clamp(1f - jointPos.y / parameters.TornadoHeight, 0, 1);
-			        forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(rnd);
-			        var force = new float3(
-				        -td.z + td.x * parameters.TornadoInwardForce*yFader,
-				        parameters.TornadoUpForce,
-				        td.x + td.z * parameters.TornadoInwardForce*yFader
-			        );
+			        var joint = joints[i];
 
-			        jointOldPos -= (force * forceScalar);
+			        //TODO (perf): Maybe separate anchored joints in another buffer?
+			        if (joint.IsAnchored)
+			        {
+				        continue;
+			        }
+			        
+					var start = joint.Value;
+
+					var jointPos = joint.Value;
+					var jointOldPos = joint.OldPos;
+
+					jointOldPos.y += parameters.Gravity * dt;
+
+					//TODO: We could use float2, or two floats, but whatever
+					var td = new float3(
+						tornadoPos.x + TornadoSway(jointPos.y, time) - jointPos.x,
+						0,
+						tornadoPos.z - jointPos.z
+					);
+
+					var tornadoXZDist = math.sqrt(td.x * td.x + td.z * td.z);
+					td /= tornadoXZDist;
+
+					if (tornadoXZDist < parameters.TornadoMaxForceDist)
+					{
+						var forceScalar = (1.0f - tornadoXZDist / parameters.TornadoMaxForceDist);
+						var yFader = math.clamp(1f - jointPos.y / parameters.TornadoHeight, 0, 1);
+						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(rnd);
+						var force = new float3(
+							-td.z - td.x * parameters.TornadoInwardForce*yFader,
+							parameters.TornadoUpForce,
+							td.x - td.z * parameters.TornadoInwardForce*yFader
+						);
+
+						jointOldPos -= (force * forceScalar);
+					}
+
+					jointPos += (jointPos - jointOldPos) * (1f - parameters.Damping);
+					jointOldPos = start;
+
+					if (jointPos.y < 0f)
+					{
+						jointPos.y = 0;
+						jointOldPos.y = -jointPos.y;
+						jointOldPos.x += (jointPos.x - jointOldPos.x) * parameters.Friction;
+						jointOldPos.z += (jointPos.z - jointOldPos.z) * parameters.Friction;
+					}
+
+					joint.Value = jointPos;
+					joint.OldPos = jointOldPos;
+					joints[i] = joint;
 		        }
-
-		        jointPos += (jointPos - jointOldPos) * (1f - parameters.Damping);
-		        jointOldPos = start;
-
-		        if (jointPos.y < 0f)
-		        {
-			        jointPos.y = 0;
-			        jointOldPos.y = -jointPos.y;
-			        jointOldPos.x += (jointPos.x - jointOldPos.x) * parameters.Friction;
-			        jointOldPos.z += (jointPos.z - jointOldPos.z) * parameters.Friction;
-		        }
-
-		        translation.Value = jointPos;
-		        oldTranslation.Value = jointOldPos;
 	        }).ScheduleParallel();
     }
     

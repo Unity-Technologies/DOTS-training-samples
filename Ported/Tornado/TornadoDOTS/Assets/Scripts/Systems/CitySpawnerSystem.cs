@@ -69,17 +69,27 @@ public partial class CitySpawnerSystem : SystemBase
                         random.NextFloat(-clusterSize, clusterSize));
                     for (int h = 0; h < height; ++h)
                     {
+                        var pos1 = new float3(pos.x + spacing, h * spacing, pos.z - spacing);
                         joints.Add(new Joint
                         {
-                            Value = new float3(pos.x + spacing, h * spacing, pos.z - spacing), IsAnchored = h == 0
+                            Value = pos1,
+                            OldPos = pos1,
+                            IsAnchored = h == 0
                         });
+                        var pos2 = new float3(pos.x - spacing, h * spacing, pos.z - spacing);
                         joints.Add(new Joint
                         {
-                            Value = new float3(pos.x - spacing, h * spacing, pos.z - spacing), IsAnchored = h == 0
+                            Value = pos2,
+                            OldPos = pos2,
+                            IsAnchored = h == 0
                         });
+                        
+                        var pos3 = new float3(pos.x, h * spacing, pos.z + spacing);
                         joints.Add(new Joint
                         {
-                            Value = new float3(pos.x, h * spacing, pos.z + spacing), IsAnchored = h == 0
+                            Value = pos3,
+                            OldPos = pos3,
+                            IsAnchored = h == 0
                         });
                     }
                 

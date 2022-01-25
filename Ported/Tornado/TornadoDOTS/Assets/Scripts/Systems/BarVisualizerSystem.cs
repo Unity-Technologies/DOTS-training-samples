@@ -21,8 +21,7 @@ public partial class BarVisualizerSystem : SystemBase
             .ForEach((Entity entity, 
                 in DynamicBuffer<Joint> joints,
                 in DynamicBuffer<Connection> connections, 
-                in DynamicBuffer<Bar> bars, 
-                in Cluster cluster) =>
+                in DynamicBuffer<Bar> bars) =>
             {
                 for (int c = 0; c < connections.Length; ++c)
                 {

@@ -18,6 +18,7 @@ public struct GenerateCluster : IComponentData
 public struct Joint : IBufferElementData
 {
     public float3 Value;
+    public float3 OldPos;
     public bool IsAnchored;
 }
 

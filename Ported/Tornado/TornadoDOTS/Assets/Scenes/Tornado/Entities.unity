@@ -167,9 +167,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BarPrefab: {fileID: 3706129638398974240, guid: f012066dc3b7a4b809b415ece990c0ad, type: 3}
-  NumberOfClusters: 30
+  NumberOfClusters: 100
   TowerMinHeight: 5
-  TowerMaxHeight: 30
+  TowerMaxHeight: 12
   CityWidth: 100
   CityLength: 150
 --- !u!1 &642852614
@@ -228,6 +228,7 @@ GameObject:
   - component: {fileID: 1922779101}
   - component: {fileID: 1922779100}
   - component: {fileID: 1922779102}
+  - component: {fileID: 1922779103}
   m_Layer: 0
   m_Name: TornadoCenter
   m_TagString: Untagged
@@ -277,6 +278,29 @@ MonoBehaviour:
   ZFrequency: 0.7
   Amplitude: 30
   MaxHeight: 70
+--- !u!114 &1922779103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1922779099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147ba339210a4f40bee7610e3294ac18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TornadoForce: 0.022
+  ForceMultiplyRange:
+    Min: -0.3
+    Max: 1.3
+  TornadoMaxForceDist: 30
+  TornadoHeight: 50
+  TornadoUpForce: 1.4
+  TornadoInwardForce: 9
+  Friction: 0.4
+  Gravity: 0.5
+  Damping: 0.012
 --- !u!1 &2145280309
 GameObject:
   m_ObjectHideFlags: 0
