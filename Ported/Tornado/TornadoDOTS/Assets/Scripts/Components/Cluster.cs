@@ -31,6 +31,9 @@ public struct Connection : IBufferElementData
 public struct Bar : IBufferElementData
 {
     public Entity Value;
+
+    public static implicit operator Entity(in Bar b) => b.Value;
+    public static implicit operator Bar(in Entity e) => new Bar() {Value = e};
 }
 
 public struct BarVisualizer : IComponentData {}

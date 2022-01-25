@@ -120,6 +120,7 @@ public partial class CitySpawnerSystem : SystemBase
                 }
                     
                 ecb.RemoveComponent<GenerateCluster>(entity);
+                ecb.AddComponent<BarAssignColor>(entity);
             }).Run();
         
         ecb.Playback(EntityManager);
