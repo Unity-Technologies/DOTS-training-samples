@@ -167,8 +167,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BarPrefab: {fileID: 3706129638398974240, guid: f012066dc3b7a4b809b415ece990c0ad, type: 3}
-  NumberOfTowers: 35
+  NumberOfTowers: 2500
   TowerMinHeight: 3
-  TowerMaxHeight: 40
-  CityWidth: 45
-  CityLength: 45
+  TowerMaxHeight: 35
+  CityWidth: 500
+  CityLength: 400
