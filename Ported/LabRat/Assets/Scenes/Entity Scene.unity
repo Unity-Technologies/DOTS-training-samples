@@ -163,15 +163,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 200570068}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9285b71eb9534f7c8e8c84924148a9b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 1fb21e1ceface764289e87ac86f6460f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Color:
-    x: 1
-    y: 0
-    z: 0
-    w: 1
-  Score: 0
+  color: {r: 0.06542897, g: 1, b: 0, a: 0}
 --- !u!1 &283937535
 GameObject:
   m_ObjectHideFlags: 0
@@ -212,15 +207,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 283937535}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9285b71eb9534f7c8e8c84924148a9b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 1fb21e1ceface764289e87ac86f6460f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Color:
-    x: 0
-    y: 0
-    z: 1
-    w: 1
-  Score: 0
+  color: {r: 1, g: 0, b: 0, a: 0}
 --- !u!1 &1038515006
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,6 +322,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1749981355}
+  - component: {fileID: 1749981357}
   - component: {fileID: 1749981356}
   m_Layer: 0
   m_Name: Player 1
@@ -363,15 +354,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1749981354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9285b71eb9534f7c8e8c84924148a9b3, type: 3}
+  m_Script: {fileID: 11500000, guid: aa61a0b5320d7b54d86d1e72817cc1ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Color:
-    x: 0
-    y: 0
-    z: 0
-    w: 1
-  Score: 0
+--- !u!114 &1749981357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749981354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fb21e1ceface764289e87ac86f6460f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1776356919
 GameObject:
   m_ObjectHideFlags: 0
@@ -460,12 +458,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1838166359}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9285b71eb9534f7c8e8c84924148a9b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 1fb21e1ceface764289e87ac86f6460f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Color:
-    x: 0
-    y: 1
-    z: 0
-    w: 1
-  Score: 0
+  color: {r: 0, g: 0.059707165, b: 1, a: 0}
