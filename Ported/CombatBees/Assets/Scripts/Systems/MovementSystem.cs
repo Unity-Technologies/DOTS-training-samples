@@ -9,7 +9,6 @@ public partial class MovementSystem : SystemBase
     {
         var tAdd = Time.DeltaTime;
 
-        /*
         //bits
         Entities
             .WithAll<BeeBitsTag>()
@@ -31,7 +30,7 @@ public partial class MovementSystem : SystemBase
             .WithAll<FoodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
-                // calculate bee movement
+                // calculate blood scale / maskOut
                 ppMovement.t += tAdd;
                 var beePosition = math.lerp(ppMovement.startLocation, ppMovement.endLocation, math.smoothstep(0, 1, ppMovement.t));
                 beePosition -= new float3(0, -1, 0); // food dangles below
@@ -40,7 +39,6 @@ public partial class MovementSystem : SystemBase
                 // do orientation later
 
             }).Schedule();
-*/
 
         //bees
         Dependency = Entities.ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
@@ -60,10 +58,8 @@ public partial class MovementSystem : SystemBase
 
                 if (!ppMovement.startLocation.Equals(ppMovement.endLocation))
                 {
-                    var beePosition = math.lerp(ppMovement.startLocation, ppMovement.endLocation,
+                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation,
                         math.smoothstep(0, 1, ppMovement.t));
-                    beePosition -= new float3(0, 1, 0); // food dangles below
-                    translation.Value = beePosition;
                 }
 
                 // do orientation later
