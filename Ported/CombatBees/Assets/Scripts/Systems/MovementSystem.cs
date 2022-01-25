@@ -14,8 +14,8 @@ public partial class MovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var tAdd = Time.DeltaTime;
-
+        var tAdd = UnityEngine.Time.deltaTime;
+        var tNow = UnityEngine.Time.timeSinceLevelLoad;
         var spawner = GetSingleton<Spawner>();
 
         //bits
@@ -62,24 +62,27 @@ public partial class MovementSystem : SystemBase
         Entities
             .WithAll<BeeTag>()
             .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
-        {
-            // do bee movement
-            ppMovement.t += tAdd;
-            translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, math.smoothstep(0, 1, ppMovement.t));
-        }).Schedule();
+            {
+                // do bee movement
+                if (ppMovement.t <= 1)
+                {
+                    ppMovement.t += tAdd / (ppMovement.timeToTravel + math.EPSILON);
+
+                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, ppMovement.t);
+                }
+            }).Schedule();
 
         //food, dependant on Bees.
         Entities
             .WithAll<FoodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
-                // calculate bee movement
-                ppMovement.t += tAdd;
+                if (ppMovement.t <= 1)
+                {
+                    ppMovement.t += tAdd / (ppMovement.timeToTravel + math.EPSILON);
 
-                translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation,
-                    math.smoothstep(0, 1, ppMovement.t));
-
-                // do orientation later
+                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, ppMovement.t);
+                }
 
             }).Schedule();
     }

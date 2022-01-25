@@ -36,19 +36,19 @@ public partial class UpdateStateSystem : SystemBase
 
         // Used to determine if two translations are "equal enough"
         const float distanceDelta = 0.1f;
-        
+
         // ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
-        
+
         Random random = new Random(1234);
         var goalDepth = 10;
         var arenaExtents = new int2(40, 15);
         var halfArenaHeight = 10;
-        
+
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, ref State state, ref PP_Movement movement, ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
+            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation, in BeeTeam team) =>
             {
                 // If Bee is carrying -> continue
                 //           seeking -> check for attack option then check for carry option
@@ -67,30 +67,37 @@ public partial class UpdateStateSystem : SystemBase
                         if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
                         {
                             state.value = StateValues.Carrying;
-                            carriedEntity.Value = foodEntityData[i];
-                            
+                            ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
+
                             // Calculate end location based on team value;
                             float3 endLocation;
                             if (team.Value == TeamValue.Yellow)
                             {
-                                var randomX = random.NextInt(arenaExtents.x + 1, arenaExtents.x + goalDepth - 1);
+                                var randomX = random.NextInt(40, 50);
                                 var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
                                 var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
                                 endLocation = float3(randomX, randomY, randomZ);
                             }
                             else
                             {
-                                var randomX = random.NextInt(-arenaExtents.x - goalDepth + 1, -arenaExtents.x - 1);
+                                var randomX = random.NextInt(-50, -40);
                                 var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
                                 var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
                                 endLocation = float3(randomX, randomY, randomZ);
                             }
-                            
+
                             movement.endLocation = endLocation;
                             movement.startLocation = translation.Value;
+                            movement.timeToTravel = distance(endLocation, translation.Value) / 3;
                             movement.t = 0.0f;
                             // Add updated movement information to food entity;
-                            ecb.AddComponent(foodEntityData[i], new PP_Movement{endLocation = endLocation + float3(0f, -1f, 0f), startLocation = translation.Value + float3(0f, -1f, 0f), t = 0.0f});
+                            ecb.AddComponent(foodEntityData[i], new PP_Movement
+                            {
+                                endLocation = movement.endLocation + float3(0f, -1f, 0f),
+                                startLocation = movement.startLocation + float3(0f, -1f, 0f),
+                                t = 0.0f,
+                                timeToTravel = distance(movement.endLocation + float3(0f, -1f, 0f), movement.startLocation + float3(0f, -1f, 0f)) / 3
+                            });
                             break;
                         }
                     }
@@ -101,9 +108,10 @@ public partial class UpdateStateSystem : SystemBase
                 // Choose food at random here
                 int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
                 Translation randomFoodTranslation = foodTranslationData[randomInt];
-                
+
                 movement.endLocation = randomFoodTranslation.Value;
                 movement.startLocation = translation.Value;
+                movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
                 movement.t = 0.0f;
                 state.value = StateValues.Seeking;
 
@@ -111,7 +119,7 @@ public partial class UpdateStateSystem : SystemBase
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
             .Schedule();
-        
+
         commandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
