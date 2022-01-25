@@ -48,7 +48,7 @@ public partial class SpawnerSystem : SystemBase
                         }
                         else // Blue Bees
                         {
-                            var randomX = random.NextInt(-arenaExtents.x + 1, -arenaExtents.x + goalDepth - 1);
+                            var randomX = random.NextInt(-arenaExtents.x - goalDepth + 1, -arenaExtents.x - 1);
                             var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
                             var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
                     
@@ -70,8 +70,18 @@ public partial class SpawnerSystem : SystemBase
         ref EntityCommandBuffer ecb)
     {
         var instance = ecb.Instantiate(prefabEntity);
-        // Debug.Log($"{position.x} : {position.z}");
-        var translation = new Translation {Value = position};
+        
+        var translation = new Translation
+        {
+            Value = position
+        };
         ecb.SetComponent(instance, translation);
+
+        var movement = new PP_Movement
+        {
+            startLocation = position,
+            endLocation = position
+        };
+        ecb.SetComponent(instance, movement);
     }
 }
