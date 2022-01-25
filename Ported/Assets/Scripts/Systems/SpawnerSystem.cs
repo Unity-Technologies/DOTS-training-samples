@@ -49,9 +49,12 @@ public partial class SpawnerSystem : SystemBase
             instance = ecb.Instantiate(spawner.ResourcePrefab);
             ecb.AddComponent<ResourceTag>(instance);
 
-            instance = ecb.Instantiate(spawner.AntPrefab);
-            var translation = new Translation { Value = new float3(-4, 0, 0) };
-            ecb.SetComponent(instance, translation);
+            for(int i = 0; i < 1000; ++i)
+            {
+                instance = ecb.Instantiate(spawner.AntPrefab);
+                ecb.AddComponent<AntTag>(instance);
+                ecb.SetComponent(instance, new Rotation { Value = quaternion.RotateZ(random.NextFloat(-UnityMath.PI, UnityMath.PI)) });
+            }
             
         }).Run();
 
