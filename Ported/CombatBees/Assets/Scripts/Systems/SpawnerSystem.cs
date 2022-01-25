@@ -16,32 +16,32 @@ public partial class SpawnerSystem : SystemBase
     {
         return new int3(spawner.ArenaExtents.x + 1, spawner.ArenaHeight / 4, -spawner.ArenaExtents.y + 1);
     }
-    
+
     public static int3 GetBeeMaxBounds(Spawner spawner, int3 minBeeBounds)
     {
         return new int3(spawner.ArenaExtents.x + spawner.GoalDepth - 1, minBeeBounds.y * 3 + 1, spawner.ArenaExtents.y);
     }
-    
+
     public static float GetRandomYellowBeeX(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.x, maxBeeBounds.x + 1);
     }
-    
+
     public static float GetRandomBlueBeeX(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(-maxBeeBounds.x, -minBeeBounds.x + 1);
     }
-    
+
     public static float GetRandomBeeY(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.y, maxBeeBounds.y);
     }
-    
+
     public static float GetRandomBeeZ(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
     {
         return random.NextInt(minBeeBounds.z, maxBeeBounds.z);
     }
-    
+
     protected override void OnUpdate()
     {
         var inputReinitialize = Input.GetKeyDown(KeyCode.R);
@@ -60,7 +60,7 @@ public partial class SpawnerSystem : SystemBase
             {
                 if (inputReinitialize)
                 {
-                     var random = new Random(randomSeed);
+                    var random = new Random(randomSeed);
 
                     #region Food_Init
 
