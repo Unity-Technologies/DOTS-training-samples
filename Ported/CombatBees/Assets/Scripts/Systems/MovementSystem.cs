@@ -1,15 +1,26 @@
-using Newtonsoft.Json.Serialization;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
 
 public partial class MovementSystem : SystemBase
 {
+    private EntityCommandBufferSystem sys;
+    protected override void OnCreate()
+    {
+        sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireSingletonForUpdate<Spawner>();
+    }
+
     protected override void OnUpdate()
     {
         var tAdd = Time.DeltaTime;
 
+        var spawner = GetSingleton<Spawner>();
+
         //bits
+
+        var ecb = sys.CreateCommandBuffer();
         Entities
             .WithAll<BeeBitsTag>()
             .ForEach((Entity e, ref Translation translation) =>
@@ -21,35 +32,44 @@ public partial class MovementSystem : SystemBase
                 }
                 else
                 {
-                    //create an ECB, kill this Entity, Spawn a Blood here
+                    //destroy this entity and create/init a blood splat
+                    ecb.DestroyEntity(e);
+                    var instance = ecb.Instantiate(spawner.BloodPrefab);
+
+                    var trans = new Translation
+                    {
+                        Value = translation.Value
+                    };
+
+                    ecb.SetComponent(instance, translation);
+
                 }
             }).Schedule();
+        sys.AddJobHandleForProducer(Dependency);
 
         //blood
         Entities
-            .WithAll<FoodTag>()
+            .WithAll<BloodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
-                // calculate blood scale / maskOut
-                ppMovement.t += tAdd;
-                var beePosition = math.lerp(ppMovement.startLocation, ppMovement.endLocation, math.smoothstep(0, 1, ppMovement.t));
-                beePosition -= new float3(0, -1, 0); // food dangles below
-                translation.Value = beePosition;
+                // calculate blood scale and later maskOut
 
                 // do orientation later
 
             }).Schedule();
 
         //bees
-        Dependency = Entities.ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
+        Entities
+            .WithAll<BeeTag>()
+            .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
         {
             // do bee movement
             ppMovement.t += tAdd;
             translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation, math.smoothstep(0, 1, ppMovement.t));
-        }).Schedule(Dependency);
+        }).Schedule();
 
         //food, dependant on Bees.
-        Dependency = Entities
+        Entities
             .WithAll<FoodTag>()
             .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
             {
@@ -61,6 +81,6 @@ public partial class MovementSystem : SystemBase
 
                 // do orientation later
 
-            }).Schedule(Dependency);
+            }).Schedule();
     }
 }
