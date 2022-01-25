@@ -11,12 +11,18 @@ public partial class MapSpawningSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        var configEntity = GetSingletonEntity<Config>();
+        var config = GetComponent<Config>(configEntity);
+        var random = new Unity.Mathematics.Random(config.MapSeed);
+
+        var playersQuery = GetEntityQuery(typeof(Player));
+        var players = playersQuery.ToEntityArray(Allocator.TempJob);
+        
+
         Entities
             .ForEach((Entity entity, in MapSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-                
-                var random = new Unity.Mathematics.Random(spawner.MapSeed);
                 
                 // warm up the random generator
                 for (int i = 0; i < 1000; i++)
@@ -92,6 +98,29 @@ public partial class MapSpawningSystem : SystemBase
                             });
                         }
                     }
+                }
+
+                foreach (var playerEntity in players)
+                {
+                    var player = GetComponent<Player>(playerEntity);
+                    var exit = ecb.Instantiate(config.ExitPrefab);
+                    var coords = random.NextInt2(int2.zero, new int2(spawner.MapWidth, spawner.MapHeight));
+                    ecb.SetComponent(exit, new Translation
+                    {
+                        Value = new float3(coords.x, 0, coords.y)
+                    });
+                    ecb.SetComponent(exit, new Tile
+                    {
+                        Coords = coords
+                    });
+                    ecb.SetComponent(exit, new PlayerOwned
+                    {
+                        Owner = playerEntity
+                    });
+                    ecb.SetComponent(exit, new URPMaterialPropertyBaseColor
+                    {
+                        Value = player.Color
+                    });
                 }
             }).Run();
         
