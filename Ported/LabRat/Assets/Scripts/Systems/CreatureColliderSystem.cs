@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
-public partial class CreatureCollider : SystemBase
+public partial class CreatureColliderSystem : SystemBase
 {
     private EntityCommandBufferSystem mECBSystem;
 
@@ -15,7 +15,7 @@ public partial class CreatureCollider : SystemBase
 
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
-    
+
     protected override void OnUpdate()
     {
         // Could make this only once, if cats never change
@@ -32,6 +32,7 @@ public partial class CreatureCollider : SystemBase
 
         Entities
             .WithAll<Mouse>()
+            .WithReadOnly(cattiles)
             .ForEach((Entity entity, int entityInQueryIndex, in Tile mousetile) =>
             {
                 foreach (var cattile in cattiles) // TODO: There is something weird about this query, as the runtime is complaining about bounds for an IJobForEach
@@ -42,9 +43,8 @@ public partial class CreatureCollider : SystemBase
                         ecb.DestroyEntity(entityInQueryIndex, entity);
                     }
                 }
-                
             }).ScheduleParallel();
-        
+
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
