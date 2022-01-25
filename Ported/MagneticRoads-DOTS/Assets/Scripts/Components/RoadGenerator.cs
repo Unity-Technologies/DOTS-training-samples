@@ -242,6 +242,8 @@ public class RoadGenerator:MonoBehaviour {
 				mesh = intersectionMesh,
 				material = roadMaterial
 			});
+			
+			List<TrackSpline> neighborSplines = new List<TrackSpline>();
 
 			for (int j=0;j<dirs.Length;j++) {
 				if (GetVoxel(intersection.index+dirs[j],false)) {
@@ -259,13 +261,17 @@ public class RoadGenerator:MonoBehaviour {
 
 							TrackSpline spline = new TrackSpline(intersection,dirs[j],neighbor,connectDir);
 							trackSplines.Add(spline);
-
+							neighborSplines.Add(spline);
 							intersection.neighborSplines.Add(spline);
 							neighbor.neighborSplines.Add(spline);
 						}
 					}
 				}
 			}
+
+			IntersectionComponent intersectionComponent = new IntersectionComponent
+				{ neighborSplines = neighborSplines };
+			entityManager.AddSharedComponentData(intersectionEntity, intersectionComponent);
 
 			// find this intersection's normal - it's the one axis
 			// along which we have no neighbors
