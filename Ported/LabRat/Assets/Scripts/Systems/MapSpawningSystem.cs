@@ -38,6 +38,16 @@ public partial class MapSpawningSystem : SystemBase
                 {
                     for (int x = 0; x < config.MapWidth; ++x)
                     {
+                        // Add no Tile Geometry when there is a hole
+                        if (spawner.HoleFrequency > random.NextFloat())
+                        {
+                            mapDataBuffer.Add(new TileData
+                            {
+                                Walls = new Direction { Value = DirectionEnum.Hole }
+                            });
+                            continue;
+                        }
+
                         var tile = ecb.Instantiate(spawner.TilePrefab);
                         ecb.SetComponent(tile, new Translation
                         {
@@ -199,6 +209,8 @@ public partial class MapSpawningSystem : SystemBase
                 });
 
             }).Run();
+
+        players.Dispose();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

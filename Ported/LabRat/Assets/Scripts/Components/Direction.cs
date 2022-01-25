@@ -9,7 +9,8 @@ public enum DirectionEnum : byte
     North = 1,
     East = 2,
     South = 4,
-    West = 8
+    West = 8,
+    Hole = 16
 }
 
 public struct Direction: IComponentData

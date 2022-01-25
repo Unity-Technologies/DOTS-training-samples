@@ -4,11 +4,18 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+public enum CollisionMode
+{
+    Cell,
+    Distance
+}
+
 [GenerateAuthoringComponent]
 public struct Config : IComponentData
 {
     public float MouseMovementSpeed;
     public float CatMovementSpeed;
+    public float CreatureFallSpeed;
 
     public float MouseSpawnRate;
     public float2 MouseSpawnCooldown;
@@ -20,6 +27,8 @@ public struct Config : IComponentData
     public int MapHeight;
 
     public int CatsInMap;
+
+    public CollisionMode CollisionMode;
     
     public Entity CatPrefab;
     public Entity MousePrefab;
