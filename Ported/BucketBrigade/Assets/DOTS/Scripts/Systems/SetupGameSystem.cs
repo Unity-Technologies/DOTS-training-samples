@@ -26,7 +26,15 @@ public partial class SetupGameSystem : SystemBase
 
         // TODO: Spawn Teams of Firefighters
         {
+            var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
 
+            EntityManager.Instantiate(gameConstants.FireFighterPrefab, fireFighterArray);
+
+            for (int i = 0; i < fireFighterArray.Length; i++)
+            {
+                EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
+                EntityManager.AddComponentData(fireFighterArray[i], (TargetDestination)(random.NextFloat2() * gameConstants.FieldSize));
+            }
         }
 
         // TODO: Spawn Buckets
