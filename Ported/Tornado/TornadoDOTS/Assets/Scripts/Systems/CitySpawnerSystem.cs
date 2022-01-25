@@ -30,11 +30,13 @@ public partial class CitySpawnerSystem : SystemBase
                     {
                         Position = position,
                         NumberOfSubClusters = random.NextInt(1, 5),
+                        BarPrefab = spawner.BarPrefab,
                         MinTowerHeight = spawner.MinTowerHeight,
                         MaxTowerHeight = spawner.MaxTowerHeight,
                     });
                     ecb.AddBuffer<Joint>(cluster);
                     ecb.AddBuffer<Connection>(cluster);
+                    ecb.AddBuffer<Bar>(cluster);
                     ecb.AddComponent<GenerateCluster>(cluster);
                 }
             }).Run();
@@ -48,6 +50,7 @@ public partial class CitySpawnerSystem : SystemBase
             .ForEach((Entity entity, 
                 DynamicBuffer<Joint> joints,
                 DynamicBuffer<Connection> connections, 
+                DynamicBuffer<Bar> bars, 
                 in Cluster cluster) =>
             {
                 var clusterPosition = cluster.Position;
@@ -79,24 +82,24 @@ public partial class CitySpawnerSystem : SystemBase
                     // horizontal bars
                     for (int j = 0; j < joints.Length; j += 3)
                     {
-                        connections.Add(CreateConnection(j, j+1, joints));
-                        connections.Add(CreateConnection(j+1, j+2, joints));
-                        connections.Add(CreateConnection(j+2, j, joints));
+                        CreateConnection(j, j + 1, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 1, j + 2, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 2, j, joints, connections, ref ecb, cluster.BarPrefab, bars);
                     }
                     // vertical bars
                     for (int j = 0; j < joints.Length - 3; ++j)
                     {
-                        connections.Add(CreateConnection(j, j+3, joints));
+                        CreateConnection(j, j + 3, joints, connections, ref ecb, cluster.BarPrefab, bars);
                     }
                     // cross bars
                     for (int j = 3; j < joints.Length; j += 3)
                     {
-                        connections.Add(CreateConnection(j, j-2, joints));
-                        connections.Add(CreateConnection(j, j-1, joints));
-                        connections.Add(CreateConnection(j+1, j-3, joints));
-                        connections.Add(CreateConnection(j+1, j-1, joints));
-                        connections.Add(CreateConnection(j+2, j-3, joints));
-                        connections.Add(CreateConnection(j+2, j-2, joints));
+                        CreateConnection(j, j - 2, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j, j - 1, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 1, j - 3, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 1, j - 1, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 2, j - 3, joints, connections, ref ecb, cluster.BarPrefab, bars);
+                        CreateConnection(j + 2, j - 2, joints, connections, ref ecb, cluster.BarPrefab, bars);
                     }
                     
                     ecb.RemoveComponent<GenerateCluster>(entity);
@@ -107,11 +110,16 @@ public partial class CitySpawnerSystem : SystemBase
         ecb.Dispose();
     }
 
-    static Connection CreateConnection(int j1, int j2, DynamicBuffer<Joint> joints)
+    static void CreateConnection(
+        int j1, int j2, DynamicBuffer<Joint> joints, DynamicBuffer<Connection> connections, 
+        ref EntityCommandBuffer ecb, Entity barPrefab, DynamicBuffer<Bar> bars)
     {
-        return new Connection
+        connections.Add(new Connection
         {
             J1 = j1, J2 = j2, OriginalLength = math.length(joints[j1].Value - joints[j2].Value),
-        };
+        });
+        
+        var bar = ecb.Instantiate(barPrefab);
+        bars.Add(new Bar {Value=bar});
     }
 }

@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Rendering;
 
 public partial class BarVisualizerSystem : SystemBase
 {
@@ -10,22 +11,43 @@ public partial class BarVisualizerSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        var gcfe = GetComponentDataFromEntity<Translation>();
+        var translations = GetComponentDataFromEntity<Translation>();
+        var rotations = GetComponentDataFromEntity<Rotation>();
+        var scales = GetComponentDataFromEntity<NonUniformScale>();
         Entities
-            .WithNativeDisableContainerSafetyRestriction(gcfe)
-            .ForEach((ref Translation translation, ref Rotation rotation, ref NonUniformScale scale,
-                in BarConnection connection) =>
+            .WithNativeDisableContainerSafetyRestriction(translations)
+            .WithNativeDisableContainerSafetyRestriction(rotations)
+            .WithNativeDisableContainerSafetyRestriction(scales)
+            .ForEach((Entity entity, 
+                in DynamicBuffer<Joint> joints,
+                in DynamicBuffer<Connection> connections, 
+                in DynamicBuffer<Bar> bars, 
+                in Cluster cluster) =>
             {
-                var joint1Pos = gcfe[connection.Joint1].Value;
-                var joint2Pos = gcfe[connection.Joint2].Value;
-                var delta = joint2Pos - joint1Pos;
-        
-                translation.Value = (joint1Pos + joint2Pos) * 0.5f;
-                scale.Value.z = math.length(delta);
-                
-                var fwd = math.normalize(delta);
-                var refAxis = fwd.Equals(k_Up) ? k_Left : k_Up;
-                rotation.Value = quaternion.LookRotation(fwd, refAxis);
-            }).ScheduleParallel();
+                for (int c = 0; c < connections.Length; ++c)
+                {
+                    var p1 = joints[connections[c].J1].Value;
+                    var p2 = joints[connections[c].J2].Value;
+                    // position
+                    translations[bars[c].Value] = new Translation
+                    {
+                        Value = (p1 + p2) / 2f,
+                    };
+                    
+                    var delta = p2 - p1;
+                    var deltaLength = math.length(delta);
+                    
+                    // rotation
+                    var fwd = delta / deltaLength;
+                    var rotation = rotations[bars[c].Value];
+                    rotation.Value = quaternion.LookRotation(fwd, fwd.Equals(k_Up) ? k_Left : k_Up);
+                    rotations[bars[c].Value] = rotation;
+                    
+                    // scale
+                    var scale = scales[bars[c].Value];
+                    scale.Value.z = deltaLength;
+                    scales[bars[c].Value] = scale;
+                }
+            }).Run();
     }
 }
