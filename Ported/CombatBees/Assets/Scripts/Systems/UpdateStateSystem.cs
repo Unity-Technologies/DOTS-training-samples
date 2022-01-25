@@ -48,7 +48,7 @@ public partial class UpdateStateSystem : SystemBase
         
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation, in BeeTeam team) =>
+            .ForEach((Entity entity, ref State state, ref PP_Movement movement, ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
             {
                 // If Bee is carrying -> continue
                 //           seeking -> check for attack option then check for carry option
@@ -67,7 +67,7 @@ public partial class UpdateStateSystem : SystemBase
                         if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
                         {
                             state.value = StateValues.Carrying;
-                            ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
+                            carriedEntity.Value = foodEntityData[i];
                             
                             // Calculate end location based on team value;
                             float3 endLocation;
