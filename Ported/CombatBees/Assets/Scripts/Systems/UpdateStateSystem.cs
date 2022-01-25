@@ -37,10 +37,10 @@ public partial class UpdateStateSystem : SystemBase
         // Used to determine if two translations are "equal enough"
         const float distanceDelta = 0.1f;
 
-        // ECB for recording component add / remove
-        // NOTE: Not necessary if only modifying pre-existing component values
+        // Parallel ECB for recording component add / remove
         var ecb = commandBufferSystem.CreateCommandBuffer();
-
+        var parallelWriter = ecb.AsParallelWriter();
+        
         Random random = new Random(1234);
         var goalDepth = 10;
         var arenaExtents = new int2(40, 15);
@@ -48,7 +48,7 @@ public partial class UpdateStateSystem : SystemBase
 
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, ref State state, ref PP_Movement movement, in Translation translation, in BeeTeam team) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement, ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
             {
                 // If Bee is carrying -> continue
                 //           seeking -> check for attack option then check for carry option
@@ -67,8 +67,8 @@ public partial class UpdateStateSystem : SystemBase
                         if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
                         {
                             state.value = StateValues.Carrying;
-                            ecb.AddComponent(entity, new CarriedEntity {Value = foodEntityData[i]});
-
+                            carriedEntity.Value = foodEntityData[i];
+                            
                             // Calculate end location based on team value;
                             float3 endLocation;
                             if (team.Value == TeamValue.Yellow)
@@ -90,11 +90,11 @@ public partial class UpdateStateSystem : SystemBase
                             movement.startLocation = translation.Value;
                             movement.timeToTravel = distance(endLocation, translation.Value) / 10;
                             movement.t = 0.0f;
-                            // Add updated movement information to food entity;
-                            ecb.AddComponent(foodEntityData[i],
+                            // Add updated movement information to food entity
+                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i], 
                                 PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
                                     movement.endLocation + float3(0f, -1f, 0f)));
-
+                                    
                             break;
                         }
                     }
@@ -110,11 +110,13 @@ public partial class UpdateStateSystem : SystemBase
 
                 state.value = StateValues.Seeking;
 
-            }).WithDisposeOnCompletion(foodTranslationData)
+            }).WithReadOnly(foodTranslationData)
+            .WithReadOnly(foodEntityData)
+            .WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
-            .Schedule();
-
+            .ScheduleParallel();
+        
         commandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
