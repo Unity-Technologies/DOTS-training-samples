@@ -56,12 +56,11 @@ public partial class PropagateFireSystem : SystemBase
                     if (temperature  < gameConstants.FireHeatFlashPoint && temperature + temperatureChange > gameConstants.FireHeatFlashPoint)
                     {
                         var flameEntity = ecb.Instantiate(gameConstants.FlamePrefab);
-                        ecb.SetComponent(flameEntity, new Translation { Value = new float3(outerX, 0, outerY) });
+                        ecb.SetComponent(flameEntity, new Translation { Value = new float3(outerX, 0, outerY) * 0.3f });
                     }
                 }
             }
         }).Schedule();
-        
         
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }

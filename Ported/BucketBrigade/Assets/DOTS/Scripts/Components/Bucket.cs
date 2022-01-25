@@ -2,4 +2,5 @@
 
 public struct Bucket : IComponentData
 {
+    public float Volume;
 }

@@ -8,7 +8,6 @@ using UnityEngine;
 struct GameConstants : IComponentData
 {
     public int2 FieldSize; // TODO: Limit to 2^n equal sided sizes?
-    public float BucketSpawnDensity;
     public float FireSpawnDensity;
 
     public Entity FireFighterPrefab;
@@ -17,7 +16,13 @@ struct GameConstants : IComponentData
     public float FireFighterMovementSpeedBucket;
     public float FireFighterBucketPickupRadius;
 
+    public float BucketSpawnDensity;
     public float BucketFillRate;
+    public Entity BucketPrefab;
+    public float4 BucketEmpty;
+    public float4 BucketFilled;
+    public float BucketExtinguishRadius;
+    public float BucketCoolingRate;
 
     // TODO: How buckets affect fire
     // TODO: How fire propogates and grows

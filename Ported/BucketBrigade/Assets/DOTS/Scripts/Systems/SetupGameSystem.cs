@@ -16,7 +16,8 @@ public partial class SetupGameSystem : SystemBase
         EntityManager.DestroyEntity(marker);
 
         var gameConstants = GetSingleton<GameConstants>();
-
+        int gridSize = gameConstants.FieldSize.x * gameConstants.FieldSize.y;
+        
         var random = new Random(12345);
 
         // TODO: Spawn Lakes
@@ -46,9 +47,21 @@ public partial class SetupGameSystem : SystemBase
             }
         }
 
-        // TODO: Spawn Buckets
         {
+            var cellsWithBuckets = (int)(gameConstants.BucketSpawnDensity * gridSize);
 
+            for (int i = 0; i < cellsWithBuckets; i++)
+            {
+                var bucketEntity = EntityManager.Instantiate(gameConstants.BucketPrefab);
+                EntityManager.SetComponentData(bucketEntity, new Translation
+                {
+                    Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)) * 0.3f,
+                });
+                EntityManager.SetComponentData(bucketEntity, new Bucket()
+                {
+                    Volume = 1//random.NextFloat(1)
+                });
+            }
         }
 
         // Fire
@@ -57,7 +70,7 @@ public partial class SetupGameSystem : SystemBase
             var heatBuffer = EntityManager.AddBuffer<FireHeat>(fireField);
 
             // Array of 0's
-            var heatArray = new NativeArray<FireHeat>(gameConstants.FieldSize.x * gameConstants.FieldSize.y, Allocator.Temp, NativeArrayOptions.ClearMemory);
+            var heatArray = new NativeArray<FireHeat>(gridSize, Allocator.Temp, NativeArrayOptions.ClearMemory);
 
             // Add fire
             var cellsOnFire = (int)(gameConstants.FireSpawnDensity * heatArray.Length);
@@ -80,10 +93,11 @@ public partial class SetupGameSystem : SystemBase
 
                     var flameEntity = EntityManager.Instantiate(gameConstants.FlamePrefab);
 
-                    EntityManager.SetComponentData(flameEntity, new Translation { Value = new float3(x, 0, y) });
+                    EntityManager.SetComponentData(flameEntity, new Translation { Value = new float3(x, 0, y) * 0.3f });
                 }
             }
             
+            // TODO: fix that volume thing
             Entities
                 .ForEach((ref OriginalLake originalLake, ref Lake lake, in NonUniformScale scale) =>
                 {
