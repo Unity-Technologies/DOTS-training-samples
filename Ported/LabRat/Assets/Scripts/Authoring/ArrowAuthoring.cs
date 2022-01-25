@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Rendering;
-using MonoBehaviour = UnityEngine.MonoBehaviour;
+using UnityEngine;
 
 public class ArrowAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {

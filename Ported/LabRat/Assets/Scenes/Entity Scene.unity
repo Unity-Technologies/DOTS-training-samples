@@ -283,7 +283,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c133cbd0a1f555e428db5e7961ef0043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxArrowUsages: 5
+  MaxArrowUsages: 3
 --- !u!1 &1278420544
 GameObject:
   m_ObjectHideFlags: 0

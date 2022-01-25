@@ -114,7 +114,6 @@ public partial class MapSpawningSystem : SystemBase
                 // spawn one exit per player
                 foreach (var playerEntity in players)
                 {
-                    var player = GetComponent<Player>(playerEntity);
                     var color = GetComponent<Color>(playerEntity);
                     var exit = ecb.Instantiate(config.ExitPrefab);
                     var coords = random.NextInt2(int2.zero, new int2(config.MapWidth, config.MapHeight));
@@ -126,13 +125,13 @@ public partial class MapSpawningSystem : SystemBase
                     {
                         Coords = coords
                     });
-                    ecb.SetComponent(exit, new PlayerOwned
-                    {
-                        Owner = playerEntity
-                    });
                     ecb.SetComponent(exit, new URPMaterialPropertyBaseColor
                     {
                         Value = color.Value
+                    });
+                    ecb.SetComponent(exit, new Player
+                    {
+                        PlayerEntity = playerEntity
                     });
                 }
 

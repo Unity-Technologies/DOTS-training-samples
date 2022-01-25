@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 
+//[UpdateBefore(typeof(ArrowPlacerSystem))]
 public partial class PlayerInputSystem : SystemBase
 {
     protected override void OnUpdate()
