@@ -31,7 +31,8 @@ public partial class UpdateStateSystem : SystemBase
             {
                 foodTranslationData[entityInQueryIndex] = translation;
                 foodEntityData[entityInQueryIndex] = entity;
-            }).ScheduleParallel();
+            }).WithName("GetFoodData")
+            .ScheduleParallel();
 
         // Used to determine if two translations are "equal enough"
         const float distanceDelta = 0.1f;
@@ -91,6 +92,7 @@ public partial class UpdateStateSystem : SystemBase
 
             }).WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodEntityData)
+            .WithName("ProcessBeeState")
             .Schedule();
         
         commandBufferSystem.AddJobHandleForProducer(Dependency);
