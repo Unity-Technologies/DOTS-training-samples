@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [GenerateAuthoringComponent]
 struct GameConstants : IComponentData
@@ -22,7 +23,10 @@ struct GameConstants : IComponentData
     public int FireHeatTransferRadius;
     public float FireHeatTransferRate;
     public float FireSimUpdateRate;
-
+    public float4 FireMaxColor;
+    public float4 FireMinColor;
+    public float FireOSCRange;
     public Entity FlamePrefab;
+    
 }
 

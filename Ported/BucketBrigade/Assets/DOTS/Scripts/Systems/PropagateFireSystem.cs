@@ -50,7 +50,8 @@ public partial class PropagateFireSystem : SystemBase
                         }
                     }
 
-                    field[outerX + outerY * gameConstants.FieldSize.x] = temperature + temperatureChange;
+                    field[outerX + outerY * gameConstants.FieldSize.x] =
+                        math.clamp(temperature + temperatureChange, 0f, 1f);
                     
                     if (temperature  < gameConstants.FireHeatFlashPoint && temperature + temperatureChange > gameConstants.FireHeatFlashPoint)
                     {
@@ -60,6 +61,7 @@ public partial class PropagateFireSystem : SystemBase
                 }
             }
         }).Schedule();
+        
         
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
