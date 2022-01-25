@@ -9,7 +9,7 @@ public partial class MovementSystem : SystemBase
     {
         var tAdd = Time.DeltaTime;
 
-        //bees and bits and blood
+        //bees
         Dependency = Entities.ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
         {
             // do bee movement
