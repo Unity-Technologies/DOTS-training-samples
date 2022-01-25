@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -12,10 +13,8 @@ public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDe
     [UnityRange(1, 200)] public int NumberOfClusters;
     [UnityRange(1, 40)] public int TowerMinHeight;
     [UnityRange(1, 40)] public int TowerMaxHeight;
-    
-    // TODO: use plane instead
-    [UnityRange(20, 5000)] public int CityWidth;
-    [UnityRange(20, 5000)] public int CityLength;
+
+    public UnityGameObject Floor;
 
     void OnValidate()
     {
@@ -29,12 +28,13 @@ public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDe
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        var localScale = Floor.transform.localScale;
         dstManager.AddComponentData(entity, new CitySpawner
         {
             BarPrefab = conversionSystem.GetPrimaryEntity(BarPrefab),
             NumberOfClusters = NumberOfClusters,
-            CityWidth = CityWidth,
-            CityLength = CityLength,
+            CityWidth = localScale.x * 4f,
+            CityLength = localScale.z * 4f,
             MaxTowerHeight = TowerMaxHeight,
             MinTowerHeight = TowerMinHeight,
         });
