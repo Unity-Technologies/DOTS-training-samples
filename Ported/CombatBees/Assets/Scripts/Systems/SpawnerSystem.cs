@@ -134,7 +134,9 @@ public partial class SpawnerSystem : SystemBase
         var movement = new PP_Movement
         {
             startLocation = position,
-            endLocation = position
+            endLocation = position,
+            timeToTravel = 0,
+            t = 0
         };
         ecb.SetComponent(instance, movement);
     }
