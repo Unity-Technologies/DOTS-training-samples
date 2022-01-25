@@ -24,6 +24,11 @@ public partial class MapSpawningSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
                 
+                // Create MapData
+                var mapData = ecb.CreateEntity();
+                ecb.AddComponent<MapData>(mapData);
+                var mapDataBuffer = ecb.AddBuffer<TileData>(mapData);
+
                 // warm up the random generator
                 for (int i = 0; i < 1000; i++)
                     random.NextFloat();
@@ -53,6 +58,11 @@ public partial class MapSpawningSystem : SystemBase
                         ecb.SetComponent(tile, new URPMaterialPropertyBaseColor
                         {
                             Value = (x & 1) == (y & 1)? spawner.TileEvenColor : spawner.TileOddColor
+                        });
+
+                        mapDataBuffer.Add(new TileData
+                        {
+                            Walls = new Direction { Value = walls }
                         });
 
                         if ((walls & DirectionEnum.North) == DirectionEnum.North)
@@ -147,6 +157,12 @@ public partial class MapSpawningSystem : SystemBase
                         Value = nextDirection
                     });
                 }
+                
+                ecb.SetComponent(mapData, new MapData
+                {
+                    Size = new int2(spawner.MapWidth, spawner.MapHeight),
+                });
+
             }).Run();
         
         ecb.Playback(EntityManager);

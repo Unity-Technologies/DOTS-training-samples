@@ -19,23 +19,23 @@ public partial class CreatureCollider : SystemBase
     protected override void OnUpdate()
     {
         // Could make this only once, if cats never change
-        EntityQuery query = GetEntityQuery(typeof(Cat));
-        var cats = query.ToEntityArray(Allocator.TempJob);
+        var query = GetEntityQuery(typeof(Cat));
 
         if (query.IsEmpty)
         {
             return;
         }
-        
+
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var cattiles = query.ToComponentDataArray<Tile>(Allocator.TempJob);
 
         Entities
             .WithAll<Mouse>()
             .ForEach((Entity entity, int entityInQueryIndex, in Tile mousetile) =>
             {
-                foreach (var cat in cats)
+                foreach (var cattile in cattiles)
                 {
-                    Tile cattile = GetComponent<Tile>(cat);
                     // If cat and mouse on the same tile, destroy it - could change to a range based check
                     if (mousetile.Coords.x == cattile.Coords.x && mousetile.Coords.y == cattile.Coords.y)
                     {
