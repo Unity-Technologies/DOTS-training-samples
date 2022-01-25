@@ -1,6 +1,7 @@
 ﻿
 
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [GenerateAuthoringComponent]
@@ -10,7 +11,10 @@ public struct Config : IComponentData
     public float CatMovementSpeed;
 
     public float MouseSpawnRate;
-
+    public float2 MouseSpawnCooldown;
+    public int MiceToSpawnPerSpawner;
+    public int MiceSpawnerInMap;
+    
     public uint MapSeed;
     public int MapWidth;
     public int MapHeight;

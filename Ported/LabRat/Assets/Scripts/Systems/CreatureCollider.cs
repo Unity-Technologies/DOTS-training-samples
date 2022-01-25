@@ -19,7 +19,7 @@ public partial class CreatureCollider : SystemBase
     protected override void OnUpdate()
     {
         // Could make this only once, if cats never change
-        var query = GetEntityQuery(typeof(Cat));
+        var query = GetEntityQuery(typeof(Cat), typeof(Tile));
 
         if (query.IsEmpty)
         {
@@ -34,7 +34,7 @@ public partial class CreatureCollider : SystemBase
             .WithAll<Mouse>()
             .ForEach((Entity entity, int entityInQueryIndex, in Tile mousetile) =>
             {
-                foreach (var cattile in cattiles)
+                foreach (var cattile in cattiles) // TODO: There is something weird about this query, as the runtime is complaining about bounds for an IJobForEach
                 {
                     // If cat and mouse on the same tile, destroy it - could change to a range based check
                     if (mousetile.Coords.x == cattile.Coords.x && mousetile.Coords.y == cattile.Coords.y)

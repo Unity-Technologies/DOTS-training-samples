@@ -1,23 +1,39 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
+[UpdateBefore(typeof(CreatureMover))]
 public partial class MiceSpawningSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var deltaTime = Time.DeltaTime;
         var configEntity = GetSingletonEntity<Config>();
         var config = GetComponent<Config>(configEntity);
         
         Entities
-            .ForEach((Entity entity, ref MiceSpawner spawner, ref Tile tile, ref Direction direction) =>
+            .ForEach((ref MiceSpawner spawner, ref Tile tile, ref Direction direction) =>
             {
-                // if our spawn count is over, destroy this spawner
-                if (spawner.RemainingMiceToSpawn <= 0)
+                // if we are under a cooldown, tick it down
+                if (spawner.SpawnCooldown > 0f)
                 {
-                    ecb.DestroyEntity(entity);
+                    spawner.SpawnCooldown -= deltaTime;
+                    // if the cooldown is finally over, top up the amount of mice to spawn
+                    if (spawner.SpawnCooldown <= 0f)
+                    {
+                        spawner.RemainingMiceToSpawn = config.MiceToSpawnPerSpawner;
+                    }
                 }
+                // if our spawn count is over, trigger a cooldown
+                else if (spawner.RemainingMiceToSpawn <= 0)
+                {
+                    var random = new Random(spawner.RandomizerState);
+                    spawner.SpawnCooldown +=
+                        random.NextFloat(config.MouseSpawnCooldown.x, config.MouseSpawnCooldown.y);
+                    spawner.RandomizerState = random.state;
+                }
+                // spawn new mice
                 else
                 {
                     // update the counter
@@ -38,7 +54,7 @@ public partial class MiceSpawningSystem : SystemBase
                         });
                     }
                 }
-            }).Schedule();
+            }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

@@ -253,6 +253,11 @@ MonoBehaviour:
   MouseMovementSpeed: 1.5
   CatMovementSpeed: 1
   MouseSpawnRate: 0.5
+  MouseSpawnCooldown:
+    x: 5
+    y: 15
+  MiceToSpawnPerSpawner: 100
+  MiceSpawnerInMap: 3
   MapSeed: 1234
   MapWidth: 20
   MapHeight: 20
