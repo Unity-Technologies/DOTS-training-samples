@@ -8,17 +8,18 @@ using Random = Unity.Mathematics.Random;
 using static Unity.Mathematics.math;
 
 [UpdateAfter(typeof(DestroyerSystem))]
+[UpdateBefore(typeof(PP_Movement))]
+[UpdateBefore(typeof(UpdateStateSystem))]
 public partial class SpawnerSystem : SystemBase
 {
+    private static readonly int goalDepth = 10;
+    private static readonly int2 arenaExtents = new int2(40, 15);
+    private static readonly int arenaHeight = 20;
+
     protected override void OnUpdate()
     {
-        var goalDepth = 10;
-        var arenaExtents = new int2(40, 15);
-        var arenaHeight = 20;
-        var startingBeeCountPerTeam = 10;
-
         var inputReinitialize = Input.GetKeyDown(KeyCode.R);
-        var randomSeed = (uint) min(1,
+        var randomSeed = (uint) max(1,
             DateTime.Now.Millisecond +
             DateTime.Now.Second +
             DateTime.Now.Minute +
@@ -33,29 +34,39 @@ public partial class SpawnerSystem : SystemBase
             {
                 if (inputReinitialize)
                 {
-                    var random = new Random(randomSeed);
+                     var random = new Random(randomSeed);
 
-                    for (var i = 0; i < arenaExtents.y * arenaExtents.y; i++)
+                    #region Food_Init
+
+                    var foodRowsAndColumns = arenaExtents.y * 2 - 2;
+
+                    for (var i = 0; i < foodRowsAndColumns * foodRowsAndColumns; i++)
                     {
-                        var resourceRandomX = random.NextInt(-arenaExtents.y, arenaExtents.y);
-                        var resourceRandomZ = random.NextInt(-arenaExtents.y, arenaExtents.y);
+                        var resourceRandomX = (float) random.NextInt(foodRowsAndColumns + 1);
+                        resourceRandomX -= arenaExtents.y - 1;
+                        var resourceRandomZ = (float) random.NextInt(foodRowsAndColumns + 1);
+                        resourceRandomZ -= arenaExtents.y - 1;
 
                         BufferEntityInstantiation(spawner.ResourcePrefab,
                             new float3(resourceRandomX, 0.5f, resourceRandomZ), ref ecb);
                     }
 
-                    var minBeeBounds = new int3(arenaExtents.x + 1, arenaHeight / 4, -arenaExtents.y + 1);
-                    var maxBeeBounds = new int3(arenaExtents.x + goalDepth - 1, minBeeBounds.y * 3, arenaExtents.y - 1);
+                    #endregion Food_Init
 
-                    for (var i = 0; i < startingBeeCountPerTeam * 2; i++)
+                    #region Bee_Init
+
+                    var minBeeBounds = new int3(arenaExtents.x + 1, arenaHeight / 4, -arenaExtents.y + 1);
+                    var maxBeeBounds = new int3(arenaExtents.x + goalDepth - 1, minBeeBounds.y * 3 + 1, arenaExtents.y);
+
+                    for (var i = 0; i < spawner.StartingBees * 2; i++)
                     {
                         var beeRandomY = random.NextInt(minBeeBounds.y, maxBeeBounds.y);
                         var beeRandomZ = random.NextInt(minBeeBounds.z, maxBeeBounds.z);
 
-                        if (i < startingBeeCountPerTeam)
+                        if (i < spawner.StartingBees)
                         {
                             // Yellow Bees
-                            var beeRandomX = random.NextInt(minBeeBounds.x, maxBeeBounds.x);
+                            var beeRandomX = random.NextInt(minBeeBounds.x, maxBeeBounds.x + 1);
 
                             BufferEntityInstantiation(spawner.YellowBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -64,13 +75,15 @@ public partial class SpawnerSystem : SystemBase
                         else
                         {
                             // Blue Bees
-                            var beeRandomX = random.NextInt(-maxBeeBounds.x, -minBeeBounds.x);
+                            var beeRandomX = random.NextInt(-maxBeeBounds.x, -minBeeBounds.x + 1);
 
                             BufferEntityInstantiation(spawner.BlueBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
                         }
                     }
+
+                    #endregion Bee_Init
                 }
             }).Run();
 
