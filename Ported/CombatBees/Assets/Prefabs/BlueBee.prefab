@@ -51,9 +51,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2778561693452993187, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f853846dc8670cd4ba32d7d761c2a861, type: 2}
     - target: {fileID: 4367470969325399639, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
       propertyPath: m_Name
-      value: YellowBee
+      value: BlueBee
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad8252810fe367040a2eb8aa8a8c45a6, type: 3}
