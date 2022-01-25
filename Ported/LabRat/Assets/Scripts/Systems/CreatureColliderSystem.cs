@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public partial class CreatureColliderSystem : SystemBase
 {
@@ -16,7 +17,7 @@ public partial class CreatureColliderSystem : SystemBase
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    protected override void OnUpdate()
+    private void CellCollison()
     {
         // Could make this only once, if cats never change
         var query = GetEntityQuery(typeof(Cat), typeof(Tile));
@@ -35,7 +36,7 @@ public partial class CreatureColliderSystem : SystemBase
             .WithReadOnly(cattiles)
             .ForEach((Entity entity, int entityInQueryIndex, in Tile mousetile) =>
             {
-                foreach (var cattile in cattiles) // TODO: There is something weird about this query, as the runtime is complaining about bounds for an IJobForEach
+                foreach (var cattile in cattiles)
                 {
                     // If cat and mouse on the same tile, destroy it - could change to a range based check
                     if (mousetile.Coords.x == cattile.Coords.x && mousetile.Coords.y == cattile.Coords.y)
@@ -46,5 +47,51 @@ public partial class CreatureColliderSystem : SystemBase
             }).ScheduleParallel();
 
         mECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    private void DistanceCollision()
+    {
+        // Could make this only once, if cats never change
+        var query = GetEntityQuery(typeof(Cat), typeof(Translation));
+
+        if (query.IsEmpty)
+        {
+            return;
+        }
+
+        var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var catTranslations = query.ToComponentDataArray<Translation>(Allocator.TempJob);
+
+        Entities
+            .WithAll<Mouse>()
+            .WithReadOnly(catTranslations)
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                foreach (var transform in catTranslations)
+                {
+                    if (math.distance(translation.Value, transform.Value) < 0.8f)
+                    {
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                    }
+                }
+            }).ScheduleParallel();
+
+        mECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    protected override void OnUpdate()
+    {
+        var config = GetSingleton<Config>();
+
+        switch(config.CollisionMode)
+        {
+            case CollisionMode.Cell:
+                CellCollison();
+                break;
+            case CollisionMode.Distance:
+                DistanceCollision();
+                break;
+        };
     }
 }
