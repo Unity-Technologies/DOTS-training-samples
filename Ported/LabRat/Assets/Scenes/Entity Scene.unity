@@ -252,6 +252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MouseMovementSpeed: 1.5
   CatMovementSpeed: 1
+  CreatureFallSpeed: 1
   MouseSpawnRate: 0.5
   MouseSpawnCooldown:
     x: 5
@@ -262,7 +263,7 @@ MonoBehaviour:
   MapWidth: 20
   MapHeight: 20
   CatsInMap: 6
-  CollisionMode: 0
+  CollisionMode: 1
   CatPrefab: {fileID: 5020721416448428086, guid: 28da6e43b6831c34fa59f0febad71386, type: 3}
   MousePrefab: {fileID: 7082327539608739892, guid: 585251b2c298de248a31431a802a884c, type: 3}
   ExitPrefab: {fileID: 8181351097260504864, guid: e818e26388f37694bb1e88108935e94e, type: 3}
@@ -397,6 +398,7 @@ MonoBehaviour:
   TileOddColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
   TileEvenColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
   WallFrequency: 0.101
+  HoleFrequency: 0.03
   WallPrefab: {fileID: 954947033187080506, guid: b734731af7270914889d951940830c95, type: 3}
 --- !u!4 &1776356921
 Transform:

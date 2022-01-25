@@ -5,6 +5,7 @@ public class MouseAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponent<Creature>(entity);
         dstManager.AddComponent<Mouse>(entity);
         dstManager.AddComponent<Tile>(entity);
         dstManager.AddComponent<Direction>(entity);

@@ -38,14 +38,14 @@ public partial class CreatureMovementSystem : SystemBase
         return raw > (int)DirectionEnum.West ? DirectionEnum.North : (DirectionEnum)raw;
     }
 
-    private static DirectionEnum GetTileWalls(MapData mapData, DynamicBuffer<TileData> mapTiles, int2 coord)
+    private static DirectionEnum GetTileWalls(Config config, DynamicBuffer<TileData> mapTiles, int2 coord)
     {
-        if (coord.x < 0 || coord.y < 0 || coord.x >= mapData.Size.x || coord.y >= mapData.Size.y)
+        if (coord.x < 0 || coord.y < 0 || coord.x >= config.MapWidth || coord.y >= config.MapHeight)
         {
             return DirectionEnum.North | DirectionEnum.East | DirectionEnum.South | DirectionEnum.West;
         }
             
-        int index = coord.y * mapData.Size.y + coord.x;
+        int index = coord.y * config.MapWidth + coord.x;
         return mapTiles[index].Walls.Value;
     }
 
@@ -54,10 +54,10 @@ public partial class CreatureMovementSystem : SystemBase
         return coord + DirectionToVector(dir);
     }
     
-    private static bool HasWallOrNeighborWall(MapData mapData, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir) 
+    private static bool HasWallOrNeighborWall(Config config, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir) 
     {
-        var walls = GetTileWalls(mapData, mapTiles, current);
-        
+        var walls = GetTileWalls(config, mapTiles, current);
+
         if (WallInDirection(walls, dir)) 
         {
             //Debug.Log("cell " + this + " has wall to the " + dir);
@@ -65,7 +65,7 @@ public partial class CreatureMovementSystem : SystemBase
         }
 		
         var neighbor = Neighbor(current, dir);
-        var neighborWalls = GetTileWalls(mapData, mapTiles, neighbor);
+        var neighborWalls = GetTileWalls(config, mapTiles, neighbor);
         var oppositeDirection = Reverse(dir);
         
         if (WallInDirection(neighborWalls, oppositeDirection))
@@ -76,14 +76,26 @@ public partial class CreatureMovementSystem : SystemBase
 
         return false;
     }
-    
-    private static DirectionEnum NextPath(MapData mapData, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir)
+
+    private static bool HasHole(Config config, DynamicBuffer<TileData> mapTiles, int2 current)
     {
-        if (HasWallOrNeighborWall(mapData, mapTiles, current, dir)) {
+        var hole = GetTileWalls(config, mapTiles, current);
+
+        return (hole & DirectionEnum.Hole) != 0;
+    }
+    
+    private static DirectionEnum NextPath(Config conf, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir)
+    {
+        if (HasHole(conf, mapTiles, current))
+        {
+            return DirectionEnum.Hole;
+        }
+        
+        if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
             dir = SelectNewDirection(dir);
-            if (HasWallOrNeighborWall(mapData, mapTiles, current, dir)) {
+            if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
                 dir = Reverse(dir);
-                if (HasWallOrNeighborWall(mapData, mapTiles, current, dir)) {
+                if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
                     dir = Reverse(dir);
                 }
             }
@@ -92,10 +104,16 @@ public partial class CreatureMovementSystem : SystemBase
         return dir;
     }
 
-    private static void Move(MapData mapData, DynamicBuffer<TileData> mapTiles, ref Tile tile, ref Direction dir, ref TileLerp lerp, float speed, float delta)
+    private static void Move(Config conf, DynamicBuffer<TileData> mapTiles, ref Tile tile, ref Direction dir, ref TileLerp lerp, float speed, float delta)
     {
-        dir.Value = NextPath(mapData, mapTiles, tile.Coords, dir.Value);
-        
+        dir.Value = NextPath(conf, mapTiles, tile.Coords, dir.Value);
+
+        if (dir.Value == DirectionEnum.Hole)
+        {
+            lerp.Value += conf.CreatureFallSpeed * delta;
+            return;
+        }
+
         lerp.Value += speed * delta;
 
         if (lerp.Value > 1.0f)
@@ -104,14 +122,13 @@ public partial class CreatureMovementSystem : SystemBase
             
             tile.Coords += DirectionToVector(dir.Value);
             
-            dir.Value = NextPath(mapData, mapTiles, tile.Coords, dir.Value);
+            dir.Value = NextPath(conf, mapTiles, tile.Coords, dir.Value);
         }
     }
 
     protected override void OnUpdate()
     {
         Config conf = GetSingleton<Config>();
-        MapData mapData = GetSingleton<MapData>();
         DynamicBuffer<TileData> mapTiles = GetBuffer<TileData>(GetSingletonEntity<MapData>());
         var delta = Time.DeltaTime;
 
@@ -120,7 +137,7 @@ public partial class CreatureMovementSystem : SystemBase
             .WithReadOnly(mapTiles)
             .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp) =>
             {
-                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, conf.MouseMovementSpeed, delta);
+                Move(conf, mapTiles, ref tile, ref dir, ref lerp, conf.MouseMovementSpeed, delta);
             }).ScheduleParallel();
 
         Entities
@@ -128,7 +145,7 @@ public partial class CreatureMovementSystem : SystemBase
             .WithReadOnly(mapTiles)
             .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp) =>
             {
-                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, conf.CatMovementSpeed, delta);
+                Move(conf, mapTiles, ref tile, ref dir, ref lerp, conf.CatMovementSpeed, delta);
             }).ScheduleParallel();
 
     }
