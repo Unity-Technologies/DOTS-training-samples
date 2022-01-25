@@ -1,7 +1,7 @@
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public class GroundHitTime : IComponentData
+public struct GroundHitTime : IComponentData
 {
     public float Value;
 }
