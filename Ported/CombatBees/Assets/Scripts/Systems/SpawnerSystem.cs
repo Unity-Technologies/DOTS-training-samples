@@ -1,22 +1,30 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Random = Unity.Mathematics.Random;
+using static Unity.Mathematics.math;
 
+[UpdateAfter(typeof(DestroyerSystem))]
 public partial class SpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var goalDepth = 10;
         var arenaExtents = new int2(40, 15);
-        var halfArenaHeight = 10;
+        var arenaHeight = 20;
         var startingBeeCountPerTeam = 10;
 
         var inputReinitialize = Input.GetKeyDown(KeyCode.R);
-        var randomSeed = (uint) (System.DateTime.Now.Millisecond + 1);
+        var randomSeed = (uint) min(1,
+            DateTime.Now.Millisecond +
+            DateTime.Now.Second +
+            DateTime.Now.Minute +
+            DateTime.Now.Day +
+            DateTime.Now.Month +
+            DateTime.Now.Year);
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -29,30 +37,37 @@ public partial class SpawnerSystem : SystemBase
 
                     for (var i = 0; i < arenaExtents.y * arenaExtents.y; i++)
                     {
-                        var randomX = random.NextInt(-arenaExtents.y, arenaExtents.y);
-                        var randomZ = random.NextInt(-arenaExtents.y, arenaExtents.y);
+                        var resourceRandomX = random.NextInt(-arenaExtents.y, arenaExtents.y);
+                        var resourceRandomZ = random.NextInt(-arenaExtents.y, arenaExtents.y);
 
-                        BufferEntityInstantiation(spawner.ResourcePrefab, new float3(randomX, 0.5f, randomZ), ref ecb);
+                        BufferEntityInstantiation(spawner.ResourcePrefab,
+                            new float3(resourceRandomX, 0.5f, resourceRandomZ), ref ecb);
                     }
+
+                    var minBeeBounds = new int3(arenaExtents.x + 1, arenaHeight / 4, -arenaExtents.y + 1);
+                    var maxBeeBounds = new int3(arenaExtents.x + goalDepth - 1, minBeeBounds.y * 3, arenaExtents.y - 1);
 
                     for (var i = 0; i < startingBeeCountPerTeam * 2; i++)
                     {
-                        if (i < startingBeeCountPerTeam) // Yellow Bees
+                        var beeRandomY = random.NextInt(minBeeBounds.y, maxBeeBounds.y);
+                        var beeRandomZ = random.NextInt(minBeeBounds.z, maxBeeBounds.z);
+
+                        if (i < startingBeeCountPerTeam)
                         {
-                            var randomX = random.NextInt(arenaExtents.x + 1, arenaExtents.x + goalDepth - 1);
-                            var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
-                            var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
-                    
-                            BufferEntityInstantiation(spawner.YellowBeePrefab, new float3(randomX, randomY, randomZ),
+                            // Yellow Bees
+                            var beeRandomX = random.NextInt(minBeeBounds.x, maxBeeBounds.x);
+
+                            BufferEntityInstantiation(spawner.YellowBeePrefab,
+                                new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
                         }
-                        else // Blue Bees
+                        else
                         {
-                            var randomX = random.NextInt(-arenaExtents.x - goalDepth + 1, -arenaExtents.x - 1);
-                            var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
-                            var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
-                    
-                            BufferEntityInstantiation(spawner.BlueBeePrefab, new float3(randomX, randomY, randomZ),
+                            // Blue Bees
+                            var beeRandomX = random.NextInt(-maxBeeBounds.x, -minBeeBounds.x);
+
+                            BufferEntityInstantiation(spawner.BlueBeePrefab,
+                                new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
                         }
                     }
@@ -70,7 +85,7 @@ public partial class SpawnerSystem : SystemBase
         ref EntityCommandBuffer ecb)
     {
         var instance = ecb.Instantiate(prefabEntity);
-        
+
         var translation = new Translation
         {
             Value = position
