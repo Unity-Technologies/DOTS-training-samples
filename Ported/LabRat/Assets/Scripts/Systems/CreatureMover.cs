@@ -36,7 +36,7 @@ public partial class CreatureMover : SystemBase
         return tries == 4 ? DirectionEnum.None : dir;
     }
 
-    private static void Move(MapData mapData, DynamicBuffer<TileData> mapTiles, ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans, float speed, float delta)
+    private static void Move(MapData mapData, DynamicBuffer<TileData> mapTiles, ref Tile tile, ref Direction dir, ref TileLerp lerp, float speed, float delta)
     {
         // Get walls at current coords
         DirectionEnum walls = GetTileWalls(mapData, mapTiles, tile.Coords);
@@ -61,9 +61,6 @@ public partial class CreatureMover : SystemBase
                 dir.Value = NextDirection(dir.Value);
             }
         }
-
-        // Update translation for rendering
-        trans.Value.xz = tile.Coords + lerp.Value * new float2(direction);
     }
 
     protected override void OnUpdate()
@@ -76,17 +73,17 @@ public partial class CreatureMover : SystemBase
         Entities
             .WithAll<Mouse>()
             .WithReadOnly(mapTiles)
-            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans) =>
+            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp) =>
             {
-                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, ref trans, conf.MouseMovementSpeed, delta);
+                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, conf.MouseMovementSpeed, delta);
             }).ScheduleParallel();
 
         Entities
             .WithAll<Cat>()
             .WithReadOnly(mapTiles)
-            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans) =>
+            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp) =>
             {
-                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, ref trans, conf.CatMovementSpeed, delta);
+                Move(mapData, mapTiles, ref tile, ref dir, ref lerp, conf.CatMovementSpeed, delta);
             }).ScheduleParallel();
 
     }
