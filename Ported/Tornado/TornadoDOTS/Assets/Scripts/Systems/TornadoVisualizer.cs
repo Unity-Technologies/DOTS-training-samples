@@ -1,38 +1,49 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class TornadoVisualizer : SystemBase
 {
-    static readonly float3 k_Center = float3.zero;
-    const float k_MAXDistanceSqrd = 10;
-    const float k_Strength = 1000;
-    
     protected override void OnUpdate()
     {
-        Entities.
-            ForEach((ref Translation position,
-                in TornadoParticle particle) =>
-            {
-                float3 diff = k_Center - position.Value;
-                float distSqrd = math.lengthsq(diff);
-                if (distSqrd < k_MAXDistanceSqrd)
-                {
-                    var calculus = k_Strength * (diff / math.sqrt(distSqrd));
-                    position.Value += calculus;
-                }
-            }).ScheduleParallel();
+        var tornado = GetSingletonEntity<Tornado>();
+        var tornadoMovement = GetComponent<TornadoMovement>(tornado);
+        var tornadoPos = GetComponent<Translation>(tornado);
+        var time = (float)Time.ElapsedTime;
+        var deltaTime = Time.DeltaTime;
+        tornadoPos.Value.x = (float) math.cos(time * tornadoMovement.XFrequency) * tornadoMovement.Amplitude;
+        tornadoPos.Value.z = (float) math.sin(time * tornadoMovement.ZFrequency) * tornadoMovement.Amplitude;
         
-        // Entities.WithAll<TornadoParticle>()
-        //     .ForEach((ref Translation position) =>
-        //     {
-        //         float3 diff = center - position.Value;
-        //         float distSqrd = math.lengthsq(diff);
-        //         if (distSqrd < maxDistanceSqrd)
-        //         {
-        //             var calculus = strength * (diff / math.sqrt(distSqrd));
-        //             position.Value += calculus;
-        //         }
-        //     }).ScheduleParallel();
+        SetComponent(tornado, tornadoPos);
+        
+        Entities.WithAll<TornadoParticle>().
+            ForEach((ref Translation particlePos, in TornadoParticle particleProp) =>
+            {
+                var tornadoPosPerParticle = new float3(
+                    tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoMovement.MaxHeight + time/4f) * 3f),
+                    //tornadoPos.Value.x,
+                    particlePos.Value.y,
+                    tornadoPos.Value.z
+                );
+                var delta = tornadoPosPerParticle - particlePos.Value;
+                var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
+                delta /= dist;
+                var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoMovement.MaxHeight, 0, 1)) * tornadoMovement.Amplitude * particleProp.RadiusMult;
+                
+                var newPos = new float3(
+                    (-delta.z * particleProp.SpinRate) + (delta.x * inForce),
+                    particleProp.UpwardSpeed,
+                    (delta.x * particleProp.SpinRate) + (delta.z * inForce)
+                    );
+                newPos *= deltaTime;
+                newPos += particlePos.Value;
+                if (newPos.y>tornadoMovement.MaxHeight)
+                {
+                    newPos = new Vector3(particlePos.Value.x,0f,particlePos.Value.z);
+                }
+                particlePos.Value = newPos;
+            }).ScheduleParallel();
     }
 }

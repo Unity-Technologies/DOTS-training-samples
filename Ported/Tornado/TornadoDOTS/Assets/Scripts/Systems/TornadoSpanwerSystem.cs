@@ -21,19 +21,28 @@ public partial class TornadoSpanwerSystem : SystemBase
         var random = new Random((uint)DateTime.Now.Millisecond+1);
         var floor = GetSingletonEntity<Floor>();
         var scale = GetComponent<NonUniformScale>(floor).Value*padding;
-        
+        var maxHeight = GetSingleton<TornadoMovement>().MaxHeight;
         Entities
             .ForEach((Entity entity, in TornadoSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
+                
+                float3 randomXZPos;
+                Translation translation;
+                TornadoParticle particleProps;
+                
                 int particleCount = spawner.particleCount;
                 for (int i = 0; i < particleCount; i++)
                 {
-                    var instance = ecb.Instantiate(spawner.particlePrefab);
+                    var particleInstance = ecb.Instantiate(spawner.particlePrefab);
 
-                    var randomXZPos = random.NextFloat3(scale*-1 ,scale);
-                    var translation = new Translation {Value = new float3(randomXZPos.x, 0, randomXZPos.z)};
-                    ecb.SetComponent(instance, translation);
+                    randomXZPos = random.NextFloat3(scale*-1 ,scale);
+                    //translation = new Translation {Value = new float3(randomXZPos.x, random.NextFloat(maxHeight), randomXZPos.z)};
+                    translation = new Translation {Value = new float3(randomXZPos.x, 0, randomXZPos.z)};
+                    particleProps = new TornadoParticle
+                        {SpinRate = random.NextFloat(1, 60), UpwardSpeed = random.NextFloat(1, 25), RadiusMult = random.NextFloat(1)};
+                    ecb.SetComponent(particleInstance, translation);
+                    ecb.SetComponent(particleInstance, particleProps);
                 }
             }).Run();
 

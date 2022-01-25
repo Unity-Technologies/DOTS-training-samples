@@ -9,7 +9,7 @@ public class TornadoSpawnerAuthoring : UnityMonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public UnityGameObject particlePrefab;
-    [UnityRange(0, 1000)] public int particleCount;
+    [UnityRange(0, 10000)] public int particleCount;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
