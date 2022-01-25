@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityMath = Unity.Mathematics.math;
 
 public partial class SpawnerSystem : SystemBase
 {
@@ -20,26 +21,38 @@ public partial class SpawnerSystem : SystemBase
         {
             ecb.DestroyEntity(entity);
 
-            var instance = ecb.Instantiate(spawner.AntPrefab);
+            var instance = ecb.Instantiate(spawner.ColonyPrefab);
+            ecb.AddComponent<ColonyTag>(instance);
+
+            // spawn the obstacles
+            var ringDistance = 3;
+            var obstaclesPerRing = 100;
+            var angleStep = UnityMath.PI * 2 / obstaclesPerRing;
+            for (int ringIdx = 1; ringIdx < 4; ++ringIdx)
+            {
+                var openingStart = random.NextFloat(0, UnityMath.PI * 0.6f);
+                var openingEnd = random.NextFloat(openingStart, UnityMath.PI * 0.8f);
+                var openingStart2 = random.NextFloat(openingEnd, UnityMath.PI * 1.6f);
+                var openingEnd2 = random.NextFloat(openingStart2, UnityMath.PI * 1.9f);
+                for(int obstacleIdx = 0; obstacleIdx < obstaclesPerRing; ++obstacleIdx)
+                {
+                    var angle = obstacleIdx * angleStep;
+                    if ((angle < openingStart || angle > openingEnd) && (angle < openingStart2 || angle > openingEnd2))
+                    {
+                        instance = ecb.Instantiate(spawner.ObstaclePrefab);
+                        ecb.SetComponent(instance, new Translation { Value = new float3(UnityMath.cos(obstacleIdx * angleStep) , UnityMath.sin(obstacleIdx * angleStep), 0) * ringIdx * ringDistance });
+                        ecb.AddComponent<ObstacleTag>(instance);
+                    }
+                }
+            }
+
+            instance = ecb.Instantiate(spawner.ResourcePrefab);
+            ecb.AddComponent<ResourceTag>(instance);
+
+            instance = ecb.Instantiate(spawner.AntPrefab);
             var translation = new Translation { Value = new float3(-4, 0, 0) };
             ecb.SetComponent(instance, translation);
             
-            instance = ecb.Instantiate(spawner.ColonyPrefab);
-            translation = new Translation { Value = new float3(-2, 0, 0) };
-            ecb.SetComponent(instance, translation);        
-            
-            instance = ecb.Instantiate(spawner.ResourcePrefab);
-            translation = new Translation { Value = new float3(0, 0, 0) };
-            ecb.SetComponent(instance, translation);         
-            
-            instance = ecb.Instantiate(spawner.ObstaclePrefab);
-            translation = new Translation { Value = new float3(2, 0, 0) };
-            ecb.SetComponent(instance, translation);
-
-            // ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-            // {
-            //     Value = random.NextFloat4()
-            // });
         }).Run();
 
         ecb.Playback(EntityManager);
