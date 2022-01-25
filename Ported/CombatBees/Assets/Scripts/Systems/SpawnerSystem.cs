@@ -23,7 +23,7 @@ public partial class SpawnerSystem : SystemBase
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
-                if (true)
+                if (inputReinitialize)
                 {
                     var random = new Random(randomSeed);
 
