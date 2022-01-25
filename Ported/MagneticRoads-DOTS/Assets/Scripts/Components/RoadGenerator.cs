@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class RoadGenerator:MonoBehaviour {
 	public int voxelCount=60;
@@ -269,9 +270,6 @@ public class RoadGenerator:MonoBehaviour {
 				}
 			}
 
-			IntersectionComponent intersectionComponent = new IntersectionComponent
-				{ neighborSplines = neighborSplines };
-			entityManager.AddSharedComponentData(intersectionEntity, intersectionComponent);
 
 			// find this intersection's normal - it's the one axis
 			// along which we have no neighbors
@@ -289,6 +287,13 @@ public class RoadGenerator:MonoBehaviour {
 			if (intersection.normal==Vector3Int.zero) {
 				Debug.LogError("nonplanar intersections are not allowed!");
 			}
+
+			IntersectionComponent intersectionComponent = new IntersectionComponent
+			{
+				neighborSplines = neighborSplines,
+				normal = intersection.normal
+			};
+			entityManager.AddSharedComponentData(intersectionEntity, intersectionComponent);
 
 			// NOTE - if you investigate the above logic, you might be confused about how
 			// dead-ends are given normals, since we're assuming that all intersections

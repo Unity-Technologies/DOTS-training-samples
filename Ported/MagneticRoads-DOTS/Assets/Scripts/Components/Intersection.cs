@@ -6,6 +6,7 @@ using UnityEngine;
 public struct IntersectionComponent : ISharedComponentData, IEquatable<IntersectionComponent>
 {
 	public List<TrackSpline> neighborSplines;
+	public Vector3Int normal;
 
 	public bool Equals(IntersectionComponent other)
 	{
