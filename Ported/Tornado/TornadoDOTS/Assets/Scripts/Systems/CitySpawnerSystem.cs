@@ -29,15 +29,18 @@ public partial class CitySpawnerSystem : SystemBase
                     ecb.AddComponent(cluster, new Cluster
                     {
                         Position = position,
+                    });
+                    ecb.AddComponent(cluster, new ClusterGeneration
+                    {
                         NumberOfSubClusters = random.NextInt(1, 5),
                         BarPrefab = spawner.BarPrefab,
                         MinTowerHeight = spawner.MinTowerHeight,
                         MaxTowerHeight = spawner.MaxTowerHeight,
                     });
+                    
                     ecb.AddBuffer<Joint>(cluster);
                     ecb.AddBuffer<Connection>(cluster);
                     ecb.AddBuffer<Bar>(cluster);
-                    ecb.AddComponent<GenerateCluster>(cluster);
                 }
             }).Run();
 
@@ -48,21 +51,22 @@ public partial class CitySpawnerSystem : SystemBase
         //var parallelWriter = ecbOriginal.AsParallelWriter();
         
         Entities
-            .WithAll<GenerateCluster>()
+            .WithAll<ClusterGeneration>()
             .ForEach((Entity entity, 
                 //int entityInQueryIndex,
                 DynamicBuffer<Joint> joints,
                 DynamicBuffer<Connection> connections, 
                 DynamicBuffer<Bar> bars, 
+                in ClusterGeneration clusterData,
                 in Cluster cluster) =>
             {
                 var clusterPosition = cluster.Position;
                 float spacing = 2f;
-                float clusterSize = cluster.NumberOfSubClusters * spacing;
+                float clusterSize = clusterData.NumberOfSubClusters * spacing;
                 int structureStartIndex = 0;
-                for (int c = 0; c < cluster.NumberOfSubClusters; ++c)
+                for (int c = 0; c < clusterData.NumberOfSubClusters; ++c)
                 {
-                    int height = random.NextInt(cluster.MinTowerHeight, cluster.MaxTowerHeight);
+                    int height = random.NextInt(clusterData.MinTowerHeight, clusterData.MaxTowerHeight);
                     var pos = clusterPosition + new float3(
                         random.NextFloat(-clusterSize, clusterSize), 
                         0f, 
@@ -96,30 +100,30 @@ public partial class CitySpawnerSystem : SystemBase
                     // horizontal bars
                     for (int j = structureStartIndex; j < joints.Length; j += 3)
                     {
-                        CreateConnection(j, j + 1, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j + 2, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j, joints, connections, ecb, cluster.BarPrefab, bars, entity);
+                        CreateConnection(j, j + 1, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 1, j + 2, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 2, j, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
                     }
                     // vertical bars
                     for (int j = structureStartIndex; j < joints.Length - 3; ++j)
                     {
-                        CreateConnection(j, j + 3, joints, connections, ecb, cluster.BarPrefab, bars, entity);
+                        CreateConnection(j, j + 3, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
                     }
                     // cross bars
                     for (int j = structureStartIndex + 3; j < joints.Length; j += 3)
                     {
-                        CreateConnection(j, j - 2, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j, j - 1, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j - 3, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j - 1, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j - 3, joints, connections, ecb, cluster.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j - 2, joints, connections, ecb, cluster.BarPrefab, bars, entity);
+                        CreateConnection(j, j - 2, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j, j - 1, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 1, j - 3, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 1, j - 1, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 2, j - 3, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j + 2, j - 2, joints, connections, ecb, clusterData.BarPrefab, bars, entity);
                     }
 
                     structureStartIndex = joints.Length;
                 }
                     
-                ecb.RemoveComponent<GenerateCluster>(entity);
+                ecb.RemoveComponent<ClusterGeneration>(entity);
             }).Run();
         
         ecb.Playback(EntityManager);
