@@ -56,11 +56,8 @@ public partial class MovementSystem : SystemBase
                 // calculate bee movement
                 ppMovement.t += tAdd;
 
-                if (!ppMovement.startLocation.Equals(ppMovement.endLocation))
-                {
-                    translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation,
-                        math.smoothstep(0, 1, ppMovement.t));
-                }
+                translation.Value = math.lerp(ppMovement.startLocation, ppMovement.endLocation,
+                    math.smoothstep(0, 1, ppMovement.t));
 
                 // do orientation later
 
