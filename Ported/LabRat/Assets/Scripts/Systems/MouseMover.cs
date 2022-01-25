@@ -12,7 +12,7 @@ public partial class MouseMover : SystemBase
 
         Entities
             .WithAll<Mouse>()
-            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans) =>
+            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp) =>
             {
                 lerp.Value += conf.MouseMovementSpeed * delta;
                 var direction = new int2((dir.Value & DirectionEnum.East) != 0 ? 1: (dir.Value & DirectionEnum.West) != 0 ? -1 : 0,
@@ -26,9 +26,6 @@ public partial class MouseMover : SystemBase
                     // TODO: Add wall check
                     tile.Coords += direction;
                 }
-
-                var lerped = math.lerp(tile.Coords, tile.Coords + direction, lerp.Value);
-                trans.Value = new float3(lerped.x, 0, lerped.y);
             }).ScheduleParallel();
     }
 }
