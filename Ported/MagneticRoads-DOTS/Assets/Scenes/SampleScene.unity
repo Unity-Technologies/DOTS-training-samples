@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.35758388, g: 0.2951159, b: 0.27667373, a: 1}
+  m_IndirectSpecularColor: {r: 0.35767195, g: 0.29674053, b: 0.27940473, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 846667682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e86d1be849dc304fab87fb0ff8220ca, type: 3}
+  m_Script: {fileID: 11500000, guid: 093812175d669d449b4f472221bd472e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   voxelCount: 60
@@ -268,6 +268,58 @@ MonoBehaviour:
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   carMaterial: {fileID: 2100000, guid: 4c39503763071fe41842a84ac737905d, type: 2}
   carSpeed: 2
+--- !u!1 &984588004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 984588006}
+  - component: {fileID: 984588005}
+  m_Layer: 0
+  m_Name: Entity Scene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &984588005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984588004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _SceneAsset: {fileID: 102900000, guid: 049d3363b8a4fbc4bbd45f06a38841be, type: 3}
+  _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  AutoLoadScene: 1
+  _SceneGUID:
+    Value:
+      x: 909367616
+      y: 1287604875
+      z: 1626688955
+      w: 3943991354
+--- !u!4 &984588006
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984588004}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2084072266
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,7 +447,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2084072266}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a300dac037d6a4428b39622d5bd7718, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d3b368e9bf0ada4bacec8148effc656, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   center: {x: 37.5, y: 37.5, z: 37.5}

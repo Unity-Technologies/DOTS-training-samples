@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Rendering;
-using Unity.Transforms;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class RoadGenerator:MonoBehaviour {
+public class RoadGenerator:MonoBehaviour
+{
+	public static bool bullshit = false;
+	
 	public int voxelCount=60;
 	public float voxelSize = 1f;
 	public int trisPerMesh = 4000;
@@ -19,7 +21,7 @@ public class RoadGenerator:MonoBehaviour {
 
 	bool[,,] trackVoxels;
 	List<Intersection> intersections;
-	List<TrackSpline> trackSplines;
+	public static List<TrackSpline> trackSplines;
 	Intersection[,,] intersectionsGrid;
 	// List<Car> cars;
 
@@ -118,6 +120,11 @@ public class RoadGenerator:MonoBehaviour {
 		}
 	}
 
+	private void Awake()
+	{
+		bullshit = false;
+	}
+
 	void Start() {
 		// cardinal directions:
 		dirs = new Vector3Int[] { new Vector3Int(1,0,0),new Vector3Int(-1,0,0),new Vector3Int(0,1,0),new Vector3Int(0,-1,0),new Vector3Int(0,0,1),new Vector3Int(0,0,-1) };
@@ -139,32 +146,6 @@ public class RoadGenerator:MonoBehaviour {
 	}
 
 	IEnumerator SpawnRoads() {
-		EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-		EntityArchetype trackSplineArchetype = entityManager.CreateArchetype(
-			typeof(Translation),
-			typeof(Rotation),
-			typeof(RenderMesh),
-			typeof(LocalToWorld),
-			typeof(RenderBounds)
-		);
-
-		EntityArchetype intersectionArchetype = entityManager.CreateArchetype(
-			typeof(Translation),
-			typeof(Rotation),
-			typeof(RenderMesh),
-			typeof(LocalToWorld),
-			typeof(RenderBounds)
-		);
-
-		EntityArchetype carArchetype = entityManager.CreateArchetype(
-			typeof(Translation),
-			typeof(Rotation),
-			typeof(RenderMesh),
-			typeof(LocalToWorld),
-			typeof(RenderBounds)
-		);
-		
-		
 		// first generation pass: plan roads as basic voxel data only
 		trackVoxels = new bool[voxelCount,voxelCount,voxelCount];
 		List<Vector3Int> activeVoxels = new List<Vector3Int>();
@@ -235,17 +216,6 @@ public class RoadGenerator:MonoBehaviour {
 		for (int i=0;i<intersections.Count;i++) {
 			Intersection intersection = intersections[i];
 			Vector3Int axesWithNeighbors = Vector3Int.zero;
-			
-			Entity intersectionEntity = entityManager.CreateEntity(intersectionArchetype);
-			entityManager.AddComponentData(intersectionEntity, new Translation { Value = intersection.position });
-			entityManager.AddSharedComponentData(intersectionEntity, new RenderMesh
-			{
-				mesh = intersectionMesh,
-				material = roadMaterial
-			});
-			
-			List<TrackSpline> neighborSplines = new List<TrackSpline>();
-
 			for (int j=0;j<dirs.Length;j++) {
 				if (GetVoxel(intersection.index+dirs[j],false)) {
 					axesWithNeighbors.x += Mathf.Abs(dirs[j].x);
@@ -262,14 +232,15 @@ public class RoadGenerator:MonoBehaviour {
 
 							TrackSpline spline = new TrackSpline(intersection,dirs[j],neighbor,connectDir);
 							trackSplines.Add(spline);
-							neighborSplines.Add(spline);
+
+							// intersection.neighbors.Add(neighbor);
 							intersection.neighborSplines.Add(spline);
+							// neighbor.neighbors.Add(intersection);
 							neighbor.neighborSplines.Add(spline);
 						}
 					}
 				}
 			}
-
 
 			// find this intersection's normal - it's the one axis
 			// along which we have no neighbors
@@ -287,13 +258,6 @@ public class RoadGenerator:MonoBehaviour {
 			if (intersection.normal==Vector3Int.zero) {
 				Debug.LogError("nonplanar intersections are not allowed!");
 			}
-
-			IntersectionComponent intersectionComponent = new IntersectionComponent
-			{
-				neighborSplines = neighborSplines,
-				normal = intersection.normal
-			};
-			entityManager.AddSharedComponentData(intersectionEntity, intersectionComponent);
 
 			// NOTE - if you investigate the above logic, you might be confused about how
 			// dead-ends are given normals, since we're assuming that all intersections
@@ -384,6 +348,8 @@ public class RoadGenerator:MonoBehaviour {
 		// 		batch++;
 		// 	}
 		// }
+
+		bullshit = true;
 	}
 
 	private void Update() {
