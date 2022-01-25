@@ -139,9 +139,9 @@ public partial class MapSpawningSystem : SystemBase
                     {
                         Value = color.Value
                     });
-                    ecb.SetComponent(exit, new Player
+                    ecb.SetComponent(exit, new PlayerOwned
                     {
-                        PlayerEntity = playerEntity
+                        Owner = playerEntity
                     });
                 }
 

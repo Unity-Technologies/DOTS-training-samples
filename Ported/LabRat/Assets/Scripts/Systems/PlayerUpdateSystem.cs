@@ -23,13 +23,13 @@ public partial class PlayerUpdateSystem : SystemBase
             .WithAll<Player>()
             .WithReadOnly(addPointsToPlayer)
             .WithDisposeOnCompletion(addPointsToPlayer)
-            .ForEach((Entity entity, ref Player player) =>
+            .ForEach((Entity entity, ref Score playerScore) =>
             {
                 foreach (var playerEntity in addPointsToPlayer)
                 {
                     if (playerEntity == entity)
                     {
-                        player.Score += 1;
+                        playerScore.Value += 1;
                     }
                 }
             }).Schedule();

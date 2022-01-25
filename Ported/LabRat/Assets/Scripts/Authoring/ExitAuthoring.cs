@@ -22,6 +22,6 @@ public class ExitAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<PropagateColor>(entity);
         dstManager.AddComponent<Tile>(entity);
         dstManager.AddComponent<Exit>(entity);
-        dstManager.AddComponent<Player>(entity);
+        dstManager.AddComponent<PlayerOwned>(entity);
     }
 }

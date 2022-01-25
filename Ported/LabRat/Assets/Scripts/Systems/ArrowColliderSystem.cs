@@ -7,26 +7,28 @@ public partial class ArrowColliderSystem : SystemBase
     public ComponentDataFromEntity<Tile> tileComponents;
     protected override void OnUpdate()
     {
-        EntityQuery arrowsQuery = GetEntityQuery(
-            ComponentType.ReadOnly<Tile>(),
-            ComponentType.ReadOnly<Direction>(),
-            ComponentType.ReadOnly<PlayTime>());
+        EntityQuery arrowsQuery = GetEntityQuery(typeof(Arrow),typeof(Tile),typeof(Direction));
 
         if (arrowsQuery.IsEmpty) return;
 
-        var arrows = arrowsQuery.ToEntityArray(Allocator.TempJob);
-        foreach (var arrow in arrows)
-        {
-            Tile arrowTile = GetComponent<Tile>(arrow);
-            Direction arrowDir = GetComponent<Direction>(arrow);
-
-            Entities.WithAll<Mouse>().ForEach((Direction dir, ref Tile tile) =>
+        var arrowTiles = arrowsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
+        var arrowDirs = arrowsQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
+        
+        Entities
+            .WithAll<Mouse>()
+            .WithReadOnly(arrowTiles)
+            .WithReadOnly(arrowDirs)
+            .WithDisposeOnCompletion(arrowTiles)
+            .WithDisposeOnCompletion(arrowDirs)
+            .ForEach((ref Direction dir, in Tile tile) =>
             {
-                if (tile.Coords.Equals(arrowTile.Coords))
+                for (int i = 0; i < arrowTiles.Length; i++)
                 {
-                    dir.Value = arrowDir.Value;
+                    if (tile.Coords.Equals(arrowTiles[i].Coords))
+                    {
+                        dir.Value = arrowDirs[i].Value;
+                    }
                 }
-            }).Schedule();
-        }
+            }).ScheduleParallel();
     }
 }

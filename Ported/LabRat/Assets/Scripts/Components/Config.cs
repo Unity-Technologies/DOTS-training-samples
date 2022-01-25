@@ -34,4 +34,6 @@ public struct Config : IComponentData
     public Entity MousePrefab;
     public Entity ExitPrefab;
     public Entity ArrowPrefab;
+
+    public int MaxArrowsPerPlayer;
 }
