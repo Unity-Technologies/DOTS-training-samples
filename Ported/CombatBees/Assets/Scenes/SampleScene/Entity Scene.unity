@@ -157,6 +157,7 @@ MonoBehaviour:
   BloodPrefab: {fileID: 4367470969325399639, guid: c23e9ca35c64cd643adf4ef813306447, type: 3}
   BeeBitsPrefab: {fileID: 4367470969325399639, guid: 4e4aa141666cc814daf7e960d36ebf89, type: 3}
   ResourcePrefab: {fileID: 4367470969325399639, guid: 84eba2e00c574bb45a527264ee848334, type: 3}
+  StartingBees: 10
 --- !u!4 &323677541
 Transform:
   m_ObjectHideFlags: 0
