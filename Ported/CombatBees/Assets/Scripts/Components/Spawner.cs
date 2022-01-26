@@ -13,6 +13,9 @@ public struct Spawner : IComponentData
 
     [Min(0)]
     public int StartingBees;
+    
+    [Min(0)]
+    public int StartingResources;
 
     public int GoalDepth
     {

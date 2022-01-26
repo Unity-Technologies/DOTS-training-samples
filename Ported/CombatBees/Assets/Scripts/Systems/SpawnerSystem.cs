@@ -9,7 +9,7 @@ using static Unity.Mathematics.math;
 
 // Make sure this runs after the destroyer, so it reinitializes after everything has been destroyed
 [UpdateAfter(typeof(DestroyerSystem))]
-[UpdateBefore(typeof(PP_Movement))]
+[UpdateBefore(typeof(MovementSystem))]
 [UpdateBefore(typeof(UpdateStateSystem))]
 public partial class SpawnerSystem : SystemBase
 {
@@ -47,6 +47,8 @@ public partial class SpawnerSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        #region Initial_Spawns
+
         // Initialization/Reinitialization
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -58,24 +60,46 @@ public partial class SpawnerSystem : SystemBase
                 DateTime.Now.Month +
                 DateTime.Now.Year);
 
+            // Note: looks like getting a singleton reference and then querying for the same object results in an error
+            // var spawnerSingleton = GetSingleton<Spawner>();
+            // var foodRowsAndColumns = spawnerSingleton.ArenaExtents.y * 2 - 2;
+            // var planarOffset = foodRowsAndColumns / 2;
+            // var halfArenaHeight = spawnerSingleton.ArenaHeight / 2;
+
             Entities
                 .ForEach((in Spawner spawner) =>
                 {
+                    var foodRowsAndColumns = spawner.ArenaExtents.y * 2 - 2;
+                    var planarOffset = foodRowsAndColumns / 2;
+                    var halfArenaHeight = spawner.ArenaHeight / 2;
+                    
                     var random = new Random(randomSeed);
 
                     #region Food_Init
 
-                    var foodRowsAndColumns = spawner.ArenaExtents.y * 2 - 2;
-
-                    for (var i = 0; i < foodRowsAndColumns * foodRowsAndColumns; i++)
+                    var spawnedResources = 0;
+                    if (spawner.StartingResources > 0)
                     {
-                        var resourceRandomX = (float) random.NextInt(foodRowsAndColumns + 1);
-                        resourceRandomX -= spawner.ArenaExtents.y - 1;
-                        var resourceRandomZ = (float) random.NextInt(foodRowsAndColumns + 1);
-                        resourceRandomZ -= spawner.ArenaExtents.y - 1;
+                        for (var y = 0; y < halfArenaHeight && spawnedResources < spawner.StartingResources; y++)
+                        {
+                            for (var z = 0; z < foodRowsAndColumns && spawnedResources < spawner.StartingResources; z++)
+                            {
+                                for (var x = 0; x < foodRowsAndColumns && spawnedResources < spawner.StartingResources; x++)
+                                {
+                                    if (random.NextInt(halfArenaHeight) == 0)
+                                    {
+                                        var spawnPosition = new float3(
+                                            x - planarOffset,
+                                            y + halfArenaHeight,
+                                            z - planarOffset);
 
-                        BufferEntityInstantiation(spawner.ResourcePrefab,
-                            new float3(resourceRandomX, 0.5f, resourceRandomZ), ref ecb);
+                                        BufferEntityInstantiation(spawner.ResourcePrefab, spawnPosition, ref ecb);
+
+                                        spawnedResources++;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     #endregion Food_Init
@@ -84,17 +108,17 @@ public partial class SpawnerSystem : SystemBase
 
                     var minBeeBounds = GetBeeMinBounds(spawner);
                     var maxBeeBounds = GetBeeMaxBounds(spawner, minBeeBounds);
-
+                    
                     for (var i = 0; i < spawner.StartingBees * 2; i++)
                     {
                         var beeRandomY = GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                         var beeRandomZ = GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-
+                    
                         if (i < spawner.StartingBees)
                         {
                             // Yellow Bees
                             var beeRandomX = GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
-
+                    
                             BufferEntityInstantiation(spawner.YellowBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
@@ -103,7 +127,7 @@ public partial class SpawnerSystem : SystemBase
                         {
                             // Blue Bees
                             var beeRandomX = GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
-
+                    
                             BufferEntityInstantiation(spawner.BlueBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
@@ -113,6 +137,10 @@ public partial class SpawnerSystem : SystemBase
                     #endregion Bee_Init
                 }).Run();
         }
+
+        #endregion Initial_Spawns
+
+        #region Click_To_Spawn
 
         // Click-to-Spawn Resource
         // TODO: use GetMouseButtonDown(0) with an interval timer to spawn while holding the mouse
@@ -140,6 +168,8 @@ public partial class SpawnerSystem : SystemBase
                     }).Run();
             }
         }
+
+        #endregion Click_To_Spawn
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
