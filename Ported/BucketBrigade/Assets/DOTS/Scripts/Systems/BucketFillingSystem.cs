@@ -44,10 +44,14 @@ public partial class BucketFllingSystem : SystemBase
                 {
                     fillActions.RemoveAt(i);
                     i--;
-                    // TODO: Mark bucket as filled and do somethings
+                    // FireFighter
                     ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
-                    // TODO: Drop the bucket
-                    ecb.AddComponent(entityInQueryIndex, actionEntry.FireFighter, new HoldsFullBucket());
+                    ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, actionEntry.FireFighter);
+                    
+                    // Bucket
+                    actionEntry.Position.y = 0;
+                    ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Translation { Value = actionEntry.Position });
+                    ecb.RemoveComponent<BeingHeld>(entityInQueryIndex, actionEntry.Bucket);
                 }
             }
 

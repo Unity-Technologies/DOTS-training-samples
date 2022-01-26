@@ -1,4 +1,6 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine.UIElements;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityMeshRenderer = UnityEngine.MeshRenderer;
 
@@ -14,4 +16,5 @@ public struct BucketFillAction : IBufferElementData
     public Entity FireFighter;
 
     public float BucketVolume;
+    public float3 Position;
 }

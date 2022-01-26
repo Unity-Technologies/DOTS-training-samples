@@ -63,7 +63,8 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 {
                     ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
-                    ecb.AppendToBuffer(entityInQueryIndex, lakeEntities[closestIndex], new BucketFillAction { Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f /* HACK */ });
+                    ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, holdingBucket.HeldBucket);
+                    ecb.AppendToBuffer(entityInQueryIndex, lakeEntities[closestIndex], new BucketFillAction { Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f /* HACK */, Position = translation.Value });
                 }
                 else
                 {
