@@ -38,8 +38,8 @@ public partial class ArrowPlacerSystem : SystemBase
 
                 var coordinate = CalculateProjected(playerPos.Value, cellSize, out var direction);
                 if (direction != DirectionEnum.None &&
-                    coordinate.x > 0 && coordinate.x < cellSize.x &&
-                    coordinate.y > 0 && coordinate.y < cellSize.y)
+                    coordinate.x >= 0 && coordinate.x < cellSize.x &&
+                    coordinate.y >= 0 && coordinate.y < cellSize.y)
                 {
                     var arrow = ecb.Instantiate(nativeThreadIndex, config.ArrowPrefab);
                     ecb.SetComponent(nativeThreadIndex, arrow, new Arrow { PlacedTime = time });
@@ -54,8 +54,8 @@ public partial class ArrowPlacerSystem : SystemBase
                     float rot = direction switch
                     {
                         DirectionEnum.North => math.PI,
-                        DirectionEnum.East => math.PI*0.5f,
-                        DirectionEnum.West => math.PI*-0.5f,
+                        DirectionEnum.East => math.PI*-0.5f,
+                        DirectionEnum.West => math.PI*0.5f,
                         _ => 0f
                     };
                     ecb.SetComponent(nativeThreadIndex, arrow, new Rotation
@@ -78,7 +78,7 @@ public partial class ArrowPlacerSystem : SystemBase
         if (math.abs(tilePt.y) > math.abs(tilePt.x))
             cellDirection = tilePt.y < 0 ? DirectionEnum.North : DirectionEnum.South;
         else
-            cellDirection = tilePt.x > 0 ? DirectionEnum.East : DirectionEnum.West;
+            cellDirection = tilePt.x > 0 ? DirectionEnum.West : DirectionEnum.East;
 
         return intCoord;
 

@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 [UpdateBefore(typeof(CreatureMovementSystem))]
 public partial class MiceSpawningSystem : SystemBase
@@ -51,6 +52,11 @@ public partial class MiceSpawningSystem : SystemBase
                         ecb.SetComponent(mouse, new Tile
                         {
                             Coords = tile.Coords
+                        });
+                        // Init rotation that it points in initial direction for animation
+                        ecb.SetComponent(mouse, new Rotation
+                        {
+                            Value = direction.Value.ToQuaternion()
                         });
                     }
                 }
