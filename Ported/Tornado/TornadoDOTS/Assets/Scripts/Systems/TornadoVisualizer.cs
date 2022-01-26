@@ -6,6 +6,7 @@ using UnityEngine;
 
 public partial class TornadoVisualizer : SystemBase
 {
+    const float KMaxParticleScale = 0.8f;
     protected override void OnUpdate()
     {
         var tornado = GetSingletonEntity<Tornado>();
@@ -19,16 +20,22 @@ public partial class TornadoVisualizer : SystemBase
         SetComponent(tornado, tornadoPos);
         
         Entities.WithAll<TornadoParticle>().
-            ForEach((ref Translation particlePos, in TornadoParticle particleProp) =>
+            ForEach((ref Translation particlePos, ref NonUniformScale particleScale, in TornadoParticle particleProp) =>
             {
                 var tornadoPosPerParticle = new float3(
-                    tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoMovement.MaxHeight + time/4f) * 3f),
-                    //tornadoPos.Value.x,
+                    tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoMovement.MaxHeight + time/4f) * 2f),
                     particlePos.Value.y,
                     tornadoPos.Value.z
                 );
                 var delta = tornadoPosPerParticle - particlePos.Value;
                 var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
+                
+                if (dist > tornadoMovement.MaxHeight/2.5f && particlePos.Value.y == 0f) return;
+                else if (particleScale.Value.x < KMaxParticleScale)
+                {
+                    particleScale.Value += 0.001f;
+                }
+                    
                 delta /= dist;
                 var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoMovement.MaxHeight, 0, 1)) * tornadoMovement.Amplitude * particleProp.RadiusMult;
                 
@@ -41,7 +48,7 @@ public partial class TornadoVisualizer : SystemBase
                 newPos += particlePos.Value;
                 if (newPos.y>tornadoMovement.MaxHeight)
                 {
-                    newPos = new Vector3(particlePos.Value.x,0f,particlePos.Value.z);
+                    newPos = new Vector3(particlePos.Value.x,1f,particlePos.Value.z);
                 }
                 particlePos.Value = newPos;
             }).ScheduleParallel();

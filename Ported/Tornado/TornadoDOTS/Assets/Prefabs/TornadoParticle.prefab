@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1577194761895994865}
   - component: {fileID: 3466835175996961747}
   - component: {fileID: 547257619175332477}
+  - component: {fileID: 3151894409616334272}
   m_Layer: 0
   m_Name: TornadoParticle
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 3139741601721554215}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -94,3 +95,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aadcab3abf8f54b52aebbf09ae7f55c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpinRate: 0
+  UpwardSpeed: 0
+  RadiusMult: 0
+--- !u!114 &3151894409616334272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3139741601721554215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
