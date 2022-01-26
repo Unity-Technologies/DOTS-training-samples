@@ -47,7 +47,7 @@ public partial class BucketFllingSystem : SystemBase
                     // TODO: Mark bucket as filled and do somethings
                     ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
                     // TODO: Drop the bucket
-                    ecb.RemoveComponent<HoldsFullBucket>(entityInQueryIndex, actionEntry.FireFighter);
+                    ecb.AddComponent(entityInQueryIndex, actionEntry.FireFighter, new HoldsFullBucket());
                 }
             }
 

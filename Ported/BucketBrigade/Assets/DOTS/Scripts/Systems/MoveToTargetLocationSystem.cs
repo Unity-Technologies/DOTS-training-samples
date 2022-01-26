@@ -17,11 +17,14 @@ public partial class MoveToTargetLocationSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
+        var gameConstants = GetSingleton<GameConstants>();
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) => {
-            var distanceInFrame = 1f * deltaTime; // TODO: Load speed from constants, hinder when bucket is carried.
+        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) =>
+        {
+            bool hasBucket = HasComponent<HoldsFullBucket>(e);
+            var distanceInFrame = hasBucket ? gameConstants.FireFighterMovementSpeedBucket * deltaTime : gameConstants.FireFighterMovementSpeedNoBucket * deltaTime;
 
             var direction = target.Value - translation.Value.xz;
             var length = math.length(direction);
