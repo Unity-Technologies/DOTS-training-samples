@@ -6,6 +6,7 @@ using Unity.Mathematics;
 [Serializable, GenerateAuthoringComponent]
 public struct FireFighter : IComponentData
 {
+    public Entity HeldBucket;
 }
 
 public struct HoldsEmptyBucket : IComponentData { }
