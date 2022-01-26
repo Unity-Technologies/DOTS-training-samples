@@ -39,7 +39,7 @@ public partial class UpdateStateSystem : SystemBase
 
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
-        var randomSeed = (uint) max(1,
+        var randomSeed = (uint)max(1,
             DateTime.Now.Millisecond +
             DateTime.Now.Second +
             DateTime.Now.Minute +
@@ -47,12 +47,12 @@ public partial class UpdateStateSystem : SystemBase
             DateTime.Now.Month +
             DateTime.Now.Year);
         var random = new Random(randomSeed);
-        
+
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
-        
+
         var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
@@ -65,7 +65,35 @@ public partial class UpdateStateSystem : SystemBase
                 //           attacking -> check for carry option then check for seeking
                 if (state.value == StateValues.Carrying)
                 {
-                    return;
+
+                    if ((translation.Value.x < spawner.ArenaExtents.x) && team.Value == TeamValue.Yellow || (translation.Value.x > -spawner.ArenaExtents.x) && team.Value == TeamValue.Blue)
+                    {
+                        // ecb.AddComponent(carriedEntity.Value,
+                        //                 new PP_Movement
+                        //                 {
+                        //                     endLocation = translation.Value + float3(0f, -translation.Value.y, 0f),
+                        //                     startLocation = translation.Value + float3(0f, -1f, 0f),
+                        //                     t = 0.0f
+                        //                 });
+
+                        parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                        PP_Movement.Create(translation.Value + float3(0f, -1f, 0f),
+                        translation.Value + float3(0f, -translation.Value.y, 0f)));
+
+                        // // Fall through to seeking
+                        // // Choose food at random here
+                        // int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
+                        // Translation randomFoodTranslation = foodTranslationData[randomInt];
+
+                        // //Tell bee to go back to seeking
+                        // movement.endLocation = randomFoodTranslation.Value;
+                        // movement.startLocation = translation.Value;
+                        // movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
+                        // movement.t = 0.0f;
+                        // state.value = StateValues.Seeking;
+
+                    }
+
                 }
 
                 if (state.value == StateValues.Seeking)
@@ -87,7 +115,7 @@ public partial class UpdateStateSystem : SystemBase
                             //       - so instead, we just get the first random twice for now.
                             beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                             var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-                            
+
                             // Calculate end location based on team value;
                             float3 endLocation;
                             if (team.Value == TeamValue.Yellow)
@@ -106,10 +134,10 @@ public partial class UpdateStateSystem : SystemBase
                             movement.timeToTravel = distance(endLocation, translation.Value) / 10;
                             movement.t = 0.0f;
                             // Add updated movement information to food entity
-                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i], 
+                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
                                 PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
                                     movement.endLocation + float3(0f, -1f, 0f)));
-                                    
+
                             break;
                         }
                     }
@@ -140,7 +168,7 @@ public partial class UpdateStateSystem : SystemBase
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
             .ScheduleParallel();
-        
+
         commandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
