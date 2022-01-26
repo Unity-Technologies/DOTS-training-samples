@@ -67,6 +67,8 @@ public partial class SetupGameSystem : SystemBase
                     
                     workersBuffer.Add(workers[w]);
                 }
+
+                EntityManager.AddComponent<BucketFetcher>(workers[workers.Length - 1]);
             }
         }
 
