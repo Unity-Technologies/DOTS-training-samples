@@ -156,7 +156,7 @@ MonoBehaviour:
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
   antCount: 1000
   mapSize: 128
-  bucketResolution: 64
+  bucketResolution: 128
   antSize: {x: 0.008, y: 0.004, z: 0.004}
   antSpeed: 0.2
   antAccel: 0.07
@@ -169,9 +169,10 @@ MonoBehaviour:
   outwardStrength: 0.003
   inwardStrength: 0.003
   rotationResolution: 360
-  obstacleRingCount: 3
-  obstaclesPerRing: 0.8
-  obstacleRadius: 2
+  obstacleRingCount: 1
+  obstaclesPerRing: 8
+  obstaclesRadiusStepPerRing: 0.15
+  obstacleRadius: 5
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0

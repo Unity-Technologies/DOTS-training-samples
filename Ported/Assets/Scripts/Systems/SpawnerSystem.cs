@@ -26,8 +26,8 @@ public partial class SpawnerSystem : SystemBase
             ecb.DestroyEntity(entity);
 
             var groundRenderMesh = EntityManager.GetSharedComponentData<RenderMesh>(spawner.GroundPrefab);
-            var groundTexture = new Texture2D(configuration.MapSize, configuration.MapSize);
-            groundTexture.wrapMode = TextureWrapMode.Mirror;
+            var groundTexture = new Texture2D(configuration.MapSize, configuration.MapSize, TextureFormat.RGBA32, false, false);
+            groundTexture.wrapMode = TextureWrapMode.Clamp;
             groundRenderMesh.material.mainTexture = groundTexture;
 
             var ground = ecb.Instantiate(spawner.GroundPrefab);
@@ -39,13 +39,25 @@ public partial class SpawnerSystem : SystemBase
             var scale = EntityManager.GetComponentData<NonUniformScale>(spawner.ColonyPrefab).Value / configuration.MapSize;
             ecb.SetComponent(instance, new NonUniformScale() { Value = scale });
 
+            // spawn grid
+            instance = ecb.CreateEntity();
+            var grid = new Grid2D(configuration.BucketResolution, configuration.BucketResolution);
+            ecb.AddComponent(instance, grid);
+            var bufferPheromone = ecb.AddBuffer<Pheromone>(instance);
+            bufferPheromone.Length = (int)(grid.rowLength * grid.columnLength);
+            var bufferObstacles = ecb.AddBuffer<ObstaclePositionAndRadius>(instance);
+            bufferObstacles.Length = (int)(grid.rowLength * grid.columnLength);
+
+            for (int i = 0; i < bufferObstacles.Length; i++) bufferObstacles[i] = new ObstaclePositionAndRadius();
+
             // spawn the obstacles
             var angleStep = UnityMath.PI * 2 / configuration.ObstaclesPerRing;
             scale = EntityManager.GetComponentData<NonUniformScale>(spawner.ObstaclePrefab).Value;
             scale.x = configuration.ObstacleRadius * 2;
             scale.y = configuration.ObstacleRadius * 2;
-            scale /= configuration.MapSize;
-            for (int ringIdx = 1; ringIdx < 4; ++ringIdx)
+            scale /= (float) configuration.MapSize;
+            var radiusLength = configuration.ObstacleRadius / (float) configuration.MapSize;
+            for (int ringIdx = 1; ringIdx <= configuration.ObstacleRingCount; ++ringIdx)
             {
                 var openingStart = random.NextFloat(0, UnityMath.PI * 0.6f);
                 var openingEnd = random.NextFloat(openingStart, UnityMath.PI * 0.8f);
@@ -56,21 +68,53 @@ public partial class SpawnerSystem : SystemBase
                     var angle = obstacleIdx * angleStep;
                     if ((angle < openingStart || angle > openingEnd) && (angle < openingStart2 || angle > openingEnd2))
                     {
+                        var translation = new float3(UnityMath.cos(obstacleIdx * angleStep), UnityMath.sin(obstacleIdx * angleStep), 0) * ringIdx * configuration.ObstacleRadiusStepPerRing;
+
                         instance = ecb.Instantiate(spawner.ObstaclePrefab);
-                        ecb.SetComponent(instance, new Translation { Value = new float3(UnityMath.cos(obstacleIdx * angleStep), UnityMath.sin(obstacleIdx * angleStep), 0) * ringIdx * configuration.ObstacleRadiusStepPerRing });
+                        ecb.SetComponent(instance, new Translation { Value = translation });
                         ecb.AddComponent<ObstacleTag>(instance);
                         ecb.SetComponent(instance, new NonUniformScale() { Value = scale });
+
+                        // TODO: optimize this, can use some scissors
+                        var xStep = 1 / (float)grid.rowLength;
+                        var yStep = 1 / (float)grid.columnLength;
+                        for (int i = 0; i < grid.columnLength; ++i)
+                        {
+                            for(int j = 0; j < grid.rowLength; ++j)
+                            {
+                                var x = (i + 0.5f) * xStep - 0.5f;
+                                var y = (j + 0.5f) * yStep - 0.5f;
+                                var minX = UnityMath.min(x, translation.x);
+                                var maxX = UnityMath.max(x, translation.x);
+                                var minY = UnityMath.min(y, translation.y);
+                                var maxY = UnityMath.max(y, translation.y);
+                                x = maxX - minX;
+                                y = maxY - minY;
+
+                                if(UnityMath.sqrt(x*x + y*y) <= radiusLength)
+                                {
+                                    var index = j + i * grid.rowLength;
+                                    bufferObstacles[index] = bufferObstacles[index].IsValid ?
+                                    new ObstaclePositionAndRadius(radiusLength,
+                                    0.5f * (UnityMath.max(bufferObstacles[index].position.x, translation.x) + UnityMath.min(bufferObstacles[index].position.x, translation.x)),
+                                    0.5f * (UnityMath.max(bufferObstacles[index].position.y, translation.y) + UnityMath.min(bufferObstacles[index].position.y, translation.y)))
+                                    : new ObstaclePositionAndRadius(radiusLength, translation.x, translation.y);
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+
+            // spawn resource
             instance = ecb.Instantiate(spawner.ResourcePrefab);
             ecb.AddComponent<ResourceTag>(instance);
             ecb.SetComponent(instance, new Translation { Value = new float3(0, 10, 0) / configuration.MapSize });
-            scale = EntityManager.GetComponentData<NonUniformScale>(spawner.ResourcePrefab).Value / configuration.MapSize;
-            ecb.SetComponent(instance, new NonUniformScale() { Value = scale });
+            ecb.SetComponent(instance, new NonUniformScale() { Value = EntityManager.GetComponentData<NonUniformScale>(spawner.ResourcePrefab).Value / configuration.MapSize });
 
-            for(int i = 0; i < 1000; ++i)
+            // spawn ants
+            for(int i = 0; i < configuration.AntCount; ++i)
             {
                 instance = ecb.Instantiate(spawner.AntPrefab);
                 ecb.AddComponent<AntTag>(instance);
@@ -81,7 +125,30 @@ public partial class SpawnerSystem : SystemBase
             }
         }).WithoutBurst().Run();
 
+
+
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        Entities.ForEach((Entity entity, in Ground ground) =>
+        {
+            var gridEntity = GetSingletonEntity<Grid2D>();
+            var grid = GetComponent<Grid2D>(gridEntity);
+            var obstacles = GetBuffer<ObstaclePositionAndRadius>(gridEntity);
+            var texture = ground.Texture;
+            var data = texture.GetRawTextureData<Color32>();
+
+            for (int i = 0; i < grid.columnLength; ++i)
+            {
+                for (int j = 0; j < grid.rowLength; ++j)
+                {
+                    var index = j + i * grid.rowLength;
+                    var indexTex = i + j * grid.columnLength;
+                    data[indexTex] = obstacles[index].IsValid ? new Color(0, obstacles[index].position.x + 0.5f, obstacles[index].position.y + 0.5f, 1f) : Color.black;
+                }
+            }
+
+            texture.Apply();
+        }).WithoutBurst().Run();
     }
 }
