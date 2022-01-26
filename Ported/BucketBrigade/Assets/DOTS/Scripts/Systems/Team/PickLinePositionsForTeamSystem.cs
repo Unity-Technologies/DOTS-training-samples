@@ -70,17 +70,28 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
         var gameConstants = GetSingleton<GameConstants>();
 
         Entities
-            .ForEach((Entity e, ref DynamicBuffer<TeamWorkers> workersBuffer, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
+            .ForEach((Entity e, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
             {
+                DynamicBuffer<TeamWorkers> workersBuffer = GetBuffer<TeamWorkers>(e);
+
+                float3 forward = lineFirePosition.Value - lineLakePosition.Value;
+                float3 offset = math.cross(forward, new float3(0, 1, 0)) * 0.1f;
+
                 // Forward Line
-                for (int i = 0; i < gameConstants.WorkersPerLine; i++)
+                for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
-                    float t = (float)i / gameConstants.WorkersPerLine;
-                    float2 target = math.lerp(lineLakePosition.Value, lineFirePosition.Value, t).xz;
+                    float t = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
+                    float2 target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) + math.sin(t * math.PI) * offset + offset).xz;
 
-                    TargetPosition targetPosition = new TargetPosition() { Value = target };
+                    // DON'T REMOVE THIS LINE
+                    TeamWorkers entity = workersBuffer[x];
 
-                    SetComponent<TargetPosition>(workersBuffer[i].Value, targetPosition);
+                    SetComponent<TargetDestination>(entity, new TargetDestination() { Value = target });
+                }
+
+                // Backward Line
+                {
+
                 }
             })
             .Schedule();

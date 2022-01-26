@@ -51,8 +51,12 @@ public partial class SetupGameSystem : SystemBase
 
                 for (int w = 0; w < totalWorkers; w++)
                 {
-                    EntityManager.SetComponentData(workers[w], new Translation { Value = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine) });
-                    workersBuffer.Add(workers[i]);
+                    var workerPos = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine);
+
+                    EntityManager.SetComponentData(workers[w], new Translation { Value = workerPos });
+                    //EntityManager.AddComponentData(workers[w], new TargetDestination { Value = workerPos.xz }) ;
+                    
+                    workersBuffer.Add(workers[w]);
                 }
             }
         }
