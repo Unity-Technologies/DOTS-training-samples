@@ -16,9 +16,9 @@ public partial class CreatureTransformUpdateSystem : SystemBase
                 var dirRotation = dir.Value switch
                 {
                     DirectionEnum.North => math.PI,
-                    DirectionEnum.East => math.PI * 0.5f,
+                    DirectionEnum.West => math.PI * 0.5f,
                     DirectionEnum.South => 0f,
-                    DirectionEnum.West => math.PI * -0.5f,
+                    DirectionEnum.East => math.PI * -0.5f,
                     _ => 0f
                 };
                 rot.Value = quaternion.Euler(0, dirRotation, 0);
