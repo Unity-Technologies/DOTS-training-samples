@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class SplineFollow : MonoBehaviour
 {
     public PathData pathData;
@@ -10,13 +11,13 @@ public class SplineFollow : MonoBehaviour
     public float speed;
     public float targetDistance;
 
-    private float distanceFromSplineOrigin;
+    public float distanceFromSplineOrigin;
     private PathController.LookupCache cameraNavCache;
     private PathController.LookupCache cameraTargetNavCache;
 
     public void Start()
     {
-        distanceFromSplineOrigin = Random.Range(0, pathData.PathLength);
+        //distanceFromSplineOrigin = Random.Range(0, pathData.PathLength);
         cameraNavCache = new PathController.LookupCache();
         cameraTargetNavCache = new PathController.LookupCache();
         UpdatePosition();
