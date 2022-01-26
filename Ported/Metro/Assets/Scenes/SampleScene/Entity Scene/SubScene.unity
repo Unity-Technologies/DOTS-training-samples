@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 1921540574}
+  TrackData: {fileID: 194646196}
   CartIndexInTrain: 1
 --- !u!23 &282549448
 MeshRenderer:
@@ -296,7 +296,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 1921540574}
+  TrackData: {fileID: 194646196}
   CartIndexInTrain: 2
 --- !u!23 &401626410
 MeshRenderer:
@@ -393,7 +393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 1921540574}
+  TrackData: {fileID: 194646196}
   CartIndexInTrain: 3
 --- !u!23 &417332752
 MeshRenderer:
@@ -681,7 +681,7 @@ GameObject:
   - component: {fileID: 1721243939}
   - component: {fileID: 1721243938}
   - component: {fileID: 1721243937}
-  - component: {fileID: 1721243942}
+  - component: {fileID: 1721243936}
   - component: {fileID: 1721243941}
   - component: {fileID: 1721243940}
   - component: {fileID: 1721243943}
@@ -694,6 +694,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1721243936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721243935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e654a337aa6b5eb44929f520eb918577, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  track: {fileID: 194646196}
 --- !u!23 &1721243937
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -783,19 +796,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 10
---- !u!114 &1721243942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1721243935}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60581fae5069cb244bed303e996dbbb9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TrackData: {fileID: 1921540574}
 --- !u!114 &1721243943
 MonoBehaviour:
   m_ObjectHideFlags: 0
