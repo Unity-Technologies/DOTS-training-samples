@@ -73,8 +73,8 @@ public partial class ArrowPlacerSystem : SystemBase
     {
         cellDirection = DirectionEnum.North;
 
-        var intCoord = new int2((int)coord.x, (int)coord.y);
-        var tilePt = coord - intCoord- 0.5f;
+        var intCoord = new int2((int)math.round(coord.x), (int)math.round(coord.y));
+        var tilePt = coord - intCoord;
         if (math.abs(tilePt.y) > math.abs(tilePt.x))
             cellDirection = tilePt.y < 0 ? DirectionEnum.North : DirectionEnum.South;
         else
