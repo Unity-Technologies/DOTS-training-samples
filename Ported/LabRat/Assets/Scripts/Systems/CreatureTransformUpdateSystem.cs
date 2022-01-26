@@ -5,19 +5,12 @@ using Unity.Transforms;
 [UpdateAfter(typeof(CreatureMovementSystem))]
 public partial class CreatureTransformUpdateSystem : SystemBase
 {
-    private static int3 DirectionToVector(DirectionEnum dir)
-    {
-        return new int3((dir & DirectionEnum.East) != 0 ? 1 : (dir & DirectionEnum.West) != 0 ? -1 : 0,
-            (dir & DirectionEnum.South) != 0 ? 1 : (dir & DirectionEnum.North) != 0 ? -1 : 0,
-            (dir & DirectionEnum.Hole) != 0 ? -1 : 0);
-    }
-
     protected override void OnUpdate()
     {
         Entities
             .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans, ref Rotation rot) =>
             {
-                int3 direction = DirectionToVector(dir.Value);
+                int3 direction = dir.Value.ToVector3();
                 float3 start = new float3(tile.Coords, 0);
                 trans.Value = math.lerp(start.xzy, start.xzy + direction.xzy, lerp.Value);
                 var dirRotation = dir.Value switch

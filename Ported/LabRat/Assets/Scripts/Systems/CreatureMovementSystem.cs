@@ -11,26 +11,6 @@ public partial class CreatureMovementSystem : SystemBase
     {
         return (walls & dir) != 0;
     }
-
-    private static DirectionEnum Reverse(DirectionEnum dir)
-    {
-        return dir switch
-        {
-            DirectionEnum.North => DirectionEnum.South,
-            DirectionEnum.East => DirectionEnum.West,
-            DirectionEnum.South => DirectionEnum.North,
-            DirectionEnum.West => DirectionEnum.East,
-            _ => DirectionEnum.None
-        };
-    }
-
-    private static int2 DirectionToVector(DirectionEnum dir)
-    {
-        // Use bitfield to determine direction we are going
-        int2 dirVec = new int2(new bool2((dir & DirectionEnum.East) != 0, (dir & DirectionEnum.South) != 0));
-        dirVec -= new int2(new bool2((dir & DirectionEnum.West) != 0, (dir & DirectionEnum.North) != 0));
-        return dirVec;
-    }
     
     private static DirectionEnum SelectNewDirection(DirectionEnum dir)
     {
@@ -51,7 +31,7 @@ public partial class CreatureMovementSystem : SystemBase
 
     private static int2 Neighbor(int2 coord, DirectionEnum dir)
     {
-        return coord + DirectionToVector(dir);
+        return coord + dir.ToVector2();
     }
     
     private static bool HasWallOrNeighborWall(Config config, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir) 
@@ -66,7 +46,7 @@ public partial class CreatureMovementSystem : SystemBase
 		
         var neighbor = Neighbor(current, dir);
         var neighborWalls = GetTileWalls(config, mapTiles, neighbor);
-        var oppositeDirection = Reverse(dir);
+        var oppositeDirection = dir.Reverse();
         
         if (WallInDirection(neighborWalls, oppositeDirection))
         {
@@ -94,9 +74,9 @@ public partial class CreatureMovementSystem : SystemBase
         if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
             dir = SelectNewDirection(dir);
             if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
-                dir = Reverse(dir);
+                dir = dir.Reverse();
                 if (HasWallOrNeighborWall(conf, mapTiles, current, dir)) {
-                    dir = Reverse(dir);
+                    dir = dir.Reverse();
                 }
             }
         }
@@ -120,7 +100,7 @@ public partial class CreatureMovementSystem : SystemBase
         {
             lerp.Value -= 1.0f;
             
-            tile.Coords += DirectionToVector(dir.Value);
+            tile.Coords += dir.Value.ToVector2();
             
             dir.Value = NextPath(conf, mapTiles, tile.Coords, dir.Value);
         }
