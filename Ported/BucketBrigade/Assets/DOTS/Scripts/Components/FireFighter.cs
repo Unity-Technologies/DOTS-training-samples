@@ -10,5 +10,8 @@ public struct FireFighter : IComponentData
 }
 
 public struct BucketFetcher : IComponentData { }
+
+
 public struct HoldsEmptyBucket : IComponentData { }
 public struct HoldsFullBucket : IComponentData { }
+public struct HoldsBucketBeingFilled : IComponentData { public Entity Lake; }
