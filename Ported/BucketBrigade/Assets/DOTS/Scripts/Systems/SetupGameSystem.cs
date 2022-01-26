@@ -34,18 +34,63 @@ public partial class SetupGameSystem : SystemBase
             // TODO: These should be spawned by conversion (remove this comment when that is done)
         }
 
-        // TODO: Spawn Teams of Firefighters
         {
-            var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
+            var teamArray = new NativeArray<Entity>(gameConstants.TeamCountAtStart, Allocator.Temp);
 
-            EntityManager.Instantiate(gameConstants.FireFighterPrefab, fireFighterArray);
+            EntityManager.Instantiate(gameConstants.TeamPrefab, teamArray);
 
-            for (int i = 0; i < fireFighterArray.Length; i++)
+            for (int i = 0; i < teamArray.Length; i++)
             {
-                EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
-                EntityManager.AddComponent<BucketFetcher>(fireFighterArray[i]);
+                var angleOffset = 2.0f * math.PI * ((float)i / teamArray.Length);
+
+                var pos = new float3(math.cos(angleOffset) * gameConstants.FieldSize.x * 0.5f,
+                                     0,
+                                     math.sin(angleOffset) * gameConstants.FieldSize.y * 0.5f);
+
+                pos += new float3(gameConstants.FieldSize, 0).xzy * 0.5f;
+
+                EntityManager.SetComponentData(teamArray[i], new Translation { Value = pos });
+
+                var totalWorkers = gameConstants.WorkersPerLine * 2 + 1;
+                var workers = new NativeArray<Entity>(totalWorkers, Allocator.Temp);
+
+                EntityManager.Instantiate(gameConstants.FireFighterPrefab, workers);
+
+                DynamicBuffer<TeamWorkers> workersBuffer = EntityManager.AddBuffer<TeamWorkers>(teamArray[i]);
+
+                for (int w = 0; w < totalWorkers; w++)
+                {
+                    var workerPos = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine);
+
+                    EntityManager.SetComponentData(workers[w], new Translation { Value = workerPos });
+                    //EntityManager.AddComponentData(workers[w], new TargetDestination { Value = workerPos.xz }) ;
+                    
+                    workersBuffer.Add(workers[w]);
+                }
             }
         }
+
+        // TODO: Spawn Teams of Firefighters
+        //{
+        //    var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
+
+        //    EntityManager.Instantiate(gameConstants.FireFighterPrefab, fireFighterArray);
+
+        //    for (int i = 0; i < fireFighterArray.Length; i++)
+        //    {
+        //        EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
+        //        //EntityManager.AddComponentData(fireFighterArray[i], (TargetDestination)(random.NextFloat2() * gameConstants.FieldSize));
+        //        if ((i & 1) == 0)
+        //        {
+        //            EntityManager.AddComponent<HoldsFullBucket>(fireFighterArray[i]);
+        //        }
+        //        else
+        //        {
+        //            EntityManager.AddComponent<HoldsEmptyBucket>(fireFighterArray[i]);
+        //        }
+
+        //    }
+        //}
 
         {
             var cellsWithBuckets = (int)(gameConstants.BucketSpawnDensity * gridSize);
@@ -78,8 +123,6 @@ public partial class SetupGameSystem : SystemBase
 
             // Set fire
             heatBuffer.AddRange(heatArray);
-
-
 
             // Show where we spawned fire
             for (int y = 0; y < gameConstants.FieldSize.y; y++)

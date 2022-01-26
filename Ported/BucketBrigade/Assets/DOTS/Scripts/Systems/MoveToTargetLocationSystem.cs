@@ -49,5 +49,8 @@ public partial class MoveToTargetLocationSystem : SystemBase
         }).ScheduleParallel();
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
+
+        // TODO : remove when we understand the issue between this and PickClosestLake system
+        Dependency.Complete();
     }
 }

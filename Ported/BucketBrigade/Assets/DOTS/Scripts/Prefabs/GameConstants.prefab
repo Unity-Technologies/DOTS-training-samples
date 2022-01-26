@@ -87,4 +87,8 @@ MonoBehaviour:
   FireOSCRange: 0.2
   FlamePrefab: {fileID: 1306931638197496, guid: 98c7d39c32a0ccc439822c55b2115767,
     type: 3}
+  TeamPrefab: {fileID: 5353920898393341120, guid: 6cfd00e9c86fbab43b4ae0583e3b82ac,
+    type: 3}
+  TeamCountAtStart: 4
+  WorkersPerLine: 10
   LakeMaxVolume: 50
