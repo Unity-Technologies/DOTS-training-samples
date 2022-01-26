@@ -1,10 +1,9 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
-using static Unity.Mathematics.math;
 using Unity.Mathematics;
+using Unity.Transforms;
+using static Unity.Mathematics.math;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(SpawnerSystem))]
@@ -39,13 +38,22 @@ public partial class UpdateStateSystem : SystemBase
         const float distanceDelta = 0.1f;
 
         // Parallel ECB for recording component add / remove
+        // NOTE: Not necessary if only modifying pre-existing component values
+        var randomSeed = (uint) max(1,
+            DateTime.Now.Millisecond +
+            DateTime.Now.Second +
+            DateTime.Now.Minute +
+            DateTime.Now.Day +
+            DateTime.Now.Month +
+            DateTime.Now.Year);
+        var random = new Random(randomSeed);
+        
+        // Parallel ECB for recording component add / remove
+        // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
         
-        Random random = new Random(1234);
-        var goalDepth = 10;
-        var arenaExtents = new int2(40, 15);
-        var halfArenaHeight = 10;
+        var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
@@ -70,22 +78,27 @@ public partial class UpdateStateSystem : SystemBase
                         {
                             state.value = StateValues.Carrying;
                             carriedEntity.Value = foodEntityData[i];
+
+                            var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
+                            var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
+
+                            var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
+                            // TODO: Not sure why, but the first use of Random here ends up not being very random.  Ask instructor...
+                            //       - so instead, we just get the first random twice for now.
+                            beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
+                            var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
                             
                             // Calculate end location based on team value;
                             float3 endLocation;
                             if (team.Value == TeamValue.Yellow)
                             {
-                                var randomX = random.NextInt(40, 50);
-                                var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
-                                var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
-                                endLocation = float3(randomX, randomY, randomZ);
+                                var beeRandomX = SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
                             }
                             else
                             {
-                                var randomX = random.NextInt(-50, -40);
-                                var randomY = random.NextInt(halfArenaHeight + halfArenaHeight);
-                                var randomZ = random.NextInt(-arenaExtents.y + 1, arenaExtents.y - 1);
-                                endLocation = float3(randomX, randomY, randomZ);
+                                var beeRandomX = SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
                             }
 
                             movement.endLocation = endLocation;
@@ -116,7 +129,7 @@ public partial class UpdateStateSystem : SystemBase
                 {
                     // Choose food at random here
                     // TODO: Exclude food that is being carried or dropped?
-                    int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
+                    int randomInt = random.NextInt(foodTranslationData.Length); // Note: random int/uint values are non-inclusive of the maximum value
                     Translation randomFoodTranslation = foodTranslationData[randomInt];
                     movement.GoTo(translation.Value, randomFoodTranslation.Value);
                     state.value = StateValues.Seeking;
