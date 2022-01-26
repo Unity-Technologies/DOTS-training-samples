@@ -41,30 +41,43 @@ public partial class SetupGameSystem : SystemBase
                 pos += new float3(gameConstants.FieldSize, 0).xzy * 0.5f;
 
                 EntityManager.SetComponentData(teamArray[i], new Translation { Value = pos });
+
+                var totalWorkers = gameConstants.WorkersPerLine * 2 + 1;
+                var workers = new NativeArray<Entity>(totalWorkers, Allocator.Temp);
+
+                EntityManager.Instantiate(gameConstants.FireFighterPrefab, workers);
+
+                DynamicBuffer<TeamWorkers> workersBuffer = EntityManager.AddBuffer<TeamWorkers>(teamArray[i]);
+
+                for (int w = 0; w < totalWorkers; w++)
+                {
+                    EntityManager.SetComponentData(workers[w], new Translation { Value = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine) });
+                    workersBuffer.Add(workers[i]);
+                }
             }
         }
 
         // TODO: Spawn Teams of Firefighters
-        {
-            var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
+        //{
+        //    var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
 
-            EntityManager.Instantiate(gameConstants.FireFighterPrefab, fireFighterArray);
+        //    EntityManager.Instantiate(gameConstants.FireFighterPrefab, fireFighterArray);
 
-            for (int i = 0; i < fireFighterArray.Length; i++)
-            {
-                EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
-                //EntityManager.AddComponentData(fireFighterArray[i], (TargetDestination)(random.NextFloat2() * gameConstants.FieldSize));
-                if ((i & 1) == 0)
-                {
-                    EntityManager.AddComponent<HoldsFullBucket>(fireFighterArray[i]);
-                }
-                else
-                {
-                    EntityManager.AddComponent<HoldsEmptyBucket>(fireFighterArray[i]);
-                }
+        //    for (int i = 0; i < fireFighterArray.Length; i++)
+        //    {
+        //        EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
+        //        //EntityManager.AddComponentData(fireFighterArray[i], (TargetDestination)(random.NextFloat2() * gameConstants.FieldSize));
+        //        if ((i & 1) == 0)
+        //        {
+        //            EntityManager.AddComponent<HoldsFullBucket>(fireFighterArray[i]);
+        //        }
+        //        else
+        //        {
+        //            EntityManager.AddComponent<HoldsEmptyBucket>(fireFighterArray[i]);
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         {
             var cellsWithBuckets = (int)(gameConstants.BucketSpawnDensity * gridSize);

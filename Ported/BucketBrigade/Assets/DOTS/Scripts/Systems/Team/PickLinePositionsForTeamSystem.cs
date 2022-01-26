@@ -46,8 +46,8 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
             .ForEach((ref LineLakePosition lineLakePosition, in Translation translation) =>
             {
                 lineLakePosition.Value = FindClosestTranslation(translation, lakeTranslations.AsReadOnly());
-
-            }).ScheduleParallel();
+            })
+            .ScheduleParallel();
 
         var fireTranslations = FireQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
@@ -56,9 +56,33 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
             .WithDisposeOnCompletion(fireTranslations)
             .ForEach((ref LineFirePosition lineFirePosition, in Translation translation) =>
             {
-
                 lineFirePosition.Value = FindClosestTranslation(translation, fireTranslations.AsReadOnly());
+            })
+            .ScheduleParallel();
 
-            }).ScheduleParallel();
+        Entities
+            .ForEach((ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
+            {
+                translation.Value = math.lerp(lineLakePosition.Value, lineFirePosition.Value, 0.5f);
+            })
+            .ScheduleParallel();
+
+        var gameConstants = GetSingleton<GameConstants>();
+
+        Entities
+            .ForEach((Entity e, ref DynamicBuffer<TeamWorkers> workersBuffer, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
+            {
+                // Forward Line
+                for (int i = 0; i < gameConstants.WorkersPerLine; i++)
+                {
+                    float t = (float)i / gameConstants.WorkersPerLine;
+                    float2 target = math.lerp(lineLakePosition.Value, lineFirePosition.Value, t).xz;
+
+                    TargetPosition targetPosition = new TargetPosition() { Value = target };
+
+                    SetComponent<TargetPosition>(workersBuffer[i].Value, targetPosition);
+                }
+            })
+            .Schedule();
     }
 }

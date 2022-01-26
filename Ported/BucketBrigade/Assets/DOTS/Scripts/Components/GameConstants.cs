@@ -39,6 +39,7 @@ struct GameConstants : IComponentData
 
     public Entity TeamPrefab;
     public int TeamCountAtStart;
+    public int WorkersPerLine;
 
     public float LakeMaxVolume;
 }
