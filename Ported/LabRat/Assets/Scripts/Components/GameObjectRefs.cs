@@ -1,8 +1,12 @@
 using Unity.Entities;
+using UnityEngine.UI;
 
 [GenerateAuthoringComponent]
 public class GameObjectRefs : IComponentData
 {
-    public UnityEngine.UI.Text[] ScoreDisplays;
-    public UnityEngine.UI.Image[] Cursors;
+    public Text[] ScoreDisplays;
+    public Graphic[] VictoryPanels;
+    public Image[] Cursors;
+    public Text TimerDisplay;
+    public Text IntroDisplay;
 }

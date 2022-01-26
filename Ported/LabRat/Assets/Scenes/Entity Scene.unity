@@ -269,6 +269,7 @@ MonoBehaviour:
   MaxArrowsPerPlayer: 5
   CursorAIRandom:
     state: 1
+  GameTimeInSeconds: 30
 --- !u!4 &1038515008
 Transform:
   m_ObjectHideFlags: 0
