@@ -1997,17 +1997,17 @@ PrefabInstance:
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: BucketFillRate
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: FireFighterMovementSpeedBucket
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: FireFighterMovementSpeedNoBucket
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfeb066d1c8fe5645890933fb31f289a, type: 3}
