@@ -72,7 +72,7 @@ public partial class SpawnerSystem : SystemBase
                     var foodRowsAndColumns = spawner.ArenaExtents.y * 2 - 2;
                     var planarOffset = foodRowsAndColumns / 2;
                     var halfArenaHeight = spawner.ArenaHeight / 2;
-                    
+
                     var random = new Random(randomSeed);
 
                     #region Food_Init
@@ -84,7 +84,9 @@ public partial class SpawnerSystem : SystemBase
                         {
                             for (var z = 0; z < foodRowsAndColumns && spawnedResources < spawner.StartingResources; z++)
                             {
-                                for (var x = 0; x < foodRowsAndColumns && spawnedResources < spawner.StartingResources; x++)
+                                for (var x = 0;
+                                     x < foodRowsAndColumns && spawnedResources < spawner.StartingResources;
+                                     x++)
                                 {
                                     if (random.NextInt(halfArenaHeight) == 0)
                                     {
@@ -93,9 +95,14 @@ public partial class SpawnerSystem : SystemBase
                                             y + halfArenaHeight,
                                             z - planarOffset);
 
-                                        BufferEntityInstantiation(spawner.ResourcePrefab, spawnPosition, ref ecb);
+                                        var fallTargetPosition = spawnPosition;
+                                        fallTargetPosition.y = 0.5f;
 
-                                        spawnedResources++;
+                                        BufferEntityInstantiation(
+                                            spawner.ResourcePrefab,
+                                            spawnPosition,
+                                            fallTargetPosition,
+                                            ref ecb);
                                     }
                                 }
                             }
@@ -108,17 +115,17 @@ public partial class SpawnerSystem : SystemBase
 
                     var minBeeBounds = GetBeeMinBounds(spawner);
                     var maxBeeBounds = GetBeeMaxBounds(spawner, minBeeBounds);
-                    
+
                     for (var i = 0; i < spawner.StartingBees * 2; i++)
                     {
                         var beeRandomY = GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                         var beeRandomZ = GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-                    
+
                         if (i < spawner.StartingBees)
                         {
                             // Yellow Bees
                             var beeRandomX = GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
-                    
+
                             BufferEntityInstantiation(spawner.YellowBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
@@ -127,7 +134,7 @@ public partial class SpawnerSystem : SystemBase
                         {
                             // Blue Bees
                             var beeRandomX = GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
-                    
+
                             BufferEntityInstantiation(spawner.BlueBeePrefab,
                                 new float3(beeRandomX, beeRandomY, beeRandomZ),
                                 ref ecb);
@@ -189,6 +196,25 @@ public partial class SpawnerSystem : SystemBase
         ecb.SetComponent(instance, translation);
 
         var movement = PP_Movement.Create(position, position);
+
+        ecb.SetComponent(instance, movement);
+    }
+
+    private static void BufferEntityInstantiation(
+        Entity prefabEntity,
+        float3 startPosition,
+        float3 endPosition,
+        ref EntityCommandBuffer ecb)
+    {
+        var instance = ecb.Instantiate(prefabEntity);
+
+        var translation = new Translation
+        {
+            Value = startPosition
+        };
+        ecb.SetComponent(instance, translation);
+
+        var movement = PP_Movement.Create(startPosition, endPosition);
 
         ecb.SetComponent(instance, movement);
     }
