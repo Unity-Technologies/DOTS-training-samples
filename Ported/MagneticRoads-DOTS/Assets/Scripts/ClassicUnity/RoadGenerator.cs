@@ -366,21 +366,18 @@ public class RoadGenerator:MonoBehaviour
 		}
 	}
 
-	public static Dictionary<int, SplineDef[]> splineToMultiSpline = new Dictionary<int, SplineDef[]>();
-	public static Dictionary<int, List<int>> splineLinks = new Dictionary<int, List<int>>();
-	public static int[][] weirdoWeirdSplineLinks;
-	public static Dictionary<int, SplineDef> subSplines = new Dictionary<int, SplineDef>();
+	public static SplineDef[][] splineToMultiSpline;
+	public static List<int>[] splineLinks;
 	
 	private void ConvertToMultiSplinePerRoad()
 	{
-		splineToMultiSpline.Clear();
-		splineLinks.Clear();
-		subSplines.Clear();
+		splineToMultiSpline = new SplineDef[trackSplines.Count][];
+		splineLinks = new List<int>[trackSplines.Count*4];
 		multiSplineId = 0;
 		
 		foreach (var spline in trackSplines)
 		{
-			splineToMultiSpline.Add(spline.splineId, new SplineDef[4]);
+			splineToMultiSpline[spline.splineId] = new SplineDef[4];
 			var splineDict = splineToMultiSpline[spline.splineId];
 			splineDict[0] = ToSplineDef(spline, false, true);
 			splineDict[1] = ToSplineDef(spline, true, true);
@@ -390,9 +387,9 @@ public class RoadGenerator:MonoBehaviour
 		
 		foreach (var spline in splineToMultiSpline)
 		{
-			foreach (var splineDef in spline.Value)
+			foreach (var splineDef in spline)
 			{
-				splineLinks.Add(splineDef.splineId, new List<int>());
+				splineLinks[splineDef.splineId] = new List<int>();
 			}
 		}
 		
@@ -461,16 +458,6 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
 			}
 		}
-
-		weirdoWeirdSplineLinks = new int[splineLinks.Count][];
-		foreach (var links in splineLinks)
-		{
-			weirdoWeirdSplineLinks[links.Key] = new int[links.Value.Count];
-			for (int i = 0; i < links.Value.Count; i++)
-			{
-				weirdoWeirdSplineLinks[links.Key][i] = links.Value[i];
-			}
-		}
 	}
 
 	private static int multiSplineId;
@@ -493,7 +480,6 @@ public class RoadGenerator:MonoBehaviour
 		};
 		
 		multiSplineId++;
-		subSplines.Add(def.splineId, def);
 		return def;
 	}
 }

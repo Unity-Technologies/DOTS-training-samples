@@ -24,7 +24,7 @@ public partial class RoadConverterSystem : SystemBase
         {
             var entity = entityBuffer[i];
             var buffer = ecb.AddBuffer<RoadNeighbors>(entity);
-            foreach (var link in RoadGenerator.weirdoWeirdSplineLinks[i])
+            foreach (var link in RoadGenerator.splineLinks[i])
             {
                 buffer.Add(new RoadNeighbors {Value = entityBuffer[link]});
             }
