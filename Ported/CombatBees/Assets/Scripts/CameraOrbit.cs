@@ -32,6 +32,6 @@ public class CameraOrbit : MonoBehaviour {
 		smoothViewDist = Mathf.Lerp(smoothViewDist,viewDist,stiffness * Time.deltaTime);
 
 		transform.rotation = Quaternion.Euler(smoothViewAngles.y,smoothViewAngles.x,0f);
-		transform.position = -transform.forward * smoothViewDist;
+		transform.position = -transform.forward * smoothViewDist + new Vector3(0f, 10f, 0f);
 	}
 }
