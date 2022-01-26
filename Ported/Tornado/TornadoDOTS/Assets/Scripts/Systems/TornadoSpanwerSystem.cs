@@ -17,6 +17,7 @@ public partial class TornadoSpanwerSystem : SystemBase
     const int KPadding = 4;
     protected override void OnUpdate()
     {
+        //TODO (perf): We shouldn't to create our own command buffer (2)
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var random = new Random((uint)DateTime.Now.Millisecond+1);
         var floor = GetSingletonEntity<Floor>();
@@ -44,7 +45,9 @@ public partial class TornadoSpanwerSystem : SystemBase
                         Value = new float4(baseColor,baseColor,baseColor,1)
                     });
                 }
-            }).Run();
+            })
+            //TODO (perf): Can be made parallel
+            .Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();

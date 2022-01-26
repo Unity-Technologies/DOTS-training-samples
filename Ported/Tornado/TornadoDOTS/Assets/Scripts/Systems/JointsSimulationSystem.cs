@@ -30,7 +30,7 @@ public partial class JointsSimulationSystem : SystemBase
 		        {
 			        var joint = joints[i];
 
-			        //TODO (perf): Maybe separate anchored joints in another buffer?
+			        //TODO (perf): Maybe separate anchored joints in another buffer? (probably doesn't matter a whole lot)
 			        if (joint.IsAnchored)
 			        {
 				        continue;

@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(JointsSimulationSystem))]
@@ -9,7 +8,7 @@ public partial class BarConstraintSolverSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities 
-            .ForEach((ref DynamicBuffer<Joint> joints, ref DynamicBuffer<Connection> connections) =>
+            .ForEach((ref DynamicBuffer<Joint> joints, in DynamicBuffer<Connection> connections) =>
             {
                 for (int i = 0; i < connections.Length; i++)
                 {

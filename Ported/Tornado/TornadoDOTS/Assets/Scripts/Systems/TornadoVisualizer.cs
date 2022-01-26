@@ -15,8 +15,8 @@ public partial class TornadoVisualizer : SystemBase
         var tornadoPos = GetComponent<Translation>(tornado);
         var time = (float)Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
-        tornadoPos.Value.x = (float) math.cos(time * tornadoMovement.XFrequency) * tornadoDimensions.TornadoRadius;
-        tornadoPos.Value.z = (float) math.sin(time * tornadoMovement.ZFrequency) * tornadoDimensions.TornadoRadius;
+        tornadoPos.Value.x = math.cos(time * tornadoMovement.XFrequency) * tornadoDimensions.TornadoRadius;
+        tornadoPos.Value.z = math.sin(time * tornadoMovement.ZFrequency) * tornadoDimensions.TornadoRadius;
         
         SetComponent(tornado, tornadoPos);
         

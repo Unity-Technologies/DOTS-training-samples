@@ -22,6 +22,7 @@ public struct Joint : IBufferElementData
     public bool IsAnchored;
 }
 
+//TODO: Break into 2 components? (probably less necessary)
 public struct Connection : IBufferElementData
 {
     public int J1, J2;

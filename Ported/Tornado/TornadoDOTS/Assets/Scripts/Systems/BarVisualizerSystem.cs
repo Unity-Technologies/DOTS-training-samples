@@ -11,6 +11,8 @@ public partial class BarVisualizerSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        //TODO (safety): Is there a better way to interact with two queries like this.
+        //What if bars had a reference back to it's cluster and connection index?
         var translations = GetComponentDataFromEntity<Translation>();
         var rotations = GetComponentDataFromEntity<Rotation>();
         var scales = GetComponentDataFromEntity<NonUniformScale>();
@@ -18,8 +20,7 @@ public partial class BarVisualizerSystem : SystemBase
             .WithNativeDisableContainerSafetyRestriction(translations)
             .WithNativeDisableContainerSafetyRestriction(rotations)
             .WithNativeDisableContainerSafetyRestriction(scales)
-            .ForEach((Entity entity, 
-                in DynamicBuffer<Joint> joints,
+            .ForEach((in DynamicBuffer<Joint> joints,
                 in DynamicBuffer<Connection> connections, 
                 in DynamicBuffer<Bar> bars) =>
             {
@@ -30,7 +31,7 @@ public partial class BarVisualizerSystem : SystemBase
                     // position
                     translations[bars[c].Value] = new Translation
                     {
-                        Value = (p1 + p2) / 2f,
+                        Value = (p1 + p2) * 0.5f
                     };
                     
                     var delta = p2 - p1;
@@ -47,6 +48,6 @@ public partial class BarVisualizerSystem : SystemBase
                     scale.Value.z = deltaLength;
                     scales[bars[c].Value] = scale;
                 }
-            }).Run();
+            }).ScheduleParallel();
     }
 }
