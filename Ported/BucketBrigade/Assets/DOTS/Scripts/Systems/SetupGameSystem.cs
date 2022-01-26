@@ -34,16 +34,7 @@ public partial class SetupGameSystem : SystemBase
             for (int i = 0; i < fireFighterArray.Length; i++)
             {
                 EntityManager.SetComponentData(fireFighterArray[i], new Translation { Value = new float3(random.NextFloat() * gameConstants.FieldSize.x, 0, random.NextFloat() * gameConstants.FieldSize.y) });
-                //EntityManager.AddComponentData(fireFighterArray[i], (TargetDestination)(random.NextFloat2() * gameConstants.FieldSize));
-                if ((i & 1) == 0)
-                {
-                    EntityManager.AddComponent<HoldsFullBucket>(fireFighterArray[i]);
-                }
-                else
-                {
-                    EntityManager.AddComponent<HoldsEmptyBucket>(fireFighterArray[i]);
-                }
-
+                EntityManager.AddComponent<BucketFetcher>(fireFighterArray[i]);
             }
         }
 
@@ -58,6 +49,7 @@ public partial class SetupGameSystem : SystemBase
                     Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)),
                 });
                 EntityManager.SetComponentData(bucketEntity, new Bucket());
+                EntityManager.AddComponent<EmptyBucket>(bucketEntity);
             }
         }
 

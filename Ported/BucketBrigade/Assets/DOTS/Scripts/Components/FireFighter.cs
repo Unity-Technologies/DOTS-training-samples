@@ -4,7 +4,9 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable, GenerateAuthoringComponent]
-public struct FireFighter : IComponentData
+public struct FireFighter : IComponentData { }
+
+public struct HoldingBucket : IComponentData
 {
     public Entity HeldBucket;
 }

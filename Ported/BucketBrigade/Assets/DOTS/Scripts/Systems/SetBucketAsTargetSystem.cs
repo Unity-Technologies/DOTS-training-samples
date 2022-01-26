@@ -5,15 +5,15 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public partial class SetLakeAsTargetSystem : SystemBase
+public partial class SetBucketAsTargetSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
 
-    private EntityQuery LakeQuery;
+    private EntityQuery BucketQuery;
 
     protected override void OnCreate()
     {
-        LakeQuery = GetEntityQuery(ComponentType.ReadOnly<Lake>(), ComponentType.ReadOnly<Translation>());
+        BucketQuery = GetEntityQuery(ComponentType.ReadOnly<Bucket>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<EmptyBucket>(), ComponentType.Exclude<BeingHeld>());
         CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -24,22 +24,22 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
         //var chunks = LakeQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
-        var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        if (lakeTranslations.Length == 0)
+        var bucketTranslations = BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        if (bucketTranslations.Length == 0)
             return;
 
-        //var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
+        var bucketEntities = BucketQuery.ToEntityArray(Allocator.TempJob);
 
 
         // TODO: if there are no flames don't do anything
         Entities
-            .WithAll<HoldsEmptyBucket, BucketFetcher>()
-            .WithNone<TargetDestination>()
-            .WithReadOnly(lakeTranslations)
-            .WithDisposeOnCompletion(lakeTranslations)
-            //.WithReadOnly(lakeEntities)
-            //.WithDisposeOnCompletion(lakeEntities)
-            .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in HoldingBucket holdingBucket) =>
+            .WithAll<BucketFetcher>()
+            .WithNone<HoldingBucket, TargetDestination>()
+            .WithReadOnly(bucketTranslations)
+            .WithDisposeOnCompletion(bucketTranslations)
+            .WithReadOnly(bucketEntities)
+            .WithDisposeOnCompletion(bucketEntities)
+            .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
             {
                 // HACK: We assume that a flame exists here...
                 var closestIndex = -1;
@@ -47,14 +47,14 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 var bestDistance = float.MaxValue;
                 // HACK: We are mixing types, this is awful.
 
-                for (int i = 0; i < lakeTranslations.Length; i++)
+                for (int i = 0; i < bucketTranslations.Length; i++)
                 {
-                    var dist = math.distance(lakeTranslations[i].Value, translation.Value);
+                    var dist = math.distance(bucketTranslations[i].Value, translation.Value);
 
                     if (dist < bestDistance)
                     {
                         bestDistance = dist;
-                        closest = lakeTranslations[i].Value.xz;
+                        closest = bucketTranslations[i].Value.xz;
                         closestIndex = i;
                     }
                 }
@@ -62,11 +62,10 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 // TODO: If distance is close enough to fill bucket, set a "filling bucket" tag instead
                 if (bestDistance < 0.1f)
                 {
-                    ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
-                    // HACK: Instantly fill bucket
-                    ecb.AddComponent<HoldsFullBucket>(entityInQueryIndex, e);
-                    ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Bucket { Volume = 1f });
-                    // lake.FillQueueBuffer.Add( BucketEntity = x, FireFighterEntity, FillStartTime = x )
+                    var bucket = bucketEntities[closestIndex];
+                    ecb.AddComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
+                    ecb.AddComponent(entityInQueryIndex, e, new HoldingBucket { HeldBucket = bucket });
+                    ecb.AddComponent<BeingHeld>(entityInQueryIndex, bucket);
                 }
                 else
                 {

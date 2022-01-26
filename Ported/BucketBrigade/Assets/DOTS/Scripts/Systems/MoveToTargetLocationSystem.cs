@@ -20,7 +20,7 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities.ForEach((Entity e, int entityInQueryIndex, ref FireFighter fireFighter, ref Translation translation, in TargetDestination target) => {
+        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) => {
             var distanceInFrame = 1f * deltaTime; // TODO: Load speed from constants, hinder when bucket is carried.
 
             var direction = target.Value - translation.Value.xz;
@@ -28,16 +28,21 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
             // TODO: Remove target component when this happens?
             if (length == 0)
+            {
+                ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
                 return;
+            }
 
             distanceInFrame = math.min(distanceInFrame, length);
             var toMove = distanceInFrame * (direction / length);
 
             translation.Value += new float3(toMove.x, 0, toMove.y);
+        }).ScheduleParallel();
 
-            if (fireFighter.HeldBucket != Entity.Null)
-                ecb.SetComponent(entityInQueryIndex, fireFighter.HeldBucket, new Translation { Value = translation.Value + math.up() });
-
+        // HACK: Lazy buy functional
+        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
+            if (holdingBucket.HeldBucket != Entity.Null)
+                ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Translation { Value = translation.Value + math.up() });
         }).ScheduleParallel();
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
