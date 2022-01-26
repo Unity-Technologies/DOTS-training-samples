@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class CatAuthoring : MonoBehaviour, IConvertGameObjectToEntity
@@ -10,5 +11,6 @@ public class CatAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Tile>(entity);
         dstManager.AddComponent<Direction>(entity);
         dstManager.AddComponent<TileLerp>(entity);
+        dstManager.AddComponent<Scale>(entity);
     }
 }

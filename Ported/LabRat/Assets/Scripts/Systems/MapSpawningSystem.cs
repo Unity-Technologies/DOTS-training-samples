@@ -169,6 +169,10 @@ public partial class MapSpawningSystem : SystemBase
                             _ => DirectionEnum.North
                         }
                     });
+                    ecb.SetComponent(cat, new Scale
+                    {
+                        Value = 1.0f
+                    });
                 }
 
                 // spawn the mice spawners
@@ -205,13 +209,6 @@ public partial class MapSpawningSystem : SystemBase
                     timeToStartSpawning +=
                         random.NextFloat(config.MouseSpawnCooldown.x, config.MouseSpawnCooldown.y);
                 }
-                
-                // set up MapData
-                ecb.SetComponent(mapData, new MapData
-                {
-                    Size = new int2(config.MapWidth, config.MapHeight),
-                });
-
             }).Run();
 
         players.Dispose();
