@@ -29,6 +29,16 @@ public struct Connection : IBufferElementData
     public float OriginalLength;
 }
 
+public struct InitializeJointNeighbours : IComponentData
+{
+    
+}
+
+public struct JointNeighbours : IBufferElementData
+{
+    public int Value;
+}
+
 public struct Bar : IBufferElementData
 {
     public Entity Value;

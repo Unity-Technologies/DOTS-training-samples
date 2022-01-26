@@ -47,6 +47,9 @@ public partial class CitySpawnerSystem : SystemBase
                     ecb.AddBuffer<Joint>(cluster);
                     ecb.AddBuffer<Connection>(cluster);
                     ecb.AddBuffer<Bar>(cluster);
+                    
+                    ecb.AddComponent<InitializeJointNeighbours>(cluster);
+                    ecb.AddBuffer<JointNeighbours>(cluster);
                 }
             }).Schedule();
 
@@ -103,24 +106,24 @@ public partial class CitySpawnerSystem : SystemBase
                     // horizontal bars
                     for (int j = structureStartIndex; j < joints.Length; j += 3)
                     {
-                        CreateConnection(j, j + 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j + 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j, j + 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 1, j + 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 2, j, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
                     }
                     // vertical bars
                     for (int j = structureStartIndex; j < joints.Length - 3; ++j)
                     {
-                        CreateConnection(j, j + 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j, j + 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
                     }
                     // cross bars
                     for (int j = structureStartIndex + 3; j < joints.Length; j += 3)
                     {
-                        CreateConnection(j, j - 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j, j - 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j - 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 1, j - 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j - 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
-                        CreateConnection(j + 2, j - 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, bars, entity);
+                        CreateConnection(j, j - 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j, j - 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 1, j - 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 1, j - 1, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 2, j - 3, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
+                        CreateConnection(j + 2, j - 2, joints, connections, parallelWriter, entityInQueryIndex, clusterData.BarPrefab, entity);
                     }
 
                     structureStartIndex = joints.Length;
@@ -129,12 +132,40 @@ public partial class CitySpawnerSystem : SystemBase
                 parallelWriter.RemoveComponent<ClusterGeneration>(entityInQueryIndex, entity);
                 parallelWriter.AddComponent<BarAssignColor>(entityInQueryIndex, entity);
             }).ScheduleParallel();
+        
+        Entities
+            .WithAll<InitializeJointNeighbours>()
+            .ForEach((Entity entity, 
+                int entityInQueryIndex,
+                DynamicBuffer<JointNeighbours> neighbours, 
+                in DynamicBuffer<Joint> joints,
+                in DynamicBuffer<Connection> connections) =>
+            {
+                neighbours.ResizeUninitialized(joints.Length);
+                for (int i = 0; i < neighbours.Length; ++i)
+                {
+                    neighbours[i] = new JointNeighbours { Value = 0 };
+                }
+                for (int c = 0; c < connections.Length; ++c)
+                {
+                    var connection = connections[c];
+                    var jointNeighbours = neighbours[connection.J1];
+                    jointNeighbours.Value++;
+                    neighbours[connection.J1] = jointNeighbours;
+                    jointNeighbours = neighbours[connection.J2];
+                    jointNeighbours.Value++;
+                    neighbours[connection.J1] = jointNeighbours;
+                }
+                
+                parallelWriter.RemoveComponent<InitializeJointNeighbours>(entityInQueryIndex, entity);
+            }).ScheduleParallel();
+        
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
     static void CreateConnection(
-        int j1, int j2, DynamicBuffer<Joint> joints, DynamicBuffer<Connection> connections, 
-        EntityCommandBuffer.ParallelWriter parallelWriter, int key, Entity barPrefab, DynamicBuffer<Bar> bars, Entity me)
+        int j1, int j2, DynamicBuffer<Joint> joints, DynamicBuffer<Connection> connections,
+        EntityCommandBuffer.ParallelWriter parallelWriter, int key, Entity barPrefab, Entity me)
     {
         connections.Add(new Connection
         {
