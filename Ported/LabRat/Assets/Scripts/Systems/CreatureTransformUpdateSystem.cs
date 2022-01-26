@@ -19,16 +19,10 @@ public partial class CreatureTransformUpdateSystem : SystemBase
                 trans.Value = math.lerp(start.xzy, start.xzy + direction.xzy, lerp.Value);
 
                 // Rotation
-                var targetRotation = dir.Value switch
+                if (dir.Value.Passable())
                 {
-                    DirectionEnum.North => quaternion.Euler(0,math.PI, 0),
-                    DirectionEnum.West => quaternion.Euler(0,math.PI * 0.5f, 0),
-                    DirectionEnum.South => quaternion.Euler(0,0, 0),
-                    DirectionEnum.East => quaternion.Euler(0,math.PI * -0.5f, 0),
-                    _ => rot.Value
-                };
-
-                rot.Value = math.slerp(rot.Value, targetRotation, math.saturate(delta * config.CreatureAnimationSpeed));
+                    rot.Value = math.slerp(rot.Value, dir.Value.ToQuaternion(), math.saturate(delta * config.CreatureAnimationSpeed));
+                }
             }).ScheduleParallel();
         
         

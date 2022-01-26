@@ -48,6 +48,18 @@ static class DirectionEnumExtensions
         };
     }
 
+    public static quaternion ToQuaternion(this DirectionEnum dir)
+    {
+        return dir switch
+        {
+            DirectionEnum.North => quaternion.Euler(0,math.PI, 0),
+            DirectionEnum.West => quaternion.Euler(0,math.PI * 0.5f, 0),
+            DirectionEnum.South => quaternion.Euler(0,0, 0),
+            DirectionEnum.East => quaternion.Euler(0,math.PI * -0.5f, 0),
+            _ => quaternion.Euler(0,0, 0),
+        };
+    }
+
     public static bool Passable(this DirectionEnum dir)
     {
         return !dir.Impassable();
