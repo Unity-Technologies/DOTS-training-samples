@@ -11,6 +11,7 @@ public partial class CreatureTransformUpdateSystem : SystemBase
         var delta = Time.DeltaTime;
 
         Entities
+            .WithAll<Creature>()
             .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans, ref Rotation rot) =>
             {
                 // Translation
@@ -25,7 +26,11 @@ public partial class CreatureTransformUpdateSystem : SystemBase
                 }
             }).ScheduleParallel();
         
-        
-
+        Entities
+            .WithAll<Cat>()
+            .ForEach((ref Scale scale) =>
+            {
+                scale.Value = math.lerp(scale.Value, 1.0f, math.saturate(delta * config.CreatureAnimationSpeed));
+            }).ScheduleParallel();
     }
 }

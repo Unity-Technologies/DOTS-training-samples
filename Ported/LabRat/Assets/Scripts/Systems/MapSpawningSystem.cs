@@ -165,6 +165,10 @@ public partial class MapSpawningSystem : SystemBase
                             _ => DirectionEnum.North
                         }
                     });
+                    ecb.SetComponent(cat, new Scale
+                    {
+                        Value = 1.0f
+                    });
                 }
 
                 // spawn the mice spawners

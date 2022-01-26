@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class CreatureColliderSystem : SystemBase
 {
@@ -19,7 +20,6 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void CellCollison()
     {
-        // Could make this only once, if cats never change
         var query = GetEntityQuery(typeof(Cat), typeof(Tile));
 
         if (query.IsEmpty)
@@ -52,7 +52,6 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void DistanceCollision()
     {
-        // Could make this only once, if cats never change
         var query = GetEntityQuery(typeof(Cat), typeof(Translation));
 
         if (query.IsEmpty)
@@ -82,6 +81,85 @@ public partial class CreatureColliderSystem : SystemBase
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
 
+    private void DistanceCollisionAsync()
+    {
+        var query = GetEntityQuery(typeof(Cat), typeof(Translation));
+
+        if (query.IsEmpty)
+        {
+            return;
+        }
+
+        var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var catTranslations = query.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var catTransCopyJob);
+
+        Dependency = Entities
+            .WithAll<Mouse>()
+            .WithReadOnly(catTranslations)
+            .WithDisposeOnCompletion(catTranslations)
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                foreach (var transform in catTranslations)
+                {
+                    if (math.distance(translation.Value, transform.Value) < 0.8f)
+                    {
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                    }
+                }
+            }).ScheduleParallel(catTransCopyJob);
+
+        mECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
+    private void DistanceCollisionAnimationAsync()
+    {
+        var query = GetEntityQuery(typeof(Cat), typeof(Translation), typeof(Scale));
+
+        if (query.IsEmpty)
+        {
+            return;
+        }
+
+        var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var catTranslations = query.ToComponentDataArrayAsync<Translation>(Allocator.TempJob, out var catTransCopyJob);
+        var catScalings = query.ToComponentDataArrayAsync<Scale>(Allocator.TempJob, out var catScaleCopyJob);
+
+        Dependency = Entities
+            .WithAll<Mouse>()
+            .WithReadOnly(catTranslations)
+            // Need to disable checks for catScalings or checking will complain, even with the async copy as a dependency for the ForEach
+            .WithNativeDisableContainerSafetyRestriction(catScalings)
+            .WithDisposeOnCompletion(catTranslations)
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                for (int i = 0; i < catTranslations.Length; ++i)
+                {
+                    var transform = catTranslations[i];
+
+                    if (math.distance(translation.Value, transform.Value) < 0.8f)
+                    {
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
+
+                        // Make cat a little big when eating a mouse
+                        var scale = catScalings[i];
+                        scale.Value = 1.4f;
+                        catScalings[i] = scale;
+                    }
+                }
+            }).ScheduleParallel(JobHandle.CombineDependencies(catTransCopyJob, catScaleCopyJob));
+
+        query.AddDependency(Dependency);
+        query.CopyFromComponentDataArrayAsync(catScalings, out var catScalingCopyBackJob);
+
+        Dependency = JobHandle.CombineDependencies(Dependency, catScalingCopyBackJob);
+
+        var catScalingDisposeJob = catScalings.Dispose(Dependency);
+
+        mECBSystem.AddJobHandleForProducer(Dependency);
+    }
+
     protected override void OnUpdate()
     {
         var config = GetSingleton<Config>();
@@ -93,6 +171,15 @@ public partial class CreatureColliderSystem : SystemBase
                 break;
             case CollisionMode.Distance:
                 DistanceCollision();
+                break;
+            case CollisionMode.DistanceAsync:
+                DistanceCollisionAsync();
+                break;
+            case CollisionMode.DistanceAnimationAsync:
+                DistanceCollisionAnimationAsync();
+                break;
+            default:
+                Debug.Log("No Collision implemented for enum " + config.CollisionMode);
                 break;
         };
     }

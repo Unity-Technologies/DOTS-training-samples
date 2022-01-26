@@ -7,7 +7,9 @@ using UnityEngine;
 public enum CollisionMode
 {
     Cell,
-    Distance
+    Distance,
+    DistanceAsync,
+    DistanceAnimationAsync
 }
 
 [GenerateAuthoringComponent]
