@@ -82,7 +82,8 @@ public partial class MovementSystem : SystemBase
             .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
             {
                 // do bee movement
-                translation.Value = ppMovement.Progress(tAdd);
+                translation.Value = ppMovement.Progress(tAdd, MotionType.BeeBumble);
+
 
             }).Schedule();
 
@@ -90,9 +91,16 @@ public partial class MovementSystem : SystemBase
         //food, dependant on Bees.
         Entities
             .WithAll<Food>()
-            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
+            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity, in Food food) =>
             {
-                translation.Value = ppMovement.Progress(tAdd);
+                if (food.isBeeingCarried)
+                {
+                    translation.Value = ppMovement.Progress(tAdd, MotionType.BeeBumble);
+                }
+                else
+                {
+                    translation.Value = ppMovement.Progress(tAdd, MotionType.Linear);
+                }
 
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
