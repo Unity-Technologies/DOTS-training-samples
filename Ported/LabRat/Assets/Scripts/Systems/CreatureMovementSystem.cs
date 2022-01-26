@@ -61,7 +61,7 @@ public partial class CreatureMovementSystem : SystemBase
     {
         var hole = GetTileWalls(config, mapTiles, current);
 
-        return (hole & DirectionEnum.Hole) != 0;
+        return hole.Impassable();
     }
     
     private static DirectionEnum NextPath(Config conf, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir)

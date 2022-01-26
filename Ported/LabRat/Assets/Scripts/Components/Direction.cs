@@ -48,4 +48,14 @@ static class DirectionEnumExtensions
         };
     }
 
+    public static bool Passable(this DirectionEnum dir)
+    {
+        return !dir.Impassable();
+    }
+
+    public static bool Impassable(this DirectionEnum dir)
+    {
+        return (dir & DirectionEnum.Hole) != 0;
+    }
+
 }
