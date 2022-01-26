@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(MoveToTargetLocationSystem))]
-public partial class PickClosestLakeFromTeamSystem : SystemBase
+public partial class PickLinePositionsForTeamSystem : SystemBase
 {
     private EntityQuery LakeQuery;
     private EntityQuery FireQuery;
@@ -43,12 +43,11 @@ public partial class PickClosestLakeFromTeamSystem : SystemBase
         Entities
             .WithReadOnly(lakeTranslations)
             .WithDisposeOnCompletion(lakeTranslations)
-            .ForEach((ref LineLakePosition lineLakePosition, in Translation translation) => {
-
+            .ForEach((ref LineLakePosition lineLakePosition, in Translation translation) =>
+            {
                 lineLakePosition.Value = FindClosestTranslation(translation, lakeTranslations.AsReadOnly());
 
             }).ScheduleParallel();
-
 
         var fireTranslations = FireQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
