@@ -10,7 +10,7 @@ using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public UnityGameObject BarPrefab;
-    [UnityRange(1, 200)] public int NumberOfClusters;
+    public int NumberOfClusters;
     [UnityRange(1, 40)] public int TowerMinHeight;
     [UnityRange(1, 40)] public int TowerMaxHeight;
 

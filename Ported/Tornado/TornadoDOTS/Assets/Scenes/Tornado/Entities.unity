@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BarPrefab: {fileID: 3706129638398974240, guid: f012066dc3b7a4b809b415ece990c0ad, type: 3}
-  NumberOfClusters: 100
+  NumberOfClusters: 1000
   TowerMinHeight: 5
   TowerMaxHeight: 12
   Floor: {fileID: 2145280309}
@@ -297,7 +297,6 @@ MonoBehaviour:
   Friction: 0.4
   Gravity: 0.5
   Damping: 0.012
-  BreakDistance: 0.55
 --- !u!114 &1922779104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,7 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8adb1a7cbe94cd2a35ffc45b1cfc925, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TornadoRadius: 30
+  TornadoRadius: 40
   TornadoHeight: 50
 --- !u!1 &2145280309
 GameObject:
@@ -416,7 +415,7 @@ Transform:
   m_GameObject: {fileID: 2145280309}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10, y: 1, z: 20}
+  m_LocalScale: {x: 15, y: 1, z: 15}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
