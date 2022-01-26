@@ -16,6 +16,7 @@ public struct Config : IComponentData
     public float MouseMovementSpeed;
     public float CatMovementSpeed;
     public float CreatureFallSpeed;
+    public float CreatureAnimationSpeed;
 
     public float MouseSpawnRate;
     public float2 MouseSpawnCooldown;

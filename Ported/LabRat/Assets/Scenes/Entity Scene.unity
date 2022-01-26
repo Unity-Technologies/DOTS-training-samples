@@ -245,6 +245,7 @@ MonoBehaviour:
   MouseMovementSpeed: 1.5
   CatMovementSpeed: 1
   CreatureFallSpeed: 1
+  CreatureAnimationSpeed: 3
   MouseSpawnRate: 0.5
   MouseSpawnCooldown:
     x: 5
@@ -388,8 +389,6 @@ MonoBehaviour:
   TilePrefab: {fileID: 7359959795559144034, guid: fcddbb9946a7f6a4cb1a8b15e22f2842, type: 3}
   TileOddColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 1}
   TileEvenColor: {r: 0.9150943, g: 0.9150943, b: 0.9150943, a: 1}
-  WallFrequency: 0.101
-  HoleFrequency: 0.061
   WallPrefab: {fileID: 954947033187080506, guid: b734731af7270914889d951940830c95, type: 3}
 --- !u!4 &1776356921
 Transform:
