@@ -17,7 +17,7 @@ public partial class MovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var tAdd = UnityEngine.Time.deltaTime;
+        var deltaTime = UnityEngine.Time.deltaTime;
         var tNow = UnityEngine.Time.timeSinceLevelLoad;
         var spawner = GetSingleton<Spawner>();
 
@@ -30,73 +30,41 @@ public partial class MovementSystem : SystemBase
             System.DateTime.Now.Year);
 
         var random = new Random(randomSeed);
-
-
-        // TODO: Can we parallelize movement by scheduling the translation updates
-        //       and distance checks separately?  Should let us ues ScheduleParallel()
-        //       and WithNativeDisableParallelForRestriction(), yeah?
-
-        //bits
+        
+        // Move: Bee Bits
         Entities
             .WithAll<BeeBitsTag>()
-            .ForEach((Entity e, ref Translation translation) =>
+            .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
             {
-                // calculate bits falling movement - straight down for now
+                // accelerate towards ground with gravity
                 if (translation.Value.y > 0)
                 {
-                    translation.Value = translation.Value * -9.8f * tAdd;
-                }
-                else
-                {
-                    //destroy this entity and create/init a blood splat
-                    /*
-                    ecb.DestroyEntity(e);
-                    var instance = ecb.Instantiate(spawner.BloodPrefab);
+                    // accelerate velocity by gravity constant
+                    velocity.Value.y -= 9.8f * deltaTime;
 
-                    var trans = new Translation
-                    {
-                        Value = translation.Value
-                    };
-
-                    ecb.SetComponent(instance, translation);
-                    */
-
+                    // move by velocity delta
+                    translation.Value += velocity.Value * deltaTime;
                 }
             }).Schedule();
-        //sys.AddJobHandleForProducer(Dependency);
 
-        //blood
+        // Move: anything that moves (interpolates) between start and end points
+        // - at present, the only thing that doesn't do this is Bee Bits, as it uses a velocity approach
         Entities
-            .WithAll<BloodTag>()
-            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
+            .WithNone<BeeBitsTag>()
+            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement) =>
             {
-                // calculate blood scale and later maskOut
-
-                // do orientation later
-
+                translation.Value = ppMovement.Progress(deltaTime);
             }).Schedule();
 
-        //bees
-        Entities
-            .WithAll<BeeTag>()
-            .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
-            {
-                // do bee movement
-                translation.Value = ppMovement.Progress(tAdd);
-
-            }).Schedule();
-
+        // Collision: Food
         var ecb = sys.CreateCommandBuffer();
-        //food, dependant on Bees.
         Entities
-            .WithAll<FoodTag>()
-            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement, in Velocity velocity) =>
+            .WithAny<FoodTag>()
+            .ForEach((Entity e, ref Translation translation, ref PP_Movement ppMovement) =>
             {
-                translation.Value = ppMovement.Progress(tAdd);
-
-                if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
+                // Inside a Goal (hive) region
+                if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x + 0.5f)
                 {
-                    Debug.Log("SpawnBees");
                     if (translation.Value.y <= 0.5f)
                     {
                         //destroy this entity and create/init a blood splat
@@ -114,7 +82,8 @@ public partial class MovementSystem : SystemBase
                             if (translation.Value.x > 0)
                             {
                                 // Yellow Bees
-                                var beeRandomX = SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.YellowBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -123,7 +92,8 @@ public partial class MovementSystem : SystemBase
                             else
                             {
                                 // Blue Bees
-                                var beeRandomX = SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.BlueBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -133,6 +103,19 @@ public partial class MovementSystem : SystemBase
                     }
                 }
             }).Schedule();
+        
+        // Collision: Bee Bits
+        Entities
+            .WithAll<BeeBitsTag>()
+            .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
+            {
+                // Ground Collision
+                if (translation.Value.y < 0)
+                {
+                    // TODO: Spawn blood
+                }
+            }).Schedule();
+
         sys.AddJobHandleForProducer(Dependency);
     }
 }
