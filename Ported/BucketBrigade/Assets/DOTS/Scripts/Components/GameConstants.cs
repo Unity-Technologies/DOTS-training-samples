@@ -36,7 +36,10 @@ struct GameConstants : IComponentData
     public float4 FireMinColor;
     public float FireOSCRange;
     public Entity FlamePrefab;
-    
+
+    public Entity TeamPrefab;
+    public int TeamCountAtStart;
+
     public float LakeMaxVolume;
 }
 

@@ -25,6 +25,25 @@ public partial class SetupGameSystem : SystemBase
             // TODO: These should be spawned by conversion (remove this comment when that is done)
         }
 
+        {
+            var teamArray = new NativeArray<Entity>(gameConstants.TeamCountAtStart, Allocator.Temp);
+
+            EntityManager.Instantiate(gameConstants.TeamPrefab, teamArray);
+
+            for (int i = 0; i < teamArray.Length; i++)
+            {
+                var angleOffset = 2.0f * math.PI * ((float)i / teamArray.Length);
+
+                var pos = new float3(math.cos(angleOffset) * gameConstants.FieldSize.x * 0.5f,
+                                     0,
+                                     math.sin(angleOffset) * gameConstants.FieldSize.y * 0.5f);
+
+                pos += new float3(gameConstants.FieldSize, 0).xzy * 0.5f;
+
+                EntityManager.SetComponentData(teamArray[i], new Translation { Value = pos });
+            }
+        }
+
         // TODO: Spawn Teams of Firefighters
         {
             var fireFighterArray = new NativeArray<Entity>(100, Allocator.Temp);
@@ -80,8 +99,6 @@ public partial class SetupGameSystem : SystemBase
 
             // Set fire
             heatBuffer.AddRange(heatArray);
-
-
 
             // Show where we spawned fire
             for (int y = 0; y < gameConstants.FieldSize.y; y++)
