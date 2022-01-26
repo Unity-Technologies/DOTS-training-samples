@@ -27,7 +27,7 @@ public partial class SplineFollowerSystem : SystemBase
                 float3 direction;
                 SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref dummySegment, trackProgress.Value, out position, out direction);
                 translation.Value = position;
-                rotation.Value = quaternion.LookRotation(direction, new float3(0, 1, 0));
+                rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0));
             }).ScheduleParallel();
     }
 }

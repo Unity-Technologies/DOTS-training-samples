@@ -36,7 +36,7 @@ public partial class RailRoadTieSpawnerSystem : SystemBase
                         float3 position, direction;
                         SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref lookupCache, currentDistance, out position, out direction);
                         var translation = new Translation {Value = position};
-                        var rotation = new Rotation {Value = quaternion.LookRotation(direction, new float3(0, 1, 0))};
+                        var rotation = new Rotation {Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0))};
                         ecb.SetComponent(instance, translation);
                         ecb.SetComponent(instance, rotation);
                         currentDistance += distanceBetweenTies;
