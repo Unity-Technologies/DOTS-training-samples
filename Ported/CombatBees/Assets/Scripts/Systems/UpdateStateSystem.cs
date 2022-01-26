@@ -72,32 +72,25 @@ public partial class UpdateStateSystem : SystemBase
 
                     if ((translation.Value.x < spawner.ArenaExtents.x) && team.Value == TeamValue.Yellow || (translation.Value.x > -spawner.ArenaExtents.x) && team.Value == TeamValue.Blue)
                     {
-                        // ecb.AddComponent(carriedEntity.Value,
-                        //                 new PP_Movement
-                        //                 {
-                        //                     endLocation = translation.Value + float3(0f, -translation.Value.y, 0f),
-                        //                     startLocation = translation.Value + float3(0f, -1f, 0f),
-                        //                     t = 0.0f
-                        //                 });
 
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
                         PP_Movement.Create(translation.Value + float3(0f, -1f, 0f),
                         translation.Value + float3(0f, -translation.Value.y, 0f)));
-
-                        // // Fall through to seeking
-                        // // Choose food at random here
-                        // int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
-                        // Translation randomFoodTranslation = foodTranslationData[randomInt];
-
-                        // //Tell bee to go back to seeking
-                        // movement.endLocation = randomFoodTranslation.Value;
-                        // movement.startLocation = translation.Value;
-                        // movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
-                        // movement.t = 0.0f;
-                        // state.value = StateValues.Seeking;
-
                     }
+                    else
+                    {
+                        // Fall through to seeking
+                        // Choose food at random here
+                        int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
+                        Translation randomFoodTranslation = foodTranslationData[randomInt];
 
+                        // Tell bee to go back to seeking
+                        movement.endLocation = randomFoodTranslation.Value;
+                        movement.startLocation = translation.Value;
+                        movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
+                        movement.t = 0.0f;
+                        state.value = StateValues.Seeking;
+                    }
                 }
 
                 if (state.value == StateValues.Seeking)
