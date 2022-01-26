@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public struct FoodProximitySteering : IComponentData
+public struct ObstacleAvoidanceSteering : IComponentData
 {
     public float2 Value;
 }
