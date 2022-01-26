@@ -14,9 +14,16 @@ public partial class BarConstraintSolverSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+        var parallelWriter = ecb.AsParallelWriter();
         Entities 
-            .ForEach((ref DynamicBuffer<Joint> joints, in DynamicBuffer<Connection> connections) =>
+            .ForEach((Entity entity, 
+                int entityInQueryIndex,
+                ref DynamicBuffer<Connection> connections,
+                ref DynamicBuffer<Joint> joints,
+                ref DynamicBuffer<JointNeighbours> neighbours) =>
             {
+                int nextIndex = joints.Length;
                 for (int i = 0; i < connections.Length; i++)
                 {
                     var connection = connections[i];
@@ -52,34 +59,8 @@ public partial class BarConstraintSolverSystem : SystemBase
 
                     joints[connection.J1] = joint1;
                     joints[connection.J2] = joint2;
-                }
-            }).ScheduleParallel();
-        
-        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
-        var parallelWriter = ecb.AsParallelWriter();
-        Entities 
-            .ForEach((Entity entity, 
-                int entityInQueryIndex,
-                ref DynamicBuffer<Connection> connections,
-                ref DynamicBuffer<Joint> joints,
-                ref DynamicBuffer<JointNeighbours> neighbours) =>
-            {
-                int nextIndex = joints.Length;
-                for (int i = 0; i < connections.Length; i++)
-                {
-                    var connection = connections[i];
-                    if (connection.OriginalLength == 0)
-                    {
-                        continue; // already broken
-                    }
-                    var joint1 = joints[connection.J1];
-                    var joint1Pos = joint1.Value;
-                    var joint2 = joints[connection.J2];
-                    var joint2Pos = joint2.Value;
-
-                    var delta = joint1Pos - joint2Pos;
-                    var length = math.length(delta);
-                    var extraDist = math.abs(length - connection.OriginalLength);
+                    
+                    extraDist = math.abs(extraDist);
                     if (extraDist > k_BreakStrength)
                     {
                         var neighbourCountJ1 = neighbours[connection.J1];
@@ -112,6 +93,7 @@ public partial class BarConstraintSolverSystem : SystemBase
                     }
                 }
             }).ScheduleParallel();
+        
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
