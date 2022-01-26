@@ -18,8 +18,11 @@ public partial class MovementSystem : SystemBase
         var tNow = UnityEngine.Time.timeSinceLevelLoad;
         var spawner = GetSingleton<Spawner>();
 
+        // TODO: Can we parallelize movement by scheduling the translation updates
+        //       and distance checks separately?  Should let us ues ScheduleParallel()
+        //       and WithNativeDisableParallelForRestriction(), yeah?
+        
         //bits
-
         var ecb = sys.CreateCommandBuffer();
         Entities
             .WithAll<BeeBitsTag>()
