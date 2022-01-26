@@ -28,7 +28,7 @@ public partial class ExtinguishFire : SystemBase
                 {
                     for (int outerX = 0; outerX < gameConstants.FieldSize.x; outerX++)
                     {
-                        float3 cellPos = new float3(outerX, 0, outerY) * 0.3f;
+                        float3 cellPos = new float3(outerX, 0, outerY);
                         var distance = math.distance(translation.Value, cellPos);
 
                         if (distance < gameConstants.BucketExtinguishRadius && field[outerX + outerY * gameConstants.FieldSize.x] > 0.2f)
