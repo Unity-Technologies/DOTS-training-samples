@@ -57,18 +57,24 @@ public partial class SetupGameSystem : SystemBase
                 EntityManager.Instantiate(gameConstants.FireFighterPrefab, workers);
 
                 DynamicBuffer<TeamWorkers> workersBuffer = EntityManager.AddBuffer<TeamWorkers>(teamArray[i]);
+                workersBuffer.AddRange(workers.Reinterpret<TeamWorkers>());
 
                 for (int w = 0; w < totalWorkers; w++)
                 {
                     var workerPos = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine);
 
-                    EntityManager.SetComponentData(workers[w], new Translation { Value = workerPos });
-                    //EntityManager.AddComponentData(workers[w], new TargetDestination { Value = workerPos.xz }) ;
-                    
-                    workersBuffer.Add(workers[w]);
-                }
+                    //workersBuffer.Add(workers[w]);
 
-                EntityManager.AddComponent<BucketFetcher>(workers[workers.Length - 1]);
+                    var workerEntity = workers[w];
+                    
+                    EntityManager.SetComponentData(workerEntity, new Translation { Value = workerPos });
+                    
+                    if (w < totalWorkers - 1)
+                    {
+                        EntityManager.AddComponent<LineWorker>(workerEntity);
+                    }
+                    else EntityManager.AddComponent<BucketFetcher>(workerEntity);
+                }
             }
         }
 

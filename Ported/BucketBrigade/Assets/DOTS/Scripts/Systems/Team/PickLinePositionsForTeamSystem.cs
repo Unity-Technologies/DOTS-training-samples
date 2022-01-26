@@ -39,6 +39,11 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
         return closestIndex;
     }
 
+    private static float3 GetLinePosition(float t, float3 lineLakePosition, float3 lineFirePosition, float3 offset)
+    {
+        return math.lerp(lineLakePosition, lineFirePosition, t) + math.sin(t * math.PI) * offset;
+    }
+
     protected override void OnUpdate()
     {
         var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
@@ -93,30 +98,41 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
                     float t = (float)x / (gameConstants.WorkersPerLine + 1);
-                    var target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) + math.sin(t * math.PI) * offset);
+                    float tNext = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
+
+                    var pos = GetLinePosition(t, lineLakePosition.Value, lineFirePosition.Value, offset);
+                    var posNext = GetLinePosition(tNext, lineLakePosition.Value, lineFirePosition.Value, offset);
+
 
                     // DON'T REMOVE THIS LINE
                     TeamWorkers workerEntity = workersBuffer[x];
-
+                    SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext });
+                    
                     if (HasComponent<TargetDestination>(workerEntity))
-                        SetComponent<TargetDestination>(workerEntity, target.xz);
+                        SetComponent<TargetDestination>(workerEntity, pos.xz);
                     else
-                        ecb.AddComponent<TargetDestination>(workerEntity, target.xz);
+                        ecb.AddComponent<TargetDestination>(workerEntity, pos.xz);
                 }
 
                 // Backward Line
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
                     float t = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
-                    var target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) - math.sin(t * math.PI) * offset);
+                    float tNext = (float)(x + 2) / (gameConstants.WorkersPerLine + 1);
+
+                    var pos = GetLinePosition(t, lineFirePosition.Value, lineLakePosition.Value, -offset);
+                    var posNext = GetLinePosition(tNext, lineFirePosition.Value, lineLakePosition.Value, -offset);
+
+                    //var target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) - math.sin(t * math.PI) * offset);
 
                     // DON'T REMOVE THIS LINE
                     TeamWorkers workerEntity = workersBuffer[x + gameConstants.WorkersPerLine];
-
+                    SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext });
+                    
                     if (HasComponent<TargetDestination>(workerEntity))
-                        SetComponent<TargetDestination>(workerEntity, target.xz);
+                        SetComponent<TargetDestination>(workerEntity, pos.xz);
                     else
-                        ecb.AddComponent<TargetDestination>(workerEntity, target.xz);
+                        ecb.AddComponent<TargetDestination>(workerEntity, pos.xz);
                 }
 
                 // BucketFetcher

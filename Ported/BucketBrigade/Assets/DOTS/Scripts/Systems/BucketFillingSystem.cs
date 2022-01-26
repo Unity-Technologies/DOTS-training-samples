@@ -31,6 +31,7 @@ public partial class BucketFllingSystem : SystemBase
 
                 var toDrain = math.min(drainSpeed, 1f - actionEntry.BucketVolume);
 
+                // TODO: Destroy lake if drained.
                 lake.Volume -= toDrain;
                 actionEntry.BucketVolume += toDrain;
 

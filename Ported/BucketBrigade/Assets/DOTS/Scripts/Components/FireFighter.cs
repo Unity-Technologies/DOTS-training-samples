@@ -16,6 +16,12 @@ public struct BucketFetcher : IComponentData {
     public Entity Lake;
 }
 
+public struct LineWorker : IComponentData
+{
+    public float3 LinePosition;
+    public float3 PassPosition;
+} 
+
 
 public struct HoldsEmptyBucket : IComponentData { }
 public struct HoldsFullBucket : IComponentData { }
