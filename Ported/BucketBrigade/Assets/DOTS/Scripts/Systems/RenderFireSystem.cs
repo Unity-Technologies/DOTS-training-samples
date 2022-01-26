@@ -46,7 +46,7 @@ public partial class RenderFireSystem : SystemBase
             float4 finalColor = math.lerp(minColor, maxColor, heat);
             color.Value = finalColor;
             float oscHeat = math.clamp(heat + oscScale * math.sin(deltaTime + (float) id), 0.1f, 1f);
-            scale.Value = new float3(0.3f, oscHeat, 0.3f);
+            scale.Value = new float3(1f, oscHeat*3f, 1f);
             //TODO: setup with noise.pnoise;
         }).ScheduleParallel();
         

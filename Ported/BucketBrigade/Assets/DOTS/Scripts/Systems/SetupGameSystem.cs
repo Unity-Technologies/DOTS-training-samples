@@ -55,7 +55,7 @@ public partial class SetupGameSystem : SystemBase
                 var bucketEntity = EntityManager.Instantiate(gameConstants.BucketPrefab);
                 EntityManager.SetComponentData(bucketEntity, new Translation
                 {
-                    Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)) * 0.3f,
+                    Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)),
                 });
                 EntityManager.SetComponentData(bucketEntity, new Bucket()
                 {
@@ -93,7 +93,7 @@ public partial class SetupGameSystem : SystemBase
 
                     var flameEntity = EntityManager.Instantiate(gameConstants.FlamePrefab);
 
-                    EntityManager.SetComponentData(flameEntity, new Translation { Value = new float3(x, 0, y) * 0.3f });
+                    EntityManager.SetComponentData(flameEntity, new Translation { Value = new float3(x, 0, y)});
                 }
             }
             

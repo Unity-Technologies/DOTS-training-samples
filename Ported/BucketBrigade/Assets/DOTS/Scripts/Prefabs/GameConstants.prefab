@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3490708690633833509
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3490708690633833514}
+  - component: {fileID: 3490708690633833515}
+  m_Layer: 0
+  m_Name: GameConstants
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3490708690633833514
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3490708690633833509}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3490708690633833515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3490708690633833509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa4164c579ab25c46910d604f8df3a77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FieldSize:
+    x: 50
+    y: 50
+  FireSpawnDensity: 0.004
+  FireFighterPrefab: {fileID: 1821148559735918, guid: 05c5aeaf403104b468ac5f588411551a,
+    type: 3}
+  FireFighterMovementSpeedNoBucket: 0.5
+  FireFighterMovementSpeedBucket: 1
+  FireFighterBucketPickupRadius: 0.01
+  BucketSpawnDensity: 0.01
+  BucketFillRate: 0.01
+  BucketPrefab: {fileID: 1773963921688032, guid: 175c9c60a7538b74099492d0825f334b,
+    type: 3}
+  BucketEmpty:
+    x: 1
+    y: 1
+    z: 0
+    w: 1
+  BucketFilled:
+    x: 0
+    y: 1
+    z: 0
+    w: 1
+  BucketExtinguishRadius: 1.5
+  BucketCoolingRate: 0.1
+  FireHeatFlashPoint: 0.2
+  FireHeatTransferRadius: 1
+  FireHeatTransferRate: 0.0003
+  FireSimUpdateRate: 0.001
+  FireMaxColor:
+    x: 1
+    y: 1
+    z: 0
+    w: 1
+  FireMinColor:
+    x: 1
+    y: 0
+    z: 0
+    w: 1
+  FireOSCRange: 0.2
+  FlamePrefab: {fileID: 1306931638197496, guid: 98c7d39c32a0ccc439822c55b2115767,
+    type: 3}
+  LakeMaxVolume: 50
