@@ -23,9 +23,11 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float outwardStrength;
     public float inwardStrength;
     public int rotationResolution = 360;
+    [Range(0,5)]
     public int obstacleRingCount;
-    [Range(0f,1f)]
-    public float obstaclesPerRing;
+    [Range(0,100)]
+    public int obstaclesPerRing;
+    [Range(0f,5f)]
     public float obstacleRadius;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
