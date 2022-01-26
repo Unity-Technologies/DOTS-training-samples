@@ -11,6 +11,5 @@ public class BucketAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Bucket>(entity);
         dstManager.AddComponent<NonUniformScale>(entity);
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
-        dstManager.AddComponent<DroppedBucket>(entity);
     }
 }

@@ -8,4 +8,5 @@ using Unity.Mathematics;
 public struct LineLakePosition : IComponentData
 {
     public float3 Value;
+    public Entity Lake;
 }
