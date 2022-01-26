@@ -27,6 +27,8 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public int obstacleRingCount;
     [Range(0,100)]
     public int obstaclesPerRing;
+    [Range(0,0.5f)]
+    public float obstaclesRadiusStepPerRing;
     [Range(0f,5f)]
     public float obstacleRadius;
 
@@ -53,7 +55,8 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             RotationResolution = rotationResolution,
             ObstacleRingCount = obstacleRingCount,
             ObstaclesPerRing = obstaclesPerRing,
+            ObstacleRadiusStepPerRing = obstaclesRadiusStepPerRing,
             ObstacleRadius = obstacleRadius,
-        });
+        }); ;
     }
 }

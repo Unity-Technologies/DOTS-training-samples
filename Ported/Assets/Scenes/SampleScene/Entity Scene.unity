@@ -231,5 +231,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   antPrefab: {fileID: 5732727635975660233, guid: 77fa64323dd3b2240ab47a92f6b849f9, type: 3}
   colonyPrefab: {fileID: 1134178259479979870, guid: 30f9664e3a498134eb9011a74601aee3, type: 3}
+  groundPrefab: {fileID: 7627134658038992509, guid: 314551135c68eea428529b1b139f6696, type: 3}
   obstaclePrefab: {fileID: 8727901630429476046, guid: 055cbe0f733a7bc4cad5649f036b15dc, type: 3}
   resourcePrefab: {fileID: 6396742729624843782, guid: f265c942e01d9164394085b276d57155, type: 3}

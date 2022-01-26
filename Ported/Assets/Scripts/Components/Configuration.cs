@@ -21,6 +21,7 @@ public struct Configuration : IComponentData
     public float InwardStrength;
     public int RotationResolution;
     public int ObstacleRingCount;
-    public float ObstaclesPerRing;
+    public int ObstaclesPerRing;
+    public float ObstacleRadiusStepPerRing;
     public float ObstacleRadius;
 }
