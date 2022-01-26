@@ -21,7 +21,6 @@ public partial class TornadoSpanwerSystem : SystemBase
         var random = new Random((uint)DateTime.Now.Millisecond+1);
         var floor = GetSingletonEntity<Floor>();
         var scale = GetComponent<NonUniformScale>(floor).Value*KPadding;
-        
         Entities
             .ForEach((Entity entity, in TornadoSpawner spawner) =>
             {

@@ -11,11 +11,12 @@ public partial class TornadoVisualizer : SystemBase
     {
         var tornado = GetSingletonEntity<Tornado>();
         var tornadoMovement = GetComponent<TornadoMovement>(tornado);
+        var tornadoDimensions = GetComponent<TornadoDimensions>(tornado);
         var tornadoPos = GetComponent<Translation>(tornado);
         var time = (float)Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
-        tornadoPos.Value.x = (float) math.cos(time * tornadoMovement.XFrequency) * tornadoMovement.Amplitude;
-        tornadoPos.Value.z = (float) math.sin(time * tornadoMovement.ZFrequency) * tornadoMovement.Amplitude;
+        tornadoPos.Value.x = (float) math.cos(time * tornadoMovement.XFrequency) * tornadoDimensions.TornadoRadius;
+        tornadoPos.Value.z = (float) math.sin(time * tornadoMovement.ZFrequency) * tornadoDimensions.TornadoRadius;
         
         SetComponent(tornado, tornadoPos);
         
@@ -23,7 +24,7 @@ public partial class TornadoVisualizer : SystemBase
             ForEach((ref Translation particlePos, ref NonUniformScale particleScale, in TornadoParticle particleProp) =>
             {
                 var tornadoPosPerParticle = new float3(
-                    tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoMovement.MaxHeight + time/4f) * 2f),
+                    tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoDimensions.TornadoHeight + time/4f) * 2f),
                     particlePos.Value.y,
                     tornadoPos.Value.z
                 );
@@ -37,7 +38,7 @@ public partial class TornadoVisualizer : SystemBase
                 }
                     
                 delta /= dist;
-                var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoMovement.MaxHeight, 0, 1)) * tornadoMovement.Amplitude * particleProp.RadiusMult;
+                var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoDimensions.TornadoHeight, 0, 1)) * tornadoDimensions.TornadoRadius * particleProp.RadiusMult;
                 
                 var newPos = new float3(
                     (-delta.z * particleProp.SpinRate) + (delta.x * inForce),
@@ -46,7 +47,7 @@ public partial class TornadoVisualizer : SystemBase
                     );
                 newPos *= deltaTime;
                 newPos += particlePos.Value;
-                if (newPos.y>tornadoMovement.MaxHeight)
+                if (newPos.y>tornadoDimensions.TornadoHeight)
                 {
                     newPos = new Vector3(particlePos.Value.x,1f,particlePos.Value.z);
                 }

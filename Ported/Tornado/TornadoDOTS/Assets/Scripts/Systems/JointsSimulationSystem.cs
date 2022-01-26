@@ -11,6 +11,7 @@ public partial class JointsSimulationSystem : SystemBase
     {
         var tornado = GetSingletonEntity<Tornado>();
         var parameters = GetComponent<TornadoSimulationParameters>(tornado);
+        var tornadoDimensions = GetComponent<TornadoDimensions>(tornado);
         var tornadoPos = GetComponent<Translation>(tornado).Value;
 
         var dt = Time.fixedDeltaTime;
@@ -52,10 +53,10 @@ public partial class JointsSimulationSystem : SystemBase
 					var tornadoXZDist = math.sqrt(td.x * td.x + td.z * td.z);
 					td /= tornadoXZDist;
 
-					if (tornadoXZDist < parameters.TornadoMaxForceDist)
+					if (tornadoXZDist < tornadoDimensions.TornadoRadius)
 					{
-						var forceScalar = (1.0f - tornadoXZDist / parameters.TornadoMaxForceDist);
-						var yFader = math.clamp(1f - jointPos.y / parameters.TornadoHeight, 0, 1);
+						var forceScalar = (1.0f - tornadoXZDist / tornadoDimensions.TornadoRadius);
+						var yFader = math.clamp(1f - jointPos.y / tornadoDimensions.TornadoHeight, 0, 1);
 						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(rnd);
 						var force = new float3(
 							-td.z - td.x * parameters.TornadoInwardForce*yFader,

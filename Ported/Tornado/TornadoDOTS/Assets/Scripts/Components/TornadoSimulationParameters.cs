@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
 
 [System.Serializable]
 public struct FloatRange
@@ -14,8 +13,6 @@ public struct TornadoSimulationParameters : IComponentData
 {
     public float TornadoForce;
     public FloatRange ForceMultiplyRange;
-    public float TornadoMaxForceDist;
-    public float TornadoHeight;
     public float TornadoUpForce;
     public float TornadoInwardForce;
     public float Friction;
