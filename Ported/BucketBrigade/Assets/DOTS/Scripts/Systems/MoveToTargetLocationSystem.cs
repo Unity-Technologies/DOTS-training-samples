@@ -26,5 +26,8 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
             translation.Value += new float3(toMove.x, 0, toMove.y);
         }).Schedule();
+
+        // TODO : remove when we understand the issue between this and PickClosestLake system
+        Dependency.Complete();
     }
 }
