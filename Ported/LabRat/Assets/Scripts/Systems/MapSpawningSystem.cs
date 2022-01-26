@@ -12,21 +12,18 @@ public partial class MapSpawningSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var configEntity = GetSingletonEntity<Config>();
-        var config = GetComponent<Config>(configEntity);
-        var random = new Unity.Mathematics.Random(config.MapSeed);
+        var config = GetSingleton<Config>();
+        config.CursorAIRandom = new Random((uint)System.DateTime.Now.Ticks);
+        SetSingleton(config);
+        var random = new Random(config.MapSeed);
 
         var playersQuery = GetEntityQuery(typeof(Score));
         var players = playersQuery.ToEntityArray(Allocator.TempJob);
-
 
         Entities
             .ForEach((Entity entity, in MapSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-
-                config.CursorAIRandom = new Random((uint)System.DateTime.Now.Ticks);
-                SetComponent(configEntity, config);
 
                 // Create MapData
                 var mapData = ecb.CreateEntity();
