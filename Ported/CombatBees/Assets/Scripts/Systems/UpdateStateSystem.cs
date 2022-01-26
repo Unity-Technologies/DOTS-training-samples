@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using static Unity.Mathematics.math;
 using Random = Unity.Mathematics.Random;
 
@@ -46,19 +47,22 @@ public partial class UpdateStateSystem : SystemBase
             DateTime.Now.Day +
             DateTime.Now.Month +
             DateTime.Now.Year);
-        var random = new Random(randomSeed);
-        
+        // var random = new Random(randomSeed);
+
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
-        
+
         var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement, ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement,
+                ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
             {
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
                 // If Bee is idle -> seeking
                 //           carrying -> continue
                 //           seeking -> check for attack option then check for carry option
@@ -83,21 +87,20 @@ public partial class UpdateStateSystem : SystemBase
                             var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
 
                             var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
-                            // TODO: Not sure why, but the first use of Random here ends up not being very random.  Ask instructor...
-                            //       - so instead, we just get the first random twice for now.
-                            beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                             var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-                            
+
                             // Calculate end location based on team value;
                             float3 endLocation;
                             if (team.Value == TeamValue.Yellow)
                             {
-                                var beeRandomX = SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
                                 endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
                             }
                             else
                             {
-                                var beeRandomX = SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
                                 endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
                             }
 
@@ -106,10 +109,10 @@ public partial class UpdateStateSystem : SystemBase
                             movement.timeToTravel = distance(endLocation, translation.Value) / 10;
                             movement.t = 0.0f;
                             // Add updated movement information to food entity
-                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i], 
+                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
                                 PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
                                     movement.endLocation + float3(0f, -1f, 0f)));
-                                    
+
                             break;
                         }
                     }
@@ -129,7 +132,9 @@ public partial class UpdateStateSystem : SystemBase
                 {
                     // Choose food at random here
                     // TODO: Exclude food that is being carried or dropped?
-                    int randomInt = random.NextInt(foodTranslationData.Length); // Note: random int/uint values are non-inclusive of the maximum value
+                    int randomInt =
+                        random.NextInt(foodTranslationData
+                            .Length); // Note: random int/uint values are non-inclusive of the maximum value
                     Translation randomFoodTranslation = foodTranslationData[randomInt];
                     movement.GoTo(translation.Value, randomFoodTranslation.Value);
                     state.value = StateValues.Seeking;
@@ -140,7 +145,7 @@ public partial class UpdateStateSystem : SystemBase
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
             .ScheduleParallel();
-        
+
         commandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
