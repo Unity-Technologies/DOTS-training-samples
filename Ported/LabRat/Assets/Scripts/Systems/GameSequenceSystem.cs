@@ -158,9 +158,9 @@ public partial class GameSequenceSystem : SystemBase
     {
         var playersQuery = GetEntityQuery(
             ComponentType.ReadOnly<Player>(),
-            ComponentType.ReadOnly<PlayerScoreDisplayIndex>(),
+            ComponentType.ReadOnly<PlayerUIIndex>(),
             ComponentType.ReadOnly<Score>());
-        var playerIndices = playersQuery.ToComponentDataArray<PlayerScoreDisplayIndex>(Allocator.Temp);
+        var playerIndices = playersQuery.ToComponentDataArray<PlayerUIIndex>(Allocator.Temp);
         var playerScores = playersQuery.ToComponentDataArray<Score>(Allocator.Temp);
 
         int highestScoringPlayerIndex = -1;

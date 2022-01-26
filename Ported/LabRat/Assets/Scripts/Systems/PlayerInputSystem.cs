@@ -13,10 +13,10 @@ public partial class PlayerInputSystem : SystemBase
     protected override void OnUpdate()
     {
         var player = GetSingletonEntity<PlayerInputTag>();
-        var config = GetSingleton<Config>();
+        var camera = this.GetSingleton<GameObjectRefs>().Camera;
         
         var mousePos = Input.mousePosition;
-        SetComponent(player, new CursorPosition { Value = RaycastMapPos(Camera.main, mousePos) });
+        SetComponent(player, new CursorPosition { Value = RaycastMapPos(camera, mousePos) });
         
         if (Input.GetMouseButtonUp(0))
         {

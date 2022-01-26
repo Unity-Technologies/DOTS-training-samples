@@ -7,6 +7,7 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public UnityEngine.Color color;
     public bool UserControlled;
     public int Index;
+    public uint AISeed;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -23,6 +24,7 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
         else
         {
+            dstManager.AddComponentData(entity, new PlayerAIControlled { Random = new Random(AISeed) });
             dstManager.AddComponentData(entity, new CursorLerp { Start = float2.zero, Destination = float2.zero, LerpValue = 1f });
         }
     }

@@ -44,6 +44,5 @@ public struct Config : IComponentData
 
     public int MaxArrowsPerPlayer;
 
-    public Unity.Mathematics.Random CursorAIRandom;
     public float GameTimeInSeconds;
 }

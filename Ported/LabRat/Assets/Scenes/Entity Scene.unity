@@ -169,6 +169,7 @@ MonoBehaviour:
   color: {r: 1, g: 0, b: 0, a: 1}
   UserControlled: 0
   Index: 1
+  AISeed: 578023
 --- !u!1 &283937535
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,6 +216,7 @@ MonoBehaviour:
   color: {r: 0, g: 0, b: 1, a: 1}
   UserControlled: 0
   Index: 3
+  AISeed: 28342837
 --- !u!1 &1038515006
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +270,7 @@ MonoBehaviour:
   ArrowPrefab: {fileID: 1975734576782275283, guid: 27fc5bef210822745a7f47ba9089b94f, type: 3}
   MaxArrowsPerPlayer: 5
   CursorAIRandom:
-    state: 1
+    state: 5053
   GameTimeInSeconds: 30
 --- !u!4 &1038515008
 Transform:
@@ -364,6 +366,7 @@ MonoBehaviour:
   color: {r: 0, g: 0, b: 0, a: 1}
   UserControlled: 1
   Index: 0
+  AISeed: 2938
 --- !u!1 &1776356919
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,3 +460,4 @@ MonoBehaviour:
   color: {r: 0, g: 1, b: 0, a: 1}
   UserControlled: 0
   Index: 2
+  AISeed: 9324023

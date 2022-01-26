@@ -1,4 +1,5 @@
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.UI;
 
 [GenerateAuthoringComponent]
@@ -9,4 +10,5 @@ public class GameObjectRefs : IComponentData
     public Image[] Cursors;
     public Text TimerDisplay;
     public Text IntroDisplay;
+    public Camera Camera;
 }
