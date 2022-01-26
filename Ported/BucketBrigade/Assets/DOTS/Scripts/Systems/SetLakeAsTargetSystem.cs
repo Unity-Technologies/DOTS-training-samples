@@ -28,13 +28,12 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
         var readonlyLakeTranslations = lakeTranslations.AsReadOnly();
 
-        //CompleteDependency();
-
         // TODO: if there are no flames don't do anything
         Entities
             .WithAll<HoldsEmptyBucket>()
             .WithNone<TargetDestination>()
-            .WithDisposeOnCompletion(readonlyLakeTranslations)
+            .WithReadOnly(lakeTranslations)
+            .WithDisposeOnCompletion(lakeTranslations)
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
             {
                 // HACK: We assume that a flame exists here...
@@ -42,14 +41,14 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 var bestDistance = float.MaxValue;
                 // HACK: We are mixing types, this is awful.
 
-                for (int i = 0; i < readonlyLakeTranslations.Length; i++)
+                for (int i = 0; i < lakeTranslations.Length; i++)
                 {
-                    var dist = math.distance(readonlyLakeTranslations[i].Value, translation.Value);
+                    var dist = math.distance(lakeTranslations[i].Value, translation.Value);
 
                     if (dist < bestDistance)
                     {
                         bestDistance = dist;
-                        closest = readonlyLakeTranslations[i].Value.xz;
+                        closest = lakeTranslations[i].Value.xz;
                     }
                 }
 
