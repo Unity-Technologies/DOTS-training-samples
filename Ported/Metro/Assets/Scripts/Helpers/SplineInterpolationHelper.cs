@@ -10,6 +10,14 @@ public static class SplineInterpolationHelper
         float parametricT = FindSegmentFromDistance(ref splineData, ref currentSegment, distanceFromOrigin);
         InterpolatePosition(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out value);
     }
+    
+    public static void InterpolatePositionAndDirection(ref SplineData splineData, ref int currentSegment, float distanceFromOrigin, out float3 pos, out float3 dir)
+    {
+        float parametricT = FindSegmentFromDistance(ref splineData, ref currentSegment, distanceFromOrigin);
+
+        InterpolatePosition(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out pos);
+        InterpolateDirection(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out dir);
+    }
 
     public static void InterpolatePosition(ref SplineData data, int splineIndex, float _t, out float3 value) {
         int offset = splineIndex * 3;
@@ -26,6 +34,22 @@ public static class SplineInterpolationHelper
         value = new float3((float)(p0.x * _1_t_3 + 3 * p1.x * _1_t_2 * t + 3 * p2.x * _1_t * t2 + p3.x * t3),
                             (float)(p0.y * _1_t_3 + 3 * p1.y * _1_t_2 * t + 3 * p2.y * _1_t * t2 + p3.y * t3),
                             (float)(p0.z * _1_t_3 + 3 * p1.z * _1_t_2 * t + 3 * p2.z * _1_t * t2 + p3.z * t3));
+    }
+    
+    // --------------------------------------------------------------------------------------------
+    public static void InterpolateDirection(ref SplineData  data, int splineIndex, float _t, out float3 value)
+    {
+        int offset = splineIndex * 3;
+        float3 p0 = data.bezierControlPoints[offset + 0];
+        float3 p1 = data.bezierControlPoints[offset + 1];
+        float3 p2 = data.bezierControlPoints[offset + 2];
+        float3 p3 = data.bezierControlPoints[offset + 3];
+
+        float _1_t = 1f - _t;
+        float t2 = _t * _t;
+        value = new float3(3f * _1_t * _1_t * (p1.x - p0.x) + 6f * _1_t * _t * (p2.x - p1.x) + 3f * t2 * (p3.x - p2.x),
+            3f * _1_t * _1_t * (p1.y - p0.y) + 6f * _1_t * _t * (p2.y - p1.y) + 3f * t2 * (p3.y - p2.y),
+            3f * _1_t * _1_t * (p1.z - p0.z) + 6f * _1_t * _t * (p2.z - p1.z) + 3f * t2 * (p3.z - p2.z));
     }
 
     private static float FindSegmentFromDistance(ref SplineData splineData, ref int currentSegment, float distanceFromOrigin) {
