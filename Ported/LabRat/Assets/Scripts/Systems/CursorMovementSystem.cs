@@ -31,7 +31,7 @@ public partial class CursorMovementSystem : SystemBase
             var color = playerColors[i].Value;
             cursor.color = new UnityEngine.Color(color.x, color.y, color.z, color.w);
             var pos = playerPositions[i].Value;
-            cursor.transform.position = Camera.main.WorldToScreenPoint(new Vector3(pos.x-0.35f, 0, pos.y+0.55f));
+            cursor.transform.position = Camera.main.WorldToScreenPoint(new Vector3(pos.x+0.3f, 0, pos.y+1.15f));
         }
 
         playerIndices.Dispose();
