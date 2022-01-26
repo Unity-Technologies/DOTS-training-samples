@@ -20,6 +20,7 @@ public partial class RenderFireSystem : SystemBase
     {
         var field = GetBuffer<FireHeat>(GetSingletonEntity<FireField>());
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var gameConstants = GetSingleton<GameConstants>();
 
         var config = GetSingleton<GameConstants>(); 
         var fieldSize = config.FieldSize;
@@ -34,9 +35,9 @@ public partial class RenderFireSystem : SystemBase
             .ForEach((Entity e, int entityInQueryIndex, ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color,
             in Translation pos, in FireRenderer renderer) =>
         {
-            int id = (int) ((pos.Value.x + fieldSize.x * pos.Value.z) / 0.3f);
+            int id = (int) ((pos.Value.x + fieldSize.x * pos.Value.z));
             float heat = field[id];
-            if (heat < 0.2f)
+            if (heat < gameConstants.FireHeatFlashPoint)
             {
                 ecb.DestroyEntity(entityInQueryIndex, e);
                 return;
