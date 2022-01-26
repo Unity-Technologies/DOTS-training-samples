@@ -21,7 +21,6 @@ public partial class MapSpawningSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         var config = GetSingleton<Config>();
-        config.CursorAIRandom = new Random((uint)System.DateTime.Now.Ticks);
         SetSingleton(config);
         var random = new Random(config.MapSeed);
 
