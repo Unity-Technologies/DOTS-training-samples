@@ -38,8 +38,8 @@ public partial class ArrowPlacerSystem : SystemBase
 
                 var coordinate = CalculateProjected(playerPos.Value, cellSize, out var direction);
                 if (direction != DirectionEnum.None &&
-                    coordinate.x > 0 && coordinate.x < cellSize.x &&
-                    coordinate.y > 0 && coordinate.y < cellSize.y)
+                    coordinate.x >= 0 && coordinate.x < cellSize.x &&
+                    coordinate.y >= 0 && coordinate.y < cellSize.y)
                 {
                     var arrow = ecb.Instantiate(nativeThreadIndex, config.ArrowPrefab);
                     ecb.SetComponent(nativeThreadIndex, arrow, new Arrow { PlacedTime = time });
