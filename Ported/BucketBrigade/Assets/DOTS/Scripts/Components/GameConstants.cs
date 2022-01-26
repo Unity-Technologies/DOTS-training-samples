@@ -23,6 +23,8 @@ struct GameConstants : IComponentData
     public float4 BucketFilled;
     public float BucketExtinguishRadius;
     public float BucketCoolingRate;
+    public float BucketEmptyScale;
+    public float BucketFilledScale;
 
     // TODO: How buckets affect fire
     // TODO: How fire propogates and grows

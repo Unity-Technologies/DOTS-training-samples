@@ -12,7 +12,7 @@ public partial class RenderBucketSystem : SystemBase
         Entities
             .ForEach((ref NonUniformScale scale, ref URPMaterialPropertyBaseColor color, in Bucket bucket) =>
             {
-                scale.Value = math.clamp(bucket.Volume, 0.2f, 0.4f);
+                scale.Value = math.clamp(bucket.Volume, gameConstants.BucketEmptyScale, gameConstants.BucketFilledScale);
                 color.Value = math.lerp(gameConstants.BucketEmpty, gameConstants.BucketFilled, bucket.Volume);
             }).Schedule();
     }

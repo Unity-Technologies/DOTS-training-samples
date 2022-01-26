@@ -68,6 +68,8 @@ MonoBehaviour:
     w: 1
   BucketExtinguishRadius: 1.5
   BucketCoolingRate: 0.1
+  BucketEmptyScale: 0.4
+  BucketFilledScale: 0.6
   FireHeatFlashPoint: 0.2
   FireHeatTransferRadius: 1
   FireHeatTransferRate: 0.0003
