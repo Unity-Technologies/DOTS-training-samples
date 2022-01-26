@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 194646196}
+  TrackData: {fileID: 1033658115}
   CartIndexInTrain: 1
 --- !u!23 &282549448
 MeshRenderer:
@@ -296,7 +296,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 194646196}
+  TrackData: {fileID: 1033658115}
   CartIndexInTrain: 2
 --- !u!23 &401626410
 MeshRenderer:
@@ -393,7 +393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Leader: {fileID: 1721243935}
-  TrackData: {fileID: 194646196}
+  TrackData: {fileID: 1033658115}
   CartIndexInTrain: 3
 --- !u!23 &417332752
 MeshRenderer:
@@ -684,7 +684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e654a337aa6b5eb44929f520eb918577, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  track: {fileID: 194646196}
+  track: {fileID: 1033658115}
 --- !u!23 &1721243937
 MeshRenderer:
   m_ObjectHideFlags: 0

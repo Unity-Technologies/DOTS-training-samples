@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
-public class SplineFollow : MonoBehaviour
+public class StationPlacementHelper : MonoBehaviour
 {
     public PathData pathData;
     public float distanceFromSplineOrigin;
