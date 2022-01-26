@@ -57,10 +57,7 @@ public partial class SetupGameSystem : SystemBase
                 {
                     Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)),
                 });
-                EntityManager.SetComponentData(bucketEntity, new Bucket()
-                {
-                    Volume = 1//random.NextFloat(1)
-                });
+                EntityManager.SetComponentData(bucketEntity, new Bucket());
             }
         }
 
