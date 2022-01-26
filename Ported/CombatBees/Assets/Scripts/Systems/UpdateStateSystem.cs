@@ -21,13 +21,13 @@ public partial class UpdateStateSystem : SystemBase
     protected override void OnUpdate()
     {
         // Get NativeArray data for food translation and entity data
-        foodQuery = GetEntityQuery(typeof(FoodTag));
+        foodQuery = GetEntityQuery(typeof(Food));
         int foodCount = foodQuery.CalculateEntityCount();
         NativeArray<Translation> foodTranslationData = new NativeArray<Translation>(foodCount, Allocator.TempJob);
         NativeArray<Entity> foodEntityData = new NativeArray<Entity>(foodCount, Allocator.TempJob);
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
-            .WithAll<FoodTag>()
+            .WithAll<Food>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
                 foodTranslationData[entityInQueryIndex] = translation;
@@ -73,10 +73,11 @@ public partial class UpdateStateSystem : SystemBase
                     if ((translation.Value.x < spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
                         (translation.Value.x > -spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
                     {
-
+                        //Set the food's destination value to current position but on the floor
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
-                        PP_Movement.Create(translation.Value + float3(0f, -1f, 0f),
-                        translation.Value + float3(0f, -translation.Value.y, 0f)));
+                            PP_Movement.Create(translation.Value + float3(0f, -1f, 0f),
+                                new float3(translation.Value.x, 0, translation.Value.z)));
+
                     }
                     else
                     {

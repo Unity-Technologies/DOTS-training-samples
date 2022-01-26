@@ -14,7 +14,7 @@ public partial class DestroyerSystem : SystemBase
         {
             Entities
                 .WithAny<BeeTag, BloodTag, BeeBitsTag>()
-                .WithAny<FoodTag>()
+                .WithAny<Food>()
                 .ForEach((Entity entity) =>
                 {
                     ecb.DestroyEntity(entity);
