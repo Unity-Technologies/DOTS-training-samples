@@ -49,11 +49,11 @@ MonoBehaviour:
   FireSpawnDensity: 0.004
   FireFighterPrefab: {fileID: 1821148559735918, guid: 05c5aeaf403104b468ac5f588411551a,
     type: 3}
-  FireFighterMovementSpeedNoBucket: 0.5
-  FireFighterMovementSpeedBucket: 1
+  FireFighterMovementSpeedNoBucket: 2
+  FireFighterMovementSpeedBucket: 5
   FireFighterBucketPickupRadius: 0.01
   BucketSpawnDensity: 0.01
-  BucketFillRate: 0.01
+  BucketFillRate: 0.2
   BucketPrefab: {fileID: 1773963921688032, guid: 175c9c60a7538b74099492d0825f334b,
     type: 3}
   BucketEmpty:

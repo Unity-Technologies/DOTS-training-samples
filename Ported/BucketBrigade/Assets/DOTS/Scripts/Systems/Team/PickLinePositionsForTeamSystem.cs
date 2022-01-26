@@ -81,12 +81,12 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
                     float t = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
-                    float2 target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) + math.sin(t * math.PI) * offset + offset).xz;
+                    var target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) + math.sin(t * math.PI) * offset + offset);
 
                     // DON'T REMOVE THIS LINE
                     TeamWorkers entity = workersBuffer[x];
 
-                    SetComponent<TargetDestination>(entity, new TargetDestination() { Value = target });
+                    SetComponent(entity, new Translation() { Value = target });
                 }
 
                 // Backward Line

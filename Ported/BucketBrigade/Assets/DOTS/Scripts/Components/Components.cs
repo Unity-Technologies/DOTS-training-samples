@@ -7,3 +7,4 @@ public struct TargetPosition : IComponentData
 {
     public float2 Value;
 }
+

@@ -7,6 +7,13 @@ using Unity.Transforms;
 [UpdateBefore(typeof(PropagateFireSystem))]
 public partial class SetupGameSystem : SystemBase
 {
+    private EntityCommandBufferSystem CommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
     [NotBurstCompatible]
     protected override void OnUpdate()
     {
@@ -14,6 +21,8 @@ public partial class SetupGameSystem : SystemBase
             return;
 
         EntityManager.DestroyEntity(marker);
+
+        var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         var gameConstants = GetSingleton<GameConstants>();
         int gridSize = gameConstants.FieldSize.x * gameConstants.FieldSize.y;
@@ -93,10 +102,8 @@ public partial class SetupGameSystem : SystemBase
                 {
                     Value = new float3(random.NextInt(gameConstants.FieldSize.x), 0, random.NextInt(gameConstants.FieldSize.y)),
                 });
-                EntityManager.SetComponentData(bucketEntity, new Bucket()
-                {
-                    Volume = 1//random.NextFloat(1)
-                });
+                EntityManager.SetComponentData(bucketEntity, new Bucket());
+                EntityManager.AddComponent<EmptyBucket>(bucketEntity);
             }
         }
 
@@ -133,12 +140,17 @@ public partial class SetupGameSystem : SystemBase
             
             // TODO: fix that volume thing
             Entities
-                .ForEach((ref OriginalLake originalLake, ref Lake lake, in NonUniformScale scale) =>
+                .ForEach((Entity e, ref OriginalLake originalLake, ref Lake lake, in NonUniformScale scale) =>
                 {
                     originalLake.Scale = scale.Value;
                     originalLake.Volume = originalLake.Scale.x * originalLake.Scale.z * gameConstants.LakeMaxVolume;
                     lake.Volume = originalLake.Volume;
-                }).ScheduleParallel();
+
+                    ecb.AddBuffer<BucketFillAction>(e);
+                    
+                }).Schedule();
+
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }
