@@ -1,4 +1,4 @@
-﻿
+
 
 using Unity.Collections;
 using Unity.Entities;
@@ -10,26 +10,24 @@ using UnityEngine;
 public partial class CreatureColliderSystem : SystemBase
 {
     private EntityCommandBufferSystem mECBSystem;
+    private EntityQuery catsQuery;
 
     protected override void OnCreate()
     {
-        base.OnCreate();
-
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        catsQuery = GetEntityQuery(
+            ComponentType.ReadOnly<Cat>(),
+            ComponentType.ReadOnly<Tile>(),
+            ComponentType.ReadOnly<Translation>());
+        RequireForUpdate(catsQuery);
+        RequireSingletonForUpdate<GameRunning>();
     }
 
     private void CellCollison()
     {
-        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Tile>());
-
-        if (query.IsEmpty)
-        {
-            return;
-        }
-
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var catTiles = query.ToComponentDataArray<Tile>(Allocator.TempJob);
+        var catTiles = catsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
 
         Entities
             .WithAll<Mouse>()
@@ -52,16 +50,9 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void DistanceCollision()
     {
-        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Translation>());
-
-        if (query.IsEmpty)
-        {
-            return;
-        }
-
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var catTranslations = query.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var catTranslations = catsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         Entities
             .WithAll<Mouse>()

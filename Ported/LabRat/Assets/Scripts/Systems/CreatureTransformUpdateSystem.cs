@@ -2,7 +2,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(CreatureMovementSystem))]
+// make this system run right before the transforms/projections
+[UpdateInGroup(typeof(TransformSystemGroup), OrderFirst = true)]
 public partial class CreatureTransformUpdateSystem : SystemBase
 {
     protected override void OnUpdate()

@@ -6,12 +6,16 @@ using Unity.Transforms;
 [UpdateBefore(typeof(CreatureMovementSystem))]
 public partial class MiceSpawningSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameRunning>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var deltaTime = Time.DeltaTime;
-        var configEntity = GetSingletonEntity<Config>();
-        var config = GetComponent<Config>(configEntity);
+        var config = GetSingleton<Config>();
         
         Entities
             .ForEach((ref MiceSpawner spawner, ref Tile tile, ref Direction direction) =>

@@ -5,21 +5,22 @@ public partial class MiceExitSystem: SystemBase
 {
     private EntityCommandBufferSystem mECBSystem;
     private PlayerUpdateSystem mPlayerUpdateSystem;
+    private EntityQuery exitsQuery;
 
     protected override void OnCreate()
     {
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         mPlayerUpdateSystem = World.GetExistingSystem<PlayerUpdateSystem>();
+        exitsQuery = GetEntityQuery(
+            ComponentType.ReadOnly<Exit>(),
+            ComponentType.ReadOnly<Tile>(),
+            ComponentType.ReadOnly<PlayerOwned>());
+        RequireForUpdate(exitsQuery);
+        RequireSingletonForUpdate<GameRunning>();
     }
 
     protected override void OnUpdate()
     {
-        var exitsQuery = GetEntityQuery(typeof(Exit), typeof(Tile), typeof(PlayerOwned));
-        if (exitsQuery.IsEmpty)
-        {
-            return;
-        }
-        
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var exitTiles = exitsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);

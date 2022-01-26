@@ -5,12 +5,18 @@ using Unity.Mathematics;
 public partial class ArrowColliderSystem : SystemBase
 {
     public ComponentDataFromEntity<Tile> tileComponents;
+    private EntityQuery arrowsQuery;
+
+    protected override void OnCreate()
+    {
+        arrowsQuery = GetEntityQuery(typeof(Arrow),typeof(Tile),typeof(Direction));
+        
+        RequireForUpdate(arrowsQuery);
+        RequireSingletonForUpdate<GameRunning>();
+    }
+
     protected override void OnUpdate()
     {
-        EntityQuery arrowsQuery = GetEntityQuery(typeof(Arrow),typeof(Tile),typeof(Direction));
-
-        if (arrowsQuery.IsEmpty) return;
-
         var arrowTiles = arrowsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
         var arrowDirs = arrowsQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
         

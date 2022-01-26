@@ -8,8 +8,6 @@ public partial class CreatureFallDeathSystem : SystemBase
 
     protected override void OnCreate()
     {
-        base.OnCreate();
-
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 

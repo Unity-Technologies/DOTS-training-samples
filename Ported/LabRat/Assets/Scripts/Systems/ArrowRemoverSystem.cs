@@ -6,18 +6,18 @@ public partial class ArrowRemoverSystem : SystemBase
 {
 
     private EntityCommandBufferSystem mECBSystem;
+    private EntityQuery arrowsQuery;
 
     protected override void OnCreate()
     {
         mECBSystem = World.GetExistingSystem<EntityCommandBufferSystem>();
+        arrowsQuery = GetEntityQuery(typeof(Arrow), typeof(PlayerOwned), typeof(Tile));
+        RequireForUpdate(arrowsQuery);
+        RequireSingletonForUpdate<GameRunning>();
     }
 
     protected override void OnUpdate()
     {
-        var arrowsQuery = GetEntityQuery(typeof(Arrow), typeof(PlayerOwned), typeof(Tile));
-        if (arrowsQuery.IsEmpty)
-            return;
-
         var config = GetSingleton<Config>();
         
         var arrows = arrowsQuery.ToEntityArray(Allocator.TempJob);

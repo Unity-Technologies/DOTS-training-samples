@@ -8,6 +8,14 @@ using Unity.Transforms;
 //[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class MapSpawningSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        // this system should only perform work if MapSpawner is present
+        // once MapSpawner does its work it gets destroyed,
+        // thus exempting this system from running again
+        RequireSingletonForUpdate<MapSpawner>();
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);

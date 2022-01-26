@@ -88,6 +88,11 @@ public partial class CreatureMovementSystem : SystemBase
         }
     }
 
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameRunning>();
+    }
+
     protected override void OnUpdate()
     {
         Config conf = GetSingleton<Config>();
