@@ -25,9 +25,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
         //var chunks = LakeQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
         var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        if (lakeTranslations.Length == 0)
-            return;
-
         var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
 
         // TODO: if there are no flames don't do anything
@@ -40,6 +37,9 @@ public partial class SetLakeAsTargetSystem : SystemBase
             .WithDisposeOnCompletion(lakeEntities)
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in HoldingBucket holdingBucket) =>
             {
+                if (lakeTranslations.Length == 0)
+                    return;
+
                 // HACK: We assume that a flame exists here...
                 var closestIndex = -1;
                 var closest = new float2(10000000, 100000); // This is bad HACK

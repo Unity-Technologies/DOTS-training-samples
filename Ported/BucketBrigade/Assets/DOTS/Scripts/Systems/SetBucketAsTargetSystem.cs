@@ -25,9 +25,6 @@ public partial class SetBucketAsTargetSystem : SystemBase
         //var chunks = LakeQuery.CreateArchetypeChunkArray(Allocator.TempJob);
 
         var bucketTranslations = BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        if (bucketTranslations.Length == 0)
-            return;
-
         var bucketEntities = BucketQuery.ToEntityArray(Allocator.TempJob);
 
 
@@ -41,11 +38,12 @@ public partial class SetBucketAsTargetSystem : SystemBase
             .WithDisposeOnCompletion(bucketEntities)
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
             {
-                // HACK: We assume that a flame exists here...
-                var closestIndex = -1;
-                var closest = new float2(10000000, 100000); // This is bad HACK
+                if (bucketTranslations.Length == 0)
+                    return;
+
+                var closestIndex = 0;
+                var closest = bucketTranslations[0].Value.xz;
                 var bestDistance = float.MaxValue;
-                // HACK: We are mixing types, this is awful.
 
                 for (int i = 0; i < bucketTranslations.Length; i++)
                 {
@@ -59,7 +57,6 @@ public partial class SetBucketAsTargetSystem : SystemBase
                     }
                 }
 
-                // TODO: If distance is close enough to fill bucket, set a "filling bucket" tag instead
                 if (bestDistance < 0.1f)
                 {
                     var bucket = bucketEntities[closestIndex];
