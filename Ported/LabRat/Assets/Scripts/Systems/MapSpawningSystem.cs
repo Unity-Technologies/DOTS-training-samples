@@ -55,8 +55,8 @@ public partial class MapSpawningSystem : SystemBase
                         });
                         var walls = (y == 0 ? DirectionEnum.North : config.MapWallFrequency > random.NextFloat()? DirectionEnum.North : DirectionEnum.None) |
                                     (y == config.MapHeight - 1 ? DirectionEnum.South : config.MapWallFrequency > random.NextFloat()? DirectionEnum.South : DirectionEnum.None) |
-                                    (x == 0 ? DirectionEnum.West : config.MapWallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None) |
-                                    (x == config.MapWidth - 1 ? DirectionEnum.East : config.MapWallFrequency > random.NextFloat()? DirectionEnum.West : DirectionEnum.None);
+                                    (x == 0 ? DirectionEnum.East : config.MapWallFrequency > random.NextFloat()? DirectionEnum.East : DirectionEnum.None) |
+                                    (x == config.MapWidth - 1 ? DirectionEnum.West : config.MapWallFrequency > random.NextFloat()? DirectionEnum.East : DirectionEnum.None);
                         
                         ecb.SetComponent(tile, new Tile
                         {
@@ -106,7 +106,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x - 0.5f, 0, y)
+                                Value = new float3(x + 0.5f, 0, y)
                             });
                         }
 
@@ -115,7 +115,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x + 0.5f, 0, y)
+                                Value = new float3(x - 0.5f, 0, y)
                             });
                         }
                     }
