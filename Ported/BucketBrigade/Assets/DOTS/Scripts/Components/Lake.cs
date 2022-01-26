@@ -7,3 +7,11 @@ public struct Lake : IComponentData
 {
     public float Volume;
 }
+
+public struct BucketFillAction : IBufferElementData
+{
+    public Entity Bucket;
+    public Entity FireFighter;
+
+    public float BucketVolume;
+}

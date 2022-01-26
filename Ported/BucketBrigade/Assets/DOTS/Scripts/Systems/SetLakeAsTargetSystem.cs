@@ -28,8 +28,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
         if (lakeTranslations.Length == 0)
             return;
 
-        //var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
-
+        var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
 
         // TODO: if there are no flames don't do anything
         Entities
@@ -37,8 +36,8 @@ public partial class SetLakeAsTargetSystem : SystemBase
             .WithNone<TargetDestination>()
             .WithReadOnly(lakeTranslations)
             .WithDisposeOnCompletion(lakeTranslations)
-            //.WithReadOnly(lakeEntities)
-            //.WithDisposeOnCompletion(lakeEntities)
+            .WithReadOnly(lakeEntities)
+            .WithDisposeOnCompletion(lakeEntities)
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in HoldingBucket holdingBucket) =>
             {
                 // HACK: We assume that a flame exists here...
@@ -63,10 +62,8 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 if (bestDistance < 0.1f)
                 {
                     ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
-                    // HACK: Instantly fill bucket
-                    ecb.AddComponent<HoldsFullBucket>(entityInQueryIndex, e);
-                    ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Bucket { Volume = 1f });
-                    // lake.FillQueueBuffer.Add( BucketEntity = x, FireFighterEntity, FillStartTime = x )
+                    ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
+                    ecb.AppendToBuffer(entityInQueryIndex, lakeEntities[closestIndex], new BucketFillAction { Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f /* HACK */ });
                 }
                 else
                 {
