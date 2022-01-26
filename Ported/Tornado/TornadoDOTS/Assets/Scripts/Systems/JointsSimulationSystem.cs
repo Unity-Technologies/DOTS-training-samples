@@ -5,7 +5,6 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class JointsSimulationSystem : SystemBase
 {
-	//TODO: (from original) This fades de tornado force and it reaches maximum value after 10 seconds. Do we even need that?
 	private float tornadoForceFader;
     protected override void OnUpdate()
     {
