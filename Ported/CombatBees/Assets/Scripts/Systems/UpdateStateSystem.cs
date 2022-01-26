@@ -70,28 +70,18 @@ public partial class UpdateStateSystem : SystemBase
                 if (state.value == StateValues.Carrying)
                 {
 
-                    if ((translation.Value.x < spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
-                        (translation.Value.x > -spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
+                    if (!(translation.Value.x < spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
+                        !(translation.Value.x > -spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
                     {
-                        //Set the food's destination value to current position but on the floor
+                        // Add updated movement information to food entity
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
                             PP_Movement.Create(translation.Value + float3(0f, -1f, 0f),
                                 new float3(translation.Value.x, 0, translation.Value.z)));
 
-                    }
-                    else
-                    {
-                        // Fall through to seeking
-                        // Choose food at random here
-                        int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
-                        Translation randomFoodTranslation = foodTranslationData[randomInt];
+                        parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                            new Food { isBeeingCarried = false });
 
-                        // Tell bee to go back to seeking
-                        movement.endLocation = randomFoodTranslation.Value;
-                        movement.startLocation = translation.Value;
-                        movement.timeToTravel = distance(randomFoodTranslation.Value, translation.Value) / 5;
-                        movement.t = 0.0f;
-                        state.value = StateValues.Seeking;
+                        state.value = StateValues.Idle;
                     }
                 }
 
@@ -127,14 +117,17 @@ public partial class UpdateStateSystem : SystemBase
                                 endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
                             }
 
-                            movement.endLocation = endLocation;
-                            movement.startLocation = translation.Value;
-                            movement.timeToTravel = distance(endLocation, translation.Value) / 10;
-                            movement.t = 0.0f;
+
+                            movement.GoTo(translation.Value, endLocation);
+
+
                             // Add updated movement information to food entity
                             parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
                                 PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
                                     movement.endLocation + float3(0f, -1f, 0f)));
+
+                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
+                                new Food { isBeeingCarried = true });
 
                             break;
                         }

@@ -18,7 +18,6 @@ public struct PP_Movement : IComponentData
     public float3 endLocation;
     public float startTime;
     public float timeToTravel;
-    public MotionType motionType;
     public float t;             //elapsed time
 
     //Utility function
@@ -66,7 +65,6 @@ public struct PP_Movement : IComponentData
             endLocation = end,
             t = 0.0f,
             timeToTravel = math.distance(start, end) / 10,
-            motionType = MotionType.Linear
         };
 
         return m;

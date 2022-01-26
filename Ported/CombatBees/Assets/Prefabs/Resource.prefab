@@ -112,6 +112,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97026763f40a3454ca6bc85fa314258c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isBeeingCarried: 0
 --- !u!114 &928082982925453471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,6 +133,8 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  startTime: 0
+  timeToTravel: 0
   t: 0
 --- !u!114 &9140310307830711860
 MonoBehaviour:
