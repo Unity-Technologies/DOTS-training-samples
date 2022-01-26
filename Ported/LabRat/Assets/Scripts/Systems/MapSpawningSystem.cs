@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+//[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class MapSpawningSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -23,7 +24,10 @@ public partial class MapSpawningSystem : SystemBase
             .ForEach((Entity entity, in MapSpawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-                
+
+                config.CursorAIRandom = new Random((uint)System.DateTime.Now.Ticks);
+                SetComponent(configEntity, config);
+
                 // Create MapData
                 var mapData = ecb.CreateEntity();
                 ecb.AddComponent<MapData>(mapData);

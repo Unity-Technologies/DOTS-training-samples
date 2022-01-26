@@ -19,5 +19,9 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             dstManager.AddComponent<PlayerInputTag>(entity);
         }
+        else
+        {
+            dstManager.AddComponentData(entity, new CursorLerp { Destination = new float2(0f,0f), LerpValue = 1f });
+        }
     }
 }

@@ -16,12 +16,13 @@ public struct Config : IComponentData
     public float MouseMovementSpeed;
     public float CatMovementSpeed;
     public float CreatureFallSpeed;
+    public float CursorSpeed;
 
     public float MouseSpawnRate;
     public float2 MouseSpawnCooldown;
     public int MiceToSpawnPerSpawner;
     public int MiceSpawnerInMap;
-    
+
     public uint MapSeed;
     public int MapWidth;
     public int MapHeight;
@@ -39,4 +40,6 @@ public struct Config : IComponentData
     public Entity ArrowPrefab;
 
     public int MaxArrowsPerPlayer;
+
+    public Unity.Mathematics.Random CursorAIRandom;
 }
