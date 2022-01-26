@@ -4,15 +4,15 @@ using Unity.Mathematics;
 public struct Cluster : IComponentData
 {
     public float3 Position;
+}
+
+public struct ClusterGeneration : IComponentData
+{
     public int NumberOfSubClusters;
     public Entity BarPrefab;
     // Remove these probably:
     public int MinTowerHeight;
     public int MaxTowerHeight;
-}
-
-public struct GenerateCluster : IComponentData
-{
 }
 
 public struct Joint : IBufferElementData
