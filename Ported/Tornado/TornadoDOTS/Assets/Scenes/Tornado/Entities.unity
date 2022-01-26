@@ -167,9 +167,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BarPrefab: {fileID: 3706129638398974240, guid: f012066dc3b7a4b809b415ece990c0ad, type: 3}
-  NumberOfClusters: 1
+  NumberOfClusters: 65
   TowerMinHeight: 5
-  TowerMaxHeight: 8
+  TowerMaxHeight: 12
   Floor: {fileID: 2145280309}
 --- !u!1 &642852614
 GameObject:
@@ -292,8 +292,8 @@ MonoBehaviour:
   ForceMultiplyRange:
     Min: -0.3
     Max: 1.3
-  TornadoUpForce: 1.4
-  TornadoInwardForce: 9
+  TornadoUpForce: 30
+  TornadoInwardForce: 90
   Friction: 0.4
   Gravity: 0.5
   Damping: 0.012

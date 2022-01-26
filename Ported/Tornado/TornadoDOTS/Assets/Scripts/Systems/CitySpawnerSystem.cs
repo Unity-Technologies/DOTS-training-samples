@@ -137,7 +137,7 @@ public partial class CitySpawnerSystem : SystemBase
             .WithAll<InitializeJointNeighbours>()
             .ForEach((Entity entity, 
                 int entityInQueryIndex,
-                DynamicBuffer<JointNeighbours> neighbours, 
+                ref DynamicBuffer<JointNeighbours> neighbours, 
                 in DynamicBuffer<Joint> joints,
                 in DynamicBuffer<Connection> connections) =>
             {
@@ -149,12 +149,16 @@ public partial class CitySpawnerSystem : SystemBase
                 for (int c = 0; c < connections.Length; ++c)
                 {
                     var connection = connections[c];
-                    var jointNeighbours = neighbours[connection.J1];
-                    jointNeighbours.Value++;
-                    neighbours[connection.J1] = jointNeighbours;
-                    jointNeighbours = neighbours[connection.J2];
-                    jointNeighbours.Value++;
-                    neighbours[connection.J1] = jointNeighbours;
+                    {
+                        var jointNeighbours = neighbours[connection.J1];
+                        jointNeighbours.Value++;
+                        neighbours[connection.J1] = jointNeighbours;
+                    }
+                    {
+                        var jointNeighbours = neighbours[connection.J2];
+                        jointNeighbours.Value++;
+                        neighbours[connection.J2] = jointNeighbours;
+                    }
                 }
                 
                 parallelWriter.RemoveComponent<InitializeJointNeighbours>(entityInQueryIndex, entity);

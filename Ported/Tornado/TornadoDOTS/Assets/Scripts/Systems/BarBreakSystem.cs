@@ -6,15 +6,25 @@ using UnityEngine.Assertions.Must;
 [UpdateAfter(typeof(BarConstraintSolverSystem))]
 public partial class BarBreakSystem : SystemBase
 {
-    const float k_BreakStrength = 0.05f; // break when above 5% change
+    const float k_BreakStrength = 0.55f; // break when above 5% change
+    EntityCommandBufferSystem m_CommandBufferSystem;
+    protected override void OnCreate()
+    {
+        m_CommandBufferSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
+    }
+
     protected override void OnUpdate()
     {
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
+        var parallelWriter = ecb.AsParallelWriter();
         Entities 
-            .ForEach((
+            .ForEach((Entity entity, 
+                int entityInQueryIndex,
                 ref DynamicBuffer<Connection> connections,
                 ref DynamicBuffer<Joint> joints,
                 ref DynamicBuffer<JointNeighbours> neighbours) =>
             {
+                int nextIndex = joints.Length;
                 for (int i = 0; i < connections.Length; i++)
                 {
                     var connection = connections[i];
@@ -30,7 +40,7 @@ public partial class BarBreakSystem : SystemBase
                     var delta = joint1Pos - joint2Pos;
                     var length = math.length(delta);
                     var extraDist = math.abs(length - connection.OriginalLength);
-                    if (extraDist / connection.OriginalLength > k_BreakStrength)
+                    if (extraDist > k_BreakStrength)
                     {
                         var neighbourCountJ1 = neighbours[connection.J1];
                         var neighbourCountJ2 = neighbours[connection.J2];
@@ -38,28 +48,30 @@ public partial class BarBreakSystem : SystemBase
                         {
                             neighbourCountJ2.Value--;
                             neighbours[connection.J2] = neighbourCountJ2;
-                            connection.J2 = joints.Length;
-                            joints.Add(new Joint
+                            connection.J2 = nextIndex;
+                            nextIndex++;
+                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity, joint2);
+                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity, new JointNeighbours
                             {
-                                Value = joint2Pos,
-                                OldPos = joint2Pos,
-                                IsAnchored = false,
+                                Value = 1,
                             });
                         }
                         else if (neighbourCountJ1.Value > 1)
                         {
                             neighbourCountJ1.Value--;
                             neighbours[connection.J1] = neighbourCountJ1;
-                            connection.J1 = joints.Length;
-                            joints.Add(new Joint
+                            connection.J1 = nextIndex;
+                            nextIndex++;
+                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity, joint1);
+                            parallelWriter.AppendToBuffer(entityInQueryIndex, entity, new JointNeighbours
                             {
-                                Value = joint1Pos,
-                                OldPos = joint1Pos,
-                                IsAnchored = false,
+                                Value = 1,
                             });
                         }
+                        connections[i] = connection;
                     }
                 }
             }).ScheduleParallel();
+        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
