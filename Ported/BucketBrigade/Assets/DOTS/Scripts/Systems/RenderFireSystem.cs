@@ -10,7 +10,7 @@ using UnityEngine;
 public partial class RenderFireSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
-
+    
     protected override void OnCreate()
     {
         CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -20,15 +20,12 @@ public partial class RenderFireSystem : SystemBase
     {
         var field = GetBuffer<FireHeat>(GetSingletonEntity<FireField>());
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var gameConstants = GetSingleton<GameConstants>();
-
         var config = GetSingleton<GameConstants>(); 
         var fieldSize = config.FieldSize;
         var maxColor = config.FireMaxColor;
         var minColor = config.FireMinColor;
         var oscScale = config.FireOSCRange;
-        var deltaTime = Time.DeltaTime;
-        
+        var elapsedTime = Time.ElapsedTime;
         
         Entities
             .WithReadOnly(field)
@@ -37,7 +34,7 @@ public partial class RenderFireSystem : SystemBase
         {
             int id = (int) ((pos.Value.x + fieldSize.x * pos.Value.z));
             float heat = field[id];
-            if (heat < gameConstants.FireHeatFlashPoint)
+            if (heat < config.FireHeatFlashPoint)
             {
                 ecb.DestroyEntity(entityInQueryIndex, e);
                 return;
@@ -45,11 +42,10 @@ public partial class RenderFireSystem : SystemBase
             
             float4 finalColor = math.lerp(minColor, maxColor, heat);
             color.Value = finalColor;
-            float oscHeat = math.clamp(heat + oscScale * math.sin(deltaTime + (float) id), 0.1f, 1f);
+            float phaseOffset = (float) id;
+            float oscHeat = math.clamp(heat + oscScale * math.sin((float)elapsedTime + phaseOffset), 0.1f, 1f);
             scale.Value = new float3(1f, oscHeat*3f, 1f);
-            //TODO: setup with noise.pnoise;
         }).ScheduleParallel();
-        
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
