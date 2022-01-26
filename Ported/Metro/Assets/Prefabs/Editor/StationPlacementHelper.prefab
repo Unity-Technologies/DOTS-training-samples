@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6230019268197070457
 Transform:
   m_ObjectHideFlags: 0
@@ -106,6 +106,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6230019269050149818}
   - component: {fileID: 8475111943261395572}
+  - component: {fileID: 1672449532852941801}
+  - component: {fileID: -7980307590157721287}
   m_Layer: 0
   m_Name: StationPlacementHelper
   m_TagString: Untagged
@@ -142,3 +144,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathData: {fileID: 11400000, guid: b0396282937e46645bc4c197f06abaa2, type: 2}
   distanceFromSplineOrigin: 9.2
+--- !u!114 &1672449532852941801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6230019269050149820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e37adf4018ab754f879457f37febff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-7980307590157721287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6230019269050149820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ebed48f1fe2dc44f97269325f1bb287, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 0
