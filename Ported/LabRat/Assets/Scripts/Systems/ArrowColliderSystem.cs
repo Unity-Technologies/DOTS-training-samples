@@ -15,7 +15,7 @@ public partial class ArrowColliderSystem : SystemBase
         var arrowDirs = arrowsQuery.ToComponentDataArray<Direction>(Allocator.TempJob);
         
         Entities
-            .WithAll<Mouse>()
+            .WithAll<Creature>()
             .WithReadOnly(arrowTiles)
             .WithReadOnly(arrowDirs)
             .WithDisposeOnCompletion(arrowTiles)
