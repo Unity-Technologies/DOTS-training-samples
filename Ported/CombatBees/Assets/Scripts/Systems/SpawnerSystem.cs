@@ -175,7 +175,7 @@ public partial class SpawnerSystem : SystemBase
         ecb.Dispose();
     }
 
-    private static void BufferEntityInstantiation(
+    public static void BufferEntityInstantiation(
         Entity prefabEntity,
         float3 position,
         ref EntityCommandBuffer ecb)
