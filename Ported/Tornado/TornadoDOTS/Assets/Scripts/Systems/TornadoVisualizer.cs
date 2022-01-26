@@ -31,7 +31,7 @@ public partial class TornadoVisualizer : SystemBase
                 var delta = tornadoPosPerParticle - particlePos.Value;
                 var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
                 
-                if (dist > tornadoMovement.MaxHeight/2.5f && particlePos.Value.y == 0f) return;
+                if (dist > tornadoDimensions.TornadoHeight/2.5f && particlePos.Value.y == 0f) return;
                 else if (particleScale.Value.x < KMaxParticleScale)
                 {
                     particleScale.Value += 0.001f;
