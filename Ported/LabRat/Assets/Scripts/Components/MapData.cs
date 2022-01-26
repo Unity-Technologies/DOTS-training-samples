@@ -8,5 +8,4 @@ public struct TileData : IBufferElementData
 
 public struct MapData: IComponentData
 {
-    public int2 Size;
 }
