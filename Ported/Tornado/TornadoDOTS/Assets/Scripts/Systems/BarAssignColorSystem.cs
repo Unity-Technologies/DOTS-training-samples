@@ -25,8 +25,6 @@ public partial class BarAssignColorSystem : SystemBase
         var gcfe = GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
         var rnd = new Random(1234);
         Entities
-            //TODO: Can this be removed (similar to tutorial)
-            //TODO 2: We can potentially assign color on CitySpawner as well
             .WithNativeDisableContainerSafetyRestriction(gcfe)
             .WithStoreEntityQueryInField(ref barAssignColorEntitiesQuery)
             .WithAll<BarAssignColor>()

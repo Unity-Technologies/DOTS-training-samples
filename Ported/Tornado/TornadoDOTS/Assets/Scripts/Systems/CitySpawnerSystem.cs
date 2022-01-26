@@ -14,7 +14,6 @@ public partial class CitySpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // Enabled = false; // it won't run again
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         var random = new Random(1337);
 
@@ -27,7 +26,6 @@ public partial class CitySpawnerSystem : SystemBase
                 {
                     var cluster = ecb.CreateEntity();
 
-                    // TODO: create a grid based on number of clusters -> assign grid mid position + radius to cluster so we don't have overlapping buildings
                     var position = new Vector3(
                         random.NextFloat(-spawner.CityWidth, spawner.CityWidth),
                         0f,

@@ -5,7 +5,6 @@ using UnityEngine.Rendering;
 
 public partial class BarVisualizerSystem : SystemBase
 {
-    //TODO: Extract to math constants class
     static readonly float3 k_Up = new float3(0, 1, 0);
     static readonly float3 k_Left = new float3(-1, 0, 0);
     
