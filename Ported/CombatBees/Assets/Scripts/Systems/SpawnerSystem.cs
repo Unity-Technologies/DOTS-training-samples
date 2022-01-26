@@ -200,7 +200,7 @@ public partial class SpawnerSystem : SystemBase
         ecb.SetComponent(instance, movement);
     }
 
-    private static void BufferEntityInstantiation(
+    public static void BufferEntityInstantiation(
         Entity prefabEntity,
         float3 startPosition,
         float3 endPosition,
