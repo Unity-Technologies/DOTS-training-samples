@@ -20,7 +20,7 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void CellCollison()
     {
-        var query = GetEntityQuery(typeof(Cat), typeof(Tile));
+        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Tile>());
 
         if (query.IsEmpty)
         {
@@ -52,7 +52,7 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void DistanceCollision()
     {
-        var query = GetEntityQuery(typeof(Cat), typeof(Translation));
+        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Translation>());
 
         if (query.IsEmpty)
         {
@@ -83,7 +83,7 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void DistanceCollisionAsync()
     {
-        var query = GetEntityQuery(typeof(Cat), typeof(Translation));
+        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Translation>());
 
         if (query.IsEmpty)
         {
@@ -114,7 +114,7 @@ public partial class CreatureColliderSystem : SystemBase
 
     private void DistanceCollisionAnimationAsync()
     {
-        var query = GetEntityQuery(typeof(Cat), typeof(Translation), typeof(Scale));
+        var query = GetEntityQuery(ComponentType.ReadOnly<Cat>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadWrite<Scale>());
 
         if (query.IsEmpty)
         {
