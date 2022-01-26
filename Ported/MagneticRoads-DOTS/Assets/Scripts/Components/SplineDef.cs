@@ -3,6 +3,8 @@ using Unity.Mathematics;
 
 public struct SplineDef : IComponentData
 {
+    public int splineId;
+    
     public float3 startPoint;
     public float3 anchor1;
     public float3 anchor2;

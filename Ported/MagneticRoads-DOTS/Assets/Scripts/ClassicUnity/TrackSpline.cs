@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class TrackSpline
@@ -28,7 +26,13 @@ public class TrackSpline
 
 	int errorCount;
 
-	public TrackSpline(Intersection start,Vector3 tangent1,Intersection end,Vector3 tangent2) {
+	public int splineId;
+	public static int splineIdCount;
+
+	public TrackSpline(Intersection start,Vector3 tangent1,Intersection end,Vector3 tangent2)
+	{
+		splineId = splineIdCount;
+		splineIdCount++;
 		startIntersection = start;
 		endIntersection = end;
 		startPoint = start.position + tangent1 * RoadGenerator.intersectionSize * .5f;

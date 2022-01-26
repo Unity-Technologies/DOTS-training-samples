@@ -1,6 +1,5 @@
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 
 public partial class RoadConverterSystem : SystemBase
 {
@@ -10,14 +9,25 @@ public partial class RoadConverterSystem : SystemBase
             return;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
+
+        var entityBuffer = new Entity[RoadGenerator.trackSplines.Count*4];
         //TODO use a job for each spline
         foreach (var spline in RoadGenerator.trackSplines)
         {
-            CreateRoadEntity(ecb, spline, false, true);
-            CreateRoadEntity(ecb, spline, true, true);
-            CreateRoadEntity(ecb, spline, false, false);
-            CreateRoadEntity(ecb, spline, true, false);
+            foreach (var splineDef in RoadGenerator.splineToMultiSpline[spline.splineId])
+            {
+                entityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, spline, splineDef);
+            }
+        }
+
+        for (int i = 0; i < entityBuffer.Length; i++)
+        {
+            var entity = entityBuffer[i];
+            var buffer = ecb.AddBuffer<RoadNeighbors>(entity);
+            foreach (var link in RoadGenerator.weirdoWeirdSplineLinks[i])
+            {
+                buffer.Add(new RoadNeighbors {Value = entityBuffer[link]});
+            }
         }
         
         ecb.Playback(EntityManager);
@@ -28,29 +38,17 @@ public partial class RoadConverterSystem : SystemBase
         World.GetOrCreateSystem<CarSpawnerSystem>().Enabled = true;
     }
     
-    private void CreateRoadEntity(EntityCommandBuffer ecb, TrackSpline spline, bool reversed, bool isTop)
+    private Entity CreateRoadEntity(EntityCommandBuffer ecb, TrackSpline originSpline, SplineDef splineDef)
     {
         var entity = ecb.CreateEntity();
-        var def = new SplineDef
-        {
-            startPoint = reversed ? spline.endPoint : spline.startPoint,
-            anchor1 = reversed ? spline.anchor2 : spline.anchor1,
-            anchor2 = reversed ? spline.anchor1 : spline.anchor2,
-            endPoint = reversed ? spline.startPoint : spline.endPoint,
-            startNormal = reversed ? spline.endNormal.ToInt3() : spline.startNormal.ToInt3(),
-            endNormal = reversed ? spline.startNormal.ToInt3() : spline.endNormal.ToInt3(),
-            startTangent = reversed ? spline.endTangent.ToInt3() : spline.startTangent.ToInt3(),
-            endTangent = reversed ? spline.startTangent.ToInt3() : spline.endTangent.ToInt3(),
-            twistMode = spline.twistMode,
-            offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f)
-        };
-        
-        ecb.AddComponent(entity, def);
+
+        ecb.AddComponent(entity, splineDef);
         ecb.AddComponent<CarQueue>(entity);
         ecb.AddComponent(entity, new RoadLength
         {
-            roadLength = spline.measuredLength
+            roadLength = originSpline.measuredLength
         });
+        return entity;
     }
 }
 
