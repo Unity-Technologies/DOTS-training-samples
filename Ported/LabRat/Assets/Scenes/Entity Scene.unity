@@ -247,7 +247,7 @@ MonoBehaviour:
   MouseMovementSpeed: 1.5
   CatMovementSpeed: 1
   CreatureFallSpeed: 1
-  CursorSpeed: 0
+  CursorSpeed: 0.4
   CreatureAnimationSpeed: 3
   MouseSpawnRate: 0.5
   MouseSpawnCooldown:

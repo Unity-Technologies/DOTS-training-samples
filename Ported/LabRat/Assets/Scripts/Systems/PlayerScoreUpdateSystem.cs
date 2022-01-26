@@ -11,13 +11,13 @@ public partial class PlayerScoreUpdateSystem : SystemBase
             ComponentType.ReadOnly<Player>(),
             ComponentType.ReadOnly<Color>(),
             ComponentType.ReadOnly<Score>(),
-            ComponentType.ReadOnly<PlayerScoreDisplayIndex>());
+            ComponentType.ReadOnly<PlayerUIIndex>());
         if (playersQuery.IsEmpty)
             return;
 
         var playerColors = playersQuery.ToComponentDataArray<Color>(Allocator.Temp);
         var playerScores = playersQuery.ToComponentDataArray<Score>(Allocator.Temp);
-        var playerIndices = playersQuery.ToComponentDataArray<PlayerScoreDisplayIndex>(Allocator.Temp);
+        var playerIndices = playersQuery.ToComponentDataArray<PlayerUIIndex>(Allocator.Temp);
         var scoreDisplays = this.GetSingleton<GameObjectRefs>().ScoreDisplays;
 
         for (int i = 0; i < playerIndices.Length; ++i)

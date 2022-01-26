@@ -2,9 +2,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateBefore(typeof(ArrowPlacerSystem))]
-public partial class AICursorSystem : SystemBase
+public partial class AIPlayerMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -13,11 +14,11 @@ public partial class AICursorSystem : SystemBase
         var tiles = miceQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
         var delta = Time.DeltaTime;
 
-        Entities.ForEach((ref Translation translation, ref CursorPosition position, ref CursorLerp cursor, ref PlayerSpawnArrow shouldSpawnArrow) =>
+        Entities.ForEach((ref CursorPosition position, ref CursorLerp cursor, ref PlayerSpawnArrow shouldSpawnArrow) =>
         {
             if (cursor.LerpValue >= 1f)
-            {
-                position.Value = cursor.Destination;
+            { 
+                cursor.Start = cursor.Destination;
                 shouldSpawnArrow.Value = true;
 
                 if (tiles.Length > 0 && config.CursorAIRandom.NextFloat(0f, 1f) > 0.2f)
@@ -27,6 +28,7 @@ public partial class AICursorSystem : SystemBase
                 }
                 else
                 {
+
                     cursor.Destination = config.CursorAIRandom.NextFloat2(new float2(0f, 0f), new float2(config.MapWidth, config.MapHeight));
                 }
                 cursor.LerpValue = 0f;
@@ -34,11 +36,12 @@ public partial class AICursorSystem : SystemBase
             else
             {
                 cursor.LerpValue += config.CursorSpeed * delta;
-                var x = math.lerp(position.Value.x, cursor.Destination.x, cursor.LerpValue);
-                var y = math.lerp(position.Value.y, cursor.Destination.y, cursor.LerpValue);
-                translation.Value += new float3(x, y, 0);
+                var x = math.lerp(cursor.Start.x, cursor.Destination.x, cursor.LerpValue);
+                var y = math.lerp(cursor.Start.y, cursor.Destination.y, cursor.LerpValue);
+                position.Value = new float2(x, y);
             }
 
-        }).Schedule();
+        }).Run();
+        tiles.Dispose();
     }
 }

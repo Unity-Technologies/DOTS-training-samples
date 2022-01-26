@@ -12,10 +12,10 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         dstManager.AddComponent<Player>(entity);
         dstManager.AddComponentData(entity, new Color { Value = new float4(color.r, color.g, color.b, color.a) });
-        dstManager.AddComponentData(entity, new CursorPosition { Value = new float2(0f, 0f) });
+        dstManager.AddComponentData(entity, new CursorPosition { Value = float2.zero });
         dstManager.AddComponentData(entity, new Score { Value = 0 });
         dstManager.AddComponentData(entity, new PlayerSpawnArrow { Value = false });
-        dstManager.AddComponentData(entity, new PlayerScoreDisplayIndex { Index = Index });
+        dstManager.AddComponentData(entity, new PlayerUIIndex { Index = Index });
         dstManager.AddComponent<ArrowsDeployed>(entity);
         if (UserControlled)
         {
@@ -23,7 +23,7 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         }
         else
         {
-            dstManager.AddComponentData(entity, new CursorLerp { Destination = new float2(0f,0f), LerpValue = 1f });
+            dstManager.AddComponentData(entity, new CursorLerp { Start = float2.zero, Destination = float2.zero, LerpValue = 1f });
         }
     }
 }
