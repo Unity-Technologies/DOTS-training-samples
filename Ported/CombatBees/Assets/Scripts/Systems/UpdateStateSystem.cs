@@ -70,7 +70,8 @@ public partial class UpdateStateSystem : SystemBase
                 if (state.value == StateValues.Carrying)
                 {
 
-                    if ((translation.Value.x < spawner.ArenaExtents.x + 1) && team.Value == TeamValue.Yellow || (translation.Value.x > -spawner.ArenaExtents.x - 1) && team.Value == TeamValue.Blue)
+                    if ((translation.Value.x < spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
+                        (translation.Value.x > -spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
                     {
 
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
