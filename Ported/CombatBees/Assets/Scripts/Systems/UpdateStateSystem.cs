@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -50,7 +51,8 @@ public partial class UpdateStateSystem : SystemBase
         Entities.WithAll<BeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement, ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
             {
-                // If Bee is carrying -> continue
+                // If Bee is idle -> seeking
+                //           carrying -> continue
                 //           seeking -> check for attack option then check for carry option
                 //           attacking -> check for carry option then check for seeking
                 if (state.value == StateValues.Carrying)
@@ -99,17 +101,26 @@ public partial class UpdateStateSystem : SystemBase
                         }
                     }
 
-                    return;
+                    if (movement.t >= 0.99f)
+                    {
+                        // If we have finished moving and are still seeking, go back to idle status
+                        state.value = StateValues.Idle;
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
-                // Fall through to seeking
-                // Choose food at random here
-                int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
-                Translation randomFoodTranslation = foodTranslationData[randomInt];
 
-                movement.GoTo(translation.Value, randomFoodTranslation.Value);
-
-                state.value = StateValues.Seeking;
-
+                if (state.value == StateValues.Idle)
+                {
+                    // Choose food at random here
+                    // TODO: Exclude food that is being carried or dropped?
+                    int randomInt = random.NextInt(0, foodTranslationData.Length - 1);
+                    Translation randomFoodTranslation = foodTranslationData[randomInt];
+                    movement.GoTo(translation.Value, randomFoodTranslation.Value);
+                    state.value = StateValues.Seeking;
+                }
             }).WithReadOnly(foodTranslationData)
             .WithReadOnly(foodEntityData)
             .WithDisposeOnCompletion(foodTranslationData)

@@ -2,6 +2,7 @@ using Unity.Entities;
 
 public enum StateValues
 {
+    Idle,
     Attacking,
     Carrying,
     Seeking
