@@ -274,8 +274,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190d88b01d6a4f0982bfcec1bf2d0673, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  XFrequency: 0.5
-  ZFrequency: 0.7
+  XFrequency: 0.3
+  ZFrequency: 0.4
 --- !u!114 &1922779103
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,11 +292,12 @@ MonoBehaviour:
   ForceMultiplyRange:
     Min: -0.3
     Max: 1.3
-  TornadoUpForce: 1.4
-  TornadoInwardForce: 9
+  TornadoUpForce: 5
+  TornadoInwardForce: 15
   Friction: 0.4
   Gravity: 0.5
   Damping: 0.012
+  BreakDistance: 0.55
 --- !u!114 &1922779104
 MonoBehaviour:
   m_ObjectHideFlags: 0

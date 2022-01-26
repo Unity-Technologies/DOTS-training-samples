@@ -19,4 +19,6 @@ public struct TornadoSimulationParameters : IComponentData
 
     public float Gravity;
     public float Damping;
+
+    public float BreakDistance;
 }

@@ -60,7 +60,7 @@ public partial class JointsSimulationSystem : SystemBase
 						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(rnd);
 						var force = new float3(
 							-td.z - td.x * parameters.TornadoInwardForce*yFader,
-							parameters.TornadoUpForce,
+							-parameters.TornadoUpForce,
 							td.x - td.z * parameters.TornadoInwardForce*yFader
 						);
 

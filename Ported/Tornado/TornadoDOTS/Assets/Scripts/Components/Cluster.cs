@@ -20,6 +20,7 @@ public struct Joint : IBufferElementData
     public float3 Value;
     public float3 OldPos;
     public bool IsAnchored;
+    public int NeighbourCount;
 }
 
 //TODO: Break into 2 components? (probably less necessary)

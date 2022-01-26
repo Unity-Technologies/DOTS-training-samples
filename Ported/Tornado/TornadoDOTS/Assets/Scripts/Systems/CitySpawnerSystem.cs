@@ -136,10 +136,17 @@ public partial class CitySpawnerSystem : SystemBase
         int j1, int j2, DynamicBuffer<Joint> joints, DynamicBuffer<Connection> connections, 
         EntityCommandBuffer.ParallelWriter parallelWriter, int key, Entity barPrefab, DynamicBuffer<Bar> bars, Entity me)
     {
+        var joint1 = joints[j1];
+        var joint2 = joints[j2];
         connections.Add(new Connection
         {
-            J1 = j1, J2 = j2, OriginalLength = math.length(joints[j1].Value - joints[j2].Value),
+            J1 = j1, J2 = j2, OriginalLength = math.length(joint1.Value - joint2.Value),
         });
+
+        joint1.NeighbourCount++;
+        joint2.NeighbourCount++;
+        joints[j1] = joint1;
+        joints[j2] = joint2;
         
         var bar = parallelWriter.Instantiate(key, barPrefab);
         parallelWriter.AddComponent<BarVisualizer>(key, bar);
