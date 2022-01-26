@@ -32,7 +32,7 @@ public partial class PlayerUpdateSystem : SystemBase
                         playerScore.Value += 1;
                     }
                 }
-            }).Schedule();
+            }).Run();
         AddPointsToPlayerQueue.Clear();
     }
      

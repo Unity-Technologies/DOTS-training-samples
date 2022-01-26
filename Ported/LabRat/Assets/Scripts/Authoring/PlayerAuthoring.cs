@@ -6,6 +6,7 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public UnityEngine.Color color;
     public bool UserControlled;
+    public int Index;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -14,6 +15,7 @@ public class PlayerAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new CursorPosition { Value = new float2(0f, 0f) });
         dstManager.AddComponentData(entity, new Score { Value = 0 });
         dstManager.AddComponentData(entity, new PlayerSpawnArrow { Value = false });
+        dstManager.AddComponentData(entity, new PlayerScoreDisplayIndex { Index = Index });
         dstManager.AddComponent<ArrowsDeployed>(entity);
         if (UserControlled)
         {
