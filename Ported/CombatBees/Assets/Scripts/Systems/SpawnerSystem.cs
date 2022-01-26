@@ -7,6 +7,7 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 using static Unity.Mathematics.math;
 
+// Make sure this runs after the destroyer, so it reinitializes after everything has been destroyed
 [UpdateAfter(typeof(DestroyerSystem))]
 [UpdateBefore(typeof(PP_Movement))]
 [UpdateBefore(typeof(UpdateStateSystem))]
@@ -44,21 +45,21 @@ public partial class SpawnerSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var inputReinitialize = Input.GetKeyDown(KeyCode.R);
-        var randomSeed = (uint) max(1,
-            DateTime.Now.Millisecond +
-            DateTime.Now.Second +
-            DateTime.Now.Minute +
-            DateTime.Now.Day +
-            DateTime.Now.Month +
-            DateTime.Now.Year);
-
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        Entities
-            .ForEach((Entity entity, in Spawner spawner) =>
-            {
-                if (inputReinitialize)
+        // Initialization/Reinitialization
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            var randomSeed = (uint) max(1,
+                DateTime.Now.Millisecond +
+                DateTime.Now.Second +
+                DateTime.Now.Minute +
+                DateTime.Now.Day +
+                DateTime.Now.Month +
+                DateTime.Now.Year);
+
+            Entities
+                .ForEach((in Spawner spawner) =>
                 {
                     var random = new Random(randomSeed);
 
@@ -110,14 +111,40 @@ public partial class SpawnerSystem : SystemBase
                     }
 
                     #endregion Bee_Init
-                }
-            }).Run();
+                }).Run();
+        }
+
+        // Click-to-Spawn Resource
+        // TODO: use GetMouseButtonDown(0) with an interval timer to spawn while holding the mouse
+        if (Input.GetMouseButtonDown(0))
+        {
+            var camera = this.GetSingleton<GameObjectRefs>().Camera;
+            var cursorRay = camera.ScreenPointToRay(Input.mousePosition);
+            var groundPlane = new Plane(Vector3.up, Vector3.zero);
+
+            if (groundPlane.Raycast(cursorRay, out var distanceToHit))
+            {
+                var hitPoint = (float3) cursorRay.GetPoint(distanceToHit);
+
+                Entities
+                    .ForEach((in Spawner spawner) =>
+                    {
+                        if (abs(hitPoint.x) < spawner.ArenaExtents.x + spawner.GoalDepth - 1 &&
+                            abs(hitPoint.z) < spawner.ArenaExtents.y - 1)
+                        {
+                            BufferEntityInstantiation(
+                                spawner.ResourcePrefab,
+                                hitPoint + new float3(0f, 0.5f, 0f),
+                                ref ecb);
+                        }
+                    }).Run();
+            }
+        }
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }
 
-    // Learning Note: this must be static to be accessed from a Burst-compiled system
     private static void BufferEntityInstantiation(
         Entity prefabEntity,
         float3 position,
