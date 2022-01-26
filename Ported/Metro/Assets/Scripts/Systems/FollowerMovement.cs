@@ -22,6 +22,10 @@ public partial class FollowerMovement : SystemBase
             ref var splineData = ref spline.splinePath.Value;
             
             var followerProgress = leaderTrackProgress.Value - follower.CartIndexInTrain * CartLength;
+            if (followerProgress < 0)
+            {
+                followerProgress += splineData.pathLength;
+            }
             
             int dummySegment = 0;
             float3 position;
