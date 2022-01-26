@@ -22,9 +22,9 @@ public partial class ArrowPlacerSystem : SystemBase
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var config = GetSingleton<Config>();
-        
         float2 cellSize = new float2(config.MapWidth, config.MapHeight);
 
+        DynamicBuffer<TileData> mapTiles = GetBuffer<TileData>(GetSingletonEntity<MapData>());
         float time = (float)Time.ElapsedTime;
 
         Entities
@@ -39,7 +39,7 @@ public partial class ArrowPlacerSystem : SystemBase
                 var coordinate = CalculateProjected(playerPos.Value, cellSize, out var direction);
                 if (direction != DirectionEnum.None &&
                     coordinate.x >= 0 && coordinate.x < cellSize.x &&
-                    coordinate.y >= 0 && coordinate.y < cellSize.y)
+                    coordinate.y >= 0 && coordinate.y < cellSize.y && !MapData.HasHole(config, mapTiles, coordinate))
                 {
                     var arrow = ecb.Instantiate(nativeThreadIndex, config.ArrowPrefab);
                     ecb.SetComponent(nativeThreadIndex, arrow, new Arrow { PlacedTime = time });
@@ -65,7 +65,7 @@ public partial class ArrowPlacerSystem : SystemBase
                 }
 
                 shouldSpawn.Value = false;
-            }).ScheduleParallel();
+            }).Run();
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
 

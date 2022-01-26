@@ -18,17 +18,6 @@ public partial class CreatureMovementSystem : SystemBase
         return raw > (int)DirectionEnum.West ? DirectionEnum.North : (DirectionEnum)raw;
     }
 
-    private static DirectionEnum GetTileWalls(Config config, DynamicBuffer<TileData> mapTiles, int2 coord)
-    {
-        if (coord.x < 0 || coord.y < 0 || coord.x >= config.MapWidth || coord.y >= config.MapHeight)
-        {
-            return DirectionEnum.North | DirectionEnum.East | DirectionEnum.South | DirectionEnum.West;
-        }
-            
-        int index = coord.y * config.MapWidth + coord.x;
-        return mapTiles[index].Walls.Value;
-    }
-
     private static int2 Neighbor(int2 coord, DirectionEnum dir)
     {
         return coord + dir.ToVector2();
@@ -36,7 +25,7 @@ public partial class CreatureMovementSystem : SystemBase
     
     private static bool HasWallOrNeighborWall(Config config, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir) 
     {
-        var walls = GetTileWalls(config, mapTiles, current);
+        var walls = MapData.GetTileWalls(config, mapTiles, current);
 
         if (WallInDirection(walls, dir)) 
         {
@@ -45,7 +34,7 @@ public partial class CreatureMovementSystem : SystemBase
         }
 		
         var neighbor = Neighbor(current, dir);
-        var neighborWalls = GetTileWalls(config, mapTiles, neighbor);
+        var neighborWalls = MapData.GetTileWalls(config, mapTiles, neighbor);
         var oppositeDirection = dir.Reverse();
         
         if (WallInDirection(neighborWalls, oppositeDirection))
@@ -56,17 +45,10 @@ public partial class CreatureMovementSystem : SystemBase
 
         return false;
     }
-
-    private static bool HasHole(Config config, DynamicBuffer<TileData> mapTiles, int2 current)
-    {
-        var hole = GetTileWalls(config, mapTiles, current);
-
-        return hole.Impassable();
-    }
     
     private static DirectionEnum NextPath(Config conf, DynamicBuffer<TileData> mapTiles, int2 current, DirectionEnum dir)
     {
-        if (HasHole(conf, mapTiles, current))
+        if (MapData.HasHole(conf, mapTiles, current))
         {
             return DirectionEnum.Hole;
         }
