@@ -12,7 +12,7 @@ public partial class CreatureTransformUpdateSystem : SystemBase
 
         Entities
             .WithAll<Creature>()
-            .ForEach((ref Tile tile, ref Direction dir, ref TileLerp lerp, ref Translation trans, ref Rotation rot) =>
+            .ForEach((ref Direction dir, ref Translation trans, ref Rotation rot, in Tile tile, in TileLerp lerp) =>
             {
                 // Translation
                 int3 direction = dir.Value.ToVector3();

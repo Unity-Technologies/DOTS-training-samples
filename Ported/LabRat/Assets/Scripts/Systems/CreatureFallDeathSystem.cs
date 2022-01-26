@@ -19,7 +19,7 @@ public partial class CreatureFallDeathSystem : SystemBase
 
         Entities
             .WithAll<Creature>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation trans) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation trans) =>
             {
                 if (trans.Value.y < -3.0f)
                 {
