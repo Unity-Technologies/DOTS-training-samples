@@ -57,6 +57,18 @@ public struct PP_Movement : IComponentData
         return trans;
     }
 
+    public float3 GetTransAtProgress(float futureT, MotionType motionType)
+    {
+        float3 trans = math.lerp(startLocation, endLocation, futureT);
+
+        if (motionType == MotionType.BeeBumble)
+        {
+            trans.y += math.sin(futureT * math.PI * 10);
+        }
+
+        return trans;
+    }
+
     public static PP_Movement Create(float3 start, float3 end)
     {
         var m = new PP_Movement

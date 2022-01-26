@@ -80,10 +80,22 @@ public partial class MovementSystem : SystemBase
         //bees
         Entities
             .WithAll<BeeTag>()
-            .ForEach((ref Translation translation, ref PP_Movement ppMovement, in BeeTag beeTag, in Velocity velocity) =>
+            .ForEach((ref Translation translation, ref PP_Movement ppMovement, ref Rotation rotation, in BeeTag beeTag, in Velocity velocity) =>
             {
                 // do bee movement
                 translation.Value = ppMovement.Progress(tAdd, MotionType.BeeBumble);
+
+                float futureT = Mathf.Clamp(ppMovement.t + 0.01f, 0, 1f);
+
+                float3 fwd = ppMovement.GetTransAtProgress(futureT, MotionType.BeeBumble) - translation.Value;
+
+                var newRot = quaternion.identity;
+
+                newRot = math.mul(newRot, quaternion.RotateZ(math.radians(90)));
+                newRot = math.mul(newRot, quaternion.LookRotation(fwd, new float3(0, 1, 0)));
+
+
+                rotation.Value = newRot;
 
 
             }).Schedule();
