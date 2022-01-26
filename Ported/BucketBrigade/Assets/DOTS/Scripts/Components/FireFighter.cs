@@ -9,5 +9,6 @@ public struct FireFighter : IComponentData
     public Entity HeldBucket;
 }
 
+public struct BucketFetcher : IComponentData { }
 public struct HoldsEmptyBucket : IComponentData { }
 public struct HoldsFullBucket : IComponentData { }

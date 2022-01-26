@@ -28,7 +28,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
         // TODO: if there are no flames don't do anything
         Entities
-            .WithAll<HoldsEmptyBucket>()
+            .WithAll<HoldsEmptyBucket, BucketFetcher>()
             .WithNone<TargetDestination>()
             .WithReadOnly(lakeTranslations)
             .WithDisposeOnCompletion(lakeTranslations)
