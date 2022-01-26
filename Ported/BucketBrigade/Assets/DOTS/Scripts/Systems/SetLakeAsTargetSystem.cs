@@ -26,8 +26,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
         var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        var readonlyLakeTranslations = lakeTranslations.AsReadOnly();
-
         // TODO: if there are no flames don't do anything
         Entities
             .WithAll<HoldsEmptyBucket>()
