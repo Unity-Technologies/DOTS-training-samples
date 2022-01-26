@@ -40,7 +40,9 @@ public partial class ExtinguishFire : SystemBase
                     }
                 }
             }).Schedule();
-
+        //HACK: fix readonly query with DynamicBuffer
+        Entities.ForEach((ref DynamicBuffer<FireHeat> _) => { }).Schedule();
+        
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
