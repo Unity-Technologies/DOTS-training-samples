@@ -1,7 +1,8 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 
-public partial class MiceExitSystem: SystemBase
+public partial class ExitSystem: SystemBase
 {
     private EntityCommandBufferSystem mECBSystem;
     private PlayerUpdateSystem mPlayerUpdateSystem;
@@ -24,18 +25,20 @@ public partial class MiceExitSystem: SystemBase
         var ecb = mECBSystem.CreateCommandBuffer().AsParallelWriter();
 
         var exitTiles = exitsQuery.ToComponentDataArray<Tile>(Allocator.TempJob);
-        
+
         var exitOwners = exitsQuery.ToComponentDataArray<PlayerOwned>(Allocator.TempJob);
 
         var pointsQueue = mPlayerUpdateSystem.AddPointsToPlayerQueue.AsParallelWriter();
-        
-        Entities
+        var removeQueue = mPlayerUpdateSystem.RemovePointsFromPlayerQueue.AsParallelWriter();
+
+        var addPointsJob = Entities
+            .WithName("AddPointsJob")
             .WithAll<Mouse>()
             .WithReadOnly(exitTiles)
             .WithReadOnly(exitOwners)
             .ForEach((Entity entity, int entityInQueryIndex, in Tile mouseTile) =>
             {
-                
+
                 for (int i = 0; i < exitTiles.Length; ++i)
                 {
                     if (mouseTile.Coords.Equals(exitTiles[i].Coords))
@@ -46,10 +49,32 @@ public partial class MiceExitSystem: SystemBase
                     }
                 }
             })
-            .WithDisposeOnCompletion(exitTiles)
-            .WithDisposeOnCompletion(exitOwners)
-            .ScheduleParallel();
-        
+            .ScheduleParallel(Dependency);
+
+        var removePointsJob = Entities
+            .WithName("RemovePointsJob")
+            .WithAll<Cat>()
+            .WithReadOnly(exitTiles)
+            .WithReadOnly(exitOwners)
+            .ForEach((Entity entity, int entityInQueryIndex, in Tile catTile) =>
+            {
+
+                for (int i = 0; i < exitTiles.Length; ++i)
+                {
+                    if (catTile.Coords.Equals(exitTiles[i].Coords))
+                    {
+                        ecb.DestroyEntity(entityInQueryIndex, entity);
+                        // enqueue a point loss for the PlayerUpdateSystem
+                        removeQueue.Enqueue(exitOwners[i].Owner);
+                    }
+                }
+            })
+            .ScheduleParallel(addPointsJob);
+
+        JobHandle intermediateDependencies = JobHandle.CombineDependencies(addPointsJob, removePointsJob);
+
+        Dependency = JobHandle.CombineDependencies(exitTiles.Dispose(intermediateDependencies), exitOwners.Dispose(intermediateDependencies));
+
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
 }
