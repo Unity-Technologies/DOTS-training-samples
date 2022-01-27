@@ -21,6 +21,7 @@ public partial class CreatureColliderSystem : SystemBase
             ComponentType.ReadOnly<Translation>());
         RequireForUpdate(catsQuery);
         RequireSingletonForUpdate<GameRunning>();
+        RequireSingletonForUpdate<Config>();
     }
 
     private void CellCollison()
