@@ -35,6 +35,8 @@ public struct Connection : IBufferElementData
     public float OriginalLength;
 }
 
+
+public struct InitializeBars : IComponentData {}
 public struct Bar : IBufferElementData
 {
     public Entity Value;
@@ -42,5 +44,3 @@ public struct Bar : IBufferElementData
     public static implicit operator Entity(in Bar b) => b.Value;
     public static implicit operator Bar(in Entity e) => new Bar() {Value = e};
 }
-
-public struct BarVisualizer : IComponentData {}
