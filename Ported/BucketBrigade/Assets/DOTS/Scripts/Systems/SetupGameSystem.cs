@@ -69,11 +69,12 @@ public partial class SetupGameSystem : SystemBase
                     
                     EntityManager.SetComponentData(workerEntity, new Translation { Value = workerPos });
                     
-                    if (w < totalWorkers - 1)
+                    if (w < totalWorkers - 2)
                     {
-                        EntityManager.AddComponent<LineWorker>(workerEntity);
+                        EntityManager.SetComponentData(workerEntity, new PassTo { NextWorker = workers[w + 1] });
                     }
-                    else EntityManager.AddComponent<BucketFetcher>(workerEntity);
+                    
+                    if (w == totalWorkers - 1) EntityManager.AddComponent<BucketFetcher>(workerEntity);
                 }
             }
         }

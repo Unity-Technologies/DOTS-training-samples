@@ -102,14 +102,18 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                     var pos = GetLinePosition(t, lineLakePosition.Value, lineFirePosition.Value, offset);
                     var posNext = GetLinePosition(tNext, lineLakePosition.Value, lineFirePosition.Value, offset);
 
+
                     // DON'T REMOVE THIS LINE
                     TeamWorkers workerEntity = workersBuffer[x];
-                    SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext });
-                    
+
+                    //SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext, NextWorker = workersBuffer[x + 1] });
+
+                    var targetPosition = (TargetDestination)(HasComponent<HoldingBucket>(workerEntity) ? posNext : pos).xz;
+
                     if (HasComponent<TargetDestination>(workerEntity))
-                        SetComponent<TargetDestination>(workerEntity, pos.xz);
+                        SetComponent(workerEntity, targetPosition);
                     else
-                        ecb.AddComponent<TargetDestination>(workerEntity, pos.xz);
+                        ecb.AddComponent(workerEntity, targetPosition);
                 }
 
                 // Backward Line
@@ -121,16 +125,17 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                     var pos = GetLinePosition(t, lineFirePosition.Value, lineLakePosition.Value, -offset);
                     var posNext = GetLinePosition(tNext, lineFirePosition.Value, lineLakePosition.Value, -offset);
 
-                    //var target = (math.lerp(lineLakePosition.Value, lineFirePosition.Value, t) - math.sin(t * math.PI) * offset);
-
                     // DON'T REMOVE THIS LINE
-                    TeamWorkers workerEntity = workersBuffer[x + gameConstants.WorkersPerLine];
-                    SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext });
-                    
+                    TeamWorkers workerEntity = workersBuffer[x];
+
+                    //SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext, NextWorker = workersBuffer[x + 1] });
+
+                    var targetPosition = (TargetDestination)(HasComponent<HoldingBucket>(workerEntity) ? posNext : pos).xz;
+
                     if (HasComponent<TargetDestination>(workerEntity))
-                        SetComponent<TargetDestination>(workerEntity, pos.xz);
+                        SetComponent(workerEntity, targetPosition);
                     else
-                        ecb.AddComponent<TargetDestination>(workerEntity, pos.xz);
+                        ecb.AddComponent(workerEntity, targetPosition);
                 }
 
                 // BucketFetcher
