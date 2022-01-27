@@ -1,39 +1,110 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateAfter(typeof(JointsSimulationSystem))]
-public partial class BarConstraintSolverSystem : SystemBase
+public partial class JointAndBarSimulationSystem : SystemBase
 {
     const float k_BreakStrength = 0.55f; // break when above 5% change
+	float m_TornadoForceFader;
     EntityCommandBufferSystem m_CommandBufferSystem;
     protected override void OnCreate()
     {
         m_CommandBufferSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
-    
+
     protected override void OnUpdate()
     {
+        var tornado = GetSingletonEntity<Tornado>();
+        var parameters = GetComponent<TornadoSimulationParameters>(tornado);
+        var tornadoDimensions = GetComponent<TornadoDimensions>(tornado);
+        var tornadoPos = GetComponent<Translation>(tornado).Value;
+        var dt = Time.fixedDeltaTime;
+        var time = (float) Time.ElapsedTime;
+        m_TornadoForceFader = math.clamp(m_TornadoForceFader + dt / 10.0f, 0, 1);
+        var tornadoFader = m_TornadoForceFader;
+        var random = new Random(1234);
+
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
-        Entities 
+        Entities
             .ForEach((
-                Entity entity, 
+                Entity entity,
                 int entityInQueryIndex,
                 ref DynamicBuffer<Connection> connections,
                 ref DynamicBuffer<Joint> joints,
                 ref DynamicBuffer<JointNeighbours> neighbours) =>
             {
+                // Step 1: Apply forces to every joint (gravity and tornado)
+		        for (var i = 0; i < joints.Length; i++)
+		        {
+			        var joint = joints[i];
+
+			        //TODO (perf): Maybe separate anchored joints in another buffer? (probably doesn't matter a whole lot)
+			        if (joint.IsAnchored)
+			        {
+				        continue;
+			        }
+
+					var start = joint.Value;
+
+					var jointPos = joint.Value;
+					var jointOldPos = joint.OldPos;
+
+					jointOldPos.y += parameters.Gravity * dt;
+
+					//TODO: We could use float2, or two floats, but whatever
+					var td = new float3(
+						tornadoPos.x + TornadoSway(jointPos.y, time) - jointPos.x,
+						0,
+						tornadoPos.z - jointPos.z
+					);
+
+					var tornadoXZDist = math.sqrt(td.x * td.x + td.z * td.z);
+					td /= tornadoXZDist;
+
+					if (tornadoXZDist < tornadoDimensions.TornadoRadius)
+					{
+						var forceScalar = (1.0f - tornadoXZDist / tornadoDimensions.TornadoRadius);
+						var yFader = math.clamp(1f - jointPos.y / tornadoDimensions.TornadoHeight, 0, 1);
+						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(random);
+						var force = new float3(
+							-td.z - td.x * parameters.TornadoInwardForce*yFader,
+							-parameters.TornadoUpForce,
+							td.x - td.z * parameters.TornadoInwardForce*yFader
+						);
+
+						jointOldPos -= (force * forceScalar);
+					}
+
+					jointPos += (jointPos - jointOldPos) * (1f - parameters.Damping);
+					jointOldPos = start;
+
+					if (jointPos.y < 0f)
+					{
+						jointPos.y = 0;
+						jointOldPos.y = -jointPos.y;
+						jointOldPos.x += (jointPos.x - jointOldPos.x) * parameters.Friction;
+						jointOldPos.z += (jointPos.z - jointOldPos.z) * parameters.Friction;
+					}
+
+					joint.Value = jointPos;
+					joint.OldPos = jointOldPos;
+					joints[i] = joint;
+		        }
+
+                //Step 2: Constraint Resolution + Bar break
                 int nextIndex = joints.Length;
                 for (int i = 0; i < connections.Length; i++)
                 {
+                    //Step 2.1: Bar length constraint solver
                     var connection = connections[i];
                     var joint1 = joints[connection.J1];
                     var joint2 = joints[connection.J2];
-                    
+
                     var joint1Pos = joint1.Value;
                     var joint2Pos = joint2.Value;
-                    
+
                     var delta = joint2Pos - joint1Pos;
                     var dist = math.length(delta);
                     var extraDist = dist - connection.OriginalLength;
@@ -60,7 +131,9 @@ public partial class BarConstraintSolverSystem : SystemBase
 
                     joints[connection.J1] = joint1;
                     joints[connection.J2] = joint2;
-                    
+
+
+                    // Step 2.2: Bar break check
                     extraDist = math.abs(extraDist);
                     if (extraDist > k_BreakStrength)
                     {
@@ -94,7 +167,10 @@ public partial class BarConstraintSolverSystem : SystemBase
                     }
                 }
             }).ScheduleParallel();
-        
+
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
+    static float TornadoSway(float y, float time) {
+		return math.sin(y / 5f + time/4f) * 3f;
+	}
 }
