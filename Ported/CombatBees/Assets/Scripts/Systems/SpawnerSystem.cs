@@ -13,6 +13,8 @@ using static Unity.Mathematics.math;
 [UpdateBefore(typeof(UpdateStateSystem))]
 public partial class SpawnerSystem : SystemBase
 {
+    private int resetCount = 0;
+
     public static int3 GetBeeMinBounds(Spawner spawner)
     {
         return new int3(spawner.ArenaExtents.x + 1, spawner.ArenaHeight / 4, -spawner.ArenaExtents.y + 1);
@@ -50,8 +52,10 @@ public partial class SpawnerSystem : SystemBase
         #region Initial_Spawns
 
         // Initialization/Reinitialization
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) || resetCount == 0)
         {
+            resetCount++;
+
             var randomSeed = (uint) max(1,
                 DateTime.Now.Millisecond +
                 DateTime.Now.Second +
