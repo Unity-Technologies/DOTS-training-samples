@@ -31,17 +31,23 @@ public partial class PassBucketSystem : SystemBase
                 if (HasComponent<HoldingBucket>(passTo.NextWorker))
                     return;
 
+                var throwingFullBucket = HasComponent<BucketThrower>(e) && HasComponent<HoldsFullBucket>(e);
+                var nextWorkerHoldsEmptyBucket = HasComponent<HoldsEmptyBucket>(e) || throwingFullBucket;
+
                 if (HasComponent<HoldsEmptyBucket>(e))
                 {
                     ecb.RemoveComponent<HoldsEmptyBucket>(e);
-                    ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
                 }
 
                 if (HasComponent<HoldsFullBucket>(e))
                 {
                     ecb.RemoveComponent<HoldsFullBucket>(e);
-                    ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
                 }
+
+                if (nextWorkerHoldsEmptyBucket)
+                    ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
+                else
+                    ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
 
                 ecb.RemoveComponent<PassToTargetAssigned>(e);
                 ecb.RemoveComponent<HoldingBucket>(e);
@@ -49,14 +55,20 @@ public partial class PassBucketSystem : SystemBase
 
                 Debug.Log("bucket passed with TargetDestination");
 
-                if (HasComponent<BucketThrower>(e))
+                if (throwingFullBucket)
                 {
                     // TODO: make dousing
+                    ecb.AddComponent<DousingEvent>(e);
+
+                    ecb.SetComponent(holdingBucket.HeldBucket, new Bucket { Volume = 0 });
+
+                    if (HasComponent<EmptyBucket>(holdingBucket.HeldBucket))
+                        ecb.AddComponent<EmptyBucket>(holdingBucket.HeldBucket);
                 }
 
-            // TODO: Douse fire if this dude was supposed to throw
+                // TODO: Douse fire if this dude was supposed to throw
 
-        }).Schedule();
+            }).Schedule();
 
         /*
         // COPY/PASTE without target destination

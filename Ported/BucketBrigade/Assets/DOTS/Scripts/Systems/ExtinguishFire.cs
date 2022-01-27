@@ -20,8 +20,8 @@ public partial class ExtinguishFire : SystemBase
         var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         Entities
-            .WithNone<EmptyBucket>()
-            .ForEach((Entity e, ref Bucket bucket, in Translation translation) =>
+            .WithAll<DousingEvent>()
+            .ForEach((Entity e, in Translation translation) =>
             {
                 for (int outerY = 0; outerY < gameConstants.FieldSize.y; outerY++)
                 {
@@ -33,8 +33,6 @@ public partial class ExtinguishFire : SystemBase
                         if (distance < gameConstants.BucketExtinguishRadius && field[outerX + outerY * gameConstants.FieldSize.x] > 0.2f)
                         {
                             field[outerX + outerY * gameConstants.FieldSize.x] -= gameConstants.BucketCoolingRate;
-                            bucket.Volume = 0;
-                            ecb.AddComponent<EmptyBucket>(e);
                         }
                     }
                 }
