@@ -96,7 +96,7 @@ public partial class MovementSystem : SystemBase
 
         // Move: anything that hasn't already moved
         Entities
-            .WithNone<BeeBitsTag, BloodTag, Food>()
+            .WithAll<BeeTag>()
             .ForEach((Entity e, ref Translation translation, ref Rotation rotation, ref PP_Movement ppMovement) =>
             {
                 // do bee movement
@@ -107,6 +107,8 @@ public partial class MovementSystem : SystemBase
                 float3 fwd =
                     ppMovement.GetTransAtProgress(ppMovement.t + 0.01f / ppMovement.timeToTravel,
                         MotionType.BeeBumble) - translation.Value;
+
+                fwd = math.normalize(fwd);
 
                 var newRot = quaternion.identity;
 
@@ -127,7 +129,7 @@ public partial class MovementSystem : SystemBase
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
                     // Collided with Ground
-                    if (translation.Value.y <= 0.5f)
+                    if (translation.Value.y <= 0.5f && food.isBeeingCarried == false)
                     {
                         // Destroy this food entity because it hit the ground in a goal area
                         ecb.DestroyEntity(e);

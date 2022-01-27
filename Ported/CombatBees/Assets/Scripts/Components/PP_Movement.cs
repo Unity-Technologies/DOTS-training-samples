@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
@@ -46,6 +47,8 @@ public struct PP_Movement : IComponentData
         {
             t += time / (timeToTravel + EPSILON);
         }
+
+        t = math.clamp(t, 0f, 1f);
 
         float3 trans = lerp(startLocation, endLocation, t);
 

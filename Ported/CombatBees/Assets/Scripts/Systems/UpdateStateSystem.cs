@@ -50,14 +50,16 @@ public partial class UpdateStateSystem : SystemBase
         foodQuery = GetEntityQuery(typeof(Food));
         int foodCount = foodQuery.CalculateEntityCount();
         NativeArray<Translation> foodTranslationData = new NativeArray<Translation>(foodCount, Allocator.TempJob);
+        NativeArray<bool> foodCarriedData = new NativeArray<bool>(foodCount, Allocator.TempJob);
         NativeArray<Entity> foodEntityData = new NativeArray<Entity>(foodCount, Allocator.TempJob);
 
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
             .WithAll<Food>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in Food food) =>
             {
                 foodTranslationData[entityInQueryIndex] = translation;
+                foodCarriedData[entityInQueryIndex] = food.isBeeingCarried;
                 foodEntityData[entityInQueryIndex] = entity;
             }).WithName("GetFoodData")
             .ScheduleParallel();
@@ -123,7 +125,7 @@ public partial class UpdateStateSystem : SystemBase
                         }
 
                         float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
-                        if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
+                        if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null && foodCarriedData[i] == false)
                         {
                             state.value = StateValues.Carrying;
                             carriedEntity.Value = foodEntityData[i];
@@ -252,9 +254,15 @@ public partial class UpdateStateSystem : SystemBase
                                 random.NextInt(foodTranslationData
                                     .Length); // Note: random int/uint values are non-inclusive of the maximum value
                             targetedEntity.Value = foodEntityData[randomInt];
+
                             Translation randomFoodTranslation = foodTranslationData[randomInt];
-                            movement.GoTo(translation.Value, randomFoodTranslation.Value);
-                            state.value = StateValues.Seeking;
+                            var x = randomFoodTranslation.Value.x;
+
+                            if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
+                            {
+                                movement.GoTo(translation.Value, randomFoodTranslation.Value);
+                                state.value = StateValues.Seeking;
+                            }
                         }
                     }
                     else
@@ -294,11 +302,13 @@ public partial class UpdateStateSystem : SystemBase
             .WithReadOnly(beeEntityData)
             .WithReadOnly(beeTeamData)
             .WithReadOnly(foodTranslationData)
+            .WithReadOnly(foodCarriedData)
             .WithReadOnly(foodEntityData)
             .WithDisposeOnCompletion(beeTranslationData)
             .WithDisposeOnCompletion(beeEntityData)
             .WithDisposeOnCompletion(beeTeamData)
             .WithDisposeOnCompletion(foodTranslationData)
+            .WithDisposeOnCompletion(foodCarriedData)
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
             .ScheduleParallel(Dependency);
