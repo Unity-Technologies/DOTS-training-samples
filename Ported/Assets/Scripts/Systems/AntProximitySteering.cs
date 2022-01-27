@@ -11,6 +11,7 @@ public partial class AntProximitySteering : SystemBase
 {
     private EntityQuery m_FoodQuery;
     private float2 m_NestPosition;
+    private float m_FoodNestRadius = 4.0f;
     
     protected override void OnStartRunning()
     {
@@ -18,6 +19,10 @@ public partial class AntProximitySteering : SystemBase
         var nestEntity = GetSingletonEntity<ColonyTag>();
         var nestTranslation = GetComponent<Translation>(nestEntity);
         m_NestPosition = nestTranslation.Value.xy;
+        
+        var configurationEntity = GetSingletonEntity<Configuration>();
+        var config = GetComponent<Configuration>(configurationEntity);
+        m_FoodNestRadius = 0.05f * config.ObstacleRadius / config.MapSize;
     }
 
     protected override void OnUpdate()
@@ -25,6 +30,7 @@ public partial class AntProximitySteering : SystemBase
         // First gather all active food
         NativeArray<Translation> foodTranslation = m_FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         float2 nestPosition = m_NestPosition;
+        float foodNestRadius = m_FoodNestRadius;
         
         // We may sort the array of food and optimize the Food looping
         Entities.WithReadOnly(foodTranslation)
@@ -33,13 +39,21 @@ public partial class AntProximitySteering : SystemBase
                 if (loadout.Value > 0)
                 {
                     float2 nestOffset = nestPosition - antTranslation.Value.xy;
-                    float sqDist = math.lengthsq(nestOffset);
-                    proximitySteering.Value = nestOffset / sqDist;
+                    float sqDist = math.lengthsq(nestOffset); 
                     
-                    if (sqDist < 0.1f / 128f) 
-                    {
-                        loadout.Value = 0;
-                    }
+                    // if (HasLineOfSight(nestPosition, antTranslation.Value.xy) == false)
+                    // {
+                    //     proximitySteering.Value = float2.zero;
+                    // }
+                    // else
+                    // {
+                        proximitySteering.Value = nestOffset / sqDist;
+                    
+                        if (sqDist < foodNestRadius) 
+                        {
+                            loadout.Value = 0;
+                        }
+                    // }
                 }
                 else
                 {
@@ -48,15 +62,16 @@ public partial class AntProximitySteering : SystemBase
                         float2 foodOffset = foodTranslation[i].Value.xy - antTranslation.Value.xy;
                         float sqDist = math.lengthsq(foodOffset);
                         // check line of sight
-                        // if (HasLineOfSight(foodTranslation[i], antTranslation) == false)
+                        // if (HasLineOfSight(foodTranslation[i].Value.xy, antTranslation.Value.xy) == false)
                         // {
+                        //     proximitySteering.Value = float2.zero;
                         //     continue;
                         // }
 
                         proximitySteering.Value = foodOffset / sqDist;
                         
                         // tHis code handle the loading / unloading
-                        if (math.lengthsq(foodOffset) < 0.1f / 128f) 
+                        if (math.lengthsq(foodOffset) < foodNestRadius) 
                         {
                             loadout.Value = 1;
                         }
@@ -66,7 +81,7 @@ public partial class AntProximitySteering : SystemBase
             }).WithDisposeOnCompletion(foodTranslation).ScheduleParallel();
     }
 
-    private bool HasLineOfSight(Translation translationA, Translation translationB)
+    private bool HasLineOfSight(float2 translationA, float2 translationB)
     {
         return false;
     }

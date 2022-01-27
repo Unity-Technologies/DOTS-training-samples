@@ -23,30 +23,15 @@ public partial class AntContainment : SystemBase
         Entities
             .ForEach((ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
             {
-                if (translation.Value.x > mapSize)
+                if ((translation.Value.x > mapSize) || (translation.Value.x < -mapSize) || (translation.Value.y > mapSize) || (translation.Value.y < -mapSize))
                 {
-                    mapContainmentSteering.Value.x = -1.0f;
-                }
-                else if (translation.Value.x < -mapSize)
-                {
-                    mapContainmentSteering.Value.x = 1.0f;
+                    mapContainmentSteering.Value = math.normalize(-translation.Value.xy);
                 }
                 else
                 {
-                    mapContainmentSteering.Value.x = 0.0f;
+                    mapContainmentSteering.Value = float2.zero;
                 }
-                if (translation.Value.y > mapSize)
-                {
-                    mapContainmentSteering.Value.y = -1.0f;
-                }
-                else if (translation.Value.y < -mapSize)
-                {
-                    mapContainmentSteering.Value.y = 1.0f;
-                }
-                else
-                {
-                    mapContainmentSteering.Value.y = 0.0f;
-                }
+
             }).ScheduleParallel();
     }
 }
