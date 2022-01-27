@@ -119,14 +119,12 @@ public partial class UpdateStateSystem : SystemBase
                     {
                         bool targetFoodStillExists = false;
 
-                        float3 foodLocation = float3.zero;
-
-
                         for (int i = 0; i < foodCount; i++)
                         {
                             if (foodEntityData[i] == targetedEntity.Value)
                             {
                                 targetFoodStillExists = true;
+                                movement.endLocation = foodTranslationData[i].Value;
                             }
 
                             float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
