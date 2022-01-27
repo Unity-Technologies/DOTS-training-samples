@@ -2,28 +2,27 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
-using UnityEngine;
 
 [UpdateAfter(typeof(TransformSystemGroup))]
 public partial class StationSpawnerSystem : SystemBase
 {
     protected override void OnUpdate() 
     {
-        //UnityEngine.Debug.Log("update");
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var tracks = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Spline>());
+        var trackQuery = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Spline>());
         var spawner = GetSingleton<StationSpawner>();
-        var splines = tracks.ToComponentDataArray<Spline>(Allocator.TempJob);
-        var trackIDs = tracks.ToComponentDataArray<TrackID>(Allocator.TempJob);
+        var tracks = trackQuery.ToEntityArray(Allocator.TempJob);
+        var splines = trackQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
+        var trackIDs = trackQuery.ToComponentDataArray<TrackID>(Allocator.TempJob);
 
         Entities
             .ForEach((Entity entity, in Station station, in TrackID trackId) =>
             {
                 // Get the buffer component as it contains the children
-                var buffer = GetBuffer<Child>(entity);
+                var childBuffer = GetBuffer<Child>(entity);
                 // Destroy all that hierarchy level
-                for (int i = 0; i < buffer.Length; ++i)
-                    ecb.DestroyEntity(buffer[i].Value);
+                for (int i = 0; i < childBuffer.Length; ++i)
+                    ecb.DestroyEntity(childBuffer[i].Value);
                 // Destroy station itself
                 ecb.DestroyEntity(entity);
 
@@ -38,12 +37,22 @@ public partial class StationSpawnerSystem : SystemBase
                         var rotation = new Rotation { Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0)) };
                         ecb.SetComponent(instance, translation);
                         ecb.SetComponent(instance, rotation);
+                        GetBuffer<FloatBufferElement>(tracks[i]).Add(station.trackDistance);
                         break;
-                        //UnityEngine.Debug.Log($"{instance.Index}");
                     }
                 }
             }).Run();
 
+        // Example for fetching station distances
+        Entities
+            .ForEach((in DynamicBuffer<FloatBufferElement> buffer, in TrackID trackId) => {
+                UnityEngine.Debug.Log($"Track ID: {trackId.id}");
+                for (int i = 0; i < buffer.Length; i++) {
+                    UnityEngine.Debug.Log($"Station Distance: {buffer[i].Value}");
+                }
+            }).Run();
+
+        tracks.Dispose();
         splines.Dispose();
         trackIDs.Dispose();
         ecb.Playback(EntityManager);

@@ -43,7 +43,8 @@ public class TrackAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         
 
         dstManager.AddComponentData(entity, new Spline { splinePath = splineBlob });
-        dstManager.AddComponent(entity, typeof(Track));
+        dstManager.AddComponent<Track>(entity);
+        dstManager.AddBuffer<FloatBufferElement>(entity);
         
         dstManager.AddComponentData(entity, new StationDistanceArray{StationDistances = stationBlob});
     }
