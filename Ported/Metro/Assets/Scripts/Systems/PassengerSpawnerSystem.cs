@@ -6,46 +6,56 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEditor.Rendering;
 
+[UpdateAfter(typeof(StationSpawnerSystem))]
 public partial class PassengerSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var tracks = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<Spline>());
+        var stationsQuery = GetEntityQuery(ComponentType.ReadOnly<Station>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Rotation>());
+        var stations = stationsQuery.ToComponentDataArray<Station>(Allocator.TempJob);
+        var stationsTranslations = stationsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        var stationsRotations = stationsQuery.ToComponentDataArray<Rotation>(Allocator.TempJob);
+        var random = new Random(0xDEADBEEF);
         
-        // Entities
-        //     .ForEach((Entity entity, in RailRoadTieSpawner spawner) =>
-        //     {
-        //         var splines = tracks.ToComponentDataArray<Spline>(Allocator.TempJob);
-        //         
-        //         // Destroying the current entity is a classic ECS pattern,
-        //         // when something should only be processed once then forgotten.
-        //         ecb.DestroyEntity(entity);
-        //
-        //         for (int s = 0; s < splines.Length; ++s)
-        //         {
-        //             ref var splineData = ref splines[s].splinePath.Value;
-        //
-        //             int count = (int)math.ceil(splineData.pathLength / spawner.Frequency);
-        //             float distanceBetweenTies = splineData.pathLength / count;
-        //             float currentDistance = 0;
-        //             int lookupCache = 0;
-        //             for (int i = 0; i < count; ++i)
-        //             {
-        //                 var instance = ecb.Instantiate(spawner.TiePrefab);
-        //                 float3 position, direction;
-        //                 SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref lookupCache, currentDistance, out position, out direction);
-        //                 var translation = new Translation {Value = position};
-        //                 var rotation = new Rotation {Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0))};
-        //                 ecb.SetComponent(instance, translation);
-        //                 ecb.SetComponent(instance, rotation);
-        //                 currentDistance += distanceBetweenTies;
-        //             }
-        //         }
-        //         splines.Dispose();
-        //     }).Run();
+        Entities
+            .ForEach((Entity entity, in PassengerSpawner spawner) =>
+            {
+                // Kill our spawner
+                ecb.DestroyEntity(entity);
 
+                if (0 == stations.Length)
+                    return;
+                
+                int passengerPerStation = spawner.TotalCount / stations.Length;
+                int remainingPassenger = spawner.TotalCount;
+                
+                for (int s = 0; s < stations.Length; ++s)
+                {
+                    var spawnPoint = stationsTranslations[s].Value;
+                    var rotation = stationsRotations[s].Value;
+                    
+                    for (int p = 0; p < (s != stations.Length - 1 ? passengerPerStation : remainingPassenger); ++p)
+                    {
+                        var offset = ( new float3( 3.0f * random.NextFloat() + 1f, 0, 9f * (random.NextFloat()-0.5f)) );
+                        var position = spawnPoint + math.mul(rotation, offset);
+                        var instance = ecb.Instantiate(spawner.PassengerPrefab);
+                        var translation = new Translation {Value = position};
+                        ecb.SetComponent(instance, translation);
+                        ecb.SetComponent(instance, new Rotation{Value = rotation});
+                        ecb.AddComponent(instance, new Passenger());
+                    }
+                
+                    remainingPassenger -= passengerPerStation;
+                }
+            }).Run();
+
+        stations.Dispose();
+        stationsTranslations.Dispose();
+        stationsRotations.Dispose();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        Enabled = false;
     }
 }

@@ -39,8 +39,8 @@ public partial class StationSpawnerSystem : SystemBase
                         ecb.SetComponent(instance, rotation);
                         GetBuffer<FloatBufferElement>(tracks[i]).Add(station.trackDistance);
                         // Propagates station and trackid on the prefab
-                        ecb.AddComponent(entity, station);
-                        ecb.AddComponent(entity, trackId);
+                        ecb.AddComponent(instance, station);
+                        ecb.AddComponent(instance, trackId);
                         break;
                     }
                 }
