@@ -86,8 +86,8 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.6037736, g: 0.17313266, b: 0.15663938, a: 1}
+    - _Color: {r: 0.7, g: 0.19999997, b: 0.18181816, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Team0Color: {r: 0.13137977, g: 0.1991737, b: 0.39705884, a: 1}
-    - _Team1Color: {r: 0.488, g: 0.4210464, b: 0.201056, a: 1}
+    - _Team0Color: {r: 0.16899015, g: 0.25348517, b: 0.50200003, a: 1}
+    - _Team1Color: {r: 0.63, g: 0.54599994, b: 0.26133332, a: 1}
   m_BuildTextureStacks: []
