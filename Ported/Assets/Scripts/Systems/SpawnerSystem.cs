@@ -113,24 +113,29 @@ public partial class SpawnerSystem : SystemBase
             ecb.SetComponent(instance, new Translation { Value = new float3(0, 10, 0) / configuration.MapSize });
             ecb.SetComponent(instance, new NonUniformScale() { Value = EntityManager.GetComponentData<NonUniformScale>(spawner.ResourcePrefab).Value / configuration.MapSize });
 
+            var antComponents = new ComponentTypes(new ComponentType[]
+            {
+                typeof(AntTag),
+                typeof(NonUniformScale),
+                typeof(Velocity),
+                typeof(GeneralDirection),
+                typeof(MapContainmentSteering),
+                typeof(ObstacleAvoidanceSteering),
+                typeof(ProximitySteering),
+                typeof(PheromoneSteering),
+                typeof(WanderingSteering),
+                typeof(CollisionResult),
+                typeof(AntMovementState),
+            });
+
             // spawn ants
             for(int i = 0; i < configuration.AntCount; ++i)
             {
                 instance = ecb.Instantiate(spawner.AntPrefab);
-                ecb.AddComponent<AntTag>(instance);
+                ecb.AddComponent(instance, antComponents);
                 ecb.SetComponent(instance, new Rotation { Value = quaternion.RotateZ(random.NextFloat(-UnityMath.PI, UnityMath.PI)) });
                 ecb.SetComponent(instance, new Translation { Value = new float3(-4, 0, 0) / configuration.MapSize });
-                ecb.AddComponent<NonUniformScale>(instance);
                 ecb.SetComponent(instance, new NonUniformScale() { Value = configuration.AntSize });
-                ecb.AddComponent<Velocity>(instance);
-                ecb.AddComponent<GeneralDirection>(instance);
-                ecb.AddComponent<MapContainmentSteering>(instance);
-                ecb.AddComponent<ObstacleAvoidanceSteering>(instance);
-                ecb.AddComponent<ProximitySteering>(instance);
-                ecb.AddComponent<PheromoneSteering>(instance);
-                ecb.AddComponent<WanderingSteering>(instance);
-                ecb.AddComponent<CollisionResult>(instance);
-                ecb.AddComponent<AntMovementState>(instance);
             }
         }).WithoutBurst().Run();
 
