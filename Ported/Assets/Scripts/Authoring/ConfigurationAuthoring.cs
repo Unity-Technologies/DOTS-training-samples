@@ -30,8 +30,8 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float antMaxTurn = Mathf.PI / 4.0f;
     [Range(0f,1f)]
     public float antAcceleration = 0.07f;
-    [Range(0f,1f)]
-    public float antWanderAmount = 0.25f;
+    public float antWanderDistance = 3f;
+    public float antWanderRadius = 0.25f;
     [Range(0f,1f)]
     public float antObstacleAvoidanceDistance = 0.25f;
     
@@ -68,7 +68,8 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             AntMaxSpeed = antMaxSpeed,
             AntMaxTurn = antMaxTurn,
             AntAcceleration = antAcceleration,
-            AntWanderAmount = antWanderAmount,
+            AntWanderRadius = antWanderRadius,
+            AntWanderDistance = antWanderDistance,
             AntObstacleAvoidanceDistance = antObstacleAvoidanceDistance,
             WanderingStrength = wanderingStrength,
             PheromoneStrength = pheromoneStrength,

@@ -20,7 +20,8 @@ public struct Configuration : IComponentData
     public float AntMaxSpeed;
     public float AntMaxTurn;
     public float AntAcceleration;
-    public float AntWanderAmount;
+    public float AntWanderRadius;
+    public float AntWanderDistance;
     public float AntObstacleAvoidanceDistance;
     
     public float WanderingStrength;
