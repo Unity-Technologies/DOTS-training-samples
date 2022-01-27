@@ -54,6 +54,7 @@ public partial class MovementSystem : SystemBase
                 {
                     // Falling with gravity
                     velocity.Value.y -= 9.8f * deltaTime;
+                    math.clamp(velocity.Value.y, 0f, 100f); // clamp between 0 and terminal velocity
                     translation.Value += velocity.Value * deltaTime;
 
                     // Ground Collision (do this here so that no below-ground food positions are cached)
