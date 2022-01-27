@@ -40,6 +40,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
                     if (bucketEntities[i] == holdingBucket.HeldBucket)
                     {
                         index = i;
+                        break;
                     }
                 }
                 
