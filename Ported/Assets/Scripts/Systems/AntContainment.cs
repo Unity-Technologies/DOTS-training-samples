@@ -14,7 +14,7 @@ public partial class AntContainment : SystemBase
     {
         var configurationEntity = GetSingletonEntity<Configuration>();
         var config = GetComponent<Configuration>(configurationEntity);
-        m_MapSize = config.MapSize;
+        m_MapSize = 0.49f;
     }
 
     protected override void OnUpdate()

@@ -17,7 +17,7 @@ public partial class AntObstacleAvoidance : SystemBase
     {
         var configurationEntity = GetSingletonEntity<Configuration>();
         var config = GetComponent<Configuration>(configurationEntity);
-        m_SqrObstacleRadius = math.pow(config.ObstacleRadius / config.MapSize, 2.0f);
+        m_SqrObstacleRadius = math.pow(config.ObstacleRadius / (config.MapSize * 0.5f), 2.0f);
         m_AntObstacleAvoidanceDistance = config.AntObstacleAvoidanceDistance;
         m_ObstacleQuery = GetEntityQuery(ComponentType.ReadOnly<ObstacleTag>(), ComponentType.ReadOnly<Translation>());
     }
