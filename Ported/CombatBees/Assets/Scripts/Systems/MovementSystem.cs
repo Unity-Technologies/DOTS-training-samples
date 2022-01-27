@@ -129,9 +129,10 @@ public partial class MovementSystem : SystemBase
                 {
                     if (translation.Value.y <= 0.5f)
                     {
-                        //destroy this entity and create/init a blood splat
+                        // Destroy this food entity because it hit the ground in a goal area
                         ecb.DestroyEntity(e);
 
+                        // Spawn some beeeeeees for the appropriate team!
                         for (var i = 0; i < 3; i++)
                         {
                             var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
