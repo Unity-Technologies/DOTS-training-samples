@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2778561693452993187}
   - component: {fileID: 889441011696713608}
   - component: {fileID: 3838353670160912868}
+  - component: {fileID: 8438851684123550901}
   m_Layer: 0
   m_Name: BeeBits
   m_TagString: Untagged
@@ -111,3 +112,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 608a93275e61ac14191f962443d5acd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8438851684123550901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367470969325399639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91eff71eb4f4e224c818d4f65cd0d034, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startLocation:
+    x: 0
+    y: 0
+    z: 0
+  endLocation:
+    x: 0
+    y: 0
+    z: 0
+  startTime: 0
+  timeToTravel: 0
+  t: 0
