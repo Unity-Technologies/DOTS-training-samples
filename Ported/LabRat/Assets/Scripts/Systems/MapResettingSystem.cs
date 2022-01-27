@@ -7,6 +7,7 @@ public partial class MapResettingSystem : SystemBase
 
     private EntityQuery creaturesToDestroy;
     private EntityQuery exitsToDestroy;
+    private EntityQuery miceSpawnersToDestroy;
     private EntityQuery arrowsToDestroy;
     private EntityQuery tilesToDestroy;
     private EntityQuery wallsToDestroy;
@@ -19,6 +20,7 @@ public partial class MapResettingSystem : SystemBase
 
         creaturesToDestroy = GetEntityQuery(ComponentType.ReadOnly<Creature>());
         exitsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Exit>());
+        miceSpawnersToDestroy = GetEntityQuery(ComponentType.ReadOnly<MiceSpawner>());
         arrowsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Arrow>());
         tilesToDestroy = GetEntityQuery(ComponentType.ReadOnly<MapTile>());
         wallsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Wall>());
@@ -32,6 +34,7 @@ public partial class MapResettingSystem : SystemBase
         
         ecb.DestroyEntitiesForEntityQuery(creaturesToDestroy);
         ecb.DestroyEntitiesForEntityQuery(exitsToDestroy);
+        ecb.DestroyEntitiesForEntityQuery(miceSpawnersToDestroy);
         ecb.DestroyEntitiesForEntityQuery(arrowsToDestroy);
         ecb.DestroyEntitiesForEntityQuery(tilesToDestroy);
         ecb.DestroyEntitiesForEntityQuery(wallsToDestroy);

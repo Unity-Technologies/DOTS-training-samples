@@ -17,6 +17,7 @@ public partial class ArrowPlacerSystem : SystemBase
     {
         mECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         RequireSingletonForUpdate<GameRunning>();
+        RequireSingletonForUpdate<MapData>();
     }
 
     protected override void OnUpdate()
