@@ -91,6 +91,7 @@ public partial class CreatureMovementSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<GameRunning>();
+        RequireSingletonForUpdate<MapData>();
     }
 
     protected override void OnUpdate()

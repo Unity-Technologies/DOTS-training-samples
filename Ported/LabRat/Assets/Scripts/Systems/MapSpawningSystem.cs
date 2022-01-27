@@ -159,6 +159,7 @@ public partial class MapSpawningSystem : SystemBase
         var mapData = ecb.CreateEntity();
         ecb.AddComponent<MapData>(mapData);
         var mapDataBuffer = ecb.AddBuffer<TileData>(mapData);
+        mapDataBuffer.ResizeUninitialized(config.MapWidth * config.MapHeight);
 
         // spawn tiles and random walls
         for (int y = 0; y < config.MapHeight; ++y)
@@ -168,10 +169,10 @@ public partial class MapSpawningSystem : SystemBase
                 // Add no Tile Geometry when there is a hole
                 if (config.MapHoleFrequency > random.NextFloat())
                 {
-                    mapDataBuffer.Add(new TileData
+                    mapDataBuffer[x + y * config.MapWidth] = new TileData
                     {
                         Walls = new Direction { Value = DirectionEnum.Hole }
-                    });
+                    };
                     continue;
                 }
 
@@ -202,10 +203,10 @@ public partial class MapSpawningSystem : SystemBase
                     Value = (x & 1) == (y & 1) ? spawner.TileEvenColor : spawner.TileOddColor
                 });
 
-                mapDataBuffer.Add(new TileData
+                mapDataBuffer[x + y * config.MapWidth] = new TileData
                 {
                     Walls = new Direction { Value = walls }
-                });
+                };
 
                 if ((walls & DirectionEnum.North) == DirectionEnum.North)
                 {

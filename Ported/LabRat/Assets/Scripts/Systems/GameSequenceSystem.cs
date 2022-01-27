@@ -146,15 +146,66 @@ public partial class GameSequenceSystem : SystemBase
         }
         TimerStringBuilder.Append(seconds);
         goRefs.TimerDisplay.text = TimerStringBuilder.ToString();
-        
-        if (Input.GetKeyDown(KeyCode.S))
+
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            StartGame();
+            var configEntity = GetSingletonEntity<Config>();
+            var config = GetComponent<Config>(configEntity);
+            config.MapSeed = (new Unity.Mathematics.Random((uint)(UnityEngine.Time.realtimeSinceStartup * 1048397))).NextUInt();
+            EntityManager.SetComponentData(configEntity, config);
+            CurrentStep = SequenceStep.Reset;
+        }
+        
+        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        {
+            var configEntity = GetSingletonEntity<Config>();
+            var config = GetComponent<Config>(configEntity);
+            if (config.MapScale > 0)
+            {
+                config.MapScale--;
+                config.MapWidth /= 10;
+                config.MapHeight /= 10;
+                EntityManager.SetComponentData(configEntity, config);
+                CurrentStep = SequenceStep.Reset;
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.K))
+        if (Input.GetKeyDown(KeyCode.RightBracket))
         {
-            StopGame();
+            var configEntity = GetSingletonEntity<Config>();
+            var config = GetComponent<Config>(configEntity);
+            config.MapScale++;
+            config.MapWidth *= 10;
+            config.MapHeight *= 10;
+            config.CatsInMap *= 10;
+            config.MiceSpawnerInMap *= 10;
+            EntityManager.SetComponentData(configEntity, config);
+            CurrentStep = SequenceStep.Reset;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Comma))
+        {
+            var configEntity = GetSingletonEntity<Config>();
+            var config = GetComponent<Config>(configEntity);
+            if (config.CreaturesScale > 0)
+            {
+                config.CreaturesScale--;
+                config.CatsInMap /= 10;
+                config.MiceSpawnerInMap /= 10;
+                EntityManager.SetComponentData(configEntity, config);
+                CurrentStep = SequenceStep.Reset;
+            }
+        }
+        
+        if (Input.GetKeyDown(KeyCode.Period))
+        {
+            var configEntity = GetSingletonEntity<Config>();
+            var config = GetComponent<Config>(configEntity);
+            config.CreaturesScale++;
+            config.CatsInMap *= 10;
+            config.MiceSpawnerInMap *= 10;
+            EntityManager.SetComponentData(configEntity, config);
+            CurrentStep = SequenceStep.Reset;
         }
     }
 
@@ -219,5 +270,13 @@ public partial class GameSequenceSystem : SystemBase
     {
         if (HasSingleton<GameRunning>())
             EntityManager.DestroyEntity(GetSingletonEntity<GameRunning>());
+    }
+
+    private void TogglePauseGame()
+    {
+        if (HasSingleton<GameRunning>())
+            EntityManager.DestroyEntity(GetSingletonEntity<GameRunning>());
+        else
+            EntityManager.CreateEntity(ComponentType.ReadWrite<GameRunning>());
     }
 }

@@ -94,7 +94,7 @@ public partial class ArrowPlacerSystem : SystemBase
 
     }
 
-    private static bool CanPlaceArrow(Config config, DynamicBuffer<TileData> mapTiles, int2 coordinate)
+    private static bool CanPlaceArrow(in Config config, in DynamicBuffer<TileData> mapTiles, int2 coordinate)
     {
         return coordinate.x >= 0 && coordinate.x < config.MapWidth &&
                coordinate.y >= 0 && coordinate.y < config.MapHeight &&

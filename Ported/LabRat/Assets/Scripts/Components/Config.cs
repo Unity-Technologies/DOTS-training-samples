@@ -45,4 +45,7 @@ public struct Config : IComponentData
     public int MaxArrowsPerPlayer;
 
     public float GameTimeInSeconds;
+
+    public int MapScale;
+    public int CreaturesScale;
 }

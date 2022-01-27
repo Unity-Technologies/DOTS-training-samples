@@ -269,9 +269,8 @@ MonoBehaviour:
   ExitPrefab: {fileID: 8181351097260504864, guid: e818e26388f37694bb1e88108935e94e, type: 3}
   ArrowPrefab: {fileID: 1975734576782275283, guid: 27fc5bef210822745a7f47ba9089b94f, type: 3}
   MaxArrowsPerPlayer: 5
-  CursorAIRandom:
-    state: 5053
   GameTimeInSeconds: 30
+  Magnitude: 0
 --- !u!4 &1038515008
 Transform:
   m_ObjectHideFlags: 0

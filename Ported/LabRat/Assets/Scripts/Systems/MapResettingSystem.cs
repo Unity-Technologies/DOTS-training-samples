@@ -9,6 +9,7 @@ public partial class MapResettingSystem : SystemBase
     private EntityQuery exitsToDestroy;
     private EntityQuery arrowsToDestroy;
     private EntityQuery tilesToDestroy;
+    private EntityQuery wallsToDestroy;
     private EntityQuery mapDataToDestroy;
     
     protected override void OnCreate()
@@ -20,6 +21,7 @@ public partial class MapResettingSystem : SystemBase
         exitsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Exit>());
         arrowsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Arrow>());
         tilesToDestroy = GetEntityQuery(ComponentType.ReadOnly<MapTile>());
+        wallsToDestroy = GetEntityQuery(ComponentType.ReadOnly<Wall>());
         mapDataToDestroy = GetEntityQuery(ComponentType.ReadOnly<MapData>());
     }
 
@@ -32,9 +34,12 @@ public partial class MapResettingSystem : SystemBase
         ecb.DestroyEntitiesForEntityQuery(exitsToDestroy);
         ecb.DestroyEntitiesForEntityQuery(arrowsToDestroy);
         ecb.DestroyEntitiesForEntityQuery(tilesToDestroy);
+        ecb.DestroyEntitiesForEntityQuery(wallsToDestroy);
         ecb.DestroyEntitiesForEntityQuery(mapDataToDestroy);
         
         ecb.RemoveComponent<MapReset>(entity);
         ecb.RemoveComponent<MapWasSpawned>(entity);
+        
+        
     }
 }
