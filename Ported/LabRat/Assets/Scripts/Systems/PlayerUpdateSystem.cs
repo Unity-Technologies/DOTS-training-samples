@@ -16,6 +16,7 @@ public partial class PlayerUpdateSystem : SystemBase
     protected override void OnDestroy()
     {
         AddPointsToPlayerQueue.Dispose();
+        RemovePointsFromPlayerQueue.Dispose();
     }
 
     protected override void OnUpdate()
