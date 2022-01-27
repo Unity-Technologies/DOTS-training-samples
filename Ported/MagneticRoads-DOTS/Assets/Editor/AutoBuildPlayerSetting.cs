@@ -25,6 +25,7 @@ namespace Ext {
             PlayerSettings.allowedAutorotateToPortrait = PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
         }
 
+        [MenuItem("Tools/Prepare Android build settings")]
         public static void SetupAndroid()
         {
             SetupCommonSettings();
@@ -37,7 +38,7 @@ namespace Ext {
 
             PlayerSettings.gpuSkinning = false;
 
-            PlayerSettings.Android.androidIsGame = false;
+            PlayerSettings.Android.androidIsGame = true;
             PlayerSettings.Android.androidTVCompatibility = false;
             PlayerSettings.Android.ARCoreEnabled = false;
             PlayerSettings.Android.blitType = AndroidBlitType.Auto;
@@ -45,10 +46,9 @@ namespace Ext {
             PlayerSettings.Android.disableDepthAndStencilBuffers = false;
             PlayerSettings.Android.forceInternetPermission = true;
             PlayerSettings.Android.forceSDCardPermission = true;
-            PlayerSettings.Android.keystoreName = "group2.keystore";
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel22;
             PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
             PlayerSettings.Android.useCustomKeystore = true;
 
