@@ -9,25 +9,28 @@ using Random = Unity.Mathematics.Random;
 [UpdateBefore(typeof(SteeringSystem))]
 public partial class AntWandering : SystemBase
 {
-    private float m_WanderAmount = 0.25f;
+    private float m_AntWanderDistance = 1.0f;
+    private float m_AntWanderRadius = 0.25f;
 
     protected override void OnStartRunning()
     {
         var configurationEntity = GetSingletonEntity<Configuration>();
         var config = GetComponent<Configuration>(configurationEntity);
-        m_WanderAmount = config.AntWanderAmount;
+        m_AntWanderDistance = config.AntWanderDistance;
+        m_AntWanderRadius = config.AntWanderRadius;
     }
 
     protected override void OnUpdate()
     {
-        float wanderAmount = m_WanderAmount;
+        float antWanderDistance = m_AntWanderDistance; 
+        float antWanderRadius = m_AntWanderRadius; 
         var random = new Random(1234);
         Entities
             .ForEach((ref WanderingSteering wanderingSteering, in Velocity velocity) =>
             {
-                float2 sideComponent = new float2(-velocity.Direction.y, velocity.Direction.x) *
-                                       random.NextFloat(-wanderAmount, wanderAmount);
-                wanderingSteering.Value = math.normalize(velocity.Direction + sideComponent);
+                float2 wanderDirection = math.normalize(velocity.Direction * antWanderDistance +
+                                                    random.NextFloat2Direction() * antWanderRadius);
+                wanderingSteering.Value = wanderDirection;
             }).ScheduleParallel();
     }
 }

@@ -47,26 +47,32 @@ public struct ComputeSteering : IJobChunk
                                    + generalDirection[i].Value * GeneralDirectionStrength
                                    + proximitySteering[i].Value * ProximityStrength
                                    + avoidanceSteering[i].Value * AvoidanceStrength;
-            finalSteering = math.normalizesafe(finalSteering);
-            float alignment = (math.dot(finalSteering, velocityComp.Direction) + 1.0f) / 2.0f;
-            float targetSpeed = alignment * AntMaxSpeed;
-            float accelerationThisFrame = AntAcceleration * DeltaTime;
-            float acceleration =  math.clamp(targetSpeed - velocityComp.Speed, -accelerationThisFrame, accelerationThisFrame);
-            float newSpeed = targetSpeed + acceleration;
-
-            float targetFacingAngle = math.atan2(finalSteering.y, finalSteering.x);
-            float currentFacingAngle = math.atan2(velocityComp.Direction.y, velocityComp.Direction.x);
-
-            float turnRateThisFrame = AntMaxTurn / DeltaTime;
-            float turn = math.clamp(targetFacingAngle - currentFacingAngle, -turnRateThisFrame, turnRateThisFrame);
-            float newFacingAngle = currentFacingAngle + turn;
+            float finalSteeringLength = math.length(finalSteering);
+            if (finalSteeringLength > 0.0f)
+            {
+                finalSteering = finalSteering / finalSteeringLength;
+                finalSteering = math.normalizesafe(finalSteering);
+                float alignment = (math.dot(finalSteering, velocityComp.Direction) + 1.0f) / 2.0f;
+                float targetSpeed = alignment * AntMaxSpeed;
+                float accelerationThisFrame = AntAcceleration * DeltaTime;
+                float acceleration =  math.clamp(targetSpeed - velocityComp.Speed, -accelerationThisFrame, accelerationThisFrame);
+                float newSpeed = targetSpeed + acceleration;
                 
-            float newDirectionX = math.cos(newFacingAngle);
-            float newDirectionY = math.sin(newFacingAngle);
+                float targetFacingAngle = math.atan2(finalSteering.y, finalSteering.x);
+                float currentFacingAngle = math.atan2(velocityComp.Direction.y, velocityComp.Direction.x);
 
-            velocityComp.Direction = new float2(newDirectionX, newDirectionY);
-            velocityComp.Speed = newSpeed;
-            velocity[i] = velocityComp;
+                float turnRateThisFrame = AntMaxTurn / DeltaTime;
+                float turn = math.clamp(targetFacingAngle - currentFacingAngle, -turnRateThisFrame, turnRateThisFrame);
+                float newFacingAngle = currentFacingAngle + turn;
+                
+                float newDirectionX = math.cos(newFacingAngle);
+                float newDirectionY = math.sin(newFacingAngle);
+
+                velocityComp.Direction = new float2(newDirectionX, newDirectionY);
+                //velocityComp.Direction = finalSteering;
+                velocityComp.Speed = newSpeed;
+                velocity[i] = velocityComp;
+            }
         }
 
         velocity.Dispose();
