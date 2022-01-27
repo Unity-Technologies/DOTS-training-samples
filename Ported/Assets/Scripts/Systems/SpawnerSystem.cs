@@ -43,11 +43,13 @@ public partial class SpawnerSystem : SystemBase
             instance = ecb.CreateEntity();
             var grid = new Grid2D(configuration.BucketResolution, configuration.BucketResolution);
             ecb.AddComponent(instance, grid);
+
             var bufferPheromone = ecb.AddBuffer<Pheromone>(instance);
             bufferPheromone.Length = (int)(grid.rowLength * grid.columnLength);
+            for (int i = 0; i < bufferPheromone.Length; i++) bufferPheromone[i] = new Pheromone() { Value = 0 };
+
             var bufferObstacles = ecb.AddBuffer<ObstaclePositionAndRadius>(instance);
             bufferObstacles.Length = (int)(grid.rowLength * grid.columnLength);
-
             for (int i = 0; i < bufferObstacles.Length; i++) bufferObstacles[i] = new ObstaclePositionAndRadius();
 
             // spawn the obstacles
@@ -105,7 +107,6 @@ public partial class SpawnerSystem : SystemBase
                     }
                 }
             }
-
 
             // spawn resource
             instance = ecb.Instantiate(spawner.ResourcePrefab);

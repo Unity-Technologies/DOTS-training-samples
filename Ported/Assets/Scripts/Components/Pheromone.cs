@@ -3,5 +3,5 @@
 [InternalBufferCapacity(0)]
 public struct Pheromone: IBufferElementData
 {
-    public readonly float Value;
+    public float Value;
 }
