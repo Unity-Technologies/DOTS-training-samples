@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Utils;
 using Random = Unity.Mathematics.Random;
 
 public partial class MovementSystem : SystemBase
@@ -22,6 +23,8 @@ public partial class MovementSystem : SystemBase
         var deltaTime = UnityEngine.Time.deltaTime;
         var tNow = UnityEngine.Time.timeSinceLevelLoad;
         var spawner = GetSingleton<Spawner>();
+        var ecb = sys.CreateCommandBuffer();
+        var parallelWriter = ecb.AsParallelWriter();
 
         var randomSeed = (uint) math.max(1,
             DateTime.Now.Millisecond +
@@ -113,7 +116,7 @@ public partial class MovementSystem : SystemBase
                 rotation.Value = newRot;
             }).Schedule();
 
-        var ecb = sys.CreateCommandBuffer();
+
         // Collision: Food
         Entities
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref Velocity velocity,
@@ -186,7 +189,7 @@ public partial class MovementSystem : SystemBase
                                 collisionHeightOverlap <= 1f)
                             {
                                 translation.Value.y += collisionHeightOverlap + math.EPSILON;
-                                
+
                                 velocity.Value = float3.zero;
 
                                 hasMoved = true;
@@ -201,14 +204,22 @@ public partial class MovementSystem : SystemBase
         // Collision: Bee Bits
         Entities
             .WithAll<BeeBitsTag>()
-            .ForEach((Entity e, ref Translation translation) =>
+            .ForEach((Entity e, int entityInQueryIndex, Translation translation) =>
             {
                 // Ground Collision
-                if (translation.Value.y < 0)
+                if (translation.Value.y < 0.5)
                 {
-                    // TODO: Spawn blood
+                    //destroy enemy bee
+                    parallelWriter.DestroyEntity(entityInQueryIndex, e);
+                    Debug.Log("Killed A Bee!");
+
+                    //spawn a blood prefab
+                    var bloodEntity = parallelWriter.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
+
+                    parallelWriter.SetComponent(entityInQueryIndex, bloodEntity,
+                        new Translation { Value = translation.Value.Floored() });
                 }
-            }).Schedule();
+            }).ScheduleParallel();
 
         sys.AddJobHandleForProducer(Dependency);
     }

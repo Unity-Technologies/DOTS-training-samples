@@ -7,7 +7,7 @@ namespace Utils
     {
         public static float3 Floored(this float3 f)
         {
-            return new float3(f.x, 0, f.z);
+            return new float3(f.x, 0.5f, f.z);
         }
     }
 }
