@@ -10,18 +10,9 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public int mapSize = 128;
     public int bucketResolution;
     public Vector3 antSize;
-    public float antSpeed;
-    [Range(0f,1f)]
-    public float antAccel;
     public float trailAddSpeed;
     [Range(0f,1f)]
     public float trailDecay;
-    public float randomSteering;
-    public float pheromoneSteerStrength;
-    public float wallSteerStrength;
-    public float goalSteerStrength;
-    public float outwardStrength;
-    public float inwardStrength;
     public int rotationResolution = 360;
     [Range(0,5)]
     public int obstacleRingCount;
@@ -41,6 +32,8 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float antAcceleration = 0.07f;
     [Range(0f,1f)]
     public float antWanderAmount = 0.25f;
+    [Range(0f,1f)]
+    public float antObstacleAvoidanceDistance = 0.25f;
     
     [Range(0f,1f)]
     public float wanderingStrength = 0.14f;
@@ -76,6 +69,7 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             AntMaxTurn = antMaxTurn,
             AntAcceleration = antAcceleration,
             AntWanderAmount = antWanderAmount,
+            AntObstacleAvoidanceDistance = antObstacleAvoidanceDistance,
             WanderingStrength = wanderingStrength,
             PheromoneStrength = pheromoneStrength,
             ContainmentStrength = containmentStrength,
