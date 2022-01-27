@@ -1,8 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 
-public partial class BeeTargeting : SystemBase
+public partial class BeeResourceTargeting : SystemBase
 {
     protected override void OnCreate()
     {
@@ -21,12 +20,12 @@ public partial class BeeTargeting : SystemBase
         
         if (freeResources.Length > 0)
         {
-            Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets) =>
+            Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState) =>
             {
                 if (beeTargets.ResourceTarget == Entity.Null) // if bee does not have a target
                 {
                     // Assign a random resource
-                    int randomResourceIndex = beeTargets.Random.NextInt(freeResources.Length);
+                    int randomResourceIndex = randomState.Random.NextInt(freeResources.Length);
                     beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
                     freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
                     assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step

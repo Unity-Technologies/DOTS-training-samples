@@ -51,7 +51,7 @@ public partial class BeeMovement : SystemBase
         Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).
             WithDisposeOnCompletion(beeAEntities).
             WithDisposeOnCompletion(beeBEntities).ForEach(
-            (Entity entity, ref Translation translation, ref Velocity velocity, ref BeeTargets beeTargets, ref HeldItem heldItem, in Team team) =>
+            (Entity entity, ref Translation translation, ref Velocity velocity, ref BeeTargets beeTargets, ref HeldItem heldItem, ref RandomState randomState, ref BeeStatus beeStatus, in Team team) =>
             {
                 if (heldItem.Value != Entity.Null)
                 {
@@ -84,6 +84,7 @@ public partial class BeeMovement : SystemBase
                         droppedItems.Add(heldItem.Value, Entity.Null);
                         beeTargets.ResourceTarget = Entity.Null;
                         heldItem.Value = Entity.Null;
+                        beeStatus.Value = Status.Idle;
                     }
                 }
         
@@ -91,7 +92,7 @@ public partial class BeeMovement : SystemBase
                 velocity.Value += delta * (beeProperties.ChaseForce / distanceFromTarget);
                 
                 // Add random jitter
-                float3 randomJitter = beeTargets.Random.NextFloat3(-1f, 1f);
+                float3 randomJitter = randomState.Random.NextFloat3(-1f, 1f);
                 velocity.Value += randomJitter * beeProperties.FlightJitter;
                 
                 // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
@@ -102,13 +103,13 @@ public partial class BeeMovement : SystemBase
                 
                 if (team.Value == TeamName.A)
                 {
-                    int randomBeeIndex = beeTargets.Random.NextInt(beeAEntities.Length);
+                    int randomBeeIndex = randomState.Random.NextInt(beeAEntities.Length);
                     randomBee = beeAEntities.ElementAt(randomBeeIndex);
                         
                 }
                 else if (team.Value == TeamName.B)
                 {
-                    int randomBeeIndex = beeTargets.Random.NextInt(beeBEntities.Length);
+                    int randomBeeIndex = randomState.Random.NextInt(beeBEntities.Length);
                     randomBee = beeBEntities.ElementAt(randomBeeIndex);
                 }
                 else

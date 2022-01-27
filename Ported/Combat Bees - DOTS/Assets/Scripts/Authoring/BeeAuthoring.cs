@@ -16,7 +16,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             ResourceTarget = Entity.Null,
             HomePosition = HomePosition,
-            Random = new Random((uint) (entity.Index + 1)), // +1 because seed can't be 0
         });
 
         dstManager.AddComponentData(entity, new Velocity
@@ -37,6 +36,21 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new HeldItem
         {
             Value = Entity.Null
+        });
+
+        dstManager.AddComponentData(entity, new BeeStatus
+        {
+            Value =  Status.Idle
+        });
+        
+        dstManager.AddComponentData(entity, new RandomState
+        {
+            Random = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0
+        });
+
+        dstManager.AddComponentData(entity, new Agression
+        {
+            Value = 0.5f
         });
     }
 }
