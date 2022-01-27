@@ -42,7 +42,7 @@ public partial class GridSpawner : SystemBase
                     ecb.SetComponent(prefabInstance, translation);
                     ecb.RemoveComponent<GridSpawnerData>(entity); // Prevents repeated spawning
                 }
-            }).WithoutBurst().Run();
+            }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();

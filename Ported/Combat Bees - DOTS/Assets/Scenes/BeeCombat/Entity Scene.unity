@@ -350,7 +350,7 @@ MonoBehaviour:
   FlightJitter: 1.8
   RotationStiffness: 1
   TeamAttraction: -0.4
-  TargetReach: 0.1
+  TargetReach: 0.3
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0
@@ -396,7 +396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
   SpawnedCount: 10
-  MaxInitVelocity: 80
+  MaxInitVelocity: 10
 --- !u!1 &1957685094
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,7 +569,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
   SpawnedCount: 10
-  MaxInitVelocity: 80
+  MaxInitVelocity: 10
 --- !u!4 &2045680677
 Transform:
   m_ObjectHideFlags: 0

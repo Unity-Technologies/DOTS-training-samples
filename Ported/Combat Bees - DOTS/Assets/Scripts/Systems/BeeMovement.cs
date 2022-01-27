@@ -44,14 +44,20 @@ public partial class BeeMovement : SystemBase
         BeeProperties beeProperties = GetBeeProperties();
         NativeHashMap<Entity, Entity> grabbedItemsAndHolders = new NativeHashMap<Entity, Entity>(beeCount, Allocator.TempJob);
         NativeHashMap<Entity, Entity> droppedItems = new NativeHashMap<Entity, Entity>(beeCount, Allocator.TempJob);
+        
+        float3 containerMinPos = GetSingleton<Container>().MinPosition;
+        float3 containerMaxPos = GetSingleton<Container>().MaxPosition;
 
-        Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
+        Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).
+            WithDisposeOnCompletion(beeAEntities).
+            WithDisposeOnCompletion(beeBEntities).ForEach(
             (Entity entity, ref Translation translation, ref Velocity velocity, ref BeeTargets beeTargets, ref HeldItem heldItem, in Team team) =>
             {
                 if (heldItem.Value != Entity.Null)
                 {
                     // Switch target to home if holding a resource
                     currentTargetPosition = beeTargets.HomePosition;
+                    currentTargetPosition.z = translation.Value.z;
                 }
                 else if (beeTargets.ResourceTarget != Entity.Null)
                 {
@@ -121,9 +127,10 @@ public partial class BeeMovement : SystemBase
                 
                 // Move bee closer to the target
                 translation.Value += velocity.Value * deltaTime;
-        
-                
-            }).Run(); // Why is beeEntities empty when Scheduled parallel?
+
+                // Clamp the position within the field container
+                translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
+            }).Schedule();
 
         Entities.WithAll<BeeTag>().ForEach((ref Rotation rotation, ref SmoothPosition smoothPosition,
             in Translation translation) =>
@@ -137,6 +144,7 @@ public partial class BeeMovement : SystemBase
 
         Entities.ForEach((Entity entity, ref Holder holder) =>
         {
+            // Go through all held items (resources)
             if (grabbedItemsAndHolders.ContainsKey(entity))
             {
                 holder.Value = grabbedItemsAndHolders[entity];
@@ -145,10 +153,7 @@ public partial class BeeMovement : SystemBase
                 holder.Value = Entity.Null;
             } 
         }).Run();
-        
-        beeAEntities.Dispose();
-        beeBEntities.Dispose();
-        
+
         grabbedItemsAndHolders.Dispose();
         droppedItems.Dispose();
     }
@@ -163,5 +168,5 @@ public partial class BeeMovement : SystemBase
         }).Run();
 
         return beeProps;
-    } 
+    }
 }

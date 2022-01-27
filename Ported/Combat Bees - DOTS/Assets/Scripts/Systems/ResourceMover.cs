@@ -11,15 +11,9 @@ public partial class ResourceMover : SystemBase
     
     protected override void OnUpdate()
     {
-        float3 containerMinPos = new float3();
-        float3 containerMaxPos = new float3();
-        
-        Entities.ForEach((in Container container) =>
-        {
-            containerMinPos = container.MinPosition;
-            containerMaxPos = container.MaxPosition;
-        }).Run();
-        
+        float3 containerMinPos = GetSingleton<Container>().MinPosition;
+        float3 containerMaxPos = GetSingleton<Container>().MaxPosition;
+
         float deltaTime = Time.DeltaTime;
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
         var allVelocities = GetComponentDataFromEntity<Velocity>(true);
@@ -36,9 +30,7 @@ public partial class ResourceMover : SystemBase
         
                 // If the resource hits the floor reset its velocity
                 if (clampedPosition.y > newPosition.y) velocity.Value = float3.zero;
-                
-                // TODO: Check collisions with walls 
-                
+
                 translation.Value = clampedPosition;
             }
             else // if holder, follow his position + offset
