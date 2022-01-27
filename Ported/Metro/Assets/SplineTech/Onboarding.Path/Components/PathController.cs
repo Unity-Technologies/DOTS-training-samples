@@ -136,5 +136,32 @@ namespace Onboarding.BezierPath
             Debug.Assert(parametricT != -1, "PathController.FindSegmentFromDistance() : The requested distance was not found within the path. Maybe you need to rebuild it ?");
             return parametricT;
         }
+
+        // Not optimized for runtime at all
+        public static float FindSplineDistanceFromPoint(PathData pathData, Vector3 point, float region, float precision = 0.001f)
+        {
+            int currSegment = 0;
+            float bestDistance = 0;
+            float bestError = float.MaxValue;
+            
+            for (float d = region - 8; d < region + 8; d += precision)
+            {
+                float distance = d;
+                if (distance < 0)
+                    distance += pathData.PathLength;
+                else if (distance>pathData.PathLength)
+                    distance -= pathData.PathLength;
+                    
+                InterpolatePosition(pathData, ref currSegment, distance, out var position);
+                float error = (position - point).sqrMagnitude;
+                if (error < bestError)
+                {
+                    bestError = error;
+                    bestDistance = distance;
+                }
+            }
+
+            return bestDistance;
+        }
     }
 }
