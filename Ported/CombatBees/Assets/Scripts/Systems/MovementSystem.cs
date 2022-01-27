@@ -57,14 +57,14 @@ public partial class MovementSystem : SystemBase
                 else
                 {
                     // Falling with gravity
-                    velocity.Value.y -= 9.8f * deltaTime;
-                    math.clamp(velocity.Value.y, -100f, 100f); // clamp for terminal velocity
-                    translation.Value += velocity.Value * deltaTime;
+                    ApplyGravityToVelocity(ref velocity, deltaTime);
+                    ApplyVelocityToTranslation(ref translation, velocity, deltaTime);
 
                     // Ground Collision (do this here so that no below-ground food positions are cached)
-                    if (translation.Value.y < 0.5f)
+                    if (GroundCollisionTest(translation))
                     {
-                        translation.Value.y = 0.5f;
+                        translation.Value = translation.Value.Floored();
+                        velocity.Value = float3.zero;
                         ppMovement.startLocation = ppMovement.endLocation = translation.Value;
                     }
                 }
@@ -74,19 +74,14 @@ public partial class MovementSystem : SystemBase
             }).WithName("GetFoodPositions")
             .ScheduleParallel();
 
-        // TODO: Can we parallelize movement by scheduling the translation updates
-        //       and distance checks separately?  Should let us ues ScheduleParallel()
-        //       and WithNativeDisableParallelForRestriction(), yeah?
-
         //bits
         Entities
             .WithAll<BeeBitsTag>()
             .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
             {
                 // Falling with gravity
-                velocity.Value.y -= 9.8f * deltaTime;
-                math.clamp(velocity.Value.y, -100f, 100f); // clamp for terminal velocity
-                translation.Value += velocity.Value * deltaTime;
+                ApplyGravityToVelocity(ref velocity, deltaTime);
+                ApplyVelocityToTranslation(ref translation, velocity, deltaTime);
             }).Schedule();
 
         // Scale: Blood
@@ -129,7 +124,7 @@ public partial class MovementSystem : SystemBase
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
                     // Collided with Ground
-                    if (translation.Value.y <= 0.5f && food.isBeeingCarried == false)
+                    if (GroundCollisionTest(translation) && food.isBeeingCarried == false)
                     {
                         // Destroy this food entity because it hit the ground in a goal area
                         ecb.DestroyEntity(e);
@@ -169,7 +164,6 @@ public partial class MovementSystem : SystemBase
                 // Not in a goal: check for inter-food collisions for stacking
                 else
                 {
-                    var hasMoved = false;
                     for (var i = 0; i < foodCount; i++)
                     {
                         // Check if this food is being checked against itself
@@ -192,10 +186,14 @@ public partial class MovementSystem : SystemBase
                                 collisionHeightOverlap <= 0.999f)
                             {
                                 translation.Value.y += collisionHeightOverlap + math.EPSILON;
-
                                 velocity.Value = float3.zero;
-
-                                hasMoved = true;
+                                
+                                // Once this food moves up to fix a collision, it's done;
+                                // if this food is still colliding with a different food,
+                                // then that collision can be handled either when it's iterated
+                                // or on the next frame.
+                                // Meh - not being super picky about clean collision here.
+                                break;
                             }
                         }
                     }
@@ -222,9 +220,25 @@ public partial class MovementSystem : SystemBase
                     var bloodEntity = parallelWriter.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
 
                     parallelWriter.SetComponent(entityInQueryIndex, bloodEntity,
-                        new Translation { Value = translation.Value.Floored() });
+                        new Translation {Value = translation.Value.Floored()});
                 }
             }).ScheduleParallel();
         sys.AddJobHandleForProducer(Dependency);
+    }
+
+    private static void ApplyGravityToVelocity(ref Velocity velocity, float deltaTime)
+    {
+        velocity.Value.y -= 9.8f * deltaTime;
+        math.clamp(velocity.Value.y, -100f, 100f); // clamp for terminal velocity
+    }
+
+    private static void ApplyVelocityToTranslation(ref Translation translation, Velocity velocity, float deltaTime)
+    {
+        translation.Value += velocity.Value * deltaTime;
+    }
+
+    private static bool GroundCollisionTest(Translation translation)
+    {
+        return translation.Value.y <= 0.5f;
     }
 }
