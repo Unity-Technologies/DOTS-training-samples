@@ -45,6 +45,21 @@ public partial class SpawnerSystem : SystemBase
         return random.NextInt(minBeeBounds.z, maxBeeBounds.z);
     }
 
+    public static float3 GetRandomGoalTarget(ref Random random, Spawner spawner, TeamValue team)
+    {
+        var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
+        var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
+
+        var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
+        var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
+
+        float beeRandomX = (team == TeamValue.Yellow)
+            ? GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds)
+            : GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+
+        return float3(beeRandomX, beeRandomY, beeRandomZ);;
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
