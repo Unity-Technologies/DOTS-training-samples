@@ -1996,6 +1996,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
+      propertyPath: BucketEmpty.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: BucketEmpty.y
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: BucketEmpty.z
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
       propertyPath: LakeMaxVolume
       value: 1
       objectReference: {fileID: 0}
@@ -2006,8 +2021,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
+      propertyPath: FireSpawnDensity
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
       propertyPath: TeamCountAtStart
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: BucketCoolingRate
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: FireHeatTransferRate
+      value: 0.00005
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: BucketExtinguishRadius
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: FireHeatTransferRadius
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
@@ -2017,12 +2057,12 @@ PrefabInstance:
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: FireFighterMovementSpeedBucket
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: FireFighterMovementSpeedNoBucket
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfeb066d1c8fe5645890933fb31f289a, type: 3}
