@@ -64,6 +64,7 @@ public struct ComputeSteering : IJobChunk
 
             velocityComp.Direction = new float2(newDirectionX, newDirectionY);
             velocityComp.Speed = newSpeed;
+            velocity[i] = velocityComp;
         }
 
         velocity.Dispose();
