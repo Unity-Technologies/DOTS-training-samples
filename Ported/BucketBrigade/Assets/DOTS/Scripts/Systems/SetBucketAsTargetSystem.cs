@@ -31,14 +31,14 @@ public partial class SetBucketAsTargetSystem : SystemBase
         // TODO: if there are no flames don't do anything
         Entities
             .WithAll<BucketFetcher>()
-            .WithNone<HoldingBucket, TargetDestination>()
+            .WithNone<HoldingBucket>()
             .WithReadOnly(bucketTranslations)
             .WithDisposeOnCompletion(bucketTranslations)
             .WithReadOnly(bucketEntities)
             .WithDisposeOnCompletion(bucketEntities)
-            .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref TargetDestination targetDestination, in Translation translation) =>
             {
-                if (bucketTranslations.Length == 0)
+                if (bucketTranslations.Length == 0 || !targetDestination.IsAtDestination(translation))
                     return;
 
                 var closestIndex = 0;
@@ -65,7 +65,7 @@ public partial class SetBucketAsTargetSystem : SystemBase
                 }
                 else
                 {
-                    ecb.AddComponent(entityInQueryIndex, e, new TargetDestination { Value = closest });
+                    targetDestination = closest;
                 }
             }).ScheduleParallel();
 

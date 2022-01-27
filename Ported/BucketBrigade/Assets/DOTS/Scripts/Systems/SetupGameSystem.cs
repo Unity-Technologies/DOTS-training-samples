@@ -68,6 +68,7 @@ public partial class SetupGameSystem : SystemBase
                     var workerEntity = workers[w];
                     
                     EntityManager.SetComponentData(workerEntity, new Translation { Value = workerPos });
+                    EntityManager.AddComponentData(workerEntity, new TargetDestination { Value = workerPos.xz });
 
                     if (w == gameConstants.WorkersPerLine - 1) EntityManager.AddComponent<BucketThrower>(workerEntity);
 

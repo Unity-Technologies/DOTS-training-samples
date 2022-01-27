@@ -24,7 +24,7 @@ public partial class PassBucketSystem : SystemBase
         Entities.
             WithAll<PassToTargetAssigned>().
             ForEach((Entity e, in HoldingBucket holdingBucket, in Translation translation, in PassTo passTo, in TargetDestination target) => {
-                if (math.lengthsq(translation.Value.xz - target.Value) > gameConstants.FireFighterBucketPassRadius * gameConstants.FireFighterBucketPassRadius)
+                if (target.DistanceToDestinationSq(translation) > gameConstants.FireFighterBucketPassRadius * gameConstants.FireFighterBucketPassRadius)
                     return;
 
                 // Wait for next worker to do something with bucket

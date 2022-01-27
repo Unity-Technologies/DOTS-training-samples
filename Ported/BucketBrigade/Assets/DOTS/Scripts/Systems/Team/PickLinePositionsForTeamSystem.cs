@@ -114,8 +114,8 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                         var posNext = GetLinePosition(tNext, lineLakePosition.Value, lineFirePosition.Value, offset);
 
 
-                    // DON'T REMOVE THIS LINE
-                    TeamWorkers workerEntity = workersBuffer[x];
+                        // DON'T REMOVE THIS LINE
+                        TeamWorkers workerEntity = workersBuffer[x];
 
                         var isWorkerPassingBucket = HasComponent<HoldingBucket>(workerEntity) && HasComponent<PassTo>(workerEntity);
 
@@ -124,10 +124,7 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
                         var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
-                        if (HasComponent<TargetDestination>(workerEntity))
-                            SetComponent(workerEntity, targetPosition);
-                        else
-                            ecb.AddComponent(workerEntity, targetPosition);
+                        SetComponent(workerEntity, targetPosition);
                     }
 
                 // Backward Line
@@ -149,10 +146,7 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
                         var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
-                        if (HasComponent<TargetDestination>(workerEntity))
-                            SetComponent(workerEntity, targetPosition);
-                        else
-                            ecb.AddComponent(workerEntity, targetPosition);
+                        SetComponent(workerEntity, targetPosition);
                     }
 
                 // BucketFetcher

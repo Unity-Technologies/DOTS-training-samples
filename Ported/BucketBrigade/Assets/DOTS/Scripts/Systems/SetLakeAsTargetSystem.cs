@@ -28,16 +28,18 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
         // TODO: if there are no flames don't do anything
         Entities
-            .WithNone<TargetDestination>()
             .WithReadOnly(buckets)
             .WithDisposeOnCompletion(buckets)
             .WithReadOnly(bucketEntities)
             .WithDisposeOnCompletion(bucketEntities)
             .WithNone<HoldsBucketBeingFilled>()
-            .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in BucketFetcher bucketFetcher,
+            .ForEach((Entity e, int entityInQueryIndex, ref TargetDestination targetDestination, in Translation translation, in BucketFetcher bucketFetcher,
                 in HoldingBucket holdingBucket) =>
             {
-               int index = -1;
+                if (!targetDestination.IsAtDestination(translation))
+                    return;
+
+                int index = -1;
                 for (int i = 0; i < bucketEntities.Length; ++i)
                 {
                     if (bucketEntities[i] == holdingBucket.HeldBucket)
@@ -51,8 +53,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
                 if (distance < 0.1f )
                 {
-                    ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
-                    
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
                     ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                         new BucketFillAction
@@ -64,7 +64,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
                 }
                 else
                 {
-                    ecb.AddComponent(entityInQueryIndex, e, new TargetDestination { Value = bucketFetcher.LakePosition.xz });
+                    targetDestination = bucketFetcher.LakePosition.xz;
                 }
 
                 /*

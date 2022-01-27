@@ -30,10 +30,8 @@ public partial class MoveToTargetLocationSystem : SystemBase
             var direction = target.Value - translation.Value.xz;
             var length = math.length(direction);
 
-            // TODO: Remove target component when this happens?
             if (length == 0)
             {
-                ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
                 return;
             }
 
@@ -53,10 +51,8 @@ public partial class MoveToTargetLocationSystem : SystemBase
             var direction = target.Value - translation.Value.xz;
             var length = math.length(direction);
 
-            // TODO: Remove target component when this happens?
             if (length == 0)
             {
-                ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
                 return;
             }
 

@@ -48,7 +48,7 @@ public partial class BucketFllingSystem : SystemBase
                     // FireFighter
                     ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
                     ecb.AddComponent<PassToTargetAssigned>(entityInQueryIndex, actionEntry.FireFighter);
-                    ecb.AddComponent(entityInQueryIndex, actionEntry.FireFighter, (TargetDestination)actionEntry.Position.xz);
+                    ecb.SetComponent(entityInQueryIndex, actionEntry.FireFighter, (TargetDestination)actionEntry.Position.xz);
                     //ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, actionEntry.FireFighter);
 
                     ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, actionEntry.Bucket);
