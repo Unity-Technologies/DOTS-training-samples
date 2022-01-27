@@ -12,7 +12,6 @@ using float3 = Unity.Mathematics.float3;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(SpawnerSystem))]
-[UpdateBefore(typeof(MovementSystem))]
 public partial class UpdateStateSystem : SystemBase
 {
     private EntityQuery beeQuery;
@@ -87,11 +86,12 @@ public partial class UpdateStateSystem : SystemBase
         var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
-        var stateHandle = Entities.WithAll<BeeTag>()
+        Entities.WithAll<BeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
-                var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex);
 
                 // If Bee is idle -> seeking
                 //           carrying -> continue
@@ -335,10 +335,8 @@ public partial class UpdateStateSystem : SystemBase
             .WithDisposeOnCompletion(foodCarriedData)
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
-            .ScheduleParallel(Dependency);
+            .ScheduleParallel();
 
         commandBufferSystem.AddJobHandleForProducer(Dependency);
-
-        stateHandle.Complete();
     }
 }
