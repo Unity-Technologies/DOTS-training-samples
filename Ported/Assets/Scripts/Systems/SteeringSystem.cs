@@ -121,6 +121,7 @@ public partial class SteeringSystem : SystemBase
         Entities.ForEach((ref Velocity antVelocity) =>
             {
                 antVelocity.Direction = random.NextFloat2Direction();
+                antVelocity.Speed = 0.0f;
             }).Run();
     }
 
