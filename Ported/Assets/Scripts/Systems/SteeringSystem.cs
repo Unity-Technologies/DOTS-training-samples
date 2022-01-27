@@ -1,8 +1,10 @@
-﻿using Unity.Collections;
+﻿using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public struct ComputeSteering : IJobChunk
 {
@@ -45,7 +47,7 @@ public struct ComputeSteering : IJobChunk
                                    + generalDirection[i].Value * GeneralDirectionStrength
                                    + proximitySteering[i].Value * ProximityStrength
                                    + avoidanceSteering[i].Value * AvoidanceStrength;
-            finalSteering = math.normalize(finalSteering);
+            finalSteering = math.normalizesafe(finalSteering);
             float alignment = (math.dot(finalSteering, velocityComp.Direction) + 1.0f) / 2.0f;
             float targetSpeed = alignment * AntMaxSpeed;
             float accelerationThisFrame = AntAcceleration * DeltaTime;
@@ -81,6 +83,7 @@ public struct ComputeSteering : IJobChunk
 /**
  * This system will take care of Mixing up all active steering on ants and proceed to update their rotation / speed
  */
+[UpdateBefore(typeof(AntMoveSystem))]
 public partial class SteeringSystem : SystemBase
 {
     private float m_AntMaxSpeed = 0.2f;
@@ -126,17 +129,7 @@ public partial class SteeringSystem : SystemBase
     }
 
     protected override void OnUpdate()
-    { 
-        float antMaxSpeed = m_AntMaxSpeed;
-        float antMaxTurn = m_AntMaxTurn;
-        float antAcceleration = m_AntAcceleration;
-        float wanderingStrength = m_WanderingStrength;
-        float pheromoneStrength = m_PheromoneStrength;
-        float containmentStrength = m_ContainmentStrength;
-        float generalDirectionStrength = m_GeneralDirectionStrength;
-        float proximityStrength = m_ProximityStrength;
-        float avoidanceStrength = m_AvoidanceStrength;
-
+    {
         ComputeSteering job = new ComputeSteering()
         {
             VelocityHandle = GetComponentTypeHandle<Velocity>(false),

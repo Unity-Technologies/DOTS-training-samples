@@ -6,6 +6,7 @@ using Unity.Transforms;
 /**
  * This system compute the food final approach steering behavior : Ants will seek food source when they are in food range, with clear line of sight.
  */
+[UpdateBefore(typeof(SteeringSystem))]
 public partial class AntProximitySteering : SystemBase
 {
     private EntityQuery m_FoodQuery;
@@ -26,7 +27,7 @@ public partial class AntProximitySteering : SystemBase
         float2 nestPosition = m_NestPosition;
         
         // We may sort the array of food and optimize the Food looping
-        Entities
+        Entities.WithReadOnly(foodTranslation)
             .ForEach((ref ProximitySteering proximitySteering, in Loadout loadout, in Translation antTranslation) =>
             {
                 if (loadout.Value > 0)
@@ -54,7 +55,7 @@ public partial class AntProximitySteering : SystemBase
                         break;
                     }
                 }
-            }).WithDisposeOnCompletion(foodTranslation).Schedule();
+            }).WithDisposeOnCompletion(foodTranslation).ScheduleParallel();
     }
 
     private bool HasLineOfSight(Translation translationA, Translation translationB)

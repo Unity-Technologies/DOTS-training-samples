@@ -5,6 +5,7 @@ using Unity.Transforms;
 /**
  * This system compute keeps all ants in the defined world
  */
+[UpdateBefore(typeof(SteeringSystem))]
 public partial class AntContainment : SystemBase
 {
     private float m_MapSize = 128.0f;
@@ -46,6 +47,6 @@ public partial class AntContainment : SystemBase
                 {
                     mapContainmentSteering.Value.y = 0.0f;
                 }
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }
