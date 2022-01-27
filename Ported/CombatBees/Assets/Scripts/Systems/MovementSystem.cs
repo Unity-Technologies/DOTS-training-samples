@@ -186,8 +186,8 @@ public partial class MovementSystem : SystemBase
                             var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
 
                             // If the height overlaps above the other food, move this one up enough to sit on top
-                            if (collisionHeightOverlap > 0f &&
-                                collisionHeightOverlap <= 1f)
+                            if (collisionHeightOverlap > 0.001f &&
+                                collisionHeightOverlap <= 0.999f)
                             {
                                 translation.Value.y += collisionHeightOverlap + math.EPSILON;
 
@@ -198,7 +198,9 @@ public partial class MovementSystem : SystemBase
                         }
                     }
                 }
-            }).WithDisposeOnCompletion(foodPositions)
+            }).WithReadOnly(foodPositions)
+            .WithReadOnly(foodEntities)
+            .WithDisposeOnCompletion(foodPositions)
             .WithDisposeOnCompletion(foodEntities)
             .Schedule();
 
