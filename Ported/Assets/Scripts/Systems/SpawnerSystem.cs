@@ -118,6 +118,7 @@ public partial class SpawnerSystem : SystemBase
             {
                 typeof(AntTag),
                 typeof(NonUniformScale),
+                typeof(Brightness),
                 typeof(Velocity),
                 typeof(GeneralDirection),
                 typeof(MapContainmentSteering),
@@ -128,6 +129,7 @@ public partial class SpawnerSystem : SystemBase
                 typeof(CollisionResult),
                 typeof(AntMovementState),
                 typeof(Loadout),
+                typeof(URPMaterialPropertyBaseColor),
             });
 
             // spawn ants
@@ -138,6 +140,7 @@ public partial class SpawnerSystem : SystemBase
                 ecb.SetComponent(instance, new Rotation { Value = quaternion.RotateZ(random.NextFloat(-UnityMath.PI, UnityMath.PI)) });
                 ecb.SetComponent(instance, new Translation { Value = new float3(-4, 0, 0) / configuration.MapSize });
                 ecb.SetComponent(instance, new NonUniformScale() { Value = configuration.AntSize });
+                ecb.SetComponent(instance, new Brightness() { Value = random.NextFloat(0.75f, 1.25f) });
             }
         }).WithoutBurst().Run();
 
