@@ -41,16 +41,26 @@ public partial class MovementSystem : SystemBase
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
             .WithAll<Food>()
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement,
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, ref Velocity velocity,
                 in Food food) =>
             {
                 if (food.isBeeingCarried)
                 {
+                    velocity.Value = new float3();
                     translation.Value = ppMovement.Progress(deltaTime, MotionType.BeeBumble);
                 }
                 else
                 {
-                    translation.Value = ppMovement.Progress(deltaTime, MotionType.Linear);
+                    // Falling with gravity
+                    velocity.Value.y -= 9.8f * deltaTime;
+                    translation.Value += velocity.Value * deltaTime;
+                    
+                    // Ground Collision (do this here so that no below-ground food positions are cached)
+                    if (translation.Value.y < 0.5f)
+                    {
+                        translation.Value.y = 0.5f;
+                        ppMovement.startLocation = ppMovement.endLocation = translation.Value;
+                    }
                 }
 
                 foodPositions[entityInQueryIndex] = translation.Value;
@@ -67,7 +77,7 @@ public partial class MovementSystem : SystemBase
             .WithAll<BeeBitsTag>()
             .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
             {
-                // Bits falling with gravity
+                // Falling with gravity
                 velocity.Value.y -= 9.8f * deltaTime;
                 translation.Value += velocity.Value * deltaTime;
             }).Schedule();
@@ -179,14 +189,13 @@ public partial class MovementSystem : SystemBase
                             {
                                 var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
 
-                                // If the height overlaps above or below, move it up enough to sit on top
-                                if (collisionHeightOverlap > 0.001f &&
-                                    collisionHeightOverlap < 1.999f)
+                                // If the height overlaps above the other food, move this one up enough to sit on top
+                                if (collisionHeightOverlap > 0f &&
+                                    collisionHeightOverlap < 1f)
                                 {
                                     translation.Value.y += collisionHeightOverlap;
 
-                                    ppMovement.startLocation = translation.Value;
-                                    ppMovement.endLocation = translation.Value;
+                                    ppMovement.startLocation = ppMovement.endLocation = translation.Value;
 
                                     hasMoved = true;
                                 }
