@@ -2001,13 +2001,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
+      propertyPath: TeamCountAtStart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: FireFighterBucketPassRadius
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
       propertyPath: FireFighterMovementSpeedBucket
-      value: 10
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
       propertyPath: FireFighterMovementSpeedNoBucket
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfeb066d1c8fe5645890933fb31f289a, type: 3}

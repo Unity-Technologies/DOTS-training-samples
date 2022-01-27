@@ -14,7 +14,7 @@ struct GameConstants : IComponentData
 
     public float FireFighterMovementSpeedNoBucket;
     public float FireFighterMovementSpeedBucket;
-    public float FireFighterBucketPickupRadius;
+    public float FireFighterBucketPassRadius;
 
     public float BucketSpawnDensity;
     public float BucketFillRate;

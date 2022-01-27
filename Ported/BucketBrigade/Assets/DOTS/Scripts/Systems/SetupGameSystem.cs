@@ -71,11 +71,17 @@ public partial class SetupGameSystem : SystemBase
                     
                     if (w < totalWorkers - 2)
                     {
-                        EntityManager.SetComponentData(workerEntity, new PassTo { NextWorker = workers[w + 1] });
+                        EntityManager.AddComponentData(workerEntity, new PassTo { NextWorker = workers[w + 1] });
                     }
                     
                     if (w == totalWorkers - 1) EntityManager.AddComponent<BucketFetcher>(workerEntity);
                 }
+                
+                var bucketEntity = EntityManager.Instantiate(gameConstants.BucketPrefab);
+                EntityManager.SetComponentData(bucketEntity, new Bucket { Volume = 1f }); // TODO: this needs to be done? Could be done in authoring?
+
+                EntityManager.AddComponentData(workers[0], new HoldingBucket { HeldBucket = bucketEntity });
+                EntityManager.AddComponent<HoldsFullBucket>(workers[0]);
             }
         }
 

@@ -21,6 +21,8 @@ public struct PassTo : IComponentData
     public Entity NextWorker;
 }
 
+public struct PassToTargetAssigned : IComponentData { }
+
 public struct BucketThrower : IComponentData { }
 
 public struct HoldsEmptyBucket : IComponentData { }

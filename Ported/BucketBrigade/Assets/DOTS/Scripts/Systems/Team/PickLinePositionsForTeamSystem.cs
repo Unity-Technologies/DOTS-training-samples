@@ -96,8 +96,8 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 // Forward Line
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
-                    float t = (float)x / (gameConstants.WorkersPerLine + 1);
-                    float tNext = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
+                    float t = (float)x / gameConstants.WorkersPerLine;
+                    float tNext = (float)(x + 1) / gameConstants.WorkersPerLine;
 
                     var pos = GetLinePosition(t, lineLakePosition.Value, lineFirePosition.Value, offset);
                     var posNext = GetLinePosition(tNext, lineLakePosition.Value, lineFirePosition.Value, offset);
@@ -106,9 +106,12 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                     // DON'T REMOVE THIS LINE
                     TeamWorkers workerEntity = workersBuffer[x];
 
-                    //SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext, NextWorker = workersBuffer[x + 1] });
+                    var isWorkerPassingBucket = HasComponent<HoldingBucket>(workerEntity) && HasComponent<PassTo>(workerEntity);
 
-                    var targetPosition = (TargetDestination)(HasComponent<HoldingBucket>(workerEntity) ? posNext : pos).xz;
+                    if (isWorkerPassingBucket && !HasComponent<PassToTargetAssigned>(workerEntity))
+                        ecb.AddComponent<PassToTargetAssigned>(workerEntity);
+
+                    var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
                     if (HasComponent<TargetDestination>(workerEntity))
                         SetComponent(workerEntity, targetPosition);
@@ -119,18 +122,21 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 // Backward Line
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
-                    float t = (float)(x) / (gameConstants.WorkersPerLine + 1);
-                    float tNext = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
+                    float t = (float)x / gameConstants.WorkersPerLine;
+                    float tNext = (float)(x + 1) / gameConstants.WorkersPerLine;
 
                     var pos = GetLinePosition(t, lineFirePosition.Value, lineLakePosition.Value, -offset);
                     var posNext = GetLinePosition(tNext, lineFirePosition.Value, lineLakePosition.Value, -offset);
 
                     // DON'T REMOVE THIS LINE
-                    TeamWorkers workerEntity = workersBuffer[x];
+                    TeamWorkers workerEntity = workersBuffer[x + gameConstants.WorkersPerLine];
 
-                    //SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext, NextWorker = workersBuffer[x + 1] });
+                    var isWorkerPassingBucket = HasComponent<HoldingBucket>(workerEntity) && HasComponent<PassTo>(workerEntity);
 
-                    var targetPosition = (TargetDestination)(HasComponent<HoldingBucket>(workerEntity) ? posNext : pos).xz;
+                    if (isWorkerPassingBucket && !HasComponent<PassToTargetAssigned>(workerEntity))
+                        ecb.AddComponent<PassToTargetAssigned>(workerEntity);
+
+                    var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
                     if (HasComponent<TargetDestination>(workerEntity))
                         SetComponent(workerEntity, targetPosition);
