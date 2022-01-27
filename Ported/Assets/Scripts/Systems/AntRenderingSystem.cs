@@ -9,9 +9,11 @@ public partial class AntRenderingSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithAll<AntTag>().ForEach((ref URPMaterialPropertyBaseColor color, in Brightness brightness) =>
+        var configuration = GetSingleton<Configuration>();
+        Entities.WithAll<AntTag>().ForEach((ref URPMaterialPropertyBaseColor color, in Brightness brightness, in Loadout loadout) =>
         {
-            color.Value = brightness.Value;
+            var stateColor = loadout.Value == 0 ? configuration.SearchColor : configuration.CarryColor;
+            color.Value += (brightness.Value * stateColor - color.Value) * 0.05f;
         }).ScheduleParallel();
     }
 }
