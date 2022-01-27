@@ -33,7 +33,12 @@ public partial class ArrowPlacerSystem : SystemBase
         var player = GetSingletonEntity<PlayerInputTag>();
         var playerPos = GetComponent<CursorPosition>(player);
         var ecbHoverArrow = new EntityCommandBuffer(Allocator.Temp);
-        Entities.WithAll<Player>().WithNone<Score>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((Entity entity, ref CursorPosition position) =>
+        Entities
+            .WithAll<Player>()
+            .WithNone<Score>()
+            .WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled)
+            .WithoutBurst()
+            .ForEach((Entity entity, ref CursorPosition position) =>
         {
             position.Value = playerPos.Value;
             var coordinate = CalculateProjected(position.Value, cellSize, out var direction);
