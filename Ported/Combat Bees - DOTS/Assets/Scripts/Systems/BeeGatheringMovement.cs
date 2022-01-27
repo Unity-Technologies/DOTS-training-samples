@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public partial class BeeMovement : SystemBase
+public partial class BeeGatheringMovement : SystemBase
 {
     private EntityQuery resourceQuery;
 
@@ -53,19 +53,10 @@ public partial class BeeMovement : SystemBase
             WithDisposeOnCompletion(beeBEntities).ForEach(
             (Entity entity, ref Translation translation, ref Velocity velocity, ref BeeTargets beeTargets, ref HeldItem heldItem, ref RandomState randomState, ref BeeStatus beeStatus, in Team team) =>
             {
-                if (heldItem.Value != Entity.Null)
-                {
-                    // Switch target to home if holding a resource
-                    currentTargetPosition = beeTargets.HomePosition;
-                    currentTargetPosition.z = translation.Value.z;
-                }
-                else if (beeTargets.ResourceTarget != Entity.Null)
-                {
-                    // If a resource target is assigned to the current bee select it as the current target
-                    // (if not holding a resource => bee is home => go for a new resource)
-                    currentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
-                }
+                // TODO: Continue extracting resource targeting / positioning code to "BeeResourceTargeting"
                 
+                // TODO: Extract general movement
+
                 float3 delta = currentTargetPosition - translation.Value;
                 float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
         

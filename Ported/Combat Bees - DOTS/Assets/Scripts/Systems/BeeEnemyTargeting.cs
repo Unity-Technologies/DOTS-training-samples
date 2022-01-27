@@ -1,14 +1,35 @@
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
 
 public partial class BeeEnemyTargeting : SystemBase
 {
     protected override void OnUpdate()
     {
-
+        NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);
+        NativeList<Entity> beeBEntities = new NativeList<Entity>(Allocator.TempJob);
         
-        Entities.ForEach((ref Translation translation, in Rotation rotation) => {
-
+        Entities.WithAll<BeeTag>().ForEach((Entity entity, in Team team) =>
+        {
+            if(team.Value == TeamName.A)
+                beeAEntities.Add(entity);
+            else if (team.Value == TeamName.B)
+                beeBEntities.Add(entity);
+        }).Run();
+        
+        Entities.ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
+            if (beeStatus.Value == Status.Attacking && beeTargets.EnemyTarget == Entity.Null)
+            {
+                if (team.Value == TeamName.A)
+                {
+                    int randomIndex = randomState.Random.NextInt(beeBEntities.Length);
+                    beeTargets.EnemyTarget = beeBEntities[randomIndex];
+                }
+                else
+                {
+                    int randomIndex = randomState.Random.NextInt(beeAEntities.Length);
+                    beeTargets.EnemyTarget = beeAEntities[randomIndex];
+                }
+            }
         }).Schedule();
     }
 }

@@ -15,7 +15,9 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new BeeTargets
         {
             ResourceTarget = Entity.Null,
+            EnemyTarget = Entity.Null,
             HomePosition = HomePosition,
+            CurrentTargetPosition = float3.zero
         });
 
         dstManager.AddComponentData(entity, new Velocity
@@ -51,6 +53,11 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Agression
         {
             Value = 0.5f
+        });
+
+        dstManager.AddComponentData(entity, new Targeted
+        {
+            Value = false
         });
     }
 }
