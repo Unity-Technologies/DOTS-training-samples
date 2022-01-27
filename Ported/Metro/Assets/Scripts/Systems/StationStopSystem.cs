@@ -16,18 +16,20 @@ public partial class StationStopSystem : SystemBase
         {
 
             var track = GetComponent<StationDistanceArray>(splineFollower.track);
-            ref var stationDistanceData = ref track.StationDistances.Value;
+            //ref var stationDistanceData = ref track.StationDistances.Value;
+            var stationDistanceBuffer = GetBuffer<FloatBufferElement>(splineFollower.track);
+            
             var distanceToNextStation =
-                math.abs(trackProgress.Value - stationDistanceData.Distances[nextStation.stationIndex]);
+                math.abs(trackProgress.Value - stationDistanceBuffer[nextStation.stationIndex]);
 
             if (ticker.TimeRemaining <= 0)
             {
-                if (trackProgress.Value >= stationDistanceData.Distances[nextStation.stationIndex] && distanceToNextStation < 10)
+                if (trackProgress.Value >= stationDistanceBuffer[nextStation.stationIndex] && distanceToNextStation < 10)
                 {
                     ticker.TimeRemaining = 5f;
                     nextStation.stationIndex += 1;
                     
-                    nextStation.stationIndex = nextStation.stationIndex % stationDistanceData.Distances.Length;
+                    nextStation.stationIndex = nextStation.stationIndex % stationDistanceBuffer.Length;
                 }
             }
             else

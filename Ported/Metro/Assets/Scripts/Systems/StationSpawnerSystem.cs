@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -6,6 +7,13 @@ using Unity.Mathematics;
 [UpdateAfter(typeof(TransformSystemGroup))]
 public partial class StationSpawnerSystem : SystemBase
 {
+    struct FloatDataComparer : IComparer<FloatBufferElement> {
+        public int Compare(FloatBufferElement a, FloatBufferElement b) {
+            return (int)(a.Value-b.Value);
+        }
+    }
+
+
     protected override void OnUpdate() 
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -37,7 +45,7 @@ public partial class StationSpawnerSystem : SystemBase
                         var rotation = new Rotation { Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0)) };
                         ecb.SetComponent(instance, translation);
                         ecb.SetComponent(instance, rotation);
-                        GetBuffer<FloatBufferElement>(tracks[i]).Add(station.trackDistance);
+                        GetBuffer<FloatBufferElement>(tracks[i]).Add(station.trackDistance+8f);
                         // Propagates station and trackid on the prefab
                         ecb.AddComponent(instance, station);
                         ecb.AddComponent(instance, trackId);
@@ -50,9 +58,12 @@ public partial class StationSpawnerSystem : SystemBase
         Entities
             .ForEach((in DynamicBuffer<FloatBufferElement> buffer, in TrackID trackId) => {
                 UnityEngine.Debug.Log($"Track ID: {trackId.id}");
+                buffer.AsNativeArray().Sort(new FloatDataComparer());
+                /*
                 for (int i = 0; i < buffer.Length; i++) {
                     UnityEngine.Debug.Log($"Station Distance: {buffer[i].Value}");
                 }
+                */
             }).Run();
 
         tracks.Dispose();
