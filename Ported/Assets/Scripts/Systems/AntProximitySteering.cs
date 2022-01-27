@@ -23,6 +23,7 @@ public partial class AntProximitySteering : SystemBase
     {
         // First gather all active food
         NativeArray<Translation> foodTranslation = m_FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
+        float2 nestPosition = m_NestPosition;
         
         // We may sort the array of food and optimize the Food looping
         Entities
@@ -30,7 +31,7 @@ public partial class AntProximitySteering : SystemBase
             {
                 if (loadout.Value > 0)
                 {
-                    proximitySteering.Value = math.normalize(m_NestPosition - antTranslation.Value.xy);
+                    proximitySteering.Value = math.normalize(nestPosition - antTranslation.Value.xy);
                 }
                 else
                 {
