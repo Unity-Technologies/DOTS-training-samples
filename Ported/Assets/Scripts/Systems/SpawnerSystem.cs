@@ -19,7 +19,7 @@ public partial class SpawnerSystem : SystemBase
         // and can be used in jobs. For simplicity and debuggability in development,
         // we'll initialize it with a constant. (In release, we'd want a seed that
         // randomly varies, such as the time from the user's system clock.)
-        var random = new Random(1234);
+        var random = new Random((uint)System.DateTime.UtcNow.Ticks);
 
         Entities.ForEach((Entity entity, in Spawner spawner) =>
         {
@@ -111,7 +111,7 @@ public partial class SpawnerSystem : SystemBase
             // spawn resource
             instance = ecb.Instantiate(spawner.ResourcePrefab);
             ecb.AddComponent<ResourceTag>(instance);
-            ecb.SetComponent(instance, new Translation { Value = new float3(0, 10, 0) / configuration.MapSize });
+            ecb.SetComponent(instance, new Translation { Value = new float3(random.NextFloat(-0.5f, 0.5f),random.NextFloat(-0.5f, 0.5f), 0)});
             ecb.SetComponent(instance, new NonUniformScale() { Value = EntityManager.GetComponentData<NonUniformScale>(spawner.ResourcePrefab).Value / configuration.MapSize });
 
             var antComponents = new ComponentTypes(new ComponentType[]

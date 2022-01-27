@@ -28,30 +28,38 @@ public partial class AntProximitySteering : SystemBase
         
         // We may sort the array of food and optimize the Food looping
         Entities.WithReadOnly(foodTranslation)
-            .ForEach((ref ProximitySteering proximitySteering, in Loadout loadout, in Translation antTranslation) =>
+            .ForEach((ref ProximitySteering proximitySteering, ref Loadout loadout, in Translation antTranslation) =>
             {
                 if (loadout.Value > 0)
                 {
-                    proximitySteering.Value = math.normalize(nestPosition - antTranslation.Value.xy);
+                    float2 nestOffset = nestPosition - antTranslation.Value.xy;
+                    float sqDist = math.lengthsq(nestOffset);
+                    proximitySteering.Value = nestOffset / sqDist;
+                    
+                    if (sqDist < 0.1f / 128f) 
+                    {
+                        loadout.Value = 0;
+                    }
                 }
                 else
                 {
                     for (int i = 0; i < foodTranslation.Length; ++i)
                     {
                         float2 foodOffset = foodTranslation[i].Value.xy - antTranslation.Value.xy;
-            
+                        float sqDist = math.lengthsq(foodOffset);
                         // check line of sight
                         // if (HasLineOfSight(foodTranslation[i], antTranslation) == false)
                         // {
                         //     continue;
                         // }
 
-                        proximitySteering.Value = math.normalize(foodTranslation[i].Value.xy - antTranslation.Value.xy);
+                        proximitySteering.Value = foodOffset / sqDist;
                         
                         // tHis code handle the loading / unloading
-                        // if ((ant.position - targetPos).sqrMagnitude < 4f * 4f) {
-                        //     ant.holdingResource = !ant.holdingResource;
-                        // }
+                        if (math.lengthsq(foodOffset) < 0.1f / 128f) 
+                        {
+                            loadout.Value = 1;
+                        }
                         break;
                     }
                 }
