@@ -6,7 +6,6 @@ using Unity.Transforms;
 /**
  * This system will do an obstacle avoidance Pass on top of Ant steering
  */
-[UpdateAfter(typeof(SteeringSystem))]
 public partial class AntObstacleAvoidance : SystemBase
 {
     private float m_SqrObstacleRadius = 4.0f;
@@ -24,8 +23,11 @@ public partial class AntObstacleAvoidance : SystemBase
 
     protected override void OnUpdate()
     {
+        // Forces a dependency Complete before we access ToComponentDataArray<Translation> below. Bug or regression in ECS?
+        Entities.ForEach((in Translation Translation) => { }).Run();
+        
         // First gather all active food
-        NativeArray<Translation> obstacleTranslation = m_ObstacleQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+        NativeArray<Translation> obstacleTranslation = m_ObstacleQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         float sqrObstacleRadius = m_SqrObstacleRadius;
         float antObstacleAvoidanceDistance = m_AntObstacleAvoidanceDistance;
         
@@ -43,9 +45,6 @@ public partial class AntObstacleAvoidance : SystemBase
                         break;
                     }
                 }
-            }).Run();
-        
-        
-        obstacleTranslation.Dispose();
+            }).WithDisposeOnCompletion(obstacleTranslation).Schedule();
     }
 }
