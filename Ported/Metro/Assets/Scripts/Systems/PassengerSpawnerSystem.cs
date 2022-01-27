@@ -3,8 +3,11 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEditor.Rendering;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(StationSpawnerSystem))]
 public partial class PassengerSpawnerSystem : SystemBase
@@ -17,8 +20,9 @@ public partial class PassengerSpawnerSystem : SystemBase
         var stationsTranslations = stationsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var stationsRotations = stationsQuery.ToComponentDataArray<Rotation>(Allocator.TempJob);
         var random = new Random(0xDEADBEEF);
-        
+
         Entities
+            .WithoutBurst()
             .ForEach((Entity entity, in PassengerSpawner spawner) =>
             {
                 // Kill our spawner
@@ -43,19 +47,20 @@ public partial class PassengerSpawnerSystem : SystemBase
                         var translation = new Translation {Value = position};
                         ecb.SetComponent(instance, translation);
                         ecb.SetComponent(instance, new Rotation{Value = rotation});
-                        ecb.AddComponent(instance, new Passenger());
+
+                        var randomColor = spawner.colorsBlob.Value.colors[random.NextInt(spawner.colorsBlob.Value.colors.Length)];
+                        ecb.AddComponent(instance, new EntityColor {Value = randomColor});
                     }
                 
                     remainingPassenger -= passengerPerStation;
                 }
             }).Run();
-
+        
         stations.Dispose();
         stationsTranslations.Dispose();
         stationsRotations.Dispose();
         ecb.Playback(EntityManager);
         ecb.Dispose();
-
         Enabled = false;
     }
 }
