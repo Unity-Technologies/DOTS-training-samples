@@ -160,7 +160,7 @@ public partial class SetupGameSystem : SystemBase
                 .ForEach((Entity e, ref OriginalLake originalLake, ref Lake lake, in NonUniformScale scale) =>
                 {
                     originalLake.Scale = scale.Value;
-                    originalLake.Volume = originalLake.Scale.x * originalLake.Scale.z * gameConstants.LakeMaxVolume;
+                    originalLake.Volume = (int)(originalLake.Scale.x * originalLake.Scale.z * gameConstants.LakeMaxVolume);
                     lake.Volume = originalLake.Volume;
 
                     ecb.AddBuffer<BucketFillAction>(e);

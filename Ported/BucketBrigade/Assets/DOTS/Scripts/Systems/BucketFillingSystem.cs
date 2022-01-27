@@ -35,12 +35,6 @@ public partial class BucketFllingSystem : SystemBase
                 lake.Volume -= toDrain;
                 actionEntry.BucketVolume += toDrain;
 
-                if (lake.Volume <= 0)
-                {
-                    ecb.DestroyEntity(entityInQueryIndex, e);
-                    return;
-                }
-
                 ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Bucket { Volume = actionEntry.BucketVolume });
 
                 if (actionEntry.BucketVolume < 1f)
@@ -59,6 +53,13 @@ public partial class BucketFllingSystem : SystemBase
                     actionEntry.Position.y = 0;
                     ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Translation { Value = actionEntry.Position });
                     ecb.RemoveComponent<BeingHeld>(entityInQueryIndex, actionEntry.Bucket);
+                }
+                
+                if (lake.Volume <= 0)
+                {
+                    fillActions.Clear();
+                    ecb.DestroyEntity(entityInQueryIndex, e);
+                    return;
                 }
             }
 
