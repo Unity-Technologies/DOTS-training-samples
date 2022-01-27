@@ -24,30 +24,35 @@ public partial class PassBucketSystem : SystemBase
         Entities.
             WithAll<PassToTargetAssigned>().
             ForEach((Entity e, in HoldingBucket holdingBucket, in Translation translation, in PassTo passTo, in TargetDestination target) => {
-            if (math.lengthsq(translation.Value.xz - target.Value) > gameConstants.FireFighterBucketPassRadius * gameConstants.FireFighterBucketPassRadius)
-                return;
+                if (math.lengthsq(translation.Value.xz - target.Value) > gameConstants.FireFighterBucketPassRadius * gameConstants.FireFighterBucketPassRadius)
+                    return;
 
-            // Wait for next worker to do something with bucket
-            if (HasComponent<HoldingBucket>(passTo.NextWorker))
-                return;
+                // Wait for next worker to do something with bucket
+                if (HasComponent<HoldingBucket>(passTo.NextWorker))
+                    return;
 
-            if (HasComponent<HoldsEmptyBucket>(e))
-            {
-                ecb.RemoveComponent<HoldsEmptyBucket>(e);
-                ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
-            }
+                if (HasComponent<HoldsEmptyBucket>(e))
+                {
+                    ecb.RemoveComponent<HoldsEmptyBucket>(e);
+                    ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
+                }
 
-            if (HasComponent<HoldsFullBucket>(e))
-            {
-                ecb.RemoveComponent<HoldsFullBucket>(e);
-                ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
-            }
+                if (HasComponent<HoldsFullBucket>(e))
+                {
+                    ecb.RemoveComponent<HoldsFullBucket>(e);
+                    ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
+                }
 
-            ecb.RemoveComponent<PassToTargetAssigned>(e);
-            ecb.RemoveComponent<HoldingBucket>(e);
-            ecb.AddComponent(passTo.NextWorker, holdingBucket);
+                ecb.RemoveComponent<PassToTargetAssigned>(e);
+                ecb.RemoveComponent<HoldingBucket>(e);
+                ecb.AddComponent(passTo.NextWorker, holdingBucket);
 
-            Debug.Log("bucket passed with TargetDestination");
+                Debug.Log("bucket passed with TargetDestination");
+
+                if (HasComponent<BucketThrower>(e))
+                {
+                    // TODO: make dousing
+                }
 
             // TODO: Douse fire if this dude was supposed to throw
 
