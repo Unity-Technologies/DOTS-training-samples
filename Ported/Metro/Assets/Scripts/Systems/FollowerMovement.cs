@@ -10,7 +10,7 @@ using UnityEngine;
 
 public partial class FollowerMovement : SystemBase
 {
-    private const float CartLength = 3;
+    private const float CartLength = 5.5f;
     protected override void OnUpdate()
     {
 
