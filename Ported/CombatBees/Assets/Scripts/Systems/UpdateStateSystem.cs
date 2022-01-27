@@ -35,7 +35,7 @@ public partial class UpdateStateSystem : SystemBase
 
         Entities
             .WithStoreEntityQueryInField(ref beeQuery)
-            .WithAll<BeeTag>()
+            .WithAll<BeeState>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in BeeTeam beeTeam) =>
             {
                 beeTranslationData[entityInQueryIndex] = translation;
@@ -86,8 +86,8 @@ public partial class UpdateStateSystem : SystemBase
         var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
-        Entities.WithAll<BeeTag>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement,
+        Entities.WithAll<BeeState>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
                 //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);

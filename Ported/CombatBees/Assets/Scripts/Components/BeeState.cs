@@ -10,7 +10,7 @@ public enum StateValues
 
 
 [GenerateAuthoringComponent]
-public struct State : IComponentData
+public struct BeeState : IComponentData
 {
     public StateValues value;
 }

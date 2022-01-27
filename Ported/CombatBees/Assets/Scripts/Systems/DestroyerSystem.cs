@@ -13,7 +13,7 @@ public partial class DestroyerSystem : SystemBase
         if (inputReinitialize)
         {
             Entities
-                .WithAny<BeeTag, BloodTag, BeeBitsTag>()
+                .WithAny<BeeState, BloodTag, BeeBitsTag>()
                 .WithAny<Food>()
                 .ForEach((Entity entity) =>
                 {

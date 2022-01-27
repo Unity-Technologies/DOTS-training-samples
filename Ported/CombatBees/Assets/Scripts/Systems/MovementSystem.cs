@@ -87,7 +87,7 @@ public partial class MovementSystem : SystemBase
 
         // Move: anything that hasn't already moved
         Entities
-            .WithAll<BeeTag>()
+            .WithAll<BeeState>()
             .ForEach((Entity e, ref Translation translation, ref Rotation rotation, ref PP_Movement ppMovement) =>
             {
                 // do bee movement
