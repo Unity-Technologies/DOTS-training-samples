@@ -7,7 +7,7 @@ using UnityEngine;
 using Utils;
 using Random = Unity.Mathematics.Random;
 
-[UpdateBefore(typeof(UpdateStateSystem))]
+
 public partial class MovementSystem : SystemBase
 {
     private EntityCommandBufferSystem sys;
@@ -221,7 +221,6 @@ public partial class MovementSystem : SystemBase
                         new Translation { Value = translation.Value.Floored() });
                 }
             }).ScheduleParallel();
-
         sys.AddJobHandleForProducer(Dependency);
     }
 }

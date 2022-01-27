@@ -159,6 +159,7 @@ MonoBehaviour:
   ResourcePrefab: {fileID: 4367470969325399639, guid: 84eba2e00c574bb45a527264ee848334, type: 3}
   StartingBees: 10
   StartingResources: 225
+  ChanceToAttack: 0
 --- !u!4 &323677541
 Transform:
   m_ObjectHideFlags: 0

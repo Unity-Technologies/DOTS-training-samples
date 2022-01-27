@@ -12,6 +12,7 @@ using float3 = Unity.Mathematics.float3;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(SpawnerSystem))]
+[UpdateBefore(typeof(MovementSystem))]
 public partial class UpdateStateSystem : SystemBase
 {
     private EntityQuery beeQuery;
@@ -75,6 +76,7 @@ public partial class UpdateStateSystem : SystemBase
             DateTime.Now.Year);
         // var random = new Random(randomSeed);
 
+
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
@@ -83,7 +85,7 @@ public partial class UpdateStateSystem : SystemBase
         var spawner = GetSingleton<Spawner>();
 
         // Get "close enough" Food based on distance calculation
-        Entities.WithAll<BeeTag>()
+        var stateHandle = Entities.WithAll<BeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
@@ -111,9 +113,15 @@ public partial class UpdateStateSystem : SystemBase
                 }
                 else if (state.value == StateValues.Seeking)
                 {
-                    // Also potentially check for attack here
+                    bool targetFoodStillExists = false;
+
                     for (int i = 0; i < foodCount; i++)
                     {
+                        if (foodEntityData[i] == targetedEntity.Value)
+                        {
+                            targetFoodStillExists = true;
+                        }
+
                         float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
                         if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null)
                         {
@@ -157,7 +165,7 @@ public partial class UpdateStateSystem : SystemBase
                         }
                     }
 
-                    if (movement.t >= 0.99f)
+                    if (movement.t >= 0.99f || targetFoodStillExists == false)
                     {
                         // If we have finished moving and are still seeking, go back to idle status
                         state.value = StateValues.Idle;
@@ -165,6 +173,7 @@ public partial class UpdateStateSystem : SystemBase
                 }
                 else if (state.value == StateValues.Attacking)
                 {
+                    bool found = false;
                     // Also potentially check for attack here
                     for (int i = 0; i < beeCount; i++)
                     {
@@ -174,6 +183,8 @@ public partial class UpdateStateSystem : SystemBase
                             {
                                 if (beeEntityData[i] == targetedEntity.Value)
                                 {
+                                    found = true;
+
                                     float translationDistance =
                                         distancesq(translation.Value, beeTranslationData[i].Value);
 
@@ -189,13 +200,14 @@ public partial class UpdateStateSystem : SystemBase
 
                                             parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
                                             new Food { isBeeingCarried = false });
-                                        }
 
-                                        //carriedEntity.Value = Entity.Null;
+                                            carriedEntity.Value = Entity.Null;
+                                        }
 
                                         //destroy enemy bee
                                         parallelWriter.DestroyEntity(entityInQueryIndex, beeEntityData[i]);
                                         Debug.Log("Killed A Bee!");
+
 
                                         //spawn a bee bit
                                         var bitsEntity = parallelWriter.Instantiate(entityInQueryIndex,
@@ -221,7 +233,7 @@ public partial class UpdateStateSystem : SystemBase
                         }
                     }
 
-                    if (movement.t >= 0.99f)
+                    if (movement.t >= 0.99f || found == false)
                     {
                         // If we have finished moving and are still seeking, go back to idle status
                         state.value = StateValues.Idle;
@@ -230,14 +242,20 @@ public partial class UpdateStateSystem : SystemBase
                 else if (state.value == StateValues.Idle)
                 {
                     float foodOrEnemy = random.NextFloat();
-                    if (foodOrEnemy > 0.5f)
+                    if (foodOrEnemy > spawner.ChanceToAttack)
                     {
-                        // Choose food at random here
-                        // TODO: Exclude food that is being carried or dropped?
-                        int randomInt = random.NextInt(foodTranslationData.Length); // Note: random int/uint values are non-inclusive of the maximum value
-                        Translation randomFoodTranslation = foodTranslationData[randomInt];
-                        movement.GoTo(translation.Value, randomFoodTranslation.Value);
-                        state.value = StateValues.Seeking;
+                        if (foodCount > 0)
+                        {
+                            // Choose food at random here
+                            // TODO: Exclude food that is being carried or dropped?
+                            int randomInt =
+                                random.NextInt(foodTranslationData
+                                    .Length); // Note: random int/uint values are non-inclusive of the maximum value
+                            targetedEntity.Value = foodEntityData[randomInt];
+                            Translation randomFoodTranslation = foodTranslationData[randomInt];
+                            movement.GoTo(translation.Value, randomFoodTranslation.Value);
+                            state.value = StateValues.Seeking;
+                        }
                     }
                     else
                     {
@@ -246,24 +264,30 @@ public partial class UpdateStateSystem : SystemBase
                         float3 nearestTargetLocation = float3.zero;
 
 
-                        for (int i = 0; i < beeTranslationData.Length; i++)
+                        for (int i = 0; i < beeCount; i++)
                         {
-                            if (beeTeamData[i] != (int)team.Value)
+                            if (beeEntityData[i] != Entity.Null)
                             {
-                                float dist = distancesq(translation.Value, beeTranslationData[i].Value);
-                                if ( dist < smallestDistance)
+                                if (beeTeamData[i] != (int)team.Value)
                                 {
-                                    smallestDistance = dist;
-                                    nearestEntSoFar = beeEntityData[i];
-                                    nearestTargetLocation = beeTranslationData[i].Value;
+                                    float dist = distancesq(translation.Value, beeTranslationData[i].Value);
+                                    if (dist < smallestDistance)
+                                    {
+                                        smallestDistance = dist;
+                                        nearestEntSoFar = beeEntityData[i];
+                                        nearestTargetLocation = beeTranslationData[i].Value;
+                                    }
                                 }
                             }
                         }
 
-                        targetedEntity.Value = nearestEntSoFar;
-                        movement.GoTo(translation.Value, nearestTargetLocation);
-                        state.value = StateValues.Attacking;
-                        Debug.Log("Set to Attacking!");
+                        if (nearestEntSoFar != Entity.Null)
+                        {
+                            targetedEntity.Value = nearestEntSoFar;
+                            movement.GoTo(translation.Value, nearestTargetLocation);
+                            state.value = StateValues.Attacking;
+                            Debug.Log("Set to Attacking!");
+                        }
                     }
                 }
             }).WithReadOnly(beeTranslationData)
@@ -277,10 +301,10 @@ public partial class UpdateStateSystem : SystemBase
             .WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodEntityData)
             .WithName("ProcessBeeState")
-            .ScheduleParallel();
-
-
+            .ScheduleParallel(Dependency);
 
         commandBufferSystem.AddJobHandleForProducer(Dependency);
+
+        stateHandle.Complete();
     }
 }
