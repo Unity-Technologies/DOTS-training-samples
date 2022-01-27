@@ -25,10 +25,7 @@ public partial class SplineFollowerSystem : SystemBase
                      trackProgress.Value += speed.Value * deltaTime;
                      trackProgress.Value = trackProgress.Value % splineData.pathLength;
                      
-                     int dummySegment = 0;
-                     float3 position;
-                     float3 direction;
-                     SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref dummySegment, trackProgress.Value, out position, out direction);
+                     SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref trackProgress.SplineLookupCache, trackProgress.Value, out var position, out var direction);
                      translation.Value = position;
                      rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0));   
                 }

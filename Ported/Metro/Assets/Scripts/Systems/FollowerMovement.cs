@@ -27,10 +27,9 @@ public partial class FollowerMovement : SystemBase
                 followerProgress += splineData.pathLength;
             }
             
-            int dummySegment = 0;
             float3 position;
             float3 direction;
-            SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref dummySegment, followerProgress, out position, out direction);
+            SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref leaderTrackProgress.SplineLookupCache, followerProgress, out position, out direction);
             translation.Value = position;
             rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1 ,0));
             
