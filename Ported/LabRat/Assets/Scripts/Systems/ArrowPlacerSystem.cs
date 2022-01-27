@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 //[UpdateAfter(typeof(MapSpawningSystem))]
 //[UpdateAfter(typeof(PlayerInputSystem))]
@@ -28,6 +29,22 @@ public partial class ArrowPlacerSystem : SystemBase
         DynamicBuffer<TileData> mapTiles = GetBuffer<TileData>(GetSingletonEntity<MapData>());
         float time = (float)Time.ElapsedTime;
 
+        var player = GetSingletonEntity<PlayerInputTag>();
+        var playerPosition = GetComponent<CursorPosition>(player);
+        var hoverArrow = this.GetSingleton<GameObjectRefs>().PlayerTransparentArrow;
+        
+        var coordinate = CalculateProjected(playerPosition.Value, cellSize, out var direction);
+        if (CanPlaceArrow(config, mapTiles, coordinate))
+        {
+            hoverArrow.SetActive(true);
+            hoverArrow.transform.rotation = Rotate(direction);
+            hoverArrow.transform.position = new Vector3(coordinate.x, .1f, coordinate.y);
+        }
+        else
+        {
+            hoverArrow.SetActive(false);
+        }
+
         Entities
             .WithAll<Player>()
             .ForEach((Entity playerEntity, int nativeThreadIndex, ref PlayerSpawnArrow shouldSpawn, ref ArrowsDeployed arrowsDeployed, in CursorPosition playerPos, in Color playerColor) =>
@@ -38,9 +55,7 @@ public partial class ArrowPlacerSystem : SystemBase
                 }
 
                 var coordinate = CalculateProjected(playerPos.Value, cellSize, out var direction);
-                if (direction != DirectionEnum.None &&
-                    coordinate.x >= 0 && coordinate.x < cellSize.x &&
-                    coordinate.y >= 0 && coordinate.y < cellSize.y && !MapData.HasHole(config, mapTiles, coordinate))
+                if (CanPlaceArrow(config, mapTiles, coordinate))
                 {
                     var arrow = ecb.Instantiate(nativeThreadIndex, config.ArrowPrefab);
                     ecb.SetComponent(nativeThreadIndex, arrow, new Arrow { PlacedTime = time });
@@ -52,16 +67,9 @@ public partial class ArrowPlacerSystem : SystemBase
                     {
                         Value = new float3(coordinate.x, .1f, coordinate.y)
                     });
-                    float rot = direction switch
-                    {
-                        DirectionEnum.North => math.PI,
-                        DirectionEnum.East => math.PI*-0.5f,
-                        DirectionEnum.West => math.PI*0.5f,
-                        _ => 0f
-                    };
                     ecb.SetComponent(nativeThreadIndex, arrow, new Rotation
                     {
-                        Value = quaternion.Euler(math.PI*0.5f, rot, 0)
+                        Value = Rotate(direction)
                     });
                 }
 
@@ -70,7 +78,8 @@ public partial class ArrowPlacerSystem : SystemBase
         mECBSystem.AddJobHandleForProducer(Dependency);
     }
 
-    public static int2 CalculateProjected(float2 coord, float2 cellSize, out DirectionEnum cellDirection)
+
+    private static int2 CalculateProjected(float2 coord, float2 cellSize, out DirectionEnum cellDirection)
     {
         cellDirection = DirectionEnum.North;
 
@@ -83,5 +92,23 @@ public partial class ArrowPlacerSystem : SystemBase
 
         return intCoord;
 
+    }
+
+    private static bool CanPlaceArrow(Config config, DynamicBuffer<TileData> mapTiles, int2 coordinate)
+    {
+        return coordinate.x >= 0 && coordinate.x < config.MapWidth &&
+               coordinate.y >= 0 && coordinate.y < config.MapHeight &&
+               !MapData.HasHole(config, mapTiles, coordinate);
+    }
+    private static quaternion Rotate(DirectionEnum direction)
+    {
+        var rot = direction switch
+        {
+            DirectionEnum.North => math.PI,
+            DirectionEnum.East => math.PI * -0.5f,
+            DirectionEnum.West => math.PI * 0.5f,
+            _ => 0f
+        };
+        return quaternion.Euler(math.PI * 0.5f, rot, 0);
     }
 }
