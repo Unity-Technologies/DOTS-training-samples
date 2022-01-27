@@ -6,7 +6,7 @@ using UnityEngine;
 
 public partial class TornadoVisualizer : SystemBase
 {
-    const float KMaxParticleScale = 0.8f;
+    const float k_MaxParticleScale = 0.8f;
     protected override void OnUpdate()
     {
         var tornado = GetSingletonEntity<Tornado>();
@@ -15,9 +15,9 @@ public partial class TornadoVisualizer : SystemBase
         var tornadoPos = GetComponent<Translation>(tornado);
         var time = (float)Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
+        
         tornadoPos.Value.x = math.cos(time * tornadoMovement.XFrequency) * tornadoDimensions.TornadoRadius;
         tornadoPos.Value.z = math.sin(time * tornadoMovement.ZFrequency) * tornadoDimensions.TornadoRadius;
-        
         SetComponent(tornado, tornadoPos);
         
         Entities.WithAll<TornadoParticle>().
@@ -32,7 +32,8 @@ public partial class TornadoVisualizer : SystemBase
                 var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
                 
                 if (dist > tornadoDimensions.TornadoHeight/2.5f && particlePos.Value.y == 0f) return;
-                else if (particleScale.Value.x < KMaxParticleScale)
+                
+                if (particleScale.Value.x < k_MaxParticleScale)
                 {
                     particleScale.Value += 0.001f;
                 }

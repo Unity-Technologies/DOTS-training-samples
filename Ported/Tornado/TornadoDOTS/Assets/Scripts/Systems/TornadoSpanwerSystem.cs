@@ -1,5 +1,4 @@
 using System;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -15,21 +14,22 @@ using Random = Unity.Mathematics.Random;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class TornadoSpanwerSystem : SystemBase
 {
-    const int KPadding = 4;
-    private EntityCommandBufferSystem ecbSystem;
+    const int k_Padding = 4;
+    EntityCommandBufferSystem m_EcbSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        ecbSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
+        m_EcbSystem = World.GetExistingSystem<EndInitializationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_EcbSystem.CreateCommandBuffer().AsParallelWriter();
         var random = new Random((uint)DateTime.Now.Millisecond+1);
         var floor = GetSingletonEntity<Floor>();
-        var scale = GetComponent<NonUniformScale>(floor).Value*KPadding;
+        var scale = GetComponent<NonUniformScale>(floor).Value*k_Padding;
+        
         Entities
             .ForEach((Entity entity, int entityInQueryIndex, in TornadoSpawner spawner) =>
             {
@@ -56,6 +56,6 @@ public partial class TornadoSpanwerSystem : SystemBase
             })
             .ScheduleParallel();
 
-        ecbSystem.AddJobHandleForProducer(Dependency);
+        m_EcbSystem.AddJobHandleForProducer(Dependency);
     }
 }

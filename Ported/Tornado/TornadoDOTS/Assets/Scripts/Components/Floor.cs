@@ -1,6 +1,4 @@
 using Unity.Entities;
 
 [GenerateAuthoringComponent]
-public struct Floor : IComponentData
-{
-}
+public struct Floor : IComponentData {}

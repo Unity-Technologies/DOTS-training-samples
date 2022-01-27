@@ -17,7 +17,8 @@ public partial class BarConstraintSolverSystem : SystemBase
         var ecb = m_CommandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
         Entities 
-            .ForEach((Entity entity, 
+            .ForEach((
+                Entity entity, 
                 int entityInQueryIndex,
                 ref DynamicBuffer<Connection> connections,
                 ref DynamicBuffer<Joint> joints,

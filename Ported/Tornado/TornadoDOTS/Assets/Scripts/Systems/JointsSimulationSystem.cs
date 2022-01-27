@@ -5,23 +5,20 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class JointsSimulationSystem : SystemBase
 {
-	private float tornadoForceFader;
-    protected override void OnUpdate()
+	float m_TornadoForceFader;
+	
+	protected override void OnUpdate()
     {
         var tornado = GetSingletonEntity<Tornado>();
         var parameters = GetComponent<TornadoSimulationParameters>(tornado);
         var tornadoDimensions = GetComponent<TornadoDimensions>(tornado);
         var tornadoPos = GetComponent<Translation>(tornado).Value;
-
         var dt = Time.fixedDeltaTime;
         var time = (float) Time.ElapsedTime;
+        m_TornadoForceFader = math.clamp(m_TornadoForceFader + dt / 10.0f, 0, 1);
+        var tornadoFader = m_TornadoForceFader;
+        var random = new Random(1234);
 
-        tornadoForceFader = math.clamp(tornadoForceFader + dt / 10.0f, 0, 1);
-
-        var tornadoFader = tornadoForceFader;
-
-        var rnd = new Random(1234);
-        
         Entities
             .ForEach((ref DynamicBuffer<Joint> joints) =>
 	        {
@@ -56,7 +53,7 @@ public partial class JointsSimulationSystem : SystemBase
 					{
 						var forceScalar = (1.0f - tornadoXZDist / tornadoDimensions.TornadoRadius);
 						var yFader = math.clamp(1f - jointPos.y / tornadoDimensions.TornadoHeight, 0, 1);
-						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(rnd);
+						forceScalar *= tornadoFader * parameters.TornadoForce * parameters.ForceMultiplyRange.RandomInRange(random);
 						var force = new float3(
 							-td.z - td.x * parameters.TornadoInwardForce*yFader,
 							-parameters.TornadoUpForce,
@@ -83,8 +80,8 @@ public partial class JointsSimulationSystem : SystemBase
 		        }
 	        }).ScheduleParallel();
     }
-    
-	private static float TornadoSway(float y, float time) {
+
+    static float TornadoSway(float y, float time) {
 		return math.sin(y / 5f + time/4f) * 3f;
 	}
 }

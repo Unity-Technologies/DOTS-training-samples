@@ -10,7 +10,6 @@ public struct ClusterGeneration : IComponentData
 {
     public int NumberOfSubClusters;
     public Entity BarPrefab;
-    // Remove these probably:
     public int MinTowerHeight;
     public int MaxTowerHeight;
 }
@@ -22,21 +21,18 @@ public struct Joint : IBufferElementData
     public bool IsAnchored;
 }
 
+public struct InitializeJointNeighbours : IComponentData {}
+
+public struct JointNeighbours : IBufferElementData
+{
+    public int Value;
+}
+
 //TODO: Break into 2 components? (probably less necessary)
 public struct Connection : IBufferElementData
 {
     public int J1, J2;
     public float OriginalLength;
-}
-
-public struct InitializeJointNeighbours : IComponentData
-{
-    
-}
-
-public struct JointNeighbours : IBufferElementData
-{
-    public int Value;
 }
 
 public struct Bar : IBufferElementData

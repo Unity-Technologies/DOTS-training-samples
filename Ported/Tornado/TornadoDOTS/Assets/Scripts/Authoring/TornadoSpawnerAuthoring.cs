@@ -4,9 +4,7 @@ using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 
-public class TornadoSpawnerAuthoring : UnityMonoBehaviour
-    , IConvertGameObjectToEntity
-    , IDeclareReferencedPrefabs
+public class TornadoSpawnerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
 {
     public UnityGameObject particlePrefab;
     [UnityRange(0, 10000)] public int particleCount;
