@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityMath = Unity.Mathematics;
 
-[UpdateAfter(typeof(SpawnerSystem))]
+[UpdateAfter(typeof(AntMoveSystem))]
 public partial class DropPheromone : SystemBase
 {
     protected override void OnUpdate()
@@ -25,9 +25,9 @@ public partial class DropPheromone : SystemBase
                 if (translation.Value.x > 0.5f || translation.Value.x < -0.5f) return;
                 if (translation.Value.y > 0.5f || translation.Value.y < -0.5f) return;
 
-                var xIdx = (int)UnityMath.math.floor((0.5f + translation.Value.x) * grid.rowLength);
-                var yIdx = (int)UnityMath.math.floor((0.5f + translation.Value.y) * grid.columnLength);
-                var idx = xIdx + yIdx * grid.rowLength;
+                var xIdx = (int)UnityMath.math.floor(UnityMath.math.clamp(0.5f + translation.Value.x, 0, 1) * grid.rowLength);
+                var yIdx = (int)UnityMath.math.floor(UnityMath.math.clamp(0.5f + translation.Value.y, 0, 1) * grid.columnLength);
+                var idx = UnityMath.math.min(xIdx + yIdx * grid.rowLength, pheromone.Length -1);
                 var excitement = (loadout.Value > 0 ? 1f : .3f) * antVelocity.Speed / configuration.AntMaxSpeed;
                 var value = UnityMath.math.clamp(configuration.TrailAddSpeed * deltaTime * excitement * (1f - pheromone[idx].Value), 0f, 1f);
                 pheromone[idx] = new Pheromone() { Value = value };

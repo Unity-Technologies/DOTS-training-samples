@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 0}
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
-  antCount: 1000
+  antCount: 2
   mapSize: 128
   bucketResolution: 128
   antSize: {x: 0.004, y: 0.004, z: 0.008}

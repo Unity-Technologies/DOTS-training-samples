@@ -6,7 +6,7 @@ public struct CollisionResult : IComponentData
     public UnityMath.float2 point;
     public UnityMath.float2 normal;
 
-    public readonly bool IsValid => float.IsNaN(point.x);
+    public readonly bool IsValid => !float.IsNaN(point.x);
 
     public CollisionResult(in float pointX = float.NaN, in float pointY = float.NaN, in float normalX = float.NaN, in float normalY = float.NaN)
     {
