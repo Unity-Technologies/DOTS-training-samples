@@ -29,10 +29,9 @@ public partial class CarSpawnerSystem : SystemBase
             for (var i = 0; i < carPerRoad; i++)
             {
                 var instance = ecb.Instantiate(prefab);
-                ecb.AddComponent(instance, new SplineDefForCar(spline));
+                ecb.AddComponent(instance, spline);
                 ecb.AddComponent(instance, new SplinePosition { position = (float)i / carPerRoad});
                 ecb.AddComponent(instance, new Speed { speed = carSpeed });
-                ecb.AddComponent(instance, new CurrentRoad { currentRoad = entity });
                 
                 ecb.AddComponent(instance, new URPMaterialPropertyBaseColor
                 {

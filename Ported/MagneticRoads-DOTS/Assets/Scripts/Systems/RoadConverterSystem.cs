@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public partial class RoadConverterSystem : SystemBase
 {
@@ -12,22 +14,23 @@ public partial class RoadConverterSystem : SystemBase
 
         var entityBuffer = new Entity[RoadGenerator.trackSplines.Count*4];
         //TODO use a job for each spline
-        foreach (var spline in RoadGenerator.trackSplines)
+        foreach (var splineDef in RoadGenerator.subSplines)
         {
-            foreach (var splineDef in RoadGenerator.splineToMultiSpline[spline.splineId])
-            {
-                entityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, spline, splineDef);
-            }
+            entityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, splineDef);
         }
-
-        for (int i = 0; i < entityBuffer.Length; i++)
+        
+        //Add singleton containing dynamic buffer of spline def and spline links
+        var splineHolder = ecb.CreateEntity();
+        var splineBuffer = ecb.AddBuffer<SplineDefArrayElement>(splineHolder);
+        foreach (var splineDef in RoadGenerator.subSplines)
         {
-            var entity = entityBuffer[i];
-            var buffer = ecb.AddBuffer<RoadNeighbors>(entity);
-            foreach (var link in RoadGenerator.splineLinks[i])
-            {
-                buffer.Add(new RoadNeighbors {Value = entityBuffer[link]});
-            }
+            splineBuffer.Add(new SplineDefArrayElement {Value = splineDef});
+        }
+        
+        var splineLinkBuffer = ecb.AddBuffer<SplineLink>(splineHolder);
+        foreach (var link in RoadGenerator.splineLinks)
+        {
+            splineLinkBuffer.Add(new SplineLink {Value = LinkToInt2(link)});
         }
         
         ecb.Playback(EntityManager);
@@ -37,8 +40,13 @@ public partial class RoadConverterSystem : SystemBase
 
         World.GetOrCreateSystem<CarSpawnerSystem>().Enabled = true;
     }
+
+    private int2 LinkToInt2(List<int> link)
+    {
+        return link.Count == 1 ? new int2(link[0], int.MinValue) : new int2(link[0], link[1]);
+    }
     
-    private Entity CreateRoadEntity(EntityCommandBuffer ecb, TrackSpline originSpline, SplineDef splineDef)
+    private Entity CreateRoadEntity(EntityCommandBuffer ecb, SplineDef splineDef)
     {
         var entity = ecb.CreateEntity();
 
@@ -46,7 +54,7 @@ public partial class RoadConverterSystem : SystemBase
         ecb.AddComponent<CarQueue>(entity);
         ecb.AddComponent(entity, new RoadLength
         {
-            roadLength = originSpline.measuredLength
+            roadLength = splineDef.measuredLength
         });
         return entity;
     }

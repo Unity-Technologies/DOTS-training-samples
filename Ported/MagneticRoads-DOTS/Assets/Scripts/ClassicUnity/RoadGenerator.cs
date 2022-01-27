@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -366,12 +367,12 @@ public class RoadGenerator:MonoBehaviour
 		}
 	}
 
-	public static SplineDef[][] splineToMultiSpline;
+	public static SplineDef[] subSplines;
 	public static List<int>[] splineLinks;
 	
 	private void ConvertToMultiSplinePerRoad()
 	{
-		splineToMultiSpline = new SplineDef[trackSplines.Count][];
+		var splineToMultiSpline = new SplineDef[trackSplines.Count][];
 		splineLinks = new List<int>[trackSplines.Count*4];
 		multiSplineId = 0;
 		
@@ -458,6 +459,8 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
 			}
 		}
+
+		subSplines = splineToMultiSpline.SelectMany(s => s).OrderBy(s => s.splineId).ToArray();
 	}
 
 	private static int multiSplineId;
@@ -476,7 +479,8 @@ public class RoadGenerator:MonoBehaviour
 			startTangent = reversed ? spline.endTangent.ToInt3() : spline.startTangent.ToInt3(),
 			endTangent = reversed ? spline.startTangent.ToInt3() : spline.endTangent.ToInt3(),
 			twistMode = spline.twistMode,
-			offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f)
+			offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f),
+			measuredLength = spline.measuredLength
 		};
 		
 		multiSplineId++;
