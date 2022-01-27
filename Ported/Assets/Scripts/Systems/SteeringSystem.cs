@@ -59,12 +59,21 @@ public struct ComputeSteering : IJobChunk
             float turn = math.clamp(targetFacingAngle - currentFacingAngle, -turnRateThisFrame, turnRateThisFrame);
             float newFacingAngle = currentFacingAngle + turn;
                 
-            float newDirectionX = math.cos(newFacingAngle) * newSpeed;
-            float newDirectionY = math.sin(newFacingAngle) * newSpeed;
+            float newDirectionX = math.cos(newFacingAngle);
+            float newDirectionY = math.sin(newFacingAngle);
 
             velocityComp.Direction = new float2(newDirectionX, newDirectionY);
             velocityComp.Speed = newSpeed;
         }
+
+        velocity.Dispose();
+        translation.Dispose();
+        wanderingSteering.Dispose();
+        pheromoneSteering.Dispose();
+        containmentSteering.Dispose();
+        generalDirection.Dispose();
+        proximitySteering.Dispose();
+        avoidanceSteering.Dispose();
     }
 }
 

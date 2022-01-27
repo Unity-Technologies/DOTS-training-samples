@@ -22,10 +22,9 @@ public partial class AntProximitySteering : SystemBase
     protected override void OnUpdate()
     {
         // First gather all active food
-        NativeArray<Translation> foodTranslation = m_FoodQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+        NativeArray<Translation> foodTranslation = m_FoodQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         
         // We may sort the array of food and optimize the Food looping
-        
         Entities
             .ForEach((Entity entity, ref ProximitySteering proximitySteering, in Loadout loadout, in Translation antTranslation) =>
             {
@@ -54,9 +53,7 @@ public partial class AntProximitySteering : SystemBase
                         break;
                     }
                 }
-            }).WithoutBurst().Run();
-
-        foodTranslation.Dispose();
+            }).WithDisposeOnCompletion(foodTranslation).Schedule();
     }
 
     private bool HasLineOfSight(Translation translationA, Translation translationB)
