@@ -129,6 +129,8 @@ public partial class SpawnerSystem : SystemBase
                 ecb.AddComponent<ProximitySteering>(instance);
                 ecb.AddComponent<PheromoneSteering>(instance);
                 ecb.AddComponent<WanderingSteering>(instance);
+                ecb.AddComponent<CollisionResult>(instance);
+                ecb.AddComponent<AntMovementState>(instance);
             }
         }).WithoutBurst().Run();
 
