@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 5992582591906006185}
   - component: {fileID: 5992582591906006184}
   - component: {fileID: 5992582591906006103}
-  - component: {fileID: 831825955096932081}
+  - component: {fileID: 2298932067141042205}
   m_Layer: 0
-  m_Name: Bloodparticle
+  m_Name: Bloodparticle 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -96,7 +96,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &831825955096932081
+--- !u!114 &2298932067141042205
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -112,5 +112,5 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  timeToLive: 0
-  steps: 0
+  timeToLive: 3
+  steps: 50

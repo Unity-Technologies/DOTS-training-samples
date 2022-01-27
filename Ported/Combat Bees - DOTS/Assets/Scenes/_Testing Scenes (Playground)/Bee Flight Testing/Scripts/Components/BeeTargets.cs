@@ -10,5 +10,11 @@ namespace CombatBees.Testing.BeeFlight
         public float3 HomePosition;
         public float TargetReach;
         public Random random;
+
+        public Entity AttackTarget;
+        public float Aggression;
+        public bool isAttacking;
+        public float AttackReach;
+        public float attackForce;
     }
 }

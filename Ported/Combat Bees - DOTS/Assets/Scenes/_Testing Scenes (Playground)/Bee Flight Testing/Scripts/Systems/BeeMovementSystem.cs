@@ -29,9 +29,9 @@ namespace CombatBees.Testing.BeeFlight
             var allTranslations = GetComponentDataFromEntity<Translation>(true);
             NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);
             NativeList<Entity> beeBEntities = new NativeList<Entity>(Allocator.TempJob);
-            Entities.WithAll<Bee>().ForEach((Entity entity, in BeeMovement beeMovement) =>
+            Entities.WithAll<Bee>().ForEach((Entity entity, in Bee bee) =>
             {
-                if(beeMovement.TeamA)
+                if(bee.TeamA)
                     beeAEntities.Add(entity);
                 else
                     beeBEntities.Add(entity);
@@ -40,9 +40,10 @@ namespace CombatBees.Testing.BeeFlight
             // Debug.Log("Added entities: " + beeEntities.Length);
 
             Entities.WithAll<Bee>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach(
-                (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
+                (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement, ref Bee bee,
                     ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource, ref HeldResource heldResource) =>
                 {
+                 
                     if (isHoldingResource.Value)
                     {
                         // Switch target to home if holding a resource
@@ -53,12 +54,17 @@ namespace CombatBees.Testing.BeeFlight
                         // If a resource target is assigned to the current bee select it as the current target
                         // (if not holding a resource => bee is home => go for a new resource)
                         currentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
+                    } else if (beeTargets.AttackTarget != Entity.Null)
+                    {
+                        // If a enemy target is assigned to the current bee select it as the current target
+                        currentTargetPosition = allTranslations[beeTargets.AttackTarget].Value;
                     }
                     
                     float3 delta = currentTargetPosition - translation.Value;
                     float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
 
-                    if (distanceFromTarget < beeTargets.TargetReach) // Target reached
+                    // If target is resource
+                    if (beeTargets.ResourceTarget != Entity.Null && distanceFromTarget < beeTargets.TargetReach) // Target reached
                     {
                         if (!isHoldingResource.Value)
                         {
@@ -72,25 +78,47 @@ namespace CombatBees.Testing.BeeFlight
                             isHoldingResource.Value = false;
                         }
                     }
+                    
+                    // If target is enemy
+                    if (beeTargets.AttackTarget != Entity.Null && distanceFromTarget < beeTargets.AttackReach) // Target reached
+                    {
+                        if (!beeTargets.isAttacking)
+                        {
+                            // Not holding a resource and reached a target resource
+                            beeTargets.isAttacking = true;
+                            // Add velocity towards the current target
+                            beeMovement.Velocity += delta * (beeMovement.ChaseForce / distanceFromTarget) * beeTargets.attackForce;
+                        }
+                        else
+                        {
+                            // Holding a resource and reached home
+                            beeTargets.AttackTarget = Entity.Null;
+                            beeTargets.isAttacking = false;
+                        }
+                    }
 
-                    // Add velocity towards the current target
-                    beeMovement.Velocity += delta * (beeMovement.ChaseForce / distanceFromTarget);
+                   // Don't apply when attacking, because of increasing speed of bee when targetting bee 
+                    if (!beeTargets.isAttacking)
+                    {
+                        // Add velocity towards the current target
+                        beeMovement.Velocity += delta * (beeMovement.ChaseForce / distanceFromTarget);
+                        
+                        // Add random jitter
+                        float3 randomJitter = beeTargets.random.NextFloat3(-1f, 1f);
+                        beeMovement.Velocity += randomJitter * beeMovement.FlightJitter;
                     
-                    // Add random jitter
-                    float3 randomJitter = beeTargets.random.NextFloat3(-1f, 1f);
-                    beeMovement.Velocity += randomJitter * beeMovement.FlightJitter;
+                        // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
+                        beeMovement.Velocity *= 1f - beeMovement.Damping;
+                    }
                     
-                    // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
-                    beeMovement.Velocity *= 1f - beeMovement.Damping;
                     
                     // Attraction to a random bee
                     Entity randomBee;
                     
-                    if (beeMovement.TeamA)
+                    if (bee.TeamA)
                     {
                         int randomBeeIndex = beeTargets.random.NextInt(beeAEntities.Length);
                         randomBee = beeAEntities.ElementAt(randomBeeIndex);
-                            
                     }
                     else
                     {

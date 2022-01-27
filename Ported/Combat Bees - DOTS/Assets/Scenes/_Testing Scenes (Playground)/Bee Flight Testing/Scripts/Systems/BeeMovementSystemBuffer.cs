@@ -27,7 +27,6 @@ namespace CombatBees.Testing.BeeFlight
                 (Entity entity, ref Translation translation, ref Rotation rotation, ref BeeMovement beeMovement,
                     ref BeeTargets beeTargets, ref IsHoldingResource isHoldingResource, ref HeldResource heldResource) =>
                 {
-                   
                     foreach (var pair in PairBuffer)
                     {
                         if (pair.BeeEntity == entity)

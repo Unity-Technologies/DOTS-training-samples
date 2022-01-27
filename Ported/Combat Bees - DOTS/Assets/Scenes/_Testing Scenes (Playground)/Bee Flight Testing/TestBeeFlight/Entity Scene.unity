@@ -914,7 +914,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &591942610
 Transform:
   m_ObjectHideFlags: 0
@@ -1381,7 +1381,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &816747316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1397,11 +1397,14 @@ MonoBehaviour:
   BeeChaseForce: 2
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: 2
   TeamA: 1
   HomeMarker: {fileID: 1042611712}
+  bloodparticle: {fileID: 0}
 --- !u!65 &816747317
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1710,11 +1713,14 @@ MonoBehaviour:
   BeeChaseForce: 1.6
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: -1
   TeamA: 0
   HomeMarker: {fileID: 15147420}
+  bloodparticle: {fileID: 0}
 --- !u!65 &1092435498
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2713,6 +2719,7 @@ GameObject:
   - component: {fileID: 1699446018}
   - component: {fileID: 1699446017}
   - component: {fileID: 1699446016}
+  - component: {fileID: 1699446021}
   m_Layer: 0
   m_Name: Bee
   m_TagString: Untagged
@@ -2735,11 +2742,14 @@ MonoBehaviour:
   BeeChaseForce: 2
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 5
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: 2
   TeamA: 1
   HomeMarker: {fileID: 1042611712}
+  bloodparticle: {fileID: 5992582591906006101, guid: eb4876de5b4ad4c91ba554c904c1bf4d, type: 3}
 --- !u!65 &1699446017
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2818,6 +2828,24 @@ Transform:
   m_Father: {fileID: 1459902364}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &1699446021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699446015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed21829c93094f8c90fda3b4866682f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bloodEntity: {fileID: 5992582591906006101, guid: eb4876de5b4ad4c91ba554c904c1bf4d, type: 3}
+  random:
+    state: 0
+  amountParticles: 10
+  steps: 50
+  animationStarted: 0
 --- !u!1001 &1703338924
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2907,7 +2935,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1730053994
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3001,11 +3029,14 @@ MonoBehaviour:
   BeeChaseForce: 2
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: 2
   TeamA: 1
   HomeMarker: {fileID: 1042611712}
+  bloodparticle: {fileID: 0}
 --- !u!1001 &1740215129
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3586,11 +3617,14 @@ MonoBehaviour:
   BeeChaseForce: 1.6
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: -1
   TeamA: 0
   HomeMarker: {fileID: 15147420}
+  bloodparticle: {fileID: 0}
 --- !u!65 &1921047547
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3753,7 +3787,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1929019277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3769,11 +3803,14 @@ MonoBehaviour:
   BeeChaseForce: 2
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: 2
   TeamA: 1
   HomeMarker: {fileID: 1042611712}
+  bloodparticle: {fileID: 0}
 --- !u!65 &1929019278
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4057,11 +4094,14 @@ MonoBehaviour:
   BeeChaseForce: 1.6
   BeeDamping: 0.1
   TargetWithinReach: 0.5
+  TargetWithinAttackReach: 0.3
+  attackForce: 5
   RotationStiffness: 10
   FlightJitter: 1
   TeamAttraction: -1
   TeamA: 0
   HomeMarker: {fileID: 15147420}
+  bloodparticle: {fileID: 0}
 --- !u!65 &2042855182
 BoxCollider:
   m_ObjectHideFlags: 0

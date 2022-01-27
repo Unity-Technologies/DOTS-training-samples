@@ -123,55 +123,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &1631863609
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1631863610}
-  - component: {fileID: 1631863611}
-  m_Layer: 0
-  m_Name: Bloodspawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1631863610
+--- !u!4 &1631863610 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+  m_PrefabInstance: {fileID: 3085370788224906170}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1631863609}
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.49999988, y: 1, z: 2}
-  m_Children: []
-  m_Father: {fileID: 1671705372}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1631863611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1631863609}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 190b440cab40b481f883cf0c5b388b45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bloodEntity: {fileID: 5992582591906006101, guid: e708abb54b34b4133a48d4a75e1dcb34, type: 3}
-  random:
-    state: 4
-  amountParticles: 50
-  steps: 0.5
-  dead: 0
 --- !u!1 &1671705367
 GameObject:
   m_ObjectHideFlags: 0
@@ -185,6 +141,7 @@ GameObject:
   - component: {fileID: 1671705370}
   - component: {fileID: 1671705369}
   - component: {fileID: 1671705368}
+  - component: {fileID: 1671705373}
   m_Layer: 0
   m_Name: Bee
   m_TagString: Untagged
@@ -282,6 +239,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!114 &1671705373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1671705367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190b440cab40b481f883cf0c5b388b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bloodEntity: {fileID: 5992582591906006101, guid: e708abb54b34b4133a48d4a75e1dcb34, type: 3}
+  random:
+    state: 0
+  amountParticles: 50
+  steps: 0.5
+  dead: 0
 --- !u!1 &1770208588
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,3 +300,60 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &3085370788224906170
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1671705372}
+    m_Modifications:
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768128, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3085370789856768131, guid: c340999cc0a0b422e827003d38bfd231, type: 3}
+      propertyPath: m_Name
+      value: Bloodspawner
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c340999cc0a0b422e827003d38bfd231, type: 3}

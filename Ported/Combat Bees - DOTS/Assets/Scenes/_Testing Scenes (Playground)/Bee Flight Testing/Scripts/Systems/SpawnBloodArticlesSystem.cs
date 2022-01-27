@@ -1,0 +1,102 @@
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
+
+
+namespace CombatBees.Testing.BeeFlight
+{
+    public partial class SpawnBloodArticlesSystem : SystemBase
+    {
+        // will be moved to field component in future 
+        
+        
+        protected override void OnCreate()
+        {
+            RequireSingletonForUpdate<SingeltonBeeMovement>();
+            RequireSingletonForUpdate<ListSingelton>();
+        }
+
+
+        protected override void OnUpdate()
+        {
+            Debug.Log("System has successfully started: Maria");
+            letBeeDisappearAndInitBloodParticles();
+            moveBloodParticles();
+            timeToLive();
+        }
+
+        private void letBeeDisappearAndInitBloodParticles(){
+            // if (Input.GetKeyDown(KeyCode.Space)){
+                float3 pos = new float3(0);
+                bool killedBee = false;
+                
+                Entities.ForEach((Entity entity, ref Bee bee, ref Translation translation) =>
+                {
+                    killedBee = bee.dead;
+                    pos = translation.Value;
+                    // EntityManager.DestroyEntity(entity);           
+                }).WithStructuralChanges().Run();
+
+                Entities.ForEach((Entity entity, ref BloodSpawner bloodSpawner, in Translation trans) =>
+                {
+                    // To make the bloodparticles only spawn once 
+                    if (!bloodSpawner.animationStarted)
+                    {
+                        Debug.Log("bloodspawner animation has started");
+                        bloodSpawner.animationStarted = true;
+                        for (int i = 0; i < bloodSpawner.amountParticles; i++)
+                        {
+                            Entity e = EntityManager.Instantiate(bloodSpawner.bloodEntity);
+                            EntityManager.SetComponentData(e, new Translation
+                            {
+                                Value = trans.Value + new float3(pos)    
+                            });
+                            float x = bloodSpawner.random.NextFloat(-3, 3);
+                            float y = bloodSpawner.random.NextFloat(0, 3);
+                            float z = bloodSpawner.random.NextFloat(-3, 3);
+                            
+                            EntityManager.SetComponentData(e, new BloodParticle
+                            {
+                                direction = new float3(x, y, z),
+                                steps = bloodSpawner.steps,
+                                timeToLive = bloodSpawner.random.NextFloat(0, 5)
+                            });
+                        }
+                    }
+                }).WithStructuralChanges().Run();
+            // }
+        }
+
+        private void moveBloodParticles()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.steps )
+                {
+                    bloodparticle.steps -= Time.DeltaTime;
+                    translation.Value = translation.Value + new float3(bloodparticle.direction * Time.DeltaTime);
+                }
+                else
+                {
+                    if(translation.Value.y > 0) translation.Value.y += -10 * Time.DeltaTime;
+                }
+            }).WithStructuralChanges().Run();
+        }
+
+        private void timeToLive()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.timeToLive )
+                {
+                    bloodparticle.timeToLive -= Time.DeltaTime;
+                }
+                else
+                {
+                    EntityManager.DestroyEntity(entity);
+                }
+            }).WithStructuralChanges().Run();   
+        }
+    }
+}
