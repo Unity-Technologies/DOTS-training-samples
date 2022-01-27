@@ -33,6 +33,12 @@ public partial class RoadConverterSystem : SystemBase
             splineLinkBuffer.Add(new SplineLink {Value = LinkToInt2(link)});
         }
         
+        var splineIdToRoadBuffer = ecb.AddBuffer<SplineIdToRoad>(splineHolder);
+        foreach (var entity in entityBuffer)
+        {
+            splineIdToRoadBuffer.Add(new SplineIdToRoad {Value = entity});
+        }
+        
         ecb.Playback(EntityManager);
         ecb.Dispose();
         
@@ -50,7 +56,6 @@ public partial class RoadConverterSystem : SystemBase
     {
         var entity = ecb.CreateEntity();
 
-        ecb.AddComponent(entity, splineDef);
         ecb.AddComponent<CarQueue>(entity);
         ecb.AddComponent(entity, new RoadLength
         {
