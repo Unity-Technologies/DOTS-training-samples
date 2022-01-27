@@ -2,10 +2,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
+[UpdateAfter(typeof(TransformSystemGroup))]
 public partial class StationSpawnerSystem : SystemBase
 {
-    protected override void OnUpdate() {
+    protected override void OnUpdate() 
+    {
         //UnityEngine.Debug.Log("update");
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var tracks = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Spline>());
@@ -16,8 +19,14 @@ public partial class StationSpawnerSystem : SystemBase
         Entities
             .ForEach((Entity entity, in Station station, in TrackID trackId) =>
             {
-                //UnityEngine.Debug.Log($"{station.trackDistance}");
+                // Get the buffer component as it contains the children
+                var buffer = GetBuffer<Child>(entity);
+                // Destroy all that hierarchy level
+                for (int i = 0; i < buffer.Length; ++i)
+                    ecb.DestroyEntity(buffer[i].Value);
+                // Destroy station itself
                 ecb.DestroyEntity(entity);
+
                 for (int i = 0; i < trackIDs.Length; i++) {
                     if (trackIDs[i].id == trackId.id) {
                         ref var splineData = ref splines[i].splinePath.Value;
@@ -39,5 +48,7 @@ public partial class StationSpawnerSystem : SystemBase
         trackIDs.Dispose();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        Enabled = false;
     }
 }
