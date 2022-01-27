@@ -24,6 +24,7 @@ public struct PassTo : IComponentData
 public struct PassToTargetAssigned : IComponentData { }
 
 public struct BucketThrower : IComponentData { }
+public struct BucketDropper : IComponentData { }
 
 public struct HoldsEmptyBucket : IComponentData { }
 public struct HoldsFullBucket : IComponentData { }

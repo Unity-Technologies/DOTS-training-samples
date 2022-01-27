@@ -76,6 +76,9 @@ public partial class SetupGameSystem : SystemBase
                         EntityManager.AddComponentData(workerEntity, new PassTo { NextWorker = workers[w + 1] });
                     }
 
+                    if (w == totalWorkers - 2)
+                        EntityManager.AddComponent<BucketDropper>(workerEntity);
+
                     if (w == totalWorkers - 1)
                     {
                         EntityManager.AddComponent<BucketFetcher>(workerEntity);
