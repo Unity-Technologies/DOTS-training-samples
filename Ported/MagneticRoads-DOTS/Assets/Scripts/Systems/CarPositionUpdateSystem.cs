@@ -3,7 +3,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(CarMovementGroup))]
-[UpdateAfter(typeof(CarMovementSystem))]
 public partial class CarPositionUpdateSystem : SystemBase
 {
     protected override void OnUpdate()

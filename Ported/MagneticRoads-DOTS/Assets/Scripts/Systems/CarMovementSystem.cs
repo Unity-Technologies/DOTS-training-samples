@@ -6,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(CarMovementGroup))]
+[UpdateAfter(typeof(CarPositionUpdateSystem))]
 public partial class CarMovementSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -22,22 +23,25 @@ public partial class CarMovementSystem : SystemBase
             .WithNone<RoadCompleted>()
             .ForEach((Entity entity, ref SplinePosition splinePosition, in SplineDef splineDef, in Speed speed, in Translation position) =>
             {
-                var roadQueue = GetBuffer<CarQueue>(splineIdToRoadArray[splineDef.splineId].Value);
-                int ownIndex = 0;
-                for (var i = 0; i < roadQueue.Length; i++)
+                if (!HasComponent<InIntersection>(entity))
                 {
-                    if (roadQueue[i] == entity)
+                    var roadQueue = GetBuffer<CarQueue>(splineIdToRoadArray[splineDef.splineId].Value);
+                    int ownIndex = 0;
+                    for (var i = 0; i < roadQueue.Length; i++)
                     {
-                        ownIndex = i;
-                        break;
+                        if (roadQueue[i] == entity)
+                        {
+                            ownIndex = i;
+                            break;
+                        }
                     }
-                }
                 
-                if (ownIndex > 0)
-                {
-                    var frontCarPosition = GetComponent<Translation>(roadQueue[ownIndex-1].Value);
-                    if (SqrMagnitude(frontCarPosition.Value, position.Value) < 0.15f) //TODO add car length to const comp
-                        return;
+                    if (ownIndex > 0)
+                    {
+                        var frontCarPosition = GetComponent<Translation>(roadQueue[ownIndex-1].Value);
+                        if (SqrMagnitude(frontCarPosition.Value, position.Value) < 0.15f) //TODO add car length to const comp
+                            return;
+                    }
                 }
                 
                 var splineVector = (splineDef.endPoint - splineDef.startPoint).ToVector3();
