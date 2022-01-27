@@ -161,21 +161,22 @@ MonoBehaviour:
   trailAddSpeed: 100
   trailDecay: 0
   rotationResolution: 360
-  obstacleRingCount: 1
-  obstaclesPerRing: 8
+  obstacleRingCount: 3
+  obstaclesPerRing: 29
   obstaclesRadiusStepPerRing: 0.15
-  obstacleRadius: 5
+  obstacleRadius: 2.61
   antMaxSpeed: 0.2
-  antMaxTurn: 0.7853982
+  antMaxTurn: 0.15
   antAcceleration: 0.07
-  antWanderAmount: 0.25
-  antObstacleAvoidanceDistance: 0.25
-  wanderingStrength: 0.14
-  pheromoneStrength: 0.015
-  containmentStrength: 0.12
-  generalDirectionStrength: 0.04
-  proximityStrength: 0.003
-  avoidanceStrength: 0.12
+  antWanderDistance: 1
+  antWanderRadius: 0.8
+  antObstacleAvoidanceDistance: 0
+  wanderingStrength: 0.169
+  pheromoneStrength: 0.105
+  containmentStrength: 0.148
+  generalDirectionStrength: 0.201
+  proximityStrength: 0.404
+  avoidanceStrength: 1
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0
