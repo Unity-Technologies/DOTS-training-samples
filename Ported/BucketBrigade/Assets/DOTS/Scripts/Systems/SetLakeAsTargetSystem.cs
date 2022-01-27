@@ -31,6 +31,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
             .WithDisposeOnCompletion(buckets)
             .WithReadOnly(bucketEntities)
             .WithDisposeOnCompletion(bucketEntities)
+            .WithNone<HoldsBucketBeingFilled>()
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in BucketFetcher bucketFetcher,
                 in HoldingBucket holdingBucket) =>
             {
@@ -52,17 +53,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
                         return;
                     
                     ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
-
-                    if (HasComponent<HoldsBucketBeingFilled>(e))
-                    {
-                        ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
-                            new BucketFillAction
-                            {
-                                Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = buckets[index].Volume,
-                                Position = translation.Value
-                            });
-                        return;
-                    }
                     
                     ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
@@ -70,7 +60,8 @@ public partial class SetLakeAsTargetSystem : SystemBase
                     ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                         new BucketFillAction
                         {
-                            Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f,
+                            Bucket = holdingBucket.HeldBucket, FireFighter = e,
+                            BucketVolume = buckets[index].Volume,
                             Position = translation.Value
                         });
                 }

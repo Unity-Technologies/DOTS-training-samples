@@ -28,6 +28,7 @@ public partial class SetFireAsTargetSystem : SystemBase
             .WithReadOnly(field)
             .WithAll<HoldsFullBucket>()
             .WithNone<TargetDestination>()
+            .WithNone<PassTo, FireFighter>() // 
             .ForEach((Entity e, in Translation translation) => {
                 var fighterCellPosition = (int2)translation.Value.xz;
 

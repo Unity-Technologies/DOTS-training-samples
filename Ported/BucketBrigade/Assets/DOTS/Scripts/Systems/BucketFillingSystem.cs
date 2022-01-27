@@ -49,16 +49,20 @@ public partial class BucketFllingSystem : SystemBase
                     ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
                     ecb.AddComponent<HoldsFullBucket>(entityInQueryIndex, actionEntry.FireFighter);
                     ecb.AddComponent<PassToTargetAssigned>(entityInQueryIndex, actionEntry.FireFighter);
+                    ecb.AddComponent(entityInQueryIndex, actionEntry.FireFighter, (TargetDestination)actionEntry.Position.xz);
                     //ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, actionEntry.FireFighter);
 
                     // Bucket
-                    actionEntry.Position.y = 0;
-                    ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Translation { Value = actionEntry.Position });
+                    //actionEntry.Position.y = 0;
+                    //ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Translation { Value = actionEntry.Position });
                     //ecb.RemoveComponent<BeingHeld>(entityInQueryIndex, actionEntry.Bucket);
                 }
                 
                 if (lake.Volume <= 0)
                 {
+                    ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
+                    ecb.AddComponent<HoldsEmptyBucket>(entityInQueryIndex, actionEntry.FireFighter);
+
                     fillActions.Clear();
                     ecb.DestroyEntity(entityInQueryIndex, e);
                     return;
