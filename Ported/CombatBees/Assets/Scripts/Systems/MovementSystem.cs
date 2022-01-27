@@ -84,11 +84,6 @@ public partial class MovementSystem : SystemBase
                 ApplyVelocityToTranslation(ref translation, velocity, deltaTime);
             }).Schedule();
 
-        // Scale: Blood
-        // TODO: that^
-        // Update: Bees
-        // TODO: update bee "end position" to match its target food in "foodPositionData"
-
         // Move: anything that hasn't already moved
         Entities
             .WithAll<BeeTag>()
