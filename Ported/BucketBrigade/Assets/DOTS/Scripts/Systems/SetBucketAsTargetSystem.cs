@@ -60,7 +60,6 @@ public partial class SetBucketAsTargetSystem : SystemBase
                 if (bestDistance < 0.1f)
                 {
                     var bucket = bucketEntities[closestIndex];
-                    ecb.AddComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent(entityInQueryIndex, e, new HoldingBucket { HeldBucket = bucket });
                     ecb.AddComponent<BeingHeld>(entityInQueryIndex, bucket);
                 }

@@ -25,8 +25,6 @@ public partial class BucketDroppingSystem : SystemBase
             ForEach((Entity e, ref HoldingBucket holdingBucket, in Translation t) => 
             {
                 ecb.RemoveComponent<HoldingBucket>(e);
-                ecb.RemoveComponent<HoldsEmptyBucket>(e);
-                ecb.RemoveComponent<HoldsFullBucket>(e);
                 ecb.RemoveComponent<BeingHeld>(holdingBucket.HeldBucket);
                 var pos = t.Value;
                 pos.y = 0;

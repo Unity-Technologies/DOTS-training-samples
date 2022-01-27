@@ -54,9 +54,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
                     
                     ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
                     
-                    ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
-                    ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, holdingBucket.HeldBucket);
                     ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                         new BucketFillAction
                         {

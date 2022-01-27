@@ -7,15 +7,16 @@ using Unity.Transforms;
 
 public partial class SetFireAsTargetSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
+    //private EntityCommandBufferSystem CommandBufferSystem;
 
     protected override void OnCreate()
     {
-        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        //CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
+        /*
         var field = GetBuffer<FireHeat>(GetSingletonEntity<FireField>());
         var config = GetSingleton<GameConstants>();
         var ecb = CommandBufferSystem.CreateCommandBuffer();
@@ -26,9 +27,8 @@ public partial class SetFireAsTargetSystem : SystemBase
         // TODO: if there are no flames don't do anything
         Entities
             .WithReadOnly(field)
-            .WithAll<HoldsFullBucket>()
             .WithNone<TargetDestination>()
-            .WithNone<PassTo, FireFighter>() // 
+            .WithNone<FireFighter>() // Practically disables the system
             .ForEach((Entity e, in Translation translation) => {
                 var fighterCellPosition = (int2)translation.Value.xz;
 
@@ -65,6 +65,6 @@ public partial class SetFireAsTargetSystem : SystemBase
                                 
             }).Schedule();
 
-        CommandBufferSystem.AddJobHandleForProducer(Dependency);
+        CommandBufferSystem.AddJobHandleForProducer(Dependency);*/
     }
 }

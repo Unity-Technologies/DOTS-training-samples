@@ -85,12 +85,12 @@ public partial class SetupGameSystem : SystemBase
                         EntityManager.AddComponentData(workerEntity, new PassTo { NextWorker = workers[0] });
                     }
                 }
-                
+                /*
                 var bucketEntity = EntityManager.Instantiate(gameConstants.BucketPrefab);
                 EntityManager.SetComponentData(bucketEntity, new Bucket { Volume = 1f }); // TODO: this needs to be done? Could be done in authoring?
 
                 EntityManager.AddComponentData(workers[0], new HoldingBucket { HeldBucket = bucketEntity });
-                EntityManager.AddComponent<HoldsFullBucket>(workers[0]);
+                EntityManager.AddComponent<HoldsFullBucket>(workers[0]);*/
             }
         }
 

@@ -21,10 +21,11 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) =>
+        Entities.
+            WithNone<HoldingBucket>().
+            ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) =>
         {
-            bool hasBucket = HasComponent<HoldsFullBucket>(e);
-            var distanceInFrame = hasBucket ? gameConstants.FireFighterMovementSpeedBucket * deltaTime : gameConstants.FireFighterMovementSpeedNoBucket * deltaTime;
+            var distanceInFrame = gameConstants.FireFighterMovementSpeedNoBucket * deltaTime;
 
             var direction = target.Value - translation.Value.xz;
             var length = math.length(direction);
@@ -44,6 +45,26 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
         // HACK: Lazy buy functional
         Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
+
+            var hasFullBucket = !HasComponent<EmptyBucket>(holdingBucket.HeldBucket);
+
+            var distanceInFrame = hasFullBucket ? gameConstants.FireFighterMovementSpeedBucket * deltaTime : gameConstants.FireFighterMovementSpeedNoBucket * deltaTime;
+
+            var direction = target.Value - translation.Value.xz;
+            var length = math.length(direction);
+
+            // TODO: Remove target component when this happens?
+            if (length == 0)
+            {
+                ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
+                return;
+            }
+
+            distanceInFrame = math.min(distanceInFrame, length);
+            var toMove = distanceInFrame * (direction / length);
+
+            translation.Value += new float3(toMove.x, 0, toMove.y);
+
             if (holdingBucket.HeldBucket != Entity.Null)
                 ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Translation { Value = translation.Value + math.up() });
         }).ScheduleParallel();

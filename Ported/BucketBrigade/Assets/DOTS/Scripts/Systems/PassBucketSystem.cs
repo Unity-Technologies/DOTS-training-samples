@@ -31,29 +31,11 @@ public partial class PassBucketSystem : SystemBase
                 if (HasComponent<HoldingBucket>(passTo.NextWorker))
                     return;
 
-                var throwingFullBucket = HasComponent<BucketThrower>(e) && HasComponent<HoldsFullBucket>(e);
-                var nextWorkerHoldsEmptyBucket = HasComponent<HoldsEmptyBucket>(e) || throwingFullBucket;
-
-                if (HasComponent<HoldsEmptyBucket>(e))
-                {
-                    ecb.RemoveComponent<HoldsEmptyBucket>(e);
-                }
-
-                if (HasComponent<HoldsFullBucket>(e))
-                {
-                    ecb.RemoveComponent<HoldsFullBucket>(e);
-                }
-
-                if (nextWorkerHoldsEmptyBucket)
-                    ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
-                else
-                    ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
+                var throwingFullBucket = HasComponent<BucketThrower>(e) && !HasComponent<EmptyBucket>(holdingBucket.HeldBucket);
 
                 ecb.RemoveComponent<PassToTargetAssigned>(e);
                 ecb.RemoveComponent<HoldingBucket>(e);
                 ecb.AddComponent(passTo.NextWorker, holdingBucket);
-
-                Debug.Log("bucket passed with TargetDestination");
 
                 if (throwingFullBucket)
                 {
@@ -61,44 +43,12 @@ public partial class PassBucketSystem : SystemBase
                     ecb.AddComponent<DousingEvent>(e);
 
                     ecb.SetComponent(holdingBucket.HeldBucket, new Bucket { Volume = 0 });
-
-                    if (!HasComponent<EmptyBucket>(holdingBucket.HeldBucket))
-                        ecb.AddComponent<EmptyBucket>(holdingBucket.HeldBucket);
+                    ecb.AddComponent<EmptyBucket>(holdingBucket.HeldBucket);
                 }
 
                 // TODO: Douse fire if this dude was supposed to throw
 
             }).Schedule();
-
-        /*
-        // COPY/PASTE without target destination
-        Entities.
-            WithNone<TargetDestination>().
-            WithAll<PassToTargetAssigned>().
-            ForEach((Entity e, in HoldingBucket holdingBucket, in Translation translation, in PassTo passTo) => {
-            // Wait for next worker to do something with bucket
-            if (HasComponent<HoldingBucket>(passTo.NextWorker))
-                return;
-
-            if (HasComponent<HoldsEmptyBucket>(e))
-            {
-                ecb.RemoveComponent<HoldsEmptyBucket>(e);
-                ecb.AddComponent<HoldsEmptyBucket>(passTo.NextWorker);
-            }
-
-            if (HasComponent<HoldsFullBucket>(e))
-            {
-                ecb.RemoveComponent<HoldsFullBucket>(e);
-                ecb.AddComponent<HoldsFullBucket>(passTo.NextWorker);
-            }
-
-            ecb.RemoveComponent<PassToTargetAssigned>(e);
-            ecb.RemoveComponent<HoldingBucket>(e);
-            ecb.AddComponent(passTo.NextWorker, holdingBucket);
-
-            // TODO: Douse fire if this dude was supposed to throw
-            Debug.Log("bucket passed WithNone<TargetDestination>");
-        }).Schedule();*/
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
