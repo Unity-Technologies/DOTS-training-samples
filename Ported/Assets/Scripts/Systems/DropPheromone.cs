@@ -29,7 +29,7 @@ public partial class DropPheromone : SystemBase
                 var yIdx = (int)UnityMath.math.floor(UnityMath.math.clamp(0.5f + translation.Value.y, 0, 1) * grid.columnLength);
                 var idx = UnityMath.math.min(xIdx + yIdx * grid.rowLength, pheromone.Length -1);
                 var excitement = (loadout.Value > 0 ? 1f : .3f) * antVelocity.Speed / configuration.AntMaxSpeed;
-                var value = UnityMath.math.clamp(configuration.TrailAddSpeed * deltaTime * excitement * (1f - pheromone[idx].Value), 0f, 1f);
+                var value = pheromone[idx].Value + UnityMath.math.clamp(configuration.TrailAddSpeed * deltaTime * excitement * (1f - pheromone[idx].Value), 0f, 1f);
                 pheromone[idx] = new Pheromone() { Value = value };
             }).Run();
     }

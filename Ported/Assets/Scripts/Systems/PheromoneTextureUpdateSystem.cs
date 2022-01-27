@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Rendering;
 using UnityEngine;
+using Unity.Mathematics;
 
 [UpdateAfter(typeof(DropPheromone))]
 public partial class PheromoneTextureUpdateSystem : SystemBase
@@ -25,7 +26,7 @@ public partial class PheromoneTextureUpdateSystem : SystemBase
                 {
                     var index = j + i * grid.rowLength;
                     //var indexTex = i + j * grid.columnLength;
-                    data[index] = new Color(pheromone[index].Value, 0, 0, 1f);
+                    data[index] = new Color(math.clamp(pheromone[index].Value, 0, 1), 0, 0, 1f);
                 }
             }
         }).Run();

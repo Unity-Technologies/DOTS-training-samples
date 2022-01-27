@@ -158,24 +158,25 @@ MonoBehaviour:
   mapSize: 128
   bucketResolution: 128
   antSize: {x: 0.004, y: 0.004, z: 0.008}
-  trailAddSpeed: 100
+  trailAddSpeed: 0.3
   trailDecay: 0
   rotationResolution: 360
-  obstacleRingCount: 1
-  obstaclesPerRing: 8
+  obstacleRingCount: 3
+  obstaclesPerRing: 29
   obstaclesRadiusStepPerRing: 0.15
-  obstacleRadius: 5
+  obstacleRadius: 2.61
   antMaxSpeed: 0.2
-  antMaxTurn: 0.7853982
+  antMaxTurn: 1.25
   antAcceleration: 0.07
-  antWanderAmount: 0.25
-  antObstacleAvoidanceDistance: 0.25
-  wanderingStrength: 0.14
-  pheromoneStrength: 0.015
-  containmentStrength: 0.12
-  generalDirectionStrength: 0.04
-  proximityStrength: 0.003
-  avoidanceStrength: 0.12
+  antWanderDistance: 1
+  antWanderRadius: 0.8
+  antObstacleAvoidanceDistance: 0.032
+  wanderingStrength: 0.313
+  pheromoneStrength: 0.148
+  containmentStrength: 1
+  generalDirectionStrength: 0.027
+  proximityStrength: 0.036
+  avoidanceStrength: 0.431
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0
