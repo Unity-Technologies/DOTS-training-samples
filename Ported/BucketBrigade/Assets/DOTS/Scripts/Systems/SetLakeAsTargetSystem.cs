@@ -11,22 +11,38 @@ public partial class SetLakeAsTargetSystem : SystemBase
     private EntityCommandBufferSystem CommandBufferSystem;
 
     private EntityQuery LakeQuery;
+    private EntityQuery BucketQuery;
 
     protected override void OnCreate()
     {
-        LakeQuery = GetEntityQuery(ComponentType.ReadOnly<Lake>(), ComponentType.ReadOnly<Translation>());
+        BucketQuery = GetEntityQuery(ComponentType.ReadOnly<Bucket>(), ComponentType.ReadOnly<BeingHeld>());
         CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var buckets = BucketQuery.ToComponentDataArray<Bucket>(Allocator.TempJob);
+        var bucketEntities = BucketQuery.ToEntityArray(Allocator.TempJob);
 
         // TODO: if there are no flames don't do anything
         Entities
+            .WithReadOnly(buckets)
+            .WithDisposeOnCompletion(buckets)
+            .WithReadOnly(bucketEntities)
+            .WithDisposeOnCompletion(bucketEntities)
             .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in BucketFetcher bucketFetcher,
                 in HoldingBucket holdingBucket) =>
             {
+               int index = -1;
+                for (int i = 0; i < bucketEntities.Length; ++i)
+                {
+                    if (bucketEntities[i] == holdingBucket.HeldBucket)
+                    {
+                        index = i;
+                    }
+                }
+                
                 var distance = math.distance(bucketFetcher.LakePosition, translation.Value);
 
                 if (distance < 0.1f )
@@ -41,7 +57,7 @@ public partial class SetLakeAsTargetSystem : SystemBase
                         ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                             new BucketFillAction
                             {
-                                Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f,
+                                Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = buckets[index].Volume,
                                 Position = translation.Value
                             });
                         return;
@@ -50,7 +66,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
                     ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
                     ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, holdingBucket.HeldBucket);
-                    // BUcket volume == hack
                     ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                         new BucketFillAction
                         {
