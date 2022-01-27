@@ -7,6 +7,7 @@ using UnityEngine;
 using Utils;
 using Random = Unity.Mathematics.Random;
 
+[UpdateBefore(typeof(UpdateStateSystem))]
 public partial class MovementSystem : SystemBase
 {
     private EntityCommandBufferSystem sys;
