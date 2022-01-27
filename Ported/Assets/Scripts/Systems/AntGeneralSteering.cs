@@ -8,12 +8,12 @@ using Unity.Transforms;
 public partial class AntGeneralSteering : SystemBase
 {
     private float2 m_NestPosition;
-    private float goalSteerStrength;
 
     protected override void OnStartRunning()
     {
-        // We will ultimately gather Nest Position here
-        // m_NestPosition = 
+        var nestEntity = GetSingletonEntity<ColonyTag>();
+        var nestTranslation = GetComponent<Translation>(nestEntity);
+        m_NestPosition = nestTranslation.Value.xy;
     }
 
     protected override void OnUpdate()

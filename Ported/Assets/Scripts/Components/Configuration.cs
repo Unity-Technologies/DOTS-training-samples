@@ -9,19 +9,23 @@ public struct Configuration : IComponentData
     public int MapSize;
     public int BucketResolution;
     public float3 AntSize;
-    public float AntSpeed;
-    public float AntAccel;
     public float TrailAddSpeed;
     public float TrailDecay;
-    public float RandomSteering;
-    public float PheromoneSteerStrength;
-    public float WallSteerStrength;
-    public float GoalSteerStrength;
-    public float OutwardStrength;
-    public float InwardStrength;
     public int RotationResolution;
     public int ObstacleRingCount;
     public int ObstaclesPerRing;
     public float ObstacleRadiusStepPerRing;
     public float ObstacleRadius;
+    
+    public float AntMaxSpeed;
+    public float AntMaxTurn;
+    public float AntAcceleration;
+    public float AntWanderAmount;
+    
+    public float WanderingStrength;
+    public float PheromoneStrength;
+    public float ContainmentStrength;
+    public float GeneralDirectionStrength;
+    public float ProximityStrength;
+    public float AvoidanceStrength;
 }

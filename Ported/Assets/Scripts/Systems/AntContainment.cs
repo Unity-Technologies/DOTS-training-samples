@@ -11,7 +11,9 @@ public partial class AntContainment : SystemBase
 
     protected override void OnStartRunning()
     {
-        // m_MapSize = 
+        var configurationEntity = GetSingletonEntity<Configuration>();
+        var config = GetComponent<Configuration>(configurationEntity);
+        m_MapSize = config.MapSize;
     }
 
     protected override void OnUpdate()
@@ -46,5 +48,4 @@ public partial class AntContainment : SystemBase
                 }
             }).Schedule();
     }
-
 }

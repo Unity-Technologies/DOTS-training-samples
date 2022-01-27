@@ -14,7 +14,10 @@ public partial class AntObstacleAvoidance : SystemBase
     
     protected override void OnStartRunning()
     {
-        m_ObstacleQuery = GetEntityQuery(ComponentType.ReadOnly<ObstacleTag>());
+        var configurationEntity = GetSingletonEntity<Configuration>();
+        var config = GetComponent<Configuration>(configurationEntity);
+        m_SqrObstacleRadius = config.ObstacleRadius * config.ObstacleRadius;
+        m_ObstacleQuery = GetEntityQuery(ComponentType.ReadOnly<ObstacleTag>(), ComponentType.ReadOnly<Translation>());
     }
 
     protected override void OnUpdate()

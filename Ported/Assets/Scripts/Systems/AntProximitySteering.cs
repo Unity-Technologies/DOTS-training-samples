@@ -10,11 +10,13 @@ public partial class AntProximitySteering : SystemBase
 {
     private EntityQuery m_FoodQuery;
     private float2 m_NestPosition;
-    private float goalSteerStrength;
     
     protected override void OnStartRunning()
     {
-        m_FoodQuery = GetEntityQuery(ComponentType.ReadOnly<ResourceTag>());
+        m_FoodQuery = GetEntityQuery(ComponentType.ReadOnly<ResourceTag>(), ComponentType.ReadOnly<Translation>());
+        var nestEntity = GetSingletonEntity<ColonyTag>();
+        var nestTranslation = GetComponent<Translation>(nestEntity);
+        m_NestPosition = nestTranslation.Value.xy;
     }
 
     protected override void OnUpdate()

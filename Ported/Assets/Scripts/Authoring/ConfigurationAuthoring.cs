@@ -31,6 +31,29 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float obstaclesRadiusStepPerRing;
     [Range(0f,5f)]
     public float obstacleRadius;
+    
+    
+    [Range(0f,1f)]
+    public float antMaxSpeed = 0.2f;
+    [Range(0f,3.14f)]
+    public float antMaxTurn = Mathf.PI / 4.0f;
+    [Range(0f,1f)]
+    public float antAcceleration = 0.07f;
+    [Range(0f,1f)]
+    public float antWanderAmount = 0.25f;
+    
+    [Range(0f,1f)]
+    public float wanderingStrength = 0.14f;
+    [Range(0f,1f)]
+    public float pheromoneStrength = 0.015f;
+    [Range(0f,1f)]
+    public float containmentStrength = 0.12f;
+    [Range(0f,1f)]
+    public float generalDirectionStrength = 0.04f;
+    [Range(0f,1f)]
+    public float proximityStrength = 0.003f;
+    [Range(0f,1f)]
+    public float avoidanceStrength = 0.12f;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -42,21 +65,23 @@ public class ConfigurationAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             MapSize = mapSize,
             BucketResolution = bucketResolution,
             AntSize = antSize,
-            AntSpeed = antSpeed,
-            AntAccel = antAccel,
             TrailAddSpeed = trailAddSpeed,
             TrailDecay = trailDecay,
-            RandomSteering = randomSteering,
-            PheromoneSteerStrength = pheromoneSteerStrength,
-            WallSteerStrength = wallSteerStrength,
-            GoalSteerStrength = goalSteerStrength,
-            OutwardStrength = outwardStrength,
-            InwardStrength = inwardStrength,
             RotationResolution = rotationResolution,
             ObstacleRingCount = obstacleRingCount,
             ObstaclesPerRing = obstaclesPerRing,
             ObstacleRadiusStepPerRing = obstaclesRadiusStepPerRing,
             ObstacleRadius = obstacleRadius,
+            AntMaxSpeed = antMaxSpeed,
+            AntMaxTurn = antMaxTurn,
+            AntAcceleration = antAcceleration,
+            AntWanderAmount = antWanderAmount,
+            WanderingStrength = wanderingStrength,
+            PheromoneStrength = pheromoneStrength,
+            ContainmentStrength = containmentStrength,
+            GeneralDirectionStrength = generalDirectionStrength,
+            ProximityStrength = proximityStrength,
+            AvoidanceStrength = avoidanceStrength,
         }); ;
     }
 }
