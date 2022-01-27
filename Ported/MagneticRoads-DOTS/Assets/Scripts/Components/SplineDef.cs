@@ -17,4 +17,5 @@ public struct SplineDef : IComponentData
     public int twistMode;
 
     public float2 offset;
+    public float measuredLength;
 }

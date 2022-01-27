@@ -11,6 +11,7 @@ public class CarSpawnAuthoring : UnityMonoBehaviour
     public UnityGameObject carPrefab;
     [UnityRange(1, 5)] public int carPerRoad;
     [UnityRange(0.0f, 2.0f)] public float carSpeed;
+    [UnityRange(0.0f, 2.0f)] public float carLength;
     
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -32,7 +33,8 @@ public class CarSpawnAuthoring : UnityMonoBehaviour
         {
             carPrefab = conversionSystem.GetPrimaryEntity(carPrefab),
             carPerRoad = carPerRoad,
-            carSpeed = carSpeed
+            carSpeed = carSpeed,
+            carLength = carLength
         });
     }
 }

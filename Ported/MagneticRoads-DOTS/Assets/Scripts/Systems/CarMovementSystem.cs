@@ -10,9 +10,9 @@ public partial class CarMovementSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Persistent);
 
         Entities
-            .WithAll<SplinePosition, SplineDefForCar, Speed>()
+            .WithAll<SplinePosition, SplineDef, Speed>()
             .WithNone<RoadCompleted>()
-            .ForEach((Entity entity, ref SplinePosition splinePosition, in SplineDefForCar splineDef, in Speed speed) =>
+            .ForEach((Entity entity, ref SplinePosition splinePosition, in SplineDef splineDef, in Speed speed) =>
             {
                 var splineVector = (splineDef.endPoint - splineDef.startPoint).ToVector3();
                 splinePosition.position += speed.speed * time * 1 / splineVector.magnitude;

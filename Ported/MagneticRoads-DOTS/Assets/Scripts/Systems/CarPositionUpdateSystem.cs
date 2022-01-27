@@ -9,10 +9,10 @@ public partial class CarPositionUpdateSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
-            .WithAll<SplinePosition, Translation, SplineDefForCar>()
+            .WithAll<SplinePosition, Translation, SplineDef>()
             .WithNone<RoadCompleted>()
             .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, in SplinePosition splinePosition,
-                in SplineDefForCar splineDef) =>
+                in SplineDef splineDef) =>
             {
                 var previousPos = translation.Value;
                 translation.Value = Extrude(splineDef, splinePosition, out Vector3 up);
@@ -28,7 +28,7 @@ public partial class CarPositionUpdateSystem : SystemBase
     }
 
 
-    private static Vector3 Extrude(SplineDefForCar splineDef, SplinePosition splinePosition, out Vector3 up)
+    private static Vector3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out Vector3 up)
     {
         Vector3 tangent;
         Vector2 point = splineDef.offset;
@@ -96,7 +96,7 @@ public partial class CarPositionUpdateSystem : SystemBase
         return sample1 + right * point.x + up * point.y;
     }
 
-    private static Vector3 Evaluate(float t, SplineDefForCar splineDef) {
+    private static Vector3 Evaluate(float t, SplineDef splineDef) {
         // cubic bezier
 
         t = Mathf.Clamp01(t);
