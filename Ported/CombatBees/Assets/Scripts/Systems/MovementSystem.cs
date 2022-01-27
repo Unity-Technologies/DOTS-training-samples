@@ -35,15 +35,14 @@ public partial class MovementSystem : SystemBase
 
         // Move: Food (move food before bees since bees need to follow food)
         //       - also store all the moved food positions for cross-reference further down
-        // TODO: Don't need this?
-        // foodQuery = GetEntityQuery(typeof(FoodTag));
         var foodCount = foodQuery.CalculateEntityCount();
         var foodPositions = new NativeArray<float3>(foodCount, Allocator.TempJob);
         var foodEntities = new NativeArray<Entity>(foodCount, Allocator.TempJob);
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
             .WithAll<Food>()
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, in Food food) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement,
+                in Food food) =>
             {
                 if (food.isBeeingCarried)
                 {
@@ -66,31 +65,12 @@ public partial class MovementSystem : SystemBase
         //bits
         Entities
             .WithAll<BeeBitsTag>()
-            .ForEach((Entity e, ref Translation translation) =>
+            .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
             {
-                // calculate bits falling movement - straight down for now
-                if (translation.Value.y > 0)
-                {
-                    translation.Value = translation.Value * -9.8f * deltaTime;
-                }
-                else
-                {
-                    //destroy this entity and create/init a blood splat
-                    /*
-                    ecb.DestroyEntity(e);
-                    var instance = ecb.Instantiate(spawner.BloodPrefab);
-
-                    var trans = new Translation
-                    {
-                        Value = translation.Value
-                    };
-
-                    ecb.SetComponent(instance, translation);
-                    */
-
-                }
+                // Bits falling with gravity
+                velocity.Value.y -= 9.8f * deltaTime;
+                translation.Value += velocity.Value * deltaTime;
             }).Schedule();
-        //sys.AddJobHandleForProducer(Dependency);
 
         // Scale: Blood
         // TODO: that^
@@ -116,17 +96,18 @@ public partial class MovementSystem : SystemBase
 
 
                 rotation.Value = newRot;
-
-
             }).Schedule();
 
         var ecb = sys.CreateCommandBuffer();
         // Collision: Food
         Entities
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, in Food food) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement,
+                in Food food) =>
             {
+                // In a goal area
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
+                    // Collided with Ground
                     if (translation.Value.y <= 0.5f)
                     {
                         // Destroy this food entity because it hit the ground in a goal area
@@ -144,7 +125,8 @@ public partial class MovementSystem : SystemBase
                             if (translation.Value.x > 0)
                             {
                                 // Yellow Bees
-                                var beeRandomX = SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.YellowBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -153,7 +135,8 @@ public partial class MovementSystem : SystemBase
                             else
                             {
                                 // Blue Bees
-                                var beeRandomX = SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomX =
+                                    SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.BlueBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
@@ -163,7 +146,6 @@ public partial class MovementSystem : SystemBase
                     }
                 }
                 // Not in a goal: check for inter-food collisions for stacking
-                // Note: this relies on food-count not having been changed during any code above this
                 else
                 {
                     var hasMoved = false;
@@ -187,28 +169,29 @@ public partial class MovementSystem : SystemBase
                                 break;
                             }
                         }
-
-                        // Check if radii overlap first
-                        var planarDiffVector = new float2(
-                            translation.Value.x - foodPositions[i].x,
-                            translation.Value.z - foodPositions[i].z);
-                        if (planarDiffVector.x * planarDiffVector.x + planarDiffVector.y * planarDiffVector.y < 1f)
+                        else
                         {
-                            var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
-
-                            // If the height overlaps above or below, move it up enough to sit on top
-                            if (collisionHeightOverlap > 0f &&
-                                collisionHeightOverlap < 1f)
+                            // Check if radii overlap first
+                            var planarDiffVector = new float2(
+                                translation.Value.x - foodPositions[i].x,
+                                translation.Value.z - foodPositions[i].z);
+                            if (planarDiffVector.x * planarDiffVector.x + planarDiffVector.y * planarDiffVector.y < 1f)
                             {
-                                translation.Value.y += collisionHeightOverlap;
+                                var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
 
-                                // TODO: set the endposition on PP_Movement to the updated, un-clipped position
-                                //          - or some other method of making it not try to move downwards anymore
+                                // If the height overlaps above or below, move it up enough to sit on top
+                                if (collisionHeightOverlap > 0.001f &&
+                                    collisionHeightOverlap < 1.999f)
+                                {
+                                    translation.Value.y += collisionHeightOverlap;
 
-                                hasMoved = true;
+                                    ppMovement.startLocation = translation.Value;
+                                    ppMovement.endLocation = translation.Value;
+
+                                    hasMoved = true;
+                                }
                             }
                         }
-
                     }
                 }
             }).WithDisposeOnCompletion(foodPositions)
@@ -218,7 +201,7 @@ public partial class MovementSystem : SystemBase
         // Collision: Bee Bits
         Entities
             .WithAll<BeeBitsTag>()
-            .ForEach((Entity e, ref Translation translation, ref Velocity velocity) =>
+            .ForEach((Entity e, ref Translation translation) =>
             {
                 // Ground Collision
                 if (translation.Value.y < 0)
