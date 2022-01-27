@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-[AlwaysUpdateSystem, UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
+[AlwaysUpdateSystem, UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class GameSequenceSystem : SystemBase
 {
 
@@ -34,6 +34,10 @@ public partial class GameSequenceSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        // Entities Scene seems to load one frame later when not immediately loaded in the scene hierarchy
+        if (!HasSingleton<Config>())
+            return;
+        
         var goRefs = this.GetSingleton<GameObjectRefs>();
         
         switch (CurrentStep)
@@ -186,6 +190,12 @@ public partial class GameSequenceSystem : SystemBase
 
     private void ResetGame()
     {
+        // only trigger a map entity cleanup if the map was previously spawned
+        if (HasSingleton<MapWasSpawned>())
+        {
+            EntityManager.AddComponent<MapReset>(GetSingletonEntity<MapSpawner>());
+        }
+        
         foreach (var victoryPanel in this.GetSingleton<GameObjectRefs>().VictoryPanels)
         {
             victoryPanel.gameObject.SetActive(false);
