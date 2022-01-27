@@ -36,8 +36,6 @@ public partial class MovementSystem : SystemBase
             DateTime.Now.Month +
             DateTime.Now.Year);
 
-        var random = new Random(randomSeed);
-
         // Move: Food (move food before bees since bees need to follow food)
         //       - also store all the moved food positions for cross-reference further down
         var foodCount = foodQuery.CalculateEntityCount();
@@ -121,9 +119,11 @@ public partial class MovementSystem : SystemBase
 
         // Collision: Food
         Entities
-            .ForEach((Entity e, ref Translation translation, ref Velocity velocity,
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref Velocity velocity,
                 in Food food) =>
             {
+                var random = new Random(randomSeed + (uint)entityInQueryIndex);
+
                 // In a goal area
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
