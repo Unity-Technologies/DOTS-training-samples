@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 7146375612256625515}
   - component: {fileID: 178424633804177050}
   - component: {fileID: 2431837348617207888}
+  - component: {fileID: 7904183804947824463}
   m_Layer: 0
   m_Name: YellowBee
   m_TagString: Untagged
@@ -147,6 +148,8 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  startTime: 0
+  timeToTravel: 0
   t: 0
 --- !u!114 &7146375612256625515
 MonoBehaviour:
@@ -187,6 +190,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 442e130a9e9fc4900bf4298c10080ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {fileID: 0}
+--- !u!114 &7904183804947824463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4367470969325399639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06f9a200ae722484aaa7201a20bc0d34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Value: {fileID: 0}
