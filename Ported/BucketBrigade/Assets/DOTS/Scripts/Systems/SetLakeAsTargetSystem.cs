@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(PickLinePositionsForTeamSystem))]
 public partial class SetLakeAsTargetSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
@@ -19,48 +20,47 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var config = GetSingleton<GameConstants>();
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
-        //var chunks = LakeQuery.CreateArchetypeChunkArray(Allocator.TempJob);
-
-        var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
 
         // TODO: if there are no flames don't do anything
         Entities
-            .WithAll<HoldsEmptyBucket>()
-            .WithNone<TargetDestination>()
-            .WithReadOnly(lakeTranslations)
-            .WithDisposeOnCompletion(lakeTranslations)
-            .WithReadOnly(lakeEntities)
-            .WithDisposeOnCompletion(lakeEntities)
-            .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in BucketFetcher bucketFetcher, in HoldingBucket holdingBucket) =>
+            .ForEach((Entity e, int entityInQueryIndex, in Translation translation, in BucketFetcher bucketFetcher,
+                in HoldingBucket holdingBucket) =>
             {
-                var closestIndex = -1;
-                var closest = new float2(10000000, 100000); // This is bad HACK
-                var bestDistance = 10000f;
+                var distance = math.distance(bucketFetcher.LakePosition, translation.Value);
 
-                for (int i = 0; i < lakeEntities.Length; i++)
-                    if (lakeEntities[i] == bucketFetcher.Lake)
-                    {
-                        closestIndex = i;
-                        closest = lakeTranslations[i].Value.xz;
-                        bestDistance = math.distance(lakeTranslations[i].Value, translation.Value);
-                    }
-
-                // TODO: If distance is close enough to fill bucket, set a "filling bucket" tag instead
-                if (bestDistance < 0.1f)
+                if (distance < 0.1f )
                 {
+                    if (!HasComponent<TargetDestination>(e))
+                        return;
+                    
+                    ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
+
+                    if (HasComponent<HoldsBucketBeingFilled>(e))
+                    {
+                        ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
+                            new BucketFillAction
+                            {
+                                Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f,
+                                Position = translation.Value
+                            });
+                        return;
+                    }
+                    
                     ecb.RemoveComponent<HoldsEmptyBucket>(entityInQueryIndex, e);
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
                     ecb.RemoveComponent<EmptyBucket>(entityInQueryIndex, holdingBucket.HeldBucket);
                     // BUcket volume == hack
-                    ecb.AppendToBuffer(entityInQueryIndex, lakeEntities[closestIndex], new BucketFillAction { Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f, Position = translation.Value });
+                    ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
+                        new BucketFillAction
+                        {
+                            Bucket = holdingBucket.HeldBucket, FireFighter = e, BucketVolume = 0f,
+                            Position = translation.Value
+                        });
                 }
                 else
                 {
-                    ecb.AddComponent(entityInQueryIndex, e, new TargetDestination { Value = closest });
+                    ecb.AddComponent(entityInQueryIndex, e, new TargetDestination { Value = bucketFetcher.LakePosition.xz });
                 }
 
                 /*

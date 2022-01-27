@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(SetLakeAsTargetSystem))]
 public partial class BucketFllingSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
@@ -28,12 +29,17 @@ public partial class BucketFllingSystem : SystemBase
             for(int i = 0; i < fillActions.Length; i++)
             {
                 var actionEntry = fillActions[i];
-
-                var toDrain = math.min(drainSpeed, 1f - actionEntry.BucketVolume);
+                var toDrain = drainSpeed;
 
                 // TODO: Destroy lake if drained.
                 lake.Volume -= toDrain;
                 actionEntry.BucketVolume += toDrain;
+
+                if (lake.Volume <= 0)
+                {
+                    ecb.DestroyEntity(entityInQueryIndex, e);
+                    return;
+                }
 
                 ecb.SetComponent(entityInQueryIndex, actionEntry.Bucket, new Bucket { Volume = actionEntry.BucketVolume });
 
