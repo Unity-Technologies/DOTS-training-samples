@@ -113,7 +113,7 @@ public partial class MovementSystem : SystemBase
             }).Schedule();
 
         var ecb = sys.CreateCommandBuffer();
-        //food, dependant on Bees.
+        // Collision: Food
         Entities
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, in Food food) =>
             {
@@ -128,7 +128,6 @@ public partial class MovementSystem : SystemBase
 
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
-                    Debug.Log("SpawnBees");
                     if (translation.Value.y <= 0.5f)
                     {
                         //destroy this entity and create/init a blood splat
