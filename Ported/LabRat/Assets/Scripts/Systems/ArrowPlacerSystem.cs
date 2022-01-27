@@ -46,7 +46,6 @@ public partial class ArrowPlacerSystem : SystemBase
             }
             else
             {
-                Debug.Log("cannot Place");
                 if (!HasComponent<Disabled>(entity))
                     ecbHoverArrow.AddComponent<Disabled>(entity);
             }
