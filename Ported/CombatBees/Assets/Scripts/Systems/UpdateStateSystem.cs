@@ -123,9 +123,16 @@ public partial class UpdateStateSystem : SystemBase
                     {
                         if (foodEntityData[i] == targetedEntity.Value)
                         {
+                            if (foodCarriedData[i] ||
+                                abs(foodTranslationData[i].Value.x) >= spawner.ArenaExtents.x)
+                            {
+                                // If the food is already being carried, then give up on that food
+                                carriedEntity.Value = Entity.Null;
+                                break;
+                            }
+                        
                             targetFoodStillExists = true;
                             movement.endLocation = foodTranslationData[i].Value;
-                            //movement.GoTo(translation.Value, foodTranslationData[i].Value);
                         }
 
                         float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
@@ -265,7 +272,8 @@ public partial class UpdateStateSystem : SystemBase
                             Translation randomFoodTranslation = foodTranslationData[randomInt];
                             var x = randomFoodTranslation.Value.x;
 
-                            if (!foodCarriedData[randomInt])
+                            if (!foodCarriedData[randomInt] &&
+                                abs(foodTranslationData[randomInt].Value.x) < spawner.ArenaExtents.x)
                             {
                                 if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
                                 {
