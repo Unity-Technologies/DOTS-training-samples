@@ -23,6 +23,8 @@ public partial class ExtinguishFire : SystemBase
             .WithAll<DousingEvent>()
             .ForEach((Entity e, in Translation translation) =>
             {
+                ecb.RemoveComponent<DousingEvent>(e);
+
                 for (int outerY = 0; outerY < gameConstants.FieldSize.y; outerY++)
                 {
                     for (int outerX = 0; outerX < gameConstants.FieldSize.x; outerX++)
@@ -36,6 +38,7 @@ public partial class ExtinguishFire : SystemBase
                         }
                     }
                 }
+                
             }).Schedule();
         //HACK: fix readonly query with DynamicBuffer
         Entities.ForEach((ref DynamicBuffer<FireHeat> _) => { }).Schedule();
