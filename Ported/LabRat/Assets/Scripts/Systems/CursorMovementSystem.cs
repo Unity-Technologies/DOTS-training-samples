@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [UpdateAfter(typeof(PlayerUpdateSystem))]
@@ -6,6 +7,7 @@ public partial class CursorMovementSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        var config = GetSingleton<Config>();
         var cursors = this.GetSingleton<GameObjectRefs>().Cursors;
         var camera = this.GetSingleton<GameObjectRefs>().Camera;
 
@@ -20,7 +22,9 @@ public partial class CursorMovementSystem : SystemBase
                 var color = playerColor.Value;
                 cursor.color = new UnityEngine.Color(color.x, color.y, color.z, color.w);
                 var pos = playerPosition.Value;
-                cursor.transform.position = camera.WorldToScreenPoint(new Vector3(pos.x+0.3f, 0, pos.y+1.15f));
+                float2 offset = new float2(0.3f, 1.15f);
+                offset *= math.max(config.MapWidth, config.MapHeight) / 30.0f;
+                cursor.transform.position = camera.WorldToScreenPoint(new Vector3(pos.x+offset.x, 0, pos.y+offset.y));
             }).Run();
     }
 }
