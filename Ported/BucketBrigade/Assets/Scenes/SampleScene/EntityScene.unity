@@ -1996,8 +1996,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
+      propertyPath: LakeMaxVolume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
       propertyPath: BucketFillRate
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: TeamCountAtStart
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}

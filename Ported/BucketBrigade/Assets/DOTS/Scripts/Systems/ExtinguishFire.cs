@@ -20,7 +20,6 @@ public partial class ExtinguishFire : SystemBase
         var ecb = CommandBufferSystem.CreateCommandBuffer();
 
         Entities
-            .WithAll<ThrownBucket>()
             .WithNone<EmptyBucket>()
             .ForEach((Entity e, ref Bucket bucket, in Translation translation) =>
             {
