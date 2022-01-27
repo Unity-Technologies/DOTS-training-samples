@@ -122,6 +122,13 @@ public partial class SpawnerSystem : SystemBase
                 ecb.SetComponent(instance, new Translation { Value = new float3(-4, 0, 0) / configuration.MapSize });
                 ecb.AddComponent<NonUniformScale>(instance);
                 ecb.SetComponent(instance, new NonUniformScale() { Value = configuration.AntSize });
+                ecb.AddComponent<Velocity>(instance);
+                ecb.AddComponent<GeneralDirection>(instance);
+                ecb.AddComponent<MapContainmentSteering>(instance);
+                ecb.AddComponent<ObstacleAvoidanceSteering>(instance);
+                ecb.AddComponent<ProximitySteering>(instance);
+                ecb.AddComponent<PheromoneSteering>(instance);
+                ecb.AddComponent<WanderingSteering>(instance);
             }
         }).WithoutBurst().Run();
 
