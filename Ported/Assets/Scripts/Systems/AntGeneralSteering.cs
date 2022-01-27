@@ -24,7 +24,8 @@ public partial class AntGeneralSteering : SystemBase
             .ForEach((ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
         {
             // ants flee nest if they have no resources
-            generalDirection.Value = math.normalize(translation.Value.xy - localNestPosition) * (-1.0f + loadout.Value * 2.0f);
+            float2 offsetToNest = translation.Value.xy - localNestPosition;
+            generalDirection.Value = math.normalize(offsetToNest) * (1.0f + loadout.Value * -2.0f);
         }).ScheduleParallel();
     }
 
