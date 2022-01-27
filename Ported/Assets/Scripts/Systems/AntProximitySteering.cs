@@ -40,10 +40,10 @@ public partial class AntProximitySteering : SystemBase
                         float2 foodOffset = foodTranslation[i].Value.xy - antTranslation.Value.xy;
             
                         // check line of sight
-                        if (HasLineOfSight(foodTranslation[i], antTranslation) == false)
-                        {
-                            continue;
-                        }
+                        // if (HasLineOfSight(foodTranslation[i], antTranslation) == false)
+                        // {
+                        //     continue;
+                        // }
 
                         proximitySteering.Value = math.normalize(foodTranslation[i].Value.xy - antTranslation.Value.xy);
                         
