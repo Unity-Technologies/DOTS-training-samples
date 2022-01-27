@@ -25,8 +25,10 @@ public partial class SetLakeAsTargetSystem : SystemBase
         var buckets = BucketQuery.ToComponentDataArray<Bucket>(Allocator.TempJob);
         var bucketEntities = BucketQuery.ToEntityArray(Allocator.TempJob);
 
+
         // TODO: if there are no flames don't do anything
         Entities
+            .WithNone<TargetDestination>()
             .WithReadOnly(buckets)
             .WithDisposeOnCompletion(buckets)
             .WithReadOnly(bucketEntities)
@@ -49,9 +51,6 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
                 if (distance < 0.1f )
                 {
-                    if (!HasComponent<TargetDestination>(e))
-                        return;
-                    
                     ecb.RemoveComponent<TargetDestination>(entityInQueryIndex, e);
                     
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
