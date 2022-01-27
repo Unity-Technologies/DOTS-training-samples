@@ -50,3 +50,4 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+Ported/Assets/SceneDependencyCache

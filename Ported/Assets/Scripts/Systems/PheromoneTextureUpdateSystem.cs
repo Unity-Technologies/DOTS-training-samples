@@ -24,8 +24,8 @@ public partial class PheromoneTextureUpdateSystem : SystemBase
                 for (int j = 0; j < grid.rowLength; ++j)
                 {
                     var index = j + i * grid.rowLength;
-                    var indexTex = i + j * grid.columnLength;
-                    data[indexTex] = new Color(pheromone[index].Value, 0, 0, 1f);
+                    //var indexTex = i + j * grid.columnLength;
+                    data[index] = new Color(pheromone[index].Value, 0, 0, 1f);
                 }
             }
         }).Run();

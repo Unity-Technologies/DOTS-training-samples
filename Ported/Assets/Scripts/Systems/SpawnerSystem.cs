@@ -127,6 +127,7 @@ public partial class SpawnerSystem : SystemBase
                 typeof(WanderingSteering),
                 typeof(CollisionResult),
                 typeof(AntMovementState),
+                typeof(Loadout),
             });
 
             // spawn ants

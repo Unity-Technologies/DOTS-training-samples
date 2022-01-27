@@ -158,8 +158,8 @@ MonoBehaviour:
   mapSize: 128
   bucketResolution: 128
   antSize: {x: 0.004, y: 0.004, z: 0.008}
-  trailAddSpeed: 0.3
-  trailDecay: 0.9985
+  trailAddSpeed: 20
+  trailDecay: 0
   rotationResolution: 360
   obstacleRingCount: 1
   obstaclesPerRing: 8
