@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -56,10 +57,11 @@ public partial class RoadConverterSystem : SystemBase
     {
         var entity = ecb.CreateEntity();
 
-        ecb.AddComponent<CarQueue>(entity);
+        ecb.AddComponent<CarQueueMaxLength>(entity);
+        ecb.AddBuffer<CarQueue>(entity);
         ecb.AddComponent(entity, new RoadLength
         {
-            roadLength = splineDef.measuredLength
+            roadLength = (int)(splineDef.measuredLength / 0.5f) //TODO add car length to const comp
         });
         return entity;
     }
