@@ -21,7 +21,7 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
         var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var jobAHandle = Entities.
+        Entities.
             WithNone<HoldingBucket>().
             ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) =>
         {
@@ -39,11 +39,10 @@ public partial class MoveToTargetLocationSystem : SystemBase
             var toMove = distanceInFrame * (direction / length);
 
             translation.Value += new float3(toMove.x, 0, toMove.y);
-        }).ScheduleParallel(Dependency);
+        }).ScheduleParallel();
 
         // HACK: Lazy buy functional
-        var jobBHandle = Entities.
-            ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
+        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
 
             var hasFullBucket = !HasComponent<EmptyBucket>(holdingBucket.HeldBucket);
 
@@ -64,9 +63,7 @@ public partial class MoveToTargetLocationSystem : SystemBase
 
             if (holdingBucket.HeldBucket != Entity.Null)
                 ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Translation { Value = translation.Value + math.up() });
-        }).ScheduleParallel(Dependency);
-
-        Dependency = JobHandle.CombineDependencies(jobAHandle, jobBHandle);
+        }).ScheduleParallel();
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
 
