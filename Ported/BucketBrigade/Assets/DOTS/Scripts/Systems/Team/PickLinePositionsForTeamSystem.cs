@@ -50,7 +50,8 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
         var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
         var ecb = CommandBufferSystem.CreateCommandBuffer();
 
-        Entities
+        JobHandle lakePositionJob =
+            Entities
             .WithReadOnly(lakeTranslations)
             .WithDisposeOnCompletion(lakeTranslations)
             .WithReadOnly(lakeEntities)
@@ -62,11 +63,12 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 lineLakePosition.Value = lakeTranslations[index].Value;
                 lineLakePosition.Lake = lakeEntities[index];
             })
-            .ScheduleParallel();
+            .ScheduleParallel(Dependency);
 
         var fireTranslations = FireQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        Entities
+        JobHandle firePositionJob =
+            Entities
             .WithReadOnly(fireTranslations)
             .WithDisposeOnCompletion(fireTranslations)
             .ForEach((ref LineFirePosition lineFirePosition, in Translation translation) =>
@@ -75,20 +77,17 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
                 lineFirePosition.Value = fireTranslations[index].Value;
             })
-            .ScheduleParallel();
-
-        Entities
-            .ForEach((ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
-            {
-                translation.Value = math.lerp(lineLakePosition.Value, lineFirePosition.Value, 0.5f);
-            })
-            .ScheduleParallel();
+            .ScheduleParallel(Dependency);
 
         var gameConstants = GetSingleton<GameConstants>();
 
-        Entities
-            .ForEach((Entity e, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
+        Dependency =
+            Entities
+            .ForEach((Entity e, ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
             {
+                // Reposition the team based on picked line positions
+                translation.Value = math.lerp(lineLakePosition.Value, lineFirePosition.Value, 0.5f);
+
                 DynamicBuffer<TeamWorkers> workersBuffer = GetBuffer<TeamWorkers>(e);
 
                 float3 forward = lineFirePosition.Value - lineLakePosition.Value;
@@ -103,7 +102,6 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                     var pos = GetLinePosition(t, lineLakePosition.Value, lineFirePosition.Value, offset);
                     var posNext = GetLinePosition(tNext, lineLakePosition.Value, lineFirePosition.Value, offset);
 
-
                     // DON'T REMOVE THIS LINE
                     TeamWorkers workerEntity = workersBuffer[x];
                     SetComponent(workerEntity, new LineWorker { LinePosition = pos, PassPosition = posNext });
@@ -117,8 +115,8 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 // Backward Line
                 for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                 {
-                    float t = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
-                    float tNext = (float)(x + 2) / (gameConstants.WorkersPerLine + 1);
+                    float t = (float)(x) / (gameConstants.WorkersPerLine + 1);
+                    float tNext = (float)(x + 1) / (gameConstants.WorkersPerLine + 1);
 
                     var pos = GetLinePosition(t, lineFirePosition.Value, lineLakePosition.Value, -offset);
                     var posNext = GetLinePosition(tNext, lineFirePosition.Value, lineLakePosition.Value, -offset);
@@ -141,7 +139,7 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                 SetComponent(bucketFetcherEntity, new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value });
 
             })
-            .Schedule();
+            .Schedule(JobHandle.CombineDependencies(lakePositionJob, firePositionJob));
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
