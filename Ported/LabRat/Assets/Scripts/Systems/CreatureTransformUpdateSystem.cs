@@ -6,6 +6,11 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(TransformSystemGroup), OrderFirst = true)]
 public partial class CreatureTransformUpdateSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<Config>();
+    }
+
     protected override void OnUpdate()
     {
         var config = GetSingleton<Config>();

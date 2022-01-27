@@ -12,6 +12,7 @@ public partial class CameraUpdateSystem : SystemBase
             GetEntityQuery(
                 ComponentType.ReadOnly<MapSpawner>(),
                 ComponentType.Exclude<MapWasSpawned>()));
+        RequireSingletonForUpdate<Config>();
     }
 
     protected override void OnUpdate()

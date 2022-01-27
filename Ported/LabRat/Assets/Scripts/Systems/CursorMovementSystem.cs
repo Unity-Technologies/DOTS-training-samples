@@ -5,6 +5,11 @@ using UnityEngine;
 [UpdateAfter(typeof(PlayerUpdateSystem))]
 public partial class CursorMovementSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<Config>();
+    }
+
     protected override void OnUpdate()
     {
         var config = GetSingleton<Config>();
