@@ -121,7 +121,7 @@ public partial class MovementSystem : SystemBase
 
         // Collision: Food
         Entities
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref Velocity velocity,
+            .ForEach((Entity e, ref Translation translation, ref Velocity velocity,
                 in Food food) =>
             {
                 // In a goal area
@@ -211,7 +211,7 @@ public partial class MovementSystem : SystemBase
         // Collision: Bee Bits
         Entities
             .WithAll<BeeBitsTag>()
-            .ForEach((Entity e, int entityInQueryIndex, Translation translation) =>
+            .ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
             {
                 // Ground Collision
                 if (translation.Value.y < 0.5)
