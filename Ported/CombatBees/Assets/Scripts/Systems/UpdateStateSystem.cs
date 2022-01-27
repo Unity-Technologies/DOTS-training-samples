@@ -87,7 +87,7 @@ public partial class UpdateStateSystem : SystemBase
 
         var spawner = GetSingleton<Spawner>();
 
-        // Get "close enough" Food based on distance calculation
+        // Carrying state
         Entities.WithAll<BeeState>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
@@ -115,7 +115,19 @@ public partial class UpdateStateSystem : SystemBase
                         state.value = StateValues.Idle;
                     }
                 }
-                else if (state.value == StateValues.Seeking)
+
+            }).WithName("ProcessBeeCarryingState")
+            .ScheduleParallel();
+
+        // Seeking state
+        Entities.WithAll<BeeState>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+            {
+                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+                if (state.value == StateValues.Seeking)
                 {
                     bool targetFoodStillExists = false;
 
@@ -179,7 +191,23 @@ public partial class UpdateStateSystem : SystemBase
                         state.value = StateValues.Idle;
                     }
                 }
-                else if (state.value == StateValues.Attacking)
+               
+            }).WithReadOnly(foodTranslationData)
+            .WithReadOnly(foodCarriedData)
+            .WithReadOnly(foodEntityData)
+            .WithName("ProcessBeeSeekingState")
+            .ScheduleParallel();
+
+        // Attacking state
+        Entities.WithAll<BeeState>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+            {
+                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+        
+                if (state.value == StateValues.Attacking)
                 {
                     bool targetBeeStillExists = false;
 
@@ -236,7 +264,24 @@ public partial class UpdateStateSystem : SystemBase
                         state.value = StateValues.Idle;
                     }
                 }
-                else if (state.value == StateValues.Idle)
+   
+            }).WithReadOnly(beeTranslationData)
+            .WithReadOnly(beeEntityData)
+            .WithReadOnly(beeCarriedEntityData)
+            .WithDisposeOnCompletion(beeCarriedEntityData)
+            .WithName("ProcessBeeAttackingState")
+            .ScheduleParallel();
+
+
+        // Idle state
+        Entities.WithAll<BeeState>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+            {
+                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+                if (state.value == StateValues.Idle)
                 {
                     float foodOrEnemy = random.NextFloat();
                     if (foodOrEnemy > spawner.ChanceToAttack)
@@ -314,19 +359,18 @@ public partial class UpdateStateSystem : SystemBase
             }).WithReadOnly(beeTranslationData)
             .WithReadOnly(beeEntityData)
             .WithReadOnly(beeTeamData)
-            .WithReadOnly(beeCarriedEntityData)
             .WithReadOnly(foodTranslationData)
             .WithReadOnly(foodCarriedData)
             .WithReadOnly(foodEntityData)
             .WithDisposeOnCompletion(beeTranslationData)
             .WithDisposeOnCompletion(beeEntityData)
             .WithDisposeOnCompletion(beeTeamData)
-            .WithDisposeOnCompletion(beeCarriedEntityData)
             .WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodCarriedData)
             .WithDisposeOnCompletion(foodEntityData)
-            .WithName("ProcessBeeState")
+            .WithName("ProcessBeeIdleState")
             .ScheduleParallel();
+
 
         commandBufferSystem.AddJobHandleForProducer(Dependency);
     }
