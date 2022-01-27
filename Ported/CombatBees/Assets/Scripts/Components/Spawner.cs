@@ -18,20 +18,20 @@ public struct Spawner : IComponentData
     [Min(0)]
     public int StartingResources;
 
-    [MinMax(0,1.0f)]
+    [Range(0,1.0f)]
     public float ChanceToAttack;
 
-    public int GoalDepth
+    public static int GoalDepth
     {
         get { return 10; }
     }
 
-    public int2 ArenaExtents
+    public static int2 ArenaExtents
     {
         get { return new int2(40, 15); }
     }
 
-    public int ArenaHeight
+    public static int ArenaHeight
     {
         get { return 20; }
     }

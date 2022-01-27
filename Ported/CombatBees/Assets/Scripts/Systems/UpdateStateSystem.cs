@@ -102,8 +102,8 @@ public partial class UpdateStateSystem : SystemBase
                 if (state.value == StateValues.Carrying)
                 {
 
-                    if (!(translation.Value.x < spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
-                        !(translation.Value.x > -spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
+                    if (!(translation.Value.x < Spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
+                        !(translation.Value.x > -Spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
                     {
                         // Add updated movement information to food entity
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
@@ -136,7 +136,7 @@ public partial class UpdateStateSystem : SystemBase
                         if (foodEntityData[i] == targetedEntity.Value)
                         {
                             if (foodCarriedData[i] ||
-                                abs(foodTranslationData[i].Value.x) >= spawner.ArenaExtents.x)
+                                abs(foodTranslationData[i].Value.x) >= Spawner.ArenaExtents.x)
                             {
                                 // If the food is already being carried, then give up on that food
                                 carriedEntity.Value = Entity.Null;
@@ -156,7 +156,7 @@ public partial class UpdateStateSystem : SystemBase
                                 state.value = StateValues.Carrying;
                                 carriedEntity.Value = foodEntityData[i];
 
-                                var endLocation = SpawnerSystem.GetRandomGoalTarget(ref random, spawner, team.Value);
+                                var endLocation = SpawnerSystem.GetRandomGoalTarget(ref random, team.Value);
 
                                 movement.GoTo(translation.Value, endLocation);
 
@@ -298,7 +298,7 @@ public partial class UpdateStateSystem : SystemBase
                             var x = randomFoodTranslation.Value.x;
 
                             if (!foodCarriedData[randomInt] &&
-                                abs(foodTranslationData[randomInt].Value.x) < spawner.ArenaExtents.x)
+                                abs(foodTranslationData[randomInt].Value.x) < Spawner.ArenaExtents.x)
                             {
                                 if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
                                 {
@@ -346,9 +346,9 @@ public partial class UpdateStateSystem : SystemBase
                     if (state.value == StateValues.Idle)
                     {
                         float3 endLocation;
-                        var beeRandomX = random.NextInt(-spawner.ArenaExtents.x, spawner.ArenaExtents.x);
-                        var beeRandomY = random.NextInt(spawner.ArenaHeight / 4, spawner.ArenaHeight / 4 * 3);
-                        var beeRandomZ = random.NextInt(-spawner.ArenaExtents.y, spawner.ArenaExtents.y);
+                        var beeRandomX = random.NextInt(-Spawner.ArenaExtents.x, Spawner.ArenaExtents.x);
+                        var beeRandomY = random.NextInt(Spawner.ArenaHeight / 4, Spawner.ArenaHeight / 4 * 3);
+                        var beeRandomZ = random.NextInt(-Spawner.ArenaExtents.y, Spawner.ArenaExtents.y);
 
                         endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
 

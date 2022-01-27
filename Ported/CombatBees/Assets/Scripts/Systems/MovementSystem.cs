@@ -125,7 +125,7 @@ public partial class MovementSystem : SystemBase
                 var random = new Random(randomSeed + (uint)entityInQueryIndex);
 
                 // In a goal area
-                if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
+                if (math.abs(translation.Value.x) >= Spawner.ArenaExtents.x)
                 {
                     // Collided with Ground
                     if (GroundCollisionTest(translation) && food.isBeeingCarried == false)
@@ -136,8 +136,8 @@ public partial class MovementSystem : SystemBase
                         // Spawn some beeeeeees for the appropriate team!
                         for (var i = 0; i < 3; i++)
                         {
-                            var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
-                            var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
+                            var minBeeBounds = SpawnerSystem.GetBeeMinBounds();
+                            var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(minBeeBounds);
 
                             var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                             var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);

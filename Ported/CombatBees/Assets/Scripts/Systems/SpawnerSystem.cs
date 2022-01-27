@@ -15,14 +15,14 @@ public partial class SpawnerSystem : SystemBase
 {
     private int resetCount = 0;
 
-    public static int3 GetBeeMinBounds(Spawner spawner)
+    public static int3 GetBeeMinBounds()
     {
-        return new int3(spawner.ArenaExtents.x + 1, spawner.ArenaHeight / 4, -spawner.ArenaExtents.y + 1);
+        return new int3(Spawner.ArenaExtents.x + 1, Spawner.ArenaHeight / 4, -Spawner.ArenaExtents.y + 1);
     }
 
-    public static int3 GetBeeMaxBounds(Spawner spawner, int3 minBeeBounds)
+    public static int3 GetBeeMaxBounds(int3 minBeeBounds)
     {
-        return new int3(spawner.ArenaExtents.x + spawner.GoalDepth - 1, minBeeBounds.y * 3 + 1, spawner.ArenaExtents.y);
+        return new int3(Spawner.ArenaExtents.x + Spawner.GoalDepth - 1, minBeeBounds.y * 3 + 1, Spawner.ArenaExtents.y);
     }
 
     public static float GetRandomYellowBeeX(ref Random random, int3 minBeeBounds, int3 maxBeeBounds)
@@ -45,10 +45,10 @@ public partial class SpawnerSystem : SystemBase
         return random.NextInt(minBeeBounds.z, maxBeeBounds.z);
     }
 
-    public static float3 GetRandomGoalTarget(ref Random random, Spawner spawner, TeamValue team)
+    public static float3 GetRandomGoalTarget(ref Random random, TeamValue team)
     {
-        var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
-        var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
+        var minBeeBounds = SpawnerSystem.GetBeeMinBounds();
+        var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(minBeeBounds);
 
         var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
         var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
@@ -88,9 +88,9 @@ public partial class SpawnerSystem : SystemBase
             Entities
                 .ForEach((in Spawner spawner) =>
                 {
-                    var foodRowsAndColumns = spawner.ArenaExtents.y * 2 - 2;
+                    var foodRowsAndColumns = Spawner.ArenaExtents.y * 2 - 2;
                     var planarOffset = foodRowsAndColumns / 2;
-                    var halfArenaHeight = spawner.ArenaHeight / 2;
+                    var halfArenaHeight = Spawner.ArenaHeight / 2;
 
                     var random = new Random(randomSeed);
 
@@ -134,8 +134,8 @@ public partial class SpawnerSystem : SystemBase
 
                     #region Bee_Init
 
-                    var minBeeBounds = GetBeeMinBounds(spawner);
-                    var maxBeeBounds = GetBeeMaxBounds(spawner, minBeeBounds);
+                    var minBeeBounds = GetBeeMinBounds();
+                    var maxBeeBounds = GetBeeMaxBounds(minBeeBounds);
 
                     for (var i = 0; i < spawner.StartingBees * 2; i++)
                     {
@@ -185,8 +185,8 @@ public partial class SpawnerSystem : SystemBase
                 Entities
                     .ForEach((in Spawner spawner) =>
                     {
-                        if (abs(hitPoint.x) < spawner.ArenaExtents.x + spawner.GoalDepth - 1 &&
-                            abs(hitPoint.z) < spawner.ArenaExtents.y - 1)
+                        if (abs(hitPoint.x) < Spawner.ArenaExtents.x + Spawner.GoalDepth - 1 &&
+                            abs(hitPoint.z) < Spawner.ArenaExtents.y - 1)
                         {
                             BufferEntityInstantiation(
                                 spawner.ResourcePrefab,
