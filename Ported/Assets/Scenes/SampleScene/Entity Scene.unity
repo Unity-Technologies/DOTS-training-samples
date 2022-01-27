@@ -166,17 +166,17 @@ MonoBehaviour:
   obstaclesRadiusStepPerRing: 0.15
   obstacleRadius: 2.61
   antMaxSpeed: 0.2
-  antMaxTurn: 0.15
+  antMaxTurn: 1.25
   antAcceleration: 0.07
   antWanderDistance: 1
   antWanderRadius: 0.8
-  antObstacleAvoidanceDistance: 0
-  wanderingStrength: 0.169
-  pheromoneStrength: 0.105
-  containmentStrength: 0.148
-  generalDirectionStrength: 0.201
-  proximityStrength: 0.404
-  avoidanceStrength: 1
+  antObstacleAvoidanceDistance: 0.032
+  wanderingStrength: 0.313
+  pheromoneStrength: 0.148
+  containmentStrength: 1
+  generalDirectionStrength: 0.027
+  proximityStrength: 0.036
+  avoidanceStrength: 0.431
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0
