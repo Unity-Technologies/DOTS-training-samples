@@ -394,7 +394,7 @@ PlayerSettings:
   - m_BuildTarget: iOSSupport
     m_GraphicsJobs: 0
   - m_BuildTarget: WindowsStandaloneSupport
-    m_GraphicsJobs: 1
+    m_GraphicsJobs: 0
   - m_BuildTarget: XboxOnePlayer
     m_GraphicsJobs: 1
   - m_BuildTarget: LuminSupport
@@ -410,9 +410,11 @@ PlayerSettings:
     m_GraphicsJobMode: 0
   - m_BuildTarget: AndroidPlayer
     m_GraphicsJobMode: 0
+  - m_BuildTarget: WindowsStandaloneSupport
+    m_GraphicsJobMode: 0
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: AndroidPlayer
-    m_APIs: 150000000b000000
+    m_APIs: 15000000
     m_Automatic: 1
   - m_BuildTarget: iOSSupport
     m_APIs: 10000000
