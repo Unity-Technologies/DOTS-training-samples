@@ -24,6 +24,7 @@ public partial class MovementSystem : SystemBase
         var deltaTime = UnityEngine.Time.deltaTime;
         var tNow = UnityEngine.Time.timeSinceLevelLoad;
         var spawner = GetSingleton<Spawner>();
+        var ecbCollision = sys.CreateCommandBuffer();
         var ecb = sys.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
 
@@ -130,7 +131,7 @@ public partial class MovementSystem : SystemBase
                     if (GroundCollisionTest(translation) && food.isBeeingCarried == false)
                     {
                         // Destroy this food entity because it hit the ground in a goal area
-                        ecb.DestroyEntity(e);
+                        ecbCollision.DestroyEntity(e);
 
                         // Spawn some beeeeeees for the appropriate team!
                         for (var i = 0; i < 3; i++)
@@ -149,7 +150,7 @@ public partial class MovementSystem : SystemBase
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.YellowBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
-                                    ref ecb);
+                                    ref ecbCollision);
                             }
                             else
                             {
@@ -159,7 +160,7 @@ public partial class MovementSystem : SystemBase
 
                                 SpawnerSystem.BufferEntityInstantiation(spawner.BlueBeePrefab,
                                     new float3(beeRandomX, beeRandomY, beeRandomZ),
-                                    ref ecb);
+                                    ref ecbCollision);
                             }
                         }
                     }
@@ -217,7 +218,6 @@ public partial class MovementSystem : SystemBase
                 {
                     //destroy enemy bee
                     parallelWriter.DestroyEntity(entityInQueryIndex, e);
-                    Debug.Log("Killed A Bee!");
 
                     //spawn a blood prefab
                     var bloodEntity = parallelWriter.Instantiate(entityInQueryIndex, spawner.BloodPrefab);
