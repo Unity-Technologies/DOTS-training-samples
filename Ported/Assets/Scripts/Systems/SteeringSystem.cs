@@ -115,6 +115,12 @@ public partial class SteeringSystem : SystemBase
             ComponentType.ReadOnly<GeneralDirection>(),
             ComponentType.ReadOnly<ProximitySteering>(),
             ComponentType.ReadOnly<ObstacleAvoidanceSteering>());
+
+        var random = new Random(1234);
+        Entities.ForEach((ref Velocity antVelocity) =>
+            {
+                antVelocity.Direction = random.NextFloat2Direction();
+            });
     }
 
     protected override void OnUpdate()

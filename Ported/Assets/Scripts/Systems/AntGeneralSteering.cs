@@ -20,7 +20,7 @@ public partial class AntGeneralSteering : SystemBase
     {
         float2 localNestPosition = m_NestPosition;
         Entities
-            .ForEach((Entity entity, ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
+            .ForEach((ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
         {
             // ants flee nest if they have no resources
             generalDirection.Value = math.normalize(translation.Value.xy - localNestPosition) * (-1.0f + loadout.Value * 2.0f);

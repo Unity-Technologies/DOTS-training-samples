@@ -22,7 +22,7 @@ public partial class AntWandering : SystemBase
         float wanderAmount = m_WanderAmount;
         var random = new Random(1234);
         Entities
-            .ForEach((Entity entity, ref WanderingSteering wanderingSteering, in Velocity velocity) =>
+            .ForEach((ref WanderingSteering wanderingSteering, in Velocity velocity) =>
             {
                 wanderingSteering.Value = new float2(-velocity.Direction.y, velocity.Direction.x) * random.NextFloat(-wanderAmount, wanderAmount);
             }).Schedule();

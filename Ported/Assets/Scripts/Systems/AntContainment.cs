@@ -20,7 +20,7 @@ public partial class AntContainment : SystemBase
     {
         float mapSize = m_MapSize;
         Entities
-            .ForEach((Entity entity, ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
+            .ForEach((ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
             {
                 if (translation.Value.x > mapSize)
                 {

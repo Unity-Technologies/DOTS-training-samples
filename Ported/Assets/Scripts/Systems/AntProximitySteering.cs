@@ -26,7 +26,7 @@ public partial class AntProximitySteering : SystemBase
         
         // We may sort the array of food and optimize the Food looping
         Entities
-            .ForEach((Entity entity, ref ProximitySteering proximitySteering, in Loadout loadout, in Translation antTranslation) =>
+            .ForEach((ref ProximitySteering proximitySteering, in Loadout loadout, in Translation antTranslation) =>
             {
                 if (loadout.Value > 0)
                 {

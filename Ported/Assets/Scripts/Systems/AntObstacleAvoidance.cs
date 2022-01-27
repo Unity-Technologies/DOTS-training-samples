@@ -33,7 +33,7 @@ public partial class AntObstacleAvoidance : SystemBase
         
         // We may sort the array of obstacles
         Entities
-            .ForEach((Entity entity, ref ObstacleAvoidanceSteering avoidanceSteering, in Translation antTranslation, in Velocity antVelocity) =>
+            .ForEach((ref ObstacleAvoidanceSteering avoidanceSteering, in Translation antTranslation, in Velocity antVelocity) =>
             {
                 for (int i = 0; i < obstacleTranslation.Length; ++i)
                 {
