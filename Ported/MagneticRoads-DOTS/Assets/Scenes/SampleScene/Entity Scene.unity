@@ -153,8 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   carPrefab: {fileID: 725981238739039243, guid: 57c73f2f5f4d7ff439dfb4d2202b572f, type: 3}
-  carPerRoad: 4
-  carSpeed: 0.46
+  carPerRoad: 2
+  carSpeed: 0.3
 --- !u!4 &904392742
 Transform:
   m_ObjectHideFlags: 0

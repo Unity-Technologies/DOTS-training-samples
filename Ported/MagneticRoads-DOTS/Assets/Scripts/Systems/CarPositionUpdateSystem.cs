@@ -2,31 +2,38 @@ using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(CarMovementGroup))]
+[UpdateAfter(typeof(CarMovementSystem))]
 public partial class CarPositionUpdateSystem : SystemBase
 {
     protected override void OnUpdate()
     {
         Entities
-            .WithAll<SplinePosition, Translation, SplineDef>()
+            .WithAll<SplinePosition, Translation, SplineDefForCar>()
+            .WithNone<RoadCompleted>()
             .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, in SplinePosition splinePosition,
-                in SplineDef splineDef) =>
+                in SplineDefForCar splineDef) =>
             {
                 var previousPos = translation.Value;
                 translation.Value = Extrude(splineDef, splinePosition, out Vector3 up);
                 
                 Vector3 moveDir = translation.Value - previousPos;
+                if (moveDir == Vector3.zero)
+                {
+                    moveDir = splineDef.endPoint - splineDef.startPoint;
+                }
+                
                 rotation.Value = Quaternion.LookRotation(moveDir, up);
             }).ScheduleParallel();
     }
 
 
-    private static Vector3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out Vector3 up)
+    private static Vector3 Extrude(SplineDefForCar splineDef, SplinePosition splinePosition, out Vector3 up)
     {
         Vector3 tangent;
         Vector2 point = splineDef.offset;
         var t = splinePosition.position;
 
-        var t1 = Mathf.Clamp01(t);
         Vector3 sample1 = Evaluate(t, splineDef);
         Vector3 sample2;
 
@@ -89,7 +96,7 @@ public partial class CarPositionUpdateSystem : SystemBase
         return sample1 + right * point.x + up * point.y;
     }
 
-    private static Vector3 Evaluate(float t, SplineDef splineDef) {
+    private static Vector3 Evaluate(float t, SplineDefForCar splineDef) {
         // cubic bezier
 
         t = Mathf.Clamp01(t);

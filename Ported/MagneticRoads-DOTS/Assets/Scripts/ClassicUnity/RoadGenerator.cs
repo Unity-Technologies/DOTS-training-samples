@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -147,6 +148,7 @@ public class RoadGenerator:MonoBehaviour
 
 	IEnumerator SpawnRoads() {
 		// first generation pass: plan roads as basic voxel data only
+		TrackSpline.splineIdCount = 0;
 		trackVoxels = new bool[voxelCount,voxelCount,voxelCount];
 		List<Vector3Int> activeVoxels = new List<Vector3Int>();
 		trackVoxels[voxelCount / 2,voxelCount / 2,voxelCount / 2] = true;
@@ -349,6 +351,7 @@ public class RoadGenerator:MonoBehaviour
 		// 	}
 		// }
 
+		ConvertToMultiSplinePerRoad();
 		bullshit = true;
 	}
 
@@ -361,5 +364,122 @@ public class RoadGenerator:MonoBehaviour
 		for (int i=0;i<intersectionMatrices.Count;i++) {
 			Graphics.DrawMeshInstanced(intersectionMesh,0,roadMaterial,intersectionMatrices[i]);
 		}
+	}
+
+	public static SplineDef[][] splineToMultiSpline;
+	public static List<int>[] splineLinks;
+	
+	private void ConvertToMultiSplinePerRoad()
+	{
+		splineToMultiSpline = new SplineDef[trackSplines.Count][];
+		splineLinks = new List<int>[trackSplines.Count*4];
+		multiSplineId = 0;
+		
+		foreach (var spline in trackSplines)
+		{
+			splineToMultiSpline[spline.splineId] = new SplineDef[4];
+			var splineDict = splineToMultiSpline[spline.splineId];
+			splineDict[0] = ToSplineDef(spline, false, true);
+			splineDict[1] = ToSplineDef(spline, true, true);
+			splineDict[2] = ToSplineDef(spline, false, false);
+			splineDict[3] = ToSplineDef(spline, true, false);
+		}
+		
+		foreach (var spline in splineToMultiSpline)
+		{
+			foreach (var splineDef in spline)
+			{
+				splineLinks[splineDef.splineId] = new List<int>();
+			}
+		}
+		
+		var ssDirection = new Dictionary<int, int[]>();
+		foreach (var intersection in intersections)
+		{
+			ssDirection.Clear();
+			foreach (var spline in intersection.neighborSplines)
+			{
+				if ((intersection.position - spline.startPoint).sqrMagnitude >
+				    (intersection.position - spline.endPoint).sqrMagnitude)
+				{
+					ssDirection.Add(spline.splineId, new []{0,1,2,3});
+				}
+				else
+				{
+					ssDirection.Add(spline.splineId, new []{1,0,3,2});
+				}
+			}
+			
+			if (intersection.neighborSplines.Count == 1)//one way, U-Turn
+			{
+				var mainSplineId0 = intersection.neighborSplines[0].splineId;
+				var subSplines0 = splineToMultiSpline[mainSplineId0];
+				var ssDirection0 = ssDirection[mainSplineId0];
+				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
+				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
+			}
+			else if (intersection.neighborSplines.Count == 2)//two way, no U-Turn
+			{
+				var mainSplineId0 = intersection.neighborSplines[0].splineId;
+				var subSplines0 = splineToMultiSpline[mainSplineId0];
+				var ssDirection0 = ssDirection[mainSplineId0];
+				var mainSplineId1 = intersection.neighborSplines[1].splineId;
+				var subSplines1 = splineToMultiSpline[mainSplineId1];
+				var ssDirection1 = ssDirection[mainSplineId1];
+				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines1[ssDirection1[1]].splineId);
+				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
+				splineLinks[subSplines1[ssDirection1[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
+				splineLinks[subSplines1[ssDirection1[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
+			}
+			else if (intersection.neighborSplines.Count == 3)//three way, no U-Turn
+			{
+				var mainSplineId0 = intersection.neighborSplines[0].splineId;
+				var subSplines0 = splineToMultiSpline[mainSplineId0];
+				var ssDirection0 = ssDirection[mainSplineId0];
+				var mainSplineId1 = intersection.neighborSplines[1].splineId;
+				var subSplines1 = splineToMultiSpline[mainSplineId1];
+				var ssDirection1 = ssDirection[mainSplineId1];
+				var mainSplineId2 = intersection.neighborSplines[2].splineId;
+				var subSplines2 = splineToMultiSpline[mainSplineId2];
+				var ssDirection2 = ssDirection[mainSplineId2];
+				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines1[ssDirection1[1]].splineId);
+				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines2[ssDirection2[1]].splineId);
+				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
+				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines2[ssDirection2[3]].splineId);
+				
+				splineLinks[subSplines1[ssDirection1[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
+				splineLinks[subSplines1[ssDirection1[0]].splineId].Add(subSplines2[ssDirection2[1]].splineId);
+				splineLinks[subSplines1[ssDirection1[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
+				splineLinks[subSplines1[ssDirection1[2]].splineId].Add(subSplines2[ssDirection2[3]].splineId);
+				
+				splineLinks[subSplines2[ssDirection2[0]].splineId].Add(subSplines1[ssDirection1[1]].splineId);
+				splineLinks[subSplines2[ssDirection2[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
+				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
+				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
+			}
+		}
+	}
+
+	private static int multiSplineId;
+	
+	private SplineDef ToSplineDef(TrackSpline spline, bool reversed, bool isTop)
+	{
+		var def = new SplineDef
+		{
+			splineId = multiSplineId,
+			startPoint = reversed ? spline.endPoint : spline.startPoint,
+			anchor1 = reversed ? spline.anchor2 : spline.anchor1,
+			anchor2 = reversed ? spline.anchor1 : spline.anchor2,
+			endPoint = reversed ? spline.startPoint : spline.endPoint,
+			startNormal = reversed ? spline.endNormal.ToInt3() : spline.startNormal.ToInt3(),
+			endNormal = reversed ? spline.startNormal.ToInt3() : spline.endNormal.ToInt3(),
+			startTangent = reversed ? spline.endTangent.ToInt3() : spline.startTangent.ToInt3(),
+			endTangent = reversed ? spline.startTangent.ToInt3() : spline.endTangent.ToInt3(),
+			twistMode = spline.twistMode,
+			offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f)
+		};
+		
+		multiSplineId++;
+		return def;
 	}
 }
