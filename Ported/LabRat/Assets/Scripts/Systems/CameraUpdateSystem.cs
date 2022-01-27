@@ -2,13 +2,23 @@
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateAfter(typeof(MapSpawningSystem))]
 public partial class CameraUpdateSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        // this system should only perform work if MapSpawner is present without MapWasSpawned
+        RequireForUpdate(
+            GetEntityQuery(
+                ComponentType.ReadOnly<MapSpawner>(),
+                ComponentType.Exclude<MapWasSpawned>()));
+    }
+
     protected override void OnUpdate()
     {
         Config conf = GetSingleton<Config>();
 
-        Camera cam = Camera.main;
+        Camera cam = this.GetSingleton<GameObjectRefs>().Camera;
 
         int size = math.max(conf.MapWidth, conf.MapHeight);
         cam.orthographicSize = 0.75f * size;

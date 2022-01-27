@@ -186,6 +186,12 @@ public partial class GameSequenceSystem : SystemBase
 
     private void ResetGame()
     {
+        // only trigger a map entity cleanup if the map was previously spawned
+        if (HasSingleton<MapWasSpawned>())
+        {
+            EntityManager.AddComponent<MapReset>(GetSingletonEntity<MapSpawner>());
+        }
+        
         foreach (var victoryPanel in this.GetSingleton<GameObjectRefs>().VictoryPanels)
         {
             victoryPanel.gameObject.SetActive(false);
