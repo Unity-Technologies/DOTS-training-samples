@@ -24,5 +24,9 @@ public partial class CameraUpdateSystem : SystemBase
         cam.orthographicSize = 0.75f * size;
         float factor = size / 20.0f;
         cam.transform.position = new Vector3(18 * factor, 25 * factor, 18 * factor);
+
+        // Set clip planes to increase shadow quality
+        cam.nearClipPlane = size;
+        cam.farClipPlane = size * 2;
     }
 }
