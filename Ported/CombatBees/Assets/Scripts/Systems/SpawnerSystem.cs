@@ -103,6 +103,8 @@ public partial class SpawnerSystem : SystemBase
                                             spawnPosition,
                                             fallTargetPosition,
                                             ref ecb);
+
+                                        spawnedResources++;
                                     }
                                 }
                             }
