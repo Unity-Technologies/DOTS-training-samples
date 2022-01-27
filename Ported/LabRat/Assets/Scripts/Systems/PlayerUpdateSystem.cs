@@ -47,7 +47,7 @@ public partial class PlayerUpdateSystem : SystemBase
                 {
                     if (playerEntity == entity)
                     {
-                        playerScore.Value *= (int)(playerScore.Value * 0.6666f);
+                        playerScore.Value = (int)(playerScore.Value * 0.6666f);
                     }
                 }
             }).Run();
