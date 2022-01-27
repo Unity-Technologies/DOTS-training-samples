@@ -88,7 +88,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x, 0, y-0.5f)
+                                Value = new float3(x, -0.25f, y-0.5f)
                             });
                             ecb.SetComponent(wall, new Rotation
                             {
@@ -101,7 +101,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x, 0, y+0.5f)
+                                Value = new float3(x, -0.25f, y+0.5f)
                             });
                             ecb.SetComponent(wall, new Rotation
                             {
@@ -114,7 +114,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x + 0.5f, 0, y)
+                                Value = new float3(x + 0.5f, -0.25f, y)
                             });
                         }
 
@@ -123,7 +123,7 @@ public partial class MapSpawningSystem : SystemBase
                             var wall = ecb.Instantiate(spawner.WallPrefab);
                             ecb.SetComponent(wall, new Translation
                             {
-                                Value = new float3(x - 0.5f, 0, y)
+                                Value = new float3(x - 0.5f, -0.25f, y)
                             });
                         }
                     }
