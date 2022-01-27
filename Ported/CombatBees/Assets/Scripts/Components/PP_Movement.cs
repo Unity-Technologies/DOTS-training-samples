@@ -1,6 +1,6 @@
-using System.Dynamic;
 using Unity.Entities;
 using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 
 
@@ -26,7 +26,7 @@ public struct PP_Movement : IComponentData
         startLocation = start;
         endLocation = end;
         t = 0.0f;
-        timeToTravel = math.distance(start, end) / 10.0f;
+        timeToTravel = distance(start, end) * 0.1f;
 
     }
 
@@ -34,24 +34,25 @@ public struct PP_Movement : IComponentData
     {
         if (t <= 1)
         {
-            t += time / (timeToTravel + math.EPSILON);
+            t += time / (timeToTravel + EPSILON);
         }
 
-        return math.lerp(startLocation, endLocation, t);
+        return lerp(startLocation, endLocation, t);
     }
 
     public float3 Progress(float time, MotionType motionType)
     {
         if (t <= 1)
         {
-            t += time / (timeToTravel + math.EPSILON);
+            t += time / (timeToTravel + EPSILON);
         }
 
-        float3 trans = math.lerp(startLocation, endLocation, t);
+        float3 trans = lerp(startLocation, endLocation, t);
 
         if (motionType == MotionType.BeeBumble)
         {
-            trans.y += math.sin(t * math.PI * 10);
+            int bounceCount = (int)round((timeToTravel * 10f / 6f));
+            trans.y += abs(sin(t * PI * bounceCount));
         }
 
         return trans;
@@ -59,11 +60,12 @@ public struct PP_Movement : IComponentData
 
     public float3 GetTransAtProgress(float futureT, MotionType motionType)
     {
-        float3 trans = math.lerp(startLocation, endLocation, futureT);
+        float3 trans = lerp(startLocation, endLocation, futureT);
 
         if (motionType == MotionType.BeeBumble)
         {
-            trans.y += math.sin(futureT * math.PI * 10);
+            int bounceCount = (int)round((timeToTravel * 10f / 6f));
+            trans.y += abs(sin(futureT * PI * bounceCount));
         }
 
         return trans;
@@ -76,7 +78,7 @@ public struct PP_Movement : IComponentData
             startLocation = start,
             endLocation = end,
             t = 0.0f,
-            timeToTravel = math.distance(start, end) / 10,
+            timeToTravel = distance(start, end) / 10,
         };
 
         return m;

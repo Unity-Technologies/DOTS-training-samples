@@ -41,7 +41,8 @@ public partial class MovementSystem : SystemBase
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
             .WithAll<Food>()
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, ref Velocity velocity,
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement,
+                ref Velocity velocity,
                 in Food food) =>
             {
                 if (food.isBeeingCarried)
@@ -54,7 +55,7 @@ public partial class MovementSystem : SystemBase
                     // Falling with gravity
                     velocity.Value.y -= 9.8f * deltaTime;
                     translation.Value += velocity.Value * deltaTime;
-                    
+
                     // Ground Collision (do this here so that no below-ground food positions are cached)
                     if (translation.Value.y < 0.5f)
                     {
@@ -97,7 +98,9 @@ public partial class MovementSystem : SystemBase
 
                 float futureT = Mathf.Clamp(ppMovement.t + 0.01f, 0, 1f);
 
-                float3 fwd = ppMovement.GetTransAtProgress(futureT, MotionType.BeeBumble) - translation.Value;
+                float3 fwd =
+                    ppMovement.GetTransAtProgress(ppMovement.t + 0.01f / ppMovement.timeToTravel,
+                        MotionType.BeeBumble) - translation.Value;
 
                 var newRot = quaternion.identity;
 
@@ -111,7 +114,7 @@ public partial class MovementSystem : SystemBase
         var ecb = sys.CreateCommandBuffer();
         // Collision: Food
         Entities
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement,
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref Velocity velocity,
                 in Food food) =>
             {
                 // In a goal area
@@ -165,40 +168,26 @@ public partial class MovementSystem : SystemBase
                         if (e.Index == foodEntities[i].Index &&
                             e.Version == foodEntities[i].Version)
                         {
-                            if (hasMoved)
-                            {
-                                // If this object has already moved, then update its recorded position
-                                // as well, for other objects to test against.
-                                foodPositions[i] = translation.Value;
-                            }
-                            else
-                            {
-                                // If this object hasn't moved before having been determined to collide
-                                // with anything else, then it either doesn't collide or is the first of
-                                // any potential colliding objects, so it gets priority over this position.
-                                break;
-                            }
+                            continue;
                         }
-                        else
+
+                        // Check if radii overlap first
+                        var planarDiffVector = new float2(
+                            translation.Value.x - foodPositions[i].x,
+                            translation.Value.z - foodPositions[i].z);
+                        if (planarDiffVector.x * planarDiffVector.x + planarDiffVector.y * planarDiffVector.y < 1f)
                         {
-                            // Check if radii overlap first
-                            var planarDiffVector = new float2(
-                                translation.Value.x - foodPositions[i].x,
-                                translation.Value.z - foodPositions[i].z);
-                            if (planarDiffVector.x * planarDiffVector.x + planarDiffVector.y * planarDiffVector.y < 1f)
+                            var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
+
+                            // If the height overlaps above the other food, move this one up enough to sit on top
+                            if (collisionHeightOverlap > 0f &&
+                                collisionHeightOverlap <= 1f)
                             {
-                                var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
+                                translation.Value.y += collisionHeightOverlap + math.EPSILON;
+                                
+                                velocity.Value = float3.zero;
 
-                                // If the height overlaps above the other food, move this one up enough to sit on top
-                                if (collisionHeightOverlap > 0f &&
-                                    collisionHeightOverlap < 1f)
-                                {
-                                    translation.Value.y += collisionHeightOverlap;
-
-                                    ppMovement.startLocation = ppMovement.endLocation = translation.Value;
-
-                                    hasMoved = true;
-                                }
+                                hasMoved = true;
                             }
                         }
                     }
