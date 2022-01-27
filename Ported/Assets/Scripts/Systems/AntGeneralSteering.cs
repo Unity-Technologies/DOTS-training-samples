@@ -8,19 +8,19 @@ using Unity.Transforms;
 public partial class AntGeneralSteering : SystemBase
 {
     private float2 m_NestPosition;
-    private float goalSteerStrength;
 
     protected override void OnStartRunning()
     {
-        // We will ultimately gather Nest Position here
-        // m_NestPosition = 
+        var nestEntity = GetSingletonEntity<ColonyTag>();
+        var nestTranslation = GetComponent<Translation>(nestEntity);
+        m_NestPosition = nestTranslation.Value.xy;
     }
 
     protected override void OnUpdate()
     {
         float2 localNestPosition = m_NestPosition;
         Entities
-            .ForEach((Entity entity, ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
+            .ForEach((ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
         {
             // ants flee nest if they have no resources
             generalDirection.Value = math.normalize(translation.Value.xy - localNestPosition) * (-1.0f + loadout.Value * 2.0f);

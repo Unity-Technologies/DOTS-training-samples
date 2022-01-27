@@ -120,9 +120,15 @@ public partial class SpawnerSystem : SystemBase
                 ecb.AddComponent<AntTag>(instance);
                 ecb.SetComponent(instance, new Rotation { Value = quaternion.RotateZ(random.NextFloat(-UnityMath.PI, UnityMath.PI)) });
                 ecb.SetComponent(instance, new Translation { Value = new float3(-4, 0, 0) / configuration.MapSize });
-                ecb.AddComponent(instance, new NonUniformScale() { Value = configuration.AntSize });
-                ecb.AddComponent<AntMovementState>(instance);
-                ecb.AddComponent<CollisionResult>(instance);
+                ecb.AddComponent<NonUniformScale>(instance);
+                ecb.SetComponent(instance, new NonUniformScale() { Value = configuration.AntSize });
+                ecb.AddComponent<Velocity>(instance);
+                ecb.AddComponent<GeneralDirection>(instance);
+                ecb.AddComponent<MapContainmentSteering>(instance);
+                ecb.AddComponent<ObstacleAvoidanceSteering>(instance);
+                ecb.AddComponent<ProximitySteering>(instance);
+                ecb.AddComponent<PheromoneSteering>(instance);
+                ecb.AddComponent<WanderingSteering>(instance);
             }
         }).WithoutBurst().Run();
 

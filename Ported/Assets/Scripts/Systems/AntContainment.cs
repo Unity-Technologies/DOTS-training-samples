@@ -11,14 +11,16 @@ public partial class AntContainment : SystemBase
 
     protected override void OnStartRunning()
     {
-        // m_MapSize = 
+        var configurationEntity = GetSingletonEntity<Configuration>();
+        var config = GetComponent<Configuration>(configurationEntity);
+        m_MapSize = config.MapSize;
     }
 
     protected override void OnUpdate()
     {
         float mapSize = m_MapSize;
         Entities
-            .ForEach((Entity entity, ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
+            .ForEach((ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
             {
                 if (translation.Value.x > mapSize)
                 {
@@ -46,5 +48,4 @@ public partial class AntContainment : SystemBase
                 }
             }).Schedule();
     }
-
 }
