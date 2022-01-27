@@ -139,7 +139,7 @@ public partial class GameSequenceSystem : SystemBase
         TimerStringBuilder.Clear();
         TimerStringBuilder.Append((int)math.floor(minutes));
         TimerStringBuilder.Append(":");
-        int seconds = (int)math.floor(GameTimer - math.floor(minutes));
+        int seconds = (int)math.floor(GameTimer - math.floor(minutes) * 60f);
         if (seconds < 10)
         {
             TimerStringBuilder.Append('0');
