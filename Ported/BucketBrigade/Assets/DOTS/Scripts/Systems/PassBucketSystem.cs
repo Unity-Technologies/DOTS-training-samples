@@ -62,7 +62,7 @@ public partial class PassBucketSystem : SystemBase
 
                     ecb.SetComponent(holdingBucket.HeldBucket, new Bucket { Volume = 0 });
 
-                    if (HasComponent<EmptyBucket>(holdingBucket.HeldBucket))
+                    if (!HasComponent<EmptyBucket>(holdingBucket.HeldBucket))
                         ecb.AddComponent<EmptyBucket>(holdingBucket.HeldBucket);
                 }
 
