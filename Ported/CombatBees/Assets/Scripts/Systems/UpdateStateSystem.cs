@@ -115,59 +115,71 @@ public partial class UpdateStateSystem : SystemBase
                 }
                 else if (state.value == StateValues.Seeking)
                 {
-                    bool targetFoodStillExists = false;
-
-                    for (int i = 0; i < foodCount; i++)
+                    if (targetedEntity.Value != Entity.Null)
                     {
-                        if (foodEntityData[i] == targetedEntity.Value)
+                        bool targetFoodStillExists = false;
+
+                        float3 foodLocation = float3.zero;
+
+
+                        for (int i = 0; i < foodCount; i++)
                         {
-                            targetFoodStillExists = true;
+                            if (foodEntityData[i] == targetedEntity.Value)
+                            {
+                                targetFoodStillExists = true;
+                            }
+
+                            float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
+                            if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null &&
+                                foodCarriedData[i] == false)
+                            {
+                                state.value = StateValues.Carrying;
+                                carriedEntity.Value = foodEntityData[i];
+
+                                var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
+                                var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
+
+                                var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
+                                var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
+
+                                // Calculate end location based on team value;
+                                float3 endLocation;
+                                if (team.Value == TeamValue.Yellow)
+                                {
+                                    var beeRandomX =
+                                        SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                    endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+                                }
+                                else
+                                {
+                                    var beeRandomX =
+                                        SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
+                                    endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+                                }
+
+
+                                movement.GoTo(translation.Value, endLocation);
+
+
+                                // Add updated movement information to food entity
+                                parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
+                                    PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
+                                        movement.endLocation + float3(0f, -1f, 0f)));
+
+                                parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
+                                    new Food { isBeeingCarried = true });
+
+                                break;
+                            }
                         }
 
-                        float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
-                        if (translationDistance <= distanceDelta && foodEntityData[i] != Entity.Null && foodCarriedData[i] == false)
+                        if (!targetFoodStillExists)
                         {
-                            state.value = StateValues.Carrying;
-                            carriedEntity.Value = foodEntityData[i];
-
-                            var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
-                            var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
-
-                            var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
-                            var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-
-                            // Calculate end location based on team value;
-                            float3 endLocation;
-                            if (team.Value == TeamValue.Yellow)
-                            {
-                                var beeRandomX =
-                                    SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
-                                endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-                            }
-                            else
-                            {
-                                var beeRandomX =
-                                    SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
-                                endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-                            }
-
-
-                            movement.GoTo(translation.Value, endLocation);
-
-
-                            // Add updated movement information to food entity
-                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
-                                PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
-                                    movement.endLocation + float3(0f, -1f, 0f)));
-
-                            parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
-                                new Food { isBeeingCarried = true });
-
-                            break;
+                            state.value = StateValues.Idle;
                         }
                     }
 
-                    if (movement.t >= 0.99f || targetFoodStillExists == false)
+                    if (movement.t >= 0.99f)
                     {
                         // If we have finished moving and are still seeking, go back to idle status
                         state.value = StateValues.Idle;
@@ -263,6 +275,18 @@ public partial class UpdateStateSystem : SystemBase
                                 movement.GoTo(translation.Value, randomFoodTranslation.Value);
                                 state.value = StateValues.Seeking;
                             }
+                        }
+                        else
+                        {
+                            float3 endLocation;
+                            var beeRandomX = random.NextInt(-40, 40);
+                            var beeRandomY = random.NextInt(1, 15);
+                            var beeRandomZ = random.NextInt(-15, 15);
+
+                            endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+
+                            movement.GoTo(translation.Value, endLocation);
+                            state.value = StateValues.Seeking;
                         }
                     }
                     else

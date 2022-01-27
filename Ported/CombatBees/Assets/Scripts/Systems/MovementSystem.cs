@@ -99,16 +99,24 @@ public partial class MovementSystem : SystemBase
 
                 float futureT = Mathf.Clamp(ppMovement.t + 0.01f, 0, 1f);
 
+                float3 up = new float3(0, 1f, 0);
                 float3 fwd =
-                    ppMovement.GetTransAtProgress(ppMovement.t + 0.01f / ppMovement.timeToTravel,
+                    ppMovement.GetTransAtProgress(ppMovement.t + 0.01f,
                         MotionType.BeeBumble) - translation.Value;
 
-                fwd = math.normalize(fwd);
+                if (math.distancesq(float3.zero, fwd) < 0.0001f)
+                    fwd = new float3(-1f, 0, 0);
+                else
+                    fwd = math.normalize(fwd);
+
+                if ( math.abs(math.dot(fwd, up)) > 0.095f )
+                    up = new float3(1, 0, 0);
+
 
                 var newRot = quaternion.identity;
 
                 newRot = math.mul(newRot, quaternion.RotateZ(math.radians(90)));
-                newRot = math.mul(newRot, quaternion.LookRotation(fwd, new float3(0, 1, 0)));
+                newRot = math.mul(newRot, quaternion.LookRotation(fwd, up));
 
 
                 rotation.Value = newRot;
