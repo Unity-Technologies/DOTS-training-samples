@@ -6,6 +6,7 @@ using Unity.Transforms;
 /**
  * This system will do an obstacle avoidance Pass on top of Ant steering
  */
+[UpdateBefore(typeof(SteeringSystem))]
 public partial class AntObstacleAvoidance : SystemBase
 {
     private float m_SqrObstacleRadius = 4.0f;
@@ -32,7 +33,7 @@ public partial class AntObstacleAvoidance : SystemBase
         float antObstacleAvoidanceDistance = m_AntObstacleAvoidanceDistance;
         
         // We may sort the array of obstacles
-        Entities
+        Entities.WithReadOnly(obstacleTranslation)
             .ForEach((ref ObstacleAvoidanceSteering avoidanceSteering, in Translation antTranslation, in Velocity antVelocity) =>
             {
                 for (int i = 0; i < obstacleTranslation.Length; ++i)
@@ -45,6 +46,6 @@ public partial class AntObstacleAvoidance : SystemBase
                         break;
                     }
                 }
-            }).WithDisposeOnCompletion(obstacleTranslation).Schedule();
+            }).WithDisposeOnCompletion(obstacleTranslation).ScheduleParallel();
     }
 }

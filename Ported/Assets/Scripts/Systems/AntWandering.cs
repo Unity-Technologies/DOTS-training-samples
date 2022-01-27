@@ -6,6 +6,7 @@ using Random = Unity.Mathematics.Random;
 /**
  * This system compute make ants Wander around
  */
+[UpdateBefore(typeof(SteeringSystem))]
 public partial class AntWandering : SystemBase
 {
     private float m_WanderAmount = 0.25f;
@@ -24,7 +25,9 @@ public partial class AntWandering : SystemBase
         Entities
             .ForEach((ref WanderingSteering wanderingSteering, in Velocity velocity) =>
             {
-                wanderingSteering.Value = velocity.Direction + new float2(-velocity.Direction.y, velocity.Direction.x) * random.NextFloat(-wanderAmount, wanderAmount);
-            }).Schedule();
+                float2 sideComponent = new float2(-velocity.Direction.y, velocity.Direction.x) *
+                                       random.NextFloat(-wanderAmount, wanderAmount);
+                wanderingSteering.Value = math.normalize(velocity.Direction + sideComponent);
+            }).ScheduleParallel();
     }
 }

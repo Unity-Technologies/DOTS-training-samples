@@ -5,6 +5,7 @@ using Unity.Transforms;
 /**
  * This system compute the general steering behavior : When Ants are loaded they seek the nest; When they are empty they Flee the nest
  */
+[UpdateBefore(typeof(SteeringSystem))]
 public partial class AntGeneralSteering : SystemBase
 {
     private float2 m_NestPosition;
@@ -24,7 +25,7 @@ public partial class AntGeneralSteering : SystemBase
         {
             // ants flee nest if they have no resources
             generalDirection.Value = math.normalize(translation.Value.xy - localNestPosition) * (-1.0f + loadout.Value * 2.0f);
-        }).Schedule();
+        }).ScheduleParallel();
     }
 
 }
