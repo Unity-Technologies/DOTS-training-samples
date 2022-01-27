@@ -29,21 +29,34 @@ public partial class ArrowPlacerSystem : SystemBase
         DynamicBuffer<TileData> mapTiles = GetBuffer<TileData>(GetSingletonEntity<MapData>());
         float time = (float)Time.ElapsedTime;
 
+
         var player = GetSingletonEntity<PlayerInputTag>();
-        var playerPosition = GetComponent<CursorPosition>(player);
-        var hoverArrow = this.GetSingleton<GameObjectRefs>().PlayerTransparentArrow;
-        
-        var coordinate = CalculateProjected(playerPosition.Value, cellSize, out var direction);
-        if (CanPlaceArrow(config, mapTiles, coordinate))
+        var playerPos = GetComponent<CursorPosition>(player);
+        var ecbHoverArrow = new EntityCommandBuffer(Allocator.Temp);
+        Entities
+            .WithAll<Player>()
+            .WithNone<Score>()
+            .WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled)
+            .WithoutBurst()
+            .ForEach((Entity entity, ref CursorPosition position) =>
         {
-            hoverArrow.SetActive(true);
-            hoverArrow.transform.rotation = Rotate(direction);
-            hoverArrow.transform.position = new Vector3(coordinate.x, .1f, coordinate.y);
-        }
-        else
-        {
-            hoverArrow.SetActive(false);
-        }
+            position.Value = playerPos.Value;
+            var coordinate = CalculateProjected(position.Value, cellSize, out var direction);
+            if (CanPlaceArrow(config, mapTiles, coordinate))
+            {
+                if (HasComponent<Disabled>(entity))
+                    ecbHoverArrow.RemoveComponent<Disabled>(entity);
+                SetComponent(entity, new Translation { Value = new float3(coordinate.x, .1f, coordinate.y) });
+                SetComponent(entity, new Rotation { Value = Rotate(direction) });
+            }
+            else
+            {
+                if (!HasComponent<Disabled>(entity))
+                    ecbHoverArrow.AddComponent<Disabled>(entity);
+            }
+        }).Run();
+        ecbHoverArrow.Playback(EntityManager);
+        ecbHoverArrow.Dispose();
 
         Entities
             .WithAll<Player>()

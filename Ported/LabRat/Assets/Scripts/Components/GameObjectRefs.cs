@@ -11,5 +11,4 @@ public class GameObjectRefs : IComponentData
     public Text TimerDisplay;
     public Text IntroDisplay;
     public Camera Camera;
-    public GameObject PlayerTransparentArrow;
 }
