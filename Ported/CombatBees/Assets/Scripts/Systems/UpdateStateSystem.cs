@@ -278,14 +278,14 @@ public partial class UpdateStateSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
-                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
                 var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
 
                 if (state.value == StateValues.Idle)
                 {
                     float foodOrEnemy = random.NextFloat();
-                    if (foodOrEnemy > spawner.ChanceToAttack)
+                    if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
                     {
+                        // Check if there actually is any food
                         if (foodCount > 0)
                         {
                             // Choose food at random here
@@ -306,21 +306,6 @@ public partial class UpdateStateSystem : SystemBase
                                     state.value = StateValues.Seeking;
                                 }
                             }
-                        }
-                        else
-                        {
-                            float3 endLocation;
-                            var beeRandomX = random.NextInt(-40, 40);
-                            var beeRandomY = random.NextInt(1, 15);
-                            var beeRandomZ = random.NextInt(-15, 15);
-
-                            endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-
-                            carriedEntity.Value = Entity.Null;
-                            targetedEntity.Value = Entity.Null;
-
-                            movement.GoTo(translation.Value, endLocation);
-                            state.value = StateValues.Seeking;
                         }
                     }
                     else
@@ -354,6 +339,24 @@ public partial class UpdateStateSystem : SystemBase
                             state.value = StateValues.Attacking;
                             Debug.Log("Set to Attacking!");
                         }
+                    }
+                    
+                    // If it's still idling after trying to attack or seek,
+                    // go to a random location (the "wander" behavior)
+                    if (state.value == StateValues.Idle)
+                    {
+                        float3 endLocation;
+                        var beeRandomX = random.NextInt(-spawner.ArenaExtents.x, spawner.ArenaExtents.x);
+                        var beeRandomY = random.NextInt(spawner.ArenaHeight / 4, spawner.ArenaHeight / 4 * 3);
+                        var beeRandomZ = random.NextInt(-spawner.ArenaExtents.y, spawner.ArenaExtents.y);
+
+                        endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+
+                        carriedEntity.Value = Entity.Null;
+                        targetedEntity.Value = Entity.Null;
+
+                        movement.GoTo(translation.Value, endLocation);
+                        state.value = StateValues.Seeking;
                     }
                 }
             }).WithReadOnly(beeTranslationData)
