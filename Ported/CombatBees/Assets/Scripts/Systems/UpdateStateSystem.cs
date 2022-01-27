@@ -144,27 +144,7 @@ public partial class UpdateStateSystem : SystemBase
                                 state.value = StateValues.Carrying;
                                 carriedEntity.Value = foodEntityData[i];
 
-                                var minBeeBounds = SpawnerSystem.GetBeeMinBounds(spawner);
-                                var maxBeeBounds = SpawnerSystem.GetBeeMaxBounds(spawner, minBeeBounds);
-
-                                var beeRandomY = SpawnerSystem.GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
-                                var beeRandomZ = SpawnerSystem.GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
-
-                                // Calculate end location based on team value;
-                                float3 endLocation;
-                                if (team.Value == TeamValue.Yellow)
-                                {
-                                    var beeRandomX =
-                                        SpawnerSystem.GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
-                                    endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-                                }
-                                else
-                                {
-                                    var beeRandomX =
-                                        SpawnerSystem.GetRandomBlueBeeX(ref random, minBeeBounds, maxBeeBounds);
-                                    endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-                                }
-
+                                var endLocation = SpawnerSystem.GetRandomGoalTarget(ref random, spawner, team.Value);
 
                                 movement.GoTo(translation.Value, endLocation);
 
