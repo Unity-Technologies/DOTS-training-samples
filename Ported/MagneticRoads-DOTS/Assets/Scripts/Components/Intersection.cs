@@ -1,30 +1,45 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class Intersection : IComponentData
+public struct IntersectionComponent : ISharedComponentData, IEquatable<IntersectionComponent>
 {
-	public int id; // In the DOTS world we really shouldn't need this
+	public List<TrackSpline> neighborSplines;
+	public Vector3Int normal;
+
+	public bool Equals(IntersectionComponent other)
+	{
+		return Equals(neighborSplines, other.neighborSplines);
+	}
+
+	public override bool Equals(object obj)
+	{
+		return obj is IntersectionComponent other && Equals(other);
+	}
+
+	public override int GetHashCode()
+	{
+		return (neighborSplines != null ? neighborSplines.GetHashCode() : 0);
+	}
+}
+public class Intersection
+{
+	public int id;
 	public Vector3 position;
 	public Vector3Int index;
 	public Vector3Int normal;
 
-	public List<Intersection> neighbors;
 	public List<TrackSpline> neighborSplines;
 
 	public bool[] occupied;
 
-	public Intersection()
-	{
-		
-	}
-
 	public Intersection(Vector3Int intPos, Vector3 pos, Vector3Int norm)
 	{
+		id = 0;
 		index = intPos;
 		position = pos;
 		normal = norm;
-		neighbors = new List<Intersection>();
 		neighborSplines = new List<TrackSpline>();
 
 		// each side (top/bottom) has its own "occupied" flag

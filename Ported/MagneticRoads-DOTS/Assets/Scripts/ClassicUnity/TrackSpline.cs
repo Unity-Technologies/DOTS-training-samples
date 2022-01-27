@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class TrackSpline : IComponentData
+public class TrackSpline
 {
 	public Intersection startIntersection;
 	public Intersection endIntersection;
@@ -24,7 +24,7 @@ public class TrackSpline : IComponentData
 	public float carQueueSize;
 	public int maxCarCount;
 
-	int twistMode;
+	public int twistMode;
 
 	int errorCount;
 

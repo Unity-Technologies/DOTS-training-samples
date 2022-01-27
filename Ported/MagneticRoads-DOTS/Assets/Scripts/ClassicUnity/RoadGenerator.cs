@@ -1,8 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Entities;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-public class RoadGenerator:MonoBehaviour {
+public class RoadGenerator:MonoBehaviour
+{
+	public static bool bullshit = false;
+	
 	public int voxelCount=60;
 	public float voxelSize = 1f;
 	public int trisPerMesh = 4000;
@@ -15,7 +21,7 @@ public class RoadGenerator:MonoBehaviour {
 
 	bool[,,] trackVoxels;
 	List<Intersection> intersections;
-	List<TrackSpline> trackSplines;
+	public static List<TrackSpline> trackSplines;
 	Intersection[,,] intersectionsGrid;
 	// List<Car> cars;
 
@@ -112,6 +118,11 @@ public class RoadGenerator:MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	private void Awake()
+	{
+		bullshit = false;
 	}
 
 	void Start() {
@@ -222,9 +233,9 @@ public class RoadGenerator:MonoBehaviour {
 							TrackSpline spline = new TrackSpline(intersection,dirs[j],neighbor,connectDir);
 							trackSplines.Add(spline);
 
-							intersection.neighbors.Add(neighbor);
+							// intersection.neighbors.Add(neighbor);
 							intersection.neighborSplines.Add(spline);
-							neighbor.neighbors.Add(intersection);
+							// neighbor.neighbors.Add(intersection);
 							neighbor.neighborSplines.Add(spline);
 						}
 					}
@@ -337,6 +348,8 @@ public class RoadGenerator:MonoBehaviour {
 		// 		batch++;
 		// 	}
 		// }
+
+		bullshit = true;
 	}
 
 	private void Update() {
