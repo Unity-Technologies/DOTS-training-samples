@@ -15,11 +15,12 @@ public partial class TornadoVisualizer : SystemBase
         var tornadoPos = GetComponent<Translation>(tornado);
         var time = (float)Time.ElapsedTime;
         var deltaTime = Time.DeltaTime;
-        
-        tornadoPos.Value.x = math.cos(time * tornadoMovement.XFrequency) * tornadoDimensions.TornadoRadius;
-        tornadoPos.Value.z = math.sin(time * tornadoMovement.ZFrequency) * tornadoDimensions.TornadoRadius;
+        var floor = GetSingletonEntity<Floor>();
+        var terrainBounds = GetComponent<NonUniformScale>(floor).Value;
+        tornadoPos.Value.x = math.cos(time * tornadoMovement.XFrequency) * terrainBounds.x*2.5f;
+        tornadoPos.Value.z = math.sin(time * tornadoMovement.ZFrequency) * terrainBounds.z*2.5f;
         SetComponent(tornado, tornadoPos);
-        
+
         Entities.WithAll<TornadoParticle>().
             ForEach((ref Translation particlePos, ref NonUniformScale particleScale, in TornadoParticle particleProp) =>
             {
@@ -30,17 +31,17 @@ public partial class TornadoVisualizer : SystemBase
                 );
                 var delta = tornadoPosPerParticle - particlePos.Value;
                 var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
-                
-                if (dist > tornadoDimensions.TornadoHeight/2.5f && particlePos.Value.y == 0f) return;
-                
+
+                //if (dist > tornadoDimensions.TornadoHeight/2.5f && particlePos.Value.y == 0f) return;
+
                 if (particleScale.Value.x < k_MaxParticleScale)
                 {
                     particleScale.Value += 0.001f;
                 }
-                    
+
                 delta /= dist;
                 var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoDimensions.TornadoHeight, 0, 1)) * tornadoDimensions.TornadoRadius * particleProp.RadiusMult;
-                
+
                 var newPos = new float3(
                     (-delta.z * particleProp.SpinRate) + (delta.x * inForce),
                     particleProp.UpwardSpeed,
