@@ -43,7 +43,7 @@ public partial class AntCollisionSystem : SystemBase
                 // all this assume the world is between (-0.5f, -0.5f) and (0.5f, 0.5f)
                 if (result.x <= -0.5f)
                 {
-                    if (result.y <= -0.5f)
+                    if (result.y < -0.5f)
                     {
                         collision.point = UnityMath.math.float2(-0.5f, -0.5f);
                         collision.normal = UnityMath.math.normalize(new UnityMath.float2(1f, 1f));
@@ -57,7 +57,7 @@ public partial class AntCollisionSystem : SystemBase
                     }
                     else
                     {
-                        collision.normal = UnityMath.math.float2(1f, 0);
+                        collision.normal = UnityMath.math.float2(1f, 0.0f);
                         collision.point.x = -0.5f;
                         collision.point.y = antMovementState.origin.y + UnityMath.math.abs(-0.5f - antMovementState.origin.x) * antMovementState.delta.y / antMovementState.delta.x;
                         return;
@@ -65,7 +65,7 @@ public partial class AntCollisionSystem : SystemBase
                 }
                 else if (result.x > 0.5f)
                 {
-                    if (result.y <= -0.5f)
+                    if (result.y < -0.5f)
                     {
                         collision.point = UnityMath.math.float2(0.5f, -0.5f);
                         collision.normal = UnityMath.math.normalize(new UnityMath.float2(-1f, 1f));
@@ -79,13 +79,13 @@ public partial class AntCollisionSystem : SystemBase
                     }
                     else
                     {
-                        collision.normal = UnityMath.math.float2(-1f, 0);
+                        collision.normal = UnityMath.math.float2(-1f, 0f);
                         collision.point.x = 0.5f;
                         collision.point.y = antMovementState.origin.y + UnityMath.math.abs(0.5f - antMovementState.origin.x) * antMovementState.delta.y / antMovementState.delta.x;
                         return;
                     }
                 }
-                else if (result.y <= -0.5f)
+                else if (result.y < -0.5f)
                 {
                     collision.normal = UnityMath.math.float2(0f, 1f);
                     collision.point.x = antMovementState.origin.x + UnityMath.math.abs(-0.5f - antMovementState.origin.y) * antMovementState.delta.x / antMovementState.delta.y;
@@ -104,16 +104,32 @@ public partial class AntCollisionSystem : SystemBase
                 // check if we are inside an obstacle
                 var xIdx = (int)math.floor(math.clamp(result.x + 0.5f, 0, 1) * grid.rowLength);
                 var yIdx = (int)math.floor(math.clamp(result.y + 0.5f, 0, 1) * grid.columnLength);
-                var idx = xIdx + yIdx * grid.rowLength;
+                var idx = math.min(xIdx + yIdx * grid.rowLength, obstacleBuffer.Length - 1);
                 if (!obstacleBuffer[idx].IsValid)
                 {
                     collision.Reset();
                     return;
                 }
 
-                // take the point that pass throught the current proposed position
-                collision.normal = math.normalize(result - obstacleBuffer[idx].position);
-                collision.point = obstacleBuffer[idx].position + obstacleBuffer[idx].radius * collision.normal;
+                // circle-line collision
+                var e = antMovementState.origin;
+                var center = obstacleBuffer[idx].position;
+                var r = obstacleBuffer[idx].radius;
+                var d = antMovementState.delta;
+                var f = e - center;
+                var a = math.dot(d, d);
+                var b = 2* math.dot(f, d);
+                var c = math.dot(f, f) - r*r;
+                var discriminant = math.sqrt(b * b - 4 * a * c);
+                float t1 = (-b - discriminant) / (2 * a);
+                float t2 = (-b + discriminant) / (2 * a);
+
+                var p1 = e + t1 * d;
+                var p2 = e + t2 * d;
+
+                collision.point = math.distancesq(antMovementState.origin,p1) < math.distancesq(antMovementState.origin, p2) ? p1 : p2;
+                collision.normal = math.normalize(collision.point - obstacleBuffer[idx].position);
+                collision.point += collision.normal * 0.01f;
                 return;
 
             }).Run();
@@ -128,8 +144,10 @@ public partial class AntMoveSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         Entities.WithAll<AntTag>().ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref Velocity velocity, in CollisionResult collision, in AntMovementState antMovementState) =>
         {
-            translation.Value = new float3(collision.IsValid ? math.clamp(collision.point + math.reflect(math.normalize(collision.point - antMovementState.origin), collision.normal) * velocity.Speed * deltaTime, math.float2(-0.5f, -0.5f), math.float2(0.5f, 0.5f)) : antMovementState.result, 0);
-            velocity.Direction = collision.IsValid ? collision.normal : velocity.Direction;
+            velocity.Speed = math.max(0.1f, velocity.Speed);
+            velocity.Direction = collision.IsValid ? math.normalize(math.reflect(antMovementState.delta, collision.normal)) : math.normalize(velocity.Direction);
+            var traslation2D = collision.IsValid ? collision.point + (velocity.Direction * deltaTime * velocity.Speed) : antMovementState.result;
+            translation.Value = new float3(traslation2D.x, traslation2D.y , 0);
             rotation.Value = quaternion.LookRotation(new float3(velocity.Direction, 0), new float3(0, 0, 1));
         }).Run();
     }

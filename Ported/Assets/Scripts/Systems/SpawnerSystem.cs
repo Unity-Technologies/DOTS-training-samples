@@ -95,7 +95,7 @@ public partial class SpawnerSystem : SystemBase
 
                                 if(UnityMath.sqrt(x*x + y*y) <= radiusLength)
                                 {
-                                    var index = j + i * grid.rowLength;
+                                    var index = i + j * grid.rowLength;
                                     bufferObstacles[index] = bufferObstacles[index].IsValid ?
                                     new ObstaclePositionAndRadius(radiusLength,
                                     0.5f * (UnityMath.max(bufferObstacles[index].position.x, translation.x) + UnityMath.min(bufferObstacles[index].position.x, translation.x)),

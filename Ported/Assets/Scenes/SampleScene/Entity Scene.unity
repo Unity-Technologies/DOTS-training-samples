@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 0}
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
-  antCount: 2
+  antCount: 100
   mapSize: 128
   bucketResolution: 128
   antSize: {x: 0.004, y: 0.004, z: 0.008}
@@ -162,21 +162,21 @@ MonoBehaviour:
   trailDecay: 0
   rotationResolution: 360
   obstacleRingCount: 3
-  obstaclesPerRing: 29
+  obstaclesPerRing: 100
   obstaclesRadiusStepPerRing: 0.15
-  obstacleRadius: 2.61
-  antMaxSpeed: 0.2
-  antMaxTurn: 1.25
-  antAcceleration: 0.07
+  obstacleRadius: 4.54
+  antMaxSpeed: 0.382
+  antMaxTurn: 0.42
+  antAcceleration: 0.259
   antWanderDistance: 1
-  antWanderRadius: 0.8
-  antObstacleAvoidanceDistance: 0.032
-  wanderingStrength: 0.313
-  pheromoneStrength: 0.148
-  containmentStrength: 1
-  generalDirectionStrength: 0.027
-  proximityStrength: 0.036
-  avoidanceStrength: 0.431
+  antWanderRadius: 0.1
+  antObstacleAvoidanceDistance: 0.026
+  wanderingStrength: 0
+  pheromoneStrength: 0
+  containmentStrength: 0
+  generalDirectionStrength: 0
+  proximityStrength: 0
+  avoidanceStrength: 0
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ public partial class PheromoneTextureUpdateSystem : SystemBase
         var entity = GetSingletonEntity<Ground>();
         var gridEntity = GetSingletonEntity<Grid2D>();
         var pheromone = GetBuffer<Pheromone>(gridEntity);
+        var obstacles = GetBuffer<ObstaclePositionAndRadius>(gridEntity);
         var grid = GetComponent<Grid2D>(gridEntity);
 
         var renderer = EntityManager.GetSharedComponentData<RenderMesh>(entity);
@@ -26,7 +27,7 @@ public partial class PheromoneTextureUpdateSystem : SystemBase
                 {
                     var index = j + i * grid.rowLength;
                     //var indexTex = i + j * grid.columnLength;
-                    data[index] = new Color(math.clamp(pheromone[index].Value, 0, 1), 0, 0, 1f);
+                    data[index] = new Color(math.clamp(pheromone[index].Value, 0, 1), obstacles[index].IsValid ? obstacles[index].position.x + 0.5f : 0f, obstacles[index].IsValid ? obstacles[index].position.y : 0f, 1f);
                 }
             }
         }).Run();

@@ -19,19 +19,19 @@ public partial class AntContainment : SystemBase
 
     protected override void OnUpdate()
     {
-        float mapSize = m_MapSize;
-        Entities
-            .ForEach((ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
-            {
-                if ((translation.Value.x > mapSize) || (translation.Value.x < -mapSize) || (translation.Value.y > mapSize) || (translation.Value.y < -mapSize))
-                {
-                    mapContainmentSteering.Value = math.normalize(-translation.Value.xy);
-                }
-                else
-                {
-                    mapContainmentSteering.Value = float2.zero;
-                }
+        //float mapSize = m_MapSize;
+        //Entities
+        //    .ForEach((ref MapContainmentSteering mapContainmentSteering, in Translation translation) =>
+        //    {
+        //        if ((translation.Value.x > mapSize) || (translation.Value.x < -mapSize) || (translation.Value.y > mapSize) || (translation.Value.y < -mapSize))
+        //        {
+        //            mapContainmentSteering.Value = math.normalize(-translation.Value.xy);
+        //        }
+        //        else
+        //        {
+        //            mapContainmentSteering.Value = float2.zero;
+        //        }
 
-            }).ScheduleParallel();
+        //    }).ScheduleParallel();
     }
 }
