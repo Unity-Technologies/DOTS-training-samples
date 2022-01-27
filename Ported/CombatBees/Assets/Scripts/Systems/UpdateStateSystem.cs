@@ -261,7 +261,6 @@ public partial class UpdateStateSystem : SystemBase
                         if (foodCount > 0)
                         {
                             // Choose food at random here
-                            // TODO: Exclude food that is being carried or dropped?
                             int randomInt =
                                 random.NextInt(foodTranslationData
                                     .Length); // Note: random int/uint values are non-inclusive of the maximum value
@@ -276,7 +275,7 @@ public partial class UpdateStateSystem : SystemBase
                                 state.value = StateValues.Seeking;
                             }
                         }
-                        else
+                        else ////  if (foodCount > 0)
                         {
                             float3 endLocation;
                             var beeRandomX = random.NextInt(-40, 40);
@@ -284,6 +283,9 @@ public partial class UpdateStateSystem : SystemBase
                             var beeRandomZ = random.NextInt(-15, 15);
 
                             endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+
+                            carriedEntity.Value = Entity.Null;
+                            targetedEntity.Value = Entity.Null;
 
                             movement.GoTo(translation.Value, endLocation);
                             state.value = StateValues.Seeking;
