@@ -10,6 +10,7 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(SpawnerSystem))]
 public partial class UpdateStateSystem : SystemBase
 {
+    private EntityQuery beeQuery;
     private EntityQuery foodQuery;
     private EntityCommandBufferSystem commandBufferSystem;
 
@@ -20,6 +21,22 @@ public partial class UpdateStateSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        // Get NativeArray data for bees translation and entity data
+        beeQuery = GetEntityQuery(typeof(BeeTag));
+        int beeCount = beeQuery.CalculateEntityCount();
+        NativeArray<Translation> beeTranslationData = new NativeArray<Translation>(beeCount, Allocator.TempJob);
+        NativeArray<Entity> beeEntityData = new NativeArray<Entity>(beeCount, Allocator.TempJob);
+        Entities
+            .WithStoreEntityQueryInField(ref beeQuery)
+            .WithAll<BeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
+            {
+                beeTranslationData[entityInQueryIndex] = translation;
+                beeEntityData[entityInQueryIndex] = entity;
+            }).WithName("GetBeeData")
+            .ScheduleParallel();
+
+
         // Get NativeArray data for food translation and entity data
         foodQuery = GetEntityQuery(typeof(Food));
         int foodCount = foodQuery.CalculateEntityCount();
@@ -59,7 +76,7 @@ public partial class UpdateStateSystem : SystemBase
         // Get "close enough" Food based on distance calculation
         Entities.WithAll<BeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref State state, ref PP_Movement movement,
-                ref CarriedEntity carriedEntity, in Translation translation, in BeeTeam team) =>
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
                 var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
 
@@ -143,6 +160,49 @@ public partial class UpdateStateSystem : SystemBase
                         return;
                     }
                 }
+
+
+                if (state.value == StateValues.Attacking)
+                {
+                    // Also potentially check for attack here
+                    for (int i = 0; i < beeCount; i++)
+                    {
+                        if (beeEntityData[i] != Entity.Null && beeEntityData[i] == targetedEntity.Value)
+                        {
+                            float translationDistance = distance(translation.Value, beeTranslationData[i].Value);
+
+                            if (translationDistance <= distanceDelta)
+                            {
+                                //if the enemy Bee is carrying something, set it to no longer be
+                                parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                                    PP_Movement.Create(beeTranslationData[i].Value + float3(0f, -1f, 0f),
+                                        new float3(beeTranslationData[i].Value.x, 0, beeTranslationData[i].Value.z)));
+
+                                parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                                    new Food { isBeeingCarried = false });
+
+                                carriedEntity.Value = Entity.Null;
+
+
+                                //destroy enemy bee
+                                parallelWriter.DestroyEntity(entityInQueryIndex, beeEntityData[i]);
+
+
+                                //spawn a bee bit
+                                ////
+
+                                state.value = StateValues.Idle;
+                            }
+                        }
+                    }
+
+                    if (movement.t >= 0.99f)
+                    {
+                        // If we have finished moving and are still seeking, go back to idle status
+                        state.value = StateValues.Idle;
+                    }
+                }
+
 
                 if (state.value == StateValues.Idle)
                 {

@@ -34,7 +34,7 @@ public partial class MovementSystem : SystemBase
         var random = new Random(randomSeed);
 
         // Move: Food (move food before bees since bees need to follow food)
-        //       - also store all the moved food positions for cross-reference further down 
+        //       - also store all the moved food positions for cross-reference further down
         // TODO: Don't need this?
         // foodQuery = GetEntityQuery(typeof(FoodTag));
         var foodCount = foodQuery.CalculateEntityCount();
@@ -43,9 +43,17 @@ public partial class MovementSystem : SystemBase
         Entities
             .WithStoreEntityQueryInField(ref foodQuery)
             .WithAll<Food>()
-            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement) =>
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, in Food food) =>
             {
-                translation.Value = ppMovement.Progress(deltaTime);
+                if (food.isBeeingCarried)
+                {
+                    translation.Value = ppMovement.Progress(deltaTime, MotionType.BeeBumble);
+                }
+                else
+                {
+                    translation.Value = ppMovement.Progress(deltaTime, MotionType.Linear);
+                }
+
                 foodPositions[entityInQueryIndex] = translation.Value;
                 foodEntities[entityInQueryIndex] = e;
             }).WithName("GetFoodPositions")
@@ -117,15 +125,6 @@ public partial class MovementSystem : SystemBase
         Entities
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref PP_Movement ppMovement, in Food food) =>
             {
-                if (food.isBeeingCarried)
-                {
-                    translation.Value = ppMovement.Progress(deltaTime, MotionType.BeeBumble);
-                }
-                else
-                {
-                    translation.Value = ppMovement.Progress(deltaTime, MotionType.Linear);
-                }
-
                 if (math.abs(translation.Value.x) >= spawner.ArenaExtents.x)
                 {
                     if (translation.Value.y <= 0.5f)
@@ -187,7 +186,7 @@ public partial class MovementSystem : SystemBase
                                 break;
                             }
                         }
-                        
+
                         // Check if radii overlap first
                         var planarDiffVector = new float2(
                             translation.Value.x - foodPositions[i].x,
@@ -195,20 +194,20 @@ public partial class MovementSystem : SystemBase
                         if (planarDiffVector.x * planarDiffVector.x + planarDiffVector.y * planarDiffVector.y < 1f)
                         {
                             var collisionHeightOverlap = 1f - (translation.Value.y - foodPositions[i].y);
-                            
+
                             // If the height overlaps above or below, move it up enough to sit on top
                             if (collisionHeightOverlap > 0f &&
                                 collisionHeightOverlap < 1f)
                             {
                                 translation.Value.y += collisionHeightOverlap;
-                                
+
                                 // TODO: set the endposition on PP_Movement to the updated, un-clipped position
                                 //          - or some other method of making it not try to move downwards anymore
 
                                 hasMoved = true;
                             }
                         }
-                        
+
                     }
                 }
             }).WithDisposeOnCompletion(foodPositions)
