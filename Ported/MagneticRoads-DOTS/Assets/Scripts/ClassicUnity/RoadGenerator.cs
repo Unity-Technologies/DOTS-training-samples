@@ -369,15 +369,12 @@ public class RoadGenerator:MonoBehaviour
 
 	public static SplineDef[] subSplines;
 	public static List<int>[] splineLinks;
-	public static int[] intersectionLinks;
-	public static int intersectionCount;
 	
 	private void ConvertToMultiSplinePerRoad()
 	{
 		var splineToMultiSpline = new SplineDef[trackSplines.Count][];
 		splineLinks = new List<int>[trackSplines.Count*4];
 		multiSplineId = 0;
-		intersectionCount = intersections.Count;
 		
 		foreach (var spline in trackSplines)
 		{
@@ -398,11 +395,8 @@ public class RoadGenerator:MonoBehaviour
 		}
 		
 		var ssDirection = new Dictionary<int, int[]>();
-		intersectionLinks = new int[trackSplines.Count*4];
-		for (var i = 0; i < intersections.Count; i++)
+		foreach (var intersection in intersections)
 		{
-			var intersection = intersections[i];
-				
 			ssDirection.Clear();
 			foreach (var spline in intersection.neighborSplines)
 			{
@@ -424,9 +418,6 @@ public class RoadGenerator:MonoBehaviour
 				var ssDirection0 = ssDirection[mainSplineId0];
 				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
 				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
-
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
 			}
 			else if (intersection.neighborSplines.Count == 2)//two way, no U-Turn
 			{
@@ -440,11 +431,6 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
 				splineLinks[subSplines1[ssDirection1[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
 				splineLinks[subSplines1[ssDirection1[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
-				
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i;
-				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i + intersectionCount;
 			}
 			else if (intersection.neighborSplines.Count == 3)//three way, no U-Turn
 			{
@@ -471,35 +457,10 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines2[ssDirection2[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
-				
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i;
-				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines2[ssDirection2[0]].splineId] = i;
-				intersectionLinks[subSplines2[ssDirection2[2]].splineId] = i + intersectionCount;
 			}
 		}
 
 		subSplines = splineToMultiSpline.SelectMany(s => s).OrderBy(s => s.splineId).ToArray();
-
-		//Verification intersection links
-		// for (var i = 0; i < intersectionCount*2; i++)
-		// {
-		// 	var count = 0;
-		// 	foreach (var link in intersectionLinks)
-		// 	{
-		// 		if (link == i)
-		// 			count++;
-		// 	}
-		//
-		// 	if (count == 0 || count > 3)
-		// 	{
-		// 		Debug.LogError($"Intersection {i} => count == {count}");
-		// 	}
-		// }
-		
-		
 	}
 
 	private static int multiSplineId;

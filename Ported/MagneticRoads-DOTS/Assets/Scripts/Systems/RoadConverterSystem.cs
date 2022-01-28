@@ -13,45 +13,31 @@ public partial class RoadConverterSystem : SystemBase
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var roadEntityBuffer = new Entity[RoadGenerator.trackSplines.Count*4];
+        var entityBuffer = new Entity[RoadGenerator.trackSplines.Count*4];
         //TODO use a job for each spline
         foreach (var splineDef in RoadGenerator.subSplines)
         {
-            roadEntityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, splineDef);
-        }
-
-        var intersectionEntityBuffer = new Entity[RoadGenerator.intersectionCount*2];
-        for (var i = 0; i < RoadGenerator.intersectionCount*2; i++)
-        {
-            var intersectionEntity = ecb.CreateEntity();
-            ecb.AddBuffer<CarQueue>(intersectionEntity);
-            intersectionEntityBuffer[i] = intersectionEntity;
+            entityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, splineDef);
         }
         
-        //Add singleton containing dynamic buffer of spline def, spline links, spline to road and spline to intersection
-        var wayfinderSingleton = ecb.CreateEntity();
-        var splineBuffer = ecb.AddBuffer<SplineDefArrayElement>(wayfinderSingleton);
+        //Add singleton containing dynamic buffer of spline def and spline links
+        var splineHolder = ecb.CreateEntity();
+        var splineBuffer = ecb.AddBuffer<SplineDefArrayElement>(splineHolder);
         foreach (var splineDef in RoadGenerator.subSplines)
         {
             splineBuffer.Add(new SplineDefArrayElement {Value = splineDef});
         }
         
-        var splineLinkBuffer = ecb.AddBuffer<SplineLink>(wayfinderSingleton);
+        var splineLinkBuffer = ecb.AddBuffer<SplineLink>(splineHolder);
         foreach (var link in RoadGenerator.splineLinks)
         {
             splineLinkBuffer.Add(new SplineLink {Value = LinkToInt2(link)});
         }
         
-        var splineIdToRoadBuffer = ecb.AddBuffer<SplineIdToRoad>(wayfinderSingleton);
-        foreach (var entity in roadEntityBuffer)
+        var splineIdToRoadBuffer = ecb.AddBuffer<SplineIdToRoad>(splineHolder);
+        foreach (var entity in entityBuffer)
         {
             splineIdToRoadBuffer.Add(new SplineIdToRoad {Value = entity});
-        }
-        
-        var splineToIntersection = ecb.AddBuffer<IntersectionArrayElement>(wayfinderSingleton);
-        for (var i = 0; i < RoadGenerator.subSplines.Length; i++)
-        {
-            splineToIntersection.Add(new IntersectionArrayElement {Value = intersectionEntityBuffer[RoadGenerator.intersectionLinks[i]]});
         }
         
         ecb.Playback(EntityManager);
@@ -71,10 +57,11 @@ public partial class RoadConverterSystem : SystemBase
     {
         var entity = ecb.CreateEntity();
 
+        ecb.AddComponent<CarQueueMaxLength>(entity);
         ecb.AddBuffer<CarQueue>(entity);
-        ecb.AddComponent(entity, new CarQueueMaxLength
+        ecb.AddComponent(entity, new RoadLength
         {
-            length = (int)(splineDef.measuredLength / 0.15f) //TODO add car length to const comp
+            roadLength = (int)(splineDef.measuredLength / 0.5f) //TODO add car length to const comp
         });
         return entity;
     }
