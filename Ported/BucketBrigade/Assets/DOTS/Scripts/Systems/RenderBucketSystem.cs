@@ -14,6 +14,6 @@ public partial class RenderBucketSystem : SystemBase
             {
                 scale.Value = math.clamp(bucket.Volume, gameConstants.BucketEmptyScale, gameConstants.BucketFilledScale);
                 color.Value = math.lerp(gameConstants.BucketEmpty, gameConstants.BucketFilled, bucket.Volume);
-            }).Schedule();
+            }).ScheduleParallel();
     }
 }
