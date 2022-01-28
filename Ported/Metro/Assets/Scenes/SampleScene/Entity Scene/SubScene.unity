@@ -379,7 +379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LeaderPrefab: {fileID: 6694459676941598310, guid: 42db4575cf67ace4cb13cfde4bcd09a1, type: 3}
-  NoOfTrains: 20
+  NoOfTrains: 12
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
 --- !u!1 &243768506
@@ -1658,7 +1658,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LeaderPrefab: {fileID: 6694459676941598310, guid: 42db4575cf67ace4cb13cfde4bcd09a1, type: 3}
-  NoOfTrains: 20
+  NoOfTrains: 12
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
 --- !u!1001 &1082399442
@@ -2996,7 +2996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LeaderPrefab: {fileID: 6694459676941598310, guid: 42db4575cf67ace4cb13cfde4bcd09a1, type: 3}
-  NoOfTrains: 12
+  NoOfTrains: 8
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
 --- !u!1 &2074760009
