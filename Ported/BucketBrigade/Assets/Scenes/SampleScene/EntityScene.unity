@@ -2021,6 +2021,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
         type: 3}
+      propertyPath: FireMaxColor.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
+      propertyPath: FireMinColor.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3490708690633833515, guid: dfeb066d1c8fe5645890933fb31f289a,
+        type: 3}
       propertyPath: FireSpawnDensity
       value: 0.01
       objectReference: {fileID: 0}
