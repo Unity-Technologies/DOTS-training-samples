@@ -48,7 +48,6 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
     {
         var lakeTranslations = LakeQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
         var lakeEntities = LakeQuery.ToEntityArray(Allocator.TempJob);
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
         var fireTranslations = FireQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
 
         var canRunTeamSimulation = lakeTranslations.Length > 0 && fireTranslations.Length > 0;
@@ -93,19 +92,22 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
         if (canRunTeamSimulation)
         {
-            Dependency = Entities
-                .ForEach((Entity e, ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition) =>
-                {
-                // Reposition the team based on picked line positions
-                translation.Value = math.lerp(lineLakePosition.Value, lineFirePosition.Value, 0.5f);
+            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-                    DynamicBuffer<TeamWorkers> workersBuffer = GetBuffer<TeamWorkers>(e);
+            var targetDestinationTable = GetComponentDataFromEntity<TargetDestination>(false);
+
+            Dependency = Entities
+                .WithNativeDisableParallelForRestriction(targetDestinationTable)
+                .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition, in DynamicBuffer<TeamWorkers> workersBuffer) =>
+                {
+                    // Reposition the team based on picked line positions
+                    translation.Value = math.lerp(lineLakePosition.Value, lineFirePosition.Value, 0.5f);
 
                     float3 forward = lineFirePosition.Value - lineLakePosition.Value;
                     float3 offset = math.cross(forward, new float3(0, 1, 0)) * 0.1f;
 
-                // Forward Line
-                for (int x = 0; x < gameConstants.WorkersPerLine; x++)
+                    // Forward Line
+                    for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                     {
                         float t = (float)x / gameConstants.WorkersPerLine;
                         float tNext = (float)(x + 1) / gameConstants.WorkersPerLine;
@@ -119,16 +121,14 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
                         var isWorkerPassingBucket = HasComponent<HoldingBucket>(workerEntity) && HasComponent<PassTo>(workerEntity);
 
-                        if (isWorkerPassingBucket && !HasComponent<PassToTargetAssigned>(workerEntity))
-                            ecb.AddComponent<PassToTargetAssigned>(workerEntity);
-
                         var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
-                        SetComponent(workerEntity, targetPosition);
+                        //ecb.SetComponent(entityInQueryIndex, workerEntity, targetPosition);
+                        targetDestinationTable[workerEntity] = targetPosition;
                     }
 
-                // Backward Line
-                for (int x = 0; x < gameConstants.WorkersPerLine; x++)
+                    // Backward Line
+                    for (int x = 0; x < gameConstants.WorkersPerLine; x++)
                     {
                         float t = (float)x / gameConstants.WorkersPerLine;
                         float tNext = (float)(x + 1) / gameConstants.WorkersPerLine;
@@ -136,28 +136,25 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                         var pos = GetLinePosition(t, lineFirePosition.Value, lineLakePosition.Value, -offset);
                         var posNext = GetLinePosition(tNext, lineFirePosition.Value, lineLakePosition.Value, -offset);
 
-                    // DON'T REMOVE THIS LINE
-                    TeamWorkers workerEntity = workersBuffer[x + gameConstants.WorkersPerLine];
+                        // DON'T REMOVE THIS LINE
+                        TeamWorkers workerEntity = workersBuffer[x + gameConstants.WorkersPerLine];
 
                         var isWorkerPassingBucket = HasComponent<HoldingBucket>(workerEntity) && HasComponent<PassTo>(workerEntity);
 
-                        if (isWorkerPassingBucket && !HasComponent<PassToTargetAssigned>(workerEntity))
-                            ecb.AddComponent<PassToTargetAssigned>(workerEntity);
-
                         var targetPosition = (TargetDestination)(isWorkerPassingBucket ? posNext : pos).xz;
 
-                        SetComponent(workerEntity, targetPosition);
+                        //ecb.SetComponent(entityInQueryIndex, workerEntity, targetPosition);
+                        targetDestinationTable[workerEntity] = targetPosition;
                     }
 
-                // BucketFetcher
-                var bucketFetcherEntity = workersBuffer[gameConstants.WorkersPerLine * 2];
+                    // BucketFetcher
+                    var bucketFetcherEntity = workersBuffer[gameConstants.WorkersPerLine * 2];
 
-                    SetComponent(bucketFetcherEntity, new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value });
+                    ecb.SetComponent(entityInQueryIndex, bucketFetcherEntity, new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value });
+                }).ScheduleParallel(Dependency);
 
-                })
-                .Schedule(Dependency);
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

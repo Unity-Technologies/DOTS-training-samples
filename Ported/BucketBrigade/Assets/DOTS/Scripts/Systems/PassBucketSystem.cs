@@ -6,7 +6,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateBefore(typeof(MoveToTargetLocationSystem))]
 public partial class PassBucketSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
@@ -22,18 +21,27 @@ public partial class PassBucketSystem : SystemBase
         var gameConstants = GetSingleton<GameConstants>();
 
         Entities.
-            WithAll<PassToTargetAssigned>().
+            WithNone<HoldsBucketBeingFilled>().
             ForEach((Entity e, in HoldingBucket holdingBucket, in Translation translation, in PassTo passTo, in TargetDestination target) => {
                 if (target.DistanceToDestinationSq(translation) > gameConstants.FireFighterBucketPassRadius * gameConstants.FireFighterBucketPassRadius)
                     return;
+
 
                 // Wait for next worker to do something with bucket
                 if (HasComponent<HoldingBucket>(passTo.NextWorker))
                     return;
 
+                if (HasComponent<BucketFetcher>(e))
+                {
+                    if (!HasComponent<PassToTargetAssigned>(e))
+                        return;
+
+                    ecb.RemoveComponent<PassToTargetAssigned>(e);
+                }
+
                 var throwingFullBucket = HasComponent<BucketThrower>(e) && !HasComponent<EmptyBucket>(holdingBucket.HeldBucket);
 
-                ecb.RemoveComponent<PassToTargetAssigned>(e);
+                //ecb.RemoveComponent<PassToTargetAssigned>(e);
                 ecb.RemoveComponent<HoldingBucket>(e);
                 ecb.AddComponent(passTo.NextWorker, holdingBucket);
 
