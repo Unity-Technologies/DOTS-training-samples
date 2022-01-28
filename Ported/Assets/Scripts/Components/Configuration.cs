@@ -30,4 +30,5 @@ public struct Configuration : IComponentData
     public float GeneralDirectionStrength;
     public float ProximityStrength;
     public float AvoidanceStrength;
+    public static float MapSizeWorld = 0.5f;
 }
