@@ -203,10 +203,8 @@ public partial class UpdateStateSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
-                //var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
                 var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
 
-        
                 if (state.value == StateValues.Attacking)
                 {
                     bool targetBeeStillExists = false;
