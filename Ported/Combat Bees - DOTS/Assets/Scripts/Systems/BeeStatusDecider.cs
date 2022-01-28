@@ -9,11 +9,11 @@ public partial class BeeStatusDecider : SystemBase
             {
                 if (randomState.Random.NextFloat() < agression.Value)
                 {
-                    beeStatus.Value = Status.Attacking;
+                    beeStatus.Value = Status.Attacking; 
                 }
                 else
                 {
-                    beeStatus.Value = Status.Gathering;
+                    beeStatus.Value = Status.Attacking;// TODO: Change back to Status.Gathering
                 }
             }
         }).Schedule();

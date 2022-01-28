@@ -20,16 +20,18 @@ public partial class BeeResourceTargeting : SystemBase
                 
         Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation, in BeeStatus beeStatus) =>
         {
-            if (heldItem.Value != Entity.Null && beeStatus.Value == Status.Gathering)
-            {
-                // Switch target to home if holding a resource
-                beeTargets.CurrentTargetPosition = beeTargets.HomePosition;
-                beeTargets.CurrentTargetPosition.z = translation.Value.z;
-            }
-            else if (beeTargets.ResourceTarget != Entity.Null && beeStatus.Value == Status.Gathering)
-            {
-                // If has a target resource & not holding it, then go for it
-                beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
+            if(beeStatus.Value == Status.Gathering){
+                if (heldItem.Value != Entity.Null)
+                {
+                    // Switch target to home if holding a resource
+                    beeTargets.CurrentTargetPosition = beeTargets.HomePosition;
+                    beeTargets.CurrentTargetPosition.z = translation.Value.z;
+                }
+                else if (beeTargets.ResourceTarget != Entity.Null)
+                {
+                    // If has a target resource & not holding it, then go for it
+                    beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
+                }
             }
         }).Run();
         

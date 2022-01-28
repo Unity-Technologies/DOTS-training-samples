@@ -22,19 +22,19 @@ public partial class BeeEnemyTargeting : SystemBase
         Entities.WithNativeDisableContainerSafetyRestriction(allTranslations).WithDisposeOnCompletion(beeAEntities)
             .WithDisposeOnCompletion(beeBEntities)
             .ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
-            if (beeStatus.Value == Status.Attacking && beeTargets.EnemyTarget == Entity.Null)
+            if (beeStatus.Value == Status.Attacking)
             {
-                if (team.Value == TeamName.A)
+                if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null)
                 {
                     int randomIndex = randomState.Random.NextInt(beeBEntities.Length);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
                 }
-                else
+                if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null)
                 {
                     int randomIndex = randomState.Random.NextInt(beeAEntities.Length);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
                 }
-
+                
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
             }
         }).Schedule();

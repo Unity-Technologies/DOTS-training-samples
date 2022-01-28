@@ -53,7 +53,7 @@ public partial class BeeGatheringMovement : SystemBase
             {
                 // TODO: Extract the item grabbing / dropping
 
-                if (beeStatus.Value != Status.Attacking)
+                if (beeStatus.Value == Status.Gathering) // TODO: Change back to != Status.attacking 
                 {
                     float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                     float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);

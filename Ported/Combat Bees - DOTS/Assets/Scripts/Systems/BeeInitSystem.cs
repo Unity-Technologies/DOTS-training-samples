@@ -8,7 +8,7 @@ public partial class BeeInitSystem : SystemBase
     {
         Entities.WithAll<BeeTag>().ForEach((Entity entity, ref RandomState randomState, ref Agression agression) =>
         {
-            if (agression.Value == -1f)
+            if (agression.Value == 0f)
             {
                 //Debug.Log("Index: " + entity.Index);
                 //Debug.Log("State: " + randomState.Random.state);
