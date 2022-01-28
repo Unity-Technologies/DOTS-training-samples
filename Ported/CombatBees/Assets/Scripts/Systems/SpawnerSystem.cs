@@ -79,12 +79,6 @@ public partial class SpawnerSystem : SystemBase
                 DateTime.Now.Month +
                 DateTime.Now.Year);
 
-            // Note: looks like getting a singleton reference and then querying for the same object results in an error
-            // var spawnerSingleton = GetSingleton<Spawner>();
-            // var foodRowsAndColumns = spawnerSingleton.ArenaExtents.y * 2 - 2;
-            // var planarOffset = foodRowsAndColumns / 2;
-            // var halfArenaHeight = spawnerSingleton.ArenaHeight / 2;
-
             Entities
                 .ForEach((in Spawner spawner) =>
                 {
