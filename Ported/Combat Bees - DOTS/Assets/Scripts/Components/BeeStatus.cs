@@ -9,5 +9,6 @@ public enum Status
 {
     Idle,
     Gathering,
-    Attacking
+    Attacking,
+    Dead
 }

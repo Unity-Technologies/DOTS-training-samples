@@ -417,7 +417,7 @@ MonoBehaviour:
   RotationStiffness: 1
   TeamAttraction: -0.4
   TargetReach: 0.3
-  AttackDashReach: 3
+  AttackDashReach: 20
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0

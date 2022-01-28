@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Combatbees.Testing.Maria;
+using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
@@ -21,12 +22,18 @@ public partial class BeeAttackingMovement : SystemBase
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                 float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 
-                if (distanceFromTarget < beeProperties.TargetReach)
+                if (distanceFromTarget < beeProperties.TargetReach + 2)
                 {
                     beeStatus.Value = Status.Idle;
                     beeTargets.EnemyTarget = Entity.Null;
                     // TODO: Set other bee to dead
                     Debug.Log("Idle now");
+                    
+                    // QUESTION: We want to target the enemy bee and then assign 'dead' to it. However, this is not possible because 
+                    // we are already beeTargets from the other bee.
+                    var enemyEntity = GetComponent<BeeStatus>(beeTargets.EnemyTarget);
+                    enemyEntity.Value = Status.Dead;
+                    
                     return;
                 }
                 if (distanceFromTarget < beeProperties.AttackDashReach) // Enemy reached
@@ -48,8 +55,6 @@ public partial class BeeAttackingMovement : SystemBase
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
                     velocity.Value *= 1f - beeProperties.Damping;
                 }
-
-                
                 
                 // Move bee closer to the target
                 translation.Value += velocity.Value * deltaTime;
