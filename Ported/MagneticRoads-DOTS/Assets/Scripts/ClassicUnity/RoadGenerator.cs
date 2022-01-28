@@ -281,8 +281,29 @@ public class RoadGenerator:MonoBehaviour
 				yield return null;
 			}
 		}
+		
 
 		Debug.Log(trackSplines.Count + " road splines");
+		// generate road meshes
+
+		List<Vector3> vertices = new List<Vector3>();
+		List<Vector2> uvs = new List<Vector2>();
+		List<int> triangles = new List<int>();
+
+		int triCount = 0;
+
+		for (int i=0;i<trackSplines.Count;i++) {
+			trackSplines[i].GenerateMesh(vertices,uvs,triangles);	
+			
+			vertices.Clear();
+			uvs.Clear();
+			triangles.Clear();
+
+			if (i%10==0) {
+				yield return null;
+			}
+		}
+
 
 
 		// generate intersection matrices for batch-rendering
