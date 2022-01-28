@@ -20,11 +20,12 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>Ants bounce off of walls at the inverse angle.</li>
 <li>Ants will steer towards the food source (green dot) if they have line of sight.</li>
 <li>Ants leave pheromone in the spots they walk over.</li>
-<li>Ant steering is biased towards the nearest adjacent spot of pheromone.</li>
+<li>Ant steering is affected by pheromones, goal location (food or nest), obstacle avoidance and obstacle "bounce".</li>
 <li>Pheromone at a spot decays over time.</li>
 <li>Ant steering is also slightly randomized, so ants don’t walk in straight lines.</li>
 <li>The gaps in the ring walls randomly vary in size and placement.</li>
 <li>Keyboard controls allow the user to slow down, speed up, and reset the simulation.</li>
+<li>The amount of pheromone an ant drops depends on the speed of the ant, and the speed depends on steering.</li>
 </ul>
 </details>
 
@@ -57,12 +58,12 @@ Feel free to copy assets and code snippets from the originals into your ports. T
    <summary><strong>Bucket Brigade</strong>: Firefighters pass buckets along a chain to extinguish a fire.<br><i>Click here for details</i></summary>
      
    <ul>
-<li>Each cell of the grid has a temperature from 0.0 to 1.0. Cells above 0.2 are on fire and transmit heat to their neighbors. The color and height of a fire cell reflects its temperature. (For visual effect, a fire cell's height randomly oscilates a small amount, but this does not reflect its actual temperature.)</li>
+<li>Each cell of the grid has a temperature from 0.0 to 1.0. Cells above 0.2 are on fire and transmit heat to their neighbors. The color and height of a fire cell reflects its temperature. (For visual effect, a fire cell's height randomly oscillates a small amount, but this does not reflect its actual temperature.)</li>
 <li>On start, a few random cells are on fire. Buckets are randomly placed around the field.</li>
 <li>Workers are grouped into teams. Each team picks the closest cell on fire and forms two lines from the fire to the nearest water (blue cells outside the field). One line passes full buckets; the other passes empty buckets.</li>
 <li>Each team has a bucket fetcher, who retrieves the nearest bucket, walks it to the water at the end of the line, fills the bucket, and then drops it.</li>
 <li>Workers in the 'pass full' line look for full buckets on the ground within a small radius. When found, they walk over, pick up the bucket, carry it to the next worker up the line, and drop it. The last worker in the 'pass full' line empties the bucket on the fire (lowering the temperature of that cell and its eight surrounding cells to zero). Workers move slower while carrying a full bucket.</li>
-<li>Workers in the 'pass empty' line behave the same but only carry empty buckets. The last worker in the 'pass empty' line will fill the bucket in the nearest water.</li>
+<li>Workers in the 'pass empty' line behave the same but only carry empty buckets.</li>
 <li>Every frame, a team will reposition its line to the fire cell closest to its current water source.</li>
 <li>When a team's water source is exhausted, it repositions the line to the next closest water.</li>
 <li>When repositioning, a worker will not resume its normal behavior until it has reached its new position.</li>
@@ -152,14 +153,16 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 ---
 
 <details>
-  <summary><strong>LabRat</strong>: Place arrows on the board to route the most rats into your home base.<br><i>Click here for details</i></summary>
+  <summary><strong>LabRat</strong>: Place arrows on the board to route the most mice into your home base.<br><i>Click here for details</i></summary>
     
    <ul>
-<li>Mice spawn at frequent, randomized intervals in the top and bottom corners. The top mice head down. The bottom mice head up.</li>
+<li>Mice spawn at frequent, randomized intervals from locations randomly chosen at startup.</li>
+<li>The board has holes at random locations, both mice and cats can fall into those holes and despawn when that happens.</li>
 <li>At start of play, walls are randomly placed between grid cells.</li>
 <li>Cats and mice travel on the grid, changing direction when they hit a wall or travel over an arrow.</li>
 <li>Cats spawn in random squares. When a cat and mouse intersect, the mouse is eaten.</li>
 <li>When a mouse hits a player's 'home base' (one of the four dots placed near the center of the grid), the mouse disappears, and the player is awarded a point.</li>
+<li>Similarly, when a cat hits a player's 'home base', the cat disappears, and the player gets negative points.</li>
 <li>Players can place arrows in cells of the board. The green player places green arrows, the red player places red arrows, etc. A player cannot place their arrows in a cell occupied by an arrow of another player.</li>
 <li>Once a player has three arrows on the board, their next placed arrow removes their oldest arrow on the board.</li>
 <li>Only one player is human. The AI players just place their arrows randomly at random intervals.</li>
