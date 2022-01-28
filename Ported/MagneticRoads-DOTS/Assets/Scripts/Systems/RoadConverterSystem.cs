@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class RoadConverterSystem : SystemBase
 {
@@ -79,7 +80,7 @@ public partial class RoadConverterSystem : SystemBase
         ecb.AddBuffer<CarQueue>(entity);
         ecb.AddComponent(entity, new CarQueueMaxLength
         {
-            length = (int)(splineDef.measuredLength / 0.15f) //TODO add car length to const comp
+            length = Mathf.Max(1, (int)(splineDef.measuredLength / .3f)) //TODO add car length to const comp
         });
         return entity;
     }
