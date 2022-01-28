@@ -9,23 +9,42 @@ using Unity.Transforms;
 public partial class AntGeneralSteering : SystemBase
 {
     private float2 m_NestPosition;
+    private float m_MapSize = 0.5f;
+    private float m_ColonySize = 0.5f;
 
     protected override void OnStartRunning()
     {
         var nestEntity = GetSingletonEntity<ColonyTag>();
         var nestTranslation = GetComponent<Translation>(nestEntity);
+        var colonyEntity = GetSingletonEntity<ColonyTag>();
+        var scale = GetComponent<NonUniformScale>(colonyEntity);
+        m_MapSize = Configuration.MapSizeWorld;
+        m_ColonySize = scale.Value.x;
         m_NestPosition = nestTranslation.Value.xy;
     }
 
     protected override void OnUpdate()
     {
         float2 localNestPosition = m_NestPosition;
+        float mapSize = m_MapSize;
         Entities
-            .ForEach((ref GeneralDirection generalDirection, in Loadout loadout, in Translation translation) =>
+            .ForEach((ref GeneralDirection generalDirection, in Velocity velocity, in Loadout loadout, in Translation translation) =>
         {
-            // ants flee nest if they have no resources
-            float2 offsetToNest = translation.Value.xy - localNestPosition;
-            generalDirection.Value = math.normalize(offsetToNest) * (1.0f + loadout.Value * -2.0f);
+            float2 offsetToNest = localNestPosition - translation.Value.xy;
+            float distToNest = math.length(offsetToNest);
+            float2 nestDirection = offsetToNest / distToNest;
+            if (loadout.Value == 0)
+            {
+                float headingToNest = math.dot(nestDirection, velocity.Direction);
+                float proximityToNest = 1.0f - (distToNest / mapSize);
+                generalDirection.Value = (-offsetToNest / distToNest) * headingToNest * proximityToNest;
+            }
+            else
+            { 
+                float headingFromNest = math.dot(-nestDirection, velocity.Direction);
+                float proximityToNest = distToNest / mapSize;
+                generalDirection.Value = (offsetToNest / distToNest) * headingFromNest * proximityToNest;
+            }
         }).ScheduleParallel();
     }
 
