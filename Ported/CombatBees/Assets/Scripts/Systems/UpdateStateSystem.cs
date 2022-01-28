@@ -273,9 +273,7 @@ public partial class UpdateStateSystem : SystemBase
                         if (foodCount > 0)
                         {
                             // Choose food at random here
-                            int randomInt =
-                                random.NextInt(foodTranslationData
-                                    .Length); // Note: random int/uint values are non-inclusive of the maximum value
+                            int randomInt = random.NextInt(foodCount); // Note: random int/uint values are non-inclusive of the maximum value
                             targetedEntity.Value = foodEntityData[randomInt];
 
                             Translation randomFoodTranslation = foodTranslationData[randomInt];
@@ -298,20 +296,26 @@ public partial class UpdateStateSystem : SystemBase
                         Entity nearestEntSoFar = Entity.Null;
                         float3 nearestTargetLocation = float3.zero;
 
-
-                        for (int i = 0; i < beeCount; i++)
+                        // Randomly search through some bees (beesToSearch) and choose the closest one, if any are valid
+                         // Note: random int/uint values are non-inclusive of the maximum value
+                        var searchedBeeCount = 0;
+                        var beesToSearch = min(beeCount, 30);
+                        while (searchedBeeCount < beesToSearch)
                         {
-                            if (beeEntityData[i] != Entity.Null)
+                            searchedBeeCount++;
+                            
+                            int randomSearchIndex = random.NextInt(beeCount);
+                            
+                            // Make sure it exists and is on the other team
+                            if (beeEntityData[randomSearchIndex] != Entity.Null &&
+                                beeTeamData[randomSearchIndex] != (int) team.Value)
                             {
-                                if (beeTeamData[i] != (int) team.Value)
+                                float dist = distancesq(translation.Value, beeTranslationData[randomSearchIndex].Value);
+                                if (dist < smallestDistance)
                                 {
-                                    float dist = distancesq(translation.Value, beeTranslationData[i].Value);
-                                    if (dist < smallestDistance)
-                                    {
-                                        smallestDistance = dist;
-                                        nearestEntSoFar = beeEntityData[i];
-                                        nearestTargetLocation = beeTranslationData[i].Value;
-                                    }
+                                    smallestDistance = dist;
+                                    nearestEntSoFar = beeEntityData[randomSearchIndex];
+                                    nearestTargetLocation = beeTranslationData[randomSearchIndex].Value;
                                 }
                             }
                         }
@@ -321,7 +325,6 @@ public partial class UpdateStateSystem : SystemBase
                             targetedEntity.Value = nearestEntSoFar;
                             movement.GoTo(translation.Value, nearestTargetLocation);
                             state.value = StateValues.Attacking;
-                            Debug.Log("Set to Attacking!");
                         }
                     }
 
