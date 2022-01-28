@@ -6,6 +6,11 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Unity.Entities;
+using Unity.Rendering;
+using Unity.Transforms;
+using Unity.Jobs;
+using Unity.Mathematics;
 
 public class RoadGenerator:MonoBehaviour
 {
@@ -280,41 +285,6 @@ public class RoadGenerator:MonoBehaviour
 		Debug.Log(trackSplines.Count + " road splines");
 
 
-		// generate road meshes
-
-		List<Vector3> vertices = new List<Vector3>();
-		List<Vector2> uvs = new List<Vector2>();
-		List<int> triangles = new List<int>();
-
-		int triCount = 0;
-
-		for (int i=0;i<trackSplines.Count;i++) {
-			trackSplines[i].GenerateMesh(vertices,uvs,triangles);	
-
-			if (triangles.Count/3>trisPerMesh || i==trackSplines.Count-1) {
-				// our current mesh data is ready to go!
-				if (triangles.Count > 0) {
-					Mesh mesh = new Mesh();
-					mesh.name = "Generated Road Mesh";
-					mesh.SetVertices(vertices);
-					mesh.SetUVs(0,uvs);
-					mesh.SetTriangles(triangles,0);
-					mesh.RecalculateNormals();
-					mesh.RecalculateBounds();
-					roadMeshes.Add(mesh);
-					triCount += triangles.Count / 3;
-				}
-
-				vertices.Clear();
-				uvs.Clear();
-				triangles.Clear();
-			}
-
-			if (i%10==0) {
-				yield return null;
-			}
-		}
-
 		// generate intersection matrices for batch-rendering
 		int batch = 0;
 		intersectionMatrices.Add(new List<Matrix4x4>());
@@ -326,42 +296,13 @@ public class RoadGenerator:MonoBehaviour
 			}
 		}
 
-		Debug.Log(triCount + " road triangles ("+roadMeshes.Count+" meshes)");
-
-
-		// spawn cars
-		//
-		// batch = 0;
-		// for (int i = 0; i < 4000; i++) {
-		// 	Car car = new Car();
-		// 	car.maxSpeed = carSpeed;
-		// 	car.roadSpline = trackSplines[Random.Range(0,trackSplines.Count)];
-		// 	car.splineTimer = 1f;
-		// 	car.splineDirection = -1 + Random.Range(0,2) * 2;
-		// 	car.splineSide = -1 + Random.Range(0,2) * 2;
-		//
-		// 	car.roadSpline.GetQueue(car.splineDirection,car.splineSide).Add(car);
-		//
-		// 	cars.Add(car);
-		// 	carMatrices[batch].Add(Matrix4x4.identity);
-		// 	carColors[batch].Add(Random.ColorHSV());
-		// 	if (carMatrices[batch].Count == instancesPerBatch) {
-		// 		carMatrices.Add(new List<Matrix4x4>());
-		// 		carColors.Add(new List<Vector4>());
-		// 		batch++;
-		// 	}
-		// }
+		// Debug.Log(triCount + " road triangles ("+roadMeshes.Count+" meshes)");
 
 		ConvertToMultiSplinePerRoad();
 		bullshit = true;
 	}
 
 	private void Update() {
-
-		
-		for (int i=0;i<roadMeshes.Count;i++) {
-			Graphics.DrawMesh(roadMeshes[i],Matrix4x4.identity,roadMaterial,0);
-		}
 		for (int i=0;i<intersectionMatrices.Count;i++) {
 			Graphics.DrawMeshInstanced(intersectionMesh,0,roadMaterial,intersectionMatrices[i]);
 		}
@@ -601,3 +542,4 @@ public class RoadGenerator:MonoBehaviour
 		return splineDef.startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * splineDef.anchor1 * (1f - t) * (1f - t) * t + 3f * splineDef.anchor2 * (1f - t) * t * t + splineDef.endPoint * t * t * t;
 	}
 }
+
