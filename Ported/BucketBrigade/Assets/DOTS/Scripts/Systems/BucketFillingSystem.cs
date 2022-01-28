@@ -61,10 +61,12 @@ public partial class BucketFllingSystem : SystemBase
 
                 if (lake.Volume <= 0)
                 {
+                    if (!HasComponent<EmptyLake>(e))
+                        ecb.AddComponent<EmptyLake>(entityInQueryIndex, e);
+
                     ecb.RemoveComponent<HoldsBucketBeingFilled>(entityInQueryIndex, actionEntry.FireFighter);
 
                     fillActions.Clear();
-                    ecb.DestroyEntity(entityInQueryIndex, e);
                     return;
                 }
             }

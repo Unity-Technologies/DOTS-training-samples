@@ -50,6 +50,10 @@ public partial class SetLakeAsTargetSystem : SystemBase
 
                 if (distance < 0.1f )
                 {
+                    // Do nothing, lake will be updated by team system in the next frame and we want to go there
+                    if (HasComponent<EmptyLake>(bucketFetcher.Lake))
+                        return;
+
                     ecb.AddComponent<HoldsBucketBeingFilled>(entityInQueryIndex, e);
                     ecb.AppendToBuffer(entityInQueryIndex, bucketFetcher.Lake,
                         new BucketFillAction

@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(PickLinePositionsForTeamSystem))]
 public partial class PassBucketSystem : SystemBase
 {
     private EntityCommandBufferSystem CommandBufferSystem;
@@ -33,7 +34,8 @@ public partial class PassBucketSystem : SystemBase
 
                 if (HasComponent<BucketFetcher>(e))
                 {
-                    if (!HasComponent<PassToTargetAssigned>(e))
+                    if (!HasComponent<PassToTargetAssigned>(e) ||
+                        HasComponent<EmptyBucket>(holdingBucket.HeldBucket))
                         return;
 
                     ecb.RemoveComponent<PassToTargetAssigned>(e);

@@ -18,3 +18,5 @@ public struct BucketFillAction : IBufferElementData
     public float BucketVolume;
     public float3 Position;
 }
+
+public struct EmptyLake : IComponentData { }

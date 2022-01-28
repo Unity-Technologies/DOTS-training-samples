@@ -5,14 +5,6 @@ using Unity.Transforms;
 
 public partial class RenderWaterSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
-
-    protected override void OnCreate()
-    {
-        CommandBufferSystem
-            = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    }
-
     protected override void OnUpdate()
     {
         Entities
@@ -21,7 +13,5 @@ public partial class RenderWaterSystem : SystemBase
             {
                 scale.Value = math.lerp(float3.zero, originalLake.Scale, lake.Volume / originalLake.Volume);
             }).ScheduleParallel();
-
-        CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

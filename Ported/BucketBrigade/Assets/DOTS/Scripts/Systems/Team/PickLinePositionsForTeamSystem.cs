@@ -16,7 +16,7 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
     protected override void OnCreate()
     {
         CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-        LakeQuery = GetEntityQuery(ComponentType.ReadOnly<Lake>(), ComponentType.ReadOnly<Translation>());
+        LakeQuery = GetEntityQuery(ComponentType.ReadOnly<Lake>(), ComponentType.ReadOnly<Translation>(), ComponentType.Exclude<EmptyLake>());
         FireQuery = GetEntityQuery(ComponentType.ReadOnly<FireRenderer>(), ComponentType.ReadOnly<Translation>());
     }
 
