@@ -1,28 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Entities;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-public struct IntersectionComponent : ISharedComponentData, IEquatable<IntersectionComponent>
-{
-	public List<TrackSpline> neighborSplines;
-	public Vector3Int normal;
-
-	public bool Equals(IntersectionComponent other)
-	{
-		return Equals(neighborSplines, other.neighborSplines);
-	}
-
-	public override bool Equals(object obj)
-	{
-		return obj is IntersectionComponent other && Equals(other);
-	}
-
-	public override int GetHashCode()
-	{
-		return (neighborSplines != null ? neighborSplines.GetHashCode() : 0);
-	}
-}
 public class Intersection
 {
 	public int id;

@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
-using Unity.Entities;
-using Unity.Rendering;
-using Unity.Transforms;
-using Unity.Jobs;
-using Unity.Mathematics;
 
 public class RoadGenerator:MonoBehaviour
 {
-	public static bool bullshit = false;
+	public static RoadGenerator Instance;
+	
+	public bool ready = false;
 	
 	public int voxelCount=60;
 	public float voxelSize = 1f;
@@ -27,8 +22,8 @@ public class RoadGenerator:MonoBehaviour
 	public float carSpeed=2f;
 
 	bool[,,] trackVoxels;
-	public static List<Intersection> intersections;
-	public static List<TrackSpline> trackSplines;
+	public List<Intersection> intersections;
+	public List<TrackSpline> trackSplines;
 	Intersection[,,] intersectionsGrid;
 	// List<Car> cars;
 
@@ -129,7 +124,8 @@ public class RoadGenerator:MonoBehaviour
 
 	private void Awake()
 	{
-		bullshit = false;
+		Instance = this;
+		ready = false;
 	}
 
 	void Start() {
@@ -290,8 +286,6 @@ public class RoadGenerator:MonoBehaviour
 		List<Vector2> uvs = new List<Vector2>();
 		List<int> triangles = new List<int>();
 
-		int triCount = 0;
-
 		for (int i=0;i<trackSplines.Count;i++) {
 			trackSplines[i].GenerateMesh(vertices,uvs,triangles);	
 			
@@ -320,7 +314,7 @@ public class RoadGenerator:MonoBehaviour
 		// Debug.Log(triCount + " road triangles ("+roadMeshes.Count+" meshes)");
 
 		ConvertToMultiSplinePerRoad();
-		bullshit = true;
+		ready = true;
 	}
 
 	private void Update() {
@@ -329,26 +323,26 @@ public class RoadGenerator:MonoBehaviour
 		}
 	}
 
-	public static SplineDef[] subSplines;
-	public static List<int>[] splineLinks;
-	public static int[] intersectionLinks;
-	public static int originIntersectionCount;
+	public SplineDef[] subSplines;
+	public List<int>[] splineLinks;
+	public int[] intersectionLinks;
+	public int originIntersectionCount;
 	
 	private void ConvertToMultiSplinePerRoad()
 	{
 		var splineToMultiSpline = new SplineDef[trackSplines.Count][];
 		splineLinks = new List<int>[trackSplines.Count*4];
-		multiSplineId = 0;
+		var subSplineId = 0;
 		originIntersectionCount = intersections.Count;
 		
 		foreach (var spline in trackSplines)
 		{
 			splineToMultiSpline[spline.splineId] = new SplineDef[4];
 			var splineDict = splineToMultiSpline[spline.splineId];
-			splineDict[0] = ToSplineDef(spline, false, true);
-			splineDict[1] = ToSplineDef(spline, true, true);
-			splineDict[2] = ToSplineDef(spline, false, false);
-			splineDict[3] = ToSplineDef(spline, true, false);
+			splineDict[0] = ToSplineDef(spline, false, true, ref subSplineId);
+			splineDict[1] = ToSplineDef(spline, true, true, ref subSplineId);
+			splineDict[2] = ToSplineDef(spline, false, false, ref subSplineId);
+			splineDict[3] = ToSplineDef(spline, true, false, ref subSplineId);
 		}
 		
 		foreach (var spline in splineToMultiSpline)
@@ -464,13 +458,11 @@ public class RoadGenerator:MonoBehaviour
 		
 	}
 
-	private static int multiSplineId;
-	
-	private SplineDef ToSplineDef(TrackSpline spline, bool reversed, bool isTop)
+	private SplineDef ToSplineDef(TrackSpline spline, bool reversed, bool isTop, ref int subSplineId)
 	{
 		var def = new SplineDef
 		{
-			splineId = multiSplineId,
+			splineId = subSplineId,
 			startPoint = reversed ? spline.endPoint : spline.startPoint,
 			anchor1 = reversed ? spline.anchor2 : spline.anchor1,
 			anchor2 = reversed ? spline.anchor1 : spline.anchor2,
@@ -483,19 +475,7 @@ public class RoadGenerator:MonoBehaviour
 			offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f),
 			measuredLength = spline.measuredLength
 		};
-
-		// var realStartOffset = Extrude(def, 0f);
-		// var realEndOffset = Extrude(def, 1f);
-		// var realAnchor1Offset = Extrude(def, 1/3f);
-		// var realAnchor2Offset = Extrude(def, 2/3f);
-		//
-		// def.offset = float2.zero;
-		// def.startPoint += (float3)realStartOffset;
-		// def.endPoint += (float3)realEndOffset;
-		// def.anchor1 += (float3)realAnchor1Offset;
-		// def.anchor2 += (float3)realAnchor2Offset;
-		
-		multiSplineId++;
+		subSplineId++;
 		return def;
 	}
 	private static Vector3 Extrude(SplineDef splineDef, float t)

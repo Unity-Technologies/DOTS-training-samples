@@ -10,33 +10,33 @@ public partial class RoadConverterSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        if (!RoadGenerator.bullshit || RoadGenerator.trackSplines.Count == 0)
+        if (!RoadGenerator.Instance.ready || RoadGenerator.Instance.trackSplines.Count == 0)
             return;
         
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var roadEntityBuffer = new Entity[RoadGenerator.trackSplines.Count*4];
+        var roadEntityBuffer = new Entity[RoadGenerator.Instance.trackSplines.Count*4];
         //TODO use a job for each spline
-        foreach (var splineDef in RoadGenerator.subSplines)
+        foreach (var splineDef in RoadGenerator.Instance.subSplines)
         {
             roadEntityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, splineDef);
         }
 
-        var intersectionEntityBuffer = new Entity[RoadGenerator.originIntersectionCount*2];
-        for (var i = 0; i < RoadGenerator.originIntersectionCount*2; i++)
+        var intersectionEntityBuffer = new Entity[RoadGenerator.Instance.originIntersectionCount*2];
+        for (var i = 0; i < RoadGenerator.Instance.originIntersectionCount*2; i++)
         {
             var intersectionEntity = ecb.CreateEntity();
             ecb.AddBuffer<CarQueue>(intersectionEntity);
 
             ecb.AddComponent<Translation>(intersectionEntity);
-            ecb.SetComponent(intersectionEntity, new Translation{Value = RoadGenerator.intersections[i/2].position});
+            ecb.SetComponent(intersectionEntity, new Translation{Value = RoadGenerator.Instance.intersections[i/2].position});
             
             intersectionEntityBuffer[i] = intersectionEntity;
         }
         var material = Resources.Load("Road", typeof(Material)) as Material;
         MeshData meshData = new MeshData();
         meshData.init();
-        foreach (var spline in RoadGenerator.trackSplines)
+        foreach (var spline in RoadGenerator.Instance.trackSplines)
         {
 	        meshData.Clear();
 		
@@ -71,13 +71,13 @@ public partial class RoadConverterSystem : SystemBase
         var wayfinderSingleton = ecb.CreateEntity();
         ecb.SetName(wayfinderSingleton, "SplineHolder");
         var splineBuffer = ecb.AddBuffer<SplineDefArrayElement>(wayfinderSingleton);
-        foreach (var splineDef in RoadGenerator.subSplines)
+        foreach (var splineDef in RoadGenerator.Instance.subSplines)
         {
             splineBuffer.Add(new SplineDefArrayElement {Value = splineDef});
         }
         
         var splineLinkBuffer = ecb.AddBuffer<SplineLink>(wayfinderSingleton);
-        foreach (var link in RoadGenerator.splineLinks)
+        foreach (var link in RoadGenerator.Instance.splineLinks)
         {
             splineLinkBuffer.Add(new SplineLink {Value = LinkToInt2(link)});
         }
@@ -89,9 +89,9 @@ public partial class RoadConverterSystem : SystemBase
         }
         
         var splineToIntersection = ecb.AddBuffer<IntersectionArrayElement>(wayfinderSingleton);
-        for (var i = 0; i < RoadGenerator.subSplines.Length; i++)
+        for (var i = 0; i < RoadGenerator.Instance.subSplines.Length; i++)
         {
-            splineToIntersection.Add(new IntersectionArrayElement {Value = intersectionEntityBuffer[RoadGenerator.intersectionLinks[i]]});
+            splineToIntersection.Add(new IntersectionArrayElement {Value = intersectionEntityBuffer[RoadGenerator.Instance.intersectionLinks[i]]});
         }
         
         ecb.Playback(EntityManager);
@@ -99,6 +99,11 @@ public partial class RoadConverterSystem : SystemBase
         
         Enabled = false;
 
+        RoadGenerator.Instance.intersectionLinks = null;
+        RoadGenerator.Instance.splineLinks = null;
+        RoadGenerator.Instance.subSplines = null;
+        RoadGenerator.Instance.trackSplines = null;
+        
         World.GetOrCreateSystem<CarSpawnerSystem>().Enabled = true;
     }
 
