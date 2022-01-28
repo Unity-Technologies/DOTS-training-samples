@@ -63,6 +63,26 @@ public partial class BeeAttackingMovement : SystemBase
                 translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
             }
         }).Run();
+
+        bool beeIsdead = false;
+        // get the position of the Dead bee
+        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, in BeeDead beeDead, in Translation translation) =>
+        {
+            if(beeDead.Value)
+            {
+                beeStatus.Value = Status.Dead;
+                beeIsdead = true;
+            }
+        }).Run();
+
+        if (beeIsdead)
+        {
+            letBeeDisappearAndInitBloodParticles();
+            moveBloodParticles();
+            timeToLive();
+        }
+        
+        
     }
     
     private BeeProperties GetBeeProperties()
@@ -76,4 +96,75 @@ public partial class BeeAttackingMovement : SystemBase
 
         return beeProps;
     }
+    
+    private void letBeeDisappearAndInitBloodParticles(){
+                float3 pos = new float3(0);
+                float steps = 0f;
+                
+                
+                // initiate/spawn the blood particles
+                Entities.ForEach((Entity entity,ref BeeDead beeDead, in Translation translation) =>
+                {
+                    pos = translation.Value;
+
+                    var spawner = GetSingleton<BeeBloodSpawner>();
+                    // To make the bloodparticles only spawn once 
+                    if (!beeDead.AnimationStarted)
+                    {
+                        beeDead.AnimationStarted = true;
+                        for (int i = 0; i < spawner.amountParticles; i++)
+                        {
+                            Entity e = EntityManager.Instantiate(spawner.bloodEntity);
+                            EntityManager.SetComponentData(e, new Translation
+                            {
+                                Value = translation.Value + new float3(pos)    
+                            });
+                            float x = spawner.random.NextFloat(-3, 3);
+                            float y = spawner.random.NextFloat(0, 3);
+                            float z = spawner.random.NextFloat(-3, 3);
+                            
+                            EntityManager.SetComponentData(e, new BloodParticle
+                            {
+                                direction = new float3(x, y, z),
+                                steps = spawner.steps,
+                                timeToLive = spawner.random.NextFloat(0, 5)
+                            });
+                        }
+                    }
+                }).WithStructuralChanges().Run();
+            
+        }
+
+        private void moveBloodParticles()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.steps )
+                {
+                    bloodparticle.steps -= Time.DeltaTime;
+                    translation.Value = translation.Value + new float3(bloodparticle.direction * Time.DeltaTime);
+                }
+                else
+                {
+                    if(translation.Value.y > 0) translation.Value.y += -10 * Time.DeltaTime;
+                }
+            }).WithStructuralChanges().Run();
+        }
+
+        private void timeToLive()
+        {
+            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
+            {
+                if (0 <= bloodparticle.timeToLive )
+                {
+                    bloodparticle.timeToLive -= Time.DeltaTime;
+                }
+                else
+                {
+                    EntityManager.DestroyEntity(entity);
+                }
+            }).WithStructuralChanges().Run();   
+        }
 }
+
+

@@ -339,6 +339,7 @@ GameObject:
   - component: {fileID: 1148196124}
   - component: {fileID: 1148196125}
   - component: {fileID: 1148196126}
+  - component: {fileID: 1148196127}
   m_Layer: 0
   m_Name: Simulation Settings
   m_TagString: Untagged
@@ -418,6 +419,22 @@ MonoBehaviour:
   TeamAttraction: -0.4
   TargetReach: 0.3
   AttackDashReach: 20
+--- !u!114 &1148196127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148196121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d62d78a55021444c956f8e4c5aa0ce85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bloodEntity: {fileID: 5992582591906006101, guid: 77adb9945a5ca4e0ab956cca4c20b363, type: 3}
+  amountParticles: 10
+  steps: 10
+  animationHasStarted: 0
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0

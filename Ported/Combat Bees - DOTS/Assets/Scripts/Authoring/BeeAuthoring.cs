@@ -1,3 +1,4 @@
+using Combatbees.Testing.Maria;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -22,7 +23,8 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         
         dstManager.AddComponentData(entity, new BeeDead()
         {
-            Value = false
+            Value = false,
+            AnimationStarted = false,
         });
 
         dstManager.AddComponentData(entity, new Velocity
@@ -64,6 +66,5 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value = false
         });
-        
     }
 }
