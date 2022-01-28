@@ -61,7 +61,7 @@ public partial class SetupGameSystem : SystemBase
 
                 for (int w = 0; w < totalWorkers; w++)
                 {
-                    var workerPos = pos + new float3(w % gameConstants.WorkersPerLine, 0, w / gameConstants.WorkersPerLine);
+                    var workerPos = pos;
 
                     //workersBuffer.Add(workers[w]);
 
