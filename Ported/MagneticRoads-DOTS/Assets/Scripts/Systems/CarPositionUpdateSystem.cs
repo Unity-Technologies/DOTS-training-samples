@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -15,10 +16,10 @@ public partial class CarPositionUpdateSystem : SystemBase
                 in SplineDef splineDef) =>
             {
                 var previousPos = translation.Value;
-                translation.Value = Extrude(splineDef, splinePosition, out Vector3 up);
+                translation.Value = Extrude(splineDef, splinePosition, out float3 up);
                 
-                Vector3 moveDir = translation.Value - previousPos;
-                if (moveDir == Vector3.zero)
+                float3 moveDir = translation.Value - previousPos;
+                if (moveDir.Equals(float3.zero))
                 {
                     moveDir = splineDef.endPoint - splineDef.startPoint;
                 }
@@ -28,14 +29,14 @@ public partial class CarPositionUpdateSystem : SystemBase
     }
 
 
-    private static Vector3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out Vector3 up)
+    private static float3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out float3 up)
     {
-        Vector3 tangent;
-        Vector2 point = splineDef.offset;
+        float3 tangent;
+        float2 point = splineDef.offset;
         var t = splinePosition.position;
 
-        Vector3 sample1 = Evaluate(t, splineDef);
-        Vector3 sample2;
+        float3 sample1 = Evaluate(t, splineDef);
+        float3 sample2;
 
         float flipper = 1f;
         if (t + .01f < 1f)
@@ -48,8 +49,8 @@ public partial class CarPositionUpdateSystem : SystemBase
             flipper = -1f;
         }
 
-        tangent = (sample2 - sample1).normalized * flipper;
-        tangent.Normalize();
+        tangent = math.normalize(sample2 - sample1) * flipper;
+        tangent = math.normalize(tangent);
 
         // each spline uses one out of three possible twisting methods:
         Quaternion fromTo = Quaternion.identity;
@@ -80,10 +81,10 @@ public partial class CarPositionUpdateSystem : SystemBase
         // for example: if startNormal and endNormal are equal, the road
         // can twist 0 or 360 degrees, but NOT 180.
 
-        float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
+        float smoothT = math.smoothstep(0f, 1f, t * 1.02f - .01f);
 
         up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * splineDef.startNormal.ToVector3();
-        Vector3 right = Vector3.Cross(tangent, up);
+        float3 right = Vector3.Cross(tangent, up);
 
         // // measure twisting errors:
         // // we have three possible spline-twisting methods, and
@@ -96,10 +97,10 @@ public partial class CarPositionUpdateSystem : SystemBase
         return sample1 + right * point.x + up * point.y;
     }
 
-    private static Vector3 Evaluate(float t, SplineDef splineDef) {
+    private static float3 Evaluate(float t, SplineDef splineDef) {
         // cubic bezier
 
-        t = Mathf.Clamp01(t);
+        t = math.clamp(t, 0, 1);
         return splineDef.startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * splineDef.anchor1 * (1f - t) * (1f - t) * t + 3f * splineDef.anchor2 * (1f - t) * t * t + splineDef.endPoint * t * t * t;
     }
 }

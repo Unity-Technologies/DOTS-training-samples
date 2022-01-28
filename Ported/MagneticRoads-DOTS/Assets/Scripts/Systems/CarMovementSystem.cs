@@ -40,8 +40,8 @@ public partial class CarMovementSystem : SystemBase
                         return;
                 }
                 
-                var splineVector = (splineDef.endPoint - splineDef.startPoint).ToVector3();
-                splinePosition.position += speed.speed * time * 1 / splineVector.magnitude;
+                var splineVector = (splineDef.endPoint - splineDef.startPoint);
+                splinePosition.position += speed.speed * time * 1 / math.length(splineVector);
                 if (splinePosition.position > 1.0f)
                 {
                     splinePosition.position = 1.0f;
@@ -56,6 +56,6 @@ public partial class CarMovementSystem : SystemBase
     private static float SqrMagnitude(float3 start, float3 end)
     {
         var diff = end - start;
-        return Math.Abs(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
+        return math.abs(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Rendering;
 using Random = Unity.Mathematics.Random;
 
@@ -30,7 +31,7 @@ public partial class CarSpawnerSystem : SystemBase
 
         foreach (var spline in splinesArray)
         {
-            var maxCarOnRoad = Math.Min(carPerRoad, spline.Value.measuredLength / carLength);
+            var maxCarOnRoad = math.min(carPerRoad, spline.Value.measuredLength / carLength);
             for (var i = 0; i < maxCarOnRoad; i++)
             {
                 var instance = ecb.Instantiate(prefab);
