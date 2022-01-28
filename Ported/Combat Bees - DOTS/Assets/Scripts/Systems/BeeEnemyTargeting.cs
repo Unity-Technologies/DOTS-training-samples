@@ -1,5 +1,6 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 
 public partial class BeeEnemyTargeting : SystemBase
 {
@@ -8,6 +9,8 @@ public partial class BeeEnemyTargeting : SystemBase
         NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);
         NativeList<Entity> beeBEntities = new NativeList<Entity>(Allocator.TempJob);
         
+        var allTranslations = GetComponentDataFromEntity<Translation>(true);
+
         Entities.WithAll<BeeTag>().ForEach((Entity entity, in Team team) =>
         {
             if(team.Value == TeamName.A)
@@ -16,7 +19,9 @@ public partial class BeeEnemyTargeting : SystemBase
                 beeBEntities.Add(entity);
         }).Run();
         
-        Entities.ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
+        Entities.WithNativeDisableContainerSafetyRestriction(allTranslations).WithDisposeOnCompletion(beeAEntities)
+            .WithDisposeOnCompletion(beeBEntities)
+            .ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
             if (beeStatus.Value == Status.Attacking && beeTargets.EnemyTarget == Entity.Null)
             {
                 if (team.Value == TeamName.A)
@@ -29,6 +34,8 @@ public partial class BeeEnemyTargeting : SystemBase
                     int randomIndex = randomState.Random.NextInt(beeAEntities.Length);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
                 }
+
+                beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
             }
         }).Schedule();
     }

@@ -52,7 +52,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 
         dstManager.AddComponentData(entity, new Agression
         {
-            Value = 0.5f
+            Value = 1f
         });
 
         dstManager.AddComponentData(entity, new Targeted

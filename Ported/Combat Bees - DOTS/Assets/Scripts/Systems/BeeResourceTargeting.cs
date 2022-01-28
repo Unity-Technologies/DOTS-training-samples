@@ -13,27 +13,26 @@ public partial class BeeResourceTargeting : SystemBase
     {
         NativeList<Entity> freeResources = GetFreeResources();
         NativeList<Entity> assignedResources = AssignResourcesToBees(freeResources);
-
+        
         MarkTargetedResources(assignedResources);
-
+        
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
-
-        Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation) =>
+                
+        Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation, in BeeStatus beeStatus) =>
         {
-            if (heldItem.Value != Entity.Null) // TODO: Check for bee status
+            if (heldItem.Value != Entity.Null && beeStatus.Value == Status.Gathering)
             {
                 // Switch target to home if holding a resource
                 beeTargets.CurrentTargetPosition = beeTargets.HomePosition;
                 beeTargets.CurrentTargetPosition.z = translation.Value.z;
             }
-            else if (beeTargets.ResourceTarget != Entity.Null)
+            else if (beeTargets.ResourceTarget != Entity.Null && beeStatus.Value == Status.Gathering)
             {
-                // If a resource target is assigned to the current bee select it as the current target
-                // (if not holding a resource => bee is home => go for a new resource)
+                // If has a target resource & not holding it, then go for it
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
             }
         }).Run();
-
+        
         freeResources.Dispose();
         assignedResources.Dispose();
     }

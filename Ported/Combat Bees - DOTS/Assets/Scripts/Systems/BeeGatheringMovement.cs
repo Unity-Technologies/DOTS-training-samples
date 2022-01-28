@@ -2,7 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class BeeGatheringMovement : SystemBase
 {
@@ -22,7 +21,6 @@ public partial class BeeGatheringMovement : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = World.Time.DeltaTime;
-        float3 currentTargetPosition = float3.zero;
 
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
 
@@ -53,75 +51,76 @@ public partial class BeeGatheringMovement : SystemBase
             WithDisposeOnCompletion(beeBEntities).ForEach(
             (Entity entity, ref Translation translation, ref Velocity velocity, ref BeeTargets beeTargets, ref HeldItem heldItem, ref RandomState randomState, ref BeeStatus beeStatus, in Team team) =>
             {
-                // TODO: Continue extracting resource targeting / positioning code to "BeeResourceTargeting"
-                
-                // TODO: Extract general movement
+                // TODO: Extract the item grabbing / dropping
 
-                float3 delta = currentTargetPosition - translation.Value;
-                float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-        
-                if (distanceFromTarget < beeProperties.TargetReach) // Target reached
+                if (beeStatus.Value != Status.Attacking)
                 {
-                    if (heldItem.Value == Entity.Null)
+                    float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
+                    float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+        
+                    if (distanceFromTarget < beeProperties.TargetReach) // Target reached
                     {
-                        // if not holding a resource and reached a target resource, grab the resource
-                        heldItem.Value = beeTargets.ResourceTarget;
-                        // Used to propagate the holder to the held item
-                        grabbedItemsAndHolders.Add(heldItem.Value, entity);
+                        if (heldItem.Value == Entity.Null)
+                        {
+                            // if not holding a resource and reached a target resource, grab the resource
+                            heldItem.Value = beeTargets.ResourceTarget;
+                            // Used to propagate the holder to the held item
+                            grabbedItemsAndHolders.Add(heldItem.Value, entity);
+                        }
+                        else
+                        {
+                            // if holding a resource and reached home, reset target and held item
+                            droppedItems.Add(heldItem.Value, Entity.Null);
+                            beeTargets.ResourceTarget = Entity.Null;
+                            heldItem.Value = Entity.Null;
+                            beeStatus.Value = Status.Idle;
+                        }
+                    }
+                    
+                    // Add velocity towards the current target
+                    velocity.Value += delta * (beeProperties.ChaseForce / distanceFromTarget);
+
+                    // Add random jitter
+                    float3 randomJitter = randomState.Random.NextFloat3(-1f, 1f);
+                    velocity.Value += randomJitter * beeProperties.FlightJitter;
+
+                    // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
+                    velocity.Value *= 1f - beeProperties.Damping;
+
+                    // Attraction to a random bee
+                    Entity randomBee;
+
+                    if (team.Value == TeamName.A)
+                    {
+                        int randomBeeIndex = randomState.Random.NextInt(beeAEntities.Length);
+                        randomBee = beeAEntities.ElementAt(randomBeeIndex);
+
+                    }
+                    else if (team.Value == TeamName.B)
+                    {
+                        int randomBeeIndex = randomState.Random.NextInt(beeBEntities.Length);
+                        randomBee = beeBEntities.ElementAt(randomBeeIndex);
                     }
                     else
                     {
-                        // if holding a resource and reached home, reset target and held item
-                        droppedItems.Add(heldItem.Value, Entity.Null);
-                        beeTargets.ResourceTarget = Entity.Null;
-                        heldItem.Value = Entity.Null;
-                        beeStatus.Value = Status.Idle;
+                        return;
                     }
-                }
-        
-                // Add velocity towards the current target
-                velocity.Value += delta * (beeProperties.ChaseForce / distanceFromTarget);
+                    
+                    float3 randomBeePosition = allTranslations[randomBee].Value;
+                    float3 beeDelta = randomBeePosition - translation.Value;
+                    float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
                 
-                // Add random jitter
-                float3 randomJitter = randomState.Random.NextFloat3(-1f, 1f);
-                velocity.Value += randomJitter * beeProperties.FlightJitter;
-                
-                // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
-                velocity.Value *= 1f - beeProperties.Damping;
-                
-                // Attraction to a random bee
-                Entity randomBee;
-                
-                if (team.Value == TeamName.A)
-                {
-                    int randomBeeIndex = randomState.Random.NextInt(beeAEntities.Length);
-                    randomBee = beeAEntities.ElementAt(randomBeeIndex);
-                        
-                }
-                else if (team.Value == TeamName.B)
-                {
-                    int randomBeeIndex = randomState.Random.NextInt(beeBEntities.Length);
-                    randomBee = beeBEntities.ElementAt(randomBeeIndex);
-                }
-                else
-                {
-                    return;
-                }
-                
-                float3 randomBeePosition = allTranslations[randomBee].Value;
-                float3 beeDelta = randomBeePosition - translation.Value;
-                float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
-                
-                if (beeDistance > 0f)
-                { 
-                    velocity.Value += beeDelta * (beeProperties.TeamAttraction / beeDistance);
-                }
-                
-                // Move bee closer to the target
-                translation.Value += velocity.Value * deltaTime;
+                    if (beeDistance > 0f)
+                    { 
+                        velocity.Value += beeDelta * (beeProperties.TeamAttraction / beeDistance);
+                    }
+                    
+                    // Move bee closer to the target
+                    translation.Value += velocity.Value * deltaTime;
 
-                // Clamp the position within the field container
-                translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
+                    // Clamp the position within the field container
+                    translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
+                }
             }).Schedule();
 
         Entities.WithAll<BeeTag>().ForEach((ref Rotation rotation, ref SmoothPosition smoothPosition,

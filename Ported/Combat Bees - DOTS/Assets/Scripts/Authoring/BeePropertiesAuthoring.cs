@@ -10,6 +10,7 @@ public class BeePropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public float RotationStiffness = 1f;
     public float TeamAttraction = -1f;
     public float TargetReach = 0.1f;
+    public float AttackDashReach = 3f;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -21,6 +22,7 @@ public class BeePropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             RotationStiffness = RotationStiffness,
             TeamAttraction = TeamAttraction,
             TargetReach = TargetReach,
+            AttackDashReach =  AttackDashReach
         });
     }
 }

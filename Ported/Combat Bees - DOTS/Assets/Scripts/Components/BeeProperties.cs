@@ -8,4 +8,5 @@ public struct BeeProperties : IComponentData
     public float RotationStiffness;
     public float TeamAttraction;
     public float TargetReach;
+    public float AttackDashReach;
 }
