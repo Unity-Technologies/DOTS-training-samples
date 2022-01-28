@@ -35,4 +35,16 @@ public struct Spawner : IComponentData
     {
         get { return 20; }
     }
+
+    public static bool isPositionInGoalArea(float3 position, TeamValue team)
+    {
+        if (team == TeamValue.Yellow)
+        {
+            return position.x > Spawner.ArenaExtents.x + 0.5f;
+        }
+        else
+        {
+            return position.x < -Spawner.ArenaExtents.x - 0.5f;
+        }
+    }
 }
