@@ -22,7 +22,7 @@ public partial class TornadoVisualizer : SystemBase
         SetComponent(tornado, tornadoPos);
 
         Entities.WithAll<TornadoParticle>().
-            ForEach((ref Translation particlePos, ref NonUniformScale particleScale, in TornadoParticle particleProp) =>
+            ForEach((ref Translation particlePos, in TornadoParticle particleProp) =>
             {
                 var tornadoPosPerParticle = new float3(
                     tornadoPos.Value.x + (math.sin(particlePos.Value.y/tornadoDimensions.TornadoHeight + time/4f) * 2f),
@@ -31,13 +31,6 @@ public partial class TornadoVisualizer : SystemBase
                 );
                 var delta = tornadoPosPerParticle - particlePos.Value;
                 var dist = math.sqrt( (delta.x*delta.x) + (delta.y*delta.y) + (delta.z * delta.z));
-
-                //if (dist > tornadoDimensions.TornadoHeight/2.5f && particlePos.Value.y == 0f) return;
-
-                if (particleScale.Value.x < k_MaxParticleScale)
-                {
-                    particleScale.Value += 0.001f;
-                }
 
                 delta /= dist;
                 var inForce = dist - (math.clamp(tornadoPosPerParticle.y / tornadoDimensions.TornadoHeight, 0, 1)) * tornadoDimensions.TornadoRadius * particleProp.RadiusMult;
