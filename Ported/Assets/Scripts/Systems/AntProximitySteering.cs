@@ -12,7 +12,7 @@ public partial class AntProximitySteering : SystemBase
     private EntityQuery m_FoodQuery;
     private float2 m_NestPosition;
     private float m_FoodNestRadius = 4.0f;
-    private float m_AntVisibilityDistance = 0.25f;
+    private float m_AntVisibilityDistance = 0.5f;
     
     protected override void OnStartRunning()
     {
@@ -21,7 +21,7 @@ public partial class AntProximitySteering : SystemBase
         var nestTranslation = GetComponent<Translation>(colonyEntity);
         var scale = GetComponent<NonUniformScale>(colonyEntity);
         m_NestPosition = nestTranslation.Value.xy;
-        m_FoodNestRadius = scale.Value.x;
+        m_FoodNestRadius = scale.Value.x / 2.0f;
     }
 
     protected override void OnUpdate()
@@ -36,7 +36,7 @@ public partial class AntProximitySteering : SystemBase
         
         // We may sort the array of food and optimize the Food looping
         Entities.WithReadOnly(foodTranslation).WithReadOnly(obstacleBuffer)
-            .ForEach((ref ProximitySteering proximitySteering, ref Loadout loadout, in Velocity velocity, in Translation antTranslation) =>
+            .ForEach((ref ProximitySteering proximitySteering, ref Loadout loadout, ref Velocity velocity, in Translation antTranslation) =>
             {
                 if (loadout.Value > 0)
                 {
@@ -47,7 +47,7 @@ public partial class AntProximitySteering : SystemBase
                     {
                         proximitySteering.Value = float2.zero;
                     }
-                    else if (Utils.LinecastObstacles(grid, obstacleBuffer, nestPosition, antTranslation.Value.xy) == true)
+                    else if (Utils.LinecastObstacles(grid, obstacleBuffer, antTranslation.Value.xy, nestPosition) == true)
                     {
                         proximitySteering.Value = float2.zero;
                     }
@@ -58,6 +58,7 @@ public partial class AntProximitySteering : SystemBase
                         if (dist < foodNestRadius) 
                         {
                             loadout.Value = 0;
+                            velocity.Direction = -velocity.Direction;
                         }
                     }
                 }
@@ -74,7 +75,7 @@ public partial class AntProximitySteering : SystemBase
                             continue;
                         }
                         
-                        if (Utils.LinecastObstacles(grid, obstacleBuffer, nestPosition, antTranslation.Value.xy) == true)
+                        if (Utils.LinecastObstacles(grid, obstacleBuffer, antTranslation.Value.xy, foodTranslation[i].Value.xy) == true)
                         {
                             continue;
                         }
@@ -85,15 +86,11 @@ public partial class AntProximitySteering : SystemBase
                         if (dist < foodNestRadius) 
                         {
                             loadout.Value = 1;
+                            velocity.Direction = -velocity.Direction;
                         }
                         break;
                     }
                 }
             }).WithDisposeOnCompletion(foodTranslation).ScheduleParallel();
-    }
-
-    private bool HasLineOfSight(float2 translationA, float2 translationB)
-    {
-        return false;
     }
 }
