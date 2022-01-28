@@ -8,14 +8,11 @@ using Unity.Transforms;
 [UpdateAfter(typeof(MoveToTargetLocationSystem))]
 public partial class PickLinePositionsForTeamSystem : SystemBase
 {
-    private EntityCommandBufferSystem CommandBufferSystem;
-
     private EntityQuery LakeQuery;
     private EntityQuery FireQuery;
 
     protected override void OnCreate()
     {
-        CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         LakeQuery = GetEntityQuery(ComponentType.ReadOnly<Lake>(), ComponentType.ReadOnly<Translation>(), ComponentType.Exclude<EmptyLake>());
         FireQuery = GetEntityQuery(ComponentType.ReadOnly<FireRenderer>(), ComponentType.ReadOnly<Translation>());
     }
@@ -92,8 +89,6 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
         if (canRunTeamSimulation)
         {
-            var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
             var targetDestinationTable = GetComponentDataFromEntity<TargetDestination>(false);
             var bucketDestinationTable = GetComponentDataFromEntity<BucketFetcher>(false);
 
@@ -153,8 +148,6 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
                     var bucketFetcherEntity = workersBuffer[gameConstants.WorkersPerLine * 2];
                     bucketDestinationTable[bucketFetcherEntity] = new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value };
                 }).ScheduleParallel(Dependency);
-
-            CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
     }
