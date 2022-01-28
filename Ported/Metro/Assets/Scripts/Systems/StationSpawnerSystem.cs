@@ -63,13 +63,12 @@ public partial class StationSpawnerSystem : SystemBase
         // Example for fetching station distances
         Entities
             .ForEach((in DynamicBuffer<FloatBufferElement> buffer, in TrackID trackId) => {
-                UnityEngine.Debug.Log($"Track ID: {trackId.id}");
+                //UnityEngine.Debug.Log($"Track ID: {trackId.id}");
                 buffer.AsNativeArray().Sort(new FloatDataComparer());
-                /*
-                for (int i = 0; i < buffer.Length; i++) {
+                
+                /*for (int i = 0; i < buffer.Length; i++) {
                     UnityEngine.Debug.Log($"Station Distance: {buffer[i].Value}");
-                }
-                */
+                }*/
             }).Run();
 
         tracks.Dispose();

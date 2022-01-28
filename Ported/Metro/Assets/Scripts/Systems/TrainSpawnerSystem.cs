@@ -5,6 +5,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(StationSpawnerSystem))]
 public partial class TrainSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -28,6 +29,24 @@ public partial class TrainSpawnerSystem : SystemBase
                     ecb.SetComponent(leaderInstance, splineFollower);
                     ecb.AddComponent<URPMaterialPropertyBaseColor>(leaderInstance);
                     ecb.SetComponent(leaderInstance, urpBaseColor);
+
+                    var stationDistanceBuffer = GetBuffer<FloatBufferElement>(entity);
+                    int stationIndex = 0;
+                    //UnityEngine.Debug.Log($"starting search at: {trackProgress.Value}");
+                    for (int j = 0; j < stationDistanceBuffer.Length; ++j)
+                    {
+                        //UnityEngine.Debug.Log($"{stationDistanceBuffer[j].Value}");
+                        if (trackProgress.Value > stationDistanceBuffer[j].Value)
+                        {
+                            stationIndex = (j + 1) % stationDistanceBuffer.Length;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    //UnityEngine.Debug.Log($"Found station {stationIndex} at {stationDistanceBuffer[stationIndex].Value}");
+                    ecb.SetComponent(leaderInstance, new NextStation { stationIndex = stationIndex });
 
                     for (int j = 0; j < spawner.NoOfCartPerTrain; ++j)
                     {
