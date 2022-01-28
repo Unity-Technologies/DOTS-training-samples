@@ -17,19 +17,19 @@ public partial class BucketDroppingSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var ecb = CommandBufferSystem.CreateCommandBuffer();
+        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var gameConstants = GetSingleton<GameConstants>();
 
         Entities.
             WithAll<BucketDropper>().
-            ForEach((Entity e, ref HoldingBucket holdingBucket, in Translation t) => 
+            ForEach((Entity e, int entityInQueryIndex, ref HoldingBucket holdingBucket, in Translation t) => 
             {
-                ecb.RemoveComponent<HoldingBucket>(e);
-                ecb.RemoveComponent<BeingHeld>(holdingBucket.HeldBucket);
+                ecb.RemoveComponent<HoldingBucket>(entityInQueryIndex, e);
+                ecb.RemoveComponent<BeingHeld>(entityInQueryIndex, holdingBucket.HeldBucket);
                 var pos = t.Value;
                 pos.y = 0;
-                ecb.SetComponent(holdingBucket.HeldBucket, new Translation { Value = pos });
-            }).Schedule();
+                ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Translation { Value = pos });
+            }).ScheduleParallel();
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
