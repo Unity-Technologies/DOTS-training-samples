@@ -122,7 +122,7 @@ public partial class Utils
             var idx = UnityMath.math.min(xIdx + yIdx * grid.rowLength, obstacles.Length - 1);
 
             // check for obstacles
-            return obstacles[idx].IsValid;
+            if(obstacles[idx].IsValid) return true;
         }
 
         return false;
