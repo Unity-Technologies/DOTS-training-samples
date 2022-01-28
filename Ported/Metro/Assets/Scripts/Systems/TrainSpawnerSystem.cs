@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateAfter(typeof(StationSpawnerSystem))]
 public partial class TrainSpawnerSystem : SystemBase
@@ -12,11 +13,13 @@ public partial class TrainSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         Entities
-            .ForEach((Entity entity, in TrainSpawner spawner, in Spline spline) =>
+            .ForEach((Entity entity, in TrainSpawner spawner, in Spline spline, in EntityColor entityColor) =>
             {
                 // Destroying the current entity is a classic ECS pattern,
                 // when something should only be processed once then forgotten.
-
+                var urpBaseColor = new URPMaterialPropertyBaseColor();
+                urpBaseColor.Value = new float4(entityColor.Value.r,entityColor.Value.g,entityColor.Value.b,entityColor.Value.a);
+                
                 for (int i = 0; i < spawner.NoOfTrains; ++i)
                 {
                     var leaderInstance = ecb.Instantiate(spawner.LeaderPrefab);
@@ -24,6 +27,8 @@ public partial class TrainSpawnerSystem : SystemBase
                     var splineFollower = new SplineFollower{track = entity};
                     ecb.SetComponent(leaderInstance, trackProgress);
                     ecb.SetComponent(leaderInstance, splineFollower);
+                    ecb.AddComponent<URPMaterialPropertyBaseColor>(leaderInstance);
+                    ecb.SetComponent(leaderInstance, urpBaseColor);
 
                     var stationDistanceBuffer = GetBuffer<FloatBufferElement>(entity);
                     int stationIndex = 0;
@@ -48,6 +53,8 @@ public partial class TrainSpawnerSystem : SystemBase
                         var followerInstance = ecb.Instantiate(spawner.FollowerPrefab);
                         var follower = new Follower{Leader = leaderInstance, TrackData = entity, CartIndexInTrain = j+1};
                         ecb.SetComponent(followerInstance, follower);
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(followerInstance);
+                        ecb.SetComponent(followerInstance, urpBaseColor);
                     }
                 }
                 ecb.RemoveComponent<TrainSpawner>(entity);
