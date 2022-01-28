@@ -1,7 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine.Rendering;
 
 public partial class BarVisualizerSystem : SystemBase
 {
