@@ -1,9 +1,7 @@
 using System;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Utils;
 using static Unity.Mathematics.math;
 using float3 = Unity.Mathematics.float3;
@@ -12,7 +10,8 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(SpawnerSystem))]
 public partial class UpdateStateSystem : SystemBase
 {
-    private EntityQuery beeQuery;
+    private EntityQuery yellowBeeQuery;
+    private EntityQuery blueBeeQuery;
     private EntityQuery foodQuery;
     private EntityCommandBufferSystem commandBufferSystem;
 
@@ -23,26 +22,40 @@ public partial class UpdateStateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // Get NativeArray data for bees translation and entity data
-        //beeQuery = GetEntityQuery(typeof(BeeTag));
+        int yellowBeeCount = yellowBeeQuery.CalculateEntityCount();
+        NativeArray<Entity> yellowBeeEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
+        NativeArray<Translation> yellowBeeTranslationData = new NativeArray<float3>(yellowBeeCount, Allocator.TempJob);
+        NativeArray<Entity> yellowBeeCarriedEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
 
-        int beeCount = beeQuery.CalculateEntityCount();
-        NativeArray<float3> beeTranslationData = new NativeArray<float3>(beeCount, Allocator.TempJob);
-        NativeArray<Entity> beeEntityData = new NativeArray<Entity>(beeCount, Allocator.TempJob);
-        NativeArray<int> beeTeamData = new NativeArray<int>(beeCount, Allocator.TempJob);
-        NativeArray<Entity> beeCarriedEntityData = new NativeArray<Entity>(beeCount, Allocator.TempJob);
+        int blueBeeCount = blueBeeQuery.CalculateEntityCount();
+        NativeArray<Entity> blueBeeEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
+        NativeArray<Translation> blueBeeTranslationData = new NativeArray<float3>(blueBeeCount, Allocator.TempJob);
+        NativeArray<Entity> blueBeeCarriedEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
+
+
+ 		Entities
+            .WithStoreEntityQueryInField(ref yellowBeeQuery)
+            .WithAll<YellowBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, in PP_Movement movement, in Translation translation, in CarriedEntity carriedEntity) =>
+            {
+                yellowBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
+                yellowBeeEntityData[entityInQueryIndex] = entity;
+                yellowBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
+            }).WithName("GetYellowBeeData")
+            .ScheduleParallel();
 
         Entities
-            .WithStoreEntityQueryInField(ref beeQuery)
-            .WithAll<BeeState>()
-            .ForEach((Entity entity, int entityInQueryIndex, in PP_Movement movement, in BeeTeam beeTeam, in CarriedEntity carriedEntity) =>
+            .WithStoreEntityQueryInField(ref blueBeeQuery)
+            .WithAll<BlueBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, in PP_Movement movement, in Translation translation, in CarriedEntity carriedEntity) =>
             {
-                beeTranslationData[entityInQueryIndex] = movement.unperturbedPosition;
-                beeEntityData[entityInQueryIndex] = entity;
-                beeTeamData[entityInQueryIndex] = (int) beeTeam.Value;
-                beeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
-            }).WithName("GetBeeData")
+                blueBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
+                blueBeeEntityData[entityInQueryIndex] = entity;
+                blueBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
+            }).WithName("GetBlueBeeData")
             .ScheduleParallel();
+
+            
 
 
         // Get NativeArray data for food translation and entity data
@@ -78,26 +91,55 @@ public partial class UpdateStateSystem : SystemBase
         // var random = new Random(randomSeed);
 
 
+        var spawner = GetSingleton<Spawner>();
+
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
         var ecb = commandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
 
-        var spawner = GetSingleton<Spawner>();
-
-        // Carrying state
-        Entities.WithAll<BeeState>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
-                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+        // YELLOW CARRY  state
+        Entities.WithAll<YellowBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state,
+                ref CarriedEntity carriedEntity, in Translation translation) =>
             {
-                // If Bee is idle -> seeking
-                //           carrying -> continue
-                //           seeking -> check for attack option then check for carry option
-                //           attacking -> check for carry option then check for seeking
+                //carryCommon(entity, entityInQueryIndex, ref state, ref carriedEntity, in translation, in spawner, ref parallelWriter, randomSeed);
+
                 if (state.value == StateValues.Carrying)
                 {
-                    if (!(translation.Value.x < Spawner.ArenaExtents.x + 0.5f) && team.Value == TeamValue.Yellow ||
-                        !(translation.Value.x > -Spawner.ArenaExtents.x - 0.5f) && team.Value == TeamValue.Blue)
+                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+                    // If this bee is within it's hives area, drop the food
+                    if (translation.Value.x > spawner.ArenaExtents.x + 0.5f)
+                    {
+                        // Add updated movement information to food entity
+                        parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                            PP_Movement.Create(translation.Value + float3(0f, -1f, 0f), translation.Value.Floored()));
+
+                        parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                            new Food { isBeeingCarried = false });
+
+                        state.value = StateValues.Idle;
+                    }
+                }
+
+
+            }).WithName("ProcessYellowCarryingState")
+            .ScheduleParallel();
+
+
+
+        // BLUE CARRY  state
+        Entities.WithAll<BlueBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state,
+                ref CarriedEntity carriedEntity, in Translation translation) =>
+            {
+                if (state.value == StateValues.Carrying)
+                {
+                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+                    // If this bee is within it's hives area, drop the food
+                    if (translation.Value.x < -spawner.ArenaExtents.x - 0.5f)
                     {
                         // Add updated movement information to food entity
                         parallelWriter.AddComponent(entityInQueryIndex, carriedEntity.Value,
@@ -109,7 +151,7 @@ public partial class UpdateStateSystem : SystemBase
                         state.value = StateValues.Idle;
                     }
                 }
-            }).WithName("ProcessBeeCarryingState")
+            }).WithName("ProcessBlueCarryingState")
             .ScheduleParallel();
 
         // Seeking/Wandering state
@@ -136,7 +178,6 @@ public partial class UpdateStateSystem : SystemBase
                                 state.value = StateValues.Idle;
                                 break;
                             }
-
                             movement.UpdateEndPosition(foodTranslationData[i].Value);
                         }
 
@@ -181,58 +222,61 @@ public partial class UpdateStateSystem : SystemBase
                         state.value = StateValues.Idle;
                     }
                 }
+               
+
             }).WithReadOnly(foodTranslationData)
             .WithReadOnly(foodCarriedData)
             .WithReadOnly(foodEntityData)
             .WithName("ProcessBeeSeekingState")
             .ScheduleParallel();
 
-        // Attacking state
-        Entities.WithAll<BeeState>()
+        // BLUE ATTACK state
+        Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
-                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+                ref TargetedEntity targetedEntity, in Translation translation) =>
             {
                 if (state.value == StateValues.Attacking)
                 {
                     bool targetBeeStillExists = false;
+                    float3 targetBeeLocation = float3.zero;
 
-                    for (int i = 0; i < beeCount; i++)
+                    for (int i = 0; i < yellowBeeCount; i++)
                     {
-                        movement.UpdateEndPosition(beeTranslationData[i]);
-                        
-                        if (beeEntityData[i] == targetedEntity.Value)
+                        if (yellowBeeEntityData[i] == targetedEntity.Value)
                         {
                             targetBeeStillExists = true;
+                            targetBeeLocation = yellowBeeTranslationData[i].Value;
 
-                            float translationDistance = distancesq(translation.Value, beeTranslationData[i]);
+                            float translationDistance =
+                                distancesq(translation.Value, yellowBeeTranslationData[i].Value);
 
-                            if (translationDistance <= squaredInteractionDistance)
+                            if (translationDistance <= 1.25f)
                             {
-                                if (beeCarriedEntityData[i] != Entity.Null)
+                                if (yellowBeeCarriedEntityData[i] != Entity.Null)
                                 {
                                     //if the enemy Bee is carrying something, set it to no longer be
-                                    parallelWriter.AddComponent(entityInQueryIndex, beeCarriedEntityData[i],
-                                        PP_Movement.Create(
-                                            beeTranslationData[i] + float3(0f, -1f, 0f),
-                                            beeTranslationData[i].Floored()));
+                                    parallelWriter.AddComponent(entityInQueryIndex, yellowBeeCarriedEntityData[i],
+                                            PP_Movement.Create(
+                                                yellowBeeTranslationData[i].Value + float3(0f, -1f, 0f),
+                                                yellowBeeTranslationData[i].Value.Floored()));
 
-                                    parallelWriter.AddComponent(entityInQueryIndex, beeCarriedEntityData[i],
-                                        new Food {isBeeingCarried = false});
+                                    parallelWriter.AddComponent(entityInQueryIndex, yellowBeeCarriedEntityData[i],
+                                        new Food { isBeeingCarried = false });
                                 }
 
                                 //destroy enemy bee
-                                parallelWriter.DestroyEntity(entityInQueryIndex, beeEntityData[i]);
+                                parallelWriter.DestroyEntity(entityInQueryIndex, yellowBeeEntityData[i]);
 
                                 //spawn a bee bit
                                 var bitsEntity = parallelWriter.Instantiate(entityInQueryIndex,
                                     spawner.BeeBitsPrefab);
 
                                 parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
-                                    new Translation {Value = beeTranslationData[i]});
+                                    new Translation { Value = yellowBeeTranslationData[i].Value });
 
                                 parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
                                     PP_Movement.Create(
-                                        beeTranslationData[i], beeTranslationData[i].Floored()));
+                                        yellowBeeTranslationData[i].Value, yellowBeeTranslationData[i].Value.Floored()));
 
                                 state.value = StateValues.Idle;
                             }
@@ -245,30 +289,109 @@ public partial class UpdateStateSystem : SystemBase
                     {
                         state.value = StateValues.Idle;
                     }
-
-                    if (movement.t >= 0.99f)
+                    else if (movement.t >= 0.99f)
                     {
                         // If we have finished moving and are still seeking, go back to idle status
                         state.value = StateValues.Idle;
+                        movement.GoTo(translation.Value, targetBeeLocation);
                     }
                 }
-            }).WithReadOnly(beeTranslationData)
-            .WithReadOnly(beeEntityData)
-            .WithReadOnly(beeCarriedEntityData)
-            .WithDisposeOnCompletion(beeCarriedEntityData)
-            .WithName("ProcessBeeAttackingState")
+
+            }).WithReadOnly(yellowBeeTranslationData)
+            .WithReadOnly(yellowBeeEntityData)
+            .WithReadOnly(yellowBeeCarriedEntityData)
+            .WithDisposeOnCompletion(yellowBeeCarriedEntityData)
+            .WithName("ProcessYellowBeeAttackingState")
+            .ScheduleParallel();
+        // YELLOW ATTACK state
+        Entities.WithAll<YellowBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
+                ref TargetedEntity targetedEntity, in Translation translation) =>
+            {
+                if (state.value == StateValues.Attacking)
+                {
+                    bool targetBeeStillExists = false;
+                    float3 targetBeeLocation = float3.zero;
+
+                    for (int i = 0; i < blueBeeCount; i++)
+                    {
+                        movement.UpdateEndPosition(beeTranslationData[i]);
+                        
+                        if (blueBeeEntityData[i] == targetedEntity.Value)
+                        {
+                            targetBeeStillExists = true;
+                            targetBeeLocation = blueBeeTranslationData[i].Value;
+
+                            float translationDistance = distancesq(translation.Value, blueBeeTranslationData[i].Value);
+
+                            if (translationDistance <= squaredInteractionDistance)
+                            {
+                                if (blueBeeCarriedEntityData[i] != Entity.Null)
+                                {
+                                    //if the enemy Bee is carrying something, set it to no longer be
+                                    parallelWriter.AddComponent(entityInQueryIndex, blueBeeCarriedEntityData[i],
+                                            PP_Movement.Create(
+                                                blueBeeTranslationData[i].Value + float3(0f, -1f, 0f),
+                                                blueBeeTranslationData[i].Value.Floored()));
+
+                                    parallelWriter.AddComponent(entityInQueryIndex, blueBeeCarriedEntityData[i],
+                                        new Food { isBeeingCarried = false });
+                                }
+
+                                //destroy enemy bee
+                                parallelWriter.DestroyEntity(entityInQueryIndex, blueBeeEntityData[i]);
+
+                                //spawn a bee bit
+                                var bitsEntity = parallelWriter.Instantiate(entityInQueryIndex,
+                                    spawner.BeeBitsPrefab);
+
+                                parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
+                                    new Translation {Value = blueBeeTranslationData[i]});
+
+                                parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
+                                    PP_Movement.Create(
+                                        blueBeeTranslationData[i], blueBeeTranslationData[i].Floored()));
+
+                                state.value = StateValues.Idle;
+
+                                break;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (!targetBeeStillExists)
+                    {
+                        state.value = StateValues.Idle;
+                    }
+                    else if (movement.t >= 0.99f)
+                    {
+                        // If we have finished moving and are still seeking, go back to idle status
+                        state.value = StateValues.Idle;
+                        movement.GoTo(translation.Value, targetBeeLocation);
+                    }
+                }
+
+            }).WithReadOnly(blueBeeTranslationData)
+            .WithReadOnly(blueBeeEntityData)
+            .WithReadOnly(blueBeeCarriedEntityData)
+            .WithDisposeOnCompletion(blueBeeCarriedEntityData)
+            .WithName("ProcessBlueBeeAttackingState")
             .ScheduleParallel();
 
 
-        // Idle/Wandering state
-        Entities.WithAll<BeeState>()
+
+
+        // BLUE Idle state
+        Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
-                var random = Random.CreateFromIndex((uint) entityInQueryIndex + randomSeed);
-
                 if (state.value == StateValues.Idle || state.value == StateValues.Wandering)
                 {
+                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
                     float foodOrEnemy = random.NextFloat();
                     if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
                     {
@@ -295,40 +418,84 @@ public partial class UpdateStateSystem : SystemBase
                     }
                     else
                     {
-                        float smallestDistance = float.MaxValue;
-                        Entity nearestEntSoFar = Entity.Null;
-                        float3 nearestTargetLocation = float3.zero;
+                        var enemyBeeIdx = random.NextInt(yellowBeeCount);
 
-                        // Randomly search through some bees (beesToSearch) and choose the closest one, if any are valid
-                        // Note: random int/uint values are non-inclusive of the maximum value
-                        var searchedBeeCount = 0;
-                        var beesToSearch = min(beeCount, 30);
-                        while (searchedBeeCount < beesToSearch)
+                        targetedEntity.Value = yellowBeeEntityData[enemyBeeIdx];
+                        movement.GoTo(translation.Value, yellowBeeTranslationData[enemyBeeIdx].Value);
+                        state.value = StateValues.Attacking;
+                    }
+
+                    // If it's still idling after trying to attack or seek,
+                    // go to a random location (the "wander" behavior)
+                    if (state.value == StateValues.Idle)
+                    {
+                        float3 endLocation;
+                        var beeRandomX = random.NextInt(-spawner.ArenaExtents.x, spawner.ArenaExtents.x);
+                        var beeRandomY = random.NextInt(spawner.ArenaHeight / 4, spawner.ArenaHeight / 4 * 3);
+                        var beeRandomZ = random.NextInt(-spawner.ArenaExtents.y, spawner.ArenaExtents.y);
+
+                        endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
+
+                        carriedEntity.Value = Entity.Null;
+                        targetedEntity.Value = Entity.Null;
+
+                        movement.GoTo(translation.Value, endLocation);
+                        state.value = StateValues.Seeking;
+                    }
+                }
+            }).WithReadOnly(yellowBeeEntityData)
+            .WithReadOnly(yellowBeeTranslationData)
+            .WithReadOnly(foodTranslationData)
+            .WithReadOnly(foodCarriedData)
+            .WithReadOnly(foodEntityData)
+            .WithDisposeOnCompletion(yellowBeeEntityData)
+            .WithDisposeOnCompletion(yellowBeeTranslationData)
+            .WithName("ProcessBLUEIdleState")
+            .ScheduleParallel();
+
+
+        // YELLOW Idle state
+        Entities.WithAll<YellowBeeTag>()
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+            {
+                if (state.value == StateValues.Idle)
+                {
+                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
+
+                    float foodOrEnemy = random.NextFloat();
+                    if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
+                    {
+                        // Check if there actually is any food
+                        if (foodCount > 0)
                         {
-                            searchedBeeCount++;
+                            // Choose food at random here
+                            int randomInt =
+                                random.NextInt(foodTranslationData
+                                    .Length); // Note: random int/uint values are non-inclusive of the maximum value
+                            targetedEntity.Value = foodEntityData[randomInt];
 
-                            int randomSearchIndex = random.NextInt(beeCount);
+                            Translation randomFoodTranslation = foodTranslationData[randomInt];
+                            var x = randomFoodTranslation.Value.x;
 
-                            // Make sure it exists and is on the other team
-                            if (beeEntityData[randomSearchIndex] != Entity.Null &&
-                                beeTeamData[randomSearchIndex] != (int) team.Value)
+                            if (!foodCarriedData[randomInt] &&
+                                abs(foodTranslationData[randomInt].Value.x) < spawner.ArenaExtents.x)
                             {
-                                float dist = distancesq(translation.Value, beeTranslationData[randomSearchIndex]);
-                                if (dist < smallestDistance)
+                                if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
                                 {
-                                    smallestDistance = dist;
-                                    nearestEntSoFar = beeEntityData[randomSearchIndex];
-                                    nearestTargetLocation = beeTranslationData[randomSearchIndex];
+                                    movement.GoTo(translation.Value, randomFoodTranslation.Value);
+                                    state.value = StateValues.Seeking;
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        var enemyBeeIdx = random.NextInt(blueBeeCount);
 
-                        if (nearestEntSoFar != Entity.Null)
-                        {
-                            targetedEntity.Value = nearestEntSoFar;
-                            movement.GoTo(translation.Value, nearestTargetLocation);
-                            state.value = StateValues.Attacking;
-                        }
+                        targetedEntity.Value = blueBeeEntityData[enemyBeeIdx];
+                        movement.GoTo(translation.Value, blueBeeTranslationData[enemyBeeIdx].Value);
+                        state.value = StateValues.Attacking;
                     }
 
                     // If it's still idling after trying to attack or seek,
@@ -345,20 +512,19 @@ public partial class UpdateStateSystem : SystemBase
                             translation);
                     }
                 }
-            }).WithReadOnly(beeTranslationData)
-            .WithReadOnly(beeEntityData)
-            .WithReadOnly(beeTeamData)
+            }).WithReadOnly(blueBeeEntityData)
+            .WithReadOnly(blueBeeTranslationData)
             .WithReadOnly(foodTranslationData)
             .WithReadOnly(foodCarriedData)
             .WithReadOnly(foodEntityData)
-            .WithDisposeOnCompletion(beeTranslationData)
-            .WithDisposeOnCompletion(beeEntityData)
-            .WithDisposeOnCompletion(beeTeamData)
+            .WithDisposeOnCompletion(blueBeeEntityData)
+            .WithDisposeOnCompletion(blueBeeTranslationData)
             .WithDisposeOnCompletion(foodTranslationData)
             .WithDisposeOnCompletion(foodCarriedData)
             .WithDisposeOnCompletion(foodEntityData)
-            .WithName("ProcessBeeIdleState")
+            .WithName("ProcessYELLOWIdleState")
             .ScheduleParallel();
+
 
 
         commandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -382,5 +548,26 @@ public partial class UpdateStateSystem : SystemBase
         targetedEntity.Value = Entity.Null;
 
         movement.GoTo(translation.Value, endLocation);
+    }
+    static void carryCommon(Entity entity, int entityInQueryIndex, ref BeeState state,
+        ref CarriedEntity carriedEntity, in Translation translation, in Spawner spawner, ref EntityCommandBuffer.ParallelWriter writer, uint seed)
+    {
+        if (state.value == StateValues.Carrying)
+        {
+            var random = Random.CreateFromIndex((uint)entityInQueryIndex + seed);
+
+            // If this bee is within it's hives area, drop the food
+            if (translation.Value.x > spawner.ArenaExtents.x + 0.5f)
+            {
+                // Add updated movement information to food entity
+                writer.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                    PP_Movement.Create(translation.Value + float3(0f, -1f, 0f), translation.Value.Floored()));
+
+                writer.AddComponent(entityInQueryIndex, carriedEntity.Value,
+                    new Food { isBeeingCarried = false });
+
+                state.value = StateValues.Idle;
+            }
+        }
     }
 }
