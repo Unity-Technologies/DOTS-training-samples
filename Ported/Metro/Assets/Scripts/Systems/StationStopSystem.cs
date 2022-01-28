@@ -15,8 +15,6 @@ public partial class StationStopSystem : SystemBase
         Entities.ForEach((ref Translation translation,ref SplineFollower splineFollower,ref Ticker ticker,ref NextStation nextStation,in TrackProgress trackProgress, in Rotation rotation) =>
         {
 
-            var track = GetComponent<StationDistanceArray>(splineFollower.track);
-            //ref var stationDistanceData = ref track.StationDistances.Value;
             var stationDistanceBuffer = GetBuffer<FloatBufferElement>(splineFollower.track);
             
             var distanceToNextStation =

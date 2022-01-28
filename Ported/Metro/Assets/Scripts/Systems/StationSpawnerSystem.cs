@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 [UpdateAfter(typeof(TransformSystemGroup))]
 public partial class StationSpawnerSystem : SystemBase
@@ -17,11 +18,12 @@ public partial class StationSpawnerSystem : SystemBase
     protected override void OnUpdate() 
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        var trackQuery = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Spline>());
+        var trackQuery = GetEntityQuery(ComponentType.ReadOnly<Track>(), ComponentType.ReadOnly<TrackID>(), ComponentType.ReadOnly<Spline>(),ComponentType.ReadOnly<EntityColor>());
         var spawner = GetSingleton<StationSpawner>();
         var tracks = trackQuery.ToEntityArray(Allocator.TempJob);
         var splines = trackQuery.ToComponentDataArray<Spline>(Allocator.TempJob);
         var trackIDs = trackQuery.ToComponentDataArray<TrackID>(Allocator.TempJob);
+        var entityColor = trackQuery.ToComponentDataArray<EntityColor>(Allocator.TempJob);
 
         Entities
             .ForEach((Entity entity, in Station station, in TrackID trackId) =>
@@ -49,6 +51,10 @@ public partial class StationSpawnerSystem : SystemBase
                         // Propagates station and trackid on the prefab
                         ecb.AddComponent(instance, station);
                         ecb.AddComponent(instance, trackId);
+                        var urpBaseColor = new URPMaterialPropertyBaseColor();
+                        urpBaseColor.Value = new float4(entityColor[i].Value.r,entityColor[i].Value.g,entityColor[i].Value.b,entityColor[i].Value.a);
+                        ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
+                        ecb.SetComponent(instance, urpBaseColor);
                         break;
                     }
                 }
@@ -69,6 +75,7 @@ public partial class StationSpawnerSystem : SystemBase
         tracks.Dispose();
         splines.Dispose();
         trackIDs.Dispose();
+        entityColor.Dispose();
         ecb.Playback(EntityManager);
         ecb.Dispose();
 

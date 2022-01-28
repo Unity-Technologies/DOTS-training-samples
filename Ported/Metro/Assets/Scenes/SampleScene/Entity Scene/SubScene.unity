@@ -319,6 +319,7 @@ GameObject:
   - component: {fileID: 194646197}
   - component: {fileID: 194646199}
   - component: {fileID: 194646200}
+  - component: {fileID: 194646201}
   m_Layer: 0
   m_Name: Track Red
   m_TagString: Untagged
@@ -382,6 +383,19 @@ MonoBehaviour:
   NoOfTrains: 5
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
+--- !u!114 &194646201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194646196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e1e60905085df14c8810c8baf636736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {r: 0.8235294, g: 0.30980393, b: 0.34509805, a: 1}
 --- !u!1 &243768506
 GameObject:
   m_ObjectHideFlags: 0
@@ -1598,6 +1612,7 @@ GameObject:
   - component: {fileID: 1033658116}
   - component: {fileID: 1033658118}
   - component: {fileID: 1033658119}
+  - component: {fileID: 1033658120}
   m_Layer: 0
   m_Name: Track Green
   m_TagString: Untagged
@@ -1658,9 +1673,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LeaderPrefab: {fileID: 6694459676941598310, guid: 42db4575cf67ace4cb13cfde4bcd09a1, type: 3}
-  NoOfTrains: 5
+  NoOfTrains: 20
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
+--- !u!114 &1033658120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1033658115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e1e60905085df14c8810c8baf636736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {r: 0.42077252, g: 0.7264151, b: 0.42077252, a: 1}
 --- !u!1001 &1082399442
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2861,6 +2889,7 @@ GameObject:
   - component: {fileID: 1975881390}
   - component: {fileID: 1975881392}
   - component: {fileID: 1975881393}
+  - component: {fileID: 1975881394}
   m_Layer: 0
   m_Name: Track Blue
   m_TagString: Untagged
@@ -2924,6 +2953,19 @@ MonoBehaviour:
   NoOfTrains: 5
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
+--- !u!114 &1975881394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975881389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e1e60905085df14c8810c8baf636736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {r: 0.23529412, g: 0.69803923, b: 0.9764706, a: 1}
 --- !u!1 &2027562874
 GameObject:
   m_ObjectHideFlags: 0
@@ -2936,6 +2978,7 @@ GameObject:
   - component: {fileID: 2027562875}
   - component: {fileID: 2027562877}
   - component: {fileID: 2027562878}
+  - component: {fileID: 2027562879}
   m_Layer: 0
   m_Name: Track Yellow
   m_TagString: Untagged
@@ -2999,6 +3042,19 @@ MonoBehaviour:
   NoOfTrains: 5
   FollowerPrefab: {fileID: 1443929387097287032, guid: 429a155df1911f642bec52dea279ccd4, type: 3}
   NoOfCartPerTrain: 3
+--- !u!114 &2027562879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027562874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e1e60905085df14c8810c8baf636736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: {r: 0.81960785, g: 0.69411767, b: 0.3019608, a: 1}
 --- !u!1 &2074760009
 GameObject:
   m_ObjectHideFlags: 0
