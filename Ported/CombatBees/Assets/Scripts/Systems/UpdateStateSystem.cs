@@ -125,6 +125,9 @@ public partial class UpdateStateSystem : SystemBase
             .ScheduleParallel();
 
 
+
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
         // BLUE CARRY  state
         Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state,
@@ -157,8 +160,9 @@ public partial class UpdateStateSystem : SystemBase
             }).WithName("ProcessBlueCarryingState")
             .ScheduleParallel();
 
-        // Seeking/Wandering state
-        Entities.WithAll<BeeState>()
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
+        Entities.WithAll<BeeTeam>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
                 ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
             {
@@ -239,6 +243,8 @@ public partial class UpdateStateSystem : SystemBase
             }).WithName("ProcessBeeSeekingState")
             .ScheduleParallel();
 
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
         // BLUE Attack state
         Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
@@ -285,6 +291,8 @@ public partial class UpdateStateSystem : SystemBase
             }).WithName("ProcessYellowBeeAttackingState")
             .ScheduleParallel();
 
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
         // YELLOW ATTACK state
         Entities.WithAll<YellowBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
@@ -334,7 +342,8 @@ public partial class UpdateStateSystem : SystemBase
 
 
 
-
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
         // BLUE Idle state
         Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
@@ -371,6 +380,8 @@ public partial class UpdateStateSystem : SystemBase
             .ScheduleParallel();
 
 
+        ecb = commandBufferSystem.CreateCommandBuffer();
+        parallelWriter = ecb.AsParallelWriter();
         // YELLOW Idle/Wander state
         Entities.WithAll<YellowBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
@@ -463,7 +474,6 @@ public partial class UpdateStateSystem : SystemBase
             }
         }
     }
-
 
     static void attackCommon(Entity entity,
         int entityInQueryIndex,
