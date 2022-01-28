@@ -41,7 +41,7 @@ public partial class PassengerSpawnerSystem : SystemBase
                     
                     for (int p = 0; p < (s != stations.Length - 1 ? passengerPerStation : remainingPassenger); ++p)
                     {
-                        var offset = ( new float3( 3.0f * random.NextFloat() + 1f, 0, 9f * (random.NextFloat()-0.5f)) );
+                        var offset = ( new float3( 3.0f * random.NextFloat() + 1f, 0.4f, 9f * (random.NextFloat()-0.5f)) );
                         var position = spawnPoint + math.mul(rotation, offset);
                         var instance = ecb.Instantiate(spawner.PassengerPrefab);
                         var translation = new Translation {Value = position};
