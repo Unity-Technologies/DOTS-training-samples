@@ -30,12 +30,12 @@ public partial class UpdateStateSystem : SystemBase
         int yellowBeeCount = yellowBeeQuery.CalculateEntityCount();
         NativeArray<Entity> yellowBeeEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
         NativeArray<float3> yellowBeeTranslationData = new NativeArray<float3>(yellowBeeCount, Allocator.TempJob);
-        NativeArray<Entity> yellowBeeCarriedEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
+        //NativeArray<Entity> yellowBeeCarriedEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
 
         int blueBeeCount = blueBeeQuery.CalculateEntityCount();
         NativeArray<Entity> blueBeeEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
         NativeArray<float3> blueBeeTranslationData = new NativeArray<float3>(blueBeeCount, Allocator.TempJob);
-        NativeArray<Entity> blueBeeCarriedEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
+        //NativeArray<Entity> blueBeeCarriedEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
 
         Entities
             .WithStoreEntityQueryInField(ref yellowBeeQuery)
@@ -44,7 +44,7 @@ public partial class UpdateStateSystem : SystemBase
             {
                 yellowBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
                 yellowBeeEntityData[entityInQueryIndex] = entity;
-                yellowBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
+                //yellowBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
             }).WithName("GetYellowBeeData")
             .ScheduleParallel();
 
@@ -55,7 +55,7 @@ public partial class UpdateStateSystem : SystemBase
             {
                 blueBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
                 blueBeeEntityData[entityInQueryIndex] = entity;
-                blueBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
+                //blueBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
             }).WithName("GetBlueBeeData")
             .ScheduleParallel();
 
@@ -157,11 +157,13 @@ public partial class UpdateStateSystem : SystemBase
 
                     var foodTranslation = GetComponent<Translation>(targetedEntity.Value);
                     var foodCarried = GetComponent<Food>(targetedEntity.Value).isBeeingCarried;
-                    
+
                     if (state.value == StateValues.Seeking)
                     {
                         if (foodCarried ||
-                            abs(foodTranslation.Value.x) >= Spawner.ArenaExtents.x)
+                            abs(foodTranslation.Value.x) >= Spawner.ArenaExtents.x ||
+                            !HasComponent<Food>(targetedEntity.Value)
+                            )
                         {
                             // If the food is already being carried,
                             // or if it's in a goal area,
@@ -170,8 +172,8 @@ public partial class UpdateStateSystem : SystemBase
                             state.value = StateValues.Idle;
                         }
                         movement.UpdateEndPosition(foodTranslation.Value);
-                    } 
-                    
+                    }
+
                     // Check if close enough to the food/wander-destination to pick it up or wander somewhere else
                     float translationDistance = distancesq(translation.Value, foodTranslation.Value);
                     if (translationDistance <= squaredInteractionDistance)
@@ -203,7 +205,6 @@ public partial class UpdateStateSystem : SystemBase
                             state.value = StateValues.Idle;
                             targetedEntity.Value = Entity.Null;
                         }
-
                     }
 
                     if (movement.t >= 0.99f)
@@ -286,10 +287,6 @@ public partial class UpdateStateSystem : SystemBase
                     targetBeeTrans,
                     targetBeeCarriedEntity,
                     targetedEntityExistsAndIsBee,
-                    //yellowBeeCount,
-                    //yellowBeeEntityData,
-                    //yellowBeeTranslationData,
-                    //yellowBeeCarriedEntityData,
                     ref movement,
                     ref targetBee,
                     translation,
