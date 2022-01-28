@@ -9,6 +9,7 @@ using float3 = Unity.Mathematics.float3;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(SpawnerSystem))]
+[UpdateAfter(typeof(MovementSystem))]
 public partial class UpdateStateSystem : SystemBase
 {
     private EntityQuery yellowBeeQuery;
@@ -140,6 +141,20 @@ public partial class UpdateStateSystem : SystemBase
 
                 if (state.value == StateValues.Seeking || state.value == StateValues.Wandering)
                 {
+                    if (targetedEntity.Value == Entity.Null)
+                    {
+                        state.value = StateValues.Idle;
+                        return;
+                    }
+
+                    var foodPendingDestroy = GetComponent<Food>(targetedEntity.Value).pendingDestroy;
+                    if (foodPendingDestroy)
+                    {
+                        targetedEntity.Value = Entity.Null;
+                        state.value = StateValues.Idle;
+                        return;
+                    }
+
                     var foodTranslation = GetComponent<Translation>(targetedEntity.Value);
                     var foodCarried = GetComponent<Food>(targetedEntity.Value).isBeeingCarried;
                     

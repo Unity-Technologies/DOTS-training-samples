@@ -4,4 +4,5 @@ using Unity.Entities;
 public struct Food : IComponentData
 {
     public bool isBeeingCarried;
+    public bool pendingDestroy;
 }

@@ -120,7 +120,7 @@ public partial class MovementSystem : SystemBase
         // Collision: Food
         Entities
             .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, ref Velocity velocity,
-                in Food food) =>
+                ref Food food) =>
             {
                 var random = new Random(randomSeed + (uint)entityInQueryIndex);
 
@@ -132,6 +132,7 @@ public partial class MovementSystem : SystemBase
                     {
                         // Destroy this food entity because it hit the ground in a goal area
                         ecbCollision.DestroyEntity(e);
+                        food.pendingDestroy = true;
 
                         // Spawn some beeeeeees for the appropriate team!
                         for (var i = 0; i < 3; i++)
