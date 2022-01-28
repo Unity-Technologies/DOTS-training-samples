@@ -18,10 +18,10 @@ namespace Ext {
             PlayerSettings.muteOtherAudioSources = false;
 
             //force using Vulkan & leaner color space for Hybrid Rendering Pipeline
-            PlayerSettings.colorSpace = ColorSpace.Linear;
-            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.colorSpace = ColorSpace.Linear;            
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new UnityEngine.Rendering.GraphicsDeviceType[] {  UnityEngine.Rendering.GraphicsDeviceType.Vulkan});
-            
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);            
+
             PlayerSettings.companyName = "Unity Technologies";
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeRight;
             PlayerSettings.MTRendering = true;
@@ -68,7 +68,6 @@ namespace Ext {
             PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Low);
             PlayerSettings.SetMobileMTRendering(BuildTargetGroup.Android, false);
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, true);
         }
 
     }
