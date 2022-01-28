@@ -35,15 +35,15 @@ public partial class AntGeneralSteering : SystemBase
             float2 nestDirection = offsetToNest / distToNest;
             if (loadout.Value == 0)
             {
-                float headingToNest = math.dot(nestDirection, velocity.Direction);
+                //float headingToNest = math.dot(nestDirection, velocity.Direction);
                 float proximityToNest = 1.0f - (distToNest / mapSize);
-                generalDirection.Value = (-offsetToNest / distToNest) * headingToNest * proximityToNest;
+                generalDirection.Value = (-offsetToNest / distToNest)  * proximityToNest;
             }
             else
             { 
-                float headingFromNest = math.dot(-nestDirection, velocity.Direction);
-                float proximityToNest = distToNest / mapSize;
-                generalDirection.Value = (offsetToNest / distToNest) * headingFromNest * proximityToNest;
+                //float headingFromNest = math.dot(nestDirection, velocity.Direction);
+                float proximityToNest =  distToNest / mapSize;
+                generalDirection.Value = (offsetToNest / distToNest) /** headingFromNest*/ * proximityToNest;
             }
         }).ScheduleParallel();
     }

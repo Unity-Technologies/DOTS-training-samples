@@ -170,13 +170,13 @@ MonoBehaviour:
   antAcceleration: 0.259
   antWanderDistance: 1
   antWanderRadius: 0.1
-  antObstacleAvoidanceDistance: 0.026
-  wanderingStrength: 0
-  pheromoneStrength: 0
-  containmentStrength: 0
-  generalDirectionStrength: 0
-  proximityStrength: 0
-  avoidanceStrength: 0
+  antObstacleAvoidanceDistance: 0.022
+  wanderingStrength: 0.772
+  pheromoneStrength: 0.496
+  containmentStrength: 0.049
+  generalDirectionStrength: 0.332
+  proximityStrength: 0.812
+  avoidanceStrength: 0.03
 --- !u!4 &1451741489
 Transform:
   m_ObjectHideFlags: 0
