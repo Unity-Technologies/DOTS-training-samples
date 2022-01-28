@@ -106,7 +106,7 @@ public partial class UpdateStateSystem : SystemBase
                     entityInQueryIndex,
                     ref state,
                     TeamValue.Yellow,
-                    carriedEntity,
+                    ref carriedEntity,
                     translation,
                     parallelWriter,
                     randomSeed);
@@ -124,7 +124,7 @@ public partial class UpdateStateSystem : SystemBase
                     entityInQueryIndex,
                     ref state,
                     TeamValue.Blue,
-                    carriedEntity,
+                    ref carriedEntity,
                     translation,
                     parallelWriter,
                     randomSeed);
@@ -224,6 +224,12 @@ public partial class UpdateStateSystem : SystemBase
                 Entity targetBeeCarriedEntity = Entity.Null;
                 float3 targetBeeTrans = float3.zero;
 
+                if (targetedEntity.Value == Entity.Null)
+                {
+                    state.value = StateValues.Idle;
+                    return;
+                }
+
                 bool targetedEntityExistsAndIsBee = HasComponent<BeeTeam>(targetedEntity.Value);
                 if (targetedEntityExistsAndIsBee)
                 {
@@ -263,6 +269,12 @@ public partial class UpdateStateSystem : SystemBase
                 Entity targetBeeCarriedEntity = Entity.Null;
                 float3 targetBeeTrans = float3.zero;
 
+                if (targetedEntity.Value == Entity.Null)
+                {
+                    state.value = StateValues.Idle;
+                    return;
+                }
+                
                 bool targetedEntityExistsAndIsBee = HasComponent<BeeTeam>(targetedEntity.Value);
                 if (targetedEntityExistsAndIsBee)
                 {
@@ -402,12 +414,12 @@ public partial class UpdateStateSystem : SystemBase
         int entityInQueryIndex,
         ref BeeState state,
         TeamValue team,
-        CarriedEntity carriedEntity,
+        ref CarriedEntity carriedEntity,
         in Translation translation,
         EntityCommandBuffer.ParallelWriter writer,
         uint seed)
     {
-        if (state.value == StateValues.Carrying)
+        if (state.value == StateValues.Carrying && carriedEntity.Value != Entity.Null)
         {
             var random = Random.CreateFromIndex((uint)entityInQueryIndex + seed);
 
@@ -422,6 +434,7 @@ public partial class UpdateStateSystem : SystemBase
                     new Food { isBeeingCarried = false });
 
                 state.value = StateValues.Idle;
+                carriedEntity.Value = Entity.Null;
             }
         }
     }
@@ -466,6 +479,7 @@ public partial class UpdateStateSystem : SystemBase
 
                     //destroy enemy bee
                     writer.DestroyEntity(entityInQueryIndex, targetedEntity);
+                    targetedEntity = Entity.Null;
 
                     //spawn a bee bit
                     var bitsEntity = writer.Instantiate(entityInQueryIndex,
@@ -484,11 +498,13 @@ public partial class UpdateStateSystem : SystemBase
             if (!targetedEntityExistsAndIsBee)
             {
                 state.value = StateValues.Idle;
+                targetedEntity = Entity.Null;
             }
             else if (movement.t >= 0.99f)
             {
                 // If we have finished moving and are still seeking, go back to idle status
                 state.value = StateValues.Idle;
+                targetedEntity = Entity.Null;
                 movement.GoTo(translation.Value, targetBeeTrans);
             }
         }
