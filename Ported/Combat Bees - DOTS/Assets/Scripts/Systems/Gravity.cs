@@ -12,11 +12,15 @@ public partial class Gravity : SystemBase
     {
         float resourceGravity = GetResourceGravity();
 
-        Entities.WithAll<ResourceTag>().ForEach((ref Velocity velocity, in Holder holder) => {
+        Entities.WithAny<ResourceTag>().ForEach((ref Velocity velocity, in Holder holder) => {
             if (holder.Value == Entity.Null)
             {
                 velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
             }
+        }).ScheduleParallel();
+        Entities.WithAny<BeeBloodParticle>().ForEach((ref Velocity velocity) => 
+        {
+            velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
         }).ScheduleParallel();
     }
     

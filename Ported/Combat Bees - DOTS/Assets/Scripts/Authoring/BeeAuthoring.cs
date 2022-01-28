@@ -54,7 +54,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         
         dstManager.AddComponentData(entity, new RandomState
         {
-            Random = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0
+            Value = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0
         });
 
         dstManager.AddComponentData(entity, new Agression

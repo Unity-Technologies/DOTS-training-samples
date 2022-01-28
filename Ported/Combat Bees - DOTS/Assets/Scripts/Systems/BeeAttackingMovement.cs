@@ -1,11 +1,14 @@
-﻿using Combatbees.Testing.Maria;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
 public partial class BeeAttackingMovement : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
     protected override void OnUpdate()
     {
         float dashMultiplier = 3f;
@@ -18,7 +21,6 @@ public partial class BeeAttackingMovement : SystemBase
         {
             if (beeStatus.Value == Status.Attacking)
             {
-                Debug.Log("Attacking movement starting");
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                 float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 
@@ -40,16 +42,14 @@ public partial class BeeAttackingMovement : SystemBase
                 {
                     // Kill and go home
                     velocity.Value += delta * (beeProperties.ChaseForce * dashMultiplier / distanceFromTarget);
-                    Debug.Log("Started Dashing");
                 }
                 else
                 {
-                    Debug.Log("Just going slowly to the target bee");
                     // Add velocity towards the current target
                     velocity.Value += delta * (beeProperties.ChaseForce / distanceFromTarget);
 
                     // Add random jitter
-                    float3 randomJitter = randomState.Random.NextFloat3(-1f, 1f);
+                    float3 randomJitter = randomState.Value.NextFloat3(-1f, 1f);
                     velocity.Value += randomJitter * beeProperties.FlightJitter;
 
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
@@ -66,23 +66,42 @@ public partial class BeeAttackingMovement : SystemBase
 
         bool beeIsdead = false;
         // get the position of the Dead bee
-        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, in BeeDead beeDead, in Translation translation) =>
+        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, ref BeeDead beeDead, ref RandomState randomState, in Translation translation) =>
         {
-            if(beeDead.Value)
+            if (beeDead.Value)
             {
                 beeStatus.Value = Status.Dead;
                 beeIsdead = true;
+                var spawningData = GetSingleton<BloodSpawningProperties>();
+                
+                // To make the bloodparticles only spawn once 
+                if (!beeDead.AnimationStarted)
+                {
+                    beeDead.AnimationStarted = true;
+                    for (int i = 0; i < spawningData.amountParticles; i++)
+                    {
+                        Entity e = EntityManager.Instantiate(spawningData.bloodEntity);
+                        EntityManager.SetComponentData(e, new Translation
+                        {
+                            Value = translation.Value 
+                        });
+                        
+                        EntityManager.AddComponentData(e, new BeeBloodParticle
+                        {
+                            timeToLive = randomState.Value.NextFloat(1, 5)
+                        });
+                        
+                        float x = randomState.Value.NextFloat(-10, 10);
+                        float y = randomState.Value.NextFloat(0, 10);
+                        float z = randomState.Value.NextFloat(-10, 10);
+                        EntityManager.AddComponentData(e, new Velocity()
+                        {
+                            Value = new float3(x, y, z),
+                        });
+                    }
+                }
             }
-        }).Run();
-
-        if (beeIsdead)
-        {
-            letBeeDisappearAndInitBloodParticles();
-            moveBloodParticles();
-            timeToLive();
-        }
-        
-        
+        }).WithStructuralChanges().Run();
     }
     
     private BeeProperties GetBeeProperties()
@@ -97,74 +116,6 @@ public partial class BeeAttackingMovement : SystemBase
         return beeProps;
     }
     
-    private void letBeeDisappearAndInitBloodParticles(){
-                float3 pos = new float3(0);
-                float steps = 0f;
-                
-                
-                // initiate/spawn the blood particles
-                Entities.ForEach((Entity entity,ref BeeDead beeDead, in Translation translation) =>
-                {
-                    pos = translation.Value;
-
-                    var spawner = GetSingleton<BeeBloodSpawner>();
-                    // To make the bloodparticles only spawn once 
-                    if (!beeDead.AnimationStarted)
-                    {
-                        beeDead.AnimationStarted = true;
-                        for (int i = 0; i < spawner.amountParticles; i++)
-                        {
-                            Entity e = EntityManager.Instantiate(spawner.bloodEntity);
-                            EntityManager.SetComponentData(e, new Translation
-                            {
-                                Value = translation.Value + new float3(pos)    
-                            });
-                            float x = spawner.random.NextFloat(-3, 3);
-                            float y = spawner.random.NextFloat(0, 3);
-                            float z = spawner.random.NextFloat(-3, 3);
-                            
-                            EntityManager.SetComponentData(e, new BloodParticle
-                            {
-                                direction = new float3(x, y, z),
-                                steps = spawner.steps,
-                                timeToLive = spawner.random.NextFloat(0, 5)
-                            });
-                        }
-                    }
-                }).WithStructuralChanges().Run();
-            
-        }
-
-        private void moveBloodParticles()
-        {
-            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
-            {
-                if (0 <= bloodparticle.steps )
-                {
-                    bloodparticle.steps -= Time.DeltaTime;
-                    translation.Value = translation.Value + new float3(bloodparticle.direction * Time.DeltaTime);
-                }
-                else
-                {
-                    if(translation.Value.y > 0) translation.Value.y += -10 * Time.DeltaTime;
-                }
-            }).WithStructuralChanges().Run();
-        }
-
-        private void timeToLive()
-        {
-            Entities.ForEach((Entity entity, ref BloodParticle bloodparticle, ref Translation translation) =>
-            {
-                if (0 <= bloodparticle.timeToLive )
-                {
-                    bloodparticle.timeToLive -= Time.DeltaTime;
-                }
-                else
-                {
-                    EntityManager.DestroyEntity(entity);
-                }
-            }).WithStructuralChanges().Run();   
-        }
 }
 
 

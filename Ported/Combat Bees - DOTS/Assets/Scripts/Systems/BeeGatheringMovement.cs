@@ -81,7 +81,7 @@ public partial class BeeGatheringMovement : SystemBase
                     velocity.Value += delta * (beeProperties.ChaseForce / distanceFromTarget);
 
                     // Add random jitter
-                    float3 randomJitter = randomState.Random.NextFloat3(-1f, 1f);
+                    float3 randomJitter = randomState.Value.NextFloat3(-1f, 1f);
                     velocity.Value += randomJitter * beeProperties.FlightJitter;
 
                     // Apply damping (also limits velocity so that it does not keep increasing indefinitely)
@@ -92,13 +92,13 @@ public partial class BeeGatheringMovement : SystemBase
 
                     if (team.Value == TeamName.A)
                     {
-                        int randomBeeIndex = randomState.Random.NextInt(beeAEntities.Length);
+                        int randomBeeIndex = randomState.Value.NextInt(beeAEntities.Length);
                         randomBee = beeAEntities.ElementAt(randomBeeIndex);
 
                     }
                     else if (team.Value == TeamName.B)
                     {
-                        int randomBeeIndex = randomState.Random.NextInt(beeBEntities.Length);
+                        int randomBeeIndex = randomState.Value.NextInt(beeBEntities.Length);
                         randomBee = beeBEntities.ElementAt(randomBeeIndex);
                     }
                     else

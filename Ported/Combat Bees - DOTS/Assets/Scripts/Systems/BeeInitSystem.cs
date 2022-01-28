@@ -12,7 +12,7 @@ public partial class BeeInitSystem : SystemBase
             {
                 //Debug.Log("Index: " + entity.Index);
                 //Debug.Log("State: " + randomState.Random.state);
-                agression.Value = randomState.Random.NextFloat();
+                agression.Value = randomState.Value.NextFloat();
             }
         }).Schedule();
     }

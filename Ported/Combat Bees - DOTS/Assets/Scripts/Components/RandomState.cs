@@ -3,5 +3,5 @@ using Random = Unity.Mathematics.Random;
 
 public struct RandomState : IComponentData
 {
-    public Random Random;
+    public Random Value;
 }

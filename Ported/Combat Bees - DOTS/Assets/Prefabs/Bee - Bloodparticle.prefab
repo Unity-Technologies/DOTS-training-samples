@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5992582591906006185}
   - component: {fileID: 5992582591906006184}
   - component: {fileID: 5992582591906006103}
-  - component: {fileID: 6889628012636875282}
+  - component: {fileID: 3930953998769536323}
   m_Layer: 0
   m_Name: Bee - Bloodparticle
   m_TagString: Untagged
@@ -96,7 +96,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6889628012636875282
+--- !u!114 &3930953998769536323
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -108,5 +108,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0bd3dffb1564be6b1ec29350b09db5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeToLive: 3
-  steps: 10
+  timeToLive: 0
+  steps: 0

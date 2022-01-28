@@ -62,7 +62,7 @@ public partial class BeeResourceTargeting : SystemBase
                 if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering) // if bee does not have a target
                 {
                     // Assign a random resource
-                    int randomResourceIndex = randomState.Random.NextInt(freeResources.Length);
+                    int randomResourceIndex = randomState.Value.NextInt(freeResources.Length);
                     beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
                     freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
                     assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step

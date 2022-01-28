@@ -26,12 +26,12 @@ public partial class BeeEnemyTargeting : SystemBase
             {
                 if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null)
                 {
-                    int randomIndex = randomState.Random.NextInt(beeBEntities.Length);
+                    int randomIndex = randomState.Value.NextInt(beeBEntities.Length);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
                 }
                 if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null)
                 {
-                    int randomIndex = randomState.Random.NextInt(beeAEntities.Length);
+                    int randomIndex = randomState.Value.NextInt(beeAEntities.Length);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
                 }
                 
