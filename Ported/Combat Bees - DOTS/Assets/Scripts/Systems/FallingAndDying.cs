@@ -39,7 +39,7 @@ public partial class FallingAndDying : SystemBase
                 }
                 else
                 {
-                    // ecb.DestroyEntity(entity);
+                    ecb.DestroyEntity(entity);
                 }
             }
         }).Run();

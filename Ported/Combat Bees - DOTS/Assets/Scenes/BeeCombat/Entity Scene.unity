@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
-  SpawnedCount: 5
+  SpawnedCount: 4
   MaxInitVelocity: 10
 --- !u!1 &1957685094
 GameObject:
@@ -650,7 +650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
-  SpawnedCount: 5
+  SpawnedCount: 4
   MaxInitVelocity: 10
 --- !u!4 &2045680677
 Transform:

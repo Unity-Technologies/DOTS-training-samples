@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class BeeEnemyTargeting : SystemBase
 {
@@ -24,12 +25,14 @@ public partial class BeeEnemyTargeting : SystemBase
             .ForEach((Entity entity,ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
             if (beeStatus.Value == Status.Attacking)
             {
-                if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null)
+                if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeBEntities.Length>0)
                 {
+                   //check if the bee is dead or not here 
                     int randomIndex = randomState.Value.NextInt(beeBEntities.Length);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
+                    Debug.Log(randomIndex);
                 }
-                if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null)
+                if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeAEntities.Length>0)
                 {
                     int randomIndex = randomState.Value.NextInt(beeAEntities.Length);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
