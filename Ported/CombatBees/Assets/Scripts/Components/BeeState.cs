@@ -5,7 +5,8 @@ public enum StateValues
     Idle,
     Attacking,
     Carrying,
-    Seeking
+    Seeking,
+    Wandering,
 }
 
 
