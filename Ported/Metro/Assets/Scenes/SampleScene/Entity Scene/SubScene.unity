@@ -3071,7 +3071,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2074760010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3086,7 +3086,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PassengerPrefab: {fileID: 6903147729424372531, guid: 838b220224e7c714a89e6636c39e68a2, type: 3}
   TotalCount: 1000
-  colors: []
+  colors:
+  - {r: 0.735849, g: 0.22630832, b: 0.22630832, a: 0}
+  - {r: 0.7735849, g: 0.73084515, b: 0.23791388, a: 0}
+  - {r: 0.3298699, g: 0.6886792, b: 0.19880743, a: 0}
+  - {r: 0.17386973, g: 0.6226415, b: 0.523462, a: 0}
+  - {r: 0.20889999, g: 0.42189938, b: 0.6792453, a: 0}
+  - {r: 0.43460447, g: 0.15957639, b: 0.5188679, a: 0}
+  - {r: 0.6509434, g: 0.2370417, b: 0.46851578, a: 0}
 --- !u!4 &2074760011
 Transform:
   m_ObjectHideFlags: 0
