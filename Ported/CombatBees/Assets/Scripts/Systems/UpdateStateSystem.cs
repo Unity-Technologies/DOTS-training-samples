@@ -15,6 +15,9 @@ public partial class UpdateStateSystem : SystemBase
     private EntityQuery foodQuery;
     private EntityCommandBufferSystem commandBufferSystem;
 
+    // Used to determine if two translations are "equal enough"
+    const float squaredInteractionDistance = 1f;
+
     protected override void OnCreate()
     {
         commandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
@@ -56,8 +59,6 @@ public partial class UpdateStateSystem : SystemBase
             .ScheduleParallel();
 
 
-
-
         // Get NativeArray data for food translation and entity data
         foodQuery = GetEntityQuery(typeof(Food));
         int foodCount = foodQuery.CalculateEntityCount();
@@ -76,8 +77,7 @@ public partial class UpdateStateSystem : SystemBase
             }).WithName("GetFoodData")
             .ScheduleParallel();
 
-        // Used to determine if two translations are "equal enough"
-        const float squaredInteractionDistance = 1f;
+
 
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
@@ -88,8 +88,6 @@ public partial class UpdateStateSystem : SystemBase
             DateTime.Now.Day +
             DateTime.Now.Month +
             DateTime.Now.Year);
-        // var random = new Random(randomSeed);
-
 
         var spawner = GetSingleton<Spawner>();
 
