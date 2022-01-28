@@ -160,38 +160,43 @@ public partial class UpdateStateSystem : SystemBase
                         }
 
                         // Check if close enough to the food/wander-destination to pick it up or wander somewhere else
-                        float translationDistance = distancesq(translation.Value, foodTranslationData[i]);
-                        if (translationDistance <= squaredInteractionDistance)
+                        if (foodEntityData[i] == targetedEntity.Value)
                         {
-                            // If the food is not being carried already, pick it up
-                            if (state.value == StateValues.Seeking &&
-                                foodCarriedData[i] == false)
+                            float translationDistance = distancesq(translation.Value, foodTranslationData[i]);
+
+                            if (translationDistance <= squaredInteractionDistance)
                             {
-                                state.value = StateValues.Carrying;
-                                carriedEntity.Value = foodEntityData[i];
+                                // If the food is not being carried already, pick it up
+                                if (state.value == StateValues.Seeking &&
+                                    foodCarriedData[i] == false)
+                                {
+                                    state.value = StateValues.Carrying;
+                                    carriedEntity.Value = foodEntityData[i];
 
-                                // Set a random destination within the appropriate goal area
-                                var endLocation = SpawnerSystem.GetRandomGoalTarget(ref random, team.Value);
-                                movement.GoTo(translation.Value, endLocation);
+                                    // Set a random destination within the appropriate goal area
+                                    var endLocation = SpawnerSystem.GetRandomGoalTarget(ref random, team.Value);
+                                    movement.GoTo(translation.Value, endLocation);
 
-                                // Add updated movement information to food entity
-                                parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
-                                    PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
-                                        movement.endLocation + float3(0f, -1f, 0f)));
+                                    // Add updated movement information to food entity
+                                    parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
+                                        PP_Movement.Create(movement.startLocation + float3(0f, -1f, 0f),
+                                            movement.endLocation + float3(0f, -1f, 0f)));
 
-                                parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
-                                    new Food {isBeeingCarried = true});
+                                    parallelWriter.AddComponent(entityInQueryIndex, foodEntityData[i],
+                                        new Food { isBeeingCarried = true });
 
+                                    break;
+                                }
+
+                                // If the food is already being carried,
+                                // or the bee done with this wander,
+                                // then go to the idle state
+                                state.value = StateValues.Idle;
+                                targetedEntity.Value = Entity.Null;
                                 break;
                             }
-
-                            // If the food is already being carried,
-                            // or the bee done with this wander,
-                            // then go to the idle state
-                            state.value = StateValues.Idle;
-                            targetedEntity.Value = Entity.Null;
-                            break;
                         }
+
                     }
 
                     if (movement.t >= 0.99f)
