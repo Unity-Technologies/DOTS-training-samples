@@ -12,7 +12,7 @@ public partial class AntProximitySteering : SystemBase
     private EntityQuery m_FoodQuery;
     private float2 m_NestPosition;
     private float m_FoodNestRadius = 4.0f;
-    private float m_AntVisibilityDistance = 0.1f;
+    private float m_AntVisibilityDistance = 0.25f;
     
     protected override void OnStartRunning()
     {
