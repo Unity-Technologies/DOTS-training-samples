@@ -12,7 +12,10 @@ public partial class StationStopSystem : SystemBase
     {
         float deltaTime = Time.DeltaTime;    
 
-        Entities.ForEach((ref Translation translation,ref SplineFollower splineFollower,ref Ticker ticker,ref NextStation nextStation,in TrackProgress trackProgress, in Rotation rotation) =>
+        Entities.ForEach((  ref SplineFollower splineFollower,
+                            ref Ticker ticker,
+                            ref NextStation nextStation,
+                            in TrackProgress trackProgress) =>
         {
 
             var stationDistanceBuffer = GetBuffer<FloatBufferElement>(splineFollower.track);
