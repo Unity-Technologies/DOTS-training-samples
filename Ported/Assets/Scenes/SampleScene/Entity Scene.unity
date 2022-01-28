@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchColor: {r: 0.1882353, g: 0.21176471, b: 0.3529412, a: 0}
   carryColor: {r: 0.72156864, g: 0.70980394, b: 0.39607844, a: 0}
-  antCount: 100
+  antCount: 50000
   mapSize: 128
   bucketResolution: 128
   antSize: {x: 0.004, y: 0.004, z: 0.008}
@@ -172,7 +172,7 @@ MonoBehaviour:
   antWanderRadius: 0.1
   antObstacleAvoidanceDistance: 0.026
   wanderingStrength: 0.141
-  pheromoneStrength: 0.141
+  pheromoneStrength: 0.172
   containmentStrength: 0.15
   generalDirectionStrength: 0.412
   proximityStrength: 0.51
