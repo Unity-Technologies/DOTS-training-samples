@@ -173,7 +173,7 @@ MonoBehaviour:
   antObstacleAvoidanceDistance: 0.026
   wanderingStrength: 0.141
   pheromoneStrength: 0.172
-  containmentStrength: 0.15
+  containmentStrength: 0.35
   generalDirectionStrength: 0.412
   proximityStrength: 0.51
   avoidanceStrength: 0.305
