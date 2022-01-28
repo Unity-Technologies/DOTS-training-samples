@@ -53,7 +53,7 @@ public partial class AntProximitySteering : SystemBase
                     }
                     else
                     {
-                        proximitySteering.Value = nestOffset / dist;
+                        proximitySteering.Value = (nestOffset / dist);
                     
                         if (dist < foodNestRadius) 
                         {
@@ -70,25 +70,20 @@ public partial class AntProximitySteering : SystemBase
                         float2 foodOffset = foodTranslation[i].Value.xy - antTranslation.Value.xy;
                         float dist = math.length(foodOffset);
                         
-                        if (dist > antVisibilityDistance)
+                        if (dist < antVisibilityDistance)
                         {
-                            continue;
+                            if (Utils.LinecastObstacles(grid, obstacleBuffer, antTranslation.Value.xy, foodTranslation[i].Value.xy) == false)
+                            {
+                                proximitySteering.Value = (foodOffset / dist);
+                            
+                                // tHis code handle the loading / unloading
+                                if (dist < foodNestRadius) 
+                                {
+                                    loadout.Value = 1;
+                                    velocity.Direction = -velocity.Direction;
+                                }
+                            }
                         }
-                        
-                        if (Utils.LinecastObstacles(grid, obstacleBuffer, antTranslation.Value.xy, foodTranslation[i].Value.xy) == true)
-                        {
-                            continue;
-                        }
-
-                        proximitySteering.Value = foodOffset / dist;
-                        
-                        // tHis code handle the loading / unloading
-                        if (dist < foodNestRadius) 
-                        {
-                            loadout.Value = 1;
-                            velocity.Direction = -velocity.Direction;
-                        }
-                        break;
                     }
                 }
             }).WithDisposeOnCompletion(foodTranslation).ScheduleParallel();
