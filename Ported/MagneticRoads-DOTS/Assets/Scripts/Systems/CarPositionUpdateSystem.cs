@@ -17,17 +17,16 @@ public partial class CarPositionUpdateSystem : SystemBase
                 translation.Value = Extrude(splineDef, splinePosition, out Vector3 up);
                 
                 Vector3 moveDir = translation.Value - previousPos;
-                if (moveDir == Vector3.zero)
+                if (moveDir != Vector3.zero)
                 {
-                    moveDir = splineDef.endPoint - splineDef.startPoint;
+                    rotation.Value = Quaternion.LookRotation(moveDir, up);
                 }
                 
-                rotation.Value = Quaternion.LookRotation(moveDir, up);
             }).ScheduleParallel();
     }
 
 
-    private static Vector3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out Vector3 up)
+    public static Vector3 Extrude(SplineDef splineDef, SplinePosition splinePosition, out Vector3 up)
     {
         Vector3 tangent;
         Vector2 point = splineDef.offset;
@@ -84,14 +83,6 @@ public partial class CarPositionUpdateSystem : SystemBase
         up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * splineDef.startNormal.ToVector3();
         Vector3 right = Vector3.Cross(tangent, up);
 
-        // // measure twisting errors:
-        // // we have three possible spline-twisting methods, and
-        // // we test each spline with all three to find the best pick
-        // if (up.magnitude < .5f || right.magnitude < .5f) {
-        //     errorCount++;
-        // }
-        // var tmp = (right * point.x + up * point.y);
-        // Debug.Log($"offset {splineDef.offset}   point = {point.x},{point.y}   result = {tmp.x},{tmp.y},{tmp.z}");
         return sample1 + right * point.x + up * point.y;
     }
 

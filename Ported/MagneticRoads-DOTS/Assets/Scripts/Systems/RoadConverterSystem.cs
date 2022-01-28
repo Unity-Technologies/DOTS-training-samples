@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public partial class RoadConverterSystem : SystemBase
 {
@@ -20,11 +21,15 @@ public partial class RoadConverterSystem : SystemBase
             roadEntityBuffer[splineDef.splineId] = CreateRoadEntity(ecb, splineDef);
         }
 
-        var intersectionEntityBuffer = new Entity[RoadGenerator.intersectionCount*2];
-        for (var i = 0; i < RoadGenerator.intersectionCount*2; i++)
+        var intersectionEntityBuffer = new Entity[RoadGenerator.originIntersectionCount*2];
+        for (var i = 0; i < RoadGenerator.originIntersectionCount*2; i++)
         {
             var intersectionEntity = ecb.CreateEntity();
             ecb.AddBuffer<CarQueue>(intersectionEntity);
+
+            ecb.AddComponent<Translation>(intersectionEntity);
+            ecb.SetComponent(intersectionEntity, new Translation{Value = RoadGenerator.intersections[i/2].position});
+            
             intersectionEntityBuffer[i] = intersectionEntity;
         }
         

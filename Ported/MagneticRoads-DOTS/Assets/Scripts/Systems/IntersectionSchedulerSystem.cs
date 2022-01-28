@@ -1,6 +1,9 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(CarMovementGroup))]
 [UpdateAfter(typeof(RoadToIntersectionSystem))]
@@ -19,9 +22,9 @@ public partial class IntersectionSchedulerSystem : SystemBase
 //TODO instead of having component acting as tag, use a component with bool or something to represent the states => modify a component instead of add remove comp
         Entities
             .WithAll<CarQueue>().WithNone<CarQueueMaxLength>()//TODO find only intersection but better than that pls!
-            .ForEach((Entity entity) =>
+            .ForEach((Entity intersectionEntity, in Translation translation) =>
             {
-                var intersectionQueue = GetBuffer<CarQueue>(entity);
+                var intersectionQueue = GetBuffer<CarQueue>(intersectionEntity);
                 if (intersectionQueue.IsEmpty)
                     return;
 
@@ -45,18 +48,49 @@ public partial class IntersectionSchedulerSystem : SystemBase
                     
                     //create dummy spline between current and next spline
                     var nextSpline = splinesArray[nextSplineId].Value;
+                    var start = currentSpline.endPoint;
+                    var end = nextSpline.startPoint;
+                    
+                    var isUTurn = Math.Abs(currentSpline.splineId - nextSpline.splineId) == 1;
+                    if (isUTurn)
+                    {
+                        start = CarPositionUpdateSystem.Extrude(currentSpline, new SplinePosition {position = 1f}, out _);
+                        end = CarPositionUpdateSystem.Extrude(nextSpline, new SplinePosition {position = 0f}, out _);
+                        var plane = translation.Value * currentSpline.endNormal;
+                        if (plane.x != 0)
+                        {
+                            var x = Math.Abs(plane.x);
+                            start.x = x;
+                            end.x = x;
+                        }
+                        else if (plane.y != 0)
+                        {
+                            var y = Math.Abs(plane.y);
+                            start.y = y;
+                            end.y = y;
+                        }
+                        else
+                        {
+                            var z = Math.Abs(plane.z);
+                            start.z = z;
+                            end.z = z;
+                        }
+                    }
+
+                    var anchorFactor = isUTurn ? .75f : .5f;
                     var dummySpline = new SplineDef
                     {
-                        startPoint = currentSpline.endPoint,
-                        endPoint = nextSpline.startPoint,
-                        anchor1 = currentSpline.endPoint,
-                        anchor2 = nextSpline.startPoint,
+                        startPoint = start,
+                        endPoint = end,
+                        
+                        anchor1 = (translation.Value - start)* anchorFactor + start,
+                        anchor2 = (translation.Value - end)* anchorFactor + end,
                         startNormal = currentSpline.endNormal,
                         endNormal = currentSpline.startNormal,
                         startTangent = currentSpline.endTangent,
                         endTangent = nextSpline.startTangent,
                         twistMode = -1,
-                        offset = currentSpline.offset,
+                        offset = isUTurn ? new float2(0f, currentSpline.offset.y) : currentSpline.offset,
                         splineId = -1
                     };
                     
@@ -65,7 +99,7 @@ public partial class IntersectionSchedulerSystem : SystemBase
                     nextRoadQueue.Add(firstCar);
 
                     ecb.RemoveComponent<WaitingAtIntersection>(firstCar);
-                    ecb.AddComponent(firstCar, new InIntersection {nextSpline = nextSplineId, intersection = entity});
+                    ecb.AddComponent(firstCar, new InIntersection {nextSpline = nextSplineId, intersection = intersectionEntity});
                     ecb.RemoveComponent<RoadCompleted>(firstCar);
                 }
                 

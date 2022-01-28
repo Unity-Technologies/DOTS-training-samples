@@ -22,7 +22,7 @@ public class RoadGenerator:MonoBehaviour
 	public float carSpeed=2f;
 
 	bool[,,] trackVoxels;
-	List<Intersection> intersections;
+	public static List<Intersection> intersections;
 	public static List<TrackSpline> trackSplines;
 	Intersection[,,] intersectionsGrid;
 	// List<Car> cars;
@@ -370,14 +370,14 @@ public class RoadGenerator:MonoBehaviour
 	public static SplineDef[] subSplines;
 	public static List<int>[] splineLinks;
 	public static int[] intersectionLinks;
-	public static int intersectionCount;
+	public static int originIntersectionCount;
 	
 	private void ConvertToMultiSplinePerRoad()
 	{
 		var splineToMultiSpline = new SplineDef[trackSplines.Count][];
 		splineLinks = new List<int>[trackSplines.Count*4];
 		multiSplineId = 0;
-		intersectionCount = intersections.Count;
+		originIntersectionCount = intersections.Count;
 		
 		foreach (var spline in trackSplines)
 		{
@@ -425,8 +425,8 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines0[ssDirection0[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
 				splineLinks[subSplines0[ssDirection0[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
 
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
+				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i*2;
+				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i*2 + 1;
 			}
 			else if (intersection.neighborSplines.Count == 2)//two way, no U-Turn
 			{
@@ -441,10 +441,10 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines1[ssDirection1[0]].splineId].Add(subSplines0[ssDirection0[1]].splineId);
 				splineLinks[subSplines1[ssDirection1[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
 				
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i;
-				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i + intersectionCount;
+				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i*2;
+				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i*2 + 1;
+				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i*2;
+				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i*2 + 1;
 			}
 			else if (intersection.neighborSplines.Count == 3)//three way, no U-Turn
 			{
@@ -472,12 +472,12 @@ public class RoadGenerator:MonoBehaviour
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines1[ssDirection1[3]].splineId);
 				splineLinks[subSplines2[ssDirection2[2]].splineId].Add(subSplines0[ssDirection0[3]].splineId);
 				
-				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i;
-				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i;
-				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i + intersectionCount;
-				intersectionLinks[subSplines2[ssDirection2[0]].splineId] = i;
-				intersectionLinks[subSplines2[ssDirection2[2]].splineId] = i + intersectionCount;
+				intersectionLinks[subSplines0[ssDirection0[0]].splineId] = i*2;
+				intersectionLinks[subSplines0[ssDirection0[2]].splineId] = i*2 + 1;
+				intersectionLinks[subSplines1[ssDirection1[0]].splineId] = i*2;
+				intersectionLinks[subSplines1[ssDirection1[2]].splineId] = i*2 + 1;
+				intersectionLinks[subSplines2[ssDirection2[0]].splineId] = i*2;
+				intersectionLinks[subSplines2[ssDirection2[2]].splineId] = i*2 + 1;
 			}
 		}
 
@@ -521,8 +521,83 @@ public class RoadGenerator:MonoBehaviour
 			offset = new float2(- RoadGenerator.trackRadius * 0.5f, (isTop ? 1f : -1f) * RoadGenerator.trackThickness* 1.75f),
 			measuredLength = spline.measuredLength
 		};
+
+		// var realStartOffset = Extrude(def, 0f);
+		// var realEndOffset = Extrude(def, 1f);
+		// var realAnchor1Offset = Extrude(def, 1/3f);
+		// var realAnchor2Offset = Extrude(def, 2/3f);
+		//
+		// def.offset = float2.zero;
+		// def.startPoint += (float3)realStartOffset;
+		// def.endPoint += (float3)realEndOffset;
+		// def.anchor1 += (float3)realAnchor1Offset;
+		// def.anchor2 += (float3)realAnchor2Offset;
 		
 		multiSplineId++;
 		return def;
+	}
+	private static Vector3 Extrude(SplineDef splineDef, float t)
+    {
+        Vector3 tangent;
+        Vector3 sample1 = Evaluate(t, splineDef);
+        Vector3 sample2;
+
+        float flipper = 1f;
+        if (t + .01f < 1f)
+        {
+            sample2 = Evaluate(t + .01f, splineDef);
+        }
+        else
+        {
+            sample2 = Evaluate(t - .01f, splineDef);
+            flipper = -1f;
+        }
+
+        tangent = (sample2 - sample1).normalized * flipper;
+        tangent.Normalize();
+
+        // each spline uses one out of three possible twisting methods:
+        Quaternion fromTo = Quaternion.identity;
+        if (splineDef.twistMode == 0)
+        {
+            // method 1 - rotate startNormal around our current tangent
+            float angle = Vector3.SignedAngle(splineDef.startNormal.ToVector3(),
+                splineDef.endNormal.ToVector3(), tangent);
+            fromTo = Quaternion.AngleAxis(angle, tangent);
+        }
+        else if (splineDef.twistMode == 1)
+        {
+            // method 2 - rotate startNormal toward endNormal
+            fromTo = Quaternion.FromToRotation(splineDef.startNormal.ToVector3(),
+                splineDef.endNormal.ToVector3());
+        }
+        else if (splineDef.twistMode == 2)
+        {
+            // method 3 - rotate startNormal by "startOrientation-to-endOrientation" rotation
+            Quaternion startRotation = Quaternion.LookRotation(splineDef.startTangent.ToVector3(),
+                splineDef.startNormal.ToVector3());
+            Quaternion endRotation = Quaternion.LookRotation(splineDef.endTangent.ToVector3() * -1,
+                splineDef.endNormal.ToVector3());
+            fromTo = endRotation * Quaternion.Inverse(startRotation);
+        }
+        // other twisting methods can be added, but they need to
+        // respect the relationship between startNormal and endNormal.
+        // for example: if startNormal and endNormal are equal, the road
+        // can twist 0 or 360 degrees, but NOT 180.
+
+        float smoothT = Mathf.SmoothStep(0f, 1f, t * 1.02f - .01f);
+
+        Vector3 up = Quaternion.Slerp(Quaternion.identity, fromTo, smoothT) * splineDef.startNormal.ToVector3();
+        Vector3 right = Vector3.Cross(tangent, up);
+
+
+        return right * splineDef.offset.x + up * splineDef.offset.y;
+    }
+
+	private static Vector3 Evaluate(float t, SplineDef splineDef) {
+		// cubic bezier
+
+		t = Mathf.Clamp01(t);
+		return splineDef.startPoint * (1f - t) * (1f - t) * (1f - t) + 3f * splineDef.anchor1 * (1f - t) * (1f - t) * t + 3f * splineDef.anchor2 * (1f - t) * t * t + splineDef.endPoint * t * t * t;
 	}
 }
