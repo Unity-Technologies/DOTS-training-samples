@@ -22,7 +22,8 @@ public partial class SplineFollowerSystem : SystemBase
                 {
                     var spline = GetComponent<Spline>(splineFollower.track);
                     ref var splineData = ref spline.splinePath.Value;
-                    var stationDistanceBuffer = GetBuffer<FloatBufferElement>(splineFollower.track);
+                    var bufferFromEntity = GetBufferFromEntity<FloatBufferElement>(true);
+                    var stationDistanceBuffer = bufferFromEntity[splineFollower.track];
                     float closestDistance = math.abs(trackProgress.Value - stationDistanceBuffer[0]);
                     for (int i = 0; i < stationDistanceBuffer.Length; ++i)
                     {
@@ -40,6 +41,6 @@ public partial class SplineFollowerSystem : SystemBase
                     rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0));   
                 }
                 
-            }).Schedule(); //Shoud be ScheduleParallel if possible
+            }).ScheduleParallel();
     }
 }
