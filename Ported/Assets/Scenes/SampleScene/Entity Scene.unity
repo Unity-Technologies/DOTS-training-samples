@@ -162,9 +162,9 @@ MonoBehaviour:
   trailDecay: 0.3
   rotationResolution: 360
   obstacleRingCount: 3
-  obstaclesPerRing: 100
-  obstaclesRadiusStepPerRing: 0.15
-  obstacleRadius: 4.54
+  obstaclesPerRing: 80
+  obstaclesRadiusStepPerRing: 0.13
+  obstacleRadius: 3
   antMaxSpeed: 0.382
   antMaxTurn: 0.42
   antAcceleration: 0.259
