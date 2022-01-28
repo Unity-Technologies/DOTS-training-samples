@@ -285,6 +285,18 @@ public class RoadGenerator:MonoBehaviour
 		Debug.Log(trackSplines.Count + " road splines");
 
 
+		// generate road meshes
+		int triCount = 0;
+		
+		for (int i=0;i<trackSplines.Count;i++) {
+			
+			trackSplines[i].GenerateMesh();	
+		
+			if (i%10==0) {
+				yield return null;
+			}
+		}
+
 		// generate intersection matrices for batch-rendering
 		int batch = 0;
 		intersectionMatrices.Add(new List<Matrix4x4>());

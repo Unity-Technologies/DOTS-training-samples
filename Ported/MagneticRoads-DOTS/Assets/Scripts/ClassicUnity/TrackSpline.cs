@@ -140,7 +140,7 @@ public class TrackSpline
 		return sample1 + right * point.x + up * point.y;
 	}
 	
-	public void GenerateMesh(List<Vector3> vertices, List<Vector2> uvs, List<int> triangles) {
+	public void GenerateMesh() {
 
 		startNormal = startIntersection.normal;
 		endNormal = endIntersection.normal;
@@ -162,56 +162,6 @@ public class TrackSpline
 		}
 		twistMode = bestTwistMode;
 
-		// a road segment is a rectangle extruded along a spline - here's the rectangle:
-		Vector2 localPoint1 = new Vector2(-RoadGenerator.trackRadius,RoadGenerator.trackThickness*.5f);
-		Vector2 localPoint2 = new Vector2(RoadGenerator.trackRadius,RoadGenerator.trackThickness*.5f);
-		Vector2 localPoint3 = new Vector2(-RoadGenerator.trackRadius,-RoadGenerator.trackThickness * .5f);
-		Vector2 localPoint4 = new Vector2(RoadGenerator.trackRadius,-RoadGenerator.trackThickness * .5f);
-
-		// extrude our rectangle as four strips
-		for (int i = 0; i < 4; i++) {
-			Vector3 p1, p2;
-			if (i == 0) {
-				// top strip
-				p1 = localPoint1;
-				p2 = localPoint2;
-			} else if (i==1) {
-				// right strip
-				p1 = localPoint2;
-				p2 = localPoint4;
-			} else if (i==2) {
-				// bottom strip
-				p1 = localPoint4;
-				p2 = localPoint3;
-			} else {
-				// left strip
-				p1 = localPoint3;
-				p2 = localPoint1;
-			}
-
-			for (int j = 0; j <= RoadGenerator.splineResolution; j++) {
-				float t = (float)j / RoadGenerator.splineResolution;
-
-				Vector3 point1 = Extrude(p1,t);
-				Vector3 point2 = Extrude(p2,t);
-
-				int index = vertices.Count;
-
-				vertices.Add(point1);
-				vertices.Add(point2);
-				uvs.Add(new Vector2(0f,t));
-				uvs.Add(new Vector2(1f,t));
-				if (j < RoadGenerator.splineResolution) {
-					triangles.Add(index + 0);
-					triangles.Add(index + 1);
-					triangles.Add(index + 2);
-
-					triangles.Add(index + 1);
-					triangles.Add(index + 3);
-					triangles.Add(index + 2);
-				}
-			}
-		}
 	}
 
 	public void DrawGizmos() {
