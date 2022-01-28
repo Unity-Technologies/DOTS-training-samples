@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.35767195, g: 0.29674053, b: 0.27940473, a: 1}
+  m_IndirectSpecularColor: {r: 0.35758388, g: 0.2951159, b: 0.27667373, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -262,7 +262,7 @@ MonoBehaviour:
   voxelCount: 60
   voxelSize: 1.25
   trisPerMesh: 4000
-  roadMaterial: {fileID: 2100000, guid: c2261b4990b26324bac9164b7f53de5e, type: 2}
+  roadMaterial: {fileID: 2100000, guid: fa37c3c3e1284d64088c7b633c14d20a, type: 2}
   intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   carMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
