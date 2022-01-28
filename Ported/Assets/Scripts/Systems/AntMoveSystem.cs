@@ -144,8 +144,8 @@ public partial class AntMoveSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         Entities.WithAll<AntTag>().ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref Velocity velocity, in CollisionResult collision, in AntMovementState antMovementState) =>
         {
-            velocity.Speed = math.max(0.1f, velocity.Speed);
-            velocity.Direction = collision.IsValid ? math.normalize(math.reflect(antMovementState.delta, collision.normal)) : math.normalize(velocity.Direction);
+            velocity.Speed = collision.IsValid ? 0.1f : math.max(0.1f, velocity.Speed);
+            //velocity.Direction = collision.IsValid ? math.normalize(math.reflect(antMovementState.delta, collision.normal)) : math.normalize(velocity.Direction);
             var traslation2D = collision.IsValid ? collision.point + (velocity.Direction * deltaTime * velocity.Speed) : antMovementState.result;
             translation.Value = new float3(traslation2D.x, traslation2D.y , 0);
             rotation.Value = quaternion.LookRotation(new float3(velocity.Direction, 0), new float3(0, 0, 1));
