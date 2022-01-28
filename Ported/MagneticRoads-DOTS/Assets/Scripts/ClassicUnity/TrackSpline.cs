@@ -24,7 +24,7 @@ public class TrackSpline
 
 	public int twistMode;
 
-	int errorCount;
+	public int errorCount;
 
 	public int splineId;
 	public static int splineIdCount;
