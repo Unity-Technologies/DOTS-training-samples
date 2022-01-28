@@ -27,7 +27,7 @@ public partial class UpdateStateSystem : SystemBase
         //beeQuery = GetEntityQuery(typeof(BeeTag));
 
         int beeCount = beeQuery.CalculateEntityCount();
-        NativeArray<Translation> beeTranslationData = new NativeArray<Translation>(beeCount, Allocator.TempJob);
+        NativeArray<float3> beeTranslationData = new NativeArray<float3>(beeCount, Allocator.TempJob);
         NativeArray<Entity> beeEntityData = new NativeArray<Entity>(beeCount, Allocator.TempJob);
         NativeArray<int> beeTeamData = new NativeArray<int>(beeCount, Allocator.TempJob);
         NativeArray<Entity> beeCarriedEntityData = new NativeArray<Entity>(beeCount, Allocator.TempJob);
@@ -35,9 +35,9 @@ public partial class UpdateStateSystem : SystemBase
         Entities
             .WithStoreEntityQueryInField(ref beeQuery)
             .WithAll<BeeState>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Translation translation, in BeeTeam beeTeam, in CarriedEntity carriedEntity) =>
+            .ForEach((Entity entity, int entityInQueryIndex, in PP_Movement movement, in BeeTeam beeTeam, in CarriedEntity carriedEntity) =>
             {
-                beeTranslationData[entityInQueryIndex] = translation;
+                beeTranslationData[entityInQueryIndex] = movement.unperturbedPosition;
                 beeEntityData[entityInQueryIndex] = entity;
                 beeTeamData[entityInQueryIndex] = (int) beeTeam.Value;
                 beeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
@@ -64,7 +64,7 @@ public partial class UpdateStateSystem : SystemBase
             .ScheduleParallel();
 
         // Used to determine if two translations are "equal enough"
-        const float distanceDelta = 0.1f;
+        const float squaredInteractionDistance = 1f;
 
         // Parallel ECB for recording component add / remove
         // NOTE: Not necessary if only modifying pre-existing component values
@@ -137,12 +137,12 @@ public partial class UpdateStateSystem : SystemBase
                                 break;
                             }
 
-                            movement.endLocation = foodTranslationData[i].Value;
+                            movement.UpdateEndPosition(foodTranslationData[i].Value);
                         }
 
                         // Check if close enough to the food/wander-destination to pick it up or wander somewhere else
-                        float translationDistance = distance(translation.Value, foodTranslationData[i].Value);
-                        if (translationDistance <= distanceDelta)
+                        float translationDistance = distancesq(translation.Value, foodTranslationData[i].Value);
+                        if (translationDistance <= squaredInteractionDistance)
                         {
                             // If the food is not being carried already, pick it up
                             if (state.value == StateValues.Seeking &&
@@ -198,22 +198,23 @@ public partial class UpdateStateSystem : SystemBase
 
                     for (int i = 0; i < beeCount; i++)
                     {
+                        movement.UpdateEndPosition(beeTranslationData[i]);
+                        
                         if (beeEntityData[i] == targetedEntity.Value)
                         {
                             targetBeeStillExists = true;
 
-                            float translationDistance =
-                                distancesq(translation.Value, beeTranslationData[i].Value);
+                            float translationDistance = distancesq(translation.Value, beeTranslationData[i]);
 
-                            if (translationDistance <= 1.25f)
+                            if (translationDistance <= squaredInteractionDistance)
                             {
                                 if (beeCarriedEntityData[i] != Entity.Null)
                                 {
                                     //if the enemy Bee is carrying something, set it to no longer be
                                     parallelWriter.AddComponent(entityInQueryIndex, beeCarriedEntityData[i],
                                         PP_Movement.Create(
-                                            beeTranslationData[i].Value + float3(0f, -1f, 0f),
-                                            beeTranslationData[i].Value.Floored()));
+                                            beeTranslationData[i] + float3(0f, -1f, 0f),
+                                            beeTranslationData[i].Floored()));
 
                                     parallelWriter.AddComponent(entityInQueryIndex, beeCarriedEntityData[i],
                                         new Food {isBeeingCarried = false});
@@ -227,14 +228,16 @@ public partial class UpdateStateSystem : SystemBase
                                     spawner.BeeBitsPrefab);
 
                                 parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
-                                    new Translation {Value = beeTranslationData[i].Value});
+                                    new Translation {Value = beeTranslationData[i]});
 
                                 parallelWriter.SetComponent(entityInQueryIndex, bitsEntity,
                                     PP_Movement.Create(
-                                        beeTranslationData[i].Value, beeTranslationData[i].Value.Floored()));
+                                        beeTranslationData[i], beeTranslationData[i].Floored()));
 
                                 state.value = StateValues.Idle;
                             }
+
+                            break;
                         }
                     }
 
@@ -297,25 +300,25 @@ public partial class UpdateStateSystem : SystemBase
                         float3 nearestTargetLocation = float3.zero;
 
                         // Randomly search through some bees (beesToSearch) and choose the closest one, if any are valid
-                         // Note: random int/uint values are non-inclusive of the maximum value
+                        // Note: random int/uint values are non-inclusive of the maximum value
                         var searchedBeeCount = 0;
                         var beesToSearch = min(beeCount, 30);
                         while (searchedBeeCount < beesToSearch)
                         {
                             searchedBeeCount++;
-                            
+
                             int randomSearchIndex = random.NextInt(beeCount);
-                            
+
                             // Make sure it exists and is on the other team
                             if (beeEntityData[randomSearchIndex] != Entity.Null &&
                                 beeTeamData[randomSearchIndex] != (int) team.Value)
                             {
-                                float dist = distancesq(translation.Value, beeTranslationData[randomSearchIndex].Value);
+                                float dist = distancesq(translation.Value, beeTranslationData[randomSearchIndex]);
                                 if (dist < smallestDistance)
                                 {
                                     smallestDistance = dist;
                                     nearestEntSoFar = beeEntityData[randomSearchIndex];
-                                    nearestTargetLocation = beeTranslationData[randomSearchIndex].Value;
+                                    nearestTargetLocation = beeTranslationData[randomSearchIndex];
                                 }
                             }
                         }

@@ -136,7 +136,9 @@ public partial class SpawnerSystem : SystemBase
                         var beeRandomY = GetRandomBeeY(ref random, minBeeBounds, maxBeeBounds);
                         var beeRandomZ = GetRandomBeeZ(ref random, minBeeBounds, maxBeeBounds);
 
-                        if (i < spawner.StartingBees)
+                        // Alternate every other bee to help entity distribution
+                        // for random indices between teams and for combat priority.
+                        if (i % 2 == 0)
                         {
                             // Yellow Bees
                             var beeRandomX = GetRandomYellowBeeX(ref random, minBeeBounds, maxBeeBounds);
