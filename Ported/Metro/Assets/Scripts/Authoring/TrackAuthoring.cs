@@ -12,21 +12,21 @@ public class TrackAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         , GameObjectConversionSystem conversionSystem) {
 
         BlobBuilder builder = new BlobBuilder(Allocator.TempJob);
-        ref SplineData data = ref builder.ConstructRoot<SplineData>();
+        ref SplineDataBlob splineDataBlob = ref builder.ConstructRoot<SplineDataBlob>();
 
-        BlobBuilderArray<float3> pointArray = builder.Allocate(ref data.bezierControlPoints, splineObject.m_BezierControlPoints.Length);
+        BlobBuilderArray<float3> pointArray = builder.Allocate(ref splineDataBlob.bezierControlPoints, splineObject.m_BezierControlPoints.Length);
         for (int i = 0; i < pointArray.Length; i++) {
             pointArray[i] = splineObject.m_BezierControlPoints[i];
         }
 
-        BlobBuilderArray<ApproximatedCurveSegment> segmentArray = builder.Allocate(ref data.distanceToParametric, splineObject.m_DistanceToParametric.Length);
+        BlobBuilderArray<ApproximatedCurveSegment> segmentArray = builder.Allocate(ref splineDataBlob.distanceToParametric, splineObject.m_DistanceToParametric.Length);
         for (int i = 0; i < segmentArray.Length; i++) {
             segmentArray[i] = splineObject.m_DistanceToParametric[i];
         }
 
-        data.pathLength = splineObject.PathLength;
+        splineDataBlob.pathLength = splineObject.PathLength;
 
-        BlobAssetReference<SplineData> splineBlob = builder.CreateBlobAssetReference<SplineData>(Allocator.Persistent);
+        BlobAssetReference<SplineDataBlob> splineBlob = builder.CreateBlobAssetReference<SplineDataBlob>(Allocator.Persistent);
         builder.Dispose();
 
         dstManager.AddComponentData(entity, new Spline { splinePath = splineBlob });

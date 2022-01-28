@@ -5,26 +5,26 @@ public static class SplineInterpolationHelper
 {
     // You can pass 0 as the currentSegment the first time, this is caching as a return value where the lookup found the distance last call
     // so if you keep passing the same member each time you request an interpolation, the call will return very quickly
-    public static void InterpolatePosition(ref SplineData splineData, ref int currentSegment, float distanceFromOrigin, out float3 value) 
+    public static void InterpolatePosition(ref SplineDataBlob splineDataBlob, ref int currentSegment, float distanceFromOrigin, out float3 value) 
     {
-        float parametricT = FindSegmentFromDistance(ref splineData, ref currentSegment, distanceFromOrigin);
-        InterpolatePosition(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out value);
+        float parametricT = FindSegmentFromDistance(ref splineDataBlob, ref currentSegment, distanceFromOrigin);
+        InterpolatePosition(ref splineDataBlob, splineDataBlob.distanceToParametric[currentSegment].bezierIndex, parametricT, out value);
     }
     
-    public static void InterpolatePositionAndDirection(ref SplineData splineData, ref int currentSegment, float distanceFromOrigin, out float3 pos, out float3 dir)
+    public static void InterpolatePositionAndDirection(ref SplineDataBlob splineDataBlob, ref int currentSegment, float distanceFromOrigin, out float3 pos, out float3 dir)
     {
-        float parametricT = FindSegmentFromDistance(ref splineData, ref currentSegment, distanceFromOrigin);
+        float parametricT = FindSegmentFromDistance(ref splineDataBlob, ref currentSegment, distanceFromOrigin);
 
-        InterpolatePosition(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out pos);
-        InterpolateDirection(ref splineData, splineData.distanceToParametric[currentSegment].bezierIndex, parametricT, out dir);
+        InterpolatePosition(ref splineDataBlob, splineDataBlob.distanceToParametric[currentSegment].bezierIndex, parametricT, out pos);
+        InterpolateDirection(ref splineDataBlob, splineDataBlob.distanceToParametric[currentSegment].bezierIndex, parametricT, out dir);
     }
 
-    public static void InterpolatePosition(ref SplineData data, int splineIndex, float _t, out float3 value) {
+    public static void InterpolatePosition(ref SplineDataBlob dataBlob, int splineIndex, float _t, out float3 value) {
         int offset = splineIndex * 3;
-        float3 p0 = data.bezierControlPoints[offset + 0];
-        float3 p1 = data.bezierControlPoints[offset + 1];
-        float3 p2 = data.bezierControlPoints[offset + 2];
-        float3 p3 = data.bezierControlPoints[offset + 3];
+        float3 p0 = dataBlob.bezierControlPoints[offset + 0];
+        float3 p1 = dataBlob.bezierControlPoints[offset + 1];
+        float3 p2 = dataBlob.bezierControlPoints[offset + 2];
+        float3 p3 = dataBlob.bezierControlPoints[offset + 3];
         double t = _t;
         double t2 = t * t;
         double t3 = t2 * t;
@@ -37,13 +37,13 @@ public static class SplineInterpolationHelper
     }
     
     // --------------------------------------------------------------------------------------------
-    public static void InterpolateDirection(ref SplineData  data, int splineIndex, float _t, out float3 value)
+    public static void InterpolateDirection(ref SplineDataBlob  dataBlob, int splineIndex, float _t, out float3 value)
     {
         int offset = splineIndex * 3;
-        float3 p0 = data.bezierControlPoints[offset + 0];
-        float3 p1 = data.bezierControlPoints[offset + 1];
-        float3 p2 = data.bezierControlPoints[offset + 2];
-        float3 p3 = data.bezierControlPoints[offset + 3];
+        float3 p0 = dataBlob.bezierControlPoints[offset + 0];
+        float3 p1 = dataBlob.bezierControlPoints[offset + 1];
+        float3 p2 = dataBlob.bezierControlPoints[offset + 2];
+        float3 p3 = dataBlob.bezierControlPoints[offset + 3];
 
         float _1_t = 1f - _t;
         float t2 = _t * _t;
@@ -52,22 +52,22 @@ public static class SplineInterpolationHelper
             3f * _1_t * _1_t * (p1.z - p0.z) + 6f * _1_t * _t * (p2.z - p1.z) + 3f * t2 * (p3.z - p2.z));
     }
 
-    private static float FindSegmentFromDistance(ref SplineData splineData, ref int currentSegment, float distanceFromOrigin) {
-        float distance = math.clamp(distanceFromOrigin, 0, splineData.pathLength);
+    private static float FindSegmentFromDistance(ref SplineDataBlob splineDataBlob, ref int currentSegment, float distanceFromOrigin) {
+        float distance = math.clamp(distanceFromOrigin, 0, splineDataBlob.pathLength);
         int increment = 1;
 
         // If the user teleports around, the cache will not work properly, as it's assuming we are going at a reasonable speed
         // in the same direction.
         // To alleviate the issue, we assume we always more forward, except if we pass a distance that was supposed to already have
         // been treated, and would never be found in our segment list if we were going forward through the list
-        if (distance < splineData.distanceToParametric[currentSegment].start)
+        if (distance < splineDataBlob.distanceToParametric[currentSegment].start)
             increment = -1;
 
         float parametricT = -1;
-        for (int i = currentSegment; i >= 0 && i < splineData.distanceToParametric.Length; i += increment) {
-            if (distance >= splineData.distanceToParametric[i].start && distance <= splineData.distanceToParametric[i].end) {
-                float ratio = (distance - splineData.distanceToParametric[i].start) / (splineData.distanceToParametric[i].end - splineData.distanceToParametric[i].start);
-                parametricT = InterpolateBezier1D(ref splineData.distanceToParametric[i], ratio);
+        for (int i = currentSegment; i >= 0 && i < splineDataBlob.distanceToParametric.Length; i += increment) {
+            if (distance >= splineDataBlob.distanceToParametric[i].start && distance <= splineDataBlob.distanceToParametric[i].end) {
+                float ratio = (distance - splineDataBlob.distanceToParametric[i].start) / (splineDataBlob.distanceToParametric[i].end - splineDataBlob.distanceToParametric[i].start);
+                parametricT = InterpolateBezier1D(ref splineDataBlob.distanceToParametric[i], ratio);
                 currentSegment = i;
                 break;
             }
