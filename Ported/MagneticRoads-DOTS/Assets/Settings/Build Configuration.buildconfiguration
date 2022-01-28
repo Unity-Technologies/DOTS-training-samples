@@ -5,7 +5,7 @@
         {
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
-            "Platform": "Android",
+            "Platform": "StandaloneWindows64",
             "Configuration": 2
         },
         {
