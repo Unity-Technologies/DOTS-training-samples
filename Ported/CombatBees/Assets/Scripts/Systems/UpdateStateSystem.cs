@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 using Utils;
 using static Unity.Mathematics.math;
 using float3 = Unity.Mathematics.float3;
@@ -266,8 +267,32 @@ public partial class UpdateStateSystem : SystemBase
         // BLUE Idle state
         Entities.WithAll<BlueBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
-                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation,
+                in BeeTeam team) =>
             {
+
+                /*
+                idleCommon(entity,
+                    entityInQueryIndex,
+                    ref state,
+                    TeamValue.Blue,
+                    randomSeed,
+                    foodEntityData,
+                    foodTranslationData,
+                    foodCarriedData,
+                    movement,
+                    targetedEntity,
+                    carriedEntity,
+                    translation,
+                    parallelWriter,
+                    spawner,
+                    yellowBeeCount,
+                    yellowBeeEntityData,
+                    yellowBeeTranslationData
+                );
+                */
+
+                //*
                 if (state.value == StateValues.Idle || state.value == StateValues.Wandering)
                 {
                     var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
@@ -282,15 +307,15 @@ public partial class UpdateStateSystem : SystemBase
                             int randomInt = random.NextInt(foodCount); // Note: random int/uint values are non-inclusive of the maximum value
                             targetedEntity.Value = foodEntityData[randomInt];
 
-                            Translation randomFoodTranslation = foodTranslationData[randomInt];
-                            var x = randomFoodTranslation.Value.x;
+                            float3 randomFoodTranslation = foodTranslationData[randomInt];
+                            var x = randomFoodTranslation.x;
 
                             if (!foodCarriedData[randomInt] &&
-                                abs(foodTranslationData[randomInt].Value.x) < Spawner.ArenaExtents.x)
+                                abs(foodTranslationData[randomInt].x) < Spawner.ArenaExtents.x)
                             {
                                 if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
                                 {
-                                    movement.GoTo(translation.Value, randomFoodTranslation.Value);
+                                    movement.GoTo(translation.Value, randomFoodTranslation);
                                     state.value = StateValues.Seeking;
                                 }
                             }
@@ -309,20 +334,18 @@ public partial class UpdateStateSystem : SystemBase
                     // go to a random location (the "wander" behavior)
                     if (state.value == StateValues.Idle)
                     {
-                        float3 endLocation;
-                        var beeRandomX = random.NextInt(-Spawner.ArenaExtents.x, Spawner.ArenaExtents.x);
-                        var beeRandomY = random.NextInt(Spawner.ArenaHeight / 4, Spawner.ArenaHeight / 4 * 3);
-                        var beeRandomZ = random.NextInt(-Spawner.ArenaExtents.y, Spawner.ArenaExtents.y);
+                        state.value = StateValues.Wandering;
 
-                        endLocation = float3(beeRandomX, beeRandomY, beeRandomZ);
-
-                        carriedEntity.Value = Entity.Null;
-                        targetedEntity.Value = Entity.Null;
-
-                        movement.GoTo(translation.Value, endLocation);
-                        state.value = StateValues.Seeking;
+                        SetWanderLocation(
+                            ref random,
+                            ref carriedEntity,
+                            ref targetedEntity,
+                            ref movement,
+                            translation);
                     }
                 }
+                //*/
+
             }).WithReadOnly(yellowBeeEntityData)
             .WithReadOnly(yellowBeeTranslationData)
             .WithReadOnly(foodTranslationData)
@@ -334,12 +357,37 @@ public partial class UpdateStateSystem : SystemBase
             .ScheduleParallel();
 
 
-        // YELLOW Idle state
+        // YELLOW Idle/Wander state
         Entities.WithAll<YellowBeeTag>()
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state, ref PP_Movement movement,
-                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation, in BeeTeam team) =>
+                ref CarriedEntity carriedEntity, ref TargetedEntity targetedEntity, in Translation translation,
+                in BeeTeam team
+                ) =>
             {
-                if (state.value == StateValues.Idle)
+
+                /*
+                idleCommon(entity,
+                    entityInQueryIndex,
+                    ref state,
+                    TeamValue.Yellow,
+                    randomSeed,
+                    foodEntityData,
+                    foodTranslationData,
+                    foodCarriedData,
+                    movement,
+                    targetedEntity,
+                    carriedEntity,
+                    translation,
+                    parallelWriter,
+                    spawner,
+                    blueBeeCount,
+                    blueBeeEntityData,
+                    blueBeeTranslationData
+                );
+                */
+
+                ///*
+                if (state.value == StateValues.Idle || state.value == StateValues.Wandering)
                 {
                     var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
 
@@ -392,6 +440,8 @@ public partial class UpdateStateSystem : SystemBase
                             translation);
                     }
                 }
+                //*/
+
             }).WithReadOnly(blueBeeEntityData)
             .WithReadOnly(blueBeeTranslationData)
             .WithReadOnly(foodTranslationData)
@@ -544,7 +594,6 @@ public partial class UpdateStateSystem : SystemBase
         ref BeeState state,
         TeamValue team,
         uint randomSeed,
-        int foodCount,
         NativeArray<Entity> foodEntityData,
         NativeArray<float3> foodTranslationData,
         NativeArray<bool> foodCarriedData,
@@ -567,7 +616,7 @@ public partial class UpdateStateSystem : SystemBase
             if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
             {
                 // Check if there actually is any food
-                if (foodCount > 0)
+                if (foodTranslationData.Length > 0)
                 {
                     // Choose food at random here
                     int randomInt = random.NextInt(foodTranslationData.Length);
