@@ -84,7 +84,6 @@ public partial class Utils
         }
     }
 
-
     public static LineCircleIntersectionResult LineCircleIntersection(in UnityMath.float2 start, in UnityMath.float2 d, in UnityMath.float2 center, in float r)
     {
         var f = start - center;
@@ -101,13 +100,43 @@ public partial class Utils
         return new LineCircleIntersectionResult(start + t1 * d, start + t2 * d);
     }
 
+    public static bool LinecastObstacles(
+        in Grid2D grid,
+        in DynamicBuffer<ObstaclePositionAndRadius> obstacles,
+        in UnityMath.float2 start,
+        in UnityMath.float2 end,
+        int steps = 3
+        )
+    {
+        var diff = end - start;
+        var dist = UnityMath.math.sqrt(UnityMath.math.dot(diff, diff));
+        var norm = UnityMath.math.normalize(diff);
+        float stepSize = dist - steps;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            var delta = norm * stepSize * i;
+            var p = start + delta;
+            var xIdx = (int)UnityMath.math.floor(UnityMath.math.clamp(p.x + 0.5f, 0, 1) * grid.rowLength);
+            var yIdx = (int)UnityMath.math.floor(UnityMath.math.clamp(p.y + 0.5f, 0, 1) * grid.columnLength);
+            var idx = UnityMath.math.min(xIdx + yIdx * grid.rowLength, obstacles.Length - 1);
+
+            // check for obstacles
+            return obstacles[idx].IsValid;
+        }
+
+        return false;
+    }
+
     public static LinecastResult Linecast(
         in Grid2D grid,
         in DynamicBuffer<ObstaclePositionAndRadius> obstacles, 
         in DynamicBuffer<Pheromone> pheromone,
         in PositionAndRadius food,
         in PositionAndRadius home,
-        in UnityMath.float2 start, in UnityMath.float2 end, int steps = 3)
+        in UnityMath.float2 start, 
+        in UnityMath.float2 end, 
+        int steps = 3)
     {
         var diff = end - start;
         var dist = UnityMath.math.sqrt(UnityMath.math.dot(diff,diff));
