@@ -161,9 +161,7 @@ public partial class UpdateStateSystem : SystemBase
                     if (state.value == StateValues.Seeking)
                     {
                         if (foodCarried ||
-                            abs(foodTranslation.Value.x) >= Spawner.ArenaExtents.x ||
-                            !HasComponent<Food>(targetedEntity.Value)
-                            )
+                            abs(foodTranslation.Value.x) >= Spawner.ArenaExtents.x)
                         {
                             // If the food is already being carried,
                             // or if it's in a goal area,
