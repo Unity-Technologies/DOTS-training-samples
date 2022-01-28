@@ -1,3 +1,4 @@
+using Combatbees.Testing.Maria;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -18,7 +19,7 @@ public partial class Gravity : SystemBase
                 velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
             }
         }).ScheduleParallel();
-        Entities.WithAny<BeeBloodParticle>().ForEach((ref Velocity velocity) => 
+        Entities.WithAny<Falling>().ForEach((ref Velocity velocity) => 
         {
             velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
         }).ScheduleParallel();

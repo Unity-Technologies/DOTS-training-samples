@@ -6,7 +6,5 @@ public struct BloodSpawningProperties : IComponentData
 {
     public Entity bloodEntity;
     public int amountParticles;
-    public float steps;
-    
 }
 

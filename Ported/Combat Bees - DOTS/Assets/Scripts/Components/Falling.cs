@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 [GenerateAuthoringComponent]
-public struct BeeBloodParticle : IComponentData
+public struct Falling : IComponentData
 {
+    public bool shouldFall;
     public float timeToLive;
 }

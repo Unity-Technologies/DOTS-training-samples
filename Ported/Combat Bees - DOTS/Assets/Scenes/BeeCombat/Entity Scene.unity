@@ -433,7 +433,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodEntity: {fileID: 5992582591906006101, guid: 77adb9945a5ca4e0ab956cca4c20b363, type: 3}
   amountParticles: 200
-  steps: 10
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0
@@ -459,7 +458,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1627788070}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -40, y: 0, z: 0}
+  m_LocalPosition: {x: -40, y: 9.18, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -478,7 +477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
-  SpawnedCount: 10
+  SpawnedCount: 1
   MaxInitVelocity: 10
 --- !u!1 &1957685094
 GameObject:
@@ -651,7 +650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
-  SpawnedCount: 10
+  SpawnedCount: 1
   MaxInitVelocity: 10
 --- !u!4 &2045680677
 Transform:
@@ -661,7 +660,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2045680675}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 40, y: 0, z: 0}
+  m_LocalPosition: {x: 40, y: 12.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

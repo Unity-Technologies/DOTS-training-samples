@@ -66,12 +66,13 @@ public partial class BeeAttackingMovement : SystemBase
 
         bool beeIsdead = false;
         // get the position of the Dead bee
-        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, ref BeeDead beeDead, ref RandomState randomState, in Translation translation) =>
+        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, ref BeeDead beeDead, ref RandomState randomState,ref Falling falling ,in Translation translation) =>
         {
             if (beeDead.Value)
             {
                 beeStatus.Value = Status.Dead;
                 beeIsdead = true;
+                falling.shouldFall = true;
                 var spawningData = GetSingleton<BloodSpawningProperties>();
                 
                 // To make the bloodparticles only spawn once 
@@ -86,9 +87,10 @@ public partial class BeeAttackingMovement : SystemBase
                             Value = translation.Value 
                         });
                         
-                        EntityManager.AddComponentData(e, new BeeBloodParticle
+                        EntityManager.AddComponentData(e, new Falling
                         {
-                            timeToLive = randomState.Value.NextFloat(1, 5)
+                            timeToLive = randomState.Value.NextFloat(1, 5),
+                            shouldFall = true
                         });
                         
                         float x = randomState.Value.NextFloat(-10, 10);

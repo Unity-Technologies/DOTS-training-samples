@@ -5,14 +5,12 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class BloodParticleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
-
-
     public float timeToLive;
     public float steps;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new BeeBloodParticle
+        dstManager.AddComponentData(entity, new Falling
         {
             timeToLive = timeToLive,
         });
@@ -23,5 +21,4 @@ public class BloodParticleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         });
         
     }
-  
 }
