@@ -4,4 +4,5 @@ using Unity.Entities;
 public class CameraRef : IComponentData
 {
     public UnityEngine.Camera Camera;
+    public float ArmLength;
 }

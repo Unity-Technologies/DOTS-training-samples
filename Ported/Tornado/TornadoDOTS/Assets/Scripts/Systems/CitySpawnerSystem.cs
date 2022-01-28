@@ -36,16 +36,16 @@ public partial class CitySpawnerSystem : SystemBase
                     });
                     ecb.AddComponent(cluster, new ClusterGeneration
                     {
-                        NumberOfSubClusters = random.NextInt(1, 5),
+                        NumberOfSubClusters = random.NextInt(spawner.MinBuildingPerCluster, spawner.MaxBuildingPerCluster + 1),
                         BarPrefab = spawner.BarPrefab,
                         MinTowerHeight = spawner.MinTowerHeight,
                         MaxTowerHeight = spawner.MaxTowerHeight,
                     });
-                    
+
                     ecb.AddBuffer<Joint>(cluster);
                     ecb.AddBuffer<Connection>(cluster);
                     ecb.AddBuffer<Bar>(cluster);
-                    
+
                     ecb.AddComponent<InitializeJointNeighbours>(cluster);
                     ecb.AddBuffer<JointNeighbours>(cluster);
                 }
@@ -53,14 +53,14 @@ public partial class CitySpawnerSystem : SystemBase
 
         ecb = m_CommandBufferSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
-        
+
         Entities
             .WithAll<ClusterGeneration>()
-            .ForEach((Entity entity, 
+            .ForEach((Entity entity,
                 int entityInQueryIndex,
                 DynamicBuffer<Joint> joints,
-                DynamicBuffer<Connection> connections, 
-                DynamicBuffer<Bar> bars, 
+                DynamicBuffer<Connection> connections,
+                DynamicBuffer<Bar> bars,
                 in ClusterGeneration clusterData,
                 in Cluster cluster) =>
             {
@@ -72,8 +72,8 @@ public partial class CitySpawnerSystem : SystemBase
                 {
                     int height = random.NextInt(clusterData.MinTowerHeight, clusterData.MaxTowerHeight);
                     var pos = clusterPosition + new float3(
-                        random.NextFloat(-clusterSize, clusterSize), 
-                        0f, 
+                        random.NextFloat(-clusterSize, clusterSize),
+                        0f,
                         random.NextFloat(-clusterSize, clusterSize));
                     for (int h = 0; h < height; ++h)
                     {
@@ -91,7 +91,7 @@ public partial class CitySpawnerSystem : SystemBase
                             OldPos = pos2,
                             IsAnchored = h == 0
                         });
-                        
+
                         var pos3 = new float3(pos.x, h * spacing, pos.z + spacing);
                         joints.Add(new Joint
                         {
@@ -100,7 +100,7 @@ public partial class CitySpawnerSystem : SystemBase
                             IsAnchored = h == 0
                         });
                     }
-                
+
                     // horizontal bars
                     for (int j = structureStartIndex; j < joints.Length; j += 3)
                     {
@@ -126,16 +126,16 @@ public partial class CitySpawnerSystem : SystemBase
 
                     structureStartIndex = joints.Length;
                 }
-                
+
                 parallelWriter.RemoveComponent<ClusterGeneration>(entityInQueryIndex, entity);
                 parallelWriter.AddComponent<BarAssignColor>(entityInQueryIndex, entity);
             }).ScheduleParallel();
-        
+
         Entities
             .WithAll<InitializeJointNeighbours>()
-            .ForEach((Entity entity, 
+            .ForEach((Entity entity,
                 int entityInQueryIndex,
-                ref DynamicBuffer<JointNeighbours> neighbours, 
+                ref DynamicBuffer<JointNeighbours> neighbours,
                 in DynamicBuffer<Joint> joints,
                 in DynamicBuffer<Connection> connections) =>
             {
@@ -158,10 +158,10 @@ public partial class CitySpawnerSystem : SystemBase
                         neighbours[connection.J2] = jointNeighbours;
                     }
                 }
-                
+
                 parallelWriter.RemoveComponent<InitializeJointNeighbours>(entityInQueryIndex, entity);
             }).ScheduleParallel();
-        
+
         m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
@@ -173,7 +173,7 @@ public partial class CitySpawnerSystem : SystemBase
         {
             J1 = j1, J2 = j2, OriginalLength = math.length(joints[j1].Value - joints[j2].Value),
         });
-        
+
         var bar = parallelWriter.Instantiate(key, barPrefab);
         parallelWriter.AddComponent<BarVisualizer>(key, bar);
         parallelWriter.AppendToBuffer(key, me, new Bar {Value=bar});

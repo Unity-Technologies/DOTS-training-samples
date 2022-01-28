@@ -18,6 +18,9 @@ public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDe
     [Tooltip("Defines the floor for the city")]
     public UnityGameObject Floor;
 
+    [UnityRange(1, 10)] public int MinBuildingPerCluster = 1;
+    [UnityRange(1, 10)] public int MaxBuildingPerCluster = 5;
+
     void OnValidate()
     {
         TowerMaxHeight = math.max(TowerMaxHeight, TowerMinHeight);
@@ -40,6 +43,8 @@ public class CityAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity, IDe
             CityLength = localScale.z * k_FloorMultiplier,
             MaxTowerHeight = TowerMaxHeight,
             MinTowerHeight = TowerMinHeight,
+            MinBuildingPerCluster = MinBuildingPerCluster,
+            MaxBuildingPerCluster = MaxBuildingPerCluster
         });
     }
 }

@@ -6,4 +6,6 @@ public struct CitySpawner : IComponentData
     public int NumberOfClusters;
     public int MinTowerHeight, MaxTowerHeight;
     public float CityWidth, CityLength;
+    public int MinBuildingPerCluster;
+    public int MaxBuildingPerCluster;
 }

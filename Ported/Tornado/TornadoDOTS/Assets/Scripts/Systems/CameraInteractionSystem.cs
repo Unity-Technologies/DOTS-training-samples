@@ -6,8 +6,10 @@ public partial class CameraInteractionSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var camera = this.GetSingleton<CameraRef>().Camera;
+        var cameraRef = this.GetSingleton<CameraRef>();
+        var camera = cameraRef.Camera;
         var tornado = GetSingletonEntity<TornadoMovement>();
-        camera.transform.LookAt(GetComponent<Translation>(tornado).Value);
+        var tornadoPos = GetComponent<Translation>(tornado).Value;
+        camera.transform.position = (Vector3) tornadoPos - camera.transform.forward * cameraRef.ArmLength;
     }
 }
