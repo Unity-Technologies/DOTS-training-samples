@@ -98,15 +98,29 @@ public partial class UpdateStateSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state,
                 ref CarriedEntity carriedEntity, in Translation translation) =>
             {
-                carryCommon(entity,
-                    entityInQueryIndex,
-                    ref state,
-                    TeamValue.Yellow,
-                    ref carriedEntity,
-                    translation,
-                    parallelWriter,
-                    randomSeed);
+                if (carriedEntity.Value == Entity.Null)
+                {
+                    return;
+                }
 
+                var foodPendingDestroy = GetComponent<Food>(carriedEntity.Value).pendingDestroy;
+
+                if (foodPendingDestroy)
+                {
+                    carriedEntity.Value = Entity.Null;
+                    state.value = StateValues.Idle;
+                }
+                else
+                {
+                    carryCommon(entity,
+                        entityInQueryIndex,
+                        ref state,
+                        TeamValue.Yellow,
+                        ref carriedEntity,
+                        translation,
+                        parallelWriter,
+                        randomSeed);
+                }
             }).WithName("ProcessYellowCarryingState")
             .ScheduleParallel();
 
@@ -116,14 +130,29 @@ public partial class UpdateStateSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref BeeState state,
                 ref CarriedEntity carriedEntity, in Translation translation) =>
             {
-                carryCommon(entity,
-                    entityInQueryIndex,
-                    ref state,
-                    TeamValue.Blue,
-                    ref carriedEntity,
-                    translation,
-                    parallelWriter,
-                    randomSeed);
+                if (carriedEntity.Value == Entity.Null)
+                {
+                    return;
+                }
+
+                var foodPendingDestroy = GetComponent<Food>(carriedEntity.Value).pendingDestroy;
+
+                if (foodPendingDestroy)
+                {
+                    carriedEntity.Value = Entity.Null;
+                    state.value = StateValues.Idle;
+                }
+                else
+                {
+                    carryCommon(entity,
+                        entityInQueryIndex,
+                        ref state,
+                        TeamValue.Blue,
+                        ref carriedEntity,
+                        translation,
+                        parallelWriter,
+                        randomSeed);
+                }
 
             }).WithName("ProcessBlueCarryingState")
             .ScheduleParallel();
@@ -270,7 +299,7 @@ public partial class UpdateStateSystem : SystemBase
                     state.value = StateValues.Idle;
                     return;
                 }
-                
+
                 bool targetedEntityExistsAndIsBee = HasComponent<BeeTeam>(targetedEntity.Value);
                 if (targetedEntityExistsAndIsBee)
                 {
