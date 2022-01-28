@@ -1,10 +1,8 @@
 using System;
-using System.Net;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditorInternal;
 using UnityEngine;
 using Utils;
 using static Unity.Mathematics.math;
