@@ -21,7 +21,7 @@ public partial class BeeEnemyTargeting : SystemBase
         
         Entities.WithNativeDisableContainerSafetyRestriction(allTranslations).WithDisposeOnCompletion(beeAEntities)
             .WithDisposeOnCompletion(beeBEntities)
-            .ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
+            .ForEach((Entity entity,ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team) => {
             if (beeStatus.Value == Status.Attacking)
             {
                 if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null)

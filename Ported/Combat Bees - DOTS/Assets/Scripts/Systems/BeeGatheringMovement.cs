@@ -58,7 +58,7 @@ public partial class BeeGatheringMovement : SystemBase
                     float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                     float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
         
-                    if (distanceFromTarget < beeProperties.TargetReach) // Target reached
+                    if (distanceFromTarget < beeProperties.KillingReach) // Target reached
                     {
                         if (heldItem.Value == Entity.Null)
                         {

@@ -21,7 +21,7 @@ public class BeePropertiesAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             FlightJitter = FlightJitter,
             RotationStiffness = RotationStiffness,
             TeamAttraction = TeamAttraction,
-            TargetReach = TargetReach,
+            KillingReach = TargetReach,
             AttackDashReach =  AttackDashReach
         });
     }

@@ -19,9 +19,10 @@ public partial class Gravity : SystemBase
                 velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
             }
         }).ScheduleParallel();
-        Entities.WithAny<Falling>().ForEach((ref Velocity velocity) => 
+        Entities.ForEach((ref Velocity velocity,ref Falling falling) => 
         {
-            velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
+            if(falling.shouldFall)
+                velocity.Value += new float3(0f, -resourceGravity, 0f); // Apply gravity to the resource
         }).ScheduleParallel();
     }
     
