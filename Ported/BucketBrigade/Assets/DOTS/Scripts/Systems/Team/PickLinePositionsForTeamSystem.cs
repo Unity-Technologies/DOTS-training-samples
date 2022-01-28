@@ -95,9 +95,11 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
             var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             var targetDestinationTable = GetComponentDataFromEntity<TargetDestination>(false);
+            var bucketDestinationTable = GetComponentDataFromEntity<BucketFetcher>(false);
 
             Dependency = Entities
                 .WithNativeDisableParallelForRestriction(targetDestinationTable)
+                .WithNativeDisableParallelForRestriction(bucketDestinationTable)
                 .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in LineLakePosition lineLakePosition, in LineFirePosition lineFirePosition, in DynamicBuffer<TeamWorkers> workersBuffer) =>
                 {
                     // Reposition the team based on picked line positions
@@ -149,8 +151,7 @@ public partial class PickLinePositionsForTeamSystem : SystemBase
 
                     // BucketFetcher
                     var bucketFetcherEntity = workersBuffer[gameConstants.WorkersPerLine * 2];
-
-                    ecb.SetComponent(entityInQueryIndex, bucketFetcherEntity, new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value });
+                    bucketDestinationTable[bucketFetcherEntity] = new BucketFetcher { Lake = lineLakePosition.Lake, LakePosition = lineLakePosition.Value };
                 }).ScheduleParallel(Dependency);
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);

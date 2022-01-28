@@ -19,10 +19,11 @@ public partial class MoveToTargetLocationSystem : SystemBase
         var deltaTime = Time.DeltaTime;
         var gameConstants = GetSingleton<GameConstants>();
 
-        var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        // var ecb = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         Entities.
             WithNone<HoldingBucket>().
+            
             ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target) =>
         {
             var distanceInFrame = gameConstants.FireFighterMovementSpeedNoBucket * deltaTime;
@@ -41,8 +42,11 @@ public partial class MoveToTargetLocationSystem : SystemBase
             translation.Value += new float3(toMove.x, 0, toMove.y);
         }).ScheduleParallel();
 
+        var holdbucketTranslation = GetComponentDataFromEntity<Translation>(false);
         // HACK: Lazy buy functional
-        Entities.ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
+        Entities
+            .WithNativeDisableParallelForRestriction(holdbucketTranslation)
+            .ForEach((Entity e, int entityInQueryIndex, ref Translation translation, in TargetDestination target, in HoldingBucket holdingBucket) => {
 
             var hasFullBucket = !HasComponent<EmptyBucket>(holdingBucket.HeldBucket);
 
@@ -62,7 +66,8 @@ public partial class MoveToTargetLocationSystem : SystemBase
             translation.Value += new float3(toMove.x, 0, toMove.y);
 
             if (holdingBucket.HeldBucket != Entity.Null)
-                ecb.SetComponent(entityInQueryIndex, holdingBucket.HeldBucket, new Translation { Value = translation.Value + math.up() });
+                holdbucketTranslation[holdingBucket.HeldBucket] = new Translation{ Value = translation.Value + math.up() };
+                // SetComponent(holdingBucket.HeldBucket, new Translation { Value = translation.Value + math.up() });
         }).ScheduleParallel();
 
         CommandBufferSystem.AddJobHandleForProducer(Dependency);
