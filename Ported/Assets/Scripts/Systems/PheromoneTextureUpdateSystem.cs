@@ -3,7 +3,7 @@ using Unity.Rendering;
 using UnityEngine;
 using Unity.Mathematics;
 
-[UpdateAfter(typeof(DropPheromone))]
+[UpdateAfter(typeof(DecayPheromone))]
 public partial class PheromoneTextureUpdateSystem : SystemBase
 {
 
