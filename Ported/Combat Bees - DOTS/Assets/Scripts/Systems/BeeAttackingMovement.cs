@@ -24,16 +24,16 @@ public partial class BeeAttackingMovement : SystemBase
                 
                 if (distanceFromTarget < beeProperties.TargetReach + 2)
                 {
+                    // Set current bee to Idle
                     beeStatus.Value = Status.Idle;
+                    
+                    // Kill the bee
+                    var enemyComponent = GetComponent<BeeDead>(beeTargets.EnemyTarget);
+                    enemyComponent.Value = true;
+                    SetComponent(beeTargets.EnemyTarget, enemyComponent);
+
                     beeTargets.EnemyTarget = Entity.Null;
-                    // TODO: Set other bee to dead
-                    Debug.Log("Idle now");
-                    
-                    // QUESTION: We want to target the enemy bee and then assign 'dead' to it. However, this is not possible because 
-                    // we are already beeTargets from the other bee.
-                    var enemyEntity = GetComponent<BeeStatus>(beeTargets.EnemyTarget);
-                    enemyEntity.Value = Status.Dead;
-                    
+
                     return;
                 }
                 if (distanceFromTarget < beeProperties.AttackDashReach) // Enemy reached

@@ -19,6 +19,11 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
             HomePosition = HomePosition,
             CurrentTargetPosition = float3.zero
         });
+        
+        dstManager.AddComponentData(entity, new BeeDead()
+        {
+            Value = false
+        });
 
         dstManager.AddComponentData(entity, new Velocity
         {
@@ -59,5 +64,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value = false
         });
+        
     }
 }
