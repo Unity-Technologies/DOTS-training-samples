@@ -30,12 +30,10 @@ public partial class UpdateStateSystem : SystemBase
         int yellowBeeCount = yellowBeeQuery.CalculateEntityCount();
         NativeArray<Entity> yellowBeeEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
         NativeArray<float3> yellowBeeTranslationData = new NativeArray<float3>(yellowBeeCount, Allocator.TempJob);
-        //NativeArray<Entity> yellowBeeCarriedEntityData = new NativeArray<Entity>(yellowBeeCount, Allocator.TempJob);
 
         int blueBeeCount = blueBeeQuery.CalculateEntityCount();
         NativeArray<Entity> blueBeeEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
         NativeArray<float3> blueBeeTranslationData = new NativeArray<float3>(blueBeeCount, Allocator.TempJob);
-        //NativeArray<Entity> blueBeeCarriedEntityData = new NativeArray<Entity>(blueBeeCount, Allocator.TempJob);
 
         Entities
             .WithStoreEntityQueryInField(ref yellowBeeQuery)
@@ -44,7 +42,6 @@ public partial class UpdateStateSystem : SystemBase
             {
                 yellowBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
                 yellowBeeEntityData[entityInQueryIndex] = entity;
-                //yellowBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
             }).WithName("GetYellowBeeData")
             .ScheduleParallel();
 
@@ -55,7 +52,6 @@ public partial class UpdateStateSystem : SystemBase
             {
                 blueBeeTranslationData[entityInQueryIndex] =  movement.unperturbedPosition;
                 blueBeeEntityData[entityInQueryIndex] = entity;
-                //blueBeeCarriedEntityData[entityInQueryIndex] = carriedEntity.Value;
             }).WithName("GetBlueBeeData")
             .ScheduleParallel();
 
