@@ -34,6 +34,6 @@ public partial class DoorOpeningSystem : SystemBase
                 else if (ticker.TimeRemaining <= 1)
                     translation.Value = new float3(math.smoothstep(0,1,ticker.TimeRemaining), 0, 0);
             }
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }

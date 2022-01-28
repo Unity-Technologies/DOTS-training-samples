@@ -34,6 +34,6 @@ public partial class FollowerMovementSystem : SystemBase
             rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1 ,0));
             
 
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }

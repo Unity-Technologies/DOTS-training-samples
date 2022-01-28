@@ -18,7 +18,8 @@ public partial class StationStopSystem : SystemBase
                             in TrackProgress trackProgress) =>
         {
 
-            var stationDistanceBuffer = GetBuffer<FloatBufferElement>(splineFollower.track);
+            var bufferFromEntity = GetBufferFromEntity<FloatBufferElement>(true);
+            var stationDistanceBuffer = bufferFromEntity[splineFollower.track];
             
             var distanceToNextStation =
                 math.abs(trackProgress.Value - stationDistanceBuffer[nextStation.stationIndex]);
@@ -37,9 +38,6 @@ public partial class StationStopSystem : SystemBase
             {
                 ticker.TimeRemaining -= deltaTime;
             }
-
-            
-
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
