@@ -221,8 +221,8 @@ public partial class UpdateStateSystem : SystemBase
                     yellowBeeEntityData,
                     yellowBeeTranslationData,
                     yellowBeeCarriedEntityData,
-                    movement,
-                    targetedEntity,
+                    ref movement,
+                    ref targetedEntity,
                     translation,
                     parallelWriter,
                     spawner
@@ -247,8 +247,8 @@ public partial class UpdateStateSystem : SystemBase
                     blueBeeEntityData,
                     blueBeeTranslationData,
                     blueBeeCarriedEntityData,
-                    movement,
-                    targetedEntity,
+                    ref movement,
+                    ref targetedEntity,
                     translation,
                     parallelWriter,
                     spawner
@@ -271,7 +271,7 @@ public partial class UpdateStateSystem : SystemBase
                 in BeeTeam team) =>
             {
 
-                /*
+
                 idleCommon(entity,
                     entityInQueryIndex,
                     ref state,
@@ -280,9 +280,9 @@ public partial class UpdateStateSystem : SystemBase
                     foodEntityData,
                     foodTranslationData,
                     foodCarriedData,
-                    movement,
-                    targetedEntity,
-                    carriedEntity,
+                    ref movement,
+                    ref targetedEntity,
+                    ref carriedEntity,
                     translation,
                     parallelWriter,
                     spawner,
@@ -290,61 +290,9 @@ public partial class UpdateStateSystem : SystemBase
                     yellowBeeEntityData,
                     yellowBeeTranslationData
                 );
-                */
 
-                //*
-                if (state.value == StateValues.Idle || state.value == StateValues.Wandering)
-                {
-                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
 
-                    float foodOrEnemy = random.NextFloat();
-                    if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
-                    {
-                        // Check if there actually is any food
-                        if (foodCount > 0)
-                        {
-                            // Choose food at random here
-                            int randomInt = random.NextInt(foodCount); // Note: random int/uint values are non-inclusive of the maximum value
-                            targetedEntity.Value = foodEntityData[randomInt];
 
-                            float3 randomFoodTranslation = foodTranslationData[randomInt];
-                            var x = randomFoodTranslation.x;
-
-                            if (!foodCarriedData[randomInt] &&
-                                abs(foodTranslationData[randomInt].x) < Spawner.ArenaExtents.x)
-                            {
-                                if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
-                                {
-                                    movement.GoTo(translation.Value, randomFoodTranslation);
-                                    state.value = StateValues.Seeking;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var enemyBeeIdx = random.NextInt(yellowBeeCount);
-
-                        targetedEntity.Value = yellowBeeEntityData[enemyBeeIdx];
-                        movement.GoTo(translation.Value, yellowBeeTranslationData[enemyBeeIdx]);
-                        state.value = StateValues.Attacking;
-                    }
-
-                    // If it's still idling after trying to attack or seek,
-                    // go to a random location (the "wander" behavior)
-                    if (state.value == StateValues.Idle)
-                    {
-                        state.value = StateValues.Wandering;
-
-                        SetWanderLocation(
-                            ref random,
-                            ref carriedEntity,
-                            ref targetedEntity,
-                            ref movement,
-                            translation);
-                    }
-                }
-                //*/
 
             }).WithReadOnly(yellowBeeEntityData)
             .WithReadOnly(yellowBeeTranslationData)
@@ -364,8 +312,6 @@ public partial class UpdateStateSystem : SystemBase
                 in BeeTeam team
                 ) =>
             {
-
-                /*
                 idleCommon(entity,
                     entityInQueryIndex,
                     ref state,
@@ -374,9 +320,9 @@ public partial class UpdateStateSystem : SystemBase
                     foodEntityData,
                     foodTranslationData,
                     foodCarriedData,
-                    movement,
-                    targetedEntity,
-                    carriedEntity,
+                    ref movement,
+                    ref targetedEntity,
+                    ref carriedEntity,
                     translation,
                     parallelWriter,
                     spawner,
@@ -384,63 +330,6 @@ public partial class UpdateStateSystem : SystemBase
                     blueBeeEntityData,
                     blueBeeTranslationData
                 );
-                */
-
-                ///*
-                if (state.value == StateValues.Idle || state.value == StateValues.Wandering)
-                {
-                    var random = Random.CreateFromIndex((uint)entityInQueryIndex + randomSeed);
-
-                    float foodOrEnemy = random.NextFloat();
-                    if (foodOrEnemy > spawner.ChanceToAttack) // Try to choose a food
-                    {
-                        // Check if there actually is any food
-                        if (foodCount > 0)
-                        {
-                            // Choose food at random here
-                            int randomInt =
-                                random.NextInt(foodTranslationData
-                                    .Length); // Note: random int/uint values are non-inclusive of the maximum value
-                            targetedEntity.Value = foodEntityData[randomInt];
-
-                            float3 randomFoodTranslation = foodTranslationData[randomInt];
-                            var x = randomFoodTranslation.x;
-
-                            if (!foodCarriedData[randomInt] &&
-                                abs(foodTranslationData[randomInt].x) < Spawner.ArenaExtents.x)
-                            {
-                                if ((team.Value == TeamValue.Blue && x > -40) || (team.Value == TeamValue.Yellow && x < 40))
-                                {
-                                    movement.GoTo(translation.Value, randomFoodTranslation);
-                                    state.value = StateValues.Seeking;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var enemyBeeIdx = random.NextInt(blueBeeCount);
-
-                        targetedEntity.Value = blueBeeEntityData[enemyBeeIdx];
-                        movement.GoTo(translation.Value, blueBeeTranslationData[enemyBeeIdx]);
-                        state.value = StateValues.Attacking;
-                    }
-
-                    // If it's still idling after trying to attack or seek,
-                    // go to a random location (the "wander" behavior)
-                    if (state.value == StateValues.Idle)
-                    {
-                        state.value = StateValues.Wandering;
-
-                        SetWanderLocation(
-                            ref random,
-                            ref carriedEntity,
-                            ref targetedEntity,
-                            ref movement,
-                            translation);
-                    }
-                }
-                //*/
 
             }).WithReadOnly(blueBeeEntityData)
             .WithReadOnly(blueBeeTranslationData)
@@ -479,6 +368,7 @@ public partial class UpdateStateSystem : SystemBase
 
         movement.GoTo(translation.Value, endLocation);
     }
+
     static void carryCommon(Entity entity,
         int entityInQueryIndex,
         ref BeeState state,
@@ -516,8 +406,8 @@ public partial class UpdateStateSystem : SystemBase
         NativeArray<Entity> beeEntityData,
         NativeArray<float3> beeTranslationData,
         NativeArray<Entity> beeCarriedEntityData,
-        PP_Movement movement,
-        TargetedEntity targetedEntity,
+        ref PP_Movement movement,
+        ref TargetedEntity targetedEntity,
         Translation translation,
         EntityCommandBuffer.ParallelWriter writer,
         Spawner spawner
@@ -597,9 +487,9 @@ public partial class UpdateStateSystem : SystemBase
         NativeArray<Entity> foodEntityData,
         NativeArray<float3> foodTranslationData,
         NativeArray<bool> foodCarriedData,
-        PP_Movement movement,
-        TargetedEntity targetedEntity,
-        CarriedEntity carriedEntity,
+        ref PP_Movement movement,
+        ref TargetedEntity targetedEntity,
+        ref CarriedEntity carriedEntity,
         Translation translation,
         EntityCommandBuffer.ParallelWriter writer,
         Spawner spawner,
