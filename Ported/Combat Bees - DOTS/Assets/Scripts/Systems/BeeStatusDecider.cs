@@ -7,13 +7,14 @@ public partial class BeeStatusDecider : SystemBase
         Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus) => {
             if (beeStatus.Value == Status.Idle)
             {
+                agression.Value = randomState.Value.NextFloat(0, 10);
                 if (randomState.Value.NextFloat() < agression.Value)
                 {
                     beeStatus.Value = Status.Attacking; 
                 }
                 else
                 {
-                    beeStatus.Value = Status.Attacking;// TODO: Change back to Status.Gathering
+                    beeStatus.Value = Status.Gathering;// TODO: Change back to Status.Gathering
                 }
             }
         }).Schedule();
