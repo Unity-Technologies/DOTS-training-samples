@@ -11,13 +11,22 @@ public partial class BeeEnemyTargeting : SystemBase
         NativeList<Entity> beeBEntities = new NativeList<Entity>(Allocator.TempJob);
         
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
-
-        Entities.WithAll<BeeTag>().ForEach((Entity entity, in Team team) =>
+        int teamAIndex = 0;
+        int teamBIndex = 0;
+        Entities.WithAll<BeeTag>().ForEach((Entity entity,ref Team team) =>
         {
-            if(team.Value == TeamName.A)
+            if (team.Value == TeamName.A)
+            {
                 beeAEntities.Add(entity);
+                team.IndexInTeam = teamAIndex;
+                teamAIndex++;
+            }
             else if (team.Value == TeamName.B)
+            {
                 beeBEntities.Add(entity);
+                team.IndexInTeam = teamBIndex;
+                teamBIndex++;
+            }
         }).Run();
         
         Entities.WithNativeDisableContainerSafetyRestriction(allTranslations).WithDisposeOnCompletion(beeAEntities)
@@ -28,15 +37,16 @@ public partial class BeeEnemyTargeting : SystemBase
                 if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeBEntities.Length>0 && !beeDead.Value)
                 {
                    //check if the bee is dead or not here 
-                   int randomIndex =(int) randomState.Value.NextFloat(0,beeBEntities.Length);
+                    int randomIndex =(int) ((randomState.Value.NextFloat(0,beeBEntities.Length)+team.IndexInTeam)/2);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
-                    Debug.Log(entity.Index);
-                    Debug.Log(randomIndex);
+                    // Debug.Log(team.IndexInTeam);
+                    // Debug.Log(randomIndex);
                 }
                 if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeAEntities.Length>0&&!beeDead.Value)
                 {
-                    int randomIndex = randomState.Value.NextInt(beeAEntities.Length);
+                    int randomIndex =(int) ((randomState.Value.NextFloat(0,beeAEntities.Length)+team.IndexInTeam)/2);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
+                    // Debug.Log(randomIndex);
                 }
                 
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
