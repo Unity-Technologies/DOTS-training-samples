@@ -60,6 +60,13 @@ public partial class StationSpawnerSystem : SystemBase
                 }
             }).Run();
 
+        // Sort the distance buffers
+        Entities
+            .ForEach((in DynamicBuffer<FloatBufferElement> buffer, in TrackID trackId) => 
+            {
+                buffer.AsNativeArray().Sort(new FloatDataComparer());
+            }).Run();
+
         tracks.Dispose();
         splines.Dispose();
         trackIDs.Dispose();
