@@ -3,6 +3,7 @@ using UnityEngine;
 
 public partial class BeeStatusDecider : SystemBase
 {
+    //maybe put this script in initialisation system group !? 
     protected override void OnUpdate()
     {
         Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus, in BeeDead beeDead) => {
@@ -19,6 +20,6 @@ public partial class BeeStatusDecider : SystemBase
                     beeStatus.Value = Status.Attacking;// TODO: Change back to Status.Gathering
                 }
             }
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
