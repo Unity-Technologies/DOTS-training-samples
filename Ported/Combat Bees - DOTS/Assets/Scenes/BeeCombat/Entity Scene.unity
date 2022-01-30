@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bloodEntity: {fileID: 5992582591906006101, guid: 77adb9945a5ca4e0ab956cca4c20b363, type: 3}
-  amountParticles: 20
+  amountParticles: 200
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0

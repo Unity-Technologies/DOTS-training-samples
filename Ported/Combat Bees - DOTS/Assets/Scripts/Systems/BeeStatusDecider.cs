@@ -1,4 +1,5 @@
 using Unity.Entities;
+using UnityEngine;
 
 public partial class BeeStatusDecider : SystemBase
 {
@@ -7,14 +8,15 @@ public partial class BeeStatusDecider : SystemBase
         Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus, in BeeDead beeDead) => {
             if (beeStatus.Value == Status.Idle && !beeDead.Value)
             {
-                agression.Value = randomState.Value.NextFloat(0, 10);
+                // Debug.Log(randomState.Value.NextFloat());
+                // agression.Value = randomState.Value.NextFloat(0, 10);
                 if (randomState.Value.NextFloat() < agression.Value)
                 {
-                    beeStatus.Value = Status.Attacking; 
+                    beeStatus.Value = Status.Gathering; 
                 }
                 else
                 {
-                    beeStatus.Value = Status.Gathering;// TODO: Change back to Status.Gathering
+                    beeStatus.Value = Status.Attacking;// TODO: Change back to Status.Gathering
                 }
             }
         }).Schedule();

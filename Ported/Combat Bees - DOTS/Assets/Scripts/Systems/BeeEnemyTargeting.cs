@@ -36,22 +36,27 @@ public partial class BeeEnemyTargeting : SystemBase
             {
                 if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeBEntities.Length>0 && !beeDead.Value)
                 {
-                   //check if the bee is dead or not here 
-                    int randomIndex =(int) (((randomState.Value.NextFloat(0,beeBEntities.Length)+team.IndexInTeam))/2);
+                    //for different initial random (some times throws index out of range with spawning of new bees)
+                    // int randomIndex =(int) (((randomState.Value.NextFloat(0,beeBEntities.Length)+team.IndexInTeam))/2);
+
+                    //with this approach randomIndex for all the bees is same value in the begining
+                    int randomIndex = randomState.Value.NextInt(0,beeBEntities.Length);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
                     // Debug.Log(team.IndexInTeam);
                     // Debug.Log(randomIndex);
                 }
                 if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeAEntities.Length>0&&!beeDead.Value)
                 {
-                    int randomIndex =(int) (((randomState.Value.NextFloat(0,beeAEntities.Length)+team.IndexInTeam))/2);
+                    // int randomIndex =(int) (((randomState.Value.NextFloat(0,beeAEntities.Length)+team.IndexInTeam))/2);
+
+                    int randomIndex = (randomState.Value.NextInt(0,beeAEntities.Length));
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
                     // Debug.Log(randomIndex);
                 }
                 
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
             }
-        }).WithoutBurst().Run();
+        }).Run();
         // Entities.WithAll<BeeTag>().ForEach((Entity entity,ref BeeTargets beeTargets,ref BeeStatus beeStatus) =>
         // {
         //     if (beeTargets.EnemyTarget != Entity.Null)
