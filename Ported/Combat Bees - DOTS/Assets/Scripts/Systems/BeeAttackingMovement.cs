@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Combatbees.Testing.Maria;
+using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
@@ -26,6 +27,17 @@ public partial class BeeAttackingMovement : SystemBase
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                 float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 
+                //TODO: move the if statement inside enemy targeting here 
+                // if (beeTargets.EnemyTarget != Entity.Null)
+                // {
+                //     var comp = GetComponent<BeeDead>(beeTargets.EnemyTarget);
+                //     if (comp.Value)
+                //     {
+                //         beeTargets.EnemyTarget = Entity.Null;
+                //         beeStatus.Value = Status.Gathering;
+                //         return;
+                //     }
+                // }
                 if (distanceFromTarget < beeProperties.KillingReach +2)
                 {
                     // Set current bee to Idle
@@ -36,6 +48,9 @@ public partial class BeeAttackingMovement : SystemBase
                     enemyComponent.Value = true;
                     
                     SetComponent(beeTargets.EnemyTarget, enemyComponent);
+
+                    
+                    
                     //the line below is not changing anything 
                     beeTargets.EnemyTarget = Entity.Null;
                     return;
@@ -62,6 +77,14 @@ public partial class BeeAttackingMovement : SystemBase
                 translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
             }
         }).Run();
+       
+        // Entities.WithAll<Bee>().ForEach((Entity entity,in BeeDead beeDead)=>
+        // {
+        //     var enemyStatusComponent = GetComponent<BeeStatus>(beeTargets.EnemyTarget);
+        //     enemyStatusComponent.Value = Status.Dead;
+        //     SetComponent(beeTargets.EnemyTarget,enemyStatusComponent);
+        //     
+        // }).Run();
 
         bool beeIsdead = false;
         // get the position of the Dead bee
@@ -90,6 +113,10 @@ public partial class BeeAttackingMovement : SystemBase
                         {
                             timeToLive = randomState.Value.NextFloat(1, 5),
                             shouldFall = true
+                        });
+                        EntityManager.AddComponentData(e, new BloodTag()
+                        {
+                            
                         });
                         
                         float x = randomState.Value.NextFloat(-10, 10);

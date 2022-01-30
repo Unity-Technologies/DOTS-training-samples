@@ -19,6 +19,10 @@ public class BloodParticleAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value = float3.zero
         });
+        dstManager.AddComponentData(entity, new BloodTag()
+        {
+            
+        });
         
     }
 }

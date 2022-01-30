@@ -4,8 +4,8 @@ public partial class BeeStatusDecider : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus) => {
-            if (beeStatus.Value == Status.Idle)
+        Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus, in BeeDead beeDead) => {
+            if (beeStatus.Value == Status.Idle && !beeDead.Value)
             {
                 agression.Value = randomState.Value.NextFloat(0, 10);
                 if (randomState.Value.NextFloat() < agression.Value)

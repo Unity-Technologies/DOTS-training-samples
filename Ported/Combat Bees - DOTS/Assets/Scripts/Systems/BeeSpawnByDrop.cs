@@ -48,7 +48,7 @@ public partial class BeeSpawnByDrop : SystemBase
                 ecb.DestroyEntity(entity);
             }
     
-        }).WithoutBurst().Run();
+        }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

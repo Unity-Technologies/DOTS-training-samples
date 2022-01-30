@@ -45,6 +45,23 @@ public partial class FallingAndDying : SystemBase
             }
         }).Run();
      
+        // ecb.Playback(EntityManager);
+        // ecb.Dispose();
+        
+        Entities.WithAll<BloodTag>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling) => {
+        
+            if (falling.shouldFall)
+            {
+                if (0 <= falling.timeToLive)
+                {
+                    falling.timeToLive -= deltaTime;
+                }
+                else
+                {
+                    ecb.DestroyEntity(entity);
+                }
+            }
+        }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
     }

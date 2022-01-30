@@ -18,9 +18,9 @@ public partial class BeeResourceTargeting : SystemBase
         
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
                 
-        Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation, in BeeStatus beeStatus) =>
+        Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation, in BeeStatus beeStatus,in BeeDead beeDead) =>
         {
-            if(beeStatus.Value == Status.Gathering){
+            if(beeStatus.Value == Status.Gathering && !beeDead.Value){
                 if (heldItem.Value != Entity.Null)
                 {
                     // Switch target to home if holding a resource
@@ -57,9 +57,9 @@ public partial class BeeResourceTargeting : SystemBase
 
         if (freeResources.Length > 0)
         {
-            Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus) =>
+            Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in BeeDead beeDead) =>
             {
-                if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering) // if bee does not have a target
+                if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering && !beeDead.Value) // if bee does not have a target
                 {
                     // Assign a random resource
                     int randomResourceIndex = randomState.Value.NextInt(freeResources.Length);

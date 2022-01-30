@@ -28,7 +28,7 @@ public partial class BeeEnemyTargeting : SystemBase
                 teamBIndex++;
             }
         }).Run();
-        
+      
         Entities.WithNativeDisableContainerSafetyRestriction(allTranslations).WithDisposeOnCompletion(beeAEntities)
             .WithDisposeOnCompletion(beeBEntities)
             .ForEach((Entity entity,ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in Team team, in BeeDead beeDead) => {
@@ -37,14 +37,14 @@ public partial class BeeEnemyTargeting : SystemBase
                 if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeBEntities.Length>0 && !beeDead.Value)
                 {
                    //check if the bee is dead or not here 
-                    int randomIndex =(int) ((randomState.Value.NextFloat(0,beeBEntities.Length)+team.IndexInTeam)/2);
+                    int randomIndex =(int) (((randomState.Value.NextFloat(0,beeBEntities.Length)+team.IndexInTeam))/2);
                     beeTargets.EnemyTarget = beeBEntities[randomIndex];
                     // Debug.Log(team.IndexInTeam);
                     // Debug.Log(randomIndex);
                 }
                 if (team.Value != TeamName.A && beeTargets.EnemyTarget == Entity.Null&& beeAEntities.Length>0&&!beeDead.Value)
                 {
-                    int randomIndex =(int) ((randomState.Value.NextFloat(0,beeAEntities.Length)+team.IndexInTeam)/2);
+                    int randomIndex =(int) (((randomState.Value.NextFloat(0,beeAEntities.Length)+team.IndexInTeam))/2);
                     beeTargets.EnemyTarget = beeAEntities[randomIndex];
                     // Debug.Log(randomIndex);
                 }
@@ -52,5 +52,20 @@ public partial class BeeEnemyTargeting : SystemBase
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
             }
         }).WithoutBurst().Run();
+        // Entities.WithAll<BeeTag>().ForEach((Entity entity,ref BeeTargets beeTargets,ref BeeStatus beeStatus) =>
+        // {
+        //     if (beeTargets.EnemyTarget != Entity.Null)
+        //     {
+        //         var comp = GetComponent<BeeDead>(beeTargets.EnemyTarget);
+        //         if (comp.Value)
+        //         {
+        //             beeTargets.EnemyTarget = Entity.Null;
+        //             // beeStatus.Value = Status.Idle;
+        //         }
+        //     }
+        //        
+        //    
+        //
+        // }).Run();
     }
 }
