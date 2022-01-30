@@ -86,16 +86,19 @@ public partial class BeeAttackingMovement : SystemBase
         //     
         // }).Run();
 
-        bool beeIsdead = false;
-        // get the position of the Dead bee
-        Entities.WithAll<BeeTag>().ForEach((Entity entity, ref BeeStatus beeStatus, ref BeeDead beeDead, ref RandomState randomState,ref Falling falling ,in Translation translation) =>
+        // bool beeIsdead = false;
+        //spawning blood particles 
+        EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        var ecb = sys.CreateCommandBuffer().AsParallelWriter();
+        var spawningData = GetSingleton<BloodSpawningProperties>();
+        Entities.WithAll<BeeTag>().ForEach((Entity entity,int entityInQueryIndex, ref BeeStatus beeStatus, ref BeeDead beeDead, ref RandomState randomState,ref Falling falling ,in Translation translation) =>
         {
             if (beeDead.Value)
             {
                 beeStatus.Value = Status.Dead;
-                beeIsdead = true;
+                // beeIsdead = true;
                 falling.shouldFall = true;
-                var spawningData = GetSingleton<BloodSpawningProperties>();
+                
                 
                 // To make the bloodparticles only spawn once 
                 if (!beeDead.AnimationStarted)
@@ -103,18 +106,17 @@ public partial class BeeAttackingMovement : SystemBase
                     beeDead.AnimationStarted = true;
                     for (int i = 0; i < spawningData.amountParticles; i++)
                     {
-                        Entity e = EntityManager.Instantiate(spawningData.bloodEntity);
-                        EntityManager.SetComponentData(e, new Translation
+                        Entity e = ecb.Instantiate(entityInQueryIndex,spawningData.bloodEntity);
+                        ecb.AddComponent(entityInQueryIndex,e, new Translation
                         {
                             Value = translation.Value 
                         });
-                        
-                        EntityManager.AddComponentData(e, new Falling
+                        ecb.AddComponent(entityInQueryIndex,e, new Falling
                         {
                             timeToLive = randomState.Value.NextFloat(1, 5),
                             shouldFall = true
                         });
-                        EntityManager.AddComponentData(e, new BloodTag()
+                        ecb.AddComponent(entityInQueryIndex,e, new BloodTag()
                         {
                             
                         });
@@ -122,14 +124,15 @@ public partial class BeeAttackingMovement : SystemBase
                         float x = randomState.Value.NextFloat(-10, 10);
                         float y = randomState.Value.NextFloat(0, 10);
                         float z = randomState.Value.NextFloat(-10, 10);
-                        EntityManager.AddComponentData(e, new Velocity()
+                        ecb.AddComponent(entityInQueryIndex,e, new Velocity()
                         {
                             Value = new float3(x, y, z),
                         });
                     }
                 }
             }
-        }).WithStructuralChanges().Run();
+        }).Run();
+        // sys.AddJobHandleForProducer(this.Dependency);
     }
     
     private BeeProperties GetBeeProperties()
