@@ -15,31 +15,36 @@ public partial class SplineFollowerSystem : SystemBase
                       ref Rotation rotation,
                       ref TrackProgress trackProgress,
                       ref SplineFollower splineFollower,
+                      in CurrentRoute currentRoute,
                       in Ticker ticker,
-                      in Speed speed) =>
+                      in Speed speed,
+                      in Spline spline) =>
             {
-                if (ticker.TimeRemaining <= 0)
+                if (currentRoute.state == TrainState.Stopped)
+                    return;
+                
+                ref var splineData = ref spline.splinePath.Value;
+
+                if (currentRoute.state == TrainState.Approaching || currentRoute.state == TrainState.Departing)
                 {
-                    var spline = GetComponent<Spline>(splineFollower.track);
-                    ref var splineData = ref spline.splinePath.Value;
-                    var bufferFromEntity = GetBufferFromEntity<FloatBufferElement>(true);
-                    var stationDistanceBuffer = bufferFromEntity[splineFollower.track];
-                    float closestDistance = math.abs(trackProgress.Value - stationDistanceBuffer[0]);
-                    for (int i = 0; i < stationDistanceBuffer.Length; ++i)
-                    {
-                        float dist = math.abs(trackProgress.Value - stationDistanceBuffer[i]);
-                        if (dist < closestDistance)
-                        {
-                            closestDistance = dist;
-                        }
-                    }
-                    trackProgress.Value += speed.Value * deltaTime * math.clamp(math.pow(closestDistance * 0.02f, 0.5f), 0.01f, 1.0f);
-                    trackProgress.Value = trackProgress.Value % splineData.pathLength;
-                     
-                    SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref trackProgress.SplineLookupCache, trackProgress.Value, out var position, out var direction);
-                    translation.Value = position;
-                    rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0));   
+                    float location = trackProgress.Value < currentRoute.routeStartLocation
+                        ? trackProgress.Value + splineData.pathLength
+                        : trackProgress.Value;
+
+                    float distanceToNearestStation = math.min(location - currentRoute.routeStartLocation,
+                        currentRoute.routeEndLocation - location);
+                    
+                    trackProgress.Value += speed.Value * deltaTime * math.clamp(math.pow(distanceToNearestStation * 0.02f, 0.5f), 0.01f, 1.0f);
                 }
+                else
+                {
+                    trackProgress.Value += speed.Value * deltaTime;
+                }
+
+                trackProgress.Value = math.clamp(trackProgress.Value, currentRoute.routeStartLocation, currentRoute.routeEndLocation);
+                SplineInterpolationHelper.InterpolatePositionAndDirection(ref splineData, ref trackProgress.SplineLookupCache, trackProgress.Value, out var position, out var direction);
+                translation.Value = position;
+                rotation.Value = quaternion.LookRotationSafe(direction, new float3(0, 1, 0));
                 
             }).ScheduleParallel();
     }

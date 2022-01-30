@@ -5,13 +5,12 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public partial class DoorOpeningSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        float deltaTime = Time.DeltaTime;    
-
         Entities.ForEach((  Entity entity,
                             ref Translation translation,
                             ref DoorController doorController) =>
