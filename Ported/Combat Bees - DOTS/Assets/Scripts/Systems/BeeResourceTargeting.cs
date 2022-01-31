@@ -56,20 +56,23 @@ public partial class BeeResourceTargeting : SystemBase
     {
         NativeList<Entity> assignedResources = new NativeList<Entity>(Allocator.TempJob);
 
-        if (freeResources.Length > 0)
-        {
+        
+            // BUG: some bug is inside this entities.
             Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in BeeDead beeDead) =>
             {
-                if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering && !beeDead.Value) // if bee does not have a target
+                if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering && !beeDead.Value) // if bee does not have a resource target
                 {
                     // Assign a random resource
-                    int randomResourceIndex = randomState.Value.NextInt(freeResources.Length);
-                    beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
-                    freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
-                    assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
+                    if (freeResources.Length > 0)
+                    {
+                        int randomResourceIndex = randomState.Value.NextInt(freeResources.Length);
+                        beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
+                        freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
+                        assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
+                    }
                 }
             }).Run();
-        }
+        
 
         return assignedResources;
     }

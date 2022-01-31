@@ -62,18 +62,40 @@ public partial class BeeGatheringMovement : SystemBase
                     {
                         if (heldItem.Value == Entity.Null)
                         {
-                            // if not holding a resource and reached a target resource, grab the resource
-                            heldItem.Value = beeTargets.ResourceTarget;
-                            // Used to propagate the holder to the held item
-                            grabbedItemsAndHolders.Add(heldItem.Value, entity);
+                            if (!grabbedItemsAndHolders.ContainsKey(beeTargets.ResourceTarget))
+                            {
+                                // if not holding a resource and reached a target resource, grab the resource
+                                heldItem.Value = beeTargets.ResourceTarget;
+                                // Used to propagate the holder to the held item
+                                grabbedItemsAndHolders.Add(heldItem.Value, entity);
+                            }
+                            else
+                            {
+                                // It has the same target as someone else, so reset the bee.
+                                beeTargets.ResourceTarget = Entity.Null;
+                                beeTargets.EnemyTarget = Entity.Null;
+                                heldItem.Value = Entity.Null;
+                                beeStatus.Value = Status.Idle;
+                            }
                         }
                         else
                         {
                             // if holding a resource and reached home, reset target and held item
-                            droppedItems.Add(heldItem.Value, Entity.Null);
-                            beeTargets.ResourceTarget = Entity.Null;
-                            heldItem.Value = Entity.Null;
-                            beeStatus.Value = Status.Idle;
+                            // if (!droppedItems.ContainsKey(heldItem.Value))
+                            // {
+                                droppedItems.Add(heldItem.Value, Entity.Null);
+                                beeTargets.ResourceTarget = Entity.Null;
+                                heldItem.Value = Entity.Null;
+                                beeStatus.Value = Status.Idle;
+                            // }else
+                            // {
+                            //     // It has the same target as someone else, so reset the bee.
+                            //     beeTargets.ResourceTarget = Entity.Null;
+                            //     beeTargets.EnemyTarget = Entity.Null;
+                            //     heldItem.Value = Entity.Null;
+                            //     beeStatus.Value = Status.Idle;
+                            // }
+                            
                         }
                     }
                     

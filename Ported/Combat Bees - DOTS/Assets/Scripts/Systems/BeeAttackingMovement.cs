@@ -46,13 +46,12 @@ public partial class BeeAttackingMovement : SystemBase
                     // Kill the bee
                     var enemyComponent = GetComponent<BeeDead>(beeTargets.EnemyTarget);
                     enemyComponent.Value = true;
-                    
                     SetComponent(beeTargets.EnemyTarget, enemyComponent);
-
-                    
                     
                     //the line below is not changing anything 
                     beeTargets.EnemyTarget = Entity.Null;
+                    // SetComponent(beeTargets.EnemyTarget, enemyComponent);
+
                     return;
                 }
                 if (distanceFromTarget < beeProperties.AttackDashReach) // Enemy reached
