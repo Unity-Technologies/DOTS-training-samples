@@ -107,7 +107,7 @@ public partial class SpawnOnClick : SystemBase
 		Entities
 			.ForEach((in SpawnedPrefab spawnedPrefab) =>
 			{
-				
+				//TODO: exclude bases from the possible area for spawning by click 
 				if (isMouseTouchingField)
 				{
 					
@@ -118,7 +118,7 @@ public partial class SpawnOnClick : SystemBase
 						    spawnTimer -= 1f/spawnRate;
 						    var instance = ecb.Instantiate(spawnedPrefab.Value);
 						    var translation = new Translation {Value = worldMousePosition};
-						    ecb.SetComponent(instance, translation);
+						    ecb.AddComponent(instance, translation);
 						}
 						
 					}

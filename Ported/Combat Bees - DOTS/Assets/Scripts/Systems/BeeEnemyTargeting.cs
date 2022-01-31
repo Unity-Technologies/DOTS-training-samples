@@ -35,8 +35,8 @@ public partial class BeeEnemyTargeting : SystemBase
             .ForEach((Entity entity,ref BeeTargets beeTargets, ref RandomState randomState, ref BeeStatus beeStatus, in Team team, in BeeDead beeDead) => {
             if (beeStatus.Value == Status.Attacking)
             {
-                try
-                {
+                // try
+                // {
                     // team A
                     if (team.Value == TeamName.A && beeTargets.EnemyTarget == Entity.Null && beeBEntities.Length>0 && !beeDead.Value)
                     {
@@ -60,13 +60,13 @@ public partial class BeeEnemyTargeting : SystemBase
                     }
                 
                     beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
-                }
-                catch (Exception e)
-                {
-                    Debug.Log($"Bee dead value was NULL {e}");
-                    beeTargets.EnemyTarget = Entity.Null;
-                    beeStatus.Value = Status.Idle;
-                }
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.Log($"Bee dead value was NULL {e}");
+                //     beeTargets.EnemyTarget = Entity.Null;
+                //     beeStatus.Value = Status.Idle;
+                // }
                 
             }
         }).Run();

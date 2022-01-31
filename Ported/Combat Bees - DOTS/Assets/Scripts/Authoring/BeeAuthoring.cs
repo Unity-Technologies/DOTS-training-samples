@@ -65,11 +65,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value = -1 // this value will be inited somewhere else: in BeeInitSystem
         });
-
-        dstManager.AddComponentData(entity, new Targeted
-        {
-            Value = false
-        });
         
         dstManager.AddComponentData(entity, new Falling()
         {

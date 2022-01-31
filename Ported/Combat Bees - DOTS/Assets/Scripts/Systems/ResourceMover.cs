@@ -24,8 +24,8 @@ public partial class ResourceMover : SystemBase
             // .WithNativeDisableContainerSafetyRestriction(allVelocities)
             .ForEach((ref Translation translation, ref Velocity velocity, in Holder holder) =>
             {
-                try
-                {
+                // try
+                // {
                     if (holder.Value == Entity.Null) // if no holder, apply gravity
                     {
                         float3 newPosition = translation.Value + velocity.Value * deltaTime;
@@ -44,11 +44,11 @@ public partial class ResourceMover : SystemBase
                         // Comment out the line below to make resources drop straight to the ground
                         // velocity.Value = allVelocities[holder.Value].Value;
                     }
-                }
-                catch (Exception e)
-                {
-                    Debug.Log("The holder of the bee died");
-                }
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.Log("The holder of the bee died");
+                // }
             }).ScheduleParallel();
     }
 }

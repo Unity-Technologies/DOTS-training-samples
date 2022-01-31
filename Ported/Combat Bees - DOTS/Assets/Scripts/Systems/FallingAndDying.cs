@@ -23,42 +23,38 @@ public partial class FallingAndDying : SystemBase
         
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         Entities.WithAll<Falling>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling, ref HeldItem heldItem) => {
-            try
+
+            if (falling.shouldFall)
             {
-                if (falling.shouldFall)
+                float3 newPosition = translation.Value + velocity.Value * deltaTime;
+
+                // Clamp the position to be within the container
+                float3 clampedPosition = math.clamp(newPosition, containerMinPos, containerMaxPos);
+
+                // If the resource hits the floor reset its velocity
+                if (clampedPosition.y > newPosition.y) velocity.Value = float3.zero;
+
+                translation.Value = clampedPosition;
+
+                if (0 <= falling.timeToLive)
                 {
-                    float3 newPosition = translation.Value + velocity.Value * deltaTime;
-        
-                    // Clamp the position to be within the container
-                    float3 clampedPosition = math.clamp(newPosition, containerMinPos, containerMaxPos);
-        
-                    // If the resource hits the floor reset its velocity
-                    if (clampedPosition.y > newPosition.y) velocity.Value = float3.zero;
-        
-                    translation.Value = clampedPosition;
-        
-                    if (0 <= falling.timeToLive)
-                    {
-                        falling.timeToLive -= deltaTime;
-                    }
-                    else
-                    {
-                        // BUG: not really working?
-                        if (heldItem.Value != Entity.Null)
-                        {
-                            // also set the resource that the bee is holding again to a free resouce
-                            var targetedComponent = GetComponent<Targeted>(heldItem.Value);
-                            targetedComponent.Value = false;
-                            SetComponent(heldItem.Value, targetedComponent);
-                        }
-                        ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
-                    }
+                    falling.timeToLive -= deltaTime;
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.Log($"null?: falling: {falling}, entity: {entity}, heldItem: {heldItem}");
-                throw e;
+                else
+                {
+                    // BUG: not really working?
+                    
+                    // if (heldItem.Value != Entity.Null)
+                    // {
+                    //     // also set the resource that the bee is holding again to a free resouce
+                    //     //TODO: set beetargets.resource target to null too 
+                    //     var targetedComponent = GetComponent<Targeted>(heldItem.Value);
+                    //     targetedComponent.Value = false;
+                    //     SetComponent(heldItem.Value, targetedComponent);
+                    // }
+
+                    // ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
+                }
             }
             
         }).Run();
