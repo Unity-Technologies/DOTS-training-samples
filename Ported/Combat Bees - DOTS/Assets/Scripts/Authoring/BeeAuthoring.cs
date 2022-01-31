@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+
 [DisallowMultipleComponent]
 public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
@@ -51,15 +52,18 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value =  Status.Idle
         });
-        
+
+
         dstManager.AddComponentData(entity, new RandomState
         {
-            Value = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0
-        });
+            // Value = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0 --> Only 2 entities in the game (so this won't work)
+            Value = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000))
 
+        });
+        
         dstManager.AddComponentData(entity, new Agression
         {
-            Value = 0.5f
+            Value = -1 // this value will be inited somewhere else: in BeeInitSystem
         });
 
         dstManager.AddComponentData(entity, new Targeted

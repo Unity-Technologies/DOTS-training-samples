@@ -6,12 +6,16 @@ public partial class BeeInitSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        uint counter = 1;
+       // Because we can't get a random number at the authoring-phase, we do it in a later moment in this system.
         Entities.WithAll<BeeTag>().ForEach((Entity entity, ref RandomState randomState, ref Agression agression) =>
         {
-            if (agression.Value == 0f)
+            
+            randomState.Value = new Unity.Mathematics.Random(counter * randomState.Value.NextUInt(0,10000000));
+            counter++;
+
+            if (agression.Value < 0f)
             {
-                //Debug.Log("Index: " + entity.Index);
-                //Debug.Log("State: " + randomState.Random.state);
                 agression.Value = randomState.Value.NextFloat();
             }
         }).Schedule();
