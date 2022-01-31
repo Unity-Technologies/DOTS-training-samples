@@ -21,7 +21,7 @@ public partial class ResourceMover : SystemBase
         var allVelocities = GetComponentDataFromEntity<Velocity>(true);
 
         Entities.WithAll<ResourceTag>().WithNativeDisableContainerSafetyRestriction(allTranslations)
-            .WithNativeDisableContainerSafetyRestriction(allVelocities)
+            // .WithNativeDisableContainerSafetyRestriction(allVelocities)
             .ForEach((ref Translation translation, ref Velocity velocity, in Holder holder) =>
             {
                 try
@@ -42,7 +42,7 @@ public partial class ResourceMover : SystemBase
                     {
                         translation.Value = allTranslations[holder.Value].Value;
                         // Comment out the line below to make resources drop straight to the ground
-                        velocity.Value = allVelocities[holder.Value].Value;
+                        // velocity.Value = allVelocities[holder.Value].Value;
                     }
                 }
                 catch (Exception e)

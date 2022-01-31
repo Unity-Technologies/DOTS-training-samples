@@ -70,7 +70,7 @@ public partial class BeeResourceTargeting : SystemBase
                         freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
                         assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
                     }
-                    Debug.Log($"Resources available: {freeResources.Length}");
+                    // Debug.Log($"Resources available: {freeResources.Length}");
                 }
             }).Run();
         
