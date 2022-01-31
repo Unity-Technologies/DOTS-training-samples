@@ -129,8 +129,8 @@ public partial class BeeAttackingMovement : SystemBase
                     }
                 }
             }
-        }).Run();
-        // sys.AddJobHandleForProducer(this.Dependency);
+        }).ScheduleParallel();
+        sys.AddJobHandleForProducer(this.Dependency);
     }
     
     private BeeProperties GetBeeProperties()
