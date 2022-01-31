@@ -20,7 +20,7 @@ public partial class FallingAndDying : SystemBase
         var deltaTime = Time.DeltaTime;
         
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
-        Entities.WithAll<Falling>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling) => {
+        Entities.WithAll<Falling>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling, ref HeldItem heldItem) => {
         
             if (falling.shouldFall)
             {
@@ -40,29 +40,40 @@ public partial class FallingAndDying : SystemBase
                 }
                 else
                 {
-                    // ecb.DestroyEntity(entity);
+                    // BUG: not really working?
+                    if (heldItem.Value != Entity.Null)
+                    {
+                        // also set the resource that the bee is holding again to a free resouce
+                        var targetedComponent = GetComponent<Targeted>(heldItem.Value);
+                        targetedComponent.Value = false;
+                        SetComponent(heldItem.Value, targetedComponent);
+                    
+                    }
+                    ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
+
+                    
                 }
             }
         }).Run();
      
-        // ecb.Playback(EntityManager);
-        // ecb.Dispose();
-        
-        Entities.WithAll<BloodTag>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling) => {
-        
-            if (falling.shouldFall)
-            {
-                if (0 <= falling.timeToLive)
-                {
-                    falling.timeToLive -= deltaTime;
-                }
-                else
-                {
-                    ecb.DestroyEntity(entity);
-                }
-            }
-        }).Run();
         ecb.Playback(EntityManager);
         ecb.Dispose();
+        
+        // Entities.WithAll<BloodTag>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling) => {
+        //
+        //     if (falling.shouldFall)
+        //     {
+        //         if (0 <= falling.timeToLive)
+        //         {
+        //             falling.timeToLive -= deltaTime;
+        //         }
+        //         else
+        //         {
+        //             ecb.DestroyEntity(entity);
+        //         }
+        //     }
+        // }).Run();
+        // ecb.Playback(EntityManager);
+        // ecb.Dispose();
     }
 }

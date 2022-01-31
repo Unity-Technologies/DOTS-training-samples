@@ -70,6 +70,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value = false
         });
+        
         dstManager.AddComponentData(entity, new Falling()
         {
             shouldFall = false,
