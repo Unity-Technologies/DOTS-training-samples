@@ -141,7 +141,11 @@ public partial class BeeGatheringMovement : SystemBase
                     translation.Value += velocity.Value * deltaTime;
 
                     // Clamp the position within the field container
-                    translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
+                    ColliderRadius colliderRadius = GetComponent<ColliderRadius>(entity);
+                    float3 containerBeeMinPos = containerMinPos + new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
+                    float3 containerBeeMaxPos = containerMaxPos - new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
+
+                    translation.Value = math.clamp(translation.Value, containerBeeMinPos, containerBeeMaxPos);
                 }
             }).Schedule();
 

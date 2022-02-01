@@ -22,7 +22,7 @@ public partial class BeeAttackingMovement : SystemBase
         {
             //we are getting the BeeDead component here because we get compile error when we put it in lambda expression 
             var isBeeDead = GetComponent<BeeDead>(entity).Value;
-            if (beeStatus.Value == Status.Attacking)
+            if (beeStatus.Value == Status.Attacking && !isBeeDead)
             {
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
                 float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
@@ -86,6 +86,7 @@ public partial class BeeAttackingMovement : SystemBase
 
         // bool beeIsdead = false;
         //spawning blood particles 
+        
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         var spawningData = GetSingleton<BloodSpawningProperties>();

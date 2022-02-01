@@ -1,8 +1,6 @@
-using Combatbees.Testing.Maria;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 
 [DisallowMultipleComponent]
@@ -10,6 +8,8 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public TeamName TeamName = TeamName.A;
     public float3 HomePosition = float3.zero;
+    public float ColliderRadius = 0.5f;
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<BeeTag>(entity);
@@ -52,8 +52,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             Value =  Status.Idle
         });
-
-
+        
         dstManager.AddComponentData(entity, new RandomState
         {
             // Value = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0 --> Only 2 entities in the game (so this won't work)
@@ -70,6 +69,11 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             shouldFall = false,
             timeToLive = 5f
+        });
+
+        dstManager.AddComponentData(entity, new ColliderRadius
+        {
+            Value = ColliderRadius
         });
     }
 }
