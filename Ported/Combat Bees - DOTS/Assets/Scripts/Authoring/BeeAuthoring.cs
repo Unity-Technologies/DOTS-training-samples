@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 
@@ -74,6 +75,11 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new ColliderRadius
         {
             Value = ColliderRadius
+        });
+
+        dstManager.AddComponentData(entity, new NonUniformScale
+        {
+            Value = new float3(1f,1f,1f)
         });
     }
 }

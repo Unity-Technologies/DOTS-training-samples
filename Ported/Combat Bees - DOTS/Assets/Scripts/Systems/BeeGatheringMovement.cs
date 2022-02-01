@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class BeeGatheringMovement : SystemBase
 {
@@ -144,8 +145,11 @@ public partial class BeeGatheringMovement : SystemBase
                     ColliderRadius colliderRadius = GetComponent<ColliderRadius>(entity);
                     float3 containerBeeMinPos = containerMinPos + new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
                     float3 containerBeeMaxPos = containerMaxPos - new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
+                    //Debug.Log("min:" + containerBeeMinPos);
+                    //Debug.Log("max:" + containerBeeMaxPos);
 
-                    translation.Value = math.clamp(translation.Value, containerBeeMinPos, containerBeeMaxPos);
+                    //translation.Value = math.clamp(translation.Value, containerBeeMinPos, containerBeeMaxPos); // BUG: The bees slide on the floor
+                    translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
                 }
             }).Schedule();
 
