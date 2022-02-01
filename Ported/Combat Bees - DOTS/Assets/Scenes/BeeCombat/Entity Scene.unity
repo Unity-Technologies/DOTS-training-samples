@@ -322,10 +322,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 4595328995100758318, guid: 474f38c7b5e86b64a932eed20c785251, type: 3}
-  GridCellsX: 5
-  GridCellsZ: 4
+  GridCellsX: 20
+  GridCellsZ: 30
   CellSize: 1
-  SpawnedCount: 20
+  SpawnedCount: 2000
 --- !u!1 &1148196121
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,7 +477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
-  SpawnedCount: 10
+  SpawnedCount: 20
   MaxInitVelocity: 10
 --- !u!1 &1957685094
 GameObject:
@@ -650,7 +650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
-  SpawnedCount: 10
+  SpawnedCount: 20
   MaxInitVelocity: 10
 --- !u!4 &2045680677
 Transform:
