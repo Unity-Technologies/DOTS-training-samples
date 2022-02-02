@@ -340,6 +340,7 @@ GameObject:
   - component: {fileID: 1148196125}
   - component: {fileID: 1148196126}
   - component: {fileID: 1148196127}
+  - component: {fileID: 1148196128}
   m_Layer: 0
   m_Name: Simulation Settings
   m_TagString: Untagged
@@ -415,7 +416,7 @@ MonoBehaviour:
   ChaseForce: 2
   Damping: 0.1
   FlightJitter: 1.8
-  RotationStiffness: 1
+  RotationStiffness: 30
   TeamAttraction: -0.4
   TargetReach: 0.3
   AttackDashReach: 6
@@ -433,6 +434,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodEntity: {fileID: 5992582591906006101, guid: 77adb9945a5ca4e0ab956cca4c20b363, type: 3}
   amountParticles: 10
+--- !u!114 &1148196128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148196121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5a1b254a01741843bfc17a7ae7f0e2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpeedStretchSensitivity: 0.09
+  MinStretch: 1
+  MaxStretch: 2.5
+  XStretchMultiplier: 0.6
+  YStretchMultiplier: 0.1
 --- !u!1 &1627788070
 GameObject:
   m_ObjectHideFlags: 0
@@ -477,7 +495,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: c64ae1b28950e6243b68fcded24c8b11, type: 3}
-  SpawnedCount: 50
+  SpawnedCount: 20
   MaxInitVelocity: 10
 --- !u!1 &1957685094
 GameObject:
@@ -650,7 +668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnedPrefab: {fileID: 7934313933809662275, guid: 6c2996201623d8a44ab06a8a67dddc8b, type: 3}
-  SpawnedCount: 50
+  SpawnedCount: 20
   MaxInitVelocity: 10
 --- !u!4 &2045680677
 Transform:

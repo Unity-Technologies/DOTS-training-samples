@@ -6,7 +6,8 @@ public partial class BeeStretching : SystemBase
 {
     protected override void OnUpdate()
     {
-        float speedStretch = 0.1f;
+        BeeStretchingConstants c = GetSingleton<BeeStretchingConstants>();
+
         float deltaTime = World.Time.DeltaTime;
 
         Entities.WithAll<BeeTag>().ForEach(
@@ -17,10 +18,12 @@ public partial class BeeStretching : SystemBase
                     float magnitude = math.sqrt(velocity.Value.x * velocity.Value.x +
                                                 velocity.Value.y * velocity.Value.y + velocity.Value.z +
                                                 velocity.Value.z);
-                    float stretch = math.max(1f, magnitude * speedStretch);
+                    
+                    float stretch = math.clamp(magnitude * c.SpeedStretchSensitivity, c.MinStretch, c.MaxStretch);
+                    
                     nonUniformScale.Value.z = stretch;
-                    nonUniformScale.Value.x = 2f / stretch;
-                    nonUniformScale.Value.y = 2f / stretch;
+                    nonUniformScale.Value.x = c.MinStretch - (stretch - c.MinStretch) * c.XStretchMultiplier;
+                    nonUniformScale.Value.y = c.MinStretch - (stretch - c.MinStretch) * c.YStretchMultiplier;
                 }
                 else if (nonUniformScale.Value.z > 1f)
                 {
