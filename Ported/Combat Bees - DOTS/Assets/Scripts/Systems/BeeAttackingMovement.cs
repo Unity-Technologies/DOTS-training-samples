@@ -112,7 +112,7 @@ public partial class BeeAttackingMovement : SystemBase
                         });
                         ecb.AddComponent(entityInQueryIndex,e, new Falling
                         {
-                            timeToLive = randomState.Value.NextFloat(1, 5),
+                            timeToLive = randomState.Value.NextFloat(1, 3),
                             shouldFall = true
                         });
                         ecb.AddComponent(entityInQueryIndex,e, new BloodTag()
@@ -120,9 +120,9 @@ public partial class BeeAttackingMovement : SystemBase
                             
                         });
                         
-                        float x = randomState.Value.NextFloat(-10, 10);
-                        float y = randomState.Value.NextFloat(0, 10);
-                        float z = randomState.Value.NextFloat(-10, 10);
+                        float x = randomState.Value.NextFloat(-5, 5);
+                        float y = randomState.Value.NextFloat(0, 5);
+                        float z = randomState.Value.NextFloat(-5, 5);
                         ecb.AddComponent(entityInQueryIndex,e, new Velocity()
                         {
                             Value = new float3(x, y, z),

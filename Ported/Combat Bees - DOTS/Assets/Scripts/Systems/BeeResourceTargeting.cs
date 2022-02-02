@@ -1,3 +1,4 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -30,8 +31,16 @@ public partial class BeeResourceTargeting : SystemBase
                 }
                 else if (beeTargets.ResourceTarget != Entity.Null)
                 {
-                    // If has a target resource & not holding it, then go for it
-                    beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
+                    try
+                    {
+                        // If has a target resource & not holding it, then go for it
+                        beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log($"resourceTarget does not exist anymore: {e}");
+                    }
+
                 }
             }
         }).Run();

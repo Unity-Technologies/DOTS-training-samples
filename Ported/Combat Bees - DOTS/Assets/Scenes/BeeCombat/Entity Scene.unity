@@ -325,7 +325,7 @@ MonoBehaviour:
   GridCellsX: 20
   GridCellsZ: 30
   CellSize: 1
-  SpawnedCount: 2000
+  SpawnedCount: 50
 --- !u!1 &1148196121
 GameObject:
   m_ObjectHideFlags: 0
