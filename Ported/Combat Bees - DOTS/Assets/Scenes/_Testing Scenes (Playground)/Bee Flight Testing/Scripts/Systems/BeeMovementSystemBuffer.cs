@@ -44,7 +44,8 @@ namespace CombatBees.Testing.BeeFlight
                     }
                     
                     float3 delta = currentTarget - translation.Value;
-                    float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    //float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    float distanceFromTarget = delta.DistanceToFloat();
 
                     if (distanceFromTarget < beeTargets.TargetReach) // Target reached could be home or resource 
                     {

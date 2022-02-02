@@ -25,7 +25,8 @@ public partial class BeeAttackingMovement : SystemBase
             if (beeStatus.Value == Status.Attacking && !isBeeDead)
             {
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
-                float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                //float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                float distanceFromTarget = delta.DistanceToFloat();
                 
                 //TODO: move the if statement inside enemy targeting here 
                 // if (beeTargets.EnemyTarget != Entity.Null)

@@ -57,8 +57,9 @@ public partial class BeeGatheringMovement : SystemBase
                 if (beeStatus.Value == Status.Gathering) // TODO: Change back to != Status.attacking 
                 {
                     float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
-                    float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-        
+                    //float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    float distanceFromTarget = delta.DistanceToFloat();
+
                     if (distanceFromTarget < beeProperties.KillingReach) // Target reached
                     {
                         if (heldItem.Value == Entity.Null)
@@ -131,8 +132,8 @@ public partial class BeeGatheringMovement : SystemBase
                     
                     float3 randomBeePosition = allTranslations[randomBee].Value;
                     float3 beeDelta = randomBeePosition - translation.Value;
-                    float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
-                
+                    //float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
+                    float beeDistance = beeDelta.DistanceToFloat();
                     if (beeDistance > 0f)
                     { 
                         velocity.Value += beeDelta * (beeProperties.TeamAttraction / beeDistance);

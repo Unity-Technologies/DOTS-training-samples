@@ -56,7 +56,8 @@ namespace CombatBees.Testing.BeeFlight
                     }
                     
                     float3 delta = currentTargetPosition - translation.Value;
-                    float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    //float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    float distanceFromTarget = delta.DistanceToFloat();
 
                     if (distanceFromTarget < beeTargets.TargetReach) // Target reached
                     {
@@ -100,8 +101,8 @@ namespace CombatBees.Testing.BeeFlight
                     
                     float3 randomBeePosition = allTranslations[randomBee].Value;
                     float3 beeDelta = randomBeePosition - translation.Value;
-                    float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
-                    
+                    //float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
+                    float beeDistance = beeDelta.DistanceToFloat();
                     if (beeDistance > 0f)
                     { 
                         beeMovement.Velocity += beeDelta * (beeMovement.TeamAttraction / beeDistance);
