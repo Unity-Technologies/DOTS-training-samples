@@ -4,6 +4,11 @@ using Unity.Transforms;
 
 public partial class BeeStretching : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
+    
     protected override void OnUpdate()
     {
         BeeStretchingConstants c = GetSingleton<BeeStretchingConstants>();

@@ -58,7 +58,6 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         {
             // Value = new Random((uint) (entity.Index + 1)) // +1 because seed can't be 0 --> Only 2 entities in the game (so this won't work)
             Value = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000))
-
         });
         
         dstManager.AddComponentData(entity, new Agression
