@@ -40,7 +40,7 @@ public partial class BeeEnemyTargeting : SystemBase
                             int randomIndex = randomState.Value.NextInt(0,beeBEntities.Length);
                             beeTargets.EnemyTarget = beeBEntities[randomIndex];
                         }
-                        if(team.Value != TeamName.A && beeAEntities.Length > 0) {
+                        if(team.Value == TeamName.B && beeAEntities.Length > 0) {
                             int randomIndex = (randomState.Value.NextInt(0,beeAEntities.Length));
                             beeTargets.EnemyTarget = beeAEntities[randomIndex];
                         }
@@ -51,7 +51,7 @@ public partial class BeeEnemyTargeting : SystemBase
                     beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
                 }
                 catch (Exception e) {
-                    Debug.Log($"Bee dead value was NULL, resetting: {e}");
+                    Debug.Log($"beeTargets.EnemyTarget does not exist anymore, resetting: {e}");
                     beeTargets.EnemyTarget = Entity.Null;
                     beeStatus.Value = Status.Idle;
                 }

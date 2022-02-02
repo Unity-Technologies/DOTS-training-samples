@@ -13,10 +13,8 @@ public partial class BeeResourceTargeting : SystemBase
 
     protected override void OnUpdate()
     {
-        NativeList<Entity> freeResources = GetFreeResources();
-        NativeList<Entity> assignedResources = AssignResourcesToBees(freeResources);
-        
-        MarkTargetedResources(assignedResources);
+        NativeList<Entity> resources = GetResources();
+        AssignResourcesToBees(resources);
         
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
                 
@@ -45,8 +43,8 @@ public partial class BeeResourceTargeting : SystemBase
             }
         }).Run();
         
-        freeResources.Dispose();
-        assignedResources.Dispose();
+        resources.Dispose();
+        // assignedResources.Dispose();
     }
 
     private NativeList<Entity> GetFreeResources()
@@ -60,13 +58,21 @@ public partial class BeeResourceTargeting : SystemBase
 
         return freeResources;
     }
-
-    private NativeList<Entity> AssignResourcesToBees(NativeList<Entity> freeResources)
+    private NativeList<Entity> GetResources()
     {
-        NativeList<Entity> assignedResources = new NativeList<Entity>(Allocator.TempJob);
-
+        NativeList<Entity> resources = new NativeList<Entity>(Allocator.TempJob);
         
-            // BUG: some bug is inside this entities.
+        Entities.WithAll<ResourceTag>().ForEach((Entity entity, in Targeted targeted) =>
+        {
+            resources.Add(entity); // Find free resources (not targeted or home)
+        }).Run();
+
+        return resources;
+    }
+
+    private void AssignResourcesToBees(NativeList<Entity> freeResources)
+    {
+        // BUG: some bug is inside this entities.
             Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in BeeDead beeDead) =>
             {
                 if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering && !beeDead.Value) // if bee does not have a resource target
@@ -77,34 +83,14 @@ public partial class BeeResourceTargeting : SystemBase
                         int randomResourceIndex = randomState.Value.NextInt(freeResources.Length);
                         beeTargets.ResourceTarget = freeResources.ElementAt(randomResourceIndex);
                         freeResources.RemoveAt(randomResourceIndex); // Remove from the list of available resources
-                        assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
+                        
+                        var targetedComponent = GetComponent<Targeted>(beeTargets.ResourceTarget);
+                        targetedComponent.Value = true;
+                        SetComponent(beeTargets.ResourceTarget, targetedComponent);
+                        // assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
                     }
                     // Debug.Log($"Resources available: {freeResources.Length}");
                 }
             }).Run();
-        
-
-        return assignedResources;
-    }
-
-    private void MarkTargetedResources(NativeList<Entity> assignedResources)
-    {
-        if (assignedResources.Length > 0)
-        {
-            Entities.WithAll<ResourceTag>().ForEach((Entity entity, ref Targeted targeted) =>
-            {
-                bool assigned = false;
-
-                foreach (var assignedResource in assignedResources)
-                {
-                    if (entity == assignedResource) assigned = true; // The resource been assigned to a bee
-                }
-
-                if (assigned)
-                {
-                    targeted.Value = true; // Mark the resource as not available
-                }
-            }).Run();
-        }
     }
 }

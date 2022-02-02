@@ -9,8 +9,8 @@ public partial class BeeStatusDecider : SystemBase
         Entities.WithAll<BeeTag>().ForEach((ref RandomState randomState, ref Agression agression, ref BeeStatus beeStatus, in BeeDead beeDead, in Team team) => {
             if (beeStatus.Value == Status.Idle && !beeDead.Value)
             {
-                // if (randomState.Value.NextFloat()-0.1 < agression.Value)
-                if(team.Value == TeamName.A)
+                if (randomState.Value.NextFloat() < agression.Value)
+                // if(team.Value == TeamName.A) // for debugging purposes
                 {
                     beeStatus.Value = Status.Gathering; 
                 }
