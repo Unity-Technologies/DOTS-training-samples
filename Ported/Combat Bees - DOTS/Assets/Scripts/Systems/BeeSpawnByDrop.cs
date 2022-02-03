@@ -22,7 +22,7 @@ public partial class BeeSpawnByDrop : SystemBase
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         
         Entities.WithAll<ResourceTag>().ForEach((Entity entity,int entityInQueryIndex,ref Translation translation) => {
-            if (translation.Value.x <- 40 && translation.Value.y <= floorHeight + 0.1f)
+            if (translation.Value.x <- 40 && translation.Value.y <= floorHeight + 0.5f)
             {
                 for (int i = 0; i < spawnerDataTeamA.SpawnedCount; i++)
                 {
@@ -38,7 +38,7 @@ public partial class BeeSpawnByDrop : SystemBase
     
                 ecb.DestroyEntity(entityInQueryIndex,entity);
             } 
-            else if (translation.Value.x > 40 && translation.Value.y  <= floorHeight + 0.1f)
+            else if (translation.Value.x > 40 && translation.Value.y  <= floorHeight + 0.5f)
             {
                 for (int i = 0; i < spawnerDataTeamB.SpawnedCount; i++)
                 {
