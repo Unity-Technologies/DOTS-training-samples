@@ -10,6 +10,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public TeamName TeamName = TeamName.A;
     public float3 HomePosition = float3.zero;
     public float ColliderRadius = 0.5f;
+    public float DestroyAfterDeathDelay = 5f;
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -68,7 +69,7 @@ public class BeeAuthoring : MonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData(entity, new Falling()
         {
             shouldFall = false,
-            timeToLive = 5f
+            timeToLive = DestroyAfterDeathDelay
         });
 
         dstManager.AddComponentData(entity, new ColliderRadius
