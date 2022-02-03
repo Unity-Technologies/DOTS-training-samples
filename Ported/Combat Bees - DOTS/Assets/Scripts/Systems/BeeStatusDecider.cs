@@ -1,8 +1,12 @@
 using Unity.Entities;
-using UnityEngine;
 
 public partial class BeeStatusDecider : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
+    
     //maybe put this script in initialisation system group !? 
     protected override void OnUpdate()
     {

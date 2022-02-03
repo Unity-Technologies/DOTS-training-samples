@@ -1,12 +1,7 @@
-using System;
-using Combatbees.Testing.Maria;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class FallingAndDying : SystemBase
 {
@@ -34,7 +29,6 @@ public partial class FallingAndDying : SystemBase
                 float3 newPosition = translation.Value + velocity.Value * deltaTime;
 
                 // Clamp the position to be within the container
-                //float3 clampedPosition = math.clamp(newPosition, containerMinPos, containerMaxPos);
                 float3 clampedPosition = math.clamp(newPosition, containerBeeMinPos, containerBeeMaxPos);
 
                 // If the resource hits the floor reset its velocity
@@ -46,35 +40,10 @@ public partial class FallingAndDying : SystemBase
                 {
                     falling.timeToLive -= deltaTime;
                 }
-                else
-                {
-                    // BUG: not really working?
-                    // reset the resources the target was holding
-                    // if (heldItem.Value != Entity.Null)
-                    // {
-                    //     // make the resource available again for pickup
-                    //     if (HasComponent<Targeted>(heldItem.Value))
-                    //     {
-                    //         var targetedComponent = GetComponent<Targeted>(heldItem.Value);
-                    //         targetedComponent.Value = false;
-                    //         SetComponent(heldItem.Value, targetedComponent);
-                    //     }
-                    // }
-                    
-                    // if (beeTargets.ResourceTarget != Entity.Null)
-                    // {
-                    //     beeTargets.ResourceTarget = Entity.Null;
-                    // }
-
-                    //ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
-                }
             }
             
         }).Run();
-     
-        // ecb.Playback(EntityManager);
-        // ecb.Dispose();
-        
+
         Entities.WithAll<BloodTag>().ForEach((Entity entity,ref Translation translation ,ref Velocity velocity,ref Falling falling) => {
             if (falling.shouldFall)
             {

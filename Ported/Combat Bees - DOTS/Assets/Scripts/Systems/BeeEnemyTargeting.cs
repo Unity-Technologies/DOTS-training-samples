@@ -4,6 +4,11 @@ using Unity.Transforms;
 
 public partial class BeeEnemyTargeting : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
+    
     protected override void OnUpdate()
     {
         NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);

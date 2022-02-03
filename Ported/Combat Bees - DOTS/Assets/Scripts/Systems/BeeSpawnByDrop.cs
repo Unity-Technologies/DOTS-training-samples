@@ -8,6 +8,7 @@ public partial class BeeSpawnByDrop : SystemBase
 
     protected override void OnCreate()
     {
+        RequireSingletonForUpdate<SingletonMainScene>();
         sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
     }
 

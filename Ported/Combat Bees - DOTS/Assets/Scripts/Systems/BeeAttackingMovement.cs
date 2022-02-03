@@ -8,6 +8,7 @@ public partial class BeeAttackingMovement : SystemBase
     {
         RequireSingletonForUpdate<SingletonMainScene>();
     }
+    
     protected override void OnUpdate()
     {
         float dashMultiplier = 3f;

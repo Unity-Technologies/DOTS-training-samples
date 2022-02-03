@@ -3,6 +3,11 @@ using Unity.Entities;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class BeeInitSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<SingletonMainScene>();
+    }
+    
     protected override void OnUpdate()
     {
         uint counter = 1; // needed to make a random seed
