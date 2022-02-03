@@ -1,8 +1,6 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class BeeResourceTargeting : SystemBase
 {
@@ -20,25 +18,20 @@ public partial class BeeResourceTargeting : SystemBase
                 
         Entities.WithAll<BeeTag>().WithNativeDisableContainerSafetyRestriction(allTranslations).ForEach((ref BeeTargets beeTargets, in HeldItem heldItem, in Translation translation, in BeeStatus beeStatus,in BeeDead beeDead) =>
         {
-            if(beeStatus.Value == Status.Gathering && !beeDead.Value){
-                if (heldItem.Value != Entity.Null)
+            if (beeStatus.Value == Status.Gathering && !beeDead.Value)
+            {
+                if (heldItem.Value != Entity.Null) // item grabbed
                 {
                     // Switch target to home if holding a resource
                     beeTargets.CurrentTargetPosition = beeTargets.HomePosition;
-                    beeTargets.CurrentTargetPosition.z = translation.Value.z;
+                    beeTargets.CurrentTargetPosition.z = translation.Value.z; // keep going straight back
                 }
                 else if (beeTargets.ResourceTarget != Entity.Null)
                 {
-                    try
-                    {
-                        // If has a target resource & not holding it, then go for it
-                        beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.Log($"resourceTarget does not exist anymore: {e}");
-                    }
-
+                    // If has a target resource & not holding it, then go for it
+                    //Debug.Log("TARGET: " + beeTargets.ResourceTarget);
+                    
+                    beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
                 }
             }
         }).Run();
@@ -64,7 +57,10 @@ public partial class BeeResourceTargeting : SystemBase
         
         Entities.WithAll<ResourceTag>().ForEach((Entity entity, in Targeted targeted) =>
         {
-            resources.Add(entity); // Find free resources (not targeted or home)
+            if (!targeted.Value)
+            {
+                resources.Add(entity); // Find free resources (not targeted or home)
+            }
         }).Run();
 
         return resources;

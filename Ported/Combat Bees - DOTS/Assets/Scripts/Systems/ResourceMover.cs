@@ -38,15 +38,10 @@ public partial class ResourceMover : SystemBase
                     }
                     else // if holder, follow his position + offset
                     {
-                        try
-                        {
-                            translation.Value = allTranslations[holder.Value].Value;
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.Log("The holder of the bee died, resetting");
-                            holder.Value = Entity.Null;
-                        }
+                        translation.Value = allTranslations[holder.Value].Value;
+                        // Debug.Log("The holder of the bee died, resetting");
+                        // holder.Value = Entity.Null;
+                            
                         // Comment out the line below to make resources drop straight to the ground
                         // velocity.Value = allVelocities[holder.Value].Value;
                     }

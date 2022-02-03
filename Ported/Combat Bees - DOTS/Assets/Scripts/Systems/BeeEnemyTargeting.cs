@@ -47,15 +47,12 @@ public partial class BeeEnemyTargeting : SystemBase
                     }
                     
                 // try,catch: another bee killed this bee, so reset this bee's target.
-                try {
-                    beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
-                }
-                catch (Exception e) {
-                    Debug.Log($"beeTargets.EnemyTarget does not exist anymore, resetting: {e}");
-                    beeTargets.EnemyTarget = Entity.Null;
-                    beeStatus.Value = Status.Idle;
-                }
+                beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
                 
+                //Debug.Log($"beeTargets.EnemyTarget does not exist anymore, resetting: {e}");
+                
+                // beeTargets.EnemyTarget = Entity.Null;
+                // beeStatus.Value = Status.Idle;
             }
         }).Run();
         // Entities.WithAll<BeeTag>().ForEach((Entity entity,ref BeeTargets beeTargets,ref BeeStatus beeStatus) =>

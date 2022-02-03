@@ -50,22 +50,23 @@ public partial class FallingAndDying : SystemBase
                 {
                     // BUG: not really working?
                     // reset the resources the target was holding
-                    if (heldItem.Value != Entity.Null)
-                    {
-                        // make the resource available again for pickup
-                        if (HasComponent<Targeted>(heldItem.Value))
-                        {
-                            var targetedComponent = GetComponent<Targeted>(heldItem.Value);
-                            targetedComponent.Value = false;
-                            SetComponent(heldItem.Value, targetedComponent);
-                        }
-                    }
+                    // if (heldItem.Value != Entity.Null)
+                    // {
+                    //     // make the resource available again for pickup
+                    //     if (HasComponent<Targeted>(heldItem.Value))
+                    //     {
+                    //         var targetedComponent = GetComponent<Targeted>(heldItem.Value);
+                    //         targetedComponent.Value = false;
+                    //         SetComponent(heldItem.Value, targetedComponent);
+                    //     }
+                    // }
+                    
                     // if (beeTargets.ResourceTarget != Entity.Null)
                     // {
                     //     beeTargets.ResourceTarget = Entity.Null;
                     // }
 
-                    ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
+                    //ecb.DestroyEntity(entity); // Destroy the dead bee - MUST BE as last
                 }
             }
             
