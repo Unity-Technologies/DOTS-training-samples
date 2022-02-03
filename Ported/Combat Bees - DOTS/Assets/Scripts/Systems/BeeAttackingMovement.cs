@@ -1,8 +1,6 @@
-﻿using Combatbees.Testing.Maria;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
-using UnityEngine;
 
 public partial class BeeAttackingMovement : SystemBase
 {
@@ -13,32 +11,20 @@ public partial class BeeAttackingMovement : SystemBase
     protected override void OnUpdate()
     {
         float dashMultiplier = 3f;
-        BeeProperties beeProperties = GetBeeProperties();
+        BeeProperties beeProperties = GetSingleton<BeeProperties>();
         float deltaTime = World.Time.DeltaTime;
         float3 containerMinPos = GetSingleton<Container>().MinPosition;
         float3 containerMaxPos = GetSingleton<Container>().MaxPosition;
 
         Entities.WithAll<BeeTag>().ForEach((Entity entity, ref Translation translation, ref BeeTargets beeTargets, ref Velocity velocity, ref BeeStatus beeStatus, ref RandomState randomState) =>
         {
-            //we are getting the BeeDead component here because we get compile error when we put it in lambda expression 
+            // We are getting the BeeDead component here because we get compile error when we put it in lambda expression 
             var isBeeDead = GetComponent<BeeDead>(entity).Value;
             if (beeStatus.Value == Status.Attacking && !isBeeDead)
             {
                 float3 delta = beeTargets.CurrentTargetPosition - translation.Value;
-                //float distanceFromTarget = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                 float distanceFromTarget = delta.DistanceToFloat();
                 
-                //TODO: move the if statement inside enemy targeting here 
-                // if (beeTargets.EnemyTarget != Entity.Null)
-                // {
-                //     var comp = GetComponent<BeeDead>(beeTargets.EnemyTarget);
-                //     if (comp.Value)
-                //     {
-                //         beeTargets.EnemyTarget = Entity.Null;
-                //         beeStatus.Value = Status.Gathering;
-                //         return;
-                //     }
-                // }
                 if (distanceFromTarget < beeProperties.KillingReach +2)
                 {
                     // Set current bee to Idle
@@ -76,18 +62,7 @@ public partial class BeeAttackingMovement : SystemBase
                 translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
             }
         }).Run();
-       
-        // Entities.WithAll<Bee>().ForEach((Entity entity,in BeeDead beeDead)=>
-        // {
-        //     var enemyStatusComponent = GetComponent<BeeStatus>(beeTargets.EnemyTarget);
-        //     enemyStatusComponent.Value = Status.Dead;
-        //     SetComponent(beeTargets.EnemyTarget,enemyStatusComponent);
-        //     
-        // }).Run();
 
-        // bool beeIsdead = false;
-        //spawning blood particles 
-        
         EntityCommandBufferSystem sys = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
         var ecb = sys.CreateCommandBuffer().AsParallelWriter();
         var spawningData = GetSingleton<BloodSpawningProperties>();
@@ -96,9 +71,7 @@ public partial class BeeAttackingMovement : SystemBase
             if (beeDead.Value)
             {
                 beeStatus.Value = Status.Dead;
-                // beeIsdead = true;
                 falling.shouldFall = true;
-                
                 
                 // To make the bloodparticles only spawn once 
                 if (!beeDead.AnimationStarted)
@@ -134,19 +107,5 @@ public partial class BeeAttackingMovement : SystemBase
         }).ScheduleParallel();
         sys.AddJobHandleForProducer(this.Dependency);
     }
-    
-    private BeeProperties GetBeeProperties()
-    {
-        BeeProperties beeProps = new BeeProperties();
-        
-        Entities.ForEach((in BeeProperties beeProperties) =>
-        {
-            beeProps = beeProperties;
-        }).Run();
-
-        return beeProps;
-    }
-    
 }
-
 

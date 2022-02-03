@@ -19,7 +19,7 @@ public partial class SpawnOnClick : SystemBase
 		RequireSingletonForUpdate<SingletonMainScene>();
 	}
 
-	protected override void OnUpdate() // TODO: Extract some parts into methods for better readability and re-usability
+	protected override void OnUpdate() // TODO: Extract some parts into methods for better readability
 	{
 		Vector3 field = new Vector3();
 		Vector3 fieldCenter = new Vector3();
@@ -54,9 +54,11 @@ public partial class SpawnOnClick : SystemBase
 				Vector3 wallCenter = new Vector3();
 				wallCenter[i] = field[i] * .5f * j;
 				Plane plane = new Plane(-wallCenter, wallCenter);
-				float hitDistance;
+
 				if (Vector3.Dot(plane.normal, mouseRay.direction) < 0f)
 				{
+					float hitDistance;
+					
 					if (plane.Raycast(mouseRay, out hitDistance))
 					{
 						Vector3 hitPoint = mouseRay.GetPoint(hitDistance);

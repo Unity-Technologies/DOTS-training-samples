@@ -2,7 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class BeeGatheringMovement : SystemBase
 {
@@ -22,9 +21,7 @@ public partial class BeeGatheringMovement : SystemBase
     protected override void OnUpdate()
     {
         float deltaTime = World.Time.DeltaTime;
-
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
-
         int beeCount = 0;
 
         NativeList<Entity> beeAEntities = new NativeList<Entity>(Allocator.TempJob);
@@ -40,7 +37,7 @@ public partial class BeeGatheringMovement : SystemBase
                 beeBEntities.Add(entity);
         }).Run();
 
-        BeeProperties beeProperties = GetBeeProperties();
+        BeeProperties beeProperties = GetSingleton<BeeProperties>();
         NativeHashMap<Entity, Entity> grabbedItemsAndHolders = new NativeHashMap<Entity, Entity>(beeCount, Allocator.TempJob);
         NativeHashMap<Entity, Entity> droppedItems = new NativeHashMap<Entity, Entity>(beeCount, Allocator.TempJob);
         
@@ -83,21 +80,10 @@ public partial class BeeGatheringMovement : SystemBase
                         else
                         {
                             // if holding a resource and reached home, reset target and held item
-                            // if (!droppedItems.ContainsKey(heldItem.Value))
-                            // {
-                                droppedItems.Add(heldItem.Value, Entity.Null);
-                                beeTargets.ResourceTarget = Entity.Null;
-                                heldItem.Value = Entity.Null;
-                                beeStatus.Value = Status.Idle;
-                            // }else
-                            // {
-                            //     // It has the same target as someone else, so reset the bee.
-                            //     beeTargets.ResourceTarget = Entity.Null;
-                            //     beeTargets.EnemyTarget = Entity.Null;
-                            //     heldItem.Value = Entity.Null;
-                            //     beeStatus.Value = Status.Idle;
-                            // }
-                            
+                            droppedItems.Add(heldItem.Value, Entity.Null);
+                            beeTargets.ResourceTarget = Entity.Null;
+                            heldItem.Value = Entity.Null;
+                            beeStatus.Value = Status.Idle;
                         }
                     }
                     
@@ -132,7 +118,7 @@ public partial class BeeGatheringMovement : SystemBase
                     
                     float3 randomBeePosition = allTranslations[randomBee].Value;
                     float3 beeDelta = randomBeePosition - translation.Value;
-                    //float beeDistance = math.sqrt(beeDelta.x * beeDelta.x + beeDelta.y * beeDelta.y + beeDelta.z * beeDelta.z);
+
                     float beeDistance = beeDelta.DistanceToFloat();
                     if (beeDistance > 0f)
                     { 
@@ -146,10 +132,9 @@ public partial class BeeGatheringMovement : SystemBase
                     ColliderRadius colliderRadius = GetComponent<ColliderRadius>(entity);
                     float3 containerBeeMinPos = containerMinPos + new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
                     float3 containerBeeMaxPos = containerMaxPos - new float3(colliderRadius.Value, colliderRadius.Value, colliderRadius.Value);
-                    //Debug.Log("min:" + containerBeeMinPos);
-                    //Debug.Log("max:" + containerBeeMaxPos);
-
-                    //translation.Value = math.clamp(translation.Value, containerBeeMinPos, containerBeeMaxPos); // BUG: The bees slide on the floor
+                    
+                    // BUG: The bees slide on the floor if the line below is uncommented
+                    //translation.Value = math.clamp(translation.Value, containerBeeMinPos, containerBeeMaxPos);
                     translation.Value = math.clamp(translation.Value, containerMinPos, containerMaxPos);
                 }
             }).Schedule();
@@ -178,17 +163,5 @@ public partial class BeeGatheringMovement : SystemBase
 
         grabbedItemsAndHolders.Dispose();
         droppedItems.Dispose();
-    }
-
-    private BeeProperties GetBeeProperties()
-    {
-        BeeProperties beeProps = new BeeProperties();
-        
-        Entities.ForEach((in BeeProperties beeProperties) =>
-        {
-            beeProps = beeProperties;
-        }).Run();
-
-        return beeProps;
     }
 }

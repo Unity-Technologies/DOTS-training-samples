@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using Unity.Collections;
 using Unity.Mathematics;
+
 static class Extensions 
 {
     // WB: Created this class just to experiment with extension methods within Dots/ECS environment   
@@ -22,6 +19,7 @@ static class Extensions
         float num5 = (float)math.sqrt((double)num4);
         return new float3(current.x + num1 / num5 * maxDistanceDelta, current.y + num2 / num5 * maxDistanceDelta, current.z + num3 / num5 * maxDistanceDelta);
     }
+    
     public static float DistanceToFloat(this float3 delta)
     {
         return math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);

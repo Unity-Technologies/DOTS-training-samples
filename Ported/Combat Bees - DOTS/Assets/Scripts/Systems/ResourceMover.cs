@@ -1,8 +1,6 @@
-using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class ResourceMover : SystemBase
 {
@@ -39,11 +37,6 @@ public partial class ResourceMover : SystemBase
                     else // if holder, follow his position + offset
                     {
                         translation.Value = allTranslations[holder.Value].Value;
-                        // Debug.Log("The holder of the bee died, resetting");
-                        // holder.Value = Entity.Null;
-                            
-                        // Comment out the line below to make resources drop straight to the ground
-                        // velocity.Value = allVelocities[holder.Value].Value;
                     }
                 
             }).ScheduleParallel();

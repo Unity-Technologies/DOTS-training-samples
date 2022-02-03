@@ -29,15 +29,12 @@ public partial class BeeResourceTargeting : SystemBase
                 else if (beeTargets.ResourceTarget != Entity.Null)
                 {
                     // If has a target resource & not holding it, then go for it
-                    //Debug.Log("TARGET: " + beeTargets.ResourceTarget);
-                    
                     beeTargets.CurrentTargetPosition = allTranslations[beeTargets.ResourceTarget].Value;
                 }
             }
         }).Run();
         
         resources.Dispose();
-        // assignedResources.Dispose();
     }
 
     private NativeList<Entity> GetFreeResources()
@@ -68,7 +65,6 @@ public partial class BeeResourceTargeting : SystemBase
 
     private void AssignResourcesToBees(NativeList<Entity> freeResources)
     {
-        // BUG: some bug is inside this entities.
             Entities.WithAll<BeeTag>().ForEach((ref BeeTargets beeTargets, ref RandomState randomState, in BeeStatus beeStatus, in BeeDead beeDead) =>
             {
                 if (beeTargets.ResourceTarget == Entity.Null && beeStatus.Value == Status.Gathering && !beeDead.Value) // if bee does not have a resource target
@@ -83,9 +79,7 @@ public partial class BeeResourceTargeting : SystemBase
                         var targetedComponent = GetComponent<Targeted>(beeTargets.ResourceTarget);
                         targetedComponent.Value = true;
                         SetComponent(beeTargets.ResourceTarget, targetedComponent);
-                        // assignedResources.Add(beeTargets.ResourceTarget); // Add to the list used in the next step
                     }
-                    // Debug.Log($"Resources available: {freeResources.Length}");
                 }
             }).Run();
     }

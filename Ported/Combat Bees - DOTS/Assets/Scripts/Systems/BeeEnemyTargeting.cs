@@ -1,8 +1,6 @@
-using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
 
 public partial class BeeEnemyTargeting : SystemBase
 {
@@ -14,6 +12,7 @@ public partial class BeeEnemyTargeting : SystemBase
         var allTranslations = GetComponentDataFromEntity<Translation>(true);
         int teamAIndex = 0;
         int teamBIndex = 0;
+        
         Entities.WithAll<BeeTag>().ForEach((Entity entity,ref Team team) =>
         {
             if (team.Value == TeamName.A)
@@ -46,29 +45,8 @@ public partial class BeeEnemyTargeting : SystemBase
                         }
                     }
                     
-                // try,catch: another bee killed this bee, so reset this bee's target.
                 beeTargets.CurrentTargetPosition = allTranslations[beeTargets.EnemyTarget].Value;
-                
-                //Debug.Log($"beeTargets.EnemyTarget does not exist anymore, resetting: {e}");
-                
-                // beeTargets.EnemyTarget = Entity.Null;
-                // beeStatus.Value = Status.Idle;
             }
         }).Run();
-        // Entities.WithAll<BeeTag>().ForEach((Entity entity,ref BeeTargets beeTargets,ref BeeStatus beeStatus) =>
-        // {
-        //     if (beeTargets.EnemyTarget != Entity.Null)
-        //     {
-        //         var comp = GetComponent<BeeDead>(beeTargets.EnemyTarget);
-        //         if (comp.Value)
-        //         {
-        //             beeTargets.EnemyTarget = Entity.Null;
-        //             // beeStatus.Value = Status.Idle;
-        //         }
-        //     }
-        //        
-        //    
-        //
-        // }).Run();
     }
 }
