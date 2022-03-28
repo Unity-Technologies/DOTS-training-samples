@@ -6,5 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Scenes/combat bees.unity
+    path: Assets/_Scenes/_old/combat bees.unity
     guid: 47fc35b2841674e4fa79dccc9efe0d30
+  m_configObjects: {}
