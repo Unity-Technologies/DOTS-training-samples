@@ -4,21 +4,24 @@ using Unity.Mathematics;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityMeshRenderer = UnityEngine.MeshRenderer;
 
-public class BarAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
+namespace Authoring
 {
-    public UnityEngine.Color color;
-
-    public void Convert(Entity entity, EntityManager dstManager
-        , GameObjectConversionSystem conversionSystem)
+    public class BarAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     {
-        dstManager.AddComponentData(entity, new Color
+        public UnityEngine.Color color;
+
+        public void Convert(Entity entity, EntityManager dstManager
+            , GameObjectConversionSystem conversionSystem)
         {
-            color = new float4(this.color.r,this.color.g,this.color.b,this.color.a)
-        });
-        dstManager.AddComponentData(entity, new Components.Bar
-        {
-            thickness = 0.1f,
-            oldDirection = new float3(0.0f, 1.0f, 0.0f)
-        });
+            dstManager.AddComponentData(entity, new Color
+            {
+                color = new float4(this.color.r, this.color.g, this.color.b, this.color.a)
+            });
+            dstManager.AddComponentData(entity, new Components.Bar
+            {
+                thickness = 0.1f,
+                oldDirection = new float3(0.0f, 1.0f, 0.0f)
+            });
+        }
     }
 }

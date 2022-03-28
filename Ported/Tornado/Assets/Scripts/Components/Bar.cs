@@ -7,5 +7,9 @@ namespace Components
     {
         public float3 oldDirection;
         public float thickness;
+
+
+        //temp
+        public int indexPoint;
     }
 }
