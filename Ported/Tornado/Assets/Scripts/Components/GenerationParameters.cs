@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 namespace Components
 {
+    [GenerateAuthoringComponent]
     public struct GenerationParameters : IComponentData
     {
         public float3 minParticleSpawnPosition;
