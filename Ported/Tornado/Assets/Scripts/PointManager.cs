@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Sample
+{
+
+
 public class PointManager : MonoBehaviour {
 	public Material barMaterial;
 	public Mesh barMesh;
@@ -322,4 +326,6 @@ public class PointManager : MonoBehaviour {
 			}
 		}
 	}
+}
+
 }
