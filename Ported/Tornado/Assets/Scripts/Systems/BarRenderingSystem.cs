@@ -7,19 +7,30 @@ namespace Systems
 {
     public partial class BarRenderingSystem : SystemBase
     {
+        
         protected override void OnUpdate()
         {
+            
             var time = (float)Time.ElapsedTime;
 
+            var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
+            if (!pointDisplacement.isInitialized) return;
+
+
+            var points = pointDisplacement.points;
+
             Entities
-                .ForEach((ref LocalToWorld localToWorld, in Components.Bar bar) =>
+                .ForEach((ref Translation translation, in Components.Bar bar) =>
                 {
-                    localToWorld.Value = float4x4.TRS(
-                        float3.zero,
-                        quaternion.identity,
-                        new float3(bar.thickness, bar.thickness, math.sin(time) + 1.0f)
-                    );
-                }).ScheduleParallel();
+
+                    translation.Value = points[bar.indexPoint].currentPosition;
+                    
+
+                }).Run();
+
+            
+
+
         }
     }
 }
