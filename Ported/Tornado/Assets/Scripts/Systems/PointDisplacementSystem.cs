@@ -2,11 +2,10 @@
 
 namespace Systems
 {
-    public class PointDisplacementSystem : SystemBase
+    public partial class PointDisplacementSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            throw new System.NotImplementedException();
         }
     }
 }

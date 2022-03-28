@@ -2,11 +2,10 @@
 
 namespace Systems
 {
-    public class ParticleSystem : SystemBase
+    public partial class ParticleSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            throw new System.NotImplementedException();
         }
     }
 }

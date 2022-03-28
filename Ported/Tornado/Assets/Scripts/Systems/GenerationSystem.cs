@@ -2,7 +2,7 @@
 
 namespace Systems
 {
-    public class GenerationSystem : SystemBase
+    public partial class GenerationSystem : SystemBase
     {
         protected override void OnUpdate()
         {

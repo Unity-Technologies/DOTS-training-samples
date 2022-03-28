@@ -2,11 +2,10 @@
 
 namespace Systems
 {
-    public class ConstraintSystem : SystemBase
+    public partial class ConstraintSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            throw new System.NotImplementedException();
         }
     }
 }
