@@ -18,7 +18,7 @@ namespace Systems
         protected override void OnUpdate()
         {
             Temp_CubeGen();
-            return;
+          
 
             // run once on spawner entity & delete it (maybe?)
             var ecb = new EntityCommandBuffer(Allocator.Temp);
