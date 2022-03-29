@@ -11,12 +11,18 @@ public partial class SpawnerSystem : SystemBase
         var heatmapEntity = ecb.CreateEntity();
         ecb.SetName(heatmapEntity, "Fire");
         var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
-        for (int iFire = 0; iFire < size ; iFire++)//adding elements to buffer
+        for (int iFire = 0; iFire < size * size ; iFire++)//adding elements to buffer
         {
-            heatmapBuffer.Add(new HeatMapTemperature {value = 0});
+            heatmapBuffer.Add(new HeatMapTemperature {value = 0.2f});
         }
                 
-        ecb.AddComponent(heatmapEntity, new HeatMapWidth() { width = size });
+        ecb.AddComponent(heatmapEntity, new HeatMapData()
+        {
+            width = size , 
+            heatSpeed = 0.01f,
+            startColor = new float4(0f,0f,0f,1f),
+            finalColor = new float4(0f,0f,0f,1f)
+        });
     }
 
    static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
@@ -37,7 +43,10 @@ public partial class SpawnerSystem : SystemBase
                {
                    Value = new float4(1,1,1,1)
                });
-
+               ecb.SetComponent(instance, new FireIndex
+               {
+                   index = i + j *size
+               });
            }
        }
    }

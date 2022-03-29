@@ -24,5 +24,8 @@ public class FlameCellAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
         dstManager.AddComponent<Color>(entity);
         dstManager.AddComponent<Scale>(entity);
+        dstManager.AddComponent<FireIndex>(entity);
+        dstManager.AddComponent<PropagateColor>(entity);
+
     }
 }
