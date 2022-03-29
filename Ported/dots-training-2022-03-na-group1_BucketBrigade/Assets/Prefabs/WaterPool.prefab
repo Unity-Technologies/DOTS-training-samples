@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4613193884611984}
   - component: {fileID: 33151782116667444}
   - component: {fileID: 23842405736443206}
+  - component: {fileID: 5121977413969620380}
   m_Layer: 0
   m_Name: WaterPool
   m_TagString: Untagged
@@ -81,3 +82,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5121977413969620380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068854535243822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b4f4a1bdb57d4dcc959ec2fe9d9d481, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

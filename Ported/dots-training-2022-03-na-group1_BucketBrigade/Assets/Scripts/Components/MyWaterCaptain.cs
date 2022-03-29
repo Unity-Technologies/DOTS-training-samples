@@ -2,5 +2,5 @@
 
 public struct MyWaterCaptain : IComponentData
 {
-    public Entity waterSource;
+    public Entity captain;
 }

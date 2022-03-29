@@ -16,6 +16,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     [UnityRange(0, 10)] public int TeamCount;
     [UnityRange(0, 100)] public int MembersCount;
     [UnityRange(0, 200)] public int FireDimension;
+    [UnityRange(0, 30)] public int WaterCount;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -45,6 +46,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
             TeamCount = TeamCount,
             MembersCount = MembersCount,
             FireDimension = FireDimension,
+            WaterCount = WaterCount,
         });
     }
 }

@@ -20,37 +20,87 @@ public partial class SpawnerSystem : SystemBase
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-/*
-                for (int i = 0; i < spawner.LaneCount; ++i)
+
+                var fireEntity = ecb.CreateEntity();
+                ecb.SetName(fireEntity, "Fire");
+                ecb.AddBuffer<HeatMapTemperature>(fireEntity); // how to set size?
+                ecb.AddComponent(fireEntity, new HeatMapWidth() { width = spawner.FireDimension });
+
+                var offsetSingleDimension = -(spawner.FireDimension - 1) / 2f;
+                var offset = new float3(offsetSingleDimension, offsetSingleDimension, 0f);
+                
+                for (var i = 0; i < spawner.FireDimension; i++)
                 {
-                    var instance = ecb.Instantiate(spawner.LanePrefab);
-                    var translation = new Translation {Value = new float3(0, 0, i)};
-                    ecb.SetComponent(instance, translation);
-
-                    for (int j = 0; j < 100; ++j)
+                    for (var j = 0; j < spawner.FireDimension; j++)
                     {
-                        if (random.NextFloat() < spawner.CarFrequency)
-                        {
-                            var vehicle = ecb.Instantiate(spawner.CarPrefab);
-
-                            ecb.SetComponent(vehicle, new Translation
-                            {
-                                Value = new float3(0, 0, i)
-                            });
-
-                            ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-                            {
-                                Value = random.NextFloat4()
-                            });
-
-                            ecb.SetComponent(vehicle, new CarMovement
-                            {
-                                Offset = j
-                            });
-                        }
+                        var instance = ecb.Instantiate(spawner.FlameCellPrefab);
+                        var translation = new Translation {Value = offset + new float3(j, i, 0)};
+                        ecb.SetComponent(instance, translation);
                     }
                 }
-                */
+                for (int i = 0; i < spawner.TeamCount; i++)
+                {
+                    // we have 1 fetcher, 2 captains, and 2 squads.
+
+                    var squadSize = (spawner.MembersCount - 3) / 2;
+                    
+                    var fetcherEntity = ecb.Instantiate(spawner.BotPrefab);
+                    ecb.SetName(fireEntity, "Fetcher");
+                    ecb.AddComponent<FetcherTag>(fetcherEntity);
+                    
+                    var waterCaptainEntity = ecb.Instantiate(spawner.BotPrefab);
+                    ecb.SetName(fireEntity, "WaterCaptain");
+                    ecb.AddComponent<WaterCaptainTag>(waterCaptainEntity);
+                    ecb.AddComponent<SourcePool>(waterCaptainEntity);
+                    ecb.AddComponent<SourcePosition>(waterCaptainEntity);
+                    
+                    var fireCaptainEntity = ecb.Instantiate(spawner.BotPrefab);
+                    ecb.SetName(fireEntity, "FireCaptain");
+                    ecb.AddComponent<FireCaptainTag>(fireCaptainEntity);
+                    ecb.SetComponent(fireCaptainEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
+                    
+                    ecb.SetComponent(fetcherEntity, new DestinationWorker() {worker = waterCaptainEntity});
+                    
+                    var previousMember = waterCaptainEntity;
+                    
+                    for (var j = 0; j < squadSize; j++)
+                    {
+                        var workerEntity = ecb.Instantiate(spawner.BotPrefab);
+                        ecb.SetName(fireEntity, "WaterHauler");
+                        ecb.AddComponent<WorkerTag>(workerEntity);
+                        ecb.AddComponent<FullBucketWorkerTag>(workerEntity);
+                        ecb.AddComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
+
+                        ecb.SetComponent(previousMember, new DestinationWorker() {worker = workerEntity});
+                        ecb.SetComponent(workerEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
+                        ecb.SetComponent(workerEntity, new MyFireCaptain() {captain = fireCaptainEntity});
+
+                        previousMember = workerEntity;
+                    }
+                    
+                    ecb.SetComponent(previousMember, new DestinationWorker() {worker = fireCaptainEntity});
+
+                    previousMember = fireCaptainEntity;
+                    
+                    for (var j = 0; j < squadSize; j++)
+                    {
+                        var workerEntity = ecb.Instantiate(spawner.BotPrefab);
+                        ecb.SetName(fireEntity, "BucketHauler");
+                        ecb.AddComponent<WorkerTag>(workerEntity);
+                        ecb.AddComponent<EmptyBucketWorkerTag>(workerEntity);
+                        ecb.AddComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
+                        ecb.SetComponent(workerEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
+                        ecb.SetComponent(workerEntity, new MyFireCaptain() {captain = fireCaptainEntity});
+                        
+                        ecb.SetComponent(previousMember, new DestinationWorker() {worker = workerEntity});
+
+                        previousMember = workerEntity;
+                    }
+
+                    ecb.SetComponent(previousMember, new DestinationWorker() {worker = waterCaptainEntity});
+                }
+                
+                // spawn water
             }).Run();
 
         ecb.Playback(EntityManager);

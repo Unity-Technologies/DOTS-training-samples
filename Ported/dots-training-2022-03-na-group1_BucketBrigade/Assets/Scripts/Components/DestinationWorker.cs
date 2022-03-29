@@ -2,5 +2,5 @@
 
 public struct DestinationWorker : IComponentData
 {
-    public Entity waterSource;
+    public Entity worker;
 }

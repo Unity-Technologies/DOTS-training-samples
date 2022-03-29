@@ -22,6 +22,14 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         // DOTS, doing a batch of things at once is more efficient.
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
         dstManager.AddComponent<PropagateColor>(entity);
-//        dstManager.AddComponent<CarMovement>(entity);
+        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<Color>(entity);
+        dstManager.AddComponent<Destination>(entity);
+        dstManager.AddComponent<WorkerTag>(entity);
+        dstManager.AddComponent<HoldingWhichBucket>(entity);
+        dstManager.AddComponent<DestinationWorker>(entity);
+        dstManager.AddComponent<MyFireCaptain>(entity);
+        dstManager.AddComponent<MyWaterCaptain>(entity);
+        dstManager.AddComponent<MyWorkerState>(entity);
     }
 }
