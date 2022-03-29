@@ -6,7 +6,6 @@ using Unity.Transforms;
 
 public partial class SpawnerSystem : SystemBase
 {
-   private bool firesStarted = false;
 
    static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
@@ -21,9 +20,10 @@ public partial class SpawnerSystem : SystemBase
         ecb.AddComponent(heatmapEntity, new HeatMapData()
         {
             width = size, 
-            heatSpeed = 0.1f,
-            startColor = new float4(0f,0f,0f,1f),
-            finalColor = new float4(0f,0f,0f,1f)
+            maxTileHeight = 5.0f,
+            heatSpeed = 0.05f,
+            startColor = new float4(1f,1f,0f,1f),
+            finalColor = new float4(1f,0f,0f,1f)
         });
     }
 
@@ -38,12 +38,8 @@ public partial class SpawnerSystem : SystemBase
         {
             int randomIndex = random.NextInt(0, heatmapBuffer.Length);
 
-            UnityEngine.Debug.Log("Starting tile index: " + randomIndex);
-
             heatmapBuffer[randomIndex] = 0.2f;
         }
-
-        firesStarted = true;
     }
 
    static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
@@ -159,7 +155,8 @@ public partial class SpawnerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-        if (!firesStarted) 
-            StartRandomFires();
+        StartRandomFires();
+
+        this.Enabled = false;
     }
 }

@@ -2,10 +2,27 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
-using UnityEngine;
+using Unity.Collections;
 
 public partial class FirePropagationSystem : SystemBase
 {
+
+    private NativeArray<int2> checkAdjacents;
+
+    protected override void OnCreate()
+    {
+        checkAdjacents = new NativeArray<int2>(8, Allocator.Persistent);
+
+        checkAdjacents[0] = new int2(-1, -1);
+        checkAdjacents[1] = new int2(0, -1);
+        checkAdjacents[2] = new int2(1, -1);
+        checkAdjacents[3] = new int2(-1, 0);
+        checkAdjacents[4] = new int2(1, 0);
+        checkAdjacents[5] = new int2(-1, 1);
+        checkAdjacents[6] = new int2(0, 1);
+        checkAdjacents[7] = new int2(1, 1);
+    }
+
     protected override void OnUpdate()
     {
         var heatmapData = GetSingleton<HeatMapData>(); 
@@ -16,40 +33,44 @@ public partial class FirePropagationSystem : SystemBase
         float deltaTime = Time.DeltaTime * heatmapData.heatSpeed;
         
         var buffer = heatmapBuffer.Reinterpret<float>();
-        for (var i = 0; i < buffer.Length; i++)
-        {
-            if (buffer[i] >= 0.2f)
+
+        var localCheckAdjacents = checkAdjacents;
+
+        Job.WithCode(() => {
+
+            for (var i = 0; i < buffer.Length; i++)
             {
-                buffer[i] += deltaTime;
-                HeatAdjacents(ref heatmapBuffer, i, heatmapData.width, deltaTime);
+                if (buffer[i] >= 0.2f)
+                {
+                    buffer[i] += deltaTime;
+                    HeatAdjacents(ref heatmapBuffer, localCheckAdjacents, i, heatmapData.width, deltaTime);
+                }
+
+                if (buffer[i] >= 1f)
+                    buffer[i] = 1f;
             }
 
-            if (buffer[i] >= 1f)
-                buffer[i] = 1f;
-        }
+        }).Run();
 
         Entities.WithAll<FireIndex>()
-             .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent) =>
+             .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation) =>
              {
                  float intensity = heatmapBuffer[fireIndex.index];
-                 colorComponent.Value = new float4( intensity );
+                 colorComponent.Value = math.lerp(heatmapData.startColor, heatmapData.finalColor, intensity);
+
+                 Translation currentTranslation = translation;
+                 currentTranslation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
+                 translation = currentTranslation;
              })
              .Schedule();
     }
 
-    static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, int tileIndex, int width, float deltaTime)
+    static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, NativeArray<int2> checkAdjacents, int tileIndex, int width, float deltaTime)
     {
         //check out of bounds
         //(x-1, z-1), (x, z-1), (x+1, z-1) 
         //(x-1, z  ), *(x, z)*, (x+1, z  ) 
         //(x-1, z+1), (x, z+1), (x+1, z+1) 
-        
-        int2[] checkAdjacents = new int2[]
-        {
-            new int2(-1,-1), new int2(0,-1), new int2(1,-1), 
-            new int2(-1,0),  new int2(1,0), 
-            new int2(-1,1), new int2(0,1), new int2(1,1), 
-        };
 
         for (int iCheck = 0; iCheck < checkAdjacents.Length; iCheck++)
         {
