@@ -55,7 +55,6 @@ public partial class TerrainAreaSystem : SystemBase
                         });
                         ecb.SetComponent(instance, new Brick
                         {
-                            color = Color.white,
                             height = height
                         });
                     }

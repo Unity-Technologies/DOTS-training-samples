@@ -22,7 +22,6 @@ public partial class TankSpawnerSystem : SystemBase
         {
 			CreateTanks();
 		}
-
     }
 
 	private void ShuffleList<T>(NativeArray<T> list, Unity.Mathematics.Random dice) where T: struct
@@ -47,34 +46,6 @@ public partial class TankSpawnerSystem : SystemBase
 	{
 
 		ClearTanks();
-
-		/*
-		if (width <= 0 || length <= 0)
-			return new Vector2Int(0, 0);
-
-		// get list of possible locations
-		List<int> emptyBoxes = new List<int>(width * length);
-		for (int i = 0; i < width * length; i++)
-		{
-			emptyBoxes.Add(i);
-		}
-		ShuffleList(emptyBoxes);
-
-		numTanks = Mathf.Min(numTanks, emptyBoxes.Count - 1);
-		for (int i = 0; i < numTanks; i++)
-		{
-			int col = emptyBoxes[i] % width;
-			int row = emptyBoxes[i] / width;
-
-			Tank tank = Instantiate(tankPrefab, transform).GetComponent<Tank>();
-			tanks.Add(tank);
-			tank.SetTank(boxes[col][row]);
-
-		}
-
-		// return next point as a random unoccupied box
-		return new Vector2Int(emptyBoxes[numTanks] % width, emptyBoxes[numTanks] / width);*/
-
 
 		// Create query for EntityPrefabHolder
 		var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -101,7 +72,7 @@ public partial class TankSpawnerSystem : SystemBase
 						
 						var instance = ecb.Instantiate(prefabHolder.TankEntityPrefab);
 						float3 position = brickTranslation.Value;
-						position.y += brick.height / 2f;
+						position.y += brick.height / 2f + Constants.TANK_Y_OFFSET;
 						ecb.SetComponent(instance, new Translation
 						{
 							Value = position

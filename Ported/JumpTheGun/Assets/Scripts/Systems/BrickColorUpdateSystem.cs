@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Color = UnityEngine.Color;
 
 
 public partial class BrickColorUpdateSystem : SystemBase
@@ -10,19 +11,18 @@ public partial class BrickColorUpdateSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        /*
+        var terrainData = this.GetSingleton<TerrainData>();
         Entities
-            .ForEach((Entity entity, in Brick brick) =>
+            .ForEach((Entity entity, ref Brick brick, ref URPMaterialPropertyBaseColor color) =>
             {
                 // change color based on height
-                var terrainData = this.GetSingleton<TerrainData>();
-                if ((terrainData.maxTerrainHeight - HEIGHT_MIN) < 0.5f) {
-                    brick.color = MIN_HEIGHT_COLOR;
+                if ((terrainData.MaxTerrainHeight - Constants.HEIGHT_MIN) < 0.5f) {
+                    color.Value = Constants.MIN_HEIGHT_COLOR;
                 } else {
-                    brick.color = Color.Lerp(MIN_HEIGHT_COLOR, MAX_HEIGHT_COLOR, (brick.height - HEIGHT_MIN) / (Game.instance.maxTerrainHeight - HEIGHT_MIN));
+                    color.Value = math.lerp(Constants.MIN_HEIGHT_COLOR, Constants.MAX_HEIGHT_COLOR, (brick.height - Constants.HEIGHT_MIN) / (terrainData.MaxTerrainHeight - Constants.HEIGHT_MIN));
                 }
+
             }).ScheduleParallel();
-*/
     }
 
 }

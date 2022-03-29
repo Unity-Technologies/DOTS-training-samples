@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Rendering;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -15,7 +16,13 @@ public class GameAuthoring : UnityMonoBehaviour
     public UnityGameObject CannonBallPrefab;
 
     [Range(1, 1000)]
-    public int TankCount;
+    public int TankCount = 1;
+
+    [Range(1, 1000)]
+    public int TerrainWidth = 10;
+
+    [Range(1, 1000)]
+    public int TerrainLength = 10;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -32,12 +39,14 @@ public class GameAuthoring : UnityMonoBehaviour
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
+        var brickPrefabEntity = conversionSystem.GetPrimaryEntity(BrickPrefab);
+
         // GetPrimaryEntity fetches the entity that resulted from the conversion of
         // the given GameObject, but of course this GameObject needs to be part of
         // the conversion, that's why DeclareReferencedPrefabs is important here.
         dstManager.AddComponentData(entity, new EntityPrefabHolder
         {
-            BrickEntityPrefab = conversionSystem.GetPrimaryEntity(BrickPrefab),
+            BrickEntityPrefab = brickPrefabEntity,
             TankEntityPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
             CannonBallEntityPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab),
         });
@@ -45,15 +54,17 @@ public class GameAuthoring : UnityMonoBehaviour
         {
             MinTerrainHeight = 2.5f,
             MaxTerrainHeight = 5.5f,
-            TerrainWidth = 500,
-            TerrainLength = 500,
+            TerrainWidth = TerrainWidth,
+            TerrainLength = TerrainLength,
         });
-        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
-        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new Brick());
+        dstManager.AddComponentData(brickPrefabEntity, new NonUniformScale());
+        dstManager.AddComponentData(brickPrefabEntity, new Brick());
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(brickPrefabEntity);
 
         dstManager.AddComponentData(entity, new TankData
         {
             TankCount = TankCount,
         });
+        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(TankPrefab), new Tank());
     }
 }
