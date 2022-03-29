@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace JumpTheGun {
-
 	public class Box : MonoBehaviour {
 
 		public const float SPACING = 1;
