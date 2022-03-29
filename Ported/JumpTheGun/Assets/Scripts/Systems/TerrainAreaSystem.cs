@@ -6,19 +6,16 @@ using Unity.Transforms;
 using Color = UnityEngine.Color;
 public partial class TerrainAreaSystem : SystemBase
 {
-    public const float SPACING = 1;
-    public const float Y_OFFSET = 0;
-    public const float HEIGHT_MIN = .5f;
-    public static Color MIN_HEIGHT_COLOR = Color.green;
-    public static Color MAX_HEIGHT_COLOR = new Color(99 /255f, 47 /255f, 0 /255f);
-    
+   
+    EntityQuery checkForBricks;
     protected override void OnCreate()
     {
-        
+        checkForBricks = GetEntityQuery(typeof (Brick));
     }
     protected override void OnUpdate()
     {
-        CreateBoxes();
+        if (checkForBricks.IsEmpty)
+            CreateBoxes();
     }
 
     public void CreateBoxes(){
@@ -37,19 +34,18 @@ public partial class TerrainAreaSystem : SystemBase
             .ForEach((Entity entity, in EntityPrefabHolder prefabHolder, in TerrainData terrainData) =>
             {
                 // TODO : Experiment with it
-                ecb.DestroyEntity(entity);
+                //ecb.DestroyEntity(entity);
 
                 for (int i = 0; i < terrainData.TerrainWidth; ++i)
                 {
                     for (int j = 0; j < terrainData.TerrainLength; ++j)
                     {
                         var instance = ecb.Instantiate(prefabHolder.BrickEntityPrefab);
-                        ecb.AddComponent(instance, new NonUniformScale());
                         // Set scale
                         float height = random.NextFloat(terrainData.MinTerrainHeight, terrainData.MaxTerrainHeight);
                         float3 scale = new float3(1, height, 1);
                         // Set position
-                        float3 pos = new float3(i * SPACING, height / 2 + Y_OFFSET, j * SPACING);
+                        float3 pos = new float3(i * Constants.SPACING, height / 2 + Constants.Y_OFFSET, j * Constants.SPACING);
                         ecb.SetComponent(instance, new Translation
                         {
                             Value = pos
@@ -57,6 +53,11 @@ public partial class TerrainAreaSystem : SystemBase
                         ecb.SetComponent(instance, new NonUniformScale
                         {
                             Value = scale
+                        });
+                        ecb.SetComponent(instance, new Brick
+                        {
+                            color = Color.white,
+                            height = height
                         });
                     }
                 }

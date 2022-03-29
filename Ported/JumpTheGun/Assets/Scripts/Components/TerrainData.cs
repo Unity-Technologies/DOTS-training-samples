@@ -1,5 +1,6 @@
 using Unity.Entities;
 
+[GenerateAuthoringComponent]
 public struct TerrainData : IComponentData
 {
     // Start is called before the first frame update
