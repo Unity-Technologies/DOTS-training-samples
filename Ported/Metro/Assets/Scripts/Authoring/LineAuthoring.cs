@@ -1,8 +1,8 @@
 ﻿using Unity.Entities;
-using Unity.Transforms;
+using Unity.Mathematics;
 
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGizmos = UnityEngine.Gizmos;
 using UnityGUI = UnityEngine.GUI;
@@ -17,7 +17,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var children = gameObject.GetComponentsInChildren<LineMarkerAuthoring>();
-        
+
         dstManager.AddComponent<LineMarkerBufferElement>(entity);
 
         var dynamicBuffer = dstManager.GetBuffer<LineMarkerBufferElement>(entity);
@@ -29,13 +29,93 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
                 Position = childMarker.gameObject.transform.position
             });
         }
+        
+        // Bezier Curve!
+        dstManager.AddComponent<BezierPointBufferElement>(entity);
 
+        var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
+        float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList());
+
+        dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
+            new LineTotalDistanceComponent {Value = curveDistance});
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});
     }
 
-    public void CreateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
+    // Populates a dynamic buffer with bezier curve information, returning the total distance.
+    // An analogue of MetroLine.Create_RailPath
+    public float PopulateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
         List<LineMarkerAuthoring> markers)
     {
+        float totalPathDistance = 0;
+        int totalMarkers = markers.Count;
+        float3 currentLocation = float3.zero;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - -  OUTBOUND points
+        for (int i = 0; i < totalMarkers; i++)
+        {
+            BezierHelpers.AddPoint(ref bezierCurve, markers[i].transform.position);
+        }
+
+        // fix the OUTBOUND handles
+        for (int i = 0; i <= totalMarkers - 1; i++)
+        {
+            BezierPointBufferElement currentPoint = bezierCurve[i];
+            if (i == 0)
+            {
+                currentPoint = BezierHelpers.SetHandles(currentPoint, bezierCurve[1].Location - currentPoint.Location);
+                
+            }
+            else if (i == totalMarkers - 1)
+            {
+                currentPoint = BezierHelpers.SetHandles(currentPoint, currentPoint.Location - bezierCurve[i - 1].Location);
+            }
+            else
+            {
+                currentPoint = BezierHelpers.SetHandles(currentPoint,bezierCurve[i + 1].Location - bezierCurve[i - 1].Location);
+            }
+
+            bezierCurve[i] = currentPoint;
+        }
+
+        totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
+        float platformOffset = BezierHelpers.BEZIER_PLATFORM_OFFSET;
+        List<BezierPointBufferElement> returnPoints = new List<BezierPointBufferElement>();
+        for (int i = totalMarkers - 1; i >= 0; i--)
+        {
+            float3 targetLocation =
+                BezierHelpers.GetPointPerpendicularOffset(bezierCurve, totalPathDistance, bezierCurve[i], platformOffset);
+            BezierHelpers.AddPoint(ref bezierCurve, targetLocation);
+            returnPoints.Add(bezierCurve[bezierCurve.Length - 1]);
+        }
         
+        // This could be off-by-one
+        int returnPointOffset = returnPoints.Count;
+        
+        // fix the RETURN handles
+        for (int i = 0; i <= totalMarkers - 1; i++)
+        {
+            
+            BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
+            if (i == 0)
+            {
+                currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[1 + returnPointOffset], currentReturnPoint);
+            }
+            else if (i == totalMarkers - 1)
+            {
+                currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[i - 1 + returnPointOffset]);
+            }
+            else
+            {
+                currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[i + 1 + returnPointOffset], bezierCurve[i - 1 + returnPointOffset]);
+            }
+
+            bezierCurve[i + returnPointOffset] = currentReturnPoint;
+        }
+
+        totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
+
+        return totalPathDistance;
     }
 }
