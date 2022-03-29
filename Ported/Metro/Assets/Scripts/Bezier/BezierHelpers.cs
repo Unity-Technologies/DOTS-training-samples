@@ -113,12 +113,8 @@ public static class BezierHelpers
         float3 _current = GetPosition(bezierCurve, pathDistance, position);
         float3 _ahead = GetPosition(bezierCurve, pathDistance, (position + 0.0001f) % 1f);
         float distance = math.distance(_ahead, _current);
-        if (distance > 0)
-        {
-            return (_ahead - _current) / distance;
-        }
 
-        return new float3(0, 0, 1); 
+        return (_ahead - _current) / distance;
     }
 
     public static float3 GetTangentAtPosition(DynamicBuffer<BezierPointBufferElement> bezierCurve, float pathDistance, float position)
