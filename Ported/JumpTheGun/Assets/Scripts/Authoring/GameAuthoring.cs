@@ -38,7 +38,7 @@ public class GameAuthoring : UnityMonoBehaviour
             CannonBallEntityPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab),
         });
 
-        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
+        // dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
         
         dstManager.AddComponentData(entity, new TerrainData
         {

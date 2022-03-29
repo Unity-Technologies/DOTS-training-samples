@@ -44,6 +44,7 @@ public partial class TerrainAreaSystem : SystemBase
                     for (int j = 0; j < terrainData.TerrainLength; ++j)
                     {
                         var instance = ecb.Instantiate(prefabHolder.BrickEntityPrefab);
+                        ecb.AddComponent(instance, new NonUniformScale());
                         // Set scale
                         float height = random.NextFloat(terrainData.MinTerrainHeight, terrainData.MaxTerrainHeight);
                         float3 scale = new float3(1, height, 1);
