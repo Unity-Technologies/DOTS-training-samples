@@ -20,8 +20,17 @@ public class BucketAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         // We could have used AddComponent in the loop above, but as a general rule in
         // DOTS, doing a batch of things at once is more efficient.
+        
+        dstManager.RemoveComponent<Unity.Transforms.Rotation>(entity);
+        dstManager.AddComponent<Unity.Transforms.NonUniformScale>(entity);
+
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
         dstManager.AddComponent<PropagateColor>(entity);
-//        dstManager.AddComponent<CarMovement>(entity);
+        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<Scale>(entity);
+        dstManager.AddComponent<Color>(entity);
+        dstManager.AddComponent<BucketTag>(entity);
+        dstManager.AddComponent<FillValue>(entity);
+        dstManager.AddComponent<MyBucketState>(entity);
     }
 }

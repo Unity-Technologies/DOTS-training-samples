@@ -18,11 +18,14 @@ public class FlameCellAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             needBaseColor[i] = conversionSystem.GetPrimaryEntity(meshRenderer.gameObject);
         }
 
+        dstManager.RemoveComponent<Unity.Transforms.Rotation>(entity);
+        dstManager.AddComponent<Unity.Transforms.NonUniformScale>(entity);
+
         // We could have used AddComponent in the loop above, but as a general rule in
         // DOTS, doing a batch of things at once is more efficient.
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
 
-//        dstManager.AddComponent<PropagateColor>(entity);
-//        dstManager.AddComponent<CarMovement>(entity);
+        dstManager.AddComponent<PropagateColor>(entity);
+        dstManager.AddComponent<Position>(entity);
     }
 }
