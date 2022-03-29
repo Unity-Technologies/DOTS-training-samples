@@ -21,20 +21,25 @@ public partial class SpawnerSystem : SystemBase
             {
                 ecb.DestroyEntity(entity);
 
-                var fireEntity = ecb.CreateEntity();
-                ecb.SetName(fireEntity, "Fire");
-                ecb.AddBuffer<HeatMapTemperature>(fireEntity); // how to set size?
-                ecb.AddComponent(fireEntity, new HeatMapWidth() { width = spawner.FireDimension });
+                var heatmapEntity = ecb.CreateEntity();
+                ecb.SetName(heatmapEntity, "Fire");
+                var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
+                for (int iFire = 0; iFire < spawner.FireDimension ; iFire++)//adding elements to buffer
+                {
+                    heatmapBuffer.Add(new HeatMapTemperature {value = 0});
+                }
+                
+                ecb.AddComponent(heatmapEntity, new HeatMapWidth() { width = spawner.FireDimension });
 
                 var offsetSingleDimension = -(spawner.FireDimension - 1) / 2f;
-                var offset = new float3(offsetSingleDimension, offsetSingleDimension, 0f);
+                var offset = new float3(offsetSingleDimension, 0f, offsetSingleDimension);
                 
                 for (var i = 0; i < spawner.FireDimension; i++)
                 {
                     for (var j = 0; j < spawner.FireDimension; j++)
                     {
                         var instance = ecb.Instantiate(spawner.FlameCellPrefab);
-                        var translation = new Translation {Value = offset + new float3(j, i, 0)};
+                        var translation = new Translation {Value = offset + new float3(i, 0,j)};
                         ecb.SetComponent(instance, translation);
                     }
                 }
@@ -45,17 +50,17 @@ public partial class SpawnerSystem : SystemBase
                     var squadSize = (spawner.MembersCount - 3) / 2;
                     
                     var fetcherEntity = ecb.Instantiate(spawner.BotPrefab);
-                    ecb.SetName(fireEntity, "Fetcher");
+                    ecb.SetName(fetcherEntity, "Fetcher");
                     ecb.AddComponent<FetcherTag>(fetcherEntity);
                     
                     var waterCaptainEntity = ecb.Instantiate(spawner.BotPrefab);
-                    ecb.SetName(fireEntity, "WaterCaptain");
+                    ecb.SetName(waterCaptainEntity, "WaterCaptain");
                     ecb.AddComponent<WaterCaptainTag>(waterCaptainEntity);
                     ecb.AddComponent<SourcePool>(waterCaptainEntity);
                     ecb.AddComponent<SourcePosition>(waterCaptainEntity);
                     
                     var fireCaptainEntity = ecb.Instantiate(spawner.BotPrefab);
-                    ecb.SetName(fireEntity, "FireCaptain");
+                    ecb.SetName(fireCaptainEntity, "FireCaptain");
                     ecb.AddComponent<FireCaptainTag>(fireCaptainEntity);
                     ecb.SetComponent(fireCaptainEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
                     
@@ -66,7 +71,7 @@ public partial class SpawnerSystem : SystemBase
                     for (var j = 0; j < squadSize; j++)
                     {
                         var workerEntity = ecb.Instantiate(spawner.BotPrefab);
-                        ecb.SetName(fireEntity, "WaterHauler");
+                        ecb.SetName(workerEntity, "WaterHauler");
                         ecb.AddComponent<WorkerTag>(workerEntity);
                         ecb.AddComponent<FullBucketWorkerTag>(workerEntity);
                         ecb.AddComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
@@ -85,7 +90,7 @@ public partial class SpawnerSystem : SystemBase
                     for (var j = 0; j < squadSize; j++)
                     {
                         var workerEntity = ecb.Instantiate(spawner.BotPrefab);
-                        ecb.SetName(fireEntity, "BucketHauler");
+                        ecb.SetName(workerEntity, "BucketHauler");
                         ecb.AddComponent<WorkerTag>(workerEntity);
                         ecb.AddComponent<EmptyBucketWorkerTag>(workerEntity);
                         ecb.AddComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
