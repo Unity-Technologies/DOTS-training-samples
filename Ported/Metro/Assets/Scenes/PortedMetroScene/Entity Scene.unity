@@ -368,7 +368,7 @@ PrefabInstance:
     - target: {fileID: 5922051690048337749, guid: 393de951640dce04f884b49785e57a75,
         type: 3}
       propertyPath: MarkerType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5922051690048337749, guid: 393de951640dce04f884b49785e57a75,
         type: 3}

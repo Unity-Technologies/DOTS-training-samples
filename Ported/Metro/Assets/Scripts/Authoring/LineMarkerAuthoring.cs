@@ -83,7 +83,7 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData<LineIDComponent>(entity, new LineIDComponent {Value = LineID});
+        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent {Value = LineID});
         dstManager.AddComponentData<LineMarkerIndexComponent>(entity, new LineMarkerIndexComponent {Value = MarkerRouteIndex});
 
         if (MarkerType == LineMarkerType.Platform)

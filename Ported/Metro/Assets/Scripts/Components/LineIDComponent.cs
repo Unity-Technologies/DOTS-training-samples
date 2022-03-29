@@ -1,5 +1,5 @@
 ﻿using Unity.Entities;
-public struct LineIDComponent : IComponentData
+public struct LineIDComponent : ISharedComponentData
 {
     public int Value;
 }
