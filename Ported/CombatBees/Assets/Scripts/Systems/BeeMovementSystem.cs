@@ -19,7 +19,7 @@ public partial class BeeMovementSystem : SystemBase
             {
                 var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
                 var velocity = bee.Velocity;
-                velocity = random.NextFloat3Direction() * (flightJitter * deltaTime);
+                velocity += random.NextFloat3Direction() * (flightJitter * deltaTime);
                 velocity *= 1f - damping;
 
                 var position = translation.Value;

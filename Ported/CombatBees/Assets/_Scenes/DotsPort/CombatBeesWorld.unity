@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 733420455}
   - component: {fileID: 733420454}
   - component: {fileID: 733420453}
+  - component: {fileID: 733420457}
   m_Layer: 0
   m_Name: HiveSpawner
   m_TagString: Untagged
@@ -223,3 +224,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &733420457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733420452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50bfbc3fdba974285bd1000f2902dad6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CenterSize: 0.8
+  LeftColor: {r: 1, g: 0.9835476, b: 0.4198113, a: 1}
+  RightColor: {r: 0, g: 0.3984263, b: 1, a: 1}
