@@ -13,6 +13,7 @@ namespace Systems
 {
     public partial class GenerationSystem : SystemBase
     {
+
         protected override void OnUpdate()
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -22,24 +23,34 @@ namespace Systems
             var random = new Unity.Mathematics.Random(1234);
             NativeList<VerletPoints> points = default;
             NativeList<Link> links = default;
-            NativeList<Anchor> anchors = default;
 
             Entities.ForEach((Entity entity, in GenerationParameters generation) =>
             {
                 ecb.DestroyEntity(entity);
 
-                GenerateCity(generation, ref ecb, random, out points, out links, out anchors);
+                GenerateCity(generation, ref ecb, random, out points, out links);
                 GenerateTornado(generation, ref ecb, random);
             }).WithoutBurst().Run();
+
+            var tornadoEntity = ecb.CreateEntity();
+            ecb.AddComponent<TornadoParameters>(tornadoEntity);
 
             ecb.Playback(EntityManager);
             ecb.Dispose();
 
-            pointDisplacement.Initialize(new NativeArray<VerletPoints>(points, Allocator.Persistent),
-                new NativeArray<Link>(links, Allocator.Persistent));
+
+            var pointArray = new NativeArray<VerletPoints>(links.Length * 2, Allocator.Persistent);
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                pointArray[i] = points[i];
+            }
+
+           
+            pointDisplacement.Initialize(pointArray,new NativeArray<Link>(links, Allocator.Persistent), points.Length);
             points.Dispose();
             links.Dispose();
-            anchors.Dispose();
+         
         }
 
         private static void GenerateTornado(in GenerationParameters spawner, ref EntityCommandBuffer ecb, Random random)
@@ -59,15 +70,19 @@ namespace Systems
                 ecb.AddComponent(instance, new URPMaterialPropertyBaseColor {Value = color});
                 ecb.AddComponent(instance, new Scale {Value = particleScale});
             }
+
+            
+            
+            ecb.CreateEntity();
         }
 
 
         private static void GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, Random random,
-            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<Anchor> anchors)
+            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList)
         {
             linksList = new NativeList<Link>(Allocator.Temp);
             pointsList = new NativeList<VerletPoints>(Allocator.Temp);
-            anchors = new NativeList<Anchor>(Allocator.Temp);
+           
 
             // buildings
             for (int i = 0; i < 35; i++)
@@ -77,32 +92,34 @@ namespace Systems
                 float spacing = 2f;
                 for (int j = 0; j < height; j++)
                 {
-                    var anchor = new Anchor {isAnchor = j == 0 ? byte.MaxValue : (byte) 0};
+                   
                     var position = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
+                    var anchored =  j == 0 ? byte.MaxValue : (byte)0;
                     pointsList.Add(new VerletPoints
                     {
                         currentPosition = position,
-                        oldPosition = position
-                    });
-
-                    anchors.Add(anchor);
+                        oldPosition = position,
+                        anchored = anchored,
+                    }) ;
+                   
 
                     position = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
                     pointsList.Add(new VerletPoints
                     {
                         currentPosition = position,
-                        oldPosition = position
+                        oldPosition = position,
+                        anchored = anchored,
                     });
-                    anchors.Add(anchor);
+                   
 
                     position = new float3(pos.x + 0, j * spacing, pos.z + spacing);
                     pointsList.Add(new VerletPoints
                     {
                         currentPosition = position,
-                        oldPosition = position
-                    });
-                    // :TODO: do we really need 3 identical copies?
-                    anchors.Add(anchor);
+                        oldPosition = position,
+                        anchored = anchored,
+                    });                  
+                 
                 }
             }
 
@@ -119,16 +136,17 @@ namespace Systems
                     currentPosition = position,
                     oldPosition = position
                 });
-                anchors.Add(new Anchor());
+                
 
                 position = pos + random.NextFloat3(new float3(0.2f, 0.0f, -0.1f), new float3(0.1f, 0.2f, -0.2f));
                 pointsList.Add(new VerletPoints
                 {
                     currentPosition = position,
-                    oldPosition = position
+                    oldPosition = position,
+                    anchored = random.NextFloat() < 0.1f ? byte.MaxValue : (byte)0
                 });
 
-                anchors.Add(new Anchor {isAnchor = random.NextFloat() < 0.1f ? byte.MaxValue : (byte) 0});
+               
             }
 
             int linkCount = 0;
@@ -137,11 +155,16 @@ namespace Systems
             {
                 for (int j = i + 1; j < pointsList.Length; j++)
                 {
-                    var delta = pointsList[i].currentPosition - pointsList[j].currentPosition;
+                    var point1 = pointsList[i];
+                    var point2 = pointsList[j];
+                    var delta = point1.currentPosition - point2.currentPosition;
                     var linkLength = math.length(delta);
-
+                 
                     if (linkLength < 5f && linkLength > 0.2f)
                     {
+                        point1.neighborCount++;
+                        point2.neighborCount++;
+
                         var barEntity = ecb.Instantiate(generation.barPrefab);
                         var thickness = random.NextFloat(0.25f, 0.35f);
                         ecb.AddComponent(barEntity, new Bar
@@ -162,10 +185,13 @@ namespace Systems
                         ecb.AddComponent(barEntity, new URPMaterialPropertyBaseColor {Value = color});
 
 
-                        var link = new Link {startIndex = i, endIndex = j, length = linkLength};
+                        var link = new Link {point1Index = i, point2Index = j, length = linkLength};
 
                         linksList.Add(link);
                         ++linkCount;
+
+                        pointsList[i] = point1;
+                        pointsList[j] = point2;
                     }
                 }
             }

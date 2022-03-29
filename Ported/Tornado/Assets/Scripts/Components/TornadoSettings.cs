@@ -2,6 +2,7 @@
 
 namespace Components
 {
+    [GenerateAuthoringComponent]
     public struct TornadoSettings : IComponentData
     {
         public float tornadoForce;

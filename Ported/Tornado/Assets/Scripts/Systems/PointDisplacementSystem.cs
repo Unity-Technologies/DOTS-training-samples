@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Systems
 {
+    [UpdateBefore(typeof(BarRenderingSystem))]
     public partial class PointDisplacementSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;
@@ -15,6 +16,7 @@ namespace Systems
 
         public bool isInitialized;
 
+        public static int AllocatedPointCount;
 
         EntityQueryDesc barQueryDesc = new EntityQueryDesc
         {
@@ -27,47 +29,61 @@ namespace Systems
         {
             base.OnCreate();
             barQuery = GetEntityQuery(barQueryDesc);
-
         }
+
+
+
         protected override void OnUpdate()
         {
             if (!isInitialized) return;
 
             float invDamping = 1f - 0.012f;
+            var tornadoParams = GetSingleton<TornadoParameters>();
+            var tornadoSettings = GetSingleton<TornadoSettings>();
+            var physicParameters = GetSingleton<PhysicsSettings>();
+
+            tornadoParams.tornadoFader = Mathf.Clamp01(tornadoParams.tornadoFader + Time.DeltaTime / 10f);
+
+            SetSingleton<TornadoParameters>(tornadoParams);
 
             var jobDisplacement = new PointDisplacementJob()
             {
                 points = points,
-                invDamping = invDamping
+                invDamping = invDamping,
+                torandoParameters = tornadoParams,
+                torandoSettings = tornadoSettings,
+                time = (float)Time.ElapsedTime,
+                random = new Unity.Mathematics.Random(1234),
             };
 
 
             var constraintJob = new ContraintJob()
             {
                 points = points,
-                links = links
+                links = links,
+                iterations = physicParameters.constraintIterations
             };
          
             //parallelized 
-            JobHandle jobHandlePoint = jobDisplacement.Schedule(points.Length, 64);
+            JobHandle jobHandlePoint = jobDisplacement.Schedule(AllocatedPointCount, 64, Dependency);
+
+            //signle threaded job
             JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);          
 
-            JobHandle.ScheduleBatchedJobs();
+            JobHandle.ScheduleBatchedJobs();          
 
-            jobHandlePoint.Complete();
-            jobHandleConstraint.Complete();   
-            
-           
+            Dependency = jobHandleConstraint;
 
         }
 
-
-        public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links)
+        public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links, int allocatedPoints)
         {
             this.links = links;
             this.points = points;
             isInitialized = true;
-          
+
+            AllocatedPointCount = allocatedPoints;
+            Debug.Log(AllocatedPointCount + "   " + allocatedPoints);
         }
 
         protected override void OnDestroy()

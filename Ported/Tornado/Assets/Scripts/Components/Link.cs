@@ -4,8 +4,8 @@ namespace Components
 {
     public struct Link : IComponentData
     {
-        public int startIndex;
-        public int endIndex;
+        public int point1Index;
+        public int point2Index;
         public float length;
     }
 }
