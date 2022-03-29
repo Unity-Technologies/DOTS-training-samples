@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": "1.0.0",
+    "com.unity.2d.sprite": "1.0.0", 
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.analytics": "3.6.12",
     "com.unity.entities": "0.50.0-preview.24",
