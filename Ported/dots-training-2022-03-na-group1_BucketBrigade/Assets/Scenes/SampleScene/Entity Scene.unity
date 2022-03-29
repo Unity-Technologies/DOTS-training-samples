@@ -177,6 +177,7 @@ MonoBehaviour:
   FlameCellPrefab: {fileID: 1306931638197496, guid: 66efc17ad61e9415b8f30c05008692e1, type: 3}
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
   TeamCount: 1
+  OmniWorkerCount: 0
   MembersCount: 13
   FireDimension: 11
   WaterCount: 12

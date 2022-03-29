@@ -14,6 +14,7 @@ public struct Spawner : IComponentData
     public Entity GroundPrefab;
 
     public int TeamCount;
+    public int OmniWorkerCount;
     public int MembersCount;
     public int FireDimension;
     public int WaterCount;

@@ -20,6 +20,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public UnityGameObject BucketPrefab;
 
     [UnityRange(1, 10)] public int TeamCount = 2;
+    [UnityRange(0, 100)] public int OmniWorkerCount = 0;
     [UnityRange(3, 100)] public int MembersCount = 23;
     [UnityRange(1, 200)] public int FireDimension = 100;
     [UnityRange(4, 50)] public int WaterCount = 20;
@@ -66,6 +67,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
             FlameCellPrefab = conversionSystem.GetPrimaryEntity(FlameCellPrefab),
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
             TeamCount = TeamCount,
+            OmniWorkerCount = OmniWorkerCount,
             MembersCount = MembersCount,
             FireDimension = FireDimension,
             WaterCount = WaterCount,

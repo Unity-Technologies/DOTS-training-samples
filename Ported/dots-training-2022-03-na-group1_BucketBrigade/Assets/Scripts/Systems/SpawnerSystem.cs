@@ -109,6 +109,17 @@ public partial class SpawnerSystem : SystemBase
             }
    }
 
+   static void SpawnOmniworkers(EntityCommandBuffer ecb, Entity prefab, int count, int size, Random random)
+   {
+       var radius = (size - 1) / 2f;
+
+       for (int i = 0; i < count; i++)
+       {
+           var entity = ecb.Instantiate(prefab);
+           ecb.SetComponent(entity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+       }
+   }
+
    static void SpawnBuckets(EntityCommandBuffer ecb, Entity prefab, int count, int size, Random random)
    {
        var radius = (size - 1) / 2f;
@@ -184,6 +195,8 @@ public partial class SpawnerSystem : SystemBase
                 SpawnFireColumns(ecb, spawner.FlameCellPrefab, spawner.FireDimension);
                 
                 SpawnTeams(ecb, spawner, random);
+                
+                SpawnOmniworkers(ecb, spawner.OmniWorkerPrefab, spawner.OmniWorkerCount, spawner.FireDimension, random);
 
                 SpawnBuckets(ecb, spawner.BucketPrefab, spawner.BucketCount, spawner.FireDimension, random);
 
