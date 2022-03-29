@@ -9,18 +9,20 @@ public class FlameCellAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager
         , GameObjectConversionSystem conversionSystem)
     {
-        var allRenderers = transform.GetComponentsInChildren<UnityMeshRenderer>();
-        var flameEntity = new NativeArray<Entity>(allRenderers.Length, Allocator.Temp);
+        //var allRenderers = transform.GetComponentsInChildren<UnityMeshRenderer>();
+        //var flameEntity = new NativeArray<Entity>(allRenderers.Length, Allocator.Temp);
 
-        for(int i = 0; i < allRenderers.Length; ++i)
-        {
-            var meshRenderer = allRenderers[i];
-            flameEntity[i] = conversionSystem.GetPrimaryEntity(meshRenderer.gameObject);
-        }
+        // for(int i = 0; i < allRenderers.Length; ++i)
+        // {
+        //     var meshRenderer = allRenderers[i];
+        //     flameEntity[i] = conversionSystem.GetPrimaryEntity(meshRenderer.gameObject);
+        // }
+        
 
         // We could have used AddComponent in the loop above, but as a general rule in
         // DOTS, doing a batch of things at once is more efficient.
-        dstManager.AddComponent<URPMaterialPropertyBaseColor>(flameEntity);
-        dstManager.AddComponent<Color>(flameEntity);
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
+        dstManager.AddComponent<Color>(entity);
+        dstManager.AddComponent<Scale>(entity);
     }
 }
