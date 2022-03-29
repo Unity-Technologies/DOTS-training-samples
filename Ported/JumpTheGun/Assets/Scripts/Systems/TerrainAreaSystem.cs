@@ -28,8 +28,7 @@ public partial class TerrainAreaSystem : SystemBase
         // we'll initialize it with a constant. (In release, we'd want a seed that
         // randomly varies, such as the time from the user's system clock.)
         var random = new Random(1234);
-        
-        
+
         Entities
             .ForEach((Entity entity, in EntityPrefabHolder prefabHolder, in TerrainData terrainData) =>
             {

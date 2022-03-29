@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityGameObject = UnityEngine.GameObject;
@@ -12,6 +13,9 @@ public class GameAuthoring : UnityMonoBehaviour
     public UnityGameObject BrickPrefab;
     public UnityGameObject TankPrefab;
     public UnityGameObject CannonBallPrefab;
+
+    [Range(1, 1000)]
+    public int TankCount;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -46,5 +50,10 @@ public class GameAuthoring : UnityMonoBehaviour
         });
         dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
         dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new Brick());
+
+        dstManager.AddComponentData(entity, new TankData
+        {
+            TankCount = TankCount,
+        });
     }
 }
