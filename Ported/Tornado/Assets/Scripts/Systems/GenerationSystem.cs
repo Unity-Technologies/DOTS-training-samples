@@ -125,7 +125,7 @@ namespace Systems
                                 {
                                     startIndex = actualIndex,
                                     endIndex = otherIndex,
-                                    length = utils.Magnitude(actual.currentPosition - other.currentPosition)
+                                    length = math.length(actual.currentPosition - other.currentPosition)
                                 });
 
                             }

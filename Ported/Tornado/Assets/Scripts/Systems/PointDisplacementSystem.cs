@@ -1,7 +1,9 @@
-﻿using Components;
+﻿using Assets.Scripts.Jobs;
+using Components;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
+using Unity.Jobs;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Systems
@@ -9,49 +11,63 @@ namespace Systems
     public partial class PointDisplacementSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;
-        public NativeArray<Link> links;        
+        public NativeArray<Link> links;              
 
         public bool isInitialized;
 
+
+        EntityQueryDesc barQueryDesc = new EntityQueryDesc
+        {
+            All = new ComponentType[] { typeof(Translation), typeof(Bar) },
+
+        };
+
+        EntityQuery barQuery;
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            barQuery = GetEntityQuery(barQueryDesc);
+
+        }
         protected override void OnUpdate()
         {
             if (!isInitialized) return;
 
             float invDamping = 1f - 0.012f;
 
-            for (int i = 0; i < points.Length; i++)
+            var jobDisplacement = new PointDisplacementJob()
             {
-				VerletPoints point = points[i];
-				
-				float startX = point.currentPosition.x;
-				float startY = point.currentPosition.y;
-				float startZ = point.currentPosition.z;
+                points = points,
+                invDamping = invDamping
+            };
 
-				//gravity ?????
-				point.oldPosition.y += .01f;
+            var constraintJob = new ContraintJob()
+            {
+                points = points,
+                links = links
+            };
+         
+            //parallelized 
+            JobHandle jobHandlePoint = jobDisplacement.Schedule(points.Length, 64);
+            JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);          
 
-				// tornado force
+            JobHandle.ScheduleBatchedJobs();
 
-				point.currentPosition.x += (point.currentPosition.x - point.oldPosition.x) * invDamping;
-				point.currentPosition.y += (point.currentPosition.y - point.oldPosition.y) * invDamping;
-				point.currentPosition.z += (point.currentPosition.z - point.oldPosition.z) * invDamping;
+            jobHandlePoint.Complete();
+            jobHandleConstraint.Complete();   
 
-				point.oldPosition.x = startX;
-				point.oldPosition.y = startY;
-				point.oldPosition.z = startZ;
+            var renderingJob = new RenderingVerletPointJob()
+            {
+                points = points,
+                bars = GetComponentTypeHandle<Bar>(),
+                translations = GetComponentTypeHandle<Translation>(),
+            };
 
-				if (point.currentPosition.y < 0f)
-				{
-					point.currentPosition.y = 0f;
-					point.oldPosition.y = -point.oldPosition.y;
-
-                    point.oldPosition.x += (point.currentPosition.x - point.oldPosition.x) * 0.4f;
-                    point.oldPosition.z += (point.currentPosition.z - point.oldPosition.z) * 0.4f;
-                }
-
-                points[i] = point;
-			}
             
+            JobHandle jobHandleRendering = renderingJob.ScheduleParallel(barQuery, Dependency);
+            JobHandle.ScheduleBatchedJobs();
+            jobHandleRendering.Complete();          
+           
 
         }
 
@@ -62,11 +78,13 @@ namespace Systems
             this.links = links;
             this.points = points;
             isInitialized = true;
+          
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
             if(points != null) points.Dispose();
             if(links != null) links.Dispose();
         }
