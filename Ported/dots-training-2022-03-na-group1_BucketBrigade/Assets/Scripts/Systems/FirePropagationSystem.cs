@@ -23,6 +23,11 @@ public partial class FirePropagationSystem : SystemBase
         checkAdjacents[7] = new int2(1, 1);
     }
 
+    protected override void OnDestroy()
+    {
+        checkAdjacents.Dispose();
+    }
+
     protected override void OnUpdate()
     {
         var heatmapData = GetSingleton<HeatMapData>(); 
