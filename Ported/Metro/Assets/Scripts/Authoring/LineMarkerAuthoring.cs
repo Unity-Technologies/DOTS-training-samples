@@ -19,13 +19,12 @@ public enum LineMarkerType
 }
 
 [UnityEngine.ExecuteAlways]
-public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
+public class LineMarkerAuthoring : UnityMonoBehaviour
 {
     public int LineID;
     public LineMarkerType MarkerType = LineMarkerType.Route;
     public int MarkerRouteIndex;
     
-    #region Legacy Code
     private void Awake()
     {
         MarkerRouteIndex = GetSiblingIndex(transform, transform.parent);
@@ -77,20 +76,5 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
                 return UnityColor.green;
         }
     }
-    #endregion
-    
-    #region ECS Conversion
 
-    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
-    {
-        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent {Value = LineID});
-        dstManager.AddComponentData<LineMarkerIndexComponent>(entity, new LineMarkerIndexComponent {Value = MarkerRouteIndex});
-
-        if (MarkerType == LineMarkerType.Platform)
-        {
-            dstManager.AddComponent<PlatformComponent>(entity);
-        }
-    }
-    
-    #endregion
 }
