@@ -41,6 +41,7 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<WorkerTag>(entity);
         dstManager.AddComponent<HoldingWhichBucket>(entity);
         dstManager.AddComponent<MyWorkerState>(entity);
+        dstManager.AddComponent<Speed>(entity);
 
         switch (Type)
         {

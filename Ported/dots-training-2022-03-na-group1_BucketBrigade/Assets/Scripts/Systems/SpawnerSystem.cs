@@ -63,13 +63,16 @@ public partial class SpawnerSystem : SystemBase
                 
                 var fetcherEntity = ecb.Instantiate(spawner.FetcherPrefab);
                 ecb.SetComponent(fetcherEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(fetcherEntity, new Speed() { Value = 4f });
                 
                 var waterCaptainEntity = ecb.Instantiate(spawner.WaterCaptainPrefab);
                 ecb.SetComponent(waterCaptainEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(waterCaptainEntity, new Speed() { Value = 4f });
 
                 var fireCaptainEntity = ecb.Instantiate(spawner.FireCaptainPrefab);
                 ecb.SetComponent(fireCaptainEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
                 ecb.SetComponent(fireCaptainEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(fireCaptainEntity, new Speed() { Value = 4f });
 
                 ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = waterCaptainEntity});
                 
@@ -82,6 +85,7 @@ public partial class SpawnerSystem : SystemBase
                     ecb.SetComponent(workerEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
                     ecb.SetComponent(workerEntity, new MyFireCaptain() {Value = fireCaptainEntity});
                     ecb.SetComponent(workerEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                    ecb.SetComponent(workerEntity, new Speed() { Value = 4f });
                     
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
 
@@ -99,6 +103,7 @@ public partial class SpawnerSystem : SystemBase
                     ecb.SetComponent(workerEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
                     ecb.SetComponent(workerEntity, new MyFireCaptain() {Value = fireCaptainEntity});
                     ecb.SetComponent(workerEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                    ecb.SetComponent(workerEntity, new Speed() { Value = 4f });
                     
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
@@ -117,6 +122,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+           ecb.SetComponent(entity, new Speed() { Value = 4f });
        }
    }
 

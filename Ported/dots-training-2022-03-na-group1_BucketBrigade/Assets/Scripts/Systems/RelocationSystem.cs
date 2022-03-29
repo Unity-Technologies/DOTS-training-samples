@@ -2,18 +2,21 @@
 using Unity.Transforms;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(IdleSystem))]
+[UpdateBefore(typeof(FirePropagationSystem))]
 public partial class RelocationSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
+        var deltaTime = (float)Time.DeltaTime;
+
 
         Entities
             .ForEach((ref Position movement, ref MyWorkerState state, in Destination destination, in Speed speed ) =>
             {
                 if (state.Value == WorkerState.Repositioning)
                 {
-                    var movementThisFrame = (float)time * speed.Value;
+                    var movementThisFrame = deltaTime * speed.Value;
 
                     var remainingDisplacement = destination.Value - movement.Value;
 

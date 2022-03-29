@@ -19,14 +19,14 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public UnityGameObject FlameCellPrefab;
     public UnityGameObject BucketPrefab;
 
-    [UnityRange(1, 10)] public int TeamCount = 2;
-    [UnityRange(0, 100)] public int OmniWorkerCount = 0;
-    [UnityRange(3, 100)] public int MembersCount = 23;
-    [UnityRange(1, 200)] public int FireDimension = 100;
-    [UnityRange(4, 50)] public int WaterCount = 20;
-    [UnityRange(1, 200)] public int BucketCount = 100;
-    [UnityRange(1, 200)] public int MinWaterSupplyCount = 50;
-    [UnityRange(1, 200)] public int MaxWaterSupplyCount = 100;
+    public int TeamCount = 2;
+    public int OmniWorkerCount = 0;
+    public int MembersCount = 23;
+    public int FireDimension = 100;
+    public int WaterCount = 20;
+    public int BucketCount = 100;
+    public int MinWaterSupplyCount = 50;
+    public int MaxWaterSupplyCount = 100;
 
 
     // This function is required by IDeclareReferencedPrefabs
