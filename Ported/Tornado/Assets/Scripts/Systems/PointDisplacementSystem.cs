@@ -61,7 +61,8 @@ namespace Systems
             {
                 points = points,
                 links = links,
-                iterations = physicParameters.constraintIterations
+                iterations = physicParameters.constraintIterations,
+                physicSettings = physicParameters
             };
          
             //parallelized 

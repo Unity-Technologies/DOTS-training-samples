@@ -70,7 +70,7 @@ namespace Assets.Scripts.Jobs
 						if (point2.neighborCount > 1)
 						{
 							point2.neighborCount--;
-							var newPoint = new VerletPoints(point2);							
+							var newPoint = new VerletPoints(point2);
 							newPoint.neighborCount = 1;
 							var allocatedIndex = Interlocked.Increment(ref PointDisplacementSystem.AllocatedPointCount) -1;
 							points[allocatedIndex] = newPoint;
