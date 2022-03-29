@@ -15,8 +15,8 @@ public partial class ResourceSpawnerSystem : SystemBase
 
             var random = new Random(1234);
 
-            var minX = (int) -Field.size.x/2 + 20;
-            var maxX = (int) Field.size.x/2 - 20;
+            var minX = (int) -Field.size.x/2 + (int) (Field.size.x - Field.startingResourceZoneWidth)/2;
+            var maxX = (int) Field.size.x/2 - (int) (Field.size.x - Field.startingResourceZoneWidth)/2;
             var minZ = (int) -Field.size.z/2;
             var maxZ = (int) Field.size.z/2;
             var minY = (int) -Field.size.y/2 + 1;
