@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGizmos = UnityEngine.Gizmos;
 using UnityGUI = UnityEngine.GUI;
@@ -78,6 +79,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
+        Debug.Log(totalPathDistance);
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
         float platformOffset = BezierHelpers.BEZIER_PLATFORM_OFFSET;
@@ -94,7 +96,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         int returnPointOffset = returnPoints.Count;
         
         // fix the RETURN handles
-        for (int i = 0; i <= totalMarkers - 1; i++)
+        for (int i = 0; i <= totalMarkers - returnPointOffset - 1; i++)
         {
             
             BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
@@ -102,7 +104,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             {
                 currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[1 + returnPointOffset], currentReturnPoint);
             }
-            else if (i == totalMarkers - 1)
+            else if (i == totalMarkers - returnPointOffset - 1)
             {
                 currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[i - 1 + returnPointOffset]);
             }
@@ -115,7 +117,6 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
-
         return totalPathDistance;
     }
 }
