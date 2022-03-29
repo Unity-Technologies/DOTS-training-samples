@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -21,7 +20,7 @@ namespace Systems
                 .WithAll<KinematicBody>()
                 .ForEach((Entity entity, ref Translation translation, ref KinematicBody body) =>
                 {
-                    if (translation.Value.y > body.Height)
+                    if (translation.Value.y > body.LandPosition.y)
                     {
                         body.Velocity.y += deltaY;
                         var newY = (float)math.max(body.LandPosition.y, translation.Value.y - body.Velocity.y);
@@ -29,6 +28,7 @@ namespace Systems
                     }
                     else
                     {
+                        translation.Value.y = body.LandPosition.y;
                         body.Velocity.y = 0f;
                         ecb.RemoveComponent<KinematicBody>(entity);
                     }

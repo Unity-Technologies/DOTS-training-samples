@@ -1,11 +1,12 @@
 using Unity.Entities;
+using UnityEngine;
 
 namespace Components
 {
     [GenerateAuthoringComponent]
     public class GameObjectRefs : IComponentData
     {
-        public UnityEngine.Camera Camera;
+        public Camera Camera;
         public Entity ResourcePrefab;
     }
 }

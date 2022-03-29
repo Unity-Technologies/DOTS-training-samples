@@ -1,7 +1,6 @@
 using Components;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -70,56 +69,49 @@ namespace Systems
 
             if (isMouseTouchingField)
             {
-                Entities.WithAll<MousePointer>().ForEach((ref Translation translation) =>
-                {
-                    translation.Value = worldMousePosition;
-                }).Run();
+                Entities
+                    .WithAll<MousePointer>()
+                    .ForEach((ref Translation translation) =>
+                    {
+                        translation.Value = worldMousePosition;
+                    }).Run();
 
                 if (Input.GetMouseButtonDown(0))
-                {
-                    var landPosition = worldMousePosition;
-                    landPosition.y = -10;
-                    var ray = new Ray(worldMousePosition, Vector3.down);
-
-                    Entities
-                        .WithAll<Components.Resource>()
-                        .WithNone<KinematicBody>()
-                        .ForEach((in Translation translation) =>
-                        {
-                            var pos = new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
-                            var distance = Vector3.Cross(ray.direction, pos - ray.origin).magnitude;
-                            if (distance < 0.75f)
-                            {
-                                landPosition = translation.Value + new float3(0, 2, 0);
-                            }
-                        }).Run();
-
-                    var ecb = new EntityCommandBuffer(Allocator.Temp);
-                    var resource = ecb.Instantiate(_refs.ResourcePrefab);
-
-                    Debug.Log($"{worldMousePosition.y} {landPosition.y}");
-                    if (worldMousePosition.y > landPosition.y)
-                    {
-                        Debug.Log("Gravity");
-                        var translation = new Translation
-                            { Value = new float3(landPosition.x, worldMousePosition.y, landPosition.z) };
-                        var kinematicBody = new KinematicBody()
-                            { Velocity = float3.zero, LandPosition = landPosition, Height = landPosition.y };
-                        ecb.SetComponent(resource, translation);
-                        ecb.SetComponent(resource, kinematicBody);
-                    }
-                    else
-                    {
-                        Debug.Log($"Place {landPosition}");
-                        var translation = new Translation
-                            { Value = landPosition };
-                        ecb.SetComponent(resource, translation);
-                    }
-
-                    ecb.Playback(EntityManager);
-                    ecb.Dispose();
-                }
+                    SpawnResource(worldMousePosition);
             }
+        }
+
+        private void SpawnResource(Vector3 worldMousePosition)
+        {
+            var landPosition = worldMousePosition;
+            landPosition.y = -10;
+            var ray = new Ray(worldMousePosition, Vector3.down);
+
+            Entities
+                .WithAll<Components.Resource>()
+                .WithNone<KinematicBody>()
+                .ForEach((in Translation translation) =>
+                {
+                    var pos = new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
+                    var distance = Vector3.Cross(ray.direction, pos - ray.origin).magnitude;
+                    if (distance < 0.75f)
+                    {
+                        landPosition = translation.Value + new float3(0, 2, 0);
+                    }
+                }).Run();
+
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var resource = ecb.Instantiate(_refs.ResourcePrefab);
+
+            var translation = new Translation
+                { Value = new float3(landPosition.x, worldMousePosition.y, landPosition.z) };
+            var kinematicBody = new KinematicBody()
+                { Velocity = float3.zero, LandPosition = landPosition, Height = landPosition.y };
+            ecb.SetComponent(resource, translation);
+            ecb.SetComponent(resource, kinematicBody);
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
     }
 }

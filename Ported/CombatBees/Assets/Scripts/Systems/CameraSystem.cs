@@ -28,14 +28,12 @@ namespace Systems
 
         protected override void OnUpdate()
         {
-            if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButton(0))
+            if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButton(1))
             {
                 _viewAngles.x += Input.GetAxis("Mouse X") * _sensitivity / Screen.height;
                 _viewAngles.y -= Input.GetAxis("Mouse Y") * _sensitivity / Screen.height;
 
                 _viewAngles.y = Mathf.Clamp(_viewAngles.y, -89f, 89f);
-
-                Debug.Log($"{_viewAngles} {Screen.height}");
             }
 
             _viewDist -= Input.GetAxis("Mouse ScrollWheel") * _zoomSensitivity * _viewDist;

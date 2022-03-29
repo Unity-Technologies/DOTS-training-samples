@@ -487,6 +487,7 @@ MonoBehaviour:
   Camera: {fileID: 2127945158}
   ResourcePrefab: {fileID: 8321676622679794886, guid: c0e2b593b434e4b3caf203d2a8491424,
     type: 3}
+  MousePointer: {fileID: 0}
 --- !u!4 &1127066205
 Transform:
   m_ObjectHideFlags: 0
