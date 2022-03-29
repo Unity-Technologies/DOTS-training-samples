@@ -62,6 +62,9 @@ namespace Assets.Scripts.Jobs
 						point1.currentPosition.z += pushZ * 2f;
 					}
 
+					int originalPoint1Index = link.point1Index;
+					int originalPoint2Index = link.point2Index;
+
 					if (math.abs(extraDist) > physicSettings.breakResistance)
 					{
 						if (point2.neighborCount > 1)
@@ -86,8 +89,8 @@ namespace Assets.Scripts.Jobs
 
 
 					links[i] = link;
-					points[link.point1Index] = point1;
-					points[link.point2Index] = point2;
+					points[originalPoint1Index] = point1;
+					points[originalPoint2Index] = point2;
 				}
 			}
             
