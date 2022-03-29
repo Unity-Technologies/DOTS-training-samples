@@ -9,7 +9,7 @@ public partial class SpawnerSystem : SystemBase
    static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
         var heatmapEntity = ecb.CreateEntity();
-        ecb.SetName(heatmapEntity, "Fire");
+        ecb.SetName(heatmapEntity, "Heatmap");
         var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
         for (int iFire = 0; iFire < size * size ; iFire++)//adding elements to buffer
         {

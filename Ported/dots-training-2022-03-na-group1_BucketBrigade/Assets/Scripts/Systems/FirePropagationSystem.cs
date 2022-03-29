@@ -11,35 +11,23 @@ public partial class FirePropagationSystem : SystemBase
         
         var heatmap = GetSingletonEntity<HeatMapTemperature>();
         DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
-        //
-        // var intDynamicBuffer = heatmapBuffer.Reinterpret<float>();
-        // for (int i = 0; i < heatmapBuffer.Length; i++)
-        // {
-        //     // ...
-        //     intDynamicBuffer[i] = 0.5f;
-        // }
         
-         float deltaTime = Time.DeltaTime * heatmapData.heatSpeed;
-         
-         Entities
-             .ForEach( (ref DynamicBuffer<HeatMapTemperature> heatmapBuffer) =>
-             {
-                 var buffer = heatmapBuffer.Reinterpret<float>();
-                 for (var i = 0; i < buffer.Length; i++)
-                 {
-                     if (buffer[i] >= 0.2f)
-                     {
-                         buffer[i] += deltaTime;
-                         HeatAdjacents(ref heatmapBuffer, i, heatmapData.width, deltaTime);
-                     }
+        float deltaTime = Time.DeltaTime * heatmapData.heatSpeed;
+        
+        var buffer = heatmapBuffer.Reinterpret<float>();
+        for (var i = 0; i < buffer.Length; i++)
+        {
+            if (buffer[i] >= 0.2f)
+            {
+                buffer[i] += deltaTime;
+                HeatAdjacents(ref heatmapBuffer, i, heatmapData.width, deltaTime);
+            }
 
-                     if (buffer[i] >= 1f)
-                         buffer[i] = 1f;
-                 }
-             })
-             .Schedule();
+            if (buffer[i] >= 1f)
+                buffer[i] = 1f;
+        }
 
-         Entities.WithAll<FireIndex>()
+        Entities.WithAll<FireIndex>()
              .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent) =>
              {
                  float intensity = heatmapBuffer[fireIndex.index];
