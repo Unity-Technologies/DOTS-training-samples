@@ -41,6 +41,7 @@ namespace Systems
                 invDamping = invDamping
             };
 
+
             var constraintJob = new ContraintJob()
             {
                 points = points,
@@ -55,23 +56,11 @@ namespace Systems
 
             jobHandlePoint.Complete();
             jobHandleConstraint.Complete();   
-
-            var renderingJob = new RenderingVerletPointJob()
-            {
-                points = points,
-                bars = GetComponentTypeHandle<Bar>(),
-                translations = GetComponentTypeHandle<Translation>(),
-            };
-
             
-            JobHandle jobHandleRendering = renderingJob.ScheduleParallel(barQuery, Dependency);
-            JobHandle.ScheduleBatchedJobs();
-            jobHandleRendering.Complete();          
            
 
         }
 
-       
 
         public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links)
         {

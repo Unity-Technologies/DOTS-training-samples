@@ -19,6 +19,11 @@ namespace Sample.Authoring
         public UnityGameObject particlePrefab;
         [UnityRange(0.1f, 1.0f)] public float minParticleScale = 0.2f;
         [UnityRange(0.1f, 2.0f)] public float maxParticleScale = 0.7f;
+        [UnityRange(0.0f, 1.0f)] public float minColorMultiplier = 0.3f;
+        [UnityRange(0.0f, 1.0f)] public float maxColorMultiplier = 0.7f;
+
+        public int cubeSize;
+        public UnityGameObject barPrefab;
 
 
         // This function is required by IDeclareReferencedPrefabs
@@ -28,6 +33,7 @@ namespace Sample.Authoring
             // This function allows us to inject extra GameObjects,
             // in this case prefabs that live in the assets folder.
             referencedPrefabs.Add(particlePrefab);
+            referencedPrefabs.Add(barPrefab);
         }
 
         // This function is required by IConvertGameObjectToEntity
@@ -45,6 +51,10 @@ namespace Sample.Authoring
                 particlePrefab = conversionSystem.GetPrimaryEntity(particlePrefab),
                 minParticleScale =  minParticleScale,
                 maxParticleScale =  maxParticleScale,
+                minColorMultiplier = minColorMultiplier,
+                maxColorMultiplier = maxColorMultiplier,
+                barPrefab = conversionSystem.GetPrimaryEntity(barPrefab),
+                cubeSize = cubeSize,
             });
         }
     }

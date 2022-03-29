@@ -11,6 +11,8 @@ namespace Components
         public Entity particlePrefab;
         public float minParticleScale;
         public float maxParticleScale;
+        public float minColorMultiplier;
+        public float maxColorMultiplier;
 
         // .. more will come
 

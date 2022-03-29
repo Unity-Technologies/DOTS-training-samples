@@ -6,5 +6,7 @@ namespace Components
     public struct CombinedPoints : IComponentData
     {
         public int4 indices;
+
+
     }
 }

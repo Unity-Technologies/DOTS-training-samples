@@ -10,6 +10,7 @@ namespace Components
 
 
         //temp
-        public int indexPoint;
+        // public int indexPoint;
+        public int indexLink;
     }
 }

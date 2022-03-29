@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 698996226}
   - component: {fileID: 698996225}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: GenerationParameters
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -165,6 +165,10 @@ MonoBehaviour:
     type: 3}
   minParticleScale: 0.2
   maxParticleScale: 0.7
+  minColorMultiplier: 0.3
+  maxColorMultiplier: 0.7
+  cubeSize: 5
+  barPrefab: {fileID: 851528756}
 --- !u!4 &698996226
 Transform:
   m_ObjectHideFlags: 0
@@ -179,60 +183,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1608070411
+--- !u!1 &851528756 stripped
 GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1608070413}
-  - component: {fileID: 1608070412}
-  m_Layer: 0
-  m_Name: GenerationParameters
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1608070412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1608070411}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fe6b5c5c6e95e14398bf57884e47f97, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minParticleSpawnPosition:
-    x: 0
-    y: 0
-    z: 0
-  maxParticleSpawnPosition:
-    x: 0
-    y: 0
-    z: 0
-  cubeSize: 5
-  barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
+  m_CorrespondingSourceObject: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
---- !u!4 &1608070413
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_PrefabInstance: {fileID: 331188582892831649}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1608070411}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &261333122410833908
 PrefabInstance:
   m_ObjectHideFlags: 0
