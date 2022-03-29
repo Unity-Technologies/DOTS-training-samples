@@ -172,5 +172,5 @@ MonoBehaviour:
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
   TeamCount: 2
   MembersCount: 28
-  FireDimension: 10
+  FireDimension: 100
   WaterCount: 0
