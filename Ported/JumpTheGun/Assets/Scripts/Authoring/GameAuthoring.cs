@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Rendering;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -46,5 +47,6 @@ public class GameAuthoring : UnityMonoBehaviour
         });
         dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
         dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new Brick());
+        dstManager.AddComponent<URPMaterialPropertyBaseColor>(conversionSystem.GetPrimaryEntity(BrickPrefab));
     }
 }
