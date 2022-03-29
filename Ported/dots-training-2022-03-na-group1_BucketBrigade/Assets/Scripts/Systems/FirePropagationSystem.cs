@@ -2,6 +2,7 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 
 public partial class FirePropagationSystem : SystemBase
 {
@@ -36,7 +37,7 @@ public partial class FirePropagationSystem : SystemBase
              .Schedule();
     }
 
-    static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer,int tileIndex, int width, float deltaTime)
+    static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, int tileIndex, int width, float deltaTime)
     {
         //check out of bounds
         //(x-1, z-1), (x, z-1), (x+1, z-1) 
@@ -47,18 +48,20 @@ public partial class FirePropagationSystem : SystemBase
         {
             new int2(-1,-1), new int2(0,-1), new int2(1,-1), 
             new int2(-1,0),  new int2(1,0), 
-            new int2(-1,+1), new int2(0,+1), new int2(1,1), 
+            new int2(-1,1), new int2(0,1), new int2(1,1), 
         };
 
         for (int iCheck = 0; iCheck < checkAdjacents.Length; iCheck++)
         {
-            int x = tileIndex + checkAdjacents[iCheck].x;
-            int z = tileIndex + checkAdjacents[iCheck].y;
+            int2 tileCoord = GetTileCoordinate(tileIndex, width);
+            int x = tileCoord.x + checkAdjacents[iCheck].x;
+            int z = tileCoord.y + checkAdjacents[iCheck].y;
 
-            bool outOfBounce = (x < 0 || x > width-1 || z < 0 || z > width-1);
+            bool inBounds = (x >= 0 && x <= width-1 && z >= 0 && z <= width-1);
+
             int adjacentIndex = GetTileIndex(x, z, width);
 
-            if (!outOfBounce && buffer[adjacentIndex] < 0.2f)
+            if (inBounds && buffer[adjacentIndex] < 0.2f)
             {
                 //heat
                 buffer[adjacentIndex] += deltaTime;
@@ -71,7 +74,7 @@ public partial class FirePropagationSystem : SystemBase
         return (z * width) + x;
     }
     
-    int2 GetTileCoordinate(int index , int width)
+    static int2 GetTileCoordinate(int index , int width)
     {
         int x = index / width;
         int z = index % width;

@@ -6,6 +6,8 @@ using Unity.Transforms;
 
 public partial class SpawnerSystem : SystemBase
 {
+   private bool firesStarted = false;
+
    static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
         var heatmapEntity = ecb.CreateEntity();
@@ -13,16 +15,35 @@ public partial class SpawnerSystem : SystemBase
         var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
         for (int iFire = 0; iFire < size * size ; iFire++)//adding elements to buffer
         {
-            heatmapBuffer.Add(new HeatMapTemperature {value = 0.2f});
+            heatmapBuffer.Add(new HeatMapTemperature {value = 0});
         }
-                
+
         ecb.AddComponent(heatmapEntity, new HeatMapData()
         {
-            width = size , 
-            heatSpeed = 0.01f,
+            width = size, 
+            heatSpeed = 0.1f,
             startColor = new float4(0f,0f,0f,1f),
             finalColor = new float4(0f,0f,0f,1f)
         });
+    }
+
+    void StartRandomFires()
+    {
+        var heatmap = GetSingletonEntity<HeatMapTemperature>();
+        DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
+        Random random = new Random(123123);
+
+        // Set random tiles on fire by default
+        for (int i = 0; i < 5; i++)
+        {
+            int randomIndex = random.NextInt(0, heatmapBuffer.Length);
+
+            UnityEngine.Debug.Log("Starting tile index: " + randomIndex);
+
+            heatmapBuffer[randomIndex] = 0.2f;
+        }
+
+        firesStarted = true;
     }
 
    static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
@@ -50,7 +71,7 @@ public partial class SpawnerSystem : SystemBase
            }
        }
    }
-   
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -137,5 +158,8 @@ public partial class SpawnerSystem : SystemBase
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
+
+        if (!firesStarted) 
+            StartRandomFires();
     }
 }
