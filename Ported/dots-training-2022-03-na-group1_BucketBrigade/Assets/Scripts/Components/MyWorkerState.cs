@@ -2,6 +2,6 @@
 
 public struct MyWorkerState : IComponentData
 {
-    public WorkerState state;
+    public WorkerState Value;
 }
 

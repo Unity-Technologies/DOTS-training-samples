@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct RelocationPosition : IComponentData
 {
-    public float positionAlongSpline; // 0-1
+    public float Value; // 0-1
 }

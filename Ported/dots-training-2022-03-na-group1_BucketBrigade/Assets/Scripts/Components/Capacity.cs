@@ -2,5 +2,5 @@
 
 public struct Capacity : IComponentData
 {
-    public float amount;
+    public float Value;
 }

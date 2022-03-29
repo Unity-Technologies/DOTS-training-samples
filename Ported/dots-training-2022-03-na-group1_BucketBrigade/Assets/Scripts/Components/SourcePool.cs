@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct SourcePool : IComponentData
 {
-    public Entity waterSource;
+    public Entity Value;
 }

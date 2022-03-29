@@ -10,13 +10,13 @@ public partial class PositioningSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, in Position position) =>
             {
-                translation.Value = new float3(position.position.x, translation.Value.y, position.position.y);
+                translation.Value = new float3(position.Value.x, translation.Value.y, position.Value.y);
             }).ScheduleParallel();
         
         Entities
             .ForEach((ref NonUniformScale scale, in Scale newScale) =>
             {
-                scale.Value = newScale.scale;
+                scale.Value = newScale.Value;
             }).ScheduleParallel();
     }
 }

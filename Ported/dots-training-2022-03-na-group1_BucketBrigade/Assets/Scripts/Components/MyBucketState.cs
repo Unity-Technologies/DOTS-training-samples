@@ -2,5 +2,5 @@
 
 public struct MyBucketState : IComponentData
 {
-    public BucketState state;
+    public BucketState Value;
 }

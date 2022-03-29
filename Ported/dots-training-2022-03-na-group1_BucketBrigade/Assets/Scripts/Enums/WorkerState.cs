@@ -3,6 +3,11 @@ using Unity.Mathematics;
 
 public enum WorkerState
 {
+    Idle,
+    Repositioning,
+    
+    
+    
     Thinking,
     RepositioningToWewLine,
     DeliveringBucketToPerson,

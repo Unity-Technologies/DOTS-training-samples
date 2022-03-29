@@ -20,7 +20,7 @@ public partial class WaterFillingSystem : SystemBase
         Entities
             .ForEach((ref NonUniformScale scale, in Capacity waterCapacity) =>
             {
-                var size = math.sqrt(waterCapacity.amount) * 0.1f;
+                var size = math.sqrt(waterCapacity.Value) * 0.1f;
                 scale.Value = new float3(size, 0.02f, size);
             }).ScheduleParallel();
     }

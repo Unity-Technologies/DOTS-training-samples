@@ -32,7 +32,7 @@ public partial class FirePropagationSystem : SystemBase
              {
                  float intensity = heatmapBuffer[fireIndex.index];
                  colorComponent.Value = new float4( intensity );
-                 scale = new Scale() { scale = new float3(1f, intensity, 1f) };
+                 scale = new Scale() { Value = new float3(1f, intensity, 1f) };
              })
              .Schedule();
     }

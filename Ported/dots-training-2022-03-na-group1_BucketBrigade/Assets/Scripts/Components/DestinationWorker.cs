@@ -2,5 +2,5 @@
 
 public struct DestinationWorker : IComponentData
 {
-    public Entity worker;
+    public Entity Value;
 }

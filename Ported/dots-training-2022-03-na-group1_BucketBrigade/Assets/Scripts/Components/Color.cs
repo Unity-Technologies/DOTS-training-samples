@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct Color : IComponentData
 {
-    public float4 color;
+    public float4 Value;
 }

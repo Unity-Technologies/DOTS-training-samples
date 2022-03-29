@@ -37,7 +37,7 @@ public partial class SpawnerSystem : SystemBase
                var instance = ecb.Instantiate(firePrefab);
                ecb.SetComponent(instance, new Position()
                {
-                   position = offset + new float2(i, j)
+                   Value = offset + new float2(i, j)
                });
                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                {
@@ -62,50 +62,50 @@ public partial class SpawnerSystem : SystemBase
                 var squadSize = (spawner.MembersCount - 3) / 2;
                 
                 var fetcherEntity = ecb.Instantiate(spawner.FetcherPrefab);
-                ecb.SetComponent(fetcherEntity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(fetcherEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
                 
                 var waterCaptainEntity = ecb.Instantiate(spawner.WaterCaptainPrefab);
-                ecb.SetComponent(waterCaptainEntity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(waterCaptainEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
 
                 var fireCaptainEntity = ecb.Instantiate(spawner.FireCaptainPrefab);
-                ecb.SetComponent(fireCaptainEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
-                ecb.SetComponent(fireCaptainEntity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                ecb.SetComponent(fireCaptainEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
+                ecb.SetComponent(fireCaptainEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
 
-                ecb.SetComponent(fetcherEntity, new DestinationWorker() {worker = waterCaptainEntity});
+                ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = waterCaptainEntity});
                 
                 var previousMember = waterCaptainEntity;
                 
                 for (var j = 0; j < squadSize; j++)
                 {
                     var workerEntity = ecb.Instantiate(spawner.FullBucketWorkerPrefab);
-                    ecb.SetComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
-                    ecb.SetComponent(workerEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
-                    ecb.SetComponent(workerEntity, new MyFireCaptain() {captain = fireCaptainEntity});
-                    ecb.SetComponent(workerEntity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                    ecb.SetComponent(workerEntity, new RelocationPosition() { Value = (float)(j + 1) / (float)(squadSize + 1)});
+                    ecb.SetComponent(workerEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
+                    ecb.SetComponent(workerEntity, new MyFireCaptain() {Value = fireCaptainEntity});
+                    ecb.SetComponent(workerEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
                     
-                    ecb.SetComponent(previousMember, new DestinationWorker() {worker = workerEntity});
+                    ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
 
                     previousMember = workerEntity;
                 }
                 
-                ecb.SetComponent(previousMember, new DestinationWorker() {worker = fireCaptainEntity});
+                ecb.SetComponent(previousMember, new DestinationWorker() {Value = fireCaptainEntity});
 
                 previousMember = fireCaptainEntity;
                 
                 for (var j = 0; j < squadSize; j++)
                 {
                     var workerEntity = ecb.Instantiate(spawner.EmptyBucketWorkerPrefab);
-                    ecb.SetComponent(workerEntity, new RelocationPosition() { positionAlongSpline = (float)(j + 1) / (float)(squadSize + 1)});
-                    ecb.SetComponent(workerEntity, new MyWaterCaptain() {captain = waterCaptainEntity});
-                    ecb.SetComponent(workerEntity, new MyFireCaptain() {captain = fireCaptainEntity});
-                    ecb.SetComponent(workerEntity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+                    ecb.SetComponent(workerEntity, new RelocationPosition() { Value = (float)(j + 1) / (float)(squadSize + 1)});
+                    ecb.SetComponent(workerEntity, new MyWaterCaptain() {Value = waterCaptainEntity});
+                    ecb.SetComponent(workerEntity, new MyFireCaptain() {Value = fireCaptainEntity});
+                    ecb.SetComponent(workerEntity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
                     
-                    ecb.SetComponent(previousMember, new DestinationWorker() {worker = workerEntity});
+                    ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
                     previousMember = workerEntity;
                 }
 
-                ecb.SetComponent(previousMember, new DestinationWorker() {worker = waterCaptainEntity});
+                ecb.SetComponent(previousMember, new DestinationWorker() {Value = waterCaptainEntity});
             }
    }
 
@@ -116,7 +116,7 @@ public partial class SpawnerSystem : SystemBase
        for (int i = 0; i < count; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+           ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
        }
    }
 
@@ -127,7 +127,7 @@ public partial class SpawnerSystem : SystemBase
        for (int i = 0; i < count; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position {position = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+           ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
        }
    }
    
@@ -142,29 +142,29 @@ public partial class SpawnerSystem : SystemBase
        for (int i = 0; i < waterCountEachSide; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position() {position = new float2(-radius - distanceFromEdge, -radius + waterDistance * i)});
-           ecb.SetComponent(entity, new Capacity() { amount = random.NextInt(minWater, maxWater)});
+           ecb.SetComponent(entity, new Position() {Value = new float2(-radius - distanceFromEdge, -radius + waterDistance * i)});
+           ecb.SetComponent(entity, new Capacity() { Value = random.NextInt(minWater, maxWater)});
        }
                 
        for (int i = 0; i < waterCountEachSide; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position {position = new float2(radius + distanceFromEdge, -radius + waterDistance * i)});
-           ecb.SetComponent(entity, new Capacity() { amount = random.NextInt(minWater, maxWater)});
+           ecb.SetComponent(entity, new Position {Value = new float2(radius + distanceFromEdge, -radius + waterDistance * i)});
+           ecb.SetComponent(entity, new Capacity() { Value = random.NextInt(minWater, maxWater)});
        }
                 
        for (int i = 0; i < waterCountEachSide; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position {position = new float2(-radius + waterDistance * i, -radius - distanceFromEdge)});
-           ecb.SetComponent(entity, new Capacity() { amount = random.NextInt(minWater, maxWater)});
+           ecb.SetComponent(entity, new Position {Value = new float2(-radius + waterDistance * i, -radius - distanceFromEdge)});
+           ecb.SetComponent(entity, new Capacity() { Value = random.NextInt(minWater, maxWater)});
        }
                 
        for (int i = 0; i < waterCountEachSide; i++)
        {
            var entity = ecb.Instantiate(prefab);
-           ecb.SetComponent(entity, new Position {position = new float2(-radius + waterDistance * i, radius + distanceFromEdge)});
-           ecb.SetComponent(entity, new Capacity() { amount = random.NextInt(minWater, maxWater)});
+           ecb.SetComponent(entity, new Position {Value = new float2(-radius + waterDistance * i, radius + distanceFromEdge)});
+           ecb.SetComponent(entity, new Capacity() { Value = random.NextInt(minWater, maxWater)});
        }
    }
    

@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct Scale : IComponentData
 {
-    public float3 scale;
+    public float3 Value;
 }

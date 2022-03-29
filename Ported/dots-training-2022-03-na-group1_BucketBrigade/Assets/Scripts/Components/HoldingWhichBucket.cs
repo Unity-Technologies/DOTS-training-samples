@@ -2,5 +2,5 @@
 
 public struct HoldingWhichBucket : IComponentData
 {
-    public Entity waterSource;
+    public Entity Value;
 }
