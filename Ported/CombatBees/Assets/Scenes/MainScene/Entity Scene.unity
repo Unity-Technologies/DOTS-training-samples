@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ResourcePrefab: {fileID: 1667393258452892946, guid: c7e942e7629e11e4da319b0f4da06ce4, type: 3}
-  ResourceCount: 100
+  ResourceCount: 250
 --- !u!4 &347215719
 Transform:
   m_ObjectHideFlags: 0
