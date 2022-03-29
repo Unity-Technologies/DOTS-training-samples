@@ -44,3 +44,5 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+Ported/CombatBees/.vsconfig
+Ported/CombatBees/UserSettings/EditorUserSettings.asset
