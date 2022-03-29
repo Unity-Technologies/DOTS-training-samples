@@ -34,29 +34,6 @@ namespace Systems
                         var translation = new Translation { Value = worldStartPosition + new float3(worldSize.Value.x, 0, worldSize.Value.z) * random.NextFloat3(1) };
                         ecb.SetComponent(bee, translation);
                     }
-
-                    // for (int j = 0; j < 100; ++j)
-                    // {
-                    //     if (random.NextFloat() < spawner.ResourcePrefab)
-                    //     {
-                    //         var vehicle = ecb.Instantiate(spawner.CarPrefab);
-                    //
-                    //         ecb.SetComponent(vehicle, new Translation
-                    //         {
-                    //             Value = new float3(0, 0, i)
-                    //         });
-                    //
-                    //         ecb.SetComponent(vehicle, new URPMaterialPropertyBaseColor
-                    //         {
-                    //             Value = random.NextFloat4()
-                    //         });
-                    //
-                    //         ecb.SetComponent(vehicle, new CarMovement
-                    //         {
-                    //             Offset = j
-                    //         });
-                    //     }
-                    // }
                 }).Run();
 
             ecb.Playback(EntityManager);
