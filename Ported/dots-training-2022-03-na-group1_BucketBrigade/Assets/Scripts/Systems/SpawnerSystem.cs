@@ -156,6 +156,12 @@ public partial class SpawnerSystem : SystemBase
            ecb.SetComponent(entity, new Capacity() { amount = random.NextInt(minWater, maxWater)});
        }
    }
+   
+   static void SpawnGround(EntityCommandBuffer ecb, Entity prefab, int size)
+   {
+       var entity = ecb.Instantiate(prefab);
+       ecb.SetComponent(entity, new NonUniformScale() {Value = new float3(size, 0.01f, size)});
+   }
 
    protected override void OnUpdate()
     {
@@ -170,6 +176,7 @@ public partial class SpawnerSystem : SystemBase
         Entities
             .ForEach((Entity entity, in Spawner spawner) =>
             {
+
                 ecb.DestroyEntity(entity);
                 
                 SpawnHeatmap(ecb, spawner.FireDimension);
@@ -181,6 +188,9 @@ public partial class SpawnerSystem : SystemBase
                 SpawnBuckets(ecb, spawner.BucketPrefab, spawner.BucketCount, spawner.FireDimension, random);
 
                 SpawnWaterPools(ecb, spawner.WaterPoolPrefab, spawner.WaterCount, spawner.FireDimension, spawner.MinWaterSupplyCount, spawner.MaxWaterSupplyCount, random);
+
+                SpawnGround(ecb, spawner.GroundPrefab, spawner.FireDimension);
+                
             }).Run();
 
         ecb.Playback(EntityManager);

@@ -15,6 +15,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public UnityGameObject EmptyBucketWorkerPrefab;
     public UnityGameObject OmniWorkerPrefab;
     public UnityGameObject WaterPoolPrefab;
+    public UnityGameObject GroundPrefab;
     public UnityGameObject FlameCellPrefab;
     public UnityGameObject BucketPrefab;
 
@@ -42,6 +43,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         referencedPrefabs.Add(WaterPoolPrefab);
         referencedPrefabs.Add(FlameCellPrefab);
         referencedPrefabs.Add(BucketPrefab);
+        referencedPrefabs.Add(GroundPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -60,6 +62,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
             EmptyBucketWorkerPrefab = conversionSystem.GetPrimaryEntity(EmptyBucketWorkerPrefab),
             OmniWorkerPrefab = conversionSystem.GetPrimaryEntity(OmniWorkerPrefab),
             WaterPoolPrefab = conversionSystem.GetPrimaryEntity(WaterPoolPrefab),
+            GroundPrefab = conversionSystem.GetPrimaryEntity(GroundPrefab),
             FlameCellPrefab = conversionSystem.GetPrimaryEntity(FlameCellPrefab),
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
             TeamCount = TeamCount,

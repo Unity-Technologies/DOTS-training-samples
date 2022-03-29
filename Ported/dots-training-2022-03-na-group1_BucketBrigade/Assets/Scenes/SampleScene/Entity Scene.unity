@@ -173,6 +173,7 @@ MonoBehaviour:
   EmptyBucketWorkerPrefab: {fileID: 1821148559735918, guid: 1785ba2e26a0648ca82261d7f927c88e, type: 3}
   OmniWorkerPrefab: {fileID: 1821148559735918, guid: 05526c54c85bd44a183b6c9ccf326344, type: 3}
   WaterPoolPrefab: {fileID: 1068854535243822, guid: f7b2ae8f04a49439ba5796f2f68692fa, type: 3}
+  GroundPrefab: {fileID: 1068854535243822, guid: 77c0a28cf7b9c4d7789136a68bb82065, type: 3}
   FlameCellPrefab: {fileID: 1306931638197496, guid: 66efc17ad61e9415b8f30c05008692e1, type: 3}
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
   TeamCount: 1
