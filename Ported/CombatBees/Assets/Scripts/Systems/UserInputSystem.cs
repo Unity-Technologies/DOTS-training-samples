@@ -30,9 +30,6 @@ namespace Systems
                     _worldPlanes[planeIndex++] = new Plane(-wallCenter, wallCenter);
                 }
             }
-            
-            viewDist = 70f;
-            smoothViewDist = viewDist;
         }
 
         protected override void OnUpdate()
@@ -123,39 +120,6 @@ namespace Systems
                     ecb.Dispose();
                 }
             }
-
-            OrbitCamera();
         }
-
-        private void OrbitCamera()
-        {
-            if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButton(0)) {
-                viewAngles.x += Input.GetAxis("Mouse X") * sensitivity/Screen.height;
-                viewAngles.y -= Input.GetAxis("Mouse Y") * sensitivity/Screen.height;
-                
-                viewAngles.y = Mathf.Clamp(viewAngles.y,-89f,89f);
-                
-                Debug.Log($"{viewAngles} {Screen.height}");
-            }
-
-            viewDist -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity * viewDist;
-            viewDist = Mathf.Clamp(viewDist,5f,80f);
-
-            smoothViewAngles = Vector2.Lerp(smoothViewAngles,viewAngles,stiffness * Time.DeltaTime);
-            smoothViewDist = Mathf.Lerp(smoothViewDist,viewDist,stiffness * Time.DeltaTime);
-
-            _refs.Camera.transform.rotation = Quaternion.Euler(smoothViewAngles.y,smoothViewAngles.x,0f);
-            _refs.Camera.transform.position = -_refs.Camera.transform.forward * smoothViewDist;
-            
-        }
-
-        Vector2 viewAngles;
-        Vector2 smoothViewAngles;
-        float viewDist;
-        float smoothViewDist;
-        
-        public float sensitivity = 5000;
-        public float zoomSensitivity = 0.2f;
-        public float stiffness = 12;
     }
 }
