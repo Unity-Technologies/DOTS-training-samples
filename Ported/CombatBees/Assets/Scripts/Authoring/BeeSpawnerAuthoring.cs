@@ -11,6 +11,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 {
 	public UnityGameObject BeePrefab;
 	[UnityRange(0, 1000)] public int BeeCount;
+	public float BeeHiveXOffset;
 
 	// This function is required by IDeclareReferencedPrefabs
 	public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -32,6 +33,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 		{
 			BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
 			BeeCount = BeeCount,
+			BeeHiveXOffset = BeeHiveXOffset
 		});
 	}
 }

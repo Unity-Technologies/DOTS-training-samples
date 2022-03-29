@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30a218ac06b466d4fa6c5b336f8646da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeePrefab: {fileID: 8743914809618719217, guid: 10333629f3ddfd048a1b03e7397e3974, type: 3}
-  BeeCount: 50
+  BeePrefab: {fileID: 2409184108622359359, guid: f7983cac273ae36499764289c4674a9e, type: 3}
+  BeeCount: 100
+  BeeHiveXOffset: 40
 --- !u!114 &3952455313213896102
 MonoBehaviour:
   m_ObjectHideFlags: 0
