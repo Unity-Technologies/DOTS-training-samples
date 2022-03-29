@@ -22,7 +22,7 @@ namespace Systems
             for (int i = 0; i < points.Length; i++)
             {
 				VerletPoints point = points[i];
-				
+
 				float startX = point.currentPosition.x;
 				float startY = point.currentPosition.y;
 				float startZ = point.currentPosition.z;
