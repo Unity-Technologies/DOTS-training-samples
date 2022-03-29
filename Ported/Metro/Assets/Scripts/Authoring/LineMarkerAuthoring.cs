@@ -31,15 +31,20 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         MarkerRouteIndex = GetSiblingIndex(transform, transform.parent);
         name = LineID + "_" + MarkerRouteIndex;
     }
+    
     public void OnDrawGizmos()
     {
-        UnityGizmos.color = UnityGUI.color = (MarkerType != LineMarkerType.Platform) ?  GetColorFromIndex( LineID ) : UnityColor.white;
+        var lineColor = GetColorFromIndex(LineID);
+        var isPlatform = MarkerType == LineMarkerType.Platform;
+        UnityGizmos.color = UnityGUI.color = (!isPlatform) ?  lineColor : UnityColor.white;
 		
         // Draw marker X
         float xSize = 0.5f;
         UnityGizmos.DrawLine(transform.position + new UnityVector3(-xSize, 0f, -xSize), transform.position + new UnityVector3(xSize, 0f, xSize));
         UnityGizmos.DrawLine(transform.position + new UnityVector3(xSize, 0f, -xSize), transform.position + new UnityVector3(-xSize, 0f, xSize));
-		
+
+        UnityGizmos.color = UnityGUI.color = lineColor;
+        
         // connect to next in line (if found)
         if (MarkerRouteIndex != transform.parent.childCount-1)
         {
@@ -47,7 +52,8 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
 		
 #if UNITY_EDITOR
-        UnityEditorHandles.Label(transform.position + new UnityVector3(0f,1f,0f), LineID +"_"+MarkerRouteIndex + ((MarkerType == LineMarkerType.Platform) ? " **" : ""));
+        UnityGizmos.color = UnityGUI.color = UnityColor.white;
+        UnityEditorHandles.Label(transform.position + new UnityVector3(0f,0f,0f), $"  {LineID}_{MarkerRouteIndex}{((MarkerType == LineMarkerType.Platform) ? "_Station" : "")}");
 #endif
     }
 	
