@@ -26,6 +26,7 @@ namespace Systems
                         var bee = ecb.Instantiate(spawner.BeePrefab);
                         var translation = new Translation { Value = worldStartPosition + worldSize.Value * random.NextFloat3(1) };
                         ecb.SetComponent(bee, translation);
+                        ecb.AddSharedComponent(bee, new Team { TeamId = 0 });
                     }
                     
                     for (int i = 0; i < spawner.ResourceAmount; ++i)
