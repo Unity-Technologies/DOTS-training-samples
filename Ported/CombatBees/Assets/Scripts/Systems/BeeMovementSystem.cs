@@ -8,7 +8,7 @@ public partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         var deltaTime = Time.DeltaTime;
-        var gsv = GlobalSystemVersion;
+        var random = Random.CreateFromIndex(GlobalSystemVersion);
         float3 fieldSize = new float3(100f, 20f, 30f);
         float flightJitter = 200f;
         float damping = 0.1f;
@@ -17,7 +17,6 @@ public partial class BeeMovementSystem : SystemBase
             .WithAll<BeeMovement>()
             .ForEach((Entity entity, ref Translation translation, ref BeeMovement bee) =>
             {
-                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
                 var velocity = bee.Velocity;
                 velocity += random.NextFloat3Direction() * (flightJitter * deltaTime);
                 velocity *= 1f - damping;
