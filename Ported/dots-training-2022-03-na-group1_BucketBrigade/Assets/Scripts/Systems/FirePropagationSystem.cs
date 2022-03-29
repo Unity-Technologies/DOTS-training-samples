@@ -28,10 +28,11 @@ public partial class FirePropagationSystem : SystemBase
         }
 
         Entities.WithAll<FireIndex>()
-             .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent) =>
+             .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent, ref Scale scale) =>
              {
                  float intensity = heatmapBuffer[fireIndex.index];
                  colorComponent.Value = new float4( intensity );
+                 scale = new Scale() { scale = new float3(1f, intensity, 1f) };
              })
              .Schedule();
     }
