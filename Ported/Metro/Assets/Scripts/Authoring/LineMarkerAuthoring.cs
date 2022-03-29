@@ -10,13 +10,19 @@ using UnityColor = UnityEngine.Color;
 
 #if UNITY_EDITOR
 using UnityEditorHandles = UnityEditor.Handles;
-#endif 
+#endif
+
+public enum LineMarkerType
+{
+    Platform,
+    Route
+}
 
 [UnityEngine.ExecuteAlways]
 public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public int LineID;
-    public RailMarkerType MarkerType = RailMarkerType.ROUTE;
+    public LineMarkerType MarkerType = LineMarkerType.Route;
     public int MarkerRouteIndex;
     
     #region Legacy Code
@@ -27,7 +33,7 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     }
     public void OnDrawGizmos()
     {
-        UnityGizmos.color = UnityGUI.color = (MarkerType != RailMarkerType.PLATFORM_START) ?  GetColorFromIndex( LineID ) : UnityColor.white;
+        UnityGizmos.color = UnityGUI.color = (MarkerType != LineMarkerType.Platform) ?  GetColorFromIndex( LineID ) : UnityColor.white;
 		
         // Draw marker X
         float xSize = 0.5f;
@@ -41,7 +47,7 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
         }
 		
 #if UNITY_EDITOR
-        UnityEditorHandles.Label(transform.position + new UnityVector3(0f,1f,0f), LineID +"_"+MarkerRouteIndex + ((MarkerType == RailMarkerType.PLATFORM_START) ? " **" : ""));
+        UnityEditorHandles.Label(transform.position + new UnityVector3(0f,1f,0f), LineID +"_"+MarkerRouteIndex + ((MarkerType == LineMarkerType.Platform) ? " **" : ""));
 #endif
     }
 	
@@ -78,6 +84,12 @@ public class LineMarkerAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntit
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData<LineIDComponent>(entity, new LineIDComponent {Value = LineID});
+        dstManager.AddComponentData<LineMarkerIndexComponent>(entity, new LineMarkerIndexComponent {Value = MarkerRouteIndex});
+
+        if (MarkerType == LineMarkerType.Platform)
+        {
+            dstManager.AddComponent<PlatformComponent>(entity);
+        }
     }
     
     #endregion
