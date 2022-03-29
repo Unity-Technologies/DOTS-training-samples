@@ -12,10 +12,11 @@ public partial class BeeMovementSystem : SystemBase
         float3 fieldSize = new float3(100f, 20f, 30f);
         float flightJitter = 200f;
         float damping = 0.1f;
+        float speedStretch = 0.2f;
 
         Entities
             .WithAll<BeeMovement>()
-            .ForEach((Entity entity, ref Translation translation, ref BeeMovement bee) =>
+            .ForEach((Entity entity, ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee) =>
             {
                 var velocity = bee.Velocity;
                 velocity += random.NextFloat3Direction() * (flightJitter * deltaTime);
@@ -47,6 +48,14 @@ public partial class BeeMovementSystem : SystemBase
                 }
                 bee.Velocity = velocity;
                 translation.Value = position;
+
+                var size = bee.Size;
+                var scl = new float3(size, size, size);
+                float stretch = Mathf.Max(1f, math.distance(velocity, float3.zero) * speedStretch);
+                scl.z *= stretch;
+                scl.x /= (stretch - 1f) / 5f + 1f;
+                scl.y /= (stretch - 1f) / 5f + 1f;
+                scale.Value = scl;
 
             }).ScheduleParallel();
     }

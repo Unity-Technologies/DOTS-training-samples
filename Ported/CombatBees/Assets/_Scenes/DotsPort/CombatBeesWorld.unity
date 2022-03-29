@@ -160,7 +160,7 @@ MonoBehaviour:
   BeesAmount: 100
   ResourcePrefab: {fileID: 8321676622679794886, guid: c0e2b593b434e4b3caf203d2a8491424,
     type: 3}
-  ResourceAmount: 100
+  ResourceAmount: 500
 --- !u!23 &733420454
 MeshRenderer:
   m_ObjectHideFlags: 0
