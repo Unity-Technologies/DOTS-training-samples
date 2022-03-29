@@ -25,7 +25,7 @@ public class MouseRaycaster : MonoBehaviour {
 		for (int i=0;i<3;i++) {
 			for (int j=-1;j<=1;j+=2) {
 				Vector3 wallCenter = new Vector3();
-				wallCenter[i] = Field.size[i] * .5f*j;
+				wallCenter[i] = PlayField.size[i] * .5f*j;
 				Plane plane = new Plane(-wallCenter,wallCenter);
 				float hitDistance;
 				if (Vector3.Dot(plane.normal,mouseRay.direction) < 0f) {
@@ -33,7 +33,7 @@ public class MouseRaycaster : MonoBehaviour {
 						Vector3 hitPoint = mouseRay.GetPoint(hitDistance);
 						bool insideField = true;
 						for (int k = 0; k < 3; k++) {
-							if (Mathf.Abs(hitPoint[k]) > Field.size[k] * .5f+.01f) {
+							if (Mathf.Abs(hitPoint[k]) > PlayField.size[k] * .5f+.01f) {
 								insideField = false;
 								break;
 							}

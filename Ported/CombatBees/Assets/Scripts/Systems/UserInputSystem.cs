@@ -24,7 +24,7 @@ namespace Systems
                 {
                     var wallCenter = new Vector3
                     {
-                        [i] = Field.size[i] * .5f * j
+                        [i] = PlayField.size[i] * .5f * j
                     };
                     _worldPlanes[planeIndex++] = new Plane(-wallCenter, wallCenter);
                 }
@@ -50,7 +50,7 @@ namespace Systems
                         var insideField = true;
                         for (var k = 0; k < 3; k++)
                         {
-                            if (Mathf.Abs(hitPoint[k]) > Field.size[k] * .5f + .01f)
+                            if (Mathf.Abs(hitPoint[k]) > PlayField.size[k] * .5f + .01f)
                             {
                                 insideField = false;
                                 break;
@@ -96,7 +96,7 @@ namespace Systems
                     var distance = Vector3.Cross(ray.direction, pos - ray.origin).magnitude;
                     if (distance < 0.75f)
                     {
-                        landPosition = translation.Value + new float3(0, 2, 0);
+                        landPosition = translation.Value + new float3(0, PlayField.resourceHeight, 0);
                     }
                 }).Run();
 
