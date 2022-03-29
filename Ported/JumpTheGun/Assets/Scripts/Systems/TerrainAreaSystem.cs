@@ -47,15 +47,16 @@ public partial class TerrainAreaSystem : SystemBase
                         // Set scale
                         float height = random.NextFloat(terrainData.MinTerrainHeight, terrainData.MaxTerrainHeight);
                         float3 scale = new float3(1, height, 1);
-                        
                         // Set position
                         float3 pos = new float3(i * SPACING, height / 2 + Y_OFFSET, j * SPACING);
-                        
-                        var translationComponent = new Translation {Value = pos};
-                        var scaleComponent = new NonUniformScale {Value = scale};
-                        
-                        ecb.SetComponent(instance, translationComponent);
-                        ecb.SetComponent(instance, scaleComponent);
+                        ecb.SetComponent(instance, new Translation
+                        {
+                            Value = pos
+                        });
+                        ecb.SetComponent(instance, new NonUniformScale
+                        {
+                            Value = scale
+                        });
                     }
                 }
             }).Run();

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -36,13 +37,15 @@ public class GameAuthoring : UnityMonoBehaviour
             TankEntityPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
             CannonBallEntityPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab),
         });
+
+        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(BrickPrefab), new NonUniformScale());
         
         dstManager.AddComponentData(entity, new TerrainData
         {
             MinTerrainHeight = 2.5f,
             MaxTerrainHeight = 5.5f,
-            TerrainWidth = 5,
-            TerrainLength = 5,
+            TerrainWidth = 500,
+            TerrainLength = 500,
         });
     }
 }
