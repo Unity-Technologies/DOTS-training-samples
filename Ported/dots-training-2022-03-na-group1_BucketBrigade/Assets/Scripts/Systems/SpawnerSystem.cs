@@ -6,6 +6,51 @@ using Unity.Transforms;
 
 public partial class SpawnerSystem : SystemBase
 {
+   static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
+    {
+        var heatmapEntity = ecb.CreateEntity();
+        ecb.SetName(heatmapEntity, "Heatmap");
+        var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
+        for (int iFire = 0; iFire < size * size ; iFire++)//adding elements to buffer
+        {
+            heatmapBuffer.Add(new HeatMapTemperature {value = 0.2f});
+        }
+                
+        ecb.AddComponent(heatmapEntity, new HeatMapData()
+        {
+            width = size , 
+            heatSpeed = 0.01f,
+            startColor = new float4(0f,0f,0f,1f),
+            finalColor = new float4(0f,0f,0f,1f)
+        });
+    }
+
+   static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
+   {
+       var offsetSingleDimension = -(size - 1) / 2f;
+       var offset = new float3(offsetSingleDimension, 0f, offsetSingleDimension);
+                
+       for (var i = 0; i < size; i++)
+       {
+           for (var j = 0; j < size; j++)
+           {
+               var instance = ecb.Instantiate(firePrefab);
+               ecb.SetComponent(instance, new Translation
+               {
+                   Value = offset + new float3(i, 0,j)
+               });
+               ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
+               {
+                   Value = new float4(1,1,1,1)
+               });
+               ecb.SetComponent(instance, new FireIndex
+               {
+                   index = i + j *size
+               });
+           }
+       }
+   }
+   
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -20,31 +65,10 @@ public partial class SpawnerSystem : SystemBase
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 ecb.DestroyEntity(entity);
-
-                var heatmapEntity = ecb.CreateEntity();
-                ecb.SetName(heatmapEntity, "Fire");
-                var fireLength = spawner.FireDimension * spawner.FireDimension;
-                var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
-                heatmapBuffer.EnsureCapacity(fireLength);
-                for (int iFire = 0; iFire < fireLength ; iFire++)//adding elements to buffer
-                {
-                    heatmapBuffer.Add(new HeatMapTemperature {value = 0});
-                }
                 
-                ecb.AddComponent(heatmapEntity, new HeatMapWidth() { width = spawner.FireDimension });
+                SpawnHeatmap(ecb,spawner.FireDimension);
 
-                var offsetSingleDimension = -(spawner.FireDimension - 1) / 2f;
-                var offset = new float2(offsetSingleDimension, offsetSingleDimension);
-                
-                for (var i = 0; i < spawner.FireDimension; i++)
-                {
-                    for (var j = 0; j < spawner.FireDimension; j++)
-                    {
-                        var instance = ecb.Instantiate(spawner.FlameCellPrefab);
-                        var position = new Position() {position = offset + new float2(i, j)};
-                        ecb.SetComponent(instance, position);
-                    }
-                }
+                SpawnFireColumns(ecb, spawner.FlameCellPrefab, spawner.FireDimension);
                 
                 for (int i = 0; i < spawner.TeamCount; i++)
                 {
