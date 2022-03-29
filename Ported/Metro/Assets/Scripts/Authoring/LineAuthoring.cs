@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 
+using System.Collections.Generic;
+
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGizmos = UnityEngine.Gizmos;
 using UnityGUI = UnityEngine.GUI;
@@ -29,5 +31,11 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});
+    }
+
+    public void CreateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
+        List<LineMarkerAuthoring> markers)
+    {
+        
     }
 }
