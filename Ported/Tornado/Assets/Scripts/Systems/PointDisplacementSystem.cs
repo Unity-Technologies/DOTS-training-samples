@@ -55,7 +55,6 @@ namespace Systems
 
         }
 
-       
 
         public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links)
         {

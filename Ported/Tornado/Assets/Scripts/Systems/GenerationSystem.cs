@@ -1,24 +1,18 @@
-
-﻿using Assets.Scripts;
+using Assets.Scripts;
 using Components;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
-using Color = Components.Color;
 
 namespace Systems
 {
     public partial class GenerationSystem : SystemBase
     {
-
-       
         protected override void OnUpdate()
         {
             Temp_CubeGen();
-          
 
             // run once on spawner entity & delete it (maybe?)
             var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -41,24 +35,22 @@ namespace Systems
                             spawner.minParticleSpawnPosition,
                             spawner.maxParticleSpawnPosition);
                         var particleScale = random.NextFloat(spawner.minParticleScale, spawner.maxParticleScale);
+                        var color = new float4(1.0f, 1.0f, 1.0f, 1.0f) *
+                                    random.NextFloat(spawner.minColorMultiplier, spawner.maxColorMultiplier);
 
-                        //ecb.AddComponent(instance, new Particle { radiusMult = random.NextFloat()});
-                        ecb.AddComponent(instance,
-                            new Color {color = new float4(1.0f, 1.0f, 1.0f, 1.0f) * random.NextFloat()});
+                        ecb.AddComponent(instance, new Particle { radiusMult = random.NextFloat()});
                         ecb.SetComponent(instance, new Translation { Value = particlePosition });
+                        ecb.AddComponent(instance, new URPMaterialPropertyBaseColor {Value = color});
                         ecb.AddComponent(instance, new Scale { Value = particleScale });
                     }
                 }).WithoutBurst().Run();
 
             ecb.Playback(EntityManager);
             ecb.Dispose();
-
         }
-
 
         protected void Temp_CubeGen()
         {
-
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
@@ -89,8 +81,6 @@ namespace Systems
                                 currentPosition = pos,
                             };
                             points[actualIndex] = point;
-
-
 
                             var instance = ecb.Instantiate(generation.barPrefab);
 
@@ -154,16 +144,13 @@ namespace Systems
                             {
                                 AddIndex(px, y, z - 1, generation.cubeSize, point, actualIndex);
                             }
-
                         }
                     }
                 }
-
             }).Run();
 
             ecb.Playback(EntityManager);
             ecb.Dispose();
-
 
             pointDisplacement.Initialize(new NativeArray<VerletPoints>(points, Allocator.Persistent), new NativeArray<Link>(links, Allocator.Persistent));
             points.Dispose();
