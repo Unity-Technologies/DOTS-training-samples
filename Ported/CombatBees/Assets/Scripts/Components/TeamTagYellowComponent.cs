@@ -1,5 +1,5 @@
 using Unity.Entities;
 
-public struct TeamTagYellow : IComponentData
+public struct TeamTagYellowComponent : IComponentData
 {
 }
