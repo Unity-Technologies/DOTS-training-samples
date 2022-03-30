@@ -19,6 +19,7 @@ namespace Systems
         public NativeArray<Components.PhysicMaterial> physicmaterials;
         public bool isInitialized;
 
+
         public static int AllocatedPointCount;
 
 
@@ -30,7 +31,6 @@ namespace Systems
         EntityQueryDesc barQueryDesc = new EntityQueryDesc
         {
             All = new ComponentType[] { typeof(Translation), typeof(Bar) },
-
         };
 
         EntityQuery barQuery;
@@ -92,8 +92,23 @@ namespace Systems
                 physicSettings = physicParameters
             };
 
+
             var pointCount = new NativeArray<int>(new int[] { AllocatedPointCount }, Allocator.TempJob);
             //burst compatible
+            // for (int islandIndex = 0; islandIndex < islandCount; ++islandIndex)
+            // {
+            //     var constraintJob = new ContraintJob()
+            //     {
+            //         points = points,
+            //         links = links,
+            //         islandStartLink = ,
+            //         islandLinkCount = ,
+            //         jobPointAllocationIndex = AllocatedPointCount + islandStartIndex * 2,
+            //         iterations = physicParameters.constraintIterations,
+            //         physicSettings = physicParameters
+            //     };
+            // }
+
             var constraintJob = new ContraintJob()
             {
                 points = points,

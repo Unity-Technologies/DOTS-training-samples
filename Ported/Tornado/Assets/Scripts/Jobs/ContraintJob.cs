@@ -14,9 +14,8 @@ namespace Assets.Scripts.Jobs
     {
 		public NativeArray<VerletPoints> points;
 		public NativeArray<Link> links;
-
 		public NativeArray<int> count;
-		public int iterations;	
+		public int iterations;
 
 		[ReadOnly] public PhysicsSettings physicSettings;
 
@@ -81,7 +80,6 @@ namespace Assets.Scripts.Jobs
 							var c = count[0];
 							var allocatedIndex = c;							
 							count[0] = ++c;
-
 							points[allocatedIndex] = newPoint;
 							link.point2Index = allocatedIndex;
 						}
@@ -99,17 +97,13 @@ namespace Assets.Scripts.Jobs
 							points[allocatedIndex] = newPoint;
 							link.point1Index = allocatedIndex;
 						}
-					}		
-
+					}
 
 					links[i] = link;
 					points[originalPoint1Index] = point1;
 					points[originalPoint2Index] = point2;
 				}
 			}
-            
-			
-		}
-        
+        }
 	}
 }
