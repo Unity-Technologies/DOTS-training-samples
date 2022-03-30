@@ -246,17 +246,7 @@ public partial class BeeMovementSystem : SystemBase
 
                 }).ScheduleParallel();
 
-        Entities
-            .WithAll<TeamBlueTagComponent>()
-            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref NonUniformScale scale,
-                ref VelocityComponent velocity, ref TargetComponent target) =>
-                {
-                    var isBeeDead = entity.Equals(target.Value);
-                    if (isBeeDead == false)
-                    {
-
-                    }
-                }).ScheduleParallel();
+        // TODO: Foreach the other team of bees.
     }
 
     private static void ExampleMovementBehaviour()

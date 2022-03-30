@@ -24,7 +24,7 @@ public partial class SpawnerSystem : SystemBase
 					var instance = ecb.Instantiate(spawner.BeePrefab);
 					var translation = new Translation { Value = new float3(-spawner.BeeHiveXOffset,0,0) };
 					ecb.SetComponent(instance, translation);
-					ecb.AddComponent<TeamTagYellowComponent>(instance);
+					ecb.AddComponent<TeamYellowTagComponent>(instance);
 					ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 					ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = beeColorYellow });
 				}
@@ -34,7 +34,7 @@ public partial class SpawnerSystem : SystemBase
 					var instance = ecb.Instantiate(spawner.BeePrefab);
 					var translation = new Translation { Value = new float3(spawner.BeeHiveXOffset,0,0) };
 					ecb.SetComponent(instance, translation);
-					ecb.AddComponent<TeamTagBlueComponent>(instance);
+					ecb.AddComponent<TeamBlueTagComponent>(instance);
 					ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 					ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = beeColorBlue });
 				}
