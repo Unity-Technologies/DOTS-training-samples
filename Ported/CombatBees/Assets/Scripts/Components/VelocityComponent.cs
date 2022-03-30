@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct DirectionComponent : IComponentData
+public struct VelocityComponent : IComponentData
 {
     public float3 Value;
 }
