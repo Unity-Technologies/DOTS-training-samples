@@ -31,7 +31,7 @@ EditorSettings:
   m_SerializeInlineMappingsOnOneLine: 1
   m_DisableCookiesInLightmapper: 0
   m_AssetPipelineMode: 1
-  m_CacheServerMode: 0
+  m_CacheServerMode: 2
   m_CacheServerEndpoint: 
   m_CacheServerNamespacePrefix: default
   m_CacheServerEnableDownload: 1

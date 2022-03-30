@@ -300,6 +300,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7134980083042588961, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
+      propertyPath: TeamBeeCount
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7134980083042588962, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
       propertyPath: m_Name
       value: BlueTeamBeeSpawner
