@@ -27,7 +27,8 @@ namespace Instantiation
                 Velocity = float3.zero,
                 Size = size
             });
-            ecb.AddSharedComponent(bee, new Team { TeamId = team });
+            ecb.AddComponent(bee, new Team { TeamId = (byte)team });
+            ecb.AddSharedComponent(bee, new TeamShared { TeamId = (byte)team });
         }
 
         public static void Instantiate(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity prefab, float3 pos, float size, int team)
@@ -46,7 +47,8 @@ namespace Instantiation
                 Velocity = float3.zero,
                 Size = size
             });
-            ecb.AddSharedComponent(sortKey, bee, new Team { TeamId = team });
+            ecb.AddComponent(sortKey, bee, new Team { TeamId = (byte)team });
+            ecb.AddSharedComponent(sortKey, bee, new TeamShared { TeamId = (byte)team });
         }
     }
 

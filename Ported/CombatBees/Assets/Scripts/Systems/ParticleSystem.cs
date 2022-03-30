@@ -6,6 +6,7 @@ using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
 
 //[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))] // Disabled for now to sync with BeeMovementSystem
 [UpdateAfter(typeof(BeeMovementSystem))]
+[UpdateBefore(typeof(ParticleSystem))]
 public partial class ParticleSystemFixed : SystemBase
 {
     EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
@@ -21,6 +22,7 @@ public partial class ParticleSystemFixed : SystemBase
         var up = new float3(0, 1, 0);
 
         var ecb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb2 = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         // When components are stuck to a surface, velocity is removed which prevents them being considered for any movement jobs.
 
@@ -64,16 +66,18 @@ public partial class ParticleSystemFixed : SystemBase
             }).ScheduleParallel(velocityJob);
 
 
-        // Should be its own system as it is, but it being here should make adding pooling easier
-        Dependency = Entities
+        // Can run in parallel to the other jobs
+        var lifeJob = Entities
            .ForEach((Entity entity, int entityInQueryIndex, ref Lifetime lifetime, in ParticleComponent particle) =>
            {
                lifetime.Value -= deltaTime / lifetime.Duration;
                if (lifetime.Value < 0f)
                {
-                   ecb.DestroyEntity(entityInQueryIndex, entity);
+                   ecb2.DestroyEntity(entityInQueryIndex, entity);
                }
-           }).ScheduleParallel(moveJob);
+           }).ScheduleParallel(Dependency);
+
+        Dependency = Unity.Jobs.JobHandle.CombineDependencies(moveJob, lifeJob);
 
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
