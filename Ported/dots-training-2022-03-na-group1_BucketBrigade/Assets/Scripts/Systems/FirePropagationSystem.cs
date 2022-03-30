@@ -15,12 +15,13 @@ public partial class FirePropagationSystem : SystemBase
     protected override void OnCreate()
     {
         //radius 1 -> 8  : 3*3-1
-        //radius 2 -> 24 : 5*5-1 : (r+r+1)-1
+        //radius 2 -> 24 : 5*5-1 : (r+r+1)^2-1
         
         int radius = 2;
+        int diameter = (2 * radius + 1);
+        int arrayLength = diameter * diameter - 1;
         
-        checkAdjacents = new NativeArray<int2>(8, Allocator.Persistent);
-            
+        checkAdjacents = new NativeArray<int2>(arrayLength, Allocator.Persistent);
 
         int i = 0;
         for (int x = -radius; x <= radius; x++)
