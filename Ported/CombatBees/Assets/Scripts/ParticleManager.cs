@@ -71,7 +71,7 @@ public class ParticleManager : MonoBehaviour
             particle.velocity = velocity + Random.insideUnitSphere * velocityJitter;
             particle.lifeDuration = Random.Range(3f, 5f);
             particle.size = Vector3.one * Random.Range(.1f, .2f);
-            particle.color = Color.black; //Random.ColorHSV(-.05f, .05f, .75f, 1f, .3f, .8f);
+            particle.color = Random.ColorHSV(-.05f, .05f, .75f, 1f, .3f, .8f);
         }
         else if (type == ParticleType.SpawnFlash)
         {
