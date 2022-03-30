@@ -117,7 +117,9 @@ public partial class FirePropagationSystem : SystemBase
         int tileIndex = splashmapBuffer[splashIndex];
         splashmapBuffer[splashIndex] = -1;
         
-        //apply suppression to adjacents
+        //apply suppression to targetTile and adjacents
+        heatmapBuffer[tileIndex] = 0f;
+        
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
             int2 tileCoord = GetTileCoordinate(tileIndex, width);
@@ -134,7 +136,7 @@ public partial class FirePropagationSystem : SystemBase
         }
     }
 
-   static int GetTileIndex(int x, int z, int width)
+    public static int GetTileIndex(int x, int z, int width)
     {
         return (z * width) + x;
     }

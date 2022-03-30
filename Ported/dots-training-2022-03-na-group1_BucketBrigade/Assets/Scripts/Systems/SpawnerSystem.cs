@@ -45,17 +45,17 @@ public partial class SpawnerSystem : SystemBase
 
     static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
    {
-       var offsetSingleDimension = -(size - 1) / 2f;
+       var offsetSingleDimension = (size - 1) * 0.5f;
        var offset = new float3(offsetSingleDimension , 0, offsetSingleDimension);
                 
-       for (var x = 0; x < size; x++)
+       for (var z = 0; z < size; z++)
        {
-           for (var z = 0; z < size; z++)
+           for (var x = 0; x < size; x++)
            {
                var instance = ecb.Instantiate(firePrefab);
                ecb.SetComponent(instance, new Translation()
                {
-                   Value = offset + new float3(x, 0f, z)
+                   Value = new float3(x, 0f, z) - offset
                });
                
                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
@@ -64,7 +64,8 @@ public partial class SpawnerSystem : SystemBase
                });
                ecb.SetComponent(instance, new FireIndex
                {
-                   index = x + z *size
+                   index = z + x *size
+                   //index = x + z *size
                });
            }
        }
