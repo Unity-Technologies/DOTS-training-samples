@@ -30,21 +30,20 @@ public partial class BeeMovementSystem : SystemBase
             EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>())
         };
         teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
-        teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 }); 
-        
+        teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 });
+
         endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var particles = GetSingleton<ParticleSettings>();
-
         var deltaTime = Time.DeltaTime;
         var random = Random.CreateFromIndex(GlobalSystemVersion);
 
+
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
-
         var ecb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         // Run attraction/repulsion gather. Uses read access of Translation from input arrays and only writes attraction data.
@@ -56,53 +55,86 @@ public partial class BeeMovementSystem : SystemBase
             .WithDisposeOnCompletion(team1)
             .ForEach((ref AttractionRepulsion attractionRepulsion, in Team team) =>
             {
-                // Not unsetting any of these at the moment!
-                if (team.TeamId == 0 )
-                {                    
-                    if (team0.Length != 0)
+                if (team.TeamId == 0)
+                {
+                    if (team0.Length > 0)
+                    {
                         attractionRepulsion.AttractionPos = team0[random.NextInt(team0.Length)].Value;
-                    if (team1.Length != 0)
-                        attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
-                }
-                else
-                {
-                    if (team1.Length != 0)
-                        attractionRepulsion.AttractionPos = team1[random.NextInt(team1.Length)].Value;
-                    if (team0.Length != 0)
                         attractionRepulsion.RepulsionPos = team0[random.NextInt(team0.Length)].Value;
+                    }
                 }
-            }).ScheduleParallel();
-
-        Entities
-            .ForEach((int entityInQueryIndex, ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, ref TargetType targetType, in TargetEntity targetEntity, in AttractionRepulsion attraction, in CachedTargetPosition targetPos) =>
-            {
-                if (!UpdateBee(ref translation, ref scale, ref bee, ref random, attraction, targetType.Value, targetPos.Value, deltaTime))
+                else if (team1.Length > 0)
                 {
-                    ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
-                    ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
-                    targetType.Value = TargetType.Type.None;
-
+                    attractionRepulsion.AttractionPos = team1[random.NextInt(team1.Length)].Value;
+                    attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
                 }
             }).ScheduleParallel();
 
+
+        Dependency = Entities
+            .ForEach((int entityInQueryIndex,
+                ref Translation translation,
+                ref NonUniformScale scale,
+                ref BeeMovement bee,
+                ref TargetType targetType,
+                in AttractionRepulsion attraction,
+                in TargetEntity targetEntity,
+                in CachedTargetPosition targetPos) =>
+            {
+                var velocity = bee.Velocity;
+                var position = translation.Value;
+                UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
+
+                if (targetType.Value == TargetType.Type.Enemy)
+                {
+                    var delta = targetPos.Value - position;
+                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    if (sqrDist > attackDistance * attackDistance)
+                    {
+                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                    }
+                    else
+                    {
+                        velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        if (sqrDist < hitDistance * hitDistance)
+                        {
+                            ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
+                            ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
+                            targetType = new TargetType
+                            {
+                                Value = TargetType.Type.None
+                            };
+                        }
+                    }
+                }
+
+                position += velocity * deltaTime;
+                UpdateBorders(ref velocity, ref position);
+                bee.Velocity = velocity;
+                translation.Value = position;
+                UpdateScale(ref scale, in bee, in velocity);
+            }).ScheduleParallel(Dependency);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 
     }
 
-    private static bool UpdateBee(ref Translation translation,
+    private static void UpdateBee(ref Translation translation,
         ref NonUniformScale scale,
         ref BeeMovement bee,
         ref Random random,
+        ref TargetType targetType,
+        ref EntityCommandBuffer.ParallelWriter ecb,
         AttractionRepulsion attraction,
-        TargetType.Type targetType,
+        Entity entity,
         float3 targetPos,
+        int entityInQueryIndex,
         float deltaTime)
     {
         var velocity = bee.Velocity;
         var position = translation.Value;
         UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
 
-        if (targetType == TargetType.Type.Enemy)
+        if (targetType.Value == TargetType.Type.Enemy)
         {
             var delta = targetPos - position;
             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
@@ -112,11 +144,19 @@ public partial class BeeMovementSystem : SystemBase
             }
             else
             {
-               // bee.isAttacking = true;
                 velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
                 if (sqrDist < hitDistance * hitDistance)
                 {
-                    return false;
+                    ecb.DestroyEntity(entityInQueryIndex, entity);
+                    targetType = new TargetType
+                    {
+                        Value = TargetType.Type.None
+                    };
+                    /*ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
+                    bee.enemyTarget.dead = true;
+                    bee.enemyTarget.velocity *= .5f;
+                    bee.enemyTarget = null;*/
+
                 }
             }
         }
@@ -126,7 +166,6 @@ public partial class BeeMovementSystem : SystemBase
         bee.Velocity = velocity;
         translation.Value = position;
         UpdateScale(ref scale, in bee, in velocity);
-        return true;
     }
 
     private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position, in AttractionRepulsion attraction, float deltaTime)
