@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Mathf = UnityEngine.Mathf;
 using Unity.Collections;
 
+[UpdateBefore(typeof(ParticleSystemFixed))]
 public partial class BeeMovementSystem : SystemBase
 {
     static readonly float flightJitter = 200f;
