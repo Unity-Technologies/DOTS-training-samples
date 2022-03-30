@@ -34,24 +34,25 @@ public partial class SpawnerSystem : SystemBase
     static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
    {
        var offsetSingleDimension = -(size - 1) / 2f;
-       var offset = new float2(offsetSingleDimension, offsetSingleDimension);
+       var offset = new float3(offsetSingleDimension , 0, offsetSingleDimension);
                 
-       for (var i = 0; i < size; i++)
+       for (var x = 0; x < size; x++)
        {
-           for (var j = 0; j < size; j++)
+           for (var z = 0; z < size; z++)
            {
                var instance = ecb.Instantiate(firePrefab);
-               ecb.SetComponent(instance, new Position()
+               ecb.SetComponent(instance, new Translation()
                {
-                   Value = offset + new float2(i, j)
+                   Value = offset + new float3(x, 0f, z)
                });
+               
                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
                {
                    Value = new float4(1,1,1,1)
                });
                ecb.SetComponent(instance, new FireIndex
                {
-                   index = i + j *size
+                   index = x + z *size
                });
            }
        }

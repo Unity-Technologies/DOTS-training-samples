@@ -101,7 +101,7 @@ public partial class FirePropagationSystem : SystemBase
 
 
              })
-             .Schedule();
+             .ScheduleParallel();
     }
 
     static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, NativeArray<int2> checkAdjacents, int tileIndex, int width, float deltaTime)
