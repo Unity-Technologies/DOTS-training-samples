@@ -55,8 +55,8 @@ public partial class RailSpawnerSystem : SystemBase
                 var translation = new Translation { Value = position};
                 ecb.SetComponent(instance, translation);
 
-                quaternion normal = quaternion.Euler(BezierHelpers.GetNormalAtPosition(bezierPoints, lineLength, t));
-                var rotation = new Rotation { Value = normal };
+                var lookRot = quaternion.LookRotation(BezierHelpers.GetNormalAtPosition(bezierPoints, lineLength, t), new float3(0, 1, 0));
+                var rotation = new Rotation { Value = lookRot };
                 ecb.SetComponent(instance, rotation);
             }
         }).Run();
