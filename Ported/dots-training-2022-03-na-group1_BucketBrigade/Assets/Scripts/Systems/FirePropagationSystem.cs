@@ -143,8 +143,8 @@ public partial class FirePropagationSystem : SystemBase
     
     static int2 GetTileCoordinate(int index , int width)
     {
-        int x = index / width;
-        int z = index % width;
+        int x = index % width;
+        int z = index / width;
         return new int2(x, z);
     }
     

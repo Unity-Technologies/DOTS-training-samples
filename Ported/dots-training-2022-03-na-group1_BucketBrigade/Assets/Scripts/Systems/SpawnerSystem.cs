@@ -64,8 +64,8 @@ public partial class SpawnerSystem : SystemBase
                });
                ecb.SetComponent(instance, new FireIndex
                {
-                   index = z + x *size
-                   //index = x + z *size
+                   //index = z + x *size
+                   index = (z *size) + x
                });
            }
        }
