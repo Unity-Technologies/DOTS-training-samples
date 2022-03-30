@@ -22,7 +22,7 @@ public partial class SpawnerSystem : SystemBase
             mapSideLength = size, 
             maxTileHeight = 5.0f,
             
-            heatPropagationSpeed = 0.05f,
+            heatPropagationSpeed = 0.05f,//original is 0.0003
             heatPropagationRadius = 2,
 
             colorNeutral = new float4(0.49f,0.8f,0.46f,1f),

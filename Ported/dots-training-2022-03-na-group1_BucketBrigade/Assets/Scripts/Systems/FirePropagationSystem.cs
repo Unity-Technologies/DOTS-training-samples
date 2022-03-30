@@ -36,8 +36,6 @@ public partial class FirePropagationSystem : SystemBase
             }
         }
         
-        Debug.Log(String.Concat(checkAdjacents.ToArray()," | "));
-        
         // checkAdjacents[0] = new int2(-1, -1);
         // checkAdjacents[1] = new int2(0, -1);
         // checkAdjacents[2] = new int2(1, -1);
@@ -66,6 +64,7 @@ public partial class FirePropagationSystem : SystemBase
 
         var localCheckAdjacents = checkAdjacents;
 
+        
         Job.WithCode(() => {
 
             for (var i = 0; i < buffer.Length; i++)
@@ -82,10 +81,13 @@ public partial class FirePropagationSystem : SystemBase
 
         }).Run();
 
+        var heatmapBufferReadonly = EntityManager.GetBuffer<HeatMapTemperature>(heatmap, true);
+
         Entities.WithAll<FireIndex>()
+             .WithReadOnly(heatmapBufferReadonly)
              .ForEach( (ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation, in FireIndex fireIndex) =>
              {
-                 float intensity = heatmapBuffer[fireIndex.index];
+                 float intensity = heatmapBufferReadonly[fireIndex.index];
 
                  if (intensity < HEAT_THRESHOLD)
                  {
