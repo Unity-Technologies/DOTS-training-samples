@@ -5,19 +5,12 @@ using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 
-public enum TeamTag
-{
-	yellowTeam,
-	blueTeam,
-};
-
-public class BeeSpawnerAuthoring : UnityMonoBehaviour
+public class AdhocResourceSpawnerAuthoring : UnityMonoBehaviour
 	, IConvertGameObjectToEntity
 	, IDeclareReferencedPrefabs
 {
-	public UnityGameObject BeePrefab;
-	[UnityRange(0, 1000)] public int TeamBeeCount;
-	public TeamTag BeeTeam;
+	public UnityGameObject ResourcePrefab;
+	[UnityRangeAttribute(0, 1000)] public int ResourceCount = 1;
 
 	// This function is required by IDeclareReferencedPrefabs
 	public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -25,7 +18,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 		// Conversion only converts the GameObjects in the scene.
 		// This function allows us to inject extra GameObjects,
 		// in this case prefabs that live in the assets folder.
-		referencedPrefabs.Add(BeePrefab);
+		referencedPrefabs.Add(ResourcePrefab);
 	}
 
 	// This function is required by IConvertGameObjectToEntity
@@ -35,12 +28,11 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 		// GetPrimaryEntity fetches the entity that resulted from the conversion of
 		// the given GameObject, but of course this GameObject needs to be part of
 		// the conversion, that's why DeclareReferencedPrefabs is important here.
-		dstManager.AddComponentData(entity, new BeeSpawnerComponent
+		dstManager.AddComponentData(entity, new AdhocResourceSpawnerComponent
 		{
-			BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
-			BeeCount = TeamBeeCount,
-			BeeSpawnPosition = this.gameObject.transform.position,
-			BeeTeamTag = BeeTeam
+			ResourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab),
+			ResourceCount = ResourceCount,
+			ResourceSpawnPosition = this.gameObject.transform.position
 		});
 	}
 }

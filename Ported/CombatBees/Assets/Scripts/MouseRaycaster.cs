@@ -22,7 +22,7 @@ public class MouseRaycaster : MonoBehaviour {
 	void Update()
 	{
 		if (Input.GetKey(KeyCode.Mouse0))
-			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.SpawnFlash, Vector3.zero, 6f, 5);	
+			GameObject.Instantiate(AdhocResourceManager.instance.ResourcePrefab, worldMousePosition, Quaternion.identity);
 		else if (Input.GetKey(KeyCode.Mouse1))
 			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.Blood, Vector3.zero);
 	}

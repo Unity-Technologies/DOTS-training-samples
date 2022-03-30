@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 
-public partial class SpawnerSystem : SystemBase
+public partial class BeeSpawnerSystem : SystemBase
 {
 	protected override void OnUpdate()
 	{
