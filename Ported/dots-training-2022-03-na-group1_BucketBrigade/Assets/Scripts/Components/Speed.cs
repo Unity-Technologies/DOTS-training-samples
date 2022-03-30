@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct Capacity : IComponentData
+public struct Speed : IComponentData
 {
     public float Value;
 }

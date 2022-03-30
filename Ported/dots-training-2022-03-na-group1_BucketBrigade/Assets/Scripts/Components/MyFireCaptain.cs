@@ -2,5 +2,5 @@
 
 public struct MyFireCaptain : IComponentData
 {
-    public Entity captain;
+    public Entity Value;
 }

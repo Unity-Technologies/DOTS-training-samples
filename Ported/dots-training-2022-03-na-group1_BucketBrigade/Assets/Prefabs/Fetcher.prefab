@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 23338209068383762}
   - component: {fileID: 8969189451439597427}
   m_Layer: 0
-  m_Name: Bot
+  m_Name: Fetcher
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d48044a07f3924f8fb3f7927541edb7c, type: 2}
+  - {fileID: 2100000, guid: 9b79dfec19373400481d6a90f0dbfe38, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,3 +94,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c9a5840afe424a30a50467bd09e1fb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Type: 0

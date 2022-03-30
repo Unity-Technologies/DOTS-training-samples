@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public partial class WaterFillingSystem : SystemBase
@@ -13,5 +14,14 @@ public partial class WaterFillingSystem : SystemBase
                 translation.Value.x = (float) ((time + movement.Offset) % 100) - 50f;
             }).ScheduleParallel();
             */
+
+
+        
+        Entities
+            .ForEach((ref NonUniformScale scale, in Capacity waterCapacity) =>
+            {
+                var size = math.sqrt(waterCapacity.Value) * 0.1f;
+                scale.Value = new float3(size, 0.02f, size);
+            }).ScheduleParallel();
     }
 }

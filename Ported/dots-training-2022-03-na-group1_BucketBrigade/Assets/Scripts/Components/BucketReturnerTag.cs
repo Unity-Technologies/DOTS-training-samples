@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public struct FullBucketWorkerTag : IComponentData
+public struct BucketReturnerTag : IComponentData
 {
 }

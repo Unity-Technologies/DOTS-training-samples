@@ -17,12 +17,12 @@ public class WaterPoolAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             var meshRenderer = allRenderers[i];
             needBaseColor[i] = conversionSystem.GetPrimaryEntity(meshRenderer.gameObject);
         }
-
-        // We could have used AddComponent in the loop above, but as a general rule in
-        // DOTS, doing a batch of things at once is more efficient.
-        dstManager.AddComponent<URPMaterialPropertyBaseColor>(needBaseColor);
-
-//        dstManager.AddComponent<PropagateColor>(entity);
-//        dstManager.AddComponent<CarMovement>(entity);
+        
+        dstManager.RemoveComponent<Unity.Transforms.Rotation>(entity);
+        dstManager.AddComponent<Unity.Transforms.NonUniformScale>(entity);
+        
+        dstManager.AddComponent<Position>(entity);
+        dstManager.AddComponent<Scale>(entity);
+        dstManager.AddComponent<Capacity>(entity);
     }
 }
