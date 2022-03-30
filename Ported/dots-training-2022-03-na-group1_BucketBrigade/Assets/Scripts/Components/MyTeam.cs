@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct HoldingWhichBucket : IComponentData
+public struct MyTeam : IComponentData
 {
     public Entity Value;
 }

@@ -30,7 +30,7 @@ public class BucketAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Scale>(entity);
         dstManager.AddComponent<Color>(entity);
         dstManager.AddComponent<BucketTag>(entity);
-        dstManager.AddComponent<FillValue>(entity);
+        dstManager.AddComponent<Volume>(entity);
         dstManager.AddComponent<MyBucketState>(entity);
     }
 }

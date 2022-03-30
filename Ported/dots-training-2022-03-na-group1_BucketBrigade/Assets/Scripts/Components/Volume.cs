@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct FillValue : IComponentData
+public struct Volume : IComponentData
 {
     public float Value;
 }

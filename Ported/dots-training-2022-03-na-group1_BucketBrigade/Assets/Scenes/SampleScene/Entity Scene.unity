@@ -167,20 +167,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FetcherPrefab: {fileID: 1821148559735918, guid: 3d68de41e16f54f918a0575e6eb0364b, type: 3}
-  FireCaptainPrefab: {fileID: 1821148559735918, guid: e33d3bd3894f041b28ce045558c0c13c, type: 3}
-  WaterCaptainPrefab: {fileID: 1821148559735918, guid: 68284a35748d64be996475341bd5d771, type: 3}
+  CaptainPrefab: {fileID: 1821148559735918, guid: e33d3bd3894f041b28ce045558c0c13c, type: 3}
   FullBucketWorkerPrefab: {fileID: 1821148559735918, guid: 66f8c2a29f6b0480b8badafcee60b4b1, type: 3}
   EmptyBucketWorkerPrefab: {fileID: 1821148559735918, guid: 1785ba2e26a0648ca82261d7f927c88e, type: 3}
   OmniWorkerPrefab: {fileID: 1821148559735918, guid: 05526c54c85bd44a183b6c9ccf326344, type: 3}
   WaterPoolPrefab: {fileID: 1068854535243822, guid: f7b2ae8f04a49439ba5796f2f68692fa, type: 3}
-  GroundPrefab: {fileID: 1068854535243822, guid: 77c0a28cf7b9c4d7789136a68bb82065, type: 3}
   FlameCellPrefab: {fileID: 1306931638197496, guid: 66efc17ad61e9415b8f30c05008692e1, type: 3}
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
   TeamCount: 2
   OmniWorkerCount: 0
   MembersCount: 13
-  FireDimension: 11
+  FireDimension: 100
   WaterCount: 12
   BucketCount: 4
   MinWaterSupplyCount: 50
   MaxWaterSupplyCount: 100
+  TurnOffFireRendering: 0

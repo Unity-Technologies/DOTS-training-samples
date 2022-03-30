@@ -1,7 +1,8 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
-public partial class WaterSearchSystem : SystemBase
+public partial class BucketDetectionSystem : SystemBase
 {
     protected override void OnUpdate()
     {

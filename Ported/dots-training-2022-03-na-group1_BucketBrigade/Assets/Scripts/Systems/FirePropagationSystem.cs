@@ -92,11 +92,12 @@ public partial class FirePropagationSystem : SystemBase
                  if (intensity < HEAT_THRESHOLD)
                  {
                      colorComponent.Value = heatmapData.colorNeutral;
+                     translation.Value.y = -heatmapData.maxTileHeight / 2f;
                  }
                  else
                  {
                      colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
-                     translation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
+                     translation.Value.y = math.lerp(-heatmapData.maxTileHeight / 2f, heatmapData.maxTileHeight / 2f, intensity);
                  }
 
 

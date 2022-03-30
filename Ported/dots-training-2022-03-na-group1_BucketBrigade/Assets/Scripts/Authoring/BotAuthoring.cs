@@ -10,8 +10,8 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     public enum WorkerType
     {
         Fetcher,
-        FireCaptain,
-        WaterCaptain,
+        Captain,
+        INVALID,
         FullBucketHauler,
         EmptyBucketHauler,
         Omniworker
@@ -37,51 +37,40 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.RemoveComponent<Rotation>(entity);
 
         dstManager.AddComponent<Position>(entity);
-        dstManager.AddComponent<Destination>(entity);
-        dstManager.AddComponent<WorkerTag>(entity);
-        dstManager.AddComponent<HoldingWhichBucket>(entity);
+        dstManager.AddComponent<RelocatePosition>(entity);
+        dstManager.AddComponent<BucketHeld>(entity);
+        dstManager.AddComponent<BucketToWant>(entity);
         dstManager.AddComponent<MyWorkerState>(entity);
         dstManager.AddComponent<Speed>(entity);
-
+        
         switch (Type)
         {
             case WorkerType.Fetcher:
                 dstManager.AddComponent<FetcherTag>(entity);
-                dstManager.AddComponent<MyWaterCaptain>(entity);
                 dstManager.AddComponent<DestinationWorker>(entity);
+                dstManager.AddComponent<MyWaterPool>(entity);
+                dstManager.AddComponent<Home>(entity);
+                dstManager.AddComponent<MyTeam>(entity);
                 break;
             
             case WorkerType.Omniworker:
-                // todo
+                dstManager.AddComponent<OmniworkerTag>(entity);
+                dstManager.AddComponent<MyWaterPool>(entity);
                 break;
             
-            case WorkerType.FireCaptain:
-                dstManager.AddComponent<FireCaptainTag>(entity);
-                dstManager.AddComponent<MyWaterCaptain>(entity);
+            case WorkerType.Captain:
+                dstManager.AddComponent<CaptainTag>(entity);
                 dstManager.AddComponent<DestinationWorker>(entity);
-                break;
-            
-            case WorkerType.WaterCaptain:
-                dstManager.AddComponent<WaterCaptainTag>(entity);
-                dstManager.AddComponent<SourcePool>(entity);
-                dstManager.AddComponent<SourcePosition>(entity);
-                dstManager.AddComponent<DestinationWorker>(entity);
+                dstManager.AddComponent<Home>(entity);
+                dstManager.AddComponent<MyTeam>(entity);
+                dstManager.AddComponent<EvalOffsetFrame>(entity);
                 break;
             
             case WorkerType.EmptyBucketHauler:
-                dstManager.AddComponent<BucketReturnerTag>(entity);
-                dstManager.AddComponent<MyFireCaptain>(entity);
-                dstManager.AddComponent<MyWaterCaptain>(entity);
-                dstManager.AddComponent<RelocationPosition>(entity);
-                dstManager.AddComponent<DestinationWorker>(entity);
-                break;
-            
             case WorkerType.FullBucketHauler:
-                dstManager.AddComponent<WaterHaulerTag>(entity);
-                dstManager.AddComponent<MyFireCaptain>(entity);
-                dstManager.AddComponent<MyWaterCaptain>(entity);
-                dstManager.AddComponent<RelocationPosition>(entity);
+                dstManager.AddComponent<WorkerTag>(entity);
                 dstManager.AddComponent<DestinationWorker>(entity);
+                dstManager.AddComponent<Home>(entity);
                 break;
         }
     }
