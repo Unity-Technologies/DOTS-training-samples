@@ -18,8 +18,6 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 {
 	public UnityGameObject BeePrefab;
 	[UnityRange(0, 1000)] public int TeamBeeCount;
-	public float3 FieldCenterPosition;
-	public float BeeHiveXOffset;
 	public TeamTag BeeTeam;
 
 	// This function is required by IDeclareReferencedPrefabs
@@ -42,7 +40,7 @@ public class BeeSpawnerAuthoring : UnityMonoBehaviour
 		{
 			BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
 			BeeCount = TeamBeeCount,
-			BeeSpawnPosition = new float3(FieldCenterPosition.x + BeeHiveXOffset, FieldCenterPosition.y, FieldCenterPosition.z),
+			BeeSpawnPosition = this.gameObject.transform.position,
 			BeeTeamTag = BeeTeam
 		});
 	}
