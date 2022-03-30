@@ -49,7 +49,13 @@ public partial class FireSuppressionSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        //var time = Time.ElapsedTime;
+        HandleMouseClick();
+        
+        
+    }
+
+    void HandleMouseClick()
+    {
         if (UnityInput.GetMouseButtonDown(0))
         {
             var camera = this.GetSingleton<GameObjectRefs>().Camera;
