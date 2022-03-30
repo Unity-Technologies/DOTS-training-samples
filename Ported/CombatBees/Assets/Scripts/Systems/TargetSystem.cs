@@ -40,9 +40,9 @@ namespace Systems
                 .WithDisposeOnCompletion(teamTargets1)
                 .ForEach((Entity entity, ref TargetType target, ref TargetEntity targetEntity, in Team team) =>
                 {
-                    if (team.TeamId == 0)
+                    if (team.TeamId == 0 && teamTargets1.Length != 0)
                         UpdateTargetEntityAndType(globalSystemVersion, teamTargets1, entity, ref target, ref targetEntity);
-                    else
+                    else if (teamTargets0.Length != 0)
                         UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target, ref targetEntity);
                 }).ScheduleParallel();
 
