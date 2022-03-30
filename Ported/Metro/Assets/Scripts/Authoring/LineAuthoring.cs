@@ -99,15 +99,15 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
             if (i == 0)
             {
-                currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[1 + returnPointOffset], currentReturnPoint);
+                currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[1 + returnPointOffset].Location - currentReturnPoint.Location);
             }
             else if (i == totalMarkers - 1)
             {
-                currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[i - 1 + returnPointOffset]);
+                currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, currentReturnPoint.Location - bezierCurve[i - 1 + returnPointOffset].Location);
             }
             else
             {
-                currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[i + 1 + returnPointOffset], bezierCurve[i - 1 + returnPointOffset]);
+                currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[i + 1 + returnPointOffset].Location - bezierCurve[i - 1 + returnPointOffset].Location);
             }
 
             bezierCurve[i + returnPointOffset] = currentReturnPoint;

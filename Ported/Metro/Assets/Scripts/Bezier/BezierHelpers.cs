@@ -23,7 +23,7 @@ public static class BezierHelpers
         {
             BezierPointBufferElement _prev = bezierPoints[bezierPoints.Length - 2];
             BezierPointBufferElement _current = bezierPoints[bezierPoints.Length - 1];
-            _current = SetHandles(_current, _prev.Location);
+            _current = SetHandles(_current, _prev);
             bezierPoints[bezierPoints.Length - 1] = _current;
         }
 
