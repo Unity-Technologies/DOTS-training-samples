@@ -1,8 +1,10 @@
+using System.Security.Cryptography;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(BeeMovementSystem))]
 public partial class ResourceSpawnerSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -28,6 +30,9 @@ public partial class ResourceSpawnerSystem : SystemBase
                 var zCoord = random.NextInt(minZ, maxZ);
                 var translation = new Translation { Value = new float3(xCoord, minY, zCoord)};
                 ecb.SetComponent(instance, translation);
+                ecb.AddComponent<ResourceTagComponent>(instance);
+                ecb.AddComponent<HeldByBeeComponent>(instance);
+                ecb.AddComponent<PositionComponent>(instance);
             }
         }).Run();
 
