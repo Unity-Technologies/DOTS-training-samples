@@ -9,13 +9,11 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     , IDeclareReferencedPrefabs
 {
     public UnityGameObject FetcherPrefab;
-    public UnityGameObject FireCaptainPrefab;
-    public UnityGameObject WaterCaptainPrefab;
+    public UnityGameObject CaptainPrefab;
     public UnityGameObject FullBucketWorkerPrefab;
     public UnityGameObject EmptyBucketWorkerPrefab;
     public UnityGameObject OmniWorkerPrefab;
     public UnityGameObject WaterPoolPrefab;
-    public UnityGameObject GroundPrefab;
     public UnityGameObject FlameCellPrefab;
     public UnityGameObject BucketPrefab;
 
@@ -28,6 +26,8 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public int MinWaterSupplyCount = 50;
     public int MaxWaterSupplyCount = 100;
 
+    public bool TurnOffFireRendering;
+
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -36,15 +36,13 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         // This function allows us to inject extra GameObjects,
         // in this case prefabs that live in the assets folder.
         referencedPrefabs.Add(FetcherPrefab);
-        referencedPrefabs.Add(FireCaptainPrefab);
-        referencedPrefabs.Add(WaterCaptainPrefab);
+        referencedPrefabs.Add(CaptainPrefab);
         referencedPrefabs.Add(FullBucketWorkerPrefab);
         referencedPrefabs.Add(EmptyBucketWorkerPrefab);
         referencedPrefabs.Add(OmniWorkerPrefab);
         referencedPrefabs.Add(WaterPoolPrefab);
         referencedPrefabs.Add(FlameCellPrefab);
         referencedPrefabs.Add(BucketPrefab);
-        referencedPrefabs.Add(GroundPrefab);
     }
 
     // This function is required by IConvertGameObjectToEntity
@@ -57,14 +55,12 @@ public class SpawnerAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new Spawner
         {
             FetcherPrefab = conversionSystem.GetPrimaryEntity(FetcherPrefab),
-            FireCaptainPrefab = conversionSystem.GetPrimaryEntity(FireCaptainPrefab),
-            WaterCaptainPrefab = conversionSystem.GetPrimaryEntity(WaterCaptainPrefab),
+            CaptainPrefab = conversionSystem.GetPrimaryEntity(CaptainPrefab),
             FullBucketWorkerPrefab = conversionSystem.GetPrimaryEntity(FullBucketWorkerPrefab),
             EmptyBucketWorkerPrefab = conversionSystem.GetPrimaryEntity(EmptyBucketWorkerPrefab),
             OmniWorkerPrefab = conversionSystem.GetPrimaryEntity(OmniWorkerPrefab),
             WaterPoolPrefab = conversionSystem.GetPrimaryEntity(WaterPoolPrefab),
-            GroundPrefab = conversionSystem.GetPrimaryEntity(GroundPrefab),
-            FlameCellPrefab = conversionSystem.GetPrimaryEntity(FlameCellPrefab),
+            FlameCellPrefab = TurnOffFireRendering ? Entity.Null : conversionSystem.GetPrimaryEntity(FlameCellPrefab),
             BucketPrefab = conversionSystem.GetPrimaryEntity(BucketPrefab),
             TeamCount = TeamCount,
             OmniWorkerCount = OmniWorkerCount,

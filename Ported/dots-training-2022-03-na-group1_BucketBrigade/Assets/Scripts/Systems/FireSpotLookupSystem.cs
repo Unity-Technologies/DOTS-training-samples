@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 
-public partial class FireSearchSystem : SystemBase
+public partial class FireSpotLookupSystem : SystemBase
 {
     protected override void OnUpdate()
     {

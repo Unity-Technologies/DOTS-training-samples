@@ -26,7 +26,7 @@ public partial class IdleSystem : SystemBase
         var radius = (heatMapData.mapSideLength - 1) / 2f;
 
         Entities
-            .ForEach((ref MyWorkerState state, ref Destination destination) =>
+            .ForEach((ref MyWorkerState state, ref RelocatePosition destination) =>
             {
                 if (state.Value == WorkerState.Idle)
                 {

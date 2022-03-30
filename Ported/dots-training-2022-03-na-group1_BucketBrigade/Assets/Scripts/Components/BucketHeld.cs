@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-public struct MyWaterCaptain : IComponentData
+public struct BucketHeld : IComponentData
 {
     public Entity Value;
 }

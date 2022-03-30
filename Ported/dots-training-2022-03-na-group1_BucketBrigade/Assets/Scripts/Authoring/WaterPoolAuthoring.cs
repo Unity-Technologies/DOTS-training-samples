@@ -23,6 +23,6 @@ public class WaterPoolAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         
         dstManager.AddComponent<Position>(entity);
         dstManager.AddComponent<Scale>(entity);
-        dstManager.AddComponent<Capacity>(entity);
+        dstManager.AddComponent<Volume>(entity);
     }
 }

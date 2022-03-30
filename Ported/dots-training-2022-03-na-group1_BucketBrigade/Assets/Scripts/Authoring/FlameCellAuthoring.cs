@@ -13,8 +13,5 @@ public class FlameCellAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         // DOTS, doing a batch of things at once is more efficient.
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(entity);
         dstManager.AddComponent<FireIndex>(entity);
-
-        //dstManager.AddComponent<Color>(entity);
-        //dstManager.AddComponent<Scale>(entity);
     }
 }

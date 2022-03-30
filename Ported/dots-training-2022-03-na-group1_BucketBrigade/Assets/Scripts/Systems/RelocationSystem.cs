@@ -12,7 +12,7 @@ public partial class RelocationSystem : SystemBase
 
 
         Entities
-            .ForEach((ref Position movement, ref MyWorkerState state, in Destination destination, in Speed speed ) =>
+            .ForEach((ref Position movement, ref MyWorkerState state, in RelocatePosition destination, in Speed speed ) =>
             {
                 if (state.Value == WorkerState.Repositioning)
                 {
