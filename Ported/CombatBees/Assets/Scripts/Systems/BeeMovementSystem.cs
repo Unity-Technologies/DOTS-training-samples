@@ -25,11 +25,11 @@ public partial class BeeMovementSystem : SystemBase
     {
         teamTargets = new EntityQuery[2]
         {
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team>()),
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team>())
+                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>()),
+                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>())
         };
-        teamTargets[0].SetSharedComponentFilter(new Team { TeamId = 0 });
-        teamTargets[1].SetSharedComponentFilter(new Team { TeamId = 1 });
+        teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
+        teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 });
     }
 
     protected override void OnUpdate()
@@ -41,22 +41,22 @@ public partial class BeeMovementSystem : SystemBase
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        Entities
+         Entities
             .WithReadOnly(team0)
             .WithDisposeOnCompletion(team0)
-            .WithSharedComponentFilter(new Team { TeamId = 0 })
-            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in Target target) =>
+            .WithSharedComponentFilter(new TeamShared { TeamId = 0 })
+            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in TargetType targetType, in CachedTargetPosition targetPos) =>
             {
-                UpdateBee(ref translation, ref scale, ref bee, ref random, in team0, in target, deltaTime);
+                UpdateBee(ref translation, ref scale, ref bee, ref random, in team0, targetType.Value, targetPos.Value, deltaTime);
             }).ScheduleParallel();
 
-        Entities
+         Entities
             .WithReadOnly(team1)
             .WithDisposeOnCompletion(team1)
-            .WithSharedComponentFilter(new Team { TeamId = 1 })
-            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in Target target) =>
+            .WithSharedComponentFilter(new TeamShared { TeamId = 1 })
+            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in TargetType targetType, in CachedTargetPosition targetPos) =>
             {
-                UpdateBee(ref translation, ref scale, ref bee, ref random, in team1, in target, deltaTime);
+                UpdateBee(ref translation, ref scale, ref bee, ref random, in team1, targetType.Value, targetPos.Value,  deltaTime);
             }).ScheduleParallel();
 
     }
@@ -66,17 +66,17 @@ public partial class BeeMovementSystem : SystemBase
         ref BeeMovement bee,
         ref Random random,
         in NativeArray<Translation> team,
-        in Target target,
+        TargetType.Type targetType,
+        float3 targetPos,
         float deltaTime)
     {
         var velocity = bee.Velocity;
         var position = translation.Value;
         UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in team, deltaTime);
 
-        if (target.TargetEntity != null && target.Type == Target.TargetType.Enemy)
+        if (targetType == TargetType.Type.Enemy)
         {
-            var enemyPos = target.Position;
-            var delta = enemyPos - position;
+            var delta = targetPos - position;
             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
             if (sqrDist > attackDistance * attackDistance)
             {
@@ -84,7 +84,7 @@ public partial class BeeMovementSystem : SystemBase
             }
             else
             {
-                //bee.isAttacking = true;
+               // bee.isAttacking = true;
                 velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
                 if (sqrDist < hitDistance * hitDistance)
                 {
@@ -92,7 +92,7 @@ public partial class BeeMovementSystem : SystemBase
                     bee.enemyTarget.dead = true;
                     bee.enemyTarget.velocity *= .5f;
                     bee.enemyTarget = null;*/
-                    
+
                 }
             }
         }

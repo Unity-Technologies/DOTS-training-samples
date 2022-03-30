@@ -9,110 +9,94 @@ namespace Systems
     {
         const float aggression = 0.5f; // Move to be a configurable parameter
 
-        EntityQuery[] teamTargets;
+        EntityQuery teamTargetsQuery0;
+        EntityQuery teamTargetsQuery1;
         EntityQuery resourceTargets;
 
         protected override void OnCreate()
         {
-            teamTargets = new EntityQuery[2]
-            {
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team>()),
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<Team>())
-            };
-            teamTargets[0].SetSharedComponentFilter(new Team { TeamId = 0 });
-            teamTargets[1].SetSharedComponentFilter(new Team { TeamId = 1 });
-
-
-            //resourceTargets = GetEntityQuery(ComponentType.ReadOnly<Resource>());
+            teamTargetsQuery0 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery1 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery0.SetSharedComponentFilter(new TeamShared { TeamId = 0 });
+            teamTargetsQuery1.SetSharedComponentFilter(new TeamShared { TeamId = 1 });
         }
 
         protected override void OnUpdate()
         {
-            var team0Targets = teamTargets[0].ToEntityArray(Allocator.TempJob);
-            var team1Targets = teamTargets[1].ToEntityArray(Allocator.TempJob);
-            var team0Positions = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
-            var team1Positions = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
+            var teamTargets0 = teamTargetsQuery0.ToEntityArray(Allocator.TempJob);
+            var teamTargets1 = teamTargetsQuery1.ToEntityArray(Allocator.TempJob);
 
 
             //var resources = resourceTargets.ToEntityArray(Allocator.Temp);
 
             var globalSystemVersion = GlobalSystemVersion;
 
-
+            // Only run these two on chunks with no TargetType set.
+            // This job runs witohut
             Entities
-                .WithReadOnly(team0Targets)
-                .WithReadOnly(team0Positions)
-                .WithDisposeOnCompletion(team0Targets)
-                .WithDisposeOnCompletion(team0Positions)
-                .WithSharedComponentFilter(new Team { TeamId = 1 })
-                .ForEach((Entity entity, ref Target target) =>
+                .WithReadOnly(teamTargets0)
+                .WithDisposeOnCompletion(teamTargets0)
+                .WithReadOnly(teamTargets1)
+                .WithDisposeOnCompletion(teamTargets1)
+                .ForEach((Entity entity, ref TargetType target, ref TargetEntity targetEntity, in Team team) =>
                 {
-                    if (target.TargetEntity == null)
-                    {
-                        EntityUpdate(globalSystemVersion, in team0Targets, in team0Positions, entity, ref target);
-                    }
-                    else if (target.Type == Target.TargetType.Enemy && HasComponent<Translation>(target.TargetEntity))
-                    {
-                        float3 newPos = GetComponent<Translation>(target.TargetEntity).Value;
-                        UpdateEnemyPosition(ref target, newPos);
-                    }
-                }).ScheduleParallel();
+                    if (team.TeamId == 0)
+                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets1, entity, ref target, ref targetEntity);
+                    else
+                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target, ref targetEntity);
+                }).Run();
 
+         
+            // Resolve the changing target position
             Entities
-                .WithReadOnly(team1Targets)
-                .WithReadOnly(team1Positions)
-                .WithDisposeOnCompletion(team1Targets)
-                .WithDisposeOnCompletion(team1Positions)
-                .WithSharedComponentFilter(new Team { TeamId = 0 })
-                .ForEach((Entity entity, ref Target target) =>
-                {
-                    if (target.TargetEntity == null)
-                    {
-                        EntityUpdate(globalSystemVersion, in team1Targets, in team1Positions, entity, ref target);
-                    }
-                    else if (target.Type == Target.TargetType.Enemy && HasComponent<Translation>(target.TargetEntity))
-                    {
-                        float3 newPos = GetComponent<Translation>(target.TargetEntity).Value;
-                        UpdateEnemyPosition(ref target, newPos);
-                    }
-                }).ScheduleParallel();
+              .ForEach((Entity entity, ref CachedTargetPosition cache, in TargetType target, in TargetEntity targetEntity) =>
+              {
+                  if (target.Value == TargetType.Type.Enemy)
+                  {
+                      if (HasComponent<Translation>(targetEntity.Value))
+                      {
+                          float3 pos = GetComponent<Translation>(targetEntity.Value).Value;
+                          cache.Value = pos;
+                      }
+                      else
+                      {
+                          cache.Value = default;
+                      }
+                  }
+              }).Run();
+
 
         }
 
-        private static void EntityUpdate(uint globalSystemVersion, in NativeArray<Entity> attackables, in NativeArray<Translation> positions, Entity entity, ref Target target)
+        private static void UpdateTargetEntityAndType(uint globalSystemVersion, in NativeArray<Entity> attackables,/* in NativeArray<Translation> positions,*/ Entity entity, ref TargetType target, ref TargetEntity targetEntity)
         {
             var random = Random.CreateFromIndex(globalSystemVersion ^ (uint)entity.Index);
 
             // Relying on this check stops filtering being effective, but otherwise there'd be a lot of structural churn
-            
-            if (random.NextFloat() < aggression)
+            if (target.Value == TargetType.Type.None)
             {
-                int attackableIndex = random.NextInt(attackables.Length - 1);
-                target = new Target
+                if (random.NextFloat() < aggression)
                 {
-                    TargetEntity = attackables[attackableIndex],
-                    Position = positions[attackableIndex].Value,
-                    Type = Target.TargetType.Enemy
-                };
-            }
-            else
-            {
-                //int resourceIndex = random.NextInt(attackables.Length - 1);
-                //target = new Target
-                //{
-                //    TargetEntity = resources[resourceIndex]
-                //});
-            }
-        }
+                    int attackableIndex = random.NextInt(attackables.Length - 1);
+                    target = new TargetType
+                    {
+                        Value = TargetType.Type.Enemy
+                    };
 
-        private static void UpdateEnemyPosition(ref Target target, float3 position)
-        {
-            target = new Target
-            {
-                TargetEntity = target.TargetEntity,
-                Position = position,
-                Type = Target.TargetType.Enemy
-            };
+                    targetEntity = new TargetEntity
+                    {
+                        Value = attackables[attackableIndex]
+                    };
+                }
+                else
+                {
+                    //int resourceIndex = random.NextInt(attackables.Length - 1);
+                    //target = new Target
+                    //{
+                    //    TargetEntity = resources[resourceIndex]
+                    //});
+                }
+            }
         }
     }
 }
