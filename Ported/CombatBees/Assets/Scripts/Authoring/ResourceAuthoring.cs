@@ -10,6 +10,7 @@ namespace Authoring
         {
             dstManager.AddComponent<Components.Resource>(entity);
             dstManager.AddComponent<KinematicBody>(entity);
+            dstManager.AddComponent<KinematicBodyState>(entity);
         }
     }
 }

@@ -71,10 +71,7 @@ namespace Systems
             {
                 Entities
                     .WithAll<MousePointer>()
-                    .ForEach((ref Translation translation) =>
-                    {
-                        translation.Value = worldMousePosition;
-                    }).Run();
+                    .ForEach((ref Translation translation) => { translation.Value = worldMousePosition; }).Run();
 
                 if (Input.GetMouseButtonDown(0))
                     SpawnResource(worldMousePosition);
@@ -89,7 +86,7 @@ namespace Systems
 
             Entities
                 .WithAll<Components.Resource>()
-                .WithNone<KinematicBody>()
+                .WithSharedComponentFilter(new KinematicBodyState() { isEnabled = 0 })
                 .ForEach((in Translation translation) =>
                 {
                     var pos = new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
@@ -106,9 +103,10 @@ namespace Systems
             var translation = new Translation
                 { Value = new float3(landPosition.x, worldMousePosition.y, landPosition.z) };
             var kinematicBody = new KinematicBody()
-                { Velocity = float3.zero, LandPosition = landPosition, Height = landPosition.y };
+                { velocity = float3.zero, landPosition = landPosition };
             ecb.SetComponent(resource, translation);
             ecb.SetComponent(resource, kinematicBody);
+            ecb.SetSharedComponent(resource, new KinematicBodyState() { isEnabled = 1 });
 
             ecb.Playback(EntityManager);
             ecb.Dispose();

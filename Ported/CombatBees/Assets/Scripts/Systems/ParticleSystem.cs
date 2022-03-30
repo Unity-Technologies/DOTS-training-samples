@@ -42,7 +42,7 @@ public partial class ParticleSystemFixed : SystemBase
                     float splat = Mathf.Abs(velocity.Value.x * .3f) + 1f;
                     scale.Value *= splat;
 
-                    ecb.RemoveComponent(entityInQueryIndex, entity, typeof(Velocity));
+                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
                 if (Mathf.Abs(translation.Value.y) > PlayField.size.y * .5f)
                 {
@@ -50,7 +50,7 @@ public partial class ParticleSystemFixed : SystemBase
                     float splat = Mathf.Abs(velocity.Value.y * .3f) + 1f;
                     scale.Value *= splat;
 
-                    ecb.RemoveComponent(entityInQueryIndex, entity, typeof(Velocity));
+                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
                 if (Mathf.Abs(translation.Value.z) > PlayField.size.z * .5f)
                 {
@@ -58,7 +58,7 @@ public partial class ParticleSystemFixed : SystemBase
                     float splat = Mathf.Abs(velocity.Value.z * .3f) + 1f;
                     scale.Value *= splat;
 
-                    ecb.RemoveComponent(entityInQueryIndex, entity, typeof(Velocity));
+                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel(velocityJob);
 
