@@ -10,4 +10,5 @@ public class Constants {
     
     public const float FOLLOW_HEIGHT_OFFSET_MIN = 4;
     public const float SMOOTH_DAMP_DURATION = .5f;
+    public const float CANNONBALL_SPEED = 2.5f;
 }

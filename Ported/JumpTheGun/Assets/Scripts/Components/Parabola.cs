@@ -6,9 +6,13 @@ public struct ParabolaData : IComponentData
     public float a;
     public float b;
     public float c;
+    public float duration;
+
+    public float2 startPoint;
+    public float2 endPoint;
 }
 
-public struct Parabola
+public static class Parabola
 {
     /// <summary>
     /// Creates a parabola (in the form y = a*t*t + b*t + c) that matches the following conditions:

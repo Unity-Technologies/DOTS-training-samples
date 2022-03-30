@@ -7,5 +7,7 @@ using Color = UnityEngine.Color;
 
 public partial class PlayerInputSystem : SystemBase
 {
-    protected override void OnUpdate() {}
+    protected override void OnUpdate()
+    {
+    }
 }

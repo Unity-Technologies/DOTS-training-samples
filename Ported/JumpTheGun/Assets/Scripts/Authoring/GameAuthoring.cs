@@ -40,6 +40,8 @@ public class GameAuthoring : UnityMonoBehaviour
         , GameObjectConversionSystem conversionSystem)
     {
         var brickPrefabEntity = conversionSystem.GetPrimaryEntity(BrickPrefab);
+        var tankEntityPrefab = conversionSystem.GetPrimaryEntity(TankPrefab);
+        var cannonBallEntityPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab);
 
         // GetPrimaryEntity fetches the entity that resulted from the conversion of
         // the given GameObject, but of course this GameObject needs to be part of
@@ -47,8 +49,8 @@ public class GameAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(entity, new EntityPrefabHolder
         {
             BrickEntityPrefab = brickPrefabEntity,
-            TankEntityPrefab = conversionSystem.GetPrimaryEntity(TankPrefab),
-            CannonBallEntityPrefab = conversionSystem.GetPrimaryEntity(CannonBallPrefab),
+            TankEntityPrefab = tankEntityPrefab,
+            CannonBallEntityPrefab = cannonBallEntityPrefab,
         });
         dstManager.AddComponentData(entity, new TerrainData
         {
@@ -65,6 +67,9 @@ public class GameAuthoring : UnityMonoBehaviour
         {
             TankCount = TankCount,
         });
-        dstManager.AddComponentData(conversionSystem.GetPrimaryEntity(TankPrefab), new Tank());
+        dstManager.AddComponentData(tankEntityPrefab, new Tank());
+
+        dstManager.AddComponentData(cannonBallEntityPrefab, new ParabolaData {duration = 0.001f});
+        dstManager.AddComponent<NormalizedTime>(cannonBallEntityPrefab);
     }
 }

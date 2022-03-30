@@ -8,7 +8,6 @@ using Color = UnityEngine.Color;
 
 public partial class BrickColorUpdateSystem : SystemBase
 {
-
     protected override void OnUpdate()
     {
         var terrainData = this.GetSingleton<TerrainData>();

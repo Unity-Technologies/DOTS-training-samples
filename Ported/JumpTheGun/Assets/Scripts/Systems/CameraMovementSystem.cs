@@ -24,7 +24,7 @@ public partial class CameraMovementSystem : SystemBase
         var terrainData = this.GetSingleton<TerrainData>();
         float height = terrainData.MaxTerrainHeight + HeightOffset;
         // Query player
-        var player = this.GetSingletonEntity<PlayerComponent>();
+        var player = this.GetSingletonEntity<PlayerTag>();
         var translation = GetComponent<Translation>(player);
 
         float3 target = translation.Value;
