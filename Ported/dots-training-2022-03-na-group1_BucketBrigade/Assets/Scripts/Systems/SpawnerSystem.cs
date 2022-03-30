@@ -30,6 +30,18 @@ public partial class SpawnerSystem : SystemBase
             colorHot = new float4(1f,0f,0f,1f)
         });
     }
+    
+    static void SpawnSplashmap(EntityCommandBuffer ecb, int size)
+    {
+        var splashmapEntity = ecb.CreateEntity();
+        ecb.SetName(splashmapEntity, "Splashmap");
+        
+        var heatmapBuffer = ecb.AddBuffer<HeatMapSplash>(splashmapEntity);
+        for (int iSplash = 0; iSplash < size ; iSplash++)//adding elements to buffer
+        {
+            heatmapBuffer.Add(new HeatMapSplash {value = -1});
+        }
+    }
 
     static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
    {
@@ -58,14 +70,14 @@ public partial class SpawnerSystem : SystemBase
        }
    }
 
-   void StartRandomFires()
+   void StartRandomFires(int amountFires)
    {
        var heatmapEntity = GetSingletonEntity<HeatMapTemperature>();
        DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmapEntity);
        Random random = new Random(123123);
 
        // Set random tiles on fire by default
-       for (int i = 0; i < 5; i++)
+       for (int i = 0; i < amountFires; i++)
        {
            int randomIndex = random.NextInt(0, heatmapBuffer.Length);
 
@@ -219,6 +231,8 @@ public partial class SpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
                 
                 SpawnHeatmap(ecb, spawner.FireDimension);
+                
+                SpawnSplashmap(ecb, spawner.BucketCount);
 
                 SpawnFireColumns(ecb, spawner.FlameCellPrefab, spawner.FireDimension);
                 
@@ -237,7 +251,7 @@ public partial class SpawnerSystem : SystemBase
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-        StartRandomFires();
+        StartRandomFires(5);
 
         this.Enabled = false;
     }
