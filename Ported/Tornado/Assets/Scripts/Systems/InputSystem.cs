@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 namespace Systems
 {
@@ -6,6 +7,10 @@ namespace Systems
     {
         protected override void OnUpdate()
         {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                World.GetExistingSystem<GenerationSystem>().Reset();
+            }
         }
     }
 }

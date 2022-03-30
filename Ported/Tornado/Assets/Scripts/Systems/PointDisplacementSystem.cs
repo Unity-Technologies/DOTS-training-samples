@@ -32,6 +32,26 @@ namespace Systems
         }
 
 
+        public void Reset()
+        {
+            var tornadoParams = GetSingleton<TornadoParameters>();
+
+            tornadoParams.tornadoFader = 0.0f;
+
+            SetSingleton<TornadoParameters>(tornadoParams);
+
+            if (points.IsCreated)
+            {
+                points.Dispose();
+            }
+
+            if (links.IsCreated)
+            {
+                links.Dispose();
+            }
+
+            isInitialized = false;
+        }
 
         protected override void OnUpdate()
         {
