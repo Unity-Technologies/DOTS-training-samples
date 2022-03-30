@@ -15,7 +15,9 @@ public partial class TerrainAreaSystem : SystemBase
     protected override void OnUpdate()
     {
         if (checkForBricks.IsEmpty)
+        {
             CreateBoxes();
+        }
     }
 
     public void CreateBoxes(){
@@ -34,6 +36,13 @@ public partial class TerrainAreaSystem : SystemBase
             {
                 // TODO : Experiment with it
                 //ecb.DestroyEntity(entity);
+
+                // Create a grid entity
+                Entity gridEntity = ecb.CreateEntity();
+                DynamicBuffer<OccupiedElement> occupiedGrid = ecb.AddBuffer<OccupiedElement>(gridEntity);
+                DynamicBuffer<EntityElement> brickGrid = ecb.AddBuffer<EntityElement>(gridEntity);
+                occupiedGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
+                brickGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
 
                 for (int i = 0; i < terrainData.TerrainWidth; ++i)
                 {
@@ -57,6 +66,9 @@ public partial class TerrainAreaSystem : SystemBase
                         {
                             height = height
                         });
+
+                        occupiedGrid.Add(false);
+                        brickGrid.Add(instance);
                     }
                 }
             }).Run();
