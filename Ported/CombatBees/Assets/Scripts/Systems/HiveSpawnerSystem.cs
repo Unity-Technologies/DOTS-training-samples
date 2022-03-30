@@ -21,8 +21,8 @@ namespace Systems
             Entities
                 .ForEach((Entity entity, in HiveSpawner spawner, in Translation worldCenter, in NonUniformScale worldSize ) =>
                 {
-                    PlayField.size = worldSize.Value;
-                    PlayField.origin = worldCenter.Value;
+                    //PlayField.size = worldSize.Value;
+                    //PlayField.origin = worldCenter.Value;
                     
                     ecb.RemoveComponent<HiveSpawner>(entity);
                     var worldStartPosition =(worldCenter.Value - worldSize.Value/2);
