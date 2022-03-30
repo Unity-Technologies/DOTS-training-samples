@@ -14,6 +14,7 @@ using UnityColor = UnityEngine.Color;
 public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public int LineID;
+    [SerializeField] private int carriageCount;
 
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -37,7 +38,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
         float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList());
 
-        dstManager.AddComponent<LineComponent>(entity);
+        dstManager.AddComponentData(entity, new LineComponent { CarriageCount = carriageCount});
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent {Value = curveDistance});
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});

@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using UnityEngine;
 
-public class TrainComponent : MonoBehaviour
+public struct TrainComponent : IComponentData
 {
-    
+    public Entity Line;
 }

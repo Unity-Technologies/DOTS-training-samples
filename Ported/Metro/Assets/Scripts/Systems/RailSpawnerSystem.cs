@@ -23,6 +23,7 @@ public partial class RailSpawnerSystem : SystemBase
         Entity trackPrefab = new Entity();
         Entity platformPrefab = new Entity();
         Entity carriagePrefab = new Entity();
+        Entity trainPrefab = new Entity();
         float railSpacing = 0;
         
         Entities
@@ -32,6 +33,7 @@ public partial class RailSpawnerSystem : SystemBase
             
             trackPrefab = railSpawner.TrackPrefab;
             platformPrefab = railSpawner.PlatformPrefab;
+            trainPrefab = railSpawner.TrainPrefab;
             carriagePrefab = railSpawner.CarriagePrefab;
             railSpacing = railSpawner.RailSpacing;
             
@@ -40,7 +42,7 @@ public partial class RailSpawnerSystem : SystemBase
         
         
 
-        Entities.ForEach((Entity Entity, in LineComponent lineComponent,
+        Entities.ForEach((Entity entity, in LineComponent lineComponent,
             in DynamicBuffer<BezierPointBufferElement> bezierPoints,
             in LineTotalDistanceComponent lineTotalDistanceComponent) =>
         {
@@ -59,6 +61,25 @@ public partial class RailSpawnerSystem : SystemBase
                 var rotation = new Rotation { Value = lookRot };
                 ecb.SetComponent(instance, rotation);
             }
+            
+            int trainCount = 10;
+            for (int i = 0; i < trainCount; i++)
+            {
+                var train = ecb.Instantiate(trainPrefab);
+                var trainComponent = new TrainComponent { Line = entity };
+                ecb.SetComponent(train, trainComponent);
+
+                var trackPosition = new TrackPositionComponent {Value = (float)i / trainCount};
+                ecb.SetComponent(train, trackPosition);
+                
+                for (int j = 0; j < lineComponent.CarriageCount; j++)
+                {
+                    var carriage = ecb.Instantiate(carriagePrefab);
+                    var carriageComponent = new CarriageComponent { Index = j, Train = train };
+                    ecb.SetComponent(carriage, carriageComponent);
+                }
+            }
+            
         }).Run();
         
         ecb.Playback(EntityManager);

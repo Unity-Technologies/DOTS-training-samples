@@ -11,7 +11,6 @@ public class TrainAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     [SerializeField] private int trainId = 0;
     [SerializeField] private float maxSpeed = .2f;
     //[SerializeField] private int carriageCount = 4;
-    [SerializeField] private GameObject carriagePrefab; 
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -19,7 +18,6 @@ public class TrainAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
         // Conversion only converts the GameObjects in the scene.
         // This function allows us to inject extra GameObjects,
         // in this case prefabs that live in the assets folder.
-        referencedPrefabs.Add(carriagePrefab);
     }
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)

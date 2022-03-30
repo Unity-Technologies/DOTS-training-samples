@@ -10,6 +10,7 @@ public class RailSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
 {
     [SerializeField] private GameObject trackPrefab = null;
     [SerializeField] private GameObject platformPrefab = null;
+    [SerializeField] private GameObject trainPrefab = null;
     [SerializeField] private GameObject carriagePrefab = null;
     [SerializeField] private float railSpacing = .2f;
 
@@ -21,6 +22,7 @@ public class RailSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
         // in this case prefabs that live in the assets folder.
         referencedPrefabs.Add(trackPrefab);
         referencedPrefabs.Add(platformPrefab);
+        referencedPrefabs.Add(trainPrefab);
         referencedPrefabs.Add(carriagePrefab);
     }
     
@@ -30,6 +32,7 @@ public class RailSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
         {
             TrackPrefab =  conversionSystem.GetPrimaryEntity(trackPrefab),
             PlatformPrefab =  conversionSystem.GetPrimaryEntity(platformPrefab),
+            TrainPrefab =  conversionSystem.GetPrimaryEntity(trainPrefab),
             CarriagePrefab =  conversionSystem.GetPrimaryEntity(carriagePrefab),
             RailSpacing = railSpacing
         });
