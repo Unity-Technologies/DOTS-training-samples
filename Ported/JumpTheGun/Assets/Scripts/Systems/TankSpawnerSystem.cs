@@ -62,6 +62,10 @@ public partial class TankSpawnerSystem : SystemBase
 		var bricks = _brickQuery.ToComponentDataArray<Brick>(brickEntities, Allocator.Temp);
 		var brickPositions = _brickQuery.ToComponentDataArray<Translation>(brickEntities, Allocator.Temp);
 
+		var gridEntity = GetSingletonEntity<OccupiedElement>();
+		var occupiedGrid = GetBuffer<OccupiedElement>(gridEntity);
+		var terrainData = GetSingleton<TerrainData>();
+
 		Entities
 			.ForEach((Entity entity, in EntityPrefabHolder prefabHolder, in TankData tankData) =>
 				{
@@ -77,6 +81,10 @@ public partial class TankSpawnerSystem : SystemBase
 						{
 							Value = position
 						});
+
+						int2 gridPosition = TerrainUtility.BoxFromLocalPosition(position);
+						int index = gridPosition.x + gridPosition.y * terrainData.TerrainWidth;
+						occupiedGrid[index] = true;
 					}
 				}).Run();
 
