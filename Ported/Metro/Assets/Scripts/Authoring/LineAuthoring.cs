@@ -83,28 +83,25 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
         float platformOffset = BezierHelpers.BEZIER_PLATFORM_OFFSET;
-        List<BezierPointBufferElement> returnPoints = new List<BezierPointBufferElement>();
         for (int i = totalMarkers - 1; i >= 0; i--)
         {
             float3 targetLocation =
                 BezierHelpers.GetPointPerpendicularOffset(bezierCurve, totalPathDistance, bezierCurve[i], platformOffset);
             BezierHelpers.AddPoint(ref bezierCurve, targetLocation);
-            returnPoints.Add(bezierCurve[bezierCurve.Length - 1]);
         }
         
         // This could be off-by-one
-        int returnPointOffset = returnPoints.Count;
+        int returnPointOffset = totalMarkers;
         
         // fix the RETURN handles
-        for (int i = 0; i <= totalMarkers - returnPointOffset - 1; i++)
+        for (int i = 0; i <= totalMarkers - 1; i++)
         {
-            
             BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
             if (i == 0)
             {
                 currentReturnPoint = BezierHelpers.SetHandles(bezierCurve[1 + returnPointOffset], currentReturnPoint);
             }
-            else if (i == totalMarkers - returnPointOffset - 1)
+            else if (i == totalMarkers - 1)
             {
                 currentReturnPoint = BezierHelpers.SetHandles(currentReturnPoint, bezierCurve[i - 1 + returnPointOffset]);
             }

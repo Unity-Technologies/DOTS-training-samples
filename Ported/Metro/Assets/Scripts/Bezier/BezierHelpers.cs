@@ -23,7 +23,8 @@ public static class BezierHelpers
         {
             BezierPointBufferElement _prev = bezierPoints[bezierPoints.Length - 2];
             BezierPointBufferElement _current = bezierPoints[bezierPoints.Length - 1];
-            SetHandles(_current, _prev.Location);
+            _current = SetHandles(_current, _prev.Location);
+            bezierPoints[bezierPoints.Length - 1] = _current;
         }
 
         return result;
@@ -32,7 +33,7 @@ public static class BezierHelpers
     // Taking a Bezier point and a previous point, returns a new point with the same location but new control handles.
     public static BezierPointBufferElement SetHandles(BezierPointBufferElement point, BezierPointBufferElement prevPoint)
     {
-        float3 directionVector = math.normalize(point.Location - prevPoint.Location);
+        float3 directionVector = math.normalizesafe(point.Location - prevPoint.Location);
         return SetHandles(point, directionVector);
     }
 
