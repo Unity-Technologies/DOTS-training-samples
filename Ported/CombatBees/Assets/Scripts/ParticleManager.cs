@@ -6,7 +6,7 @@ public class ParticleManager : MonoBehaviour
     public enum ParticleType { Blood, SpawnFlash }
 
     //Temporary
-    public class BeeParticle {
+    public class Particle {
         public ParticleType type;
         public Vector3 position;
         public Vector3 velocity;
@@ -22,11 +22,11 @@ public class ParticleManager : MonoBehaviour
     public Material particleMaterial;
     public float speedStretch;
 
-    List<BeeParticle> particles;
+    List<Particle> particles;
     Matrix4x4[][] matrices;
     Vector4[][] colors;
 
-    List<BeeParticle> pooledParticles;
+    List<Particle> pooledParticles;
 
     int activeBatch = 0;
     int activeBatchSize = 0;
@@ -51,10 +51,10 @@ public class ParticleManager : MonoBehaviour
         {
             return;
         }
-        BeeParticle particle;
+        Particle particle;
         if (pooledParticles.Count == 0)
         {
-            particle = new BeeParticle();
+            particle = new Particle();
         }
         else
         {
@@ -100,8 +100,8 @@ public class ParticleManager : MonoBehaviour
     {
         instance = this;
 
-        particles = new List<BeeParticle>();
-        pooledParticles = new List<BeeParticle>();
+        particles = new List<Particle>();
+        pooledParticles = new List<Particle>();
         matrices = new Matrix4x4[maxParticleCount / instancesPerBatch + 1][];
         colors = new Vector4[maxParticleCount / instancesPerBatch + 1][];
 
@@ -119,7 +119,7 @@ public class ParticleManager : MonoBehaviour
         float deltaTime = Time.deltaTime;
         for (int i = 0; i < particles.Count; i++)
         {
-            BeeParticle particle = particles[i];
+            Particle particle = particles[i];
             if (!particle.stuck)
             {
                 particle.velocity += Vector3.up * (Field.gravity * deltaTime);
@@ -187,7 +187,7 @@ public class ParticleManager : MonoBehaviour
             Vector4[] batchColors = colors[j];
             for (int i = 0; i < batchSize; i++)
             {
-                BeeParticle particle = particles[i + batchOffset];
+                Particle particle = particles[i + batchOffset];
 
                 if (particle.stuck)
                 {
