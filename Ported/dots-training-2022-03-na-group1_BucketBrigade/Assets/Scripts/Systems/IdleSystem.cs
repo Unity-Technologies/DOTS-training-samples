@@ -23,7 +23,7 @@ public partial class IdleSystem : SystemBase
         var heatMapDataEntity = GetSingletonEntity<HeatMapData>();
         var heatMapData = GetComponent<HeatMapData>(heatMapDataEntity);
         
-        var radius = (heatMapData.width - 1) / 2f;
+        var radius = (heatMapData.mapSideLength - 1) / 2f;
 
         Entities
             .ForEach((ref MyWorkerState state, ref Destination destination) =>
