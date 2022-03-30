@@ -44,7 +44,7 @@ namespace Systems
                         UpdateTargetEntityAndType(globalSystemVersion, teamTargets1, entity, ref target, ref targetEntity);
                     else
                         UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target, ref targetEntity);
-                }).Run();
+                }).ScheduleParallel();
 
          
             // Resolve the changing target position
@@ -63,7 +63,7 @@ namespace Systems
                           cache.Value = default;
                       }
                   }
-              }).Run();
+              }).ScheduleParallel();
 
 
         }
