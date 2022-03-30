@@ -17,7 +17,16 @@ public class MouseRaycaster : MonoBehaviour {
 		marker.GetComponent<Renderer>().sharedMaterial = markerMaterial;
 		camera = Camera.main;
 	}
-	
+
+	//Temporary test
+	void Update()
+	{
+		if (Input.GetKey(KeyCode.Mouse0))
+			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.SpawnFlash, Vector3.zero, 6f, 5);	
+		else if (Input.GetKey(KeyCode.Mouse1))
+			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.Blood, Vector3.zero);
+	}
+
 	void LateUpdate () {
 		Ray mouseRay = camera.ScreenPointToRay(Input.mousePosition);
 

@@ -192,6 +192,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResourceSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 1882087471347382938, guid: 1d285f3e6c5333644bd7d253d9c0943b, type: 3}
+      propertyPath: ResourceCount
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 1882087471347382939, guid: 1d285f3e6c5333644bd7d253d9c0943b, type: 3}
       propertyPath: m_RootOrder
       value: 0
