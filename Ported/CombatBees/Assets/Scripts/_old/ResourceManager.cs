@@ -45,7 +45,7 @@ public class ResourceManager : MonoBehaviour {
 	}
 
 	Vector3 GetStackPos(int x, int y, int height) {
-		return new Vector3(minGridPos.x+x*gridSize.x,-Field.size.y*.5f+(height+.5f)*resourceSize,minGridPos.y+y*gridSize.y);
+		return new Vector3(minGridPos.x+x*gridSize.x,-PlayField.size.y*.5f+(height+.5f)*resourceSize,minGridPos.y+y*gridSize.y);
 	}
 
 	Vector3 NearestSnappedPos(Vector3 pos) {
@@ -62,7 +62,7 @@ public class ResourceManager : MonoBehaviour {
 	}
 
 	void SpawnResource() {
-		Vector3 pos = new Vector3(minGridPos.x * .25f + Random.value * Field.size.x * .25f,Random.value * 10f,minGridPos.y + Random.value * Field.size.z);
+		Vector3 pos = new Vector3(minGridPos.x * .25f + Random.value * PlayField.size.x * .25f,Random.value * 10f,minGridPos.y + Random.value * PlayField.size.z);
 		SpawnResource(pos);
 	}
 	void SpawnResource(Vector3 pos) {
@@ -90,8 +90,8 @@ public class ResourceManager : MonoBehaviour {
 		resources = new List<Resource>();
 		matrices = new List<Matrix4x4>();
 
-		gridCounts = Vector2Int.RoundToInt(new Vector2(Field.size.x,Field.size.z) / resourceSize);
-		gridSize = new Vector2(Field.size.x/gridCounts.x,Field.size.z/gridCounts.y);
+		gridCounts = Vector2Int.RoundToInt(new Vector2(PlayField.size.x,PlayField.size.z) / resourceSize);
+		gridSize = new Vector2(PlayField.size.x/gridCounts.x,PlayField.size.z/gridCounts.y);
 		minGridPos = new Vector2((gridCounts.x-1f)*-.5f*gridSize.x,(gridCounts.y-1f)*-.5f*gridSize.y);
 		stackHeights = new int[gridCounts.x,gridCounts.y];
 
@@ -123,13 +123,13 @@ public class ResourceManager : MonoBehaviour {
 				}
 			} else if (resource.stacked == false) {
 				resource.position = Vector3.Lerp(resource.position,NearestSnappedPos(resource.position),snapStiffness * Time.deltaTime);
-				resource.velocity.y += Field.gravity * Time.deltaTime;
+				resource.velocity.y += PlayField.gravity * Time.deltaTime;
 				resource.position += resource.velocity * Time.deltaTime;
 				GetGridIndex(resource.position,out resource.gridX,out resource.gridY);
 				float floorY = GetStackPos(resource.gridX,resource.gridY,stackHeights[resource.gridX,resource.gridY]).y;
 				for (int j = 0; j < 3; j++) {
-					if (System.Math.Abs(resource.position[j]) > Field.size[j] * .5f) {
-						resource.position[j] = Field.size[j] * .5f * Mathf.Sign(resource.position[j]);
+					if (System.Math.Abs(resource.position[j]) > PlayField.size[j] * .5f) {
+						resource.position[j] = PlayField.size[j] * .5f * Mathf.Sign(resource.position[j]);
 						resource.velocity[j] *= -.5f;
 						resource.velocity[(j + 1) % 3] *= .8f;
 						resource.velocity[(j + 2) % 3] *= .8f;
@@ -137,7 +137,7 @@ public class ResourceManager : MonoBehaviour {
 				}
 				if (resource.position.y < floorY) {
 					resource.position.y = floorY;
-					if (Mathf.Abs(resource.position.x) > Field.size.x * .4f) {
+					if (Mathf.Abs(resource.position.x) > PlayField.size.x * .4f) {
 						int team = 0;
 						if (resource.position.x > 0f) {
 							team = 1;
@@ -150,7 +150,7 @@ public class ResourceManager : MonoBehaviour {
 					} else {
 						resource.stacked = true;
 						resource.stackIndex = stackHeights[resource.gridX,resource.gridY];
-						if ((resource.stackIndex + 1) * resourceSize < Field.size.y) {
+						if ((resource.stackIndex + 1) * resourceSize < PlayField.size.y) {
 							stackHeights[resource.gridX,resource.gridY]++;
 						} else {
 							DeleteResource(resource);
@@ -170,6 +170,6 @@ public class ResourceManager : MonoBehaviour {
 
 	private void OnDrawGizmosSelected() {
 		Gizmos.color = Color.white;
-		Gizmos.DrawWireCube(Vector3.zero,Field.size);
+		Gizmos.DrawWireCube(Vector3.zero,PlayField.size);
 	}
 }

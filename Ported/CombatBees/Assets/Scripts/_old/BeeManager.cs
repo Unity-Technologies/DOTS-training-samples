@@ -42,7 +42,7 @@ public class BeeManager : MonoBehaviour {
 	MaterialPropertyBlock matProps;
 
 	public static void SpawnBee(int team) {
-		Vector3 pos = Vector3.right * (-Field.size.x * .4f + Field.size.x * .8f * team);
+		Vector3 pos = Vector3.right * (-PlayField.size.x * .4f + PlayField.size.x * .8f * team);
 		instance._SpawnBee(pos,team);
 	}
 
@@ -180,7 +180,7 @@ public class BeeManager : MonoBehaviour {
 							}
 						}
 					} else if (resource.holder == bee) {
-						Vector3 targetPos = new Vector3(-Field.size.x * .45f + Field.size.x * .9f * bee.team,0f,bee.position.z);
+						Vector3 targetPos = new Vector3(-PlayField.size.x * .45f + PlayField.size.x * .9f * bee.team,0f,bee.position.z);
 						delta = targetPos - bee.position;
 						dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
 						bee.velocity += (targetPos - bee.position) * (carryForce * deltaTime / dist);
@@ -201,7 +201,7 @@ public class BeeManager : MonoBehaviour {
 					ParticleManager.SpawnParticle(bee.position,ParticleType.Blood,Vector3.zero);
 				}
 
-				bee.velocity.y += Field.gravity * deltaTime;
+				bee.velocity.y += PlayField.gravity * deltaTime;
 				bee.deathTimer -= deltaTime / 10f;
 				if (bee.deathTimer < 0f) {
 					DeleteBee(bee);
@@ -210,14 +210,14 @@ public class BeeManager : MonoBehaviour {
 			bee.position += deltaTime * bee.velocity;
 
 			
-			if (System.Math.Abs(bee.position.x) > Field.size.x * .5f) {
-				bee.position.x = (Field.size.x * .5f) * Mathf.Sign(bee.position.x);
+			if (System.Math.Abs(bee.position.x) > PlayField.size.x * .5f) {
+				bee.position.x = (PlayField.size.x * .5f) * Mathf.Sign(bee.position.x);
 				bee.velocity.x *= -.5f;
 				bee.velocity.y *= .8f;
 				bee.velocity.z *= .8f;
 			}
-			if (System.Math.Abs(bee.position.z) > Field.size.z * .5f) {
-				bee.position.z = (Field.size.z * .5f) * Mathf.Sign(bee.position.z);
+			if (System.Math.Abs(bee.position.z) > PlayField.size.z * .5f) {
+				bee.position.z = (PlayField.size.z * .5f) * Mathf.Sign(bee.position.z);
 				bee.velocity.z *= -.5f;
 				bee.velocity.x *= .8f;
 				bee.velocity.y *= .8f;
@@ -226,8 +226,8 @@ public class BeeManager : MonoBehaviour {
 			if (bee.isHoldingResource) {
 				resourceModifier = ResourceManager.instance.resourceSize;
 			}
-			if (System.Math.Abs(bee.position.y) > Field.size.y * .5f - resourceModifier) {
-				bee.position.y = (Field.size.y * .5f - resourceModifier) * Mathf.Sign(bee.position.y);
+			if (System.Math.Abs(bee.position.y) > PlayField.size.y * .5f - resourceModifier) {
+				bee.position.y = (PlayField.size.y * .5f - resourceModifier) * Mathf.Sign(bee.position.y);
 				bee.velocity.y *= -.5f;
 				bee.velocity.z *= .8f;
 				bee.velocity.x *= .8f;
