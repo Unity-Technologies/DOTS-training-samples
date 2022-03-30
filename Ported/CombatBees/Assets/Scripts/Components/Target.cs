@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 public struct Target : IComponentData
@@ -12,5 +13,6 @@ public struct Target : IComponentData
 
     // Generic entity ID for now to keep data uniform. Can be reviewed later.
     public Entity TargetEntity;
+    public float3 Position;
     public TargetType Type;
 }
