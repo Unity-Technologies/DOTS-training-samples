@@ -35,15 +35,6 @@ public partial class FirePropagationSystem : SystemBase
                 i++;
             }
         }
-        
-        // checkAdjacents[0] = new int2(-1, -1);
-        // checkAdjacents[1] = new int2(0, -1);
-        // checkAdjacents[2] = new int2(1, -1);
-        // checkAdjacents[3] = new int2(-1, 0);
-        // checkAdjacents[4] = new int2(1, 0);
-        // checkAdjacents[5] = new int2(-1, 1);
-        // checkAdjacents[6] = new int2(0, 1);
-        // checkAdjacents[7] = new int2(1, 1);
     }
 
     protected override void OnDestroy()
@@ -61,10 +52,8 @@ public partial class FirePropagationSystem : SystemBase
         float deltaTime = Time.DeltaTime * heatmapData.heatPropagationSpeed;
         
         var buffer = heatmapBuffer.Reinterpret<float>();
-
         var localCheckAdjacents = checkAdjacents;
 
-        
         Job.WithCode(() => {
 
             for (var i = 0; i < buffer.Length; i++)
@@ -83,6 +72,11 @@ public partial class FirePropagationSystem : SystemBase
 
         var heatmapBufferReadonly = EntityManager.GetBuffer<HeatMapTemperature>(heatmap, true);
 
+        //float dt = Time.DeltaTime * 10f;
+        float time = (float) Time.ElapsedTime;
+        float flickerRate = 1f;
+        float flickerRange = 0.5f;
+        
         Entities.WithAll<FireIndex>()
              .WithReadOnly(heatmapBufferReadonly)
              .ForEach( (ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation, in FireIndex fireIndex) =>
@@ -97,6 +91,10 @@ public partial class FirePropagationSystem : SystemBase
                  {
                      colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
                      translation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
+                     
+                     //Apply flicker noise
+                     float2 sample = new float2((time - fireIndex.index) * flickerRate - intensity, intensity);
+                     translation.Value.y += flickerRange * 0.5f + (noise.cnoise(sample) * flickerRange);
                  }
 
 
@@ -106,11 +104,6 @@ public partial class FirePropagationSystem : SystemBase
 
     static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, NativeArray<int2> checkAdjacents, int tileIndex, int width, float deltaTime)
     {
-        //check out of bounds
-        //(x-1, z-1), (x, z-1), (x+1, z-1) 
-        //(x-1, z  ), *(x, z)*, (x+1, z  ) 
-        //(x-1, z+1), (x, z+1), (x+1, z+1) 
-
         for (int iCheck = 0; iCheck < checkAdjacents.Length; iCheck++)
         {
             int2 tileCoord = GetTileCoordinate(tileIndex, width);
@@ -119,12 +112,12 @@ public partial class FirePropagationSystem : SystemBase
 
             bool inBounds = (x >= 0 && x <= width-1 && z >= 0 && z <= width-1);
 
-            int adjacentIndex = GetTileIndex(x, z, width);
-
-            if (inBounds && buffer[adjacentIndex] < HEAT_THRESHOLD)
+            if (inBounds)
             {
-                //heat
-                buffer[adjacentIndex] += deltaTime;
+                int adjacentIndex = GetTileIndex(x, z, width);
+                
+                if(buffer[adjacentIndex] < HEAT_THRESHOLD)
+                    buffer[adjacentIndex] += deltaTime;
             }
         }
     }
