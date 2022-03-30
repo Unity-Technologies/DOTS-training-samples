@@ -6,11 +6,11 @@ using Unity.Transforms;
 
 public partial class SpawnerSystem : SystemBase
 {
-
-   static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
+    static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
         var heatmapEntity = ecb.CreateEntity();
         ecb.SetName(heatmapEntity, "Heatmap");
+        
         var heatmapBuffer = ecb.AddBuffer<HeatMapTemperature>(heatmapEntity);
         for (int iFire = 0; iFire < size * size ; iFire++)//adding elements to buffer
         {
@@ -19,30 +19,19 @@ public partial class SpawnerSystem : SystemBase
 
         ecb.AddComponent(heatmapEntity, new HeatMapData()
         {
-            width = size, 
+            mapSideLength = size, 
             maxTileHeight = 5.0f,
-            heatSpeed = 0.05f,
-            startColor = new float4(1f,1f,0f,1f),
-            finalColor = new float4(1f,0f,0f,1f)
+            
+            heatPropagationSpeed = 0.05f,
+            heatPropagationRadius = 2,
+
+            colorNeutral = new float4(0.49f,0.8f,0.46f,1f),
+            colorCool = new float4(1f,1f,0.5f,1f),
+            colorHot = new float4(1f,0f,0f,1f)
         });
     }
 
-    void StartRandomFires()
-    {
-        var heatmap = GetSingletonEntity<HeatMapTemperature>();
-        DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
-        Random random = new Random(123123);
-
-        // Set random tiles on fire by default
-        for (int i = 0; i < 5; i++)
-        {
-            int randomIndex = random.NextInt(0, heatmapBuffer.Length);
-
-            heatmapBuffer[randomIndex] = 0.2f;
-        }
-    }
-
-   static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
+    static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
    {
        var offsetSingleDimension = -(size - 1) / 2f;
        var offset = new float3(offsetSingleDimension, 0f, offsetSingleDimension);
@@ -68,6 +57,21 @@ public partial class SpawnerSystem : SystemBase
        }
    }
 
+   void StartRandomFires()
+   {
+       var heatmapEntity = GetSingletonEntity<HeatMapTemperature>();
+       DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmapEntity);
+       Random random = new Random(123123);
+
+       // Set random tiles on fire by default
+       for (int i = 0; i < 5; i++)
+       {
+           int randomIndex = random.NextInt(0, heatmapBuffer.Length);
+
+           heatmapBuffer[randomIndex] = 0.2f;
+       }
+   }
+   
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);

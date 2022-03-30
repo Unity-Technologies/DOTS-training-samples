@@ -1,26 +1,50 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 using Unity.Collections;
+using UnityEngine;
 
 public partial class FirePropagationSystem : SystemBase
 {
-
+    public const float HEAT_THRESHOLD = 0.2f;
+    
     private NativeArray<int2> checkAdjacents;
 
     protected override void OnCreate()
     {
+        //radius 1 -> 8  : 3*3-1
+        //radius 2 -> 24 : 5*5-1 : (r+r+1)-1
+        
+        int radius = 2;
+        
         checkAdjacents = new NativeArray<int2>(8, Allocator.Persistent);
+            
 
-        checkAdjacents[0] = new int2(-1, -1);
-        checkAdjacents[1] = new int2(0, -1);
-        checkAdjacents[2] = new int2(1, -1);
-        checkAdjacents[3] = new int2(-1, 0);
-        checkAdjacents[4] = new int2(1, 0);
-        checkAdjacents[5] = new int2(-1, 1);
-        checkAdjacents[6] = new int2(0, 1);
-        checkAdjacents[7] = new int2(1, 1);
+        int i = 0;
+        for (int x = -radius; x <= radius; x++)
+        {
+            for (int y = -radius; y <= radius; y++)
+            {
+                if (x == 0 && y == 0)
+                    continue;
+                
+                checkAdjacents[i] = new int2(x,y);
+                i++;
+            }
+        }
+        
+        Debug.Log(String.Concat(checkAdjacents.ToArray()," | "));
+        
+        // checkAdjacents[0] = new int2(-1, -1);
+        // checkAdjacents[1] = new int2(0, -1);
+        // checkAdjacents[2] = new int2(1, -1);
+        // checkAdjacents[3] = new int2(-1, 0);
+        // checkAdjacents[4] = new int2(1, 0);
+        // checkAdjacents[5] = new int2(-1, 1);
+        // checkAdjacents[6] = new int2(0, 1);
+        // checkAdjacents[7] = new int2(1, 1);
     }
 
     protected override void OnDestroy()
@@ -35,7 +59,7 @@ public partial class FirePropagationSystem : SystemBase
         var heatmap = GetSingletonEntity<HeatMapTemperature>();
         DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
         
-        float deltaTime = Time.DeltaTime * heatmapData.heatSpeed;
+        float deltaTime = Time.DeltaTime * heatmapData.heatPropagationSpeed;
         
         var buffer = heatmapBuffer.Reinterpret<float>();
 
@@ -45,10 +69,10 @@ public partial class FirePropagationSystem : SystemBase
 
             for (var i = 0; i < buffer.Length; i++)
             {
-                if (buffer[i] >= 0.2f)
+                if (buffer[i] >= HEAT_THRESHOLD)
                 {
                     buffer[i] += deltaTime;
-                    HeatAdjacents(ref heatmapBuffer, localCheckAdjacents, i, heatmapData.width, deltaTime);
+                    HeatAdjacents(ref heatmapBuffer, localCheckAdjacents, i, heatmapData.mapSideLength, deltaTime);
                 }
 
                 if (buffer[i] >= 1f)
@@ -58,14 +82,21 @@ public partial class FirePropagationSystem : SystemBase
         }).Run();
 
         Entities.WithAll<FireIndex>()
-             .ForEach( (ref FireIndex fireIndex, ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation) =>
+             .ForEach( (ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation, in FireIndex fireIndex) =>
              {
                  float intensity = heatmapBuffer[fireIndex.index];
-                 colorComponent.Value = math.lerp(heatmapData.startColor, heatmapData.finalColor, intensity);
 
-                 Translation currentTranslation = translation;
-                 currentTranslation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
-                 translation = currentTranslation;
+                 if (intensity < HEAT_THRESHOLD)
+                 {
+                     colorComponent.Value = heatmapData.colorNeutral;
+                 }
+                 else
+                 {
+                     colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
+                     translation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
+                 }
+
+
              })
              .Schedule();
     }
@@ -87,7 +118,7 @@ public partial class FirePropagationSystem : SystemBase
 
             int adjacentIndex = GetTileIndex(x, z, width);
 
-            if (inBounds && buffer[adjacentIndex] < 0.2f)
+            if (inBounds && buffer[adjacentIndex] < HEAT_THRESHOLD)
             {
                 //heat
                 buffer[adjacentIndex] += deltaTime;
