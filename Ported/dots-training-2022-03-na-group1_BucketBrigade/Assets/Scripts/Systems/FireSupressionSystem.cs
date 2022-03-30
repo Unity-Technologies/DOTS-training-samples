@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityInput = UnityEngine.Input;
 
 public partial class FireSuppressionSystem : SystemBase
 {
@@ -31,6 +32,10 @@ public partial class FireSuppressionSystem : SystemBase
     protected override void OnUpdate()
     {
         //var time = Time.ElapsedTime;
+        if (UnityInput.GetMouseButtonDown(0))
+        {
+            AddSplashByIndex(0);
+        }
     }
     
     DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 

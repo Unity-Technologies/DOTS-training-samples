@@ -77,19 +77,22 @@ public partial class FirePropagationSystem : SystemBase
                 if (splashmapBuffer[i] < 0)//-1
                     continue;
                 
-                SuppressAdjacents(ref heatmapBuffer, localCheckAdjacents,splashmapBuffer[i],heatmapData.mapSideLength);
+                SuppressAdjacents(ref heatmapBuffer, ref splashmapBuffer, localCheckAdjacents,i,heatmapData.mapSideLength);
             }
 
         }).Run();
     }
 
-    static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, NativeArray<int2> checkAdjacents, int tileIndex, int width, float deltaTime)
+    static void HeatAdjacents(
+        ref DynamicBuffer<HeatMapTemperature> buffer, 
+        NativeArray<int2> adjacentOffsets, 
+        int tileIndex,  int width, float deltaTime)
     {
-        for (int iCheck = 0; iCheck < checkAdjacents.Length; iCheck++)
+        for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
             int2 tileCoord = GetTileCoordinate(tileIndex, width);
-            int x = tileCoord.x + checkAdjacents[iCheck].x;
-            int z = tileCoord.y + checkAdjacents[iCheck].y;
+            int x = tileCoord.x + adjacentOffsets[iCheck].x;
+            int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
             bool inBounds = (x >= 0 && x <= width-1 && z >= 0 && z <= width-1);
 
@@ -104,10 +107,17 @@ public partial class FirePropagationSystem : SystemBase
     }
     
     static void SuppressAdjacents(
-        ref DynamicBuffer<HeatMapTemperature> buffer, 
+        ref DynamicBuffer<HeatMapTemperature> heatmapBuffer, 
+        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
         NativeArray<int2> adjacentOffsets, 
-        int tileIndex, int width)
+        int splashIndex,
+        int width)
     {
+        //reset splashmap
+        int tileIndex = splashmapBuffer[splashIndex];
+        splashmapBuffer[splashIndex] = -1;
+        
+        //apply suppression to adjacents
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
             int2 tileCoord = GetTileCoordinate(tileIndex, width);
@@ -119,7 +129,7 @@ public partial class FirePropagationSystem : SystemBase
             if (inBounds)
             {
                 int adjacentIndex = GetTileIndex(x, z, width);
-                buffer[adjacentIndex] = 0f;
+                heatmapBuffer[adjacentIndex] = 0f;
             }
         }
     }
