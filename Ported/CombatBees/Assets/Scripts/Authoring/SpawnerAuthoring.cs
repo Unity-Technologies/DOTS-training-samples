@@ -27,7 +27,6 @@ namespace Authoring
         {
             dstManager.AddComponentData(entity, new HiveSpawner()
                 {
-                    BeePrefab = conversionSystem.GetPrimaryEntity(BeePrefab),
                     BeesAmount = BeesAmount,
                     ResourcePrefab = conversionSystem.GetPrimaryEntity(ResourcePrefab),
                     ResourceAmount = ResourceAmount

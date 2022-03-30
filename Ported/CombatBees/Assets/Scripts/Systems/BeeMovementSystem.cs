@@ -4,6 +4,8 @@ using Unity.Mathematics;
 using Mathf = UnityEngine.Mathf;
 using Unity.Collections;
 
+[UpdateBefore(typeof(ParticleSystemFixed))]
+[UpdateAfter(typeof(Systems.TargetSystem))]
 public partial class BeeMovementSystem : SystemBase
 {
     static readonly float flightJitter = 200f;
@@ -11,6 +13,11 @@ public partial class BeeMovementSystem : SystemBase
     static readonly float speedStretch = 0.2f;
     static readonly float teamAttraction = 5f;
     static readonly float teamRepulsion = 4f;
+
+    static readonly float chaseForce = 50f;
+    static readonly float attackDistance = 4f;
+    static readonly float attackForce = 500f;
+    static readonly float hitDistance = 0.5f;
 
     EntityQuery[] teamTargets;
 
@@ -66,6 +73,29 @@ public partial class BeeMovementSystem : SystemBase
         var position = translation.Value;
         UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in team, deltaTime);
 
+        if (target.TargetEntity != null && target.Type == Target.TargetType.Enemy)
+        {
+            var enemyPos = target.Position;
+            var delta = enemyPos - position;
+            float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+            if (sqrDist > attackDistance * attackDistance)
+            {
+                velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+            }
+            else
+            {
+                //bee.isAttacking = true;
+                velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
+                if (sqrDist < hitDistance * hitDistance)
+                {
+                    /*ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
+                    bee.enemyTarget.dead = true;
+                    bee.enemyTarget.velocity *= .5f;
+                    bee.enemyTarget = null;*/
+                    
+                }
+            }
+        }
 
         position += velocity * deltaTime;
         UpdateBorders(ref velocity, ref position);

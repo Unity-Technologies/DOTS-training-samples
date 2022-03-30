@@ -15,50 +15,42 @@ namespace Systems
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             var random = new Random(1234);
-            var blueColor = new float4(0, 0, 1, 1);
-            var yellowColor = new float4(1, 1, 0, 1);
 
             Entities
-                .ForEach((Entity entity, in HiveSpawner spawner, in Translation worldCenter, in NonUniformScale worldSize ) =>
+                .WithoutBurst()
+                .ForEach((Entity entity, in HiveSpawner spawner, in SpawnData spawnData, in Translation worldCenter, in NonUniformScale worldSize ) =>
                 {
                     //PlayField.size = worldSize.Value;
                     //PlayField.origin = worldCenter.Value;
-                    
+
+                    float3 resourceSpawnAreaSize = new float3(worldSize.Value.x * 0.5f, worldSize.Value.y, worldSize.Value.z);
+
                     ecb.RemoveComponent<HiveSpawner>(entity);
                     var worldStartPosition =(worldCenter.Value - worldSize.Value/2);
                     var hiveSize = new float3(0.1f * worldSize.Value.x, worldSize.Value.y, worldSize.Value.z);
                     for (int i = 0; i < spawner.BeesAmount; ++i)
                     {
                         int team = i % 2;
-                        var bee = ecb.Instantiate(spawner.BeePrefab);
+
                         var randPos = hiveSize * random.NextFloat3(1);
-                        var translation = new Translation { Value = team == 0
+                        var translation = team == 0
                             ? worldStartPosition + randPos
-                            : worldStartPosition + worldSize.Value - randPos
-                        };
-                        ecb.SetComponent(bee, translation);
-                        ecb.SetComponent(bee, new URPMaterialPropertyBaseColor
-                        {
-                            Value = team == 0 ? blueColor : yellowColor
-                        });
-                        ecb.SetComponent(bee, new BeeMovement
-                        {
-                            Velocity = float3.zero,
-                            Size = random.NextFloat(0.25f, 0.5f)
-                        });
-                        ecb.AddSharedComponent(bee, new Team { TeamId = team });
+                            : worldStartPosition + worldSize.Value - randPos;
+
+                        Instantiation.Bee.Instantiate(ecb, spawnData.BeePrefab, translation, random.NextFloat(0.25f, 0.5f), team);
                     }
-                    
+
+                    var resourceWorldStartPosition = (worldCenter.Value - resourceSpawnAreaSize / 2);
                     for (int i = 0; i < spawner.ResourceAmount; ++i)
                     {
                         var resource = ecb.Instantiate(spawner.ResourcePrefab);
-                        var translation = new Translation { Value = worldCenter.Value + worldSize.Value * random.NextFloat3(-0.5f, 0.5f) * new float3(0.8f, 1f, 1f) };
-                        translation.Value.y = -worldSize.Value.y / 2;
+                        var translation = new Translation { Value = resourceWorldStartPosition + resourceSpawnAreaSize * random.NextFloat3(1) };
+                        translation.Value.y = -resourceSpawnAreaSize.y / 2;
                         ecb.SetComponent(resource, translation);
                         // var body = new KinematicBody()
-                        //     { LandPosition = new float3(translation.Value.x, -worldSize.Value.y / 2, translation.Value.z) };
+                        //     { LandPosition = new float3(translation.Value.x, -resourceSpawnAreaSize.y / 2, translation.Value.z) };
                         // ecb.SetComponent(resource, body);
-                        // ecb.RemoveComponent<KinematicBody>(resource);
+                        ecb.RemoveComponent<KinematicBody>(resource);
                     }
                 }).Run();
 

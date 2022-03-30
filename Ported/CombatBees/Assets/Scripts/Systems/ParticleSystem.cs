@@ -4,7 +4,8 @@ using Unity.Transforms;
 using Mathf = UnityEngine.Mathf;
 using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
 
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+//[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))] // Disabled for now to sync with BeeMovementSystem
+[UpdateAfter(typeof(BeeMovementSystem))]
 public partial class ParticleSystemFixed : SystemBase
 {
     EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
@@ -82,35 +83,35 @@ public partial class ParticleSystemFixed : SystemBase
 [UpdateAfter(typeof(ParticleSystemFixed))]
 public partial class ParticleSystem : SystemBase
 {
-    public static void SpawnParticle(Entity entityPrefab, EntityManager entityManager, Random rand, EntityCommandBuffer ecb, float3 position, ParticleComponent.ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
+    public static void SpawnParticle(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity entityPrefab, Random rand, float3 position, ParticleComponent.ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
     {
         // Processing each particle via the ECS makes a lot of sense, but creation costs may be an issue. Can pooling be built in?
         for (int i = 0; i < count; i++)
         {
-            var entity = entityManager.Instantiate(entityPrefab);
+            var entity = ecb.Instantiate(sortKey, entityPrefab);
 
             if (type == ParticleComponent.ParticleType.Blood)
             {
                 float3 scale = rand.NextFloat(.1f, .2f);
 
-                ecb.SetComponent(entity, new Lifetime { Value = 1f, Duration = rand.NextFloat(3f, 5f) });
-                ecb.SetComponent(entity, new ParticleComponent { Type = type });
-                ecb.SetComponent(entity, new Translation { Value = position });
-                ecb.SetComponent(entity, new Velocity { Value = velocity + rand.NextFloat3Direction() * velocityJitter });
-                ecb.SetComponent(entity, new Scale { Value = scale.x });
-                ecb.SetComponent(entity, new Size { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new Lifetime { Value = 1f, Duration = rand.NextFloat(3f, 5f) });
+                ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
+                ecb.SetComponent(sortKey, entity, new Translation { Value = position });
+                ecb.SetComponent(sortKey, entity, new Velocity { Value = velocity + rand.NextFloat3Direction() * velocityJitter });
+                ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
                 //ecb.SetComponent(entity, new ColorComponent { Value = new float3(1, 0, 0) }); // Was Random.ColorHSV(-.05f,.05f,.75f,1f,.3f,.8f), hardcoding a colour for now
             }
             else
             {
                 float3 scale = rand.NextFloat(1f, 2f);
 
-                ecb.SetComponent(entity, new Lifetime { Value = 1f, Duration = rand.NextFloat(.25f, .5f) });
-                ecb.SetComponent(entity, new ParticleComponent { Type = type });
-                ecb.SetComponent(entity, new Translation { Value = position });
-                ecb.SetComponent(entity, new Velocity { Value = rand.NextFloat3Direction() * 5f });
-                ecb.SetComponent(entity, new Scale { Value = scale.x });
-                ecb.SetComponent(entity, new Size { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new Lifetime { Value = 1f, Duration = rand.NextFloat(.25f, .5f) });
+                ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
+                ecb.SetComponent(sortKey, entity, new Translation { Value = position });
+                ecb.SetComponent(sortKey, entity, new Velocity { Value = rand.NextFloat3Direction() * 5f });
+                ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
             }
         }
     }

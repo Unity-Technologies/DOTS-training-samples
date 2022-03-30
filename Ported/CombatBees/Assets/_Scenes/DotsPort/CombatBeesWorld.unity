@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 733420454}
   - component: {fileID: 733420453}
   - component: {fileID: 733420457}
+  - component: {fileID: 733420458}
   m_Layer: 0
   m_Name: HiveSpawner
   m_TagString: Untagged
@@ -284,6 +285,20 @@ MonoBehaviour:
   CenterSize: 0.8
   LeftColor: {r: 0.4292453, g: 0.64857477, b: 1, a: 1}
   RightColor: {r: 1, g: 0.94375056, b: 0.4009434, a: 1}
+--- !u!114 &733420458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 733420452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 426d73aa83ff66d448e7ccaa4da50564, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BeePrefab: {fileID: 1854677909124871124, guid: 26659e726d74d4ce29854a6e20bcc375,
+    type: 3}
 --- !u!1 &850340822
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +344,7 @@ Transform:
   m_Children:
   - {fileID: 1685319442}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1685319438
 GameObject:
