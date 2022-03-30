@@ -16,6 +16,7 @@ namespace Authoring
             dstManager.AddComponentData(entity, new TargetEntity());
             dstManager.AddComponentData(entity, new TargetType());
             dstManager.AddComponentData(entity, new CachedTargetPosition());
+            dstManager.AddComponentData(entity, new AttractionRepulsion());
         }
     }
 }

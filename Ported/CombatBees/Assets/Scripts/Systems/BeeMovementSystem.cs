@@ -25,8 +25,8 @@ public partial class BeeMovementSystem : SystemBase
     {
         teamTargets = new EntityQuery[2]
         {
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>()),
-                    GetEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>())
+            EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>()),
+            EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>())
         };
         teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
         teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 });
@@ -41,22 +41,31 @@ public partial class BeeMovementSystem : SystemBase
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
 
-         Entities
+        // Run attraction/repulsion gather. Uses read access of Translation from input arrays and only writes attraction data.
+        Entities
             .WithReadOnly(team0)
             .WithDisposeOnCompletion(team0)
-            .WithSharedComponentFilter(new TeamShared { TeamId = 0 })
-            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in TargetType targetType, in CachedTargetPosition targetPos) =>
-            {
-                UpdateBee(ref translation, ref scale, ref bee, ref random, in team0, targetType.Value, targetPos.Value, deltaTime);
-            }).ScheduleParallel();
-
-         Entities
             .WithReadOnly(team1)
             .WithDisposeOnCompletion(team1)
-            .WithSharedComponentFilter(new TeamShared { TeamId = 1 })
-            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in TargetType targetType, in CachedTargetPosition targetPos) =>
+            .ForEach((ref AttractionRepulsion attractionRepulsion, in Team team) =>
             {
-                UpdateBee(ref translation, ref scale, ref bee, ref random, in team1, targetType.Value, targetPos.Value,  deltaTime);
+                if (team.TeamId == 0)
+                {                    
+                    attractionRepulsion.AttractionPos = team0[random.NextInt(team0.Length)].Value;
+                    attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
+                }
+                else
+                {
+                    attractionRepulsion.AttractionPos = team1[random.NextInt(team1.Length)].Value;
+                    attractionRepulsion.RepulsionPos = team0[random.NextInt(team0.Length)].Value;
+                }
+            }).ScheduleParallel();
+
+
+        Entities
+            .ForEach((ref Translation translation, ref NonUniformScale scale, ref BeeMovement bee, in AttractionRepulsion attraction, in TargetType targetType, in CachedTargetPosition targetPos) =>
+            {
+                UpdateBee(ref translation, ref scale, ref bee, ref random, attraction, targetType.Value, targetPos.Value, deltaTime);
             }).ScheduleParallel();
 
     }
@@ -65,14 +74,14 @@ public partial class BeeMovementSystem : SystemBase
         ref NonUniformScale scale,
         ref BeeMovement bee,
         ref Random random,
-        in NativeArray<Translation> team,
+        AttractionRepulsion attraction,
         TargetType.Type targetType,
         float3 targetPos,
         float deltaTime)
     {
         var velocity = bee.Velocity;
         var position = translation.Value;
-        UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in team, deltaTime);
+        UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
 
         if (targetType == TargetType.Type.Enemy)
         {
@@ -104,21 +113,19 @@ public partial class BeeMovementSystem : SystemBase
         UpdateScale(ref scale, in bee, in velocity);
     }
 
-    private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position, in NativeArray<Translation> team, float deltaTime)
+    private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position, in AttractionRepulsion attraction, float deltaTime)
     {
         velocity += random.NextFloat3Direction() * (flightJitter * deltaTime);
         velocity *= 1f - damping;
 
-        var attractiveFriend = team[random.NextInt(team.Length)];
-        var delta = attractiveFriend.Value - position;
+        var delta = attraction.AttractionPos - position;
         float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
         if (dist > 0f)
         {
             velocity += delta * (teamAttraction * deltaTime / dist);
         }
 
-        var repellentFriend = team[random.NextInt(team.Length)];
-        delta = repellentFriend.Value - position;
+        delta = attraction.RepulsionPos - position;
         dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
         if (dist > 0f)
         {
