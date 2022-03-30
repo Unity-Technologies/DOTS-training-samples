@@ -911,7 +911,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LineID: 1
-  carriageCount: 0
+  carriageCount: 2
 --- !u!1001 &1191255364
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1050,7 +1050,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LineID: 0
-  carriageCount: 0
+  carriageCount: 4
 --- !u!1001 &1530376893
 PrefabInstance:
   m_ObjectHideFlags: 0
