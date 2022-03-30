@@ -12,37 +12,13 @@ public partial class FirePropagationSystem : SystemBase
 
     protected override void OnCreate()
     {
-        CreateAdjacentOffsetArray(ref checkAdjacents,firePropagationRadius);
+        GridUtil.CreateAdjacentTileArray(ref checkAdjacents,firePropagationRadius);
     }
     protected override void OnDestroy()
     {
         checkAdjacents.Dispose();
     }
 
-    public static void CreateAdjacentOffsetArray(ref NativeArray<int2> array, int radius)
-    {
-        //radius 1 -> 8  : 3*3-1
-        //radius 2 -> 24 : 5*5-1 : (r+r+1)^2-1
-        
-        int diameter = (2 * radius + 1);
-        int arrayLength = diameter * diameter - 1;
-        
-        array = new NativeArray<int2>(arrayLength, Allocator.Persistent);
-
-        int i = 0;
-        for (int x = -radius; x <= radius; x++)
-        {
-            for (int y = -radius; y <= radius; y++)
-            {
-                if (x == 0 && y == 0)
-                    continue;
-                
-                array[i] = new int2(x,y);
-                i++;
-            }
-        }
-    }
-   
     protected override void OnUpdate()
     {
         var localCheckAdjacents = checkAdjacents;
@@ -67,20 +43,6 @@ public partial class FirePropagationSystem : SystemBase
             }
 
         }).Run();
-
-        var splashmapBuffer = GetSplashmapBuffer();
-        
-        Job.WithCode(() => {
-
-            for (var i = 0; i < splashmapBuffer.Length; i++)
-            {
-                if (splashmapBuffer[i] < 0)//-1
-                    continue;
-                
-                SuppressAdjacents(ref heatmapBuffer, ref splashmapBuffer, localCheckAdjacents,i,heatmapData.mapSideLength);
-            }
-
-        }).Run();
     }
 
     static void HeatAdjacents(
@@ -90,7 +52,7 @@ public partial class FirePropagationSystem : SystemBase
     {
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
-            int2 tileCoord = GetTileCoordinate(tileIndex, width);
+            int2 tileCoord = GridUtil.GetTileCoordinate(tileIndex, width);
             int x = tileCoord.x + adjacentOffsets[iCheck].x;
             int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
@@ -98,56 +60,14 @@ public partial class FirePropagationSystem : SystemBase
 
             if (inBounds)
             {
-                int adjacentIndex = GetTileIndex(x, z, width);
+                int adjacentIndex = GridUtil.GetTileIndex(x, z, width);
                 
                 if(buffer[adjacentIndex] < HEAT_THRESHOLD)
                     buffer[adjacentIndex] += deltaTime;
             }
         }
     }
-    
-    static void SuppressAdjacents(
-        ref DynamicBuffer<HeatMapTemperature> heatmapBuffer, 
-        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
-        NativeArray<int2> adjacentOffsets, 
-        int splashIndex,
-        int width)
-    {
-        //reset splashmap
-        int tileIndex = splashmapBuffer[splashIndex];
-        splashmapBuffer[splashIndex] = -1;
-        
-        //apply suppression to targetTile and adjacents
-        heatmapBuffer[tileIndex] = 0f;
-        
-        for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
-        {
-            int2 tileCoord = GetTileCoordinate(tileIndex, width);
-            int x = tileCoord.x + adjacentOffsets[iCheck].x;
-            int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
-            bool inBounds = (x >= 0 && x <= width-1 && z >= 0 && z <= width-1);
-
-            if (inBounds)
-            {
-                int adjacentIndex = GetTileIndex(x, z, width);
-                heatmapBuffer[adjacentIndex] = 0f;
-            }
-        }
-    }
-
-    public static int GetTileIndex(int x, int z, int width)
-    {
-        return (z * width) + x;
-    }
-    
-    static int2 GetTileCoordinate(int index , int width)
-    {
-        int x = index % width;
-        int z = index / width;
-        return new int2(x, z);
-    }
-    
     DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer() 
     {
         var heatmap = GetSingletonEntity<HeatMapTemperature>();
