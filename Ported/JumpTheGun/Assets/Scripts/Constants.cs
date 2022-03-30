@@ -16,4 +16,8 @@ public class Constants {
     public const float FOLLOW_HEIGHT_OFFSET_MIN = 4;
     public const float SMOOTH_DAMP_DURATION = .5f;
     public const float CANNONBALL_SPEED = 2.5f;
+    public const float tankLaunchPeriod = 1;
+    public const float playerParabolaPrecision = .1f;
+    public const float CANNONBALLRADIUS = .25f;
+    public const float collisionStepMultiplier = 3;
 }
