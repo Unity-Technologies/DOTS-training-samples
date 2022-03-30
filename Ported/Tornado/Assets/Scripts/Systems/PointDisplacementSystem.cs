@@ -46,6 +46,7 @@ namespace Systems
 
             SetSingleton<TornadoParameters>(tornadoParams);
 
+           
             var jobDisplacement = new PointDisplacementJob()
             {
                 points = points,
@@ -83,7 +84,6 @@ namespace Systems
             isInitialized = true;
 
             AllocatedPointCount = allocatedPoints;
-            Debug.Log(AllocatedPointCount + "   " + allocatedPoints);
         }
 
         protected override void OnDestroy()

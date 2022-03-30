@@ -19,12 +19,13 @@ namespace Systems
         {
             var deltaTime = UnityEngine.Time.deltaTime;
             var timeElapsed = UnityEngine.Time.time;
+            var tornadoParams = GetSingleton<TornadoParameters>();
 
             Entities
                 .ForEach((ref Translation translation, in Particle particle) =>
                 {
                     var initialPosition = translation.Value;
-                    var tornadoPos = new float3(0.0f + TornadoSway(initialPosition.y, timeElapsed), initialPosition.y, 0.0f);
+                    var tornadoPos = new float3(tornadoParams.eyePosition.x + TornadoSway(initialPosition.y, timeElapsed), initialPosition.y, tornadoParams.eyePosition.z);
                     //Vector3 tornadoPos = new Vector3(PointManager.tornadoX + PointManager.TornadoSway(points[i].y), points[i].y, PointManager.tornadoZ);
                     var delta = (tornadoPos - initialPosition);
                     float dist = math.length(delta);
