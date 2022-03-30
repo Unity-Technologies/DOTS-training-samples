@@ -7,10 +7,6 @@ using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class ParticleSystemFixed : SystemBase
 {
-    // Move to a common area
-    static float3 fieldSize = new float3(100f, 20f, 30f);
-    static float gravity = -20f;
-
     EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     protected override void OnCreate()
@@ -31,7 +27,7 @@ public partial class ParticleSystemFixed : SystemBase
         var velocityJob = Entities
             .ForEach((Entity entity, ref Velocity velocity, in ParticleComponent particle) =>
             {
-                velocity.Value += up * (gravity * deltaTime); // using the old gravity const, which could be ported over
+                velocity.Value += up * (PlayField.gravity * deltaTime);
             }).ScheduleParallel(Dependency);
 
         // Update positions from velocities
@@ -40,25 +36,25 @@ public partial class ParticleSystemFixed : SystemBase
             {
                 translation.Value += velocity.Value * deltaTime;
 
-                if (Mathf.Abs(translation.Value.x) > fieldSize.x * .5f)
+                if (Mathf.Abs(translation.Value.x) > PlayField.size.x * .5f)
                 {
-                    translation.Value.x = fieldSize.x * .5f * Mathf.Sign(translation.Value.x);
+                    translation.Value.x = PlayField.size.x * .5f * Mathf.Sign(translation.Value.x);
                     float splat = Mathf.Abs(velocity.Value.x * .3f) + 1f;
                     scale.Value *= splat;
 
                     ecb.RemoveComponent(entityInQueryIndex, entity, typeof(Velocity));
                 }
-                if (Mathf.Abs(translation.Value.y) > fieldSize.y * .5f)
+                if (Mathf.Abs(translation.Value.y) > PlayField.size.y * .5f)
                 {
-                    translation.Value.y = fieldSize.y * .5f * Mathf.Sign(translation.Value.y);
+                    translation.Value.y = PlayField.size.y * .5f * Mathf.Sign(translation.Value.y);
                     float splat = Mathf.Abs(velocity.Value.y * .3f) + 1f;
                     scale.Value *= splat;
 
                     ecb.RemoveComponent(entityInQueryIndex, entity, typeof(Velocity));
                 }
-                if (Mathf.Abs(translation.Value.z) > fieldSize.z * .5f)
+                if (Mathf.Abs(translation.Value.z) > PlayField.size.z * .5f)
                 {
-                    translation.Value.z = fieldSize.z * .5f * Mathf.Sign(translation.Value.z);
+                    translation.Value.z = PlayField.size.z * .5f * Mathf.Sign(translation.Value.z);
                     float splat = Mathf.Abs(velocity.Value.z * .3f) + 1f;
                     scale.Value *= splat;
 
