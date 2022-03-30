@@ -9,11 +9,12 @@ public partial class BezierDebugRenderSystem : SystemBase
         Entities
             .ForEach((in LineTotalDistanceComponent totalDistanceComponent, in DynamicBuffer<BezierPointBufferElement> bezierCurve) =>
             {
-                for (int i = 0; i < 100; i++)
+                for (float i = 0; i < totalDistanceComponent.Value; i += 0.1f)
                 {
-                    float prog = i / 100.0f;
+                    float prog = i / totalDistanceComponent.Value;
+                    float progN = (i + 0.1f) / totalDistanceComponent.Value;
                     float3 locationA = BezierHelpers.GetPosition(bezierCurve, totalDistanceComponent.Value, prog);
-                    float3 locationB = BezierHelpers.GetPosition(bezierCurve, totalDistanceComponent.Value, prog + 0.01f);
+                    float3 locationB = BezierHelpers.GetPosition(bezierCurve, totalDistanceComponent.Value, progN);
                     UnityEngine.Debug.DrawLine(locationA, locationB, UnityEngine.Color.white);
                 }
             }).Run();
