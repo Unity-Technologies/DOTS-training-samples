@@ -19,33 +19,31 @@ public partial class FireSuppressionSystem : SystemBase
         checkAdjacents.Dispose();
     }
     
-    int2 PlotTileCoordFromWorldPosition(float3 worldPosition)
+    public static void AddSplashByWorldPosition(
+        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
+        int heatmapBufferLength, 
+        int gridSideWidth, 
+        float3 worldPosition)
     {
-        int width = GetSingleton<HeatMapData>().mapSideLength;
-        float offset = (width - 1) * 0.5f;
-
-        int x =(int) math.remap(-offset, offset, 0f, width - 1, worldPosition.x);
-        int z =(int) math.remap(-offset, offset, 0f, width - 1, worldPosition.z);
-
-        int2 coord = new int2(x, z);
-        UnityEngine.Debug.Log($"world position: {worldPosition} | grid coordinate: {coord}");
-        return coord;
+        int2 tileCoord = PlotTileCoordFromWorldPosition(gridSideWidth, worldPosition);
+        AddSplashByTileCoordinate(ref splashmapBuffer, heatmapBufferLength, gridSideWidth, tileCoord.x, tileCoord.y);
     }
-    
-    public void AddSplashByTileCoordinate(int tileCoordinateX, int tileCoordinateY)
+    public static void AddSplashByTileCoordinate(
+        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
+        int heatmapBufferLength, 
+        int gridSideWidth, 
+        int tileCoordinateX, int tileCoordinateY)
     {
-        int width = GetSingleton<HeatMapData>().mapSideLength;
-
-        int tileIndex = GridUtil.GetTileIndex(tileCoordinateX, tileCoordinateY, width);
+        int tileIndex = GridUtil.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
         
-        AddSplashByIndex(tileIndex);
+        AddSplashByIndex(ref splashmapBuffer, heatmapBufferLength, tileIndex);
     }
-    public void AddSplashByIndex(int tileIndex)
+    public static void AddSplashByIndex(
+        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
+        int heatmapBufferLength, 
+        int tileIndex)
     {
-        var heatmapBuffer = GetHeatmapBuffer();
-        var splashmapBuffer = GetSplashmapBuffer();
-        
-        bool validIndex = tileIndex >= 0 && tileIndex < heatmapBuffer.Length;
+        bool validIndex = tileIndex >= 0 && tileIndex < heatmapBufferLength;
         if (validIndex)
         {
             //Add splash, Find first slot available (-1) and set it to the tileIndex
@@ -92,13 +90,25 @@ public partial class FireSuppressionSystem : SystemBase
     
     protected override void OnUpdate()
     {
-        HandleMouseClick();
-        
-         int width = GetSingleton<HeatMapData>().mapSideLength;
+        int width = GetSingleton<HeatMapData>().mapSideLength;
         
          var localCheckAdjacents = checkAdjacents;
          var splashmapBuffer = GetSplashmapBuffer();
          var heatmapBuffer = GetHeatmapBuffer();
+         
+         //HANDLE MOUSE CLICK
+         if (UnityInput.GetMouseButtonDown(0))
+         {
+             var camera = this.GetSingleton<GameObjectRefs>().Camera;
+             Ray ray = camera.ScreenPointToRay (UnityInput.mousePosition);
+            
+             RaycastHit hit;
+             if (Physics.Raycast (ray, out hit, math.INFINITY)) 
+             {
+                 //Debug.DrawLine (ray.origin, hit.point);
+                 AddSplashByWorldPosition(ref splashmapBuffer, heatmapBuffer.Length, width, hit.point);
+             } 
+         }
         
          Job.WithCode(() => {
         
@@ -111,26 +121,27 @@ public partial class FireSuppressionSystem : SystemBase
              }
         
          }).Run();
+
+         Entities
+             .WithAll<SplashEvent>()
+             .ForEach((ref SplashEvent splashEvent) =>
+             {
+                 //AddSplashByWorldPosition(splashEvent.splashWorldPositionn); 
+                 AddSplashByIndex(ref splashmapBuffer, splashEvent.fireTileIndex, heatmapBuffer.Length);
+             })
+             .Run();
     }
 
-    void HandleMouseClick()
+    public static int2 PlotTileCoordFromWorldPosition(int gridSideWidth, float3 worldPosition)
     {
-        if (UnityInput.GetMouseButtonDown(0))
-        {
-            var camera = this.GetSingleton<GameObjectRefs>().Camera;
-            Ray ray = camera.ScreenPointToRay (UnityInput.mousePosition);
-            
-            RaycastHit hit;
-            if (Physics.Raycast (ray, out hit, math.INFINITY)) 
-            {
-                //draw invisible ray cast/vector
-                Debug.DrawLine (ray.origin, hit.point);
-                
-                float3 worldPosition = hit.point;
-                int2 tileCoord = PlotTileCoordFromWorldPosition(worldPosition);
-                AddSplashByTileCoordinate(tileCoord.x, tileCoord.y);
-            } 
-        }
+        float offset = (gridSideWidth - 1) * 0.5f;
+
+        int x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
+        int z =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
+
+        int2 coord = new int2(x, z);
+        UnityEngine.Debug.Log($"world position: {worldPosition} | tile coordinate: {coord}");
+        return coord;
     }
     
     DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 

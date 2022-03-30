@@ -21,7 +21,8 @@ public partial class FireRenderingSystem : SystemBase
         
     var heatmapBufferReadonly = EntityManager.GetBuffer<HeatMapTemperature>(heatmap, true);
 
-    Entities.WithAll<FireIndex>()
+    Entities
+      .WithAll<FireIndex>()
       .WithReadOnly(heatmapBufferReadonly)
       .ForEach( (ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation, in FireIndex fireIndex) =>
       {

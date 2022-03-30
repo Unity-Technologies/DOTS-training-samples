@@ -13,6 +13,8 @@ public partial class FirePropagationSystem : SystemBase
     protected override void OnCreate()
     {
         GridUtil.CreateAdjacentTileArray(ref checkAdjacents,firePropagationRadius);
+        
+        
     }
     protected override void OnDestroy()
     {
