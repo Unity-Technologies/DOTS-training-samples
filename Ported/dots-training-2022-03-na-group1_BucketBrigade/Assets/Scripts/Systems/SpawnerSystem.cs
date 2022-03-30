@@ -7,6 +7,12 @@ using Unity.Transforms;
 public partial class SpawnerSystem : SystemBase
 {
     private const int MaxEvalOffset = 59;
+
+    static void SpawnCommunicationBuffers(EntityCommandBuffer ecb)
+    {
+        var helperEntity = ecb.CreateEntity();
+        ecb.AddBuffer<FreeBucketInfo>(helperEntity);
+    }
     
     static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
@@ -79,6 +85,14 @@ public partial class SpawnerSystem : SystemBase
    {
        var entity = ecb.Instantiate(prefab);
        ecb.SetComponent(entity, postion);
+       ecb.SetComponent(entity, new Home()
+       {
+           Value = postion.Value
+       });
+       ecb.SetComponent(entity, new RelocatePosition()
+       {
+           Value = postion.Value
+       });
        ecb.SetComponent(entity, new Speed() { Value = 4f });
 
        return entity;
@@ -158,6 +172,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+           ecb.SetComponent(entity, new Scale { Value = new float3(0.2f, 0.2f, 0.2f) });
        }
    }
    
@@ -213,6 +228,8 @@ public partial class SpawnerSystem : SystemBase
             {
                 
                 ecb.DestroyEntity(entity);
+
+                SpawnCommunicationBuffers(ecb);
                 
                 SpawnHeatmap(ecb, spawner.FireDimension);
 

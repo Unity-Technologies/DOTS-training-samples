@@ -30,11 +30,7 @@ public partial class IdleSystem : SystemBase
             {
                 if (state.Value == WorkerState.Idle)
                 {
-                    if (_random.NextFloat() < 0.01f)
-                    {
-                        destination.Value = new float2(_random.NextFloat(-radius, radius),
-                            _random.NextFloat(-radius, radius));
-                    }
+                    state.Value = WorkerState.BucketDetection;
                 }
             }).ScheduleParallel();
     }
