@@ -8,8 +8,14 @@ using UnityEngine;
 
 public partial class RailSpawnerSystem : SystemBase
 {
-    
-    // Run ONLY if RailSpawnerComponent exists
+    private EntityQuery spawnerQuery;
+
+    protected override void OnCreate()
+    {
+        // Run ONLY if RailSpawnerComponent exists
+        RequireForUpdate(spawnerQuery);
+    }
+
     protected override void OnUpdate()
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
@@ -19,8 +25,11 @@ public partial class RailSpawnerSystem : SystemBase
         Entity carriagePrefab = new Entity();
         float railSpacing = 0;
         
-        Entities.ForEach((Entity entity, in RailSpawnerComponent railSpawner) =>
+        Entities
+            .WithStoreEntityQueryInField(ref spawnerQuery)
+            .ForEach((Entity entity, in RailSpawnerComponent railSpawner) =>
         {
+            
             trackPrefab = railSpawner.TrackPrefab;
             platformPrefab = railSpawner.PlatformPrefab;
             carriagePrefab = railSpawner.CarriagePrefab;
@@ -28,6 +37,8 @@ public partial class RailSpawnerSystem : SystemBase
             
             ecb.DestroyEntity(entity);
         }).Run();
+        
+        
 
         Entities.ForEach((Entity Entity, in LineComponent lineComponent,
             in DynamicBuffer<BezierPointBufferElement> bezierPoints,
@@ -38,10 +49,7 @@ public partial class RailSpawnerSystem : SystemBase
             for (float i = 0; i * railSpacing < lineLength; i++)
             {
                 float t = i / lineLength;
-                Debug.Log(trackPrefab);
-                if (trackPrefab == Entity.Null) // DIRTY HACK
-                    break;
-                
+
                 var instance = ecb.Instantiate(trackPrefab);
                 float3 position = BezierHelpers.GetPosition(bezierPoints, lineLength, t);
                 var translation = new Translation { Value = position};
