@@ -37,6 +37,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
         float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList());
 
+        dstManager.AddComponent<LineComponent>(entity);
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent {Value = curveDistance});
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});
@@ -79,7 +80,6 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
-        Debug.Log(totalPathDistance);
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  RETURN points
         float platformOffset = BezierHelpers.BEZIER_PLATFORM_OFFSET;

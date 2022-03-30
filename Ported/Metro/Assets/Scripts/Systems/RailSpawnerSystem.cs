@@ -4,32 +4,56 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class RailSpawnerSystem : SystemBase
 {
+    
+    // Run ONLY if RailSpawnerComponent exists
     protected override void OnUpdate()
     {
-        // Assign values to local variables captured in your job here, so that it has
-        // everything it needs to do its work when it runs later.
-        // For example,
-        //     float deltaTime = Time.DeltaTime;
-
-        // This declares a new kind of job, which is a unit of work to do.
-        // The job is declared as an Entities.ForEach with the target components as parameters,
-        // meaning it will process all entities in the world that have both
-        // Translation and Rotation components. Change it to process the component
-        // types you want.
-
-        Entities.ForEach((ref Translation translation, in Rotation rotation) =>
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        
+        Entity trackPrefab = new Entity();
+        Entity platformPrefab = new Entity();
+        Entity carriagePrefab = new Entity();
+        float railSpacing = 0;
+        
+        Entities.ForEach((Entity entity, in RailSpawnerComponent railSpawner) =>
         {
-            // Implement the work to perform for each entity here.
-            // You should only access data that is local or that is a
-            // field on this job. Note that the 'rotation' parameter is
-            // marked as 'in', which means it cannot be modified,
-            // but allows this job to run in parallel with other jobs
-            // that want to read Rotation component data.
-            // For example,
-            //     translation.Value += math.mul(rotation.Value, new float3(0, 0, 1)) * deltaTime;
-        }).Schedule();
+            trackPrefab = railSpawner.TrackPrefab;
+            platformPrefab = railSpawner.PlatformPrefab;
+            carriagePrefab = railSpawner.CarriagePrefab;
+            railSpacing = railSpawner.RailSpacing;
+            
+            ecb.DestroyEntity(entity);
+        }).Run();
+
+        Entities.ForEach((Entity Entity, in LineComponent lineComponent,
+            in DynamicBuffer<BezierPointBufferElement> bezierPoints,
+            in LineTotalDistanceComponent lineTotalDistanceComponent) =>
+        {
+            float lineLength = lineTotalDistanceComponent.Value;
+            
+            for (float i = 0; i * railSpacing < lineLength; i++)
+            {
+                float t = i / lineLength;
+                Debug.Log(trackPrefab);
+                if (trackPrefab == Entity.Null) // DIRTY HACK
+                    break;
+                
+                var instance = ecb.Instantiate(trackPrefab);
+                float3 position = BezierHelpers.GetPosition(bezierPoints, lineLength, t);
+                var translation = new Translation { Value = position};
+                ecb.SetComponent(instance, translation);
+
+                quaternion normal = quaternion.Euler(BezierHelpers.GetNormalAtPosition(bezierPoints, lineLength, t));
+                var rotation = new Rotation { Value = normal };
+                ecb.SetComponent(instance, rotation);
+            }
+        }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
