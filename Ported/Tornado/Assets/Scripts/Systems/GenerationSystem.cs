@@ -183,7 +183,7 @@ namespace Systems
 
                         ecb.SetComponent(barEntity, new Bar
                         {
-                            indexLink = linkCount,
+                            indexLink = linksList.Length,
                             oldDirection = new float3(0.0f, 1.0f, 0.0f),
                             thickness = thickness
                         });
