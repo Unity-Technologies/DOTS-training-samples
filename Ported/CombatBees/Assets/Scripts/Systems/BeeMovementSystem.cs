@@ -100,10 +100,7 @@ public partial class BeeMovementSystem : SystemBase
                         {
                             ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
                             ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
-                            targetType = new TargetType
-                            {
-                                Value = TargetType.Type.None
-                            };
+                            targetType.Value = TargetType.Type.None;
                         }
                     }
                 }
