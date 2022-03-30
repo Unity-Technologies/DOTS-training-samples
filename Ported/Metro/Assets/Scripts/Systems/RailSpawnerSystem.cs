@@ -48,7 +48,7 @@ public partial class RailSpawnerSystem : SystemBase
         {
             float lineLength = lineTotalDistanceComponent.Value;
             
-            for (float i = 0; i * railSpacing < lineLength; i++)
+            for (float i = 0; i < lineLength; i+= railSpacing)
             {
                 float t = i / lineLength;
 
@@ -57,20 +57,24 @@ public partial class RailSpawnerSystem : SystemBase
                 var translation = new Translation { Value = position};
                 ecb.SetComponent(instance, translation);
 
-                var lookRot = quaternion.LookRotation(BezierHelpers.GetNormalAtPosition(bezierPoints, lineLength, t), new float3(0, 1, 0));
+                var lookRot = quaternion.LookRotation(
+                    BezierHelpers.GetNormalAtPosition(bezierPoints, lineLength, t), 
+                    new float3(0, 1, 0));
                 var rotation = new Rotation { Value = lookRot };
                 ecb.SetComponent(instance, rotation);
             }
             
-            int trainCount = 10;
-            for (int i = 0; i < trainCount; i++)
+            for (int i = 0; i < lineComponent.TrainCount; i++)
             {
                 var train = ecb.Instantiate(trainPrefab);
                 var trainComponent = new TrainComponent { Line = entity };
                 ecb.SetComponent(train, trainComponent);
 
-                var trackPosition = new TrackPositionComponent {Value = (float)i / trainCount};
+                var trackPosition = new TrackPositionComponent {Value = (float)i / lineComponent.TrainCount};
                 ecb.SetComponent(train, trackPosition);
+
+                var speedComponent = new SpeedComponent() {Value = lineComponent.MaxSpeed};
+                ecb.SetComponent(train, speedComponent);
                 
                 for (int j = 0; j < lineComponent.CarriageCount; j++)
                 {

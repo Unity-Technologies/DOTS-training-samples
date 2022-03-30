@@ -1,4 +1,6 @@
 using Unity.Entities;
+using Unity.Mathematics;
+
 public partial class TrainNavigationSystem : SystemBase
 {
         
@@ -8,7 +10,7 @@ public partial class TrainNavigationSystem : SystemBase
 
         Entities.WithAll<TrainComponent>()
             .ForEach((ref SpeedComponent speed, ref TrackPositionComponent trackPosition) => {
-            trackPosition.Value = (trackPosition.Value + speed.Value * deltaTime) % 1;
+            trackPosition.Value = math.frac(trackPosition.Value + speed.Value * deltaTime);
         }).ScheduleParallel();
     }
 }
