@@ -44,9 +44,9 @@ public partial class TerrainAreaSystem : SystemBase
                 occupiedGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
                 brickGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
 
-                for (int i = 0; i < terrainData.TerrainWidth; ++i)
+                for (int j = 0; j < terrainData.TerrainLength; ++j)
                 {
-                    for (int j = 0; j < terrainData.TerrainLength; ++j)
+                    for (int i = 0; i < terrainData.TerrainWidth; ++i)
                     {
                         var instance = ecb.Instantiate(prefabHolder.BrickEntityPrefab);
                         // Set scale

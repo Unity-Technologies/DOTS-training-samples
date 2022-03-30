@@ -64,12 +64,17 @@ public partial class TankSpawnerSystem : SystemBase
 
 		var gridEntity = GetSingletonEntity<OccupiedElement>();
 		var occupiedGrid = GetBuffer<OccupiedElement>(gridEntity);
+		var brickGrid = GetBuffer<EntityElement>(gridEntity);
 		var terrainData = GetSingleton<TerrainData>();
+		var player = GetSingletonEntity<PlayerTag>();
 
 		Entities
 			.ForEach((Entity entity, in EntityPrefabHolder prefabHolder, in TankData tankData) =>
 				{
-					for (int i=0; i<tankData.TankCount; i++)
+					int maxBrickCount = terrainData.TerrainWidth * terrainData.TerrainLength;
+					int tankCount = math.min(maxBrickCount-1, tankData.TankCount);
+
+					for (int i=0; i<tankCount; i++)
                     {
 						var brick = bricks[i];
 						var brickTranslation = brickPositions[i];
@@ -82,10 +87,33 @@ public partial class TankSpawnerSystem : SystemBase
 							Value = position
 						});
 
-						int2 gridPosition = TerrainUtility.BoxFromLocalPosition(position);
+						int2 gridPosition = TerrainUtility.BoxFromLocalPosition(position, terrainData.TerrainWidth, terrainData.TerrainLength);
 						int index = gridPosition.x + gridPosition.y * terrainData.TerrainWidth;
 						occupiedGrid[index] = true;
 					}
+
+					// Position the player at the start position
+					int startBrickIndex = maxBrickCount / 2;
+					
+					while (occupiedGrid[startBrickIndex])
+                    {
+						startBrickIndex = (startBrickIndex+1) % maxBrickCount;
+                    }
+					// Hopefully we should exit...
+
+					var centerBrick = brickGrid[startBrickIndex];
+					var playerTranslation = GetComponent<Translation>(centerBrick).Value;
+					// Origin is at 0.5 y when unscaled.
+					playerTranslation.y *= 2f;
+					playerTranslation.y += Constants.PLAYER_Y_OFFSET;
+					ecb.SetComponent(player, new Translation { Value = playerTranslation });
+
+					float maxHeight = playerTranslation.y + Constants.BOUNCE_HEIGHT;
+					var parabola = Parabola.Create(playerTranslation.y, maxHeight, playerTranslation.y);
+					parabola.startPoint = playerTranslation.xz;
+					parabola.endPoint = playerTranslation.xz;
+					parabola.duration = Constants.BOUNCE_BASE_DURATION;
+					ecb.SetComponent(player, parabola);
 				}).Run();
 
 		brickEntities.Dispose();
