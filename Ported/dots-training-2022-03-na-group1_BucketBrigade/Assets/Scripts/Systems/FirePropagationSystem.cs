@@ -1,15 +1,13 @@
-﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using Unity.Rendering;
 using Unity.Collections;
-using UnityEngine;
 
 public partial class FirePropagationSystem : SystemBase
 {
     public const float HEAT_THRESHOLD = 0.2f;
     
+    int radius = 2;
+
     private NativeArray<int2> checkAdjacents;
 
     protected override void OnCreate()
@@ -17,7 +15,6 @@ public partial class FirePropagationSystem : SystemBase
         //radius 1 -> 8  : 3*3-1
         //radius 2 -> 24 : 5*5-1 : (r+r+1)^2-1
         
-        int radius = 2;
         int diameter = (2 * radius + 1);
         int arrayLength = diameter * diameter - 1;
         
@@ -70,36 +67,6 @@ public partial class FirePropagationSystem : SystemBase
 
         }).Run();
 
-        var heatmapBufferReadonly = EntityManager.GetBuffer<HeatMapTemperature>(heatmap, true);
-
-        //float dt = Time.DeltaTime * 10f;
-        float time = (float) Time.ElapsedTime;
-        float flickerRate = 1f;
-        float flickerRange = 0.5f;
-        
-        Entities.WithAll<FireIndex>()
-             .WithReadOnly(heatmapBufferReadonly)
-             .ForEach( (ref URPMaterialPropertyBaseColor colorComponent, ref Translation translation, in FireIndex fireIndex) =>
-             {
-                 float intensity = heatmapBufferReadonly[fireIndex.index];
-
-                 if (intensity < HEAT_THRESHOLD)
-                 {
-                     colorComponent.Value = heatmapData.colorNeutral;
-                 }
-                 else
-                 {
-                     colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
-                     translation.Value.y = math.lerp(0f, heatmapData.maxTileHeight, intensity);
-                     
-                     //Apply flicker noise
-                     float2 sample = new float2((time - fireIndex.index) * flickerRate - intensity, intensity);
-                     translation.Value.y += flickerRange * 0.5f + (noise.cnoise(sample) * flickerRange);
-                 }
-
-
-             })
-             .ScheduleParallel();
     }
 
     static void HeatAdjacents(ref DynamicBuffer<HeatMapTemperature> buffer, NativeArray<int2> checkAdjacents, int tileIndex, int width, float deltaTime)

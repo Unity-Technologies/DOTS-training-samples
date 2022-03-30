@@ -230,7 +230,7 @@ public partial class SpawnerSystem : SystemBase
 
                 SpawnWaterPools(ecb, spawner.WaterPoolPrefab, spawner.WaterCount, spawner.FireDimension, spawner.MinWaterSupplyCount, spawner.MaxWaterSupplyCount, random);
 
-                SpawnGround(ecb, spawner.GroundPrefab, spawner.FireDimension);
+                //SpawnGround(ecb, spawner.GroundPrefab, spawner.FireDimension);
                 
             }).Run();
 
