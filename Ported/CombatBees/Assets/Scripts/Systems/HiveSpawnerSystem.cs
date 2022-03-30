@@ -52,7 +52,7 @@ namespace Systems
                     for (int i = 0; i < spawner.ResourceAmount; ++i)
                     {
                         var resource = ecb.Instantiate(spawner.ResourcePrefab);
-                        var translation = new Translation { Value = worldStartPosition + worldSize.Value * random.NextFloat3(1) };
+                        var translation = new Translation { Value = worldCenter.Value + worldSize.Value * random.NextFloat3(-0.5f, 0.5f) * new float3(0.8f, 1f, 1f) };
                         translation.Value.y = -worldSize.Value.y / 2;
                         ecb.SetComponent(resource, translation);
                         // var body = new KinematicBody()
