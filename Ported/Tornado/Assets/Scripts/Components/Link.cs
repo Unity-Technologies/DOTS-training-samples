@@ -7,5 +7,7 @@ namespace Components
         public int point1Index;
         public int point2Index;
         public float length;
+
+        public ushort materialID;
     }
 }

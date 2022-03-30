@@ -1,6 +1,9 @@
 ﻿using Assets.Scripts.Jobs;
 using Components;
+using System;
+using System.Runtime.InteropServices;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
@@ -12,11 +15,17 @@ namespace Systems
     public partial class PointDisplacementSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;
-        public NativeArray<Link> links;              
-
+        public NativeArray<Link> links;
+        public NativeArray<Components.PhysicMaterial> physicmaterials;
         public bool isInitialized;
 
         public static int AllocatedPointCount;
+
+
+
+        public const int SoftBar = 0;
+        public const int HardBar = 1;
+
 
         EntityQueryDesc barQueryDesc = new EntityQueryDesc
         {
@@ -29,9 +38,33 @@ namespace Systems
         {
             base.OnCreate();
             barQuery = GetEntityQuery(barQueryDesc);
+
+            physicmaterials = new NativeArray<Components.PhysicMaterial>(2, Allocator.Persistent);
+            physicmaterials[0] = new Components.PhysicMaterial() { weight = 1 };
+            physicmaterials[1] = new Components.PhysicMaterial() { weight = 1.6f };
         }
 
 
+        public void Reset()
+        {
+            var tornadoParams = GetSingleton<TornadoParameters>();
+
+            tornadoParams.tornadoFader = 0.0f;
+
+            SetSingleton<TornadoParameters>(tornadoParams);
+
+            if (points.IsCreated)
+            {
+                points.Dispose();
+            }
+
+            if (links.IsCreated)
+            {
+                links.Dispose();
+            }
+
+            isInitialized = false;
+        }
 
         protected override void OnUpdate()
         {
@@ -46,7 +79,7 @@ namespace Systems
 
             SetSingleton<TornadoParameters>(tornadoParams);
 
-           
+           //burst compatible & parallalized 
             var jobDisplacement = new PointDisplacementJob()
             {
                 points = points,
@@ -55,24 +88,36 @@ namespace Systems
                 torandoSettings = tornadoSettings,
                 time = (float)Time.ElapsedTime,
                 random = new Unity.Mathematics.Random(1234),
+                physicMaterials = physicmaterials,
+                physicSettings = physicParameters
             };
 
-
+            var pointCount = new NativeArray<int>(new int[] { AllocatedPointCount }, Allocator.TempJob);
+            //burst compatible
             var constraintJob = new ContraintJob()
             {
                 points = points,
                 links = links,
-                iterations = physicParameters.constraintIterations
+                count = pointCount,
+                iterations = physicParameters.constraintIterations,
+                physicSettings = physicParameters
             };
          
+
             //parallelized 
             JobHandle jobHandlePoint = jobDisplacement.Schedule(AllocatedPointCount, 64, Dependency);
 
             //signle threaded job
-            JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);          
+            JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);            
 
-            JobHandle.ScheduleBatchedJobs();          
 
+            JobHandle.ScheduleBatchedJobs();
+            jobHandleConstraint.Complete();
+
+            AllocatedPointCount = pointCount[0];
+            pointCount.Dispose();
+
+          
             Dependency = jobHandleConstraint;
 
         }
@@ -81,9 +126,10 @@ namespace Systems
         {
             this.links = links;
             this.points = points;
-            isInitialized = true;
-
+            isInitialized = true;         
+            
             AllocatedPointCount = allocatedPoints;
+
         }
 
         protected override void OnDestroy()
@@ -92,6 +138,9 @@ namespace Systems
 
             if(points != null) points.Dispose();
             if(links != null) links.Dispose();
+            if(physicmaterials != null) physicmaterials.Dispose();
+
+
         }
     }
 }

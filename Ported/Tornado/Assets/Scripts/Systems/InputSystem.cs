@@ -1,3 +1,4 @@
+
 ﻿using Components;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -13,8 +14,7 @@ namespace Systems
         CameraRef cameraRef;
         InputSettings inputs;
         private Vector3 velocity;
-        private float3 velocityTornado;
-   
+        private float3 velocityTornado;   
 
         protected override void OnUpdate()
         {
@@ -40,12 +40,10 @@ namespace Systems
             if (UnityInput.GetKey(UnityKeyCode.Keypad8)) tornadomovingQuantity.z += inputs.tornadoAcceleration * dt;
             if (UnityInput.GetKey(UnityKeyCode.Keypad5)) tornadomovingQuantity.z -= inputs.tornadoAcceleration * dt;
 
-
-            velocityTornado += tornadomovingQuantity * dt; ;
+            velocityTornado += tornadomovingQuantity * dt; 
             tornadoSettings.eyePosition += velocityTornado * dt;
 
             SetSingleton<TornadoParameters>(tornadoSettings);
-
            
             velocity += movingQuantity * dt;
             
@@ -54,6 +52,13 @@ namespace Systems
 
             velocity *= inputs.friction;
             velocityTornado *= inputs.friction;
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                
+                World.GetExistingSystem<GenerationSystem>().Reset();
+            }
+
         }
     }
 }

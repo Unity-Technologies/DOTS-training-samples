@@ -10,5 +10,6 @@ namespace Components
         public float breakResistance;
         public float expForce;
         public int constraintIterations;
+        public float gravityForce;
     }
 } 

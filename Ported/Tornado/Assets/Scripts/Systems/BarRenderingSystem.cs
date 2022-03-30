@@ -1,11 +1,13 @@
 ﻿using Assets.Scripts.Jobs;
 using Components;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Systems
 {
+  
     public partial class BarRenderingSystem : SystemBase
     {
         EntityQuery renderingQuery;

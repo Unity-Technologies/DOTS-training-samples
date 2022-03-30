@@ -11,12 +11,14 @@ namespace Components
             currentPosition = other.currentPosition;
             anchored = other.anchored;
             neighborCount = other.neighborCount;
+            materialID = other.materialID;
         }
 
         public float3 oldPosition;
         public float3 currentPosition;
 
         public byte anchored;
-        public int neighborCount;
+        public byte neighborCount;
+        public ushort materialID;
     }
 }

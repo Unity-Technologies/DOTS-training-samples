@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using Assets.Scripts;
 using Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -13,6 +11,40 @@ namespace Systems
 {
     public partial class GenerationSystem : SystemBase
     {
+        private GenerationParameters m_cachedParameters;
+
+        public void Reset()
+        {
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            // destroy bars
+            Entities.ForEach((Entity entity, in Bar bar) =>
+            {
+                ecb.DestroyEntity(entity);
+            }).Run();
+
+            // destroy tornado particles
+            Entities.ForEach((Entity entity, in Particle particle) =>
+            {
+                ecb.DestroyEntity(entity);
+            }).Run();
+
+            // Reset points, links, etc
+            var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
+            pointDisplacement.Reset();
+
+            // add new generation entity
+            var generationEntity = ecb.CreateEntity();
+            ecb.AddComponent(generationEntity, m_cachedParameters);
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
+
+        protected override void OnCreate()
+        {
+            RequireForUpdate(GetEntityQuery(typeof(GenerationParameters)));
+        }
 
         protected override void OnUpdate()
         {
@@ -26,31 +58,30 @@ namespace Systems
 
             Entities.ForEach((Entity entity, in GenerationParameters generation) =>
             {
+                m_cachedParameters = generation;
                 ecb.DestroyEntity(entity);
 
                 GenerateCity(generation, ref ecb, random, out points, out links);
                 GenerateTornado(generation, ref ecb, random);
             }).WithoutBurst().Run();
 
-            var tornadoEntity = ecb.CreateEntity();
-            ecb.AddComponent<TornadoParameters>(tornadoEntity);
-
             ecb.Playback(EntityManager);
             ecb.Dispose();
 
-
-            var pointArray = new NativeArray<VerletPoints>(links.Length * 2, Allocator.Persistent);
-
-            for (int i = 0; i < points.Length; i++)
+            if (!points.IsEmpty)
             {
-                pointArray[i] = points[i];
-            }
+                var pointArray = new NativeArray<VerletPoints>(links.Length * 2, Allocator.Persistent);
 
-           
-            pointDisplacement.Initialize(pointArray,new NativeArray<Link>(links, Allocator.Persistent), points.Length);
-            points.Dispose();
-            links.Dispose();
-         
+                for (int i = 0; i < points.Length; i++)
+                {
+                    pointArray[i] = points[i];
+                }
+
+                pointDisplacement.Initialize(pointArray, new NativeArray<Link>(links, Allocator.Persistent),
+                    points.Length);
+                points.Dispose();
+                links.Dispose();
+            }
         }
 
         private static void GenerateTornado(in GenerationParameters spawner, ref EntityCommandBuffer ecb, Random random)
@@ -65,15 +96,11 @@ namespace Systems
                 var color = new float4(1.0f, 1.0f, 1.0f, 1.0f) *
                             random.NextFloat(spawner.minColorMultiplier, spawner.maxColorMultiplier);
 
-                ecb.AddComponent(instance, new Particle {radiusMult = random.NextFloat()});
+                ecb.SetComponent(instance, new Particle {radiusMult = random.NextFloat()});
                 ecb.SetComponent(instance, new Translation {Value = particlePosition});
-                ecb.AddComponent(instance, new URPMaterialPropertyBaseColor {Value = color});
-                ecb.AddComponent(instance, new Scale {Value = particleScale});
+                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor {Value = color});
+                ecb.SetComponent(instance, new Scale {Value = particleScale});
             }
-
-            
-            
-            ecb.CreateEntity();
         }
 
 
@@ -100,7 +127,7 @@ namespace Systems
                         currentPosition = position,
                         oldPosition = position,
                         anchored = anchored,
-                    }) ;
+                    });
                    
 
                     position = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
@@ -145,8 +172,6 @@ namespace Systems
                     oldPosition = position,
                     anchored = random.NextFloat() < 0.1f ? byte.MaxValue : (byte)0
                 });
-
-               
             }
 
             int linkCount = 0;
@@ -165,27 +190,32 @@ namespace Systems
                         point1.neighborCount++;
                         point2.neighborCount++;
 
-                        var barEntity = ecb.Instantiate(generation.barPrefab);
                         var thickness = random.NextFloat(0.25f, 0.35f);
-                        ecb.AddComponent(barEntity, new Bar
+                        var barEntity = ecb.Instantiate(generation.barPrefab);
+                        ecb.SetComponent(barEntity, new Bar
                         {
                             indexLink = linkCount,
                             oldDirection = new float3(0.0f, 1.0f, 0.0f),
                             thickness = thickness
                         });
-                        ecb.AddComponent(barEntity,
+                        ecb.SetComponent(barEntity,
                             new NonUniformScale {Value = new float3(thickness, thickness, linkLength)});
 
                         float upDot =
                             math.acos(math.abs(math.dot(new float3(0.0f, 1.0f, 0.0f), math.normalize(delta)))) /
                             math.PI;
-                        var color = new float4(1.0f, 1.0f, 1.0f, 1.0f) * upDot * random.NextFloat(0.7f, 1.0f);
-                        color.w = 1.0f;
+                      
+                        //var color = new float4(1.0f, 1.0f, 1.0f, 1.0f) * upDot * random.NextFloat(0.7f, 1.0f);
+                        var color = upDot >= 0.5f ? new float4(1.0f, 0.0f, 0.0f, 1.0f) : new float4(0.0f, 1.0f, 0.0f, 1.0f);
 
-                        ecb.AddComponent(barEntity, new URPMaterialPropertyBaseColor {Value = color});
-
+                        ecb.SetComponent(barEntity, new URPMaterialPropertyBaseColor {Value = color});
 
                         var link = new Link {point1Index = i, point2Index = j, length = linkLength};
+                        link.materialID = (ushort)(upDot >= 0.5f ? 1 : 0);
+             
+                        point1.materialID = link.materialID > point1.materialID ? link.materialID : point1.materialID;
+                        point2.materialID = link.materialID > point2.materialID ? link.materialID : point2.materialID;
+                
 
                         linksList.Add(link);
                         ++linkCount;

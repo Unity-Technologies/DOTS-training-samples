@@ -1,8 +1,9 @@
 using Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-using UnityMeshRenderer = UnityEngine.MeshRenderer;
 
 namespace Authoring
 {
@@ -13,15 +14,10 @@ namespace Authoring
         public void Convert(Entity entity, EntityManager dstManager
             , GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new Color
-            {
-                color = new float4(this.color.r, this.color.g, this.color.b, this.color.a)
-            });
-            dstManager.AddComponentData(entity, new Components.Bar
-            {
-                thickness = 0.1f,
-                oldDirection = new float3(0.0f, 1.0f, 0.0f)
-            });
+            var colorVector = new float4(color.r, color.g, color.b, color.a);
+            dstManager.AddComponentData(entity, new Bar());
+            dstManager.AddComponentData(entity, new NonUniformScale());
+            dstManager.AddComponentData(entity, new URPMaterialPropertyBaseColor {Value = colorVector});
         }
     }
 }

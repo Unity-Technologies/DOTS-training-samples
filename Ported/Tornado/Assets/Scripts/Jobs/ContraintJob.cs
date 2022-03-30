@@ -1,19 +1,22 @@
 ﻿using Components;
 using System.Threading;
 using Systems;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 
 namespace Assets.Scripts.Jobs
 {
+	[BurstCompile]
     public struct ContraintJob : IJob
     {
 		public NativeArray<VerletPoints> points;
 		public NativeArray<Link> links;
 
-		public int iterations;
-		
+		public NativeArray<int> count;
+		public int iterations;	
 
 		[ReadOnly] public PhysicsSettings physicSettings;
 
@@ -65,14 +68,20 @@ namespace Assets.Scripts.Jobs
 					int originalPoint1Index = link.point1Index;
 					int originalPoint2Index = link.point2Index;
 
+					
 					if (math.abs(extraDist) > physicSettings.breakResistance)
 					{
 						if (point2.neighborCount > 1)
 						{
 							point2.neighborCount--;
-							var newPoint = new VerletPoints(point2);							
+							var newPoint = new VerletPoints(point2);
 							newPoint.neighborCount = 1;
-							var allocatedIndex = Interlocked.Increment(ref PointDisplacementSystem.AllocatedPointCount) -1;
+							newPoint.materialID = link.materialID;
+
+							var c = count[0];
+							var allocatedIndex = c;							
+							count[0] = ++c;
+
 							points[allocatedIndex] = newPoint;
 							link.point2Index = allocatedIndex;
 						}
@@ -81,11 +90,16 @@ namespace Assets.Scripts.Jobs
 							point1.neighborCount--;
 							var newPoint = new VerletPoints(point1);
 							newPoint.neighborCount = 1;
-							var allocatedIndex = Interlocked.Increment(ref PointDisplacementSystem.AllocatedPointCount) - 1;
+							newPoint.materialID = link.materialID;
+
+							var c = count[0];
+							var allocatedIndex = c;
+							
+							count[0] = ++c;
 							points[allocatedIndex] = newPoint;
 							link.point1Index = allocatedIndex;
 						}
-					}
+					}		
 
 
 					links[i] = link;
