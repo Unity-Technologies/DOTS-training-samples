@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 using UnityInput = UnityEngine.Input;
 using Unity.Collections;
@@ -95,23 +94,23 @@ public partial class FireSuppressionSystem : SystemBase
     {
         HandleMouseClick();
         
-        int width = GetSingleton<HeatMapData>().mapSideLength;
-
-        var localCheckAdjacents = checkAdjacents;
-        var splashmapBuffer = GetSplashmapBuffer();
-        var heatmapBuffer = GetHeatmapBuffer();
+         int width = GetSingleton<HeatMapData>().mapSideLength;
         
-        Job.WithCode(() => {
-
-            for (var i = 0; i < splashmapBuffer.Length; i++)
-            {
-                if (splashmapBuffer[i] < 0)//-1
-                    continue;
-                
-                SuppressAdjacents(ref heatmapBuffer, ref splashmapBuffer, localCheckAdjacents,i,width);
-            }
-
-        }).Run();
+         var localCheckAdjacents = checkAdjacents;
+         var splashmapBuffer = GetSplashmapBuffer();
+         var heatmapBuffer = GetHeatmapBuffer();
+        
+         Job.WithCode(() => {
+        
+             for (var i = 0; i < splashmapBuffer.Length; i++)
+             {
+                 if (splashmapBuffer[i] < 0)//-1
+                     continue;
+                 
+                 SuppressAdjacents(ref heatmapBuffer, ref splashmapBuffer, localCheckAdjacents,i,width);
+             }
+        
+         }).Run();
     }
 
     void HandleMouseClick()
