@@ -21,9 +21,7 @@ namespace Systems
 
             // TODO: refactor to structural changes instead of shared components
             Entities
-                // .WithAll<KinematicBody>()
-                .WithoutBurst()
-                .WithSharedComponentFilter(new KinematicBodyState() { isEnabled = 1 })
+                .WithAll<KinematicBody>()
                 .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref KinematicBody body) =>
                 {
                     if (translation.Value.y > body.landPosition.y)
@@ -36,8 +34,7 @@ namespace Systems
                     {
                         translation.Value.y = body.landPosition.y;
                         body.velocity.y = 0f;
-                        ecb.SetSharedComponent(entityInQueryIndex, entity, new KinematicBodyState() { isEnabled = 0 });
-                        // ecb.RemoveComponent<KinematicBody>(entityInQueryIndex, entity);
+                        ecb.RemoveComponent<KinematicBody>(entityInQueryIndex, entity);
                     }
                 }).ScheduleParallel();
 

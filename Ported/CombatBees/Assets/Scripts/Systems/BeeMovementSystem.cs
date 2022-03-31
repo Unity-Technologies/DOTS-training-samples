@@ -139,10 +139,7 @@ public partial class BeeMovementSystem : SystemBase
                         
                         ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
                             new ResourceOwner() { Owner = Entity.Null });
-
-                        ecb.SetSharedComponent<KinematicBodyState>(entityInQueryIndex, targetEntity.Value,
-                            new KinematicBodyState() { isEnabled = 1 });
-
+                        ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value);
                         ecb.SetComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
                             new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
                     }

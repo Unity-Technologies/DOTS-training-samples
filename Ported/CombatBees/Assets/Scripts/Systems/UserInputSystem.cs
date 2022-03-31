@@ -86,7 +86,7 @@ namespace Systems
 
             Entities
                 .WithAll<Components.Resource>()
-                .WithSharedComponentFilter(new KinematicBodyState() { isEnabled = 0 })
+                .WithNone<KinematicBody>()
                 .ForEach((in Translation translation) =>
                 {
                     var pos = new Vector3(translation.Value.x, translation.Value.y, translation.Value.z);
@@ -106,7 +106,7 @@ namespace Systems
                 { velocity = float3.zero, landPosition = landPosition };
             ecb.SetComponent(resource, translation);
             ecb.SetComponent(resource, kinematicBody);
-            ecb.SetSharedComponent(resource, new KinematicBodyState() { isEnabled = 1 });
+            ecb.AddComponent<KinematicBody>(resource);
 
             ecb.Playback(EntityManager);
             ecb.Dispose();

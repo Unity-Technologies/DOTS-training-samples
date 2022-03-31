@@ -21,9 +21,12 @@ namespace Systems
             teamTargetsQuery0.SetSharedComponentFilter(new TeamShared { TeamId = 0 });
             teamTargetsQuery1.SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 
-            resourceTargets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Components.Resource>(),
-                ComponentType.ReadOnly<KinematicBodyState>());
-            resourceTargets.SetSharedComponentFilter(new KinematicBodyState() { isEnabled = 0 });
+            var queryDisc = new EntityQueryDesc()
+            {
+                None = new [] { ComponentType.ReadOnly<KinematicBody>() },
+                All = new [] { ComponentType.ReadOnly<Components.Resource>() }
+            };
+            resourceTargets = EntityManager.CreateEntityQuery(queryDisc);
         }
 
         protected override void OnUpdate()

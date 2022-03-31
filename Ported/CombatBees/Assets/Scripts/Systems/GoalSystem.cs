@@ -27,8 +27,7 @@ public partial class GoalSystem : SystemBase
         Dependency = Entities
             .WithoutBurst()
             .WithAll<Components.Resource>()
-            // .WithNone<Components.KinematicBody>()
-            .WithSharedComponentFilter<KinematicBodyState>(new KinematicBodyState() { isEnabled = 0 })
+            .WithNone<Components.KinematicBody>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
                 if ((Mathf.Abs(translation.Value.y) >= (PlayField.size.y * .5f) - math.EPSILON) &&

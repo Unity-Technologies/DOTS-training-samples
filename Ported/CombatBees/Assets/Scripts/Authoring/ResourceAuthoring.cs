@@ -9,8 +9,6 @@ namespace Authoring
             , GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponent<Components.Resource>(entity);
-            dstManager.AddComponent<KinematicBody>(entity);
-            dstManager.AddComponent<KinematicBodyState>(entity);
             dstManager.AddComponent<ResourceOwner>(entity);
         }
     }

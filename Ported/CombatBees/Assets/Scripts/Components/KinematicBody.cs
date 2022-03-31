@@ -8,9 +8,4 @@ namespace Components
         public float3 velocity;
         public float3 landPosition;
     }
-
-    public struct KinematicBodyState : ISharedComponentData
-    {
-        public byte isEnabled;
-    }
 }
