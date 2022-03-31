@@ -4,91 +4,147 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Color = UnityEngine.Color;
 
 
 public partial class TankUpdate : SystemBase
 {
+    EntityCommandBufferSystem _ecbSystem;
+    protected override void OnCreate()
+    {
+        _ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
+        var ecb = _ecbSystem.CreateCommandBuffer();
         var entityElement = GetSingletonEntity<EntityElement>();
         var buffer = GetBuffer<EntityElement>(entityElement);
         var terrainData = this.GetSingleton<TerrainData>();
+        var prefabHolder = this.GetSingleton<EntityPrefabHolder>();
         float deltaTime = Time.DeltaTime;
         var player = this.GetSingletonEntity<PlayerTag>();
         var translation = GetComponent<Translation>(player);
         Entities
-            .ForEach((Entity entity, ref Tank tank, in Translation tankTranslation) =>
+            .ForEach((Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
             {
+                // rotate toward player
+                float3 diff = translation.Value - tankTranslation.Value;
+                float angle = math.atan2(diff.x, diff.z);
+                float rotation = angle;
+                tankRotation.Value = quaternion.EulerXYZ(0,rotation,0);
+
                 tank.cooldownTime += deltaTime;
                 if (tank.cooldownTime >= Constants.tankLaunchPeriod)
 				{
-
                     // launching cannonball
                     tank.cooldownTime -= Constants.tankLaunchPeriod;
 
                     // start and end positions
                     float3 start = tankTranslation.Value;
-                    int2 playerBox = BoxFromLocalPosition(translation.Value);
+                    int2 playerBox = TerrainUtility.BoxFromLocalPosition(translation.Value, terrainData.TerrainWidth, terrainData.TerrainLength);
 
-                    var boxEntity = buffer[playerBox.x + playerBox.y * terrainData.TerrainWidth]; // Correct?
+                    var boxEntity = buffer[playerBox.x + playerBox.y * terrainData.TerrainWidth];
                     var box = GetComponent<Brick>(boxEntity);
-                    Vector3 end = LocalPositionFromBox(playerBox.x, playerBox.y, box.height + Constants.CANNONBALLRADIUS);
+                    float3 end = TerrainUtility.LocalPositionFromBox(playerBox.x, playerBox.y, box.height + Constants.CANNONBALLRADIUS);
                     float distance = (new Vector2(end.z - start.z, end.x - start.x)).magnitude;
                     float duration = distance / Constants.CANNONBALL_SPEED;
                     if (duration < .0001f)
                         duration = 1;
 
-                    // binary searching to determine height of cannonball arc
-                    float low = math.max(start.y, end.y);
-                    float high = low * 2;
-
-                    // look for height of arc that won't hit boxes
-                    while (true)
-                    {
-                        var parabolaData = Parabola.Create(start.y, high, end.y);
-                        if (!CheckBoxCollision(start, end, parabolaData, terrainData, buffer, translation))
-                        {
-                            // high enough
-                            break;
-                        }
-                        // not high enough.  Double value
-                        low = high;
-                        high *= 2;
-                        // failsafe
-                        if (high > 9999)
-                        {
-                            return; // skip launch
+                    // find out non-brick-colliding height
+                    // search slopiest brick, and interpolate altitude at middistance
+                    // From start to mid-distance, then from end to mid-distance, and same on left and right
+                    float defaultHeight = math.max(start.y, end.y) + Constants.CANNONBALLRADIUS +1;
+                    float height = defaultHeight;
+                    float slope = 0;
+                    float2 orth2d = math.normalize((end-start).xz);
+                    float3 offset = new float3(orth2d.y, 0, orth2d.x) *Constants.CANNONBALLRADIUS;
+                    float3[] starts = new float3[6]{start, end, start+offset, end+offset, start-offset, end-offset};
+                    float3[] ends = new float3[6] {end, start, end+offset, start+offset, end-offset, start-offset};
+                    for (int i = 0 ; i < 6 ; ++i) {
+                        float3 starti = starts[i];
+                        float3 endi = ends[i];
+                        float3 dir = endi-starti;
+                        float3 norm = math.normalize(dir);
+                        float3 midPoint = (endi+starti)*0.5f;
+                        float midSqDist = math.lengthsq(midPoint-starti);
+                        float3 candidate = starti;
+                        while (math.lengthsq(candidate-starti) <= midSqDist) {
+                            candidate += norm * Constants.SPACING;
+                            int2 candidateBox = TerrainUtility.BoxFromLocalPosition(candidate, terrainData.TerrainWidth, terrainData.TerrainLength);
+                            var candidateBoxEntity = buffer[candidateBox.x + candidateBox.y * terrainData.TerrainWidth];
+                            var candidateBrick = GetComponent<Brick>(candidateBoxEntity);
+                            float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, candidateBrick.height);
+                            float2 offset2D = candidateBrickPos.xz - norm.xz * (Constants.CANNONBALLRADIUS + Constants.SPACING*0.71f);
+                            float3 hitPos = new float3(offset2D.x, candidateBrickPos.y, offset2D.y);
+                            Debug.DrawLine(starti, hitPos, Color.red, 1, false);
+                            float3 dirHitPos = hitPos - starti;
+                            float candidateSlope = dirHitPos.y/math.length(dirHitPos.xz);
+                            float k = math.length(midPoint.xz-starti.xz)/math.length(hitPos.xz - starti.xz);
+                            float3 midCandidatePos = new float3(midPoint.x, starti.y+(hitPos.y - starti.y)*k, midPoint.z);
+                            if (candidateSlope > slope && midCandidatePos.y > height) {
+                                Debug.DrawLine(starti, midCandidatePos, Color.magenta, 1, false);
+                                height = midCandidatePos.y;
+                            }
                         }
                     }
 
-                    // do binary searches to narrow down
-                    while (high - low > Constants.playerParabolaPrecision)
+                    // Spawn canonBall
+                    var instance = ecb.Instantiate(prefabHolder.CannonBallEntityPrefab);
+                    float3 position = tankTranslation.Value;
+                    ecb.SetComponent(instance, new Translation
                     {
-                        float mid = (low + high) / 2;
-                        var parabolaData = Parabola.Create(start.y, mid, end.y);
-                        if (CheckBoxCollision(start, end, parabolaData, terrainData, buffer, translation))
+                        Value = position
+                    });
+                    var parabolaData = Parabola.Create(start.y, height, end.y);
+                    parabolaData.duration = duration;
+                    parabolaData.startPoint = start.xz;
+                    parabolaData.endPoint = end.xz;
+                    ecb.SetComponent(instance, parabolaData);
+
+                    // align cannon rotation with parabola
+                    const float canonLength = 0.5f;
+                    const float canonSqLength = canonLength*canonLength;
+                    float tHigh = 1.0f;
+                    float tLow = 0.0f;
+                    float tMid = (tHigh - tLow) / 2;
+                    float sqLength = math.lengthsq(parabolaData.endPoint-parabolaData.startPoint);
+                    while (tLow == 0.0f && tHigh != 0.0f)
+                    {
+                        tMid = (tHigh - tLow) / 2;
+                        var hMid = Parabola.Solve(parabolaData, tMid) - start.y;
+                        var sqA = math.lengthsq(hMid);
+                        var sqB = sqLength * math.lengthsq(tMid);
+                        var sum = sqA + sqB;
+                        if (sum <= canonSqLength)
                         {
-                            // not high enough
-                            low = mid;
+                            tLow = tMid;
                         }
                         else
                         {
-                            // too high
-                            high = mid;
+                            tHigh = tMid;
                         }
                     }
+                    if (tHigh == 0.0f) {
+                        Debug.Log("There's a bug!");
+                        tMid = 0.1f;
+                    }
+                    float length = math.sqrt(sqLength);
+                    var cannonRotation = math.atan2(Parabola.Solve(parabolaData, tMid) - Parabola.Solve(parabolaData, 0.0f), tMid*length);
+        			var localRotation = quaternion.EulerXYZ(-cannonRotation, 0, 0);
 
-                    //// launch with calculated height
-                    //float height = (low + high) / 2;
-                    //Cannonball cannonball = Cannonball.Create(transform.parent, start);
-                    //cannonball.Launch(end, height, duration);
-
-                    //// set cannon rotation
-                    //SetCannonRotation(Mathf.Atan2(Parabola.Solve(paraA, paraB, paraC, .1f) - Parabola.Solve(paraA, paraB, paraC, 0), .1f) * Mathf.Rad2Deg);
-
+                    // Get canon child entity
+                    var childBuffer = GetBuffer<Child>(entity, true);
+                    var canonEntity = childBuffer[1].Value;
+                    ecb.SetComponent(canonEntity, new Rotation
+                    {
+                        Value = localRotation
+                    });
                 }
 
 			}).Schedule();
+
+            _ecbSystem.AddJobHandleForProducer(Dependency);
     }
     /// <summary>
     /// Simulates firing a cannonball with the given trajectory.
@@ -144,7 +200,7 @@ public partial class TankUpdate : SystemBase
             for (int r = rowMin; r <= rowMax; r++)
             {
                 var boxEntity = entityElements[c + r * terrainData.TerrainWidth]; // Correct?
-                var hits = HitsCube(boxEntity, center, width, translation);
+                var hits = HitsCube(boxEntity, center, width, translation, terrainData);
                 if (hits)
                     return true;
             }
@@ -155,14 +211,13 @@ public partial class TankUpdate : SystemBase
         return false;
 
     }
-    public static bool HitsCube(EntityElement entityElement, float3 center, float width, Translation translation)
+    public static bool HitsCube(EntityElement boxEntity, float3 center, float width, Translation translation, TerrainData terrainData)
     {
         return false;
-        //int2 playerBox = BoxFromLocalPosition(translation.Value);
-
-        //Bounds boxBounds = new Bounds(transform.localPosition, new Vector3(SPACING, height, SPACING));
+        //var brick = GetComponent<Brick>(boxEntity);
+        //Bounds boxBounds = new Bounds(translation.Value, new Vector3(Constants.SPACING, brick.height, Constants.SPACING));
         //Bounds cubeBounds = new Bounds(center, new Vector3(width, width, width));
-
+//
         //return boxBounds.Intersects(cubeBounds);
     }
 
@@ -175,12 +230,4 @@ public partial class TankUpdate : SystemBase
         );
     }
 
-    public static int2 BoxFromLocalPosition(float3 localPos)
-    {
-        return new int2((int)math.round(localPos.x / Box.SPACING), (int)math.round(localPos.z / Constants.SPACING));
-    }
-    public static float3 LocalPositionFromBox(int col, int row, float yPosition = 0)
-    {
-        return new float3(col * Constants.SPACING, yPosition, row * Constants.SPACING);
-    }
 }

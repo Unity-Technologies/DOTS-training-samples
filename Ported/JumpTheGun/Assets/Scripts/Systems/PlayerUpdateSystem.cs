@@ -17,6 +17,7 @@ public partial class PlayerUpdateSystem : SystemBase
 		var occupiedGrid = GetBuffer<OccupiedElement>(gridEntity);
 		var brickGrid = GetBuffer<EntityElement>(gridEntity);
 		Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+		var pressed = Input.GetKey(KeyCode.Space);
 
 		Entities
 			.ForEach((ref ParabolaData parabola, ref NormalizedTime time, in Translation translation, in PlayerTag tag) =>
@@ -54,7 +55,7 @@ public partial class PlayerUpdateSystem : SystemBase
 					int moveIndex = movePos.x + movePos.y * terrainData.TerrainWidth;
 
 					// don't move if target is occupied
-					if (occupiedGrid[moveIndex])
+					if (occupiedGrid[moveIndex] || pressed == false)
 					{
 						moveIndex = currentPos.x + currentPos.y * terrainData.TerrainWidth;
 						movePos = currentPos;

@@ -86,6 +86,10 @@ public partial class TankSpawnerSystem : SystemBase
 						{
 							Value = position
 						});
+						ecb.SetComponent(instance, new Tank
+						{
+							cooldownTime = random.NextFloat(0, Constants.tankLaunchPeriod)
+						});
 
 						int2 gridPosition = TerrainUtility.BoxFromLocalPosition(position, terrainData.TerrainWidth, terrainData.TerrainLength);
 						int index = gridPosition.x + gridPosition.y * terrainData.TerrainWidth;
