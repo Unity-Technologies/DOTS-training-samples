@@ -37,7 +37,7 @@ public partial class PlatformSpawnerSystem : SystemBase
         {
             for (int i = 0; i < lineMarker.Length; i++)
             {
-                if (lineMarker[i].IsPlatform && i < lineMarker.Length - 2)
+                if (lineMarker[i].IsPlatform && i < lineMarker.Length - 1)
                 {
                     var instance = ecb.Instantiate(platformPrefab);
 
