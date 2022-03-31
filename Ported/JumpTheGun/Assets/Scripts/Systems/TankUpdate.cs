@@ -59,8 +59,20 @@ public partial class TankUpdate : SystemBase
                     float slope = 0;
                     float2 orth2d = math.normalize((end-start).xz);
                     float3 offset = new float3(orth2d.y, 0, orth2d.x) *Constants.CANNONBALLRADIUS;
-                    float3[] starts = new float3[6]{start, end, start+offset, end+offset, start-offset, end-offset};
-                    float3[] ends = new float3[6] {end, start, end+offset, start+offset, end-offset, start-offset};
+                    var starts = new NativeArray<float3>(6, Allocator.Temp);
+                    starts[0] = start;
+                    starts[1] = end;
+                    starts[2] = start+offset;
+                    starts[3] = end+offset;
+                    starts[4] = start-offset;
+                    starts[5] = end-offset;
+                    var ends = new NativeArray<float3>(6, Allocator.Temp);
+                    ends[0] = end;
+                    ends[1] = start;
+                    ends[2] = end+offset;
+                    ends[3] = start+offset;
+                    ends[4] = end-offset;
+                    ends[5] = start-offset;
                     for (int i = 0 ; i < 6 ; ++i) {
                         float3 starti = starts[i];
                         float3 endi = ends[i];
@@ -77,13 +89,13 @@ public partial class TankUpdate : SystemBase
                             float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, candidateBrick.height);
                             float2 offset2D = candidateBrickPos.xz - norm.xz * (Constants.CANNONBALLRADIUS + Constants.SPACING*0.71f);
                             float3 hitPos = new float3(offset2D.x, candidateBrickPos.y, offset2D.y);
-                            Debug.DrawLine(starti, hitPos, Color.red, 1, false);
+                            //Debug.DrawLine(starti, hitPos, Color.red, 1, false);
                             float3 dirHitPos = hitPos - starti;
                             float candidateSlope = dirHitPos.y/math.length(dirHitPos.xz);
                             float k = math.length(midPoint.xz-starti.xz)/math.length(hitPos.xz - starti.xz);
                             float3 midCandidatePos = new float3(midPoint.x, starti.y+(hitPos.y - starti.y)*k, midPoint.z);
                             if (candidateSlope > slope && midCandidatePos.y > height) {
-                                Debug.DrawLine(starti, midCandidatePos, Color.magenta, 1, false);
+                                //Debug.DrawLine(starti, midCandidatePos, Color.magenta, 1, false);
                                 height = midCandidatePos.y;
                             }
                         }

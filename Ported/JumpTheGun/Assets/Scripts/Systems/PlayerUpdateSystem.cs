@@ -17,7 +17,7 @@ public partial class PlayerUpdateSystem : SystemBase
 		var occupiedGrid = GetBuffer<OccupiedElement>(gridEntity);
 		var brickGrid = GetBuffer<EntityElement>(gridEntity);
 		Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-		var pressed = Input.GetKey(KeyCode.Space);
+		var pressed = true; //Input.GetKey(KeyCode.Space);
 
 		Entities
 			.ForEach((ref ParabolaData parabola, ref NormalizedTime time, in Translation translation, in PlayerTag tag) =>
