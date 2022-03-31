@@ -136,10 +136,10 @@ public partial class FireSuppressionSystem : SystemBase
     {
         float offset = (gridSideWidth - 1) * 0.5f;
 
-        int x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
-        int z =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
+        int2 coord;
+        coord.x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
+        coord.y =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
 
-        int2 coord = new int2(x, z);
         UnityEngine.Debug.Log($"world position: {worldPosition} | tile coordinate: {coord}");
         return coord;
     }
