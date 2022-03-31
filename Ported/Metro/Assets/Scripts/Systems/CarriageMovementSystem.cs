@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class CarriageMovementSystem : SystemBase
 {
@@ -14,15 +15,17 @@ public partial class CarriageMovementSystem : SystemBase
             ref Translation translation, ref Rotation rotation) =>
         {
             var trainComponent = GetComponent<TrainComponent>(carriage.Train);
+            var carriageLength = GetComponent<LineComponent>(trainComponent.Line).CarriageLength;
             var line = lineFromEntity[trainComponent.Line];
-            var length = GetComponent<LineTotalDistanceComponent>(trainComponent.Line).Value;
+            var lineLength = GetComponent<LineTotalDistanceComponent>(trainComponent.Line).Value;
             
-            float trainPosition = GetComponent<TrackPositionComponent>(carriage.Train).Value;
-            trainPosition += carriage.Index * 0.01f; // Update carriage offset with variable stored... elsewhere
-            translation.Value = BezierHelpers.GetPosition(line, length, math.frac(trainPosition));
+            float offset = carriageLength / lineLength / 2;
+            float carriagePosition = math.frac(
+                GetComponent<TrackPositionComponent>(carriage.Train).Value + carriage.Index * offset);
+            translation.Value = BezierHelpers.GetPosition(line, lineLength, carriagePosition);
             
             var lookRot = quaternion.LookRotation(
-                BezierHelpers.GetNormalAtPosition(line, length, math.frac(trainPosition)), 
+                BezierHelpers.GetNormalAtPosition(line, lineLength, carriagePosition), 
                 new float3(0, 1, 0));
             rotation = new Rotation { Value = lookRot };
         }).ScheduleParallel();

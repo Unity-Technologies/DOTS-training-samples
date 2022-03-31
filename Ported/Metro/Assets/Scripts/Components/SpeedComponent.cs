@@ -4,5 +4,7 @@ using Unity.Entities;
 [Serializable]
 public struct SpeedComponent : IComponentData
 {
-    public float Value;
+    public float Acceleration;
+    public float CurrentSpeed;
+    public float MaxSpeed;
 }

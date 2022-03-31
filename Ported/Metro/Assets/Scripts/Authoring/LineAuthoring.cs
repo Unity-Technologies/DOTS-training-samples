@@ -15,6 +15,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
     public int LineID;
     [SerializeField] private int carriageCount;
+    [SerializeField] private float carriageLength;
     [SerializeField] private int trainCount;
     [SerializeField] private float maxSpeed;
     [SerializeField] private bool debugRender;
@@ -42,6 +43,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList());
 
         dstManager.AddComponentData(entity, new LineComponent { CarriageCount = carriageCount, 
+            CarriageLength = carriageLength,
             TrainCount = trainCount,
             MaxSpeed = maxSpeed
         });

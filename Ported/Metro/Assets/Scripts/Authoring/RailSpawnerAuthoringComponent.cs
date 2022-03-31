@@ -13,6 +13,8 @@ public class RailSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
     [SerializeField] private GameObject trainPrefab = null;
     [SerializeField] private GameObject carriagePrefab = null;
     [SerializeField] private float railSpacing = .2f;
+    [SerializeField] private float minAcceleration = .2f;
+    [SerializeField] private float maxAcceleration = .2f;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)
@@ -34,7 +36,9 @@ public class RailSpawnerAuthoringComponent : MonoBehaviour, IConvertGameObjectTo
             PlatformPrefab =  conversionSystem.GetPrimaryEntity(platformPrefab),
             TrainPrefab =  conversionSystem.GetPrimaryEntity(trainPrefab),
             CarriagePrefab =  conversionSystem.GetPrimaryEntity(carriagePrefab),
-            RailSpacing = railSpacing
+            RailSpacing = railSpacing,
+            MinAcceleration = minAcceleration,
+            MaxAcceleration = maxAcceleration
         });
     }
 }

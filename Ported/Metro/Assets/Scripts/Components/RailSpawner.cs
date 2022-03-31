@@ -7,4 +7,6 @@ public struct RailSpawnerComponent : IComponentData
     public Entity TrainPrefab;
     public Entity CarriagePrefab;
     public float RailSpacing;
+    public float MinAcceleration;
+    public float MaxAcceleration;
 }

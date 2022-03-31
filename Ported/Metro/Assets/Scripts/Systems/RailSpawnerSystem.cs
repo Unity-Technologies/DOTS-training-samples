@@ -3,8 +3,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial class RailSpawnerSystem : SystemBase
 {
@@ -25,6 +27,8 @@ public partial class RailSpawnerSystem : SystemBase
         Entity carriagePrefab = new Entity();
         Entity trainPrefab = new Entity();
         float railSpacing = 0;
+        float minAcceleration = 0;
+        float maxAcceleration = 0;
         
         Entities
             .WithStoreEntityQueryInField(ref spawnerQuery)
@@ -36,11 +40,13 @@ public partial class RailSpawnerSystem : SystemBase
             trainPrefab = railSpawner.TrainPrefab;
             carriagePrefab = railSpawner.CarriagePrefab;
             railSpacing = railSpawner.RailSpacing;
+            minAcceleration = railSpawner.MinAcceleration;
+            maxAcceleration = railSpawner.MaxAcceleration;
             
             ecb.DestroyEntity(entity);
         }).Run();
-        
-        
+
+        Random random = new Random((uint)System.DateTime.Now.Millisecond);
 
         Entities.ForEach((Entity entity, in LineComponent lineComponent,
             in DynamicBuffer<BezierPointBufferElement> bezierPoints,
@@ -73,13 +79,16 @@ public partial class RailSpawnerSystem : SystemBase
                 var trackPosition = new TrackPositionComponent {Value = (float)i / lineComponent.TrainCount};
                 ecb.SetComponent(train, trackPosition);
 
-                var speedComponent = new SpeedComponent() {Value = lineComponent.MaxSpeed};
+                float acceleration = random.NextFloat(minAcceleration, maxAcceleration);
+                var speedComponent = new SpeedComponent() { CurrentSpeed =  0, 
+                    MaxSpeed = lineComponent.MaxSpeed / lineLength, 
+                    Acceleration =  acceleration / lineLength };
                 ecb.SetComponent(train, speedComponent);
                 
                 for (int j = 0; j < lineComponent.CarriageCount; j++)
                 {
                     var carriage = ecb.Instantiate(carriagePrefab);
-                    var carriageComponent = new CarriageComponent { Index = j, Train = train };
+                    var carriageComponent = new CarriageComponent { Index = j, Train = train};
                     ecb.SetComponent(carriage, carriageComponent);
                 }
             }
