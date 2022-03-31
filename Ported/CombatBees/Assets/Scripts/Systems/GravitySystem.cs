@@ -43,7 +43,9 @@ namespace Systems
                 .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation,
                     in Components.Resource resource, in ResourceOwner resourceOwner) =>
                 {
-                    if (resourceOwner.Owner != Entity.Null && HasComponent<BeeMovement>(resourceOwner.Owner))
+                    if (resourceOwner.Owner != Entity.Null && 
+                    HasComponent<BeeMovement>(resourceOwner.Owner) && 
+                    !HasComponent<Lifetime>(resourceOwner.Owner))
                     {
                         translation.Value = resource.OwnerPosition;
                     }
