@@ -50,7 +50,7 @@ namespace Systems
                         // var body = new KinematicBody()
                         //     { LandPosition = new float3(translation.Value.x, -resourceSpawnAreaSize.y / 2, translation.Value.z) };
                         // ecb.SetComponent(resource, body);
-                        ecb.RemoveComponent<KinematicBody>(resource);
+                        // ecb.RemoveComponent<KinematicBody>(resource);
                     }
                 }).Run();
 

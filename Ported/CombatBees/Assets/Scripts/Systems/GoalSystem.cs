@@ -1,3 +1,5 @@
+using Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -6,12 +8,13 @@ using Mathf = UnityEngine.Mathf;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class GoalSystem : SystemBase
 {
-    EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     EntityQuery[] teamTargets;
+
     protected override void OnCreate()
     {
-        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -23,7 +26,6 @@ public partial class GoalSystem : SystemBase
         var gsv = GlobalSystemVersion;
 
         Dependency = Entities
-            .WithoutBurst()
             .WithAll<Components.Resource>()
             .WithNone<Components.KinematicBody>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
@@ -43,12 +45,14 @@ public partial class GoalSystem : SystemBase
                     // Spawn new bees and particles
                     for (int i = 0; i < 3; ++i)
                     {
-                        Instantiation.Bee.Instantiate(ecb, entityInQueryIndex, spawner.BeePrefab, translation.Value, random.NextFloat(0.25f, 0.5f), team);
-                        ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+                        Instantiation.Bee.Instantiate(ecb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
+                            random.NextFloat(0.25f, 0.5f), team);
+                        ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random,
+                            translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
                     }
                 }
             }).ScheduleParallel(Dependency);
-
+     
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
