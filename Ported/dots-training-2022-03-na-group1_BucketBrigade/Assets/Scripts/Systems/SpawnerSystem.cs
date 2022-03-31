@@ -15,6 +15,11 @@ public partial class SpawnerSystem : SystemBase
         var helperEntity = ecb.CreateEntity();
         ecb.AddBuffer<FreeBucketInfo>(helperEntity);
         ecb.AddBuffer<WaterPoolInfo>(helperEntity);
+        ecb.AddBuffer<DropBucketCommand>(helperEntity);
+        ecb.AddBuffer<DumpBucketCommand>(helperEntity);
+        ecb.AddBuffer<FillBucketCommand>(helperEntity);
+        ecb.AddBuffer<PickupBucketCommand>(helperEntity);
+        ecb.AddBuffer<TeamReformCommand>(helperEntity);
     }
     
     static void SpawnHeatmap(EntityCommandBuffer ecb, int size, float propagationSpeed)
@@ -131,7 +136,6 @@ public partial class SpawnerSystem : SystemBase
                 ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
                 ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = random.NextInt(0, MaxEvalOffset) });
                 ecb.AddBuffer<Member>(captainEntity);
-                ecb.AddComponent<TeamNeedsReform>(captainEntity);
                 
                 var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
                 ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
@@ -192,7 +196,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
-           ecb.SetComponent(entity, new Scale { Value = new float3(0.2f, 0.2f, 0.2f) });
+           ecb.SetComponent(entity, new Scale { Value = new float3(EmptyWaterSize, EmptyWaterSize, EmptyWaterSize) });
        }
    }
    

@@ -39,7 +39,6 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<Position>(entity);
         dstManager.AddComponent<RelocatePosition>(entity);
         dstManager.AddComponent<BucketHeld>(entity);
-        dstManager.AddComponent<BucketToWant>(entity);
         dstManager.AddComponent<MyWorkerState>(entity);
         dstManager.AddComponent<Speed>(entity);
         
