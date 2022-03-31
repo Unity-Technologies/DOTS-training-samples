@@ -9,7 +9,7 @@ public partial class FireSpotLookupSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var heatmapData = BucketBrigadeUtility.GetHeatmapData(this);
+        //var heatmapData = BucketBrigadeUtility.GetHeatmapData(this);
         
         //Every 1s
         //ForEach Fetcher
