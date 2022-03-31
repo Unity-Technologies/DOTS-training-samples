@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Entities;
+using UnityEngine;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -20,14 +21,15 @@ public class SpawnerAuthoring : UnityMonoBehaviour
     public int TeamCount = 2;
     public int OmniWorkerCount = 0;
     public int MembersCount = 23;
-    public int FireDimension = 100;
     public int WaterCount = 20;
     public int BucketCount = 100;
     public int MinWaterSupplyCount = 50;
     public int MaxWaterSupplyCount = 100;
 
+    [Header("Fire Simulation")]
     public bool TurnOffFireRendering;
-
+    public int FireDimension = 50;
+    public float FirePropagationSpeed = 0.05f;
 
     // This function is required by IDeclareReferencedPrefabs
     public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
@@ -70,6 +72,7 @@ public class SpawnerAuthoring : UnityMonoBehaviour
             BucketCount = BucketCount,
             MinWaterSupplyCount = MinWaterSupplyCount,
             MaxWaterSupplyCount = MaxWaterSupplyCount,
+            firePropagationSpeed = this.FirePropagationSpeed
         });
     }
 }

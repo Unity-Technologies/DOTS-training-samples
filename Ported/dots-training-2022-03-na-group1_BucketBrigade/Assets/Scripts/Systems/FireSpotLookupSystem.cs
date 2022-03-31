@@ -1,17 +1,31 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
+using UnityEngine;
 
 public partial class FireSpotLookupSystem : SystemBase
 {
+
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
-/*
-        Entities
-            .ForEach((ref Translation translation, in CarMovement movement) =>
-            {
-                translation.Value.x = (float) ((time + movement.Offset) % 100) - 50f;
-            }).ScheduleParallel();
-            */
+        var heatmapData = BucketBrigadeUtility.GetHeatmapData(this);
+        
+        //Every 1s
+        //ForEach Fetcher
+        //-Fetcher.HomePosition 
+        //--
+        /*
+         * float closestDistance = infinity;
+         * GetHeatmapBuffer
+         * For (i = 0; i < heatmap.Length; i++)
+         * {
+         *  float3 tileWorldPosition = GridUtility.PlotTileWorldPositionFromIndex(i, heatmapData.mapSideLength);
+         *  float distance = math.distance(Fetcher.HomePosition , tileWorldPosition);
+         *  if(distance < closestDistance)
+         *    closestDistance = distance;
+         * }
+        */
+        
     }
 }

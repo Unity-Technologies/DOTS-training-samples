@@ -5,7 +5,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using static BucketBrigadeUtility;
 
-[UpdateBefore(typeof(IdleSystem))]
+[UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
 public partial class SpawnerSystem : SystemBase
 {
     private const int MaxEvalOffset = 59;
@@ -17,7 +17,7 @@ public partial class SpawnerSystem : SystemBase
         ecb.AddBuffer<WaterPoolInfo>(helperEntity);
     }
     
-    static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
+    static void SpawnHeatmap(EntityCommandBuffer ecb, int size, float propagationSpeed)
     {
         var heatmapEntity = ecb.CreateEntity();
         ecb.SetName(heatmapEntity, "Heatmap");
@@ -33,7 +33,7 @@ public partial class SpawnerSystem : SystemBase
             mapSideLength = size, 
             maxTileHeight = 5.0f,
             
-            heatPropagationSpeed = 0.05f,//original is 0.0003
+            heatPropagationSpeed = propagationSpeed,//original is 0.0003
             heatPropagationRadius = 2,
 
             colorNeutral = new float4(0.49f,0.8f,0.46f,1f),
@@ -159,6 +159,8 @@ public partial class SpawnerSystem : SystemBase
                 for (var j = 0; j < squadSize; j++)
                 {
                     workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
+                    ecb.SetName(workerEntity, "SquadWorker");
+
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
                     ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
@@ -250,7 +252,7 @@ public partial class SpawnerSystem : SystemBase
 
                 SpawnCommunicationBuffers(ecb);
                 
-                SpawnHeatmap(ecb, spawner.FireDimension);
+                SpawnHeatmap(ecb, spawner.FireDimension, spawner.firePropagationSpeed);
 
                 SpawnSplashmap(ecb, spawner.BucketCount);
 

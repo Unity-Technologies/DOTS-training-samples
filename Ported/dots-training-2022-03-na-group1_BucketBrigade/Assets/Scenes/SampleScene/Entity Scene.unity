@@ -177,9 +177,10 @@ MonoBehaviour:
   TeamCount: 2
   OmniWorkerCount: 0
   MembersCount: 13
-  FireDimension: 50
   WaterCount: 12
   BucketCount: 30
   MinWaterSupplyCount: 50
   MaxWaterSupplyCount: 100
   TurnOffFireRendering: 0
+  FireDimension: 50
+  FirePropagationSpeed: 0.01
