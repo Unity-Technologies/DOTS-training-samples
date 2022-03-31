@@ -55,7 +55,7 @@ public partial class TankSpawnerSystem : SystemBase
 		// and can be used in jobs. For simplicity and debuggability in development,
 		// we'll initialize it with a constant. (In release, we'd want a seed that
 		// randomly varies, such as the time from the user's system clock.)
-		var random = new Unity.Mathematics.Random(234);
+		var random = new Unity.Mathematics.Random();
 
 		ShuffleList(brickEntities, random);
 
