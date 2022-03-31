@@ -31,11 +31,12 @@ public partial class FireRenderingSystem : SystemBase
         if (intensity < FirePropagationSystem.HEAT_THRESHOLD)
         {
           colorComponent.Value = heatmapData.colorNeutral;
+          translation.Value.y = -tileHalfHeight;
         }
         else
         {
           colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
-          translation.Value.y = math.lerp(0, tileHalfHeight, intensity);
+          translation.Value.y = math.lerp(-tileHalfHeight, tileHalfHeight, intensity);
                      
           //Apply flicker noise
           float2 sample = new float2((time - fireIndex.index) * flickerRate - intensity, intensity);
