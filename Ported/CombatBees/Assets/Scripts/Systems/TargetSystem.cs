@@ -10,7 +10,7 @@ namespace Systems
 {
     public partial class TargetSystem : SystemBase
     {
-        const float aggression = 0f;//0.5f; // Move to be a configurable parameter
+        const float aggression = 0.5f; // Move to be a configurable parameter
 
         EntityQuery teamTargetsQuery0;
         EntityQuery teamTargetsQuery1;

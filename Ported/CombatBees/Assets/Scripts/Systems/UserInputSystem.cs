@@ -102,11 +102,9 @@ namespace Systems
 
             var translation = new Translation
                 { Value = new float3(landPosition.x, worldMousePosition.y, landPosition.z) };
-            var kinematicBody = new KinematicBody()
-                { velocity = float3.zero, landPosition = landPosition };
             ecb.SetComponent(resource, translation);
-            ecb.SetComponent(resource, kinematicBody);
-            ecb.AddComponent<KinematicBody>(resource);
+            ecb.AddComponent<KinematicBody>(resource, new KinematicBody()
+                { velocity = float3.zero, landPosition = landPosition });
 
             ecb.Playback(EntityManager);
             ecb.Dispose();

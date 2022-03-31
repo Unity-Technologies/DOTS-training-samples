@@ -110,33 +110,49 @@ public partial class BeeMovementSystem : SystemBase
                 }
                 else if (targetType.Value == TargetType.Type.Resource)
                 {
-                    var delta = targetEntity.Position - position;
-                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                    if (sqrDist > grabDistance * grabDistance)
+                    if (!HasComponent<Components.Resource>(targetEntity.Value))
                     {
-                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        targetType.Value = TargetType.Type.None;
                     }
                     else
                     {
-                        ecb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value, new ResourceOwner() { Owner = entity });
-                        targetType.Value = TargetType.Type.Goal;
+                        var delta = targetEntity.Position - position;
+                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                        if (sqrDist > grabDistance * grabDistance)
+                        {
+                            velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        }
+                        else
+                        {
+                            ecb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                                new ResourceOwner() { Owner = entity });
+                            targetType.Value = TargetType.Type.Goal;
+                        }
                     }
                 }
                 else if (targetType.Value == TargetType.Type.Goal)
                 {
-                    var delta = new float3(-PlayField.size.x * .45f + PlayField.size.x * .9f * team.TeamId, 7, position.z) - position;
-                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                    if (sqrDist > grabDistance * grabDistance)
+                    if (!HasComponent<Components.Resource>(targetEntity.Value))
                     {
-                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        targetType.Value = TargetType.Type.None;
                     }
                     else
                     {
-                        targetType.Value = TargetType.Type.None;
-                        
-                        ecb.RemoveComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value);
-                        ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value, new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
+                        var delta = new float3(-PlayField.size.x * .45f + PlayField.size.x * .9f * team.TeamId, 7,
+                            position.z) - position;
+                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                        if (sqrDist > grabDistance * grabDistance)
+                        {
+                            velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        }
+                        else
+                        {
+                            targetType.Value = TargetType.Type.None;
 
+                            ecb.RemoveComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value);
+                            ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
+                                new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
+                        }
                     }
                 }
 
