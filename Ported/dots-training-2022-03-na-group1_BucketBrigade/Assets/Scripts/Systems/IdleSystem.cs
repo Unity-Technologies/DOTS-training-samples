@@ -56,25 +56,6 @@ public partial class IdleSystem : SystemBase
         var entityManager = EntityManager;
 
         Entities
-            .WithName("BucketPickUp")
-            .ForEach((ref BucketHeld bucketHeld, ref BucketToWant bucketWanted, ref Speed speed, in Position position) =>
-            {
-                if (bucketWanted.Value != Entity.Null)
-                {
-                    if (bucketHeld.Value == Entity.Null && IsEntityVeryClose(entityManager, position.Value, bucketWanted.Value))
-                    {
-                        PickUpBucket(entityManager, ref bucketHeld, ref bucketWanted, ref speed, currentFrame);
-                    }
-                    
-                    bucketWanted.Value = Entity.Null;
-                }
-            }).WithoutBurst().Run();
-        
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        Entities
             .WithName("DumpBucketOnFire")
             .WithAny<CaptainTag>()
             .ForEach((ref MyWorkerState state, ref BucketHeld bucketHeld, ref Speed speed, in Position position) =>
@@ -84,12 +65,8 @@ public partial class IdleSystem : SystemBase
                     // splash at position
                     MarkCarriedBucketAsEmpty(ecb, ref bucketHeld, ref speed, currentFrame);
                 }
-            }).WithoutBurst().Run();
+            }).Run();
         
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
         Entities
             .WithName("DropBucketAtTargetFullOnly")
             .WithAny<FetcherTag, WorkerTag>()
@@ -116,11 +93,7 @@ public partial class IdleSystem : SystemBase
                         DropBucket(ecb, ref bucketHeld, ref speed, currentFrame);
                     }
                 }
-            }).WithoutBurst().Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
+            }).Run();
 
         Entities
             .WithName("DropBucketAtTargetEmptyOnly")
@@ -149,12 +122,8 @@ public partial class IdleSystem : SystemBase
                         DropBucket(ecb, ref bucketHeld, ref speed, currentFrame);
                     }
                 }
-            }).WithoutBurst().Run();
+            }).Run();
         
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
         Entities
             .WithName("FindWaterSourceAndFillBucket")
             .WithAny<FetcherTag, OmniworkerTag>()
@@ -187,11 +156,7 @@ public partial class IdleSystem : SystemBase
                         }
                     }
                 }
-            }).WithoutBurst().Run();
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
+            }).Run();
 
         Entities
             .WithName("FindBucket")
@@ -203,27 +168,6 @@ public partial class IdleSystem : SystemBase
                     state.Value = WorkerState.BucketDetection;
                 }
             }).Run();
-
-        /*
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        Entities
-            .WithName("FillBucket")
-            .WithAny<FetcherTag, OmniworkerTag>()
-            .ForEach((ref MyWorkerState state, ref BucketHeld bucketHeld, ref Speed speed) =>
-            {
-                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && !bucketHeld.IsFull)
-                {
-//                    state.Value = WorkerState.FillingBucket;
-                    MarkCarriedBucketAsFull(ecb, ref bucketHeld, ref speed, currentFrame);
-                }
-            }).Run();*/
-
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        ecb = new EntityCommandBuffer(Allocator.Temp);
 
         Entities
             .WithName("GoHome")
@@ -240,6 +184,21 @@ public partial class IdleSystem : SystemBase
         ecb.Dispose();
         ecb = new EntityCommandBuffer(Allocator.Temp);
         
+        Entities
+            .WithName("BucketPickUp")
+            .ForEach((ref BucketHeld bucketHeld, ref BucketToWant bucketWanted, ref Speed speed, in Position position) =>
+            {
+                if (bucketWanted.Value != Entity.Null)
+                {
+                    if (bucketHeld.Value == Entity.Null && IsEntityVeryClose(entityManager, position.Value, bucketWanted.Value))
+                    {
+                        PickUpBucket(entityManager, ref bucketHeld, ref bucketWanted, ref speed, currentFrame);
+                    }
+                    
+                    bucketWanted.Value = Entity.Null;
+                }
+            }).Run();
+
         Entities.WithName("ReformTeam")
             .ForEach((ref TeamNeedsReform teamNeedsReform, in DynamicBuffer<Member> members, in TeamInfo teamInfo) =>
             {
