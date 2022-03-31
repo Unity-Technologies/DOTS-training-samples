@@ -42,8 +42,8 @@ public partial class BeeMovementSystem : SystemBase
         var deltaTime = Time.DeltaTime;
 
         // TODO: Ask about disposing these.
-        var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTagComponent)).ToEntityArray(Allocator.TempJob);
-        var blueBeeEntities = GetEntityQuery(typeof(TeamBlueTagComponent)).ToEntityArray(Allocator.TempJob);
+        var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTargetComponent)).ToEntityArray(Allocator.TempJob);
+        var blueBeeEntities = GetEntityQuery(typeof(TeamBlueTargetComponent)).ToEntityArray(Allocator.TempJob);
         var resourceEntities = GetEntityQuery(typeof(ResourceTagComponent)).ToEntityArray(Allocator.TempJob);
 
         // TODO: Ask about ECBs.
