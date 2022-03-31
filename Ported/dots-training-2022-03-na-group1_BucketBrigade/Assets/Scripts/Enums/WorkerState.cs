@@ -5,18 +5,6 @@ public enum WorkerState
 {
     Idle,
     Repositioning,
-    
-    
-    
-    Thinking,
-    RepositioningToWewLine,
-    DeliveringBucketToPerson,
-    DumpingBucket,
     FillingBucket,
-    GoingToWaterSource,
-    GoingToNearestFire,
-    DroppingBucket,
-    PickingBucketUp,
-    GoingToNearestBucket,
-    BringingEmptyBucketToWaterSource
+    BucketDetection,
 }

@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Rendering;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityMeshRenderer = UnityEngine.MeshRenderer;
