@@ -21,19 +21,19 @@ public partial class FireSuppressionSystem : SystemBase
     
     public static void AddSplashByWorldPosition(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
-        int heatmapBufferLength, 
         int gridSideWidth, 
         float3 worldPosition)
     {
-        int2 tileCoord = PlotTileCoordFromWorldPosition(gridSideWidth, worldPosition);
-        AddSplashByTileCoordinate(ref splashmapBuffer, heatmapBufferLength, gridSideWidth, tileCoord.x, tileCoord.y);
+        int2 tileCoord = GridUtility.PlotTileCoordFromWorldPosition( worldPosition, gridSideWidth);
+        AddSplashByTileCoordinate(ref splashmapBuffer, gridSideWidth, tileCoord.x, tileCoord.y);
     }
     public static void AddSplashByTileCoordinate(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
-        int heatmapBufferLength, 
         int gridSideWidth, 
         int tileCoordinateX, int tileCoordinateY)
     {
+        int heatmapBufferLength = gridSideWidth * gridSideWidth;
+        
         int tileIndex = GridUtility.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
         
         AddSplashByIndex(ref splashmapBuffer, heatmapBufferLength, tileIndex);
@@ -106,7 +106,7 @@ public partial class FireSuppressionSystem : SystemBase
              if (Physics.Raycast (ray, out hit, math.INFINITY)) 
              {
                  //Debug.DrawLine (ray.origin, hit.point);
-                 AddSplashByWorldPosition(ref splashmapBuffer, heatmapBuffer.Length, width, hit.point);
+                 AddSplashByWorldPosition(ref splashmapBuffer, width, hit.point);
              } 
          }
         
@@ -132,18 +132,6 @@ public partial class FireSuppressionSystem : SystemBase
              .Run();
     }
 
-    public static int2 PlotTileCoordFromWorldPosition(int gridSideWidth, float3 worldPosition)
-    {
-        float offset = (gridSideWidth - 1) * 0.5f;
-
-        int2 coord;
-        coord.x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
-        coord.y =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
-
-        UnityEngine.Debug.Log($"world position: {worldPosition} | tile coordinate: {coord}");
-        return coord;
-    }
-    
     DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 
     {
         var splashmap = GetSingletonEntity<HeatMapSplash>();
