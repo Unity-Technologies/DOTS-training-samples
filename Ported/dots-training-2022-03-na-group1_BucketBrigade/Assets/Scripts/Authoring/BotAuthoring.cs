@@ -1,4 +1,4 @@
-﻿using Unity.Collections;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -51,11 +51,13 @@ public class BotAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
                 dstManager.AddComponent<MyWaterPool>(entity);
                 dstManager.AddComponent<Home>(entity);
                 dstManager.AddComponent<MyTeam>(entity);
+                dstManager.AddComponent<BucketFill>(entity);
                 break;
             
             case WorkerType.Omniworker:
                 dstManager.AddComponent<OmniworkerTag>(entity);
                 dstManager.AddComponent<MyWaterPool>(entity);
+                dstManager.AddComponent<BucketFill>(entity);
                 break;
             
             case WorkerType.Captain:
