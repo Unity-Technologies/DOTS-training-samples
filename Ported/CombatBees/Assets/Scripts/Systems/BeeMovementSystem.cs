@@ -107,8 +107,8 @@ public partial class BeeMovementSystemFixed : SystemBase
                 ref BeeMovement bee,
                 ref Velocity velocityComp,
                 ref TargetType targetType,
+                ref TargetEntity targetEntity,
                 in Translation translation,
-                in TargetEntity targetEntity,
                 in Team team) =>
             {
                 var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
@@ -141,7 +141,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                                 ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
                                     targetEntity.Position, ParticleComponent.ParticleType.Blood, velocity * .35f, 2f, 6);
 
-                                endFrameEcb.AddComponent<BeeLifetime>(entityInQueryIndex, entity, new BeeLifetime
+                                endFrameEcb.AddComponent<BeeLifetime>(entityInQueryIndex, targetEntity.Value, new BeeLifetime
                                 {
                                     Value = 1f,
                                     NewlyDead = 1
@@ -153,13 +153,25 @@ public partial class BeeMovementSystemFixed : SystemBase
                 }
                 else if (targetType.Value == TargetType.Type.Resource)
                 {
-                    if (!HasComponent<Components.Resource>(targetEntity.Value)
+                    if ((HasComponent<ResourceOwner>(targetEntity.Value)))
+                    {
+                        var otherOwner = GetComponent<ResourceOwner>(targetEntity.Value).Owner;
+                        var otherTeam = GetComponent<Team>(otherOwner).TeamId;
+                        if (otherTeam != team.TeamId)
+                        {
+                            // Attack whoever stole it
+                            targetEntity.Value = otherOwner;
+                            targetType.Value = TargetType.Type.Enemy;
+                        }
+                    }
+                    else if (!HasComponent<Components.Resource>(targetEntity.Value)
                     || (HasComponent<ResourceOwner>(targetEntity.Value)
                         && GetComponent<ResourceOwner>(targetEntity.Value).Owner != entity))
                     {
                         targetType.Value = TargetType.Type.None;
                     }
-                    else
+
+                    if (targetType.Value == TargetType.Type.Resource)
                     {
                         var delta = targetEntity.Position - position;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
@@ -175,6 +187,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                                 new Components.Resource() { OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
                             targetType.Value = TargetType.Type.Goal;
                         }
+                        
                     }
                 }
                 else if (targetType.Value == TargetType.Type.Goal)

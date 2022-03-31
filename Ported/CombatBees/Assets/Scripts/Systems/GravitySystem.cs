@@ -44,8 +44,8 @@ namespace Systems
                     in Components.Resource resource, in ResourceOwner resourceOwner) =>
                 {
                     if (resourceOwner.Owner != Entity.Null && 
-                    (HasComponent<BeeMovement>(resourceOwner.Owner) && 
-                    !HasComponent<Lifetime>(resourceOwner.Owner)))
+                    (HasComponent<BeeMovement>(resourceOwner.Owner) &&
+                    !HasComponent<BeeLifetime>(resourceOwner.Owner)))
                     {
                         translation.Value = resource.OwnerPosition;
                     }
