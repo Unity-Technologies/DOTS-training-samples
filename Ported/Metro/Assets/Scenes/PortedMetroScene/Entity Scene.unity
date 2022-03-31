@@ -254,10 +254,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4f4db8f344c3aa044dec78cf7bb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carriageCount: 8
-  carriageLength: 0
+  carriageCount: 25
+  carriageLength: 5
   trainCount: 1
-  maxSpeed: 25
+  maxSpeed: 80
   debugRender: 0
   lineColor: {r: 0, g: 0, b: 1, a: 1}
 --- !u!4 &188054031
