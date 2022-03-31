@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(IdleSystem))]
 public partial class SpawnerSystem : SystemBase
 {
     private const int MaxEvalOffset = 59;
@@ -12,6 +13,7 @@ public partial class SpawnerSystem : SystemBase
     {
         var helperEntity = ecb.CreateEntity();
         ecb.AddBuffer<FreeBucketInfo>(helperEntity);
+        ecb.AddBuffer<WaterPoolInfo>(helperEntity);
     }
     
     static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
@@ -109,18 +111,16 @@ public partial class SpawnerSystem : SystemBase
                 
             for (int i = 0; i < spawner.TeamCount; i++)
             {
-                var teamEntity = ecb.CreateEntity();
-                ecb.AddBuffer<Member>(teamEntity);
-                
                 var squadSize = (spawner.MembersCount - 2) / 2;
 
-                var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(fetcherEntity, new MyTeam() { Value = teamEntity });
-
                 var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(captainEntity, new MyTeam() { Value = teamEntity });
+                ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
                 ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = random.NextInt(0, MaxEvalOffset) });
+                ecb.AddBuffer<Member>(captainEntity);
                 
+                var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
+                ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
+
                 var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
                 ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
 
@@ -143,12 +143,12 @@ public partial class SpawnerSystem : SystemBase
                     workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
-                    ecb.AppendToBuffer<Member>(teamEntity, workerEntity);
+                    ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
                     
                     previousMember = workerEntity;
                 }
 
-                ecb.AddComponent(teamEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
+                ecb.AddComponent(captainEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
             }
    }
 
@@ -224,6 +224,7 @@ public partial class SpawnerSystem : SystemBase
         var random = new Random(1234);
 
         Entities
+            .WithName("SpawnerSystem")
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 
