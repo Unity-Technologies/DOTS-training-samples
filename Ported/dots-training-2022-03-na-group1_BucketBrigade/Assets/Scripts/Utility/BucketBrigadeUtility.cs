@@ -180,4 +180,10 @@ public static class BucketBrigadeUtility
 
         return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
     }
+    
+    public static DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer(ComponentSystemBase systemBase) 
+    {
+        var heatmap = systemBase.GetSingletonEntity<HeatMapTemperature>();
+        return systemBase.EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
+    }
 }

@@ -18,7 +18,7 @@ public partial class FireSuppressionSystem : SystemBase
     {
         checkAdjacents.Dispose();
     }
-    
+
     public static void AddSplashByWorldPosition(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
         int gridSideWidth, 

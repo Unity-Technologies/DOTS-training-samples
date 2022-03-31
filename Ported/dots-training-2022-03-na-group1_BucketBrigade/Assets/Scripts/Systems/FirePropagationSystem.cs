@@ -26,7 +26,7 @@ public partial class FirePropagationSystem : SystemBase
         var localCheckAdjacents = checkAdjacents;
 
         var heatmapData = GetSingleton<HeatMapData>();
-        var heatmapBuffer = GetHeatmapBuffer();
+        var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
         
         float deltaTime = Time.DeltaTime * heatmapData.heatPropagationSpeed;
 
@@ -124,18 +124,6 @@ public partial class FirePropagationSystem : SystemBase
             if (heatmapBuffer[tileIndex] >= 1f)
                 heatmapBuffer[tileIndex] = 1f;
         }
-    }
-
-    DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer() 
-    {
-        var heatmap = GetSingletonEntity<HeatMapTemperature>();
-        return EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
-    }
-    
-    DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 
-    {
-        var splashmap = GetSingletonEntity<HeatMapSplash>();
-        return EntityManager.GetBuffer<HeatMapSplash>(splashmap);
     }
 
 }

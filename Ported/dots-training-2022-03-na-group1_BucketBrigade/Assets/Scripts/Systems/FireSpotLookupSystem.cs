@@ -1,17 +1,27 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 public partial class FireSpotLookupSystem : SystemBase
 {
+    public static void FindClosestFires(NativeArray<float3> fireCaptainPositions)
+    {
+        //
+    }
+    
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
-/*
-        Entities
-            .ForEach((ref Translation translation, in CarMovement movement) =>
-            {
-                translation.Value.x = (float) ((time + movement.Offset) % 100) - 50f;
-            }).ScheduleParallel();
-            */
+        //Every 1s
+        //ForEach Fetcher
+        //-Fetcher.HomePosition 
+        //--
+        /*
+         * GetHeatmapBuffer
+         * For (i = 0; i < heatmap.Length; i++)
+         * {
+         * 
+         * }
+        */
     }
 }
