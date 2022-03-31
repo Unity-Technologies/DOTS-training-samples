@@ -3,7 +3,8 @@ using Unity.Mathematics;
 
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+    using Unity.Transforms;
+    using UnityEngine;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGizmos = UnityEngine.Gizmos;
 using UnityGUI = UnityEngine.GUI;
@@ -13,13 +14,19 @@ using UnityColor = UnityEngine.Color;
 
 public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 {
-    public int LineID;
     [SerializeField] private int carriageCount;
     [SerializeField] private float carriageLength;
     [SerializeField] private int trainCount;
     [SerializeField] private float maxSpeed;
     [SerializeField] private bool debugRender;
-    
+
+    struct StationData
+    {
+        public float3 stationPosition;
+        public float outboundBezierPosition;
+        public float returnBezierPosition;
+    }
+
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var children = gameObject.GetComponentsInChildren<LineMarkerAuthoring>();
@@ -40,8 +47,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponent<BezierPointBufferElement>(entity);
 
         var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
-        float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList());
-
+        List<StationData> stationIndices;
+        float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList(), out stationIndices);
+        
+        bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
+        CreateStations(dstManager, stationIndices, curveDistance);
+        
         dstManager.AddComponentData(entity, new LineComponent { CarriageCount = carriageCount, 
             CarriageLength = carriageLength,
             TrainCount = trainCount,
@@ -55,17 +66,20 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent {Value = curveDistance});
-        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});
+        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Line = entity});
     }
 
     // Populates a dynamic buffer with bezier curve information, returning the total distance.
     // An analogue of MetroLine.Create_RailPath
-    public float PopulateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
-        List<LineMarkerAuthoring> markers)
+    float PopulateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
+        List<LineMarkerAuthoring> markers, out List<StationData> stations)
     {
         float totalPathDistance = 0;
         int totalMarkers = markers.Count;
         float3 currentLocation = float3.zero;
+
+        List<int> stationIndices = new List<int>();
+        stations = new List<StationData>();
 
         // - - - - - - - - - - - - - - - - - - - - - - - -  OUTBOUND points
         for (int i = 0; i < totalMarkers; i++)
@@ -76,6 +90,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         // fix the OUTBOUND handles
         for (int i = 0; i <= totalMarkers - 1; i++)
         {
+            if (markers[i].MarkerType == LineMarkerType.Platform)
+            {
+                stationIndices.Add(i);
+            }
+
+
             BezierPointBufferElement currentPoint = bezierCurve[i];
             if (i == 0)
             {
@@ -109,7 +129,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         int returnPointOffset = totalMarkers;
         
         // fix the RETURN handles
-        for (int i = 0; i <= totalMarkers - 1; i++)
+        for (int i = 0, j = stations.Count -1; i <= totalMarkers - 1; i++)
         {
             BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
             if (i == 0)
@@ -129,6 +149,38 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
+
+        for (int i = 0; i < stationIndices.Count; i++)
+        {
+            StationData stationData = new StationData
+            {
+                stationPosition =  bezierCurve[stationIndices[i]].Location -
+                            bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].Location,
+                outboundBezierPosition = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance,
+                returnBezierPosition = bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].DistanceAlongPath / totalPathDistance,
+            };
+            stations.Add(stationData);
+        }
+        
+        
         return totalPathDistance;
+    }
+
+    void CreateStations(EntityManager dstManager, List<StationData> stations, float curveLength)
+    {
+        for (int i = 0; i < stations.Count; i++)
+        {
+            Entity station = dstManager.CreateEntity();
+            float platormARelativePosition = stations[i].outboundBezierPosition;
+            float platormBRelativePosition = stations[i].returnBezierPosition;
+
+            var position = stations[i].stationPosition;
+
+            dstManager.AddComponentData(station, new StationComponent
+            {
+                PlatformATrackPosition = platormARelativePosition, PlatformBTrackPosition = platormBRelativePosition
+            });
+            dstManager.AddComponentData(station, new Translation {Value = position});
+        }
     }
 }
