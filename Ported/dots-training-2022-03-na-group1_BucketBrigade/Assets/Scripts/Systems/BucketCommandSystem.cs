@@ -9,6 +9,9 @@ public partial class BucketCommandSystem : SystemBase
 {
     void ProcessBufferDumpBucket(int frame)
     {
+        var splashmapBuffer = BucketBrigadeUtility.GetSplashmapBuffer(this);
+        var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
+        
         Entities.WithName("DumpBucketCommand")
             .ForEach((ref DynamicBuffer<DumpBucketCommand> commandBuffer) =>
             {
@@ -26,9 +29,6 @@ public partial class BucketCommandSystem : SystemBase
                     SetComponent(worker, new Speed() { Value = EmptyBucketSpeed });
                     
                     // splash?
-                    var splashmapBuffer = BucketBrigadeUtility.GetSplashmapBuffer(this);
-                    var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
-                    
                     FireSuppressionSystem
                         .AddSplashByIndex(ref splashmapBuffer, heatmapBuffer.Length, commandBuffer[iCmd].fireTileIndex );
                 }
@@ -79,7 +79,8 @@ public partial class BucketCommandSystem : SystemBase
                 
                 commandBuffer.Clear();
             }).Run();
-
+        
+        
         Entities.WithName("FillBucketCommand")
             .ForEach((ref DynamicBuffer<FillBucketCommand> commandBuffer) =>
             {
@@ -105,7 +106,7 @@ public partial class BucketCommandSystem : SystemBase
                     SetComponent(command.Worker, new Speed() { Value = FullBucketSpeed });
                     SetComponent(bucketHeld.Value, new MyBucketState(BucketState.FullCarried, frame));
                     
-                    // populate and use the filling system
+                    SetComponent(command.Worker, new MyWorkerState(WorkerState.FillingBucket));
                 }
             }).Run();
         
