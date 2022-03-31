@@ -60,13 +60,13 @@ public partial class BeeMovementSystem : SystemBase
                     if (team0.Length > 0)
                     {
                         attractionRepulsion.AttractionPos = team0[random.NextInt(team0.Length)].Value;
-                        attractionRepulsion.RepulsionPos = team0[random.NextInt(team0.Length)].Value;
+                        attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
                     }
                 }
                 else if (team1.Length > 0)
                 {
                     attractionRepulsion.AttractionPos = team1[random.NextInt(team1.Length)].Value;
-                    attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
+                    attractionRepulsion.RepulsionPos = team0[random.NextInt(team0.Length)].Value;
                 }
             }).ScheduleParallel();
 
