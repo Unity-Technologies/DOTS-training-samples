@@ -5,9 +5,5 @@ using Unity.Mathematics;
 public struct DumpBucketCommand : IBufferElementData
 {
     public Entity Worker;
-    
-    public DumpBucketCommand(Entity worker, Entity bucket)
-    {
-        Worker = worker;
-    }
+    public int fireTileIndex;
 }

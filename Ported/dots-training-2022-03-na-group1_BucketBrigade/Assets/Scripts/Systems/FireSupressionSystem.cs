@@ -93,8 +93,8 @@ public partial class FireSuppressionSystem : SystemBase
         int width = GetSingleton<HeatMapData>().mapSideLength;
         
          var localCheckAdjacents = checkAdjacents;
-         var splashmapBuffer = GetSplashmapBuffer();
-         var heatmapBuffer = GetHeatmapBuffer();
+         var splashmapBuffer = BucketBrigadeUtility.GetSplashmapBuffer(this);
+         var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
          
          //HANDLE MOUSE CLICK
          if (UnityInput.GetMouseButtonDown(0))
@@ -121,27 +121,7 @@ public partial class FireSuppressionSystem : SystemBase
              }
         
          }).Run();
-
-         
-         Entities
-             .WithAll<SplashEvent>()
-             .ForEach((ref SplashEvent splashEvent) =>
-             {
-                 //AddSplashByWorldPosition(splashEvent.splashWorldPositionn); 
-                 AddSplashByIndex(ref splashmapBuffer, splashEvent.fireTileIndex, heatmapBuffer.Length);
-             })
-             .Run();
-    }
-
-    DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 
-    {
-        var splashmap = GetSingletonEntity<HeatMapSplash>();
-        return EntityManager.GetBuffer<HeatMapSplash>(splashmap);
+        
     }
     
-    DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer() 
-    {
-        var heatmap = GetSingletonEntity<HeatMapTemperature>();
-        return EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
-    }
 }

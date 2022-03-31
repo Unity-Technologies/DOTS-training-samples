@@ -98,6 +98,12 @@ public static class BucketBrigadeUtility
         var heatmap = systemBase.GetSingletonEntity<HeatMapTemperature>();
         return systemBase.EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
     }
+    
+    public static DynamicBuffer<HeatMapSplash> GetSplashmapBuffer(ComponentSystemBase systemBase) 
+    {
+        var splashmap = systemBase.GetSingletonEntity<HeatMapSplash>();
+        return systemBase.EntityManager.GetBuffer<HeatMapSplash>(splashmap);
+    }
 
     public static HeatMapData GetHeatmapData(ComponentSystemBase systemBase)
     {
