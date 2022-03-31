@@ -93,6 +93,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                 var position = translation.Value;
                 UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
 
+                bool isAttacking = false;  
                 if (targetType.Value == TargetType.Type.Enemy)
                 {
                     var delta = targetEntity.Position - position;
@@ -104,6 +105,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                     else
                     {
                         velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        isAttacking = true;
                         if (sqrDist < hitDistance * hitDistance)
                         {
                             ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
@@ -162,6 +164,18 @@ public partial class BeeMovementSystemFixed : SystemBase
                         }
                     }
                 }
+
+                // only used for smooth rotation:
+                float3 oldSmoothPos = bee.SmoothPosition;
+                if (isAttacking == false)
+                {
+                    bee.SmoothPosition = math.lerp(bee.SmoothPosition, translation.Value, deltaTime * /*rotationStiffness*/5);
+                }
+                else
+                {
+                    bee.SmoothPosition = translation.Value;
+                }
+                bee.SmoothDirection = bee.SmoothPosition - oldSmoothPos;
 
                 position += velocity * deltaTime;
                 UpdateBorders(ref velocity, ref position, targetType.Value == TargetType.Type.Goal);
@@ -236,7 +250,12 @@ public partial class BeeMovementSystem : SystemBase
             {
                 var velocity = beeMovement.Velocity;
                 UpdateScale(ref scale, in beeMovement, in velocity);
-                rotation.Value = quaternion.LookRotation(velocity, new float3(0, 1, 0));
+
+                if (!beeMovement.SmoothDirection.Equals(float3.zero))
+                {
+                    rotation.Value = quaternion.LookRotation(beeMovement.SmoothDirection, new float3(0, 1, 0));
+                }
+
             }).ScheduleParallel(Dependency);
     }
 
