@@ -6,6 +6,17 @@ using static BucketBrigadeUtility;
 
 public partial class IdleSystem : SystemBase
 {
+    private static int _frame;
+
+    public static int CurrentFrame => _frame;
+    
+    static float2 CalculateLeftArc(float2 a, float2 b, float t)
+    {
+        var ab = b - a;
+
+        return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
+    }
+
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -13,48 +24,14 @@ public partial class IdleSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        
-        /*
-        Filtering the agents in AgentState.idle state.
-            In this system, the agents are in-place, and should take the decision of the next action to make.
-            For any fetchers and omnis, if they don't own a bucket, find the closest one.  
-            Set MyWorkerState to bucketDetection
+        var currentFrame = _frame;
 
-        For all, if they don't own a bucket, checks if bucketToWant is set.
-            they pick up the bucket.
-            Otherwise if they own a bucket:
-        For fetchers
-        if they own an empty bucket
-        if they are close to the waterPool
-        they switch to AgentState.bucketFill state.
-        else
-        they define a new TargetRelocation value close to the waterPool.
-        else (they own a full bucket)
-        if they are close to their transfer target
-            they drop the bucket
-        else
-        they define a new TargetRelocation value close to their transfer target
-        For workers
-        if they are close to their transfer target, or no transfer target (last worker in "empty bucket" line)
-        they drop the bucket
-        else
-        they define a new TargetRelocation value close to their transfer target
-        For captains:
-        if the bucket is full
-            the bucket is set to BucketState.empty state
-        Queue a splash
-        else (the bucket is empty)
-        if they are close to their transfer target
-            they drop the bucket
-        else
-        they define a new TargetRelocation value close to their transfer target
-            */
-        
+        _frame += 1;
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-        var helperEntity = GetSingletonEntity<WaterPoolInfo>();
-        var waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(helperEntity);
+        var waterPoolBufferEntity = GetSingletonEntity<WaterPoolInfo>();
+        var waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(waterPoolBufferEntity);
         
         waterPoolBuffer.Clear();
         
@@ -65,83 +42,239 @@ public partial class IdleSystem : SystemBase
                 // water pool only counts if it has volume.
                 if (volume.Value > 0.01)
                 {
-                    ecb.AppendToBuffer(helperEntity, new WaterPoolInfo() { WaterPool = entity, Position = position.Value, Radius = scale.Value.x / 2f});
+                    ecb.AppendToBuffer(waterPoolBufferEntity, new WaterPoolInfo() { WaterPool = entity, Position = position.Value, Radius = scale.Value.x / 2f});
                 }
             }).Run();
         
         ecb.Playback(EntityManager);
         ecb.Dispose();
         
+        ecb = new EntityCommandBuffer(Allocator.Temp);
         
-        waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(helperEntity);
+        waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(waterPoolBufferEntity);
 
         var entityManager = EntityManager;
 
         Entities
-            .WithName("Fetcher")
-            .WithReadOnly(waterPoolBuffer)
-            .WithAll<FetcherTag>()
-            .ForEach((ref MyWorkerState state, ref RelocatePosition destination, ref BucketHeld bucketHeld,
-                ref BucketToWant bucketWanted, ref MyWaterPool myWaterPool, ref Home home, in Position position,
-                in DestinationWorker target) =>
+            .WithName("BucketPickUp")
+            .ForEach((ref BucketHeld bucketHeld, ref BucketToWant bucketWanted, ref Speed speed, in Position position) =>
             {
-                if (state.Value == WorkerState.Idle)
+                if (bucketWanted.Value != Entity.Null)
                 {
-                    if (bucketHeld.Value == Entity.Null && bucketWanted.Value != Entity.Null)
+                    if (bucketHeld.Value == Entity.Null && IsEntityVeryClose(entityManager, position.Value, bucketWanted.Value))
                     {
-                        if (IsEntityVeryClose(entityManager, position.Value, bucketWanted.Value))
-                        {
-                            PickUpBucket(entityManager, ref bucketHeld, ref bucketWanted);
-                        }
-
-                        bucketWanted.Value = Entity.Null;
-                        ;
+                        PickUpBucket(entityManager, ref bucketHeld, ref bucketWanted, ref speed, currentFrame);
                     }
-                    else if (bucketHeld.Value != Entity.Null)
-                    {
-                        if (IsBucketFull(entityManager, bucketHeld))
-                        {
-                            var targetPosition = entityManager.GetComponentData<Position>(target.Value);
+                    
+                    bucketWanted.Value = Entity.Null;
+                }
+            }).WithoutBurst().Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
 
-                            if (IsVeryClose(position.Value, targetPosition.Value))
-                            {
-                                DropBucket(entityManager, ref bucketHeld);
-                            }
-                            else
-                            {
-                                destination.Value = targetPosition.Value;
-                            }
+        Entities
+            .WithName("DumpBucketOnFire")
+            .WithAny<CaptainTag>()
+            .ForEach((ref MyWorkerState state, ref BucketHeld bucketHeld, ref Speed speed, in Position position) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && bucketHeld.IsFull)
+                {
+                    // splash at position
+                    MarkCarriedBucketAsEmpty(ecb, ref bucketHeld, ref speed, currentFrame);
+                }
+            }).WithoutBurst().Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("DropBucketAtTargetFullOnly")
+            .WithAny<FetcherTag, WorkerTag>()
+            .ForEach((ref MyWorkerState state, ref RelocatePosition destination, ref BucketHeld bucketHeld, 
+                ref Speed speed, in Position position, in DestinationWorker target) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && bucketHeld.IsFull)
+                {
+                    if (target.Value != Entity.Null)
+                    {
+                        var targetPosition = entityManager.GetComponentData<Position>(target.Value);
+
+                        if (IsVeryClose(position.Value, targetPosition.Value))
+                        {
+                            GiveBucketByDrop(ecb, target, ref bucketHeld, ref speed, currentFrame);
                         }
                         else
                         {
-                            // goto water source
-                            (var waterPool, var waterPosition) = FindClosestWater(position.Value, waterPoolBuffer);
-
-                            if (waterPool != Entity.Null)
-                            {
-                                if (!IsVeryClose(home.Value, waterPosition))
-                                {
-                                    home.Value = waterPosition;
-                                    // trigger reform
-                                }
-
-                                if (IsVeryClose(position.Value, waterPosition))
-                                {
-                                    myWaterPool.Value = waterPool;
-                                    state.Value = WorkerState.FillingBucket;
-                                }
-                                else
-                                {
-                                    destination.Value = waterPosition;
-                                }
-                            }
+                            destination.Value = targetPosition.Value;
                         }
                     }
                     else
                     {
-                        state.Value = WorkerState.BucketDetection;
+                        DropBucket(ecb, ref bucketHeld, ref speed, currentFrame);
                     }
                 }
             }).WithoutBurst().Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("DropBucketAtTargetEmptyOnly")
+            .WithAny<CaptainTag, WorkerTag>()
+            .ForEach((ref MyWorkerState state, ref RelocatePosition destination, ref BucketHeld bucketHeld, 
+                ref Speed speed, in Position position, in DestinationWorker target) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null &&
+                    !bucketHeld.IsFull)
+                {
+                    if (target.Value != Entity.Null)
+                    {
+                        var targetPosition = entityManager.GetComponentData<Position>(target.Value);
+
+                        if (IsVeryClose(position.Value, targetPosition.Value))
+                        {
+                            GiveBucketByDrop(ecb, target, ref bucketHeld, ref speed, currentFrame);
+                        }
+                        else
+                        {
+                            destination.Value = targetPosition.Value;
+                        }
+                    }
+                    else
+                    {
+                        DropBucket(ecb, ref bucketHeld, ref speed, currentFrame);
+                    }
+                }
+            }).WithoutBurst().Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("FindWaterSourceAndFillBucket")
+            .WithAny<FetcherTag, OmniworkerTag>()
+            .WithReadOnly(waterPoolBuffer)
+            .ForEach((ref MyWorkerState state, ref RelocatePosition destination, ref BucketHeld bucketHeld, 
+                ref MyWaterPool myWaterPool, ref Home home, ref Speed speed, in Position position, in MyTeam team) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && !bucketHeld.IsFull)
+                {
+                    // goto water source
+                    (var waterPool, var waterPosition) = FindClosestWater(position.Value, waterPoolBuffer);
+
+                    if (waterPool != Entity.Null)
+                    {
+                        if (!IsVeryClose(home.Value, waterPosition))
+                        {
+                            home.Value = waterPosition;
+                            ecb.SetComponent(team.Value, new TeamNeedsReform() { Value = true });
+                        }
+
+                        if (IsVeryClose(position.Value, waterPosition))
+                        {
+                            myWaterPool.Value = waterPool;
+                            MarkCarriedBucketAsFull(ecb, ref bucketHeld, ref speed, currentFrame);
+                            //state.Value = WorkerState.FillingBucket; // TODO
+                        }
+                        else
+                        {
+                            destination.Value = waterPosition;
+                        }
+                    }
+                }
+            }).WithoutBurst().Run();
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("FindBucket")
+            .WithAny<FetcherTag, OmniworkerTag>()
+            .ForEach((ref MyWorkerState state, in BucketHeld bucketHeld) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value == Entity.Null)
+                {
+                    state.Value = WorkerState.BucketDetection;
+                }
+            }).Run();
+
+        /*
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("FillBucket")
+            .WithAny<FetcherTag, OmniworkerTag>()
+            .ForEach((ref MyWorkerState state, ref BucketHeld bucketHeld, ref Speed speed) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && !bucketHeld.IsFull)
+                {
+//                    state.Value = WorkerState.FillingBucket;
+                    MarkCarriedBucketAsFull(ecb, ref bucketHeld, ref speed, currentFrame);
+                }
+            }).Run();*/
+
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        Entities
+            .WithName("GoHome")
+            .WithAny<WorkerTag, CaptainTag>()
+            .ForEach((ref RelocatePosition target, in MyWorkerState state, in Position position, in Home home, in BucketHeld bucketHeld) =>
+            {
+                if (state.Value == WorkerState.Idle && bucketHeld.Value == Entity.Null && !IsVeryClose(position.Value, home.Value))
+                {
+                    target.Value = home.Value;
+                }
+            }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
+        ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        Entities.WithName("ReformTeam")
+            .ForEach((ref TeamNeedsReform teamNeedsReform, in DynamicBuffer<Member> members, in TeamInfo teamInfo) =>
+            {
+                if (teamNeedsReform.Value)
+                {
+                    var captainHome = entityManager.GetComponentData<Home>(teamInfo.Captain);
+                    var fetcherHome = entityManager.GetComponentData<Home>(teamInfo.Fetcher);
+
+                    var outMembers = members.Length / 2;
+
+                    var deltaT = 1f / (outMembers + 1);
+                    var t = deltaT;
+
+                    for (var i = 0; i < outMembers; i++)
+                    {
+                        var newHome = CalculateLeftArc(fetcherHome.Value, captainHome.Value, t);
+                        ecb.SetComponent(members[i], new Home() { Value = newHome });
+                        t += deltaT;
+                    }
+
+                    deltaT = 1f / (members.Length - outMembers + 1);
+                    t = deltaT;
+
+                    for (var i = outMembers; i < members.Length; i++)
+                    {
+                        var newHome = CalculateLeftArc(captainHome.Value, fetcherHome.Value, t);
+                        ecb.SetComponent(members[i], new Home() { Value = newHome });
+                        t += deltaT;
+                    }
+
+                    teamNeedsReform.Value = false;
+                }
+            }).Run();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }
