@@ -35,6 +35,15 @@ public static class GridUtility
         return coord;
     }
     
+    public static float3 PlotTileWorldPositionFromIndex(int tileIndex, int gridSideWidth)
+    {
+        float offset = (gridSideWidth - 1) * 0.5f;
+
+        int2 tileCoord = GetTileCoordinate(tileIndex,gridSideWidth);
+            
+        return new float3(tileCoord.x, 0f, tileCoord.y) - offset;
+    }
+    
     public static void CreateAdjacentTileArray(ref NativeArray<int2> array, int radius)
     {
         //radius 1 -> 8  : 3*3-1

@@ -186,4 +186,9 @@ public static class BucketBrigadeUtility
         var heatmap = systemBase.GetSingletonEntity<HeatMapTemperature>();
         return systemBase.EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
     }
+
+    public static HeatMapData GetHeatmapData(ComponentSystemBase systemBase)
+    {
+        return systemBase.GetSingleton<HeatMapData>();
+    }
 }
