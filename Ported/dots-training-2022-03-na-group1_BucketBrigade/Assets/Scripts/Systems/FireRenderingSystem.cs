@@ -9,8 +9,8 @@ using Unity.Transforms;
 //Reads the Heatmap Buffer to Update all Flame entities visuals (Color and 'Scale')
 public partial class FireRenderingSystem : SystemBase
 {
-  static float flickerRate = 2f;
-  static float flickerRange = 0.1f;
+  const float flickerRate = 2f;
+  const float flickerRange = 0.1f;
   protected override void OnUpdate()
   {
     var heatmapData = GetSingleton<HeatMapData>(); 
