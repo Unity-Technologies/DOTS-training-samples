@@ -119,9 +119,7 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else
                     {
-                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
-                            new ResourceOwner() { Owner = entity });
-
+                        ecb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value, new ResourceOwner() { Owner = entity });
                         targetType.Value = TargetType.Type.Goal;
                     }
                 }
@@ -137,11 +135,8 @@ public partial class BeeMovementSystem : SystemBase
                     {
                         targetType.Value = TargetType.Type.None;
                         
-                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
-                            new ResourceOwner() { Owner = Entity.Null });
-                        ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value);
-                        ecb.SetComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
-                            new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
+                        ecb.RemoveComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value);
+                        ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value, new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
                     }
                 }
 

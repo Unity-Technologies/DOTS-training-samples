@@ -1,4 +1,5 @@
 using Components;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -7,13 +8,13 @@ using Mathf = UnityEngine.Mathf;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class GoalSystem : SystemBase
 {
-    EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     EntityQuery[] teamTargets;
 
     protected override void OnCreate()
     {
-        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -25,7 +26,6 @@ public partial class GoalSystem : SystemBase
         var gsv = GlobalSystemVersion;
 
         Dependency = Entities
-            .WithoutBurst()
             .WithAll<Components.Resource>()
             .WithNone<Components.KinematicBody>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
@@ -52,7 +52,7 @@ public partial class GoalSystem : SystemBase
                     }
                 }
             }).ScheduleParallel(Dependency);
-
+     
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

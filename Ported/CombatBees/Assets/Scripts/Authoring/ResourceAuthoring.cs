@@ -9,7 +9,6 @@ namespace Authoring
             , GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponent<Components.Resource>(entity);
-            dstManager.AddComponent<ResourceOwner>(entity);
         }
     }
 }

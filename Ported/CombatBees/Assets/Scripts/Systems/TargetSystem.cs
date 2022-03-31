@@ -3,12 +3,14 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
     public partial class TargetSystem : SystemBase
     {
-        const float aggression = 0.5f; // Move to be a configurable parameter
+        const float aggression = 0f;//0.5f; // Move to be a configurable parameter
 
         EntityQuery teamTargetsQuery0;
         EntityQuery teamTargetsQuery1;
@@ -23,7 +25,7 @@ namespace Systems
 
             var queryDisc = new EntityQueryDesc()
             {
-                None = new [] { ComponentType.ReadOnly<KinematicBody>() },
+                None = new [] { ComponentType.ReadOnly<KinematicBody>(), ComponentType.ReadOnly<ResourceOwner>(), },
                 All = new [] { ComponentType.ReadOnly<Components.Resource>() }
             };
             resourceTargets = EntityManager.CreateEntityQuery(queryDisc);
