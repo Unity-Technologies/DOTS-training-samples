@@ -159,6 +159,8 @@ public partial class SpawnerSystem : SystemBase
                 for (var j = 0; j < squadSize; j++)
                 {
                     workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
+                    ecb.SetName(workerEntity, "SquadWorker");
+
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
                     ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
