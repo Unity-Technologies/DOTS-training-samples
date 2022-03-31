@@ -12,6 +12,8 @@ public class TrainAuthoringComponent : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponent<TrainComponent>(entity);
+        dstManager.AddComponentData(entity, 
+            new TrainStateComponent { Value = TrainNavigationSystem.TrainState.Accelerating });
         dstManager.AddSharedComponentData(entity, new TrainIDComponent() { Value = trainId });
         dstManager.AddComponent<SpeedComponent>(entity);
         

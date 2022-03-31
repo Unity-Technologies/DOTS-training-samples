@@ -7,7 +7,7 @@ public static class BezierHelpers
 {
     public const float BEZIER_HANDLE_REACH = 0.15f;
     public const int BEZIER_MEASUREMENT_SUBDIVISIONS = 2;
-    public const float BEZIER_PLATFORM_OFFSET = 3f;
+    public const float BEZIER_PLATFORM_OFFSET = 5f;
     
     // Adds a new point to the given DynamicBuffer of BezierPointBufferElements, returning it afterwards.
     public static BezierPointBufferElement AddPoint(ref DynamicBuffer<BezierPointBufferElement> bezierPoints, UnityVector3 markerPosition)
