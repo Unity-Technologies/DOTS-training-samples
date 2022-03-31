@@ -130,6 +130,8 @@ public partial class BeeMovementSystem : SystemBase
                         {
                             endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
                                 new ResourceOwner() { Owner = entity });
+                            endFrameEcb.SetComponent<Components.Resource>(entityInQueryIndex, targetEntity.Value,
+                                new Components.Resource(){ OwnerPosition = position - new float3(0, 2, 0) });
                             targetType.Value = TargetType.Type.Goal;
                         }
                     }
@@ -161,16 +163,17 @@ public partial class BeeMovementSystem : SystemBase
                 }
 
                 position += velocity * deltaTime;
-                UpdateBorders(ref velocity, ref position);
+                UpdateBorders(ref velocity, ref position, targetType.Value == TargetType.Type.Goal);
                 bee.Velocity = velocity;
                 translation.Value = position;
             }).ScheduleParallel(Dependency);
 
         Dependency = Entities
-            .ForEach((ref NonUniformScale scale, in BeeMovement beeMovement) =>
+            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeMovement beeMovement) =>
             {
                 var velocity = beeMovement.Velocity;
                 UpdateScale(ref scale, in beeMovement, in velocity);
+                rotation.Value = quaternion.LookRotation(velocity, new float3(0, 1, 0));
             }).ScheduleParallel(Dependency);
 
         beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -198,7 +201,7 @@ public partial class BeeMovementSystem : SystemBase
         }
     }
 
-    private static void UpdateBorders(ref float3 velocity, ref float3 position)
+    private static void UpdateBorders(ref float3 velocity, ref float3 position, bool isHoldingResource)
     {
         if (Mathf.Abs(position.x) > PlayField.size.x * .5f)
         {
@@ -215,10 +218,10 @@ public partial class BeeMovementSystem : SystemBase
             velocity.x *= .8f;
             velocity.y *= .8f;
         }
-
-        if (Mathf.Abs(position.y) > PlayField.size.y * .5f)
+        float resMod = isHoldingResource ? 2 : 0;
+        if (Mathf.Abs(position.y) > PlayField.size.y * .5f - resMod)
         {
-            position.y = PlayField.size.y * .5f * Mathf.Sign(position.y);
+            position.y = (PlayField.size.y * .5f - resMod) * Mathf.Sign(position.y);
             velocity.y *= -0.5f;
             velocity.z *= .8f;
             velocity.x *= .8f;
