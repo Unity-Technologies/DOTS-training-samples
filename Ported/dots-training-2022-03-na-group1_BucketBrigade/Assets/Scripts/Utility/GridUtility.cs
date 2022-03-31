@@ -8,11 +8,16 @@ public static class GridUtility
 {
     public static int GetTileIndex(int x, int z, int width)
     {
+        if (x < 0 || z < 0) return -1;
+        if (x >= width || z >= width) return -1;
+        
         return (z * width) + x;
     }
     
     public static int2 GetTileCoordinate(int index , int width)
     {
+        //if (index < 0 || index >= width * width) return -1;
+        
         int x = index % width;
         int z = index / width;
         return new int2(x, z);

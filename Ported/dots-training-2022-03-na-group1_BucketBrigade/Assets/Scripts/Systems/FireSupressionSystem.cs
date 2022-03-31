@@ -122,6 +122,7 @@ public partial class FireSuppressionSystem : SystemBase
         
          }).Run();
 
+         
          Entities
              .WithAll<SplashEvent>()
              .ForEach((ref SplashEvent splashEvent) =>
