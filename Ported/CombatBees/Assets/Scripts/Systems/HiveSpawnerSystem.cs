@@ -37,7 +37,7 @@ namespace Systems
                             ? worldStartPosition + randPos
                             : worldStartPosition + worldSize.Value - randPos;
 
-                        Instantiation.Bee.Instantiate(ecb, spawnData.BeePrefab, translation, random.NextFloat(0.25f, 0.5f), team);
+                        Instantiation.Bee.Instantiate(ecb, spawnData.BeePrefab, translation, team, ref random);
                     }
 
                     var resourceWorldStartPosition = (worldCenter.Value - resourceSpawnAreaSize / 2);

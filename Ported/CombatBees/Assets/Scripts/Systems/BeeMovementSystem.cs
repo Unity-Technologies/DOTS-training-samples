@@ -105,7 +105,7 @@ public partial class BeeMovementSystem : SystemBase
                         velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
                         if (sqrDist < hitDistance * hitDistance)
                         {
-                            ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, random,
+                            ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
                                 targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
                             beginFrameEcb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
                             targetType.Value = TargetType.Type.None;
@@ -232,7 +232,7 @@ public partial class BeeMovementSystem : SystemBase
     {
         var size = bee.Size;
         var scl = new float3(size, size, size);
-        float stretch = Mathf.Max(1f, math.distance(velocity, float3.zero) * speedStretch);
+        float stretch = Mathf.Max(1f, math.length(velocity) * speedStretch);
         scl.z *= stretch;
         scl.x /= (stretch - 1f) / 5f + 1f;
         scl.y /= (stretch - 1f) / 5f + 1f;

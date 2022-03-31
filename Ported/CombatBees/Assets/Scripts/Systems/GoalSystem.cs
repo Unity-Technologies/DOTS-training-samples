@@ -50,8 +50,8 @@ public partial class GoalSystem : SystemBase
                     for (int i = 0; i < 3; ++i)
                     {
                         Instantiation.Bee.Instantiate(beginFrameEcb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
-                            random.NextFloat(0.25f, 0.5f), team);
-                        ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, random,
+                            team, ref random);
+                        ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
                             translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
                     }
                 }

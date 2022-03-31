@@ -100,7 +100,7 @@ public partial class ParticleSystemFixed : SystemBase
 [UpdateAfter(typeof(ParticleSystemFixed))]
 public partial class ParticleSystem : SystemBase
 {
-    public static void SpawnParticle(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity entityPrefab, Random rand, float3 position, ParticleComponent.ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
+    public static void SpawnParticle(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity entityPrefab, ref Random rand, float3 position, ParticleComponent.ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
     {
         // Processing each particle via the ECS makes a lot of sense, but creation costs may be an issue. Can pooling be built in?
         for (int i = 0; i < count; i++)
