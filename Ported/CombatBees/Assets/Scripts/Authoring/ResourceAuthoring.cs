@@ -1,4 +1,3 @@
-using Components;
 using Unity.Entities;
 
 namespace Authoring
