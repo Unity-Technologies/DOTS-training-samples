@@ -36,7 +36,7 @@ public partial class ParticleSystemFixed : SystemBase
 
         // Update positions from velocities
         var moveJob = Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Scale scale, in Velocity velocity, in ParticleComponent particle) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref NonUniformScale scale, in Velocity velocity, in ParticleComponent particle) =>
             {
                 translation.Value += velocity.Value * deltaTime;
 
@@ -103,7 +103,7 @@ public partial class ParticleSystem : SystemBase
                 ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
                 ecb.SetComponent(sortKey, entity, new Translation { Value = position });
                 ecb.SetComponent(sortKey, entity, new Velocity { Value = velocity + rand.NextFloat3Direction() * velocityJitter });
-                ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new NonUniformScale { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 0, 0, 1) });
             }
@@ -115,7 +115,7 @@ public partial class ParticleSystem : SystemBase
                 ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
                 ecb.SetComponent(sortKey, entity, new Translation { Value = position });
                 ecb.SetComponent(sortKey, entity, new Velocity { Value = rand.NextFloat3Direction() * 5f });
-                ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new NonUniformScale { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
             }
@@ -126,7 +126,7 @@ public partial class ParticleSystem : SystemBase
     {
         // Update for rendering
         Entities
-           .ForEach((Entity entity, ref Rotation rotation, ref Scale renderScale, in Translation translation, in Size size, in Velocity velocity, in Lifetime lifetime, in ParticleComponent particle) =>
+           .ForEach((Entity entity, ref Rotation rotation, ref NonUniformScale renderScale, in Translation translation, in Size size, in Velocity velocity, in Lifetime lifetime, in ParticleComponent particle) =>
            {
                renderScale.Value = size.Value * lifetime.Value;
                if (particle.Type == ParticleComponent.ParticleType.Blood)

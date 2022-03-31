@@ -16,7 +16,7 @@ namespace Authoring
             dstManager.AddComponentData(entity, new ParticleComponent());
             dstManager.AddComponentData(entity, new Velocity());
             dstManager.AddComponentData(entity, new Lifetime());
-            dstManager.AddComponentData(entity, new Scale());
+            dstManager.AddComponentData(entity, new NonUniformScale());
             dstManager.AddComponentData(entity, new Size());
         }
     }
