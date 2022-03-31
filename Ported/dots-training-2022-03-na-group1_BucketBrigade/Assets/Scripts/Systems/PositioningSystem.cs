@@ -8,8 +8,14 @@ using static BucketBrigadeUtility;
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public partial class PositioningSystem : SystemBase
 {
+    private const float EmptyBucketY = 0.05f;
+    private const float FullBucketY = 0.55f;
+
+    
     protected override void OnUpdate()
     {
+        var time = Time.ElapsedTime;
+        
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
         Entities
@@ -34,25 +40,9 @@ public partial class PositioningSystem : SystemBase
         Entities
             .ForEach((ref Translation translation, in Position position, in MyBucketState state) =>
             {
-                translation.Value = new float3(position.Value.x, IsBucketCarried(state.Value) ? 1.2f : 0.2f, position.Value.y);
+                translation.Value = new float3(position.Value.x, IsBucketCarried(state.Value) ? FullBucketY : EmptyBucketY, position.Value.y);
             }).ScheduleParallel();
 
-        Entities
-            .ForEach((ref Scale scale, in MyBucketState state) =>
-            {
-                switch (state.Value)
-                {
-                    case BucketState.FullCarried:
-                    case BucketState.FullOnGround:
-                        scale.Value = new float3(0.3f, 0.3f, 0.3f);
-                        break;
-                    
-                    default:
-                        scale.Value = new float3(0.2f, 0.2f, 0.2f);
-                        break;
-                }
-            }).Run();
-        
         Entities
             .ForEach((ref NonUniformScale scale, in Scale newScale) =>
             {

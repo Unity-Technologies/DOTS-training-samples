@@ -12,11 +12,15 @@ public partial class BucketDetectionSystem : SystemBase
     {
         var helperEntity = GetSingletonEntity<FreeBucketInfo>();
         var bucketBuffer = EntityManager.GetBuffer<FreeBucketInfo>(helperEntity);
+
+        var pickupBucketCommandEntity = GetSingletonEntity<PickupBucketCommand>();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecbParallel = ecb.AsParallelWriter();
         
         Entities.WithReadOnly(bucketBuffer)
             .WithName("BucketDetection")
             .WithAny<FetcherTag, OmniworkerTag>()
-            .ForEach((ref MyWorkerState state, ref RelocatePosition target, ref BucketToWant bucketToWant, in Position position) =>
+            .ForEach((int entityInQueryIndex, Entity entity, ref MyWorkerState state, ref RelocatePosition target, in Position position) =>
             {
                 if (state.Value == WorkerState.BucketDetection)
                 {
@@ -26,7 +30,7 @@ public partial class BucketDetectionSystem : SystemBase
                     {
                         if (IsVeryClose(position.Value, bucketPosition))
                         {
-                            bucketToWant.Value = bucket;
+                            ecbParallel.AppendToBuffer(entityInQueryIndex, pickupBucketCommandEntity, new PickupBucketCommand(entity, bucket));
                         }
                         else
                         {
@@ -37,5 +41,10 @@ public partial class BucketDetectionSystem : SystemBase
                     state.Value = WorkerState.Idle;
                 }
             }).ScheduleParallel();
+        
+        CompleteDependency();
+        
+        ecb.Playback(EntityManager);
+        ecb.Dispose();
     }
 }

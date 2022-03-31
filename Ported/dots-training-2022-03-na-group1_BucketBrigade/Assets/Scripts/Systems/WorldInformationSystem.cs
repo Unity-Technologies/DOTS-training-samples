@@ -8,13 +8,6 @@ using static BucketBrigadeUtility;
 [UpdateAfter(typeof(FrameInitializationSystem))]
 public partial class WorldInformationSystem : SystemBase
 {
-    static float2 CalculateLeftArc(float2 a, float2 b, float t)
-    {
-        var ab = b - a;
-
-        return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
-    }
-
     protected override void OnCreate()
     {
         base.OnCreate();
