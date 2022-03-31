@@ -1,34 +1,25 @@
-using Unity.Collections;
+
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public partial class AdhocResourceSpawnerSystem : SystemBase
 {
 	protected override void OnUpdate()
 	{
-		var ecb = new EntityCommandBuffer(Allocator.Temp);
+		var prefabSet = GetSingleton<PrefabSet>();
 
-		Entities
-			.ForEach((Entity entity, in AdhocResourceSpawnerComponent spawner) =>
-			{
-				// Destroying the current entity is a classic ECS pattern,
-				// when something should only be processed once then forgotten.
-				ecb.DestroyEntity(entity);
+		if (Input.GetKeyUp(KeyCode.Mouse0))
+		{
+			var instance = EntityManager.Instantiate(prefabSet.ResourcePrefab);
+			float3 pos = new float3(0f, 0f, 0f);
+			var translation = new Translation { Value = pos };
+			EntityManager.SetComponentData(instance, translation);
+		}
 
-				for (int i = 0; i < spawner.ResourceCount; ++i)
-				{
-					var instance = ecb.Instantiate(spawner.ResourcePrefab);
-					var translation = new Translation { Value = spawner.ResourceSpawnPosition };
-					ecb.SetComponent(instance, translation);
-					ecb.AddComponent<VelocityComponent>(instance);
-					ecb.SetComponent(instance, new VelocityComponent { Value = 0f });
-					ecb.AddComponent<ResourceTagComponent>(instance);
-					ecb.AddComponent<HeldByBeeComponent>(instance);
-					ecb.AddComponent<PositionComponent>(instance);
-				}
-			}).Run();
 
-		ecb.Playback(EntityManager);
-		ecb.Dispose();
+
+
 	}
 }
