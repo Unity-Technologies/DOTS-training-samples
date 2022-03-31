@@ -22,7 +22,8 @@ public partial class BeeMovementSystem : SystemBase
     static readonly float grabDistance = 0.5f;
 
     EntityQuery[] teamTargets;
-    EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem beginSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     protected override void OnCreate()
     {
@@ -35,6 +36,7 @@ public partial class BeeMovementSystem : SystemBase
         teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
         teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 
+        beginSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
         endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
@@ -47,7 +49,9 @@ public partial class BeeMovementSystem : SystemBase
 
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
-        var ecb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+
+        var beginFrameEcb = beginSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         // Run attraction/repulsion gather. Uses read access of Translation from input arrays and only writes attraction data.
         // Could we run this on a lower cadence?
@@ -101,9 +105,9 @@ public partial class BeeMovementSystem : SystemBase
                         velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
                         if (sqrDist < hitDistance * hitDistance)
                         {
-                            ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random,
+                            ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, random,
                                 targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
-                            ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
+                            beginFrameEcb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
                             targetType.Value = TargetType.Type.None;
                         }
                     }
@@ -124,7 +128,7 @@ public partial class BeeMovementSystem : SystemBase
                         }
                         else
                         {
-                            ecb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                            endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
                                 new ResourceOwner() { Owner = entity });
                             targetType.Value = TargetType.Type.Goal;
                         }
@@ -149,8 +153,8 @@ public partial class BeeMovementSystem : SystemBase
                         {
                             targetType.Value = TargetType.Type.None;
 
-                            ecb.RemoveComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value);
-                            ecb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
+                            endFrameEcb.RemoveComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value);
+                            endFrameEcb.AddComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
                                 new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
                         }
                     }
@@ -169,6 +173,7 @@ public partial class BeeMovementSystem : SystemBase
                 UpdateScale(ref scale, in beeMovement, in velocity);
             }).ScheduleParallel(Dependency);
 
+        beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
