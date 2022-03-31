@@ -23,7 +23,7 @@ namespace Systems
                     //PlayField.size = worldSize.Value;
                     //PlayField.origin = worldCenter.Value;
 
-                    float3 resourceSpawnAreaSize = new float3(worldSize.Value.x * 0.5f, worldSize.Value.y, worldSize.Value.z);
+                    float3 resourceSpawnAreaSize = new float3(worldSize.Value.z, worldSize.Value.y, worldSize.Value.z);
 
                     ecb.RemoveComponent<HiveSpawner>(entity);
                     var worldStartPosition =(worldCenter.Value - worldSize.Value/2);
