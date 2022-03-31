@@ -14,7 +14,12 @@ public partial class TankUpdate : SystemBase
     protected override void OnCreate()
     {
         _ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+
+        RequireSingletonForUpdate<EntityElement>();
+        RequireSingletonForUpdate<TerrainData>();
+        RequireSingletonForUpdate<EntityPrefabHolder>();
     }
+
     protected override void OnUpdate()
     {
         var ecb = _ecbSystem.CreateCommandBuffer();

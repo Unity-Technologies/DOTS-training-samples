@@ -9,7 +9,13 @@ using Color = UnityEngine.Color;
 [UpdateAfter(typeof(TerrainAreaSystem))]
 public partial class PlayerUpdateSystem : SystemBase
 {
-    protected override void OnUpdate()
+    protected override void OnCreate()
+    {
+		RequireSingletonForUpdate<TerrainData>();
+		RequireSingletonForUpdate<GameObjectRefs>();
+		RequireSingletonForUpdate<OccupiedElement>();
+	}
+	protected override void OnUpdate()
     {
 		var terrainData = GetSingleton<TerrainData>();
 		var camera = this.GetSingleton<GameObjectRefs>().Camera;

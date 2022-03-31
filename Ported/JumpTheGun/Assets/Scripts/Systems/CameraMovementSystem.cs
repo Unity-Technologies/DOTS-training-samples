@@ -8,7 +8,14 @@ public partial class CameraMovementSystem : SystemBase
     private float HeightOffset;
     private float ySpeed = 5;
     private Vector3 camVel = new Vector3();
-    
+
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<GameObjectRefs>();
+        RequireSingletonForUpdate<TerrainData>();
+        RequireSingletonForUpdate<PlayerTag>();
+    }
+
     protected override void OnUpdate()
     {
         var camera = this.GetSingleton<GameObjectRefs>().Camera;

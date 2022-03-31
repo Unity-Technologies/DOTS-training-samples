@@ -5,7 +5,7 @@
         {
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
-            "Platform": "StandaloneWindows64",
+            "Platform": "StandaloneOSX",
             "Configuration": 2
         },
         {

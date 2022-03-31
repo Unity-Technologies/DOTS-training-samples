@@ -13,7 +13,8 @@ public partial class CollisionSystem : SystemBase
     protected override void OnCreate()
     {
         endEcbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
-    } 
+        RequireSingletonForUpdate<PlayerTag>();
+    }
     protected override void OnUpdate()
     {
         var playerEntity = GetSingletonEntity<PlayerTag>();

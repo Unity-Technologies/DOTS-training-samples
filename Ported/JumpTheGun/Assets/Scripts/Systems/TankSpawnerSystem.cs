@@ -14,9 +14,13 @@ public partial class TankSpawnerSystem : SystemBase
     {
 		_tankQuery = GetEntityQuery(typeof(Tank));
 		_brickQuery = GetEntityQuery(typeof(Brick), typeof(Translation));
+
+		RequireSingletonForUpdate<OccupiedElement>();
+		RequireSingletonForUpdate<TerrainData>();
+		RequireSingletonForUpdate<PlayerTag>();
 	}
 
-    protected override void OnUpdate()
+	protected override void OnUpdate()
     {
 		if (_tankQuery.IsEmpty)
         {
