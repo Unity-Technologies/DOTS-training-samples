@@ -4,6 +4,8 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct Passenger : IComponentData
 {
-    public float3 FinalDestination;
+    public Entity CurrentPlatform;
+    public float3 CurrentPlatformPosition;
+    public Entity DestinationStation;
     public float WalkSpeed;
 }

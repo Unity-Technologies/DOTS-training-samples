@@ -6,11 +6,13 @@ using Unity.Transforms;
 public partial class PassengerSpawnerSystem : SystemBase
 {
     private EntityQuery spawnerQuery;
+    private EntityQuery platformsQuery;
 
     protected override void OnCreate()
     {
         // Run ONLY if PassengerSpawnerComponent exists
         RequireForUpdate(spawnerQuery);
+        RequireForUpdate(platformsQuery);
     }
 
     protected override void OnUpdate()
@@ -30,30 +32,30 @@ public partial class PassengerSpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
             }).Run();
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, in DynamicBuffer<LineMarkerBufferElement> lineMarker) =>
+        Entities
+            .WithStoreEntityQueryInField(ref platformsQuery)
+            .ForEach((Entity entity, int entityInQueryIndex, in PlatformComponent platform, in Translation translation) =>
         {
             var random = new Random((uint)entityInQueryIndex+1);
-            for (int i = 0; i < lineMarker.Length; i++)
+            
+            for (int j = 0; j < numPassengersToSpawn; j++)
             {
-                if (lineMarker[i].IsPlatform)
+                var instance = ecb.Instantiate(passengerPrefab);
+
+                var passengerTranslation = new Translation();
+                passengerTranslation.Value = translation.Value;
+                ecb.SetComponent(instance, passengerTranslation);
+
+                ecb.SetComponent(instance, new Passenger
                 {
-                    for (int j = 0; j < numPassengersToSpawn; j++)
-                    {
-                        var instance = ecb.Instantiate(passengerPrefab);
-
-                        var translation = new Translation();
-                        translation.Value = lineMarker[i].Position;
-                        ecb.SetComponent(instance, translation);
-
-                        ecb.SetComponent(instance, new Passenger
-                        {
-                            // TODO: Randomize destination for passengers.
-                            FinalDestination = float3.zero,
-                            WalkSpeed = random.NextFloat(0.01f, 0.10f)
-                        });
-                    }
-                }
+                    // TODO: Randomize destination for passengers.
+                    CurrentPlatform = entity,
+                    CurrentPlatformPosition = translation.Value,
+                    WalkSpeed = random.NextFloat(0.01f, 0.10f)
+                });
             }
+            
+            
         }).Run();
 
         ecb.Playback(EntityManager);
