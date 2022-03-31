@@ -75,7 +75,6 @@ public partial class BeeMovementSystem : SystemBase
 
 
         Dependency = Entities
-            .WithoutBurst()
             .ForEach((Entity entity,
                 int entityInQueryIndex,
                 ref Translation translation,
@@ -83,7 +82,7 @@ public partial class BeeMovementSystem : SystemBase
                 ref TargetType targetType,
                 in AttractionRepulsion attraction,
                 in TargetEntity targetEntity,
-                in CachedTargetPosition targetPos) =>
+                in Team team) =>
             {
                 var velocity = bee.Velocity;
                 var position = translation.Value;
@@ -91,7 +90,7 @@ public partial class BeeMovementSystem : SystemBase
 
                 if (targetType.Value == TargetType.Type.Enemy)
                 {
-                    var delta = targetPos.Value - position;
+                    var delta = targetEntity.Position - position;
                     float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                     if (sqrDist > attackDistance * attackDistance)
                     {
@@ -103,7 +102,7 @@ public partial class BeeMovementSystem : SystemBase
                         if (sqrDist < hitDistance * hitDistance)
                         {
                             ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random,
-                                targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
+                                targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
                             ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
                             targetType.Value = TargetType.Type.None;
                         }
@@ -111,7 +110,7 @@ public partial class BeeMovementSystem : SystemBase
                 }
                 else if (targetType.Value == TargetType.Type.Resource)
                 {
-                    var delta = targetPos.Value - position;
+                    var delta = targetEntity.Position - position;
                     float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                     if (sqrDist > grabDistance * grabDistance)
                     {
@@ -119,7 +118,7 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else
                     {
-                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                        ecb.SetComponent(entityInQueryIndex, targetEntity.Value,
                             new ResourceOwner() { Owner = entity });
 
                         targetType.Value = TargetType.Type.Goal;
@@ -127,7 +126,7 @@ public partial class BeeMovementSystem : SystemBase
                 }
                 else if (targetType.Value == TargetType.Type.Goal)
                 {
-                    var delta = new float3(-PlayField.size.x * .45f, 7, position.z) - position;
+                    var delta = new float3(-PlayField.size.x * .45f + PlayField.size.x * .9f * team.TeamId, 7, position.z) - position;
                     float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                     if (sqrDist > grabDistance * grabDistance)
                     {
@@ -137,13 +136,13 @@ public partial class BeeMovementSystem : SystemBase
                     {
                         targetType.Value = TargetType.Type.None;
                         
-                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                        ecb.SetComponent(entityInQueryIndex, targetEntity.Value,
                             new ResourceOwner() { Owner = Entity.Null });
 
-                        ecb.SetSharedComponent<KinematicBodyState>(entityInQueryIndex, targetEntity.Value,
+                        ecb.SetSharedComponent(entityInQueryIndex, targetEntity.Value,
                             new KinematicBodyState() { isEnabled = 1 });
 
-                        ecb.SetComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
+                        ecb.SetComponent(entityInQueryIndex, targetEntity.Value,
                             new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
                     }
                 }

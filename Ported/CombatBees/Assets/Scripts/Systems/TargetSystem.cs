@@ -53,24 +53,16 @@ namespace Systems
                     else
                         UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target,
                             ref targetEntity, ref resources);
-                }).ScheduleParallel();
-
-
-            // Resolve the changing target position
-            Entities
-                .ForEach((Entity entity, ref CachedTargetPosition cache, in TargetType target,
-                    in TargetEntity targetEntity) =>
-                {
                     if (target.Value == TargetType.Type.Enemy || target.Value == TargetType.Type.Resource)
                     {
                         if (HasComponent<Translation>(targetEntity.Value))
                         {
                             float3 pos = GetComponent<Translation>(targetEntity.Value).Value;
-                            cache.Value = pos;
+                            targetEntity.Position = pos;
                         }
                         else
                         {
-                            cache.Value = default;
+                            targetEntity.Position = default;
                         }
                     }
                 }).ScheduleParallel();
