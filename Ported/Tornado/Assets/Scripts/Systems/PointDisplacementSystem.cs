@@ -17,10 +17,12 @@ namespace Systems
         public NativeArray<VerletPoints> points;
         public NativeArray<Link> links;
         public NativeArray<Components.PhysicMaterial> physicmaterials;
+        public NativeArray<int> islandPointAllocators;
+        public NativeArray<int> linkStartIndices;
         public bool isInitialized;
 
 
-        public static int AllocatedPointCount;
+        // public static int AllocatedPointCount;
 
 
 
@@ -93,57 +95,70 @@ namespace Systems
             };
 
 
-            var pointCount = new NativeArray<int>(new int[] { AllocatedPointCount }, Allocator.TempJob);
-            //burst compatible
-            // for (int islandIndex = 0; islandIndex < islandCount; ++islandIndex)
-            // {
-            //     var constraintJob = new ContraintJob()
-            //     {
-            //         points = points,
-            //         links = links,
-            //         islandStartLink = ,
-            //         islandLinkCount = ,
-            //         jobPointAllocationIndex = AllocatedPointCount + islandStartIndex * 2,
-            //         iterations = physicParameters.constraintIterations,
-            //         physicSettings = physicParameters
-            //     };
-            // }
+            var pointDisplacementSystem = World.GetExistingSystem<PointDisplacementSystem>();
+            var pointAllocators = pointDisplacementSystem.islandPointAllocators;
+            int islandCount = pointAllocators.Length;
 
-            var constraintJob = new ContraintJob()
+            //parallelized  - fix point iteration
+            JobHandle jobHandlePoint = jobDisplacement.Schedule(points.Length, 64, Dependency);
+
+            //burst compatible
+            for (int islandIndex = 0; islandIndex < islandCount; ++islandIndex)
             {
-                points = points,
-                links = links,
-                count = pointCount,
-                iterations = physicParameters.constraintIterations,
-                physicSettings = physicParameters
-            };
+                var constraintJob = new ContraintJob()
+                {
+                    points = points,
+                    links = links,
+                    islandIndex = islandIndex,
+                    pointAllocators = pointAllocators,
+                    islandStartLinkIndex = linkStartIndices[islandIndex],
+                    islandEndLinkIndex = islandIndex < linkStartIndices.Length - 1 ? linkStartIndices[islandIndex + 1] : links.Length,
+                    iterations = physicParameters.constraintIterations,
+                    physicSettings = physicParameters
+                };
+
+                JobHandle jobHandleConstraint = constraintJob.Schedule(JobHandle.CombineDependencies(jobHandlePoint, Dependency));
+                Dependency = jobHandleConstraint;
+
+                // startLinkIndex += pointAllocators[]
+            }
+
+            // var constraintJob = new ContraintJob()
+            // {
+            //     points = points,
+            //     links = links,
+            //     count = pointAllocators,
+            //     iterations = physicParameters.constraintIterations,
+            //     physicSettings = physicParameters
+            // };
          
 
-            //parallelized 
-            JobHandle jobHandlePoint = jobDisplacement.Schedule(AllocatedPointCount, 64, Dependency);
+
 
             //signle threaded job
-            JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);            
+            // JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);
 
 
             JobHandle.ScheduleBatchedJobs();
-            jobHandleConstraint.Complete();
+            // jobHandleConstraint.Complete();
 
-            AllocatedPointCount = pointCount[0];
-            pointCount.Dispose();
+            // AllocatedPointCount = pointCount[0];
+            // pointCount.Dispose();
 
           
-            Dependency = jobHandleConstraint;
+            // Dependency = jobHandleConstraint;
 
         }
 
-        public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links, int allocatedPoints)
+        public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links, NativeArray<int> islandPointAllocators, NativeArray<int> linkStartIndices)
         {
             this.links = links;
             this.points = points;
             isInitialized = true;         
             
-            AllocatedPointCount = allocatedPoints;
+            //AllocatedPointCount = allocatedPoints;
+            this.islandPointAllocators = new NativeArray<int>(islandPointAllocators, Allocator.Persistent);
+            this.linkStartIndices = new NativeArray<int>(linkStartIndices, Allocator.Persistent);
 
         }
 
@@ -151,11 +166,11 @@ namespace Systems
         {
             base.OnDestroy();
 
-            if(points != null) points.Dispose();
-            if(links != null) links.Dispose();
-            if(physicmaterials != null) physicmaterials.Dispose();
-
-
+            points.Dispose();
+            links.Dispose();
+            physicmaterials.Dispose();
+            islandPointAllocators.Dispose();
+            linkStartIndices.Dispose();
         }
     }
 }

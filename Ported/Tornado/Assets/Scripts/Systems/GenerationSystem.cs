@@ -57,13 +57,15 @@ namespace Systems
             var random = new Unity.Mathematics.Random(1234);
             NativeList<VerletPoints> points = default;
             NativeList<Link> links = default;
+            NativeList<int> islandPointCounts = default;
+            NativeList<int> linkStartIndices = default;
 
             Entities.ForEach((Entity entity, in GenerationParameters generation) =>
             {
                 m_cachedParameters = generation;
                 ecb.DestroyEntity(entity);
 
-                GenerateCity(generation, ref ecb, ref random, out points, out links);
+                GenerateCity(generation, ref ecb, ref random, out points, out links, out islandPointCounts, out linkStartIndices);
                 GenerateTornado(generation, ref ecb, ref random);
             }).WithoutBurst().Run();
 
@@ -80,9 +82,11 @@ namespace Systems
                 }
 
                 pointDisplacement.Initialize(pointArray, new NativeArray<Link>(links, Allocator.Persistent),
-                    points.Length);
+                    islandPointCounts, linkStartIndices);
                 points.Dispose();
                 links.Dispose();
+                linkStartIndices.Dispose();
+                islandPointCounts.Dispose();
             }
         }
 
@@ -214,12 +218,13 @@ namespace Systems
             }
         }
 
-        private static List<int> GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, ref Random random,
-            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList)
+        private static void GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, ref Random random,
+            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointCounts, out NativeList<int> linkStartIndices)
         {
             linksList = new NativeList<Link>(Allocator.Temp);
             pointsList = new NativeList<VerletPoints>(Allocator.Temp);
-            var linkStartIndices = new List<int>();
+            islandPointCounts = new NativeList<int>(Allocator.Temp);
+            linkStartIndices = new NativeList<int>(Allocator.Temp);
 
             // buildings
             for (int i = 0; i < 35; i++)
@@ -227,26 +232,62 @@ namespace Systems
                 int startingPointCount = pointsList.Length;
                 GenerateBuilding(ref random, ref pointsList);
                 int endingPointCount = pointsList.Length;
-                linkStartIndices.Add(linksList.Length);
+                int startingLinkCount = linksList.Length;
+                linkStartIndices.Add(startingLinkCount);
                 GenerateLinks(startingPointCount, endingPointCount, ref ecb, ref random, generation.barPrefab, ref pointsList, ref linksList);
+
+                int endingLinkCount = linksList.Length;
+                int islandLinkCount = endingLinkCount - startingLinkCount;
+                int fullyBrokenIslandPointCount = islandLinkCount * 2;
+                int usedPointCount = endingPointCount - startingPointCount;
+
+                int additionalPointsToAllocate = fullyBrokenIslandPointCount - usedPointCount;
+                var paddingPoint = pointsList[endingPointCount - 1];
+                paddingPoint.anchored = byte.MaxValue;
+
+                for (int j = 0; j < additionalPointsToAllocate; ++j)
+                {
+                    pointsList.Add(paddingPoint);
+                }
+
+                islandPointCounts.Add(usedPointCount);
             }
+
 
             // ground details
-            int beforeGroundDetail = pointsList.Length;
-
-            for (int i = 0; i < 600; i++)
             {
-                GenerateGroundDetail(ref random, ref pointsList);
-            }
+                int beforeGroundDetail = pointsList.Length;
 
-            int afterGroundDetail = pointsList.Length;
-            linkStartIndices.Add(linksList.Length);
-            GenerateLinks(beforeGroundDetail, afterGroundDetail, ref ecb, ref random, generation.barPrefab, ref pointsList, ref linksList);
+                for (int i = 0; i < 600; i++)
+                {
+                    GenerateGroundDetail(ref random, ref pointsList);
+                }
+
+                int afterGroundDetail = pointsList.Length;
+                int startingLinkCount = linksList.Length;
+                linkStartIndices.Add(startingLinkCount);
+                GenerateLinks(beforeGroundDetail, afterGroundDetail, ref ecb, ref random, generation.barPrefab,
+                    ref pointsList, ref linksList);
+
+                int endingLinkCount = linksList.Length;
+                int islandLinkCount = endingLinkCount - startingLinkCount;
+                int fullyBrokenIslandPointCount = islandLinkCount * 2;
+                int usedPointCount = afterGroundDetail - beforeGroundDetail;
+
+                int additionalPointsToAllocate = fullyBrokenIslandPointCount - usedPointCount;
+                var paddingPoint = pointsList[afterGroundDetail - 1];
+                paddingPoint.anchored = byte.MaxValue;
+
+                for (int j = 0; j < additionalPointsToAllocate; ++j)
+                {
+                    pointsList.Add(paddingPoint);
+                }
+
+                islandPointCounts.Add(usedPointCount);
+            }
 
             //GenerateLinks(0, pointsList.Length, ref ecb, random, generation.barPrefab, ref pointsList, ref linksList);
             // SortLinkIslands(ref linksList);
-
-            return linkStartIndices;
         }
 
         struct Island

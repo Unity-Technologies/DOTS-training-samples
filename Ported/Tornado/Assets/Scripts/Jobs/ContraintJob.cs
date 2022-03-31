@@ -1,11 +1,12 @@
 ﻿using Components;
-using System.Threading;
-using Systems;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
+
+
+// Acount, Bcount, Ccount
+
 
 namespace Assets.Scripts.Jobs
 {
@@ -14,8 +15,11 @@ namespace Assets.Scripts.Jobs
     {
 		public NativeArray<VerletPoints> points;
 		public NativeArray<Link> links;
-		public NativeArray<int> count;
+		public NativeArray<int> pointAllocators;
 		public int iterations;
+		public int islandIndex;
+		public int islandStartLinkIndex;
+		public int islandEndLinkIndex;
 
 		[ReadOnly] public PhysicsSettings physicSettings;
 
@@ -23,7 +27,7 @@ namespace Assets.Scripts.Jobs
         {
             for (int r = 0; r < iterations; r++)
             {
-				for (int i = 0; i < links.Length; i++)
+				for (int i = islandStartLinkIndex; i < islandEndLinkIndex; i++)
 				{
 					Link link = links[i];
 
@@ -77,9 +81,10 @@ namespace Assets.Scripts.Jobs
 							newPoint.neighborCount = 1;
 							newPoint.materialID = link.materialID;
 
-							var c = count[0];
+							var c = pointAllocators[islandIndex];
 							var allocatedIndex = c;							
-							count[0] = ++c;
+							pointAllocators[islandIndex] = ++c;
+
 							points[allocatedIndex] = newPoint;
 							link.point2Index = allocatedIndex;
 						}
@@ -90,10 +95,10 @@ namespace Assets.Scripts.Jobs
 							newPoint.neighborCount = 1;
 							newPoint.materialID = link.materialID;
 
-							var c = count[0];
+							var c = pointAllocators[islandIndex];
 							var allocatedIndex = c;
-							
-							count[0] = ++c;
+							pointAllocators[islandIndex] = ++c;
+
 							points[allocatedIndex] = newPoint;
 							link.point1Index = allocatedIndex;
 						}
