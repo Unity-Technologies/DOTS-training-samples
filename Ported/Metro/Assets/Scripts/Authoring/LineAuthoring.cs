@@ -1,10 +1,10 @@
-﻿    using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 
 using System.Collections.Generic;
 using System.Linq;
-    using Unity.Transforms;
-    using UnityEngine;
+using Unity.Transforms;
+using UnityEngine;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
 using UnityGizmos = UnityEngine.Gizmos;
 using UnityGUI = UnityEngine.GUI;
@@ -20,10 +20,11 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     [SerializeField] private float maxSpeed;
     [SerializeField] private bool debugRender;
     [SerializeField] private Color lineColor;
-    
+
     struct StationData
     {
-        public float3 stationPosition;
+        public float3 position;
+        public quaternion rotation;
         public float outboundBezierPosition;
         public float returnBezierPosition;
     }
@@ -43,18 +44,20 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
                 Position = childMarker.gameObject.transform.position
             });
         }
-        
+
         // Bezier Curve!
         dstManager.AddComponent<BezierPointBufferElement>(entity);
 
         var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
         List<StationData> stationIndices;
         float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList(), out stationIndices);
-        
+
         bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
-        CreateStations(dstManager, stationIndices, curveDistance);
-        
-        dstManager.AddComponentData(entity, new LineComponent { CarriageCount = carriageCount, 
+        CreateStations(dstManager, stationIndices, curveDistance, conversionSystem);
+
+        dstManager.AddComponentData(entity, new LineComponent
+        {
+            CarriageCount = carriageCount,
             CarriageLength = carriageLength,
             TrainCount = trainCount,
             MaxSpeed = maxSpeed
@@ -64,11 +67,11 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         {
             dstManager.AddComponent<ShouldDebugRenderBezier>(entity);
         }
-        
+
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
-            new LineTotalDistanceComponent {Value = curveDistance});
-        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Line = entity});
-        dstManager.AddComponentData<ColorComponent>(entity, new ColorComponent() { Value = (Vector4)lineColor});
+            new LineTotalDistanceComponent { Value = curveDistance });
+        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent { Line = entity });
+        dstManager.AddComponentData<ColorComponent>(entity, new ColorComponent() { Value = (Vector4)lineColor });
     }
 
     // Populates a dynamic buffer with bezier curve information, returning the total distance.
@@ -102,7 +105,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             if (i == 0)
             {
                 currentPoint = BezierHelpers.SetHandles(currentPoint, bezierCurve[1].Location - currentPoint.Location);
-                
+
             }
             else if (i == totalMarkers - 1)
             {
@@ -110,7 +113,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             }
             else
             {
-                currentPoint = BezierHelpers.SetHandles(currentPoint,bezierCurve[i + 1].Location - bezierCurve[i - 1].Location);
+                currentPoint = BezierHelpers.SetHandles(currentPoint, bezierCurve[i + 1].Location - bezierCurve[i - 1].Location);
             }
 
             bezierCurve[i] = currentPoint;
@@ -126,12 +129,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
                 BezierHelpers.GetPointPerpendicularOffset(bezierCurve, totalPathDistance, bezierCurve[i], platformOffset);
             BezierHelpers.AddPoint(ref bezierCurve, targetLocation);
         }
-        
+
         // This could be off-by-one
         int returnPointOffset = totalMarkers;
-        
+
         // fix the RETURN handles
-        for (int i = 0, j = stations.Count -1; i <= totalMarkers - 1; i++)
+        for (int i = 0, j = stations.Count - 1; i <= totalMarkers - 1; i++)
         {
             BezierPointBufferElement currentReturnPoint = bezierCurve[i + returnPointOffset];
             if (i == 0)
@@ -156,33 +159,36 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         {
             StationData stationData = new StationData
             {
-                stationPosition =  bezierCurve[stationIndices[i]].Location -
+                position = bezierCurve[stationIndices[i]].Location -
                             bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].Location,
+                rotation = quaternion.Euler(BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance,
+                    bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance)),
                 outboundBezierPosition = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance,
                 returnBezierPosition = bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].DistanceAlongPath / totalPathDistance,
             };
             stations.Add(stationData);
         }
-        
-        
+
+
         return totalPathDistance;
     }
 
-    void CreateStations(EntityManager dstManager, List<StationData> stations, float curveLength)
+    void CreateStations(EntityManager dstManager, List<StationData> stations, float curveLength, GameObjectConversionSystem conversionSystem)
     {
         for (int i = 0; i < stations.Count; i++)
         {
-            Entity station = dstManager.CreateEntity();
+            Debug.Log("Making station");
+            Entity station = conversionSystem.CreateAdditionalEntity(this);
             float platormARelativePosition = stations[i].outboundBezierPosition;
             float platormBRelativePosition = stations[i].returnBezierPosition;
 
-            var position = stations[i].stationPosition;
-
             dstManager.AddComponentData(station, new StationComponent
             {
-                PlatformATrackPosition = platormARelativePosition, PlatformBTrackPosition = platormBRelativePosition
+                PlatformATrackPosition = platormARelativePosition,
+                PlatformBTrackPosition = platormBRelativePosition
             });
-            dstManager.AddComponentData(station, new Translation {Value = position});
+            dstManager.AddComponentData(station, new Translation { Value = stations[i].position });
+            dstManager.AddComponentData(station, new Rotation { Value = stations[i].rotation });
         }
     }
 }
