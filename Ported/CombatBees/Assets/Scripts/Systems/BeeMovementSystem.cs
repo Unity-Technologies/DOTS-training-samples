@@ -7,13 +7,10 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
 public partial class BeeMovementSystem : SystemBase
 {
-    private const float MIN_BEE_SIZE = 0.25f;
-    private const float MAX_BEE_SIZE = 0.50f;
-
-    private const float SPEED_STRETCH = 0.20f;
+    private const float SPEED_STRETCH = 0.2f;
     private const float ROTATION_STIFFNESS = 5.0f;
     private const float FLIGHT_JITTER = 200.0f;
-    private const float DAMPING = 0.10f;
+    private const float DAMPING = 0.1f;
 
     private const float TEAM_ATTRACTION = 5.0f;
     private const float TEAM_REPULSION = 4.0f;
@@ -22,10 +19,10 @@ public partial class BeeMovementSystem : SystemBase
     private const float CARRY_FORCE = 25.0f;
     private const float GRAB_DISTANCE = 0.5f;
 
-    private const float AGGRESSION = 0.50f;
+    private const float AGGRESSION = 0.5f;
     private const float ATTACK_DISTANCE = 4.0f;
     private const float ATTACK_FORCE = 500.0f;
-    private const float HIT_DISTANCE = 0.50f;
+    private const float HIT_DISTANCE = 0.5f;
 
     private Random _random;
 
@@ -41,7 +38,6 @@ public partial class BeeMovementSystem : SystemBase
         // The example actually updates MOST of this in FixedUpdate. Could set this up to run at the same rate?
         var deltaTime = Time.DeltaTime;
 
-        // TODO: Ask if it is possible / makes sense to use an IJobParallelFor on these arrays instead of Entites.Foreach with a new query.
         var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTagComponent)).ToEntityArray(Allocator.TempJob);
         var blueBeeEntities = GetEntityQuery(typeof(TeamBlueTagComponent)).ToEntityArray(Allocator.TempJob);
         var resourceEntities = GetEntityQuery(typeof(ResourceTagComponent)).ToEntityArray(Allocator.TempJob);
@@ -76,13 +72,19 @@ public partial class BeeMovementSystem : SystemBase
                         velocity.Value *= (1.0f - DAMPING);
 
                         var attractiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
-                        var repulsiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
-
                         var delta = GetComponent<PositionComponent>(attractiveFriend).Value - translation.Value;
                         var dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                         if (dist > 0.0f)
                         {
-                            
+                            velocity.Value += delta * (TEAM_ATTRACTION * deltaTime / dist);
+                        }
+
+                        var repulsiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
+                        delta = GetComponent<PositionComponent>(repulsiveFriend).Value;
+                        dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
+                        if (dist > 0.0f)
+                        {
+                            velocity.Value -= delta * (TEAM_REPULSION * deltaTime / dist);
                         }
 
                         // No target entity, find either an enemy bee or a resource, depending on aggression. 
@@ -115,7 +117,7 @@ public partial class BeeMovementSystem : SystemBase
                             else // Target bee still alive, chase or attack it.
                             {
                                 var targetPosition = GetComponent<PositionComponent>(target.Value);
-                                delta = targetPosition.Value - translation.Value; // TODO: Once we add the attract / repulse, this can be a reused variable in the outer scope.
+                                delta = targetPosition.Value - translation.Value;
                                 var sqrDist = (delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z);
 
                                 if (sqrDist > ATTACK_DISTANCE * ATTACK_DISTANCE)
@@ -131,8 +133,6 @@ public partial class BeeMovementSystem : SystemBase
                                     if (sqrDist < HIT_DISTANCE * HIT_DISTANCE)
                                     {
                                         // TODO: Spawn Particle.
-
-
 
                                         // Bee is dead, but not destroyed, if it targets itself.
                                         targetsTarget.Value = target.Value;

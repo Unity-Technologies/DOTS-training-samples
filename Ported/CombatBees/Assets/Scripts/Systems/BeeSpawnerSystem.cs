@@ -2,12 +2,19 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 public partial class BeeSpawnerSystem : SystemBase
 {
-	protected override void OnUpdate()
-	{
-		var ecb = new EntityCommandBuffer(Allocator.Temp);
+    private const float MAX_SPAWN_SPEED = 75.0f;
+    private const float MIN_BEE_SIZE = 0.25f;
+    private const float MAX_BEE_SIZE = 0.5f;
+
+    protected override void OnUpdate()
+    {
+        var random = new Random(1);
+
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 		Entities
 			.ForEach((Entity entity, in BeeSpawnerComponent spawner) =>
@@ -30,7 +37,8 @@ public partial class BeeSpawnerSystem : SystemBase
                         ecb.AddComponent<PositionComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamYellowTagComponent.TeamColor });
-					}
+						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
+                    }
 				}
 				else
 				{
@@ -46,8 +54,9 @@ public partial class BeeSpawnerSystem : SystemBase
                         ecb.AddComponent<PositionComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamBlueTagComponent.TeamColor });
-					}
-				}
+                        ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
+                    }
+                }
 			}).Run();
 
 		ecb.Playback(EntityManager);
