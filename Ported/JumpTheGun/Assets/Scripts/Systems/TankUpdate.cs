@@ -19,19 +19,23 @@ public partial class TankUpdate : SystemBase
         RequireSingletonForUpdate<TerrainData>();
         RequireSingletonForUpdate<EntityPrefabHolder>();
     }
-
+    
     protected override void OnUpdate()
     {
-        var ecb = _ecbSystem.CreateCommandBuffer();
+        var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
         var entityElement = GetSingletonEntity<EntityElement>();
-        var buffer = GetBuffer<EntityElement>(entityElement);
+        var buffer = this.GetBuffer<EntityElement>(entityElement, true);
+        var childs = this.GetBufferFromEntity<Child>(true);
         var terrainData = this.GetSingleton<TerrainData>();
         var prefabHolder = this.GetSingleton<EntityPrefabHolder>();
         float deltaTime = Time.DeltaTime;
         var player = this.GetSingletonEntity<PlayerTag>();
         var translation = GetComponent<Translation>(player);
         Entities
-            .ForEach((Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
+            .WithNativeDisableParallelForRestriction(childs)
+            .WithReadOnly(buffer)
+            .WithReadOnly(childs)
+            .ForEach((int entityInQueryIndex, Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
             {
                 // rotate toward player
                 float3 diff = translation.Value - tankTranslation.Value;
@@ -108,9 +112,9 @@ public partial class TankUpdate : SystemBase
                     }
 
                     // Spawn canonBall
-                    var instance = ecb.Instantiate(prefabHolder.CannonBallEntityPrefab);
+                    var instance = ecb.Instantiate(entityInQueryIndex, prefabHolder.CannonBallEntityPrefab);
                     float3 position = tankTranslation.Value;
-                    ecb.SetComponent(instance, new Translation
+                    ecb.SetComponent(entityInQueryIndex, instance, new Translation
                     {
                         Value = position
                     });
@@ -118,7 +122,7 @@ public partial class TankUpdate : SystemBase
                     parabolaData.duration = duration;
                     parabolaData.startPoint = start.xz;
                     parabolaData.endPoint = end.xz;
-                    ecb.SetComponent(instance, parabolaData);
+                    ecb.SetComponent(entityInQueryIndex, instance, parabolaData);
 
                     // align cannon rotation with parabola
                     const float canonLength = 0.5f;
@@ -152,15 +156,16 @@ public partial class TankUpdate : SystemBase
         			var localRotation = quaternion.EulerXYZ(-cannonRotation, 0, 0);
 
                     // Get canon child entity
-                    var childBuffer = GetBuffer<Child>(entity, true);
+                    var childBuffer = childs[entity];
                     var canonEntity = childBuffer[1].Value;
-                    ecb.SetComponent(canonEntity, new Rotation
+                    ecb.SetComponent(entityInQueryIndex, canonEntity, new Rotation
                     {
                         Value = localRotation
                     });
                 }
 
-			}).Schedule();
+			//}).Schedule(); // 200 ms in PlayerLoop
+            }).ScheduleParallel(); // 8 ms in PlayerLoop
 
             _ecbSystem.AddJobHandleForProducer(Dependency);
     }
