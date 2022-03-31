@@ -157,12 +157,17 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         for (int i = 0; i < stationIndices.Count; i++)
         {
+            float t = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance;
+            
+            var lookRot = quaternion.LookRotation(
+                BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance, t), 
+                new float3(0, 1, 0));
+            
             StationData stationData = new StationData
             {
-                position = bezierCurve[stationIndices[i]].Location -
-                            bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].Location,
-                rotation = quaternion.Euler(BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance,
-                    bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance)),
+                position = (bezierCurve[stationIndices[i]].Location +
+                    bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].Location) / 2,
+                rotation = lookRot,
                 outboundBezierPosition = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance,
                 returnBezierPosition = bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].DistanceAlongPath / totalPathDistance,
             };
