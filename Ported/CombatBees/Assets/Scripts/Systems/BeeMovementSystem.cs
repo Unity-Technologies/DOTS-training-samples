@@ -2,6 +2,9 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using UnityEngine.Assertions.Must;
+using static BeeStateComponent;
 using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(ResourceSpawnerSystem))]
@@ -62,15 +65,12 @@ public partial class BeeMovementSystem : SystemBase
             .WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithoutBurst()
             .WithAll<TeamYellowTagComponent>()
-            .ForEach((Entity entity, ref Translation translation, ref Rotation rotation, ref NonUniformScale scale,
-                ref VelocityComponent velocity, ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, in PositionComponent position) =>
+            .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
+                ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, in PositionComponent position) =>
                 {
                     // Is bee flagged as dead?
-                    if (entity != target.Value)
+                    if (beeState.Value != BeeState.Dead)
                     {
-                        // Flag for the rotation behaviour.
-                        var attacking = false;
-
                         velocity.Value += _random.NextFloat3Direction() * (FLIGHT_JITTER * deltaTime);
                         velocity.Value *= (1.0f - DAMPING);
 
@@ -91,13 +91,14 @@ public partial class BeeMovementSystem : SystemBase
                         }
 
                         // No target entity, find either an enemy bee or a resource, depending on aggression. 
-                        if (target.Value == default)
+                        if (beeState.Value == BeeState.NoTarget)
                         {
                             if (_random.NextFloat(1.0f) < AGGRESSION)
                             {
                                 if (blueBeeEntities.Length > 0)
                                 {
                                     target.Value = blueBeeEntities[_random.NextInt(blueBeeEntities.Length)];
+                                    beeState.Value = BeeState.ChaseEnemy;
                                 }
                             }
                             else
@@ -105,10 +106,11 @@ public partial class BeeMovementSystem : SystemBase
                                 if (resourceEntities.Length > 0)
                                 {
                                     target.Value = resourceEntities[_random.NextInt(resourceEntities.Length)];
+                                    beeState.Value = BeeState.ChaseResource;
                                 }
                             }
                         }
-                        else if (HasComponent<TeamBlueTagComponent>(target.Value)) // Our target is an enemy bee.
+                        else if (beeState.Value == BeeState.ChaseEnemy || beeState.Value == BeeState.AttackEnemy) // Our target is an enemy bee.
                         {
                             var targetsTarget = GetComponent<TeamBlueTargetComponent>(target.Value);
 
@@ -116,35 +118,36 @@ public partial class BeeMovementSystem : SystemBase
                             if (targetsTarget.Value == target.Value)
                             {
                                 target.Value = default;
+                                beeState.Value = BeeState.NoTarget;
                             }
                             else // Target bee still alive, chase or attack it.
                             {
                                 var targetPosition = GetComponent<PositionComponent>(target.Value);
                                 delta = targetPosition.Value - translation.Value;
-                                var sqrDist = (delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z);
-
-                                if (sqrDist > ATTACK_DISTANCE * ATTACK_DISTANCE)
+                                var sqrDist = math.dot(delta, delta);
+                                if (sqrDist > math.pow(ATTACK_DISTANCE, 2))
                                 {
                                     velocity.Value += delta * (CHASE_FORCE * deltaTime / math.sqrt(sqrDist));
+                                    beeState.Value = BeeState.ChaseEnemy;
                                 }
                                 else
                                 {
-                                    attacking = true;
-
                                     velocity.Value += delta * (ATTACK_FORCE * deltaTime / math.sqrt(sqrDist));
+                                    beeState.Value = BeeState.AttackEnemy;
 
-                                    if (sqrDist < HIT_DISTANCE * HIT_DISTANCE)
+                                    if (sqrDist < math.pow(HIT_DISTANCE, 2))
                                     {
                                         ParticleManager.SpawnParticle(targetPosition.Value, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                         // Bee is dead, but not destroyed, if it targets itself.
                                         targetsTarget.Value = target.Value;
                                         teamBlueTargetData[target.Value] = targetsTarget;
-                                        //SetComponent(target.Value, targetsTarget);
+                                        //SetComponent(target.Value, targetsTarget); // TODO: Should this use an ECB instead?
 
                                         // TODO: Half the enemy bee's velocity.
 
                                         target.Value = default;
+                                        beeState.Value = BeeState.NoTarget;
                                     }
                                 }
                             }
@@ -154,10 +157,11 @@ public partial class BeeMovementSystem : SystemBase
                             var resourceHeldByBee = GetComponent<HeldByBeeComponent>(target.Value);
 
                             // Resources need to have the concept of "dead" for the period of time where they fall after
-                            // being delivered or the carrier was killed, if our target is dead(holding itself) clear is.
+                            // being delivered or the carrier was killed, if our target resource is dead(holding itself) clear it.
                             if (resourceHeldByBee.Value == target.Value)
                             {
                                 target.Value = default;
+                                beeState.Value = BeeState.NoTarget;
                             }
                             else if (resourceHeldByBee.Value == default) // If the resource has not been told it's held by a bee.
                             {
@@ -166,20 +170,24 @@ public partial class BeeMovementSystem : SystemBase
                                     // This is for the case where the user has spawned new resources on top of the target resource before we got there.
 
                                     target.Value = default;
+                                    beeState.Value = BeeState.NoTarget;
                                 }
                                 else // Move to the resource and "grab" it when close enough.
                                 {
                                     delta = GetComponent<PositionComponent>(target.Value).Value - translation.Value;
-                                    var sqrDist = (delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z);
-                                    if (sqrDist > GRAB_DISTANCE * GRAB_DISTANCE)
+                                    var sqrDist = math.dot(delta, delta);
+                                    if (sqrDist > math.pow(GRAB_DISTANCE, 2))
                                     {
                                         velocity.Value += delta * (CHASE_FORCE * deltaTime / math.sqrt(sqrDist));
                                     }
                                     else
                                     {
+
+                                        beeState.Value = BeeState.CarryResource;
+
                                         resourceHeldByBee.Value = entity;
                                         heldByBeeData[target.Value] = resourceHeldByBee;
-                                        // SetComponent(target.Value, resourceHeldByBee);
+                                        // SetComponent(target.Value, resourceHeldByBee); // TODO: Should this use an ECB instead?
 
                                         heldResource.Value = target.Value;
 
@@ -198,15 +206,18 @@ public partial class BeeMovementSystem : SystemBase
                                 {
                                     resourceHeldByBee.Value = default;
                                     target.Value = default;
+                                    beeState.Value = BeeState.NoTarget;
                                 }
                             }
                             else if (HasComponent<TeamBlueTargetComponent>(resourceHeldByBee.Value)) // TODO: If target resource is held by enemy bee.
                             {
                                 target.Value = resourceHeldByBee.Value;
+                                beeState.Value = BeeState.ChaseEnemy;
                             }
                             else // Target is held by friendly bee.
                             {
                                 target.Value = default;
+                                beeState.Value = BeeState.NoTarget;
                             }
                         }
                     }
@@ -263,44 +274,48 @@ public partial class BeeMovementSystem : SystemBase
                         velocity.Value.z *= .8f;
                         velocity.Value.x *= .8f;
                     }
-
-                    // TODO: The example does most stuff in fixed update, but some in update, like the stretching, part of the rotation, and scale and coloring of dead bees.
-
-                    // Scale // TODO: Each bee needs to be given a random Size, and that needs to be tracked for use here.
-                    //float size = bees[i].size;
-                    //float baseSize = 0.5f;
-                    //if (entity != target.Value)
-                    //{
-                    //    float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
-                    //    scale.Value.z = baseSize * stretch;
-                    //    scale.Value.x = baseSize / (stretch - 1f) / 5f + 1f;
-                    //    scale.Value.y = baseSize / (stretch - 1f) / 5f + 1f;
-                    //}
-
-                    // TODO: Rotation
-                    //Vector3 oldSmoothPos = bee.smoothPosition;
-                    //if (bee.isAttacking == false)
-                    //{
-                    //    bee.smoothPosition = Vector3.Lerp(bee.smoothPosition, bee.position, deltaTime * rotationStiffness);
-                    //}
-                    //else
-                    //{
-                    //    bee.smoothPosition = bee.position;
-                    //}
-                    //bee.smoothDirection = bee.smoothPosition - oldSmoothPos;
-
-                    // TODO: Rotation (from update)
-                    //Quaternion rotation = Quaternion.identity;
-                    //if (bees[i].smoothDirection != Vector3.zero)
-                    //{
-                    //    rotation = Quaternion.LookRotation(bees[i].smoothDirection);
-                    //}
-
                 }).Run();
 
         // TODO: Foreach the other team of bees.
 
-        // Attempting to separate the decision making from the movement by introducing a state component. // The concept of a "dead" but not destroyed bee is really making things difficult for me, so for this iteration I'm going to ignore that.
+        // Instead of adding even more components to the move/decision foreach loops, I've decided to break things out where I can into other loops.
+        
+        Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
+        {
+            if (beeState.Value != BeeState.Dead)
+            {
+                float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
+                scale.Value.z = baseSize.Value * stretch;
+                scale.Value.x = baseSize.Value / (stretch - 1f) / 5f + 1f;
+                scale.Value.y = baseSize.Value / (stretch - 1f) / 5f + 1f;
+            }
+        }).ScheduleParallel();
+        
+
+        // TODO: Incorporate the bee state enum so we don't have to keep doing everything for each team or base death on the target.
+        Entities.ForEach((Entity entity, ref Rotation rotation, in PositionComponent position, in VelocityComponent velocity, in TeamYellowTargetComponent target) =>
+        {
+            // TODO: Rotation
+            //Vector3 oldSmoothPos = bee.smoothPosition;
+            //if (bee.isAttacking == false)
+            //{
+            //    bee.smoothPosition = Vector3.Lerp(bee.smoothPosition, bee.position, deltaTime * rotationStiffness);
+            //}
+            //else
+            //{
+            //    bee.smoothPosition = bee.position;
+            //}
+            //bee.smoothDirection = bee.smoothPosition - oldSmoothPos;
+
+            // TODO: Rotation (from update)
+            //Quaternion rotation = Quaternion.identity;
+            //if (bees[i].smoothDirection != Vector3.zero)
+            //{
+            rotation.Value = quaternion.LookRotation(velocity.Value, math.up()); //Quaternion.LookRotation(bees[i].smoothDirection);
+            //}
+        }).ScheduleParallel();
+
+        // TODO: Attempting to separate the decision making from the movement by introducing a state component. // The concept of a "dead" but not destroyed bee is really making things difficult for me, so for this iteration I'm going to ignore that.
         //Entities
         //    .WithAll<TeamYellowTagComponent>()
         //    .ForEach((ref BeeStateComponent beeState, ref TargetComponent target, in PositionComponent position) =>

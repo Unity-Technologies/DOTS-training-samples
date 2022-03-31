@@ -7,7 +7,7 @@ using Unity.Mathematics;
 public partial class BeeSpawnerSystem : SystemBase
 {
     private const float MAX_SPAWN_SPEED = 75.0f;
-    private const float MIN_BEE_SIZE = 0.25f; // TODO: This. 
+    private const float MIN_BEE_SIZE = 0.25f;
     private const float MAX_BEE_SIZE = 0.5f;
 
     protected override void OnUpdate()
@@ -32,15 +32,18 @@ public partial class BeeSpawnerSystem : SystemBase
 						ecb.SetComponent(instance, translation);
 						ecb.AddComponent<TeamYellowTagComponent>(instance);
                         ecb.AddComponent<TeamYellowTargetComponent>(instance);
+                        ecb.AddComponent<BeeStateComponent>(instance);
                         ecb.AddComponent<HeldResourceComponent>(instance);
+                        ecb.AddComponent<BeeBaseSizeComponent>(instance);
                         ecb.AddComponent<VelocityComponent>(instance);
                         ecb.AddComponent<PositionComponent>(instance);
                         ecb.AddComponent<BeeDeathTimerComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamYellowTagComponent.TeamColor });
 						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
+                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) * MAX_SPAWN_SPEED });
                     }
-				}
+                }
 				else
 				{
 					for (int i = 0; i < spawner.BeeCount; ++i)
@@ -50,13 +53,16 @@ public partial class BeeSpawnerSystem : SystemBase
 						ecb.SetComponent(instance, translation);
 						ecb.AddComponent<TeamBlueTagComponent>(instance);
                         ecb.AddComponent<TeamBlueTargetComponent>(instance);
+                        ecb.AddComponent<BeeStateComponent>(instance);
                         ecb.AddComponent<HeldResourceComponent>(instance);
+                        ecb.AddComponent<BeeBaseSizeComponent>(instance);
                         ecb.AddComponent<VelocityComponent>(instance);
                         ecb.AddComponent<PositionComponent>(instance);
                         ecb.AddComponent<BeeDeathTimerComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamBlueTagComponent.TeamColor });
                         ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
+                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) * MAX_SPAWN_SPEED });
                     }
                 }
 			}).Run();
