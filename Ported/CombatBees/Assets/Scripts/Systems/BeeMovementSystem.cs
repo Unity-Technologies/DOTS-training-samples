@@ -69,7 +69,6 @@ public partial class BeeMovementSystem : SystemBase
             //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithoutBurst()
-            .WithAll<TeamYellowTagComponent>()
             .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
                 ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, in PositionComponent position) =>
             {
@@ -164,6 +163,7 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else // The example explicitly checks this but if we've made it here then we have a resource target.
                     {
+                        // TODO: Add/remove this component to/from the bee if it's held or not. 
                         var resourceHeldByBee = GetComponent<HeldByBeeComponent>(target.Value);
 
                         // Resources need to have the concept of "dead" for the period of time where they fall after
@@ -300,7 +300,6 @@ public partial class BeeMovementSystem : SystemBase
             //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithoutBurst()
-            .WithAll<TeamBlueTargetComponent>()
             .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity,
                 ref HeldResourceComponent heldResource, ref TeamBlueTargetComponent target, in PositionComponent position) =>
             {
