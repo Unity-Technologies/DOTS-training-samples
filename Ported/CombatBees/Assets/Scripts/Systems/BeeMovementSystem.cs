@@ -111,58 +111,8 @@ public partial class BeeMovementSystem : SystemBase
                 translation.Value = position;
                 UpdateScale(ref scale, in bee, in velocity);
             }).ScheduleParallel(Dependency);
+
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-
-    }
-
-    private static void UpdateBee(ref Translation translation,
-        ref NonUniformScale scale,
-        ref BeeMovement bee,
-        ref Random random,
-        ref TargetType targetType,
-        ref EntityCommandBuffer.ParallelWriter ecb,
-        AttractionRepulsion attraction,
-        Entity entity,
-        float3 targetPos,
-        int entityInQueryIndex,
-        float deltaTime)
-    {
-        var velocity = bee.Velocity;
-        var position = translation.Value;
-        UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
-
-        if (targetType.Value == TargetType.Type.Enemy)
-        {
-            var delta = targetPos - position;
-            float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-            if (sqrDist > attackDistance * attackDistance)
-            {
-                velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
-            }
-            else
-            {
-                velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
-                if (sqrDist < hitDistance * hitDistance)
-                {
-                    ecb.DestroyEntity(entityInQueryIndex, entity);
-                    targetType = new TargetType
-                    {
-                        Value = TargetType.Type.None
-                    };
-                    /*ParticleManager.SpawnParticle(bee.enemyTarget.position, ParticleType.Blood, bee.velocity * .35f, 2f, 6);
-                    bee.enemyTarget.dead = true;
-                    bee.enemyTarget.velocity *= .5f;
-                    bee.enemyTarget = null;*/
-
-                }
-            }
-        }
-
-        position += velocity * deltaTime;
-        UpdateBorders(ref velocity, ref position);
-        bee.Velocity = velocity;
-        translation.Value = position;
-        UpdateScale(ref scale, in bee, in velocity);
     }
 
     private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position, in AttractionRepulsion attraction, float deltaTime)
