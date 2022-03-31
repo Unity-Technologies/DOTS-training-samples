@@ -12,7 +12,7 @@ public partial class FirePropagationSystem : SystemBase
 
     protected override void OnCreate()
     {
-        GridUtil.CreateAdjacentTileArray(ref checkAdjacents,firePropagationRadius);
+        GridUtility.CreateAdjacentTileArray(ref checkAdjacents,firePropagationRadius);
         
         
     }
@@ -54,7 +54,7 @@ public partial class FirePropagationSystem : SystemBase
     {
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
-            int2 tileCoord = GridUtil.GetTileCoordinate(tileIndex, width);
+            int2 tileCoord = GridUtility.GetTileCoordinate(tileIndex, width);
             int x = tileCoord.x + adjacentOffsets[iCheck].x;
             int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
@@ -62,7 +62,7 @@ public partial class FirePropagationSystem : SystemBase
 
             if (inBounds)
             {
-                int adjacentIndex = GridUtil.GetTileIndex(x, z, width);
+                int adjacentIndex = GridUtility.GetTileIndex(x, z, width);
                 
                 if(buffer[adjacentIndex] < HEAT_THRESHOLD)
                     buffer[adjacentIndex] += deltaTime;

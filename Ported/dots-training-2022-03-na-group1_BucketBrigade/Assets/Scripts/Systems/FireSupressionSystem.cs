@@ -12,7 +12,7 @@ public partial class FireSuppressionSystem : SystemBase
 
     protected override void OnCreate()
     {
-        GridUtil.CreateAdjacentTileArray(ref checkAdjacents,fireSuppresionRadius);
+        GridUtility.CreateAdjacentTileArray(ref checkAdjacents,fireSuppresionRadius);
     }
     protected override void OnDestroy()
     {
@@ -34,7 +34,7 @@ public partial class FireSuppressionSystem : SystemBase
         int gridSideWidth, 
         int tileCoordinateX, int tileCoordinateY)
     {
-        int tileIndex = GridUtil.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
+        int tileIndex = GridUtility.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
         
         AddSplashByIndex(ref splashmapBuffer, heatmapBufferLength, tileIndex);
     }
@@ -74,7 +74,7 @@ public partial class FireSuppressionSystem : SystemBase
         
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
-            int2 tileCoord = GridUtil.GetTileCoordinate(tileIndex, width);
+            int2 tileCoord = GridUtility.GetTileCoordinate(tileIndex, width);
             int x = tileCoord.x + adjacentOffsets[iCheck].x;
             int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
@@ -82,7 +82,7 @@ public partial class FireSuppressionSystem : SystemBase
 
             if (inBounds)
             {
-                int adjacentIndex = GridUtil.GetTileIndex(x, z, width);
+                int adjacentIndex = GridUtility.GetTileIndex(x, z, width);
                 heatmapBuffer[adjacentIndex] = 0f;
             }
         }
