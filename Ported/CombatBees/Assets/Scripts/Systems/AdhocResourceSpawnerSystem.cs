@@ -22,7 +22,9 @@ public partial class AdhocResourceSpawnerSystem : SystemBase
 					ecb.SetComponent(instance, translation);
 					ecb.AddComponent<VelocityComponent>(instance);
 					ecb.SetComponent(instance, new VelocityComponent { Value = 0f });
-					ecb.AddComponent<HeldHoldingComponent>(instance);
+					ecb.AddComponent<ResourceTagComponent>(instance);
+					ecb.AddComponent<HeldByBeeComponent>(instance);
+					ecb.AddComponent<PositionComponent>(instance);
 				}
 			}).Run();
 

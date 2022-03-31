@@ -12,6 +12,14 @@ public class AdhocResourceSpawnerAuthoring : UnityMonoBehaviour
 	public UnityGameObject ResourcePrefab;
 	[UnityRangeAttribute(0, 1000)] public int ResourceCount = 1;
 
+
+	void Awake()
+	{
+	//	EntityManager em = World.DefaultGameObjectInjectionWorld.EntityManager;
+	//	Entity adhocResource = em.CreateEntity();
+	//	Convert(adhocResource, em, );
+	}
+
 	// This function is required by IDeclareReferencedPrefabs
 	public void DeclareReferencedPrefabs(List<UnityGameObject> referencedPrefabs)
 	{

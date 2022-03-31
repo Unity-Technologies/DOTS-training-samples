@@ -501,7 +501,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e019160fef955e4e8f9aed220d38fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResourcePrefab: {fileID: 1667393258452892946, guid: c7e942e7629e11e4da319b0f4da06ce4, type: 3}
+  ResourcePrefab: {fileID: 344984118960826446, guid: 7032c168536e9184cbc75dd4f2efe793, type: 3}
+  SubScene: {fileID: 1614892548}
 --- !u!4 &436085961
 Transform:
   m_ObjectHideFlags: 0
