@@ -5,9 +5,10 @@ using Unity.Mathematics;
 using Mathf = UnityEngine.Mathf;
 using Unity.Collections;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateBefore(typeof(ParticleSystemFixed))]
 [UpdateAfter(typeof(Systems.TargetSystem))]
-public partial class BeeMovementSystem : SystemBase
+public partial class BeeMovementSystemFixed : SystemBase
 {
     static readonly float flightJitter = 200f;
     static readonly float damping = 0.1f;
@@ -168,14 +169,6 @@ public partial class BeeMovementSystem : SystemBase
                 translation.Value = position;
             }).ScheduleParallel(Dependency);
 
-        Dependency = Entities
-            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeMovement beeMovement) =>
-            {
-                var velocity = beeMovement.Velocity;
-                UpdateScale(ref scale, in beeMovement, in velocity);
-                rotation.Value = quaternion.LookRotation(velocity, new float3(0, 1, 0));
-            }).ScheduleParallel(Dependency);
-
         beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
@@ -226,6 +219,25 @@ public partial class BeeMovementSystem : SystemBase
             velocity.z *= .8f;
             velocity.x *= .8f;
         }
+    }
+}
+
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateBefore(typeof(ParticleSystemFixed))]
+[UpdateAfter(typeof(Systems.TargetSystem))]
+public partial class BeeMovementSystem : SystemBase
+{
+    static readonly float speedStretch = 0.2f;
+
+    protected override void OnUpdate()
+    {
+        Dependency = Entities
+            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeMovement beeMovement) =>
+            {
+                var velocity = beeMovement.Velocity;
+                UpdateScale(ref scale, in beeMovement, in velocity);
+                rotation.Value = quaternion.LookRotation(velocity, new float3(0, 1, 0));
+            }).ScheduleParallel(Dependency);
     }
 
     private static void UpdateScale(ref NonUniformScale scale, in BeeMovement bee, in float3 velocity)
