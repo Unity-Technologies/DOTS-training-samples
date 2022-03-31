@@ -2,8 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using UnityEngine.Assertions.Must;
 using static BeeStateComponent;
 using Random = Unity.Mathematics.Random;
 
@@ -47,7 +45,16 @@ public partial class BeeMovementSystem : SystemBase
         var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTagComponent)).ToEntityArray(Allocator.TempJob);
         var blueBeeEntities = GetEntityQuery(typeof(TeamBlueTagComponent)).ToEntityArray(Allocator.TempJob);
         var resourceEntities = GetEntityQuery(typeof(ResourceTagComponent)).ToEntityArray(Allocator.TempJob);
+
+        // TODO: Ask about ECBs.
+        // Can/Should it be created outside of update?
+        // Is the CDFE method better/preferred if we're sure it wont cause problems?
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         
+        // Workaround because you can't write to other entities from within a foreach.
+        //var teamBlueTargetData = GetComponentDataFromEntity<TeamBlueTargetComponent>();
+        //var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
+
         // Store all the positions in a component for later use.
         Entities
             .WithAll<PositionComponent>()
@@ -55,14 +62,10 @@ public partial class BeeMovementSystem : SystemBase
             {
                 position.Value = translation.Value;
             }).ScheduleParallel();
-        
-        // Workaround because you can't write to other entities from within a foreach.
-        var teamBlueTargetData = GetComponentDataFromEntity<TeamBlueTargetComponent>();
-        var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
 
         Entities
-            .WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
-            .WithNativeDisableContainerSafetyRestriction(heldByBeeData)
+            //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
+            //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithoutBurst()
             .WithAll<TeamYellowTagComponent>()
             .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
@@ -141,8 +144,8 @@ public partial class BeeMovementSystem : SystemBase
 
                                         // Bee is dead, but not destroyed, if it targets itself.
                                         targetsTarget.Value = target.Value;
-                                        teamBlueTargetData[target.Value] = targetsTarget;
-                                        //SetComponent(target.Value, targetsTarget); // TODO: Should this use an ECB instead?
+                                        ecb.SetComponent(target.Value, targetsTarget);
+                                        //teamBlueTargetData[target.Value] = targetsTarget; // TODO: Should this use the CDFE instead?
 
                                         // TODO: Half the enemy bee's velocity.
 
@@ -158,12 +161,12 @@ public partial class BeeMovementSystem : SystemBase
 
                             // Resources need to have the concept of "dead" for the period of time where they fall after
                             // being delivered or the carrier was killed, if our target resource is dead(holding itself) clear it.
-                            if (resourceHeldByBee.Value == target.Value)
+                            if (resourceHeldByBee.HoldingBee == target.Value)
                             {
                                 target.Value = default;
                                 beeState.Value = BeeState.NoTarget;
                             }
-                            else if (resourceHeldByBee.Value == default) // If the resource has not been told it's held by a bee.
+                            else if (resourceHeldByBee.HoldingBee == default) // If the resource has not been told it's held by a bee.
                             {
                                 if (false) // TODO: Determine if the resource is in a stack AND is no longer the top of the stack.
                                 {
@@ -185,9 +188,9 @@ public partial class BeeMovementSystem : SystemBase
 
                                         beeState.Value = BeeState.CarryResource;
 
-                                        resourceHeldByBee.Value = entity;
-                                        heldByBeeData[target.Value] = resourceHeldByBee;
-                                        // SetComponent(target.Value, resourceHeldByBee); // TODO: Should this use an ECB instead?
+                                        resourceHeldByBee.HoldingBee = entity;
+                                        ecb.SetComponent(target.Value, resourceHeldByBee);
+                                        //heldByBeeData[target.Value] = resourceHeldByBee; // TODO: Should this use the CDFE instead?
 
                                         heldResource.Value = target.Value;
 
@@ -195,7 +198,7 @@ public partial class BeeMovementSystem : SystemBase
                                     }
                                 }
                             }
-                            else if (resourceHeldByBee.Value == entity)
+                            else if (resourceHeldByBee.HoldingBee == entity)
                             {
                                 // Holding the resource, carry it home.
                                 var targetPos = new float3(-Field.size.x * .45f + Field.size.x * .9f, 0f, translation.Value.z);
@@ -204,14 +207,14 @@ public partial class BeeMovementSystem : SystemBase
                                 velocity.Value += (targetPos - translation.Value) * (CARRY_FORCE * deltaTime / dist);
                                 if (dist < 1f)
                                 {
-                                    resourceHeldByBee.Value = default;
+                                    resourceHeldByBee.HoldingBee = default;
                                     target.Value = default;
                                     beeState.Value = BeeState.NoTarget;
                                 }
                             }
-                            else if (HasComponent<TeamBlueTargetComponent>(resourceHeldByBee.Value)) // TODO: If target resource is held by enemy bee.
+                            else if (HasComponent<TeamBlueTargetComponent>(resourceHeldByBee.HoldingBee)) // TODO: If target resource is held by enemy bee.
                             {
-                                target.Value = resourceHeldByBee.Value;
+                                target.Value = resourceHeldByBee.HoldingBee;
                                 beeState.Value = BeeState.ChaseEnemy;
                             }
                             else // Target is held by friendly bee.
@@ -280,40 +283,39 @@ public partial class BeeMovementSystem : SystemBase
 
         // Instead of adding even more components to the move/decision foreach loops, I've decided to break things out where I can into other loops.
         
-        Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
-        {
-            if (beeState.Value != BeeState.Dead)
-            {
-                float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
-                scale.Value.z = baseSize.Value * stretch;
-                scale.Value.x = baseSize.Value / (stretch - 1f) / 5f + 1f;
-                scale.Value.y = baseSize.Value / (stretch - 1f) / 5f + 1f;
-            }
-        }).ScheduleParallel();
+        //Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
+        //{
+        //    if (beeState.Value != BeeState.Dead)
+        //    {
+        //        float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
+        //        scale.Value.z = baseSize.Value * stretch;
+        //        scale.Value.x = baseSize.Value / (stretch - 1f) / 5f + 1f;
+        //        scale.Value.y = baseSize.Value / (stretch - 1f) / 5f + 1f;
+        //    }
+        //}).ScheduleParallel();
         
-
         // TODO: Incorporate the bee state enum so we don't have to keep doing everything for each team or base death on the target.
-        Entities.ForEach((Entity entity, ref Rotation rotation, in PositionComponent position, in VelocityComponent velocity, in TeamYellowTargetComponent target) =>
-        {
-            // TODO: Rotation
-            //Vector3 oldSmoothPos = bee.smoothPosition;
-            //if (bee.isAttacking == false)
-            //{
-            //    bee.smoothPosition = Vector3.Lerp(bee.smoothPosition, bee.position, deltaTime * rotationStiffness);
-            //}
-            //else
-            //{
-            //    bee.smoothPosition = bee.position;
-            //}
-            //bee.smoothDirection = bee.smoothPosition - oldSmoothPos;
+        //Entities.ForEach((Entity entity, ref Rotation rotation, in PositionComponent position, in VelocityComponent velocity, in TeamYellowTargetComponent target) =>
+        //{
+        //    // TODO: Rotation
+        //    //Vector3 oldSmoothPos = bee.smoothPosition;
+        //    //if (bee.isAttacking == false)
+        //    //{
+        //    //    bee.smoothPosition = Vector3.Lerp(bee.smoothPosition, bee.position, deltaTime * rotationStiffness);
+        //    //}
+        //    //else
+        //    //{
+        //    //    bee.smoothPosition = bee.position;
+        //    //}
+        //    //bee.smoothDirection = bee.smoothPosition - oldSmoothPos;
 
-            // TODO: Rotation (from update)
-            //Quaternion rotation = Quaternion.identity;
-            //if (bees[i].smoothDirection != Vector3.zero)
-            //{
-            rotation.Value = quaternion.LookRotation(velocity.Value, math.up()); //Quaternion.LookRotation(bees[i].smoothDirection);
-            //}
-        }).ScheduleParallel();
+        //    // TODO: Rotation (from update)
+        //    //Quaternion rotation = Quaternion.identity;
+        //    //if (bees[i].smoothDirection != Vector3.zero)
+        //    //{
+        //    rotation.Value = quaternion.LookRotation(velocity.Value, math.up()); //Quaternion.LookRotation(bees[i].smoothDirection);
+        //    //}
+        //}).ScheduleParallel();
 
         // TODO: Attempting to separate the decision making from the movement by introducing a state component. // The concept of a "dead" but not destroyed bee is really making things difficult for me, so for this iteration I'm going to ignore that.
         //Entities
