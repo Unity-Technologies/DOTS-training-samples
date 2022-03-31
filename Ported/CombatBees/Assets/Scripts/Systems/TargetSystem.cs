@@ -18,8 +18,8 @@ namespace Systems
 
         protected override void OnCreate()
         {
-            teamTargetsQuery0 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<TeamShared>());
-            teamTargetsQuery1 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery0 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Attackable>(), ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery1 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Attackable>(), ComponentType.ReadOnly<TeamShared>());
             teamTargetsQuery0.SetSharedComponentFilter(new TeamShared { TeamId = 0 });
             teamTargetsQuery1.SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 

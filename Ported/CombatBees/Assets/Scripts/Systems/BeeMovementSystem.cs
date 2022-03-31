@@ -45,7 +45,6 @@ public partial class BeeMovementSystemFixed : SystemBase
     {
         var particles = GetSingleton<ParticleSettings>();
         var deltaTime = Time.DeltaTime;
-        var random = Random.CreateFromIndex(GlobalSystemVersion);
 
 
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
@@ -54,15 +53,19 @@ public partial class BeeMovementSystemFixed : SystemBase
         var beginFrameEcb = beginSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
+        var gsv = GlobalSystemVersion;
+
         // Run attraction/repulsion gather. Uses read access of Translation from input arrays and only writes attraction data.
         // Could we run this on a lower cadence?
-        Entities
+        var attractionJob = Entities
             .WithReadOnly(team0)
             .WithDisposeOnCompletion(team0)
             .WithReadOnly(team1)
             .WithDisposeOnCompletion(team1)
-            .ForEach((ref AttractionRepulsion attractionRepulsion, in Team team) =>
+            .ForEach((Entity entity, ref AttractionRepulsion attractionRepulsion, in Team team) =>
             {
+                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
+
                 if (team.TeamId == 0)
                 {
                     if (team0.Length > 0)
@@ -76,24 +79,38 @@ public partial class BeeMovementSystemFixed : SystemBase
                     attractionRepulsion.AttractionPos = team1[random.NextInt(team1.Length)].Value;
                     attractionRepulsion.RepulsionPos = team1[random.NextInt(team1.Length)].Value;
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
 
+        var translateJob = Entities
+            .ForEach((ref Translation translation, ref BeeMovement movement, in TargetType targetType) =>
+            {
+
+                translation.Value += movement.Velocity * deltaTime;
+                UpdateBorders(ref movement.Velocity, ref translation.Value, targetType.Value == TargetType.Type.Goal);
+
+            }).ScheduleParallel(Dependency);
+
+        Dependency = Unity.Jobs.JobHandle.CombineDependencies(attractionJob, translateJob);
 
         Dependency = Entities
+            .WithNone<BeeLifetime>()
             .ForEach((Entity entity,
                 int entityInQueryIndex,
-                ref Translation translation,
                 ref BeeMovement bee,
                 ref TargetType targetType,
+                in Translation translation,
                 in AttractionRepulsion attraction,
                 in TargetEntity targetEntity,
                 in Team team) =>
             {
+                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
+
                 var velocity = bee.Velocity;
                 var position = translation.Value;
                 UpdateJitterAndTeamVelocity(ref random, ref velocity, in position, in attraction, deltaTime);
 
-                bool isAttacking = false;  
+                bee.IsAttacking = 0;
+          
                 if (targetType.Value == TargetType.Type.Enemy)
                 {
                     if (!HasComponent<Team>(targetEntity.Value))
@@ -111,12 +128,17 @@ public partial class BeeMovementSystemFixed : SystemBase
                         else
                         {
                             velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
-                            isAttacking = true;
+                            bee.IsAttacking = 1;
                             if (sqrDist < hitDistance * hitDistance)
                             {
                                 ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
                                     targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
-                                beginFrameEcb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
+
+                                endFrameEcb.RemoveComponent<Attackable>(entityInQueryIndex, entity);
+                                endFrameEcb.AddComponent<BeeLifetime>(entityInQueryIndex, entity, new BeeLifetime
+                                {
+                                    Value = 1f
+                                });
                                 targetType.Value = TargetType.Type.None;
                             }
                         }
@@ -143,7 +165,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                             endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
                                 new ResourceOwner() { Owner = entity });
                             endFrameEcb.SetComponent<Components.Resource>(entityInQueryIndex, targetEntity.Value,
-                                new Components.Resource(){ OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
+                                new Components.Resource() { OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
                             targetType.Value = TargetType.Type.Goal;
                         }
                     }
@@ -174,22 +196,51 @@ public partial class BeeMovementSystemFixed : SystemBase
                     }
                 }
 
-                // only used for smooth rotation:
-                float3 oldSmoothPos = bee.SmoothPosition;
-                if (isAttacking == false)
-                {
-                    bee.SmoothPosition = math.lerp(bee.SmoothPosition, translation.Value, deltaTime * /*rotationStiffness*/5);
-                }
-                else
-                {
-                    bee.SmoothPosition = translation.Value;
-                }
-                bee.SmoothDirection = bee.SmoothPosition - oldSmoothPos;
-
-                position += velocity * deltaTime;
-                UpdateBorders(ref velocity, ref position, targetType.Value == TargetType.Type.Goal);
                 bee.Velocity = velocity;
-                translation.Value = position;
+
+            }).ScheduleParallel(Dependency);
+
+
+        Dependency = Entities
+           .ForEach((ref MovementSmoothing smoothing, in Translation translation, in BeeMovement movement) =>
+           {
+               // only used for smooth rotation:
+               float3 oldSmoothPos = smoothing.SmoothPosition;
+               if (movement.IsAttacking == 0)
+               {
+                   smoothing.SmoothPosition = math.lerp(smoothing.SmoothPosition, translation.Value, deltaTime * /*rotationStiffness*/5);
+               }
+               else
+               {
+                   smoothing.SmoothPosition = translation.Value;
+               }
+               smoothing.SmoothDirection = smoothing.SmoothPosition - oldSmoothPos;
+
+           }).ScheduleParallel(Dependency);
+
+
+        Dependency = Entities
+            .ForEach((Entity entity,
+            int entityInQueryIndex,
+             ref BeeLifetime life,
+             ref BeeMovement movement,
+            ref Translation translation) =>
+            {
+                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
+
+                if (random.NextFloat(1f) < (life.Value - .5f) * .5f)
+                {
+                    ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random, translation.Value, ParticleComponent.ParticleType.Blood, float3.zero);
+                }
+
+                movement.Velocity.y += PlayField.gravity * deltaTime;
+                translation.Value += movement.Velocity * deltaTime;
+
+                life.Value -= deltaTime / 10f;
+                if (life.Value < 0f)
+                {
+                    beginFrameEcb.DestroyEntity(entityInQueryIndex, entity);
+                }
             }).ScheduleParallel(Dependency);
 
         beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
@@ -255,27 +306,40 @@ public partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
         Dependency = Entities
-            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeMovement beeMovement) =>
+            .WithNone<BeeLifetime>()
+            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeMovement movement, in MovementSmoothing smoothing) =>
             {
-                var velocity = beeMovement.Velocity;
-                UpdateScale(ref scale, in beeMovement, in velocity);
+                var velocity = movement.Velocity;
 
-                if (!beeMovement.SmoothDirection.Equals(float3.zero))
+                var size = movement.Size;
+                var scl = new float3(size, size, size);
+                float stretch = Mathf.Max(1f, math.length(velocity) * speedStretch);
+                scl.z *= stretch;
+                scl.x /= (stretch - 1f) / 5f + 1f;
+                scl.y /= (stretch - 1f) / 5f + 1f;
+                scale.Value = scl;
+
+                if (!smoothing.SmoothDirection.Equals(float3.zero))
                 {
-                    rotation.Value = quaternion.LookRotation(beeMovement.SmoothDirection, new float3(0, 1, 0));
+                    rotation.Value = quaternion.LookRotation(smoothing.SmoothDirection, new float3(0, 1, 0));
                 }
 
             }).ScheduleParallel(Dependency);
-    }
 
-    private static void UpdateScale(ref NonUniformScale scale, in BeeMovement bee, in float3 velocity)
-    {
-        var size = bee.Size;
-        var scl = new float3(size, size, size);
-        float stretch = Mathf.Max(1f, math.length(velocity) * speedStretch);
-        scl.z *= stretch;
-        scl.x /= (stretch - 1f) / 5f + 1f;
-        scl.y /= (stretch - 1f) / 5f + 1f;
-        scale.Value = scl;
+        Dependency = Entities
+            .ForEach((ref NonUniformScale scale, ref Rotation rotation, in BeeLifetime life, in BeeMovement movement, in MovementSmoothing smoothing) =>
+            {
+                var velocity = movement.Velocity;
+
+                var size = movement.Size;
+                var scl = new float3(size, size, size);
+                scale.Value = scl * Mathf.Sqrt(life.Value);                
+
+                if (!smoothing.SmoothDirection.Equals(float3.zero))
+                {
+                    rotation.Value = quaternion.LookRotation(smoothing.SmoothDirection, new float3(0, 1, 0));
+                }
+
+            }).ScheduleParallel(Dependency);
     }
 }

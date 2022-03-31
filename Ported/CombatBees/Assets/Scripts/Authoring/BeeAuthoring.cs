@@ -17,6 +17,9 @@ namespace Authoring
             dstManager.AddComponentData(entity, new TargetType());
             dstManager.AddComponentData(entity, new AttractionRepulsion());
             dstManager.AddComponentData(entity, new NonUniformScale());
+            dstManager.AddComponentData(entity, new BeeMovement());
+            dstManager.AddComponentData(entity, new Attackable());
+            dstManager.AddComponentData(entity, new MovementSmoothing());
         }
     }
 }

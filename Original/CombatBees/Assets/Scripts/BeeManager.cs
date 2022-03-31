@@ -259,8 +259,8 @@ public class BeeManager : MonoBehaviour {
 			}
 			Color color= teamColors[bees[i].team];
 			if (bees[i].dead) {
-				color *= .75f;
-				scale *= Mathf.Sqrt(bees[i].deathTimer);
+				//color *= .75f;
+				//scale *= Mathf.Sqrt(bees[i].deathTimer);
 			}
 			beeMatrices[i/beesPerBatch][i%beesPerBatch] = Matrix4x4.TRS(bees[i].position,rotation,scale);
 			beeColors[i/beesPerBatch][i%beesPerBatch] = color;
