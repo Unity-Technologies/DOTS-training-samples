@@ -2,6 +2,7 @@ using Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.SceneManagement;
 
 namespace Systems
 {
@@ -39,12 +40,25 @@ namespace Systems
                 }).ScheduleParallel();
 
             Entities
-                .ForEach((ref Translation translation, in Components.Resource resource, in ResourceOwner resourceOwner) =>
+                .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation,
+                    in Components.Resource resource, in ResourceOwner resourceOwner) =>
                 {
-                    if (resourceOwner.Owner != Entity.Null)
+                    if (resourceOwner.Owner != Entity.Null && HasComponent<BeeMovement>(resourceOwner.Owner))
+                    {
                         translation.Value = resource.OwnerPosition;
+                    }
+                    else
+                    {
+                        ecb.RemoveComponent<ResourceOwner>(entityInQueryIndex, entity);
+                        ecb.AddComponent<KinematicBody>(entityInQueryIndex, entity,
+                            new KinematicBody()
+                            {
+                                landPosition = new float3(translation.Value.x, -PlayField.size.y / 2,
+                                    translation.Value.z)
+                            });
+                    }
                 }).ScheduleParallel();
-            
+
             _buffer.AddJobHandleForProducer(Dependency);
         }
     }
