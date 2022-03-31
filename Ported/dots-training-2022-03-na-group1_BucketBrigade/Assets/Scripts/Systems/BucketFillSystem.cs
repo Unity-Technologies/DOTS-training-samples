@@ -4,7 +4,7 @@ public partial class BucketFillSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        var currentTime = UnityEngine.Time.realtimeSinceStartup;
+        var currentTime = (float)Time.ElapsedTime;
         var manager = EntityManager;
 
         Entities
