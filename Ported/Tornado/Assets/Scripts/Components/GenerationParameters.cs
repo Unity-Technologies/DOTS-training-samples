@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace Components
@@ -13,6 +14,13 @@ namespace Components
         public float maxParticleScale;
         public float minColorMultiplier;
         public float maxColorMultiplier;
+
+        public int citySize;
+        public int groundDetails;
+        public int buildings;
+
+        public int spawnMapH;
+        public int spawnMapW;
 
         // .. more will come
 

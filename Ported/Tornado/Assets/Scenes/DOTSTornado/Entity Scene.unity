@@ -310,6 +310,9 @@ MonoBehaviour:
   minColorMultiplier: 0.3
   maxColorMultiplier: 0.7
   cubeSize: 5
+  citySize: 500
+  groundDetails: 200
+  buildings: 0
   barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
 --- !u!4 &698996226
@@ -391,6 +394,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3406531323946093338, guid: 229063e8efb65f14b9725e083ae05c44,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 3406531323946093338, guid: 229063e8efb65f14b9725e083ae05c44,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 3406531323946093338, guid: 229063e8efb65f14b9725e083ae05c44,
         type: 3}

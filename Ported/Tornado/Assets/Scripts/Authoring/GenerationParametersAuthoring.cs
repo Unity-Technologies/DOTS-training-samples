@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using UnityGameObject = UnityEngine.GameObject;
 using UnityRangeAttribute = UnityEngine.RangeAttribute;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
-
+using UnityEngine;
+using Unity.Collections;
 
 namespace Sample.Authoring
 {
@@ -22,7 +23,11 @@ namespace Sample.Authoring
         [UnityRange(0.0f, 1.0f)] public float minColorMultiplier = 0.3f;
         [UnityRange(0.0f, 1.0f)] public float maxColorMultiplier = 0.7f;
 
+
         public int cubeSize;
+        public int citySize;
+        public int groundDetails;
+        public int buildings;
         public UnityGameObject barPrefab;
 
 
@@ -43,19 +48,28 @@ namespace Sample.Authoring
             // GetPrimaryEntity fetches the entity that resulted from the conversion of
             // the given GameObject, but of course this GameObject needs to be part of
             // the conversion, that's why DeclareReferencedPrefabs is important here.
-            dstManager.AddComponentData(entity, new GenerationParameters
+            var paramsComponent = new GenerationParameters
             {
-                particleCount =  particleCount,
-                minParticleSpawnPosition =  minParticleSpawnPosition,
-                maxParticleSpawnPosition =  maxParticleSpawnPosition,
+                particleCount = particleCount,
+                minParticleSpawnPosition = minParticleSpawnPosition,
+                maxParticleSpawnPosition = maxParticleSpawnPosition,
                 particlePrefab = conversionSystem.GetPrimaryEntity(particlePrefab),
-                minParticleScale =  minParticleScale,
-                maxParticleScale =  maxParticleScale,
+                minParticleScale = minParticleScale,
+                maxParticleScale = maxParticleScale,
                 minColorMultiplier = minColorMultiplier,
                 maxColorMultiplier = maxColorMultiplier,
                 barPrefab = conversionSystem.GetPrimaryEntity(barPrefab),
                 cubeSize = cubeSize,
-            });
+                citySize = citySize,
+                groundDetails = groundDetails,
+                buildings = buildings,
+            };
+
+          
+
+            
+
+            dstManager.AddComponentData(entity, paramsComponent);
         }
     }
 }

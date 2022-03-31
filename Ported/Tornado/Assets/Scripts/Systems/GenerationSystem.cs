@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Scripts;
 using Components;
 using Unity.Collections;
 using Unity.Entities;
@@ -14,6 +15,8 @@ namespace Systems
     public partial class GenerationSystem : SystemBase
     {
         private GenerationParameters m_cachedParameters;
+
+        private NativeArray<bool> spawnMapBool;
 
         public void Reset()
         {
@@ -46,6 +49,8 @@ namespace Systems
         protected override void OnCreate()
         {
             RequireForUpdate(GetEntityQuery(typeof(GenerationParameters)));
+
+            
         }
 
         protected override void OnUpdate()
@@ -60,12 +65,14 @@ namespace Systems
             NativeList<int> islandPointAllocators = default;
             NativeList<int> linkStartIndices = default;
 
+            ComputeTexture();
+
             Entities.ForEach((Entity entity, in GenerationParameters generation) =>
             {
                 m_cachedParameters = generation;
                 ecb.DestroyEntity(entity);
 
-                GenerateCity(generation, ref ecb, ref random, out points, out links, out islandPointAllocators, out linkStartIndices);
+                GenerateCity(generation, ref ecb, ref random, out points, out links, out islandPointAllocators, out linkStartIndices, ref spawnMapBool);
                 GenerateTornado(generation, ref ecb, ref random);
             }).WithoutBurst().Run();
 
@@ -90,6 +97,34 @@ namespace Systems
             }
         }
 
+        private void ComputeTexture()
+        {
+            var genParams = GetSingleton<GenerationParameters>();
+            var gen = Resources.Load<GenerationScriptableObj>("genParams");
+
+            if (gen.spawnMap)
+            {
+                var spawnMap = gen.spawnMap;
+
+                spawnMapBool = new NativeArray<bool>(spawnMap.width * spawnMap.height, Allocator.Persistent);
+
+                for (int x = 0; x < spawnMap.width; x++)
+                {
+                    for (int y = 0; y < spawnMap.height; y++)
+                    {
+                        spawnMapBool[x * spawnMap.height + y] = spawnMap.GetPixel(x, y).b > 0.5f;
+                    }
+                }
+
+                genParams.spawnMapW = spawnMap.width;
+                genParams.spawnMapH = spawnMap.height;
+
+            }
+            else spawnMapBool = new NativeArray<bool>(0, Allocator.Persistent);
+
+            SetSingleton<GenerationParameters>(genParams);
+        }
+
         private static void GenerateTornado(in GenerationParameters spawner, ref EntityCommandBuffer ecb, ref Random random)
         {
             for (int i = 0; i < spawner.particleCount; ++i)
@@ -109,10 +144,11 @@ namespace Systems
             }
         }
 
-        private static void GenerateBuilding(ref Random random, ref NativeList<VerletPoints> pointsList)
+        private static void GenerateBuilding(ref Random random, ref NativeList<VerletPoints> pointsList, in GenerationParameters genParams)
         {
             int height = random.NextInt(4, 12);
-            Vector3 pos = new Vector3(random.NextFloat(-45f, 45f), 0f, random.NextFloat(-45f, 45f));
+            var size = genParams.citySize / 2f;
+            Vector3 pos = new Vector3(random.NextFloat(-size, size), 0f, random.NextFloat(-size, size));
             float spacing = 2f;
             for (int j = 0; j < height; j++)
             {
@@ -143,19 +179,18 @@ namespace Systems
             }
         }
 
-        private static void GenerateGroundDetail(ref Random random, ref NativeList<VerletPoints> pointsList)
-        {
-            var minPos = new float3(-55.0f, 0.0f, -55.0f);
-            var maxPos = new float3(55.0f, 0.0f, 55.0f);
+        private static void GenerateGroundDetail(ref Random random, ref NativeList<VerletPoints> pointsList, float size)
+        {            
+            var minPos = new float3(-size, 0.0f, -size);
+            var maxPos = new float3(size, 0.0f, size);
             var pos = random.NextFloat3(minPos, maxPos);
             var position = pos + random.NextFloat3(new float3(-0.2f, 0.0f, 0.1f), new float3(-0.1f, 3.0f, 0.2f));
-
+            
             pointsList.Add(new VerletPoints
             {
                 currentPosition = position,
                 oldPosition = position
             });
-
 
             position = pos + random.NextFloat3(new float3(0.2f, 0.0f, -0.1f), new float3(0.1f, 0.2f, -0.2f));
             pointsList.Add(new VerletPoints
@@ -165,6 +200,32 @@ namespace Systems
                 anchored = random.NextFloat() < 0.1f ? byte.MaxValue : (byte)0
             });
         }
+
+        private static void GenerateLettersAsGround(ref Random random, ref NativeList<VerletPoints> pointsList,ref NativeArray<bool> spawnMap, float size, int w, int h)
+        {
+            var factor = size / math.min(w, h);
+
+            for (int x = 0; x < w; x++)
+            {
+                for (int z = 0; z < h; z++)
+                {
+                   
+                    if (!spawnMap[x * h + z]) continue;
+
+                    var pos = new float3(-(size * 0.5f) + x * factor, 0.0f, -(size * 0.5f)  + z * factor);
+
+                    var position = pos + random.NextFloat3(new float3(0.0f, 0.0f, 0.0f), new float3(0.0f, 3.0f, 0.0f));
+                    pointsList.Add(new VerletPoints
+                    {
+                        currentPosition = position,
+                        oldPosition = position
+                    });
+                  
+                }
+            }
+        }
+
+
 
         private static void GenerateLinks(int minPointIndex, int maxPointIndex, ref EntityCommandBuffer ecb, ref Random random, Entity barPrefab, ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList)
         {
@@ -219,18 +280,19 @@ namespace Systems
         }
 
         private static void GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, ref Random random,
-            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointAllocators, out NativeList<int> linkStartIndices)
+            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointAllocators, out NativeList<int> linkStartIndices, ref NativeArray<bool> spawnMap)
         {
             linksList = new NativeList<Link>(Allocator.Temp);
             pointsList = new NativeList<VerletPoints>(Allocator.Temp);
             islandPointAllocators = new NativeList<int>(Allocator.Temp);
             linkStartIndices = new NativeList<int>(Allocator.Temp);
 
+            
             // buildings
-            for (int i = 0; i < 35; i++)
+            for (int i = 0; i < generation.buildings; i++)
             {
                 int startingPointCount = pointsList.Length;
-                GenerateBuilding(ref random, ref pointsList);
+                GenerateBuilding(ref random, ref pointsList, generation);
                 int endingPointCount = pointsList.Length;
                 int startingLinkCount = linksList.Length;
                 linkStartIndices.Add(startingLinkCount);
@@ -255,13 +317,16 @@ namespace Systems
 
 
             // ground details
-            {
-                int beforeGroundDetail = pointsList.Length;
-
-                for (int i = 0; i < 600; i++)
+            
+            {    int beforeGroundDetail = pointsList.Length;
+                
+                for (int i = 0; i < generation.groundDetails; i++)
                 {
-                    GenerateGroundDetail(ref random, ref pointsList);
+                    GenerateGroundDetail(ref random, ref pointsList, (float)generation.citySize / 2f);
                 }
+
+                if(generation.citySize == 0 && generation.groundDetails == 0)
+                    GenerateLettersAsGround(ref random, ref pointsList,ref spawnMap, (float)generation.citySize, generation.spawnMapW, generation.spawnMapH);
 
                 int afterGroundDetail = pointsList.Length;
                 int startingLinkCount = linksList.Length;

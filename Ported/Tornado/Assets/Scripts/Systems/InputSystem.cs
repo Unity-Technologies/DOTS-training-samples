@@ -48,7 +48,8 @@ namespace Systems
             velocity += movingQuantity * dt;
             
             cameraRef.Camera.transform.position += velocity;
-            cameraRef.Camera.transform.LookAt(Vector3.zero + Vector3.up * 15f);
+            var tornadoPos = new Vector3(tornadoSettings.eyePosition.x, 0f, tornadoSettings.eyePosition.z);
+            cameraRef.Camera.transform.LookAt(tornadoPos + Vector3.up * 15f);
 
             velocity *= inputs.friction;
             velocityTornado *= inputs.friction;

@@ -25,6 +25,7 @@ namespace Systems
                 .ForEach((ref Translation translation, in Particle particle) =>
                 {
                     var initialPosition = translation.Value;
+                    //var tornadoPos = new float3(tornadoParams.eyePosition.x + math.sin(initialPosition.y / 5f + timeElapsed / 4f) * 3f, initialPosition.y, tornadoParams.eyePosition.z);
                     var tornadoPos = new float3(tornadoParams.eyePosition.x + TornadoSway(initialPosition.y, timeElapsed), initialPosition.y, tornadoParams.eyePosition.z);
                     //Vector3 tornadoPos = new Vector3(PointManager.tornadoX + PointManager.TornadoSway(points[i].y), points[i].y, PointManager.tornadoZ);
                     var delta = (tornadoPos - initialPosition);
@@ -38,7 +39,7 @@ namespace Systems
 
                     if (nextPosition.y > 50f)
                     {
-                        nextPosition.y = 0.0f;
+                        nextPosition.y = 0.0f;  
                     }
 
                     translation.Value = nextPosition;
