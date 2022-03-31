@@ -1,7 +1,10 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial class PassengerSpawnerSystem : SystemBase
 {
@@ -41,6 +44,17 @@ public partial class PassengerSpawnerSystem : SystemBase
             for (int j = 0; j < numPassengersToSpawn; j++)
             {
                 var instance = ecb.Instantiate(passengerPrefab);
+                
+                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor() { Value = random.NextFloat4() });
+
+                
+                var passengerScale = new NonUniformScale
+                {
+                    Value = {x = 1, z = 1, y = random.NextFloat(0.2f, 1.5f)}
+                };
+                
+                ecb.SetComponent(instance, passengerScale);
+                
 
                 var passengerTranslation = new Translation();
                 passengerTranslation.Value = translation.Value;

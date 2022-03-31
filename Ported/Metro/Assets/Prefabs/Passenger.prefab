@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5971337198389585479}
   - component: {fileID: 7661603067698302086}
   - component: {fileID: 5023761562467207442}
+  - component: {fileID: -6987489268545729525}
   m_Layer: 0
   m_Name: Passenger
   m_TagString: Untagged
@@ -28,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 7982164602526732203}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 1, z: 0.5}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -45,10 +46,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b80cec2b57a42ec9884ee44d84af22c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FinalDestination:
+  CurrentPlatform: {fileID: 0}
+  CurrentPlatformPosition:
     x: 0
     y: 0
     z: 0
+  DestinationStation: {fileID: 0}
   WalkSpeed: 0
 --- !u!33 &7661603067698302086
 MeshFilter:
@@ -57,7 +60,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7982164602526732203}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -5495902117074765545, guid: 868b11a38af6bed40874c60efc4adeca, type: 3}
 --- !u!23 &5023761562467207442
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -99,3 +102,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-6987489268545729525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982164602526732203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
