@@ -3,9 +3,8 @@ using Unity.Mathematics;
 
 public enum BucketState
 {
-    Empty,
-    Full,
-    InTransit,
-    Grounded,
-    Abandoned
+    EmptyOnGround,
+    FullOnGround,
+    EmptyCarrried, 
+    FullCarried 
 }

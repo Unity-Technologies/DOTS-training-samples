@@ -4,9 +4,17 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(IdleSystem))]
 public partial class SpawnerSystem : SystemBase
 {
     private const int MaxEvalOffset = 59;
+
+    static void SpawnCommunicationBuffers(EntityCommandBuffer ecb)
+    {
+        var helperEntity = ecb.CreateEntity();
+        ecb.AddBuffer<FreeBucketInfo>(helperEntity);
+        ecb.AddBuffer<WaterPoolInfo>(helperEntity);
+    }
     
     static void SpawnHeatmap(EntityCommandBuffer ecb, int size)
     {
@@ -32,20 +40,32 @@ public partial class SpawnerSystem : SystemBase
             colorHot = new float4(1f,0f,0f,1f)
         });
     }
+    
+    static void SpawnSplashmap(EntityCommandBuffer ecb, int size)
+    {
+        var splashmapEntity = ecb.CreateEntity();
+        ecb.SetName(splashmapEntity, "Splashmap");
+        
+        var heatmapBuffer = ecb.AddBuffer<HeatMapSplash>(splashmapEntity);
+        for (int iSplash = 0; iSplash < size ; iSplash++)//adding elements to buffer
+        {
+            heatmapBuffer.Add(new HeatMapSplash {value = -1});
+        }
+    }
 
     static void SpawnFireColumns(EntityCommandBuffer ecb, Entity firePrefab, int size)
    {
-       var offsetSingleDimension = -(size - 1) / 2f;
+       var offsetSingleDimension = (size - 1) * 0.5f;
        var offset = new float3(offsetSingleDimension , 0, offsetSingleDimension);
                 
-       for (var x = 0; x < size; x++)
+       for (var z = 0; z < size; z++)
        {
-           for (var z = 0; z < size; z++)
+           for (var x = 0; x < size; x++)
            {
                var instance = ecb.Instantiate(firePrefab);
                ecb.SetComponent(instance, new Translation()
                {
-                   Value = offset + new float3(x, 0f, z)
+                   Value = new float3(x, 0f, z) - offset
                });
                
                ecb.SetComponent(instance, new URPMaterialPropertyBaseColor
@@ -54,20 +74,21 @@ public partial class SpawnerSystem : SystemBase
                });
                ecb.SetComponent(instance, new FireIndex
                {
-                   index = x + z *size
+                   //index = z + x *size
+                   index = (z *size) + x
                });
            }
        }
    }
 
-   void StartRandomFires()
+   void StartRandomFires(int amountFires)
    {
        var heatmapEntity = GetSingletonEntity<HeatMapTemperature>();
        DynamicBuffer<HeatMapTemperature> heatmapBuffer = EntityManager.GetBuffer<HeatMapTemperature>(heatmapEntity);
        Random random = new Random(123123);
 
        // Set random tiles on fire by default
-       for (int i = 0; i < 5; i++)
+       for (int i = 0; i < amountFires; i++)
        {
            int randomIndex = random.NextInt(0, heatmapBuffer.Length);
 
@@ -79,6 +100,14 @@ public partial class SpawnerSystem : SystemBase
    {
        var entity = ecb.Instantiate(prefab);
        ecb.SetComponent(entity, postion);
+       ecb.SetComponent(entity, new Home()
+       {
+           Value = postion.Value
+       });
+       ecb.SetComponent(entity, new RelocatePosition()
+       {
+           Value = postion.Value
+       });
        ecb.SetComponent(entity, new Speed() { Value = 4f });
 
        return entity;
@@ -95,18 +124,16 @@ public partial class SpawnerSystem : SystemBase
                 
             for (int i = 0; i < spawner.TeamCount; i++)
             {
-                var teamEntity = ecb.CreateEntity();
-                ecb.AddBuffer<Member>(teamEntity);
-                
                 var squadSize = (spawner.MembersCount - 2) / 2;
 
-                var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(fetcherEntity, new MyTeam() { Value = teamEntity });
-
                 var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(captainEntity, new MyTeam() { Value = teamEntity });
+                ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
                 ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = random.NextInt(0, MaxEvalOffset) });
+                ecb.AddBuffer<Member>(captainEntity);
                 
+                var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
+                ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
+
                 var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
                 ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
 
@@ -129,12 +156,12 @@ public partial class SpawnerSystem : SystemBase
                     workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                     
-                    ecb.AppendToBuffer<Member>(teamEntity, workerEntity);
+                    ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
                     
                     previousMember = workerEntity;
                 }
 
-                ecb.AddComponent(teamEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
+                ecb.AddComponent(captainEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
             }
    }
 
@@ -158,6 +185,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
+           ecb.SetComponent(entity, new Scale { Value = new float3(0.2f, 0.2f, 0.2f) });
        }
    }
    
@@ -209,17 +237,21 @@ public partial class SpawnerSystem : SystemBase
         var random = new Random(1234);
 
         Entities
+            .WithName("SpawnerSystem")
             .ForEach((Entity entity, in Spawner spawner) =>
             {
                 
                 ecb.DestroyEntity(entity);
+
+                SpawnCommunicationBuffers(ecb);
                 
                 SpawnHeatmap(ecb, spawner.FireDimension);
 
+		SpawnSplashmap(ecb, spawner.BucketCount);
+
                 if (spawner.FlameCellPrefab != Entity.Null)
-                {
                     SpawnFireColumns(ecb, spawner.FlameCellPrefab, spawner.FireDimension);
-                }
+                
 
                 SpawnTeams(ecb, spawner, random);
                 
@@ -228,13 +260,15 @@ public partial class SpawnerSystem : SystemBase
                 SpawnBuckets(ecb, spawner.BucketPrefab, spawner.BucketCount, spawner.FireDimension, random);
 
                 SpawnWaterPools(ecb, spawner.WaterPoolPrefab, spawner.WaterCount, spawner.FireDimension, spawner.MinWaterSupplyCount, spawner.MaxWaterSupplyCount, random);
+
+                //SpawnGround(ecb, spawner.GroundPrefab, spawner.FireDimension);
                 
             }).Run();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
 
-        StartRandomFires();
+        StartRandomFires(5);
 
         this.Enabled = false;
     }
