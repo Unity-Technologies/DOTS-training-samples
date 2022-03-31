@@ -95,27 +95,36 @@ public partial class BeeMovementSystemFixed : SystemBase
 
                 if (targetType.Value == TargetType.Type.Enemy)
                 {
-                    var delta = targetEntity.Position - position;
-                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                    if (sqrDist > attackDistance * attackDistance)
+                    if (!HasComponent<Team>(targetEntity.Value))
                     {
-                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        targetType.Value = TargetType.Type.None;
                     }
                     else
                     {
-                        velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
-                        if (sqrDist < hitDistance * hitDistance)
+                        var delta = targetEntity.Position - position;
+                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                        if (sqrDist > attackDistance * attackDistance)
                         {
-                            ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
-                                targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
-                            beginFrameEcb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
-                            targetType.Value = TargetType.Type.None;
+                            velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                        }
+                        else
+                        {
+                            velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
+                            if (sqrDist < hitDistance * hitDistance)
+                            {
+                                ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
+                                    targetEntity.Position, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
+                                beginFrameEcb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
+                                targetType.Value = TargetType.Type.None;
+                            }
                         }
                     }
                 }
                 else if (targetType.Value == TargetType.Type.Resource)
                 {
-                    if (!HasComponent<Components.Resource>(targetEntity.Value))
+                    if (!HasComponent<Components.Resource>(targetEntity.Value)
+                    || (HasComponent<ResourceOwner>(targetEntity.Value)
+                        && GetComponent<ResourceOwner>(targetEntity.Value).Owner != entity))
                     {
                         targetType.Value = TargetType.Type.None;
                     }
