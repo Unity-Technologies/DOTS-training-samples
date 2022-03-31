@@ -3,6 +3,15 @@ using Unity.Mathematics;
 
 public static class BucketBrigadeUtility
 {
+    public const float FreeSpeed = 2f;
+    public const float EmptyBucketSpeed = 2f;
+    public const float FullBucketSpeed = 2f / 3f;
+
+    public static int GetCurrentFrame()
+    {
+        return IdleSystem.CurrentFrame;
+    }
+    
     public static bool IsVeryClose(float2 a, float2 b)
     {
         return math.distancesq(a, b) < 0.01f;
@@ -15,7 +24,32 @@ public static class BucketBrigadeUtility
         return IsVeryClose(myPosition, otherPosition.Value);
     }
 
-    public static void PickUpBucket(EntityManager entityManager, ref BucketHeld bucketHeld, ref BucketToWant bucketWanted)
+    public static void MarkCarriedBucketAsFull(EntityCommandBuffer ecb, ref BucketHeld bucketHeld, ref Speed speed, int frame)
+    {
+        MyBucketState bucketState;
+
+        bucketState.Value = BucketState.FullCarried;
+        bucketState.FrameChanged = frame;
+        bucketHeld.IsFull = true;
+        speed.Value = FullBucketSpeed;
+        
+        ecb.SetComponent(bucketHeld.Value, bucketState);
+    }
+
+    public static void MarkCarriedBucketAsEmpty(EntityCommandBuffer ecb, ref BucketHeld bucketHeld, ref Speed speed, int frame)
+    {
+        MyBucketState bucketState;
+
+        bucketState.Value = BucketState.EmptyCarrried;
+        bucketState.FrameChanged = frame;
+        bucketHeld.IsFull = false;
+        speed.Value = EmptyBucketSpeed;
+        
+        ecb.SetComponent(bucketHeld.Value, bucketState);
+    }
+
+    // requires sanity check to avoid conflict
+    public static void PickUpBucket(EntityManager entityManager, ref BucketHeld bucketHeld, ref BucketToWant bucketWanted, ref Speed speed, int frame)
     {
         bucketHeld.Value = bucketWanted.Value;
         var bucketState = entityManager.GetComponentData<MyBucketState>(bucketHeld.Value);
@@ -24,60 +58,54 @@ public static class BucketBrigadeUtility
         {
             case BucketState.EmptyOnGround:
                 bucketState.Value = BucketState.EmptyCarrried;
+                bucketHeld.IsFull = false;
+                speed.Value = EmptyBucketSpeed;
                 break;
 
             case BucketState.FullOnGround:
                 bucketState.Value = BucketState.FullCarried;
+                bucketHeld.IsFull = true;
+                speed.Value = FullBucketSpeed;
                 break;
         }
+
+        bucketState.FrameChanged = frame;
         
         entityManager.SetComponentData(bucketHeld.Value, bucketState);
     }
 
-    public static void DropBucket(EntityManager entityManager, ref BucketHeld bucketHeld)
+    public static void DropBucket(EntityCommandBuffer ecb, ref BucketHeld bucketHeld, ref Speed speed, int frame)
     {
-        var bucketState = entityManager.GetComponentData<MyBucketState>(bucketHeld.Value);
+        speed.Value = FreeSpeed;
 
-        switch (bucketState.Value)
+        MyBucketState bucketState;
+
+        if (bucketHeld.IsFull)
         {
-            case BucketState.EmptyCarrried:
-                bucketState.Value = BucketState.EmptyOnGround;
-                break;
-
-            case BucketState.FullCarried:
-                bucketState.Value = BucketState.FullOnGround;
-                break;
+            bucketState.Value = BucketState.FullOnGround;
         }
-        
-        entityManager.SetComponentData(bucketHeld.Value, bucketState);
-    }
-    
-    public static bool IsBucketFull(EntityManager entityManager, BucketHeld bucketHeld)
-    {
-        var bucketState = entityManager.GetComponentData<MyBucketState>(bucketHeld.Value);
-
-        switch (bucketState.Value)
+        else
         {
-            case BucketState.FullCarried:
-            case BucketState.FullOnGround:
-                return true;
+            bucketState.Value = BucketState.EmptyOnGround;
         }
 
-        return false;
-    }
-    
-    public static bool IsBucketFull(BucketState bucketState)
-    {
-        switch (bucketState)
-        {
-            case BucketState.FullCarried:
-            case BucketState.FullOnGround:
-                return true;
-        }
+        bucketState.FrameChanged = frame;
 
-        return false;
+        ecb.SetComponent(bucketHeld.Value, bucketState);
+        bucketHeld.Value = Entity.Null;
     }
     
+    public static void GiveBucketByDrop(EntityCommandBuffer ecb, Entity worker, ref BucketHeld bucketHeld, ref Speed speed, int frame)
+    {
+        ecb.SetComponent(worker, new BucketToWant() { Value = bucketHeld.Value });
+        DropBucket(ecb, ref bucketHeld, ref speed, frame);
+    }
+    
+    public static void GiveBucketByDrop(EntityCommandBuffer ecb, DestinationWorker worker, ref BucketHeld bucketHeld, ref Speed speed, int frame)
+    {
+        GiveBucketByDrop(ecb, worker.Value, ref bucketHeld, ref speed, frame);
+    }
+
     public static bool IsBucketCarried(BucketState bucketState)
     {
         switch (bucketState)
