@@ -102,21 +102,16 @@ public partial class BeeMovementSystemFixed : SystemBase
                     }
                     else
                     {
-<<<<<<< HEAD
-                        velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
-                        isAttacking = true;
-                        if (sqrDist < hitDistance * hitDistance)
-=======
                         var delta = targetEntity.Position - position;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > attackDistance * attackDistance)
->>>>>>> 994c6b6bb9eed675a0828dc3c5563a05dee52627
                         {
                             velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
                         }
                         else
                         {
                             velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
+                            isAttacking = true;
                             if (sqrDist < hitDistance * hitDistance)
                             {
                                 ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
