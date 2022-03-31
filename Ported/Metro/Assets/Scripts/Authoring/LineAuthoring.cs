@@ -19,7 +19,8 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     [SerializeField] private int trainCount;
     [SerializeField] private float maxSpeed;
     [SerializeField] private bool debugRender;
-
+    [SerializeField] private Color lineColor;
+    
     struct StationData
     {
         public float3 stationPosition;
@@ -67,6 +68,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent {Value = curveDistance});
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Line = entity});
+        dstManager.AddComponentData<ColorComponent>(entity, new ColorComponent() { Value = (Vector4)lineColor});
     }
 
     // Populates a dynamic buffer with bezier curve information, returning the total distance.

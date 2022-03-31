@@ -254,12 +254,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4f4db8f344c3aa044dec78cf7bb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LineID: 2
   carriageCount: 8
   carriageLength: 0
   trainCount: 1
   maxSpeed: 25
   debugRender: 0
+  lineColor: {r: 0, g: 0, b: 1, a: 1}
 --- !u!4 &188054031
 Transform:
   m_ObjectHideFlags: 0
@@ -287,7 +287,7 @@ Transform:
   - {fileID: 693099967}
   - {fileID: 834890601}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &207923315
 PrefabInstance:
@@ -1188,7 +1188,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &612924262
 PrefabInstance:
@@ -1811,12 +1811,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4f4db8f344c3aa044dec78cf7bb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LineID: 1
   carriageCount: 2
-  carriageLength: 0
+  carriageLength: 5
   trainCount: 6
   maxSpeed: 25
   debugRender: 0
+  lineColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!4 &955015023 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5015432139096142432, guid: 393de951640dce04f884b49785e57a75,
@@ -2146,12 +2146,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ee4f4db8f344c3aa044dec78cf7bb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LineID: 0
   carriageCount: 4
-  carriageLength: 0
+  carriageLength: 5
   trainCount: 5
   maxSpeed: 25
   debugRender: 0
+  lineColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1001 &1261335920
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3725,7 +3725,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2141878562 stripped
 Transform:

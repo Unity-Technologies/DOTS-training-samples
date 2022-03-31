@@ -69,6 +69,8 @@ public partial class RailSpawnerSystem : SystemBase
                 var rotation = new Rotation { Value = lookRot };
                 ecb.SetComponent(instance, rotation);
             }
+
+            var lineColor = GetComponent<ColorComponent>(entity).Value;
             
             for (int i = 0; i < lineComponent.TrainCount; i++)
             {
@@ -84,12 +86,15 @@ public partial class RailSpawnerSystem : SystemBase
                     MaxSpeed = lineComponent.MaxSpeed / lineLength, 
                     Acceleration =  acceleration / lineLength };
                 ecb.SetComponent(train, speedComponent);
-                
+
                 for (int j = 0; j < lineComponent.CarriageCount; j++)
                 {
                     var carriage = ecb.Instantiate(carriagePrefab);
                     var carriageComponent = new CarriageComponent { Index = j, Train = train};
                     ecb.SetComponent(carriage, carriageComponent);
+                    
+                    var color = new URPMaterialPropertyBaseColor { Value = lineColor };
+                    ecb.SetComponent(carriage, color);
                 }
             }
             
