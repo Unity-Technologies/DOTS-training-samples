@@ -5,4 +5,9 @@ using Unity.Mathematics;
 public struct TeamReformCommand : IBufferElementData
 {
     public Entity Team;
+
+    public TeamReformCommand(Entity team)
+    {
+        Team = team;
+    }
 }
