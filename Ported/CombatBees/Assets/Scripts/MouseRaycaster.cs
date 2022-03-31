@@ -25,10 +25,7 @@ public class MouseRaycaster : MonoBehaviour {
 		{
 			GameObject newResourceGO = GameObject.Instantiate(AdhocResourceManager.instance.ResourcePrefab, worldMousePosition, Quaternion.identity);
 			// newResourceGO.transform.parent = AdhocResourceManager.instance.SubScene.gameObject.transform;
-			
 		}
-		else if (Input.GetKey(KeyCode.Mouse1))
-			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.Blood, Vector3.zero);
 	}
 
 	void LateUpdate () {
