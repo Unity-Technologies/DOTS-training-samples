@@ -7,7 +7,7 @@ using Unity.Mathematics;
 public partial class BeeSpawnerSystem : SystemBase
 {
     private const float MAX_SPAWN_SPEED = 75.0f;
-    private const float MIN_BEE_SIZE = 0.25f;
+    private const float MIN_BEE_SIZE = 0.25f; // TODO: This. 
     private const float MAX_BEE_SIZE = 0.5f;
 
     protected override void OnUpdate()

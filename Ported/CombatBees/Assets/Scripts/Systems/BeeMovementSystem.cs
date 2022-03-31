@@ -9,20 +9,20 @@ public partial class BeeMovementSystem : SystemBase
 {
     private const float SPEED_STRETCH = 0.2f;
     private const float ROTATION_STIFFNESS = 5.0f;
-    private const float FLIGHT_JITTER = 200.0f;
+    private const float FLIGHT_JITTER = 1000.0f;
     private const float DAMPING = 0.1f;
 
-    private const float TEAM_ATTRACTION = 5.0f;
-    private const float TEAM_REPULSION = 4.0f;
+    private const float TEAM_ATTRACTION = 20.0f;
+    private const float TEAM_REPULSION = 16.0f;
 
-    private const float CHASE_FORCE = 50.0f;
+    private const float CHASE_FORCE = 200.0f;
 
-    private const float CARRY_FORCE = 25.0f;
+    private const float CARRY_FORCE = 100.0f;
     private const float RESOURCE_SIZE = 0.75f;
     private const float GRAB_DISTANCE = 0.5f;
 
     private const float AGGRESSION = 0.5f;
-    private const float ATTACK_FORCE = 500.0f;
+    private const float ATTACK_FORCE = 2000.0f;
     private const float ATTACK_DISTANCE = 4.0f;
     private const float HIT_DISTANCE = 0.5f;
 
@@ -268,14 +268,14 @@ public partial class BeeMovementSystem : SystemBase
 
                     // Scale // TODO: Each bee needs to be given a random Size, and that needs to be tracked for use here.
                     //float size = bees[i].size;
-                    float baseSize = 0.5f;
-                    if (entity != target.Value)
-                    {
-                        float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
-                        scale.Value.z = baseSize * stretch;
-                        scale.Value.x = baseSize / (stretch - 1f) / 5f + 1f;
-                        scale.Value.y = baseSize / (stretch - 1f) / 5f + 1f;
-                    }
+                    //float baseSize = 0.5f;
+                    //if (entity != target.Value)
+                    //{
+                    //    float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
+                    //    scale.Value.z = baseSize * stretch;
+                    //    scale.Value.x = baseSize / (stretch - 1f) / 5f + 1f;
+                    //    scale.Value.y = baseSize / (stretch - 1f) / 5f + 1f;
+                    //}
 
                     // TODO: Rotation
                     //Vector3 oldSmoothPos = bee.smoothPosition;
