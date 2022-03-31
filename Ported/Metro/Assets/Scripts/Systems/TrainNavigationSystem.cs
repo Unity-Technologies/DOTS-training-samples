@@ -5,9 +5,9 @@ public partial class TrainNavigationSystem : SystemBase
 {
     public enum TrainState
     {
-        Embarking,
         Accelerating,
-        Decelerating
+        Decelerating,
+        Embarking
     }
         
     protected override void OnUpdate()

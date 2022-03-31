@@ -5,8 +5,6 @@ using UnityEngine;
 
 public partial class CarriageMovementSystem : SystemBase
 {
-    private int offset = 1;
-    
     protected override void OnUpdate()
     {
         var lineFromEntity = GetBufferFromEntity<BezierPointBufferElement>(true);
