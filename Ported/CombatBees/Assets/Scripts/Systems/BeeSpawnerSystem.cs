@@ -4,7 +4,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-public partial class SpawnerSystem : SystemBase
+public partial class BeeSpawnerSystem : SystemBase
 {
     private const float MAX_SPAWN_SPEED = 75.0f;
     private const float MIN_BEE_SIZE = 0.25f;

@@ -30,10 +30,12 @@ public partial class ResourceSpawnerSystem : SystemBase
                 var zCoord = random.NextInt(minZ, maxZ);
                 var translation = new Translation { Value = new float3(xCoord, minY, zCoord)};
                 ecb.SetComponent(instance, translation);
-                ecb.AddComponent<ResourceTagComponent>(instance);
-                ecb.AddComponent<HeldByBeeComponent>(instance);
-                ecb.AddComponent<PositionComponent>(instance);
-            }
+				ecb.AddComponent<VelocityComponent>(instance);
+				ecb.SetComponent(instance, new VelocityComponent { Value = 0f });
+				ecb.AddComponent<ResourceTagComponent>(instance);
+				ecb.AddComponent<HeldByBeeComponent>(instance);
+				ecb.AddComponent<PositionComponent>(instance);
+		}
         }).Run();
 
         ecb.Playback(EntityManager);

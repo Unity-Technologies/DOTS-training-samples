@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResourceSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 1882087471347382937, guid: 1d285f3e6c5333644bd7d253d9c0943b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1882087471347382938, guid: 1d285f3e6c5333644bd7d253d9c0943b, type: 3}
       propertyPath: ResourceCount
       value: 50
@@ -241,7 +245,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3320027730818537623, guid: 820b2ff99f479724fb33eb1bd5760bd5, type: 3}
       propertyPath: TeamBeeCount
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 3320027730818537623, guid: 820b2ff99f479724fb33eb1bd5760bd5, type: 3}
       propertyPath: BeeHiveXOffset
@@ -302,7 +306,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7134980083042588961, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
       propertyPath: TeamBeeCount
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7134980083042588962, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
       propertyPath: m_Name
