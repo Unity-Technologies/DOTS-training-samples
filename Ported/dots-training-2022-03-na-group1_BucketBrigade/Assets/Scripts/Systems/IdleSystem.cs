@@ -4,19 +4,9 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using static BucketBrigadeUtility;
 
+[UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class IdleSystem : SystemBase
 {
-    private static int _frame;
-
-    public static int CurrentFrame => _frame;
-    
-    static float2 CalculateLeftArc(float2 a, float2 b, float t)
-    {
-        var ab = b - a;
-
-        return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
-    }
-
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -24,34 +14,12 @@ public partial class IdleSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var currentFrame = _frame;
-
-        _frame += 1;
+        var currentFrame = GetCurrentFrame();
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
+        
         var waterPoolBufferEntity = GetSingletonEntity<WaterPoolInfo>();
         var waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(waterPoolBufferEntity);
-        
-        waterPoolBuffer.Clear();
-        
-        Entities.WithName("WaterInfoCollect")
-            .WithNone<BucketTag>()
-            .ForEach((in Entity entity, in Volume volume, in Position position, in Scale scale) =>
-            {
-                // water pool only counts if it has volume.
-                if (volume.Value > 0.01)
-                {
-                    ecb.AppendToBuffer(waterPoolBufferEntity, new WaterPoolInfo() { WaterPool = entity, Position = position.Value, Radius = scale.Value.x / 2f});
-                }
-            }).Run();
-        
-        ecb.Playback(EntityManager);
-        ecb.Dispose();
-        
-        ecb = new EntityCommandBuffer(Allocator.Temp);
-        
-        waterPoolBuffer = EntityManager.GetBuffer<WaterPoolInfo>(waterPoolBufferEntity);
 
         var entityManager = EntityManager;
 

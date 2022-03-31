@@ -7,9 +7,16 @@ public static class BucketBrigadeUtility
     public const float EmptyBucketSpeed = 2f;
     public const float FullBucketSpeed = 2f / 3f;
 
+    private static int _frame;
+
+    public static void IncrementFrame()
+    {
+        _frame++;
+    }
+    
     public static int GetCurrentFrame()
     {
-        return IdleSystem.CurrentFrame;
+        return _frame;
     }
     
     public static bool IsVeryClose(float2 a, float2 b)
@@ -165,5 +172,12 @@ public static class BucketBrigadeUtility
         }
 
         return (closest, closestPosition);
+    }
+    
+    public static float2 CalculateLeftArc(float2 a, float2 b, float t)
+    {
+        var ab = b - a;
+
+        return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
     }
 }

@@ -5,7 +5,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using static BucketBrigadeUtility;
 
-[UpdateBefore(typeof(IdleSystem))]
+[UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
 public partial class SpawnerSystem : SystemBase
 {
     private const int MaxEvalOffset = 59;
