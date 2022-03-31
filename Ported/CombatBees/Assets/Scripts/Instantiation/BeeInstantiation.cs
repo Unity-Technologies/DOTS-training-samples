@@ -22,9 +22,8 @@ namespace Instantiation
             {
                 Value = team == 0 ? blueColor : yellowColor
             });
-            ecb.SetComponent(bee, new BeeMovement
+            ecb.SetComponent(bee, new MovementSmoothing
             {
-                Velocity = float3.zero,
                 Size = random.NextFloat(0.25f, 0.5f)
             });
             ecb.AddComponent(bee, new Team { TeamId = (byte)team });
@@ -42,9 +41,8 @@ namespace Instantiation
             {
                 Value = team == 0 ? blueColor : yellowColor
             });
-            ecb.SetComponent(sortKey, bee, new BeeMovement
+            ecb.SetComponent(sortKey, bee, new MovementSmoothing
             {
-                Velocity = float3.zero,
                 Size = random.NextFloat(0.25f, 0.5f)
             });
             ecb.AddComponent(sortKey, bee, new Team { TeamId = (byte)team });

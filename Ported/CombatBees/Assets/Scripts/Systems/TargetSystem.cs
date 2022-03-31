@@ -18,8 +18,8 @@ namespace Systems
 
         protected override void OnCreate()
         {
-            teamTargetsQuery0 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Attackable>(), ComponentType.ReadOnly<TeamShared>());
-            teamTargetsQuery1 = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Attackable>(), ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery0 = EntityManager.CreateEntityQuery(ComponentType.Exclude<BeeLifetime>(), ComponentType.ReadOnly<TeamShared>());
+            teamTargetsQuery1 = EntityManager.CreateEntityQuery(ComponentType.Exclude<BeeLifetime>(), ComponentType.ReadOnly<TeamShared>());
             teamTargetsQuery0.SetSharedComponentFilter(new TeamShared { TeamId = 0 });
             teamTargetsQuery1.SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 
@@ -79,7 +79,6 @@ namespace Systems
         {
             var random = Random.CreateFromIndex(globalSystemVersion ^ (uint)entity.Index);
 
-            // Relying on this check stops filtering being effective, but otherwise there'd be a lot of structural churn
             if (target.Value == TargetType.Type.None)
             {
                 if (attackables.Length > 0 && random.NextFloat() < aggression)

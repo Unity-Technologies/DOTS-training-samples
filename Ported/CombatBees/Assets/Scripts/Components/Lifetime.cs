@@ -11,4 +11,5 @@ public struct Lifetime : IComponentData
 public struct BeeLifetime : IComponentData
 {
     public float Value;
+    public byte NewlyDead;
 }
