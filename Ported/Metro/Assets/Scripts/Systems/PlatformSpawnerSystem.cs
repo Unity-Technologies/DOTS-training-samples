@@ -9,11 +9,13 @@ using UnityEngine;
 public partial class PlatformSpawnerSystem : SystemBase
 {
     private EntityQuery spawnerQuery;
+    private EntityQuery stationQuery;
 
     protected override void OnCreate()
     {
         // Run ONLY if PlatformSpawnerComponent exists
         RequireForUpdate(spawnerQuery);
+        RequireForUpdate(stationQuery);
     }
 
     protected override void OnUpdate()
@@ -33,19 +35,23 @@ public partial class PlatformSpawnerSystem : SystemBase
                 ecb.DestroyEntity(entity);
             }).Run();
 
-        Entities.ForEach((Entity Entity, in DynamicBuffer<LineMarkerBufferElement> lineMarker) =>
+        Entities.WithStoreEntityQueryInField(ref stationQuery)
+            .ForEach((Entity Entity, in StationComponent stationComponent, in Translation translation,  
+            in Rotation rotation) =>
         {
-            for (int i = 0; i < lineMarker.Length; i++)
+            var instance = ecb.Instantiate(platformPrefab);
+            ecb.SetComponent(instance, new Translation{Value = translation.Value});
+            ecb.SetComponent(instance, new Rotation{Value = rotation.Value});
+            
+            /*for (int i = 0; i < lineMarker.Length; i++)
             {
                 if (lineMarker[i].IsPlatform && i < lineMarker.Length - 1)
                 {
                     var instance = ecb.Instantiate(platformPrefab);
 
-                    var translation = new Translation();
-                    translation.Value.x = lineMarker[i].Position.x + (lineMarker[i + 1].Position.x - lineMarker[i].Position.x) / 2;
-                    translation.Value.y = lineMarker[i].Position.y + (lineMarker[i + 1].Position.y - lineMarker[i].Position.y) / 2;
-                    translation.Value.z = lineMarker[i].Position.z + (lineMarker[i + 1].Position.z - lineMarker[i].Position.z) / 2;
-                    ecb.SetComponent(instance, translation);
+                    var platformTranslation = new Translation();
+                    platformTranslation.Value = translation.Value;
+                    ecb.SetComponent(instance, platformTranslation);
 
                     var rotation = new Rotation();
                     rotation.Value = Quaternion.LookRotation(lineMarker[i + 1].Position - lineMarker[i].Position, Vector3.up); //calc a rotation that
@@ -54,7 +60,7 @@ public partial class PlatformSpawnerSystem : SystemBase
                     
                     ecb.AddComponent<PlatformComponent>(instance);
                 }
-            }
+            }*/
         }).Run();
 
         ecb.Playback(EntityManager);

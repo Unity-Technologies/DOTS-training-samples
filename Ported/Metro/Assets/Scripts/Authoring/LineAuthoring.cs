@@ -23,7 +23,8 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     
     struct StationData
     {
-        public float3 stationPosition;
+        public float3 position;
+        public quaternion rotation;
         public float outboundBezierPosition;
         public float returnBezierPosition;
     }
@@ -156,8 +157,10 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         {
             StationData stationData = new StationData
             {
-                stationPosition =  bezierCurve[stationIndices[i]].Location -
+                position =  bezierCurve[stationIndices[i]].Location -
                             bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].Location,
+                rotation = quaternion.Euler(BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance, 
+                    bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance)),
                 outboundBezierPosition = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance,
                 returnBezierPosition = bezierCurve[(2 * totalMarkers) - 1 - stationIndices[i]].DistanceAlongPath / totalPathDistance,
             };
@@ -176,13 +179,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             float platormARelativePosition = stations[i].outboundBezierPosition;
             float platormBRelativePosition = stations[i].returnBezierPosition;
 
-            var position = stations[i].stationPosition;
-
             dstManager.AddComponentData(station, new StationComponent
             {
                 PlatformATrackPosition = platormARelativePosition, PlatformBTrackPosition = platormBRelativePosition
             });
-            dstManager.AddComponentData(station, new Translation {Value = position});
+            dstManager.AddComponentData(station, new Translation {Value = stations[i].position});
+            dstManager.AddComponentData(station, new Rotation {Value = stations[i].rotation});
         }
     }
 }
