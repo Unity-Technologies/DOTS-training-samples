@@ -95,19 +95,20 @@ public static class BucketBrigadeUtility
         // Computing the distance with each cell of the heatmap whose temperature is higher than 0
         // and keep the closest one.
 
-        var position = new float3(fromPosition, 0);
-
         var shortestDistanceSq = float.MaxValue;
-        float3 closestSpot = default;
+        float2 closestSpot = default;
 
         for (var i = 0; i < heatmap.Length; i++)
         {
-            var tilePosition = GridUtility.PlotTileWorldPositionFromIndex(i, heatmapData.mapSideLength);
-            var distance = math.distancesq(position, tilePosition);
-            if (distance < shortestDistanceSq)
+            if (heatmap[i] > 0.01f)
             {
-                shortestDistanceSq = distance;
-                closestSpot = tilePosition;
+                var tilePosition = GridUtility.PlotTileWorldPosition2DFromIndex(i, heatmapData.mapSideLength);
+                var distance = math.distancesq(fromPosition, tilePosition);
+                if (distance < shortestDistanceSq)
+                {
+                    shortestDistanceSq = distance;
+                    closestSpot = tilePosition;
+                }
             }
         }
 
