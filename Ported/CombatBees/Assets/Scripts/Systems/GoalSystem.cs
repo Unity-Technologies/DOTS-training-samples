@@ -9,14 +9,14 @@ using Mathf = UnityEngine.Mathf;
 public partial class GoalSystem : SystemBase
 {
     EntityCommandBufferSystem beginSimulationEntityCommandBufferSystem;
-    EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+   // EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     EntityQuery[] teamTargets;
 
     protected override void OnCreate()
     {
         beginSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+       // endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -25,10 +25,11 @@ public partial class GoalSystem : SystemBase
         var particles = GetSingleton<ParticleSettings>();
 
         var beginFrameEcb = beginSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+       // var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var gsv = GlobalSystemVersion;
 
         Dependency = Entities
+            .WithoutBurst()
             .WithAll<Components.Resource>()
             .WithNone<Components.KinematicBody>()
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
@@ -48,7 +49,7 @@ public partial class GoalSystem : SystemBase
                     // Spawn new bees and particles
                     for (int i = 0; i < 3; ++i)
                     {
-                        Instantiation.Bee.Instantiate(endFrameEcb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
+                        Instantiation.Bee.Instantiate(beginFrameEcb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
                             random.NextFloat(0.25f, 0.5f), team);
                         ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, random,
                             translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
@@ -57,6 +58,6 @@ public partial class GoalSystem : SystemBase
             }).ScheduleParallel(Dependency);
 
         beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        //endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
