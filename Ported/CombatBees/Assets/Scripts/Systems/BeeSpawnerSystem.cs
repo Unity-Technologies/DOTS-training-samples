@@ -29,7 +29,7 @@ public partial class BeeSpawnerSystem : SystemBase
 					var translation = new Translation { Value = spawner.BeeSpawnPosition };
 					ecb.SetComponent(instance, translation);
 					ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
-                }
+        }
 			}).Run();
 
 		ecb.Playback(EntityManager);

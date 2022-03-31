@@ -35,7 +35,7 @@ public partial class ResourceSpawnerSystem : SystemBase
 				ecb.AddComponent<ResourceTagComponent>(instance);
 				ecb.AddComponent<HeldByBeeComponent>(instance);
 				ecb.AddComponent<PositionComponent>(instance);
-		}
+		    }
         }).Run();
 
         ecb.Playback(EntityManager);

@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f41e2801cb004a9428ce71d857b443fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   ResourcePrefab: {fileID: 1667393258452892946, guid: c7e942e7629e11e4da319b0f4da06ce4, type: 3}
   YellowBee: {fileID: 2409184108622359359, guid: 560d5905f2adfea479b4486d9834a327, type: 3}
   BlueBee: {fileID: 2409184108622359359, guid: f7983cac273ae36499764289c4674a9e, type: 3}
@@ -230,7 +230,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5517354851798542096, guid: 7c969ad22c66da2469ddbce12d00c2b7, type: 3}
       propertyPath: BeePrefab
-      value: 
+      value:
       objectReference: {fileID: 2409184108622359359, guid: 560d5905f2adfea479b4486d9834a327, type: 3}
     - target: {fileID: 5517354851798542096, guid: 7c969ad22c66da2469ddbce12d00c2b7, type: 3}
       propertyPath: BeeSpawnPosition.x
@@ -344,8 +344,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8948e4a1696485c449ca825f36bb2bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   BeePrefab: {fileID: 2409184108622359359, guid: f7983cac273ae36499764289c4674a9e, type: 3}
   BeeCount: 50
   BeeSpawnPosition:
