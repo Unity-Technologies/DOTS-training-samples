@@ -14,6 +14,7 @@ public partial class BucketDetectionSystem : SystemBase
 
         var helperEntity = GetSingletonEntity<FreeBucketInfo>();
         var bucketBuffer = EntityManager.GetBuffer<FreeBucketInfo>(helperEntity);
+        var frame = GetCurrentFrame();
         
         bucketBuffer.Clear();
         
@@ -21,12 +22,18 @@ public partial class BucketDetectionSystem : SystemBase
             .WithName("BucketInfoCollect")
             .ForEach((in Entity entity, in MyBucketState state, in Position position) =>
             {
-                switch (state.Value)
+                // do not scoop buckets on same frame -- too many race conditions there.
+                if (frame > state.FrameChanged + 2)
                 {
-                    case BucketState.EmptyOnGround:
-                    case BucketState.FullOnGround:
-                        ecb.AppendToBuffer(helperEntity, new FreeBucketInfo() { BucketEntity = entity, BucketPosition = position, BucketState = state});
-                        break;
+                    switch (state.Value)
+                    {
+                        case BucketState.EmptyOnGround:
+                        case BucketState.FullOnGround:
+                            ecb.AppendToBuffer(helperEntity,
+                                new FreeBucketInfo()
+                                    { BucketEntity = entity, BucketPosition = position, BucketState = state });
+                            break;
+                    }
                 }
             }).Run();
         

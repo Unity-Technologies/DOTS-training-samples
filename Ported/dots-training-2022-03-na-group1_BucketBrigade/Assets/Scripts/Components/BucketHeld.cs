@@ -3,4 +3,5 @@
 public struct BucketHeld : IComponentData
 {
     public Entity Value;
+    public bool IsFull;
 }

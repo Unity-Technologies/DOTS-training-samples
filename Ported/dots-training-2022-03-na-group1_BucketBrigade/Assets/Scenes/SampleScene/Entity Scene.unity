@@ -179,7 +179,7 @@ MonoBehaviour:
   MembersCount: 13
   FireDimension: 50
   WaterCount: 12
-  BucketCount: 4
+  BucketCount: 30
   MinWaterSupplyCount: 50
   MaxWaterSupplyCount: 100
   TurnOffFireRendering: 0

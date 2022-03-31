@@ -36,6 +36,22 @@ public partial class PositioningSystem : SystemBase
             {
                 translation.Value = new float3(position.Value.x, IsBucketCarried(state.Value) ? 1.2f : 0.2f, position.Value.y);
             }).ScheduleParallel();
+
+        Entities
+            .ForEach((ref Scale scale, in MyBucketState state) =>
+            {
+                switch (state.Value)
+                {
+                    case BucketState.FullCarried:
+                    case BucketState.FullOnGround:
+                        scale.Value = new float3(0.3f, 0.3f, 0.3f);
+                        break;
+                    
+                    default:
+                        scale.Value = new float3(0.2f, 0.2f, 0.2f);
+                        break;
+                }
+            }).Run();
         
         Entities
             .ForEach((ref NonUniformScale scale, in Scale newScale) =>

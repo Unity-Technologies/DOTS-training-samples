@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using static BucketBrigadeUtility;
 
 [UpdateBefore(typeof(IdleSystem))]
 public partial class SpawnerSystem : SystemBase
@@ -108,7 +109,7 @@ public partial class SpawnerSystem : SystemBase
        {
            Value = postion.Value
        });
-       ecb.SetComponent(entity, new Speed() { Value = 4f });
+       ecb.SetComponent(entity, new Speed() { Value = FreeSpeed });
 
        return entity;
    }
@@ -130,12 +131,14 @@ public partial class SpawnerSystem : SystemBase
                 ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
                 ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = random.NextInt(0, MaxEvalOffset) });
                 ecb.AddBuffer<Member>(captainEntity);
+                ecb.AddComponent<TeamNeedsReform>(captainEntity);
                 
                 var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
                 ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
 
                 var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
                 ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
+                ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
 
                 var previousMember = workerEntity;
                 
@@ -143,6 +146,8 @@ public partial class SpawnerSystem : SystemBase
                 {
                     workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
                     ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
+                    
+                    ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
 
                     previousMember = workerEntity;
                 }
@@ -173,7 +178,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
-           ecb.SetComponent(entity, new Speed() { Value = 4f });
+           ecb.SetComponent(entity, new Speed() { Value = FreeSpeed });
        }
    }
 
@@ -247,7 +252,7 @@ public partial class SpawnerSystem : SystemBase
                 
                 SpawnHeatmap(ecb, spawner.FireDimension);
 
-		SpawnSplashmap(ecb, spawner.BucketCount);
+                SpawnSplashmap(ecb, spawner.BucketCount);
 
                 if (spawner.FlameCellPrefab != Entity.Null)
                     SpawnFireColumns(ecb, spawner.FlameCellPrefab, spawner.FireDimension);
