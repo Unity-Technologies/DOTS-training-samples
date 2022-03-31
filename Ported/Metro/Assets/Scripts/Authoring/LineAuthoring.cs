@@ -17,7 +17,8 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     [SerializeField] private int carriageCount;
     [SerializeField] private int trainCount;
     [SerializeField] private float maxSpeed;
-
+    [SerializeField] private bool debugRender;
+    
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         var children = gameObject.GetComponentsInChildren<LineMarkerAuthoring>();
@@ -44,6 +45,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             TrainCount = trainCount,
             MaxSpeed = maxSpeed
         });
+
+        if (debugRender)
+        {
+            dstManager.AddComponent<ShouldDebugRenderBezier>(entity);
+        }
+        
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent {Value = curveDistance});
         dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent{Value = LineID});

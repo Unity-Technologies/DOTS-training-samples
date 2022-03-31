@@ -7,7 +7,7 @@ public partial class BezierDebugRenderSystem : SystemBase
     protected override void OnUpdate()
     {
         Entities
-            .ForEach((in LineTotalDistanceComponent totalDistanceComponent, in DynamicBuffer<BezierPointBufferElement> bezierCurve) =>
+            .ForEach((in ShouldDebugRenderBezier debugRenderBezier, in LineTotalDistanceComponent totalDistanceComponent, in DynamicBuffer<BezierPointBufferElement> bezierCurve) =>
             {
                 for (float i = 0; i < totalDistanceComponent.Value; i += 0.1f)
                 {
