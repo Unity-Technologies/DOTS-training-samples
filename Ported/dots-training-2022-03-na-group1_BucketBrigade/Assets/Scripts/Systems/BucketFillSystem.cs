@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public partial class BucketFillSystem : SystemBase
+partial class BucketFillSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -8,10 +8,10 @@ public partial class BucketFillSystem : SystemBase
         var manager = EntityManager;
 
         Entities
-            .WithAll<BucketFill>()
+            .WithAll<Cooldown>()
             .ForEach((
                 ref MyWorkerState workerState,
-                in BucketFill fillStatus,
+                in Cooldown cooldown,
                 in BucketHeld bucketRef,
                 in MyWaterPool poolRef) =>
             {
@@ -19,7 +19,7 @@ public partial class BucketFillSystem : SystemBase
                 if (workerState.Value != WorkerState.FillingBucket) return;
 
                 // Still waiting for the filling to be completed
-                if (fillStatus.cooldown < currentTime) return;
+                if (cooldown.Value < currentTime) return;
 
                 // At this point, the cooldown is done.
 

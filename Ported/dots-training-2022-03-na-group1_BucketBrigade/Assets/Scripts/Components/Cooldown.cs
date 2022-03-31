@@ -3,10 +3,10 @@ using Unity.Entities;
 /// <summary>
 ///     Holds the cooldown time for a bot filling a bucket.
 /// </summary>
-struct BucketFill : IComponentData
+struct Cooldown : IComponentData
 {
     /// <summary>
     ///     The time the filling process is finished.
     /// </summary>
-    public float cooldown;
+    public float Value;
 }
