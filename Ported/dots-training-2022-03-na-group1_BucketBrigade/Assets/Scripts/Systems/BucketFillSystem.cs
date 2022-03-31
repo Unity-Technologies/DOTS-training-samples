@@ -1,4 +1,3 @@
-using Components;
 using Unity.Entities;
 
 public partial class BucketFillSystem : SystemBase
@@ -24,7 +23,7 @@ public partial class BucketFillSystem : SystemBase
 
                 // At this point, the cooldown is done.
 
-                BucketHelper.SetState(manager, bucketRef.Value, BucketState.Full);
+                BucketHelper.SetState(manager, bucketRef.Value, BucketState.FullCarried);
                 WaterPoolHelper.DecreaseVolume(manager, poolRef.Value);
                 workerState.Value = WorkerState.Idle;
             })
