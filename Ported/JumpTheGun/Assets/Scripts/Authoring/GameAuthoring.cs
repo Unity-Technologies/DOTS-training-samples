@@ -70,6 +70,7 @@ public class GameAuthoring : UnityMonoBehaviour
         dstManager.AddComponentData(tankEntityPrefab, new Tank());
 
         dstManager.AddComponentData(cannonBallEntityPrefab, new ParabolaData {duration = 0.001f});
+        dstManager.AddComponent<CannonBallTag>(cannonBallEntityPrefab);
         dstManager.AddComponent<NormalizedTime>(cannonBallEntityPrefab);
     }
 }

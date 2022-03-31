@@ -4,9 +4,9 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using Color = UnityEngine.Color;
+
 public partial class TerrainAreaSystem : SystemBase
 {
-   
     EntityQuery checkForBricks;
     protected override void OnCreate()
     {

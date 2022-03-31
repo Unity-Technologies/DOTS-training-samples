@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Color = UnityEngine.Color;
 
 
+[UpdateAfter(typeof(TerrainAreaSystem))]
 public partial class TankUpdate : SystemBase
 {
     EntityCommandBufferSystem _ecbSystem;
