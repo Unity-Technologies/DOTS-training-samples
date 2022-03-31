@@ -12,6 +12,7 @@ using UnityEngine;
 namespace Systems
 {
     [UpdateBefore(typeof(BarRenderingSystem))]
+    [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public partial class PointDisplacementSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;

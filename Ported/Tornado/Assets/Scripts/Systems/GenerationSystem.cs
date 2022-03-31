@@ -166,7 +166,7 @@ namespace Systems
             });
         }
 
-        private static void GenerateLinks(int minPointIndex, int maxPointIndex, ref EntityCommandBuffer ecb, ref Random random, Entity barPrefab, ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList)
+        private static void GenerateLinks(int minPointIndex, int maxPointIndex, ref EntityCommandBuffer ecb, ref Random random, Entity barPrefab, ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList, int linkOffset = 0)
         {
             for (int i = minPointIndex; i < maxPointIndex; i++)
             {
@@ -187,7 +187,7 @@ namespace Systems
 
                         ecb.SetComponent(barEntity, new Bar
                         {
-                            indexLink = linksList.Length,
+                            indexLink = linksList.Length + linkOffset,
                             oldDirection = new float3(0.0f, 1.0f, 0.0f),
                             thickness = thickness
                         });
@@ -199,7 +199,10 @@ namespace Systems
                             math.PI;
                       
                         //var color = new float4(1.0f, 1.0f, 1.0f, 1.0f) * upDot * random.NextFloat(0.7f, 1.0f);
-                        var color = upDot >= 0.5f ? new float4(1.0f, 0.0f, 0.0f, 1.0f) : new float4(0.0f, 1.0f, 0.0f, 1.0f);
+                        //var color = upDot >= 0.5f ? new float4(1.0f, 0.0f, 0.0f, 1.0f) : new float4(0.0f, 1.0f, 0.0f, 1.0f);
+                        var color = math.lerp(new float4(1.0f, 0.0f, 0.0f, 1.0f), new float4(0.0f, 1.0f, 0.0f, 1.0f),
+                            upDot * 2.0f);
+                            //upDot >= 0.5f ? new float4(1.0f, 0.0f, 0.0f, 1.0f) : new float4(0.0f, 1.0f, 0.0f, 1.0f);
 
                         ecb.SetComponent(barEntity, new URPMaterialPropertyBaseColor {Value = color});
 
@@ -258,32 +261,42 @@ namespace Systems
             {
                 int beforeGroundDetail = pointsList.Length;
 
+                var groundDetailPoints = new NativeList<VerletPoints>(Allocator.Temp);
+                var groundDetailLinks = new NativeList<Link>(Allocator.Temp);
+
                 for (int i = 0; i < 600; i++)
                 {
-                    GenerateGroundDetail(ref random, ref pointsList);
+                    GenerateGroundDetail(ref random, ref groundDetailPoints);
                 }
 
-                int afterGroundDetail = pointsList.Length;
                 int startingLinkCount = linksList.Length;
-                linkStartIndices.Add(startingLinkCount);
-                GenerateLinks(beforeGroundDetail, afterGroundDetail, ref ecb, ref random, generation.barPrefab,
-                    ref pointsList, ref linksList);
 
-                int endingLinkCount = linksList.Length;
-                int islandLinkCount = endingLinkCount - startingLinkCount;
-                int fullyBrokenIslandPointCount = islandLinkCount * 2;
-                int usedPointCount = afterGroundDetail - beforeGroundDetail;
+                GenerateLinks(0, groundDetailPoints.Length, ref ecb, ref random, generation.barPrefab,
+                    ref groundDetailPoints, ref groundDetailLinks, startingLinkCount);
 
-                int additionalPointsToAllocate = fullyBrokenIslandPointCount - usedPointCount;
-                var paddingPoint = pointsList[afterGroundDetail - 1];
-                paddingPoint.anchored = byte.MaxValue;
+                NativeList<int> groundDetailPointAllocators;
 
-                for (int j = 0; j < additionalPointsToAllocate; ++j)
+                var linkIslandStartIndices = SeparateLinkIslands(ref groundDetailPoints, ref groundDetailLinks, out groundDetailPointAllocators);
+
+                pointsList.AddRange(groundDetailPoints);
+
+                for (int i = 0; i < groundDetailLinks.Length; ++i)
                 {
-                    pointsList.Add(paddingPoint);
+                    var link = groundDetailLinks[i];
+                    link.point1Index += beforeGroundDetail;
+                    link.point2Index += beforeGroundDetail;
+                    linksList.Add(link);
                 }
 
-                islandPointAllocators.Add(usedPointCount + startingLinkCount * 2);
+                for (int i = 0; i < linkIslandStartIndices.Count; ++i)
+                {
+                    linkStartIndices.Add(linkIslandStartIndices[i] + startingLinkCount);
+                }
+
+                for (int i = 1; i < groundDetailPointAllocators.Length; ++i)
+                {
+                    islandPointAllocators.Add(groundDetailPointAllocators[i] + startingLinkCount * 2);
+                }
             }
 
             //GenerateLinks(0, pointsList.Length, ref ecb, random, generation.barPrefab, ref pointsList, ref linksList);
@@ -296,7 +309,77 @@ namespace Systems
             public HashSet<int> points;
         }
 
-        private static List<int> SortLinkIslands(ref NativeList<Link> linksList)
+        private static List<int> SeparateLinkIslands(ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList, out NativeList<int> pointAllocators)
+        {
+            var islands = DetectLinkIslands(linksList);
+            var linkSorter = new LinkSorter(islands);
+
+            // sort links by island index
+            linksList.Sort(linkSorter);
+            int lastIndex = -1;
+            int lastIslandStartIndex = 0;
+            var islandStartIndices = new List<int>();
+            var oldPointToNewPointMapping = new Dictionary<int, int>();
+            var reindexedPointList = new NativeArray<VerletPoints>(linksList.Length * 2, Allocator.Temp);
+            pointAllocators = new NativeList<int>(Allocator.Temp);
+            int indexAllocator = 0;
+
+            for (int i = 0; i < linksList.Length; ++i)
+            {
+                var islandIndex = islands[linksList[i].point1Index].islandIndex;
+                Debug.Assert(islandIndex == islands[linksList[i].point2Index].islandIndex);
+
+                if (islandIndex != lastIndex)
+                {
+                    islandStartIndices.Add(i);
+                    pointAllocators.Add(indexAllocator);
+
+                    int newIndexAllocatorStart = i * 2;
+
+                    // pad out point gaps
+                    for (int j = indexAllocator; j < newIndexAllocatorStart; ++j)
+                    {
+                        var paddingPoint = reindexedPointList[indexAllocator - 1];
+                        paddingPoint.anchored = byte.MaxValue;
+                        reindexedPointList[j] = paddingPoint;
+                    }
+
+                    indexAllocator = newIndexAllocatorStart;
+                    lastIndex = islandIndex;
+                }
+
+                // while we're here, re-index the links so that the starts & ends are next to each other in memory
+                var link = linksList[i];
+
+                if (!oldPointToNewPointMapping.TryGetValue(linksList[i].point1Index, out int newPoint1Index))
+                {
+                    newPoint1Index = indexAllocator++;
+                    oldPointToNewPointMapping.Add(linksList[i].point1Index, newPoint1Index);
+                    reindexedPointList[newPoint1Index] = pointsList[linksList[i].point1Index];
+                }
+
+                link.point1Index = newPoint1Index;
+
+                if (!oldPointToNewPointMapping.TryGetValue(linksList[i].point2Index, out int newPoint2Index))
+                {
+                    newPoint2Index = indexAllocator++;
+                    oldPointToNewPointMapping.Add(linksList[i].point2Index, newPoint2Index);
+                    reindexedPointList[newPoint2Index] = pointsList[linksList[i].point2Index];
+                }
+
+                link.point2Index = newPoint2Index;
+                linksList[i] = link;
+            }
+
+            pointAllocators.Add(indexAllocator);
+            pointsList.Clear();
+            pointsList.AddRange(reindexedPointList);
+            reindexedPointList.Dispose();
+
+            return islandStartIndices;
+        }
+
+        private static Dictionary<int, Island> DetectLinkIslands(in NativeList<Link> linksList)
         {
             var islands = new Dictionary<int, Island>();
             int islandCount = 0;
@@ -355,6 +438,13 @@ namespace Systems
                     }
                 }
             }
+
+            return islands;
+        }
+
+        private static List<int> SortLinkIslands(ref NativeList<Link> linksList)
+        {
+            var islands = DetectLinkIslands(linksList);
 
             var linkSorter = new LinkSorter(islands);
 
