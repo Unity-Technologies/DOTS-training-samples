@@ -41,7 +41,7 @@ public partial class BeeSpawnerSystem : SystemBase
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamYellowTagComponent.TeamColor });
 						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
-                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) * MAX_SPAWN_SPEED });
+                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
                     }
                 }
 				else
@@ -62,7 +62,7 @@ public partial class BeeSpawnerSystem : SystemBase
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamBlueTagComponent.TeamColor });
                         ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
-                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) * MAX_SPAWN_SPEED });
+                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
                     }
                 }
 			}).Run();
