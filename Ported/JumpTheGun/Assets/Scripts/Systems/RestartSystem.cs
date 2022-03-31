@@ -27,7 +27,7 @@ public partial class RestartSystem : SystemBase
         ecb.DestroyEntity(GetSingletonEntity<OccupiedElement>());
         
         Entities
-            .WithAny<CannonBallTag, Tank, Brick>()
+            .WithAny<CannonBallTag, Tank, BrickTag>()
             .ForEach((int entityInQueryIndex, Entity entity) =>
             {
                 ecbParallel.DestroyEntity(entityInQueryIndex, entity);

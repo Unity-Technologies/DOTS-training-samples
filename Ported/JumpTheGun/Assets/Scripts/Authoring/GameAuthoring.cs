@@ -60,7 +60,7 @@ public class GameAuthoring : UnityMonoBehaviour
             TerrainLength = TerrainLength,
         });
         dstManager.AddComponentData(brickPrefabEntity, new NonUniformScale());
-        dstManager.AddComponentData(brickPrefabEntity, new Brick());
+        dstManager.AddComponentData(brickPrefabEntity, new BrickTag());
         dstManager.AddComponent<URPMaterialPropertyBaseColor>(brickPrefabEntity);
 
         dstManager.AddComponentData(entity, new TankData

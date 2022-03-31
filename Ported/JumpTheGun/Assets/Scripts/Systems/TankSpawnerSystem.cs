@@ -13,7 +13,7 @@ public partial class TankSpawnerSystem : SystemBase
     protected override void OnCreate()
     {
 		_tankQuery = GetEntityQuery(typeof(Tank));
-		_brickQuery = GetEntityQuery(typeof(Brick), typeof(Translation));
+		_brickQuery = GetEntityQuery(typeof(BrickTag), typeof(Translation));
 
 		RequireSingletonForUpdate<OccupiedElement>();
 		RequireSingletonForUpdate<TerrainData>();
@@ -63,7 +63,7 @@ public partial class TankSpawnerSystem : SystemBase
 
 		ShuffleList(brickEntities, random);
 
-		var bricks = _brickQuery.ToComponentDataArray<Brick>(brickEntities, Allocator.Temp);
+		var bricks = _brickQuery.ToComponentDataArray<BrickTag>(brickEntities, Allocator.Temp);
 		var brickPositions = _brickQuery.ToComponentDataArray<Translation>(brickEntities, Allocator.Temp);
 
 		var gridEntity = GetSingletonEntity<OccupiedElement>();
@@ -80,12 +80,13 @@ public partial class TankSpawnerSystem : SystemBase
 
 					for (int i=0; i<tankCount; i++)
                     {
-						var brick = bricks[i];
 						var brickTranslation = brickPositions[i];
 						
 						var instance = ecb.Instantiate(prefabHolder.TankEntityPrefab);
+						// Origin is at 0.5 y when unscaled.
 						float3 position = brickTranslation.Value;
-						position.y += brick.height / 2f + Constants.TANK_Y_OFFSET;
+						position.y *= 2f;
+						position.y += Constants.TANK_Y_OFFSET;
 						ecb.SetComponent(instance, new Translation
 						{
 							Value = position

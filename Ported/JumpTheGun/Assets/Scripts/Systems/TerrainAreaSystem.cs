@@ -10,7 +10,7 @@ public partial class TerrainAreaSystem : SystemBase
     EntityQuery checkForBricks;
     protected override void OnCreate()
     {
-        checkForBricks = GetEntityQuery(typeof (Brick));
+        checkForBricks = GetEntityQuery(typeof (BrickTag));
     }
     protected override void OnUpdate()
     {
@@ -64,10 +64,7 @@ public partial class TerrainAreaSystem : SystemBase
                         {
                             Value = scale
                         });
-                        ecb.SetComponent(instance, new Brick
-                        {
-                            height = height
-                        });
+                        ecb.SetComponent(instance, new BrickTag());
 
                         occupiedGrid.Add(false);
                         brickGrid.Add(instance);

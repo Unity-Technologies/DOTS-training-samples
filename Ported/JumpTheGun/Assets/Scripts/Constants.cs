@@ -20,4 +20,6 @@ public class Constants {
     public const float playerParabolaPrecision = .1f;
     public const float CANNONBALLRADIUS = .25f;
     public const float collisionStepMultiplier = 3;
+
+    public const float boxHeightDamage = .4f;
 }

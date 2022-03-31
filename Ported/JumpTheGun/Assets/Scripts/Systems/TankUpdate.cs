@@ -29,7 +29,6 @@ public partial class TankUpdate : SystemBase
     {
         var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
         var entityElement = GetSingletonEntity<EntityElement>();
-        var buffer = this.GetBuffer<EntityElement>(entityElement, true);
         var childs = this.GetBufferFromEntity<Child>(true);
         var heightBuffer = this.GetBuffer<HeightElement>(entityElement, true);
         
@@ -44,7 +43,6 @@ public partial class TankUpdate : SystemBase
         ProfilerMarker localAlignCannonToParabola = s_AlignCannonToParabola;
         Entities
             .WithNativeDisableParallelForRestriction(childs)
-            .WithReadOnly(buffer)
             .WithReadOnly(childs)
             .WithReadOnly(heightBuffer)
             .ForEach((int entityInQueryIndex, Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
@@ -68,9 +66,9 @@ public partial class TankUpdate : SystemBase
                     float3 start = tankTranslation.Value;
                     int2 playerBox = TerrainUtility.BoxFromLocalPosition(translation.Value, terrainData.TerrainWidth, terrainData.TerrainLength);
 
-                    var boxEntity = buffer[playerBox.x + playerBox.y * terrainData.TerrainWidth];
-                    var box = GetComponent<Brick>(boxEntity);
-                    float3 end = TerrainUtility.LocalPositionFromBox(playerBox.x, playerBox.y, box.height + Constants.CANNONBALLRADIUS);
+                    var boxIndex = playerBox.x + playerBox.y * terrainData.TerrainWidth;
+                    float boxHeight = heightBuffer[boxIndex];
+                    float3 end = TerrainUtility.LocalPositionFromBox(playerBox.x, playerBox.y, boxHeight + Constants.CANNONBALLRADIUS);
                     float distance = (new Vector2(end.z - start.z, end.x - start.x)).magnitude;
                     float duration = distance / Constants.CANNONBALL_SPEED;
                     if (duration < .0001f)
@@ -188,89 +186,6 @@ public partial class TankUpdate : SystemBase
             //}).Run();
 
             _ecbSystem.AddJobHandleForProducer(Dependency);
-    }
-    /// <summary>
-    /// Simulates firing a cannonball with the given trajectory.
-    /// Returns true if the cannonball would hit a box on the way there.
-    /// </summary>
-    public static bool CheckBoxCollision(Vector3 start, Vector3 end, ParabolaData parabola, TerrainData terrainData,
-        DynamicBuffer<EntityElement> entityElements, Translation translation)
-    {
-
-        float3 diff = end - start;
-        float distance = math.length(new float2(diff.x, diff.z));
-
-        int steps = math.max(2, (int)math.ceil(distance / Box.SPACING) + 1);
-
-        steps = (int)math.ceil(steps * Constants.collisionStepMultiplier);
-
-        for (int i = 0; i < steps; i++)
-        {
-            float t = i / (steps - 1f);
-
-            float3 pos = GetSimulatedPosition(start, end, parabola, t);
-
-            if (HitsCube(pos, Constants.CANNONBALLRADIUS, terrainData, entityElements, translation))
-            {
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if the given cube intersects nearby boxes or tanks.
-    /// </summary>
-    public static bool HitsCube(float3 center, float width, TerrainData terrainData,
-        DynamicBuffer<EntityElement> entityElements, Translation translation)
-    {
-
-        // check nearby boxes
-        int colMin = (int)math.floor((center.x - width / 2) / Box.SPACING);
-        int colMax = (int)math.ceil((center.x + width / 2) / Box.SPACING);
-        int rowMin = (int)math.floor((center.z - width / 2) / Box.SPACING);
-        int rowMax = (int)math.ceil((center.z + width / 2) / Box.SPACING);
-
-        colMin = math.max(0, colMin);
-        colMax = math.min(terrainData.TerrainWidth - 1, colMax);
-        rowMin = math.max(0, rowMin);
-        rowMax = math.min(terrainData.TerrainLength - 1, rowMax);
-
-        for (int c = colMin; c <= colMax; c++)
-        {
-            for (int r = rowMin; r <= rowMax; r++)
-            {
-                var boxEntity = entityElements[c + r * terrainData.TerrainWidth]; // Correct?
-                var hits = HitsCube(boxEntity, center, width, translation, terrainData);
-                if (hits)
-                    return true;
-            }
-        }
-
-        // TODO: check tanks
-
-        return false;
-
-    }
-    public static bool HitsCube(EntityElement boxEntity, float3 center, float width, Translation translation, TerrainData terrainData)
-    {
-        return false;
-        //var brick = GetComponent<Brick>(boxEntity);
-        //Bounds boxBounds = new Bounds(translation.Value, new Vector3(Constants.SPACING, brick.height, Constants.SPACING));
-        //Bounds cubeBounds = new Bounds(center, new Vector3(width, width, width));
-//
-        //return boxBounds.Intersects(cubeBounds);
-    }
-
-    public static float3 GetSimulatedPosition(Vector3 start, Vector3 end, ParabolaData parabola, float t)
-    {
-        return new float3(
-            math.lerp(start.x, end.x, t),
-            Parabola.Solve(parabola, t),
-            math.lerp(start.z, end.z, t)
-        );
     }
 
 }

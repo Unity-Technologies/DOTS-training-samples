@@ -1,9 +1,8 @@
 using Unity.Entities;
 using Color = UnityEngine.Color;
 
-public struct Brick : IComponentData
+public struct BrickTag : IComponentData
 {
-    public float height;
 }
 
 

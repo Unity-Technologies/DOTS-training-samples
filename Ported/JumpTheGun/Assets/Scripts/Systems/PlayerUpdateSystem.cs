@@ -21,7 +21,7 @@ public partial class PlayerUpdateSystem : SystemBase
 		var camera = this.GetSingleton<GameObjectRefs>().Camera;
 		var gridEntity = GetSingletonEntity<OccupiedElement>();
 		var occupiedGrid = GetBuffer<OccupiedElement>(gridEntity);
-		var brickGrid = GetBuffer<EntityElement>(gridEntity);
+		var heightBuffer = this.GetBuffer<HeightElement>(gridEntity, true);
 #if NORAY
 		float2 refPoint = new float2(Screen.width/2, Screen.height/2);
 		float2 inputMousePosition = new float2(Input.mousePosition.x, Input.mousePosition.y);
@@ -84,12 +84,10 @@ public partial class PlayerUpdateSystem : SystemBase
 						movePos = currentPos;
 					}
 
-					Entity brickEntity = brickGrid[moveIndex];
-
 					time.value = 0f;
 					// Recompute a new parabola
 
-					float brickHeight = GetComponent<Brick>(brickEntity).height;
+                    float brickHeight = heightBuffer[moveIndex];
 					float maxHeight = math.max(translation.Value.y, brickHeight) + Constants.BOUNCE_HEIGHT;
 					parabola = Parabola.Create(translation.Value.y + Constants.PLAYER_Y_OFFSET, maxHeight + Constants.PLAYER_Y_OFFSET, brickHeight + Constants.PLAYER_Y_OFFSET);
 					parabola.startPoint = translation.Value.xz;
