@@ -40,14 +40,19 @@ namespace Assets.Scripts.Jobs
                 var link = links[bar.indexLink];
                 var start = points[link.point1Index].currentPosition;
                 var end = points[link.point2Index].currentPosition;
-                var midPoint = (start + end) * 0.5f;
-                var startToEnd = end - start;
-                rotation.Value = quaternion.LookRotation(math.normalize(startToEnd), new float3(0.0f, 1.0f, 0.0f));
+                var midPoint = (start + end) * 0.5f;            
+
+
+                if(link.dirtyRotation > 0)
+                {
+                    rotation.Value = quaternion.LookRotation(link.direction, new float3(0.0f, 1.0f, 0.0f));
+                    rotations[i] = rotation;
+                }
+                   
                 translation.Value = midPoint;
-
-
                 translations[i] = translation;
-                rotations[i] = rotation;
+
+               
             }
         }
     }

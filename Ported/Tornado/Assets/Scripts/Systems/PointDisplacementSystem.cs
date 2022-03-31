@@ -8,10 +8,12 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Systems
 {
     [UpdateBefore(typeof(BarRenderingSystem))]
+    //[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public partial class PointDisplacementSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;
@@ -72,6 +74,7 @@ namespace Systems
         {
             if (!isInitialized) return;
 
+            Profiler.BeginSample("enter point pass singletons");
             float invDamping = 1f - 0.012f;
             var tornadoParams = GetSingleton<TornadoParameters>();
             var tornadoSettings = GetSingleton<TornadoSettings>();
@@ -81,7 +84,10 @@ namespace Systems
 
             SetSingleton<TornadoParameters>(tornadoParams);
 
-           //burst compatible & parallalized 
+            Profiler.EndSample();
+            Profiler.BeginSample("enter point job");
+            //ppoint job pass
+            //burst compatible & parallalized 
             var jobDisplacement = new PointDisplacementJob()
             {
                 points = points,
@@ -95,14 +101,16 @@ namespace Systems
             };
 
 
-            var pointDisplacementSystem = World.GetExistingSystem<PointDisplacementSystem>();
-            var pointAllocators = pointDisplacementSystem.islandPointAllocators;
-            int islandCount = pointAllocators.Length;
+
+            int islandCount = islandPointAllocators.Length;
 
             //parallelized  - fix point iteration
             JobHandle jobHandlePoint = jobDisplacement.Schedule(points.Length, 64, Dependency);
             NativeArray<JobHandle> constraintJobs = new NativeArray<JobHandle>(islandCount,Allocator.Temp);
 
+            Profiler.EndSample();
+
+            Profiler.BeginSample("constraint point job");
             //burst compatible
             for (int islandIndex = 0; islandIndex < islandCount; ++islandIndex)
             {
@@ -111,7 +119,7 @@ namespace Systems
                     points = points,
                     links = links,
                     islandIndex = islandIndex,
-                    pointAllocators = pointAllocators,
+                    pointAllocators = islandPointAllocators,
                     islandStartLinkIndex = linkStartIndices[islandIndex],
                     islandEndLinkIndex = islandIndex < linkStartIndices.Length - 1 ? linkStartIndices[islandIndex + 1] : links.Length,
                     iterations = physicParameters.constraintIterations,
@@ -120,38 +128,18 @@ namespace Systems
 
                 JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);
                 constraintJobs[islandIndex] = jobHandleConstraint;
-
-
-                // startLinkIndex += pointAllocators[]
             }
 
+            Profiler.EndSample();
+
+            Profiler.BeginSample("Dependencies");
             Dependency = JobHandle.CombineDependencies(constraintJobs);
             constraintJobs.Dispose();
 
-            // var constraintJob = new ContraintJob()
-            // {
-            //     points = points,
-            //     links = links,
-            //     count = pointAllocators,
-            //     iterations = physicParameters.constraintIterations,
-            //     physicSettings = physicParameters
-            // };
-         
-
-
-
-            //signle threaded job
-            // JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);
-
-
             JobHandle.ScheduleBatchedJobs();
-            // jobHandleConstraint.Complete();
+            Profiler.EndSample();
 
-            // AllocatedPointCount = pointCount[0];
-            // pointCount.Dispose();
 
-          
-            // Dependency = jobHandleConstraint;
 
         }
 

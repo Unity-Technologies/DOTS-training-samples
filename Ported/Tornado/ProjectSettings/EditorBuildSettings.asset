@@ -4,4 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/DOTSTornado.unity
+    guid: b356094df36adc7458cd79478f1aee7c
+  - enabled: 1
+    path: Assets/Scenes/DOTSTornado/Entity Scene.unity
+    guid: 06103cd32670df144bcb33f6792eb668
+  m_configObjects: {}

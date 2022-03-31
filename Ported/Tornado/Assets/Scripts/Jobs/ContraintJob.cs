@@ -106,6 +106,11 @@ namespace Assets.Scripts.Jobs
 							link.point1Index = allocatedIndex;
 						}
 					}
+										
+					link.dirtyRotation = (dx / dist * link.direction.x + dy / dist * link.direction.y + dz / dist * link.direction.z < .99f) ? byte.MaxValue : (byte)0;
+					link.direction.x = dx/dist;
+					link.direction.y = dy/dist;
+					link.direction.z = dz/dist;
 
 					links[i] = link;
 					points[originalPoint1Index] = point1;

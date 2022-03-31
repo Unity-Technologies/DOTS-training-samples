@@ -310,9 +310,9 @@ MonoBehaviour:
   minColorMultiplier: 0.3
   maxColorMultiplier: 0.7
   cubeSize: 5
-  citySize: 500
-  groundDetails: 200
-  buildings: 0
+  citySize: 200
+  groundDetails: 0
+  buildings: 2000
   barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
 --- !u!4 &698996226
