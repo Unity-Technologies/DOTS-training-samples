@@ -70,6 +70,10 @@ namespace Systems
 
         private static void UpdateTargetEntityAndType(uint globalSystemVersion, in NativeArray<Entity> attackables,/* in NativeArray<Translation> positions,*/ Entity entity, ref TargetType target, ref TargetEntity targetEntity)
         {
+            if (attackables.Length == 0)
+            {
+                return;
+            }
             var random = Random.CreateFromIndex(globalSystemVersion ^ (uint)entity.Index);
 
             // Relying on this check stops filtering being effective, but otherwise there'd be a lot of structural churn
@@ -77,7 +81,7 @@ namespace Systems
             {
                 if (random.NextFloat() < aggression)
                 {
-                    int attackableIndex = random.NextInt(attackables.Length - 1);
+                    int attackableIndex = random.NextInt(attackables.Length);
                     target = new TargetType
                     {
                         Value = TargetType.Type.Enemy

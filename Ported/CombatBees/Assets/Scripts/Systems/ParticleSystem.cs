@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using Mathf = UnityEngine.Mathf;
 using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
@@ -104,7 +105,7 @@ public partial class ParticleSystem : SystemBase
                 ecb.SetComponent(sortKey, entity, new Velocity { Value = velocity + rand.NextFloat3Direction() * velocityJitter });
                 ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
-                //ecb.SetComponent(entity, new ColorComponent { Value = new float3(1, 0, 0) }); // Was Random.ColorHSV(-.05f,.05f,.75f,1f,.3f,.8f), hardcoding a colour for now
+                ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 0, 0, 1) });
             }
             else
             {
@@ -116,6 +117,7 @@ public partial class ParticleSystem : SystemBase
                 ecb.SetComponent(sortKey, entity, new Velocity { Value = rand.NextFloat3Direction() * 5f });
                 ecb.SetComponent(sortKey, entity, new Scale { Value = scale.x });
                 ecb.SetComponent(sortKey, entity, new Size { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
             }
         }
     }
