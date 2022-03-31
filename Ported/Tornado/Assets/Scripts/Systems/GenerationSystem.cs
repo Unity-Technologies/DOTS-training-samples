@@ -57,7 +57,7 @@ namespace Systems
             var random = new Unity.Mathematics.Random(1234);
             NativeList<VerletPoints> points = default;
             NativeList<Link> links = default;
-            NativeList<int> islandPointCounts = default;
+            NativeList<int> islandPointAllocators = default;
             NativeList<int> linkStartIndices = default;
 
             Entities.ForEach((Entity entity, in GenerationParameters generation) =>
@@ -65,7 +65,7 @@ namespace Systems
                 m_cachedParameters = generation;
                 ecb.DestroyEntity(entity);
 
-                GenerateCity(generation, ref ecb, ref random, out points, out links, out islandPointCounts, out linkStartIndices);
+                GenerateCity(generation, ref ecb, ref random, out points, out links, out islandPointAllocators, out linkStartIndices);
                 GenerateTornado(generation, ref ecb, ref random);
             }).WithoutBurst().Run();
 
@@ -82,11 +82,11 @@ namespace Systems
                 }
 
                 pointDisplacement.Initialize(pointArray, new NativeArray<Link>(links, Allocator.Persistent),
-                    islandPointCounts, linkStartIndices);
+                    islandPointAllocators, linkStartIndices);
                 points.Dispose();
                 links.Dispose();
                 linkStartIndices.Dispose();
-                islandPointCounts.Dispose();
+                islandPointAllocators.Dispose();
             }
         }
 
@@ -219,11 +219,11 @@ namespace Systems
         }
 
         private static void GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, ref Random random,
-            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointCounts, out NativeList<int> linkStartIndices)
+            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointAllocators, out NativeList<int> linkStartIndices)
         {
             linksList = new NativeList<Link>(Allocator.Temp);
             pointsList = new NativeList<VerletPoints>(Allocator.Temp);
-            islandPointCounts = new NativeList<int>(Allocator.Temp);
+            islandPointAllocators = new NativeList<int>(Allocator.Temp);
             linkStartIndices = new NativeList<int>(Allocator.Temp);
 
             // buildings
@@ -250,7 +250,7 @@ namespace Systems
                     pointsList.Add(paddingPoint);
                 }
 
-                islandPointCounts.Add(usedPointCount);
+                islandPointAllocators.Add(usedPointCount + startingLinkCount * 2);
             }
 
 
@@ -283,7 +283,7 @@ namespace Systems
                     pointsList.Add(paddingPoint);
                 }
 
-                islandPointCounts.Add(usedPointCount);
+                islandPointAllocators.Add(usedPointCount + startingLinkCount * 2);
             }
 
             //GenerateLinks(0, pointsList.Length, ref ecb, random, generation.barPrefab, ref pointsList, ref linksList);

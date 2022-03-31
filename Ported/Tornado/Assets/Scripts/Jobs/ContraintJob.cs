@@ -1,6 +1,7 @@
 ﻿using Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Mathematics;
 
@@ -13,14 +14,16 @@ namespace Assets.Scripts.Jobs
 	[BurstCompile]
     public struct ContraintJob : IJob
     {
+	    [NativeDisableContainerSafetyRestriction]
 		public NativeArray<VerletPoints> points;
+		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<Link> links;
+		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<int> pointAllocators;
-		public int iterations;
-		public int islandIndex;
-		public int islandStartLinkIndex;
-		public int islandEndLinkIndex;
-
+		[ReadOnly] public int iterations;
+		[ReadOnly] public int islandIndex;
+		[ReadOnly] public int islandStartLinkIndex;
+		[ReadOnly] public int islandEndLinkIndex;
 		[ReadOnly] public PhysicsSettings physicSettings;
 
 		public void Execute()

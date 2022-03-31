@@ -101,6 +101,7 @@ namespace Systems
 
             //parallelized  - fix point iteration
             JobHandle jobHandlePoint = jobDisplacement.Schedule(points.Length, 64, Dependency);
+            NativeArray<JobHandle> constraintJobs = new NativeArray<JobHandle>(islandCount,Allocator.Temp);
 
             //burst compatible
             for (int islandIndex = 0; islandIndex < islandCount; ++islandIndex)
@@ -117,11 +118,15 @@ namespace Systems
                     physicSettings = physicParameters
                 };
 
-                JobHandle jobHandleConstraint = constraintJob.Schedule(JobHandle.CombineDependencies(jobHandlePoint, Dependency));
-                Dependency = jobHandleConstraint;
+                JobHandle jobHandleConstraint = constraintJob.Schedule(jobHandlePoint);
+                constraintJobs[islandIndex] = jobHandleConstraint;
+
 
                 // startLinkIndex += pointAllocators[]
             }
+
+            Dependency = JobHandle.CombineDependencies(constraintJobs);
+            constraintJobs.Dispose();
 
             // var constraintJob = new ContraintJob()
             // {
