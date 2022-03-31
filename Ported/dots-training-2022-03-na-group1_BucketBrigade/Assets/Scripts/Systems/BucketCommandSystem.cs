@@ -68,6 +68,7 @@ public partial class BucketCommandSystem : SystemBase
                     SetComponent(command.Worker, Speed.WithEmptyBucket);
                     SetComponent(command.Worker, new BucketHeld(bucketHeld.Value, false));
                     SetComponent(bucketHeld.Value, new MyBucketState(BucketState.EmptyCarrried, frame));
+                    SetComponent(bucketHeld.Value, new Scale() { Value = new Unity.Mathematics.float3(EmptyWaterSize, EmptyWaterSize, EmptyWaterSize) });
                     SetComponent(command.Worker, new Speed() { Value = EmptyBucketSpeed });
                     
                     // splash?
@@ -101,7 +102,7 @@ public partial class BucketCommandSystem : SystemBase
                     SetComponent(command.Worker, new Speed() { Value = FullBucketSpeed });
                     SetComponent(bucketHeld.Value, new MyBucketState(BucketState.FullCarried, frame));
                     
-                    // populate and use the filling system
+                    SetComponent(command.Worker, new MyWorkerState(WorkerState.FillingBucket));
                 }
             }).Run();
         

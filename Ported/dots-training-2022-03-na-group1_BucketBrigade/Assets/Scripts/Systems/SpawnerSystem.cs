@@ -196,7 +196,7 @@ public partial class SpawnerSystem : SystemBase
        {
            var entity = ecb.Instantiate(prefab);
            ecb.SetComponent(entity, new Position {Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius))});
-           ecb.SetComponent(entity, new Scale { Value = new float3(0.2f, 0.2f, 0.2f) });
+           ecb.SetComponent(entity, new Scale { Value = new float3(EmptyWaterSize, EmptyWaterSize, EmptyWaterSize) });
        }
    }
    
