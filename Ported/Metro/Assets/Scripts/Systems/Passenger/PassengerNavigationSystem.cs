@@ -32,18 +32,17 @@ public partial class PassengerNavigationSystem : SystemBase
                     random.NextInt();
                 }
                 
-                if (math.distance(translation.Value, passenger.FinalDestination) < PASSENGER_DESTINATION_EPSILON)
+                /*if (math.distance(translation.Value, passenger.FinalDestination) < PASSENGER_DESTINATION_EPSILON)
                 {
                     //destroy entity, passenger finished the journey
                     parallelWriter.DestroyEntity(entityInQueryIndex, entity);
-                }
-                else
+                }else*/
                 {
                     //not yet at destination.
                     //make them walk somewhere random (just a quick hack at the moment)
                     parallelWriter.AddComponent(entityInQueryIndex, entity, new PassengerWalking
                     {
-                        WalkDestination = translation.Value + random.NextFloat3(new float3(-10, 0, -10), new float3(10, 0, 10)),
+                        WalkDestination = random.NextFloat3(new float3(passenger.CurrentPlatformPosition.x - 10, 0, passenger.CurrentPlatformPosition.z - 10), new float3(passenger.CurrentPlatformPosition.x + 10, 0, passenger.CurrentPlatformPosition.z + 10)),
                         WalkSpeed = passenger.WalkSpeed
                     });
                 }

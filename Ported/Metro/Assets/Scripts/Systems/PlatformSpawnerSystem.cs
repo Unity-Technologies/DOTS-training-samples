@@ -51,6 +51,8 @@ public partial class PlatformSpawnerSystem : SystemBase
                     rotation.Value = Quaternion.LookRotation(lineMarker[i + 1].Position - lineMarker[i].Position, Vector3.up); //calc a rotation that
                     rotation.Value *= Quaternion.Euler(0, 90, 0);
                     ecb.SetComponent(instance, rotation);
+                    
+                    ecb.AddComponent<PlatformComponent>(instance);
                 }
             }
         }).Run();

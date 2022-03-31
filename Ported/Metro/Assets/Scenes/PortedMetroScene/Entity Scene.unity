@@ -258,7 +258,7 @@ MonoBehaviour:
   carriageCount: 8
   carriageLength: 0
   trainCount: 1
-  maxSpeed: 0.05
+  maxSpeed: 25
   debugRender: 0
 --- !u!4 &188054031
 Transform:
@@ -1815,7 +1815,7 @@ MonoBehaviour:
   carriageCount: 2
   carriageLength: 0
   trainCount: 6
-  maxSpeed: 0.05
+  maxSpeed: 25
   debugRender: 0
 --- !u!4 &955015023 stripped
 Transform:
@@ -2150,7 +2150,7 @@ MonoBehaviour:
   carriageCount: 4
   carriageLength: 0
   trainCount: 5
-  maxSpeed: 0.1
+  maxSpeed: 25
   debugRender: 0
 --- !u!1001 &1261335920
 PrefabInstance:
@@ -3712,7 +3712,7 @@ MonoBehaviour:
     type: 3}
   railSpacing: 0.5
   minAcceleration: 0.2
-  maxAcceleration: 0.2
+  maxAcceleration: 5
 --- !u!4 &2095533005
 Transform:
   m_ObjectHideFlags: 0
