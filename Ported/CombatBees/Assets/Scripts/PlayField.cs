@@ -8,5 +8,5 @@ public static class PlayField
     public static readonly Vector3 size = new Vector3(100f, 20f, 30f);
     public static readonly Vector3 origin = Vector3.zero;
     public static readonly float gravity = -20f;
-    public static readonly float resourceHeight = 1.5f;
+    public static readonly float resourceHeight = 0.75f;
 }

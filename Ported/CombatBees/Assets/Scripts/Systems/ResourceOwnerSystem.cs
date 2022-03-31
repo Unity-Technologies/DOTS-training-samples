@@ -18,7 +18,7 @@ namespace Systems
                     if (resourceOwner.Owner != Entity.Null)
                     {
                         if(HasComponent<Translation>(resourceOwner.Owner))
-                            resource.OwnerPosition = GetComponent<Translation>(resourceOwner.Owner).Value - new float3(0, 2, 0);
+                            resource.OwnerPosition = GetComponent<Translation>(resourceOwner.Owner).Value - new float3(0, PlayField.resourceHeight, 0);
                     }
                 }).ScheduleParallel();
         }
