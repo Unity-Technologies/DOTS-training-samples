@@ -41,8 +41,10 @@ public partial class TerrainAreaSystem : SystemBase
                 Entity gridEntity = ecb.CreateEntity();
                 DynamicBuffer<OccupiedElement> occupiedGrid = ecb.AddBuffer<OccupiedElement>(gridEntity);
                 DynamicBuffer<EntityElement> brickGrid = ecb.AddBuffer<EntityElement>(gridEntity);
+                DynamicBuffer<HeightElement> brickHeightGrid = ecb.AddBuffer<HeightElement>(gridEntity);
                 occupiedGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
                 brickGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
+                brickHeightGrid.EnsureCapacity(terrainData.TerrainWidth * terrainData.TerrainLength);
 
                 for (int j = 0; j < terrainData.TerrainLength; ++j)
                 {
@@ -69,6 +71,7 @@ public partial class TerrainAreaSystem : SystemBase
 
                         occupiedGrid.Add(false);
                         brickGrid.Add(instance);
+                        brickHeightGrid.Add(height);
                     }
                 }
             }).Run();

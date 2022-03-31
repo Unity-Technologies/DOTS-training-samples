@@ -5,11 +5,16 @@ using UnityEngine;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Color = UnityEngine.Color;
+using ProfilerMarker = Unity.Profiling.ProfilerMarker;
 
 
 [UpdateAfter(typeof(TerrainAreaSystem))]
 public partial class TankUpdate : SystemBase
 {
+    static ProfilerMarker s_TankRotate = new ProfilerMarker("TankRotate");
+    static ProfilerMarker s_FindBestParabola = new ProfilerMarker("FindBestParabola");
+
+    static ProfilerMarker s_AlignCannonToParabola = new ProfilerMarker("AlignCannonToParabola");
     EntityCommandBufferSystem _ecbSystem;
     protected override void OnCreate()
     {
@@ -19,29 +24,39 @@ public partial class TankUpdate : SystemBase
         RequireSingletonForUpdate<TerrainData>();
         RequireSingletonForUpdate<EntityPrefabHolder>();
     }
-    
+
     protected override void OnUpdate()
     {
         var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
         var entityElement = GetSingletonEntity<EntityElement>();
         var buffer = this.GetBuffer<EntityElement>(entityElement, true);
         var childs = this.GetBufferFromEntity<Child>(true);
+        var heightBuffer = this.GetBuffer<HeightElement>(entityElement, true);
+        
         var terrainData = this.GetSingleton<TerrainData>();
         var prefabHolder = this.GetSingleton<EntityPrefabHolder>();
         float deltaTime = Time.DeltaTime;
         var player = this.GetSingletonEntity<PlayerTag>();
         var translation = GetComponent<Translation>(player);
+
+        ProfilerMarker localTankRotate = s_TankRotate;
+        ProfilerMarker localFindBestParabola = s_FindBestParabola;
+        ProfilerMarker localAlignCannonToParabola = s_AlignCannonToParabola;
         Entities
             .WithNativeDisableParallelForRestriction(childs)
             .WithReadOnly(buffer)
             .WithReadOnly(childs)
+            .WithReadOnly(heightBuffer)
             .ForEach((int entityInQueryIndex, Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
             {
+                
                 // rotate toward player
+                localTankRotate.Begin();
                 float3 diff = translation.Value - tankTranslation.Value;
                 float angle = math.atan2(diff.x, diff.z);
                 float rotation = angle;
                 tankRotation.Value = quaternion.EulerXYZ(0,rotation,0);
+                localTankRotate.End();
 
                 tank.cooldownTime += deltaTime;
                 if (tank.cooldownTime >= Constants.tankLaunchPeriod)
@@ -64,6 +79,7 @@ public partial class TankUpdate : SystemBase
                     // find out non-brick-colliding height
                     // search slopiest brick, and interpolate altitude at middistance
                     // From start to mid-distance, then from end to mid-distance, and same on left and right
+                    localFindBestParabola.Begin();
                     float defaultHeight = math.max(start.y, end.y) + Constants.CANNONBALLRADIUS +1;
                     float height = defaultHeight;
                     float slope = 0;
@@ -94,9 +110,9 @@ public partial class TankUpdate : SystemBase
                         while (math.lengthsq(candidate-starti) <= midSqDist) {
                             candidate += norm * Constants.SPACING;
                             int2 candidateBox = TerrainUtility.BoxFromLocalPosition(candidate, terrainData.TerrainWidth, terrainData.TerrainLength);
-                            var candidateBoxEntity = buffer[candidateBox.x + candidateBox.y * terrainData.TerrainWidth];
-                            var candidateBrick = GetComponent<Brick>(candidateBoxEntity);
-                            float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, candidateBrick.height);
+                            int index = candidateBox.x + candidateBox.y * terrainData.TerrainWidth;
+                            float brickHeight = heightBuffer[index];
+                            float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, brickHeight);
                             float2 offset2D = candidateBrickPos.xz - norm.xz * (Constants.CANNONBALLRADIUS + Constants.SPACING*0.71f);
                             float3 hitPos = new float3(offset2D.x, candidateBrickPos.y, offset2D.y);
                             //Debug.DrawLine(starti, hitPos, Color.red, 1, false);
@@ -110,6 +126,7 @@ public partial class TankUpdate : SystemBase
                             }
                         }
                     }
+                    localFindBestParabola.End();
 
                     // Spawn canonBall
                     var instance = ecb.Instantiate(entityInQueryIndex, prefabHolder.CannonBallEntityPrefab);
@@ -125,6 +142,7 @@ public partial class TankUpdate : SystemBase
                     ecb.SetComponent(entityInQueryIndex, instance, parabolaData);
 
                     // align cannon rotation with parabola
+                    localAlignCannonToParabola.Begin();
                     const float canonLength = 0.5f;
                     const float canonSqLength = canonLength*canonLength;
                     float tHigh = 1.0f;
@@ -154,6 +172,7 @@ public partial class TankUpdate : SystemBase
                     float length = math.sqrt(sqLength);
                     var cannonRotation = math.atan2(Parabola.Solve(parabolaData, tMid) - Parabola.Solve(parabolaData, 0.0f), tMid*length);
         			var localRotation = quaternion.EulerXYZ(-cannonRotation, 0, 0);
+                    localAlignCannonToParabola.End();
 
                     // Get canon child entity
                     var childBuffer = childs[entity];
@@ -166,6 +185,7 @@ public partial class TankUpdate : SystemBase
 
 			//}).Schedule(); // 200 ms in PlayerLoop
             }).ScheduleParallel(); // 8 ms in PlayerLoop
+            //}).Run();
 
             _ecbSystem.AddJobHandleForProducer(Dependency);
     }

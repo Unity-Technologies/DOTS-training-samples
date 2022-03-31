@@ -12,7 +12,7 @@ public partial class BrickColorUpdateSystem : SystemBase
     {
         var terrainData = this.GetSingleton<TerrainData>();
         Entities
-            .ForEach((Entity entity, ref Brick brick, ref URPMaterialPropertyBaseColor color) =>
+            .ForEach((Entity entity, ref URPMaterialPropertyBaseColor color, in Brick brick) =>
             {
                 // change color based on height
                 if ((terrainData.MaxTerrainHeight - Constants.HEIGHT_MIN) < 0.5f) {

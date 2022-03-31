@@ -15,7 +15,7 @@ public class GameAuthoring : UnityMonoBehaviour
     public UnityGameObject TankPrefab;
     public UnityGameObject CannonBallPrefab;
 
-    [Range(1, 1000)]
+    [Range(1, 100000)]
     public int TankCount = 1;
 
     [Range(1, 1000)]
