@@ -145,7 +145,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                     }
                     else
                     {
-                        var delta = new float3(-PlayField.size.x * .45f + PlayField.size.x * .9f * team.TeamId, 7,
+                        var delta = new float3(-PlayField.size.x * .45f + PlayField.size.x * .9f * team.TeamId, 0f,
                             position.z) - position;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > grabDistance * grabDistance)
