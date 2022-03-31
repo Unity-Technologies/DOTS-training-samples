@@ -19,4 +19,6 @@ public struct Spawner : IComponentData
     public int BucketCount;
     public int MinWaterSupplyCount;
     public int MaxWaterSupplyCount;
+
+    public float firePropagationSpeed;
 }

@@ -12,7 +12,7 @@ public partial class FireSuppressionSystem : SystemBase
 
     protected override void OnCreate()
     {
-        GridUtil.CreateAdjacentTileArray(ref checkAdjacents,fireSuppresionRadius);
+        GridUtility.CreateAdjacentTileArray(ref checkAdjacents,fireSuppresionRadius);
     }
     protected override void OnDestroy()
     {
@@ -21,20 +21,20 @@ public partial class FireSuppressionSystem : SystemBase
     
     public static void AddSplashByWorldPosition(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
-        int heatmapBufferLength, 
         int gridSideWidth, 
         float3 worldPosition)
     {
-        int2 tileCoord = PlotTileCoordFromWorldPosition(gridSideWidth, worldPosition);
-        AddSplashByTileCoordinate(ref splashmapBuffer, heatmapBufferLength, gridSideWidth, tileCoord.x, tileCoord.y);
+        int2 tileCoord = GridUtility.PlotTileCoordFromWorldPosition( worldPosition, gridSideWidth);
+        AddSplashByTileCoordinate(ref splashmapBuffer, gridSideWidth, tileCoord.x, tileCoord.y);
     }
     public static void AddSplashByTileCoordinate(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
-        int heatmapBufferLength, 
         int gridSideWidth, 
         int tileCoordinateX, int tileCoordinateY)
     {
-        int tileIndex = GridUtil.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
+        int heatmapBufferLength = gridSideWidth * gridSideWidth;
+        
+        int tileIndex = GridUtility.GetTileIndex(tileCoordinateX, tileCoordinateY, gridSideWidth);
         
         AddSplashByIndex(ref splashmapBuffer, heatmapBufferLength, tileIndex);
     }
@@ -74,7 +74,7 @@ public partial class FireSuppressionSystem : SystemBase
         
         for (int iCheck = 0; iCheck < adjacentOffsets.Length; iCheck++)
         {
-            int2 tileCoord = GridUtil.GetTileCoordinate(tileIndex, width);
+            int2 tileCoord = GridUtility.GetTileCoordinate(tileIndex, width);
             int x = tileCoord.x + adjacentOffsets[iCheck].x;
             int z = tileCoord.y + adjacentOffsets[iCheck].y;
 
@@ -82,7 +82,7 @@ public partial class FireSuppressionSystem : SystemBase
 
             if (inBounds)
             {
-                int adjacentIndex = GridUtil.GetTileIndex(x, z, width);
+                int adjacentIndex = GridUtility.GetTileIndex(x, z, width);
                 heatmapBuffer[adjacentIndex] = 0f;
             }
         }
@@ -106,7 +106,7 @@ public partial class FireSuppressionSystem : SystemBase
              if (Physics.Raycast (ray, out hit, math.INFINITY)) 
              {
                  //Debug.DrawLine (ray.origin, hit.point);
-                 AddSplashByWorldPosition(ref splashmapBuffer, heatmapBuffer.Length, width, hit.point);
+                 AddSplashByWorldPosition(ref splashmapBuffer, width, hit.point);
              } 
          }
         
@@ -122,6 +122,7 @@ public partial class FireSuppressionSystem : SystemBase
         
          }).Run();
 
+         
          Entities
              .WithAll<SplashEvent>()
              .ForEach((ref SplashEvent splashEvent) =>
@@ -132,18 +133,6 @@ public partial class FireSuppressionSystem : SystemBase
              .Run();
     }
 
-    public static int2 PlotTileCoordFromWorldPosition(int gridSideWidth, float3 worldPosition)
-    {
-        float offset = (gridSideWidth - 1) * 0.5f;
-
-        int x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
-        int z =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
-
-        int2 coord = new int2(x, z);
-        UnityEngine.Debug.Log($"world position: {worldPosition} | tile coordinate: {coord}");
-        return coord;
-    }
-    
     DynamicBuffer<HeatMapSplash> GetSplashmapBuffer() 
     {
         var splashmap = GetSingletonEntity<HeatMapSplash>();
