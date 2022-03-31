@@ -1,9 +1,15 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Components
 {
     public struct Resource : IComponentData
     {
-        public static float Height = 2f;
+        public float3 OwnerPosition;
+    }
+
+    public struct ResourceOwner : IComponentData
+    {
+        public Entity Owner;
     }
 }

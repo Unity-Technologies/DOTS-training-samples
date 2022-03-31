@@ -1,3 +1,4 @@
+using Components;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -18,6 +19,7 @@ public partial class BeeMovementSystem : SystemBase
     static readonly float attackDistance = 4f;
     static readonly float attackForce = 500f;
     static readonly float hitDistance = 0.5f;
+    static readonly float grabDistance = 0.5f;
 
     EntityQuery[] teamTargets;
     EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
@@ -26,7 +28,8 @@ public partial class BeeMovementSystem : SystemBase
     {
         teamTargets = new EntityQuery[2]
         {
-            EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>()),
+            EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(),
+                ComponentType.ReadOnly<TeamShared>()),
             EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Translation>(), ComponentType.ReadOnly<TeamShared>())
         };
         teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
@@ -72,9 +75,10 @@ public partial class BeeMovementSystem : SystemBase
 
 
         Dependency = Entities
-            .ForEach((int entityInQueryIndex,
+            .WithoutBurst()
+            .ForEach((Entity entity,
+                int entityInQueryIndex,
                 ref Translation translation,
-                ref NonUniformScale scale,
                 ref BeeMovement bee,
                 ref TargetType targetType,
                 in AttractionRepulsion attraction,
@@ -98,10 +102,49 @@ public partial class BeeMovementSystem : SystemBase
                         velocity += delta * (attackForce * deltaTime / Mathf.Sqrt(sqrDist));
                         if (sqrDist < hitDistance * hitDistance)
                         {
-                            ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
+                            ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random,
+                                targetPos.Value, ParticleComponent.ParticleType.Blood, bee.Velocity * .35f, 2f, 6);
                             ecb.DestroyEntity(entityInQueryIndex, targetEntity.Value);
                             targetType.Value = TargetType.Type.None;
                         }
+                    }
+                }
+                else if (targetType.Value == TargetType.Type.Resource)
+                {
+                    var delta = targetPos.Value - position;
+                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    if (sqrDist > grabDistance * grabDistance)
+                    {
+                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                    }
+                    else
+                    {
+                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                            new ResourceOwner() { Owner = entity });
+
+                        targetType.Value = TargetType.Type.Goal;
+                    }
+                }
+                else if (targetType.Value == TargetType.Type.Goal)
+                {
+                    var delta = new float3(-PlayField.size.x * .45f, 7, position.z) - position;
+                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    if (sqrDist > grabDistance * grabDistance)
+                    {
+                        velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                    }
+                    else
+                    {
+                        targetType.Value = TargetType.Type.None;
+                        
+                        ecb.SetComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                            new ResourceOwner() { Owner = Entity.Null });
+
+                        ecb.SetSharedComponent<KinematicBodyState>(entityInQueryIndex, targetEntity.Value,
+                            new KinematicBodyState() { isEnabled = 1 });
+
+                        ecb.SetComponent<KinematicBody>(entityInQueryIndex, targetEntity.Value,
+                            new KinematicBody() { landPosition = -PlayField.size.y * 0.5f });
                     }
                 }
 
@@ -109,10 +152,16 @@ public partial class BeeMovementSystem : SystemBase
                 UpdateBorders(ref velocity, ref position);
                 bee.Velocity = velocity;
                 translation.Value = position;
-                UpdateScale(ref scale, in bee, in velocity);
             }).ScheduleParallel(Dependency);
-        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
 
+        Dependency = Entities
+            .ForEach((ref NonUniformScale scale, in BeeMovement beeMovement) =>
+            {
+                var velocity = beeMovement.Velocity;
+                UpdateScale(ref scale, in beeMovement, in velocity);
+            }).ScheduleParallel(Dependency);
+
+        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
     private static void UpdateBee(ref Translation translation,
@@ -153,7 +202,6 @@ public partial class BeeMovementSystem : SystemBase
                     bee.enemyTarget.dead = true;
                     bee.enemyTarget.velocity *= .5f;
                     bee.enemyTarget = null;*/
-
                 }
             }
         }
@@ -165,7 +213,8 @@ public partial class BeeMovementSystem : SystemBase
         UpdateScale(ref scale, in bee, in velocity);
     }
 
-    private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position, in AttractionRepulsion attraction, float deltaTime)
+    private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position,
+        in AttractionRepulsion attraction, float deltaTime)
     {
         velocity += random.NextFloat3Direction() * (flightJitter * deltaTime);
         velocity *= 1f - damping;
@@ -194,6 +243,7 @@ public partial class BeeMovementSystem : SystemBase
             velocity.y *= .8f;
             velocity.z *= .8f;
         }
+
         if (Mathf.Abs(position.z) > PlayField.size.z * .5f)
         {
             position.z = PlayField.size.z * .5f * Mathf.Sign(position.z);
@@ -201,6 +251,7 @@ public partial class BeeMovementSystem : SystemBase
             velocity.x *= .8f;
             velocity.y *= .8f;
         }
+
         if (Mathf.Abs(position.y) > PlayField.size.y * .5f)
         {
             position.y = PlayField.size.y * .5f * Mathf.Sign(position.y);

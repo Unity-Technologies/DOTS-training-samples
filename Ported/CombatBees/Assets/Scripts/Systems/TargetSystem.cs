@@ -21,8 +21,9 @@ namespace Systems
             teamTargetsQuery0.SetSharedComponentFilter(new TeamShared { TeamId = 0 });
             teamTargetsQuery1.SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 
-            resourceTargets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Components.Resource>(), ComponentType.ReadOnly<KinematicBodyState>());
-            resourceTargets.SetSharedComponentFilter(new KinematicBodyState(){isEnabled = 0});
+            resourceTargets = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Components.Resource>(),
+                ComponentType.ReadOnly<KinematicBodyState>());
+            resourceTargets.SetSharedComponentFilter(new KinematicBodyState() { isEnabled = 0 });
         }
 
         protected override void OnUpdate()
@@ -32,7 +33,7 @@ namespace Systems
 
 
             var resources = resourceTargets.ToEntityArray(Allocator.TempJob);
-            
+
             var globalSystemVersion = GlobalSystemVersion;
 
             // Only run these two on chunks with no TargetType set.
@@ -47,45 +48,44 @@ namespace Systems
                 .ForEach((Entity entity, ref TargetType target, ref TargetEntity targetEntity, in Team team) =>
                 {
                     if (team.TeamId == 0)
-                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets1, entity, ref target, ref targetEntity, ref resources);
+                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets1, entity, ref target,
+                            ref targetEntity, ref resources);
                     else
-                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target, ref targetEntity, ref resources);
+                        UpdateTargetEntityAndType(globalSystemVersion, teamTargets0, entity, ref target,
+                            ref targetEntity, ref resources);
                 }).ScheduleParallel();
 
-         
+
             // Resolve the changing target position
             Entities
-              .ForEach((Entity entity, ref CachedTargetPosition cache, in TargetType target, in TargetEntity targetEntity) =>
-              {
-                  if (target.Value == TargetType.Type.Enemy || target.Value == TargetType.Type.Resource)
-                  {
-                      if (HasComponent<Translation>(targetEntity.Value))
-                      {
-                          float3 pos = GetComponent<Translation>(targetEntity.Value).Value;
-                          cache.Value = pos;
-                      }
-                      else
-                      {
-                          cache.Value = default;
-                      }
-                  }
-              }).ScheduleParallel();
-
-
+                .ForEach((Entity entity, ref CachedTargetPosition cache, in TargetType target,
+                    in TargetEntity targetEntity) =>
+                {
+                    if (target.Value == TargetType.Type.Enemy || target.Value == TargetType.Type.Resource)
+                    {
+                        if (HasComponent<Translation>(targetEntity.Value))
+                        {
+                            float3 pos = GetComponent<Translation>(targetEntity.Value).Value;
+                            cache.Value = pos;
+                        }
+                        else
+                        {
+                            cache.Value = default;
+                        }
+                    }
+                }).ScheduleParallel();
         }
 
-        private static void UpdateTargetEntityAndType(uint globalSystemVersion, in NativeArray<Entity> attackables,/* in NativeArray<Translation> positions,*/ Entity entity, ref TargetType target, ref TargetEntity targetEntity, ref NativeArray<Entity> resources)
+        private static void UpdateTargetEntityAndType(uint globalSystemVersion,
+            in NativeArray<Entity> attackables, /* in NativeArray<Translation> positions,*/ Entity entity,
+            ref TargetType target, ref TargetEntity targetEntity, ref NativeArray<Entity> resources)
         {
-            if (attackables.Length == 0)
-            {
-                return;
-            }
             var random = Random.CreateFromIndex(globalSystemVersion ^ (uint)entity.Index);
 
             // Relying on this check stops filtering being effective, but otherwise there'd be a lot of structural churn
             if (target.Value == TargetType.Type.None)
             {
-                if (random.NextFloat() < aggression)
+                if (attackables.Length > 0 && random.NextFloat() < aggression)
                 {
                     int attackableIndex = random.NextInt(attackables.Length);
                     target = new TargetType
@@ -100,10 +100,10 @@ namespace Systems
                 }
                 else
                 {
-                    if(resources.Length <= 0)
+                    if (resources.Length <= 0)
                         return;
-                    
-                    int resourceIndex = random.NextInt(resources.Length - 1);
+
+                    int resourceIndex = random.NextInt(resources.Length);
                     targetEntity = new TargetEntity()
                     {
                         Value = resources[resourceIndex]

@@ -1,3 +1,4 @@
+using Components;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ public partial class GoalSystem : SystemBase
     EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
 
     EntityQuery[] teamTargets;
+
     protected override void OnCreate()
     {
         endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
@@ -25,7 +27,8 @@ public partial class GoalSystem : SystemBase
         Dependency = Entities
             .WithoutBurst()
             .WithAll<Components.Resource>()
-            .WithNone<Components.KinematicBody>()
+            // .WithNone<Components.KinematicBody>()
+            .WithSharedComponentFilter<KinematicBodyState>(new KinematicBodyState() { isEnabled = 0 })
             .ForEach((Entity entity, int entityInQueryIndex, in Translation translation) =>
             {
                 if ((Mathf.Abs(translation.Value.y) >= (PlayField.size.y * .5f) - math.EPSILON) &&
@@ -43,8 +46,10 @@ public partial class GoalSystem : SystemBase
                     // Spawn new bees and particles
                     for (int i = 0; i < 3; ++i)
                     {
-                        Instantiation.Bee.Instantiate(ecb, entityInQueryIndex, spawner.BeePrefab, translation.Value, random.NextFloat(0.25f, 0.5f), team);
-                        ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random, translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+                        Instantiation.Bee.Instantiate(ecb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
+                            random.NextFloat(0.25f, 0.5f), team);
+                        ParticleSystem.SpawnParticle(ecb, entityInQueryIndex, particles.Particle, random,
+                            translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
                     }
                 }
             }).ScheduleParallel(Dependency);
