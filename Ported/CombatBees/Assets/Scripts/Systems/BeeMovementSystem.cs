@@ -131,7 +131,7 @@ public partial class BeeMovementSystem : SystemBase
                             endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
                                 new ResourceOwner() { Owner = entity });
                             endFrameEcb.SetComponent<Components.Resource>(entityInQueryIndex, targetEntity.Value,
-                                new Components.Resource(){ OwnerPosition = position - new float3(0, 2, 0) });
+                                new Components.Resource(){ OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
                             targetType.Value = TargetType.Type.Goal;
                         }
                     }
@@ -218,7 +218,7 @@ public partial class BeeMovementSystem : SystemBase
             velocity.x *= .8f;
             velocity.y *= .8f;
         }
-        float resMod = isHoldingResource ? 2 : 0;
+        float resMod = isHoldingResource ? PlayField.resourceHeight : 0;
         if (Mathf.Abs(position.y) > PlayField.size.y * .5f - resMod)
         {
             position.y = (PlayField.size.y * .5f - resMod) * Mathf.Sign(position.y);
