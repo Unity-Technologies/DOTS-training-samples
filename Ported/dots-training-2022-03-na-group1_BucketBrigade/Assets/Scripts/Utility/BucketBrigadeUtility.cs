@@ -13,17 +13,17 @@ public static class BucketBrigadeUtility
     {
         _frame++;
     }
-    
+
     public static int GetCurrentFrame()
     {
         return _frame;
     }
-    
+
     public static bool IsVeryClose(float2 a, float2 b)
     {
         return math.distancesq(a, b) < 0.01f;
     }
-    
+
     public static bool IsEntityVeryClose(EntityManager entityManager, float2 myPosition, Entity other)
     {
         var otherPosition = entityManager.GetComponentData<Position>(other);
@@ -39,7 +39,7 @@ public static class BucketBrigadeUtility
         bucketState.FrameChanged = frame;
         bucketHeld.IsFull = true;
         speed.Value = FullBucketSpeed;
-        
+
         ecb.SetComponent(bucketHeld.Value, bucketState);
     }
 
@@ -51,7 +51,7 @@ public static class BucketBrigadeUtility
         bucketState.FrameChanged = frame;
         bucketHeld.IsFull = false;
         speed.Value = EmptyBucketSpeed;
-        
+
         ecb.SetComponent(bucketHeld.Value, bucketState);
     }
 
@@ -77,7 +77,7 @@ public static class BucketBrigadeUtility
         }
 
         bucketState.FrameChanged = frame;
-        
+
         entityManager.SetComponentData(bucketHeld.Value, bucketState);
     }
 
@@ -101,13 +101,13 @@ public static class BucketBrigadeUtility
         ecb.SetComponent(bucketHeld.Value, bucketState);
         bucketHeld.Value = Entity.Null;
     }
-    
+
     public static void GiveBucketByDrop(EntityCommandBuffer ecb, Entity worker, ref BucketHeld bucketHeld, ref Speed speed, int frame)
     {
         ecb.SetComponent(worker, new BucketToWant() { Value = bucketHeld.Value });
         DropBucket(ecb, ref bucketHeld, ref speed, frame);
     }
-    
+
     public static void GiveBucketByDrop(EntityCommandBuffer ecb, DestinationWorker worker, ref BucketHeld bucketHeld, ref Speed speed, int frame)
     {
         GiveBucketByDrop(ecb, worker.Value, ref bucketHeld, ref speed, frame);
@@ -124,7 +124,7 @@ public static class BucketBrigadeUtility
 
         return false;
     }
-    
+
     public static (Entity entity, float2 position) FindClosestWater(float2 position, DynamicBuffer<WaterPoolInfo> waterInfo)
     {
         var closest = Entity.Null;
@@ -147,7 +147,7 @@ public static class BucketBrigadeUtility
 
         return (closest, closestPosition);
     }
-    
+
     public static (Entity entity, float2 position) FindClosestBucket(float2 position, DynamicBuffer<FreeBucketInfo> bucketInfo, bool mustBeEmpty)
     {
         var closest = Entity.Null;
@@ -173,15 +173,41 @@ public static class BucketBrigadeUtility
 
         return (closest, closestPosition);
     }
-    
+
+    public static float2 FindClosestFireSpot
+        (in HeatMapData heatmapData, in DynamicBuffer<HeatMapTemperature> heatmap, float2 fromPosition)
+    {
+        // Naive approach:
+        // Computing the distance with each cell of the heatmap whose temperature is higher than 0
+        // and keep the closest one.
+
+        var position = new float3(fromPosition, 0);
+
+        var shortestDistanceSq = float.MaxValue;
+        float3 closestSpot = default;
+
+        for (var i = 0; i < heatmap.Length; i++)
+        {
+            var tilePosition = GridUtility.PlotTileWorldPositionFromIndex(i, heatmapData.mapSideLength);
+            var distance = math.distancesq(position, tilePosition);
+            if (distance < shortestDistanceSq)
+            {
+                shortestDistanceSq = distance;
+                closestSpot = tilePosition;
+            }
+        }
+
+        return closestSpot.xy;
+    }
+
     public static float2 CalculateLeftArc(float2 a, float2 b, float t)
     {
         var ab = b - a;
 
         return a + (ab * t) + (new float2(-ab.y, ab.x) * ((1f - t) * t * 0.3f));
     }
-    
-    public static DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer(ComponentSystemBase systemBase) 
+
+    public static DynamicBuffer<HeatMapTemperature> GetHeatmapBuffer(ComponentSystemBase systemBase)
     {
         var heatmap = systemBase.GetSingletonEntity<HeatMapTemperature>();
         return systemBase.EntityManager.GetBuffer<HeatMapTemperature>(heatmap);
