@@ -35,6 +35,7 @@ public partial class SpawnerSystem : SystemBase
                         ecb.AddComponent<HeldResourceComponent>(instance);
                         ecb.AddComponent<VelocityComponent>(instance);
                         ecb.AddComponent<PositionComponent>(instance);
+                        ecb.AddComponent<BeeDeathTimerComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamYellowTagComponent.TeamColor });
 						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
@@ -52,6 +53,7 @@ public partial class SpawnerSystem : SystemBase
                         ecb.AddComponent<HeldResourceComponent>(instance);
                         ecb.AddComponent<VelocityComponent>(instance);
                         ecb.AddComponent<PositionComponent>(instance);
+                        ecb.AddComponent<BeeDeathTimerComponent>(instance);
                         ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
 						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamBlueTagComponent.TeamColor });
                         ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });

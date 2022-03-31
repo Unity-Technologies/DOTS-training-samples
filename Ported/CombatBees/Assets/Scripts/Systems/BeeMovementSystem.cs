@@ -16,15 +16,17 @@ public partial class BeeMovementSystem : SystemBase
     private const float TEAM_REPULSION = 4.0f;
 
     private const float CHASE_FORCE = 50.0f;
+
     private const float CARRY_FORCE = 25.0f;
+    private const float RESOURCE_SIZE = 0.75f;
     private const float GRAB_DISTANCE = 0.5f;
 
     private const float AGGRESSION = 0.5f;
-    private const float ATTACK_DISTANCE = 4.0f;
     private const float ATTACK_FORCE = 500.0f;
+    private const float ATTACK_DISTANCE = 4.0f;
     private const float HIT_DISTANCE = 0.5f;
 
-    private Random _random;
+    private Random _random; // TODO: Need to ask about using this in parallel. 
 
     protected override void OnCreate()
     {
@@ -38,6 +40,7 @@ public partial class BeeMovementSystem : SystemBase
         // The example actually updates MOST of this in FixedUpdate. Could set this up to run at the same rate?
         var deltaTime = Time.DeltaTime;
 
+        // TODO: Ask about disposing these.
         var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTagComponent)).ToEntityArray(Allocator.TempJob);
         var blueBeeEntities = GetEntityQuery(typeof(TeamBlueTagComponent)).ToEntityArray(Allocator.TempJob);
         var resourceEntities = GetEntityQuery(typeof(ResourceTagComponent)).ToEntityArray(Allocator.TempJob);
@@ -80,7 +83,7 @@ public partial class BeeMovementSystem : SystemBase
                         }
 
                         var repulsiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
-                        delta = GetComponent<PositionComponent>(repulsiveFriend).Value;
+                        delta = GetComponent<PositionComponent>(repulsiveFriend).Value - translation.Value;
                         dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                         if (dist > 0.0f)
                         {
@@ -132,7 +135,7 @@ public partial class BeeMovementSystem : SystemBase
 
                                     if (sqrDist < HIT_DISTANCE * HIT_DISTANCE)
                                     {
-                                        // TODO: Spawn Particle.
+                                        ParticleManager.SpawnParticle(targetPosition.Value, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                         // Bee is dead, but not destroyed, if it targets itself.
                                         targetsTarget.Value = target.Value;
@@ -184,26 +187,22 @@ public partial class BeeMovementSystem : SystemBase
                                     }
                                 }
                             }
-                            else if (resourceHeldByBee.Value == entity) // Holding the resource, carry it home.
+                            else if (resourceHeldByBee.Value == entity)
                             {
-                                // TODO:
-                                //Vector3 targetPos = new Vector3(-Field.size.x * .45f + Field.size.x * .9f * bee.team, 0f, bee.position.z);
-                                //delta = targetPos - bee.position;
-                                //dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-                                //bee.velocity += (targetPos - bee.position) * (carryForce * deltaTime / dist);
-                                //if (dist < 1f)
-                                //{
-                                //    resource.holder = null;
-                                //    bee.resourceTarget = null;
-                                //}
-                                //else
-                                //{
-                                //    bee.isHoldingResource = true;
-                                //}
+                                // Holding the resource, carry it home.
+                                var targetPos = new float3(-Field.size.x * .45f + Field.size.x * .9f, 0f, translation.Value.z);
+                                delta = targetPos - translation.Value;
+                                dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                                velocity.Value += (targetPos - translation.Value) * (CARRY_FORCE * deltaTime / dist);
+                                if (dist < 1f)
+                                {
+                                    resourceHeldByBee.Value = default;
+                                    target.Value = default;
+                                }
                             }
-                            else if (false) // TODO: If target resource is held by enemy bee.
+                            else if (HasComponent<TeamBlueTargetComponent>(resourceHeldByBee.Value)) // TODO: If target resource is held by enemy bee.
                             {
-                                // TODO: Set our target to the enemy bee.
+                                target.Value = resourceHeldByBee.Value;
                             }
                             else // Target is held by friendly bee.
                             {
@@ -213,13 +212,13 @@ public partial class BeeMovementSystem : SystemBase
                     }
                     else // This bee is dead.
                     {
-                        // TODO:
-                        //if (Random.value < (bee.deathTimer - .5f) * .5f)
+                        // TODO: Add in the death timer and death stuff.
+                        //if (_random < (bee.deathTimer - .5f) * .5f)
                         //{
-                        //    ParticleManager.SpawnParticle(bee.position, ParticleType.Blood, Vector3.zero);
+                            ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.Blood, float3.zero);
                         //}
 
-                        //bee.velocity.y += Field.gravity * deltaTime;
+                        velocity.Value.y += Field.gravity * deltaTime;
                         //bee.deathTimer -= deltaTime / 10f;
                         //if (bee.deathTimer < 0f)
                         //{
@@ -237,46 +236,46 @@ public partial class BeeMovementSystem : SystemBase
                     // Move this bee!!
                     translation.Value += deltaTime * velocity.Value;
 
-                    // TODO: Keep bee in bounds.
-                    //if (System.Math.Abs(bee.position.x) > Field.size.x * .5f)
-                    //{
-                    //    bee.position.x = (Field.size.x * .5f) * Mathf.Sign(bee.position.x);
-                    //    bee.velocity.x *= -.5f;
-                    //    bee.velocity.y *= .8f;
-                    //    bee.velocity.z *= .8f;
-                    //}
-                    //if (System.Math.Abs(bee.position.z) > Field.size.z * .5f)
-                    //{
-                    //    bee.position.z = (Field.size.z * .5f) * Mathf.Sign(bee.position.z);
-                    //    bee.velocity.z *= -.5f;
-                    //    bee.velocity.x *= .8f;
-                    //    bee.velocity.y *= .8f;
-                    //}
-                    //float resourceModifier = 0f;
-                    //if (bee.isHoldingResource)
-                    //{
-                    //    resourceModifier = ResourceManager.instance.resourceSize;
-                    //}
-                    //if (System.Math.Abs(bee.position.y) > Field.size.y * .5f - resourceModifier)
-                    //{
-                    //    bee.position.y = (Field.size.y * .5f - resourceModifier) * Mathf.Sign(bee.position.y);
-                    //    bee.velocity.y *= -.5f;
-                    //    bee.velocity.z *= .8f;
-                    //    bee.velocity.x *= .8f;
-                    //}
+                    // Keep bee in bounds.
+                    if (math.abs(translation.Value.x) > Field.size.x * .5f)
+                    {
+                        translation.Value.x = (Field.size.x * .5f) * math.sign(translation.Value.x);
+                        velocity.Value.x *= -.5f;
+                        velocity.Value.y *= .8f;
+                        velocity.Value.z *= .8f;
+                    }
+                    if (math.abs(translation.Value.z) > Field.size.z * .5f)
+                    {
+                        translation.Value.z = (Field.size.z * .5f) * math.sign(translation.Value.z);
+                        velocity.Value.z *= -.5f;
+                        velocity.Value.x *= .8f;
+                        velocity.Value.y *= .8f;
+                    }
+                    float resourceModifier = 0f;
+                    if (heldResource.Value != default)
+                    {
+                        resourceModifier = RESOURCE_SIZE;
+                    }
+                    if (math.abs(translation.Value.y) > Field.size.y * .5f - resourceModifier)
+                    {
+                        translation.Value.y = (Field.size.y * .5f - resourceModifier) * math.sign(translation.Value.y);
+                        velocity.Value.y *= -.5f;
+                        velocity.Value.z *= .8f;
+                        velocity.Value.x *= .8f;
+                    }
 
                     // TODO: The example does most stuff in fixed update, but some in update, like the stretching, part of the rotation, and scale and coloring of dead bees.
 
-                    // TODO: Scale (from Update)
+                    // Scale // TODO: Each bee needs to be given a random Size, and that needs to be tracked for use here.
                     //float size = bees[i].size;
-                    //Vector3 scale = new Vector3(size, size, size);
-                    //if (bees[i].dead == false)
-                    //{
-                    //    float stretch = Mathf.Max(1f, bees[i].velocity.magnitude * speedStretch);
-                    //    scale.z *= stretch;
-                    //    scale.x /= (stretch - 1f) / 5f + 1f;
-                    //    scale.y /= (stretch - 1f) / 5f + 1f;
-                    //}
+                    float baseSize = 0.5f;
+                    if (entity != target.Value)
+                    {
+                        float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
+                        scale.Value.z = baseSize * stretch;
+                        scale.Value.x = baseSize / (stretch - 1f) / 5f + 1f;
+                        scale.Value.y = baseSize / (stretch - 1f) / 5f + 1f;
+                    }
 
                     // TODO: Rotation
                     //Vector3 oldSmoothPos = bee.smoothPosition;
@@ -368,6 +367,8 @@ public partial class BeeMovementSystem : SystemBase
         blueBeeEntities.Dispose();
         resourceEntities.Dispose();
     }
+
+    
 
     private static void ExampleMovementBehaviour()
     {
