@@ -36,7 +36,7 @@ public partial class ParticleSystemFixed : SystemBase
 
         // Update positions from velocities
         var moveJob = Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref NonUniformScale scale, in Velocity velocity, in ParticleComponent particle) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref Size size, in Velocity velocity, in ParticleComponent particle) =>
             {
                 translation.Value += velocity.Value * deltaTime;
 
@@ -44,7 +44,8 @@ public partial class ParticleSystemFixed : SystemBase
                 {
                     translation.Value.x = PlayField.size.x * .5f * Mathf.Sign(translation.Value.x);
                     float splat = Mathf.Abs(velocity.Value.x * .3f) + 1f;
-                    scale.Value *= splat;
+                    size.Value.y *= splat;
+                    size.Value.z *= splat;
 
                     ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
@@ -52,7 +53,8 @@ public partial class ParticleSystemFixed : SystemBase
                 {
                     translation.Value.y = PlayField.size.y * .5f * Mathf.Sign(translation.Value.y);
                     float splat = Mathf.Abs(velocity.Value.y * .3f) + 1f;
-                    scale.Value *= splat;
+                    size.Value.z *= splat;
+                    size.Value.x *= splat;
 
                     ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
@@ -60,11 +62,21 @@ public partial class ParticleSystemFixed : SystemBase
                 {
                     translation.Value.z = PlayField.size.z * .5f * Mathf.Sign(translation.Value.z);
                     float splat = Mathf.Abs(velocity.Value.z * .3f) + 1f;
-                    scale.Value *= splat;
+                    size.Value.x *= splat;
+                    size.Value.y *= splat;
 
                     ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel(velocityJob);
+
+        var cleanupJob = Entities
+            .WithNone<Velocity>()
+            .ForEach((ref URPMaterialPropertyBaseColor color, ref Rotation rotation, ref NonUniformScale renderScale, in Size size) =>
+            {
+                rotation.Value = quaternion.identity;
+                renderScale.Value = size.Value;
+
+            }).ScheduleParallel(moveJob);
 
 
         // Can run in parallel to the other jobs
@@ -78,7 +90,7 @@ public partial class ParticleSystemFixed : SystemBase
                }
            }).ScheduleParallel(Dependency);
 
-        Dependency = Unity.Jobs.JobHandle.CombineDependencies(moveJob, lifeJob);
+        Dependency = Unity.Jobs.JobHandle.CombineDependencies(cleanupJob, lifeJob);
 
         endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
@@ -124,17 +136,26 @@ public partial class ParticleSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // Update for rendering
+        // Update for rendering for with and without velocity
         Entities
-           .ForEach((Entity entity, ref Rotation rotation, ref NonUniformScale renderScale, in Translation translation, in Size size, in Velocity velocity, in Lifetime lifetime, in ParticleComponent particle) =>
+           .ForEach((ref URPMaterialPropertyBaseColor color, in Lifetime lifetime, in ParticleComponent particle) =>
            {
-               renderScale.Value = size.Value * lifetime.Value;
-               if (particle.Type == ParticleComponent.ParticleType.Blood)
-               {
-                   rotation.Value = quaternion.LookRotation(velocity.Value, new float3(0, 1, 0));
-                   renderScale.Value *= 1f + math.length(velocity.Value) * /*speedStretch*/ 0.25f;
-               }
+               color.Value.w = lifetime.Value;
 
            }).ScheduleParallel();
+
+        Entities
+          .ForEach((ref Rotation rotation, ref NonUniformScale renderScale, ref URPMaterialPropertyBaseColor color, in Size size, in Velocity velocity, in Lifetime lifetime, in ParticleComponent particle) =>
+          {
+              renderScale.Value = size.Value * lifetime.Value;
+              if (particle.Type == ParticleComponent.ParticleType.Blood)
+              {
+                  rotation.Value = quaternion.LookRotation(velocity.Value, new float3(0, 1, 0));
+                  renderScale.Value.z *= 1f + math.length(velocity.Value) * /*speedStretch*/ 0.25f;
+              }
+
+              color.Value.w = lifetime.Value;
+
+          }).ScheduleParallel();
     }
 }
