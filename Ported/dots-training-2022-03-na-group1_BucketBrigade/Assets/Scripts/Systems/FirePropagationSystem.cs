@@ -11,23 +11,19 @@ public partial class FirePropagationSystem : SystemBase
     int firePropagationRadius = 2;
 
     NativeArray<int2> checkAdjacents;
-    NativeArray<int> adjacentIndicesArray;
     protected override void OnCreate()
     {
         GridUtility.CreateAdjacentTileArray(ref checkAdjacents,firePropagationRadius);
         
-        adjacentIndicesArray = new NativeArray<int>(checkAdjacents.Length,Allocator.Persistent);
     }
     protected override void OnDestroy()
     {
         checkAdjacents.Dispose();
-        adjacentIndicesArray.Dispose();
     }
 
     protected override void OnUpdate()
     {
         var localCheckAdjacents = checkAdjacents;
-        var adjacentIndices = adjacentIndicesArray;
 
         var heatmapData = GetSingleton<HeatMapData>();
         var heatmapBuffer = GetHeatmapBuffer();
@@ -45,29 +41,11 @@ public partial class FirePropagationSystem : SystemBase
         var handle = job.Schedule(heatmapBuffer.Length, 32);
         handle.Complete();
         
-#if false
-        Job.WithCode(() => {
-
-            for (var i = 0; i < heatmapBuffer.Length; i++)
-            {
-                if (heatmapBuffer[i] >= HEAT_THRESHOLD)
-                {
-                    heatmapBuffer[i] += deltaTime;
-                    HeatAdjacents(ref heatmapBuffer, localCheckAdjacents, adjacentIndices, i, heatmapData.mapSideLength, deltaTime);
-                }
-
-                if (heatmapBuffer[i] >= 1f)
-                    heatmapBuffer[i] = 1f;
-            }
-
-        }).Run();
-#endif
     }
 
     static void HeatAdjacents(
         ref DynamicBuffer<HeatMapTemperature> buffer, 
         NativeArray<int2> adjacentOffsets, 
-        NativeArray<int> adjacentIndices,
         int tileIndex,  int width, float deltaTime)
     {
 #if true
@@ -124,6 +102,7 @@ public partial class FirePropagationSystem : SystemBase
             {
                 heatmapBuffer[tileIndex] += deltaTime;
 
+                //heat adjacents
                 for (int iAdjacent = 0; iAdjacent < adjacentOffsets.Length; iAdjacent++)
                 {
                     int2 tileCoord = GridUtility.GetTileCoordinate(tileIndex, width);
