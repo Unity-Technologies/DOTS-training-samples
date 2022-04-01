@@ -105,27 +105,28 @@ public static class BucketBrigadeUtility
         var shortestDistanceSq = int.MaxValue;
         var closestSpot = -1;
 
-        var index = 0;
+        var index = -1;
         for (var y = 0; y < width; y++)
         {
-            var yDist = math.abs(gridPosition.y - y);
-            var yDistSq = yDist * yDist;
-            
             for (var x = 0; x < width; x++)
             {
-                if (heatmap[index] > 0.01f)
-                {
-                    var xDist = math.abs(gridPosition.x - x);
-                    var distanceSq = yDistSq + xDist*xDist;
+                index++;
+                if (heatmap[index] < FirePropagationSystem.HEAT_THRESHOLD )
+                    continue;
+                
+                var yDist = math.abs(gridPosition.y - y);
+                var yDistSq = yDist * yDist;
+                
+                var xDist = math.abs(gridPosition.x - x);
+                var distanceSq = yDistSq + xDist*xDist;
 
-                    if (distanceSq < shortestDistanceSq)
-                    {
-                        shortestDistanceSq = distanceSq;
-                        closestSpot = index;
-                    }
+                if (distanceSq < shortestDistanceSq)
+                {
+                    shortestDistanceSq = distanceSq;
+                    closestSpot = index;
                 }
 
-                index++;
+                //index++;
             }
 
         }
