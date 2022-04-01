@@ -24,8 +24,7 @@ public partial class ResourceMovementSystem : SystemBase
         var particle = GetSingleton<PrefabSet>().Particle;
 		var yellowBee = GetSingleton<PrefabSet>().YellowBee;
 		var blueBee = GetSingleton<PrefabSet>().BlueBee;
-
-
+        
 		Entities
             .WithStructuralChanges()
             .WithNativeDisableContainerSafetyRestriction(cdfe)
@@ -99,9 +98,6 @@ public partial class ResourceMovementSystem : SystemBase
 								beeComponentData.Process = 1;  // Set this to 1 otherwise it will be ignored. This acts like a toggle for the spawner to process new bees - it then resets it to 0 and stops.
 								ecb.AddComponent(instance, beeComponentData);
 
-
-
-
 								// OLD PARTICLE SYSTEM
 								// ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
 								// NEW PARTICLE SYSTEM
@@ -109,7 +105,7 @@ public partial class ResourceMovementSystem : SystemBase
                                 ParticleSystem.SpawnParticle(parallelecb, entityInQueryIndex, particle, ref random,
                                     translation.Value, ParticleType.Explosion, float3.zero, 6f, 5);
 
-                                //EntityManager.DestroyEntity(entity);
+                                ecb.DestroyEntity(entity);
                             }
                         }
                     }
