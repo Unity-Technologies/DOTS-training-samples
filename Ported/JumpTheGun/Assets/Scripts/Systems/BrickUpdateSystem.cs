@@ -8,6 +8,12 @@ using Color = UnityEngine.Color;
 
 public partial class BrickUpdateSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireSingletonForUpdate<HeightElement>();
+        RequireSingletonForUpdate<TerrainData>();
+    }
+    
     protected override void OnUpdate()
     {
         var entityElement = GetSingletonEntity<HeightElement>();
