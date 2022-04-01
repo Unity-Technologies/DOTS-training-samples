@@ -35,8 +35,8 @@ public partial class PassengerWalkingSystem : SystemBase
             {
                 // When we reach our destination, re-randomize walking component.
                 float3 destination = random.NextFloat3(
-                    new float3(passenger.CurrentPlatformPosition.x - 10, 0, passenger.CurrentPlatformPosition.z - 10),
-                    new float3(passenger.CurrentPlatformPosition.x + 10, 0, passenger.CurrentPlatformPosition.z + 10));
+                    new float3(passenger.CurrentPlatformPosition.x - 10, passenger.CurrentPlatformPosition.y, passenger.CurrentPlatformPosition.z - 10),
+                    new float3(passenger.CurrentPlatformPosition.x + 10, passenger.CurrentPlatformPosition.y, passenger.CurrentPlatformPosition.z + 10));
 
 
                 parallelWriter.SetComponent(entityInQueryIndex, entity, new PassengerWalking

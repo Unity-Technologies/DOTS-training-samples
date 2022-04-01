@@ -24,6 +24,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
     [SerializeField] private int spawnMultiplier = 1;
     [SerializeField] private float spawnMultipleGridSize = 100.0f;
+    [SerializeField] private float spawnMultipleGridSizeZScale = 1.0f;
 
     struct StationData
     {
@@ -43,7 +44,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             {
                 for (int j = 0; j < spawnMultiplier; j++)
                 {
-                    float3 offset = new float3(spawnMultipleGridSize * i, 0, spawnMultipleGridSize * j);
+                    float3 offset = new float3(spawnMultipleGridSize * i, 0, spawnMultipleGridSize * spawnMultipleGridSizeZScale * j);
 
                     Entity gridDuplicate = conversionSystem.CreateAdditionalEntity(this);
                     SpawnLine(children, dstManager, gridDuplicate, conversionSystem, offset);

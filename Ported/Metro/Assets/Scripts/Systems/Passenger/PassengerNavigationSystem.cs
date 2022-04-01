@@ -42,7 +42,8 @@ public partial class PassengerNavigationSystem : SystemBase
                     //make them walk somewhere random (just a quick hack at the moment)
                     parallelWriter.AddComponent(entityInQueryIndex, entity, new PassengerWalking
                     {
-                        WalkDestination = random.NextFloat3(new float3(passenger.CurrentPlatformPosition.x - 10, 0, passenger.CurrentPlatformPosition.z - 10), new float3(passenger.CurrentPlatformPosition.x + 10, 0, passenger.CurrentPlatformPosition.z + 10)),
+                        WalkDestination = random.NextFloat3(new float3(passenger.CurrentPlatformPosition.x - 10, passenger.CurrentPlatformPosition.y, passenger.CurrentPlatformPosition.z - 10), 
+                            new float3(passenger.CurrentPlatformPosition.x + 10, passenger.CurrentPlatformPosition.y, passenger.CurrentPlatformPosition.z + 10)),
                         WalkSpeed = passenger.WalkSpeed
                     });
                 }
