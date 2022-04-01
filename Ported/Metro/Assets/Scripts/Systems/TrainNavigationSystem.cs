@@ -16,6 +16,7 @@ public partial class TrainNavigationSystem : SystemBase
     {
         float deltaTime = Time.DeltaTime;
         float embarkingTime = 2;
+        
         var stationPositionsDictionary = GetBufferFromEntity<StationPositionBufferElement>(true);
 
         Entities.WithAll<TrainComponent>()
@@ -28,7 +29,7 @@ public partial class TrainNavigationSystem : SystemBase
                 in TrainComponent trainComponent) =>
             {
                 var stationPositions = stationPositionsDictionary[trainComponent.Line];
-                var decelerationDistance = speed.Acceleration / speed.CurrentSpeed;
+                var lineComponent = GetComponent<LineComponent>(trainComponent.Line);
                 var nextStationPosition = stationPositions[waypointIndex.NextWaypoint].positionAlongRail;
                 
                 switch (trainState.Value) {
@@ -44,8 +45,12 @@ public partial class TrainNavigationSystem : SystemBase
                             break;
                     case TrainState.InTransit:
                         trackPosition.Value = math.frac(trackPosition.Value + speed.CurrentSpeed * deltaTime);
-
-                        var distanceToStation = math.frac(nextStationPosition - trackPosition.Value);
+                        
+                        var distanceToStation = nextStationPosition - trackPosition.Value;
+                        if (distanceToStation < 0) distanceToStation++; 
+                        
+                        var decelerationDistance = ((speed.CurrentSpeed * speed.CurrentSpeed) / (2 * speed.Acceleration)) 
+                                                   / lineComponent.LineLength;
                         if (distanceToStation < decelerationDistance)
                         {
                             trainState.Value = TrainState.Decelerating;
@@ -73,7 +78,7 @@ public partial class TrainNavigationSystem : SystemBase
                             waypointIndex.LastWaypoint = waypointIndex.NextWaypoint;
                             waypointIndex.NextWaypoint++;
 
-                            if (waypointIndex.NextWaypoint >= stationPositions.Length - 1)
+                            if (waypointIndex.NextWaypoint > stationPositions.Length - 1)
                                 waypointIndex.NextWaypoint = 0;
                         }
 
