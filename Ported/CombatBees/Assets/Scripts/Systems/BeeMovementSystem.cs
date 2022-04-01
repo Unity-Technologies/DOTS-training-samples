@@ -11,24 +11,25 @@ public partial class BeeMovementSystem : SystemBase
 {
     private const float SPEED_STRETCH = 0.2f;
     private const float ROTATION_STIFFNESS = 5.0f;
-    private const float FLIGHT_JITTER = 1000.0f;
+    private const float FLIGHT_JITTER = 200.0f;
     private const float DAMPING = 0.1f;
 
-    private const float TEAM_ATTRACTION = 20.0f;
-    private const float TEAM_REPULSION = 16.0f;
+    private const float TEAM_ATTRACTION = 5.0f;
+    private const float TEAM_REPULSION = 4.0f;
 
-    private const float CHASE_FORCE = 200.0f;
+    private const float CHASE_FORCE = 50.0f;
 
-    private const float CARRY_FORCE = 100.0f;
+    private const float CARRY_FORCE = 25.0f;
     private const float RESOURCE_SIZE = 0.75f;
     private const float GRAB_DISTANCE = 0.5f;
 
     private const float AGGRESSION = 0.5f;
-    private const float ATTACK_FORCE = 2000.0f;
+    private const float ATTACK_FORCE = 500.0f;
     private const float ATTACK_DISTANCE = 4.0f;
     private const float HIT_DISTANCE = 0.5f;
 
     private Random _random; // TODO: Need to ask about using this in parallel. 
+    private float _timer;
 
     protected override void OnCreate()
     {
@@ -39,8 +40,14 @@ public partial class BeeMovementSystem : SystemBase
     // The team decided the goal here is to exactly replicate the example movement behaviour and targeting logic.
     protected override void OnUpdate()
     {
-        // The example actually updates MOST of this in FixedUpdate. Could set this up to run at the same rate?
-        var deltaTime = Time.DeltaTime;
+        // The example actually updates MOST of this in FixedUpdate. Without emulating this, the logic doesnt work right, confirmed by moving demo to update.
+        var deltaTime = Time.fixedDeltaTime;
+        _timer += Time.DeltaTime;
+
+        if (_timer >= deltaTime)
+            _timer = 0.0f;
+        else
+            return;
 
         // TODO: Ask about disposing these.
         var yellowBeeEntities = GetEntityQuery(typeof(TeamYellowTargetComponent)).ToEntityArray(Allocator.TempJob);
@@ -55,7 +62,7 @@ public partial class BeeMovementSystem : SystemBase
 
         // Workaround because you can't write to other entities from within a foreach.
         //var teamBlueTargetData = GetComponentDataFromEntity<TeamBlueTargetComponent>();
-        var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
+        //var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
         var positionData = GetComponentDataFromEntity<PositionComponent>(true);
 
         // TODO: This can probably just be saved off at the end of the loop instead of looping all here.
