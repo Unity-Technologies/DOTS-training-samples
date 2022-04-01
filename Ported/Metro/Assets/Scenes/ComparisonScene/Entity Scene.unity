@@ -745,7 +745,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   passengerPrefab: {fileID: 7982164602526732203, guid: 5808c69b109e62e4fa3d66123d8cf14f,
     type: 3}
-  passengersPerStation: 50
+  passengersPerStation: 63
 --- !u!4 &247293702
 Transform:
   m_ObjectHideFlags: 0
