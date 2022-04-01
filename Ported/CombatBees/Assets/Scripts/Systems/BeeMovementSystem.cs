@@ -186,7 +186,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                             if (sqrDist > grabDistance * grabDistance)
                             {
-                                velocity += delta * (carryForce * deltaTime / Mathf.Sqrt(sqrDist));
+                                velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
                             }
                             else
                             {
@@ -213,7 +213,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > grabDistance * grabDistance)
                         {
-                            velocity += delta * (25 * deltaTime / Mathf.Sqrt(sqrDist));
+                            velocity += delta * (carryForce * deltaTime / Mathf.Sqrt(sqrDist));
                         }
                         else
                         {
