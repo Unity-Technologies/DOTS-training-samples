@@ -249,10 +249,9 @@ namespace Systems
 
                         ecb.SetComponent(barEntity, new Bar
                         {
-                            indexLink = linksList.Length + linkOffset,
-                            oldDirection = new float3(0.0f, 1.0f, 0.0f),
-                            thickness = thickness
+                            indexLink = linksList.Length + linkOffset
                         });
+
                         ecb.SetComponent(barEntity,
                             new NonUniformScale {Value = new float3(thickness, thickness, linkLength)});
 
@@ -296,6 +295,7 @@ namespace Systems
             // buildings
             for (int i = 0; i < generation.buildings; i+= buildingsPerIsland)
             {
+
                 int startingPointCount = pointsList.Length;
                 int remainingBuildings = math.min(buildingsPerIsland, generation.buildings - i);
 

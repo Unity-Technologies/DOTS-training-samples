@@ -20,10 +20,12 @@ namespace Assets.Scripts.Jobs
 		public NativeArray<Link> links;
 		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<int> pointAllocators;
+
 		[ReadOnly] public int iterations;
 		[ReadOnly] public int islandIndex;
 		[ReadOnly] public int islandStartLinkIndex;
 		[ReadOnly] public int islandEndLinkIndex;
+
 		[ReadOnly] public PhysicsSettings physicSettings;
 
 		public void Execute()

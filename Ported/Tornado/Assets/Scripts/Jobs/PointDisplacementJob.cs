@@ -10,16 +10,16 @@ namespace Assets.Scripts.Jobs
     [BurstCompile]
     public struct PointDisplacementJob : IJobParallelFor
     {
-        public NativeArray<VerletPoints> points;       
+        public NativeArray<VerletPoints> points;
 
-        public float invDamping;
+        [ReadOnly] public float invDamping;
 
         [ReadOnly] public TornadoParameters torandoParameters;
         [ReadOnly] public TornadoSettings torandoSettings;
         [ReadOnly] public PhysicsSettings physicSettings;
         [ReadOnly] public NativeArray<PhysicMaterial> physicMaterials;
 
-        public float time;
+        [ReadOnly] public float time;
         public Random random;
 
 
