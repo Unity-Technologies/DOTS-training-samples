@@ -17,6 +17,7 @@ public partial class BeeMovementSystemFixed : SystemBase
     static readonly float teamRepulsion = 4f;
 
     static readonly float chaseForce = 50f;
+    static readonly float carryForce = 25f;
     static readonly float attackDistance = 4f;
     static readonly float attackForce = 500f;
     static readonly float hitDistance = 0.5f;
@@ -179,7 +180,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                             if (sqrDist > grabDistance * grabDistance)
                             {
-                                velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                                velocity += delta * (carryForce * deltaTime / Mathf.Sqrt(sqrDist));
                             }
                             else
                             {
