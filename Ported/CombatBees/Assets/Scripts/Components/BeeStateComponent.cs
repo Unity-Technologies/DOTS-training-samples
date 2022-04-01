@@ -1,6 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 
+[GenerateAuthoringComponent]
 public struct BeeStateComponent : IComponentData
 {
     public enum BeeState

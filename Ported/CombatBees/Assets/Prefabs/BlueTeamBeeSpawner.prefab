@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &7134980083042588962
+--- !u!1 &4907473564200488266
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7134980083042588960}
-  - component: {fileID: 7134980083042588961}
+  - component: {fileID: 4907473564200488264}
+  - component: {fileID: 4907473564200488267}
   m_Layer: 0
   m_Name: BlueTeamBeeSpawner
   m_TagString: Untagged
@@ -17,37 +17,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7134980083042588960
+--- !u!4 &4907473564200488264
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7134980083042588962}
+  m_GameObject: {fileID: 4907473564200488266}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -45, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7134980083042588961
+--- !u!114 &4907473564200488267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7134980083042588962}
+  m_GameObject: {fileID: 4907473564200488266}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30a218ac06b466d4fa6c5b336f8646da, type: 3}
+  m_Script: {fileID: 11500000, guid: 8948e4a1696485c449ca825f36bb2bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 2409184108622359359, guid: f7983cac273ae36499764289c4674a9e, type: 3}
-  TeamBeeCount: 10
-  FieldCenterPosition:
-    x: 0
+  BeeCount: 50
+  BeeSpawnPosition:
+    x: -45
     y: 0
     z: 0
-  BeeHiveXOffset: -45
-  BeeTeam: 1
+  Process: 1
