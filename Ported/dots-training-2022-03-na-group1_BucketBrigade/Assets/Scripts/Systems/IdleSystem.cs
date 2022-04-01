@@ -34,7 +34,12 @@ public partial class IdleSystem : SystemBase
             {
                 if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && bucketHeld.IsFull)
                 {
-                    ecb.AppendToBuffer(dumpBucketCommandEntity, new DumpBucketCommand(entity, bucketHeld.Value));
+                    ecb.AppendToBuffer(dumpBucketCommandEntity, new DumpBucketCommand()
+                    {
+                        Worker = entity, 
+                        fireTileIndex = -1
+                        //bucketHeld.Value
+                    });
                 }
             }).Run();
         

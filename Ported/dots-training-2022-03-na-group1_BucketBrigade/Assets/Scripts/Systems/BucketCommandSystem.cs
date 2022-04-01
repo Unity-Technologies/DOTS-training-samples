@@ -7,9 +7,34 @@ using static BucketBrigadeUtility;
 [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 public partial class BucketCommandSystem : SystemBase
 {
-    protected override void OnCreate()
+    void ProcessBufferDumpBucket(int frame)
     {
-        base.OnCreate();
+        var splashmapBuffer = BucketBrigadeUtility.GetSplashmapBuffer(this);
+        var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
+        
+        Entities.WithName("DumpBucketCommand")
+            .ForEach((ref DynamicBuffer<DumpBucketCommand> commandBuffer) =>
+            {
+                for (var iCmd = 0; iCmd < commandBuffer.Length; iCmd++)
+                {
+                    var worker = commandBuffer[iCmd].Worker;
+
+                    var bucketHeld = GetComponent<BucketHeld>(worker);
+
+                    if (bucketHeld.Value == Entity.Null || !bucketHeld.IsFull)
+                        continue;
+                    
+                    SetComponent(worker, new BucketHeld(bucketHeld.Value, false));
+                    SetComponent(bucketHeld.Value, new MyBucketState(BucketState.EmptyCarrried, frame));
+                    SetComponent(worker, new Speed() { Value = EmptyBucketSpeed });
+                    
+                    // splash?
+                    FireSuppressionSystem
+                        .AddSplashByIndex(ref splashmapBuffer, heatmapBuffer.Length, commandBuffer[iCmd].fireTileIndex );
+                }
+                
+                commandBuffer.Clear();
+            }).Run();
     }
 
     protected override void OnUpdate()
@@ -19,6 +44,8 @@ public partial class BucketCommandSystem : SystemBase
         var frame = GetCurrentFrame();
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
+        
+        ProcessBufferDumpBucket(frame);
         
         Entities.WithName("DropBucketCommand")
             .ForEach((ref DynamicBuffer<DropBucketCommand> commandBuffer) =>
@@ -53,29 +80,6 @@ public partial class BucketCommandSystem : SystemBase
                 commandBuffer.Clear();
             }).Run();
         
-        Entities.WithName("DumpBucketCommand")
-            .ForEach((ref DynamicBuffer<DumpBucketCommand> commandBuffer) =>
-            {
-                for (var iCmd = 0; iCmd < commandBuffer.Length; iCmd++)
-                {
-                    var command = commandBuffer[iCmd];
-
-                    var bucketHeld = GetComponent<BucketHeld>(command.Worker);
-
-                    if (bucketHeld.Value == Entity.Null || !bucketHeld.IsFull)
-                        continue;
-
-                    SetComponent(command.Worker, Speed.WithEmptyBucket);
-                    SetComponent(command.Worker, new BucketHeld(bucketHeld.Value, false));
-                    SetComponent(bucketHeld.Value, new MyBucketState(BucketState.EmptyCarrried, frame));
-                    SetComponent(bucketHeld.Value, new Scale() { Value = new Unity.Mathematics.float3(EmptyWaterSize, EmptyWaterSize, EmptyWaterSize) });
-                    SetComponent(command.Worker, new Speed() { Value = EmptyBucketSpeed });
-                    
-                    // splash?
-                }
-                
-                commandBuffer.Clear();
-            }).Run();
         
         Entities.WithName("FillBucketCommand")
             .ForEach((ref DynamicBuffer<FillBucketCommand> commandBuffer) =>

@@ -35,11 +35,13 @@ public partial class FireRenderingSystem : SystemBase
         }
         else
         {
-          colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, intensity);
+          float colorIntensity = (intensity * 1.25f - 0.2f);
+          
+          colorComponent.Value = math.lerp(heatmapData.colorCool, heatmapData.colorHot, colorIntensity );
           translation.Value.y = math.lerp(-tileHalfHeight, tileHalfHeight, intensity);
                      
           //Apply flicker noise
-          float2 sample = new float2((time - fireIndex.index) * flickerRate - intensity, intensity);
+          float2 sample = new float2((time - fireIndex.index) * flickerRate - colorIntensity, colorIntensity);
           translation.Value.y += flickerRange * 0.5f + (noise.cnoise(sample) * flickerRange);
         }
 
