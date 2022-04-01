@@ -19,36 +19,42 @@ public partial class ResourceMovementSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var parallelecb = ecb.AsParallelWriter();
 
-        var cdfe = GetComponentDataFromEntity<VelocityComponent>(true);
+        var velocityData = GetComponentDataFromEntity<VelocityComponent>(true);
+        var positionData = GetComponentDataFromEntity<PositionComponent>(true);
+        var beeStateData = GetComponentDataFromEntity<BeeStateComponent>(true);
+        var beeSizeData = GetComponentDataFromEntity<BeeBaseSizeComponent>(true);
 
         var particle = GetSingleton<PrefabSet>().Particle;
 		var yellowBee = GetSingleton<PrefabSet>().YellowBee;
 		var blueBee = GetSingleton<PrefabSet>().BlueBee;
-        
-		Entities
-            .WithStructuralChanges()
-            .WithNativeDisableContainerSafetyRestriction(cdfe)
-            .WithoutBurst()
+
+        Entities.WithoutBurst().ForEach((ref HeldByBeeComponent heldByBee) =>
+        {
+            if (EntityManager.Exists(heldByBee.HoldingBee) == false)
+                heldByBee.HoldingBee = default;
+        }).Run();
+
+		var job = Entities
+            .WithNativeDisableContainerSafetyRestriction(velocityData)
+            .WithNativeDisableContainerSafetyRestriction(positionData)
+            .WithNativeDisableContainerSafetyRestriction(beeStateData)
+            .WithNativeDisableContainerSafetyRestriction(beeSizeData)
             .ForEach((Entity entity, int entityInQueryIndex, ref HeldByBeeComponent heldByBee, ref Translation translation, ref VelocityComponent velocity) =>
             {
                 // TODO: It probably makes more sense to add/remove the held by bee component as it's pickedup/dropped by the bees.
 
-                if (EntityManager.Exists(heldByBee.HoldingBee) == false)
-                    heldByBee.HoldingBee = default;
-
                 if (heldByBee.HoldingBee != default)
                 {
-                    var beeStateComponent = GetComponent<BeeStateComponent>(heldByBee.HoldingBee);
-                    if (beeStateComponent.Value == BeeStateComponent.BeeState.Dead)
+                    if (beeStateData[heldByBee.HoldingBee].Value == BeeStateComponent.BeeState.Dead)
                     {
                         heldByBee.HoldingBee = default;
                     }
                     else
                     {
                         // TODO: Probably also makes sense for the carrying bee to update all this info into the HeldByComponent instead?
-                        var beePosition = GetComponent<PositionComponent>(heldByBee.HoldingBee).Position;
-                        var beeSize = GetComponent<BeeBaseSizeComponent>(heldByBee.HoldingBee).Value;
-                        var beeVelocity = cdfe[heldByBee.HoldingBee].Value;
+                        var beePosition = positionData[heldByBee.HoldingBee].Position;
+                        var beeSize = beeSizeData[heldByBee.HoldingBee].Value;
+                        var beeVelocity = velocityData[heldByBee.HoldingBee].Value;
 
                         float3 targetPos = beePosition - math.up() * (RESOURCE_SIZE + beeSize) * .5f;
                         translation.Value = math.lerp(translation.Value, targetPos, CARRY_STIFFNESS * deltaTime);
@@ -88,7 +94,7 @@ public partial class ResourceMovementSystem : SystemBase
                                 if (translation.Value.x > 0f)
                                     team = 1;
 
-								var instance = ecb.CreateEntity();
+								var instance = parallelecb.CreateEntity(entityInQueryIndex);
 								float3 pos = translation.Value;
 								BeeSpawnerComponent beeComponentData = new BeeSpawnerComponent();
 
@@ -96,22 +102,24 @@ public partial class ResourceMovementSystem : SystemBase
 								beeComponentData.BeeCount = BEES_PER_RESOURCE;
 								beeComponentData.BeeSpawnPosition = pos;
 								beeComponentData.Process = 1;  // Set this to 1 otherwise it will be ignored. This acts like a toggle for the spawner to process new bees - it then resets it to 0 and stops.
-								ecb.AddComponent(instance, beeComponentData);
+								parallelecb.AddComponent(entityInQueryIndex, instance, beeComponentData);
 
-								// OLD PARTICLE SYSTEM
-								// ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
-								// NEW PARTICLE SYSTEM
-								var random = new Random(1);
+                                // OLD PARTICLE SYSTEM
+                                // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+                                // NEW PARTICLE SYSTEM
+                                var random = new Random(1);
                                 ParticleSystem.SpawnParticle(parallelecb, entityInQueryIndex, particle, ref random,
                                     translation.Value, ParticleType.Explosion, float3.zero, 6f, 5);
 
-                                ecb.DestroyEntity(entity);
+                                parallelecb.DestroyEntity(entityInQueryIndex, entity);
                             }
                         }
                     }
                 }
 
-            }).Run();
+            }).ScheduleParallel(Dependency);
+
+        job.Complete();
 
         ecb.Playback(EntityManager);
         ecb.Dispose();
