@@ -22,6 +22,7 @@ public partial class ResourceMovementSystem : SystemBase
         var cdfe = GetComponentDataFromEntity<VelocityComponent>(true);
 
         Entities
+            .WithStructuralChanges()
             .WithNativeDisableContainerSafetyRestriction(cdfe)
             .WithoutBurst()
             .ForEach((Entity entity, int entityInQueryIndex, ref HeldByBeeComponent heldByBee, ref Translation translation, ref VelocityComponent velocity) =>
@@ -86,7 +87,7 @@ public partial class ResourceMovementSystem : SystemBase
 
                                 ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
 
-                                ecb.DestroyEntity(entity);
+                                //EntityManager.DestroyEntity(entity);
                             }
                         }
                     }
