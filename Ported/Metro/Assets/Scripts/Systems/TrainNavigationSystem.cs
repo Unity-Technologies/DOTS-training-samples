@@ -1,11 +1,13 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 public partial class TrainNavigationSystem : SystemBase
 {
     public enum TrainState
     {
         Accelerating,
+        InTransit,
         Decelerating,
         Embarking
     }
@@ -25,7 +27,8 @@ public partial class TrainNavigationSystem : SystemBase
                 in TrainComponent trainComponent) =>
             {
                 var stationPositions = stationPositionsDictionary[trainComponent.Line];
-                var decelerationDistance = speed.CurrentSpeed / speed.Acceleration;
+                var decelerationDistance = speed.Acceleration / speed.CurrentSpeed;
+                Debug.Log(decelerationDistance);
                 var nextStationPosition = stationPositions[waypointIndex.NextWaypoint].positionAlongRail;
                 
                 switch (trainState.Value) {
@@ -34,7 +37,16 @@ public partial class TrainNavigationSystem : SystemBase
                 
                         trackPosition.Value = math.frac(trackPosition.Value + speed.CurrentSpeed * deltaTime);
 
+                        if (speed.CurrentSpeed == speed.MaxSpeed)
+                        {
+                            trainState.Value = TrainState.InTransit;
+                        }
+                            break;
+                    case TrainState.InTransit:
+                        trackPosition.Value = math.frac(trackPosition.Value + speed.CurrentSpeed * deltaTime);
+
                         var distanceToStation = math.frac(nextStationPosition - trackPosition.Value);
+                        Debug.Log(distanceToStation);
                         if (distanceToStation < decelerationDistance)
                         {
                             trainState.Value = TrainState.Decelerating;
