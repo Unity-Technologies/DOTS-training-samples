@@ -33,6 +33,10 @@ public partial class ResourceMovementSystem : SystemBase
             .ForEach((Entity entity, int entityInQueryIndex, ref HeldByBeeComponent heldByBee, ref Translation translation, ref VelocityComponent velocity) =>
             {
                 // TODO: It probably makes more sense to add/remove the held by bee component as it's pickedup/dropped by the bees.
+
+                if (EntityManager.Exists(heldByBee.HoldingBee) == false)
+                    heldByBee.HoldingBee = default;
+
                 if (heldByBee.HoldingBee != default)
                 {
                     var beeStateComponent = GetComponent<BeeStateComponent>(heldByBee.HoldingBee);
