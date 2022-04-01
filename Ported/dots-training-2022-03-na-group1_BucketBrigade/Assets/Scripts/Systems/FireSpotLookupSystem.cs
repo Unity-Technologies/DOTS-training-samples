@@ -17,6 +17,7 @@ public partial class FireSpotLookupSystem : SystemBase
         var entityManager = EntityManager;
 
         Entities
+            .WithReadOnly(heatmap)
             .WithAll<CaptainTag>()
             .ForEach((ref Home home, in MyTeam team, in EvalOffsetFrame offset) =>
             {
@@ -30,7 +31,7 @@ public partial class FireSpotLookupSystem : SystemBase
                     if (!BucketBrigadeUtility.IsVeryClose(spot, home.Value))
                     {
                         home.Value = spot;
-                        ecb.AppendToBuffer(teamReformBufferEntity, new TeamReformCommand(team.Value));
+                        ecb.AppendToBuffer(teamReformBufferEntity, new TeamReformCommand(team.Value));//This won't let us do ScheduleParallel
                     }
                 }
             })
