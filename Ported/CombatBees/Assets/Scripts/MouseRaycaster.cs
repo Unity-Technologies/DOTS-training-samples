@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Linq;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class MouseRaycaster : MonoBehaviour {
@@ -23,6 +24,22 @@ public class MouseRaycaster : MonoBehaviour {
 	{
 		if (Input.GetKey(KeyCode.Mouse1))
 			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.Blood, Vector3.zero);
+		else if (Input.GetKeyUp(KeyCode.Mouse0))
+		{
+			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+			var instance = entityManager.CreateEntity();
+
+			AdhocResourceSpawnerComponent adhocResourceComponentData = new AdhocResourceSpawnerComponent();
+			var spawner = entityManager.CreateEntityQuery(typeof(PrefabSet)).ToComponentDataArray<PrefabSet>(Unity.Collections.Allocator.Temp);
+			adhocResourceComponentData.ResourcePrefab = spawner.First().ResourcePrefab;
+			adhocResourceComponentData.ResourceSpawnPosition = worldMousePosition;
+			adhocResourceComponentData.Process = 1;
+			entityManager.AddComponentData(instance, adhocResourceComponentData);
+
+			//beeComponentData.BeePrefab = prefabSet.YellowBee;
+			// var spawner = entityManager.CreateEntityQuery(typeof(AdhocResourceSpawnerComponent)).ToComponentDataArray<AdhocResourceSpawnerComponent>(Unity.Collections.Allocator.Temp);
+			// entityManager.Instantiate(spawner.First().Entity);
+		}
 	}
 
 	void LateUpdate () {
