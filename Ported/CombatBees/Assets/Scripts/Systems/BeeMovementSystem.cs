@@ -541,7 +541,7 @@ public partial class BeeMovementSystem : SystemBase
 
         #region TODO:
 
-        Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
+        Entities.ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
         {
             if (beeState.Value != BeeState.Dead)
             {
@@ -550,7 +550,7 @@ public partial class BeeMovementSystem : SystemBase
                 scale.Value.x = baseSize.Value / ((stretch - 1f) / 5f + 1f);
                 scale.Value.y = baseSize.Value / ((stretch - 1f) / 5f + 1f);
             }
-        }).Run();
+        }).ScheduleParallel();
 
         Entities.ForEach((ref BeeStateComponent beeState, ref Rotation rotation, ref Translation translation, ref PositionComponent position) =>
         {
@@ -564,7 +564,7 @@ public partial class BeeMovementSystem : SystemBase
             var smoothDirection = position.SmoothPosition - oldSmoothPos;
             rotation.Value = quaternion.LookRotation(smoothDirection, math.up());
 
-        }).Run();
+        }).ScheduleParallel();
 
         // TODO: Attempting to separate the decision making from the movement by introducing a state component. // The concept of a "dead" but not destroyed bee is really making things difficult for me, so for this iteration I'm going to ignore that.
         //Entities
