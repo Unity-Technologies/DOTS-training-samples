@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Mathf = UnityEngine.Mathf;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateAfter(typeof(BeeMovementSystemFixed))]
 public partial class GoalSystem : SystemBase
 {
     EntityCommandBufferSystem beginFixedSimulationEntityCommandBufferSystem;

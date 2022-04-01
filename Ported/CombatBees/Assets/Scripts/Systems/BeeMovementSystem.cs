@@ -4,10 +4,10 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Mathf = UnityEngine.Mathf;
 using Unity.Collections;
+using Unity.Profiling;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateBefore(typeof(ParticleSystemFixed))]
-[UpdateAfter(typeof(Systems.TargetSystem))]
 public partial class BeeMovementSystemFixed : SystemBase
 {
     static readonly float flightJitter = 200f;
@@ -46,11 +46,17 @@ public partial class BeeMovementSystemFixed : SystemBase
         var particles = GetSingleton<ParticleSettings>();
         var deltaTime = Time.DeltaTime;
 
+        var arrayMarker = new ProfilerMarker("BeeMovementSystemFixed.ToComponentDataArray");
+        arrayMarker.Begin();
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
+        arrayMarker.End();
 
+        var ecbMarker = new ProfilerMarker("BeeMovementSystemFixed.CreateCommandBuffer");
+        ecbMarker.Begin();
         var beginFrameEcb = beginFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var endFrameEcb = endFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        ecbMarker.End();
 
         var gsv = GlobalSystemVersion;
 
@@ -206,7 +212,7 @@ public partial class BeeMovementSystemFixed : SystemBase
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > grabDistance * grabDistance)
                         {
-                            velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                            velocity += delta * (25 * deltaTime / Mathf.Sqrt(sqrDist));
                         }
                         else
                         {
@@ -326,7 +332,6 @@ public partial class BeeMovementSystemFixed : SystemBase
 }
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateBefore(typeof(ParticleSystemFixed))]
 [UpdateAfter(typeof(Systems.TargetSystem))]
 public partial class BeeMovementSystem : SystemBase
 {

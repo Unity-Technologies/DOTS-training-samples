@@ -11,7 +11,7 @@ namespace Authoring
         , IDeclareReferencedPrefabs
     {
         public UnityGameObject BeePrefab;
-        [UnityRange(0, 1000)] public int BeesAmount;
+        [UnityRange(0, 100000)] public int BeesAmount;
 
         public UnityGameObject ResourcePrefab;
         [UnityRange(0, 1000)] public int ResourceAmount;

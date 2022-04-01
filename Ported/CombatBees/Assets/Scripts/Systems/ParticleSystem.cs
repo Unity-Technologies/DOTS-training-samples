@@ -6,8 +6,7 @@ using Mathf = UnityEngine.Mathf;
 using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateAfter(typeof(BeeMovementSystem))]
-[UpdateBefore(typeof(ParticleSystem))]
+[UpdateAfter(typeof(BeeMovementSystemFixed))]
 public partial class ParticleSystemFixed : SystemBase
 {
     EntityCommandBufferSystem beginFixedSimulationEntityCommandBufferSystem;
@@ -100,12 +99,11 @@ public partial class ParticleSystemFixed : SystemBase
 }
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(ParticleSystemFixed))]
 public partial class ParticleSystem : SystemBase
 {
     public static void SpawnParticle(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity entityPrefab, ref Random rand, float3 position, ParticleComponent.ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
     {
-        // Processing each particle via the ECS makes a lot of sense, but creation costs may be an issue. Can pooling be built in?
+        // Processing each particle via the ECS makes a lot of sense, but creation costs may be an issue.Can pooling be built in?
         for (int i = 0; i < count; i++)
         {
             var entity = ecb.Instantiate(sortKey, entityPrefab);
