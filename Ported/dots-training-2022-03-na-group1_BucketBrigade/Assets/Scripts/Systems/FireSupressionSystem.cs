@@ -22,6 +22,14 @@ public partial class FireSuppressionSystem : SystemBase
     public static void AddSplashByWorldPosition(
         ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
         int gridSideWidth, 
+        float2 pos2D)
+    {
+        AddSplashByWorldPosition(ref splashmapBuffer, gridSideWidth, new float3(pos2D.x, 0f, pos2D.y));
+    }
+
+    public static void AddSplashByWorldPosition(
+        ref DynamicBuffer<HeatMapSplash> splashmapBuffer, 
+        int gridSideWidth, 
         float3 worldPosition)
     {
         int2 tileCoord = GridUtility.PlotTileCoordFromWorldPosition( worldPosition, gridSideWidth);

@@ -37,8 +37,6 @@ public partial class IdleSystem : SystemBase
                     ecb.AppendToBuffer(dumpBucketCommandEntity, new DumpBucketCommand()
                     {
                         Worker = entity, 
-                        fireTileIndex = -1
-                        //bucketHeld.Value
                     });
                 }
             }).Run();

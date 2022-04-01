@@ -7,10 +7,16 @@ using static BucketBrigadeUtility;
 [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 public partial class BucketCommandSystem : SystemBase
 {
-    void ProcessBufferDumpBucket(int frame)
+    protected override void OnUpdate()
     {
+        var time = (float)Time.ElapsedTime;
+        
+        var frame = GetCurrentFrame();
+        
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
         var splashmapBuffer = BucketBrigadeUtility.GetSplashmapBuffer(this);
-        var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
+        var heatmapData = GetSingleton<HeatMapData>();
+        var heatmapWidth = heatmapData.mapSideLength;
         
         Entities.WithName("DumpBucketCommand")
             .ForEach((ref DynamicBuffer<DumpBucketCommand> commandBuffer) =>
@@ -25,27 +31,19 @@ public partial class BucketCommandSystem : SystemBase
                         continue;
                     
                     SetComponent(worker, new BucketHeld(bucketHeld.Value, false));
-                    SetComponent(bucketHeld.Value, new MyBucketState(BucketState.EmptyCarrried, frame));
                     SetComponent(worker, new Speed() { Value = EmptyBucketSpeed });
+                    SetComponent(bucketHeld.Value, new MyBucketState(BucketState.EmptyCarrried, frame));
+                    SetComponent(bucketHeld.Value, new Scale() { Value = new float3(EmptyWaterSize, EmptyWaterSize, EmptyWaterSize) });
+
+                    var position = GetComponent<Position>(worker);
                     
                     // splash?
                     FireSuppressionSystem
-                        .AddSplashByIndex(ref splashmapBuffer, heatmapBuffer.Length, commandBuffer[iCmd].fireTileIndex );
+                        .AddSplashByWorldPosition(ref splashmapBuffer, heatmapWidth, position.Value);
                 }
                 
                 commandBuffer.Clear();
             }).Run();
-    }
-
-    protected override void OnUpdate()
-    {
-        var time = (float)Time.ElapsedTime;
-        
-        var frame = GetCurrentFrame();
-        
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
-        
-        ProcessBufferDumpBucket(frame);
         
         Entities.WithName("DropBucketCommand")
             .ForEach((ref DynamicBuffer<DropBucketCommand> commandBuffer) =>
