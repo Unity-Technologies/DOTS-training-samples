@@ -291,12 +291,19 @@ namespace Systems
             islandPointAllocators = new NativeList<int>(Allocator.Temp);
             linkStartIndices = new NativeList<int>(Allocator.Temp);
 
+            int buildingsPerIsland = generation.buildingsPerIsland;
             
             // buildings
-            for (int i = 0; i < generation.buildings; i++)
+            for (int i = 0; i < generation.buildings; i+= buildingsPerIsland)
             {
                 int startingPointCount = pointsList.Length;
-                GenerateBuilding(ref random, ref pointsList, generation);
+                int remainingBuildings = math.min(buildingsPerIsland, generation.buildings - i);
+
+                for (int j = 0; j < remainingBuildings; ++j)
+                {
+                    GenerateBuilding(ref random, ref pointsList, generation);
+                }
+
                 int endingPointCount = pointsList.Length;
                 int startingLinkCount = linksList.Length;
                 linkStartIndices.Add(startingLinkCount);

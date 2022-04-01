@@ -309,10 +309,10 @@ MonoBehaviour:
   maxParticleScale: 0.7
   minColorMultiplier: 0.3
   maxColorMultiplier: 0.7
-  cubeSize: 5
   citySize: 200
   groundDetails: 0
   buildings: 2000
+  buildingsPerIsland: 30
   barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
 --- !u!4 &698996226

@@ -18,13 +18,10 @@ namespace Components
         public int citySize;
         public int groundDetails;
         public int buildings;
+        public int buildingsPerIsland;
 
         public int spawnMapH;
         public int spawnMapW;
-
-        // .. more will come
-
-        public int cubeSize;
 
         public Entity barPrefab;
     }

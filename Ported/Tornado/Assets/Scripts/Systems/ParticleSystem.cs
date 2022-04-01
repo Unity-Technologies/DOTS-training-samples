@@ -31,7 +31,7 @@ namespace Systems
                     var delta = (tornadoPos - initialPosition);
                     float dist = math.length(delta);
                     delta /= dist;
-                    float inForce = dist - math.clamp(tornadoPos.y / 50f, 0.0f, 1.0f) * 30.0f * particle.radiusMult + 2f;
+                    float inForce = dist - math.clamp(initialPosition.y, 0.0f, 50.0f) * (30.0f/50.0f) * particle.radiusMult + 2f;
                     var velocity = new float3(-delta.z, 0.0f, delta.x) * spinRate
                                    + delta * inForce
                                    + new float3(0.0f, upwardSpeed, 0.0f);

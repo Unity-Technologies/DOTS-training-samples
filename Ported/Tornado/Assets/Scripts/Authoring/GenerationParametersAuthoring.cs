@@ -24,10 +24,10 @@ namespace Sample.Authoring
         [UnityRange(0.0f, 1.0f)] public float maxColorMultiplier = 0.7f;
 
 
-        public int cubeSize;
         public int citySize;
         public int groundDetails;
         public int buildings;
+        public int buildingsPerIsland;
         public UnityGameObject barPrefab;
 
 
@@ -59,10 +59,10 @@ namespace Sample.Authoring
                 minColorMultiplier = minColorMultiplier,
                 maxColorMultiplier = maxColorMultiplier,
                 barPrefab = conversionSystem.GetPrimaryEntity(barPrefab),
-                cubeSize = cubeSize,
                 citySize = citySize,
                 groundDetails = groundDetails,
                 buildings = buildings,
+                buildingsPerIsland = buildingsPerIsland,
             };
 
           
