@@ -174,7 +174,7 @@ MonoBehaviour:
   WaterPoolPrefab: {fileID: 1068854535243822, guid: f7b2ae8f04a49439ba5796f2f68692fa, type: 3}
   FlameCellPrefab: {fileID: 1306931638197496, guid: 66efc17ad61e9415b8f30c05008692e1, type: 3}
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
-  TeamCount: 10
+  TeamCount: 30
   OmniWorkerCount: 0
   MembersCount: 32
   WaterCount: 60
@@ -182,5 +182,5 @@ MonoBehaviour:
   MinWaterSupplyCount: 100
   MaxWaterSupplyCount: 200
   TurnOffFireRendering: 0
-  FireDimension: 200
+  FireDimension: 500
   FirePropagationSpeed: 0.01

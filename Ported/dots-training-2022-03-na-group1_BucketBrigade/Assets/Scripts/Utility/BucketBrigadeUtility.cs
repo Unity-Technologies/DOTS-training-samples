@@ -9,6 +9,7 @@ public static class BucketBrigadeUtility
     public const float FillDelay = 2f;
     public const float EmptyWaterSize = 0.15f;
     public const float FullWaterSize = 0.4f;
+    public static int FramesPerFireCheck = 60;
 
     private static int _frame;
 

@@ -4,26 +4,10 @@ using Unity.Entities;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class FireSpotLookupSystem : SystemBase
 {
-    /// <summary>
-    ///     The delay between each lookup
-    /// </summary>
-    const double k_Delay = 5;
-
-    /// <summary>
-    ///     Stores the date of the last check for delaying purpose.
-    /// </summary>
-    double? m_LastCheck;
-
     protected override void OnUpdate()
     {
-        var time = Time.ElapsedTime;
-
-        if (m_LastCheck.HasValue && (time - m_LastCheck.Value < k_Delay))
-        {
-            return;
-        }
-        m_LastCheck = time;
-
+        var frameOffset = BucketBrigadeUtility.GetCurrentFrame() % BucketBrigadeUtility.FramesPerFireCheck;
+        
         var heatmapData = GetSingleton<HeatMapData>();
         var heatmap = BucketBrigadeUtility.GetHeatmapBuffer(this);
         
@@ -34,17 +18,20 @@ public partial class FireSpotLookupSystem : SystemBase
 
         Entities
             .WithAll<CaptainTag>()
-            .ForEach((ref Home home, in MyTeam team) =>
+            .ForEach((ref Home home, in MyTeam team, in EvalOffsetFrame offset) =>
             {
-                var teamInfo = entityManager.GetComponentData<TeamInfo>(team.Value);
-                var fetcherHome = entityManager.GetComponentData<Home>(teamInfo.Fetcher);
-
-                var spot = BucketBrigadeUtility.FindClosestFireSpot(heatmapData, heatmap, fetcherHome.Value);
-                
-                if (!BucketBrigadeUtility.IsVeryClose(spot, home.Value))
+                if (offset.Value == frameOffset)
                 {
-                    home.Value = spot;
-                    ecb.AppendToBuffer(teamReformBufferEntity, new TeamReformCommand(team.Value));
+                    var teamInfo = entityManager.GetComponentData<TeamInfo>(team.Value);
+                    var fetcherHome = entityManager.GetComponentData<Home>(teamInfo.Fetcher);
+
+                    var spot = BucketBrigadeUtility.FindClosestFireSpot(heatmapData, heatmap, fetcherHome.Value);
+
+                    if (!BucketBrigadeUtility.IsVeryClose(spot, home.Value))
+                    {
+                        home.Value = spot;
+                        ecb.AppendToBuffer(teamReformBufferEntity, new TeamReformCommand(team.Value));
+                    }
                 }
             })
             .Run();

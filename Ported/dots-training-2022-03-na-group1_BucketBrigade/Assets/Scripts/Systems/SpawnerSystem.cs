@@ -127,53 +127,58 @@ public partial class SpawnerSystem : SystemBase
    static void SpawnTeams(EntityCommandBuffer ecb, Spawner spawner, Random random)
    {
        var radius = (spawner.FireDimension - 1) / 2f;
+
+       if (spawner.TeamCount > FramesPerFireCheck)
+       {
+           FramesPerFireCheck = spawner.TeamCount;
+       }
                 
-            for (int i = 0; i < spawner.TeamCount; i++)
+        for (int i = 0; i < spawner.TeamCount; i++)
+        {
+            var squadSize = (spawner.MembersCount - 2) / 2;
+
+            var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(random, radius));
+            ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
+            ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = i % BucketBrigadeUtility.FramesPerFireCheck });
+            ecb.AddBuffer<Member>(captainEntity);
+            
+            var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
+            ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
+
+            var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
+            ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
+            ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
+
+            var previousMember = workerEntity;
+            
+            for (var j = 1; j < squadSize; j++)
             {
-                var squadSize = (spawner.MembersCount - 2) / 2;
-
-                var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
-                ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = random.NextInt(0, MaxEvalOffset) });
-                ecb.AddBuffer<Member>(captainEntity);
+                workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
+                ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                 
-                var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
-
-                var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
-                ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
                 ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
 
-                var previousMember = workerEntity;
-                
-                for (var j = 1; j < squadSize; j++)
-                {
-                    workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
-                    ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
-                    
-                    ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
-
-                    previousMember = workerEntity;
-                }
-                
-                ecb.SetComponent(previousMember, new DestinationWorker() {Value = captainEntity});
-
-                previousMember = captainEntity;
-                
-                for (var j = 0; j < squadSize; j++)
-                {
-                    workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
-                    ecb.SetName(workerEntity, "SquadWorker");
-
-                    ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
-                    
-                    ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
-                    
-                    previousMember = workerEntity;
-                }
-
-                ecb.AddComponent(captainEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
+                previousMember = workerEntity;
             }
+            
+            ecb.SetComponent(previousMember, new DestinationWorker() {Value = captainEntity});
+
+            previousMember = captainEntity;
+            
+            for (var j = 0; j < squadSize; j++)
+            {
+                workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
+                ecb.SetName(workerEntity, "SquadWorker");
+
+                ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
+                
+                ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
+                
+                previousMember = workerEntity;
+            }
+
+            ecb.AddComponent(captainEntity, new TeamInfo() { Captain = captainEntity, Fetcher = fetcherEntity });
+        }
    }
 
    static void SpawnOmniworkers(EntityCommandBuffer ecb, Entity prefab, int count, int size, Random random)
