@@ -35,10 +35,6 @@ public class MouseRaycaster : MonoBehaviour {
 			adhocResourceComponentData.ResourceSpawnPosition = worldMousePosition;
 			adhocResourceComponentData.Process = 1;
 			entityManager.AddComponentData(instance, adhocResourceComponentData);
-
-			//beeComponentData.BeePrefab = prefabSet.YellowBee;
-			// var spawner = entityManager.CreateEntityQuery(typeof(AdhocResourceSpawnerComponent)).ToComponentDataArray<AdhocResourceSpawnerComponent>(Unity.Collections.Allocator.Temp);
-			// entityManager.Instantiate(spawner.First().Entity);
 		}
 	}
 
