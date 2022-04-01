@@ -164,28 +164,31 @@ public partial class BeeMovementSystemFixed : SystemBase
                             targetType.Value = TargetType.Type.Enemy;
                         }
                     }
-                    else if (!HasComponent<Components.Resource>(targetEntity.Value)
-                    || (HasComponent<ResourceOwner>(targetEntity.Value)
-                        && GetComponent<ResourceOwner>(targetEntity.Value).Owner != entity))
-                    {
-                        targetType.Value = TargetType.Type.None;
-                    }
-
+                    
                     if (targetType.Value == TargetType.Type.Resource)
                     {
-                        var delta = targetEntity.Position - position;
-                        float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                        if (sqrDist > grabDistance * grabDistance)
+                        if (!HasComponent<Components.Resource>(targetEntity.Value)
+                            || (HasComponent<ResourceOwner>(targetEntity.Value)
+                            && GetComponent<ResourceOwner>(targetEntity.Value).Owner != entity))
                         {
-                            velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                            targetType.Value = TargetType.Type.None;
                         }
                         else
                         {
-                            endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
-                                new ResourceOwner() { Owner = entity });
-                            endFrameEcb.SetComponent<Components.Resource>(entityInQueryIndex, targetEntity.Value,
-                                new Components.Resource() { OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
-                            targetType.Value = TargetType.Type.Goal;
+                            var delta = targetEntity.Position - position;
+                            float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                            if (sqrDist > grabDistance * grabDistance)
+                            {
+                                velocity += delta * (chaseForce * deltaTime / Mathf.Sqrt(sqrDist));
+                            }
+                            else
+                            {
+                                endFrameEcb.AddComponent<ResourceOwner>(entityInQueryIndex, targetEntity.Value,
+                                    new ResourceOwner() { Owner = entity });
+                                endFrameEcb.SetComponent<Components.Resource>(entityInQueryIndex, targetEntity.Value,
+                                    new Components.Resource() { OwnerPosition = position - new float3(0, PlayField.resourceHeight, 0) });
+                                targetType.Value = TargetType.Type.Goal;
+                            }
                         }
                         
                     }
