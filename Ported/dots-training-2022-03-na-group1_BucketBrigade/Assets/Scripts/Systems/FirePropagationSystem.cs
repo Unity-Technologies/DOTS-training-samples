@@ -9,64 +9,37 @@ public partial class FirePropagationSystem : SystemBase
     public const float HEAT_THRESHOLD = 0.2f;
     public const int firePropagationRadius = 2;
 
-    private NativeArray<float> heatIncrementBuffer;
-    private int bufferLength;
-    
-    protected override void OnCreate()
-    {
-    }
-    protected override void OnDestroy()
-    {
-        heatIncrementBuffer.Dispose();
-    }
-
     protected override void OnUpdate()
     {
         var heatmapData = GetSingleton<HeatMapData>();
         var heatmapBuffer = BucketBrigadeUtility.GetHeatmapBuffer(this);
 
-        if (bufferLength == 0)
-        {
-            bufferLength = heatmapData.mapSideLength * heatmapData.mapSideLength;
-            heatIncrementBuffer = new NativeArray<float>( bufferLength, Allocator.Persistent);
-        }
-
         float deltaHeat = Time.DeltaTime * heatmapData.heatPropagationSpeed;
         
-        var jobFirst = new HeatIncrementJob()
+        var jobFirst = new HeatJob()
         {
             width = heatmapData.mapSideLength,
             deltaHeat = deltaHeat,
             heatmapBuffer = heatmapBuffer,
-            heatIncrementArray = heatIncrementBuffer,
         };
         
-        var jobSecond = new HeatUpdateJob()
-        {
-            heatmapBuffer = heatmapBuffer,
-            heatIncrementArray = heatIncrementBuffer
-        };
-
         var handle = jobFirst.Schedule(heatmapBuffer.Length, 32);
         handle.Complete();
-
-        var secondHandle = jobSecond.Schedule(heatmapBuffer.Length, 32, handle);
-        secondHandle.Complete();
+        
     }
     
     [BurstCompile]
-    struct HeatIncrementJob : IJobParallelFor
+    struct HeatJob : IJobParallelFor
     {
-        [ReadOnly] public DynamicBuffer<HeatMapTemperature> heatmapBuffer;
-        
-        public NativeArray<float> heatIncrementArray;
+        [NativeDisableParallelForRestriction] 
+        public DynamicBuffer<HeatMapTemperature> heatmapBuffer;
         
         public float deltaHeat;
         public int width;
         
         public void Execute(int tileIndex)
         {
-            heatIncrementArray[tileIndex] = 0f;
+            float heatIncrement = 0f;
             int2 tileCoord = GridUtility.GetTileCoordinate(tileIndex, width);
 
             for (int rowIndex = -firePropagationRadius; rowIndex <= firePropagationRadius; rowIndex++)
@@ -81,15 +54,22 @@ public partial class FirePropagationSystem : SystemBase
                         {
                             float _neighbourHeat = heatmapBuffer[(currentRow * width) + currentColumn];
                             if (_neighbourHeat >= HEAT_THRESHOLD)
-                            {
-                                heatIncrementArray[tileIndex] += deltaHeat;
-                            }
+                                heatIncrement += deltaHeat;
                         }
                     }
                 }
             }
 
+            heatmapBuffer[tileIndex] += heatIncrement;
+            if (heatmapBuffer[tileIndex] >= 1f)
+                heatmapBuffer[tileIndex] = 1f;
+
             /*
+             Old implementation, wrong approach. Instead of MainTile adding heat to neighbors, 
+             the solution is to add heat to the MainTile by looking if neighbors are on fire.
+             MainTile -> Neighbors = wrong
+             Neighbors -> MainTile = correct
+             
             if (heatmapBuffer[tileIndex] >= HEAT_THRESHOLD)
             {
                 heatIncrementArray[tileIndex] += deltaHeat;
@@ -116,22 +96,5 @@ public partial class FirePropagationSystem : SystemBase
                 }
             }*/
         }
-    }
-
-    [BurstCompile]
-    struct HeatUpdateJob : IJobParallelFor
-    {
-        [ReadOnly] public NativeArray<float> heatIncrementArray;
-        
-        [NativeDisableParallelForRestriction]
-        public DynamicBuffer<HeatMapTemperature> heatmapBuffer;
-
-        public void Execute(int tileIndex)
-        {
-            heatmapBuffer[tileIndex] += heatIncrementArray[tileIndex];
-            
-            if (heatmapBuffer[tileIndex] >= 1f)
-                heatmapBuffer[tileIndex] = 1f;
-        }   
     }
 }
