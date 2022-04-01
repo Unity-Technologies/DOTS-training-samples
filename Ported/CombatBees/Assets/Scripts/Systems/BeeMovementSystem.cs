@@ -145,9 +145,6 @@ public partial class BeeMovementSystemFixed : SystemBase
                             bee.IsAttacking = 1;
                             if (sqrDist < hitDistance * hitDistance)
                             {
-                                ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
-                                    targetEntity.Position, ParticleComponent.ParticleType.Blood, velocity * .35f, 2f, 6);
-
                                 endFrameEcb.AddComponent<BeeLifetime>(entityInQueryIndex, targetEntity.Value, new BeeLifetime
                                 {
                                     Value = 1f,
@@ -256,13 +253,17 @@ public partial class BeeMovementSystemFixed : SystemBase
              ref Velocity velocity,
             ref Translation translation) =>
             {
+                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
+
                 if (life.NewlyDead == 1)
                 {
+                    ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
+                        translation.Value, ParticleComponent.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+
+
                     velocity.Value *= .5f;
                     life.NewlyDead = 0;
                 }
-
-                var random = Random.CreateFromIndex(gsv ^ (uint)entity.Index);
 
                 if (random.NextFloat(1f) < (life.Value - .5f) * .5f)
                 {
