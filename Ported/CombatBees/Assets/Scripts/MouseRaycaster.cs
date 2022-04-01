@@ -22,9 +22,7 @@ public class MouseRaycaster : MonoBehaviour {
 	//Temporary test
 	void Update()
 	{
-		if (Input.GetKey(KeyCode.Mouse1))
-			ParticleManager.SpawnParticle(worldMousePosition, ParticleManager.ParticleType.Blood, Vector3.zero);
-		else if (Input.GetKeyUp(KeyCode.Mouse0))
+		if (Input.GetKeyUp(KeyCode.Mouse0))
 		{
 			var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 			var instance = entityManager.CreateEntity();
