@@ -2,6 +2,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Assertions.Must;
 using static BeeStateComponent;
 using Random = Unity.Mathematics.Random;
 
@@ -49,11 +50,12 @@ public partial class BeeMovementSystem : SystemBase
         // TODO: Ask about ECBs.
         // Can/Should it be created outside of update?
         // Is the CDFE method better/preferred if we're sure it wont cause problems?
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        var parallelecb = ecb.AsParallelWriter();
 
         // Workaround because you can't write to other entities from within a foreach.
         //var teamBlueTargetData = GetComponentDataFromEntity<TeamBlueTargetComponent>();
-        //var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
+        var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
         var positionData = GetComponentDataFromEntity<PositionComponent>(true);
 
         // TODO: This can probably just be saved off at the end of the loop instead of looping all here.
@@ -72,15 +74,22 @@ public partial class BeeMovementSystem : SystemBase
         Entities
             //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
-            .WithNativeDisableContainerSafetyRestriction(positionData)
             .WithoutBurst()
-            .ForEach((Entity entity, int entityInQueryIndex, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
-                ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, ref PositionComponent position) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeStateComponent beeState, ref Translation translation,
+                ref VelocityComponent velocity, ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target) =>
             {
-
                 //TODO: Not this.
                 if (target.Value == entity)
                     beeState.Value = BeeState.Dead;
+
+                //if (target.Value == default)
+                //    beeState.Value = BeeState.NoTarget;
+
+                if (EntityManager.Exists(target.Value) == false)
+                {
+                    target.Value = default;
+                    beeState.Value = BeeState.NoTarget;
+                }
 
                 // Is bee flagged as dead?
                 if (beeState.Value != BeeState.Dead)
@@ -258,6 +267,8 @@ public partial class BeeMovementSystem : SystemBase
                     //    DeleteBee(bee);
                     //}
 
+                    ecb.DestroyEntity(entity);
+
                     // TODO: Color / Scale for dead bees (from update)
                     //if (bees[i].dead)
                     //{
@@ -296,9 +307,6 @@ public partial class BeeMovementSystem : SystemBase
                     velocity.Value.z *= .8f;
                     velocity.Value.x *= .8f;
                 }
-
-
-
             }).Run();
 
         #endregion
@@ -320,6 +328,12 @@ public partial class BeeMovementSystem : SystemBase
                 //TODO: Not this.
                 if (target.Value == entity)
                     beeState.Value = BeeState.Dead;
+
+                if (EntityManager.Exists(target.Value) == false)
+                {
+                    target.Value = default;
+                    beeState.Value = BeeState.NoTarget;
+                }
 
                 // Is bee flagged as dead?
                 if (beeState.Value != BeeState.Dead)
@@ -494,6 +508,8 @@ public partial class BeeMovementSystem : SystemBase
                     //{
                     //    DeleteBee(bee);
                     //}
+
+                    ecb.DestroyEntity(entity);
 
                     // TODO: Color / Scale for dead bees (from update)
                     //if (bees[i].dead)

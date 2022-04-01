@@ -20,16 +20,23 @@ public partial class ResourceMovementSystem : SystemBase
         var parallelecb = ecb.AsParallelWriter();
 
         var cdfe = GetComponentDataFromEntity<VelocityComponent>(true);
+        //var yellowTargetData = GetComponentDataFromEntity<TeamYellowTargetComponent>();
+        //var blueTargetData = GetComponentDataFromEntity<TeamYellowTargetComponent>();
 
         var particle = GetSingleton<PrefabSet>().Particle;
 
         Entities
-            .WithStructuralChanges()
             .WithNativeDisableContainerSafetyRestriction(cdfe)
+            //.WithNativeDisableContainerSafetyRestriction(yellowTargetData)
+            //.WithNativeDisableContainerSafetyRestriction(blueTargetData)
             .WithoutBurst()
             .ForEach((Entity entity, int entityInQueryIndex, ref HeldByBeeComponent heldByBee, ref Translation translation, ref VelocityComponent velocity) =>
             {
                 // TODO: It probably makes more sense to add/remove the held by bee component as it's pickedup/dropped by the bees.
+
+                if (EntityManager.Exists(heldByBee.HoldingBee) == false)
+                    heldByBee.HoldingBee = default;
+
                 if (heldByBee.HoldingBee != default)
                 {
                     var beeStateComponent = GetComponent<BeeStateComponent>(heldByBee.HoldingBee);
@@ -90,11 +97,24 @@ public partial class ResourceMovementSystem : SystemBase
                                 // OLD PARTICLE SYSTEM
                                 // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
                                 // NEW PARTICLE SYSTEM
-                                var random = new Random(1);
+                                var random = new Random(1); // FYI - This is not random at all, seeing it every frame, the result will be the same every frame.
                                 ParticleSystem.SpawnParticle(parallelecb, entityInQueryIndex, particle, ref random,
                                     translation.Value, ParticleType.Explosion, float3.zero, 6f, 5);
 
-                                //EntityManager.DestroyEntity(entity);
+                                //if (team == 0)
+                                //{
+                                //    var holdingBee = blueTargetData[heldByBee.HoldingBee];
+                                //    holdingBee.Value = default;
+                                //    yellowTargetData[heldByBee.HoldingBee] = holdingBee;
+                                //}
+                                //else
+                                //{
+                                //    var holdingBee = yellowTargetData[heldByBee.HoldingBee];
+                                //    holdingBee.Value = default;
+                                //    blueTargetData[heldByBee.HoldingBee] = holdingBee;
+                                //}
+
+                                ecb.DestroyEntity(entity);
                             }
                         }
                     }
