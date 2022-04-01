@@ -225,9 +225,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: BlueTeamBeeSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 4907473564200488266, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4907473564200488267, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
       propertyPath: BeeCount
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66f77a68e3df72f48878663aa889b513, type: 3}
@@ -286,9 +290,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: YellowTeamBeeSpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 2443586139497537191, guid: 7c969ad22c66da2469ddbce12d00c2b7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5517354851798542096, guid: 7c969ad22c66da2469ddbce12d00c2b7, type: 3}
       propertyPath: BeeCount
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5517354851798542096, guid: 7c969ad22c66da2469ddbce12d00c2b7, type: 3}
       propertyPath: BeePrefab
