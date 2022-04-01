@@ -11,11 +11,11 @@ public partial class ResourceSpawnerSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
+        var random = new Random(1234);
+
         Entities.ForEach((Entity entity, in ResourceSpawner spawner) =>
         {
             ecb.DestroyEntity(entity);
-
-            var random = new Random(1234);
 
             var minX = (int) -Field.size.x/2 + (int) (Field.size.x - Field.startingResourceZoneWidth)/2;
             var maxX = (int) Field.size.x/2 - (int) (Field.size.x - Field.startingResourceZoneWidth)/2;

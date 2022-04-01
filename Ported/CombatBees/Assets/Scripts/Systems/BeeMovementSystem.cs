@@ -216,6 +216,8 @@ public partial class BeeMovementSystem : SystemBase
                             if (dist < 1f)
                             {
                                 resourceHeldByBee.HoldingBee = default;
+                                ecb.SetComponent(target.Value, resourceHeldByBee);
+
                                 target.Value = default;
                                 beeState.Value = BeeState.NoTarget;
                             }
@@ -445,6 +447,8 @@ public partial class BeeMovementSystem : SystemBase
                             if (dist < 1f)
                             {
                                 resourceHeldByBee.HoldingBee = default;
+                                ecb.SetComponent(target.Value, resourceHeldByBee);
+
                                 target.Value = default;
                                 beeState.Value = BeeState.NoTarget;
                             }
