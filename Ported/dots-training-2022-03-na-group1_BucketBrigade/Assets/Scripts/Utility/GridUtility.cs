@@ -35,6 +35,15 @@ public static class GridUtility
         return coord;
     }
     
+    public static float2 PlotTileWorldPosition2DFromIndex(int tileIndex, int gridSideWidth)
+    {
+        float offset = (gridSideWidth - 1) * 0.5f;
+
+        int2 tileCoord = GetTileCoordinate(tileIndex,gridSideWidth);
+            
+        return new float2(tileCoord.x - offset, tileCoord.y - offset);
+    }
+    
     public static float3 PlotTileWorldPositionFromIndex(int tileIndex, int gridSideWidth)
     {
         float offset = (gridSideWidth - 1) * 0.5f;
