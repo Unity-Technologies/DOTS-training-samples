@@ -104,12 +104,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2698675812316481171}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f5c6b358cc43629806a4c73d2c37b4, type: 3}
+  m_Script: {fileID: 11500000, guid: d62751a0d6ed44d994596be396eb3f7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Offset:
-    x: 0.715
-    y: 0.1
-    z: 0
-  Left: {fileID: 3891792607681446999, guid: b5b44e3f08872864e9ebbbfcd611f682, type: 3}
-  Right: {fileID: 3891792607681446999, guid: b5b44e3f08872864e9ebbbfcd611f682, type: 3}

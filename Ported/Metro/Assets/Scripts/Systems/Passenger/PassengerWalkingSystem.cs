@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public partial class PassengerWalkingSystem : SystemBase
 {
@@ -18,14 +19,31 @@ public partial class PassengerWalkingSystem : SystemBase
     {
         var ecb = m_EndSimulationEcbSystem.CreateCommandBuffer();
         var parallelWriter = ecb.AsParallelWriter();
+        var worldTime = World.Time.ElapsedTime * 10;
 
-        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in PassengerWalking passengerWalking) =>
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref PassengerWalking passengerWalking, in Passenger passenger) =>
         {
+            var random = new Random((uint)(worldTime + ((entityInQueryIndex+1))));
+            // spin the RNG a few times 
+            for (int i = 0; i < random.NextInt(0, 5); i++)
+            {
+                random.NextInt();
+            }
+            
             float remainingDistance = math.distance(passengerWalking.WalkDestination, translation.Value);
             if (remainingDistance < PASSENGER_WALK_EPSILON)
             {
-                // When we reach our destination, remove walking component.
-                parallelWriter.RemoveComponent<PassengerWalking>(entityInQueryIndex, entity);
+                // When we reach our destination, re-randomize walking component.
+                float3 destination = random.NextFloat3(
+                    new float3(passenger.CurrentPlatformPosition.x - 10, 0, passenger.CurrentPlatformPosition.z - 10),
+                    new float3(passenger.CurrentPlatformPosition.x + 10, 0, passenger.CurrentPlatformPosition.z + 10));
+
+
+                parallelWriter.SetComponent(entityInQueryIndex, entity, new PassengerWalking
+                {
+                    WalkDestination = destination,
+                    WalkSpeed = passengerWalking.WalkSpeed
+                });
             }
             else
             {
