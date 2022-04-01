@@ -1,0 +1,161 @@
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
+using Mathf = UnityEngine.Mathf;
+// using UnityEngine;
+
+[UpdateAfter(typeof(BeeMovementSystem))]
+[UpdateBefore(typeof(ParticleSystem))]
+public partial class ParticleSystemFixed : SystemBase
+{
+    EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+
+    protected override void OnCreate()
+    {
+        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    protected override void OnUpdate()
+    {
+        var deltaTime = Time.DeltaTime;
+        var up = new float3(0, 1, 0);
+
+        var ecb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb2 = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+
+        // When components are stuck to a surface, velocity is removed which prevents them being considered for any movement jobs.
+
+        // Update velocities
+        var velocityJob = Entities
+            .ForEach((Entity entity, ref VelocityComponent velocity, in ParticleComponent particle) =>
+            {
+                velocity.Value += up * (Field.gravity * deltaTime);
+            }).ScheduleParallel(Dependency);
+
+        // Update positions from velocities
+        var moveJob = Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref SizeComponent size, in VelocityComponent velocity, in ParticleComponent particle) =>
+            {
+                translation.Value += velocity.Value * deltaTime;
+
+                if (Mathf.Abs(translation.Value.x) > Field.size.x * .5f)
+                {
+                    translation.Value.x = Field.size.x * .5f * Mathf.Sign(translation.Value.x);
+                    float splat = Mathf.Abs(velocity.Value.x * .3f) + 1f;
+                    size.Value.y *= splat;
+                    size.Value.z *= splat;
+
+                    ecb.RemoveComponent<VelocityComponent>(entityInQueryIndex, entity);
+                }
+                if (Mathf.Abs(translation.Value.y) > Field.size.y * .5f)
+                {
+                    translation.Value.y = Field.size.y * .5f * Mathf.Sign(translation.Value.y);
+                    float splat = Mathf.Abs(velocity.Value.y * .3f) + 1f;
+                    size.Value.z *= splat;
+                    size.Value.x *= splat;
+
+                    ecb.RemoveComponent<VelocityComponent>(entityInQueryIndex, entity);
+                }
+                if (Mathf.Abs(translation.Value.z) > Field.size.z * .5f)
+                {
+                    translation.Value.z = Field.size.z * .5f * Mathf.Sign(translation.Value.z);
+                    float splat = Mathf.Abs(velocity.Value.z * .3f) + 1f;
+                    size.Value.x *= splat;
+                    size.Value.y *= splat;
+
+                    ecb.RemoveComponent<VelocityComponent>(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel(velocityJob);
+
+        var cleanupJob = Entities
+            .WithNone<VelocityComponent>()
+            .ForEach((ref URPMaterialPropertyBaseColor color, ref Rotation rotation, ref NonUniformScale renderScale, in SizeComponent size) =>
+            {
+                rotation.Value = quaternion.identity;
+                renderScale.Value = size.Value;
+
+            }).ScheduleParallel(moveJob);
+
+
+        // Can run in parallel to the other jobs
+        var lifeJob = Entities
+            .ForEach((Entity entity, int entityInQueryIndex, ref LifeComponent life, in ParticleComponent particle) =>
+            {
+                life.Value -= deltaTime / life.Duration;
+                if (life.Value < 0f)
+                {
+                    ecb2.DestroyEntity(entityInQueryIndex, entity);
+                }
+            }).ScheduleParallel(Dependency);
+
+        Dependency = Unity.Jobs.JobHandle.CombineDependencies(cleanupJob, lifeJob);
+
+        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+    }
+}
+
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(ParticleSystemFixed))]
+public partial class ParticleSystem : SystemBase
+{
+    public static void SpawnParticle(EntityCommandBuffer.ParallelWriter ecb, int sortKey, Entity entityPrefab, ref Random rand, float3 position, ParticleType type, float3 velocity, float velocityJitter = 6f, int count = 1)
+    {
+        // Processing each particle via the ECS makes a lot of sense, but creation costs may be an issue. Can pooling be built in?
+        for (int i = 0; i < count; i++)
+        {
+            var entity = ecb.Instantiate(sortKey, entityPrefab);
+
+            if (type == ParticleType.Blood)
+            {
+                float3 scale = rand.NextFloat(.1f, .2f);
+
+                ecb.SetComponent(sortKey, entity, new LifeComponent { Value = 1f, Duration = rand.NextFloat(3f, 5f) });
+                ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
+                ecb.SetComponent(sortKey, entity, new Translation { Value = position });
+                ecb.SetComponent(sortKey, entity, new VelocityComponent { Value = velocity + rand.NextFloat3Direction() * velocityJitter });
+                ecb.SetComponent(sortKey, entity, new NonUniformScale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new SizeComponent { Value = scale.x });
+                //TODO Randomize?
+                ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 0, 0, 1) });
+            }
+            else
+            {
+                float3 scale = rand.NextFloat(1f, 2f);
+
+                ecb.SetComponent(sortKey, entity, new LifeComponent { Value = 1f, Duration = rand.NextFloat(.25f, .5f) });
+                ecb.SetComponent(sortKey, entity, new ParticleComponent { Type = type });
+                ecb.SetComponent(sortKey, entity, new Translation { Value = position });
+                ecb.SetComponent(sortKey, entity, new VelocityComponent { Value = rand.NextFloat3Direction() * 5f });
+                ecb.SetComponent(sortKey, entity, new NonUniformScale { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new SizeComponent { Value = scale.x });
+                ecb.SetComponent(sortKey, entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
+            }
+        }
+    }
+
+    protected override void OnUpdate()
+    {
+        // Update for rendering for with and without velocity
+        Entities
+            .ForEach((ref URPMaterialPropertyBaseColor color, in LifeComponent lifetime, in ParticleComponent particle) =>
+            {
+                color.Value.w = lifetime.Value;
+
+            }).ScheduleParallel();
+
+        Entities
+          .ForEach((ref Rotation rotation, ref NonUniformScale renderScale, ref URPMaterialPropertyBaseColor color, in SizeComponent size, in VelocityComponent velocity, in LifeComponent lifetime, in ParticleComponent particle) =>
+          {
+                renderScale.Value = size.Value * lifetime.Value;
+                if (particle.Type == ParticleType.Blood)
+                {
+                    rotation.Value = quaternion.LookRotation(velocity.Value, new float3(0, 1, 0));
+                    renderScale.Value.z *= 1f + math.length(velocity.Value) * /*speedStretch*/ 0.25f;
+                }
+
+                color.Value.w = lifetime.Value;
+
+          }).ScheduleParallel();
+    }
+}

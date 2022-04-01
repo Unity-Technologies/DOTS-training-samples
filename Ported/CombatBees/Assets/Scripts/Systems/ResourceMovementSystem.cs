@@ -21,6 +21,8 @@ public partial class ResourceMovementSystem : SystemBase
 
         var cdfe = GetComponentDataFromEntity<VelocityComponent>(true);
 
+        var particle = GetSingleton<PrefabSet>().Particle;
+
         Entities
             .WithStructuralChanges()
             .WithNativeDisableContainerSafetyRestriction(cdfe)
@@ -85,7 +87,12 @@ public partial class ResourceMovementSystem : SystemBase
                                 //    // BeeManager.SpawnBee(resource.position, team);
                                 //}
 
-                                ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+                                // OLD PARTICLE SYSTEM
+                                // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+                                // NEW PARTICLE SYSTEM
+                                var random = new Random(1);
+                                ParticleSystem.SpawnParticle(parallelecb, entityInQueryIndex, particle, ref random,
+                                    translation.Value, ParticleType.Explosion, float3.zero, 6f, 5);
 
                                 //EntityManager.DestroyEntity(entity);
                             }

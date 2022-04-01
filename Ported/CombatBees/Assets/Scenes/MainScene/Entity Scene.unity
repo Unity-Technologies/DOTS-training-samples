@@ -155,8 +155,7 @@ MonoBehaviour:
   ResourcePrefab: {fileID: 1667393258452892946, guid: c7e942e7629e11e4da319b0f4da06ce4, type: 3}
   YellowBee: {fileID: 2409184108622359359, guid: 560d5905f2adfea479b4486d9834a327, type: 3}
   BlueBee: {fileID: 2409184108622359359, guid: f7983cac273ae36499764289c4674a9e, type: 3}
-  YellowBeeSpawner: {fileID: 0}
-  BlueBeeSpawner: {fileID: 0}
+  Particle: {fileID: 8158519687537613335, guid: 0a0279354c3c2af42b91d0336d8d7031, type: 3}
 --- !u!4 &1383787829
 Transform:
   m_ObjectHideFlags: 0

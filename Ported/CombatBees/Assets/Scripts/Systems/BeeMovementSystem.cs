@@ -65,6 +65,8 @@ public partial class BeeMovementSystem : SystemBase
                 position.Position = translation.Value;
             }).ScheduleParallel();
 
+        var particle = GetSingleton<PrefabSet>().Particle;
+
         #region Yellow Bee Update
 
         Entities
@@ -72,7 +74,7 @@ public partial class BeeMovementSystem : SystemBase
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithNativeDisableContainerSafetyRestriction(positionData)
             .WithoutBurst()
-            .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
                 ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, ref PositionComponent position) =>
             {
 
@@ -149,7 +151,10 @@ public partial class BeeMovementSystem : SystemBase
 
                                 if (sqrDist < math.pow(HIT_DISTANCE, 2))
                                 {
-                                    ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+
+                                    //ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+                                    ParticleSystem.SpawnParticle(ecb.AsParallelWriter(), entityInQueryIndex, particle, ref _random,
+                                    targetPosition.Position, ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                     // Bee is dead, but not destroyed, if it targets itself.
                                     targetsTarget.Value = target.Value;
@@ -242,7 +247,8 @@ public partial class BeeMovementSystem : SystemBase
                     // TODO: Add in the death timer and death stuff.
                     //if (_random < (bee.deathTimer - .5f) * .5f)
                     //{
-                    ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.Blood, float3.zero);
+                    // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.Blood, float3.zero);
+                    ParticleSystem.SpawnParticle(ecb.AsParallelWriter(), entityInQueryIndex, particle, ref _random, translation.Value, ParticleType.Blood, float3.zero);
                     //}
 
                     velocity.Value.y += Field.gravity * deltaTime;
@@ -308,7 +314,7 @@ public partial class BeeMovementSystem : SystemBase
             //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
             .WithoutBurst()
-            .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity,
+            .ForEach((Entity entity, int entityInQueryIndex, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity,
                 ref HeldResourceComponent heldResource, ref TeamBlueTargetComponent target, in PositionComponent position) =>
             {
                 //TODO: Not this.
@@ -384,7 +390,9 @@ public partial class BeeMovementSystem : SystemBase
 
                                 if (sqrDist < math.pow(HIT_DISTANCE, 2))
                                 {
-                                    ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+                                    // ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+                                    ParticleSystem.SpawnParticle(ecb.AsParallelWriter(), entityInQueryIndex, particle, ref _random,
+                                        targetPosition.Position, ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                     // Bee is dead, but not destroyed, if it targets itself.
                                     targetsTarget.Value = target.Value;
@@ -476,7 +484,8 @@ public partial class BeeMovementSystem : SystemBase
                     // TODO: Add in the death timer and death stuff.
                     //if (_random < (bee.deathTimer - .5f) * .5f)
                     //{
-                    ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.Blood, float3.zero);
+                    // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.Blood, float3.zero);
+                    ParticleSystem.SpawnParticle(ecb.AsParallelWriter(), entityInQueryIndex, particle, ref _random, translation.Value, ParticleType.Blood, float3.zero);
                     //}
 
                     velocity.Value.y += Field.gravity * deltaTime;
