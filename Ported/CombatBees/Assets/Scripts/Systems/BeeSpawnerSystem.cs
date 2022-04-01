@@ -17,54 +17,25 @@ public partial class BeeSpawnerSystem : SystemBase
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
 		Entities
-			.ForEach((Entity entity, in BeeSpawnerComponent spawner) =>
+			.ForEach((Entity entity, ref BeeSpawnerComponent spawner) =>
 			{
 				// Destroying the current entity is a classic ECS pattern,
 				// when something should only be processed once then forgotten.
 				ecb.DestroyEntity(entity);
 
-				if (spawner.BeeTeamTag == TeamTag.yellowTeam) 
+				if (spawner.Process == 1)
 				{
+					spawner.Process = 0;
 					for (int i = 0; i < spawner.BeeCount; ++i)
 					{
 						var instance = ecb.Instantiate(spawner.BeePrefab);
 						var translation = new Translation { Value = spawner.BeeSpawnPosition };
 						ecb.SetComponent(instance, translation);
-						ecb.AddComponent<TeamYellowTagComponent>(instance);
-                        ecb.AddComponent<TeamYellowTargetComponent>(instance);
-                        ecb.AddComponent<BeeStateComponent>(instance);
-                        ecb.AddComponent<HeldResourceComponent>(instance);
-                        ecb.AddComponent<BeeBaseSizeComponent>(instance);
-                        ecb.AddComponent<VelocityComponent>(instance);
-                        ecb.AddComponent<PositionComponent>(instance);
-                        ecb.AddComponent<BeeDeathTimerComponent>(instance);
-                        ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
-						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamYellowTagComponent.TeamColor });
 						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
-                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
-                    }
-                }
-				else
-				{
-					for (int i = 0; i < spawner.BeeCount; ++i)
-					{
-						var instance = ecb.Instantiate(spawner.BeePrefab);
-						var translation = new Translation { Value = spawner.BeeSpawnPosition };
-						ecb.SetComponent(instance, translation);
-						ecb.AddComponent<TeamBlueTagComponent>(instance);
-                        ecb.AddComponent<TeamBlueTargetComponent>(instance);
-                        ecb.AddComponent<BeeStateComponent>(instance);
-                        ecb.AddComponent<HeldResourceComponent>(instance);
-                        ecb.AddComponent<BeeBaseSizeComponent>(instance);
-                        ecb.AddComponent<VelocityComponent>(instance);
-                        ecb.AddComponent<PositionComponent>(instance);
-                        ecb.AddComponent<BeeDeathTimerComponent>(instance);
-                        ecb.AddComponent<URPMaterialPropertyBaseColor>(instance);
-						ecb.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = TeamBlueTagComponent.TeamColor });
-                        ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
-                        ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
-                    }
-                }
+						ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
+					}
+					
+				}
 			}).Run();
 
 		ecb.Playback(EntityManager);
