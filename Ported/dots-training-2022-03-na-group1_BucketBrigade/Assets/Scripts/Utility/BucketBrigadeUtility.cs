@@ -102,23 +102,25 @@ public static class BucketBrigadeUtility
 
         var gridPosition = GridUtility.PlotTileCoordFromWorldPosition(fromPosition,width);
 
-        var shortestDistanceCB = int.MaxValue;
+        var shortestDistanceSq = int.MaxValue;
         var closestSpot = -1;
 
         var index = 0;
         for (var y = 0; y < width; y++)
         {
             var yDist = math.abs(gridPosition.y - y);
+            var yDistSq = yDist * yDist;
             
             for (var x = 0; x < width; x++)
             {
                 if (heatmap[index] > 0.01f)
                 {
-                    var distance = yDist + math.abs(gridPosition.x - x);
+                    var xDist = math.abs(gridPosition.x - x);
+                    var distanceSq = yDistSq + xDist*xDist;
 
-                    if (distance < shortestDistanceCB)
+                    if (distanceSq < shortestDistanceSq)
                     {
-                        shortestDistanceCB = distance;
+                        shortestDistanceSq = distanceSq;
                         closestSpot = index;
                     }
                 }
