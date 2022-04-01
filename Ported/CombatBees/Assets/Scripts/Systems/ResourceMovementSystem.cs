@@ -22,8 +22,11 @@ public partial class ResourceMovementSystem : SystemBase
         var cdfe = GetComponentDataFromEntity<VelocityComponent>(true);
 
         var particle = GetSingleton<PrefabSet>().Particle;
+		var yellowBee = GetSingleton<PrefabSet>().YellowBee;
+		var blueBee = GetSingleton<PrefabSet>().BlueBee;
 
-        Entities
+
+		Entities
             .WithStructuralChanges()
             .WithNativeDisableContainerSafetyRestriction(cdfe)
             .WithoutBurst()
@@ -82,15 +85,23 @@ public partial class ResourceMovementSystem : SystemBase
                                 if (translation.Value.x > 0f)
                                     team = 1;
 
-                                //for (int j = 0; j < BEES_PER_RESOURCE; j++)
-                                //{
-                                //    // BeeManager.SpawnBee(resource.position, team);
-                                //}
+								var instance = ecb.CreateEntity();
+								float3 pos = translation.Value;
+								BeeSpawnerComponent beeComponentData = new BeeSpawnerComponent();
 
-                                // OLD PARTICLE SYSTEM
-                                // ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
-                                // NEW PARTICLE SYSTEM
-                                var random = new Random(1);
+								beeComponentData.BeePrefab = (team == 1 ? yellowBee : blueBee);
+								beeComponentData.BeeCount = BEES_PER_RESOURCE;
+								beeComponentData.BeeSpawnPosition = pos;
+								beeComponentData.Process = 1;  // Set this to 1 otherwise it will be ignored. This acts like a toggle for the spawner to process new bees - it then resets it to 0 and stops.
+								ecb.AddComponent(instance, beeComponentData);
+
+
+
+
+								// OLD PARTICLE SYSTEM
+								// ParticleManager.SpawnParticle(translation.Value, ParticleManager.ParticleType.SpawnFlash, float3.zero, 6f, 5);
+								// NEW PARTICLE SYSTEM
+								var random = new Random(1);
                                 ParticleSystem.SpawnParticle(parallelecb, entityInQueryIndex, particle, ref random,
                                     translation.Value, ParticleType.Explosion, float3.zero, 6f, 5);
 
