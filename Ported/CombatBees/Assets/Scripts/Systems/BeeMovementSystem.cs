@@ -23,8 +23,8 @@ public partial class BeeMovementSystemFixed : SystemBase
     static readonly float grabDistance = 0.5f;
 
     EntityQuery[] teamTargets;
-    EntityCommandBufferSystem beginSimulationEntityCommandBufferSystem;
-    EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem beginFixedSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem endFixedSimulationEntityCommandBufferSystem;
 
     protected override void OnCreate()
     {
@@ -37,8 +37,8 @@ public partial class BeeMovementSystemFixed : SystemBase
         teamTargets[0].SetSharedComponentFilter(new TeamShared { TeamId = 0 });
         teamTargets[1].SetSharedComponentFilter(new TeamShared { TeamId = 1 });
 
-        beginSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        beginFixedSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginFixedStepSimulationEntityCommandBufferSystem>();
+        endFixedSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -49,8 +49,8 @@ public partial class BeeMovementSystemFixed : SystemBase
         var team0 = teamTargets[0].ToComponentDataArray<Translation>(Allocator.TempJob);
         var team1 = teamTargets[1].ToComponentDataArray<Translation>(Allocator.TempJob);
 
-        var beginFrameEcb = beginSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var beginFrameEcb = beginFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var endFrameEcb = endFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         var gsv = GlobalSystemVersion;
 
@@ -269,8 +269,8 @@ public partial class BeeMovementSystemFixed : SystemBase
                 }
             }).ScheduleParallel(Dependency);
 
-        beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        beginFixedSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        endFixedSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 
     private static void UpdateJitterAndTeamVelocity(ref Random random, ref float3 velocity, in float3 position,

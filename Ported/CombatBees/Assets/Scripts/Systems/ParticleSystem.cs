@@ -5,16 +5,18 @@ using Unity.Transforms;
 using Mathf = UnityEngine.Mathf;
 using UnityMaterialPropertyBlock = UnityEngine.MaterialPropertyBlock;
 
-//[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))] // Disabled for now to sync with BeeMovementSystem
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(BeeMovementSystem))]
 [UpdateBefore(typeof(ParticleSystem))]
 public partial class ParticleSystemFixed : SystemBase
 {
-    EndSimulationEntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem beginFixedSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem endFixedSimulationEntityCommandBufferSystem;
 
     protected override void OnCreate()
     {
-        endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        beginFixedSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginFixedStepSimulationEntityCommandBufferSystem>();
+        endFixedSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
@@ -22,8 +24,8 @@ public partial class ParticleSystemFixed : SystemBase
         var deltaTime = Time.DeltaTime;
         var up = new float3(0, 1, 0);
 
-        var ecb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-        var ecb2 = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var beginEcb = beginFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var endEcb = endFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
         // When components are stuck to a surface, velocity is removed which prevents them being considered for any movement jobs.
 
@@ -47,7 +49,7 @@ public partial class ParticleSystemFixed : SystemBase
                     size.Value.y *= splat;
                     size.Value.z *= splat;
 
-                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
+                    endEcb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
                 if (Mathf.Abs(translation.Value.y) > PlayField.size.y * .5f)
                 {
@@ -56,7 +58,7 @@ public partial class ParticleSystemFixed : SystemBase
                     size.Value.z *= splat;
                     size.Value.x *= splat;
 
-                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
+                    endEcb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
                 if (Mathf.Abs(translation.Value.z) > PlayField.size.z * .5f)
                 {
@@ -65,7 +67,7 @@ public partial class ParticleSystemFixed : SystemBase
                     size.Value.x *= splat;
                     size.Value.y *= splat;
 
-                    ecb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
+                    endEcb.RemoveComponent<Velocity>(entityInQueryIndex, entity);
                 }
             }).ScheduleParallel(velocityJob);
 
@@ -86,13 +88,14 @@ public partial class ParticleSystemFixed : SystemBase
                lifetime.Value -= deltaTime / lifetime.Duration;
                if (lifetime.Value < 0f)
                {
-                   ecb2.DestroyEntity(entityInQueryIndex, entity);
+                   beginEcb.DestroyEntity(entityInQueryIndex, entity);
                }
            }).ScheduleParallel(Dependency);
 
         Dependency = Unity.Jobs.JobHandle.CombineDependencies(cleanupJob, lifeJob);
 
-        endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        beginFixedSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        endFixedSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
 

@@ -8,15 +8,14 @@ using Mathf = UnityEngine.Mathf;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial class GoalSystem : SystemBase
 {
-    EntityCommandBufferSystem beginSimulationEntityCommandBufferSystem;
-   // EntityCommandBufferSystem endSimulationEntityCommandBufferSystem;
+    EntityCommandBufferSystem beginFixedSimulationEntityCommandBufferSystem;
 
     EntityQuery[] teamTargets;
 
     protected override void OnCreate()
     {
-        beginSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
-       // endSimulationEntityCommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        beginFixedSimulationEntityCommandBufferSystem = World.GetOrCreateSystem< BeginFixedStepSimulationEntityCommandBufferSystem>();
+
     }
 
     protected override void OnUpdate()
@@ -24,8 +23,7 @@ public partial class GoalSystem : SystemBase
         var spawner = GetSingleton<SpawnData>();
         var particles = GetSingleton<ParticleSettings>();
 
-        var beginFrameEcb = beginSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-       // var endFrameEcb = endSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        var beginFixedFrameEcb = beginFixedSimulationEntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
         var gsv = GlobalSystemVersion;
 
         Dependency = Entities
@@ -44,20 +42,19 @@ public partial class GoalSystem : SystemBase
                     }
 
                     var random = new Random(gsv * (uint)entity.Index);
-                    beginFrameEcb.DestroyEntity(entityInQueryIndex, entity);
+                    beginFixedFrameEcb.DestroyEntity(entityInQueryIndex, entity);
 
                     // Spawn new bees and particles
                     for (int i = 0; i < 8; ++i)
                     {
-                        Instantiation.Bee.Instantiate(beginFrameEcb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
+                        Instantiation.Bee.Instantiate(beginFixedFrameEcb, entityInQueryIndex, spawner.BeePrefab, translation.Value,
                             team, ref random);
                     }
-                    ParticleSystem.SpawnParticle(beginFrameEcb, entityInQueryIndex, particles.Particle, ref random,
+                    ParticleSystem.SpawnParticle(beginFixedFrameEcb, entityInQueryIndex, particles.Particle, ref random,
                         translation.Value, ParticleComponent.ParticleType.SpawnFlash, float3.zero, 6f, 5);
                 }
             }).ScheduleParallel(Dependency);
 
-        beginSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
-        //endSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
+        beginFixedSimulationEntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }
