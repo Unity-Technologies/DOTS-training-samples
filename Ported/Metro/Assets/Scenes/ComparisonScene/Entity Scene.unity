@@ -573,7 +573,8 @@ MonoBehaviour:
   debugRender: 0
   lineColor: {r: 1, g: 0, b: 0, a: 1}
   spawnMultiplier: 1
-  spawnMultipleGridSize: 100
+  spawnMultipleGridSize: 1000
+  spawnMultipleGridSizeZScale: 0.5
 --- !u!4 &214634862
 Transform:
   m_ObjectHideFlags: 0
@@ -1944,7 +1945,8 @@ MonoBehaviour:
   debugRender: 0
   lineColor: {r: 0, g: 1, b: 0.027177572, a: 1}
   spawnMultiplier: 1
-  spawnMultipleGridSize: 100
+  spawnMultipleGridSize: 1000
+  spawnMultipleGridSizeZScale: 0.5
 --- !u!4 &1053980628
 Transform:
   m_ObjectHideFlags: 0
@@ -2567,7 +2569,8 @@ MonoBehaviour:
   debugRender: 0
   lineColor: {r: 1, g: 0.80932105, b: 0, a: 1}
   spawnMultiplier: 1
-  spawnMultipleGridSize: 100
+  spawnMultipleGridSize: 1000
+  spawnMultipleGridSizeZScale: 0.5
 --- !u!4 &1364896809
 Transform:
   m_ObjectHideFlags: 0
@@ -3012,7 +3015,8 @@ MonoBehaviour:
   debugRender: 0
   lineColor: {r: 0, g: 0.26667786, b: 1, a: 1}
   spawnMultiplier: 1
-  spawnMultipleGridSize: 100
+  spawnMultipleGridSize: 1000
+  spawnMultipleGridSizeZScale: 0.5
 --- !u!4 &1460341476
 Transform:
   m_ObjectHideFlags: 0
