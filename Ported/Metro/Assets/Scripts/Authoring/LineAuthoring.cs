@@ -65,7 +65,8 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             CarriageCount = carriageCount,
             CarriageLength = carriageLength,
             TrainCount = trainCount,
-            MaxSpeed = maxSpeed
+            MaxSpeed = maxSpeed, 
+            LineLength = curveDistance
         });
 
         if (debugRender)
@@ -75,7 +76,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         dstManager.AddComponentData<LineTotalDistanceComponent>(entity,
             new LineTotalDistanceComponent { Value = curveDistance });
-        dstManager.AddSharedComponentData<LineIDComponent>(entity, new LineIDComponent { Line = entity });
+        dstManager.AddComponentData<LineIDComponent>(entity, new LineIDComponent { Line = entity });
         dstManager.AddComponentData<ColorComponent>(entity, new ColorComponent() { Value = (Vector4)lineColor });
     }
 

@@ -1,8 +1,9 @@
 ﻿using System;
 using Unity.Entities;
 
-[Serializable]
+[GenerateAuthoringComponent]
 public struct WaypointIndexComponent : IComponentData
 {
-    public int Value;
+    public int LastWaypoint;
+    public int NextWaypoint;
 }

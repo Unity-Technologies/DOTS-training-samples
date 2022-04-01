@@ -7,4 +7,5 @@ public struct LineComponent : IComponentData
     public int CarriageCount;
     public float CarriageLength;
     public float MaxSpeed;
+    public float LineLength;
 }

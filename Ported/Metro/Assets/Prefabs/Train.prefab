@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6786199003653540316}
   - component: {fileID: 6786199003653540317}
+  - component: {fileID: -8666440417000350636}
+  - component: {fileID: -4541417292892452221}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -44,4 +46,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   trainId: 0
-  maxSpeed: 0.2
+--- !u!114 &-8666440417000350636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6786199003653540131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d0d5eab72424d56af44604f0be2476f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LastWaypoint: 0
+  NextWaypoint: 0
+--- !u!114 &-4541417292892452221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6786199003653540131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a1fc25f73a46048566639c38c7677f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value: 0

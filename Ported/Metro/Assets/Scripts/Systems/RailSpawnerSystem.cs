@@ -50,7 +50,8 @@ public partial class RailSpawnerSystem : SystemBase
 
         Entities.ForEach((Entity entity, in LineComponent lineComponent,
             in DynamicBuffer<BezierPointBufferElement> bezierPoints,
-            in LineTotalDistanceComponent lineTotalDistanceComponent) =>
+            in LineTotalDistanceComponent lineTotalDistanceComponent,
+            in DynamicBuffer<StationPositionBufferElement> stationPositions) =>
         {
             float lineLength = lineTotalDistanceComponent.Value;
             
@@ -86,6 +87,20 @@ public partial class RailSpawnerSystem : SystemBase
                     MaxSpeed = lineComponent.MaxSpeed / lineLength, 
                     Acceleration =  acceleration / lineLength };
                 ecb.SetComponent(train, speedComponent);
+
+                int lastWaypoint = -1;
+                int nextWaypoint = 0;
+                for (; nextWaypoint < stationPositions.Length; nextWaypoint++, lastWaypoint++)
+                {
+                    if (stationPositions[nextWaypoint].positionAlongRail >= trackPosition.Value)
+                    {
+                        break;
+                    }
+                }
+
+                if (nextWaypoint == stationPositions.Length) nextWaypoint = 0;
+                
+                ecb.SetComponent(train, new WaypointIndexComponent{LastWaypoint =  lastWaypoint, NextWaypoint = nextWaypoint});
 
                 for (int j = 0; j < lineComponent.CarriageCount; j++)
                 {
