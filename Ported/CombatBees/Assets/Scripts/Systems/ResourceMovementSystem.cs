@@ -38,7 +38,7 @@ public partial class ResourceMovementSystem : SystemBase
                     else
                     {
                         // TODO: Probably also makes sense for the carrying bee to update all this info into the HeldByComponent instead?
-                        var beePosition = GetComponent<PositionComponent>(heldByBee.HoldingBee).Value;
+                        var beePosition = GetComponent<PositionComponent>(heldByBee.HoldingBee).Position;
                         var beeSize = GetComponent<BeeBaseSizeComponent>(heldByBee.HoldingBee).Value;
                         var beeVelocity = cdfe[heldByBee.HoldingBee].Value;
 

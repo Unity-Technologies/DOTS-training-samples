@@ -50,17 +50,19 @@ public partial class BeeMovementSystem : SystemBase
         // Can/Should it be created outside of update?
         // Is the CDFE method better/preferred if we're sure it wont cause problems?
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
-        
+
         // Workaround because you can't write to other entities from within a foreach.
         //var teamBlueTargetData = GetComponentDataFromEntity<TeamBlueTargetComponent>();
         //var heldByBeeData = GetComponentDataFromEntity<HeldByBeeComponent>();
+        var positionData = GetComponentDataFromEntity<PositionComponent>(true);
 
+        // TODO: This can probably just be saved off at the end of the loop instead of looping all here.
         // Store all the positions in a component for later use.
         Entities
             .WithAll<PositionComponent>()
             .ForEach((ref PositionComponent position, in Translation translation) =>
             {
-                position.Value = translation.Value;
+                position.Position = translation.Value;
             }).ScheduleParallel();
 
         #region Yellow Bee Update
@@ -68,9 +70,10 @@ public partial class BeeMovementSystem : SystemBase
         Entities
             //.WithNativeDisableContainerSafetyRestriction(teamBlueTargetData)
             //.WithNativeDisableContainerSafetyRestriction(heldByBeeData)
+            .WithNativeDisableContainerSafetyRestriction(positionData)
             .WithoutBurst()
             .ForEach((Entity entity, ref BeeStateComponent beeState, ref Translation translation, ref VelocityComponent velocity, 
-                ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, in PositionComponent position) =>
+                ref HeldResourceComponent heldResource, ref TeamYellowTargetComponent target, ref PositionComponent position) =>
             {
 
                 //TODO: Not this.
@@ -84,7 +87,7 @@ public partial class BeeMovementSystem : SystemBase
                     velocity.Value *= (1.0f - DAMPING);
 
                     var attractiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
-                    var delta = GetComponent<PositionComponent>(attractiveFriend).Value - translation.Value;
+                    var delta = positionData[attractiveFriend].Position - translation.Value;
                     var dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                     if (dist > 0.0f)
                     {
@@ -92,7 +95,7 @@ public partial class BeeMovementSystem : SystemBase
                     }
 
                     var repulsiveFriend = yellowBeeEntities[_random.NextInt(yellowBeeEntities.Length)];
-                    delta = GetComponent<PositionComponent>(repulsiveFriend).Value - translation.Value;
+                    delta = positionData[repulsiveFriend].Position - translation.Value;
                     dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                     if (dist > 0.0f)
                     {
@@ -131,8 +134,8 @@ public partial class BeeMovementSystem : SystemBase
                         }
                         else // Target bee still alive, chase or attack it.
                         {
-                            var targetPosition = GetComponent<PositionComponent>(target.Value);
-                            delta = targetPosition.Value - translation.Value;
+                            var targetPosition = positionData[target.Value];
+                            delta = targetPosition.Position - translation.Value;
                             var sqrDist = math.dot(delta, delta);
                             if (sqrDist > math.pow(ATTACK_DISTANCE, 2))
                             {
@@ -146,7 +149,7 @@ public partial class BeeMovementSystem : SystemBase
 
                                 if (sqrDist < math.pow(HIT_DISTANCE, 2))
                                 {
-                                    ParticleManager.SpawnParticle(targetPosition.Value, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+                                    ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                     // Bee is dead, but not destroyed, if it targets itself.
                                     targetsTarget.Value = target.Value;
@@ -185,7 +188,7 @@ public partial class BeeMovementSystem : SystemBase
                             }
                             else // Move to the resource and "grab" it when close enough.
                             {
-                                delta = GetComponent<PositionComponent>(target.Value).Value - translation.Value;
+                                delta = positionData[target.Value].Position - translation.Value;
                                 var sqrDist = math.dot(delta, delta);
                                 if (sqrDist > math.pow(GRAB_DISTANCE, 2))
                                 {
@@ -287,6 +290,9 @@ public partial class BeeMovementSystem : SystemBase
                     velocity.Value.z *= .8f;
                     velocity.Value.x *= .8f;
                 }
+
+
+
             }).Run();
 
         #endregion
@@ -316,7 +322,7 @@ public partial class BeeMovementSystem : SystemBase
                     velocity.Value *= (1.0f - DAMPING);
 
                     var attractiveFriend = blueBeeEntities[_random.NextInt(blueBeeEntities.Length)];
-                    var delta = GetComponent<PositionComponent>(attractiveFriend).Value - translation.Value;
+                    var delta = GetComponent<PositionComponent>(attractiveFriend).Position - translation.Value;
                     var dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                     if (dist > 0.0f)
                     {
@@ -324,7 +330,7 @@ public partial class BeeMovementSystem : SystemBase
                     }
 
                     var repulsiveFriend = blueBeeEntities[_random.NextInt(blueBeeEntities.Length)];
-                    delta = GetComponent<PositionComponent>(repulsiveFriend).Value - translation.Value;
+                    delta = GetComponent<PositionComponent>(repulsiveFriend).Position - translation.Value;
                     dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
                     if (dist > 0.0f)
                     {
@@ -364,7 +370,7 @@ public partial class BeeMovementSystem : SystemBase
                         else // Target bee still alive, chase or attack it.
                         {
                             var targetPosition = GetComponent<PositionComponent>(target.Value);
-                            delta = targetPosition.Value - translation.Value;
+                            delta = targetPosition.Position - translation.Value;
                             var sqrDist = math.dot(delta, delta);
                             if (sqrDist > math.pow(ATTACK_DISTANCE, 2))
                             {
@@ -378,7 +384,7 @@ public partial class BeeMovementSystem : SystemBase
 
                                 if (sqrDist < math.pow(HIT_DISTANCE, 2))
                                 {
-                                    ParticleManager.SpawnParticle(targetPosition.Value, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
+                                    ParticleManager.SpawnParticle(targetPosition.Position, ParticleManager.ParticleType.Blood, velocity.Value * .35f, 2f, 6);
 
                                     // Bee is dead, but not destroyed, if it targets itself.
                                     targetsTarget.Value = target.Value;
@@ -416,7 +422,7 @@ public partial class BeeMovementSystem : SystemBase
                             }
                             else // Move to the resource and "grab" it when close enough.
                             {
-                                delta = GetComponent<PositionComponent>(target.Value).Value - translation.Value;
+                                delta = GetComponent<PositionComponent>(target.Value).Position - translation.Value;
                                 var sqrDist = math.dot(delta, delta);
                                 if (sqrDist > math.pow(GRAB_DISTANCE, 2))
                                 {
@@ -526,41 +532,30 @@ public partial class BeeMovementSystem : SystemBase
 
         #region TODO:
 
-        // Instead of adding even more components to the move/decision foreach loops, I've decided to break things out where I can into other loops.
+        Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
+        {
+            if (beeState.Value != BeeState.Dead)
+            {
+                float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
+                scale.Value.z = baseSize.Value * stretch;
+                scale.Value.x = baseSize.Value / ((stretch - 1f) / 5f + 1f);
+                scale.Value.y = baseSize.Value / ((stretch - 1f) / 5f + 1f);
+            }
+        }).Run();
 
-        //Entities.WithoutBurst().ForEach((ref NonUniformScale scale, in BeeStateComponent beeState, in VelocityComponent velocity, in BeeBaseSizeComponent baseSize) =>
-        //{
-        //    if (beeState.Value != BeeState.Dead)
-        //    {
-        //        float stretch = math.max(1f, math.length(velocity.Value) * SPEED_STRETCH);
-        //        scale.Value.z = baseSize.Value * stretch;
-        //        scale.Value.x = baseSize.Value / (stretch - 1f) / 5f + 1f;
-        //        scale.Value.y = baseSize.Value / (stretch - 1f) / 5f + 1f;
-        //    }
-        //}).ScheduleParallel();
+        Entities.ForEach((ref BeeStateComponent beeState, ref Rotation rotation, ref Translation translation, ref PositionComponent position) =>
+        {
+            // Rotation
+            var oldSmoothPos = position.SmoothPosition;
+            if (beeState.Value == BeeState.AttackEnemy)
+                position.SmoothPosition = translation.Value;
+            else
+                position.SmoothPosition = math.lerp(position.SmoothPosition, translation.Value, deltaTime * ROTATION_STIFFNESS);
 
-        // TODO: Incorporate the bee state enum so we don't have to keep doing everything for each team or base death on the target.
-        //Entities.ForEach((Entity entity, ref Rotation rotation, in PositionComponent position, in VelocityComponent velocity, in TeamYellowTargetComponent target) =>
-        //{
-        //    // TODO: Rotation
-        //    //Vector3 oldSmoothPos = bee.smoothPosition;
-        //    //if (bee.isAttacking == false)
-        //    //{
-        //    //    bee.smoothPosition = Vector3.Lerp(bee.smoothPosition, bee.position, deltaTime * rotationStiffness);
-        //    //}
-        //    //else
-        //    //{
-        //    //    bee.smoothPosition = bee.position;
-        //    //}
-        //    //bee.smoothDirection = bee.smoothPosition - oldSmoothPos;
+            var smoothDirection = position.SmoothPosition - oldSmoothPos;
+            rotation.Value = quaternion.LookRotation(smoothDirection, math.up());
 
-        //    // TODO: Rotation (from update)
-        //    //Quaternion rotation = Quaternion.identity;
-        //    //if (bees[i].smoothDirection != Vector3.zero)
-        //    //{
-        //    rotation.Value = quaternion.LookRotation(velocity.Value, math.up()); //Quaternion.LookRotation(bees[i].smoothDirection);
-        //    //}
-        //}).ScheduleParallel();
+        }).Run();
 
         // TODO: Attempting to separate the decision making from the movement by introducing a state component. // The concept of a "dead" but not destroyed bee is really making things difficult for me, so for this iteration I'm going to ignore that.
         //Entities
