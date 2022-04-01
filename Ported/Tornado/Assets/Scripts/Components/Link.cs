@@ -10,7 +10,6 @@ namespace Components
         public float length;
 
         public float3 direction;
-        public byte dirtyRotation;
         public ushort materialID;
     }
 }

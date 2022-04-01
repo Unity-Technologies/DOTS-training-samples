@@ -43,11 +43,10 @@ namespace Assets.Scripts.Jobs
                 var midPoint = (start + end) * 0.5f;            
 
 
-                if(link.dirtyRotation > 0)
-                {
+              
                     rotation.Value = quaternion.LookRotation(link.direction, new float3(0.0f, 1.0f, 0.0f));
                     rotations[i] = rotation;
-                }
+             
                    
                 translation.Value = midPoint;
                 translations[i] = translation;

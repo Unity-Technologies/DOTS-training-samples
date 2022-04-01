@@ -35,7 +35,7 @@ namespace Systems
             }).Run();
 
             // Reset points, links, etc
-            var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
+            var pointDisplacement = World.GetExistingSystem<VerletSimulationSystem>();
             pointDisplacement.Reset();
 
             // add new generation entity
@@ -57,7 +57,7 @@ namespace Systems
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
-            var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
+            var pointDisplacement = World.GetExistingSystem<VerletSimulationSystem>();
 
             var random = new Unity.Mathematics.Random(1234);
             NativeList<VerletPoints> points = default;

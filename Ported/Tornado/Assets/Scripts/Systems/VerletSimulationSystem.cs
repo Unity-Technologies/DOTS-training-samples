@@ -14,7 +14,7 @@ namespace Systems
 {
     [UpdateBefore(typeof(BarRenderingSystem))]
     //[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    public partial class PointDisplacementSystem : SystemBase
+    public partial class VerletSimulationSystem : SystemBase
     {
         public NativeArray<VerletPoints> points;
         public NativeArray<Link> links;
@@ -45,7 +45,7 @@ namespace Systems
 
             physicmaterials = new NativeArray<Components.PhysicMaterial>(2, Allocator.Persistent);
             physicmaterials[0] = new Components.PhysicMaterial() { weight = 1 };
-            physicmaterials[1] = new Components.PhysicMaterial() { weight = 1.6f };
+            physicmaterials[1] = new Components.PhysicMaterial() { weight = 1 };
         }
 
 

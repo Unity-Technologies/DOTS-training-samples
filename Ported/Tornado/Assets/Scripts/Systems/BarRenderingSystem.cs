@@ -28,7 +28,7 @@ namespace Systems
         }
         protected override void OnUpdate()
         {
-            var pointDisplacement = World.GetExistingSystem<PointDisplacementSystem>();
+            var pointDisplacement = World.GetExistingSystem<VerletSimulationSystem>();
             if (!pointDisplacement.isInitialized) return;
 
             var points = pointDisplacement.points;
