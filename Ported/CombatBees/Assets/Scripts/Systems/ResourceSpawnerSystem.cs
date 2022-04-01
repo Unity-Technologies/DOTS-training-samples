@@ -20,7 +20,7 @@ public partial class ResourceSpawnerSystem : SystemBase
             var maxX = (int) Field.size.x/2 - (int) (Field.size.x - Field.startingResourceZoneWidth)/2;
             var minZ = (int) -Field.size.z/2;
             var maxZ = (int) Field.size.z/2;
-            var minY = (int) -Field.size.y/2;
+            var minY = (int) Field.size.y/8;
             var maxY = (int) Field.size.y/2;
 
             for (int i = 0; i < spawner.StartingResourceCount; ++i)
