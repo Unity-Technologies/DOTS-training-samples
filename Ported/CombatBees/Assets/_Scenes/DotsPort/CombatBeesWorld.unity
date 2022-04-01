@@ -203,10 +203,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 1854677909124871124, guid: 26659e726d74d4ce29854a6e20bcc375,
     type: 3}
-  BeesAmount: 100
+  BeesAmount: 2000
   ResourcePrefab: {fileID: 8321676622679794886, guid: c0e2b593b434e4b3caf203d2a8491424,
     type: 3}
-  ResourceAmount: 500
+  ResourceAmount: 1000
 --- !u!23 &733420454
 MeshRenderer:
   m_ObjectHideFlags: 0
