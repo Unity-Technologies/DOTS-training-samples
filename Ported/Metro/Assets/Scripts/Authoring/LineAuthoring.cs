@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
 using Unity.Transforms;
 using UnityEngine;
 using UnityMonoBehaviour = UnityEngine.MonoBehaviour;
@@ -52,8 +53,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         List<StationData> stationIndices;
         float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList(), out stationIndices);
 
-        bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
-        CreateStations(dstManager, stationIndices, curveDistance, conversionSystem);
+        dstManager.AddComponent<StationPositionBufferElement>(entity);
+
+        NativeArray<StationPositionBufferElement> stationPositionNativeArray;
+        CreateStations(dstManager, stationIndices, out stationPositionNativeArray, conversionSystem);
+        var stationPositions = dstManager.GetBuffer<StationPositionBufferElement>(entity);
+        stationPositions.AddRange(stationPositionNativeArray);
 
         dstManager.AddComponentData(entity, new LineComponent
         {
@@ -154,7 +159,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
-
+ 
         for (int i = 0; i < stationIndices.Count; i++)
         {
             float t = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance;
@@ -178,14 +183,20 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         return totalPathDistance;
     }
 
-    void CreateStations(EntityManager dstManager, List<StationData> stations, float curveLength, GameObjectConversionSystem conversionSystem)
+    void CreateStations(EntityManager dstManager, List<StationData> stations, 
+        out NativeArray<StationPositionBufferElement> stationPositions, GameObjectConversionSystem conversionSystem)
     {
+        StationPositionBufferElement[] stationPositionArray =
+            new StationPositionBufferElement[stations.Count * 2];
+        
         for (int i = 0; i < stations.Count; i++)
         {
-            Debug.Log("Making station");
             Entity station = conversionSystem.CreateAdditionalEntity(this);
             float platormARelativePosition = stations[i].outboundBezierPosition;
             float platormBRelativePosition = stations[i].returnBezierPosition;
+
+            stationPositionArray[i].positionAlongRail = platormARelativePosition;
+            stationPositionArray[2 * stations.Count - 1 - i].positionAlongRail = platormBRelativePosition;
 
             dstManager.AddComponentData(station, new StationComponent
             {
@@ -195,5 +206,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             dstManager.AddComponentData(station, new Translation { Value = stations[i].position });
             dstManager.AddComponentData(station, new Rotation { Value = stations[i].rotation });
         }
+        
+        stationPositions = new NativeArray<StationPositionBufferElement>(stationPositionArray, Allocator.Temp);
     }
 }
