@@ -19,6 +19,7 @@ public partial class TrainNavigationSystem : SystemBase
         var stationPositionsDictionary = GetBufferFromEntity<StationPositionBufferElement>(true);
 
         Entities.WithAll<TrainComponent>()
+            .WithReadOnly(stationPositionsDictionary)
             .ForEach((ref SpeedComponent speed, 
                 ref TrackPositionComponent trackPosition,
                 ref WaypointIndexComponent waypointIndex,
@@ -28,7 +29,6 @@ public partial class TrainNavigationSystem : SystemBase
             {
                 var stationPositions = stationPositionsDictionary[trainComponent.Line];
                 var decelerationDistance = speed.Acceleration / speed.CurrentSpeed;
-                Debug.Log(decelerationDistance);
                 var nextStationPosition = stationPositions[waypointIndex.NextWaypoint].positionAlongRail;
                 
                 switch (trainState.Value) {
@@ -46,7 +46,6 @@ public partial class TrainNavigationSystem : SystemBase
                         trackPosition.Value = math.frac(trackPosition.Value + speed.CurrentSpeed * deltaTime);
 
                         var distanceToStation = math.frac(nextStationPosition - trackPosition.Value);
-                        Debug.Log(distanceToStation);
                         if (distanceToStation < decelerationDistance)
                         {
                             trainState.Value = TrainState.Decelerating;
@@ -83,6 +82,6 @@ public partial class TrainNavigationSystem : SystemBase
                         trainState.Value = TrainState.Accelerating;
                         return;
                 }
-        }).Schedule();
+        }).ScheduleParallel();
     }
 }
