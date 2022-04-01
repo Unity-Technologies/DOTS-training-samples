@@ -119,7 +119,7 @@ public partial class SpawnerSystem : SystemBase
        return entity;
    }
 
-   static Position GenFieldPos(Random random, float radius)
+   static Position GenFieldPos(ref Random random, float radius)
    {
        return new Position { Value = new float2(random.NextFloat(-radius, radius), random.NextFloat(-radius, radius)) };
    }
@@ -132,15 +132,15 @@ public partial class SpawnerSystem : SystemBase
         {
             var squadSize = (spawner.MembersCount - 2) / 2;
 
-            var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(random, radius));
+            var captainEntity = SpawnWorker(ecb, spawner.CaptainPrefab, GenFieldPos(ref random, radius));
             ecb.SetComponent(captainEntity, new MyTeam() { Value = captainEntity });
             ecb.SetComponent(captainEntity, new EvalOffsetFrame() { Value = i % BucketBrigadeUtility.FramesPerFireCheck });
             ecb.AddBuffer<Member>(captainEntity);
             
-            var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(random, radius));
+            var fetcherEntity = SpawnWorker(ecb, spawner.FetcherPrefab, GenFieldPos(ref random, radius));
             ecb.SetComponent(fetcherEntity, new MyTeam() { Value = captainEntity });
 
-            var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
+            var workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(ref random, radius));
             ecb.SetComponent(fetcherEntity, new DestinationWorker() {Value = workerEntity});
             ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
 
@@ -148,7 +148,7 @@ public partial class SpawnerSystem : SystemBase
             
             for (var j = 1; j < squadSize; j++)
             {
-                workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(random, radius));
+                workerEntity = SpawnWorker(ecb, spawner.FullBucketWorkerPrefab, GenFieldPos(ref random, radius));
                 ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
                 
                 ecb.AppendToBuffer<Member>(captainEntity, workerEntity);
@@ -162,7 +162,7 @@ public partial class SpawnerSystem : SystemBase
             
             for (var j = 0; j < squadSize; j++)
             {
-                workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(random, radius));
+                workerEntity = SpawnWorker(ecb, spawner.EmptyBucketWorkerPrefab, GenFieldPos(ref random, radius));
                 ecb.SetName(workerEntity, "SquadWorker");
 
                 ecb.SetComponent(previousMember, new DestinationWorker() {Value = workerEntity});
