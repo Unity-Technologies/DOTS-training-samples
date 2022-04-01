@@ -446,6 +446,7 @@ public class Metro : MonoBehaviour
 
     #region ------------------------- < GIZMOS
 
+    #if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (drawRailBeziers)
@@ -471,6 +472,7 @@ public class Metro : MonoBehaviour
             }
         }
     }
+#endif
 
     #endregion ------------------------ GIZMOS >
 }
