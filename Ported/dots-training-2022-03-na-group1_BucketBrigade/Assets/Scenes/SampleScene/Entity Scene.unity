@@ -176,9 +176,9 @@ MonoBehaviour:
   BucketPrefab: {fileID: 1773963921688032, guid: 0dc222705d3bc4a18a174b63992e4d80, type: 3}
   TeamCount: 30
   OmniWorkerCount: 0
-  MembersCount: 32
-  WaterCount: 60
-  BucketCount: 80
+  MembersCount: 302
+  WaterCount: 300
+  BucketCount: 240
   MinWaterSupplyCount: 100
   MaxWaterSupplyCount: 200
   TurnOffFireRendering: 0
