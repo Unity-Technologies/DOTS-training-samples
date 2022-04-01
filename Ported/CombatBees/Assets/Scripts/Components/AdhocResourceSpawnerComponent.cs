@@ -5,6 +5,6 @@ using Unity.Mathematics;
 public struct AdhocResourceSpawnerComponent : IComponentData
 {
 	public Entity ResourcePrefab;
-	public int ResourceCount;
+	public int Process;
 	public float3 ResourceSpawnPosition;
 }

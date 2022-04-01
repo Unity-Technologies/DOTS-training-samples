@@ -19,10 +19,6 @@ public partial class BeeSpawnerSystem : SystemBase
 		Entities
 			.ForEach((Entity entity, ref BeeSpawnerComponent spawner) =>
 			{
-				// Destroying the current entity is a classic ECS pattern,
-				// when something should only be processed once then forgotten.
-				ecb.DestroyEntity(entity);
-
 				if (spawner.Process == 1)
 				{
 					spawner.Process = 0;
@@ -34,7 +30,9 @@ public partial class BeeSpawnerSystem : SystemBase
 						ecb.SetComponent(instance, new VelocityComponent() { Value = random.NextFloat3Direction() * MAX_SPAWN_SPEED });
 						ecb.SetComponent(instance, new BeeBaseSizeComponent() { Value = random.NextFloat(MIN_BEE_SIZE, MAX_BEE_SIZE) });
 					}
-					
+					// Destroying the current entity is a classic ECS pattern,
+					// when something should only be processed once then forgotten.
+					ecb.DestroyEntity(entity);
 				}
 			}).Run();
 
