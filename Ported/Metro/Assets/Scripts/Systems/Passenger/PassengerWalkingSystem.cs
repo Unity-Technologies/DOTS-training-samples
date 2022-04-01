@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public partial class PassengerWalkingSystem : SystemBase
 {
@@ -23,6 +24,12 @@ public partial class PassengerWalkingSystem : SystemBase
         Entities.ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, ref PassengerWalking passengerWalking, in Passenger passenger) =>
         {
             var random = new Random((uint)(worldTime + ((entityInQueryIndex+1))));
+            // spin the RNG a few times 
+            for (int i = 0; i < random.NextInt(0, 5); i++)
+            {
+                random.NextInt();
+            }
+            
             float remainingDistance = math.distance(passengerWalking.WalkDestination, translation.Value);
             if (remainingDistance < PASSENGER_WALK_EPSILON)
             {
@@ -30,6 +37,7 @@ public partial class PassengerWalkingSystem : SystemBase
                 float3 destination = random.NextFloat3(
                     new float3(passenger.CurrentPlatformPosition.x - 10, 0, passenger.CurrentPlatformPosition.z - 10),
                     new float3(passenger.CurrentPlatformPosition.x + 10, 0, passenger.CurrentPlatformPosition.z + 10));
+
 
                 parallelWriter.SetComponent(entityInQueryIndex, entity, new PassengerWalking
                 {
