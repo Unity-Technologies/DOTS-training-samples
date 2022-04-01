@@ -4,6 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Color = UnityEngine.Color;
 using ProfilerMarker = Unity.Profiling.ProfilerMarker;
 
@@ -30,6 +31,7 @@ public partial class TankUpdate : SystemBase
         var ecb = _ecbSystem.CreateCommandBuffer().AsParallelWriter();
         var entityElement = GetSingletonEntity<EntityElement>();
         var childs = this.GetBufferFromEntity<Child>(true);
+        var linkedEntityGroups = this.GetBufferFromEntity<LinkedEntityGroup>(true);
         var heightBuffer = this.GetBuffer<HeightElement>(entityElement, true);
         
         var terrainData = this.GetSingleton<TerrainData>();
@@ -45,6 +47,7 @@ public partial class TankUpdate : SystemBase
             .WithNativeDisableParallelForRestriction(childs)
             .WithReadOnly(childs)
             .WithReadOnly(heightBuffer)
+            .WithReadOnly(linkedEntityGroups)
             .ForEach((int entityInQueryIndex, Entity entity, ref Tank tank, ref Rotation tankRotation, in Translation tankTranslation) =>
             {
                 
@@ -174,7 +177,8 @@ public partial class TankUpdate : SystemBase
 
                     // Get canon child entity
                     var childBuffer = childs[entity];
-                    var canonEntity = childBuffer[1].Value;
+                    var linkedEntityGroupBuffer = linkedEntityGroups[entity];
+                    Entity canonEntity = linkedEntityGroupBuffer[1].Value; // 1 comes from the position of the cannon in the LinkedEntityGroup Buffer, do not use Child since it seems the index is not consistant
                     ecb.SetComponent(entityInQueryIndex, canonEntity, new Rotation
                     {
                         Value = localRotation
