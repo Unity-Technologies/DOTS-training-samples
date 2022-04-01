@@ -9,4 +9,6 @@ public struct RailSpawnerComponent : IComponentData
     public float RailSpacing;
     public float MinAcceleration;
     public float MaxAcceleration;
+
+    public int SpawnMultiplier;
 }

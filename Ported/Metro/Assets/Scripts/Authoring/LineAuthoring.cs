@@ -22,6 +22,9 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     [SerializeField] private bool debugRender;
     [SerializeField] private Color lineColor;
 
+    [SerializeField] private int spawnMultiplier = 1;
+    [SerializeField] private float spawnMultipleGridSize = 100.0f;
+
     struct StationData
     {
         public float3 position;
@@ -34,6 +37,28 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     {
         var children = gameObject.GetComponentsInChildren<LineMarkerAuthoring>();
 
+        if (spawnMultiplier > 1)
+        {
+            for (int i = 0; i < spawnMultiplier; i++)
+            {
+                for (int j = 0; j < spawnMultiplier; j++)
+                {
+                    float3 offset = new float3(spawnMultipleGridSize * i, 0, spawnMultipleGridSize * j);
+
+                    Entity gridDuplicate = conversionSystem.CreateAdditionalEntity(this);
+                    SpawnLine(children, dstManager, gridDuplicate, conversionSystem, offset);
+                }
+            }
+        }
+        else
+        {
+            SpawnLine(children, dstManager, entity, conversionSystem, float3.zero);
+        }
+
+    }
+
+    void SpawnLine(LineMarkerAuthoring[] children, EntityManager dstManager, Entity entity, GameObjectConversionSystem conversionSystem, float3 offset)
+    {
         dstManager.AddComponent<LineMarkerBufferElement>(entity);
 
         var dynamicBuffer = dstManager.GetBuffer<LineMarkerBufferElement>(entity);
@@ -51,7 +76,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
 
         var bezierCurve = dstManager.GetBuffer<BezierPointBufferElement>(entity);
         List<StationData> stationIndices;
-        float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList(), out stationIndices);
+        float curveDistance = PopulateBezierFromMarkers(ref bezierCurve, children.ToList(), offset, out stationIndices);
 
         dstManager.AddComponent<StationPositionBufferElement>(entity);
 
@@ -65,7 +90,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             CarriageCount = carriageCount,
             CarriageLength = carriageLength,
             TrainCount = trainCount,
-            MaxSpeed = maxSpeed, 
+            MaxSpeed = maxSpeed,
             LineLength = curveDistance
         });
 
@@ -83,7 +108,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
     // Populates a dynamic buffer with bezier curve information, returning the total distance.
     // An analogue of MetroLine.Create_RailPath
     float PopulateBezierFromMarkers(ref DynamicBuffer<BezierPointBufferElement> bezierCurve,
-        List<LineMarkerAuthoring> markers, out List<StationData> stations)
+        List<LineMarkerAuthoring> markers, float3 trackOffset, out List<StationData> stations)
     {
         float totalPathDistance = 0;
         int totalMarkers = markers.Count;
@@ -95,7 +120,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         // - - - - - - - - - - - - - - - - - - - - - - - -  OUTBOUND points
         for (int i = 0; i < totalMarkers; i++)
         {
-            BezierHelpers.AddPoint(ref bezierCurve, markers[i].transform.position);
+            BezierHelpers.AddPoint(ref bezierCurve, (float3)(markers[i].transform.position) + trackOffset);
         }
 
         // fix the OUTBOUND handles
@@ -160,15 +185,15 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         }
 
         totalPathDistance = BezierHelpers.MeasurePath(ref bezierCurve);
- 
+
         for (int i = 0; i < stationIndices.Count; i++)
         {
             float t = bezierCurve[stationIndices[i]].DistanceAlongPath / totalPathDistance;
-            
+
             var lookRot = quaternion.LookRotation(
-                BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance, t), 
+                BezierHelpers.GetNormalAtPosition(bezierCurve, totalPathDistance, t),
                 new float3(0, 1, 0));
-            
+
             StationData stationData = new StationData
             {
                 position = (bezierCurve[stationIndices[i]].Location +
@@ -184,12 +209,12 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
         return totalPathDistance;
     }
 
-    void CreateStations(EntityManager dstManager, List<StationData> stations, 
+    void CreateStations(EntityManager dstManager, List<StationData> stations,
         out NativeArray<StationPositionBufferElement> stationPositions, GameObjectConversionSystem conversionSystem)
     {
         StationPositionBufferElement[] stationPositionArray =
             new StationPositionBufferElement[stations.Count * 2];
-        
+
         for (int i = 0; i < stations.Count; i++)
         {
             Entity station = conversionSystem.CreateAdditionalEntity(this);
@@ -207,7 +232,7 @@ public class LineAuthoring : UnityMonoBehaviour, IConvertGameObjectToEntity
             dstManager.AddComponentData(station, new Translation { Value = stations[i].position });
             dstManager.AddComponentData(station, new Rotation { Value = stations[i].rotation });
         }
-        
+
         stationPositions = new NativeArray<StationPositionBufferElement>(stationPositionArray, Allocator.Temp);
     }
 }
