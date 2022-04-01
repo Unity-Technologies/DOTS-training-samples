@@ -24,7 +24,7 @@ public partial class FireSpotLookupSystem : SystemBase
                 {
                     var teamInfo = entityManager.GetComponentData<TeamInfo>(team.Value);
                     var fetcherHome = entityManager.GetComponentData<Home>(teamInfo.Fetcher);
-
+                    
                     var spot = BucketBrigadeUtility.FindClosestFireSpot(heatmapData, heatmap, fetcherHome.Value);
 
                     if (!BucketBrigadeUtility.IsVeryClose(spot, home.Value))

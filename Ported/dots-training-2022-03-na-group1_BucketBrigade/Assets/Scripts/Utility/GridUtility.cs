@@ -23,6 +23,11 @@ public static class GridUtility
         return new int2(x, z);
     }
     
+    public static int2 PlotTileCoordFromWorldPosition(float2 worldPosition, int gridSideWidth)
+    {
+        return PlotTileCoordFromWorldPosition(new float3(worldPosition.x, 0f, worldPosition.y), gridSideWidth);
+    }
+    
     public static int2 PlotTileCoordFromWorldPosition(float3 worldPosition, int gridSideWidth)
     {
         float offset = (gridSideWidth - 1) * 0.5f;
@@ -31,7 +36,6 @@ public static class GridUtility
         coord.x =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.x);
         coord.y =(int) math.remap(-offset, offset, 0f, gridSideWidth - 1, worldPosition.z);
 
-        UnityEngine.Debug.Log($"world position: {worldPosition} | tile coordinate: {coord}");
         return coord;
     }
     

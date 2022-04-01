@@ -128,11 +128,6 @@ public partial class SpawnerSystem : SystemBase
    {
        var radius = (spawner.FireDimension - 1) / 2f;
 
-       if (spawner.TeamCount > FramesPerFireCheck)
-       {
-           FramesPerFireCheck = spawner.TeamCount;
-       }
-                
         for (int i = 0; i < spawner.TeamCount; i++)
         {
             var squadSize = (spawner.MembersCount - 2) / 2;

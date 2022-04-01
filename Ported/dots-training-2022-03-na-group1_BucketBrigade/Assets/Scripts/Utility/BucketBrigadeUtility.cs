@@ -9,7 +9,7 @@ public static class BucketBrigadeUtility
     public const float FillDelay = 2f;
     public const float EmptyWaterSize = 0.15f;
     public const float FullWaterSize = 0.4f;
-    public static int FramesPerFireCheck = 60;
+    public const int FramesPerFireCheck = 120;
 
     private static int _frame;
 
@@ -95,25 +95,40 @@ public static class BucketBrigadeUtility
         // Naive approach:
         // Computing the distance with each cell of the heatmap whose temperature is higher than 0
         // and keep the closest one.
+        
+        // use ints and city block distance
 
-        var shortestDistanceSq = float.MaxValue;
-        float2 closestSpot = default;
+        var width = heatmapData.mapSideLength;
 
-        for (var i = 0; i < heatmap.Length; i++)
+        var gridPosition = GridUtility.PlotTileCoordFromWorldPosition(fromPosition,width);
+
+        var shortestDistanceCB = int.MaxValue;
+        var closestSpot = -1;
+
+        var index = 0;
+        for (var y = 0; y < width; y++)
         {
-            if (heatmap[i] > 0.01f)
+            var yDist = math.abs(gridPosition.y - y);
+            
+            for (var x = 0; x < width; x++)
             {
-                var tilePosition = GridUtility.PlotTileWorldPosition2DFromIndex(i, heatmapData.mapSideLength);
-                var distance = math.distancesq(fromPosition, tilePosition);
-                if (distance < shortestDistanceSq)
+                if (heatmap[index] > 0.01f)
                 {
-                    shortestDistanceSq = distance;
-                    closestSpot = tilePosition;
+                    var distance = yDist + math.abs(gridPosition.x - x);
+
+                    if (distance < shortestDistanceCB)
+                    {
+                        shortestDistanceCB = distance;
+                        closestSpot = index;
+                    }
                 }
+
+                index++;
             }
+
         }
 
-        return closestSpot.xy;
+        return GridUtility.PlotTileWorldPosition2DFromIndex(closestSpot, width);
     }
 
     public static float2 CalculateLeftArc(float2 a, float2 b, float t)

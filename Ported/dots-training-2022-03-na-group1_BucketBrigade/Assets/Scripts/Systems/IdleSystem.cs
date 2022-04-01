@@ -110,7 +110,7 @@ public partial class IdleSystem : SystemBase
                 if (state.Value == WorkerState.Idle && bucketHeld.Value != Entity.Null && !bucketHeld.IsFull)
                 {
                     // goto water source
-                    (var waterPool, var waterPosition) = FindClosestWater(position.Value, waterPoolBuffer);
+                    (var waterPool, var waterPosition) = FindClosestWater(home.Value, waterPoolBuffer);
 
                     if (waterPool != Entity.Null)
                     {
