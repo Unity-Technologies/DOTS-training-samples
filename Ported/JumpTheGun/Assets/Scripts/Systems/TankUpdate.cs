@@ -82,48 +82,45 @@ public partial class TankUpdate : SystemBase
                     // From start to mid-distance, then from end to mid-distance, and same on left and right
                     localFindBestParabola.Begin();
                     float defaultHeight = math.max(start.y, end.y) + Constants.CANNONBALLRADIUS +1;
-                    float height = defaultHeight;
+                    float midDistanceHeight = defaultHeight;
                     float slope = 0;
                     float2 orth2d = math.normalize((end-start).xz);
                     float3 offset = new float3(orth2d.y, 0, orth2d.x) *Constants.CANNONBALLRADIUS;
-                    var starts = new NativeArray<float3>(6, Allocator.Temp);
-                    starts[0] = start;
-                    starts[1] = end;
-                    starts[2] = start+offset;
-                    starts[3] = end+offset;
-                    starts[4] = start-offset;
-                    starts[5] = end-offset;
-                    var ends = new NativeArray<float3>(6, Allocator.Temp);
-                    ends[0] = end;
-                    ends[1] = start;
-                    ends[2] = end+offset;
-                    ends[3] = start+offset;
-                    ends[4] = end-offset;
-                    ends[5] = start-offset;
+                    var offsets = new NativeArray<float3>(6, Allocator.Temp);
+                    offsets[0] = float3.zero;
+                    offsets[1] = float3.zero;
+                    offsets[2] = offset;
+                    offsets[3] = offset;
+                    offsets[4] = -offset;
+                    offsets[5] = -offset;
                     for (int i = 0 ; i < 6 ; ++i) {
-                        float3 starti = starts[i];
-                        float3 endi = ends[i];
+                        float3 starti = (i % 2 == 0 ? start : end) + offsets[i];
+                        float3 endi = (i % 2 == 0 ? end : start) + offsets[i];
                         float3 dir = endi-starti;
                         float3 norm = math.normalize(dir);
                         float3 midPoint = (endi+starti)*0.5f;
                         float midSqDist = math.lengthsq(midPoint-starti);
                         float3 candidate = starti;
+                        float latestBrickHeight = 0.0f;
                         while (math.lengthsq(candidate-starti) <= midSqDist) {
                             candidate += norm * Constants.SPACING;
                             int2 candidateBox = TerrainUtility.BoxFromLocalPosition(candidate, terrainData.TerrainWidth, terrainData.TerrainLength);
                             int index = candidateBox.x + candidateBox.y * terrainData.TerrainWidth;
                             float brickHeight = heightBuffer[index];
-                            float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, brickHeight);
-                            float2 offset2D = candidateBrickPos.xz - norm.xz * (Constants.CANNONBALLRADIUS + Constants.SPACING*0.71f);
-                            float3 hitPos = new float3(offset2D.x, candidateBrickPos.y, offset2D.y);
-                            //Debug.DrawLine(starti, hitPos, Color.red, 1, false);
-                            float3 dirHitPos = hitPos - starti;
-                            float candidateSlope = dirHitPos.y/math.length(dirHitPos.xz);
-                            float k = math.length(midPoint.xz-starti.xz)/math.length(hitPos.xz - starti.xz);
-                            float3 midCandidatePos = new float3(midPoint.x, starti.y+(hitPos.y - starti.y)*k, midPoint.z);
-                            if (candidateSlope > slope && midCandidatePos.y > height) {
-                                //Debug.DrawLine(starti, midCandidatePos, Color.magenta, 1, false);
-                                height = midCandidatePos.y;
+                            if (brickHeight >= latestBrickHeight) { // no need to test lower bricks and farther away, the slope's steepness and the midDistanceHeight will necessarily be lower
+                                latestBrickHeight = brickHeight;
+                                float3 candidateBrickPos = TerrainUtility.LocalPositionFromBox(candidateBox.x, candidateBox.y, brickHeight);
+                                float2 offset2D = candidateBrickPos.xz - norm.xz * (Constants.CANNONBALLRADIUS + Constants.SPACING*0.71f);
+                                float3 hitPos = new float3(offset2D.x, candidateBrickPos.y, offset2D.y);
+                                Debug.DrawLine(starti, hitPos, Color.red, 1, false);
+                                float3 dirHitPos = hitPos - starti;
+                                float candidateSlope = dirHitPos.y/math.length(dirHitPos.xz);
+                                float k = math.length(midPoint.xz-starti.xz)/math.length(hitPos.xz - starti.xz);
+                                float3 midCandidatePos = new float3(midPoint.x, starti.y+(hitPos.y - starti.y)*k, midPoint.z);
+                                if (candidateSlope > slope && midCandidatePos.y > midDistanceHeight) { // slope and midDistanceHeight measure the same thing only one of the tests is normally needed
+                                    Debug.DrawLine(starti, midCandidatePos, Color.magenta, 1, false);
+                                    midDistanceHeight = midCandidatePos.y;
+                                }
                             }
                         }
                     }
@@ -136,7 +133,7 @@ public partial class TankUpdate : SystemBase
                     {
                         Value = position
                     });
-                    var parabolaData = Parabola.Create(start.y, height, end.y);
+                    var parabolaData = Parabola.Create(start.y, midDistanceHeight, end.y);
                     parabolaData.duration = duration;
                     parabolaData.startPoint = start.xz;
                     parabolaData.endPoint = end.xz;
