@@ -28,6 +28,7 @@ namespace Sample.Authoring
         public int groundDetails;
         public int buildings;
         public int buildingsPerIsland;
+        public bool useComputeShader;
         public UnityGameObject barPrefab;
 
 
@@ -62,6 +63,7 @@ namespace Sample.Authoring
                 citySize = citySize,
                 groundDetails = groundDetails,
                 buildings = buildings,
+                useComputeShader = this.useComputeShader ? 1 : 0,
                 buildingsPerIsland = buildingsPerIsland,
             };
 

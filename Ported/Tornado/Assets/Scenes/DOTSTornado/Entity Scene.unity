@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraAcceleration: 50
-  tornadoAcceleration: 1200
+  tornadoAcceleration: 4500
   friction: 0.96
 --- !u!4 &198849785
 Transform:
@@ -309,10 +309,10 @@ MonoBehaviour:
   maxParticleScale: 0.7
   minColorMultiplier: 0.3
   maxColorMultiplier: 0.7
-  citySize: 55
-  groundDetails: 300
-  buildings: 35
-  buildingsPerIsland: 1
+  citySize: 150
+  groundDetails: 0
+  buildings: 50
+  buildingsPerIsland: 5
   barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
 --- !u!4 &698996226

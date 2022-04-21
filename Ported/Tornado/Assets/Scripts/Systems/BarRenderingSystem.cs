@@ -11,7 +11,6 @@ namespace Systems
     public partial class BarRenderingSystem : SystemBase
     {
         EntityQuery renderingQuery;
-        
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -28,6 +27,8 @@ namespace Systems
         }
         protected override void OnUpdate()
         {
+           
+
             var pointDisplacement = World.GetExistingSystem<VerletSimulationSystem>();
             if (!pointDisplacement.isInitialized) return;
 

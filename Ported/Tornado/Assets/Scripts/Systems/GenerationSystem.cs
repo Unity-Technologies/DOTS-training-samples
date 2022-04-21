@@ -60,7 +60,7 @@ namespace Systems
             var pointDisplacement = World.GetExistingSystem<VerletSimulationSystem>();
 
             var random = new Unity.Mathematics.Random(1234);
-            NativeList<VerletPoints> points = default;
+            NativeList<VerletPoint> points = default;
             NativeList<Link> links = default;
             NativeList<int> islandPointAllocators = default;
             NativeList<int> linkStartIndices = default;
@@ -81,15 +81,23 @@ namespace Systems
 
             if (!points.IsEmpty)
             {
-                var pointArray = new NativeArray<VerletPoints>(links.Length * 2, Allocator.Persistent);
+                var pointArray = new NativeArray<VerletPoint>(links.Length * 2, Allocator.Persistent);
 
                 for (int i = 0; i < points.Length; i++)
                 {
                     pointArray[i] = points[i];
                 }
 
-                pointDisplacement.Initialize(pointArray, new NativeArray<Link>(links, Allocator.Persistent),
-                    islandPointAllocators, linkStartIndices);
+                if (m_cachedParameters.useComputeShader > 0)
+                {
+                    ComputeShaderManager.Instance.Initialize(pointArray, links, linkStartIndices, islandPointAllocators);
+                }
+                else
+                {
+                    pointDisplacement.Initialize(pointArray, new NativeArray<Link>(links, Allocator.Persistent),
+                   islandPointAllocators, linkStartIndices);
+                }
+               
                 points.Dispose();
                 links.Dispose();
                 linkStartIndices.Dispose();
@@ -144,7 +152,7 @@ namespace Systems
             }
         }
 
-        private static void GenerateBuilding(ref Random random, ref NativeList<VerletPoints> pointsList, in GenerationParameters genParams)
+        private static void GenerateBuilding(ref Random random, ref NativeList<VerletPoint> pointsList, in GenerationParameters genParams)
         {
             int height = random.NextInt(4, 12);
             var size = genParams.citySize / 2f;
@@ -154,7 +162,7 @@ namespace Systems
             {
                 var position = new float3(pos.x + spacing, j * spacing, pos.z - spacing);
                 var anchored =  j == 0 ? byte.MaxValue : (byte)0;
-                pointsList.Add(new VerletPoints
+                pointsList.Add(new VerletPoint
                 {
                     currentPosition = position,
                     oldPosition = position,
@@ -162,7 +170,7 @@ namespace Systems
                 });
 
                 position = new float3(pos.x - spacing, j * spacing, pos.z - spacing);
-                pointsList.Add(new VerletPoints
+                pointsList.Add(new VerletPoint
                 {
                     currentPosition = position,
                     oldPosition = position,
@@ -170,7 +178,7 @@ namespace Systems
                 });
 
                 position = new float3(pos.x + 0, j * spacing, pos.z + spacing);
-                pointsList.Add(new VerletPoints
+                pointsList.Add(new VerletPoint
                 {
                     currentPosition = position,
                     oldPosition = position,
@@ -179,21 +187,21 @@ namespace Systems
             }
         }
 
-        private static void GenerateGroundDetail(ref Random random, ref NativeList<VerletPoints> pointsList, float size)
+        private static void GenerateGroundDetail(ref Random random, ref NativeList<VerletPoint> pointsList, float size)
         {            
             var minPos = new float3(-size, 0.0f, -size);
             var maxPos = new float3(size, 0.0f, size);
             var pos = random.NextFloat3(minPos, maxPos);
             var position = pos + random.NextFloat3(new float3(-0.2f, 0.0f, 0.1f), new float3(-0.1f, 3.0f, 0.2f));
             
-            pointsList.Add(new VerletPoints
+            pointsList.Add(new VerletPoint
             {
                 currentPosition = position,
                 oldPosition = position
             });
 
             position = pos + random.NextFloat3(new float3(0.2f, 0.0f, -0.1f), new float3(0.1f, 0.2f, -0.2f));
-            pointsList.Add(new VerletPoints
+            pointsList.Add(new VerletPoint
             {
                 currentPosition = position,
                 oldPosition = position,
@@ -202,7 +210,7 @@ namespace Systems
         }
 
 
-        private static void GenerateLettersAsGround(ref Random random, ref NativeList<VerletPoints> pointsList,ref NativeArray<bool> spawnMap, float size, int w, int h)
+        private static void GenerateLettersAsGround(ref Random random, ref NativeList<VerletPoint> pointsList,ref NativeArray<bool> spawnMap, float size, int w, int h)
         {
             var factor = size / math.min(w, h);
 
@@ -216,7 +224,7 @@ namespace Systems
                     var pos = new float3(-(size * 0.5f) + x * factor, 0.0f, -(size * 0.5f)  + z * factor);
 
                     var position = pos + random.NextFloat3(new float3(0.0f, 0.0f, 0.0f), new float3(0.0f, 3.0f, 0.0f));
-                    pointsList.Add(new VerletPoints
+                    pointsList.Add(new VerletPoint
                     {
                         currentPosition = position,
                         oldPosition = position
@@ -228,7 +236,7 @@ namespace Systems
 
 
 
-        private static void GenerateLinks(int minPointIndex, int maxPointIndex, ref EntityCommandBuffer ecb, ref Random random, Entity barPrefab, ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList, int linkOffset = 0)
+        private static void GenerateLinks(int minPointIndex, int maxPointIndex, ref EntityCommandBuffer ecb, ref Random random, Entity barPrefab, ref NativeList<VerletPoint> pointsList, ref NativeList<Link> linksList, int linkOffset = 0)
         {
             for (int i = minPointIndex; i < maxPointIndex; i++)
             {
@@ -283,10 +291,10 @@ namespace Systems
         }
 
         private static void GenerateCity(in GenerationParameters generation, ref EntityCommandBuffer ecb, ref Random random,
-            out NativeList<VerletPoints> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointAllocators, out NativeList<int> linkStartIndices, ref NativeArray<bool> spawnMap)
+            out NativeList<VerletPoint> pointsList, out NativeList<Link> linksList, out NativeList<int> islandPointAllocators, out NativeList<int> linkStartIndices, ref NativeArray<bool> spawnMap)
         {
             linksList = new NativeList<Link>(Allocator.Temp);
-            pointsList = new NativeList<VerletPoints>(Allocator.Temp);
+            pointsList = new NativeList<VerletPoint>(Allocator.Temp);
             islandPointAllocators = new NativeList<int>(Allocator.Temp);
             linkStartIndices = new NativeList<int>(Allocator.Temp);
 
@@ -331,7 +339,7 @@ namespace Systems
 
             
             {    int beforeGroundDetail = pointsList.Length;
-                var groundDetailPoints = new NativeList<VerletPoints>(Allocator.Temp);
+                var groundDetailPoints = new NativeList<VerletPoint>(Allocator.Temp);
                 var groundDetailLinks = new NativeList<Link>(Allocator.Temp);
 
 
@@ -385,7 +393,7 @@ namespace Systems
             public HashSet<int> points;
         }
 
-        private static List<int> SeparateLinkIslands(ref NativeList<VerletPoints> pointsList, ref NativeList<Link> linksList, out NativeList<int> pointAllocators)
+        private static List<int> SeparateLinkIslands(ref NativeList<VerletPoint> pointsList, ref NativeList<Link> linksList, out NativeList<int> pointAllocators)
         {
             var islands = DetectLinkIslands(linksList);
             var linkSorter = new LinkSorter(islands);
@@ -396,7 +404,7 @@ namespace Systems
             int lastIslandStartIndex = 0;
             var islandStartIndices = new List<int>();
             var oldPointToNewPointMapping = new Dictionary<int, int>();
-            var reindexedPointList = new NativeArray<VerletPoints>(linksList.Length * 2, Allocator.Temp);
+            var reindexedPointList = new NativeArray<VerletPoint>(linksList.Length * 2, Allocator.Temp);
             pointAllocators = new NativeList<int>(Allocator.Temp);
             int indexAllocator = 0;
 

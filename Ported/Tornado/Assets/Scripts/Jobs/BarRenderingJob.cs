@@ -17,7 +17,7 @@ namespace Assets.Scripts.Jobs
     [BurstCompile]
     public struct BarRenderingJob : IJobChunk
     {        
-        [ReadOnly] public NativeArray<VerletPoints> points;
+        [ReadOnly] public NativeArray<VerletPoint> points;
         [ReadOnly] public NativeArray<Link> links;
 
         public ComponentTypeHandle<Rotation> handleRotation;

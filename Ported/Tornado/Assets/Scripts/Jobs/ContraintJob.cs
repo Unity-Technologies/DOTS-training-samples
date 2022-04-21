@@ -15,7 +15,7 @@ namespace Assets.Scripts.Jobs
     public struct ContraintJob : IJob
     {
 	    [NativeDisableContainerSafetyRestriction]
-		public NativeArray<VerletPoints> points;
+		public NativeArray<VerletPoint> points;
 		[NativeDisableContainerSafetyRestriction]
 		public NativeArray<Link> links;
 		[NativeDisableContainerSafetyRestriction]
@@ -36,41 +36,28 @@ namespace Assets.Scripts.Jobs
 				{
 					Link link = links[i];
 
-					VerletPoints point1 = points[link.point1Index];
-					VerletPoints point2 = points[link.point2Index];
+					VerletPoint point1 = points[link.point1Index];
+					VerletPoint point2 = points[link.point2Index];
 
-					float dx = point2.currentPosition.x - point1.currentPosition.x;
-					float dy = point2.currentPosition.y - point1.currentPosition.y;
-					float dz = point2.currentPosition.z - point1.currentPosition.z;
+					float3 d = point2.currentPosition - point1.currentPosition;
 
-					float dist = math.sqrt(dx * dx + dy * dy + dz * dz);
+					float dist = math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
 					float extraDist = dist - link.length;
 
-					float pushX = (dx / dist * extraDist) * .5f;
-					float pushY = (dy / dist * extraDist) * .5f;
-					float pushZ = (dz / dist * extraDist) * .5f;
+					float3 push = (d / dist * extraDist) * .5f;
 
 					if (point1.anchored == 0 && point2.anchored == 0)
 					{
-						point1.currentPosition.x += pushX;
-						point1.currentPosition.y += pushY;
-						point1.currentPosition.z += pushZ;
-
-						point2.currentPosition.x -= pushX;
-						point2.currentPosition.y -= pushY;
-						point2.currentPosition.z -= pushZ;
+						point1.currentPosition += push;
+						point2.currentPosition -= push;
 					}
 					else if (point1.anchored > 0)
 					{
-						point2.currentPosition.x -= pushX * 2f;
-						point2.currentPosition.y -= pushY * 2f;
-						point2.currentPosition.z -= pushZ * 2f;
+						point2.currentPosition -= push * 2f;
 					}
-					else if (point1.anchored > 0)
+					else if (point2.anchored > 0)
 					{
-						point1.currentPosition.x += pushX * 2f;
-						point1.currentPosition.y += pushY * 2f;
-						point1.currentPosition.z += pushZ * 2f;
+						point1.currentPosition += push * 2f;
 					}
 
 					int originalPoint1Index = link.point1Index;
@@ -82,37 +69,34 @@ namespace Assets.Scripts.Jobs
 						if (point2.neighborCount > 1)
 						{
 							point2.neighborCount--;
-							var newPoint = new VerletPoints(point2);
+							var newPoint = new VerletPoint(point2);
 							newPoint.neighborCount = 1;
 							newPoint.materialID = link.materialID;
 
-							var c = pointAllocators[islandIndex];
-							var allocatedIndex = c;							
-							pointAllocators[islandIndex] = ++c;
+							var c = pointAllocators[islandIndex];					
 
-							points[allocatedIndex] = newPoint;
-							link.point2Index = allocatedIndex;
+							points[c] = newPoint;
+							link.point2Index = c;
+							pointAllocators[islandIndex] = ++c;
 						}
 						else if (point1.neighborCount > 1)
 						{
 							point1.neighborCount--;
-							var newPoint = new VerletPoints(point1);
+							var newPoint = new VerletPoint(point1);
 							newPoint.neighborCount = 1;
 							newPoint.materialID = link.materialID;
 
-							var c = pointAllocators[islandIndex];
-							var allocatedIndex = c;
-							pointAllocators[islandIndex] = ++c;
+							var c = pointAllocators[islandIndex];					
 
-							points[allocatedIndex] = newPoint;
-							link.point1Index = allocatedIndex;
+							points[c] = newPoint;
+							link.point1Index = c;
+							pointAllocators[islandIndex] = ++c;
 						}
 					}
 										
 					//link.dirtyRotation = (dx / dist * link.direction.x + dy / dist * link.direction.y + dz / dist * link.direction.z < .999f) ? byte.MaxValue : (byte)0;
-					link.direction.x = dx/dist;
-					link.direction.y = dy/dist;
-					link.direction.z = dz/dist;
+					link.direction = d/dist;
+			
 
 					links[i] = link;
 					points[originalPoint1Index] = point1;

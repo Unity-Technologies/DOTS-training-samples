@@ -22,7 +22,9 @@ namespace Components
 
         public int spawnMapH;
         public int spawnMapW;
+        public int useComputeShader;
 
         public Entity barPrefab;
+
     }
 }

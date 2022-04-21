@@ -1,0 +1,225 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel PointDisplacement
+#pragma kernel ConstraintPass
+  
+// size 32
+struct VerletPoint
+{
+   float3 oldPosition;
+   float3 currentPosition;
+
+   uint anchored;
+   uint neighborCount;
+};
+
+//size 24
+struct Link 
+{
+    int point1Index;
+    int point2Index;
+    float length;
+
+	float3 direction;
+	float2 fillvariable2;
+};
+
+//size 8
+struct IslandDistribution
+{
+	int linkStartIndex;
+	int pointAllocator;  
+
+	float3 fillvariable;
+	float3 fillvariable2;
+};
+
+struct MeshProperties {
+	float4x4 mat;
+	float4 color;
+};
+
+RWStructuredBuffer<MeshProperties> _Properties;
+
+RWStructuredBuffer<VerletPoint> points;
+RWStructuredBuffer<Link> links;
+RWStructuredBuffer<IslandDistribution> islandDistribution;
+
+int pointSize;
+int maxPoints;
+int maxLinks;
+int islandNumber;
+
+float gravityForce;
+float3 tornadoPosition;
+float tornadoMaxForceDist;
+float tornadoHeight;
+float tornadoForce;
+float tornadoFader;
+float tornadoUpForce;
+float tornadoInwardForce;
+float breakResistance;
+float invDamping;
+float friction;
+float time;
+
+uint rng_state;
+
+uint rand_lcg()
+{
+	// LCG values from Numerical Recipes
+	rng_state = 1664525 * rng_state + 1013904223;
+	return rng_state;
+}
+
+[numthreads(8,8,1)]
+void PointDisplacement (uint id: SV_GroupIndex, uint3 idGroup:SV_GroupID)
+{  
+	uint idglobal = id  + idGroup.x * 64;
+    int start = idglobal * pointSize;
+    int end = pointSize + start;
+
+    for (int i = start; i < end; i++)
+    {
+        if (i >= maxPoints)return;
+
+        VerletPoint p = points[i];
+        if (p.anchored > 0) continue;
+
+        //get the combined points by index
+        //we check if it's the first one of the list
+        float3 start = p.currentPosition;
+
+        //gravity 
+        p.oldPosition.y += gravityForce;
+
+        // tornado force
+        float s = (p.currentPosition.y / 5.0 + time / 4.0) * 3.0;
+        float tdx = tornadoPosition.x + sin(s) - p.currentPosition.x;
+        float tdz = tornadoPosition.z - p.currentPosition.z;
+        float tornadoDist = sqrt(tdx * tdx + tdz * tdz);
+
+        tdx /= tornadoDist;
+        tdz /= tornadoDist;
+
+        if (tornadoDist < tornadoMaxForceDist)
+        {
+            float force = (1.0 - tornadoDist / tornadoMaxForceDist);
+            float yFader = clamp(1.0 - p.currentPosition.y / tornadoHeight, 0.0, 1.0);
+			force *= tornadoFader * tornadoForce; 
+            float forceY = tornadoUpForce;
+
+            p.oldPosition.y -= (forceY * force);
+
+            float forceX = -tdz + tdx * (tornadoInwardForce) * yFader;
+            float forceZ = tdx + tdz * tornadoInwardForce * yFader;
+
+            p.oldPosition.x -= forceX * force ;
+            p.oldPosition.z -= forceZ * force;
+        }
+
+        p.currentPosition += (p.currentPosition - p.oldPosition) * invDamping;        
+        p.oldPosition = start;  
+
+        if (p.currentPosition.y < 0.0)
+        {
+            p.currentPosition.y = 0.0;
+            p.oldPosition.y = -p.oldPosition.y;
+            p.oldPosition.x += (p.currentPosition.x - p.oldPosition.x) * friction;
+            p.oldPosition.z += (p.currentPosition.z - p.oldPosition.z) * friction;
+        }
+
+        points[i] = p;
+    }
+}
+
+[numthreads(8, 8, 1)]
+void ConstraintPass(uint id: SV_GroupIndex, uint3 idGroup : SV_GroupID)
+{   	
+	uint idGlobal = id + idGroup.x * 64;
+
+	if (idGlobal >= islandNumber)return;
+	IslandDistribution distribution = islandDistribution[idGlobal];
+	int start = distribution.linkStartIndex;
+	int end = idGlobal +1 >= islandNumber ? maxLinks : islandDistribution[idGlobal +1].linkStartIndex;
+	
+    for (int i = start; i < end; i++)
+    {
+		Link link = links[i];
+		
+		VerletPoint point1 = points[link.point1Index];
+		VerletPoint point2 = points[link.point2Index];	
+
+		float3 d = point2.currentPosition - point1.currentPosition;
+
+		float dist = sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
+		float extraDist = dist - link.length;
+
+		float3 push = (d / dist * extraDist) * 0.5;	
+
+		if (point1.anchored == 0 && point2.anchored == 0)
+		{
+			point1.currentPosition += push;	
+
+			point2.currentPosition -= push;
+		}
+		else if (point1.anchored > 0)
+		{
+			point2.currentPosition -= push * 2.0;
+		}
+		else if (point2.anchored > 0)
+		{
+			point1.currentPosition += push * 2.0;
+		} 
+
+		int originalPoint1Index = link.point1Index;
+		int originalPoint2Index = link.point2Index;
+		
+		if (abs(extraDist) > breakResistance)
+		{
+			if (point2.neighborCount > 1)
+			{
+				int c = distribution.pointAllocator;
+
+				point2.neighborCount--;
+				VerletPoint newPoint = points[c];
+
+				newPoint.currentPosition = point2.currentPosition;
+				newPoint.oldPosition = point2.oldPosition;
+				newPoint.anchored = point2.anchored;
+				newPoint.neighborCount = 1;
+
+				points[c] = newPoint;
+				link.point2Index = c;
+				c++; 
+				distribution.pointAllocator  = c;
+				
+			}
+			else if (point1.neighborCount > 1)
+			{
+				int c = distribution.pointAllocator;
+
+				point1.neighborCount--;
+				VerletPoint newPoint = points[c];
+
+				newPoint.currentPosition = point1.currentPosition;
+				newPoint.oldPosition = point1.oldPosition;
+				newPoint.anchored = point1.anchored;
+				newPoint.neighborCount = 1;	
+
+				points[c] = newPoint;
+				link.point1Index = c;
+				c++;
+				distribution.pointAllocator = c;
+			}
+		}		
+
+		link.direction = d / dist;
+		
+		links[i] = link;
+		islandDistribution[idGlobal] = distribution;
+		points[originalPoint1Index] = point1;
+		points[originalPoint2Index] = point2;
+
+    }
+
+}

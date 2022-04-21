@@ -1,5 +1,6 @@
 
-﻿using Components;
+using Assets.Scripts;
+using Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -40,8 +41,8 @@ namespace Systems
             if (UnityInput.GetKey(UnityKeyCode.Keypad8)) tornadomovingQuantity.z += inputs.tornadoAcceleration * dt;
             if (UnityInput.GetKey(UnityKeyCode.Keypad5)) tornadomovingQuantity.z -= inputs.tornadoAcceleration * dt;
 
-            velocityTornado += tornadomovingQuantity * dt; 
-            tornadoSettings.eyePosition += velocityTornado * dt;
+            velocityTornado += tornadomovingQuantity; 
+            tornadoSettings.eyePosition += velocityTornado;
 
             SetSingleton<TornadoParameters>(tornadoSettings);
            
@@ -54,6 +55,7 @@ namespace Systems
             velocity *= inputs.friction;
             velocityTornado *= inputs.friction;
 
+            ComputeShaderManager.Instance.tornadoPosition = tornadoPos;
             if (Input.GetKeyDown(KeyCode.R))
             {
                 

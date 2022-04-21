@@ -6,7 +6,7 @@
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
             "Platform": "StandaloneWindows64",
-            "Configuration": 2
+            "Configuration": 1
         },
         {
             "$type": "Unity.Build.Common.SceneList, Unity.Build",

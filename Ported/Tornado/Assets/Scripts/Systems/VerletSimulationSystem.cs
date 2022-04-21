@@ -16,7 +16,7 @@ namespace Systems
     //[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
     public partial class VerletSimulationSystem : SystemBase
     {
-        public NativeArray<VerletPoints> points;
+        public NativeArray<VerletPoint> points;
         public NativeArray<Link> links;
         public NativeArray<Components.PhysicMaterial> physicmaterials;
         public NativeArray<int> islandPointAllocators;
@@ -138,12 +138,9 @@ namespace Systems
 
             JobHandle.ScheduleBatchedJobs();
             Profiler.EndSample();
-
-
-
         }
 
-        public void Initialize(NativeArray<VerletPoints> points, NativeArray<Link> links, NativeArray<int> islandPointAllocators, NativeArray<int> linkStartIndices)
+        public void Initialize(NativeArray<VerletPoint> points, NativeArray<Link> links, NativeArray<int> islandPointAllocators, NativeArray<int> linkStartIndices)
         {
             this.links = links;
             this.points = points;
@@ -158,12 +155,11 @@ namespace Systems
         protected override void OnDestroy()
         {
             base.OnDestroy();
-
-            points.Dispose();
-            links.Dispose();
-            physicmaterials.Dispose();
-            islandPointAllocators.Dispose();
-            linkStartIndices.Dispose();
+            if(points.IsCreated)points.Dispose();
+            if (links.IsCreated) links.Dispose();
+            if(physicmaterials.IsCreated)physicmaterials.Dispose();
+            if(islandPointAllocators.IsCreated)islandPointAllocators.Dispose();
+            if(linkStartIndices.IsCreated)linkStartIndices.Dispose();
         }
     }
 }

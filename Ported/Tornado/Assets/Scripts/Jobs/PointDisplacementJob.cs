@@ -10,7 +10,7 @@ namespace Assets.Scripts.Jobs
     [BurstCompile]
     public struct PointDisplacementJob : IJobParallelFor
     {
-        public NativeArray<VerletPoints> points;
+        public NativeArray<VerletPoint> points;
 
         [ReadOnly] public float invDamping;
 
@@ -26,16 +26,14 @@ namespace Assets.Scripts.Jobs
 
         public void Execute(int i)
         {
-            VerletPoints point = points[i];
+            VerletPoint point = points[i];
             if (point.anchored > 0) return;
 
             var mat = physicMaterials[point.materialID];
 
             //get the combined points by index
             //we check if it's the first one of the list
-            float startX = point.currentPosition.x;
-            float startY = point.currentPosition.y;
-            float startZ = point.currentPosition.z;
+            float3 start = point.currentPosition;       
 
             //gravity 
             point.oldPosition.y += physicSettings.gravityForce * mat.weight; 
@@ -64,13 +62,8 @@ namespace Assets.Scripts.Jobs
                 point.oldPosition.z -= forceZ * force / mat.weight;
             }
 
-            point.currentPosition.x += (point.currentPosition.x - point.oldPosition.x) * invDamping;
-            point.currentPosition.y += (point.currentPosition.y - point.oldPosition.y) * invDamping;
-            point.currentPosition.z += (point.currentPosition.z - point.oldPosition.z) * invDamping;
-
-            point.oldPosition.x = startX;
-            point.oldPosition.y = startY;
-            point.oldPosition.z = startZ;
+            point.currentPosition += (point.currentPosition - point.oldPosition) * invDamping; 
+            point.oldPosition = start;    
 
             if (point.currentPosition.y < 0f)
             {
