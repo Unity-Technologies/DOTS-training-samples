@@ -1,0 +1,46 @@
+#pragma kernel CSMain
+
+struct MeshProperties {
+    float4x4 mat;
+    float4 color;
+};
+
+RWStructuredBuffer<MeshProperties> _Properties;
+float3 _PusherPosition;
+
+// We used to just be able to use (1, 1, 1) threads for whatever population (not sure the old limit), but a Unity update
+// imposed a thread limit of 65535.  Now, to render populations above that, we need to be more granular with our threads.
+[numthreads(64, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID) {
+    float4x4 mat = _Properties[id.x].mat;
+    // In a transform matrix, the position (translation) vector is the last column.
+    float3 position = float3(mat[0][3], mat[1][3], mat[2][3]);
+
+    float dist = distance(position, _PusherPosition);
+    // Scale and reverse distance so that we get a value which fades as it gets further away.
+    // Max distance is 5.0.
+    dist = 5.0 - clamp(0.0, 5.0, dist);
+
+    // Get the vector from the pusher to the position, and scale it.
+    float3 push = normalize(position - _PusherPosition) * dist;
+    // Create a new translation matrix which represents a move in a direction.
+    float4x4 translation = float4x4(
+        1, 0, 0, push.x,
+        0, 1, 0, push.y,
+        0, 0, 1, push.z,
+        0, 0, 0, 1
+        );
+
+    // Apply translation to existing matrix, which will be read in the shader.
+    _Properties[id.x].mat = mul(translation, mat);
+
+    /* Just for demo gif.  Not actually very useful -- need to inverse rotation first.
+    float4x4 rotation = float4x4(
+        .999, -.01, 0, 0.1,
+        .01, .999, 0, 0.1,
+        0, 0, 1, 0.1,
+        0, 0, 0, 1
+    );
+    _Properties[id.x].mat = mul(_Properties[id.x].mat, rotation);
+    */
+}

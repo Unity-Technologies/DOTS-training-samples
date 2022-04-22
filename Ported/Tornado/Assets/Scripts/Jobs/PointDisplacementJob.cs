@@ -22,8 +22,6 @@ namespace Assets.Scripts.Jobs
         [ReadOnly] public float time;
         public Random random;
 
-
-
         public void Execute(int i)
         {
             VerletPoint point = points[i];

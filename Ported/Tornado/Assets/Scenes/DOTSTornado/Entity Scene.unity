@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d629b6cf2e874be40ada12f050943e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraAcceleration: 50
-  tornadoAcceleration: 4500
-  friction: 0.96
+  cameraAcceleration: 2.2
+  tornadoAcceleration: 0.6
+  friction: 0.98
 --- !u!4 &198849785
 Transform:
   m_ObjectHideFlags: 0
@@ -311,8 +311,9 @@ MonoBehaviour:
   maxColorMultiplier: 0.7
   citySize: 150
   groundDetails: 0
-  buildings: 50
-  buildingsPerIsland: 5
+  buildings: 10000
+  buildingsPerIsland: 1
+  useComputeShader: 1
   barPrefab: {fileID: 331188581907349292, guid: 95a86876e35ef2443a170949b43bde4f,
     type: 3}
 --- !u!4 &698996226

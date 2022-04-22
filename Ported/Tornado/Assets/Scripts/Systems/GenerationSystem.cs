@@ -103,6 +103,8 @@ namespace Systems
                 linkStartIndices.Dispose();
                 islandPointAllocators.Dispose();
             }
+
+            Enabled = false;
         }
 
         private void ComputeTexture()
@@ -135,6 +137,7 @@ namespace Systems
 
         private static void GenerateTornado(in GenerationParameters spawner, ref EntityCommandBuffer ecb, ref Random random)
         {
+          
             for (int i = 0; i < spawner.particleCount; ++i)
             {
                 var instance = ecb.Instantiate(spawner.particlePrefab);

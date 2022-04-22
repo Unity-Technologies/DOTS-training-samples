@@ -15,7 +15,7 @@ namespace Systems
         CameraRef cameraRef;
         InputSettings inputs;
         private Vector3 velocity;
-        private float3 velocityTornado;   
+        private Vector3 velocityTornado;   
 
         protected override void OnUpdate()
         {
@@ -25,28 +25,33 @@ namespace Systems
             var tornadoSettings = GetSingleton<TornadoParameters>();
             Vector3 movingQuantity= Vector3.zero;
 
-            float3 tornadomovingQuantity = float3.zero;
+            Vector3 tornadomovingQuantity = Vector3.zero;
+            var tCamera = cameraRef.Camera.transform;
+            var forward2D = Vector3.Cross(tCamera.right, Vector3.up);
+            var right2D = Vector3.Cross(Vector3.up ,forward2D );
 
             var dt = Time.DeltaTime;
-            if (UnityInput.GetKey(UnityKeyCode.UpArrow)) movingQuantity.z += inputs.cameraAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.DownArrow)) movingQuantity.z -= inputs.cameraAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.RightArrow)) movingQuantity.x += inputs.cameraAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.LeftArrow)) movingQuantity.x -= inputs.cameraAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.Space)) movingQuantity.y += inputs.cameraAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.LeftControl)) movingQuantity.y -= inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.UpArrow)) movingQuantity += forward2D * inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.DownArrow)) movingQuantity -= forward2D *inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.RightArrow)) movingQuantity += right2D * inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.LeftArrow)) movingQuantity -= right2D * inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.Space)) movingQuantity += Vector3.up * inputs.cameraAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.LeftControl)) movingQuantity -= Vector3.up * inputs.cameraAcceleration * dt;
 
 
-            if (UnityInput.GetKey(UnityKeyCode.Keypad6)) tornadomovingQuantity.x += inputs.tornadoAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.Keypad4)) tornadomovingQuantity.x -= inputs.tornadoAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.Keypad8)) tornadomovingQuantity.z += inputs.tornadoAcceleration * dt;
-            if (UnityInput.GetKey(UnityKeyCode.Keypad5)) tornadomovingQuantity.z -= inputs.tornadoAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.Keypad6)) tornadomovingQuantity += right2D * inputs.tornadoAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.Keypad4)) tornadomovingQuantity -= right2D * inputs.tornadoAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.Keypad8)) tornadomovingQuantity += forward2D * inputs.tornadoAcceleration * dt;
+            if (UnityInput.GetKey(UnityKeyCode.Keypad5)) tornadomovingQuantity -= forward2D *inputs.tornadoAcceleration * dt;
 
-            velocityTornado += tornadomovingQuantity; 
-            tornadoSettings.eyePosition += velocityTornado;
+            velocityTornado +=  tornadomovingQuantity;       
+  
+
+            tornadoSettings.eyePosition += new float3(velocityTornado.x, velocityTornado.y, velocityTornado.z);
 
             SetSingleton<TornadoParameters>(tornadoSettings);
            
-            velocity += movingQuantity * dt;
+            velocity += movingQuantity;
             
             cameraRef.Camera.transform.position += velocity;
             var tornadoPos = new Vector3(tornadoSettings.eyePosition.x, 0f, tornadoSettings.eyePosition.z);

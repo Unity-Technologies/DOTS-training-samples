@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Profiling;
 
 namespace Systems
 {
@@ -17,10 +18,12 @@ namespace Systems
         }
         protected override void OnUpdate()
         {
+           
             var deltaTime = UnityEngine.Time.deltaTime;
             var timeElapsed = UnityEngine.Time.time;
             var tornadoParams = GetSingleton<TornadoParameters>();
 
+            Profiler.BeginSample("Tornado Particle");
             Entities
                 .ForEach((ref Translation translation, in Particle particle) =>
                 {
@@ -44,7 +47,7 @@ namespace Systems
 
                     translation.Value = nextPosition;
                 }).ScheduleParallel();
-
+            Profiler.EndSample();
 
         }
     }

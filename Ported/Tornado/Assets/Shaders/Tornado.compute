@@ -2,6 +2,8 @@
 #pragma kernel PointDisplacement
 #pragma kernel ConstraintPass
   
+
+#define QUATERNION_IDENTITY float4(0, 0, 0, 1)
 // size 32
 struct VerletPoint
 {
@@ -38,8 +40,8 @@ struct MeshProperties {
 	float4 color;
 };
 
-RWStructuredBuffer<MeshProperties> _Properties;
 
+RWStructuredBuffer<MeshProperties> _Properties;
 RWStructuredBuffer<VerletPoint> points;
 RWStructuredBuffer<Link> links;
 RWStructuredBuffer<IslandDistribution> islandDistribution;
@@ -132,6 +134,87 @@ void PointDisplacement (uint id: SV_GroupIndex, uint3 idGroup:SV_GroupID)
     }
 }
 
+float4 q_look_at(float3 forward, float3 up)
+{
+    float3 right = normalize(cross(forward, up));
+    up = normalize(cross(forward, right));
+
+    float m00 = right.x;
+    float m01 = right.y;
+    float m02 = right.z;
+    float m10 = up.x;
+    float m11 = up.y;
+    float m12 = up.z;
+    float m20 = forward.x;
+    float m21 = forward.y;
+    float m22 = forward.z;
+
+    float num8 = (m00 + m11) + m22;
+    float4 q = QUATERNION_IDENTITY;
+    if (num8 > 0.0)
+    {
+        float num = sqrt(num8 + 1.0);
+        q.w = num * 0.5;
+        num = 0.5 / num;
+        q.x = (m12 - m21) * num;
+        q.y = (m20 - m02) * num;
+        q.z = (m01 - m10) * num;
+        return q;
+    }
+
+    if ((m00 >= m11) && (m00 >= m22))
+    {
+        float num7 = sqrt(((1.0 + m00) - m11) - m22);
+        float num4 = 0.5 / num7;
+        q.x = 0.5 * num7;
+        q.y = (m01 + m10) * num4;
+        q.z = (m02 + m20) * num4;
+        q.w = (m12 - m21) * num4;
+        return q;
+    }
+
+    if (m11 > m22)
+    {
+        float num6 = sqrt(((1.0 + m11) - m00) - m22);
+        float num3 = 0.5 / num6;
+        q.x = (m10 + m01) * num3;
+        q.y = 0.5 * num6;
+        q.z = (m21 + m12) * num3;
+        q.w = (m20 - m02) * num3;
+        return q;
+    }
+
+    float num5 = sqrt(((1.0 + m22) - m00) - m11);
+    float num2 = 0.5 / num5;
+    q.x = (m20 + m02) * num2;
+    q.y = (m21 + m12) * num2;
+    q.z = 0.5 * num5;
+    q.w = (m01 - m10) * num2;
+    return q;
+}
+
+float4x4 mat4_trs(float3 t, float4 r, float3 s)
+{
+    float4x4 res;
+    res[0][0] = (1.0f - 2.0f * (r.y * r.y + r.z * r.z)) * s.x;
+    res[1][0] = (r.x * r.y + r.z * r.w) * s.x * 2.0f;
+    res[2][0] = (r.x * r.z - r.y * r.w) * s.x * 2.0f;
+    res[3][0] = 0.0f;
+    res[0][1] = (r.x * r.y - r.z * r.w) * s.y * 2.0f;
+    res[1][1] = (1.0f - 2.0f * (r.x * r.x + r.z * r.z)) * s.y;
+    res[2][1] = (r.y * r.z + r.x * r.w) * s.y * 2.0f;
+    res[3][1] = 0.0f;
+    res[0][2] = (r.x * r.z + r.y * r.w) * s.z * 2.0f;
+    res[1][2] = (r.y * r.z - r.x * r.w) * s.z * 2.0f;
+    res[2][2] = (1.0f - 2.0f * (r.x * r.x + r.y * r.y)) * s.z;
+    res[3][2] = 0.0f;
+    res[0][3] = t.x;
+    res[1][3] = t.y;
+    res[2][3] = t.z;
+    res[3][3] = 1.0f;
+    return res;
+}
+
 [numthreads(8, 8, 1)]
 void ConstraintPass(uint id: SV_GroupIndex, uint3 idGroup : SV_GroupID)
 {   	
@@ -213,13 +296,21 @@ void ConstraintPass(uint id: SV_GroupIndex, uint3 idGroup : SV_GroupID)
 			}
 		}		
 
-		link.direction = d / dist;
+        //update render matrice
+		link.direction = d / dist;	
+		float3 pos = (point1.currentPosition + point2.currentPosition) * .5; 
+        float4 q = q_look_at(link.direction, float3(0,1,0));
+		_Properties[i].mat = mat4_trs(pos, q, float3(0.5, 0.5, link.length));
+
 		
+
 		links[i] = link;
 		islandDistribution[idGlobal] = distribution;
 		points[originalPoint1Index] = point1;
 		points[originalPoint2Index] = point2;
 
-    }
+    } 
+
+
 
 }

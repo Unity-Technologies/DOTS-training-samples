@@ -7,11 +7,26 @@ using System.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Color = UnityEngine.Color;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts
 {
     public class ComputeShaderManager : MonoBehaviour
     {
+        private struct MeshProperties
+        {
+            public Matrix4x4 mat;
+            public Vector4 color;
+
+            public static int Size()
+            {
+                return
+                    sizeof(float) * 4 * 4 + // matrix;
+                    sizeof(float) * 4;      // color;
+            }
+        }
+
         private struct VerletPoint
         {
             //24 bytes
@@ -51,6 +66,10 @@ namespace Assets.Scripts
         ComputeBuffer m_pointsBuffer;
         ComputeBuffer m_linksBuffer;
         ComputeBuffer m_islandDistribBuffer;
+
+        ComputeBuffer meshPropertiesBuffer;
+        ComputeBuffer argsBuffer;
+
 
         VerletPoint[] points;
         Link[] links;
@@ -98,13 +117,19 @@ namespace Assets.Scripts
         }
 
         private float elapsedT;
-     
+
+        private Bounds bounds = new Bounds(Vector3.zero, Vector3.one * 300f);
         public void Initialize(NativeArray<Components.VerletPoint> pointsDOTS, NativeArray<Components.Link> linksDOTS, NativeArray<int> linkStartIndicesDOTS, NativeArray<int> islandAllocatorsDOTS)
         {
             //initializing arrays
             points = new VerletPoint[pointsDOTS.Length];
             links = new Link[linksDOTS.Length];     
             islandDistributions = new IslandDistribution[islandAllocatorsDOTS.Length];
+
+
+
+
+
 
             //init points & islands repartition
             for (int i = 0; i < islandAllocatorsDOTS.Length; i++)
@@ -161,6 +186,8 @@ namespace Assets.Scripts
             m_ConstraintThreadGroup = Mathf.CeilToInt((float)islandAllocatorsDOTS.Length / ThreadGroupSize);
 
             InitializeComputeShader();
+
+            InitializeRenderingBuffers();
         }
 
        
@@ -192,6 +219,17 @@ namespace Assets.Scripts
             m_pointsBuffer = new ComputeBuffer(points.Length, 32);
             m_islandDistribBuffer = new ComputeBuffer(islandDistributions.Length, 32);
 
+           
+            m_linksBuffer.SetData(links);
+            m_islandDistribBuffer.SetData(islandDistributions);
+
+            m_pointsBuffer.SetData(points);
+
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "links", m_linksBuffer);
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "islandDistribution", m_islandDistribBuffer);
+            m_computeShader.SetBuffer(m_pointKernelIndex, "points", m_pointsBuffer);
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "points", m_pointsBuffer);
+
             m_ReadyToCompute = true;
         }
 
@@ -212,37 +250,30 @@ namespace Assets.Scripts
             Profiler.EndSample();
             elapsedT = Time.realtimeSinceStartup - elapsedT;
 
-            RenderPass();
+            Graphics.DrawMeshInstancedIndirect(linkMesh, 0, linkMat, bounds, argsBuffer);
+            //RenderPass();
         }
 
 
         private void PointPass()
         {
-            m_pointsBuffer.SetData(points);
+            
             tornadoFader = Mathf.Clamp01(tornadoFader + Time.deltaTime / 10f);
             m_computeShader.SetFloat("time", Time.time);
             m_computeShader.SetFloat("tornadoFader", tornadoFader);
             m_computeShader.SetVector("tornadoPosition", tornadoPosition);
 
-            m_computeShader.SetBuffer(m_pointKernelIndex, "points", m_pointsBuffer);
+           
             m_computeShader.Dispatch(m_pointKernelIndex, m_pointThreadGroup, 1, 1);
-            m_pointsBuffer.GetData(points);
+          
         }
 
         private void ConstraintPass()
         {
-            m_pointsBuffer.SetData(points);
-            m_linksBuffer.SetData(links);
-            m_islandDistribBuffer.SetData(islandDistributions);
-
-            m_computeShader.SetBuffer(m_constraintKernelIndex, "links", m_linksBuffer);
-            m_computeShader.SetBuffer(m_constraintKernelIndex, "points", m_pointsBuffer);
-            m_computeShader.SetBuffer(m_constraintKernelIndex, "islandDistribution", m_islandDistribBuffer);
+               
             m_computeShader.Dispatch(m_constraintKernelIndex, m_ConstraintThreadGroup, 1, 1);
-            m_pointsBuffer.GetData(points);
-            m_linksBuffer.GetData(links);
-            m_islandDistribBuffer.GetData(islandDistributions);
-        }
+                  
+        }   
 
         private void OnDestroy()
         {
@@ -251,10 +282,59 @@ namespace Assets.Scripts
             m_islandDistribBuffer?.Release();
         }
 
+        private MeshProperties[] properties;
+        private void InitializeRenderingBuffers()
+        {
+            // Argument buffer used by DrawMeshInstancedIndirect.
+            uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
+            // Arguments for drawing mesh.
+            // 0 == number of triangle indices, 1 == population, others are only relevant if drawing submeshes.
+            args[0] = (uint)linkMesh.GetIndexCount(0);
+            args[1] = (uint)links.Length;
+            args[2] = (uint)linkMesh.GetIndexStart(0);
+            args[3] = (uint)linkMesh.GetBaseVertex(0);
+            argsBuffer = new ComputeBuffer(1, args.Length * sizeof(uint), ComputeBufferType.IndirectArguments);
+            argsBuffer.SetData(args);
+           
+
+            // Initialize buffer with the given population.
+             properties = new MeshProperties[links.Length];
+            for (int i = 0; i < links.Length; i++)
+            {
+                var l = links[i];
+                var point1 = points[l.point1Index].currentPosition;
+                var point2 = points[l.point2Index].currentPosition;
+
+                Vector3 d = point2 - point1;
+
+                float dist = (float)Math.Sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
+
+                var quat = d != Vector3.zero ? Quaternion.LookRotation(d / dist) : Quaternion.identity;
+
+                MeshProperties props = new MeshProperties();
+                Vector3 position = new Vector3((point1.x + point2.x) * .5f, (point1.y + point2.y) * .5f, (point1.z + point2.z) * .5f);
+                Quaternion rotation = quat;
+                Vector3 scale = new Vector3(0.5f, 0.5f, l.length);
+
+                props.mat = Matrix4x4.TRS(position, rotation, scale);
+
+
+                props.color = Color.Lerp(Color.red, Color.blue, Random.value);
+
+                properties[i] = props;
+            }
+            
+
+            meshPropertiesBuffer = new ComputeBuffer(links.Length, MeshProperties.Size());
+            meshPropertiesBuffer.SetData(properties);
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "_Properties", meshPropertiesBuffer);
+            linkMat.SetBuffer("_Properties", meshPropertiesBuffer);
+
+        }
+
         #region rendering
         void RenderPass()
         {
-
             for (int i = 0; i < links.Length; i++)
             {
                 var link = links[i];
@@ -294,10 +374,28 @@ namespace Assets.Scripts
             content += $"Point thread group : {m_pointThreadGroup} total threads : {m_pointThreadGroup * ThreadGroupSize}\n";
             content += $"Constraint thread group : {m_ConstraintThreadGroup} total threads : {m_ConstraintThreadGroup * ThreadGroupSize}\n";
             content += $"Compute time : {(elapsedT * 1000).ToString("0.000")}ms\n";
+            content += $"Simulated Points  : {points.Length}\n";
 
             GUI.Label(logRect, content, labelStyle);
         }
 
         #endregion
+
+
+        private void old_ConstraintPass()
+        {
+            m_pointsBuffer.SetData(points);
+            m_linksBuffer.SetData(links);
+            m_islandDistribBuffer.SetData(islandDistributions);
+
+
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "links", m_linksBuffer);
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "points", m_pointsBuffer);
+            m_computeShader.SetBuffer(m_constraintKernelIndex, "islandDistribution", m_islandDistribBuffer);
+            m_computeShader.Dispatch(m_constraintKernelIndex, m_ConstraintThreadGroup, 1, 1);
+            m_pointsBuffer.GetData(points);
+            m_linksBuffer.GetData(links);
+            m_islandDistribBuffer.GetData(islandDistributions);
+        }
     }
 }
