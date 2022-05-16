@@ -24,10 +24,16 @@ class LineBaker : Baker<LineAuthoring>
     {
         var buffer = AddBuffer<BezierPoint>();
 
-        var transforms = authoring.transform.GetComponentsInChildren<Transform>();
+        var transforms = authoring.transform.GetComponentsInChildren<Transform>(false);
+        // TODO Why is the parent node also in transforms ?
+        int i = 0;
         foreach (var t in transforms)
         {
-            buffer.Add(new BezierPoint { location = t.position });
+            if (i != 0) // Workaround don't take first node (the parent)
+            {
+                buffer.Add(new BezierPoint { location = t.position });
+            }
+            i++;
         }
     }
 

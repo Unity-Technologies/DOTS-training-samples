@@ -5,43 +5,10 @@ using UnityEngine;
 
 class BezierPath
 {
-    //public NativeArray<BezierPoint> points;
-    //private float pathLength;
-    //private float distance = 0f;
-
-    /*public BezierPath()
-    {
-        points = new List<BezierPoint>();
-        distance = 0f;
-    }
-
-    public BezierPoint AddPoint(Vector3 _location)
-    {
-        BezierPoint result = new BezierPoint(points.Count, _location, _location, _location);
-        points.Add(result);
-        if (points.Count > 1)
-        {
-            BezierPoint _prev = points[points.Count - 2];
-            BezierPoint _current = points[points.Count - 1];
-            SetHandles(_current, _prev.location);
-        }
-
-        return result;
-    }
-
-    void SetHandles(BezierPoint _point, Vector3 _prevPointLocation)
-    {
-        Vector3 _dist_PREV_CURRENT = Vector3.Normalize(_point.location - _prevPointLocation);
-
-        _point.SetHandles(_dist_PREV_CURRENT);
-    }*/
-
-    static public float MeasurePath(Unity.Collections.NativeArray<BezierPoint> points)
+    static public void MeasurePath(Unity.Collections.NativeArray<BezierPoint> points)
     {
         var distance = 0f;
-        var point0 = points[0];
-        point0.distanceAlongPath = 0.000001f;
-        points[0] = point0;
+
         for (int i = 1; i < points.Length; i++)
         {
             distance += Get_AccurateDistanceBetweenPoints(points, i, i - 1);
@@ -49,13 +16,17 @@ class BezierPath
             pointi.distanceAlongPath = distance;
             points[i] = pointi;
         }
+
         // add last stretch (return loop to point ZERO)
         distance += Get_AccurateDistanceBetweenPoints(points, 0, points.Length - 1);
 
-        return distance;
+        // store path lenth in first point
+        var point0 = points[0];
+        point0.distanceAlongPath = distance;
+        points[0] = point0;
     }
 
-    const int BEZIER_MEASUREMENT_SUBDIVISIONS = 2;
+    const int BEZIER_MEASUREMENT_SUBDIVISIONS = 5;
 
     static public float Get_AccurateDistanceBetweenPoints(Unity.Collections.NativeArray<BezierPoint> points, int _current, int _prev)
     {
@@ -63,30 +34,30 @@ class BezierPath
         BezierPoint _prevPoint = points[_prev];
         float measurementIncrement = 1f / BEZIER_MEASUREMENT_SUBDIVISIONS;
         float regionDistance = 0f;
-        for (int i = 0; i < BEZIER_MEASUREMENT_SUBDIVISIONS- 1; i++)
+        for (int i = 0; i < BEZIER_MEASUREMENT_SUBDIVISIONS; i++)
         {
             float _CURRENT_SUBDIV = i * measurementIncrement;
             float _NEXT_SOBDIV = (i + 1) * measurementIncrement;
-            regionDistance += Vector3.Distance(BezierLerp(points, _prev, _current, _CURRENT_SUBDIV),
-                BezierLerp(points, _prev, _current, _NEXT_SOBDIV));
+            var a = BezierLerp(points, _prev, _current, _CURRENT_SUBDIV);
+            var b = BezierLerp(points, _prev, _current, _NEXT_SOBDIV);
+            regionDistance += Vector3.Distance(a, b);
         }
 
         return regionDistance;
     }
 
-    static public Vector3 BezierLerp(Unity.Collections.NativeArray<BezierPoint> points, int pointAIndex, int pointBIndex, float _progress)
+    static public Vector3 BezierLerp(Unity.Collections.NativeArray<BezierPoint> points, int pointAIndex, int pointBIndex, float percentagePos)
     {
         float3 p0 = points[(pointAIndex - 1 + points.Length) % points.Length].location;
         float3 p1 = points[pointAIndex].location;
         float3 p2 = points[pointBIndex].location;
         float3 p3 = points[(pointBIndex + 1) % points.Length].location;
 
-        float t = _progress;
-
         float t0 = 0;
         float t1 = t0 + math.distance(p0, p1);
         float t2 = t1 + math.distance(p1, p2);
         float t3 = t2 + math.distance(p2, p3);
+        float t = math.lerp(t1, t2, percentagePos);
 
         float3 a1 = ((t1 - t) * p0 + (t - t0) * p1) / (t1 - t0);
         float3 a2 = ((t2 - t) * p1 + (t - t1) * p2) / (t2 - t1);
@@ -101,27 +72,29 @@ class BezierPath
     }
 
 
-    /* public Vector3 Get_NormalAtPosition(float _position)
+     static public Vector3 Get_NormalAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
-         Vector3 _current = Get_Position(_position);
-         Vector3 _ahead = Get_Position((_position + 0.0001f) % 1f);
+         Vector3 _current = Get_Position(points, percentagePos);
+         Vector3 _ahead = Get_Position(points, (percentagePos + 0.0001f) % 1f);
          return (_ahead - _current) / Vector3.Distance(_ahead, _current);
      }
 
-     public Vector3 Get_TangentAtPosition(float _position)
+     static public Vector3 Get_TangentAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
-         Vector3 normal = Get_NormalAtPosition(_position);
+         Vector3 normal = Get_NormalAtPosition(points, percentagePos);
          return new Vector3(-normal.z, normal.y, normal.x);
      }
 
-     public Vector3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset)
+     /*public Vector3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset)
      {
          return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance) * _offset;
      }*/
 
-     public float3 Get_Position(Unity.Collections.NativeArray<BezierPoint> points, float _progress, float distance)
+     static public float3 Get_Position(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
-         float progressDistance = distance * _progress;
+        float distance = Get_PathLength(points);
+
+        float progressDistance = distance * percentagePos;
          int pointIndex_region_start = GetRegionIndex(points, progressDistance);
          int pointIndex_region_end = (pointIndex_region_start + 1) % points.Length;
 
@@ -129,23 +102,28 @@ class BezierPath
          BezierPoint point_region_start = points[pointIndex_region_start];
          BezierPoint point_region_end = points[pointIndex_region_end];
          // lerp between the points to arrive at PROGRESS
-         float pathProgress_start = point_region_start.distanceAlongPath / distance;
+         float pathProgress_start = (pointIndex_region_start == 0) ? 0.0f : point_region_start.distanceAlongPath / distance;
          float pathProgress_end = (pointIndex_region_end != 0) ?  point_region_end.distanceAlongPath / distance : 1f;
-         float regionProgress = (_progress - pathProgress_start) / (pathProgress_end - pathProgress_start);
+         float regionProgress = (percentagePos - pathProgress_start) / (pathProgress_end - pathProgress_start);
 
          // do your bezier lerps
          // Round 1 --> Origins to handles, handle to handle
          return BezierLerp(points, pointIndex_region_start, pointIndex_region_end, regionProgress);
      }
 
-     public int GetRegionIndex(Unity.Collections.NativeArray<BezierPoint> points, float _progress)
+    static public float Get_PathLength(Unity.Collections.NativeArray<BezierPoint> points)
+    {
+        return points[0].distanceAlongPath;
+    }
+
+     static public int GetRegionIndex(Unity.Collections.NativeArray<BezierPoint> points, float _progress)
      {
          int result = 0;
          int totalPoints = points.Length;
          for (int i = 0; i < totalPoints; i++)
          {
-             BezierPoint _PT = points[i];
-             if (_PT.distanceAlongPath <= _progress)
+             float currentPointStartDistance = (i == 0) ? 0.0f : points[i].distanceAlongPath;
+             if (currentPointStartDistance <= _progress)
              {
                  if (i == totalPoints - 1)
                  {
@@ -167,47 +145,4 @@ class BezierPath
          }
          return result;
      }
-    /*
-     public Vector3 BezierLerp(BezierPoint _pointA, BezierPoint _pointB, float _progress)
-     {
-         // Round 1 --> Origins to handles, handle to handle
-         Vector3 l1_a_aOUT = Vector3.Lerp(_pointA.location, _pointA.handle_out, _progress);
-         Vector3 l2_bIN_b = Vector3.Lerp(_pointB.handle_in, _pointB.location, _progress);
-         Vector3 l3_aOUT_bIN = Vector3.Lerp(_pointA.handle_out, _pointB.handle_in, _progress);
-         // Round 2
-         Vector3 l1_to_l3 = Vector3.Lerp(l1_a_aOUT, l3_aOUT_bIN, _progress);
-         Vector3 l3_to_l2 = Vector3.Lerp(l3_aOUT_bIN, l2_bIN_b, _progress);
-         // Final Round
-         Vector3 result = Vector3.Lerp(l1_to_l3, l3_to_l2, _progress);
-         return result;
-     }
-
-     public float GetPathDistance()
-     {
-         return distance;
-     }*/
 }
-
-/*public class BezierPoint
-{
-    public int index;
-    public Vector3 location, handle_in, handle_out;
-    public float distanceAlongPath = 0f;
-    public List<string> tags;
-
-    public BezierPoint(int _index, Vector3 _location, Vector3 _handle_in, Vector3 _handle_out)
-    {
-        index = _index;
-        location = _location;
-        handle_in = _handle_in;
-        handle_out = _handle_out;
-        tags = new List<string>();
-    }
-
-    public void SetHandles(Vector3 _distance)
-    {
-        _distance *= Metro.BEZIER_HANDLE_REACH;
-        handle_in = location - _distance;
-        handle_out = location + _distance;
-    }
-}*/

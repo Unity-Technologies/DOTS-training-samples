@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Resources;
 using Unity.Burst;
 using Unity.Collections;
@@ -5,6 +6,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct RailSpawnSystem : ISystem
@@ -17,7 +19,7 @@ partial struct RailSpawnSystem : ISystem
     {
     }
 
-    [BurstCompile]
+    //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
@@ -38,38 +40,27 @@ partial struct RailSpawnSystem : ISystem
 
         foreach (var buffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
         {
-            foreach (var element in buffer)
-            {
-                var rail = ecb.Instantiate(config.RailPrefab);
-                ecb.SetComponent(rail, new Translation { Value = element.location });
-            }
-            /*
+
             var array = buffer.AsNativeArray();
-
             BezierPath.MeasurePath(array);
+            float pathLength = BezierPath.Get_PathLength(array);
 
-            // Now, let's lay the rail meshes
-            float _DIST = 0f;
-            //Metro _M = Metro.INSTANCE;
-            while (_DIST < BezierPath.GetPathDistance())
+            float currentDistance = 0f;
+            while (currentDistance < pathLength)
             {
-                float _DIST_AS_RAIL_FACTOR = BezierPath.Get_distanceAsRailProportion(array, _DIST);
-                float3 _RAIL_POS = BezierPath.Get_Position(array, _DIST_AS_RAIL_FACTOR);
-                //Vector3 _RAIL_ROT = Get_RotationOnRail(_DIST_AS_RAIL_FACTOR);
-                //            _RAIL.GetComponent<Renderer>().material.color = lineColour;
+                float distAsPercentage = currentDistance / pathLength;
+                float3 posOnRail = BezierPath.Get_Position(array, distAsPercentage);
+                float3 tangentOnRail = BezierPath.Get_NormalAtPosition(array, distAsPercentage);
 
-                //_RAIL.transform.LookAt(_RAIL_POS - _RAIL_ROT);
+                var rotation = Quaternion.LookRotation(tangentOnRail);
 
                 var rail = ecb.Instantiate(config.RailPrefab);
-                ecb.SetComponent(rail, new Translation { Value = _RAIL_POS });
+                ecb.SetComponent(rail, new Translation { Value = posOnRail });
+                ecb.SetComponent(rail, new Rotation { Value = rotation });
 
-                _DIST += 0.1f;// Metro.RAIL_SPACING;
-            }*/
-
+                currentDistance += 10.0f;
+            }
         }
-
-
-
 
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
