@@ -12,6 +12,7 @@ p?
 **/Assets/Plugins/
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
+**/Packages
 
 # Visual Studio cache directory
 .vs/
