@@ -33,9 +33,10 @@ public partial struct DistanceAlongBezierSystem : ISystem
 		//}
 	}
 
-	public static void PositionEntityOnBezier(in DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
+	public static void PositionEntityOnBezier(DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
 	{
 		float pathLength = BezierPath.Get_PathLength(track);
+		position.Distance = Mathf.Repeat(position.Distance, pathLength);
 		float distAsPercentage = position.Distance / pathLength;
 		float3 posOnRail = BezierPath.Get_Position(track, distAsPercentage);
 		float3 tangentOnRail = BezierPath.Get_NormalAtPosition(track, distAsPercentage);

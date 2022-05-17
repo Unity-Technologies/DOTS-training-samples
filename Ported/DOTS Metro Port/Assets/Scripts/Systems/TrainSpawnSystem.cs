@@ -44,7 +44,7 @@ public partial struct TrainSpawnSystem : ISystem
 
 	private void SpawnTrain (TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, 0.5f, track.Entity, ecb);
+		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, 100, track.Entity, ecb);
 		SpawnTrainCarriages(train, track, ecb, config, ref state);
 	}
 
@@ -58,7 +58,7 @@ public partial struct TrainSpawnSystem : ISystem
 
 	private void SpawnTrainCarriage(Entity train, int carriageIndex, TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, 0.5f, track.Entity, ecb);
+		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, 100, track.Entity, ecb);
 		ecb.SetComponent(carriage, new Carriage { Train = train, CarriageIndex = carriageIndex});
 	}
 }
