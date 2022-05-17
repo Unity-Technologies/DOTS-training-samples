@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 
 [BurstCompile]
-public partial struct TrainSpawningSystem : ISystem
+public partial struct CarriageSpawningSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
@@ -21,8 +21,8 @@ public partial struct TrainSpawningSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        var trains = CollectionHelper.CreateNativeArray<Entity>(config.TrainsToSpawn, allocator);
-        ecb.Instantiate(config.TrainPrefab, trains);
+        var carriages = CollectionHelper.CreateNativeArray<Entity>(config.TrainsToSpawn, allocator);
+        ecb.Instantiate(config.CarriagePrefab, carriages);
         
         state.Enabled = false;
     }
