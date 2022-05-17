@@ -3,7 +3,12 @@ using UnityEngine;
 
 class ConfigAuthoring : MonoBehaviour
 {
-    public GameObject TrainPrefab;
+    [Header("Prefabs")]
+    public GameObject CarriagePrefab;
+    public GameObject PlatformPrefab;
+    public GameObject CommuterPefab;
+    public GameObject RailPrefab;
+    
     public int TrainsToSpawn;
 }
 
@@ -13,7 +18,11 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config
         {
-            TrainPrefab = GetEntity(authoring.TrainPrefab),
+            CarriagePrefab = GetEntity(authoring.CarriagePrefab),
+            PlatformPrefab = GetEntity(authoring.PlatformPrefab),
+            CommuterPrefab = GetEntity(authoring.CommuterPefab),
+            RailPrefab = GetEntity(authoring.RailPrefab),
+            
             TrainsToSpawn = authoring.TrainsToSpawn,
         });
     }

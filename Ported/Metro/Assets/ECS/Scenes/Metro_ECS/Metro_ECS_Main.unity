@@ -132,7 +132,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4508053744129423}
-  - component: {fileID: 114135393211184081}
   - component: {fileID: 114135393211184082}
   m_Layer: 0
   m_Name: 3_0
@@ -150,7 +149,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4436388763144393}
-  - component: {fileID: 114576551373903181}
   - component: {fileID: 114576551373903182}
   m_Layer: 0
   m_Name: 0_8
@@ -186,7 +184,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4885123029104429}
-  - component: {fileID: 114463486673328447}
   - component: {fileID: 114463486673328448}
   m_Layer: 0
   m_Name: 1_8
@@ -204,7 +201,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4526016560400107}
-  - component: {fileID: 114124022202267053}
   - component: {fileID: 114124022202267054}
   m_Layer: 0
   m_Name: 1_13
@@ -222,7 +218,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4710428064762297}
-  - component: {fileID: 114791196585960901}
   - component: {fileID: 114791196585960902}
   m_Layer: 0
   m_Name: 2_10
@@ -240,7 +235,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4325684224998983}
-  - component: {fileID: 114160193176595267}
   - component: {fileID: 114160193176595268}
   m_Layer: 0
   m_Name: 2_1
@@ -258,7 +252,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4212162626178003}
-  - component: {fileID: 114360302580244457}
   - component: {fileID: 114360302580244458}
   m_Layer: 0
   m_Name: 1_10
@@ -276,7 +269,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4334381836785925}
-  - component: {fileID: 114510084966902873}
   - component: {fileID: 114510084966902874}
   m_Layer: 0
   m_Name: 0_18
@@ -294,7 +286,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4530972122584157}
-  - component: {fileID: 114053462471601739}
   - component: {fileID: 114053462471601740}
   m_Layer: 0
   m_Name: 3_3
@@ -312,7 +303,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4210461497549881}
-  - component: {fileID: 114052773228011997}
   - component: {fileID: 114052773228011998}
   m_Layer: 0
   m_Name: 0_1
@@ -330,7 +320,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4289238067487161}
-  - component: {fileID: 114479001105478321}
   - component: {fileID: 114479001105478322}
   m_Layer: 0
   m_Name: 2_5
@@ -348,7 +337,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4939936907553267}
-  - component: {fileID: 114782521649073645}
   - component: {fileID: 114782521649073646}
   m_Layer: 0
   m_Name: 2_24
@@ -366,7 +354,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4848535247699361}
-  - component: {fileID: 114171330281528987}
   - component: {fileID: 114171330281528988}
   m_Layer: 0
   m_Name: 2_2
@@ -384,7 +371,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4459710311595979}
-  - component: {fileID: 114546981794055201}
   - component: {fileID: 114546981794055202}
   m_Layer: 0
   m_Name: 3_4
@@ -402,7 +388,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4006047451823401}
-  - component: {fileID: 114681583599305443}
   - component: {fileID: 114681583599305444}
   m_Layer: 0
   m_Name: 2_3
@@ -420,7 +405,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4821586826787367}
-  - component: {fileID: 114077549362818241}
   - component: {fileID: 114077549362818242}
   m_Layer: 0
   m_Name: 1_11
@@ -438,7 +422,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4171688246626293}
-  - component: {fileID: 114701107125961763}
   - component: {fileID: 114701107125961764}
   m_Layer: 0
   m_Name: 0_6
@@ -456,7 +439,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4586089733138175}
-  - component: {fileID: 114235166927163343}
   - component: {fileID: 114235166927163344}
   m_Layer: 0
   m_Name: 2_9
@@ -474,7 +456,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4969865235271639}
-  - component: {fileID: 114775854832458355}
   - component: {fileID: 114775854832458356}
   m_Layer: 0
   m_Name: 1_19
@@ -492,7 +473,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4296700641864973}
-  - component: {fileID: 114875473980679225}
   - component: {fileID: 114875473980679226}
   m_Layer: 0
   m_Name: 0_7
@@ -510,7 +490,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4410342973753597}
-  - component: {fileID: 114052846075843141}
   - component: {fileID: 114052846075843142}
   m_Layer: 0
   m_Name: 3_6
@@ -528,7 +507,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4547939559840821}
-  - component: {fileID: 114636389703283535}
   - component: {fileID: 114636389703283536}
   m_Layer: 0
   m_Name: 0_23
@@ -546,7 +524,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4241088658362591}
-  - component: {fileID: 114550151268543549}
   - component: {fileID: 114550151268543550}
   m_Layer: 0
   m_Name: 2_13
@@ -564,7 +541,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4195426899380389}
-  - component: {fileID: 114708994483687689}
   - component: {fileID: 114708994483687690}
   m_Layer: 0
   m_Name: 1_0
@@ -582,7 +558,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4957185015462529}
-  - component: {fileID: 114771764064677099}
   - component: {fileID: 114771764064677100}
   m_Layer: 0
   m_Name: 2_4
@@ -600,7 +575,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4435148616872893}
-  - component: {fileID: 114393872638483875}
   - component: {fileID: 114393872638483876}
   m_Layer: 0
   m_Name: 2_11
@@ -618,7 +592,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4779410322952109}
-  - component: {fileID: 114442860644570737}
   - component: {fileID: 114442860644570738}
   m_Layer: 0
   m_Name: 0_9
@@ -636,7 +609,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4879591003845199}
-  - component: {fileID: 114863827524664781}
   - component: {fileID: 114863827524664782}
   m_Layer: 0
   m_Name: 2_0
@@ -654,7 +626,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4405276172468457}
-  - component: {fileID: 114835282808786409}
   - component: {fileID: 114835282808786410}
   m_Layer: 0
   m_Name: 1_12
@@ -672,7 +643,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4336001088286403}
-  - component: {fileID: 114346393800732127}
   - component: {fileID: 114346393800732128}
   m_Layer: 0
   m_Name: 2_20
@@ -690,7 +660,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4721296274440105}
-  - component: {fileID: 114762473729287397}
   - component: {fileID: 114762473729287398}
   m_Layer: 0
   m_Name: 2_12
@@ -708,7 +677,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4812006920717927}
-  - component: {fileID: 114656231227862045}
   - component: {fileID: 114656231227862046}
   m_Layer: 0
   m_Name: 0_4
@@ -726,7 +694,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4626189128599719}
-  - component: {fileID: 114047563927973241}
   - component: {fileID: 114047563927973242}
   m_Layer: 0
   m_Name: 0_19
@@ -744,7 +711,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4564784523939175}
-  - component: {fileID: 114805739493200557}
   - component: {fileID: 114805739493200558}
   m_Layer: 0
   m_Name: 3_8
@@ -762,7 +728,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4753679423760425}
-  - component: {fileID: 114627092730838161}
   - component: {fileID: 114627092730838162}
   m_Layer: 0
   m_Name: 0_17
@@ -780,7 +745,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4596369231384721}
-  - component: {fileID: 114813507495274249}
   - component: {fileID: 114813507495274250}
   m_Layer: 0
   m_Name: 0_21
@@ -815,7 +779,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4900920019512833}
-  - component: {fileID: 114041954625837707}
   - component: {fileID: 114041954625837708}
   m_Layer: 0
   m_Name: 2_15
@@ -833,7 +796,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4605493849021347}
-  - component: {fileID: 114897470513963717}
   - component: {fileID: 114897470513963718}
   m_Layer: 0
   m_Name: 0_12
@@ -851,7 +813,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4236116941070961}
-  - component: {fileID: 114845132306865373}
   - component: {fileID: 114845132306865374}
   m_Layer: 0
   m_Name: 1_15
@@ -886,7 +847,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4949908580998909}
-  - component: {fileID: 114901988054119885}
   - component: {fileID: 114901988054119886}
   m_Layer: 0
   m_Name: 0_5
@@ -904,7 +864,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4964263065229417}
-  - component: {fileID: 114030756833048789}
   - component: {fileID: 114030756833048790}
   m_Layer: 0
   m_Name: 1_4
@@ -922,7 +881,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4938889928439827}
-  - component: {fileID: 114338761241174163}
   - component: {fileID: 114338761241174164}
   m_Layer: 0
   m_Name: 2_14
@@ -940,7 +898,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4543712658154901}
-  - component: {fileID: 114797273123455531}
   - component: {fileID: 114797273123455532}
   m_Layer: 0
   m_Name: 0_15
@@ -958,7 +915,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4972660982807269}
-  - component: {fileID: 114894513574744651}
   - component: {fileID: 114894513574744652}
   m_Layer: 0
   m_Name: 0_3
@@ -976,7 +932,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4517204059646729}
-  - component: {fileID: 114819216166396615}
   - component: {fileID: 114819216166396616}
   m_Layer: 0
   m_Name: 3_1
@@ -994,7 +949,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4597439041706037}
-  - component: {fileID: 114326898446153661}
   - component: {fileID: 114326898446153662}
   m_Layer: 0
   m_Name: 1_14
@@ -1012,7 +966,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4992732679708265}
-  - component: {fileID: 114985175864295775}
   - component: {fileID: 114985175864295776}
   m_Layer: 0
   m_Name: 0_11
@@ -1030,7 +983,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4284903036195579}
-  - component: {fileID: 114472416557891291}
   - component: {fileID: 114472416557891292}
   m_Layer: 0
   m_Name: 2_17
@@ -1048,7 +1000,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4723688442101405}
-  - component: {fileID: 114834187559400959}
   - component: {fileID: 114834187559400960}
   m_Layer: 0
   m_Name: 0_22
@@ -1066,7 +1017,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4876444423598491}
-  - component: {fileID: 114748508256331549}
   - component: {fileID: 114748508256331550}
   m_Layer: 0
   m_Name: 3_10
@@ -1084,7 +1034,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4044815036022433}
-  - component: {fileID: 114499185805253675}
   - component: {fileID: 114499185805253676}
   m_Layer: 0
   m_Name: 2_22
@@ -1118,7 +1067,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4365061716857367}
-  - component: {fileID: 114491530817073159}
   - component: {fileID: 114491530817073160}
   m_Layer: 0
   m_Name: 1_3
@@ -1136,7 +1084,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4081187627291497}
-  - component: {fileID: 114748241523040653}
   - component: {fileID: 114748241523040654}
   m_Layer: 0
   m_Name: 1_5
@@ -1154,7 +1101,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4458783670458901}
-  - component: {fileID: 114474297888958679}
   - component: {fileID: 114474297888958680}
   m_Layer: 0
   m_Name: 2_7
@@ -1172,7 +1118,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4835101240149099}
-  - component: {fileID: 114749853923989399}
   - component: {fileID: 114749853923989400}
   m_Layer: 0
   m_Name: 2_23
@@ -1190,7 +1135,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4867404450284649}
-  - component: {fileID: 114990560633311265}
   - component: {fileID: 114990560633311266}
   m_Layer: 0
   m_Name: 0_16
@@ -1208,7 +1152,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4366083346488633}
-  - component: {fileID: 114420366314633239}
   - component: {fileID: 114420366314633240}
   m_Layer: 0
   m_Name: 2_6
@@ -1226,7 +1169,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4510636002119967}
-  - component: {fileID: 114635667705335987}
   - component: {fileID: 114635667705335988}
   m_Layer: 0
   m_Name: 2_19
@@ -1244,7 +1186,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4543870040404071}
-  - component: {fileID: 114356007648052715}
   - component: {fileID: 114356007648052716}
   m_Layer: 0
   m_Name: 1_7
@@ -1262,7 +1203,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4817718212807455}
-  - component: {fileID: 114501778439591315}
   - component: {fileID: 114501778439591316}
   m_Layer: 0
   m_Name: 1_17
@@ -1280,7 +1220,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4897270301564575}
-  - component: {fileID: 114108050583264053}
   - component: {fileID: 114108050583264054}
   m_Layer: 0
   m_Name: 3_5
@@ -1298,7 +1237,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4739134008866591}
-  - component: {fileID: 114786210734714069}
   - component: {fileID: 114786210734714070}
   m_Layer: 0
   m_Name: 0_24
@@ -1316,7 +1254,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4570982160017439}
-  - component: {fileID: 114368307403757019}
   - component: {fileID: 114368307403757020}
   m_Layer: 0
   m_Name: 2_21
@@ -1334,7 +1271,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4758608620476853}
-  - component: {fileID: 114073027453876639}
   - component: {fileID: 114073027453876640}
   m_Layer: 0
   m_Name: 2_18
@@ -1352,7 +1288,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4306096406060703}
-  - component: {fileID: 114343058518705253}
   - component: {fileID: 114343058518705254}
   m_Layer: 0
   m_Name: 1_18
@@ -1370,7 +1305,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4758521107484019}
-  - component: {fileID: 114457691829033953}
   - component: {fileID: 114457691829033954}
   m_Layer: 0
   m_Name: 2_25
@@ -1388,7 +1322,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4487574394151869}
-  - component: {fileID: 114958799076901917}
   - component: {fileID: 114958799076901918}
   m_Layer: 0
   m_Name: 0_20
@@ -1406,7 +1339,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4890559149275505}
-  - component: {fileID: 114873613916956079}
   - component: {fileID: 114873613916956080}
   m_Layer: 0
   m_Name: 1_16
@@ -1441,7 +1373,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4055876390722365}
-  - component: {fileID: 114959321744528357}
   - component: {fileID: 114959321744528358}
   m_Layer: 0
   m_Name: 2_16
@@ -1459,7 +1390,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4232538319381185}
-  - component: {fileID: 114268995418014457}
   - component: {fileID: 114268995418014458}
   m_Layer: 0
   m_Name: 0_10
@@ -1477,7 +1407,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4847492969021591}
-  - component: {fileID: 114851488365850167}
   - component: {fileID: 114851488365850168}
   m_Layer: 0
   m_Name: 3_13
@@ -1495,7 +1424,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4468691133751771}
-  - component: {fileID: 114437630525920429}
   - component: {fileID: 114437630525920430}
   m_Layer: 0
   m_Name: 1_2
@@ -1513,7 +1441,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4588514457888639}
-  - component: {fileID: 114573243282521315}
   - component: {fileID: 114573243282521316}
   m_Layer: 0
   m_Name: 0_14
@@ -1531,7 +1458,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4804884379982793}
-  - component: {fileID: 114586900768966933}
   - component: {fileID: 114586900768966934}
   m_Layer: 0
   m_Name: 1_1
@@ -1549,7 +1475,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4627988812642597}
-  - component: {fileID: 114369910786139269}
   - component: {fileID: 114369910786139270}
   m_Layer: 0
   m_Name: 0_0
@@ -1567,7 +1492,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4433909770106047}
-  - component: {fileID: 114522385346500037}
   - component: {fileID: 114522385346500038}
   m_Layer: 0
   m_Name: 0_13
@@ -1585,7 +1509,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4252105940501277}
-  - component: {fileID: 114818535652647917}
   - component: {fileID: 114818535652647918}
   m_Layer: 0
   m_Name: 1_6
@@ -1603,7 +1526,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4145694339543927}
-  - component: {fileID: 114947644650215869}
   - component: {fileID: 114947644650215870}
   m_Layer: 0
   m_Name: 2_8
@@ -1621,7 +1543,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4743327353867523}
-  - component: {fileID: 114905524117415869}
   - component: {fileID: 114905524117415870}
   m_Layer: 0
   m_Name: 1_9
@@ -1656,7 +1577,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4914390042706125}
-  - component: {fileID: 114404298650996493}
   - component: {fileID: 114404298650996494}
   m_Layer: 0
   m_Name: 3_9
@@ -1674,7 +1594,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4478682268125199}
-  - component: {fileID: 114044149136039529}
   - component: {fileID: 114044149136039530}
   m_Layer: 0
   m_Name: 3_7
@@ -1692,7 +1611,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4137274577047695}
-  - component: {fileID: 114616372215482087}
   - component: {fileID: 114616372215482088}
   m_Layer: 0
   m_Name: 3_12
@@ -1710,7 +1628,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4367042878606159}
-  - component: {fileID: 114020548029937751}
   - component: {fileID: 114020548029937752}
   m_Layer: 0
   m_Name: 3_2
@@ -1728,7 +1645,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4738914922864165}
-  - component: {fileID: 114671952397721069}
   - component: {fileID: 114671952397721070}
   m_Layer: 0
   m_Name: 0_2
@@ -1746,7 +1662,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4502759816311833}
-  - component: {fileID: 114543857878829641}
   - component: {fileID: 114543857878829642}
   m_Layer: 0
   m_Name: 3_11
@@ -3333,24 +3248,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad39bce2ffc4cc6a78420fc10ae3b5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrainPrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+  CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
     type: 3}
+  PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+    type: 3}
+  CommuterPefab: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4,
+    type: 3}
+  RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
   TrainsToSpawn: 50
---- !u!114 &114020548029937751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974536754213207}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &114020548029937752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3364,21 +3269,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114030756833048789
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1491521771327283}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &114030756833048790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3392,21 +3282,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114041954625837707
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1398124771685881}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 15
-  railMarkerType: 2
 --- !u!114 &114041954625837708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3420,21 +3295,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114044149136039529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1973377244054561}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 7
-  railMarkerType: 0
 --- !u!114 &114044149136039530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3448,21 +3308,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114047563927973241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1339167285077761}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 19
-  railMarkerType: 2
 --- !u!114 &114047563927973242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,21 +3321,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114052773228011997
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1114994679965977}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &114052773228011998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3504,21 +3334,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114052846075843141
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1226055213993963}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &114052846075843142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3532,21 +3347,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114053462471601739
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1102718196052641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &114053462471601740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3560,21 +3360,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114073027453876639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1715054478014785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 18
-  railMarkerType: 2
 --- !u!114 &114073027453876640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3588,21 +3373,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114077549362818241
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1178187919631303}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &114077549362818242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3616,21 +3386,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114108050583264053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1681838692900055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &114108050583264054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3644,21 +3399,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114124022202267053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1059373367725273}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 13
-  railMarkerType: 2
 --- !u!114 &114124022202267054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3672,21 +3412,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114135393211184081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1006088653834679}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &114135393211184082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3700,21 +3425,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114160193176595267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1067542143092065}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &114160193176595268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3728,21 +3438,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114171330281528987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1142745892679295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &114171330281528988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3756,21 +3451,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114235166927163343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1216906464629241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &114235166927163344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3784,21 +3464,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114268995418014457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1833087813786449}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &114268995418014458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3812,21 +3477,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114326898446153661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1583948721950967}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 14
-  railMarkerType: 2
 --- !u!114 &114326898446153662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3840,21 +3490,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114338761241174163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1551193617637977}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 14
-  railMarkerType: 2
 --- !u!114 &114338761241174164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3868,21 +3503,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114343058518705253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1721890447980403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 18
-  railMarkerType: 1
 --- !u!114 &114343058518705254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3896,21 +3516,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114346393800732127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1303138127866851}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 20
-  railMarkerType: 2
 --- !u!114 &114346393800732128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3924,21 +3529,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114356007648052715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1668188638207063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 7
-  railMarkerType: 2
 --- !u!114 &114356007648052716
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3952,21 +3542,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114360302580244457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1068626271462195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 10
-  railMarkerType: 1
 --- !u!114 &114360302580244458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3980,21 +3555,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114368307403757019
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1711181212844401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 21
-  railMarkerType: 2
 --- !u!114 &114368307403757020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4008,21 +3568,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114369910786139269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1895495861201267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &114369910786139270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4036,21 +3581,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114393872638483875
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1281365830179195}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &114393872638483876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4064,21 +3594,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114404298650996493
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1951092788571503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 9
-  railMarkerType: 2
 --- !u!114 &114404298650996494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4092,21 +3607,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114420366314633239
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1637620176015341}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &114420366314633240
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4120,21 +3620,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114437630525920429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1868526489556833}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &114437630525920430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4148,21 +3633,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114442860644570737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1288415824349227}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 9
-  railMarkerType: 1
 --- !u!114 &114442860644570738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4176,21 +3646,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114457691829033953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1768158421395107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 25
-  railMarkerType: 2
 --- !u!114 &114457691829033954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4204,21 +3659,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114463486673328447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1044549593338955}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 8
-  railMarkerType: 2
 --- !u!114 &114463486673328448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4232,21 +3672,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114472416557891291
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1589123256075219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 17
-  railMarkerType: 1
 --- !u!114 &114472416557891292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4260,21 +3685,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114474297888958679
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1611983755233997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 7
-  railMarkerType: 0
 --- !u!114 &114474297888958680
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4288,21 +3698,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114479001105478321
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1130449203357379}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &114479001105478322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4316,21 +3711,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114491530817073159
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1610667197733909}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &114491530817073160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4344,21 +3724,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114499185805253675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1604937778468247}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 22
-  railMarkerType: 2
 --- !u!114 &114499185805253676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4372,21 +3737,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114501778439591315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1678394517216827}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 17
-  railMarkerType: 0
 --- !u!114 &114501778439591316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4400,21 +3750,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114510084966902873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091297194907651}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 18
-  railMarkerType: 2
 --- !u!114 &114510084966902874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4428,21 +3763,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114522385346500037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1903174779414315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 13
-  railMarkerType: 2
 --- !u!114 &114522385346500038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4456,21 +3776,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114543857878829641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1992617669742419}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 11
-  railMarkerType: 0
 --- !u!114 &114543857878829642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4484,21 +3789,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114546981794055201
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153085133006713}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &114546981794055202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4512,21 +3802,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114550151268543549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1252220529827567}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 13
-  railMarkerType: 2
 --- !u!114 &114550151268543550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4540,21 +3815,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114573243282521315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1879211911581759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 14
-  railMarkerType: 0
 --- !u!114 &114573243282521316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4568,21 +3828,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114576551373903181
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1017134198823695}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 8
-  railMarkerType: 0
 --- !u!114 &114576551373903182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4596,21 +3841,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114586900768966933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1892731425069343}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &114586900768966934
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4624,21 +3854,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114616372215482087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974465122824479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 12
-  railMarkerType: 1
 --- !u!114 &114616372215482088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4652,21 +3867,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114627092730838161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1351411460465435}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 17
-  railMarkerType: 2
 --- !u!114 &114627092730838162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4680,21 +3880,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114635667705335987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1654990064485693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 19
-  railMarkerType: 2
 --- !u!114 &114635667705335988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4708,21 +3893,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114636389703283535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1250904036061889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 23
-  railMarkerType: 1
 --- !u!114 &114636389703283536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4736,21 +3906,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114656231227862045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1329921648448745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &114656231227862046
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4764,21 +3919,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114671952397721069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1974637247192693}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 2
-  railMarkerType: 1
 --- !u!114 &114671952397721070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4792,21 +3932,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114681583599305443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1163494838131815}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &114681583599305444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4820,21 +3945,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114701107125961763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1216202228116239}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 6
-  railMarkerType: 2
 --- !u!114 &114701107125961764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4848,21 +3958,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114708994483687689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1273383971410533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &114708994483687690
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4876,21 +3971,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114748241523040653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1611312154124293}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 5
-  railMarkerType: 0
 --- !u!114 &114748241523040654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4904,21 +3984,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114748508256331549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1600871082208515}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &114748508256331550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4932,21 +3997,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114749853923989399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1618482879270997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 23
-  railMarkerType: 0
 --- !u!114 &114749853923989400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4960,21 +4010,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114762473729287397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1313489400595895}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 12
-  railMarkerType: 2
 --- !u!114 &114762473729287398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4988,21 +4023,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114771764064677099
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1280987009316525}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 4
-  railMarkerType: 2
 --- !u!114 &114771764064677100
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5016,21 +4036,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114775854832458355
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1220407237931451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 19
-  railMarkerType: 2
 --- !u!114 &114775854832458356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5044,21 +4049,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114782521649073645
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1142629283328123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 24
-  railMarkerType: 1
 --- !u!114 &114782521649073646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5072,21 +4062,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114786210734714069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1691177400924007}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 24
-  railMarkerType: 2
 --- !u!114 &114786210734714070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5100,21 +4075,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114791196585960901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1063992185986927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 10
-  railMarkerType: 2
 --- !u!114 &114791196585960902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5128,21 +4088,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114797273123455531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1562989233250605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 15
-  railMarkerType: 1
 --- !u!114 &114797273123455532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5156,21 +4101,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114805739493200557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1339268068615725}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 8
-  railMarkerType: 1
 --- !u!114 &114805739493200558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5184,21 +4114,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114813507495274249
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1367792354870479}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 21
-  railMarkerType: 2
 --- !u!114 &114813507495274250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5212,21 +4127,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114818535652647917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1915018758936915}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 6
-  railMarkerType: 1
 --- !u!114 &114818535652647918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5240,21 +4140,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114819216166396615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1573806801588235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 1
-  railMarkerType: 0
 --- !u!114 &114819216166396616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5268,21 +4153,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114834187559400959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1598971741040537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 22
-  railMarkerType: 0
 --- !u!114 &114834187559400960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5296,21 +4166,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114835282808786409
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1291871802689639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 12
-  railMarkerType: 2
 --- !u!114 &114835282808786410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5324,21 +4179,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114845132306865373
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1419226307869695}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 15
-  railMarkerType: 2
 --- !u!114 &114845132306865374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5352,21 +4192,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114851488365850167
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1854388017960119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 3
-  pointIndex: 13
-  railMarkerType: 2
 --- !u!114 &114851488365850168
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5380,21 +4205,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114863827524664781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1291238321555871}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 0
-  railMarkerType: 2
 --- !u!114 &114863827524664782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5408,21 +4218,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114873613916956079
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1796758193484119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 16
-  railMarkerType: 2
 --- !u!114 &114873613916956080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5436,21 +4231,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114875473980679225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1221729259211621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 7
-  railMarkerType: 2
 --- !u!114 &114875473980679226
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5464,21 +4244,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114894513574744651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1568948620556431}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 3
-  railMarkerType: 2
 --- !u!114 &114894513574744652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5492,21 +4257,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114897470513963717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1416132234420047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 12
-  railMarkerType: 2
 --- !u!114 &114897470513963718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5520,21 +4270,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114901988054119885
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1489560830038547}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 5
-  railMarkerType: 2
 --- !u!114 &114901988054119886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5548,21 +4283,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114905524117415869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1924239017478009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 1
-  pointIndex: 9
-  railMarkerType: 0
 --- !u!114 &114905524117415870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5576,21 +4296,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114947644650215869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1921726775354243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 8
-  railMarkerType: 1
 --- !u!114 &114947644650215870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5604,21 +4309,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 1
---- !u!114 &114958799076901917
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1780156194770271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 20
-  railMarkerType: 2
 --- !u!114 &114958799076901918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5632,21 +4322,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114959321744528357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1819687374586793}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 2
-  pointIndex: 16
-  railMarkerType: 0
 --- !u!114 &114959321744528358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5660,21 +4335,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 0
---- !u!114 &114985175864295775
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1588334883662489}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 11
-  railMarkerType: 2
 --- !u!114 &114985175864295776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5688,21 +4348,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MarkerType: 2
---- !u!114 &114990560633311265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627107809444579}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b63f7047e46845e28a299390879eb57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  metroLineID: 0
-  pointIndex: 16
-  railMarkerType: 2
 --- !u!114 &114990560633311266
 MonoBehaviour:
   m_ObjectHideFlags: 0
