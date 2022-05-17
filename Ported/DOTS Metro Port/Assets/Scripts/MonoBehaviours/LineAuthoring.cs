@@ -23,18 +23,19 @@ class LineBaker : Baker<LineAuthoring>
 {
     public override void Bake(LineAuthoring authoring)
     {
-        var buffer = AddBuffer<BezierPoint>();
-
-        var t2 = authoring.transform.GetComponentsInChildren<Transform>(false);
-        List<Transform> transforms = new List<Transform>(t2);
+        var bezierBuffer = AddBuffer<BezierPoint>();
+        var transformArray = authoring.transform.GetComponentsInChildren<Transform>(false);
+        
+        List<Transform> transforms = new List<Transform>(transformArray);
         transforms.RemoveRange(0, 1);
 
+        //Create bezier
         foreach (var t in transforms)
         {
-            buffer.Add(new BezierPoint { location = t.position });
+            bezierBuffer.Add(new BezierPoint { location = t.position });
         }
 
-        var array = buffer.AsNativeArray();
+        var array = bezierBuffer.AsNativeArray();
         BezierPath.MeasurePath(array);
         var totalSidePoints = array.Length;
 
@@ -46,9 +47,26 @@ class LineBaker : Baker<LineAuthoring>
             otherSide[i] = new BezierPoint { location = _targetLocation };
         }
 
-        buffer.AddRange(otherSide);
+        bezierBuffer.AddRange(otherSide);
         otherSide.Dispose();
-        BezierPath.MeasurePath(buffer.AsNativeArray());
-    }
+        BezierPath.MeasurePath(bezierBuffer.AsNativeArray());
 
+        //Create platforms
+        var platformBuffer = AddBuffer<Platform>();
+        var railMarkers = authoring.transform.GetComponentsInChildren<RailMarker>(false);
+
+        for (int i = 0; i < railMarkers.Length - 1; i++)
+        {
+            if (railMarkers[i].railMarkerType == RailMarkerType.PLATFORM_START)
+            {
+                float totalDistance = BezierPath.Get_PathLength(bezierBuffer.AsNativeArray());
+
+                platformBuffer.Add(new Platform { startPoint = bezierBuffer[i].distanceAlongPath, 
+                    endPoint = bezierBuffer[i + 1].distanceAlongPath, 
+                    startWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[i].distanceAlongPath / totalDistance),
+                    endWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[i + 1].distanceAlongPath / totalDistance)
+                });
+            }
+        }
+    }
 }

@@ -27,17 +27,6 @@ partial struct RailSpawnSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        var rails = CollectionHelper.CreateNativeArray<Entity>(5, allocator);
-        ecb.Instantiate(config.RailPrefab, rails);
-
-        int i = 0 ;
-        foreach (var rail in rails)
-        {
-            ecb.SetComponent(rail, new Translation { Value = new float3(i*10.0f, 0.0f, 0.0f) });
-            i++;
-        }
-
         foreach (var buffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
         {
             var array = buffer.AsNativeArray();
