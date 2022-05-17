@@ -9,6 +9,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int CarriagesPerTrain = 4;
     public float TrainOffset;
     public float CarriageLength;
+    public float MaxTrainSpeed;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -23,7 +24,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TrainCount = authoring.TrainCount,
             CarriagesPerTrain = authoring.CarriagesPerTrain,
             TrainOffset = authoring.TrainOffset,
-            CarriageLength = authoring.CarriageLength
+            CarriageLength = authoring.CarriageLength,
+            MaxTrainSpeed = authoring.MaxTrainSpeed,
         }) ;
     }
 }

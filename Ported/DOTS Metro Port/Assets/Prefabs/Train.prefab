@@ -92,6 +92,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8437408911696454463}
+  - component: {fileID: 8759130010963104080}
   m_Layer: 0
   m_Name: Train
   m_TagString: Untagged
@@ -113,5 +114,17 @@ Transform:
   m_Children:
   - {fileID: 3730710562954027408}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8759130010963104080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105260432805968261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e556a6706b2a75644a8ffbe1c0237651, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

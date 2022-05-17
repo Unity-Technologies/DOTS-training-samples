@@ -161,6 +161,7 @@ MonoBehaviour:
   CarriagesPerTrain: 4
   TrainOffset: 7
   CarriageLength: 6.5
+  MaxTrainSpeed: 30
 --- !u!4 &104162057
 Transform:
   m_ObjectHideFlags: 0

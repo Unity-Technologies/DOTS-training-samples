@@ -9,4 +9,5 @@ struct Config : IComponentData
     public int CarriagesPerTrain;
     public float TrainOffset;
     public float CarriageLength;
+    public float MaxTrainSpeed;
 }
