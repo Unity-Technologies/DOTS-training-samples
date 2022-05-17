@@ -4,7 +4,7 @@ class HighwayConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject StraightRoadPrefab;
     public UnityEngine.GameObject CurvedRoadPrefab;
-    public float InsideLaneLength;
+    public int InsideLaneLength;
 }
 
 class HighwayConfigBaker : Baker<HighwayConfigAuthoring>

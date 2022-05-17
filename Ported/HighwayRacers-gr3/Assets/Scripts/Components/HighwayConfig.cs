@@ -4,5 +4,5 @@ struct HighwayConfig : IComponentData
 {
     public Entity StraightRoadPrefab;
     public Entity CurvedRoadPrefab;
-    public float InsideLaneLength;
+    public int InsideLaneLength;
 }
