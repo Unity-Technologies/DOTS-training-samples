@@ -11,6 +11,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int WorkerFullCount;
 
     public int GridSize;
+    public int BucketCount;
+    public UnityEngine.GameObject BucketPrefab;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -24,7 +26,9 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TilePrefab = GetEntity(authoring.TilePrefab),
             WorkerEmptyCount = authoring.WorkerEmptyCount,
             WorkerFullCount = authoring.WorkerFullCount,
-            GridSize = authoring.GridSize
+            GridSize = authoring.GridSize,
+            bucketCount = authoring.BucketCount,
+            bucketPrefab = GetEntity(authoring.BucketPrefab)
         });
     }
 }

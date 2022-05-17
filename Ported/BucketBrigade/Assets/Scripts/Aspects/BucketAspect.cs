@@ -29,7 +29,7 @@ readonly partial struct BucketAspect : IAspect<BucketAspect>
         set => _scale.ValueRW.Value = value;
     }
 
-    public Vector4 Color {
+    public float4 Color {
         get => m_BaseColor.ValueRO.Value;
         set => m_BaseColor.ValueRW.Value = value;
     }
