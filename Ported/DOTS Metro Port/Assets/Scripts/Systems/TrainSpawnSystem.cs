@@ -36,31 +36,29 @@ public partial struct TrainSpawnSystem : ISystem
 
 	private void SpawnTrains(EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		int i = 0;
-		foreach (var trackBuffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
+		foreach (var track in SystemAPI.Query<TrackAspect>())
 		{
-			SpawnTrain(i, ecb, config, ref state);
-			i++;
+			SpawnTrain(track, ecb, config, ref state);
 		}
 	}
 
-	private void SpawnTrain(int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrain (TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, trackIndex, 0.5f, ecb);
-		SpawnTrainCarriages(train, trackIndex, ecb, config, ref state);
+		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, 0.5f, track.Entity, ecb);
+		SpawnTrainCarriages(train, track, ecb, config, ref state);
 	}
 
-	private void SpawnTrainCarriages(Entity train, int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrainCarriages(Entity train, TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
 		for (int i = 0; i < config.CarriagesPerTrain; i++)
 		{
-			SpawnTrainCarriage(train, i, trackIndex, ecb, config, ref state);
+			SpawnTrainCarriage(train, i, track, ecb, config, ref state);
 		}
 	}
 
-	private void SpawnTrainCarriage(Entity train, int carriageIndex, int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrainCarriage(Entity train, int carriageIndex, TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, trackIndex, 0.5f, ecb);
+		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, 0.5f, track.Entity, ecb);
 		ecb.SetComponent(carriage, new Carriage { Train = train, CarriageIndex = carriageIndex});
 	}
 }

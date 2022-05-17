@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 
-public struct PositionOnBezier : IComponentData
+public struct DistanceAlongBezier : IComponentData
 {
-	public float Position;
-	public int BezierIndex;
+	public float Distance;
+	public Entity TrackEntity;
 }
