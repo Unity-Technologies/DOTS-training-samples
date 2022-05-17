@@ -29,8 +29,6 @@ class LineBaker : Baker<LineAuthoring>
         List<Transform> transforms = new List<Transform>(t2);
         transforms.RemoveRange(0, 1);
 
-        // TODO Why is the parent node also in transforms ?
-
         foreach (var t in transforms)
         {
             buffer.Add(new BezierPoint { location = t.position });
@@ -40,7 +38,7 @@ class LineBaker : Baker<LineAuthoring>
         BezierPath.MeasurePath(array);
         var totalSidePoints = array.Length;
 
-        var otherSide = new NativeArray<BezierPoint>(totalSidePoints, Allocator.Temp);
+        var otherSide = new NativeArray<BezierPoint>(totalSidePoints, Allocator.Persistent);
 
         for (int i = 0; i < totalSidePoints; ++i)
         {
@@ -49,8 +47,8 @@ class LineBaker : Baker<LineAuthoring>
         }
 
         buffer.AddRange(otherSide);
-
-        BezierPath.MeasurePath(array);
+        otherSide.Dispose();
+        BezierPath.MeasurePath(buffer.AsNativeArray());
     }
 
 }
