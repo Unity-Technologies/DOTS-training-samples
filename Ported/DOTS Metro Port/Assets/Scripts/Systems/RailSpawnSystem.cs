@@ -40,7 +40,6 @@ partial struct RailSpawnSystem : ISystem
 
         foreach (var buffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
         {
-
             var array = buffer.AsNativeArray();
             BezierPath.MeasurePath(array);
             float pathLength = BezierPath.Get_PathLength(array);
