@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Unity.Entities;
 using Unity.Mathematics;
 
-struct BezierPoint : IBufferElementData
+public struct BezierPoint : IBufferElementData
 {
     public float3 location;
     public float distanceAlongPath;

@@ -49,15 +49,7 @@ partial struct RailSpawnSystem : ISystem
             while (currentDistance < pathLength)
             {
                 float distAsPercentage = currentDistance / pathLength;
-                float3 posOnRail = BezierPath.Get_Position(array, distAsPercentage);
-                float3 tangentOnRail = BezierPath.Get_NormalAtPosition(array, distAsPercentage);
-
-                var rotation = Quaternion.LookRotation(tangentOnRail);
-
-                var rail = ecb.Instantiate(config.RailPrefab);
-                ecb.SetComponent(rail, new Translation { Value = posOnRail });
-                ecb.SetComponent(rail, new Rotation { Value = rotation });
-
+                BezierSpawnUtility.SpawnOnBezier(config.RailPrefab, array, distAsPercentage, ecb);
                 currentDistance += 10.0f;
             }
         }

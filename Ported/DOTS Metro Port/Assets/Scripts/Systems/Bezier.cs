@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
-class BezierPath
+public class BezierPath
 {
     static public void MeasurePath(Unity.Collections.NativeArray<BezierPoint> points)
     {
