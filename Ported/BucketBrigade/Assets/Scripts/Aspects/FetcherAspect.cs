@@ -22,15 +22,21 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         set => Fetcher.ValueRW.Speed = value;
     }
 
-    public Entity TargetBucket
+    public Entity TargetPickUp
     {
-        get => Fetcher.ValueRO.TargetBucket;
-        set => Fetcher.ValueRW.TargetBucket = value;
+        get => Fetcher.ValueRO.TargetPickUp;
+        set => Fetcher.ValueRW.TargetPickUp = value;
     }
     
-    public Entity TargetWater
+    public Entity TargetDropZone
     {
-        get => Fetcher.ValueRO.TargetWater;
-        set => Fetcher.ValueRW.TargetWater = value;
+        get => Fetcher.ValueRO.TargetDropZone;
+        set => Fetcher.ValueRW.TargetDropZone = value;
+    }
+
+    public FetcherState CurrentState
+    {
+        get => Fetcher.ValueRO.CurrentState;
+        set => Fetcher.ValueRW.CurrentState = value;
     }
 }
