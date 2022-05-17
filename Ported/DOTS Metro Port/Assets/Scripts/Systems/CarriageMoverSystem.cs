@@ -18,9 +18,14 @@ partial struct CarriageMover : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        Config config = SystemAPI.GetSingleton<Config>();
+
         foreach (var (carriage, position) in SystemAPI.Query<RefRO<Carriage>, RefRW<DistanceAlongBezier>>())
         {
-            position.ValueRW.Distance += 0.5f;
+            var train = SystemAPI.GetComponent<DistanceAlongBezier>(carriage.ValueRO.Train);
+            float carriageDistance = train.Distance - config.TrainOffset - (config.CarriageLength * carriage.ValueRO.CarriageIndex);
+            position.ValueRW.Distance = carriageDistance;
+
         }
     }
 }
