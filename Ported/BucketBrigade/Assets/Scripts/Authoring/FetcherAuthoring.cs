@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 class FetcherAuthoring : UnityEngine.MonoBehaviour
 {
