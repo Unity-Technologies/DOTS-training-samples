@@ -153,6 +153,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
+  TrainPrefab: {fileID: 9105260432805968261, guid: 411a2824ce91df640bc0799dab2e3b2b,
+    type: 3}
+  CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+    type: 3}
+  TrainCount: 1
+  CarriagesPerTrain: 4
+  TrainOffset: 7
+  CarriageLength: 6.5
 --- !u!4 &104162057
 Transform:
   m_ObjectHideFlags: 0

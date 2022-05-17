@@ -3,6 +3,12 @@
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject RailPrefab;
+    public UnityEngine.GameObject TrainPrefab;
+    public UnityEngine.GameObject CarriagePrefab;
+    public int TrainCount;
+    public int CarriagesPerTrain = 4;
+    public float TrainOffset;
+    public float CarriageLength;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -11,7 +17,13 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config
         {
-            RailPrefab = GetEntity(authoring.RailPrefab)
-        });
+            RailPrefab = GetEntity(authoring.RailPrefab),
+            CarriagePrefab = GetEntity(authoring.CarriagePrefab),
+            TrainPrefab = GetEntity(authoring.TrainPrefab),
+            TrainCount = authoring.TrainCount,
+            CarriagesPerTrain = authoring.CarriagesPerTrain,
+            TrainOffset = authoring.TrainOffset,
+            CarriageLength = authoring.CarriageLength
+        }) ;
     }
 }
