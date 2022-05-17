@@ -11,4 +11,6 @@ struct Config : IComponentData
     public int WorkerFullCount;
 
     public int GridSize;
+    public int bucketCount;
+    public Entity bucketPrefab;
 }
