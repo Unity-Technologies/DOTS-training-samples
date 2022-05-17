@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Assertions;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -26,9 +27,9 @@ class BezierPath
         points[0] = point0;
     }
 
-    const int BEZIER_MEASUREMENT_SUBDIVISIONS = 5;
+    const int BEZIER_MEASUREMENT_SUBDIVISIONS = 20;
 
-    static public float Get_AccurateDistanceBetweenPoints(Unity.Collections.NativeArray<BezierPoint> points, int _current, int _prev)
+    static private float Get_AccurateDistanceBetweenPoints(Unity.Collections.NativeArray<BezierPoint> points, int _current, int _prev)
     {
         BezierPoint _currentPoint = points[_current];
         BezierPoint _prevPoint = points[_prev];
@@ -46,7 +47,7 @@ class BezierPath
         return regionDistance;
     }
 
-    static public Vector3 BezierLerp(Unity.Collections.NativeArray<BezierPoint> points, int pointAIndex, int pointBIndex, float percentagePos)
+    static private Vector3 BezierLerp(Unity.Collections.NativeArray<BezierPoint> points, int pointAIndex, int pointBIndex, float percentagePos)
     {
         float3 p0 = points[(pointAIndex - 1 + points.Length) % points.Length].location;
         float3 p1 = points[pointAIndex].location;
@@ -72,27 +73,29 @@ class BezierPath
     }
 
 
-     static public Vector3 Get_NormalAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
+     static public float3 Get_NormalAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
-         Vector3 _current = Get_Position(points, percentagePos);
-         Vector3 _ahead = Get_Position(points, (percentagePos + 0.0001f) % 1f);
-         return (_ahead - _current) / Vector3.Distance(_ahead, _current);
+        float3 _current = Get_Position(points, percentagePos);
+         float3 _ahead = Get_Position(points, (percentagePos + 0.0001f) % 1f);
+         return (_ahead - _current) / math.distance(_ahead, _current);
      }
 
-     static public Vector3 Get_TangentAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
+     static public float3 Get_TangentAtPosition(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
-         Vector3 normal = Get_NormalAtPosition(points, percentagePos);
-         return new Vector3(-normal.z, normal.y, normal.x);
+         float3 normal = Get_NormalAtPosition(points, percentagePos);
+         return new float3(-normal.z, normal.y, normal.x);
      }
 
-     /*public Vector3 GetPoint_PerpendicularOffset(BezierPoint _point, float _offset)
+     static public float3 GetPoint_PerpendicularOffset(Unity.Collections.NativeArray<BezierPoint> points, BezierPoint _point, float _offset)
      {
-         return _point.location + Get_TangentAtPosition(_point.distanceAlongPath / distance) * _offset;
-     }*/
+        float distance = Get_PathLength(points);
+        return _point.location + Get_TangentAtPosition(points, _point.distanceAlongPath / distance) * _offset;
+     }
 
      static public float3 Get_Position(Unity.Collections.NativeArray<BezierPoint> points, float percentagePos)
      {
         float distance = Get_PathLength(points);
+        Assert.AreNotEqual(distance, 0.0f);
 
         float progressDistance = distance * percentagePos;
          int pointIndex_region_start = GetRegionIndex(points, progressDistance);

@@ -19,7 +19,7 @@ partial struct RailSpawnSystem : ISystem
     {
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
@@ -58,7 +58,7 @@ partial struct RailSpawnSystem : ISystem
                 ecb.SetComponent(rail, new Translation { Value = posOnRail });
                 ecb.SetComponent(rail, new Rotation { Value = rotation });
 
-                currentDistance += 10.0f;
+                currentDistance += 1.0f;
             }
         }
 

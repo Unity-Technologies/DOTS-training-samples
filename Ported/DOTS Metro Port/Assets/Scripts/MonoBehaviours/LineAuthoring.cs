@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -24,17 +25,32 @@ class LineBaker : Baker<LineAuthoring>
     {
         var buffer = AddBuffer<BezierPoint>();
 
-        var transforms = authoring.transform.GetComponentsInChildren<Transform>(false);
+        var t2 = authoring.transform.GetComponentsInChildren<Transform>(false);
+        List<Transform> transforms = new List<Transform>(t2);
+        transforms.RemoveRange(0, 1);
+
         // TODO Why is the parent node also in transforms ?
-        int i = 0;
+
         foreach (var t in transforms)
         {
-            if (i != 0) // Workaround don't take first node (the parent)
-            {
-                buffer.Add(new BezierPoint { location = t.position });
-            }
-            i++;
+            buffer.Add(new BezierPoint { location = t.position });
         }
+
+        var array = buffer.AsNativeArray();
+        BezierPath.MeasurePath(array);
+        var totalSidePoints = array.Length;
+
+        var otherSide = new NativeArray<BezierPoint>(totalSidePoints, Allocator.Temp);
+
+        for (int i = 0; i < totalSidePoints; ++i)
+        {
+            Vector3 _targetLocation = BezierPath.GetPoint_PerpendicularOffset(array, array[totalSidePoints -1  - i], 10.0f);
+            otherSide[i] = new BezierPoint { location = _targetLocation };
+        }
+
+        buffer.AddRange(otherSide);
+
+        BezierPath.MeasurePath(array);
     }
 
 }
