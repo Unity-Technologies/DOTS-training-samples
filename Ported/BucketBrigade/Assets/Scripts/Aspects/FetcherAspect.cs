@@ -27,4 +27,10 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         get => Fetcher.ValueRO.TargetBucket;
         set => Fetcher.ValueRW.TargetBucket = value;
     }
+    
+    public Entity TargetWater
+    {
+        get => Fetcher.ValueRO.TargetWater;
+        set => Fetcher.ValueRW.TargetWater = value;
+    }
 }

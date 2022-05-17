@@ -12,6 +12,7 @@ partial struct FetcherMovementSystem : ISystem
     private TransformAspect.EntityLookup m_TransformFromEntity;
     
     private EntityQuery m_FetcherTargetQuery;
+    private EntityQuery m_WaterTargetQuery;
 
     private Random m_Random;
     
@@ -20,7 +21,7 @@ partial struct FetcherMovementSystem : ISystem
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_LocalToWorldFromEntity = state.GetComponentDataFromEntity<LocalToWorld>(true);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
-        m_FetcherTargetQuery = state.GetEntityQuery(typeof(FetcherTarget));
+        m_FetcherTargetQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -32,26 +33,33 @@ partial struct FetcherMovementSystem : ISystem
     {
         m_LocalToWorldFromEntity.Update(ref state);
         m_TransformFromEntity.Update(ref state);
-    
+      
+        var fetcherTargets = m_FetcherTargetQuery.ToEntityArray(Allocator.Temp);
+        var fetcherTargetTranslations = m_FetcherTargetQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+
         foreach (var fetcher in SystemAPI.Query<FetcherAspect>())
         {
             if (fetcher.TargetBucket == Entity.Null)
             {
                 if(!m_FetcherTargetQuery.IsEmpty)
                 {
-                    var fetcherTargets = m_FetcherTargetQuery.ToEntityArray(Allocator.Temp);
-
+                    int closestIdx = 0;
+                    float closestDistance = float.MaxValue;
                     for (int idx = 0; idx < fetcherTargets.Length; idx++)
                     {
-                        // TODO: Find closest....
+                        Translation currentTranslation = fetcherTargetTranslations[idx];
+                        var distance = math.distance(fetcher.Position, currentTranslation.Value);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestIdx = idx;
+                        }
                     }
-                    
-                    fetcher.TargetBucket = fetcherTargets[m_Random.NextInt(fetcherTargets.Length)];
+                    fetcher.TargetBucket = fetcherTargets[closestIdx];
                 }
             }
             
             var targetPos = m_LocalToWorldFromEntity[fetcher.TargetBucket].Position * state.Time.DeltaTime;
-
             m_TransformFromEntity[fetcher.Self].TranslateWorld(targetPos);
         }
     }
