@@ -11,8 +11,6 @@ partial struct CarriageMover : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-
-        _carriageQuery = state.GetEntityQuery(typeof (Carriage));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -22,11 +20,9 @@ partial struct CarriageMover : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var entities = _carriageQuery.ToEntityArray(state.WorldUnmanaged.UpdateAllocator.ToAllocator);
-
-        foreach (var (carriage, transform) in SystemAPI.Query<RefRO<Carriage>, TransformAspect>())
+        foreach (var (carriage, position) in SystemAPI.Query<RefRO<Carriage>, RefRW<PositionOnBezier>>())
         {
-            
+            position.ValueRW.Position += 0.001f;
         }
     }
 }

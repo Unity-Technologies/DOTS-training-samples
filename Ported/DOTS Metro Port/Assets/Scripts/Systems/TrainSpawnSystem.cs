@@ -36,30 +36,31 @@ public partial struct TrainSpawnSystem : ISystem
 
 	private void SpawnTrains(EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
+		int i = 0;
 		foreach (var trackBuffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
 		{
-			var trackNativeArray = trackBuffer.AsNativeArray();
-			SpawnTrain(trackNativeArray, ecb, config, ref state);
+			SpawnTrain(i, ecb, config, ref state);
+			i++;
 		}
 	}
 
-	private void SpawnTrain(NativeArray<BezierPoint> track, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrain(int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, track, 0.5f, ecb);
-		SpawnTrainCarriages(train, track, ecb, config, ref state);
+		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, trackIndex, 0.5f, ecb);
+		SpawnTrainCarriages(train, trackIndex, ecb, config, ref state);
 	}
 
-	private void SpawnTrainCarriages(Entity train, NativeArray<BezierPoint> track, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrainCarriages(Entity train, int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
 		for (int i = 0; i < config.CarriagesPerTrain; i++)
 		{
-			SpawnTrainCarriage(train, i, track, ecb, config, ref state);
+			SpawnTrainCarriage(train, i, trackIndex, ecb, config, ref state);
 		}
 	}
 
-	private void SpawnTrainCarriage(Entity train, int carriageIndex, NativeArray<BezierPoint> track, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrainCarriage(Entity train, int carriageIndex, int trackIndex, EntityCommandBuffer ecb, Config config, ref SystemState state)
 	{
-		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, track, 0.5f, ecb);
+		Entity carriage = BezierSpawnUtility.SpawnOnBezier(config.CarriagePrefab, trackIndex, 0.5f, ecb);
 		ecb.SetComponent(carriage, new Carriage { Train = train, CarriageIndex = carriageIndex});
 	}
 }
