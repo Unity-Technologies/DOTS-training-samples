@@ -121,6 +121,7 @@ partial struct TileGridSpawningSystem : ISystem
             ecb.SetComponent(tile, new Tile { Position = tilePosition, Water = 100.0f });
             ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.3f, 1.0f)});
             ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
+            ecb.AddComponent<FetcherDropZone>(tile, new FetcherDropZone());
             
             tileBuffer.Add(new TileBufferElement { Tile = tile });
         }
