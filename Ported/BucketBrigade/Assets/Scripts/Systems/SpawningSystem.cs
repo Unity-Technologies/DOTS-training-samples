@@ -31,6 +31,9 @@ partial struct SpawningSystem : ISystem
         var workerEmpty = CollectionHelper.CreateNativeArray<Entity>(config.WorkerEmptyCount, allocator);
         ecb.Instantiate(config.WorkerEmptyPrefab, workerEmpty);
 
+        var fetcher = CollectionHelper.CreateNativeArray<Entity>(config.FetcherCount, allocator);
+        ecb.Instantiate(config.FetcherPrefab, fetcher);
+        
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
     }
