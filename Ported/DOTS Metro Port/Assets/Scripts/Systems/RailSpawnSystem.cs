@@ -27,24 +27,25 @@ partial struct RailSpawnSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        foreach (var buffer in SystemAPI.Query<DynamicBuffer<BezierPoint>>())
+        foreach (TrackAspect trackAspect in SystemAPI.Query<TrackAspect>())
         {
-            var array = buffer.AsNativeArray();
-            BezierPath.MeasurePath(array);
-            float pathLength = BezierPath.Get_PathLength(array);
+            var track = trackAspect.TrackBuffer.AsNativeArray();
+            BezierPath.MeasurePath(track);
+            float pathLength = BezierPath.Get_PathLength(track);
 
             float currentDistance = 0f;
             while (currentDistance < pathLength)
             {
                 float distAsPercentage = currentDistance / pathLength;
-                float3 posOnRail = BezierPath.Get_Position(array, distAsPercentage);
-                float3 tangentOnRail = BezierPath.Get_NormalAtPosition(array, distAsPercentage);
+                float3 posOnRail = BezierPath.Get_Position(track, distAsPercentage);
+                float3 tangentOnRail = BezierPath.Get_NormalAtPosition(track, distAsPercentage);
 
                 var rotation = Quaternion.LookRotation(tangentOnRail);
 
                 var rail = ecb.Instantiate(config.RailPrefab);
                 ecb.SetComponent(rail, new Translation { Value = posOnRail });
                 ecb.SetComponent(rail, new Rotation { Value = rotation });
+                ecb.SetComponent(rail, new URPMaterialPropertyBaseColor { Value = trackAspect.BaseColor.ValueRO.Value }) ;
 
                 currentDistance += 1.0f;
             }

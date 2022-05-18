@@ -43,6 +43,7 @@ public partial struct TrainSpawnSystem : ISystem
 	{
 		foreach (var track in SystemAPI.Query<TrackAspect>())
 		{
+			BezierPath.MeasurePath(track.TrackBuffer.AsNativeArray());
 			float pathLength = BezierPath.Get_PathLength(track.TrackBuffer.AsNativeArray());
 			float distanceBetweenTrains = pathLength / config.TrainCount;
 			float distance = 0.0f;	
