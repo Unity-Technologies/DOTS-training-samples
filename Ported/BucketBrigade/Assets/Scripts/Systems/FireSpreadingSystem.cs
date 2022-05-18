@@ -37,13 +37,17 @@ partial struct FireSpreadingSystem : ISystem
         if (m_Timer >= k_WaitTime)
         {
             m_Timer = 0.0f;
-            
-            foreach (var tile in SystemAPI.Query<TileRWAspect>())
+
+            int count = 0;
+
+            foreach (var tile in SystemAPI.Query<TileROAspect>().WithAll<Combustable>())
             {
-                if (tile.Heat > 0.0f && tile.Heat < 1.0f)
+                var heat = heatBuffer[count];
+                if (heat.Heat > 0.0f && heat.Heat < 1.0f)
                 {
-                    tile.Heat += 0.1f;
-                    
+                    heat.Heat += 0.1f;
+                    heatBuffer[count] = heat;
+
                     // Spread fire
                     // Check upper tile
                     if (tile.Position.x < m_TileGridConfig.Size - 1)
@@ -74,6 +78,8 @@ partial struct FireSpreadingSystem : ISystem
                         
                     }
                 }
+
+                count++;
             }
         }
     }
