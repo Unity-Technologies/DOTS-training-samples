@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -13,10 +14,13 @@ partial struct FireSpreadingSystem : ISystem
     ComponentDataFromEntity<NonUniformScale> m_NonUniformScaleFromEntity;
 
     TileGridConfig m_TileGridConfig;
+    TileGrid m_TileGrid;
     
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<TileGridConfig>();
+        state.RequireForUpdate<TileGrid>();
+        state.RequireForUpdate<TileBufferElement>();
         
         m_Timer = 0.0f;
 
@@ -33,7 +37,9 @@ partial struct FireSpreadingSystem : ISystem
     {
         // Better way to do this?
         m_TileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
-        
+        m_TileGrid = SystemAPI.GetSingleton<TileGrid>();
+        var tileBuffer = state.EntityManager.GetBuffer<TileBufferElement>(m_TileGrid.entity);
+
         m_URPMaterialPropertyBaseColorFromEntity.Update(ref state);
         m_NonUniformScaleFromEntity.Update(ref state);
         
@@ -56,12 +62,12 @@ partial struct FireSpreadingSystem : ISystem
                     scale.Value.y = tile.Heat*5 + 0.1f;
                     m_NonUniformScaleFromEntity[tile.Self] = scale;
 
-                    if (initialHeat < 0.4f)
+                    if (initialHeat < 0.4f && tile.Heat >= 0.4f)
                     {
                         var baseColor = m_URPMaterialPropertyBaseColorFromEntity[tile.Self];
                         baseColor.Value = m_TileGridConfig.MediumFireColor;
                         m_URPMaterialPropertyBaseColorFromEntity[tile.Self] = baseColor;
-                    } else if (initialHeat < 0.8f)
+                    } else if (initialHeat < 0.8f && tile.Heat >= 0.8f)
                     {
                         var baseColor = m_URPMaterialPropertyBaseColorFromEntity[tile.Self];
                         baseColor.Value = m_TileGridConfig.IntenseFireColor;
@@ -69,6 +75,29 @@ partial struct FireSpreadingSystem : ISystem
                     }
                     
                     // Spread fire
+                    // Check upper tile
+                    if (tile.Position.x < m_TileGridConfig.Size - 1)
+                    {
+                        
+                    }
+                    
+                    // Check lower tile
+                    if (tile.Position.x > 0)
+                    {
+                        
+                    }
+                    
+                    // Check left tile
+                    if (tile.Position.y > 0)
+                    {
+                        
+                    }
+                    
+                    // Check right tile
+                    if (tile.Position.y < m_TileGridConfig.Size - 1)
+                    {
+                        
+                    }
                 }
             }
         }

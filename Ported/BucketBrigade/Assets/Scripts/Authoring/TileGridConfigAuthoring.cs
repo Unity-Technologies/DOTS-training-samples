@@ -5,6 +5,7 @@ using UnityEngine;
 class TileGridConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public int Size;
+    public float CellSize;
     public UnityEngine.GameObject TilePrefab;
     public Color GrassColor;
     public Color LightFireColor;
@@ -19,6 +20,7 @@ class TileGridConfigBaker : Baker<TileGridConfigAuthoring>
         AddComponent(new TileGridConfig
         {
             Size = authoring.Size,
+            CellSize = authoring.CellSize,
             TilePrefab = GetEntity(authoring.TilePrefab),
             GrassColor = new float4(authoring.GrassColor.r, authoring.GrassColor.g, authoring.GrassColor.b, authoring.GrassColor.a),
             LightFireColor = new float4(authoring.LightFireColor.r, authoring.LightFireColor.g, authoring.LightFireColor.b, authoring.LightFireColor.a),

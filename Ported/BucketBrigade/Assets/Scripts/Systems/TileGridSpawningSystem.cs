@@ -1,7 +1,6 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -30,8 +29,7 @@ partial struct TileGridSpawningSystem : ISystem
         var tiles = CollectionHelper.CreateNativeArray<Entity>(tileGridConfig.Size * tileGridConfig.Size, allocator);
         ecb.Instantiate(tileGridConfig.TilePrefab, tiles);
         
-        var tileBuffer = ecb.AddBuffer<TileBufferElement>(tileGrid.entity);
-        ecb.AddComponent<TileGrid>(tileGrid.entity);
+        var tileBuffer = state.EntityManager.GetBuffer<TileBufferElement>(tileGrid.entity);
 
         var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
         var randomRow = random.NextInt(0, tileGridConfig.Size);
@@ -63,7 +61,7 @@ partial struct TileGridSpawningSystem : ISystem
                 ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.0f });
             }
             
-            ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
+            ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x * tileGridConfig.CellSize, 0, tilePosition.y * tileGridConfig.CellSize) });
             
             tileBuffer.Add(new TileBufferElement { Tile = tile });
         }
