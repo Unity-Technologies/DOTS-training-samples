@@ -8,7 +8,6 @@ using Unity.Mathematics;
 [BurstCompile]
 partial struct FetcherMovementSystem : ISystem
 {  
-    private ComponentDataFromEntity<LocalToWorld> m_LocalToWorldFromEntity;
     private TransformAspect.EntityLookup m_TransformFromEntity;
     
     private EntityQuery m_FetcherPickUpQuery;
@@ -19,7 +18,6 @@ partial struct FetcherMovementSystem : ISystem
     public void OnCreate(ref SystemState state)
     {       
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
-        m_LocalToWorldFromEntity = state.GetComponentDataFromEntity<LocalToWorld>(true);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
         m_FetcherPickUpQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation));
         m_FetcherDropZoneQuery = state.GetEntityQuery(typeof(FetcherDropZone), typeof(Translation));
@@ -32,7 +30,6 @@ partial struct FetcherMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        m_LocalToWorldFromEntity.Update(ref state);
         m_TransformFromEntity.Update(ref state);
       
         var fetcherTargets = m_FetcherPickUpQuery.ToEntityArray(Allocator.Temp);
@@ -43,14 +40,67 @@ partial struct FetcherMovementSystem : ISystem
 
         foreach (var fetcher in SystemAPI.Query<FetcherAspect>())
         {
+            UpdateCurrentState(fetcher);
             FindClosestPickUp(fetcher, fetcherTargets, fetcherTargetTranslations);
             FindClosestDropZone(fetcher, fetcherDropZones, fetcherDropZoneTranslations);
             MoveTowardsTarget(fetcher, ref state);
         }
     }
 
+    private void UpdateCurrentState(FetcherAspect fetcher)
+    {
+        switch (fetcher.CurrentState)
+        {
+            case FetcherState.Idle:
+            {
+                if (fetcher.TargetPickUp == Entity.Null && fetcher.TargetDropZone == Entity.Null)
+                {
+                    fetcher.CurrentState = FetcherState.MoveTowardsBucket;
+                } 
+            }
+                break;
+
+            case FetcherState.MoveTowardsBucket:
+            {
+                // Handled by MoveTowardsTarget
+            }
+                break;
+
+            case FetcherState.ArriveAtBucket:
+            {
+                fetcher.CurrentState = FetcherState.MoveTowardsWater;
+            }
+                break;
+
+            case FetcherState.MoveTowardsWater:
+            {
+                // Handled by MoveTowardsTarget
+            }
+                break;
+
+            case FetcherState.ArriveAtWater:
+            {
+                fetcher.CurrentState = FetcherState.FillingBucket;
+            }
+                break;
+            
+            case FetcherState.FillingBucket:
+            {
+                fetcher.TargetDropZone = Entity.Null;
+                fetcher.TargetPickUp = Entity.Null;
+                fetcher.CurrentState = FetcherState.Idle;
+            }
+                break;
+        }
+    }
+    
     private void FindClosestPickUp(FetcherAspect fetcher, NativeArray<Entity> fetcherTargets, NativeArray<Translation> fetcherTargetTranslations)
     {
+        if (fetcher.CurrentState != FetcherState.MoveTowardsBucket)
+        {
+            return;
+        }
+        
         if (fetcher.TargetPickUp == Entity.Null)
         {
             if(fetcherTargetTranslations.Length > 0)
@@ -69,12 +119,21 @@ partial struct FetcherMovementSystem : ISystem
                 }
                 fetcher.TargetPickUp = fetcherTargets[closestIdx];
             }
+            else
+            {
+                fetcher.CurrentState = FetcherState.Idle;
+            }
         }
     }
     
     // TODO: Merge FindClosestPickUp & FindClosestDropZone
     private void FindClosestDropZone(FetcherAspect fetcher, NativeArray<Entity> fetcherDropZones, NativeArray<Translation> fetcherDropZoneTranslations)
     {
+        if (fetcher.CurrentState != FetcherState.MoveTowardsWater)
+        {
+            return;
+        }
+        
         if (fetcher.TargetDropZone == Entity.Null)
         {
             if(fetcherDropZoneTranslations.Length > 0)
@@ -93,20 +152,80 @@ partial struct FetcherMovementSystem : ISystem
                 }
                 fetcher.TargetDropZone = fetcherDropZones[closestIdx];
             }
+            else
+            {
+                // TODO: Drop bucket first?
+                fetcher.CurrentState = FetcherState.Idle;
+            }
         }
     }
 
     private void MoveTowardsTarget(FetcherAspect fetcher, ref SystemState state)
     {
-        float3 targetPos = float3.zero;
-        if (fetcher.CurrentState == FetcherState.FetchingBucket)
+        if (fetcher.CurrentState != FetcherState.MoveTowardsBucket &&
+            fetcher.CurrentState != FetcherState.MoveTowardsWater)
         {
-            targetPos = m_LocalToWorldFromEntity[fetcher.TargetPickUp].Position * state.Time.DeltaTime;
+            return;
+        }
+        
+        bool arrivedX = false;
+        bool arrivedZ = false;
+        
+        float movementSpeed = 0;
+        float3 targetPos = float3.zero;
+        if (fetcher.CurrentState == FetcherState.MoveTowardsBucket)
+        {
+            targetPos = m_TransformFromEntity[fetcher.TargetPickUp].Position;
+            movementSpeed = state.Time.DeltaTime * 1.25f;
         }
         else if (fetcher.CurrentState == FetcherState.MoveTowardsWater)
         {
-            targetPos = m_LocalToWorldFromEntity[fetcher.TargetDropZone].Position * state.Time.DeltaTime;
+            targetPos = m_TransformFromEntity[fetcher.TargetDropZone].Position;
+            movementSpeed = state.Time.DeltaTime * 1.0f;
         }
-        m_TransformFromEntity[fetcher.Self].TranslateWorld(targetPos);
+
+        float arriveThreshold = 0.5f;
+        TransformAspect aspect = m_TransformFromEntity[fetcher.Self];
+        aspect.LookAt(targetPos);
+        
+        // X-Pos
+        if (aspect.Position.x < targetPos.x - arriveThreshold)
+        {
+            aspect.TranslateWorld(movementSpeed *  new float3(1, 0, 0));
+        }
+        else if (aspect.Position.x > targetPos.x + arriveThreshold)
+        {
+            aspect.TranslateWorld(-movementSpeed *  new float3(1, 0, 0));
+        }
+        else
+        {
+            arrivedX = true;
+        }
+
+        // Z-Pos
+        if (aspect.Position.z < targetPos.z - arriveThreshold)
+        {
+            aspect.TranslateWorld(movementSpeed *  new float3(0, 0, 1));
+        }
+        else if (aspect.Position.z > targetPos.z + arriveThreshold)
+        {
+            aspect.TranslateWorld(-movementSpeed *  new float3(0, 0, 1));
+        }
+        else
+        {
+            arrivedZ = true;
+        }
+
+        if (arrivedX && arrivedZ)
+        {
+            if (fetcher.CurrentState == FetcherState.MoveTowardsBucket)
+            {
+                fetcher.CurrentState = FetcherState.ArriveAtBucket;
+            }
+            else
+            {
+                fetcher.CurrentState = FetcherState.ArriveAtWater;
+            }
+        }
     }
 }

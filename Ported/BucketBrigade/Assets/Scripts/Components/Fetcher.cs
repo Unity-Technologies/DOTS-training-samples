@@ -4,8 +4,11 @@ using Unity.Mathematics;
 public enum FetcherState
 {
     Idle,
-    FetchingBucket,
+    MoveTowardsBucket,
+    ArriveAtBucket,
+    // TODO: PickUpBucket?
     MoveTowardsWater,
+    ArriveAtWater,
     FillingBucket
 }
 
