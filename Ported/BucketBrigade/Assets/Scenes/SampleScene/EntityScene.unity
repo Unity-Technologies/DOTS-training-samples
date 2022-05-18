@@ -152,11 +152,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c60610d9732163a4ba26275eb0d9df0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FetcherPrefab: {fileID: 2724674528357077576, guid: 8b187133088dff74e86efe815110d531,
+    type: 3}
   WorkerEmptyPrefab: {fileID: 1357418983184153956, guid: fdbaac4569adcb047aef9bf083b3f6e7,
     type: 3}
   WorkerFullPrefab: {fileID: 7860217524029354283, guid: f9b1c6e96f0db0d49a4b7c694b35c556,
     type: 3}
   TilePrefab: {fileID: 0}
+  FetcherCount: 3
   WorkerEmptyCount: 10
   WorkerFullCount: 10
   GridSize: 0
