@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 [BurstCompile]
+[UpdateAfter(typeof(TrainStateSystem))]
 partial struct TrainMoverSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -23,12 +24,25 @@ partial struct TrainMoverSystem : ISystem
 
         foreach (var (trainPosition, train) in SystemAPI.Query<RefRW<DistanceAlongBezier>, RefRO<Train>>())
         {
-            if(train.ValueRO.TrainState == TrainState.Moving
-                || train.ValueRO.TrainState == TrainState.Stopping)
+            switch(train.ValueRO.TrainState)
 			{
-                trainPosition.ValueRW.Distance += config.MaxTrainSpeed * state.Time.DeltaTime;
-            }
+                case TrainState.Moving:
+				{
+                    MoveTrain(trainPosition, train.ValueRO, config, ref state);
+                    break;
+				}
+                case TrainState.Stopping:
+				{
+                    MoveTrain(trainPosition, train.ValueRO, config, ref state);
+                    break;
+				}
+			}
         }
+    }
+
+    private void MoveTrain(RefRW<DistanceAlongBezier> trainPosition, Train train, Config config, ref SystemState state)
+	{
+        trainPosition.ValueRW.Distance += config.MaxTrainSpeed * train.SpeedPercentage * state.Time.DeltaTime;
     }
 }
 

@@ -10,5 +10,6 @@ public enum TrainState
 public struct Train : IComponentData
 {
 	public TrainState TrainState;
-	public float WaitTimer;
+	public float DepartureTime;
+	public float SpeedPercentage;
 }
