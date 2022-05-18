@@ -27,7 +27,7 @@ public class BucketSpawningSystem {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         var buckets = CollectionHelper.CreateNativeArray<Entity>(config.bucketCount, allocator);
         ecb.Instantiate(config.bucketPrefab, buckets);
-        
+
         //only meant to run once, so disable afterwards. 
         state.Enabled = false;
     }
