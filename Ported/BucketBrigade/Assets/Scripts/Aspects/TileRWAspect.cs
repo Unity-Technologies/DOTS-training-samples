@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-readonly partial struct TileAspect : IAspect<TileAspect>
+readonly partial struct TileRWAspect : IAspect<TileRWAspect>
 {
     public readonly Entity Self;
 
