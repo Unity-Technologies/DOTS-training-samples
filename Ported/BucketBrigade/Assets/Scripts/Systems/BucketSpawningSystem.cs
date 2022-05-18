@@ -8,6 +8,7 @@ using Unity.Rendering;
 public class BucketSpawningSystem {
     //The purpose of this system is to create all the buckets, spawning them in random cells. 
     //For this I will need to read from the cell array, picking random coords.
+    //I need to sync up to add that layer, though, as I'm not working on the grid itself. 
 
     public void OnCreate(ref SystemState state) {
         state.RequireForUpdate<Config>();

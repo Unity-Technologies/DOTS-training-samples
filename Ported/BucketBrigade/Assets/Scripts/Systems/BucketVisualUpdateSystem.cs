@@ -29,7 +29,6 @@ partial struct BucketVisualUpdateSystem : ISystem {
         foreach (var bucket in SystemAPI.Query<BucketAspect>()) {
             bucket.Scale = 0.5f + (bucket.FillLevel * 2);
             bucket.Color = math.lerp(cyan, blue, bucket.FillLevel);
-            //Adjust this to use math.lerp, using the float4 representations of the colors.
         }
     }
 }
