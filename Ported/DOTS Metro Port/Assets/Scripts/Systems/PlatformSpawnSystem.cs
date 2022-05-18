@@ -7,7 +7,6 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-using Unity.Mathematics;
 
 [BurstCompile]
 partial struct PlatformSpawnSystem : ISystem
