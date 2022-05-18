@@ -56,7 +56,7 @@ public partial struct TrainStateSystem : ISystem
 					{
                         train.ValueRW.TrainState = TrainState.Stopped;
                         train.ValueRW.SpeedPercentage = 0.0f;
-                        train.ValueRW.DepartureTime = (float)state.Time.ElapsedTime + 5.0f;
+                        train.ValueRW.DepartureTime = (float)state.Time.ElapsedTime + config.TrainWaitTime;
                     }
                     break;
 				}
