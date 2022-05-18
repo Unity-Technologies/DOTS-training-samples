@@ -6,7 +6,7 @@ struct Config : IComponentData
     public Entity TrainPrefab;
     public Entity CarriagePrefab;
     public Entity PlatformPrefab;
-    public int TrainCount;
+    public float TrainsPer100Metres;
     public int CarriagesPerTrain;
     public float TrainOffset;
     public float CarriageLength;

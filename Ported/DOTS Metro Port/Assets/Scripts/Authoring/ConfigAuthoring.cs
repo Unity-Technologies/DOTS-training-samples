@@ -7,7 +7,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public UnityEngine.GameObject TrainPrefab;
     public UnityEngine.GameObject CarriagePrefab;
     public UnityEngine.GameObject PlatformPrefab;
-    public int TrainCount;
+    public float TrainsPer100Metres;
     public int CarriagesPerTrain = 4;
     public float TrainOffset;
     public float CarriageLength;
@@ -25,7 +25,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             CarriagePrefab = GetEntity(authoring.CarriagePrefab),
             TrainPrefab = GetEntity(authoring.TrainPrefab),
             PlatformPrefab = GetEntity(authoring.PlatformPrefab),
-            TrainCount = authoring.TrainCount,
+            TrainsPer100Metres = authoring.TrainsPer100Metres,
             CarriagesPerTrain = authoring.CarriagesPerTrain,
             TrainOffset = authoring.TrainOffset,
             CarriageLength = authoring.CarriageLength,

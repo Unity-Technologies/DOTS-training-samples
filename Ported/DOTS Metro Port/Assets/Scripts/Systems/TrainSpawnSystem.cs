@@ -27,8 +27,11 @@ public partial struct TrainSpawnSystem : ISystem
 	{
 		Config config = SystemAPI.GetSingleton<Config>();
 
-		var ecb = GetCommandBuffer(ref state);
-		SpawnTrains(ecb, config, ref state);
+		if(config.TrainsPer100Metres > 0.0f)
+		{
+			var ecb = GetCommandBuffer(ref state);
+			SpawnTrains(ecb, config, ref state);
+		}
 
 		state.Enabled = false;
 	}
@@ -43,11 +46,14 @@ public partial struct TrainSpawnSystem : ISystem
 	{
 		foreach (var track in SystemAPI.Query<TrackAspect>())
 		{
-			BezierPath.MeasurePath(track.TrackBuffer.AsNativeArray());
-			float pathLength = BezierPath.Get_PathLength(track.TrackBuffer.AsNativeArray());
-			float distanceBetweenTrains = pathLength / config.TrainCount;
+			var trackBuffer = track.TrackBuffer.AsNativeArray();
+			BezierPath.MeasurePath(trackBuffer);
+			float pathLength = BezierPath.Get_PathLength(trackBuffer);
+
+			int trainNum = (int)math.floor((pathLength / 100) * config.TrainsPer100Metres);
+			float distanceBetweenTrains = pathLength / trainNum;
 			float distance = 0.0f;	
-			for (int i = 0; i < config.TrainCount; i++)
+			for (int i = 0; i < trainNum; i++)
 			{
 				SpawnTrain(track, ecb, config, distance, ref state);
 				distance += distanceBetweenTrains;
