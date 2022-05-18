@@ -42,10 +42,18 @@ readonly partial struct FiremanAspect : IAspect<FiremanAspect>
 
     public void Update(float DeltaTime)
     {
-        var velocity = (math.normalize(Destination) * Speed) * DeltaTime;
+        float3 direction = Destination - Position;
 
-        velocity += Position;
+        float distance = math.distance(Destination, Position);
 
-        Transform.TranslateWorld(velocity);
+        if (distance >= 30.0f)
+        {
+            var velocity = (math.normalize(direction) * Speed) * DeltaTime;
+
+            velocity += Position;
+
+            Transform.TranslateWorld(velocity);
+        }
+
     }
 }

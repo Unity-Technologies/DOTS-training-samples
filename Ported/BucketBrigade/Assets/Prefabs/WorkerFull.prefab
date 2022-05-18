@@ -111,6 +111,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Team: 0
-  Speed: 100
+  Speed: 0.1
   SearchRadius: 300
   HandleEmptyBuckets: 1
