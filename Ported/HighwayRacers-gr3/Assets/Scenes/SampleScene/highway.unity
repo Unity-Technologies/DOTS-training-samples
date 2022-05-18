@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StraightRoadPrefab: {fileID: 1852285047314088, guid: 5f9b1aa81153cdb438382fde51f076ba, type: 3}
   CurvedRoadPrefab: {fileID: 1194374486969068, guid: 67e4d22a44651194e8c75a533536d586, type: 3}
-  InsideLaneLength: 200
+  InsideLaneLength: 600
 --- !u!4 &4245115
 Transform:
   m_ObjectHideFlags: 0
