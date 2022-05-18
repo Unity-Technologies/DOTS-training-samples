@@ -9,4 +9,12 @@ struct TileGridConfig : IComponentData
     public float4 LightFireColor;
     public float4 MediumFireColor;
     public float4 IntenseFireColor;
+    
+    public int Spacing;
+    public int OuterSize;
+    public int NbOfWaterTiles;
+    
+    public float4 LightWaterColor;
+    public float4 MediumWaterColor;
+    public float4 IntenseWaterColor;
 }
