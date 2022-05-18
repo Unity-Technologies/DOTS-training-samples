@@ -14,17 +14,19 @@ public class DoorBaker : Baker<DoorAuthoring>
 {
     public override void Bake(DoorAuthoring authoring)
     {
-        var tranform = authoring.GetComponent<Transform>();
+        var transform = authoring.GetComponent<Transform>();
 
         float offset = authoring.IsLeftDoor ? -0.3f : 0.3f;
 
+        Entity temp = GetEntity(transform.parent.parent.gameObject);
+
         AddComponent(new Door
         {
-            //public Entity Wagon;
+            Carriage = temp,
             DoorState = 0.0f,
-            StartPosition = tranform.localPosition,
-            EndPosition = tranform.localPosition + Vector3.right * offset,
+            StartPosition = transform.localPosition,
+            EndPosition = transform.localPosition + Vector3.right * offset,
             Open = false
-        });
+        }); ;
     }
 }
