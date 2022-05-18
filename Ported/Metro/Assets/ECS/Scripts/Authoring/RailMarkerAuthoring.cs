@@ -12,8 +12,26 @@ public class RailMarkerBaker : Baker<RailMarkerAuthoring>
     {
         AddComponent(new RailMarker
         {
-            Index = authoring.transform.GetSiblingIndex(),
-            MarkerType = authoring.MarkerType
+            Index = authoring.transform.GetSiblingIndex()
         });
+
+        switch (authoring.MarkerType)
+        {
+            case RailMarkerType.ROUTE:
+                AddComponent(new RouteTag());
+                break;
+
+            case RailMarkerType.PLATFORM_START:
+                AddComponent(new PlatformStartTag());
+                break;
+
+            case RailMarkerType.PLATFORM_END:
+                AddComponent(new PlatformEndTag());
+                break;
+
+            default:
+                Debug.LogError($"Unknown {nameof(RailMarkerType)}");
+                break;
+        }
     }
 }

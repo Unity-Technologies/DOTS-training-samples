@@ -3,7 +3,6 @@ using Unity.Entities;
 public struct RailMarker : IComponentData
 {
     public int Index;
-    public RailMarkerType MarkerType;
 }
 
 public enum RailMarkerType
@@ -12,3 +11,7 @@ public enum RailMarkerType
     PLATFORM_END,
     ROUTE
 }
+
+public struct PlatformStartTag : IComponentData {}
+public struct PlatformEndTag : IComponentData {}
+public struct RouteTag : IComponentData {}
