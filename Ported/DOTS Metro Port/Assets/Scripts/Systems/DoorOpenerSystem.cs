@@ -36,13 +36,15 @@ public partial struct DoorOpenerSystem : ISystem
 	}
 }
 
+[BurstCompile]
 partial struct ManageDoors : IJobEntity
 {
 	[ReadOnly] public ComponentDataFromEntity<Train> m_trainFromEntity;
 	[ReadOnly] public ComponentDataFromEntity<Carriage> m_CarriageFromEntity;
 	public double time;
 	public Config config;
-	
+
+	[BurstCompile]
 	void Execute(in Door door, TransformAspect transform)
 	{
 		Train train = m_trainFromEntity[m_CarriageFromEntity[door.Carriage].Train];
@@ -55,31 +57,24 @@ partial struct ManageDoors : IJobEntity
 		float startTime = train.DepartureTime - config.TrainWaitTime;
 		float endTime = train.DepartureTime;
 
-		float progress = 0;
-
-		if (time < startTime + timeToOpenDoor)
-		{
-			progress = ((float)time - startTime) / timeToOpenDoor;
-		}
-		else if (time > endTime - timeToOpenDoor)
-		{
-			progress = 1f - ((float)time - (endTime - timeToOpenDoor)) / timeToOpenDoor;
-		}
-		else 
-		{
-			progress = 1f;
-		}
-
 		if (trainState == TrainState.Stopped)
 		{
+			float progress = 0;
+			if (time < startTime + timeToOpenDoor)
+			{
+				progress = ((float)time - startTime) / timeToOpenDoor;
+			}
+			else if (time > endTime - timeToOpenDoor)
+			{
+				progress = 1f - ((float)time - (endTime - timeToOpenDoor)) / timeToOpenDoor;
+			}
+			else
+			{
+				progress = 1f;
+			}
 			desiredPosition = math.lerp(door.StartPosition, door.EndPosition, progress);
+			transform.LocalPosition = desiredPosition;
 		}
-		else
-		{
-			desiredPosition = math.lerp(door.StartPosition, door.EndPosition, 0f);
-		}
-
-		transform.LocalPosition = desiredPosition;
 	}
 }
 

@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
@@ -30,6 +31,6 @@ class ConfigBaker : Baker<ConfigAuthoring>
             CarriageLength = authoring.CarriageLength,
             MaxTrainSpeed = authoring.MaxTrainSpeed,
             TrainWaitTime = authoring.TrainWaitTime
-        }) ;
+        });
     }
 }

@@ -25,12 +25,6 @@ public partial struct DistanceAlongBezierSystem : ISystem
 		_bufferFromEntity.Update(ref state);
 		var job = new PositionEntityOnBezierJob{ BufferFromEntity = _bufferFromEntity };
 		job.ScheduleParallel();
-
-		//foreach (var (position, transform) in SystemAPI.Query<RefRO<DistanceAlongBezier>, TransformAspect>())
-		//{
-		//	DynamicBuffer<BezierPoint> track = _bufferFromEntity[position.ValueRO.TrackEntity];
-		//	PositionEntityOnBezier(position, transform, track.AsNativeArray());
-		//}
 	}
 
 	public static void PositionEntityOnBezier(DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
@@ -47,13 +41,15 @@ public partial struct DistanceAlongBezierSystem : ISystem
 	}
 }
 
+[BurstCompile]
 public partial struct PositionEntityOnBezierJob : IJobEntity
 {
 	[ReadOnly]
 	public BufferFromEntity<BezierPoint> BufferFromEntity;
+
+	[BurstCompile]
 	public void Execute(in DistanceAlongBezier position, TransformAspect transform)
 	{
-		//DynamicBuffer<BezierPoint> track = SystemAPI.GetBuffer<BezierPoint>(position.TrackEntity);
 		DynamicBuffer<BezierPoint> track = BufferFromEntity[position.TrackEntity];
 		DistanceAlongBezierSystem.PositionEntityOnBezier(position, transform, track.AsNativeArray());
 	}

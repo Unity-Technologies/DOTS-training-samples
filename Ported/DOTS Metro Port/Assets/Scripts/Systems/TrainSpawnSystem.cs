@@ -43,13 +43,20 @@ public partial struct TrainSpawnSystem : ISystem
 	{
 		foreach (var track in SystemAPI.Query<TrackAspect>())
 		{
-			SpawnTrain(track, ecb, config, ref state);
+			float pathLength = BezierPath.Get_PathLength(track.TrackBuffer.AsNativeArray());
+			float distanceBetweenTrains = pathLength / config.TrainCount;
+			float distance = 0.0f;	
+			for (int i = 0; i < config.TrainCount; i++)
+			{
+				SpawnTrain(track, ecb, config, distance, ref state);
+				distance += distanceBetweenTrains;
+			}
 		}
 	}
 
-	private void SpawnTrain (TrackAspect track, EntityCommandBuffer ecb, Config config, ref SystemState state)
+	private void SpawnTrain (TrackAspect track, EntityCommandBuffer ecb, Config config, float distance, ref SystemState state)
 	{
-		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, 100, track.Entity, ecb);
+		Entity train = BezierSpawnUtility.SpawnOnBezier(config.TrainPrefab, distance, track.Entity, ecb);
 		SetColor(train, ecb, track.BaseColor.ValueRO);
 		SpawnTrainCarriages(train, track, ecb, config, ref state);
 	}
