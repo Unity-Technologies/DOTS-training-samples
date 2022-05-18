@@ -7,17 +7,7 @@ using Unity.Rendering;
 
 public class LineAuthoring : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    public Color _lineColor;
 }
 
 class LineBaker : Baker<LineAuthoring>
@@ -79,6 +69,6 @@ class LineBaker : Baker<LineAuthoring>
         }
 
         // Set Color
-        AddComponent<URPMaterialPropertyBaseColor>(new URPMaterialPropertyBaseColor { Value = new Vector4(0, 0, 1, 0) });
+        AddComponent<URPMaterialPropertyBaseColor>(new URPMaterialPropertyBaseColor { Value = (Vector4)authoring._lineColor });
     }
 }
