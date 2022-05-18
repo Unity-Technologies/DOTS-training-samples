@@ -11,4 +11,5 @@ struct Config : IComponentData
     public float TrainOffset;
     public float CarriageLength;
     public float MaxTrainSpeed;
+    public float TrainWaitTime;
 }

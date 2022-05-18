@@ -11,6 +11,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float TrainOffset;
     public float CarriageLength;
     public float MaxTrainSpeed;
+    public float TrainWaitTime = 5;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -28,6 +29,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TrainOffset = authoring.TrainOffset,
             CarriageLength = authoring.CarriageLength,
             MaxTrainSpeed = authoring.MaxTrainSpeed,
+            TrainWaitTime = authoring.TrainWaitTime
         }) ;
     }
 }

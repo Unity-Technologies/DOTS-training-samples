@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using Unity.Rendering;
 
 public class LineAuthoring : MonoBehaviour
 {
@@ -76,5 +77,8 @@ class LineBaker : Baker<LineAuthoring>
                 });
             }
         }
+
+        // Set Color
+        AddComponent<URPMaterialPropertyBaseColor>(new URPMaterialPropertyBaseColor { Value = new Vector4(0, 0, 1, 0) });
     }
 }
