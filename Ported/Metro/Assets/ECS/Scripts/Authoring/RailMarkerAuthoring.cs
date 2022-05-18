@@ -12,6 +12,7 @@ public class RailMarkerBaker : Baker<RailMarkerAuthoring>
     {
         AddComponent(new RailMarker
         {
+            Line = GetEntity(authoring.transform.parent),
             Index = authoring.transform.GetSiblingIndex()
         });
 

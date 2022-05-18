@@ -1,6 +1,6 @@
 {
     "name": "Metro.Mono",
-    "rootNamespace": "",
+    "rootNamespace": "Metro.Mono",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

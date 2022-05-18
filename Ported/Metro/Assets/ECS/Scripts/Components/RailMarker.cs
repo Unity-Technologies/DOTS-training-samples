@@ -2,6 +2,7 @@ using Unity.Entities;
 
 public struct RailMarker : IComponentData
 {
+    public Entity Line;
     public int Index;
 }
 

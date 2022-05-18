@@ -3250,9 +3250,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
     type: 3}
-  PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
+  PlatformPrefab: {fileID: 1891511846621564, guid: c0f9e7bede95f484a82f151605915c38,
     type: 3}
-  CommuterPefab: {fileID: 1598512793004306, guid: 1b7c16b60bc3a4b37b5a2f18f064dcb4,
+  CommuterPefab: {fileID: 1598512793004306, guid: 04938be95047c204a85a2739fc6a8fec,
     type: 3}
   RailPrefab: {fileID: 1004504532206030, guid: 45c88b34fc7e54940a710ca1e3fcdee2, type: 3}
   TrainsToSpawn: 50
