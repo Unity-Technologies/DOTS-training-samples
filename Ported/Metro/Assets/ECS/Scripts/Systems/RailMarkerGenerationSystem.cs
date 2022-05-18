@@ -22,7 +22,7 @@ public partial struct RailMarkerGenerationSystem : ISystem
 
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         var trains = CollectionHelper.CreateNativeArray<Entity>(config.TrainsToSpawn, allocator);
-        ecb.Instantiate(config.CarriagePrefab, trains);
+        ecb.Instantiate(config.RailPrefab, trains);
         
         state.Enabled = false;
     }
