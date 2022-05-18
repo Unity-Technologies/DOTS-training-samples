@@ -23,7 +23,8 @@ partial struct TrainMoverSystem : ISystem
 
         foreach (var (trainPosition, train) in SystemAPI.Query<RefRW<DistanceAlongBezier>, RefRO<Train>>())
         {
-            if(train.ValueRO.TrainState == TrainState.Moving)
+            if(train.ValueRO.TrainState == TrainState.Moving
+                || train.ValueRO.TrainState == TrainState.Leaving)
 			{
                 trainPosition.ValueRW.Distance += config.MaxTrainSpeed * state.Time.DeltaTime;
             }

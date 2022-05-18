@@ -3,10 +3,12 @@ using Unity.Entities;
 public enum TrainState
 {
 	Moving,
-	Stopped
+	Stopped,
+	Leaving,
 }
 
 public struct Train : IComponentData
 {
 	public TrainState TrainState;
+	public float WaitTimer;
 }

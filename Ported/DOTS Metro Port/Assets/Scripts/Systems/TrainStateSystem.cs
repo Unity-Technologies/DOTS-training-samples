@@ -23,9 +23,24 @@ public partial struct TrainStateSystem : ISystem
         foreach (var (trainPosition, train) in SystemAPI.Query<RefRO<DistanceAlongBezier>, RefRW<Train>>())
 		{
             NativeArray<Platform> platforms = _bufferFromEntity[trainPosition.ValueRO.TrackEntity].AsNativeArray();
-            train.ValueRW.TrainState = IsTrainOnPlatform(trainPosition, platforms, ref state)
-                ? TrainState.Stopped
-                : TrainState.Moving;
+            bool trainOnPlatform = IsTrainOnPlatform(trainPosition, platforms, ref state);
+            if (trainOnPlatform
+                && train.ValueRO.TrainState == TrainState.Moving)
+            {
+                train.ValueRW.WaitTimer = (float)state.Time.ElapsedTime + 5.0f;
+                train.ValueRW.TrainState = TrainState.Stopped;
+            }
+            else if (trainOnPlatform
+                && train.ValueRO.TrainState == TrainState.Stopped
+                && train.ValueRO.WaitTimer < (float)state.Time.ElapsedTime)
+			{
+                train.ValueRW.TrainState = TrainState.Leaving;
+			}
+            else if(!trainOnPlatform
+                && train.ValueRO.TrainState == TrainState.Leaving)
+			{
+                train.ValueRW.TrainState = TrainState.Moving;
+            }
 		}
     }
 
