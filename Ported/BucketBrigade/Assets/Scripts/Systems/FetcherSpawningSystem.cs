@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
-partial struct BucketSpawningSystem : ISystem
+partial struct FetcherSpawningSystem : ISystem
 {
 
     public void OnCreate(ref SystemState state) {
@@ -25,16 +25,16 @@ partial struct BucketSpawningSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        var buckets = CollectionHelper.CreateNativeArray<Entity>(config.bucketCount, allocator);
-        ecb.Instantiate(config.bucketPrefab, buckets);
+        var fetchers = CollectionHelper.CreateNativeArray<Entity>(config.FetcherCount, allocator);
+        ecb.Instantiate(config.FetcherPrefab, fetchers);
 
         var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
-        foreach (var bucket in buckets)
+        foreach (var fetcher in fetchers)
         {
             var randomRow = random.NextInt(0, tileGridConfig.Size);
             var randomColumn = random.NextInt(0, tileGridConfig.Size);
             
-            ecb.SetComponent(bucket, new Translation { Value = new float3(randomRow * tileGridConfig.CellSize, 0, randomColumn * tileGridConfig.CellSize) });
+            ecb.SetComponent(fetcher, new Translation { Value = new float3(randomRow * tileGridConfig.CellSize, 0, randomColumn * tileGridConfig.CellSize) });
         }
         
         //only meant to run once, so disable afterwards. 
