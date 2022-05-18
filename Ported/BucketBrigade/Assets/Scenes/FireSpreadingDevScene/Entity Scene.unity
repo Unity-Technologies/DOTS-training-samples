@@ -171,9 +171,9 @@ MonoBehaviour:
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
-  LightFireColor: {r: 0, g: 0, b: 0, a: 0}
-  MediumFireColor: {r: 0, g: 0, b: 0, a: 0}
-  IntenseFireColor: {r: 0, g: 0, b: 0, a: 0}
+  LightFireColor: {r: 1, g: 0.75114393, b: 0.41037738, a: 0}
+  MediumFireColor: {r: 0.9622642, g: 0.37043807, b: 0.18609825, a: 0}
+  IntenseFireColor: {r: 1, g: 0.16509432, b: 0.21460178, a: 0}
   Spacing: 1
   OuterSize: 2
   NbOfWaterTiles: 50
