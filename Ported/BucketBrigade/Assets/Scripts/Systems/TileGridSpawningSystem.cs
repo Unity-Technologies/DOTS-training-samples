@@ -20,6 +20,14 @@ partial struct TileGridSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        SpawnInnerTiles(ref state);
+        SpawnOuterTiles(ref state);
+
+        state.Enabled = false;
+    }
+
+    private void SpawnInnerTiles(ref SystemState state)
+    {
         var tileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
         var tileGrid = SystemAPI.GetSingleton<TileGrid>();
 
@@ -63,11 +71,60 @@ partial struct TileGridSpawningSystem : ISystem
                 ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.0f });
             }
             
+            ecb.AddComponent<Combustable>(tile, new Combustable());
             ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
             
             tileBuffer.Add(new TileBufferElement { Tile = tile });
         }
+    }
+    
+    private void SpawnOuterTiles(ref SystemState state)
+    {
+        // TODO: Optimize by spawning outer/inner tiles in one pass
+        
+        var tileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
+        var tileGrid = SystemAPI.GetSingleton<TileGrid>();
+        
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
+        var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
+        var tiles = CollectionHelper.CreateNativeArray<Entity>(tileGridConfig.NbOfWaterTiles, allocator);
+        ecb.Instantiate(tileGridConfig.TilePrefab, tiles);
+        
+        var tileBuffer = ecb.AddBuffer<TileBufferElement>(tileGrid.entity);
+        ecb.AddComponent<TileGrid>(tileGrid.entity);
+        
+        var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
 
-        state.Enabled = false;
+        int innerSizeMin = -tileGridConfig.Spacing;
+        int outerSizeMin = innerSizeMin - tileGridConfig.OuterSize;
+        
+        int innerSizeMax = tileGridConfig.Size + tileGridConfig.Spacing;
+        int outerSizeMax = innerSizeMax + tileGridConfig.OuterSize;
+        
+        foreach (var tile in tiles)
+        {
+            // TODO: Optimize this to prevent long randoms
+            int randomRow = 0;
+            int randomColumn = 0;
+            do
+            {
+                randomRow = random.NextInt(outerSizeMin, outerSizeMax);
+                randomColumn = random.NextInt(outerSizeMin, outerSizeMax);
+            } while (randomRow >= innerSizeMin && randomRow <= innerSizeMax &&
+                     randomColumn >= innerSizeMin && randomColumn <= innerSizeMax);
+            
+            // TODO: Should handle overlaps
+            var tilePosition = new int2(randomRow, randomColumn);
+            
+            // Water tile
+            ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.IntenseWaterColor });
+            ecb.SetComponent(tile, new Tile { Position = tilePosition, Water = 100.0f });
+            ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.3f, 1.0f)});
+            ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
+            
+            tileBuffer.Add(new TileBufferElement { Tile = tile });
+        }
     }
 }

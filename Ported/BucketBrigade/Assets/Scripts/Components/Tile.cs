@@ -7,4 +7,5 @@ struct Tile : IComponentData
     public float4 Color;
     public float Height;
     public float Heat;
+    public float Water;
 }

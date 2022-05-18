@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -167,13 +167,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240636bdef58d7244a0ace446f9510cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Size: 5
+  Size: 10
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
   LightFireColor: {r: 0, g: 0, b: 0, a: 0}
   MediumFireColor: {r: 0, g: 0, b: 0, a: 0}
   IntenseFireColor: {r: 0, g: 0, b: 0, a: 0}
+  Spacing: 1
+  OuterSize: 2
+  NbOfWaterTiles: 50
+  LightWaterColor: {r: 0.29592383, g: 0.29592383, b: 0.6603774, a: 0}
+  MediumWaterColor: {r: 0.24448201, g: 0.24448201, b: 0.7735849, a: 0}
+  IntenseWaterColor: {r: 0, g: 0, b: 1, a: 0}
 --- !u!1 &1456891834
 GameObject:
   m_ObjectHideFlags: 0
