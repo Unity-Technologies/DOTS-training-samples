@@ -25,7 +25,7 @@ class LineBaker : Baker<LineAuthoring>
     {
         var bezierBuffer = AddBuffer<BezierPoint>();
         var transformArray = authoring.transform.GetComponentsInChildren<Transform>(false);
-        
+
         List<Transform> transforms = new List<Transform>(transformArray);
         transforms.RemoveRange(0, 1);
 
@@ -61,10 +61,18 @@ class LineBaker : Baker<LineAuthoring>
             {
                 float totalDistance = BezierPath.Get_PathLength(bezierBuffer.AsNativeArray());
 
-                platformBuffer.Add(new Platform { startPoint = bezierBuffer[i].distanceAlongPath, 
-                    endPoint = bezierBuffer[i + 1].distanceAlongPath, 
+                platformBuffer.Add(new Platform { startPoint = bezierBuffer[i].distanceAlongPath,
+                    endPoint = bezierBuffer[i + 1].distanceAlongPath,
                     startWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[i].distanceAlongPath / totalDistance),
                     endWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[i + 1].distanceAlongPath / totalDistance)
+                });
+
+                platformBuffer.Add(new Platform
+                {
+                    startPoint = bezierBuffer[bezierBuffer.Length - 1 - i - 1].distanceAlongPath,
+                    endPoint = bezierBuffer[bezierBuffer.Length - 1 - i + 1 - 1].distanceAlongPath,
+                    startWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[bezierBuffer.Length - 1 -i - 1].distanceAlongPath / totalDistance),
+                    endWorldPosition = BezierPath.Get_Position(bezierBuffer.AsNativeArray(), bezierBuffer[bezierBuffer.Length - 1 - i + 1 - 1].distanceAlongPath / totalDistance)
                 });
             }
         }
