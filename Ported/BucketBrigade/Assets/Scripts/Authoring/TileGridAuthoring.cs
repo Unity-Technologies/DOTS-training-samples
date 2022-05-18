@@ -11,5 +11,6 @@ class TileGridBaker : Baker<TileGridAuthoring>
     public override void Bake(TileGridAuthoring authoring)
     {
         AddComponent(new TileGrid() { entity = GetEntity(authoring)});
+        AddBuffer<TileBufferElement>();
     }
 }
