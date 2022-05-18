@@ -3,8 +3,8 @@ using Unity.Entities;
 public enum TrainState
 {
 	Moving,
+	Stopping,
 	Stopped,
-	Leaving,
 }
 
 public struct Train : IComponentData
