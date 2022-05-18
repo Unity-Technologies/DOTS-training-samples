@@ -23,10 +23,8 @@ public class DoorBaker : Baker<DoorAuthoring>
         AddComponent(new Door
         {
             Carriage = temp,
-            DoorState = 0.0f,
             StartPosition = transform.localPosition,
-            EndPosition = transform.localPosition + Vector3.right * offset,
-            Open = false
+            EndPosition = transform.localPosition + Vector3.right * offset
         }); ;
     }
 }
