@@ -159,8 +159,8 @@ MonoBehaviour:
     type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a,
     type: 3}
-  TrainsPer100Metres: 0.6
-  CarriagesPerTrain: 4
+  TrainsPer100Metres: 0.5
+  CarriagesPerTrain: 100
   TrainOffset: 7
   CarriageLength: 6.5
   MaxTrainSpeed: 30
