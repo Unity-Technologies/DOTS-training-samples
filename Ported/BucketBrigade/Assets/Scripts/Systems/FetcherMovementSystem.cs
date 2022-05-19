@@ -176,12 +176,12 @@ partial struct FetcherMovementSystem : ISystem
         if (fetcher.CurrentState == FetcherState.MoveTowardsBucket)
         {
             targetPos = m_TransformFromEntity[fetcher.TargetPickUp].Position;
-            movementSpeed = state.Time.DeltaTime * 1.25f;
+            movementSpeed = state.Time.DeltaTime * fetcher.SpeedEmpty;
         }
         else if (fetcher.CurrentState == FetcherState.MoveTowardsWater)
         {
             targetPos = m_TransformFromEntity[fetcher.TargetDropZone].Position;
-            movementSpeed = state.Time.DeltaTime * 1.0f;
+            movementSpeed = state.Time.DeltaTime * fetcher.SpeedFull;
         }
 
         float arriveThreshold = 0.5f;

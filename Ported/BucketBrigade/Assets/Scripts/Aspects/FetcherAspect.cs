@@ -16,10 +16,16 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         set => Transform.Position = value;
     }
 
-    public float3 Speed
+    public float SpeedEmpty
     {
-        get => Fetcher.ValueRO.Speed;
-        set => Fetcher.ValueRW.Speed = value;
+        get => Fetcher.ValueRO.SpeedEmpty;
+        set => Fetcher.ValueRW.SpeedEmpty = value;
+    }
+
+    public float SpeedFull
+    {
+        get => Fetcher.ValueRO.SpeedFull;
+        set => Fetcher.ValueRW.SpeedFull = value;
     }
 
     public Entity TargetPickUp

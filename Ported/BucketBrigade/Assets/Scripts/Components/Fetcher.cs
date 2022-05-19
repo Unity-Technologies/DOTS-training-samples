@@ -19,5 +19,6 @@ struct Fetcher : IComponentData
     public Entity TargetPickUp;
     public Entity TargetDropZone;
     
-    public float3 Speed;
+    public float SpeedFull;
+    public float SpeedEmpty;
 }
