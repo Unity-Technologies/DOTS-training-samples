@@ -6,6 +6,7 @@ using UnityEngine;
 using Unity.Burst;
 
 [BurstCompile]
+[UpdateAfter(typeof(TrainStateSystem))]
 public partial struct DoorOpenerSystem : ISystem
 {
 	private ComponentDataFromEntity<Train> m_trainFromEntity;

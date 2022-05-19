@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Unity.Burst;
+using Unity.Jobs;
 
 [BurstCompile]
 public partial struct DistanceAlongBezierSystem : ISystem
@@ -23,8 +24,11 @@ public partial struct DistanceAlongBezierSystem : ISystem
 	public void OnUpdate(ref SystemState state)
 	{
 		_bufferFromEntity.Update(ref state);
-		var job = new PositionEntityOnBezierJob{ BufferFromEntity = _bufferFromEntity };
-		job.ScheduleParallel();
+		var copyBufferJob = new CopyBufferDataJob();
+		var positionEntityJob = new PositionEntityOnBezierJob{ BufferFromEntity = _bufferFromEntity };
+
+		copyBufferJob.ScheduleParallel();
+		positionEntityJob.ScheduleParallel();
 	}
 }
 
@@ -53,5 +57,16 @@ public partial struct PositionEntityOnBezierJob : IJobEntity
 		var rotation = Quaternion.LookRotation(tangentOnRail);
 		transform.Position = posOnRail;
 		transform.Rotation = rotation;
+	}
+}
+
+
+[BurstCompile]
+public partial struct CopyBufferDataJob : IJobEntity
+{
+	[BurstCompile]
+	public void Execute(ref DistanceAlongBezier distance, in DistanceAlongBezierBuffer distanceBuffer)
+	{
+		distance.Distance = distanceBuffer.Value;
 	}
 }

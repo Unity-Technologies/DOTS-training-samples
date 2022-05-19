@@ -14,6 +14,7 @@ public class CarriageBaker : Baker<CarriageAuthoring>
     public override void Bake(CarriageAuthoring authoring)
     {
         AddComponent<Carriage>();
+        AddComponent<DistanceAlongBezierBuffer>();
         var buffer = AddBuffer<ChildrenWithRenderer>().Reinterpret<Entity>();
         foreach (var renderer in GetComponentsInChildren<UnityEngine.MeshRenderer>())
         {
