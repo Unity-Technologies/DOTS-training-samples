@@ -1,12 +1,19 @@
 ﻿using Unity.Entities;
 
-struct Config : IComponentData
+public enum TrainSpawnType
+{
+    Absolute,
+    Per100Metres,
+}
+
+public struct Config : IComponentData
 {
     public Entity RailPrefab;
     public Entity TrainPrefab;
     public Entity CarriagePrefab;
     public Entity PlatformPrefab;
-    public float TrainsPer100Metres;
+    public TrainSpawnType TrainSpawnType;
+    public float TrainCount;
     public int CarriagesPerTrain;
     public float TrainOffset;
     public float CarriageLength;
