@@ -30,7 +30,7 @@ partial struct FiremanMovementSystem : ISystem
         m_TransformFromEntity.Update(ref state);
 
         var config = SystemAPI.GetSingleton<Config>();
-        m_ChainLength = config.WorkerEmptyCount;
+        m_ChainLength = config.WorkerEmptyPerTeamCount;
 
         float movementSpeed = state.Time.DeltaTime * 1.25f;
 
