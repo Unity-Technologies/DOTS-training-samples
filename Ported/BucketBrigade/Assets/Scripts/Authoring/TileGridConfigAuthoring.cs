@@ -4,9 +4,11 @@ using UnityEngine;
 
 class TileGridConfigAuthoring : UnityEngine.MonoBehaviour
 {
+    public UnityEngine.GameObject TilePrefab;
     public int Size;
     public float CellSize;
-    public UnityEngine.GameObject TilePrefab;
+    public float HeatIncreaseSpeed;
+    public float HeatScalingFactor;
     public Color GrassColor;
     public Color LightFireColor;
     public Color MediumFireColor;
@@ -26,9 +28,11 @@ class TileGridConfigBaker : Baker<TileGridConfigAuthoring>
     {
         AddComponent(new TileGridConfig
         {
+            TilePrefab = GetEntity(authoring.TilePrefab),
             Size = authoring.Size,
             CellSize = authoring.CellSize,
-            TilePrefab = GetEntity(authoring.TilePrefab),
+            HeatIncreaseSpeed = authoring.HeatIncreaseSpeed,
+            HeatScalingFactor = authoring.HeatScalingFactor,
             GrassColor = new float4(authoring.GrassColor.r, authoring.GrassColor.g, authoring.GrassColor.b, authoring.GrassColor.a),
             LightFireColor = new float4(authoring.LightFireColor.r, authoring.LightFireColor.g, authoring.LightFireColor.b, authoring.LightFireColor.a),
             MediumFireColor = new float4(authoring.MediumFireColor.r, authoring.MediumFireColor.g, authoring.MediumFireColor.b, authoring.MediumFireColor.a),

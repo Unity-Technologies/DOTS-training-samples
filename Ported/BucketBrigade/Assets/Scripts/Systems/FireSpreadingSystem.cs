@@ -1,18 +1,11 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Rendering;
-using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct FireSpreadingSystem : ISystem
 {
-    float m_Timer;
-    const float k_WaitTime = 2.0f;
-
-    ComponentDataFromEntity<URPMaterialPropertyBaseColor> m_URPMaterialPropertyBaseColorFromEntity;
-    ComponentDataFromEntity<NonUniformScale> m_NonUniformScaleFromEntity;
-
     TileGridConfig m_TileGridConfig;
     TileGrid m_TileGrid;
     
@@ -20,12 +13,7 @@ partial struct FireSpreadingSystem : ISystem
     {
         state.RequireForUpdate<TileGridConfig>();
         state.RequireForUpdate<TileGrid>();
-        state.RequireForUpdate<TileBufferElement>();
-        
-        m_Timer = 0.0f;
-
-        m_URPMaterialPropertyBaseColorFromEntity = state.GetComponentDataFromEntity<URPMaterialPropertyBaseColor>();
-        m_NonUniformScaleFromEntity = state.GetComponentDataFromEntity<NonUniformScale>();
+        state.RequireForUpdate<HeatBufferElement>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -38,67 +26,60 @@ partial struct FireSpreadingSystem : ISystem
         // Better way to do this?
         m_TileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
         m_TileGrid = SystemAPI.GetSingleton<TileGrid>();
-        var tileBuffer = state.EntityManager.GetBuffer<TileBufferElement>(m_TileGrid.entity);
-
-        m_URPMaterialPropertyBaseColorFromEntity.Update(ref state);
-        m_NonUniformScaleFromEntity.Update(ref state);
+        var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(m_TileGrid.entity);
         
-        m_Timer += state.Time.DeltaTime;
+        int count = 0;
 
-        if (m_Timer >= k_WaitTime)
+        var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
+        NativeList<int> fireTiles = new NativeList<int>(heatBuffer.Length, allocator);
+        foreach (HeatBufferElement heatElement in heatBuffer)
         {
-            m_Timer = 0.0f;
-            
-            foreach (var tile in SystemAPI.Query<TileAspect>())
+            var heat = heatElement.Heat;
+            if (heat >= 0.1f)
             {
-                if (tile.Heat > 0.0f && tile.Heat < 1.0f)
-                {
-                    // Increase fire heat
-                    float initialHeat = tile.Heat;
-                    
-                    tile.Heat += 0.1f;
+                fireTiles.Add(count);
+            }
+            count++;
+        }
 
-                    var scale = m_NonUniformScaleFromEntity[tile.Self];
-                    scale.Value.y = tile.Heat*5 + 0.1f;
-                    m_NonUniformScaleFromEntity[tile.Self] = scale;
+        float heatIncreaseSpeed = m_TileGridConfig.HeatIncreaseSpeed;
+        void IncreaseHeatForElement(ref SystemState state, int tileIndex)
+        {
+            var heat = heatBuffer[tileIndex];
+            heat.Heat += state.Time.DeltaTime * heatIncreaseSpeed;
+            heatBuffer[tileIndex] = heat;
+        }
+        
+        foreach (var fireTile in fireTiles)
+        {
+            IncreaseHeatForElement(ref state, fireTile);
+            
+            // Spread to upper tile
+            var upperTile = fireTile + m_TileGridConfig.Size;
+            if (upperTile < heatBuffer.Length)
+            {
+                IncreaseHeatForElement(ref state, upperTile);
+            }
 
-                    if (initialHeat < 0.4f && tile.Heat >= 0.4f)
-                    {
-                        var baseColor = m_URPMaterialPropertyBaseColorFromEntity[tile.Self];
-                        baseColor.Value = m_TileGridConfig.MediumFireColor;
-                        m_URPMaterialPropertyBaseColorFromEntity[tile.Self] = baseColor;
-                    } else if (initialHeat < 0.8f && tile.Heat >= 0.8f)
-                    {
-                        var baseColor = m_URPMaterialPropertyBaseColorFromEntity[tile.Self];
-                        baseColor.Value = m_TileGridConfig.IntenseFireColor;
-                        m_URPMaterialPropertyBaseColorFromEntity[tile.Self] = baseColor;
-                    }
-                    
-                    // Spread fire
-                    // Check upper tile
-                    if (tile.Position.x < m_TileGridConfig.Size - 1)
-                    {
-                        
-                    }
-                    
-                    // Check lower tile
-                    if (tile.Position.x > 0)
-                    {
-                        
-                    }
-                    
-                    // Check left tile
-                    if (tile.Position.y > 0)
-                    {
-                        
-                    }
-                    
-                    // Check right tile
-                    if (tile.Position.y < m_TileGridConfig.Size - 1)
-                    {
-                        
-                    }
-                }
+            // Spread to lower tile
+            var lowerTile = fireTile - m_TileGridConfig.Size;
+            if (lowerTile >= 0)
+            {
+                IncreaseHeatForElement(ref state, lowerTile);
+            }
+
+            // Spread to left tile
+            var leftTile = fireTile - 1;
+            if (leftTile >= 0)
+            {
+                IncreaseHeatForElement(ref state, leftTile);
+            }
+
+            // Spread to right tile
+            var rightTile = fireTile + 1;
+            if (rightTile < heatBuffer.Length)
+            {
+                IncreaseHeatForElement(ref state, rightTile);
             }
         }
     }

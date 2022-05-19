@@ -37,7 +37,7 @@ partial struct TileGridSpawningSystem : ISystem
         var tiles = CollectionHelper.CreateNativeArray<Entity>(tileGridConfig.Size * tileGridConfig.Size, allocator);
         ecb.Instantiate(tileGridConfig.TilePrefab, tiles);
         
-        var tileBuffer = state.EntityManager.GetBuffer<TileBufferElement>(tileGrid.entity);
+        var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(tileGrid.entity);
 
         var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
         var randomRow = random.NextInt(0, tileGridConfig.Size);
@@ -55,24 +55,26 @@ partial struct TileGridSpawningSystem : ISystem
                 columnCount = 0;
             }
 
+            float heat = 0.0f;
             if (tilePosition.x == randomRow && tilePosition.y == randomColumn)
             {
                 // Fire tile
                 ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.LightFireColor });
-                ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.1f });
+                ecb.SetComponent(tile, new Tile { Position = tilePosition });
                 ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.6f, 1.0f)});
+                heat = 0.1f;
             }
             else
             {
                 // Grass tile
                 ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.GrassColor });
-                ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.0f });
+                ecb.SetComponent(tile, new Tile { Position = tilePosition });
             }
             
             ecb.AddComponent<Combustable>(tile, new Combustable());
             ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x * tileGridConfig.CellSize, 0, tilePosition.y * tileGridConfig.CellSize) });
             
-            tileBuffer.Add(new TileBufferElement { Tile = tile });
+            heatBuffer.Add(new HeatBufferElement { Heat = heat });
         }
     }
     
@@ -89,10 +91,7 @@ partial struct TileGridSpawningSystem : ISystem
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         var tiles = CollectionHelper.CreateNativeArray<Entity>(tileGridConfig.NbOfWaterTiles, allocator);
         ecb.Instantiate(tileGridConfig.TilePrefab, tiles);
-        
-        var tileBuffer = ecb.AddBuffer<TileBufferElement>(tileGrid.entity);
-        ecb.AddComponent<TileGrid>(tileGrid.entity);
-        
+
         var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
 
         int innerSizeMin = -tileGridConfig.Spacing;
@@ -122,8 +121,6 @@ partial struct TileGridSpawningSystem : ISystem
             ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.3f, 1.0f)});
             ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
             ecb.AddComponent<FetcherDropZone>(tile, new FetcherDropZone());
-            
-            tileBuffer.Add(new TileBufferElement { Tile = tile });
         }
     }
 }
