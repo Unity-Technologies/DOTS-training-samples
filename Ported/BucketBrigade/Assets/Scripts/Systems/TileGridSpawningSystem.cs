@@ -60,7 +60,7 @@ partial struct TileGridSpawningSystem : ISystem
             {
                 // Fire tile
                 ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.LightFireColor });
-                ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.1f });
+                ecb.SetComponent(tile, new Tile { Position = tilePosition });
                 ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.6f, 1.0f)});
                 heat = 0.1f;
             }
@@ -68,7 +68,7 @@ partial struct TileGridSpawningSystem : ISystem
             {
                 // Grass tile
                 ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.GrassColor });
-                ecb.SetComponent(tile, new Tile { Position = tilePosition, Heat = 0.0f });
+                ecb.SetComponent(tile, new Tile { Position = tilePosition });
             }
             
             ecb.AddComponent<Combustable>(tile, new Combustable());

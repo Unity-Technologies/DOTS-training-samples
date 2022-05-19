@@ -3,8 +3,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
-// TODO: rename
-readonly partial struct TileROAspect : IAspect<TileROAspect>
+readonly partial struct TileAspect : IAspect<TileAspect>
 {
     public readonly Entity Self;
     public readonly RefRW<URPMaterialPropertyBaseColor> BaseColor;
@@ -15,10 +14,5 @@ readonly partial struct TileROAspect : IAspect<TileROAspect>
     public int2 Position
     {
         get => Tile.ValueRO.Position;
-    }
-    
-    public float Heat
-    {
-        get => Tile.ValueRO.Heat;
     }
 }

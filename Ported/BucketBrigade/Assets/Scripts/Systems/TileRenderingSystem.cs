@@ -29,19 +29,19 @@ partial struct TileRenderingSystem : ISystem
         var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(m_TileGrid.entity);
         
         int count = 0;
-        foreach (var tile in SystemAPI.Query<TileROAspect>().WithAll<Combustable>())
+        foreach (var tile in SystemAPI.Query<TileAspect>().WithAll<Combustable>())
         {
             float heat = heatBuffer[count].Heat;
   
-            if (heat == 0.0f)
+            if (heat < 0.01f)
             {
                 // Render tile as grass
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.GrassColor;
-            } else if (heat < 0.4f)
+            } else if (heat < 0.3f)
             {
                 // Render as light fire
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.LightFireColor;
-            } else if (heat < 0.8f)
+            } else if (heat < 0.7f)
             {
                 // Render as medium fire
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.MediumFireColor;
@@ -52,7 +52,7 @@ partial struct TileRenderingSystem : ISystem
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.IntenseFireColor;
             }
             
-            tile.Scale.ValueRW.Value.y = heat*5 + 0.1f;
+            tile.Scale.ValueRW.Value.y = heat*m_TileGridConfig.HeatScalingFactor + 0.1f;
             
             count++;
         }

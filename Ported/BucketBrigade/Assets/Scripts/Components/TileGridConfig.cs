@@ -3,9 +3,11 @@ using Unity.Mathematics;
 
 struct TileGridConfig : IComponentData
 {
+    public Entity TilePrefab;
     public int Size;
     public float CellSize;
-    public Entity TilePrefab;
+    public float HeatIncreaseSpeed;
+    public float HeatScalingFactor;
     public float4 GrassColor;
     public float4 LightFireColor;
     public float4 MediumFireColor;
