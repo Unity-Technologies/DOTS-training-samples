@@ -1,22 +1,18 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 readonly partial struct TileAspect : IAspect<TileAspect>
 {
     public readonly Entity Self;
+    public readonly RefRW<URPMaterialPropertyBaseColor> BaseColor;
+    public readonly RefRW<NonUniformScale> Scale;
 
-    private readonly RefRW<Tile> Tile;
+    private readonly RefRO<Tile> Tile;
 
     public int2 Position
     {
-        get => Tile.ValueRW.Position;
-        set => Tile.ValueRW.Position = value;
-    }
-    
-    public float Heat
-    {
-        get => Tile.ValueRW.Heat;
-        set => Tile.ValueRW.Heat = value;
+        get => Tile.ValueRO.Position;
     }
 }
