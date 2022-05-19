@@ -50,7 +50,7 @@ public partial struct MoveTrainJob : IJobEntity
     }
 
     [BurstCompile]
-    private void MoveTrain(ref DistanceAlongBezier trainPosition, Train train, float maxTrainSpeed, float deltaTime)
+    private void MoveTrain(ref DistanceAlongBezier trainPosition, in Train train, float maxTrainSpeed, float deltaTime)
     {
         trainPosition.Distance += maxTrainSpeed * train.SpeedPercentage * deltaTime;
     }
