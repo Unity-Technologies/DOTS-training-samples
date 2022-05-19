@@ -71,12 +71,16 @@ partial struct CarriageDoorSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         translationDataFromEntity.Update(ref state);
-
-        //If door is at station do:
-
+        /*
+        // If train has arrived at station, open doors:
         var openJob = new CarriageDoorOpenJob { translationDataFromEntity = translationDataFromEntity };
-
         openJob.Schedule();
 
+        // If train is about to depart, close doors:
+        var closeJob = new CarriageDoorOpenJob { translationDataFromEntity = translationDataFromEntity };
+        //closeJob.Schedule(openJob);
+
+        //closeJob.Complete();
+        */
     }
 }
