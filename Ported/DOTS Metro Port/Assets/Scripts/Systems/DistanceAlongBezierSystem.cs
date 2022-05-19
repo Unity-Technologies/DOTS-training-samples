@@ -27,6 +27,7 @@ public partial struct DistanceAlongBezierSystem : ISystem
 		job.ScheduleParallel();
 	}
 
+	[BurstCompile]
 	public static void PositionEntityOnBezier(ref DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
 	{
 		float pathLength = BezierPath.Get_PathLength(track);

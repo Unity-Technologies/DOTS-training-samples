@@ -4,9 +4,12 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 [BurstCompile]
+[UpdateAfter(typeof(TrainMoverSystem))]
 partial struct CarriageMover : ISystem
 {
     private ComponentDataFromEntity<DistanceAlongBezier> _componentFromEntity;
+
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -18,6 +21,7 @@ partial struct CarriageMover : ISystem
         
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         Config config = SystemAPI.GetSingleton<Config>();

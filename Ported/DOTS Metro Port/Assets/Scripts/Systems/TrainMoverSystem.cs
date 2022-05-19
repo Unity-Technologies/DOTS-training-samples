@@ -18,31 +18,41 @@ partial struct TrainMoverSystem : ISystem
 
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         Config config = SystemAPI.GetSingleton<Config>();
 
-        foreach (var (trainPosition, train) in SystemAPI.Query<RefRW<DistanceAlongBezier>, RefRO<Train>>())
+        var job = new MoveTrainJob { DeltaTime = state.Time.DeltaTime, MaxTrainSpeed = config.MaxTrainSpeed };
+        job.ScheduleParallel();
+    }
+
+}
+
+[BurstCompile]
+public partial struct MoveTrainJob : IJobEntity
+{
+    public float DeltaTime;
+    public float MaxTrainSpeed;
+
+    [BurstCompile]
+    public void Execute(ref DistanceAlongBezier trainPosition, in Train train)
+	{
+        switch (train.TrainState)
         {
-            switch(train.ValueRO.TrainState)
-			{
-                case TrainState.Moving:
-				{
-                    MoveTrain(trainPosition, train.ValueRO, config, ref state);
-                    break;
-				}
-                case TrainState.Stopping:
-				{
-                    MoveTrain(trainPosition, train.ValueRO, config, ref state);
-                    break;
-				}
-			}
+            case TrainState.Moving:
+            case TrainState.Stopping:
+            {
+                MoveTrain(ref trainPosition, train, MaxTrainSpeed, DeltaTime);
+                break;
+            }
         }
     }
 
-    private void MoveTrain(RefRW<DistanceAlongBezier> trainPosition, Train train, Config config, ref SystemState state)
-	{
-        trainPosition.ValueRW.Distance += config.MaxTrainSpeed * train.SpeedPercentage * state.Time.DeltaTime;
+    [BurstCompile]
+    private void MoveTrain(ref DistanceAlongBezier trainPosition, Train train, float maxTrainSpeed, float deltaTime)
+    {
+        trainPosition.Distance += maxTrainSpeed * train.SpeedPercentage * deltaTime;
     }
 }
 
