@@ -7,11 +7,11 @@ struct Config : IComponentData
     public Entity WorkerEmptyPrefab;
     public Entity WorkerFullPrefab;
 
-    public int FetcherCount;
+    public int NbOfTeams;
+    public int FetcherPerTeamCount;
+    public int WorkerEmptyPerTeamCount;
+    public int WorkerFullPerTeamCount;
     
-    public int WorkerEmptyCount;
-    public int WorkerFullCount;
-
     public int bucketCount;
     public Entity bucketPrefab;
 }

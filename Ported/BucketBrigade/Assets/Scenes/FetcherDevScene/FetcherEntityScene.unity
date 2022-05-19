@@ -158,9 +158,10 @@ MonoBehaviour:
     type: 3}
   WorkerFullPrefab: {fileID: 7860217524029354283, guid: f9b1c6e96f0db0d49a4b7c694b35c556,
     type: 3}
-  FetcherCount: 10
-  WorkerEmptyCount: 0
-  WorkerFullCount: 0
+  NbOfTeams: 2
+  FetcherPerTeamCount: 1
+  WorkerEmptyPerTeamCount: 10
+  WorkerFullPerTeamCount: 10
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,
     type: 3}
