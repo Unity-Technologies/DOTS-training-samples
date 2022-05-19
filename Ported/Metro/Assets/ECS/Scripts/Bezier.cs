@@ -5,7 +5,7 @@ public static class Bezier
 {
     public static float3 GetPosition(ref BlobArray<BezierPoint> points, float splinePosition)
     {
-        if (splinePosition < 0)
+        if (splinePosition <= 0)
             return points[0].location;
 
         for (var p = 0; p < points.Length; p++)
