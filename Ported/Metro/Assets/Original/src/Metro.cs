@@ -31,7 +31,7 @@ public class Metro : MonoBehaviour
     public int maxCommuters = 2000;
     [Tooltip("Affects rail curve sharpness. 0 = no rounding, 1 = madness. Good value = 0.2 ish")]
     [Range(0f, 1f)] public float Bezier_HandleReach = 0.3f;
-    [HideInInspector]
+    [SerializeField]
     public float Bezier_PlatformOffset = 3f;
     [Header("Trains")] public float Train_accelerationStrength = 0.001f;
     [Tooltip("How quickly trains lose speed")]
