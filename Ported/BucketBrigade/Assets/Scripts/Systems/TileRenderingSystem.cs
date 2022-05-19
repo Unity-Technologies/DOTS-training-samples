@@ -1,8 +1,6 @@
 using System;
 using Unity.Burst;
 using Unity.Entities;
-using Unity.Rendering;
-using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
@@ -39,25 +37,23 @@ partial struct TileRenderingSystem : ISystem
             {
                 // Render tile as grass
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.GrassColor;
-                tile.Scale.ValueRW.Value.y = 0.1f;
             } else if (heat < 0.4f)
             {
                 // Render as light fire
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.LightFireColor;
-                tile.Scale.ValueRW.Value.y = tile.Heat*5 + 0.1f;
             } else if (heat < 0.8f)
             {
                 // Render as medium fire
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.MediumFireColor;
-                tile.Scale.ValueRW.Value.y = tile.Heat*5 + 0.1f;
             }
             else
             {
                 // Render as intense fire
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.IntenseFireColor;
-                tile.Scale.ValueRW.Value.y = tile.Heat*5 + 0.1f;
             }
-
+            
+            tile.Scale.ValueRW.Value.y = heat*5 + 0.1f;
+            
             count++;
         }
     }
