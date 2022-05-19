@@ -15,7 +15,7 @@ readonly partial struct FiremanAspect : IAspect<FiremanAspect>
         get => Worker.ValueRW.Team;
         set => Worker.ValueRW.Team = value;
     }
-    
+
     public float Speed
     {
         get => Worker.ValueRW.Speed;
@@ -40,20 +40,14 @@ readonly partial struct FiremanAspect : IAspect<FiremanAspect>
         set => Transform.Position = value;
     }
 
-    public void Update(float DeltaTime)
+    public FiremanState FiremanState
     {
-        float3 direction = Destination - Position;
+        get => Worker.ValueRO.State;
+        set => Worker.ValueRW.State = value;
+    }
 
-        float distance = math.distance(Destination, Position);
-
-        if (distance >= 30.0f)
-        {
-            var velocity = (math.normalize(direction) * Speed) * DeltaTime;
-
-            velocity += Position;
-
-            Transform.TranslateWorld(velocity);
-        }
-
+    public void Translate(float3 translation)
+    {
+        Transform.TranslateWorld(translation);
     }
 }

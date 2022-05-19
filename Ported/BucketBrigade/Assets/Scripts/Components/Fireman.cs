@@ -13,6 +13,12 @@ struct FilledBucketPasser : IComponentData
 
 }
 
+public enum FiremanState
+{
+    Awaiting,
+    OnRouteToDestination,
+    Stopped,
+}
 
 struct Fireman : IComponentData
 {
@@ -20,4 +26,5 @@ struct Fireman : IComponentData
     public float3 Destination;
     public float Speed;
     public float SearchRadius;
+    public FiremanState State;
 }

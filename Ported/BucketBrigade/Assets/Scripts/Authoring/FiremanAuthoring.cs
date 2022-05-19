@@ -9,6 +9,7 @@ public class FiremanAuthoring : MonoBehaviour
     public float Speed;
     public float SearchRadius;
     public bool HandleEmptyBuckets;
+    public FiremanState InitialState;
 }
 
 class FiremanBaker : Baker<FiremanAuthoring>
@@ -19,6 +20,7 @@ class FiremanBaker : Baker<FiremanAuthoring>
         fireman.Team = authoring.Team;
         fireman.Speed = authoring.Speed;
         fireman.SearchRadius = authoring.SearchRadius;
+        fireman.State = authoring.InitialState;
         AddComponent<Fireman>(fireman);
 
         if (authoring.HandleEmptyBuckets)
