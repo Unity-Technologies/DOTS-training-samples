@@ -4,6 +4,8 @@ using Unity.Mathematics;
 class FetcherAuthoring : UnityEngine.MonoBehaviour
 {
     public FetcherState InitialState;
+    public float SpeedEmpty;
+    public float SpeedFull;
 }
 
 class FetcherBaker : Baker<FetcherAuthoring>
@@ -12,7 +14,9 @@ class FetcherBaker : Baker<FetcherAuthoring>
     {
         AddComponent(new Fetcher()
         {
-            CurrentState = authoring.InitialState
+            CurrentState = authoring.InitialState,
+            SpeedEmpty = authoring.SpeedEmpty,
+            SpeedFull = authoring.SpeedFull
         });
     }
 }
