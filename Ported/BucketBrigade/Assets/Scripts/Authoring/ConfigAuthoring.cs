@@ -7,10 +7,12 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public UnityEngine.GameObject WorkerEmptyPrefab;
     public UnityEngine.GameObject WorkerFullPrefab;
 
-    public int FetcherCount;
+    public int NbOfTeams;
     
-    public int WorkerEmptyCount;
-    public int WorkerFullCount;
+    // Per team
+    public int FetcherPerTeamCount;
+    public int WorkerEmptyPerTeamCount;
+    public int WorkerFullPerTeamCount;
 
     public int BucketCount;
     public UnityEngine.GameObject BucketPrefab;
@@ -25,9 +27,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
             FetcherPrefab = GetEntity(authoring.FetcherPrefab),
             WorkerEmptyPrefab = GetEntity(authoring.WorkerEmptyPrefab),
             WorkerFullPrefab = GetEntity(authoring.WorkerFullPrefab),
-            FetcherCount = authoring.FetcherCount,
-            WorkerEmptyCount = authoring.WorkerEmptyCount,
-            WorkerFullCount = authoring.WorkerFullCount,
+            NbOfTeams = authoring.NbOfTeams,
+            FetcherPerTeamCount = authoring.FetcherPerTeamCount,
+            WorkerEmptyPerTeamCount = authoring.WorkerEmptyPerTeamCount,
+            WorkerFullPerTeamCount = authoring.WorkerFullPerTeamCount,
             bucketCount = authoring.BucketCount,
             bucketPrefab = GetEntity(authoring.BucketPrefab)
         });

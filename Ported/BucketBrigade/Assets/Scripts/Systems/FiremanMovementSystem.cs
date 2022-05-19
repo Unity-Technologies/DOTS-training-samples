@@ -27,7 +27,7 @@ partial struct FiremanMovementSystem : ISystem
         m_TransformFromEntity.Update(ref state);
 
         var config = SystemAPI.GetSingleton<Config>();
-        m_ChainLength = config.WorkerEmptyCount;
+        m_ChainLength = config.WorkerEmptyPerTeamCount;
 
         int index = 0;
         foreach (var worker in Query<FiremanAspect>())
