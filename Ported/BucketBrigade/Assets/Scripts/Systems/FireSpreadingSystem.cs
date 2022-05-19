@@ -46,8 +46,12 @@ partial struct FireSpreadingSystem : ISystem
         void IncreaseHeatForElement(ref SystemState state, int tileIndex)
         {
             var heat = heatBuffer[tileIndex];
-            heat.Heat += state.Time.DeltaTime * heatIncreaseSpeed;
-            heatBuffer[tileIndex] = heat;
+
+            if (heat.Heat < 1.0f)
+            {
+                heat.Heat += state.Time.DeltaTime * heatIncreaseSpeed;
+                heatBuffer[tileIndex] = heat;
+            }
         }
         
         foreach (var fireTile in fireTiles)
