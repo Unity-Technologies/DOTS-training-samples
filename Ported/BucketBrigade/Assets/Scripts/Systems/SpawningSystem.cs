@@ -11,6 +11,8 @@ partial struct SpawningSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<TileGridConfig>();
+        state.RequireForUpdate<Config>();
     }
 
     public void OnDestroy(ref SystemState state)
