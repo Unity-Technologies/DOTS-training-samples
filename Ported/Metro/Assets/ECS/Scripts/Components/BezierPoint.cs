@@ -12,7 +12,6 @@ public struct BezierData
 {
     public BlobArray<BezierPoint> Points;
     public float distance;
-    
 }
 
 public struct BezierPath : IComponentData

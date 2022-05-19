@@ -12,8 +12,10 @@ public partial class LineBakingSystem : SystemBase
             .WithoutBurst()
             .ForEach((ref BezierPath bezierPath) =>
             {
-                ref var points = ref bezierPath.Data.Value.Points;
-                
+                ref var data = ref bezierPath.Data.Value;
+                ref var points = ref data.Points;
+
+                // Set up point handles
                 for (var m = 0; m <= points.Length - 1; m++)
                 {
                     ref var currentPoint = ref points[m];
@@ -24,6 +26,26 @@ public partial class LineBakingSystem : SystemBase
                         SetHandles(ref currentPoint, currentPoint.location - points[m - 1].location, config.BezierHandleReach);
                     else
                         SetHandles(ref currentPoint,points[m + 1].location - points[m - 1].location, config.BezierHandleReach);
+                }
+                
+                // Calculate length of bezier
+                var distance = 0f;
+                for (var p = 0; p < points.Length - 1; p++)
+                    distance += math.distance(points[p].location, points[p + 1].location);
+
+                // Set length of bezier
+                data.distance = distance;
+                
+                // Update per-point distance along path
+                var tempDist = 0f;
+                for (var p = 0; p < points.Length; p++)
+                {
+                    var currentPoint = points[p];
+                    currentPoint.distanceAlongPath = tempDist / data.distance;
+                    points[p] = currentPoint;
+
+                    if (p < points.Length - 1)
+                        tempDist += math.distance(currentPoint.location, points[p + 1].location);
                 }
             }).Run();
 

@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public partial class BezierDebugSystem : SystemBase
@@ -17,6 +18,8 @@ public partial class BezierDebugSystem : SystemBase
                     Debug.DrawLine(currentPoint.location, currentPoint.handle_in, Color.white);
                     Debug.DrawLine(currentPoint.location, currentPoint.handle_out, Color.white);
                     Debug.DrawLine(currentPoint.location, nextPoint.location, line.Colour);
+                    
+                    Debug.DrawLine(currentPoint.location, currentPoint.location + new float3(0, 10 * currentPoint.distanceAlongPath, 0));
                 }
             }).Run();
     }
