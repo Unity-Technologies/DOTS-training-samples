@@ -27,7 +27,7 @@ public partial struct DistanceAlongBezierSystem : ISystem
 		job.ScheduleParallel();
 	}
 
-	public static void PositionEntityOnBezier(DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
+	public static void PositionEntityOnBezier(ref DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
 	{
 		float pathLength = BezierPath.Get_PathLength(track);
 		position.Distance = Mathf.Repeat(position.Distance, pathLength);
@@ -48,9 +48,9 @@ public partial struct PositionEntityOnBezierJob : IJobEntity
 	public BufferFromEntity<BezierPoint> BufferFromEntity;
 
 	[BurstCompile]
-	public void Execute(in DistanceAlongBezier position, TransformAspect transform)
+	public void Execute(ref DistanceAlongBezier position, TransformAspect transform)
 	{
 		DynamicBuffer<BezierPoint> track = BufferFromEntity[position.TrackEntity];
-		DistanceAlongBezierSystem.PositionEntityOnBezier(position, transform, track.AsNativeArray());
+		DistanceAlongBezierSystem.PositionEntityOnBezier(ref position, transform, track.AsNativeArray());
 	}
 }
