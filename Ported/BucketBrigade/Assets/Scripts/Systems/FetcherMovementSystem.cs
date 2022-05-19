@@ -12,15 +12,17 @@ partial struct FetcherMovementSystem : ISystem
     
     private EntityQuery m_FetcherPickUpQuery;
     private EntityQuery m_FetcherDropZoneQuery;
+    private EntityQuery m_CombustableTileQuery;
 
     private Random m_Random;
     
     public void OnCreate(ref SystemState state)
-    {       
+    {
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
         m_FetcherPickUpQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation));
         m_FetcherDropZoneQuery = state.GetEntityQuery(typeof(FetcherDropZone), typeof(Translation));
+        m_CombustableTileQuery = state.GetEntityQuery(typeof(Combustable), typeof(Translation));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -38,11 +40,15 @@ partial struct FetcherMovementSystem : ISystem
         var fetcherDropZones = m_FetcherDropZoneQuery.ToEntityArray(Allocator.Temp);
         var fetcherDropZoneTranslations = m_FetcherDropZoneQuery.ToComponentDataArray<Translation>(Allocator.Temp);
 
+        var combustableTiles = m_CombustableTileQuery.ToEntityArray(Allocator.Temp);
+        var combustableTileTranslations = m_CombustableTileQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+
         foreach (var fetcher in SystemAPI.Query<FetcherAspect>())
         {
             UpdateCurrentState(fetcher);
             FindClosestPickUp(fetcher, fetcherTargets, fetcherTargetTranslations);
             FindClosestDropZone(fetcher, fetcherDropZones, fetcherDropZoneTranslations);
+            FindClosestFireTile(ref state, fetcher, combustableTiles, combustableTileTranslations);
             MoveTowardsTarget(fetcher, ref state);
         }
     }
@@ -86,9 +92,20 @@ partial struct FetcherMovementSystem : ISystem
             
             case FetcherState.FillingBucket:
             {
-                fetcher.TargetDropZone = Entity.Null;
-                fetcher.TargetPickUp = Entity.Null;
-                fetcher.CurrentState = FetcherState.Idle;
+                //ResetFetcher(fetcher);
+                fetcher.CurrentState = FetcherState.MoveTowardsFire;
+            }
+                break;
+
+            case FetcherState.MoveTowardsFire:
+            {
+                // Handled by MoveTowardsTarget
+            }
+                break;
+
+            case FetcherState.ArriveAtFire:
+            {
+                ResetFetcher(fetcher);
             }
                 break;
         }
@@ -121,7 +138,7 @@ partial struct FetcherMovementSystem : ISystem
             }
             else
             {
-                fetcher.CurrentState = FetcherState.Idle;
+                ResetFetcher(fetcher);
             }
         }
     }
@@ -154,16 +171,68 @@ partial struct FetcherMovementSystem : ISystem
             }
             else
             {
-                // TODO: Drop bucket first?
-                fetcher.CurrentState = FetcherState.Idle;
+                ResetFetcher(fetcher);
             }
         }
+    }
+    
+    private void FindClosestFireTile(ref SystemState state, FetcherAspect fetcher, NativeArray<Entity> combustableTiles, NativeArray<Translation> combustableTileTranslations)
+    {
+        if (fetcher.CurrentState != FetcherState.MoveTowardsFire)
+        {
+            return;
+        }
+        
+        if (fetcher.TargetFireTile == Entity.Null)
+        {
+            if(combustableTileTranslations.Length > 0)
+            {
+                TileGrid tileGrid = SystemAPI.GetSingleton<TileGrid>();
+                var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(tileGrid.entity);
+                
+                int closestIdx = -1;
+                float closestDistance = float.MaxValue;
+                for (int idx = 0; idx < combustableTiles.Length; idx++)
+                { 
+                    if (heatBuffer[idx].Heat > 0)
+                    {   
+                        // Tile on fire
+                        Translation currentTranslation = combustableTileTranslations[idx];
+                        var distance = math.distance(fetcher.Position, currentTranslation.Value);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestIdx = idx;
+                        }
+                    }
+                }
+
+                if (closestIdx >= 0)
+                {
+                    fetcher.TargetFireTile = combustableTiles[closestIdx];
+                }
+            }
+            else
+            {
+                ResetFetcher(fetcher);
+            }
+        }
+    }
+
+    private void ResetFetcher(FetcherAspect fetcher)
+    {
+        // TODO: Drop bucket first?
+        fetcher.TargetDropZone = Entity.Null;
+        fetcher.TargetPickUp = Entity.Null;
+        fetcher.TargetFireTile = Entity.Null;
+        fetcher.CurrentState = FetcherState.Idle;
     }
 
     private void MoveTowardsTarget(FetcherAspect fetcher, ref SystemState state)
     {
         if (fetcher.CurrentState != FetcherState.MoveTowardsBucket &&
-            fetcher.CurrentState != FetcherState.MoveTowardsWater)
+            fetcher.CurrentState != FetcherState.MoveTowardsWater &&
+            fetcher.CurrentState != FetcherState.MoveTowardsFire)
         {
             return;
         }
@@ -181,10 +250,15 @@ partial struct FetcherMovementSystem : ISystem
         else if (fetcher.CurrentState == FetcherState.MoveTowardsWater)
         {
             targetPos = m_TransformFromEntity[fetcher.TargetDropZone].Position;
+            movementSpeed = state.Time.DeltaTime * fetcher.SpeedEmpty;
+        }
+        else if (fetcher.CurrentState == FetcherState.MoveTowardsFire)
+        {
+            targetPos = m_TransformFromEntity[fetcher.TargetFireTile].Position;
             movementSpeed = state.Time.DeltaTime * fetcher.SpeedFull;
         }
 
-        float arriveThreshold = 0.5f;
+        float arriveThreshold = 0.025f;
         TransformAspect aspect = m_TransformFromEntity[fetcher.Self];
         aspect.LookAt(targetPos);
         
@@ -222,9 +296,13 @@ partial struct FetcherMovementSystem : ISystem
             {
                 fetcher.CurrentState = FetcherState.ArriveAtBucket;
             }
-            else
+            else if(fetcher.CurrentState == FetcherState.MoveTowardsWater)
             {
                 fetcher.CurrentState = FetcherState.ArriveAtWater;
+            }
+            else // MoveTowardsFire
+            {
+                fetcher.CurrentState = FetcherState.ArriveAtFire;
             }
         }
     }

@@ -40,6 +40,12 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         set => Fetcher.ValueRW.TargetDropZone = value;
     }
 
+    public Entity TargetFireTile
+    {
+        get => Fetcher.ValueRO.TargetFireTile;
+        set => Fetcher.ValueRW.TargetFireTile = value;
+    }
+    
     public FetcherState CurrentState
     {
         get => Fetcher.ValueRO.CurrentState;

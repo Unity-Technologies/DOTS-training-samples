@@ -9,7 +9,10 @@ public enum FetcherState
     // TODO: PickUpBucket?
     MoveTowardsWater,
     ArriveAtWater,
-    FillingBucket
+    FillingBucket,
+    
+    MoveTowardsFire,
+    ArriveAtFire
 }
 
 struct Fetcher : IComponentData
@@ -18,6 +21,7 @@ struct Fetcher : IComponentData
     
     public Entity TargetPickUp;
     public Entity TargetDropZone;
+    public Entity TargetFireTile;
     
     public float SpeedFull;
     public float SpeedEmpty;
