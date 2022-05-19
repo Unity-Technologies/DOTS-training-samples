@@ -26,20 +26,6 @@ public partial struct DistanceAlongBezierSystem : ISystem
 		var job = new PositionEntityOnBezierJob{ BufferFromEntity = _bufferFromEntity };
 		job.ScheduleParallel();
 	}
-
-	[BurstCompile]
-	public static void PositionEntityOnBezier(ref DistanceAlongBezier position, TransformAspect transform, NativeArray<BezierPoint> track)
-	{
-		float pathLength = BezierPath.Get_PathLength(track);
-		position.Distance = Mathf.Repeat(position.Distance, pathLength);
-		float distAsPercentage = position.Distance / pathLength;
-		float3 posOnRail = BezierPath.Get_Position(track, distAsPercentage);
-		float3 tangentOnRail = BezierPath.Get_NormalAtPosition(track, distAsPercentage);
-		
-		var rotation = Quaternion.LookRotation(tangentOnRail);
-		transform.Position = posOnRail;
-		transform.Rotation = rotation;
-	}
 }
 
 [BurstCompile]
@@ -52,6 +38,20 @@ public partial struct PositionEntityOnBezierJob : IJobEntity
 	public void Execute(ref DistanceAlongBezier position, TransformAspect transform)
 	{
 		DynamicBuffer<BezierPoint> track = BufferFromEntity[position.TrackEntity];
-		DistanceAlongBezierSystem.PositionEntityOnBezier(ref position, transform, track.AsNativeArray());
+		PositionEntityOnBezier(ref position, ref transform, track.AsNativeArray());
+	}
+
+	[BurstCompile]
+	public void PositionEntityOnBezier(ref DistanceAlongBezier position, ref TransformAspect transform, in NativeArray<BezierPoint> track)
+	{
+		float pathLength = BezierPath.Get_PathLength(track);
+		position.Distance = Mathf.Repeat(position.Distance, pathLength);
+		float distAsPercentage = position.Distance / pathLength;
+		float3 posOnRail = BezierPath.Get_Position(track, distAsPercentage);
+		float3 tangentOnRail = BezierPath.Get_NormalAtPosition(track, distAsPercentage);
+
+		var rotation = Quaternion.LookRotation(tangentOnRail);
+		transform.Position = posOnRail;
+		transform.Rotation = rotation;
 	}
 }

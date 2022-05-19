@@ -27,11 +27,9 @@ public partial struct TrainSpawnSystem : ISystem
 	{
 		Config config = SystemAPI.GetSingleton<Config>();
 
-		if(config.TrainsPer100Metres > 0.0f)
-		{
-			var ecb = GetCommandBuffer(ref state);
-			SpawnTrains(ecb, config, ref state);
-		}
+
+		var ecb = GetCommandBuffer(ref state);
+		SpawnTrains(ecb, config, ref state);
 
 		state.Enabled = false;
 	}
@@ -47,18 +45,35 @@ public partial struct TrainSpawnSystem : ISystem
 		foreach (var track in SystemAPI.Query<TrackAspect>())
 		{
 			var trackBuffer = track.TrackBuffer.AsNativeArray();
+
 			BezierPath.MeasurePath(trackBuffer);
 			float pathLength = BezierPath.Get_PathLength(trackBuffer);
+			int trainNumber = GetTrainNumber(pathLength, config);
+			float distanceBetweenTrains = pathLength / trainNumber;
 
-			int trainNum = (int)math.floor((pathLength / 100) * config.TrainsPer100Metres);
-			float distanceBetweenTrains = pathLength / trainNum;
-			float distance = 0.0f;	
-			for (int i = 0; i < trainNum; i++)
+			float distance = 0.0f;
+			for (int i = 0; i < trainNumber; i++)
 			{
 				SpawnTrain(track, ecb, config, distance, ref state);
 				distance += distanceBetweenTrains;
 			}
 		}
+	}
+
+	private int GetTrainNumber(float pathLength, Config config)
+	{
+		switch(config.TrainSpawnType)
+		{
+			case TrainSpawnType.Absolute:
+			{
+				return (int)math.floor(config.TrainCount);
+			}
+			case TrainSpawnType.Per100Metres:
+			{
+				return (int)math.floor((pathLength / 100) * config.TrainCount);
+			}
+		}
+		return 0;
 	}
 
 	private void SpawnTrain (TrackAspect track, EntityCommandBuffer ecb, Config config, float distance, ref SystemState state)
