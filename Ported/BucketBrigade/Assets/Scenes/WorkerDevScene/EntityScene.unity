@@ -154,17 +154,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
-  Size: 10
-  CellSize: 1
-  HeatIncreaseSpeed: 0
-  HeatScalingFactor: 0
+  Size: 100
+  CellSize: 0.5
+  HeatIncreaseSpeed: 0.025
+  HeatScalingFactor: 3
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
   LightFireColor: {r: 1, g: 0.75114393, b: 0.41037738, a: 0}
   MediumFireColor: {r: 0.9622642, g: 0.37043807, b: 0.18609825, a: 0}
   IntenseFireColor: {r: 1, g: 0.16509432, b: 0.21460178, a: 0}
   Spacing: 1
   OuterSize: 2
-  NbOfWaterTiles: 50
+  NbOfWaterTiles: 100
   LightWaterColor: {r: 0.29592383, g: 0.29592383, b: 0.6603774, a: 0}
   MediumWaterColor: {r: 0.24448201, g: 0.24448201, b: 0.7735849, a: 0}
   IntenseWaterColor: {r: 0, g: 0, b: 1, a: 0}
@@ -220,7 +220,7 @@ MonoBehaviour:
     type: 3}
   NbOfTeams: 2
   FetcherPerTeamCount: 1
-  WorkerEmptyPerTeamCount: 10000
+  WorkerEmptyPerTeamCount: 10
   WorkerFullPerTeamCount: 0
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,

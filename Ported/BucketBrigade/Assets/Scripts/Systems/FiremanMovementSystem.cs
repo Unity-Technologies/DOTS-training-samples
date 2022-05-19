@@ -1,4 +1,5 @@
 ﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -11,11 +12,17 @@ partial struct FiremanMovementSystem : ISystem
     private TransformAspect.EntityLookup m_TransformFromEntity;
     private int m_ChainLength;
     private Random m_Random;
+    TileGrid m_TileGrid;
+    private float3 targetPosition;
 
     public void OnCreate(ref SystemState state)
     {
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
+
+        state.RequireForUpdate<TileGrid>();
+        state.RequireForUpdate<TileGridConfig>();
+        state.RequireForUpdate<HeatBufferElement>();
         state.RequireForUpdate<Config>();
     }
 
@@ -27,17 +34,19 @@ partial struct FiremanMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        //update the entity lookup
         m_TransformFromEntity.Update(ref state);
-
         var config = SystemAPI.GetSingleton<Config>();
+        //set chain length to worker count
         m_ChainLength = config.WorkerEmptyPerTeamCount;
 
+        //calculate movement speed
         float movementSpeed = state.Time.DeltaTime * 1.25f;
 
         int index = 0;
         foreach (var fireman in Query<FiremanAspect>())
         {
-            UpdateState(fireman, index);
+            UpdateState(fireman, index, ref state);
             
             if (fireman.FiremanState == FiremanState.OnRouteToDestination)
             {
@@ -48,17 +57,54 @@ partial struct FiremanMovementSystem : ISystem
         }
     }
 
-    public void UpdateState(FiremanAspect fireman, int index)
+    public void UpdateState(FiremanAspect fireman, int index, ref SystemState state)
     {
         switch (fireman.FiremanState)
         {
             case FiremanState.Awaiting:
-                //float3 destination = GetChainPosition(index, fireman.Position, new float3(0.0f, 0.0f, 3.0f));
-                var randz = m_Random.NextFloat(100.0f, -100.0f);
-                var randx = m_Random.NextFloat(100.0f, -100.0f);
-                //replace with finding target fire cell and  target water cell
-                float3 randomPosition = new float3(randx, 0.0f, randz);
-                float3 destination = GetChainPosition(index, m_TransformFromEntity[fireman.Self].Position, randomPosition);
+                
+                //bad hack, do something better later, for now assume the first fireman is the leader by which all other firemen follow in the chain
+                if (index == 0)
+                {
+                    //get singletons
+                    var tileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
+                    m_TileGrid = SystemAPI.GetSingleton<TileGrid>();
+                    //get the heat buffer
+                    var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(m_TileGrid.entity);
+                    //create an allocator and native array to store on fire tiles to find the closest index later
+                    var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
+                    NativeArray<float3> fireCells = CollectionHelper.CreateNativeArray<float3>(tileGridConfig.Size * tileGridConfig.Size, allocator);
+
+                    int count = 0;
+                    foreach (var tile in SystemAPI.Query<TileAspect>().WithAll<Combustable>())
+                    {
+                        float heat = heatBuffer[count].Heat;
+                        //TODO: figure out closet tile with the highest heat value, for now just grab closest on fire tile, stash the heat value into the z of the vector for convenience
+                        fireCells[count] = new float3(tile.Position.x, tile.Position.y, heat);
+                    }
+
+                    float closestDistance = float.MaxValue;
+                    float2 closestCell = new float2();
+                    foreach (var cell in fireCells)
+                    {
+                        //z is heat, ignore low heat tiles
+                        if (cell.z < .3f)
+                            continue;
+
+                        //compare the 2d vector values, height doesn't factor
+                        float distance = math.distance(fireman.Position.xz, cell.xz);
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestCell = cell.xy;
+                        }
+                    }
+                    targetPosition.x = closestCell.x;
+                    targetPosition.y = closestCell.y;
+                    targetPosition.z = 0.0f;
+                }
+
+                float3 destination = GetChainPosition(index, m_TransformFromEntity[fireman.Self].Position, targetPosition);
                 
                 fireman.Destination = destination;
                 fireman.FiremanState = FiremanState.OnRouteToDestination;
@@ -101,7 +147,7 @@ partial struct FiremanMovementSystem : ISystem
             return;
         }
 
-        float3 translation = m_TransformFromEntity[fireman.Self].Forward + math.sign(fireman.Destination - currentPosition) * maxDelta;
+        float3 translation = m_TransformFromEntity[fireman.Self].Forward * fireman.Speed;//+ math.sign(fireman.Destination - currentPosition) * (maxDelta / 5);
 
         m_TransformFromEntity[fireman.Self].LookAt(fireman.Destination);
         m_TransformFromEntity[fireman.Self].TranslateWorld(translation);
