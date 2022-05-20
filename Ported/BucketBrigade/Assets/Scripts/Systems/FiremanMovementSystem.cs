@@ -74,67 +74,38 @@ partial struct FiremanMovementSystem : ISystem
                     m_TileGrid = SystemAPI.GetSingleton<TileGrid>();
                     //get the heat buffer
                     var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(m_TileGrid.entity);
-                    //create an allocator and native array to store on fire tiles to find the closest index later
-                    //var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-                    //NativeArray<float3> fireCells = CollectionHelper.CreateNativeArray<float3>(tileGridConfig.Size * tileGridConfig.Size, allocator);
-
-                    float2 closestCell = new float2();
 
                     int count = 0;
                     foreach (var tile in SystemAPI.Query<TileAspect>().WithAll<Combustable>())
                     {
                         float heat = heatBuffer[count].Heat;
-                        //TODO: figure out closet tile with the highest heat value, for now just grab closest on fire tile, stash the heat value into the z of the vector for convenience
-                        //fireCells[count] = new float3(tile.Position.x, tile.Position.y, heat);
 
-                        if (heat < .3f)
-                            continue;
-
-                        //compare the 2d vector values, height doesn't factor
-                        float distance = math.distance(fireman.Position.xz, tile.Position);
-                        if (distance < closestDistance)
+                        if (heat >= .3f)
                         {
-                            closestDistance = distance;
-                            closestCell = tile.Position;
-                            UnityEngine.Debug.Log($" closest cell {count} is on fire with heat {heat} with position {tile.Position} distance {distance}");
-                            targetAcquired = true;
-                        }
+                            //compare the 2d vector values, height doesn't factor
+                            float distance = math.distance(fireman.Position.xz, tile.Position);
 
+                            //UnityEngine.Debug.Log($"fire tile# {count} distance {distance} closestDistance {closestDistance}");
+
+                            if (distance <= closestDistance)
+                            {
+                                closestDistance = distance;
+                                targetPosition.xz = tile.Position;
+                                targetPosition.y = 0.0f;
+                                targetAcquired = true;
+                            }
+                        }
 
                         count++;
                     }
-
-                    //foreach (var cell in fireCells)
-                    //{
-                    //    //z is heat, ignore low heat tiles
-                    //    if (cell.z < .3f)
-                    //        continue;
-                    //
-                    //
-                    //    //compare the 2d vector values, height doesn't factor
-                    //    float distance = math.distance(fireman.Position.xz, cell.xy);
-                    //    if (distance < closestDistance)
-                    //    {
-                    //        closestDistance = distance;
-                    //        closestCell = cell.xy;
-                    //    }
-                    //    UnityEngine.Debug.Log($"cell heat {cell.z} with position {cell.xy} distance {distance}");
-                    //
-                    //}
-
-                    targetPosition.x = closestCell.x;
-                    targetPosition.z = closestCell.y;
-                    targetPosition.y = 0.0f;
-
-                    //UnityEngine.Debug.Log($"closest fire cell is index {count} with position {targetPosition}");
                 }
 
                 if (!targetAcquired)
                     return;
 
                 float3 destination = GetChainPosition(index, m_TransformFromEntity[fireman.Self].Position, targetPosition);
-                
-                fireman.Destination = destination;
+
+                fireman.Destination = targetPosition;// new float3(0.0f, 0.0f, 0.0f);// destination;
                 fireman.FiremanState = FiremanState.OnRouteToDestination;
                 break;
             case FiremanState.OnRouteToDestination:
@@ -170,8 +141,7 @@ partial struct FiremanMovementSystem : ISystem
         float distance = math.abs(math.distance(currentPosition, fireman.Destination));
         if (distance <= maxDelta)
         {
-            //UnityEngine.Debug.Log($"fireman stopping at distance {distance} delta {delta} fireman.Destination {fireman.Destination} currentPosition {currentPosition}");
-            fireman.FiremanState = FiremanState.Awaiting;
+            fireman.FiremanState = FiremanState.Stopped;
             return;
         }
 
