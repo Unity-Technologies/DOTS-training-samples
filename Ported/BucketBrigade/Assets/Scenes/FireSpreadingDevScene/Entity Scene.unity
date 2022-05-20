@@ -169,9 +169,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
-  Size: 10
+  Size: 300
   CellSize: 0.2
-  HeatIncreaseSpeed: 0.01
+  HeatIncreaseSpeed: 0.1
   HeatScalingFactor: 1
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
   LightFireColor: {r: 1, g: 0.75114393, b: 0.41037738, a: 0}
