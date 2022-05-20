@@ -9,7 +9,7 @@ readonly partial struct BucketAspect : IAspect<BucketAspect>
     //Buckets have a few properties. Transform and WaterLevel. The latter goes from 0 to 1, a float. 
     private readonly RefRW<Bucket> Bucket;
     private readonly TransformAspect Transform;
-    public readonly RefRW<Scale> _scale;
+    private readonly RefRW<NonUniformScale> _scale;
 
     private readonly RefRW<URPMaterialPropertyBaseColor> m_BaseColor;
 
@@ -25,7 +25,7 @@ readonly partial struct BucketAspect : IAspect<BucketAspect>
     }
 
     public float Scale {
-        get => _scale.ValueRO.Value;
+        get => _scale.ValueRO.Value.x;
         set => _scale.ValueRW.Value = value;
     }
 
