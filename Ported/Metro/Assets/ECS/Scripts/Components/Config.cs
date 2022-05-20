@@ -7,10 +7,7 @@ public struct Config : IComponentData
     public Entity PlatformPrefab;
     public Entity CommuterPrefab;
     public Entity RailPrefab;
-    
-    // Trail data
-    public int TrainsToSpawn;
-    
+
     // Bezier data
     public float BezierHandleReach;
     public float BezierPlatformOffset;
@@ -18,4 +15,7 @@ public struct Config : IComponentData
     public int BezierMeasurementSubdivisions;
     public float PlatformArrivalThreshold;
     public float RailSpacing;
+    
+    // Carriage data
+    public float CarriageSizePlusPadding;
 }

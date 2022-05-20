@@ -21,7 +21,7 @@ public partial struct RailMarkerGenerationSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        var trains = CollectionHelper.CreateNativeArray<Entity>(config.TrainsToSpawn, allocator);
+        var trains = CollectionHelper.CreateNativeArray<Entity>(0, allocator);
         ecb.Instantiate(config.RailPrefab, trains);
         
         state.Enabled = false;

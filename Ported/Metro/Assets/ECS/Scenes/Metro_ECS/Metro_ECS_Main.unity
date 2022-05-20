@@ -1774,7 +1774,7 @@ MonoBehaviour:
   Colour: {r: 0, g: 0, b: 1, a: 1}
   MaxTrains: 4
   CarriagesPerTrain: 4
-  MaxTrainSpeed: 0.002
+  MaxTrainSpeed: 0.1
 --- !u!4 &4137274577047695
 Transform:
   m_ObjectHideFlags: 0
@@ -2792,7 +2792,7 @@ MonoBehaviour:
   Colour: {r: 1, g: 1, b: 0, a: 1}
   MaxTrains: 4
   CarriagesPerTrain: 4
-  MaxTrainSpeed: 0.002
+  MaxTrainSpeed: 0.1
 --- !u!4 &4847492969021591
 Transform:
   m_ObjectHideFlags: 0
@@ -2908,7 +2908,7 @@ MonoBehaviour:
   Colour: {r: 1, g: 0, b: 0, a: 1}
   MaxTrains: 6
   CarriagesPerTrain: 5
-  MaxTrainSpeed: 0.002
+  MaxTrainSpeed: 0.1
 --- !u!4 &4879591003845199
 Transform:
   m_ObjectHideFlags: 0
@@ -3173,7 +3173,7 @@ MonoBehaviour:
   Colour: {r: 0, g: 1, b: 0, a: 1}
   MaxTrains: 6
   CarriagesPerTrain: 5
-  MaxTrainSpeed: 0.002
+  MaxTrainSpeed: 0.1
 --- !u!4 &4992732679708265
 Transform:
   m_ObjectHideFlags: 0
@@ -3248,7 +3248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bad39bce2ffc4cc6a78420fc10ae3b5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc,
+  CarriagePrefab: {fileID: 1005656507454012, guid: f22269905cc02e74c95e6492eba0644f,
     type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: c0f9e7bede95f484a82f151605915c38,
     type: 3}
@@ -3256,12 +3256,13 @@ MonoBehaviour:
     type: 3}
   RailPrefab: {fileID: 1004504532206030, guid: 763335d9d59dd3a4b8875429055bf849, type: 3}
   TrainsToSpawn: 50
-  BEZIER_HANDLE_REACH: 0.15
-  BEZIER_PLATFORM_OFFSET: 8
-  PLATFORM_ADJACENCY_LIMIT: 12
-  BEZIER_MEASUREMENT_SUBDIVISIONS: 2
-  PLATFORM_ARRIVAL_THRESHOLD: 0.975
-  RAIL_SPACING: 0.5
+  BezierHandleReach: 0.15
+  BezierPlatformOffset: 8
+  PlatformAdjacencyLimit: 12
+  BezierMeasurementSubdivisions: 2
+  PlatformArrivalThreshold: 0.975
+  RailSpacing: 0.5
+  CarriageSizePlusPadding: 6
 --- !u!114 &114020548029937752
 MonoBehaviour:
   m_ObjectHideFlags: 0

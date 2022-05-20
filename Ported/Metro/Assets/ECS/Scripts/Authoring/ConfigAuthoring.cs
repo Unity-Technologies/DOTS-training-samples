@@ -19,6 +19,8 @@ class ConfigAuthoring : MonoBehaviour
     public int BezierMeasurementSubdivisions = 2;
     public float PlatformArrivalThreshold = 0.975f;
     public float RailSpacing = 0.5f;
+
+    public float CarriageSizePlusPadding = 6f;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -31,15 +33,15 @@ class ConfigBaker : Baker<ConfigAuthoring>
             PlatformPrefab = GetEntity(authoring.PlatformPrefab),
             CommuterPrefab = GetEntity(authoring.CommuterPefab),
             RailPrefab = GetEntity(authoring.RailPrefab),
-            
-            TrainsToSpawn = authoring.TrainsToSpawn,
-            
+
             BezierHandleReach = authoring.BezierHandleReach,
             BezierPlatformOffset = authoring.BezierPlatformOffset,
             PlatformAdjacencyLimit = authoring.PlatformAdjacencyLimit,
             BezierMeasurementSubdivisions = authoring.BezierMeasurementSubdivisions,
             PlatformArrivalThreshold = authoring.PlatformArrivalThreshold,
-            RailSpacing = authoring.RailSpacing
+            RailSpacing = authoring.RailSpacing,
+            
+            CarriageSizePlusPadding = authoring.CarriageSizePlusPadding
         });
     }
 }

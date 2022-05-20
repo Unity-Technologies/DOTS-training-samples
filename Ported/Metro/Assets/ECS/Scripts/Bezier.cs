@@ -40,8 +40,8 @@ public static class Bezier
         return lastPoint.location + (lastPoint.location - points[^2].location);
     }
 
-    public static float GetCarriageSizeOnBezier(ref BezierData data, float carriageSize)
+    public static float GetRelativeSizeOnBezier(ref BezierData data, float unitSize)
     {
-        return carriageSize / data.distance;
+        return unitSize / data.distance;
     }
 }

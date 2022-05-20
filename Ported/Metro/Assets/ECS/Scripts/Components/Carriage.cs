@@ -9,6 +9,9 @@ public enum CarriageState
 }
 struct Carriage : IComponentData
 {
+    public Entity Train;
+    public int Index;
+    
     public CarriageState State;
 
     // These entities will reference the CarriageDoors (where doors are located on the carriage).

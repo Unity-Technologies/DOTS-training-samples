@@ -12,7 +12,8 @@ public enum TrainState
 }
 struct Train : IComponentData
 {
+    public Entity Line;
     public TrainState State;
     public Entity trainAheadOfMe;
-
+    public float SplinePosition;
 }

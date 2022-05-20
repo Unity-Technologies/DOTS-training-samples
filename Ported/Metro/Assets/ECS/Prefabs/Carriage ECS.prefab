@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 114672226450690598}
   - component: {fileID: 5533487800318684108}
   m_Layer: 0
-  m_Name: Carriage
+  m_Name: Carriage ECS
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
