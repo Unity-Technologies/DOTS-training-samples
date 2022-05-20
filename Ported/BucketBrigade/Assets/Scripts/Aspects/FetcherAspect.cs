@@ -45,4 +45,10 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         get => Fetcher.ValueRO.CurrentState;
         set => Fetcher.ValueRW.CurrentState = value;
     }
+    
+    public Entity HeldEntity
+    {
+        get => Fetcher.ValueRO.HeldEntity;
+        set => Fetcher.ValueRW.HeldEntity = value;
+    }
 }

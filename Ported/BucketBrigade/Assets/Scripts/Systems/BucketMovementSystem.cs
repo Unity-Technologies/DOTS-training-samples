@@ -1,11 +1,9 @@
-
-
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 
 [BurstCompile]
-partial struct BucketVisualUpdateSystem : ISystem {
+partial struct BucketMovementSystem : ISystem {
     //This system will handle reading the fill level and using that to
     //calculate the bucket's size and color
 
@@ -13,8 +11,7 @@ partial struct BucketVisualUpdateSystem : ISystem {
     private float4 blue;
 
     public void OnCreate(ref SystemState state) {
-        cyan = new float4(0, 1, 1, 1);
-        blue = new float4(0, 0, 1, 1);
+        
     }
 
     public void OnDestroy(ref SystemState state) {
