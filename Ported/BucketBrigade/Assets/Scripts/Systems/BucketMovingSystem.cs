@@ -11,7 +11,7 @@ partial struct BucketMovingSystem : ISystem
 
     public void OnCreate(ref SystemState state) 
     {
-        state.RequireForUpdate<FetcherTarget>();
+        state.RequireForUpdate<Bucket>();
         
         m_FetcherQuery = state.GetEntityQuery(typeof(Fetcher), typeof(Translation));
     }
@@ -34,7 +34,18 @@ partial struct BucketMovingSystem : ISystem
                 if (fetcher.TargetPickUp != Entity.Null
                     && fetcher.TargetPickUp.Equals(bucket.Self))
                 {
-                    bucket.Position = fetcherTranslations[idx].Value + new float3(0, 1.0f, 0);
+                    //UnityEngine.Debug.Log($"Test: { fetcher.TargetPickUpIdx }");
+
+                    if (fetcher.CurrentState == FetcherState.ArriveAtBucket ||
+                        fetcher.CurrentState == FetcherState.MoveTowardsWater)
+                    {
+                        bucket.Interactions = BucketInteractions.PickedUp;
+                        bucket.Position = fetcherTranslations[idx].Value + new float3(0, 1.0f, 0);
+                    }
+                    else if (fetcher.CurrentState == FetcherState.FillingBucket)
+                    {
+                        bucket.FillLevel = 1.0f;
+                    }
                 }
             }
         }

@@ -12,14 +12,19 @@ partial struct FetcherMovementSystem : ISystem
     
     private EntityQuery m_FetcherPickUpQuery;
     private EntityQuery m_FetcherDropZoneQuery;
-
+ 
     private Random m_Random;
     
     public void OnCreate(ref SystemState state)
     {       
+        state.RequireForUpdate<Bucket>();
+        state.RequireForUpdate<FetcherTarget>();
+        state.RequireForUpdate<FetcherDropZone>();
+        state.RequireForUpdate<Fetcher>();
+        
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
-        m_FetcherPickUpQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation));
+        m_FetcherPickUpQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation), typeof(Bucket));
         m_FetcherDropZoneQuery = state.GetEntityQuery(typeof(FetcherDropZone), typeof(Translation));
     }
 
@@ -31,23 +36,24 @@ partial struct FetcherMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         m_TransformFromEntity.Update(ref state);
-      
+
         var fetcherTargets = m_FetcherPickUpQuery.ToEntityArray(Allocator.Temp);
         var fetcherTargetTranslations = m_FetcherPickUpQuery.ToComponentDataArray<Translation>(Allocator.Temp);
+        var buckets = m_FetcherPickUpQuery.ToComponentDataArray<Bucket>(Allocator.Temp);
         
         var fetcherDropZones = m_FetcherDropZoneQuery.ToEntityArray(Allocator.Temp);
         var fetcherDropZoneTranslations = m_FetcherDropZoneQuery.ToComponentDataArray<Translation>(Allocator.Temp);
 
         foreach (var fetcher in SystemAPI.Query<FetcherAspect>())
         {
-            UpdateCurrentState(fetcher);
-            FindClosestPickUp(fetcher, fetcherTargets, fetcherTargetTranslations);
+            UpdateCurrentState(fetcher, buckets);
+            FindClosestPickUp(fetcher, fetcherTargets, fetcherTargetTranslations, buckets);
             FindClosestDropZone(fetcher, fetcherDropZones, fetcherDropZoneTranslations);
             MoveTowardsTarget(fetcher, ref state);
         }
     }
 
-    private void UpdateCurrentState(FetcherAspect fetcher)
+    private void UpdateCurrentState(FetcherAspect fetcher, NativeArray<Bucket> buckets)
     {
         switch (fetcher.CurrentState)
         {
@@ -89,6 +95,7 @@ partial struct FetcherMovementSystem : ISystem
             
             case FetcherState.FillingBucket:
             {
+                fetcher.TargetPickUpIdx = -1;
                 fetcher.TargetDropZone = Entity.Null;
                 fetcher.TargetPickUp = Entity.Null;
                 fetcher.CurrentState = FetcherState.Idle;
@@ -97,7 +104,7 @@ partial struct FetcherMovementSystem : ISystem
         }
     }
     
-    private void FindClosestPickUp(FetcherAspect fetcher, NativeArray<Entity> fetcherTargets, NativeArray<Translation> fetcherTargetTranslations)
+    private void FindClosestPickUp(FetcherAspect fetcher, NativeArray<Entity> fetcherTargets, NativeArray<Translation> fetcherTargetTranslations, NativeArray<Bucket> buckets)
     {
         if (fetcher.CurrentState != FetcherState.MoveTowardsBucket)
         {
@@ -108,19 +115,25 @@ partial struct FetcherMovementSystem : ISystem
         {
             if(fetcherTargetTranslations.Length > 0)
             {
-                int closestIdx = 0;
+                int closestIdx = -1;
                 float closestDistance = float.MaxValue;
                 for (int idx = 0; idx < fetcherTargets.Length; idx++)
                 {
                     Translation currentTranslation = fetcherTargetTranslations[idx];
                     var distance = math.distance(fetcher.Position, currentTranslation.Value);
-                    if (distance < closestDistance)
+                    if (distance < closestDistance &&
+                        buckets[idx].Interactions == BucketInteractions.Dropped) 
                     {
                         closestDistance = distance;
                         closestIdx = idx;
                     }
                 }
-                fetcher.TargetPickUp = fetcherTargets[closestIdx];
+
+                if (closestIdx != -1)
+                {
+                    fetcher.TargetPickUpIdx = closestIdx;
+                    fetcher.TargetPickUp = fetcherTargets[closestIdx];
+                }
             }
             else
             {
@@ -176,12 +189,14 @@ partial struct FetcherMovementSystem : ISystem
         
         float movementSpeed = 0;
         float3 targetPos = float3.zero;
-        if (fetcher.CurrentState == FetcherState.MoveTowardsBucket)
+        if (fetcher.CurrentState == FetcherState.MoveTowardsBucket && 
+            fetcher.TargetPickUp != Entity.Null)
         {
             targetPos = m_TransformFromEntity[fetcher.TargetPickUp].Position;
             movementSpeed = state.Time.DeltaTime * fetcher.SpeedEmpty;
         }
-        else if (fetcher.CurrentState == FetcherState.MoveTowardsWater)
+        else if (fetcher.CurrentState == FetcherState.MoveTowardsWater &&
+                 fetcher.TargetDropZone != Entity.Null)
         {
             targetPos = m_TransformFromEntity[fetcher.TargetDropZone].Position;
             movementSpeed = state.Time.DeltaTime * fetcher.SpeedFull;

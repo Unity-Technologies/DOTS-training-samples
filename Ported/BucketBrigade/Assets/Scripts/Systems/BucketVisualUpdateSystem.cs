@@ -109,6 +109,7 @@ partial struct BucketVisualUpdateSystem : ISystem {
                 //TODO: Here 'index' refers to the index of the tile the bucket is on. Need to find out how to get this. 
                 DouseHeat(ref state, 0, m_TileGridConfig.Size);
                 bucket.Interactions = BucketInteractions.Dropped;
+                bucket.FillLevel = 0;
             }
         }
     }

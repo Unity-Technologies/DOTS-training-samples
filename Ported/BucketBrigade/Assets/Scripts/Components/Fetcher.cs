@@ -15,7 +15,8 @@ public enum FetcherState
 public struct Fetcher : IComponentData
 {
     public FetcherState CurrentState;
-    
+
+    public int TargetPickUpIdx;
     public Entity TargetPickUp;
     public Entity TargetDropZone;
     public Entity HeldEntity;
