@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
-  Size: 10
+  Size: 30
   CellSize: 1
   HeatIncreaseSpeed: 0.025
   HeatScalingFactor: 3
@@ -220,7 +220,7 @@ MonoBehaviour:
     type: 3}
   NbOfTeams: 1
   FetcherPerTeamCount: 1
-  WorkerEmptyPerTeamCount: 30
+  WorkerEmptyPerTeamCount: 20
   WorkerFullPerTeamCount: 0
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,

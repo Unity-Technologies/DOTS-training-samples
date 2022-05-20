@@ -48,7 +48,7 @@ partial struct FiremanMovementSystem : ISystem
         lastFiremanIndex = m_ChainLength - 1;
 
         //calculate movement speed
-        float movementSpeed = state.Time.DeltaTime * 1.25f;
+        float movementSpeed = state.Time.DeltaTime * 2f;
 
         int index = 0;
         foreach (var fireman in Query<FiremanAspect>())
