@@ -162,7 +162,7 @@ MonoBehaviour:
   TrainSpawnType: 1
   TrainCount: 1
   CarriagesPerTrain: 4
-  TrainOffset: 7
+  TrainOffset: 4
   CarriageLength: 6.5
   MaxTrainSpeed: 30
   TrainWaitTime: 5
