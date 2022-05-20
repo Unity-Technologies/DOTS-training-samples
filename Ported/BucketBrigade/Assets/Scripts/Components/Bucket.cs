@@ -4,7 +4,8 @@ public enum BucketInteractions {
     Pickup,
     PickedUp,
     Drop,
-    Dropped
+    Dropped,
+    Pour
 }
 
 public struct Bucket : IComponentData {

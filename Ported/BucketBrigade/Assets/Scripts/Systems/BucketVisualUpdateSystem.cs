@@ -104,7 +104,7 @@ partial struct BucketVisualUpdateSystem : ISystem {
             //bucket.Position = bucket.Holder.Position
             
             //Handle bucket's interaction with the TileGrid
-            if (bucket.Interactions == BucketInteractions.Drop) {
+            if (bucket.Interactions == BucketInteractions.Pour) {
                 //It was "told" to drop; put out nearby fires
                 //TODO: Here 'index' refers to the index of the tile the bucket is on. Need to find out how to get this. 
                 DouseHeat(ref state, 0, m_TileGridConfig.Size);
