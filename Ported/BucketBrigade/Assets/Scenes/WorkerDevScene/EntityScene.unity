@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TilePrefab: {fileID: 5030795403291528972, guid: a84b7abbbc732ea4fa85c8e497a0aa5d,
     type: 3}
-  Size: 100
-  CellSize: 0.5
+  Size: 10
+  CellSize: 1
   HeatIncreaseSpeed: 0.025
   HeatScalingFactor: 3
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
@@ -218,9 +218,9 @@ MonoBehaviour:
     type: 3}
   WorkerFullPrefab: {fileID: 7860217524029354283, guid: f9b1c6e96f0db0d49a4b7c694b35c556,
     type: 3}
-  NbOfTeams: 2
+  NbOfTeams: 1
   FetcherPerTeamCount: 1
-  WorkerEmptyPerTeamCount: 10
+  WorkerEmptyPerTeamCount: 1
   WorkerFullPerTeamCount: 0
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,
