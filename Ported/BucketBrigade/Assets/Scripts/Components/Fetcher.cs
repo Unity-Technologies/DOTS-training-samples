@@ -12,12 +12,14 @@ public enum FetcherState
     FillingBucket
 }
 
-struct Fetcher : IComponentData
+public struct Fetcher : IComponentData
 {
     public FetcherState CurrentState;
-    
+
+    public int TargetPickUpIdx;
     public Entity TargetPickUp;
     public Entity TargetDropZone;
+    public Entity HeldEntity;
     
     public float SpeedFull;
     public float SpeedEmpty;
