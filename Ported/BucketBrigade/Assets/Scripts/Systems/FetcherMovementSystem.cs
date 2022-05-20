@@ -19,7 +19,7 @@ partial struct FetcherMovementSystem : ISystem
     {       
         m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
-        m_FetcherPickUpQuery = state.GetEntityQuery(typeof(Bucket), typeof(Translation));
+        m_FetcherPickUpQuery = state.GetEntityQuery(typeof(FetcherTarget), typeof(Translation));
         m_FetcherDropZoneQuery = state.GetEntityQuery(typeof(FetcherDropZone), typeof(Translation));
     }
 
