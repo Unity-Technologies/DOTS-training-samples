@@ -60,7 +60,7 @@ partial struct BucketMovingSystem : ISystem
                     }
                     else if (bucket.Interactions == BucketInteractions.Chaining)
                     {
-                        if (bucket.AwaiterCount == 50)
+                        if (bucket.AwaiterCount == 10)
                         {
                             bucket.AwaiterCount = 0;
                             bucket.Position = firemenTranslations[idx].Value + new float3(0, 1.0f, 0);
