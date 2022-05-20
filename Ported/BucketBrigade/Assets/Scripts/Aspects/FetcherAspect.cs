@@ -28,6 +28,12 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
         set => Fetcher.ValueRW.SpeedFull = value;
     }
 
+    public int TargetPickUpIdx
+    {
+        get => Fetcher.ValueRO.TargetPickUpIdx;
+        set => Fetcher.ValueRW.TargetPickUpIdx = value;
+    }
+    
     public Entity TargetPickUp
     {
         get => Fetcher.ValueRO.TargetPickUp;
@@ -44,5 +50,11 @@ readonly partial struct FetcherAspect : IAspect<FetcherAspect>
     {
         get => Fetcher.ValueRO.CurrentState;
         set => Fetcher.ValueRW.CurrentState = value;
+    }
+    
+    public Entity HeldEntity
+    {
+        get => Fetcher.ValueRO.HeldEntity;
+        set => Fetcher.ValueRW.HeldEntity = value;
     }
 }
