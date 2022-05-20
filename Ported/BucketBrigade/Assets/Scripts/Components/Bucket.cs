@@ -14,8 +14,9 @@ public struct Bucket : IComponentData {
 
     public BucketInteractions Interactions;
 
-    // TODO: these are all hacks
-    public int NbOfFiremen; // TODO: Need to be tracked on the team level
+    // TODO: these are all hacks - shoould probably be tracked elsewhere
+    public int CurrentTeam; 
+    public int NbOfFiremen;
     public int CurrentFiremanIdx;
     public int AwaiterCount;
 }

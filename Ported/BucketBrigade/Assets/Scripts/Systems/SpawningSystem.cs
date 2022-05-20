@@ -50,23 +50,27 @@ partial struct SpawningSystem : ISystem
                 ecb.SetComponent(workerFull, new Translation { Value = new float3(randomRow * tileGridConfig.CellSize, 0, randomColumn * tileGridConfig.CellSize) });
                 ecb.AddComponent(workerFull, new Team { TeamNb = idx });
             }
-        
+
+            int workerIdx = 0;
             foreach (var workerEmpty in workersEmpty)
             {
                 var randomRow = random.NextInt(0, tileGridConfig.Size);
                 var randomColumn = random.NextInt(0, tileGridConfig.Size);
             
                 ecb.SetComponent(workerEmpty, new Translation { Value = new float3(randomRow * tileGridConfig.CellSize, 0, randomColumn * tileGridConfig.CellSize) });
-                ecb.AddComponent(workerEmpty, new Team { TeamNb = idx });
-            } 
-            
+                ecb.AddComponent(workerEmpty, new Team { TeamNb = idx, WorkerIdx = workerIdx, NbOfFiremen = workersEmpty.Length});
+
+                workerIdx++;
+            }
+
+            int fetcherIdx = 0;
             foreach (var fetcher in fetchers)
             {
                 var randomRow = random.NextInt(0, tileGridConfig.Size);
                 var randomColumn = random.NextInt(0, tileGridConfig.Size);
             
                 ecb.SetComponent(fetcher, new Translation { Value = new float3(randomRow * tileGridConfig.CellSize, 0, randomColumn * tileGridConfig.CellSize) });
-                ecb.AddComponent(fetcher, new Team { TeamNb = idx });
+                ecb.AddComponent(fetcher, new Team { TeamNb = idx, FetcherIdx = fetcherIdx});
             }
         }
         
