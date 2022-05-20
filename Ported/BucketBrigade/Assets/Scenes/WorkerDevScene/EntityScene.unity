@@ -156,7 +156,7 @@ MonoBehaviour:
     type: 3}
   Size: 30
   CellSize: 1
-  HeatIncreaseSpeed: 0.1
+  HeatIncreaseSpeed: 0.05
   HeatScalingFactor: 3
   GrassColor: {r: 0.61881286, g: 0.9529412, b: 0.3176471, a: 0}
   LightFireColor: {r: 1, g: 0.75114393, b: 0.41037738, a: 0}
@@ -218,9 +218,9 @@ MonoBehaviour:
     type: 3}
   WorkerFullPrefab: {fileID: 7860217524029354283, guid: f9b1c6e96f0db0d49a4b7c694b35c556,
     type: 3}
-  NbOfTeams: 2
+  NbOfTeams: 1
   FetcherPerTeamCount: 1
-  WorkerEmptyPerTeamCount: 20
+  WorkerEmptyPerTeamCount: 10
   WorkerFullPerTeamCount: 0
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,

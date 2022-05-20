@@ -9,6 +9,7 @@ partial struct BucketMovingSystem : ISystem
 {
    private EntityQuery m_FetcherQuery;
    private EntityQuery m_FiremenQuery;
+   private bool m_ResetFiremen;
 
     public void OnCreate(ref SystemState state) 
     {
@@ -36,6 +37,15 @@ partial struct BucketMovingSystem : ISystem
         {
             MoveBucketWithFetchers(fetchers, fetcherTranslations, bucket);
             MoveBucketWithFiremen(firemen, firemenTeam, firemanTranslations, bucket);
+        }
+
+        if (m_ResetFiremen)
+        {
+            foreach (var fireman in SystemAPI.Query<FiremanAspect>())
+            {
+                fireman.FiremanState = FiremanState.Reset;
+            }
+            m_ResetFiremen = false;
         }
     }
 
@@ -74,6 +84,7 @@ partial struct BucketMovingSystem : ISystem
                                 {
                                     bucket.CurrentFiremanIdx = 0;
                                     bucket.Interactions = BucketInteractions.Pour;
+                                    m_ResetFiremen = true;
                                 }
                                 break;
                             }

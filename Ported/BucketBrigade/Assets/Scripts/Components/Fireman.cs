@@ -18,6 +18,7 @@ public enum FiremanState
     Awaiting,
     OnRouteToDestination,
     Stopped,
+    Reset,
 }
 
 struct Fireman : IComponentData

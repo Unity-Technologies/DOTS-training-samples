@@ -18,6 +18,7 @@ partial struct FiremanMovementSystem : ISystem
     private float closestDistance;
     private float closestDistanceToSourcer;
     private int lastFiremanIndex;
+    private bool resetAllFiremenStates;
 
     public void OnCreate(ref SystemState state)
     {
@@ -25,6 +26,7 @@ partial struct FiremanMovementSystem : ISystem
         targetAcquired = false;
         closestDistance = float.MaxValue;
         closestDistanceToSourcer = float.MaxValue;
+        resetAllFiremenStates = false;
 
         state.RequireForUpdate<TileGrid>();
         state.RequireForUpdate<TileGridConfig>();
@@ -53,6 +55,7 @@ partial struct FiremanMovementSystem : ISystem
         int index = 0;
         foreach (var fireman in Query<FiremanAspect>())
         {
+
             UpdateState(fireman, index, ref state);
             
             if (fireman.FiremanState == FiremanState.OnRouteToDestination)
@@ -61,6 +64,11 @@ partial struct FiremanMovementSystem : ISystem
             }
 
             index++;
+        }
+
+        if (resetAllFiremenStates)
+        {
+            resetAllFiremenStates = false;
         }
     }
 
@@ -129,6 +137,11 @@ partial struct FiremanMovementSystem : ISystem
                 fireman.FiremanState = FiremanState.OnRouteToDestination;
                 break;
             case FiremanState.OnRouteToDestination:
+                break;
+            case FiremanState.Reset:
+                resetAllFiremenStates = true;
+                fireman.FiremanState = FiremanState.Awaiting;
+                targetAcquired = false;
                 break;
         }
     }
