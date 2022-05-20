@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using UnityEngine;
 
 [BurstCompile]
@@ -27,64 +28,85 @@ partial struct FireSpreadingSystem : ISystem
         m_TileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
         m_TileGrid = SystemAPI.GetSingleton<TileGrid>();
         var heatBuffer = state.EntityManager.GetBuffer<HeatBufferElement>(m_TileGrid.entity);
-        
+
+        var fireSpreadingJob = new FireSpreadingJob
+        {
+            HeatBuffer = heatBuffer,
+            HeatIncreaseSpeed = m_TileGridConfig.HeatIncreaseSpeed,
+            DeltaTime = state.Time.DeltaTime,
+            GridSize = m_TileGridConfig.Size
+        };
+
+        state.Dependency = fireSpreadingJob.Schedule(state.Dependency);
+    }
+}
+
+[BurstCompile]
+partial struct FireSpreadingJob : IJob
+{
+    public DynamicBuffer<HeatBufferElement> HeatBuffer;
+    public float HeatIncreaseSpeed;
+    public float DeltaTime;
+    public int GridSize;
+    
+    public void Execute()
+    {
         int count = 0;
 
-        var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        NativeList<int> fireTiles = new NativeList<int>(heatBuffer.Length, allocator);
-        foreach (HeatBufferElement heatElement in heatBuffer)
+        var allocator = Allocator.Temp;
+        NativeList<int> fireTilesIndices = new NativeList<int>(HeatBuffer.Length, allocator);
+        foreach (HeatBufferElement heatElement in HeatBuffer)
         {
             var heat = heatElement.Heat;
             if (heat >= 0.1f)
             {
-                fireTiles.Add(count);
+                fireTilesIndices.Add(count);
             }
             count++;
         }
 
-        float heatIncreaseSpeed = m_TileGridConfig.HeatIncreaseSpeed;
-        void IncreaseHeatForElement(ref SystemState state, int tileIndex)
+        foreach (var fireTile in fireTilesIndices)
         {
-            var heat = heatBuffer[tileIndex];
-
-            if (heat.Heat < 1.0f)
-            {
-                heat.Heat += state.Time.DeltaTime * heatIncreaseSpeed;
-                heatBuffer[tileIndex] = heat;
-            }
-        }
-        
-        foreach (var fireTile in fireTiles)
-        {
-            IncreaseHeatForElement(ref state, fireTile);
+            IncreaseHeatForElement(fireTile);
             
             // Spread to upper tile
-            var upperTile = fireTile + m_TileGridConfig.Size;
-            if (upperTile < heatBuffer.Length)
+            var upperTile = fireTile + GridSize;
+            if (upperTile < HeatBuffer.Length)
             {
-                IncreaseHeatForElement(ref state, upperTile);
+                IncreaseHeatForElement(upperTile);
             }
 
             // Spread to lower tile
-            var lowerTile = fireTile - m_TileGridConfig.Size;
+            var lowerTile = fireTile - GridSize;
             if (lowerTile >= 0)
             {
-                IncreaseHeatForElement(ref state, lowerTile);
+                IncreaseHeatForElement(lowerTile);
             }
 
             // Spread to left tile
             var leftTile = fireTile - 1;
             if (leftTile >= 0)
             {
-                IncreaseHeatForElement(ref state, leftTile);
+                IncreaseHeatForElement(leftTile);
             }
 
             // Spread to right tile
             var rightTile = fireTile + 1;
-            if (rightTile < heatBuffer.Length)
+            if (rightTile < HeatBuffer.Length)
             {
-                IncreaseHeatForElement(ref state, rightTile);
+                IncreaseHeatForElement(rightTile);
             }
+        }
+    }
+    
+    void IncreaseHeatForElement(int tileIndex)
+    {
+        var heat = HeatBuffer[tileIndex];
+
+        if (heat.Heat < 1.0f)
+        {
+            heat.Heat += DeltaTime * HeatIncreaseSpeed;
+            HeatBuffer[tileIndex] = heat;
         }
     }
 }
