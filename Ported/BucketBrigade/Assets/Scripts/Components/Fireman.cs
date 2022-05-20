@@ -23,7 +23,6 @@ public enum FiremanState
 
 struct Fireman : IComponentData
 {
-    public int Team;
     public float3 Destination;
     public float Speed;
     public float SearchRadius;

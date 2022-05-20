@@ -172,7 +172,7 @@ partial struct FiremanMovementSystem : ISystem
         //float3 translation = currentPosition + math.sign(fireman.Destination - currentPosition) * maxDelta;
 
         float distance = math.abs(math.distance(currentPosition, fireman.Destination));
-        if (distance <= maxDelta)
+        if (distance <= maxDelta * 1.5f)
         {
             fireman.FiremanState = FiremanState.Stopped;
             return;

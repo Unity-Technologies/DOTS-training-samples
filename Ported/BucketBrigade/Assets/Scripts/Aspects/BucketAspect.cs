@@ -46,6 +46,11 @@ readonly partial struct BucketAspect : IAspect<BucketAspect>
         set => Bucket.ValueRW.Interactions = value;
     }
     
+    public int CurrentTeam {
+        get => Bucket.ValueRO.CurrentTeam;
+        set => Bucket.ValueRW.CurrentTeam = value;
+    }
+
     public int NbOfFiremen {
         get => Bucket.ValueRO.NbOfFiremen;
         set => Bucket.ValueRW.NbOfFiremen = value;

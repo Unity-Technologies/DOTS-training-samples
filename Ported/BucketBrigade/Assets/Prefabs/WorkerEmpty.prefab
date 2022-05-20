@@ -96,7 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a8b2011e6ae9304e822c35f67c4c2db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Team: 1
   Speed: 0.05
   SearchRadius: 100
   HandleEmptyBuckets: 0
