@@ -103,9 +103,10 @@ partial struct BucketVisualUpdateSystem : ISystem {
             //TODO: Handle position based on holder. How do I get the position of a reference I hold? A GetComponent, in a way?
             //bucket.Position = bucket.Holder.Position
             
-            //Handle bucket's interaction with the TileDrid
+            //Handle bucket's interaction with the TileGrid
             if (bucket.Interactions == BucketInteractions.Drop) {
                 //It was "told" to drop; put out nearby fires
+                //TODO: Here 'index' refers to the index of the tile the bucket is on. Need to find out how to get this. 
                 DouseHeat(ref state, 0, m_TileGridConfig.Size);
                 bucket.Interactions = BucketInteractions.Dropped;
             }
