@@ -119,7 +119,7 @@ partial struct TileGridSpawningSystem : ISystem
             ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.IntenseWaterColor });
             ecb.SetComponent(tile, new Tile { Position = tilePosition, Water = 100.0f });
             ecb.SetComponent(tile, new NonUniformScale {Value = new float3(tileGridConfig.CellSize, 0.3f, tileGridConfig.CellSize)});
-            ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
+            ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x * tileGridConfig.CellSize, 0, tilePosition.y * tileGridConfig.CellSize) });
             ecb.AddComponent<FetcherDropZone>(tile, new FetcherDropZone());
         }
     }
