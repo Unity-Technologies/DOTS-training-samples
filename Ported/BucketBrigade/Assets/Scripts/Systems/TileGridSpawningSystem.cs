@@ -61,8 +61,8 @@ partial struct TileGridSpawningSystem : ISystem
                 // Fire tile
                 ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.LightFireColor });
                 ecb.SetComponent(tile, new Tile { Position = tilePosition });
-                ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.6f, 1.0f)});
-                heat = 0.1f;
+                ecb.SetComponent(tile, new NonUniformScale {Value = new float3(tileGridConfig.CellSize, 0.6f, tileGridConfig.CellSize)});
+                heat = 0.5f;
             }
             else
             {
@@ -118,7 +118,7 @@ partial struct TileGridSpawningSystem : ISystem
             // Water tile
             ecb.SetComponent(tile, new URPMaterialPropertyBaseColor { Value = tileGridConfig.IntenseWaterColor });
             ecb.SetComponent(tile, new Tile { Position = tilePosition, Water = 100.0f });
-            ecb.SetComponent(tile, new NonUniformScale {Value = new float3(1.0f, 0.3f, 1.0f)});
+            ecb.SetComponent(tile, new NonUniformScale {Value = new float3(tileGridConfig.CellSize, 0.3f, tileGridConfig.CellSize)});
             ecb.SetComponent(tile, new Translation { Value = new float3(tilePosition.x, 0, tilePosition.y) });
             ecb.AddComponent<FetcherDropZone>(tile, new FetcherDropZone());
         }

@@ -1,6 +1,7 @@
 using System;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [BurstCompile]
@@ -52,7 +53,7 @@ partial struct TileRenderingSystem : ISystem
                 tile.BaseColor.ValueRW.Value = m_TileGridConfig.IntenseFireColor;
             }
             
-            tile.Scale.ValueRW.Value.y = heat*m_TileGridConfig.HeatScalingFactor + 0.1f;
+            tile.Scale.ValueRW.Value = new float3(m_TileGridConfig.CellSize, heat*m_TileGridConfig.HeatScalingFactor + 0.1f, m_TileGridConfig.CellSize);
             
             count++;
         }
