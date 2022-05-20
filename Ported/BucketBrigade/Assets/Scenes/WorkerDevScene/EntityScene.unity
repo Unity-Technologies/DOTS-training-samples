@@ -220,7 +220,7 @@ MonoBehaviour:
     type: 3}
   NbOfTeams: 1
   FetcherPerTeamCount: 1
-  WorkerEmptyPerTeamCount: 1
+  WorkerEmptyPerTeamCount: 30
   WorkerFullPerTeamCount: 0
   BucketCount: 50
   BucketPrefab: {fileID: 8109065485113418486, guid: a22d3650d7d94454ca715648e2321b54,

@@ -11,17 +11,20 @@ partial struct FiremanMovementSystem : ISystem
 {
     private TransformAspect.EntityLookup m_TransformFromEntity;
     private int m_ChainLength;
-    private Random m_Random;
     TileGrid m_TileGrid;
     private float3 targetPosition;
+    private float3 bucketTargetPosition;
     private bool targetAcquired;
     private float closestDistance;
+    private float closestDistanceToSourcer;
+    private int lastFiremanIndex;
+
     public void OnCreate(ref SystemState state)
     {
-        m_Random = Random.CreateFromIndex((uint)System.DateTime.Now.Ticks);
         m_TransformFromEntity = new TransformAspect.EntityLookup(ref state, false);
         targetAcquired = false;
         closestDistance = float.MaxValue;
+        closestDistanceToSourcer = float.MaxValue;
 
         state.RequireForUpdate<TileGrid>();
         state.RequireForUpdate<TileGridConfig>();
@@ -42,6 +45,7 @@ partial struct FiremanMovementSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         //set chain length to worker count
         m_ChainLength = config.WorkerEmptyPerTeamCount;
+        lastFiremanIndex = m_ChainLength - 1;
 
         //calculate movement speed
         float movementSpeed = state.Time.DeltaTime * 1.25f;
@@ -65,9 +69,27 @@ partial struct FiremanMovementSystem : ISystem
         switch (fireman.FiremanState)
         {
             case FiremanState.Awaiting:
-                
+
                 //bad hack, do something better later, for now assume the first fireman is the leader by which all other firemen follow in the chain
                 if (index == 0)
+                {
+
+                    foreach (var bucket in SystemAPI.Query<BucketAspect>())
+                    {
+                        if (bucket.FillLevel == 1.0f)
+                        {
+                            float distance = math.distance(m_TransformFromEntity[fireman.Self].Position, bucket.Position);
+
+                            if (distance <= closestDistanceToSourcer)
+                            {
+                                closestDistanceToSourcer = distance;
+                                bucketTargetPosition = bucket.Position;
+                                targetAcquired = true;
+                            }
+                        }
+                    }
+                }
+                else if (index == lastFiremanIndex)
                 {
                     //get singletons
                     var tileGridConfig = SystemAPI.GetSingleton<TileGridConfig>();
@@ -85,27 +107,25 @@ partial struct FiremanMovementSystem : ISystem
                             //compare the 2d vector values, height doesn't factor
                             float distance = math.distance(fireman.Position.xz, tile.Position);
 
-                            //UnityEngine.Debug.Log($"fire tile# {count} distance {distance} closestDistance {closestDistance}");
-
                             if (distance <= closestDistance)
                             {
                                 closestDistance = distance;
                                 targetPosition.xz = tile.Position;
                                 targetPosition.y = 0.0f;
-                                targetAcquired = true;
                             }
                         }
 
                         count++;
                     }
+
                 }
 
                 if (!targetAcquired)
                     return;
 
-                float3 destination = GetChainPosition(index, m_TransformFromEntity[fireman.Self].Position, targetPosition);
+                float3 destination = GetChainPosition(index, bucketTargetPosition, targetPosition);
 
-                fireman.Destination = targetPosition;// new float3(0.0f, 0.0f, 0.0f);// destination;
+                fireman.Destination = destination;
                 fireman.FiremanState = FiremanState.OnRouteToDestination;
                 break;
             case FiremanState.OnRouteToDestination:
@@ -128,7 +148,7 @@ partial struct FiremanMovementSystem : ISystem
         float2 direction = heading / distance;
         float2 perpendicular = new float2(direction.y, -direction.x);
 
-        return math.lerp(startPos, endPos, (float)index / (float)m_ChainLength) + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
+        return math.lerp(startPos, endPos, progress + (new float3(perpendicular.x, 0f, perpendicular.y) * curveOffset));
     }
 
     public void UpdatePosition(FiremanAspect fireman, float maxDelta)
