@@ -18,11 +18,11 @@ public enum FiremanState
     Awaiting,
     OnRouteToDestination,
     Stopped,
+    Reset,
 }
 
 struct Fireman : IComponentData
 {
-    public int Team;
     public float3 Destination;
     public float Speed;
     public float SearchRadius;

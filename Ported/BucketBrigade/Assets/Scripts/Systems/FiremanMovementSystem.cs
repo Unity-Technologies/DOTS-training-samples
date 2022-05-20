@@ -18,6 +18,7 @@ partial struct FiremanMovementSystem : ISystem
     private float closestDistance;
     private float closestDistanceToSourcer;
     private int lastFiremanIndex;
+    private bool resetAllFiremenStates;
 
     public void OnCreate(ref SystemState state)
     {
@@ -25,6 +26,7 @@ partial struct FiremanMovementSystem : ISystem
         targetAcquired = false;
         closestDistance = float.MaxValue;
         closestDistanceToSourcer = float.MaxValue;
+        resetAllFiremenStates = false;
 
         state.RequireForUpdate<TileGrid>();
         state.RequireForUpdate<TileGridConfig>();
@@ -48,11 +50,12 @@ partial struct FiremanMovementSystem : ISystem
         lastFiremanIndex = m_ChainLength - 1;
 
         //calculate movement speed
-        float movementSpeed = state.Time.DeltaTime * 1.25f;
+        float movementSpeed = state.Time.DeltaTime * 2f;
 
         int index = 0;
         foreach (var fireman in Query<FiremanAspect>())
         {
+
             UpdateState(fireman, index, ref state);
             
             if (fireman.FiremanState == FiremanState.OnRouteToDestination)
@@ -61,6 +64,11 @@ partial struct FiremanMovementSystem : ISystem
             }
 
             index++;
+        }
+
+        if (resetAllFiremenStates)
+        {
+            resetAllFiremenStates = false;
         }
     }
 
@@ -130,6 +138,11 @@ partial struct FiremanMovementSystem : ISystem
                 break;
             case FiremanState.OnRouteToDestination:
                 break;
+            case FiremanState.Reset:
+                resetAllFiremenStates = true;
+                fireman.FiremanState = FiremanState.Awaiting;
+                targetAcquired = false;
+                break;
         }
     }
 
@@ -159,7 +172,7 @@ partial struct FiremanMovementSystem : ISystem
         //float3 translation = currentPosition + math.sign(fireman.Destination - currentPosition) * maxDelta;
 
         float distance = math.abs(math.distance(currentPosition, fireman.Destination));
-        if (distance <= maxDelta)
+        if (distance <= maxDelta * 1.5f)
         {
             fireman.FiremanState = FiremanState.Stopped;
             return;

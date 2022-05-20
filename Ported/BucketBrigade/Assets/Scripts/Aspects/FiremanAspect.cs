@@ -10,12 +10,6 @@ readonly partial struct FiremanAspect : IAspect<FiremanAspect>
 
     private readonly TransformAspect Transform;
 
-    public int Team
-    {
-        get => Worker.ValueRW.Team;
-        set => Worker.ValueRW.Team = value;
-    }
-
     public float Speed
     {
         get => Worker.ValueRW.Speed;

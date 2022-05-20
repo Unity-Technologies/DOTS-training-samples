@@ -5,7 +5,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class FiremanAuthoring : MonoBehaviour
 {
-    public int Team;
     public float Speed;
     public float SearchRadius;
     public bool HandleEmptyBuckets;
@@ -17,7 +16,6 @@ class FiremanBaker : Baker<FiremanAuthoring>
     public override void Bake(FiremanAuthoring authoring)
     {
         Fireman fireman = new Fireman();
-        fireman.Team = authoring.Team;
         fireman.Speed = authoring.Speed;
         fireman.SearchRadius = authoring.SearchRadius;
         fireman.State = authoring.InitialState;
