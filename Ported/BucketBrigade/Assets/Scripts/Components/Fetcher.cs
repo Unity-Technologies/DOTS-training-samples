@@ -12,7 +12,7 @@ public enum FetcherState
     FillingBucket
 }
 
-struct Fetcher : IComponentData
+public struct Fetcher : IComponentData
 {
     public FetcherState CurrentState;
     

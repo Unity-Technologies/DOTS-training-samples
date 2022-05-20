@@ -71,6 +71,7 @@ partial struct FetcherMovementSystem : ISystem
                 fetcher.CurrentState = FetcherState.MoveTowardsWater;
                 //pick up bucket
                 
+                
             }
                 break;
 

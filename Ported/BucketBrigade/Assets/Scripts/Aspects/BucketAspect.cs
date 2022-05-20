@@ -33,4 +33,14 @@ readonly partial struct BucketAspect : IAspect<BucketAspect>
         get => m_BaseColor.ValueRO.Value;
         set => m_BaseColor.ValueRW.Value = value;
     }
+
+    public Fetcher Holder {
+        get => Bucket.ValueRO.holder;
+        set => Bucket.ValueRW.holder = value;
+    }
+
+    public BucketInteractions Interactions {
+        get => Bucket.ValueRO.Interactions;
+        set => Bucket.ValueRW.Interactions = value;
+    }
 }
