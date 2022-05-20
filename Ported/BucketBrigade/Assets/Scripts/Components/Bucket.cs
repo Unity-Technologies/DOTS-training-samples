@@ -1,10 +1,9 @@
 using Unity.Entities;
 
 public enum BucketInteractions {
-    Pickup,
+    Dropped,
     PickedUp,
     Drop,
-    Dropped,
     Pour
 }
 
