@@ -6,6 +6,8 @@ using UnityEngine;
 
 readonly partial struct BucketAspect : IAspect<BucketAspect>
 {
+    public readonly Entity Self;
+    
     //Buckets have a few properties. Transform and WaterLevel. The latter goes from 0 to 1, a float. 
     private readonly RefRW<Bucket> Bucket;
     private readonly TransformAspect Transform;
