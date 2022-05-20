@@ -15,7 +15,11 @@ public partial class TrainGenerationSystem : SystemBase
             for (var t = 0; t < line.MaxTrains; t++)
             {
                 var trainEntity = entityManager.CreateEntity(trainArchetype);
-                var train = new Train {Line = lineEntity };
+                var train = new Train
+                {
+                    Line = lineEntity,
+                    SplinePosition = t / (float)line.MaxTrains
+                };
                 SetComponent(trainEntity, train);
 
                 for (var c = 0; c < line.CarriagesPerTrain; c++)
