@@ -3261,7 +3261,7 @@ MonoBehaviour:
   PlatformAdjacencyLimit: 12
   BezierMeasurementSubdivisions: 2
   PlatformArrivalThreshold: 0.975
-  RailSpacing: 0.5
+  RailSpacing: 2
   CarriageSizePlusPadding: 6
 --- !u!114 &114020548029937752
 MonoBehaviour:

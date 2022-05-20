@@ -53,6 +53,7 @@ public class LineBaker : Baker<LineAuthoring>
             points[m] = new BezierPoint
             {
                 location = markers[m].transform.position,
+                // type = markers[m].MarkerType
             };
         }
 
