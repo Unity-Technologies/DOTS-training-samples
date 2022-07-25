@@ -8,7 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ShaderBox
-  m_Shader: {fileID: -6465566751694194690, guid: e54fa994ecd491644bbe412b28805a08, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: e54fa994ecd491644bbe412b28805a08,
+    type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -37,12 +38,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Vector1_d334671a210a44d3b58d89879b1dceae: 0.5
+    - Vector1_d334671a210a44d3b58d89879b1dceae: 0.7
     - _QueueControl: 0
     - _QueueOffset: 0
     m_Colors:
     - Color_5e06a8bc7fbe4284bef1dcf16b184948: {r: 0, g: 0, b: 1, a: 0}
-    - Color_d9b47626e873463fbd997c9a6a857bf2: {r: 1, g: 0, b: 0, a: 0}
+    - Color_d9b47626e873463fbd997c9a6a857bf2: {r: 1, g: 0.9227282, b: 0, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &180254860914502521
 MonoBehaviour:
