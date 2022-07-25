@@ -22,7 +22,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
 {
     public override void Bake(ConfigAuthoring authoring)
     {
-        AddComponent(new ConfigComponent()
+        AddComponent(new Config()
         {
             BloodDuration = authoring.BloodDuration,
             ExplosionDuration = authoring.ExplosionDuration,

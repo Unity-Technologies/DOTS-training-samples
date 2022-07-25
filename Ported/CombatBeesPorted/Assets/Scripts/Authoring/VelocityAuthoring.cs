@@ -9,7 +9,7 @@ class VelocityBaker : Baker<VelocityAuthoring>
 {
     public override void Bake(VelocityAuthoring authoring)
     {
-        AddComponent(new VelocityComponent
+        AddComponent(new Velocity
         {
             Value = authoring.Value
         });

@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-public struct ConfigComponent : IComponentData
+public struct Config : IComponentData
 {
     public float BloodDuration;
     public float ExplosionDuration;
