@@ -167,7 +167,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33204e33348deed4f8bce282f531c8e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BeePrefab: {fileID: 5827102674681104062, guid: 3b0eaf57f7ee9754ca3cb6a7213b0458,
+  BlueBeePrefab: {fileID: 5827102674681104062, guid: 3b0eaf57f7ee9754ca3cb6a7213b0458,
     type: 3}
-  BeeCount: 100
+  YellowBeePrefab: {fileID: 5827102674681104062, guid: f0474313b78df754a8aa05fa744d87e5,
+    type: 3}
+  TeamBlueBeeCount: 15
+  TeamYellowBeeCount: 15
   SafeZoneRadius: 15

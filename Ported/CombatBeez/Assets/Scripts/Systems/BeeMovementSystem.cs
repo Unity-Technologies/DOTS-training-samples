@@ -17,7 +17,7 @@ partial class BeeMovementSystem : SystemBase
         // Entities.ForEach is an older approach to processing queries. Its use is not
         // encouraged, but it remains convenient until we get feature parity with IFE.
         Entities
-            .WithAll<Bee>()
+            .WithAny<BlueBee, YellowBee>()
             .ForEach((Entity entity, TransformAspect transform) =>
             {
                 // Notice that this is a lambda being passed as parameter to ForEach.

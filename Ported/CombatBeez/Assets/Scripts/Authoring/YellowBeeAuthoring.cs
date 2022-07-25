@@ -2,15 +2,15 @@ using Unity.Entities;
 
 // Authoring MonoBehaviours are regular GameObject components.
 // They constitute the inputs for the baking systems which generates ECS data.
-class BeeAuthoring : UnityEngine.MonoBehaviour
+public class YellowBeeAuthoring : UnityEngine.MonoBehaviour
 {
 }
 
 // Bakers convert authoring MonoBehaviours into entities and components.
-class BeeBaker : Baker<BeeAuthoring>
+public class YellowBeeBaker : Baker<YellowBeeAuthoring>
 {
-    public override void Bake(BeeAuthoring authoring)
+    public override void Bake(YellowBeeAuthoring authoring)
     {
-        AddComponent<Bee>();
+        AddComponent<YellowBee>();
     }
 }

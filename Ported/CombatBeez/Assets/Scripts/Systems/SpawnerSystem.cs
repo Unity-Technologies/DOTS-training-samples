@@ -25,18 +25,11 @@ partial struct SpawnerSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var teamRedBees = CollectionHelper.CreateNativeArray<Entity>(config.TeamRedBeeCount, Allocator.Temp);
-        ecb.Instantiate(config.BeePrefab, teamRedBees);
-
         var teamBlueBees = CollectionHelper.CreateNativeArray<Entity>(config.TeamBlueBeeCount, Allocator.Temp);
-        ecb.Instantiate(config.BeePrefab, teamBlueBees);
-
-
-        //ComponentDataFromEntity<TeamColor> teamColorLookup = SystemAPI.GetComponentDataFromEntity<TeamColor>();
-        //foreach (Entity bee in teamRedBees)
-        //{
-        //    ecb.SetComponent<Bee>(bee, Bee);
-        //}
+        ecb.Instantiate(config.BlueBeePrefab, teamBlueBees);
+        
+        var teamYellowBees = CollectionHelper.CreateNativeArray<Entity>(config.TeamYellowBeeCount, Allocator.Temp);
+        ecb.Instantiate(config.YellowBeePrefab, teamYellowBees);
 
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;

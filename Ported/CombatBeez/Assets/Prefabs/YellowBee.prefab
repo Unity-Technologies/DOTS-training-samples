@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5827102674681104051}
   - component: {fileID: 5827102674681104060}
   - component: {fileID: 5827102674681104061}
-  - component: {fileID: 5827102674681104050}
+  - component: {fileID: 5862357221695005414}
   m_Layer: 0
-  m_Name: Bee
+  m_Name: YellowBee
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 10b2a3cf48aec73439d1ae965613bbef, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5827102674681104050
+--- !u!114 &5862357221695005414
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 5827102674681104062}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3679121265116774cb187d56a6421cd1, type: 3}
+  m_Script: {fileID: 11500000, guid: a9b08eabd9371e84baa5ab3de812dfa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

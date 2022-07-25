@@ -1,7 +1,6 @@
 using Unity.Entities;
 
 // An empty component is called a "tag component".
-struct Bee : IComponentData
+struct BlueBee : IComponentData
 {
-    public uint TeamColor;
 }

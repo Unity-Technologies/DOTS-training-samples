@@ -2,9 +2,10 @@ using Unity.Entities;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    public UnityEngine.GameObject BeePrefab;
-    public int TeamRedBeeCount;
+    public UnityEngine.GameObject BlueBeePrefab;
+    public UnityEngine.GameObject YellowBeePrefab;
     public int TeamBlueBeeCount;
+    public int TeamYellowBeeCount;
     public float SafeZoneRadius;
 }
 
@@ -14,9 +15,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config
         {
-            BeePrefab = GetEntity(authoring.BeePrefab),
-            TeamRedBeeCount = authoring.TeamRedBeeCount,
+            BlueBeePrefab = GetEntity(authoring.BlueBeePrefab),
+            YellowBeePrefab = GetEntity(authoring.YellowBeePrefab),
             TeamBlueBeeCount = authoring.TeamBlueBeeCount,
+            TeamYellowBeeCount = authoring.TeamYellowBeeCount,
             SafeZoneRadius = authoring.SafeZoneRadius
         });
     }
