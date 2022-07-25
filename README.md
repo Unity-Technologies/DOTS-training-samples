@@ -185,7 +185,6 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>Intersections join two or three road segments, but never four. Some intersecionts are dead ends: they connect to only one road segment.</li>
 <li>At three-way intersections, each car randomly chooses whether to go left, right, or straight.</li>
 <li>Cars wait to enter an intersection if their path through the intersection crosses the path of another car in the intersection.</li>
-<li>Keyboard controls allow the user to reset the simulation.</li>
    </ul>
 </details>
 
