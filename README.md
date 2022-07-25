@@ -168,6 +168,7 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>Only one player is human. The AI players just place their arrows randomly at random intervals.</li>
 <li>At the end of 30 seconds, the player with the most points wins.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
+<li>Walls can be added at runtime by left clicking while holding the shift key down.</li>
    </ul>
 </details>
 
@@ -185,7 +186,6 @@ Feel free to copy assets and code snippets from the originals into your ports. T
 <li>At three-way intersections, each car randomly chooses whether to go left, right, or straight.</li>
 <li>Cars wait to enter an intersection if their path through the intersection crosses the path of another car in the intersection.</li>
 <li>Keyboard controls allow the user to reset the simulation.</li>
-<li>Walls can be added at runtime by left clicking while holding the shift key down.</li>
    </ul>
 </details>
 
