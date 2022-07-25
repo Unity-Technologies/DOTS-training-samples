@@ -3,6 +3,7 @@ using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace Systems
 {
@@ -18,9 +19,10 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var dt = state.Time.DeltaTime;
             foreach (var car in SystemAPI.Query<CarAspect>())
             {
-                car.Position += new float3(0f, 0f, 1f) * car.Speed * car.Direction;
+                car.Position += car.Speed * car.Direction * dt;
             }
         }
     }

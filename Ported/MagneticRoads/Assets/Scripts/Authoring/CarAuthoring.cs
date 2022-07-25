@@ -16,10 +16,7 @@ public class CarBaker : Baker<CarAuthoring>
         AddComponent(new Car
         {
             Speed = authoring.Speed,
-            Track = Entity.Null,
-            Position = authoring.transform.position,
-            Rotation = authoring.transform.rotation,
-            Direction = authoring.transform.forward
+            Track = Entity.Null
         });
     }
 }
