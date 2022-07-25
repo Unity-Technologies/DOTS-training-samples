@@ -8,5 +8,6 @@ namespace Components
     {
         public float Speed;
         public Entity Track;
+        public float SafeDistance;
     }
 }
