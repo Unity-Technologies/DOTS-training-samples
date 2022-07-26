@@ -66,11 +66,12 @@ partial struct WorldSetupSystem : ISystem
         Vector2Int gridCounts = Vector2Int.RoundToInt(new Vector2(field.x, field.z) / resourceSize);
         Vector2 gridSize = new Vector2(field.x/gridCounts.x,field.z/gridCounts.y);
         Vector2 minGridPos = new Vector2((gridCounts.x-1f)*-.5f*gridSize.x,(gridCounts.y-1f)*-.5f*gridSize.y);
-
+        var resourceColor = new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)new Color(0.1572f, 0.4191f, 0.0739f, 1.0f) };
         var resources = CollectionHelper.CreateNativeArray<Entity>(config.StartingResourceCount, Allocator.Temp);
         ecb.Instantiate(config.ResourcePrefab, resources);
         foreach (var resource in resources)
         {
+            ecb.SetComponentForLinkedEntityGroup(resource, queryColorMask, resourceColor);
             Vector3 startPos = new Vector3(minGridPos.x * .25f + UnityEngine.Random.value * field.x * .25f, UnityEngine.Random.value * 10f,
                 minGridPos.y + UnityEngine.Random.value * field.z);
             ecb.SetComponentForLinkedEntityGroup(resource, queryTranslationMask, new Translation { Value = startPos});
