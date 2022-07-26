@@ -12,7 +12,7 @@ class PlayerBaker : Baker<PlayerAuthoring>
 {
     public override void Bake(PlayerAuthoring authoring)
     {
-        AddComponent(new Player
+        AddComponent(new PlayerComponent
         {
             bounceDuration = authoring.bounceDuration,
             bounceHeight = authoring.bounceHeight, 

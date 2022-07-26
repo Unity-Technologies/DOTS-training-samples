@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-struct Player : IComponentData
+struct PlayerComponent : IComponentData
 {
     public bool playerState;
     public float bounceDuration;
