@@ -11,7 +11,6 @@ partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
             var dt = Time.DeltaTime;
-            var et = (float)Time.ElapsedTime;
             var perlinOffset = 3f;
             var speed = 2.5f;
             Random random = new Random(1234);
@@ -19,7 +18,7 @@ partial class BeeMovementSystem : SystemBase
         
             Entities
             .WithAll<Bee>()
-            .ForEach((ref Translation translation, ref Rotation rotation, in LocalToWorld transform) =>
+            .ForEach((ref Translation translation, ref Rotation rotation) =>
             {
                 var position = translation.Value;
                 var offset = new float3(
