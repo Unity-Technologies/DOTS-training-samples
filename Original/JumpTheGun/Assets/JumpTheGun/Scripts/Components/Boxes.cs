@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Rendering;
 
 // An empty component is called a "tag component".
-struct Boxes : IComponentData
+public struct Boxes : IComponentData
 {
     //public MaterialColor minHeightColour;
 

@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 
-struct Config : IComponentData
+public struct Config : IComponentData
 {
     public Entity tankPrefab;
 
@@ -15,6 +15,7 @@ struct Config : IComponentData
     public float tankLaunchPeriod;
     public float collisionStepMultiplier;
     public float invPlayerParabolaPrecision;
+    public float spacing;
 
     public bool invincibility;
     public bool isPaused;

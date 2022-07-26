@@ -15,6 +15,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float tankLaunchPeriod;
     public float collisionStepMultiplier;
     public float invPlayerParabolaPrecision;
+    public float spacing;
 
     public bool invincibility;
     public bool isPaused;
@@ -40,6 +41,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             tankLaunchPeriod = authoring.tankLaunchPeriod,
             collisionStepMultiplier = authoring.collisionStepMultiplier,
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
+            spacing = authoring.spacing,
 
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
