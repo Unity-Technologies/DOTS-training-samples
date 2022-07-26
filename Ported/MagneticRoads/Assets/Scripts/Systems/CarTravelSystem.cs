@@ -8,7 +8,7 @@ using Unity.Transforms;
 namespace Systems
 {
     [BurstCompile]
-    class CarTravelSystem : ISystem
+    partial struct CarTravelSystem : ISystem
     {
         
         [BurstCompile] public void OnCreate(ref SystemState state)
@@ -25,8 +25,12 @@ namespace Systems
             var dt = state.Time.DeltaTime;
             foreach (var car in SystemAPI.Query<CarAspect>())
             {
-                car.T += dt;
-                car.Position += car.Speed * car.Direction * dt;
+                car.T = math.clamp(car.T + dt, 0, 1);
+                Track track;
+                var trackEntity = state.GetComponentDataFromEntity<Track>(true);
+                trackEntity.TryGetComponent(car.Track, out track);
+
+                car.Position = track.Evaluate(car.T);
             }
         }
 
