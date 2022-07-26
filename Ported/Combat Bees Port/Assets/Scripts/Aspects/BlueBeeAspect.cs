@@ -9,5 +9,4 @@ readonly partial struct BlueBeeAspect : IAspect<BlueBeeAspect>
     // This reference provides read only access to BeeAspect
     // Trying to use ValueRW (instead of ValueRO) on a read-only reference is an error.
     readonly RefRO<BlueTeam> m_tag;
-    
 }

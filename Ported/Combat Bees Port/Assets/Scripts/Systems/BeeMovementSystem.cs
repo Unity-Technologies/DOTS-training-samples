@@ -11,7 +11,6 @@ partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
             var dt = Time.DeltaTime;
-            var perlinOffset = 3f;
             var speed = 2.5f;
             Random random = new Random(1234);
             float3 target = new float3(5, 0, 0);
@@ -30,7 +29,7 @@ partial class BeeMovementSystem : SystemBase
               //  var targetEntity = bee.target;
                // target = dataComponent[targetEntity].Position;
 
-               target = bee.targetPos;
+             //  target = bee.targetPos;
                 
                 var direction = math.normalizesafe( target - translation.Value);
                 
