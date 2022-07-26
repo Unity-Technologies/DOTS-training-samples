@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 
 [BurstCompile]
 partial struct SpawnerSystem : ISystem
@@ -28,7 +29,16 @@ partial struct SpawnerSystem : ISystem
 
         //Instantiate our two bee teams...
         NativeArray<Entity> blueBees = state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
+        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<BlueBee>())
+        {
+            transform.Position = new float3(45, 10, 0);
+        }
+
         NativeArray<Entity> yellowBees = state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
+        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<YellowBee>())
+        {
+            transform.Position = new float3(-45, 10, 0);
+        }
 
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
