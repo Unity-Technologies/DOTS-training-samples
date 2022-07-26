@@ -36,7 +36,7 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public void ExecuteIdleState(NativeArray<Translation> foodLocations)
+    public void ExecuteIdleState(NativeArray<Translation> foodLocations, ref Bee bdata)
     {
         //This state picks one of the other states to go to...
         //This function picks a resource to move towards and then moves to the execute forage state
@@ -44,6 +44,8 @@ public partial struct BeeMovementSystem : ISystem
         //this will need a foreach to get a resource to gather, then change states depending
 
         Translation foodPoint = foodLocations[rand.NextInt(foodLocations.Length - 1)];
+        bdata.Target = foodPoint.Value;
+        bdata.beeState = Bee.BEESTATE.FORAGE;
     }
 
     [BurstCompile]
@@ -115,7 +117,7 @@ public partial struct BeeMovementSystem : ISystem
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(foodTranslations);
+                    ExecuteIdleState(foodTranslations, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.FORAGE:
                     ExecuteForageState(transform, ref bee.ValueRW);
