@@ -36,14 +36,15 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public void ExecuteIdleState(NativeArray<Translation> foodLocations, ref Bee bdata)
+    public void ExecuteIdleState(NativeArray<FoodResource> resources, NativeArray<Translation> foodLocations, ref Bee bdata)
     {
         //This state picks one of the other states to go to...
         //This function picks a resource to move towards and then moves to the execute forage state
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
-        Translation foodPoint = foodLocations[rand.NextInt(foodLocations.Length - 1)];
+        int foodResourceIndex = foodLocations.Length - 1;
+        Translation foodPoint = foodLocations[rand.NextInt(foodResourceIndex)];
         bdata.Target = foodPoint.Value;
         bdata.beeState = Bee.BEESTATE.FORAGE;
     }
@@ -110,6 +111,7 @@ public partial struct BeeMovementSystem : ISystem
         //worldupdateallocator - anything allocated to it will get passed to jobs, but you don't have to manually deallocate, they will
         //dispose of themselves with the world/every 2 frames
         var foodTranslations = foodEntities.ToComponentDataArray<Translation>(state.WorldUpdateAllocator);
+        var foodResources = foodEntities.ToComponentDataArray<FoodResource>(state.WorldUpdateAllocator);
         //foodEntities.ToEntityArray(Allocator.Temp);
 
         foreach (var(transform, bee) in SystemAPI.Query<TransformAspect, RefRW<Bee>>().WithAny<BlueBee, YellowBee>())
@@ -117,7 +119,7 @@ public partial struct BeeMovementSystem : ISystem
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(foodTranslations, ref bee.ValueRW);
+                    ExecuteIdleState(foodResources, foodTranslations, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.FORAGE:
                     ExecuteForageState(transform, ref bee.ValueRW);
