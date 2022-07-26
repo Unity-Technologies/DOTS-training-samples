@@ -1,8 +1,9 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
-class VelocityAuthoring : UnityEngine.MonoBehaviour
+class VelocityAuthoring : MonoBehaviour
 {
-    public float Value;
+    public Vector3 Value;
 }
 
 class VelocityBaker : Baker<VelocityAuthoring>
