@@ -11,7 +11,7 @@ partial struct StackingJob : IJobEntity
     void Execute(in Entity entity, ref Velocity vel, in Translation trans)
     {
         Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, false);
-        if (trans.Value.y < PlayVolumeFloor)
+        if (trans.Value.y <= PlayVolumeFloor)
         {
             Ecb.SetComponentEnabled<Gravity>(entity, false);
             vel.Value.y = 0;
@@ -32,7 +32,7 @@ public partial struct StackingSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var playVolumeFloor = SystemAPI.GetSingleton<Config>().PlayVolume.xy.y;
+        var playVolumeFloor = -SystemAPI.GetSingleton<Config>().PlayVolume.y;
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
     // TODO: Parallel schedule please. 
