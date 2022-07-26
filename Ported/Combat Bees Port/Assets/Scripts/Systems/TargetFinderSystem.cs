@@ -51,7 +51,7 @@ partial class TargetFinderSystem : SystemBase
                 }
                 
                 
-            }).Schedule();
+            }).Run();
             
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
