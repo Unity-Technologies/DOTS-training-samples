@@ -28,7 +28,7 @@ partial struct RandomStateSetterJob : IJobEntity
             var enemyBeeIndex = rand.NextInt(0, EnemyTeam.Length);
             Buffer.SetComponentEnabled<BeeStateIdle>(entity, false);
             Buffer.SetComponentEnabled<BeeStateAttacking>(entity, true);
-            Buffer.SetComponent(entity, new EntityOfInterest{ Value = Resources[0] });
+            Buffer.SetComponent(entity, new EntityOfInterest{ Value = EnemyTeam[enemyBeeIndex] });
         }
     }
 }
