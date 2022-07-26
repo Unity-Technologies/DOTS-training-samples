@@ -47,6 +47,10 @@ partial struct WorldSetupSystem : ISystem
         {
             ecb.SetComponentForLinkedEntityGroup(blueBee, queryColorMask, blueTeamColor);
             ecb.SetComponentForLinkedEntityGroup(blueBee, queryTranslationMask, new Translation { Value = pos });
+            ecb.SetComponentEnabled<BeeStateAttacking>(blueBee, false);
+            ecb.SetComponentEnabled<BeeStateGathering>(blueBee, false);
+            ecb.SetComponentEnabled<BeeStateReturning>(blueBee, false);
+            ecb.SetComponentEnabled<BeeStateDead>(blueBee, false);
             ecb.AddComponent<BlueTeam>(blueBee);
         }
         
@@ -59,6 +63,10 @@ partial struct WorldSetupSystem : ISystem
         {
             ecb.SetComponentForLinkedEntityGroup(yellowBee, queryColorMask, yellowTeamColor);
             ecb.SetComponentForLinkedEntityGroup(yellowBee, queryTranslationMask, new Translation { Value = pos});
+            ecb.SetComponentEnabled<BeeStateAttacking>(yellowBee, false);
+            ecb.SetComponentEnabled<BeeStateGathering>(yellowBee, false);
+            ecb.SetComponentEnabled<BeeStateReturning>(yellowBee, false);
+            ecb.SetComponentEnabled<BeeStateDead>(yellowBee, false);
             ecb.AddComponent<YellowTeam>(yellowBee);
         }
 
