@@ -80,7 +80,7 @@ partial class TargetFinderSystem : SystemBase
                     bee.targetPos = targetTransform.Position;
                 }
                 
-            }).Schedule();
+            }).Run();
 
             _blueBees.Dispose();
             _yellowBees.Dispose();

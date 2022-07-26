@@ -17,8 +17,7 @@ partial class BeeMovementSystem : SystemBase
             float3 target = new float3(5, 0, 0);
         
             Entities
-            .WithAll<Bee>()
-            .ForEach((ref Translation translation, ref Rotation rotation) =>
+            .ForEach((ref Translation translation, ref Bee bee,  ref Rotation rotation) =>
             {
                 var position = translation.Value;
                 var offset = new float3(
@@ -26,6 +25,12 @@ partial class BeeMovementSystem : SystemBase
                     random.NextFloat(-0.5f,0.5f),
                     random.NextFloat(-0.5f,0.5f)
                 );
+                
+               // var dataComponent = GetComponentDataFromEntity<LocalToWorld>(true);
+              //  var targetEntity = bee.target;
+               // target = dataComponent[targetEntity].Position;
+
+               target = bee.targetPos;
                 
                 var direction = math.normalizesafe( target - translation.Value);
                 
