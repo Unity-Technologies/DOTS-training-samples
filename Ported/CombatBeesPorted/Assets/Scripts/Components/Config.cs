@@ -5,13 +5,16 @@ public struct Config : IComponentData
 {
     public float BloodDuration;
     public float ExplosionDuration;
-    public float HitDistance;
-    public float GrabDistance;
+    public float InteractionDistance;
     public float HiveDepth;
     public float GravityDown;
     public float3 PlayVolume;
     public int StartingBeeCount;
     public int StartingResourceCount;
+    public float JitterTimeMin;
+    public float JitterTimeMax;
+    public float JitterDistanceMax;
+    public float BeeMoveSpeed;
     
     public Entity BeePrefab;
     public Entity ResourcePrefab;

@@ -4,15 +4,19 @@ using UnityEngine;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    public float BloodDuration;
-    public float ExplosionDuration;
-    public float HitDistance;
-    public float GrabDistance;
-    public float HiveDepth;
+    public int StartingBeeCount = 10;
+    public int StartingResourceCount = 100;
+    
+    public float BloodDuration = 3f;
+    public float ExplosionDuration = 3f;
+    public float InteractionDistance = 1f;
+    public float GravityDown = 20f;
     public Vector3 PlayVolume;
-    public float GravityDown;
-    public int StartingBeeCount;
-    public int StartingResourceCount;
+    public float HiveDepth = 10f;
+    public float JitterTimeMin = 0.1f;
+    public float JitterTimeMax = 0.9f;
+    public float JitterDistanceMax = 3f;
+    public float BeeMoveSpeed = 6f;
     
     public UnityEngine.GameObject BeePrefab;
     public UnityEngine.GameObject ResourcePrefab;
@@ -28,13 +32,16 @@ class ConfigBaker : Baker<ConfigAuthoring>
         {
             BloodDuration = authoring.BloodDuration,
             ExplosionDuration = authoring.ExplosionDuration,
-            HitDistance = authoring.HitDistance,
-            GrabDistance = authoring.GrabDistance,
+            InteractionDistance = authoring.InteractionDistance,
             HiveDepth = authoring.HiveDepth,
-            PlayVolume = authoring.PlayVolume,
             GravityDown = authoring.GravityDown,
+            PlayVolume = authoring.PlayVolume,
             StartingBeeCount = authoring.StartingBeeCount,
             StartingResourceCount = authoring.StartingResourceCount,
+            JitterTimeMin = authoring.JitterTimeMin,
+            JitterTimeMax = authoring.JitterTimeMax,
+            JitterDistanceMax = authoring.JitterDistanceMax,
+            BeeMoveSpeed = authoring.BeeMoveSpeed,
             
             BeePrefab = GetEntity(authoring.BeePrefab),
             ResourcePrefab = GetEntity(authoring.ResourcePrefab),
