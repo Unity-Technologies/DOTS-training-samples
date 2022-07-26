@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Asset = UnityEditor.VersionControl.Asset;
 
 [BurstCompile]
 partial struct BeeSpawningWithFoodSystem : ISystem
@@ -22,19 +23,16 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     {
     }
 
-    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        var foodResource = SystemAPI.Query<Entity>().WithAll<Food>();
         
         var baseComponent = SystemAPI.GetSingleton<Base>();
-
-        foreach (var foodPiece in foodResource)
+        
+        foreach (var foodPiece in SystemAPI.Query<Entity>().WithAll<Food>())
         {
-            var position = SystemAPI.GetComponent<Translation>(foodPiece).Value;
+            var position = state.EntityManager.GetComponentData<Translation>(foodPiece).Value;
             if (baseComponent.blueBase.GetBaseRightCorner().x < position.x)
             {
                 var beeSpawnJob = new BlueBeeSpawnJob()
