@@ -40,14 +40,14 @@ partial class TargetFinderSystem : SystemBase
             {
 
 
-                if (aggression && !(_blueBees[0] == null))
+                if (aggression && !(_blueBees == null))
                 {
                     Entity target = _blueBees[rnd.NextInt()];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
                 }
 
-                if (!aggression && !(_food[0] == null))
+                if (!aggression && !(_food == null))
                 {  
                     Entity target = _food[rnd.NextInt()];
                     bee.target = target;
@@ -63,7 +63,7 @@ partial class TargetFinderSystem : SystemBase
 
                 
 
-                if (aggression && !(_yellowBees[0] == null))
+                if (aggression && !(_yellowBees == null))
                 {
                     
                     Entity target = _yellowBees[rnd.NextInt()];
@@ -72,7 +72,7 @@ partial class TargetFinderSystem : SystemBase
                     
                 }
 
-                if (!aggression && !(_food[0] == null))
+                if (!aggression && !(_food == null))
                 {
                     Entity target = _food[rnd.NextInt()];
                     bee.target = target;
