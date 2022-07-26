@@ -8,18 +8,21 @@ using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
-using Random = UnityEngine.Random;
+using Random = Unity.Mathematics.Random;
 
 partial class TargetFinderSystem : SystemBase
 {
     [BurstCompile]
     protected override void OnUpdate()
     {
-        
             NativeArray<Entity> _yellowBees;
             NativeArray<Entity> _blueBees;
             NativeArray<Entity> _food;
-            int aggression = 0;
+            Random rnd = Random.CreateFromIndex((uint)Time.ElapsedTime);
+            bool  aggression = rnd.NextBool();
+
+
+
 
             var allocator = World.UpdateAllocator.ToAllocator;
             
@@ -36,18 +39,17 @@ partial class TargetFinderSystem : SystemBase
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
 
-                aggression = Random.Range(0, 2);
 
-                if (aggression == 1)
+                if (aggression && !(_blueBees == null))
                 {
-                    Entity target = _blueBees[Random.Range(0, _blueBees.Length)];
+                    Entity target = _blueBees[rnd.NextInt()];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
                 }
 
-                if (aggression == 0 && !(_food[0] == null))
+                if (!aggression && !(_food == null))
                 {  
-                    Entity target = _food[Random.Range(0, _food.Length)];
+                    Entity target = _food[rnd.NextInt()];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
                 }
@@ -59,24 +61,25 @@ partial class TargetFinderSystem : SystemBase
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
 
-                aggression = Random.Range(0, 2);
+                
 
-                if (aggression == 1 && !(_yellowBees[0] == null))
+                if (aggression && !(_yellowBees == null))
                 {
-                    Entity target = _yellowBees[Random.Range(0, _yellowBees.Length)];
+                    
+                    Entity target = _yellowBees[rnd.NextInt()];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
                     
                 }
 
-                if (aggression == 0 && !(_food[0] == null))
+                if (!aggression && !(_food == null))
                 {
-                    Entity target = _food[Random.Range(0, _food.Length)];
+                    Entity target = _food[rnd.NextInt()];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
                 }
                 
-               
+            
                 
             }).Schedule();
     }

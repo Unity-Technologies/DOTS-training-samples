@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Asset = UnityEditor.VersionControl.Asset;
 
 [BurstCompile]
 partial struct BeeSpawningWithFoodSystem : ISystem
@@ -22,6 +21,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         random = Random.CreateFromIndex(state.GlobalSystemVersion);
@@ -68,6 +68,8 @@ partial struct YellowBeeSpawnJob : IJobEntity
 
     void Execute(in BeeSpawnAspect beeSpawn, in BaseAspect baseInfo)
     {
+        
+        
         var instance = ECB.Instantiate(beeSpawn.YellowBeePrefab);
         var randomSpawn = random.NextFloat3(baseInfo.YellowBase.GetBaseLowerLeftCorner(), baseInfo.YellowBase.GetBaseRightCorner());
         
