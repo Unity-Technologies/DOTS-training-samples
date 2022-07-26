@@ -22,7 +22,6 @@ partial struct RandomStateSetterJob : IJobEntity
             Buffer.SetComponentEnabled<BeeStateIdle>(entity, false);
             Buffer.SetComponentEnabled<BeeStateGathering>(entity, true);
             Buffer.SetComponent(entity, new EntityOfInterest{ Value = Resources[resourceIndex] });
-            Debug.Log("gathering");
         }
         else if (EnemyTeam.Length > 0)
         {
@@ -30,7 +29,6 @@ partial struct RandomStateSetterJob : IJobEntity
             Buffer.SetComponentEnabled<BeeStateIdle>(entity, false);
             Buffer.SetComponentEnabled<BeeStateAttacking>(entity, true);
             Buffer.SetComponent(entity, new EntityOfInterest{ Value = Resources[0] });
-            Debug.Log("attacking");
         }
     }
 }
