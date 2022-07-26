@@ -41,18 +41,15 @@ partial class TargetFinderSystem : SystemBase
                     Entity target = _blueBees[Random.Range(0, _blueBees.Length)];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
 
-                if (aggression == 0)
-                {
+                if (aggression == 0 && !(_food[0] == null))
+                {  
                     Entity target = _food[Random.Range(0, _food.Length)];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
+                
                 
             }).Schedule();
             
@@ -62,23 +59,22 @@ partial class TargetFinderSystem : SystemBase
 
                 aggression = Random.Range(0, 2);
 
-                if (aggression == 1)
+                if (aggression == 1 && !(_yellowBees[0] == null))
                 {
                     Entity target = _yellowBees[Random.Range(0, _yellowBees.Length)];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
+                    
                 }
 
-                if (aggression == 0)
+                if (aggression == 0 && !(_food[0] == null))
                 {
                     Entity target = _food[Random.Range(0, _food.Length)];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
+                
+               
                 
             }).Run();
 
