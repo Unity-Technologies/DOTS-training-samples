@@ -18,5 +18,5 @@ struct Config : IComponentData
 
     public bool invincibility;
     public bool isPaused;
-    public string timeText;
+    public FixedString64Bytes timeText;
 }

@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Collections;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
@@ -18,7 +19,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public bool invincibility;
     public bool isPaused;
 
-    public string timeText;
+    public FixedString64Bytes timeText;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -39,7 +40,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
-            timeText = authoring.timeText,
+            timeText = authoring.timeText
         });
     }
 }
