@@ -26,8 +26,7 @@ partial struct FoodSpawnSystem : ISystem
     {
         var camera = CameraSingleton.Instance;
         var ray = camera.ScreenPointToRay(Input.mousePosition);
-        var test = ray.GetPoint(10); 
-        Debug.Log(test);
+        var test = ray.GetPoint(10);
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
