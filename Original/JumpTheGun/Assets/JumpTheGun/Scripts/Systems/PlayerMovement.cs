@@ -6,7 +6,6 @@ using Unity.Burst;
 
 partial class PlayerMovement : SystemBase
 {
-
     protected override void OnUpdate()
     {
         var dt = Time.DeltaTime;
@@ -31,15 +30,13 @@ partial class PlayerMovement : SystemBase
         return bounds; 
     }
 
-    
-    private float3 bouncePosition(float t, PlayerComponent playerComponent, Config config){
+    private float3 bouncePosition(float t, PlayerComponent playerComponent, Config config, Boxes startBox, Boxes endBox){
         Para para = playerComponent.para; 
         float y = ParabolaCluster.Solve(para.paraA, para.paraB, para.paraC, t);
-        //float3 startPos = TerrainArea.instance.LocalPositionFromBox(startBox.col, startBox.row);
-        //float3 endPos = TerrainArea.instance.LocalPositionFromBox(endBox.col, endBox.row);
-        //float x = math.lerp(startPos.x, endPos.x, t);
-        //float z = math.lerp(startPos.z, endPos.z, t);
-
+        float3 startPos = TerrainAreaClusters.LocalPositionFromBox(startBox.column, startBox.row, config);
+        float3 endPos = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config);
+        float x = math.lerp(startPos.x, endPos.x, t);
+        float z = math.lerp(startPos.z, endPos.z, t);
         return new float3(x, y, z);
     } 
 

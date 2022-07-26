@@ -11,4 +11,7 @@ struct PlayerComponent : IComponentData
     public float time;
     public float duration;
     public Para para; 
+
+    public Entity startBox;
+	public Entity endBox;
 }
