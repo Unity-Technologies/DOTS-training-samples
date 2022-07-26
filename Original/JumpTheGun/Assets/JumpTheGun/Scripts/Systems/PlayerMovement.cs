@@ -6,6 +6,7 @@ using Unity.Burst;
 
 partial class PlayerMovement : SystemBase
 {
+
     protected override void OnUpdate()
     {
         var dt = Time.DeltaTime;
@@ -30,16 +31,17 @@ partial class PlayerMovement : SystemBase
         return bounds; 
     }
 
-    /*
-    private Vector3 bouncePosition(float t){
-        float y = Parabola.Solve(paraA, paraB, paraC, t);
-        float3 startPos = TerrainArea.instance.LocalPositionFromBox(startBox.col, startBox.row);
-        float3 endPos = TerrainArea.instance.LocalPositionFromBox(endBox.col, endBox.row);
-        float x = Mathf.Lerp(startPos.x, endPos.x, t);
-        float z = Mathf.Lerp(startPos.z, endPos.z, t);
+    
+    private float3 bouncePosition(float t, PlayerComponent playerComponent, Config config){
+        Para para = playerComponent.para; 
+        float y = ParabolaCluster.Solve(para.paraA, para.paraB, para.paraC, t);
+        //float3 startPos = TerrainArea.instance.LocalPositionFromBox(startBox.col, startBox.row);
+        //float3 endPos = TerrainArea.instance.LocalPositionFromBox(endBox.col, endBox.row);
+        //float x = math.lerp(startPos.x, endPos.x, t);
+        //float z = math.lerp(startPos.z, endPos.z, t);
 
-        return new Vector3(x, y, z);
-    } */
+        return new float3(x, y, z);
+    } 
 
     /*
     private int2 MouseToFloat2(){
