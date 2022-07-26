@@ -21,14 +21,16 @@ partial class TargetFinderSystem : SystemBase
             NativeArray<Entity> _food;
             int aggression = 0;
 
+            var allocator = World.UpdateAllocator.ToAllocator;
+            
             EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
-            _yellowBees = _yellowBeeQuery.ToEntityArray(Allocator.Temp);
+            _yellowBees = _yellowBeeQuery.ToEntityArray(allocator);
             
             EntityQuery _blueBeesQuery = GetEntityQuery(typeof(BlueTeam));
-            _blueBees = _blueBeesQuery.ToEntityArray(Allocator.Temp);
+            _blueBees = _blueBeesQuery.ToEntityArray(allocator);
             
             EntityQuery _foodQuery = GetEntityQuery(typeof(Food));
-            _food = _foodQuery.ToEntityArray(Allocator.Temp);
+            _food = _foodQuery.ToEntityArray(allocator);
             
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
@@ -51,7 +53,7 @@ partial class TargetFinderSystem : SystemBase
                 }
                 
                 
-            }).Run();
+            }).Schedule();
             
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
@@ -76,11 +78,6 @@ partial class TargetFinderSystem : SystemBase
                 
                
                 
-            }).Run();
-
-            _blueBees.Dispose();
-            _yellowBees.Dispose();
-            _food.Dispose();
-        
+            }).Schedule();
     }
 }

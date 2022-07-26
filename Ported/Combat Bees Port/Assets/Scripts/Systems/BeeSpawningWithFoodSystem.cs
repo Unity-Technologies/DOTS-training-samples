@@ -15,7 +15,6 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        random = Random.CreateFromIndex(123456);
     }
 
     [BurstCompile]
@@ -25,6 +24,8 @@ partial struct BeeSpawningWithFoodSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        random = Random.CreateFromIndex(state.GlobalSystemVersion);
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
