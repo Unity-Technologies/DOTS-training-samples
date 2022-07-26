@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Burst;
 
 
 partial class PlayerMovement : SystemBase
@@ -21,11 +22,13 @@ partial class PlayerMovement : SystemBase
                 transform.Rotation = quaternion.RotateY(angle);
             }).ScheduleParallel();
     }
-
-    /*
-    private Bounds GetBounds(float yOffset, float3 position){
-        return new Bounds(position, new float3(yOffset * 2, yOffset * 2, Y_OFFSET * 2));
-    }*/
+    
+    private AABB GetBounds(float yOffset, float3 position){
+        AABB bounds = new AABB();
+        bounds.Center = position;
+        bounds.Extents = new float3(yOffset * 2, yOffset * 2, yOffset * 2);
+        return bounds; 
+    }
 
     /*
     private Vector3 bouncePosition(float t){

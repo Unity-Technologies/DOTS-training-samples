@@ -26,7 +26,7 @@ partial class CameraSystem : SystemBase
 
     protected override void OnCreate()
     {
-        PlayerQuery = GetEntityQuery(typeof(Player));
+        PlayerQuery = GetEntityQuery(typeof(PlayerComponent));
         RequireForUpdate(PlayerQuery);
     }
 
@@ -50,7 +50,6 @@ partial class CameraSystem : SystemBase
         cameraTransform.position = Follow(playerTransform, cameraTransform);
     }
 
-    [BurstCompile]
     private float3 Follow(LocalToWorld playerTransform, UnityEngine.Transform cameraTransform){
         followHeightOffset = math.max(followHeightOffset, followHeightOffsetMin);
         float height = maxTerrainHeight + followHeightOffset;
@@ -66,8 +65,6 @@ partial class CameraSystem : SystemBase
 
     }
 
-
-    [BurstCompile]
     private float3 ApplyCameraRotationOffset(float3 pos, UnityEngine.Transform cameraTransform, float maxTerrainHeight){
         float zOff = (pos.y - maxTerrainHeight) / math.tan(cameraTransform.rotation.eulerAngles.x * (180/ math.PI));
         pos.z += zOff;
