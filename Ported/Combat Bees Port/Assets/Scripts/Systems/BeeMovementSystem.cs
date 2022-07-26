@@ -13,8 +13,9 @@ partial class BeeMovementSystem : SystemBase
         var dt = Time.DeltaTime;
         var et = (float)Time.ElapsedTime;
         var perlinOffset = 3f;
-        var speed = 0.005f;
+        var speed = 2.5f;
         Random random = new Random(1234);
+        float3 target = new float3(5, 0, 0);
         
         //Entities.ForEach((ref Translation translation, ref Rotation rotation, in LocalToWorld transform) =>
                                                                         // CHANGE TO BEE ASPECT
@@ -22,18 +23,20 @@ partial class BeeMovementSystem : SystemBase
             .WithAll<Bee>()
             .ForEach((ref Translation translation, ref Rotation rotation, in LocalToWorld transform) =>
             {
-                var direction = math.normalizesafe(
-                    new float3(random.NextFloat(-40,40), random.NextFloat(-10,10), random.NextFloat(-10,10)) - translation.Value);
+                var position = translation.Value;
+                var offset = new float3(
+                    random.NextFloat(-0.5f,0.5f),
+                    random.NextFloat(-0.5f,0.5f),
+                    random.NextFloat(-0.5f,0.5f)
+                );
+                
+                var direction = math.normalizesafe( target - translation.Value);
                 
                 rotation.Value = quaternion.LookRotationSafe(direction, new float3(0,1,0));
-               // var position = transform.Position;
+                position +=  (offset +direction) * speed * dt;
 
-                var offset = new float3(
-                    noise.cnoise(new float2(et, perlinOffset)) - 0.5f,
-                    noise.cnoise(new float2(et, perlinOffset)) - 0.5f,
-                    noise.cnoise(new float2(et, perlinOffset)) - 0.5f
-                );
-                translation.Value += direction + offset * speed;
+                
+               translation.Value = position;
 
             }).ScheduleParallel();
     }
