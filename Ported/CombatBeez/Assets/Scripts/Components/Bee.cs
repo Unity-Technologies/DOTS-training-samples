@@ -1,8 +1,17 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-struct Bee : IComponentData
+public struct Bee : IComponentData
 {
     public float3 OcillateOffset;
     public float3 Target;
+    public BEESTATE beeState;
+
+    public enum BEESTATE
+    {
+        IDLE,
+        FORAGE,
+        CARRY,
+        ATTACK
+    };
 }
