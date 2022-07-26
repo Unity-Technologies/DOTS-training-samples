@@ -11,6 +11,7 @@ public class CarAuthoring : MonoBehaviour
 {
     public float Speed;
     public float SafeDistance;
+    public UnityEngine.GameObject TestTrack;
 }
 
 public class CarBaker : Baker<CarAuthoring>
@@ -20,7 +21,7 @@ public class CarBaker : Baker<CarAuthoring>
         AddComponent(new Car
         {
             Speed = authoring.Speed,
-            Track = Entity.Null,
+            Track = GetEntity(authoring.TestTrack),
             SafeDistance = authoring.SafeDistance
         });
     }

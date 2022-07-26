@@ -8,15 +8,18 @@ using Unity.Transforms;
 namespace Systems
 {
     [BurstCompile]
-    partial struct CarTravelSystem : ISystem
+    class CarTravelSystem : ISystem
     {
-        [BurstCompile]
-        public void OnCreate(ref SystemState state) { }
+        
+        [BurstCompile] public void OnCreate(ref SystemState state)
+        {
+        }
 
-        [BurstCompile]
-        public void OnDestroy(ref SystemState state) { }
+        [BurstCompile] public void OnDestroy(ref SystemState state)
+        {
+        }
 
-        [BurstCompile]
+        [BurstCompile] 
         public void OnUpdate(ref SystemState state)
         {
             var dt = state.Time.DeltaTime;
@@ -26,5 +29,8 @@ namespace Systems
                 car.Position += car.Speed * car.Direction * dt;
             }
         }
+
+
+        
     }
 }
