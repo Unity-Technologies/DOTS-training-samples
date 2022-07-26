@@ -13,7 +13,9 @@ partial class BeeMovementSystem : SystemBase
             var dt = Time.DeltaTime;
             var speed = 2.5f;
             Random random = new Random(1234);
-            float3 target = new float3(5, 0, 0);
+            float3 target;
+                
+                target = new float3(5, 0, 0);
         
             Entities
             .ForEach((ref Translation translation, ref Bee bee,  ref Rotation rotation) =>
@@ -24,6 +26,12 @@ partial class BeeMovementSystem : SystemBase
                     random.NextFloat(-0.5f,0.5f),
                     random.NextFloat(-0.5f,0.5f)
                 );
+                
+
+                if (HasComponent<LocalToWorld>(bee.target))
+                {
+                    target = GetComponent<LocalToWorld>(bee.target).Position;
+                }
                 
                // var dataComponent = GetComponentDataFromEntity<LocalToWorld>(true);
               //  var targetEntity = bee.target;
