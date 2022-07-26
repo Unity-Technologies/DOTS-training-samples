@@ -5,7 +5,7 @@ using Unity.Transforms;
 
 namespace Aspects
 {
-    readonly partial struct CarAspect : IAspect<CarAspect>
+    public readonly partial struct CarAspect : IAspect<CarAspect>
     {
         readonly RefRW<Car> m_Car;
         readonly TransformAspect m_TransformAspect;

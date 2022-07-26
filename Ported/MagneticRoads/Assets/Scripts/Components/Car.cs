@@ -4,10 +4,10 @@ using Unity.Transforms;
 
 namespace Components
 {
-    struct Car : IComponentData
+    public struct Car : IComponentData
     {
         public float Speed;
-        public Entity Track;
+        public Entity Lane;
         public float SafeDistance;
     }
 }
