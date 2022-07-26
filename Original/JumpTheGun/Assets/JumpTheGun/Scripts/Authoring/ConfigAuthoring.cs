@@ -4,6 +4,7 @@ using Unity.Collections;
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject tankPrefab;
+    public UnityEngine.GameObject boxPrefab;
     public int tankCount;
 
     public float terrainWidth;
@@ -11,10 +12,12 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float minTerrainHeight;
     public float maxTerrainHeight;
 
+    public int boxCount;
     public int boxHeightDamage;
     public float tankLaunchPeriod;
     public float collisionStepMultiplier;
     public float invPlayerParabolaPrecision;
+    public float spacing;
 
     public bool invincibility;
     public bool isPaused;
@@ -36,10 +39,14 @@ class ConfigBaker : Baker<ConfigAuthoring>
             minTerrainHeight = authoring.minTerrainHeight,
             maxTerrainHeight = authoring.maxTerrainHeight,
 
+            boxPrefab = GetEntity(authoring.boxPrefab),
+            boxCount = authoring.boxCount,
             boxHeightDamage = authoring.boxHeightDamage,
+
             tankLaunchPeriod = authoring.tankLaunchPeriod,
             collisionStepMultiplier = authoring.collisionStepMultiplier,
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
+            spacing = authoring.spacing,
 
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,

@@ -12,8 +12,6 @@ public class BoxesAuthoring : UnityEngine.MonoBehaviour
 
     public UnityEngine.GameObject boxPrefab;
 
-    public float spacing;
-
     public float boxHeight;
 
     public int boxHeightDamage;
