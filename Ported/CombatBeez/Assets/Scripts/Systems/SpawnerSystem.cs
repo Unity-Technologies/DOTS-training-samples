@@ -29,15 +29,17 @@ partial struct SpawnerSystem : ISystem
 
         //Instantiate our two bee teams...
         state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
-        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<BlueBee>())
+        foreach (var(transform, bee) in SystemAPI.Query<TransformAspect, RefRW<Bee>>().WithAny<BlueBee>())
         {
-            transform.Position = new float3(45, 10, 0);
+            transform.Position = new float3(-45, 10, 0);
+            bee.ValueRW.SpawnPoint = transform.Position;
         }
 
         state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
-        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<YellowBee>())
+        foreach (var (transform, bee) in SystemAPI.Query<TransformAspect, RefRW<Bee>>().WithAny<YellowBee>())
         {
-            transform.Position = new float3(-45, 10, 0);
+            transform.Position = new float3(45, 10, 0);
+            bee.ValueRW.SpawnPoint = transform.Position;
         }
 
         state.EntityManager.Instantiate(config.FoodResourcePrefab, config.FoodResourceCount, Allocator.Temp);
