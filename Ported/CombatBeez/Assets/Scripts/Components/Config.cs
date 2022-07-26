@@ -4,7 +4,9 @@ struct Config : IComponentData
 {
     public Entity BlueBeePrefab;
     public Entity YellowBeePrefab;
+    public Entity FoodResourcePrefab;
     public int TeamBlueBeeCount;
     public int TeamYellowBeeCount;
+    public int FoodResourceCount;
     public float SafeZoneRadius;
 }
