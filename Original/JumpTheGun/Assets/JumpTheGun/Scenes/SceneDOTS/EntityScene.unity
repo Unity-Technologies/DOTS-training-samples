@@ -179,35 +179,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 114880218291318082, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 437390312}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
---- !u!1 &437390311 stripped
+--- !u!1 &675698749
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
-    type: 3}
-  m_PrefabInstance: {fileID: 437390310}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &437390312
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 675698751}
+  - component: {fileID: 675698750}
+  m_Layer: 0
+  m_Name: Config
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &675698750
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 437390311}
+  m_GameObject: {fileID: 675698749}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83205f8e197fda54bb5a58fe98c76f5d, type: 3}
+  m_Script: {fileID: 11500000, guid: db0df6c3c3038c74d81768e0cbf767e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounceDuration: 0
-  bounceHeight: 0
-  yOffset: 0
-  duration: 0
+  tankPrefab: {fileID: 0}
+  tankCount: 4
+  terrainWidth: 0.41
+  terrainLength: 11
+  minTerrainHeight: 0.72
+  maxTerrainHeight: 0.7
+  boxHeightDamage: 7
+  tankLaunchPeriod: 0.36
+  collisionStepMultiplier: 0.39
+  invPlayerParabolaPrecision: 0.49
+  invincibility: 0
+  isPaused: 0
+  timeText: 
+--- !u!4 &675698751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 675698749}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
