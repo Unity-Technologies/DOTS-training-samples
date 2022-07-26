@@ -41,8 +41,6 @@ partial class TargetFinderSystem : SystemBase
                     Entity target = _blueBees[Random.Range(0, _blueBees.Length)];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
 
                 if (aggression == 0 && !(_food[0] == null))
@@ -50,15 +48,8 @@ partial class TargetFinderSystem : SystemBase
                     Entity target = _food[Random.Range(0, _food.Length)];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
-
-                if ((_food[0] == null) && _blueBees[0] == null)
-                {
-                    bee.targetPos = null;
-                    bee.state = BeeState.Idle;
-                }
+                
                 
             }).Schedule();
             
@@ -73,8 +64,7 @@ partial class TargetFinderSystem : SystemBase
                     Entity target = _yellowBees[Random.Range(0, _yellowBees.Length)];
                     bee.target = target;
                     bee.state = BeeState.Attacking;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
+                    
                 }
 
                 if (aggression == 0 && !(_food[0] == null))
@@ -82,15 +72,9 @@ partial class TargetFinderSystem : SystemBase
                     Entity target = _food[Random.Range(0, _food.Length)];
                     bee.target = target;
                     bee.state = BeeState.Collecting;
-                    LocalToWorld targetTransform = GetComponent<LocalToWorld>(target);
-                    bee.targetPos = targetTransform.Position;
                 }
                 
-                if ((_food[0] == null) && _yellowBees[0] == null)
-                {
-                    bee.targetPos = null;
-                    bee.state = BeeState.Idle;
-                }
+               
                 
             }).Run();
 
