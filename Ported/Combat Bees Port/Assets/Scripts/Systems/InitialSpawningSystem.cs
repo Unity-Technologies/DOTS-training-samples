@@ -8,7 +8,7 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
-partial struct BeeSpawningSystem : ISystem
+partial struct InitialSpawningSystem : ISystem
 {
     Random random;
     
@@ -68,9 +68,11 @@ partial struct BeeSpawningSystem : ISystem
         
         foreach (var foodNode in food)
         {
+            var randomSpawn = random.NextFloat3(new float3(-5, 0, -10), new float3(5, 0, 10));
+
             ecb.SetComponent(foodNode, new Translation
             {
-                Value = new float3(0, 0 ,0)
+                Value = randomSpawn
             });
         }
 

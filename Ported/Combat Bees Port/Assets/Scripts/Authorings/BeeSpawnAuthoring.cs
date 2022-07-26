@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Authorings
 {
-    class InitialSpawnAuthoring : UnityEngine.MonoBehaviour
+    class BeeSpawnAuthoring : UnityEngine.MonoBehaviour
     {
         public GameObject yellowBeePrefab;
         public GameObject blueBeePrefab;
@@ -15,11 +15,11 @@ namespace Authorings
         public int foodCount;
     }
 
-    class InitialSpawnBaker : Baker<InitialSpawnAuthoring>
+    class BeeSpawnBaker : Baker<BeeSpawnAuthoring>
     {
-        public override void Bake(InitialSpawnAuthoring authoring)
+        public override void Bake(BeeSpawnAuthoring authoring)
         {
-            AddComponent(new InitialSpawn
+            AddComponent(new BeeSpawnData
             {
                 yellowBeePrefab = GetEntity(authoring.yellowBeePrefab),
                 blueBeePrefab = GetEntity(authoring.blueBeePrefab),
