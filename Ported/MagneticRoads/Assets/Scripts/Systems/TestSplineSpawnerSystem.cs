@@ -26,10 +26,10 @@ namespace Systems
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var car = ecb.Instantiate(config.CarPrefab);
-            var track = ecb.CreateEntity();
+            var rs = ecb.CreateEntity();
             
-            ecb.AddComponent<Track>(track);
-            ecb.SetComponent(track, new Track
+            ecb.AddComponent<RoadSegment>(rs);
+            ecb.SetComponent(rs, new RoadSegment
             {
                 StartPos = new float3(0,0,0),
                 StartNorm = new float3(0,1,0),
@@ -38,7 +38,7 @@ namespace Systems
                 EndNorm = new float3(0,1,0),
                 EndTang = new float3(0,0,1),
             });
-            ecb.SetComponent(car, new Car { Track = track });
+            ecb.SetComponent(car, new Car { RoadSegment = rs });
             state.Enabled = false;
         }
     }

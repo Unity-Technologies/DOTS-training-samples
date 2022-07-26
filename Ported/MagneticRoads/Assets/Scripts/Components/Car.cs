@@ -9,7 +9,7 @@ namespace Components
         public float Speed;
         public float SafeDistance;
         
-        public Entity Track;
+        public Entity RoadSegment;
         // ¿ lane ?
         public float T;
         
