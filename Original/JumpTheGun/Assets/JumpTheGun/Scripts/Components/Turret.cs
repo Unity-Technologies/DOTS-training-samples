@@ -4,5 +4,4 @@ public struct Turret : IComponentData
 {
     public Entity cannonBall;
     public Entity cannonBallSpawn;
-
 }

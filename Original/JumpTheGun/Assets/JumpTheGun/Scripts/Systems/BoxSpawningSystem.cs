@@ -51,8 +51,8 @@ partial struct BoxSpawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var vehicles = CollectionHelper.CreateNativeArray<Entity>(config.TankCount, Allocator.Temp);
-        ecb.Instantiate(config.TankPrefab, vehicles);
+        var vehicles = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
+        ecb.Instantiate(config.boxPrefab, vehicles);
 
         // An EntityQueryMask provides an efficient test of whether a specific entity would
         // be selected by an EntityQuery.
