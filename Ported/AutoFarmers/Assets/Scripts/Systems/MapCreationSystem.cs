@@ -16,12 +16,12 @@ using Unity.Transforms;
         }
 
       protected override void OnUpdate()
-        {
+      {
             var entity = GetSingletonEntity<Grid>();
             Entities
                 .WithStructuralChanges()
                 .ForEach((in Map map) =>
-                {
+                { 
                     Grid grid = new Grid {size = map.mapSize};
                 EntityManager.SetComponentData(entity, grid);
                 EntityManager.DestroyEntity(cellQuery);
