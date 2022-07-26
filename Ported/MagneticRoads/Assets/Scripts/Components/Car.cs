@@ -7,7 +7,11 @@ namespace Components
     struct Car : IComponentData
     {
         public float Speed;
-        public Entity Track;
         public float SafeDistance;
+        
+        public Entity Track;
+        // ¿ lane ?
+        public float T;
+        
     }
 }
