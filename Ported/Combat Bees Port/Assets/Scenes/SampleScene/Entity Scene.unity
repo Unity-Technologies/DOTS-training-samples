@@ -208,6 +208,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
+      propertyPath: beeCount
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
       propertyPath: foodCount
       value: 50
       objectReference: {fileID: 0}

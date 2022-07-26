@@ -30,9 +30,6 @@ namespace Authorings
                 foodPrefab = GetEntity(authoring.foodPrefab),
                 beeCount = authoring.beeCount,
                 foodCount = authoring.foodCount,
-                yellowBase = authoring.yellowBase,
-                blueBase = authoring.blueBase,
-                mapCenter = authoring.mapCenter
             });
         }
     }

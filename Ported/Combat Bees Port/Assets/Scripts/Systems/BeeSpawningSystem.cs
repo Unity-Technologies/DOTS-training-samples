@@ -2,14 +2,20 @@ using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 partial struct BeeSpawningSystem : ISystem
 {
+    Random random;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        random = Random.CreateFromIndex(1234);
     }
 
     [BurstCompile]
@@ -28,14 +34,19 @@ partial struct BeeSpawningSystem : ISystem
         var blueBees = CollectionHelper.CreateNativeArray<Entity>(spawner.beeCount/2, Allocator.Temp);
         var yellowBees = CollectionHelper.CreateNativeArray<Entity>(spawner.beeCount/2, Allocator.Temp);
         var food = CollectionHelper.CreateNativeArray<Entity>(spawner.foodCount, Allocator.Temp);
+
+        var baseComponent = SystemAPI.GetSingleton<Base>();
         
         ecb.Instantiate(spawner.blueBeePrefab, blueBees);
-
+        
         foreach (var bee in blueBees)
         {
+            var blueBaseCache = baseComponent.blueBase;
+            var randomSpawn = random.NextFloat3(blueBaseCache.GetBaseLowerLeftCorner(), blueBaseCache.GetBaseRightCorner());
+
             ecb.SetComponent(bee, new Translation
             {
-                Value = spawner.blueBase
+                Value = randomSpawn
             });
         }
 
@@ -43,9 +54,13 @@ partial struct BeeSpawningSystem : ISystem
         
         foreach (var bee in yellowBees)
         {
+            var yellowBaseCache = baseComponent.yellowBase;
+
+            var randomSpawn = random.NextFloat3(yellowBaseCache.GetBaseLowerLeftCorner(), yellowBaseCache.GetBaseRightCorner());
+
             ecb.SetComponent(bee, new Translation
             {
-                Value = spawner.yellowBase
+                Value = randomSpawn
             });
         }
         
@@ -55,7 +70,7 @@ partial struct BeeSpawningSystem : ISystem
         {
             ecb.SetComponent(foodNode, new Translation
             {
-                Value = spawner.mapCenter
+                Value = new float3(0, 0 ,0)
             });
         }
 
