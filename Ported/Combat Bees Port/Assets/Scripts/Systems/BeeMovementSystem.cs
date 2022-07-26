@@ -41,12 +41,12 @@ partial class BeeMovementSystem : SystemBase
             
             void CheckBounds(ref float3 position)
             {
-                if (position.x < -49) position.x = -49;
-                if (position.x > 49) position.x = 49;
-                if (position.y < -9) position.y = -9;
-                if (position.y > 9) position.y = 9;
-                if (position.z < -9) position.z = -9;
-                if (position.z > 9) position.z = 9;
+                if (position.x < -50) position.x = -50;
+                if (position.x > 50) position.x = 50;
+                if (position.y < -10) position.y = -10;
+                if (position.y > 10) position.y = 10;
+                if (position.z < -10) position.z = -10;
+                if (position.z > 10) position.z = 10;
             }
     }
 
