@@ -18,7 +18,7 @@ partial class TargetFinderSystem : SystemBase
             NativeArray<Entity> _yellowBees;
             NativeArray<Entity> _blueBees;
             NativeArray<Entity> _food;
-            int aggression;
+            int aggression = 0;
 
             EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
             _yellowBees = _yellowBeeQuery.ToEntityArray(Allocator.Temp);
@@ -30,7 +30,7 @@ partial class TargetFinderSystem : SystemBase
             _food = _foodQuery.ToEntityArray(Allocator.Temp);
             
             //Set Targets for all Blue bees.
-            Entities.WithAll<BlueTeam>().ForEach((ref Bee bee, in LocalToParentSystem transform) =>
+            Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
 
                 aggression = Random.Range(0, 2);
@@ -50,7 +50,7 @@ partial class TargetFinderSystem : SystemBase
             }).Schedule();
             
             //Set Targets for all Blue bees.
-            Entities.WithAll<YellowTeam>().ForEach((ref Bee bee, in LocalToParentSystem transform) =>
+            Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
 
                 aggression = Random.Range(0, 2);
