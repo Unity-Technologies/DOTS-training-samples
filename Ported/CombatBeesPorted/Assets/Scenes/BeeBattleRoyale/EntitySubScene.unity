@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b9f0f479a634b2782a12ae2a5a658c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Aggressiveness: 0.5
   BloodDuration: 0
   ExplosionDuration: 0
   HitDistance: 0

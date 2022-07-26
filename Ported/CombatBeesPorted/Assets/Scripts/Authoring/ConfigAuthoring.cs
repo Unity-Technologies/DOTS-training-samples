@@ -4,6 +4,7 @@ using UnityEngine;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
+    public float Aggressiveness;
     public float BloodDuration;
     public float ExplosionDuration;
     public float HitDistance;
@@ -26,6 +27,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config()
         {
+            Aggressiveness = authoring.Aggressiveness,
             BloodDuration = authoring.BloodDuration,
             ExplosionDuration = authoring.ExplosionDuration,
             HitDistance = authoring.HitDistance,
