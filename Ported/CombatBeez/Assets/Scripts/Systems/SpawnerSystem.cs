@@ -21,12 +21,14 @@ partial struct SpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        // The default world should not be used because the targeted EntityManager
+        // may not be part of it.
+        // var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         var config = SystemAPI.GetSingleton<Config>();
 
         //Instantiate our two bee teams...
-        NativeArray<Entity> blueBees = entityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
-        NativeArray<Entity> yellowBees = entityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
+        NativeArray<Entity> blueBees = state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
+        NativeArray<Entity> yellowBees = state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
 
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
