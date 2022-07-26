@@ -10,6 +10,7 @@ partial struct SpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
