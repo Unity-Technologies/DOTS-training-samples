@@ -1,17 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using Components;
+using Monobehavior;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.VisualScripting;
 using UnityEngine;
 
 partial struct FoodSpawnSystem : ISystem
 {
-    private RaycastHit raycasthit;
-
     public void OnCreate(ref SystemState state)
     {
 
@@ -21,24 +17,22 @@ partial struct FoodSpawnSystem : ISystem
     {
 
     }
-
+    
     public void OnUpdate(ref SystemState state)
     {
-        var camera = CameraSingleton.Instance;
-        var ray = camera.ScreenPointToRay(Input.mousePosition);
-        var test = ray.GetPoint(camera.transform.position.z + 3);
-
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        if (Input.GetKeyUp(KeyCode.Mouse0))
+        var test = MouseRaycaster.worldMousePosition;
+
+        if (Input.GetKeyUp(KeyCode.Mouse0) && MouseRaycaster.isMouseTouchingField)
         {
             var foodSpawnJob = new FoodSpawn
             {
                 ECB = ecb,
                 direction = test
             };
-            foodSpawnJob.Schedule();
+            foodSpawnJob.Run();
         }
 
     }
