@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
@@ -8,7 +9,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float HitDistance;
     public float GrabDistance;
     public float HiveDepth;
-    public float3 PlayVolume;
+    public Vector3 PlayVolume;
+    public float GravityDown;
     public int StartingBeeCount;
     public int StartingResourceCount;
     
@@ -30,6 +32,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             GrabDistance = authoring.GrabDistance,
             HiveDepth = authoring.HiveDepth,
             PlayVolume = authoring.PlayVolume,
+            GravityDown = authoring.GravityDown,
             StartingBeeCount = authoring.StartingBeeCount,
             StartingResourceCount = authoring.StartingResourceCount,
             
