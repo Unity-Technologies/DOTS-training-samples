@@ -15,10 +15,12 @@ partial class BeeMovementSystem : SystemBase
         var speed = 5f;
         
                                                                         // CHANGE TO BEE ASPECT
-        Entities.WithAll<BlueTeam>().ForEach((ref Translation translation, ref Rotation rotation, ref Bee bee) =>
+        Entities.WithAll<BlueTeam>().ForEach((ref Translation translation, ref Rotation rotation, ref Bee bee, in LocalToWorld transform) =>
             {
                 var direction = math.normalizesafe(new float3(30, 0, 0) - translation.Value);
                 rotation.Value = quaternion.LookRotationSafe(direction, new float3(0,1,0));
+                var position = transform.Position;
+                
                 bee.position += direction * speed * dt;
 
                 var offset = new float3(
