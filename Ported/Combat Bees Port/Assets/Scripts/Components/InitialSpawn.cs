@@ -12,10 +12,5 @@ namespace Components
 
         public int beeCount;
         public int foodCount;
-
-        public float3 yellowBase;
-        public float3 blueBase;
-        public float3 mapCenter;
-
     }
 }
