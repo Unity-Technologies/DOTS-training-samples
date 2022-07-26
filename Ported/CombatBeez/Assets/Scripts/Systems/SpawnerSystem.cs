@@ -28,24 +28,25 @@ partial struct SpawnerSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
 
         //Instantiate our two bee teams...
-        NativeArray<Entity> blueBees = state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
+        state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
         foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<BlueBee>())
         {
             transform.Position = new float3(45, 10, 0);
         }
 
-        NativeArray<Entity> yellowBees = state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
+        state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
         foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<YellowBee>())
         {
             transform.Position = new float3(-45, 10, 0);
         }
 
-        NativeArray<Entity> foodResources = state.EntityManager.Instantiate(config.FoodResourcePrefab, config.FoodResourceCount, Allocator.Temp);
+        state.EntityManager.Instantiate(config.FoodResourcePrefab, config.FoodResourceCount, Allocator.Temp);
         // food resource field is 20 by 20, 10 in each direction
         // random number generator for both dimension from -10 to 10
+        Random rand = new Random(123);
         foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<FoodResource>())
         {
-            var position = new float3(UnityEngine.Random.Range(-10, 11), 0, UnityEngine.Random.Range(-10, 11));
+            var position = new float3(rand.NextInt(-10, 11), 0, rand.NextInt(-10, 11));
             transform.Position = position;
         }
 
