@@ -43,31 +43,56 @@ public partial struct BeeMovementSystem : ISystem
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
-        int foodResourceIndex = rand.NextInt(foodLocations.Length - 1);
+        int foodResourceIndex = rand.NextInt(foodLocations.Length);
         Translation foodPoint = foodLocations[foodResourceIndex];
 
-        bdata.heldResource = resourceEntities[foodResourceIndex];
+        bdata.TargetResource = resourceEntities[foodResourceIndex];
+        bdata.heldResourceIndex = foodResourceIndex;
         bdata.Target = foodPoint.Value;
         bdata.beeState = Bee.BEESTATE.FORAGE;
     }
 
     [BurstCompile]
-    public void ExecuteForageState(TransformAspect t, ref Bee bd)
+    public void ExecuteForageState(TransformAspect t, ref Bee bd, ref SystemState sState)
     {
+        FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
+
         if (MoveToTarget(t, ref bd))
         {
             bd.beeState = Bee.BEESTATE.CARRY;
             bd.Target = bd.SpawnPoint;
+
+            foodRes.State = FoodState.CARRIED;
+            sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
+        }
+        else
+        {
+            //check to see if resource is still valid, if not go back to idle
+            if (foodRes.State != FoodState.SETTLED)
+                bd.beeState = Bee.BEESTATE.IDLE;
         }
     }
 
     [BurstCompile]
-    public void ExecuteCarryState(TransformAspect t, ref Bee bd)
+    public void ExecuteCarryState(TransformAspect t, NativeArray<Translation> foodLocations, ref Bee bd, ref SystemState sState)
     {
+        FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
+
         //update food location in this state
         if (MoveToTarget(t, ref bd))
         {
             bd.beeState = Bee.BEESTATE.IDLE;
+
+            foodRes.State = FoodState.FALLING;
+            sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
+        }
+        else
+        {
+            Translation foodPos = foodLocations[bd.heldResourceIndex];
+            foodPos.Value = t.Position + new float3(0, -2, 0);
+
+            sState.EntityManager.SetComponentData<Translation>(bd.TargetResource, foodPos);
+            //SystemAPI.SetComponent<Translation>(bd.heldResource, foodPos);
         }
     }
 
@@ -121,10 +146,10 @@ public partial struct BeeMovementSystem : ISystem
                     ExecuteIdleState(foodEntities, foodTranslations, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.FORAGE:
-                    ExecuteForageState(transform, ref bee.ValueRW);
+                    ExecuteForageState(transform, ref bee.ValueRW, ref state);
                     break;
                 case Bee.BEESTATE.CARRY:
-                    ExecuteCarryState(transform, ref bee.ValueRW);
+                    ExecuteCarryState(transform, foodTranslations, ref bee.ValueRW, ref state);
                     break;
                 case Bee.BEESTATE.ATTACK:
                     break;
