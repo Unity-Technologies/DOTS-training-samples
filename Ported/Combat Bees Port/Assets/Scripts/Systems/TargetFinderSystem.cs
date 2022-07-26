@@ -47,7 +47,7 @@ partial class TargetFinderSystem : SystemBase
                     bee.state = BeeState.Collecting;
                 }
                 
-            });
+            }).Schedule();
             
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee, in LocalToParentSystem transform) =>
@@ -67,7 +67,7 @@ partial class TargetFinderSystem : SystemBase
                     bee.state = BeeState.Collecting;
                 }
                 
-            });
+            }).Schedule();
 
             _blueBees.Dispose();
             _yellowBees.Dispose();
