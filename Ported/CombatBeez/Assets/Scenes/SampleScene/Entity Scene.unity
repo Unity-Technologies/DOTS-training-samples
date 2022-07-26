@@ -175,5 +175,5 @@ MonoBehaviour:
     type: 3}
   TeamBlueBeeCount: 15
   TeamYellowBeeCount: 15
-  FoodResourceCount: 15
+  FoodResourceCount: 50
   SafeZoneRadius: 15
