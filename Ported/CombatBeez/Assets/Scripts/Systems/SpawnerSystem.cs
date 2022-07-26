@@ -44,8 +44,10 @@ partial struct SpawnerSystem : ISystem
         // food resource field is 20 by 20, 10 in each direction
         // random number generator for both dimension from -10 to 10
         Random rand = new Random(123);
-        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<FoodResource>())
+        foreach (var (foodResource, transform) in SystemAPI.Query< RefRW < FoodResource > , TransformAspect >().WithAll<FoodResource>())
         {
+            foodResource.ValueRW.State = FoodState.SETTLED;
+
             var position = new float3(rand.NextInt(-10, 11), 0, rand.NextInt(-10, 11));
             transform.Position = position;
         }
