@@ -43,6 +43,8 @@ partial class BeeMovementSystem : SystemBase
                 position +=  (offset +direction) * speed * dt;
                 CheckBounds(ref position);
                 
+                translation.Value = position;
+                
                 if (bee.state == BeeState.Attacking)
                 {
                     if (math.distancesq(position, target) < 0.5f)
@@ -62,16 +64,11 @@ partial class BeeMovementSystem : SystemBase
 
                         var component = GetComponent<Food>(bee.target);
                         component.target = beeEntity;
+                        bee.targetPos = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
                     }
                 }
                 
-
-                if (HasComponent<YellowTeam>(beeEntity))
-                {
-                    
-                }
-                
-                translation.Value = position;
+               
 
             }).Run();
             ecb.Playback(this.EntityManager);
@@ -87,7 +84,7 @@ partial class BeeMovementSystem : SystemBase
                 if (position.z > 10) position.z = 10;
             }
 
-           
+            
             
             
     }
