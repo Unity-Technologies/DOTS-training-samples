@@ -15,7 +15,7 @@ namespace Authoring
         {
             var start = authoring.Start.transform;
             var end = authoring.End.transform;
-            AddComponent(new Track()
+            AddComponent(new RoadSegment()
             {
                 StartPos = start.position,
                 StartNorm = start.up,

@@ -20,7 +20,7 @@ public class CarBaker : Baker<CarAuthoring>
         AddComponent(new Car
         {
             Speed = authoring.Speed,
-            Track = Entity.Null,
+            RoadSegment = Entity.Null,
             SafeDistance = authoring.SafeDistance
         });
         

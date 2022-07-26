@@ -38,10 +38,10 @@ namespace Aspects
             set => m_Car.ValueRW.T = value;
         }
         
-        public Entity Track
+        public Entity RoadSegment
         {
-            get => m_Car.ValueRO.Track;
-            set => m_Car.ValueRW.Track = value;
+            get => m_Car.ValueRO.RoadSegment;
+            set => m_Car.ValueRW.RoadSegment = value;
         }
     }
 }

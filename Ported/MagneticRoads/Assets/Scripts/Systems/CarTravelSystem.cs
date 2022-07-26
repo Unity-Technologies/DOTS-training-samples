@@ -42,12 +42,12 @@ namespace Systems
     [BurstCompile]
     partial struct CarTravelSystem : ISystem
     {
-        ComponentDataFromEntity<Track> m_TrackComponentFromEntity;
+        ComponentDataFromEntity<RoadSegment> m_TrackComponentFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            m_TrackComponentFromEntity = state.GetComponentDataFromEntity<Track>(true);
+            m_TrackComponentFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
         }
 
         [BurstCompile]
@@ -65,7 +65,7 @@ namespace Systems
             foreach (var car in SystemAPI.Query<CarAspect>())
             {
                 car.T = math.clamp(car.T * car.Speed * dt, 0, 1);
-                m_TrackComponentFromEntity.TryGetComponent(car.Track, out Track track);
+                m_TrackComponentFromEntity.TryGetComponent(car.RoadSegment, out RoadSegment track);
 
                 var anchor1 = track.StartPos + track.StartTang;
                 var anchor2 = track.EndPos - track.EndTang;
