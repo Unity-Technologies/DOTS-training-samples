@@ -12,5 +12,6 @@ public class YellowBeeBaker : Baker<YellowBeeAuthoring>
     public override void Bake(YellowBeeAuthoring authoring)
     {
         AddComponent<YellowBee>();
+        AddComponent<Bee>();
     }
 }

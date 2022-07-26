@@ -13,31 +13,43 @@ partial class BeeMovementSystem : SystemBase
         // This means that it wouldn't be possible to directly access Time from there.
         // So we need to copy the value we need (DeltaTime) into a local variable.
         var dt = Time.DeltaTime;
+        var frameCount = UnityEngine.Time.frameCount;
+        Random rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+        float moveSpeed = 8f;
+        float ocilateMag = 20f;
 
         // Entities.ForEach is an older approach to processing queries. Its use is not
         // encouraged, but it remains convenient until we get feature parity with IFE.
         Entities
             .WithAny<BlueBee, YellowBee>()
-            .ForEach((Entity entity, TransformAspect transform) =>
+            .ForEach((Entity entity, TransformAspect transform, ref Bee beeData) =>
             {
-                // Notice that this is a lambda being passed as parameter to ForEach.
                 var pos = transform.Position;
+                var dir = beeData.Target - pos;
+                float mag = (dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z);
+                float dist = math.sqrt(mag);
 
-                // This does not modify the actual position of the tank, only the point at
-                // which we sample the 3D noise function. This way, every tank is using a
-                // different slice and will move along its own different random flow field.
-                pos.y = entity.Index;
+                dir += beeData.OcillateOffset;
 
-                // Unity.Mathematics.noise provides several types of noise functions.
-                // Here we use the Classic Perlin Noise (cnoise).
-                // The approach taken to generate a flow field from Perlin noise is detailed here:
-                // https://www.bit-101.com/blog/2021/07/mapping-perlin-noise-to-angles/
-                var angle = (0.5f + noise.cnoise(pos / 10f)) * 4.0f * math.PI;
+                if (dist > 0)
+                    transform.Position += (dir / dist) * dt * moveSpeed;
+                
+                if (dist <= 2f)
+                {
+                    if (beeData.Target.x == 0 &&
+                        beeData.Target.y == 0 &&
+                        beeData.Target.z == 0)
+                    {
+                        beeData.Target = rand.NextFloat3(-50, 50);
+                    }
+                    else
+                    {
+                        beeData.Target = float3.zero;
+                    }
+                }
 
-                var dir = float3.zero;
-                math.sincos(angle, out dir.x, out dir.z);
-                transform.Position += dir * dt * 5.0f;
-                transform.Rotation = quaternion.RotateY(angle);
+                if (frameCount % 30 == 0)
+                    beeData.OcillateOffset = rand.NextFloat3(-ocilateMag, ocilateMag);
 
                 // The last function call in the Entities.ForEach sequence controls how the code
                 // should be executed: Run (main thread), Schedule (single thread, async), or

@@ -171,6 +171,9 @@ MonoBehaviour:
     type: 3}
   YellowBeePrefab: {fileID: 5827102674681104062, guid: f0474313b78df754a8aa05fa744d87e5,
     type: 3}
+  FoodResourcePrefab: {fileID: 6965061217113526028, guid: 2667043e0cad6494fbd30124235b4207,
+    type: 3}
   TeamBlueBeeCount: 15
   TeamYellowBeeCount: 15
+  FoodResourceCount: 15
   SafeZoneRadius: 15

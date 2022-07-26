@@ -12,5 +12,6 @@ public class BlueBeeBaker : Baker<BlueBeeAuthoring>
     public override void Bake(BlueBeeAuthoring authoring)
     {
         AddComponent<BlueBee>();
+        AddComponent<Bee>();
     }
 }
