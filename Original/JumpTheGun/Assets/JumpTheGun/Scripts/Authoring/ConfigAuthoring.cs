@@ -19,7 +19,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public bool invincibility;
     public bool isPaused;
 
-    public FixedString64Bytes timeText;
+    public string timeText;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -30,14 +30,17 @@ class ConfigBaker : Baker<ConfigAuthoring>
         {
             tankPrefab = GetEntity(authoring.tankPrefab),
             tankCount = authoring.tankCount,
+
             terrainWidth = authoring.terrainWidth,
             terrainLength = authoring.terrainLength,
             minTerrainHeight = authoring.minTerrainHeight,
             maxTerrainHeight = authoring.maxTerrainHeight,
+
             boxHeightDamage = authoring.boxHeightDamage,
             tankLaunchPeriod = authoring.tankLaunchPeriod,
             collisionStepMultiplier = authoring.collisionStepMultiplier,
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
+
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
             timeText = authoring.timeText
