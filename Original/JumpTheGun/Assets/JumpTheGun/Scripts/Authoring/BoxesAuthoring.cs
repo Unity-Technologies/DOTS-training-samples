@@ -31,8 +31,6 @@ class BoxesBaker : Baker<BoxesAuthoring>
 {
     public override void Bake(BoxesAuthoring authoring)
     {
- 
-
         var buffer = AddBuffer<ChildrenWithRenderer>().Reinterpret<Entity>();
 
         AddComponent(new Boxes
