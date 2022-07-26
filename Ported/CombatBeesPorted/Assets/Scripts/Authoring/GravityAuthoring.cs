@@ -1,6 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 
+[RequireComponent(typeof(VelocityAuthoring))]
 class GravityAuthoring : UnityEngine.MonoBehaviour
 {
 }
