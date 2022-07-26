@@ -42,7 +42,7 @@ namespace Systems
                 for (int i = 0; i < entities.Length; i++)
                 {
                     var translation = m_TranslationDataFromEntity[entities[i]];
-                    translation.Value.y += 10f;
+                    translation.Value.y += 0.2f * state.Time.DeltaTime;
                     ecb.SetComponent(entities[i], translation);
                 }
             }

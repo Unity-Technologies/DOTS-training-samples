@@ -10,9 +10,11 @@ namespace Systems
     [BurstCompile]
     partial struct CarTravelSystem : ISystem
     {
-        
+        ComponentDataFromEntity<Track> m_TrackComponentFromEntity;
+
         [BurstCompile] public void OnCreate(ref SystemState state)
         {
+            m_TrackComponentFromEntity = state.GetComponentDataFromEntity<Track>(true);
         }
 
         [BurstCompile] public void OnDestroy(ref SystemState state)
@@ -22,13 +24,13 @@ namespace Systems
         [BurstCompile] 
         public void OnUpdate(ref SystemState state)
         {
+            m_TrackComponentFromEntity.Update(ref state);
+            
             var dt = state.Time.DeltaTime;
             foreach (var car in SystemAPI.Query<CarAspect>())
             {
                 car.T = math.clamp(car.T + dt, 0, 1);
-                Track track;
-                var trackEntity = state.GetComponentDataFromEntity<Track>(true);
-                trackEntity.TryGetComponent(car.Track, out track);
+                m_TrackComponentFromEntity.TryGetComponent(car.Track, out Track track);
 
                 car.Position = track.Evaluate(car.T);
             }
