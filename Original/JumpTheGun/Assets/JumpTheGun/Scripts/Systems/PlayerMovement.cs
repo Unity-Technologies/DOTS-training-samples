@@ -10,11 +10,14 @@ partial class PlayerMovement : SystemBase
     {
         var dt = Time.DeltaTime;
         UnityEngine.Camera camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>(); 
+        
 
         Entities
             .WithAll<PlayerComponent>() //ref and in
             .ForEach((Entity entity, ref TransformAspect transform, ref PlayerComponent playerComponent, in Config config) =>
             {
+                Boxes startBox = GetComponent<Boxes>(playerComponent.startBox); 
+                Boxes endBox = GetComponent<Boxes>(playerComponent.endBox); 
                 var pos = transform.Position;
                 pos.y = entity.Index;
                 var angle = (0.5f + noise.cnoise(pos / 10f)) * 4.0f * math.PI;
@@ -33,14 +36,21 @@ partial class PlayerMovement : SystemBase
     }
 
 
-    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config){
+    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox){
+        
+        Boxes newStartBox; 
+        Entity newStartBoxEntity = new Entity(); 
+        foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
+            newStartBox = GetComponent<Boxes>(box);
+            if (newStartBox.row == row && newStartBox.column == col){
+                newStartBoxEntity = box;
+                break; 
+            }
+        }
+        playerComponent.startBox = newStartBoxEntity;
+		playerComponent.endBox = playerComponent.startBox;
 
-        // Do an entity query to find a box with the col and row equal to the one
-            // we're looking for
-        //playerComponent.startBox = TerrainAreaClusters.GetBox(col, row);
-        playerComponent.endBox = playerComponent.startBox;
-        playerComponent.playerState = false; 
-        int top = 0; // playerComponent.startBox.top
+        float top = startBox.top; 
         return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
     }
 
