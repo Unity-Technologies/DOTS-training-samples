@@ -25,5 +25,17 @@ namespace Aspects
         {
             get => m_Car.ValueRO.Speed;
         }
+
+        public float T
+        {
+            get => m_Car.ValueRO.T;
+            set => m_Car.ValueRW.T = value;
+        }
+        
+        public Entity Track
+        {
+            get => m_Car.ValueRO.Track;
+            set => m_Car.ValueRW.Track = value;
+        }
     }
 }
