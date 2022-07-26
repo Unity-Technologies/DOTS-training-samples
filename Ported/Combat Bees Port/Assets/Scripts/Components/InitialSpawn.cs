@@ -6,7 +6,8 @@ namespace Components
 {
     struct InitialSpawn : IComponentData
     {
-        public Entity beePrefab;
+        public Entity yellowBeePrefab;
+        public Entity blueBeePrefab;
         public Entity foodPrefab;
 
         public int beeCount;
@@ -14,5 +15,7 @@ namespace Components
 
         public float3 yellowBase;
         public float3 blueBase;
+        public float3 mapCenter;
+
     }
 }
