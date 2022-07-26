@@ -8,6 +8,8 @@ public struct Bee : IComponentData
     public Entity heldResource;
     public BEESTATE beeState;
 
+    public float3 SpawnPoint;
+
     public enum BEESTATE
     {
         IDLE,

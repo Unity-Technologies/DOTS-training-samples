@@ -14,7 +14,7 @@ public partial struct BeeMovementSystem : ISystem
     private float frameCount;
     private float dt;
     private Random rand;
-    private EntityQuery foodEntities;
+    private EntityQuery foodEntityQuery;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -27,7 +27,7 @@ public partial struct BeeMovementSystem : ISystem
         queryBuilder.AddAll(ComponentType.ReadWrite<FoodResource>());
         queryBuilder.FinalizeQuery();
 
-        foodEntities = state.GetEntityQuery(queryBuilder);
+        foodEntityQuery = state.GetEntityQuery(queryBuilder);
     }
 
     [BurstCompile]
@@ -36,15 +36,17 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public void ExecuteIdleState(NativeArray<FoodResource> resources, NativeArray<Translation> foodLocations, ref Bee bdata)
+    public void ExecuteIdleState(NativeArray<Entity> resourceEntities, NativeArray<Translation> foodLocations, ref Bee bdata)
     {
         //This state picks one of the other states to go to...
         //This function picks a resource to move towards and then moves to the execute forage state
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
-        int foodResourceIndex = foodLocations.Length - 1;
-        Translation foodPoint = foodLocations[rand.NextInt(foodResourceIndex)];
+        int foodResourceIndex = rand.NextInt(foodLocations.Length - 1);
+        Translation foodPoint = foodLocations[foodResourceIndex];
+
+        bdata.heldResource = resourceEntities[foodResourceIndex];
         bdata.Target = foodPoint.Value;
         bdata.beeState = Bee.BEESTATE.FORAGE;
     }
@@ -53,13 +55,20 @@ public partial struct BeeMovementSystem : ISystem
     public void ExecuteForageState(TransformAspect t, ref Bee bd)
     {
         if (MoveToTarget(t, ref bd))
+        {
             bd.beeState = Bee.BEESTATE.CARRY;
+            bd.Target = bd.SpawnPoint;
+        }
     }
 
     [BurstCompile]
-    public void ExecuteCarryState()
+    public void ExecuteCarryState(TransformAspect t, ref Bee bd)
     {
-
+        //update food location in this state
+        if (MoveToTarget(t, ref bd))
+        {
+            bd.beeState = Bee.BEESTATE.IDLE;
+        }
     }
 
     [BurstCompile]
@@ -79,16 +88,6 @@ public partial struct BeeMovementSystem : ISystem
         if (dist <= 2f)
         {
             arrivedAtTarget = true;
-            //if (beeData.Target.x == 0 &&
-            //    beeData.Target.y == 0 &&
-            //    beeData.Target.z == 0)
-            //{
-            //    beeData.Target = rand.NextFloat3(-50, 50);
-            //}
-            //else
-            //{
-            //    beeData.Target = float3.zero;
-            //}
         }
 
         if (frameCount % 30 == 0)
@@ -110,21 +109,22 @@ public partial struct BeeMovementSystem : ISystem
 
         //worldupdateallocator - anything allocated to it will get passed to jobs, but you don't have to manually deallocate, they will
         //dispose of themselves with the world/every 2 frames
-        var foodTranslations = foodEntities.ToComponentDataArray<Translation>(state.WorldUpdateAllocator);
-        var foodResources = foodEntities.ToComponentDataArray<FoodResource>(state.WorldUpdateAllocator);
-        //foodEntities.ToEntityArray(Allocator.Temp);
+        var foodTranslations = foodEntityQuery.ToComponentDataArray<Translation>(state.WorldUpdateAllocator);
+        var foodResources = foodEntityQuery.ToComponentDataArray<FoodResource>(state.WorldUpdateAllocator);
+        var foodEntities = foodEntityQuery.ToEntityArray(Allocator.Temp);
 
         foreach (var(transform, bee) in SystemAPI.Query<TransformAspect, RefRW<Bee>>().WithAny<BlueBee, YellowBee>())
         {
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(foodResources, foodTranslations, ref bee.ValueRW);
+                    ExecuteIdleState(foodEntities, foodTranslations, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.FORAGE:
                     ExecuteForageState(transform, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.CARRY:
+                    ExecuteCarryState(transform, ref bee.ValueRW);
                     break;
                 case Bee.BEESTATE.ATTACK:
                     break;
