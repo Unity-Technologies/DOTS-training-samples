@@ -44,24 +44,24 @@ partial struct BoxSpawningSystem : ISystem
 
             // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
             hue = (hue + 0.618034005f) % 1;
-            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+            var color = UnityEngine.Color.HSVToRGB(hue, 5.0f, 2.3f);
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var vehicles = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
-        ecb.Instantiate(config.boxPrefab, vehicles);
+        var boxes = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
+        ecb.Instantiate(config.boxPrefab, boxes);
 
         // An EntityQueryMask provides an efficient test of whether a specific entity would
         // be selected by an EntityQuery.
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
 
-        foreach (var vehicle in vehicles)
+        foreach (var box in boxes)
         {
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
-            ecb.SetComponentForLinkedEntityGroup(vehicle, queryMask, RandomColor());
+            ecb.SetComponentForLinkedEntityGroup(box, queryMask, RandomColor());
         }
 
         state.Enabled = false;

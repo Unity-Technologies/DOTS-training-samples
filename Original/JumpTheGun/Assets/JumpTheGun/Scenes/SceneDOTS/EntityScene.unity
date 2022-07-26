@@ -123,71 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &109101597
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_Name
-      value: Box
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.215
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4321199887552284, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1879190506}
-  m_SourcePrefab: {fileID: 100100000, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
 --- !u!1001 &437390310
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -196,6 +131,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: yOffset
+      value: 0.36
+      objectReference: {fileID: 0}
+    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: duration
+      value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: bounceHeight
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
+      propertyPath: bounceDuration
+      value: 0.63
+      objectReference: {fileID: 0}
     - target: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
       propertyPath: m_Name
       value: Player
@@ -265,7 +216,7 @@ PrefabInstance:
     - target: {fileID: 4468126865560299953, guid: b1cfa6e50c592d44182a29d99ea2d696,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4468126865560299953, guid: b1cfa6e50c592d44182a29d99ea2d696,
         type: 3}
@@ -398,18 +349,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tankPrefab: {fileID: 599722288}
-  boxPrefab: {fileID: 0}
+  boxPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   tankCount: 4
   terrainWidth: 0.41
   terrainLength: 11
   minTerrainHeight: 0.72
   maxTerrainHeight: 0.7
-  boxCount: 0
+  boxCount: 10
   boxHeightDamage: 7
   tankLaunchPeriod: 0.36
   collisionStepMultiplier: 0.39
   invPlayerParabolaPrecision: 0.49
-  spacing: 0
+  spacing: 1
   invincibility: 0
   isPaused: 0
   timeText: 
@@ -428,27 +379,3 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1879190505 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7,
-    type: 3}
-  m_PrefabInstance: {fileID: 109101597}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1879190506
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1879190505}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71614729d060ed94e8601c224f2bd57e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boxSpawn: {fileID: 0}
-  boxPrefab: {fileID: 1879190505}
-  boxHeight: 0.21
-  boxHeightDamage: 4
-  top: 0
-  spacing: 0

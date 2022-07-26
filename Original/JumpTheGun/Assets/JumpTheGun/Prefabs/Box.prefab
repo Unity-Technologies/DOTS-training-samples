@@ -141,10 +141,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71614729d060ed94e8601c224f2bd57e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minHeightColour: {r: 0, g: 0, b: 0, a: 0}
-  maxHeightColour: {r: 0, g: 0, b: 0, a: 0}
-  renderMesh: {fileID: 0}
   boxSpawn: {fileID: 1196767111}
   boxPrefab: {fileID: 1408919642704132}
   boxHeight: 0.21
   boxHeightDamage: 4
+  top: 1
+  spacing: 1
