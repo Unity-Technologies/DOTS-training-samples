@@ -30,6 +30,7 @@ partial class FoodMovementSystem : SystemBase
             if (position.y < -10) position.y = -10;
             if (position.y > 10) position.y = 10;
         }
+        
 
     }
 }

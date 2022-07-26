@@ -15,7 +15,6 @@ partial class TargetFinderSystem : SystemBase
     [BurstCompile]
     protected override void OnUpdate()
     {
-        
             NativeArray<Entity> _yellowBees;
             NativeArray<Entity> _blueBees;
             NativeArray<Entity> _food;
