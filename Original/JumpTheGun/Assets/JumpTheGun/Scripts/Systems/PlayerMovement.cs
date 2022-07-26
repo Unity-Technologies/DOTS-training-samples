@@ -33,14 +33,15 @@ partial class PlayerMovement : SystemBase
     }
 
 
-    public float3 Spawn(int col, int row, PlayerComponent playerComponent){
+    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config){
 
         // Do an entity query to find a box with the col and row equal to the one
             // we're looking for
         //playerComponent.startBox = TerrainAreaClusters.GetBox(col, row);
         playerComponent.endBox = playerComponent.startBox;
         playerComponent.playerState = false; 
-        return TerrainAreaClusters.LocalPositionFromBox(col, row, playerComponent.startBox.top + playerComponent.yOffset);
+        int top = 0; // playerComponent.startBox.top
+        return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
     }
 
     private float3 bouncePosition(float t, PlayerComponent playerComponent, Config config, Boxes startBox, Boxes endBox){
