@@ -26,6 +26,7 @@ namespace Systems
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var car = ecb.Instantiate(config.CarPrefab);
+            var car2 = ecb.Instantiate(config.CarPrefab);
             var rs = ecb.CreateEntity();
             
             ecb.AddComponent<RoadSegment>(rs);
@@ -34,10 +35,12 @@ namespace Systems
                 StartPos = new float3(0,0,0),
                 StartNorm = new float3(0,1,0),
                 StartTang = new float3(0,0,1),
-                EndPos = new float3(0,0,10),
+                EndPos = new float3(0,0,100),
                 EndNorm = new float3(0,1,0),
                 EndTang = new float3(0,0,1),
             });
+            
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.5f});
             ecb.SetComponent(car, new Car { RoadSegment = rs });
             state.Enabled = false;
         }

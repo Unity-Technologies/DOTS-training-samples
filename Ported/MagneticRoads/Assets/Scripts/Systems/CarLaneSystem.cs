@@ -1,10 +1,7 @@
-using System.Text.RegularExpressions;
-using Aspects;
 using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 
 namespace Systems
@@ -49,22 +46,29 @@ namespace Systems
                         
                         var yPositionOnSpline = m_CarDataFromEntity[entities[j]].T;
                         
+                        var iCarComponent = m_CarDataFromEntity[entities[j]];
+                        var jCarComponent = m_CarDataFromEntity[entities[j]];
+                        
                         if (math.abs(math.distance(xPositionOnSpline, yPositionOnSpline)) < config.BrakingDistanceThreshold)
                         {
                             if (xPositionOnSpline - yPositionOnSpline > 0)
                             {
-                                ecb.SetComponentEnabled<Braking>(entities[i], true);
+                                iCarComponent.Speed = 0;
+                                ecb.SetComponent(entities[i], iCarComponent);
                             }
                             else
                             {
-                                // y in front of x
-                                ecb.SetComponentEnabled<Braking>(entities[j], true);
+                                jCarComponent.Speed = 0;
+                                ecb.SetComponent(entities[i], jCarComponent);
                             }
                         }
                         else
                         {
-                            ecb.SetComponentEnabled<Braking>(entities[i], false);
-                            ecb.SetComponentEnabled<Braking>(entities[j], false);
+                            iCarComponent.Speed = 1f;
+                            jCarComponent.Speed = 1f;
+                            
+                            ecb.SetComponent(entities[i], iCarComponent);
+                            ecb.SetComponent(entities[i], jCarComponent);
                         }
                     }
                 }

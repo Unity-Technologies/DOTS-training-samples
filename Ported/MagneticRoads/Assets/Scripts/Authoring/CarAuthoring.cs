@@ -24,6 +24,5 @@ public class CarBaker : Baker<CarAuthoring>
             SafeDistance = authoring.SafeDistance
         });
         
-        AddComponent<Braking>();
     }
 }
