@@ -3,10 +3,9 @@ using Unity.Mathematics;
 
 public struct Bee : IComponentData
 {
-    public float3 position;
-    public float3 rotation;
-
     public Entity target;
+
+    public float3 targetPos;
 
     public BeeState state;
 }

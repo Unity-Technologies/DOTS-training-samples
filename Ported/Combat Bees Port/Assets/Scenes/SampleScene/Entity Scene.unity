@@ -209,6 +209,16 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: foodCount
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
+      propertyPath: blueBase.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
+      propertyPath: blueBase.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
@@ -217,6 +227,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1936157283018023350, guid: 90c4f7638cd122d459d0bf23c0f50d26,
         type: 3}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
+      propertyPath: yellowBase.x
+      value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
+      propertyPath: yellowBase.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: blueBeePrefab
