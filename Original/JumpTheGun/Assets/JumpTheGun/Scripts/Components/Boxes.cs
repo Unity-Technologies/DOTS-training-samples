@@ -6,4 +6,8 @@ struct Box : IComponentData
     public Entity boxSpawn;
 
     public Entity boxPrefab;
+
+    public float boxHeight;
+
+    public int boxHeightDamage;
 }
