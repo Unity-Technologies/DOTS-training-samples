@@ -68,7 +68,7 @@
       "url": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.14",
+      "version": "3.0.15",
       "depth": 0,
       "source": "registry",
       "dependencies": {

@@ -1,5 +1,63 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &603767113080658238
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4748368472739373709}
+  - component: {fileID: 7278405310959272627}
+  m_Layer: 0
+  m_Name: InitialSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4748368472739373709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 603767113080658238}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4180744306556117875}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7278405310959272627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 603767113080658238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d576001a181345e48ca9afa368a067da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  beeCount: 100
+  foodCount: 5
+  yellowBase:
+    x: 0
+    y: 0
+    z: 0
+  blueBase:
+    x: 0
+    y: 0
+    z: 0
+  mapCenter:
+    x: 0
+    y: 0
+    z: 0
 --- !u!1 &4180744306556117872
 GameObject:
   m_ObjectHideFlags: 0
@@ -32,6 +90,7 @@ Transform:
   m_Children:
   - {fileID: 8027946898350287528}
   - {fileID: 7979274586690963129}
+  - {fileID: 4748368472739373709}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -129,9 +188,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de1a67c35c6cebc4da5c59a359124a35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounds:
-    x: 0
-    y: 0
+  yellowBase:
+    position:
+      x: 0
+      y: 0
+      z: 0
+  blueBase:
+    position:
+      x: 0
+      y: 0
+      z: 0
 --- !u!1 &8139873190117849139
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,6 +242,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de1a67c35c6cebc4da5c59a359124a35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounds:
-    x: 0
-    y: 0
+  yellowBase:
+    position:
+      x: 0
+      y: 0
+      z: 0
+  blueBase:
+    position:
+      x: 0
+      y: 0
+      z: 0

@@ -10,7 +10,13 @@ class YellowBeeBaker : Baker<YellowBeeAuthoring>
 {
     public override void Bake(YellowBeeAuthoring authoring)
     {
-        AddComponent<Bee>();
+        var transform = authoring.transform;
+        AddComponent(new Bee
+        {
+            position = transform.position,
+            rotation = transform.rotation.eulerAngles,
+            state = BeeState.Idle
+        });
         AddComponent<YellowTeam>();
     }
 }
