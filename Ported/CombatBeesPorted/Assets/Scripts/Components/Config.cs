@@ -3,6 +3,7 @@ using Unity.Mathematics;
 
 public struct Config : IComponentData
 {
+    public float Aggressiveness;
     public float BloodDuration;
     public float ExplosionDuration;
     public float InteractionDistance;

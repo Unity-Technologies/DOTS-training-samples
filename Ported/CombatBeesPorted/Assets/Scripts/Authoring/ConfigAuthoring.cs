@@ -11,6 +11,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float ExplosionDuration = 3f;
     public float InteractionDistance = 1f;
     public float GravityDown = 20f;
+    public float Aggressiveness;
     public Vector3 PlayVolume;
     public float HiveDepth = 10f;
     public float JitterTimeMin = 0.1f;
@@ -30,6 +31,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config()
         {
+            Aggressiveness = authoring.Aggressiveness,
             BloodDuration = authoring.BloodDuration,
             ExplosionDuration = authoring.ExplosionDuration,
             InteractionDistance = authoring.InteractionDistance,
