@@ -23,5 +23,7 @@ public class CarBaker : Baker<CarAuthoring>
             Track = Entity.Null,
             SafeDistance = authoring.SafeDistance
         });
+        
+        AddComponent<Braking>();
     }
 }
