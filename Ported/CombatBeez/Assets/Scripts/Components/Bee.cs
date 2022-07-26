@@ -5,7 +5,8 @@ public struct Bee : IComponentData
 {
     public float3 OcillateOffset;
     public float3 Target;
-    public Entity heldResource;
+    public Entity TargetResource;
+    public int heldResourceIndex;
     public BEESTATE beeState;
 
     public float3 SpawnPoint;
