@@ -4,19 +4,19 @@ using Unity.Rendering;
 // An empty component is called a "tag component".
 struct Boxes : IComponentData
 {
-    public MaterialColor minHeightColour;
+    //public MaterialColor minHeightColour;
 
-    public MaterialColor maxHeightColour;
+    //public MaterialColor maxHeightColour;
 
-    public RenderMesh renderMesh;
+    //public RenderMesh renderMesh;
 
-    public Entity boxSpawn;
+    //public Entity boxSpawn;
 
-    public Entity boxPrefab;
+    //public Entity boxPrefab;
 
-    public float spacing;
+    //public float spacing;
 
-    public float boxHeight;
+    //public float boxHeight;
 
-    public int boxHeightDamage;
+    //public int boxHeightDamage;
 }
