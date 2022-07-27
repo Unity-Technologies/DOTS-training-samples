@@ -13,4 +13,6 @@ readonly partial struct BeeSpawnAspect : IAspect<BeeSpawnAspect>
     // Note the use of ValueRO in the following properties.
     public Entity BlueBeePrefab => m_SpawnData.ValueRO.blueBeePrefab;
     public Entity YellowBeePrefab => m_SpawnData.ValueRO.yellowBeePrefab;
+
+    public int BeeCount => m_SpawnData.ValueRO.beeCount;
 }

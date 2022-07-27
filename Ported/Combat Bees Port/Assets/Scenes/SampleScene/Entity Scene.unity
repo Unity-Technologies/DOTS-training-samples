@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 781952887}
   - component: {fileID: 781952888}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Spawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -171,10 +171,7 @@ MonoBehaviour:
     type: 3}
   blueBeePrefab: {fileID: 1894847031896770365, guid: e040fbe4da3445448bed3e52a17060ca,
     type: 3}
-  foodPrefab: {fileID: 1936157283018023350, guid: 90c4f7638cd122d459d0bf23c0f50d26,
-    type: 3}
-  beeCount: 0
-  foodCount: 0
+  beeCount: 5
 --- !u!1001 &4180744305115228144
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -261,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beeCount
-      value: 10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
