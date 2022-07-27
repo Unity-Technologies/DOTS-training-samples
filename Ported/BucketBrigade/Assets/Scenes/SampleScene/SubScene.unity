@@ -187,21 +187,24 @@ MonoBehaviour:
   prefab_flameCell: {fileID: 0}
   startingFireCount: 1
   maxFlameHeight: 0.1
-  cellSize: 1
+  cellSize: 0.5
   rows: 20
   columns: 20
   flashpoint: 0.5
   heatRadius: 1
   heatTransferRate: 0.7
+  FireFighterPrefab: {fileID: 7608572091806980845, guid: 1afad127379ec864396fd0399514c962,
+    type: 3}
+  linesCount: 2
+  PerLinesCount: 10
   fireSimUpdateRate: 0.5
   colour_fireCell_neutral: {r: 0.27044016, g: 1, b: 0.27250084, a: 1}
   colour_fireCell_cool: {r: 0, g: 0, b: 0, a: 0}
   colour_fireCell_hot: {r: 0, g: 0, b: 0, a: 0}
-  colour_bot_SCOOP: {r: 0, g: 0, b: 0, a: 0}
-  colour_bot_PASS_FULL: {r: 0, g: 0, b: 0, a: 0}
-  colour_bot_PASS_EMPTY: {r: 0, g: 0, b: 0, a: 0}
-  colour_bot_THROW: {r: 0, g: 0, b: 0, a: 0}
-  colour_bot_OMNIBOT: {r: 0, g: 0, b: 0, a: 0}
+  WaterBringersColor: {r: 1, g: 0.92997056, b: 0.10849059, a: 0}
+  BucketBringersColor: {r: 0, g: 0.7830189, b: 0.7766529, a: 0}
+  BucketFillerFetcherColor: {r: 1, g: 0, b: 0.88550186, a: 0}
+  WaterDumperColor: {r: 1, g: 0.08962262, b: 0.08962262, a: 0}
   colour_bucket_empty: {r: 0, g: 0, b: 0, a: 0}
   colour_bucket_full: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &880526328

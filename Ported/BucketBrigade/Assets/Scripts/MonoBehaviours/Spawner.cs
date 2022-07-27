@@ -58,6 +58,13 @@ public class Spawner : MonoBehaviour
     [Tooltip("How fast will adjascent cells heat up?")]
     public float heatTransferRate = 0.7f;
 
+    [Header("FIRE FIGHTER")]
+    public GameObject FireFighterPrefab;
+
+    [Header("LINE")]
+    public int linesCount = 2;
+    public int PerLinesCount = 10;
+
     [Range(0.0001f, 2f)]
     [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
     public float fireSimUpdateRate = 0.5f;
@@ -68,11 +75,10 @@ public class Spawner : MonoBehaviour
     public Color colour_fireCell_cool;
     public Color colour_fireCell_hot;
     // bot colours
-    public Color colour_bot_SCOOP;
-    public Color colour_bot_PASS_FULL;
-    public Color colour_bot_PASS_EMPTY;
-    public Color colour_bot_THROW;
-    public Color colour_bot_OMNIBOT;
+    public Color WaterBringersColor;
+    public Color BucketBringersColor;
+    public Color BucketFillerFetcherColor;
+    public Color WaterDumperColor;
     // bucket Colours
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
@@ -106,53 +112,53 @@ public class Spawner : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-        //var world = World.DefaultGameObjectInjectionWorld;
-        //var entityManager = world.EntityManager;
-        //
-        //EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
-        //
-        ////Terrain cells description
-        //var renderer = TerrainCellPrefab.GetComponent<Renderer>();
-        //// public RenderMeshDescription(ShadowCastingMode shadowCastingMode, bool receiveShadows = false, MotionVectorGenerationMode motionVectorGenerationMode = MotionVectorGenerationMode.Camera, int layer = 0, uint renderingLayerMask = uint.MaxValue, LightProbeUsage lightProbeUsage = LightProbeUsage.Off, bool staticShadowCaster = false);
-        //var desc = new RenderMeshDescription(shadowCastingMode: ShadowCastingMode.Off, receiveShadows: true);
-        //
-        //// Create empty base entity
-        //var prototype = entityManager.CreateEntity();
-
-        //RenderMesh rendermesh = new RenderMesh(TerrainCellPrefab.GetComponent<Renderer>(), TerrainCellMesh);
-            //RenderMesh rendermesh = new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial };
-
-        //RenderMeshUtility.AddComponents(
-        //    prototype,
-        //    entityManager,
-        //    desc,
-        //    rendermesh);
-        //    //new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial });
-        //
-        //entityManager.AddComponentData(prototype, new LocalToWorld());
-        //NativeArray<Entity> array = new NativeArray<Entity>(rows * columns, Allocator.Persistent);
-        //entityManager.Instantiate(prototype);
-
-        //Spawn Terrain Cell
-        //var spawnJob = new SpawnJob
-        //{
-        //    Prototype = prototype,
-        //    Ecb = ecb.AsParallelWriter(),
-        //    EntityCount = rows * columns,
-        //    cellSize = cellSize,
-        //    rows = rows,
-        //    columns = columns
-        //};
-        //
-        //var spawnHandle = spawnJob.Schedule(rows * columns, 128);
-        //spawnHandle.Complete();
-        //
-        //ecb.Playback(entityManager);
-        //ecb.Dispose();
-        //entityManager.DestroyEntity(prototype);
-    }
+    //void Start()
+    //{
+    //    var world = World.DefaultGameObjectInjectionWorld;
+    //    var entityManager = world.EntityManager;
+    //    
+    //    EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+    //    
+    //    //Terrain cells description
+    //    var renderer = TerrainCellPrefab.GetComponent<Renderer>();
+    //    // public RenderMeshDescription(ShadowCastingMode shadowCastingMode, bool receiveShadows = false, MotionVectorGenerationMode motionVectorGenerationMode = MotionVectorGenerationMode.Camera, int layer = 0, uint renderingLayerMask = uint.MaxValue, LightProbeUsage lightProbeUsage = LightProbeUsage.Off, bool staticShadowCaster = false);
+    //    var desc = new RenderMeshDescription(shadowCastingMode: ShadowCastingMode.Off, receiveShadows: true);
+    //    
+    //    // Create empty base entity
+    //    var prototype = entityManager.CreateEntity();
+    //
+    //    RenderMesh rendermesh = new RenderMesh(TerrainCellPrefab.GetComponent<Renderer>(), TerrainCellMesh);
+    //      //RenderMesh rendermesh = new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial };
+    //
+    //    RenderMeshUtility.AddComponents(
+    //        prototype,
+    //        entityManager,
+    //        desc,
+    //        rendermesh);
+    //        //new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial });
+    //    
+    //    entityManager.AddComponentData(prototype, new LocalToWorld());
+    //    NativeArray<Entity> array = new NativeArray<Entity>(rows * columns, Allocator.Persistent);
+    //    entityManager.Instantiate(prototype);
+    //
+    //    //Spawn Terrain Cell
+    //    var spawnJob = new SpawnJob
+    //    {
+    //        Prototype = prototype,
+    //        Ecb = ecb.AsParallelWriter(),
+    //        EntityCount = rows * columns,
+    //        cellSize = cellSize,
+    //        rows = rows,
+    //        columns = columns
+    //    };
+    //    
+    //    var spawnHandle = spawnJob.Schedule(rows * columns, 128);
+    //    spawnHandle.Complete();
+    //    
+    //    ecb.Playback(entityManager);
+    //    ecb.Dispose();
+    //    entityManager.DestroyEntity(prototype);
+    //}
 }
 
 //class WaterSpawnerBaker : Baker<Spawner>
@@ -188,6 +194,24 @@ class TerrainCellSpawnerBaker : Baker<Spawner>
         {
             Prefab = GetEntity(authoring.TerrainCellPrefab),
             CellSize = authoring.cellSize,
+            GridSize = authoring.rows
+        });
+    }
+}
+
+class FiremanSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new FireFighterConfig
+        {
+            WaterBringersColor = authoring.WaterBringersColor,
+            BucketBringersColor = authoring.BucketBringersColor,
+            BucketFillerFetcherColor = authoring.BucketFillerFetcherColor,
+            WaterDumperColor = authoring.WaterDumperColor,
+            FireFighterPrefab = GetEntity(authoring.FireFighterPrefab),
+            LinesCount = authoring.linesCount,
+            PerLinesCount = authoring.PerLinesCount,
             GridSize = authoring.rows
         });
     }
