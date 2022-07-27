@@ -17,9 +17,10 @@ namespace Aspects
             set => m_TransformAspect.Position = value;
         }
 
-        public float3 Direction
+        public quaternion Rotation
         {
-            get => m_TransformAspect.Forward;
+            get => m_TransformAspect.Rotation;
+            set => m_TransformAspect.Rotation = value;
         }
 
         public float Speed

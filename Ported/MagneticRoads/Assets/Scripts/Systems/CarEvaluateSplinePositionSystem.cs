@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using Util;
 
 namespace Systems
 {
@@ -19,11 +20,14 @@ namespace Systems
         void Execute(ref CarAspect carAspect)
         {
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
-            carAspect.T = math.clamp(carAspect.T + ((carAspect.Speed * DT)), 0, 1);
-            
-            var anchor1 = rs.Start.Position + rs.Start.Tangent;
-            var anchor2 = rs.End.Position - rs.End.Tangent;
-            carAspect.Position = rs.Start.Position * (1f - carAspect.T) * (1f - carAspect.T) * (1f - carAspect.T) + 3f * anchor1 * (1f - carAspect.T) * (1f - carAspect.T) * carAspect.T + 3f * anchor2 * (1f - carAspect.T) * carAspect.T * carAspect.T + rs.End.Position * carAspect.T * carAspect.T * carAspect.T;
+            var t = math.clamp(carAspect.T + ((carAspect.Speed * DT / rs.Length)), 0, 1);
+
+            var pos = Spline.EvaluatePosition(rs.Start, rs.End, t);
+            var rot = Spline.EvaluateRotation(rs.Start, rs.End, t);
+
+            carAspect.T = t;
+            carAspect.Position = pos;
+            carAspect.Rotation = rot;
         }
     }
 
