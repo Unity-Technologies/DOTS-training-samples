@@ -1,6 +1,7 @@
 using Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 namespace Aspects

@@ -2,6 +2,7 @@ using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 namespace Systems
 {
@@ -27,6 +28,17 @@ namespace Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+            // var random = Random.CreateFromIndex(1234);
+            // var hue = random.NextFloat();
+            //
+            // URPMaterialPropertyBaseColor RandomColor()
+            // {
+            //     // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+            //     hue = (hue + 0.618034005f) % 1;
+            //     var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+            //     return new URPMaterialPropertyBaseColor {Value = (UnityEngine.Vector4) color};
+            // }
+            
             var car = ecb.Instantiate(config.CarPrefab);
             var car2 = ecb.Instantiate(config.CarPrefab);
             var rs = ecb.CreateEntity();
@@ -48,7 +60,7 @@ namespace Systems
                 }
             });
             
-            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.5f, Speed = 0.7f});
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.15f, Speed = 0.7f});
             ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 1f});
             
             var tempEntity = ecb.CreateEntity();

@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Systems
 {
@@ -11,7 +12,8 @@ namespace Systems
     [BurstCompile]
     public partial struct CarEvaluateSplinePositionJob : IJobEntity
     {
-        [ReadOnly] public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
+        [ReadOnly]
+        public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
         public float DT;
 
         void Execute(ref CarAspect carAspect)
@@ -21,7 +23,8 @@ namespace Systems
 
             var anchor1 = rs.Start.Position + rs.Start.Tangent;
             var anchor2 = rs.End.Position - rs.End.Tangent;
-            carAspect.Position = rs.Start.Position * (1f - carAspect.T) * (1f - carAspect.T) * (1f - carAspect.T) + 3f * anchor1 * (1f - carAspect.T) * (1f - carAspect.T) * carAspect.T + 3f * anchor2 * (1f - carAspect.T) * carAspect.T * carAspect.T + rs.End.Position * carAspect.T * carAspect.T * carAspect.T;        }
+            carAspect.Position = rs.Start.Position * (1f - carAspect.T) * (1f - carAspect.T) * (1f - carAspect.T) + 3f * anchor1 * (1f - carAspect.T) * (1f - carAspect.T) * carAspect.T + 3f * anchor2 * (1f - carAspect.T) * carAspect.T * carAspect.T + rs.End.Position * carAspect.T * carAspect.T * carAspect.T;
+        }
     }
 
     [UpdateAfter(typeof(CarSpeedSystem))]
