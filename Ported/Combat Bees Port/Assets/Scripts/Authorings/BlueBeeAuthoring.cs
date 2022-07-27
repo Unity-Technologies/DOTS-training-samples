@@ -15,6 +15,5 @@ class BlueBeeBaker : Baker<BlueBeeAuthoring>
             state = BeeState.Idle
         });
         AddComponent<BlueTeam>();
-        AddComponent<Idle>();
     }
 }

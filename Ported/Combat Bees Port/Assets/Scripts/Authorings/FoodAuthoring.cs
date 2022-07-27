@@ -11,6 +11,5 @@ class FoodBaker : Baker<FoodAuthoring>
     public override void Bake(FoodAuthoring authoring)
     {
         AddComponent<Food>();
-        AddComponent<Collected>();
     }
 }

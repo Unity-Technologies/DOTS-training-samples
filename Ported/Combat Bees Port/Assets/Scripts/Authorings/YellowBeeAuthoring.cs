@@ -15,6 +15,5 @@ class YellowBeeBaker : Baker<YellowBeeAuthoring>
             state = BeeState.Idle
         });
         AddComponent<YellowTeam>();
-        AddComponent<Idle>();
     }
 }
