@@ -37,10 +37,12 @@ partial struct StackingJob : IJobEntity
                         Ecb.SetComponent(entity, new Translation
                         {
                             Value = 
-                            new float3(trans.Value.x, 
-                                GrabbableTranslation[grabbableResource].Value.y + 2, trans.Value.z)});
+                            new float3(GrabbableTranslation[grabbableResource].Value.x, 
+                                GrabbableTranslation[grabbableResource].Value.y + 2, 
+                                GrabbableTranslation[grabbableResource].Value.z)});
                         Ecb.SetComponentEnabled<ResourceStateGrabbable>(grabbableResource, false);
-                        Debug.Log("test");
+                        Ecb.SetComponentEnabled<ResourceStateStacked>(grabbableResource, true);
+                        Ecb.SetComponent<ResourceBelow>(entity, new ResourceBelow{Value=grabbableResource});
                     }
                 }
             }
