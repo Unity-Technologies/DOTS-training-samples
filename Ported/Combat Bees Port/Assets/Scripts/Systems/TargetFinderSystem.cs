@@ -14,15 +14,7 @@ using Random = Unity.Mathematics.Random;
 
 partial class TargetFinderSystem : SystemBase
 {
-    ComponentDataFromEntity<NotCollected> _notCollected;
 
-    
-    protected override void OnCreate()
-    {
-        base.OnCreate();
-        _notCollected = GetComponentDataFromEntity<NotCollected>();
-    }
-    
     protected override void OnUpdate()
     {
             NativeArray<Entity> _yellowBees;
@@ -42,9 +34,6 @@ partial class TargetFinderSystem : SystemBase
             
             EntityQuery _foodQuery = GetEntityQuery(typeof(NotCollected));
             _food = _foodQuery.ToEntityArray(allocator);
-            _notCollected.Update(this);
-
-            var notCollected = _notCollected;
 
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
@@ -63,8 +52,6 @@ partial class TargetFinderSystem : SystemBase
 
                 if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
                 {
-                    Entity food = _food[rnd.NextInt(_food.Length)];
-                    notCollected.SetComponentEnabled(food, false);
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }
@@ -89,8 +76,6 @@ partial class TargetFinderSystem : SystemBase
 
                 if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
                 {
-                    Entity food = _food[rnd.NextInt(_food.Length)];
-                    notCollected.SetComponentEnabled(food, false);
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }
