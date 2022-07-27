@@ -10,6 +10,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int FoodResourceCount;
     public float FoodResourceDropRatePerSecond;
     public float FallingSpeed;
+    public float BeeSpeed;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -25,7 +26,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TeamYellowBeeCount = authoring.TeamYellowBeeCount,
             FoodResourceCount = authoring.FoodResourceCount,
             FoodResourceDropRatePerSecond = authoring.FoodResourceDropRatePerSecond,
-            FallingSpeed = authoring.FallingSpeed
+            FallingSpeed = authoring.FallingSpeed,
+            BeeSpeed = authoring.BeeSpeed
         });
     }
 }

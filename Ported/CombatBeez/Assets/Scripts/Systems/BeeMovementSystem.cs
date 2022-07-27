@@ -28,7 +28,8 @@ public partial struct BeeMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        moveSpeed = 8f;
+        state.RequireForUpdate<Config>();
+
         ocilateMag = 20f;
 
         //Resource entities
@@ -69,6 +70,7 @@ public partial struct BeeMovementSystem : ISystem
         NativeArray<Entity> enemyBeeEntities,
         NativeArray<Entity> resourceEntities,
         NativeArray<Translation> foodLocations,
+        TransformAspect beeTransformAspect,
         ref Bee bdata,
         ref SystemState sState)
     {
@@ -77,33 +79,29 @@ public partial struct BeeMovementSystem : ISystem
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
-        if (!tempAttackFlip)
+        if (!tempAttackFlip && foodLocations.Length > 0)
         {
             int foodResourceIndex = rand.NextInt(foodLocations.Length);
+            Translation foodPoint = foodLocations[foodResourceIndex];
 
-            if (foodLocations.Length > 0)
-            {
-                Translation foodPoint = foodLocations[foodResourceIndex];
+            bdata.beeState = Bee.BEESTATE.FORAGE;
 
-                bdata.beeState = Bee.BEESTATE.FORAGE;
+            bdata.TargetResource = resourceEntities[foodResourceIndex];
+            bdata.Target = foodPoint.Value;
+        }
+        else if (tempAttackFlip && enemyBeeEntities.Length > 0)
+        {
+            int enemyBeeIndex = rand.NextInt(enemyBeeEntities.Length);
+            Translation enemyBeeTrans = transLookup[enemyBeeEntities[enemyBeeIndex]];
 
-                bdata.TargetResource = resourceEntities[foodResourceIndex];
-                bdata.Target = foodPoint.Value;
-            }
+            bdata.beeState = Bee.BEESTATE.ATTACK;
+
+            bdata.Target = enemyBeeTrans.Value;
+            bdata.TargetBee = enemyBeeEntities[enemyBeeIndex];
         }
         else
         {
-            int enemyBeeIndex = rand.NextInt(enemyBeeEntities.Length);
-
-            if (enemyBeeEntities.Length > 0)
-            {
-                Translation enemyBeeTrans = transLookup[enemyBeeEntities[enemyBeeIndex]];
-
-                bdata.beeState = Bee.BEESTATE.ATTACK;
-
-                bdata.Target = enemyBeeTrans.Value;
-                bdata.TargetBee = enemyBeeEntities[enemyBeeIndex];
-            }
+            bdata.Target = beeTransformAspect.Position;
         }
 
         tempAttackFlip = rand.NextBool();
@@ -122,6 +120,7 @@ public partial struct BeeMovementSystem : ISystem
         if (foodRes.State != FoodState.SETTLED)
         {
             bd.beeState = Bee.BEESTATE.IDLE;
+            MoveToTarget(t, ref bd, beeScale);
         }
         else if (MoveToTarget(t, ref bd, beeScale))
         {
@@ -246,6 +245,8 @@ public partial struct BeeMovementSystem : ISystem
         // This means that it wouldn't be possible to directly access Time from there.
         // So we need to copy the value we need (DeltaTime) into a local variable.
         dt = state.Time.DeltaTime;
+
+        moveSpeed = SystemAPI.GetSingleton<Config>().BeeSpeed;
         rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
         frameCount = UnityEngine.Time.frameCount;
         transLookup.Update(ref state);
@@ -274,7 +275,7 @@ public partial struct BeeMovementSystem : ISystem
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, ref bee.ValueRW, ref state);
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state);
                     break;
                 case Bee.BEESTATE.FORAGE:
                     ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
@@ -286,7 +287,7 @@ public partial struct BeeMovementSystem : ISystem
                     ExecuteAttackState(cmdBuffer, transform, ref bee.ValueRW, ref state, beeScale);
                     break;
                 default:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, ref bee.ValueRW, ref state);
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state);
                     break;
             }
         }
