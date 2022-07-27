@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Systems
 {
     [BurstCompile]
-    partial struct CarLaneSystem : ISystem
+    partial struct CarSpeedSystem : ISystem
     {
         ComponentDataFromEntity<Car> m_CarDataFromEntity;
 
