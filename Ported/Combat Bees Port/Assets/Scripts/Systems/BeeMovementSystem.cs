@@ -11,8 +11,19 @@ using Random = Unity.Mathematics.Random;
 
 partial class BeeMovementSystem : SystemBase
 {
+    
+    ComponentDataFromEntity<NotCollected> _notCollected;
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        _notCollected = GetComponentDataFromEntity<NotCollected>();
+    }
     protected override void OnUpdate()
     {
+            _notCollected.Update(this);
+
+            var notCollected = _notCollected;
             var dt = Time.DeltaTime;
             var et = (float)Time.ElapsedTime;
             var speed = 10f;
@@ -94,6 +105,8 @@ partial class BeeMovementSystem : SystemBase
                     {
                         var component = GetComponent<Food>(bee.target);
                         component.target = beeEntity;
+                        
+                        notCollected.SetComponentEnabled(bee.target, false);
 
                         SetComponent(bee.target, component);
 
