@@ -10,6 +10,7 @@ public partial struct BeeMovementSystem : ISystem
     private float moveSpeed;
     private float ocilateMag;
 
+    private ComponentDataFromEntity<Translation> transLookup;
     //Modified each update frame
     private float frameCount;
     private float dt;
@@ -28,6 +29,8 @@ public partial struct BeeMovementSystem : ISystem
         queryBuilder.FinalizeQuery();
 
         foodEntityQuery = state.GetEntityQuery(queryBuilder);
+
+        transLookup = state.GetComponentDataFromEntity<Translation>();
     }
 
     [BurstCompile]
@@ -47,7 +50,6 @@ public partial struct BeeMovementSystem : ISystem
         Translation foodPoint = foodLocations[foodResourceIndex];
 
         bdata.TargetResource = resourceEntities[foodResourceIndex];
-        bdata.heldResourceIndex = foodResourceIndex;
         bdata.Target = foodPoint.Value;
         bdata.beeState = Bee.BEESTATE.FORAGE;
     }
@@ -88,11 +90,10 @@ public partial struct BeeMovementSystem : ISystem
         }
         else
         {
-            Translation foodPos = foodLocations[bd.heldResourceIndex];
+            Translation foodPos = transLookup[bd.TargetResource];
             foodPos.Value = t.Position + new float3(0, -2, 0);
 
-            sState.EntityManager.SetComponentData<Translation>(bd.TargetResource, foodPos);
-            //SystemAPI.SetComponent<Translation>(bd.heldResource, foodPos);
+            transLookup[bd.TargetResource] = foodPos;
         }
     }
 
@@ -131,7 +132,7 @@ public partial struct BeeMovementSystem : ISystem
         dt = state.Time.DeltaTime;
         rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
         frameCount = UnityEngine.Time.frameCount;
-
+        transLookup.Update(ref state);
         //worldupdateallocator - anything allocated to it will get passed to jobs, but you don't have to manually deallocate, they will
         //dispose of themselves with the world/every 2 frames
         var foodTranslations = foodEntityQuery.ToComponentDataArray<Translation>(state.WorldUpdateAllocator);
