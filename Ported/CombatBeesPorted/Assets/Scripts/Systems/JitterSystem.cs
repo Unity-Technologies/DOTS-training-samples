@@ -15,12 +15,10 @@ partial struct JitterJob : IJobEntity
     public Entity TargetEntity;
     public uint RandomSeed;
 
-    void Execute(Entity e, ref Bee bee, in Translation pos, ref Velocity vel, ref NonUniformScale scale)
+    void Execute(Entity e, ref Bee bee, in Translation pos, ref Velocity vel, ref NonUniformScale scale, in TargetPosition targetPos)
     {
         var rand = Random.CreateFromIndex(RandomSeed + (uint)e.Index);
-
-        // TODO: Complete this with the TargetPos component
-        var targetPos = new float3(0f, 0f, 0f);
+        
         bee.JitterTime -= DeltaTime;
         if (bee.JitterTime <= 0f)
         {
@@ -29,7 +27,7 @@ partial struct JitterJob : IJobEntity
             var randomDir = rand.NextFloat2(-JitterDistanceMax, JitterDistanceMax);
             randomDir.y = math.abs(randomDir.y);
             var jitterDir = new float3(0f, randomDir.y * 2.5f, randomDir.x);
-            var targetDir = math.normalize(targetPos - pos.Value) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
+            var targetDir = math.normalize(targetPos.Value - pos.Value) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
             vel.Value = targetDir + jitterDir;
         }
 
