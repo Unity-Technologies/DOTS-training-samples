@@ -9,6 +9,7 @@ public partial struct BeeMovementSystem : ISystem
 {
     private float moveSpeed;
     private float ocilateMag;
+    private float stretchSpeed;
 
     private ComponentDataFromEntity<Translation> transLookup;
     private ComponentDataFromEntity<Bee> beeLookup;
@@ -30,6 +31,7 @@ public partial struct BeeMovementSystem : ISystem
     {
         moveSpeed = 8f;
         ocilateMag = 20f;
+        stretchSpeed = 0.02f;
 
         //Resource entities
         var queryBuilder = new EntityQueryDescBuilder(Allocator.Temp);
@@ -110,11 +112,15 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public void ExecuteForageState(TransformAspect t, ref Bee bd, ref SystemState sState)
+    public void ExecuteForageState(
+        TransformAspect t,
+        ref Bee bd,
+        ref SystemState sState,
+        RefRW<NonUniformScale> beeScale)
     {
         FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
 
-        if (MoveToTarget(t, ref bd))
+        if (MoveToTarget(t, ref bd, beeScale))
         {
             bd.beeState = Bee.BEESTATE.CARRY;
             bd.Target = bd.SpawnPoint;
@@ -131,12 +137,17 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public void ExecuteCarryState(TransformAspect t, NativeArray<Translation> foodLocations, ref Bee bd, ref SystemState sState)
+    public void ExecuteCarryState(
+        TransformAspect t,
+        NativeArray<Translation> foodLocations,
+        ref Bee bd,
+        ref SystemState sState,
+        RefRW<NonUniformScale> beeScale)
     {
         FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
 
         //update food location in this state
-        if (MoveToTarget(t, ref bd))
+        if (MoveToTarget(t, ref bd, beeScale))
         {
             bd.beeState = Bee.BEESTATE.IDLE;
             foodRes.State = FoodState.FALLING;
@@ -157,9 +168,10 @@ public partial struct BeeMovementSystem : ISystem
         EntityCommandBuffer entityCommandBuffer,
         TransformAspect t,
         ref Bee bd,
-        ref SystemState sState)
+        ref SystemState sState,
+        RefRW<NonUniformScale> beeScale)
     {
-        if (MoveToTarget(t, ref bd))
+        if (MoveToTarget(t, ref bd, beeScale))
         {
             //Reached the target bee and kill it, then return to the idle state
             bd.beeState = Bee.BEESTATE.IDLE;
@@ -191,18 +203,23 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public bool MoveToTarget(TransformAspect transform, ref Bee beeData)
+    public bool MoveToTarget(TransformAspect transform, ref Bee beeData, RefRW<NonUniformScale> scale)
     {
         var pos = transform.Position;
         var dir = beeData.Target - pos;
         float mag = (dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z);
         float dist = math.sqrt(mag);
+        float localMoveSpeed = moveSpeed;
         bool arrivedAtTarget = false;
 
+        transform.Rotation = quaternion.LookRotation(dir, new float3(0, 1, 0));
         dir += beeData.OcillateOffset;
 
+        if (dist <= 8f && dist > 2f)
+            localMoveSpeed *= 1.5f;
+
         if (dist > 0)
-            transform.Position += (dir / dist) * dt * moveSpeed;
+            transform.Position += (dir / dist) * dt * localMoveSpeed;
 
         if (dist <= 2f)
         {
@@ -215,6 +232,11 @@ public partial struct BeeMovementSystem : ISystem
             float ocillateAmount = math.min(absOcillate, 10);
             beeData.OcillateOffset = rand.NextFloat3(-ocillateAmount, ocillateAmount);
         }
+
+        //Apply bee stretch
+        float3 stretchDir = math.abs(dir / dist);
+        stretchDir = math.clamp(stretchDir + 0.5f, 0.5f, 1.5f);
+        scale.ValueRW.Value.z = stretchDir.z + 0.5f;
 
         return arrivedAtTarget;
     }
@@ -244,7 +266,7 @@ public partial struct BeeMovementSystem : ISystem
         //create command buffer here to pass into attack state to properly destroy target enemy bees
         EntityCommandBuffer cmdBuffer = new EntityCommandBuffer(state.WorldUpdateAllocator);
 
-        foreach (var(transform, bee) in SystemAPI.Query<TransformAspect, RefRW<Bee>>().WithAny<BlueBee, YellowBee>())
+        foreach (var(transform, bee, beeScale) in SystemAPI.Query<TransformAspect, RefRW<Bee>, RefRW<NonUniformScale>>().WithAny<BlueBee, YellowBee>())
         {
             var tempEnemyBeeEntities = yellowBeeEntities;
 
@@ -258,13 +280,13 @@ public partial struct BeeMovementSystem : ISystem
                     ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, ref bee.ValueRW, ref state);
                     break;
                 case Bee.BEESTATE.FORAGE:
-                    ExecuteForageState(transform, ref bee.ValueRW, ref state);
+                    ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
                     break;
                 case Bee.BEESTATE.CARRY:
-                    ExecuteCarryState(transform, foodTranslations, ref bee.ValueRW, ref state);
+                    ExecuteCarryState(transform, foodTranslations, ref bee.ValueRW, ref state, beeScale);
                     break;
                 case Bee.BEESTATE.ATTACK:
-                    ExecuteAttackState(cmdBuffer, transform, ref bee.ValueRW, ref state);
+                    ExecuteAttackState(cmdBuffer, transform, ref bee.ValueRW, ref state, beeScale);
                     break;
                 default:
                     ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, ref bee.ValueRW, ref state);
