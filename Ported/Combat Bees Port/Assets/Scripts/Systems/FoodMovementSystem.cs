@@ -19,7 +19,8 @@ partial class FoodMovementSystem : SystemBase
                     var targetPos = food.targetPos;
                     translation.Value = targetPos;
                 }
-                translation.Value += gravity * dt;
+                else translation.Value += gravity * dt;
+                
                 CheckBounds(ref translation.Value);
                 
 
