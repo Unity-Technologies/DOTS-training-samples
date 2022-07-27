@@ -198,15 +198,15 @@ MonoBehaviour:
   linesCount: 2
   PerLinesCount: 10
   fireSimUpdateRate: 0.5
-  colour_fireCell_neutral: {r: 0.27044016, g: 1, b: 0.27250084, a: 1}
-  colour_fireCell_cool: {r: 0, g: 0, b: 0, a: 0}
-  colour_fireCell_hot: {r: 0, g: 0, b: 0, a: 0}
-  WaterBringersColor: {r: 1, g: 0.92997056, b: 0.10849059, a: 0}
-  BucketBringersColor: {r: 0, g: 0.7830189, b: 0.7766529, a: 0}
-  BucketFillerFetcherColor: {r: 1, g: 0, b: 0.88550186, a: 0}
-  WaterDumperColor: {r: 1, g: 0.08962262, b: 0.08962262, a: 0}
-  colour_bucket_empty: {r: 0, g: 0, b: 0, a: 0}
-  colour_bucket_full: {r: 0, g: 0, b: 0, a: 0}
+  colour_fireCell_neutral: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 1}
+  colour_fireCell_cool: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
+  colour_fireCell_hot: {r: 1, g: 0, b: 0, a: 0}
+  WaterBringersColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
+  BucketBringersColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
+  BucketFillerFetcherColor: {r: 0, g: 1, b: 0.15294118, a: 0}
+  WaterDumperColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
+  colour_bucket_empty: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
+  colour_bucket_full: {r: 0, g: 0.98039216, b: 1, a: 0}
   FireFighterLinePrefab: {fileID: 661053937850323804, guid: d08439791d65549419d53433828882f9,
     type: 3}
   FireFighterLineCount: 4
@@ -223,9 +223,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dcdb7c06ab04a088be4ccdb09fe3e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSize: 10
   InitialFireCount: 2
   FireThreshold: 0.5
+  FireUpdateRate: 0.5
   FireFighterLinesCount: 0
   FireFighterPerLineCount: 0
 --- !u!114 &880526330

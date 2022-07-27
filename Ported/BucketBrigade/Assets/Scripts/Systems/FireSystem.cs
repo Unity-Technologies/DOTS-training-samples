@@ -33,48 +33,52 @@ partial struct FireSystem : ISystem
 
         float threshold = Config.FireThreshold;
         int gridSize = TerrainConfig.GridSize;
-        
-        
 
-        for (int cellIndex =0; cellIndex < HeatMap.Length; cellIndex++)
+        Config.FireUpdateRate -= Time.deltaTime;
+        if (Config.FireUpdateRate <= 0)
         {
-            float tempChange = 0f;
-            float currentTemperature = HeatMap.ElementAt(cellIndex).Value; // currentCell
-            
+            Config.FireUpdateRate = fireSimUpdateRate;
 
-            int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
-            int cellColumnIndex = cellIndex % gridSize;
-
-            for (int rowIndex = -heatRadius; rowIndex <= heatRadius; rowIndex++)
+            for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
             {
-                int currentRow = cellRowIndex - rowIndex;
-                if (currentRow >= 0 && currentRow < gridSize)
-                {
-                    for (int columnIndex = -heatRadius; columnIndex <= heatRadius; columnIndex++)
-                    {
-                        int currentColumn = cellColumnIndex + columnIndex;
-                        if (currentColumn >= 0 && currentColumn < gridSize)
-                        {
+                float tempChange = 0f;
+                float currentTemperature = HeatMap.ElementAt(cellIndex).Value; // currentCell
 
-                            float neighbourTemperature = HeatMap.ElementAt((currentRow * gridSize) + currentColumn).Value;
-                            if (neighbourTemperature >= threshold) // neighbour in fire
+
+                int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
+                int cellColumnIndex = cellIndex % gridSize;
+
+                for (int rowIndex = -heatRadius; rowIndex <= heatRadius; rowIndex++)
+                {
+                    int currentRow = cellRowIndex - rowIndex;
+                    if (currentRow >= 0 && currentRow < gridSize)
+                    {
+                        for (int columnIndex = -heatRadius; columnIndex <= heatRadius; columnIndex++)
+                        {
+                            int currentColumn = cellColumnIndex + columnIndex;
+                            if (currentColumn >= 0 && currentColumn < gridSize)
                             {
-                                tempChange += neighbourTemperature * heatTransferRate;
+
+                                float neighbourTemperature = HeatMap.ElementAt((currentRow * gridSize) + currentColumn).Value;
+                                if (neighbourTemperature >= threshold) // neighbour in fire
+                                {
+                                    tempChange += neighbourTemperature * heatTransferRate;
+                                }
                             }
                         }
                     }
                 }
+
+                float newTemperature = Mathf.Clamp(currentTemperature + tempChange, -1f, 1f);
+                HeatMap.ElementAt(cellIndex).Value = newTemperature;
+
+                if (newTemperature >= threshold) Burn();
             }
-
-            float newTemperature = Mathf.Clamp(currentTemperature + tempChange, -1f, 1f);
-            HeatMap.ElementAt(cellIndex).Value = newTemperature;
-
-            if (newTemperature >= threshold) Burn();
-        } 
+        }
     }
 
     public void Burn()
     {
-        //Debug.Log("Burn!");
+        Debug.Log("Burn!");
     }
 }
