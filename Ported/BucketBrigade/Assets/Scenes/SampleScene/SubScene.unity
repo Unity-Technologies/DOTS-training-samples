@@ -221,6 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize: 10
+  InitialFireCount: 2
   FireThreshold: 0.5
   FireFighterLinesCount: 0
   FireFighterPerLineCount: 0

@@ -4,6 +4,7 @@ using Unity.Entities;
 struct Config : IComponentData
 {
     public int GridSize;
+    public int InitialFireCount;
     public float FireThreshold;
     public int FireFighterLinesCount;
     public int FireFighterPerLineCount;

@@ -25,13 +25,14 @@ partial struct FireSystem : ISystem
     {
         DynamicBuffer<Temperature> HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
         Config Config = SystemAPI.GetSingleton<Config>();
+        TerrainCellConfig TerrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         int heatRadius = 1;
         float heatTransferRate = 0.7f;
         float fireSimUpdateRate = 0.5f;
 
         float threshold = Config.FireThreshold;
-        int gridSize = Config.GridSize;
+        int gridSize = TerrainConfig.GridSize;
         
         
 
