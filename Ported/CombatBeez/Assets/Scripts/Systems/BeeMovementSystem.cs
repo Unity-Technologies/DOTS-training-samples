@@ -173,20 +173,24 @@ public partial struct BeeMovementSystem : ISystem
         {
             //Reached the target bee and kill it, then return to the idle state
             bd.beeState = Bee.BEESTATE.IDLE;
+            Bee enemyBee;
 
-            if (beeLookup[bd.TargetBee].beeState == Bee.BEESTATE.CARRY)
+            if (beeLookup.TryGetComponent(bd.TargetBee, out enemyBee))
             {
-                FoodResource foodRes = foodResourceLookup[beeLookup[bd.TargetBee].TargetResource];
-                foodRes.State = FoodState.FALLING;
+                if (enemyBee.beeState == Bee.BEESTATE.CARRY)
+                {
+                    FoodResource foodRes = foodResourceLookup[beeLookup[bd.TargetBee].TargetResource];
+                    foodRes.State = FoodState.FALLING;
 
-                foodResourceLookup[beeLookup[bd.TargetBee].TargetResource] = foodRes;
+                    foodResourceLookup[beeLookup[bd.TargetBee].TargetResource] = foodRes;
+                }
+
+                Entity blood = entityCommandBuffer.Instantiate(config.BloodPrefab);
+                entityCommandBuffer.SetComponent<Translation>(blood, transLookup[bd.TargetBee]);
+                entityCommandBuffer.SetComponent<Blood>(blood, new Blood() { State = BloodState.FALLING });
+
+                entityCommandBuffer.DestroyEntity(bd.TargetBee);
             }
-
-            Entity blood = entityCommandBuffer.Instantiate(config.BloodPrefab);
-            entityCommandBuffer.SetComponent<Translation>(blood, transLookup[bd.TargetBee]);
-            entityCommandBuffer.SetComponent<Blood>(blood, new Blood() { State = BloodState.FALLING });
-
-            entityCommandBuffer.DestroyEntity(bd.TargetBee);
         }
         else
         {
