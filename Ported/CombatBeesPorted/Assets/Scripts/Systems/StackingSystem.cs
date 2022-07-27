@@ -1,8 +1,8 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
-[WithAny(typeof(ResourceStateGrabbable), typeof(ResourceStateStacked), typeof(ResourceStateGrabbed))]
-[WithAll(typeof(Gravity))]
+
+[WithAll(typeof(Gravity), typeof(Resource))]
 [BurstCompile]
 partial struct StackingJob : IJobEntity
 {
