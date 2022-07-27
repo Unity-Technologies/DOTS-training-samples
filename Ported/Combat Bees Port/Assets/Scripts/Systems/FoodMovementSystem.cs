@@ -22,7 +22,7 @@ partial class FoodMovementSystem : SystemBase
                 if (HasComponent<Bee>(food.target))
                 {
                     var targetPos = GetComponent<LocalToWorld>(food.target).Position;
-                    translation.Value = targetPos;
+                    food.targetPos = targetPos;
                     translation.Value = food.targetPos;
                 }
                 else translation.Value += gravity * dt;

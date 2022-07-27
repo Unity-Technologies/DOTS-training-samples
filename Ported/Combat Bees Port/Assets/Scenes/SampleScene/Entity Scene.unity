@@ -171,7 +171,7 @@ MonoBehaviour:
     type: 3}
   blueBeePrefab: {fileID: 1894847031896770365, guid: e040fbe4da3445448bed3e52a17060ca,
     type: 3}
-  beeCount: 1000
+  beeCount: 10
 --- !u!1001 &4180744305115228144
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -258,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beeCount
-      value: 50000
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}

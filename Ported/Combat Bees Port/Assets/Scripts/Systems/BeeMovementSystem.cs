@@ -79,8 +79,10 @@ partial class BeeMovementSystem : SystemBase
                     if (math.distancesq(position, target) < 0.25f)
                     {
                         var component = GetComponent<Food>(bee.target);
-
                         component.target = beeEntity;
+
+                        SetComponent(bee.target, component);
+
                         bee.target = baseEntity;
                         var randomPlaceInSpawn = HasComponent<YellowTeam>(beeEntity) ?
                             random.NextFloat3(baseComponent.yellowBase.GetBaseLowerLeftCorner(), baseComponent.yellowBase.GetBaseUpperRightCorner()) 
