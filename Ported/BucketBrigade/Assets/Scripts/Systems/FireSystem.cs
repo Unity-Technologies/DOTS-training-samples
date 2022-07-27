@@ -25,13 +25,14 @@ partial struct FireSystem : ISystem
     {
         DynamicBuffer<Temperature> HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
         Config Config = SystemAPI.GetSingleton<Config>();
+        TerrainCellConfig TerrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         int heatRadius = 1;
         float heatTransferRate = 0.7f;
         float fireSimUpdateRate = 0.5f;
 
-        float threshold = Config.FireThreshold; //0.5f
-        int gridSize = Config.GridSize; //20
+        float threshold = Config.FireThreshold;
+        int gridSize = TerrainConfig.GridSize;
         
         
 
@@ -39,6 +40,7 @@ partial struct FireSystem : ISystem
         {
             float tempChange = 0f;
             float currentTemperature = HeatMap.ElementAt(cellIndex).Value; // currentCell
+            
 
             int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
             int cellColumnIndex = cellIndex % gridSize;
@@ -53,6 +55,7 @@ partial struct FireSystem : ISystem
                         int currentColumn = cellColumnIndex + columnIndex;
                         if (currentColumn >= 0 && currentColumn < gridSize)
                         {
+
                             float neighbourTemperature = HeatMap.ElementAt((currentRow * gridSize) + currentColumn).Value;
                             if (neighbourTemperature >= threshold) // neighbour in fire
                             {
@@ -72,6 +75,6 @@ partial struct FireSystem : ISystem
 
     public void Burn()
     {
-        Debug.Log("Burn!");
+        //Debug.Log("Burn!");
     }
 }

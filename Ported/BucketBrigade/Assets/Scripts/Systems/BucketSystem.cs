@@ -22,20 +22,22 @@ partial struct BucketSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BucketConfig>();
+        var configCell = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var waterCell = CollectionHelper.CreateNativeArray<Entity>(config.Count, Allocator.Temp);
+        var buckets = CollectionHelper.CreateNativeArray<Entity>(config.Count, Allocator.Temp);
 
 
-        ecb.Instantiate(config.Prefab, waterCell);
+        ecb.Instantiate(config.Prefab, buckets);
 
 
         int i = 0;
-        foreach (var cell in waterCell)
+        foreach (var cell in buckets)
         {
-            ecb.SetComponent(cell, new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
+            ecb.SetComponent(cell, new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), (configCell.CellSize * 0.5f) *0.5f, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
+            ecb.SetComponent(cell, new NonUniformScale { Value = new float3(configCell.CellSize * 0.5f, configCell.CellSize * 0.5f, configCell.CellSize * 0.5f) });
             ++i;
         }
 

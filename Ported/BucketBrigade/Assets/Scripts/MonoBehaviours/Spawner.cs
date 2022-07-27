@@ -83,6 +83,12 @@ public class Spawner : MonoBehaviour
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
 
+    // Line ID
+    [Header("Fire Fighter lines")]
+    public GameObject FireFighterLinePrefab;
+    public int FireFighterLineCount;
+    public int FireFightersPerLineCount;
+    
     // Example Burst job that creates many entities
     [BurstCompatible]
     public struct SpawnJob : IJobParallelFor
@@ -216,3 +222,17 @@ class FiremanSpawnerBaker : Baker<Spawner>
         });
     }
 }
+
+class FireFighterLineSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new FireFighterLineConfig
+        {
+            Prefab = GetEntity(authoring.FireFighterLinePrefab),
+            Count = authoring.FireFighterLineCount,
+            FireFightersPerLine = authoring.FireFightersPerLineCount
+        });
+    }
+}
+
