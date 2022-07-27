@@ -6,7 +6,6 @@ using Unity.Collections;
 using UnityEngine;
 
 [WithAll(typeof(BeeStateAttacking))]
-[CreateAfter(typeof(BeeGatheringSystem))]
 [BurstCompile]
 partial struct BeeAttackJob : IJobEntity
 {
