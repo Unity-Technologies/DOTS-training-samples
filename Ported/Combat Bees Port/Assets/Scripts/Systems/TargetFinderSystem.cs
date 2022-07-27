@@ -36,13 +36,13 @@ partial class TargetFinderSystem : SystemBase
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
-                if (aggression && !(_blueBees == null) && bee.state == BeeState.Idle)
+                if (aggression && !(_blueBees == null))
                 {
                     bee.target = _blueBees[rnd.NextInt(_blueBees.Length)];
                     bee.state = BeeState.Attacking;
                 }
 
-                if (!aggression && !(_food == null) && bee.state == BeeState.Idle)
+                if (!aggression && !(_food == null))
                 {  
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
@@ -53,14 +53,14 @@ partial class TargetFinderSystem : SystemBase
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
-                if (aggression && !(_yellowBees == null) && bee.state == BeeState.Idle)
+                if (aggression && !(_yellowBees == null))
                 {
                     bee.target = _yellowBees[rnd.NextInt(_yellowBees.Length)];
                     bee.state = BeeState.Attacking;
                     
                 }
 
-                if (!aggression && !(_food == null) && bee.state == BeeState.Idle)
+                if (!aggression && !(_food == null))
                 {
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
