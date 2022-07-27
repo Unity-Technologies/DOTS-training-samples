@@ -14,7 +14,7 @@ partial class BeeMovementSystem : SystemBase
     {
             var dt = Time.DeltaTime;
             var et = (float)Time.ElapsedTime;
-            var speed = 5f;
+            var speed = 10f;
             float offsetValue = 1f;
             Random random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
             float3 target = new float3(5, 0, 0);
@@ -27,11 +27,8 @@ partial class BeeMovementSystem : SystemBase
             .ForEach((ref Translation translation, ref Bee bee, ref Entity beeEntity,  ref Rotation rotation) =>
             {
                 var position = translation.Value;
-                /*var offset = new float3(
-                    random.NextFloat(-1 * offsetValue, offsetValue),
-                    random.NextFloat(-1 * offsetValue, offsetValue),
-                    random.NextFloat(-1 * offsetValue, offsetValue)
-                );*/
+                
+                SpeedHandler(bee);
 
                 var offset = new float3(
                     noise.cnoise(new float2(et, offsetValue)),
@@ -43,7 +40,11 @@ partial class BeeMovementSystem : SystemBase
                 {
                     target = GetComponent<LocalToWorld>(bee.target).Position;
                 }
-                else target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
+                else
+                {
+                    bee.state = BeeState.Idle;
+                    target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
+                }
                 
                 var direction = math.normalizesafe( target - translation.Value);
                 
@@ -67,12 +68,25 @@ partial class BeeMovementSystem : SystemBase
                 {
                     if (math.distancesq(position, target) < 0.5f)
                     {
-                        bee.targetPos = position;
-                        bee.state = BeeState.Hauling;
+                        var component = new Food();
+                        if (HasComponent<Food>(bee.target))
+                        {
+                            component = GetComponent<Food>(bee.target);
+                        }
                         
-                        var component = GetComponent<Food>(bee.target);
                         component.target = beeEntity;
+                        component.targetPos = translation.Value;
                         target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
+                        bee.target = new Entity();
+                        bee.state = BeeState.Hauling;
+                    }
+                }
+
+                if (bee.state == BeeState.Hauling)
+                {
+                    if (math.distancesq(position, target) < 0.5f)
+                    {
+                        bee.state = BeeState.Idle;
                     }
                 }
                 
@@ -90,8 +104,13 @@ partial class BeeMovementSystem : SystemBase
                 if (position.z > 10) position.z = 10;
             }
 
-            
-            
+            void SpeedHandler(Bee bee)
+            {
+                if (bee.state == BeeState.Attacking) speed = 50f;
+                if (bee.state == BeeState.Collecting) speed = 25f;
+                if (bee.state == BeeState.Hauling) speed = 20f;
+            }
+
             
     }
 
