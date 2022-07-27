@@ -11,7 +11,7 @@ using Random = Unity.Mathematics.Random;
 partial struct InitialSpawningSystem : ISystem
 {
     Random random;
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -42,7 +42,7 @@ partial struct InitialSpawningSystem : ISystem
         foreach (var bee in blueBees)
         {
             var blueBaseCache = baseComponent.blueBase;
-            var randomSpawn = random.NextFloat3(blueBaseCache.GetBaseLowerLeftCorner(), blueBaseCache.GetBaseRightCorner());
+            var randomSpawn = blueBaseCache.GetRandomPositionInBase(random);
 
             ecb.SetComponent(bee, new Translation
             {
@@ -56,7 +56,7 @@ partial struct InitialSpawningSystem : ISystem
         {
             var yellowBaseCache = baseComponent.yellowBase;
 
-            var randomSpawn = random.NextFloat3(yellowBaseCache.GetBaseLowerLeftCorner(), yellowBaseCache.GetBaseRightCorner());
+            var randomSpawn = yellowBaseCache.GetRandomPositionInBase(random);
 
             ecb.SetComponent(bee, new Translation
             {

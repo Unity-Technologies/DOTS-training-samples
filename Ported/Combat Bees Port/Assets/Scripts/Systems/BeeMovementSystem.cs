@@ -69,7 +69,7 @@ partial class BeeMovementSystem : SystemBase
                     {
                         bee.targetPos = position;
                         bee.state = BeeState.Hauling;
-
+                        
                         var component = GetComponent<Food>(bee.target);
                         component.target = beeEntity;
                         target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;

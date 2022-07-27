@@ -2,20 +2,19 @@ using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
 partial struct BeeSpawningWithFoodSystem : ISystem
 {
-    Random random;
-    
+    Base m_BaseComponent;
     ComponentDataFromEntity<LocalToWorld> m_LocalToWorldFromEntity;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        m_BaseComponent = SystemAPI.GetSingleton<Base>();
     }
 
     [BurstCompile]
@@ -26,17 +25,14 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        random = Random.CreateFromIndex(state.GlobalSystemVersion);
-
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
-        var baseComponent = SystemAPI.GetSingleton<Base>();
         
         foreach (var (foodPiece, translation) in SystemAPI.Query<Entity, RefRO<Translation>>().WithAll<Food>())
         {
             var position = translation.ValueRO.Value;
-            if (baseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -8)
+
+            if (m_BaseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -8)
             {
                 var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
@@ -57,7 +53,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
                 ecb.DestroyEntity(foodPiece);
             }
             
-            else if (baseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -8)
+            else if (m_BaseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -8)
             {
                 ecb.DestroyEntity(foodPiece);
                 
@@ -84,9 +80,9 @@ partial struct BeeSpawningWithFoodSystem : ISystem
 [BurstCompile]
 partial struct YellowBeeSpawnJob : IJobEntity
 {
-    public EntityCommandBuffer ECB;
+    EntityCommandBuffer ECB;
     [ReadOnly]
-    public Random random;
+    Random random;
 
     void Execute(in BeeSpawnAspect beeSpawn)
     {
@@ -113,9 +109,9 @@ partial struct YellowBeeSpawnJob : IJobEntity
 [BurstCompile]
 partial struct BlueBeeSpawnJob : IJobEntity
 {
-    public EntityCommandBuffer ECB;
+    EntityCommandBuffer ECB;
     [ReadOnly]
-    public Random random;
+    Random random;
 
     void Execute(in BeeSpawnAspect beeSpawn)
     {
