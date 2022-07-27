@@ -9,6 +9,7 @@ struct FireFighterConfig : IComponentData
     public Color WaterDumperColor;
     public Entity FireFighterPrefab;
     public float GridSize;
+    public float CellSize;
     public int LinesCount;
     public int PerLinesCount;
 }

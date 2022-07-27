@@ -19,6 +19,18 @@ partial struct FireFighterSystem : ISystem
     {
     }
 
+    private Entity InitFireFighter(ref SystemState state, FireFighterConfig config, ComponentType[] components)
+    {
+        var FireFighterPrefab = state.EntityManager.Instantiate(config.FireFighterPrefab);
+
+        foreach(var component in components)
+        {
+            state.EntityManager.AddComponent(FireFighterPrefab, component);
+        }
+
+        return FireFighterPrefab;
+    }
+
     //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -27,85 +39,90 @@ partial struct FireFighterSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var entityArray = CollectionHelper.CreateNativeArray<Entity>((config.PerLinesCount * 2 + 2) * config.LinesCount , Allocator.Temp);
+        //var entityArray = CollectionHelper.CreateNativeArray<Entity>((config.PerLinesCount * 2 + 2) * config.LinesCount , Allocator.Temp);
 
 
-        ecb.Instantiate(config.FireFighterPrefab, entityArray);
+        //ecb.Instantiate(config.FireFighterPrefab, entityArray);
+
+        var WaterBringersEntity = InitFireFighter(ref state, config, new ComponentType[] { 
+            typeof(WaterBringer), 
+            typeof(Target), 
+            typeof(LineId), 
+            typeof(LineIndex), 
+            typeof(BucketId), 
+            typeof(URPMaterialPropertyBaseColor) });
+        var BucketBringerEntity = InitFireFighter(ref state, config, new ComponentType[] { 
+            typeof(BucketBringer), 
+            typeof(Target), 
+            typeof(LineId), 
+            typeof(LineIndex), 
+            typeof(BucketId), 
+            typeof(URPMaterialPropertyBaseColor) });
+        var BucketFillerFetcherEntity = InitFireFighter(ref state, config, new ComponentType[] { 
+            typeof(BucketFillerFetcher), 
+            typeof(Target), 
+            typeof(LineId), 
+            typeof(BucketId), 
+            typeof(URPMaterialPropertyBaseColor) });
+        var WaterDumperEntity = InitFireFighter(ref state, config, new ComponentType[] { 
+            typeof(WaterDumper), 
+            typeof(Target), 
+            typeof(LineId), 
+            typeof(BucketId), 
+            typeof(URPMaterialPropertyBaseColor) });
+
+        state.EntityManager.Instantiate(WaterBringersEntity,        config.LinesCount * config.PerLinesCount, Allocator.Temp);
+        state.EntityManager.Instantiate(BucketBringerEntity,        config.LinesCount * config.PerLinesCount, Allocator.Temp);
+        state.EntityManager.Instantiate(BucketFillerFetcherEntity,  config.LinesCount                       , Allocator.Temp);
+        state.EntityManager.Instantiate(WaterDumperEntity,          config.LinesCount                       , Allocator.Temp);
+
+        state.EntityManager.DestroyEntity(WaterBringersEntity);
+        state.EntityManager.DestroyEntity(BucketBringerEntity);
+        state.EntityManager.DestroyEntity(BucketFillerFetcherEntity);
+        state.EntityManager.DestroyEntity(WaterDumperEntity);
+
+        Unity.Mathematics.Random rand = new Unity.Mathematics.Random((uint)(config.LinesCount * config.PerLinesCount));
+        float gridRadius = config.GridSize * 0.5f * config.CellSize;
+        foreach (var tran in SystemAPI.Query<RefRW<Translation>>().WithAny<WaterBringer, BucketBringer, BucketFillerFetcher>().WithAny<WaterDumper>())
+        {
+            tran.ValueRW.Value = new float3(rand.NextFloat(-gridRadius, gridRadius), 0, rand.NextFloat(-gridRadius, gridRadius));
+        }
 
         int index = 0;
-
-        var entityItt = entityArray.GetEnumerator();
-
-        var WaterBringersPrefab = state.EntityManager.Instantiate(config.FireFighterPrefab);
-        state.EntityManager.AddComponent<WaterBringer>(WaterBringersPrefab);
-        state.EntityManager.AddComponent<Target>(WaterBringersPrefab);
-        state.EntityManager.AddComponent<LineId>(WaterBringersPrefab);
-        state.EntityManager.AddComponent<LineIndex>(WaterBringersPrefab);
-        state.EntityManager.AddComponent<BucketId>(WaterBringersPrefab);
-        state.EntityManager.AddComponent<URPMaterialPropertyBaseColor>(WaterBringersPrefab);
-
-        state.EntityManager.Instantiate(WaterBringersPrefab, config.LinesCount * config.PerLinesCount, Allocator.Temp);
-
-        //foreach(var (tran, color) in SystemAPI.Query<RefRW<Translation>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<WaterBringer>())
-        //{
-        //    tran.ValueRW.Value  = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f));
-        //    color.ValueRW.Value = new float4(config.WaterBringersColor.r, config.WaterBringersColor.g, config.WaterBringersColor.b, 1.0f);
-        //}
-
-        // WaterBringers
-        for (int lineId = 0; lineId < config.LinesCount; ++lineId)
+        foreach (var (color, lineId, LineIndex) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>>().WithAll<WaterBringer>())
         {
-            for (int lineIndex = 0; lineIndex < config.PerLinesCount; ++lineIndex)
-            {
-                ecb.AddComponent(entityArray[index], new WaterBringer { });
-                ecb.AddComponent(entityArray[index], new Target() );
-                ecb.AddComponent(entityArray[index], new LineId { Value = lineId } );
-                ecb.AddComponent(entityArray[index], new LineIndex { Value = lineIndex });
-                ecb.AddComponent(entityArray[index], new BucketId () );
-                ecb.AddComponent(entityArray[index], new URPMaterialPropertyBaseColor { Value = new float4(config.WaterBringersColor.r, config.WaterBringersColor.g, config.WaterBringersColor.b, 1.0f) });
-                ecb.SetComponent(entityArray[index], new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
-                ++index;
-            }
-        }
-        // BucketBringers
-        for (int LineId = 0; LineId < config.LinesCount; ++LineId)
-        {
-            for (int lineIndex = 0; lineIndex < config.PerLinesCount; ++lineIndex)
-            {
-                ecb.AddComponent(entityArray[index], new BucketBringer { });
-                ecb.AddComponent(entityArray[index], new Target { });
-                ecb.AddComponent(entityArray[index], new LineId { Value = LineId });
-                ecb.AddComponent(entityArray[index], new LineIndex { Value = lineIndex });
-                ecb.AddComponent(entityArray[index], new BucketId { });
-                ecb.AddComponent(entityArray[index], new URPMaterialPropertyBaseColor { Value = new float4(config.BucketBringersColor.r, config.BucketBringersColor.g, config.BucketBringersColor.b, 1.0f) });
-                ecb.SetComponent(entityArray[index], new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
-                ++index;
-            }
-        }
-        // BucketFillerFetcher
-        for (int LineId = 0; LineId < config.LinesCount; ++LineId)
-        {
-            ecb.AddComponent(entityArray[index], new BucketFillerFetcher { });
-            ecb.AddComponent(entityArray[index], new Target { });
-            ecb.AddComponent(entityArray[index], new LineId { Value = LineId });
-            ecb.AddComponent(entityArray[index], new LineIndex { });
-            ecb.AddComponent(entityArray[index], new BucketId { });
-            ecb.AddComponent(entityArray[index], new URPMaterialPropertyBaseColor { Value = new float4(config.BucketFillerFetcherColor.r, config.BucketFillerFetcherColor.g, config.BucketFillerFetcherColor.b, 1.0f) });
-            ecb.SetComponent(entityArray[index], new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
+            color.ValueRW.Value = new float4(config.WaterBringersColor.r, config.WaterBringersColor.g, config.WaterBringersColor.b, 1.0f);
+
+            lineId.ValueRW.Value = index / config.PerLinesCount;
+            LineIndex.ValueRW.Value = index % config.PerLinesCount;
             ++index;
         }
-        // WaterDumper
-        for (int LineId = 0; LineId < config.LinesCount; ++LineId)
+        index = 0;
+        foreach (var (color, lineId, LineIndex) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>>().WithAll<BucketBringer>())
         {
-            ecb.AddComponent(entityArray[index], new WaterDumper { });
-            ecb.AddComponent(entityArray[index], new Target { });
-            ecb.AddComponent(entityArray[index], new LineId { Value = LineId });
-            ecb.AddComponent(entityArray[index], new LineIndex { });
-            ecb.AddComponent(entityArray[index], new BucketId { });
-            ecb.AddComponent(entityArray[index], new URPMaterialPropertyBaseColor { Value = new float4(config.WaterDumperColor.r, config.WaterDumperColor.g, config.WaterDumperColor.b, 1.0f) });
-            ecb.SetComponent(entityArray[index], new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), 0, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
+            color.ValueRW.Value = new float4(config.BucketBringersColor.r, config.BucketBringersColor.g, config.BucketBringersColor.b, 1.0f);
+
+            lineId.ValueRW.Value = index / config.PerLinesCount;
+            LineIndex.ValueRW.Value = index % config.PerLinesCount;
             ++index;
         }
+        index = 0;
+        foreach (var (lineId, color) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<BucketFillerFetcher>())
+        {
+            color.ValueRW.Value = new float4(config.BucketFillerFetcherColor.r, config.BucketFillerFetcherColor.g, config.BucketFillerFetcherColor.b, 1.0f);
+
+            lineId.ValueRW.Value = index / config.PerLinesCount;
+            ++index;
+        }
+        index = 0;
+        foreach (var (lineId, color) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<WaterDumper>())
+        {
+            color.ValueRW.Value = new float4(config.WaterDumperColor.r, config.WaterDumperColor.g, config.WaterDumperColor.b, 1.0f);
+
+            lineId.ValueRW.Value = index / config.PerLinesCount;
+            ++index;
+        }
+
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
     }

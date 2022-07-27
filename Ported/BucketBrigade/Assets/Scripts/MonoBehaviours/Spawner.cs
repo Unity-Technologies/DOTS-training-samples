@@ -187,7 +187,8 @@ class BucketSpawnerBaker : Baker<Spawner>
         {
             Prefab = GetEntity(authoring.BucketPrefab),
             Count = 10,
-            GridSize = authoring.rows
+            GridSize = authoring.rows,
+            CellSize = authoring.cellSize
         });
     }
 }
@@ -218,7 +219,8 @@ class FiremanSpawnerBaker : Baker<Spawner>
             FireFighterPrefab = GetEntity(authoring.FireFighterPrefab),
             LinesCount = authoring.linesCount,
             PerLinesCount = authoring.PerLinesCount,
-            GridSize = authoring.rows
+            GridSize = authoring.rows,
+            CellSize = authoring.cellSize
         });
     }
 }

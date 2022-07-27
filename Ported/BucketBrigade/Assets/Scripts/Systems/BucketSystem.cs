@@ -32,11 +32,13 @@ partial struct BucketSpawningSystem : ISystem
 
         ecb.Instantiate(config.Prefab, buckets);
 
+        float gridRadius = config.GridSize * 0.5f * config.CellSize;
+        Unity.Mathematics.Random rand = new Unity.Mathematics.Random((uint)(config.Count * config.GridSize * config.CellSize));
 
         int i = 0;
         foreach (var cell in buckets)
         {
-            ecb.SetComponent(cell, new Translation { Value = new float3(UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f), (configCell.CellSize * 0.5f) *0.5f, UnityEngine.Random.Range(-config.GridSize * 0.5f, config.GridSize * 0.5f)) });
+            ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-gridRadius, gridRadius), 0.0f, rand.NextFloat(-gridRadius, gridRadius)) });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3(configCell.CellSize * 0.5f, configCell.CellSize * 0.5f, configCell.CellSize * 0.5f) });
             ++i;
         }
