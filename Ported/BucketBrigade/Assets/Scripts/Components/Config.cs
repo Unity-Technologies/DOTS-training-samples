@@ -5,6 +5,7 @@ struct Config : IComponentData
 {
     public int InitialFireCount;
     public float FireThreshold;
+    public float FireUpdateRate;
     public int FireFighterLinesCount;
     public int FireFighterPerLineCount;
 }
