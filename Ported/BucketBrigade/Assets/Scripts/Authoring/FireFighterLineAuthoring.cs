@@ -4,6 +4,9 @@ using Unity.Mathematics;
 
 class FireFighterLineAuthoring : UnityEngine.MonoBehaviour
 {
+    public int LineId;
+    public float2 StartPosition;
+    public float2 EndPosition;
 }
 
 class FireFighterLineBaker : Baker<FireFighterLineAuthoring>
@@ -12,10 +15,9 @@ class FireFighterLineBaker : Baker<FireFighterLineAuthoring>
     {
         AddComponent(new FireFighterLine
         {
-
-            LineId = 0,
-            StartPosition = new float2(0, 0),
-            EndPosition = new float2(0, 0)
+            LineId = authoring.LineId,
+            StartPosition = authoring.StartPosition,
+            EndPosition = authoring.EndPosition
         });
     }
 }

@@ -204,6 +204,10 @@ MonoBehaviour:
   colour_bot_OMNIBOT: {r: 0, g: 0, b: 0, a: 0}
   colour_bucket_empty: {r: 0, g: 0, b: 0, a: 0}
   colour_bucket_full: {r: 0, g: 0, b: 0, a: 0}
+  FireFighterLinePrefab: {fileID: 661053937850323804, guid: d08439791d65549419d53433828882f9,
+    type: 3}
+  FireFighterLineCount: 4
+  FireFightersPerLineCount: 10
 --- !u!114 &880526329
 MonoBehaviour:
   m_ObjectHideFlags: 0
