@@ -6,7 +6,8 @@ namespace Util
 {
     public static class Spline
     {
-        [BurstCompile]
+        private const int SplineLengthResolution = 10;
+        
         public struct RoadTerminator
         {
             public float3 Position;
@@ -14,7 +15,6 @@ namespace Util
             public float3 Tangent;
         }
         
-        [BurstCompile]
         public static float3 EvaluatePosition(RoadTerminator start, RoadTerminator end, float t)
         {
             var anchor1 = start.Position + start.Tangent;
@@ -26,7 +26,6 @@ namespace Util
                    + end.Position * t * t * t;
         }
         
-        [BurstCompile]
         public static float3 EvaluateTangent(RoadTerminator start, RoadTerminator end, float t)
         {
             var anchor1 = start.Position + start.Tangent;
@@ -37,6 +36,29 @@ namespace Util
                 + 3 * t * t * (end.Position - anchor2);
 
             return math.normalize(derivative);
+        }
+
+        public static quaternion EvaluateRotation(RoadTerminator start, RoadTerminator end, float t)
+        {
+            var startQuart = quaternion.LookRotation(start.Tangent, start.Normal);
+            var endQuart = quaternion.LookRotation(end.Tangent, end.Normal);
+            return math.slerp(startQuart, endQuart, t);
+        }
+
+        public static float EvaluateLength(RoadTerminator start, RoadTerminator end)
+        {
+            // Approximate spline with {SplineLengthResolution} number of straight lines
+            // Sum all lengths
+            float length = 0;
+            for (int i = 0; i < SplineLengthResolution; i++)
+            {
+                float t0 = (float) i / SplineLengthResolution;
+                float t1 = (float)(i + 1) / SplineLengthResolution;
+                float3 pos0 = EvaluatePosition(start, end, t0);
+                float3 pos1 = EvaluatePosition(start, end, t1);
+                length += math.distance(pos0, pos1);
+            }
+            return length;
         }
     }
 }
