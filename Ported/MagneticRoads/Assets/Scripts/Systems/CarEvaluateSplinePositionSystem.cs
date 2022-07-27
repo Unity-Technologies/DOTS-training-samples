@@ -28,12 +28,9 @@ namespace Systems
             // Center of the spline
             var splinePos = Spline.EvaluatePosition(rs.Start, rs.End, directionalT);
 
-            // TODO: local2world
-            var offset = Spline.GetLocalCarOffset(carAspect.LaneNumber);
-
             // TODO: spin rot if backwards
             var rot = Spline.EvaluateRotation(rs.Start, rs.End, directionalT);
-            
+            var offset = math.mul(rot, Spline.GetLocalCarOffset(carAspect.LaneNumber));
 
             carAspect.T = carT;
             carAspect.Position = splinePos + offset;
