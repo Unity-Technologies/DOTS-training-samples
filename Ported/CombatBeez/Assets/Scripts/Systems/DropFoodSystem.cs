@@ -27,41 +27,35 @@ partial struct DropFoodSystem : ISystem
 
         if ((1.0f / config.FoodResourceDropRatePerSecond) <= timeSinceLastDrop)
         {
-            RandomlyDropFoodInPlayArea(ref state);
+            state.EntityManager.Instantiate(config.FoodResourcePrefab, 1, Allocator.Temp);
             timeSinceLastDrop = 0.0f;
         }
 
-        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
-        {
-            if (foodResource.ValueRW.State == FoodState.FALLING)
-            {
-                UpdatePositionOfFallingFood(ref state, ref config, foodResource, transform);
-            }
-        }
-
-    }
-
-    public void RandomlyDropFoodInPlayArea(ref SystemState state)
-    {
-        var config = SystemAPI.GetSingleton<Config>();
-
-        state.EntityManager.Instantiate(config.FoodResourcePrefab, 1, Allocator.Temp);
-        // have default tag on newly generated entities
-        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
         // Component type FoodResource is implicitly defined by the query so no WithAll is needed.
         // WithAll puts ADDITIONAL requirements on the query.
+        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
         {
-            if (foodResource.ValueRW.State == FoodState.NULL)
+            switch (foodResource.ValueRW.State)
             {
-                var position = new float3(rand.NextInt(-40, 41), rand.NextInt(7, 13), rand.NextInt(-15, 16));
-                transform.Position = position;
-
-                foodResource.ValueRW.State = FoodState.FALLING;
+                case FoodState.NULL:
+                    RandomlyPlaceDroppedFoodInPlayArea(ref state, foodResource, transform);
+                    break;
+                case FoodState.FALLING:
+                    UpdatePositionOfFallingFood(ref state, ref config, foodResource, transform);
+                    break;
             }
         }
     }
 
-        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
+    public void RandomlyPlaceDroppedFoodInPlayArea(ref SystemState state, RefRW<FoodResource> foodResource, TransformAspect transform)
+    {
+        var position = new float3(rand.NextInt(-40, 41), rand.NextInt(7, 13), rand.NextInt(-15, 16));
+        transform.Position = position;
+
+        foodResource.ValueRW.State = FoodState.FALLING;
+    }
+
+    public void UpdatePositionOfFallingFood(ref SystemState state, ref Config config, RefRW<FoodResource> foodResource, TransformAspect transform)
     {
         var position = new float3(transform.Position.x, transform.Position.y - config.FallingSpeed, transform.Position.z);
         if (position.y <= 0.0f)
