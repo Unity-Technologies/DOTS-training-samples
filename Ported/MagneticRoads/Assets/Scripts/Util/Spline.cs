@@ -60,5 +60,24 @@ namespace Util
             }
             return length;
         }
+
+        private const float HalfRoadThickness = 0.25f;
+        private const float HalfLaneWidth = 0.5f;
+        public static float3 GetLocalCarOffset(int laneNumber)
+        {
+            switch (laneNumber)
+            {
+                case 1:
+                    return new float3(HalfLaneWidth, HalfRoadThickness, 0);
+                case 2:
+                    return new float3(-HalfLaneWidth, HalfRoadThickness, 0);
+                case 3:
+                    return new float3(-HalfLaneWidth, -HalfRoadThickness, 0);
+                case 4:
+                    return new float3(HalfLaneWidth, -HalfRoadThickness, 0);
+                default:
+                    return float3.zero;
+            }
+        }
     }
 }

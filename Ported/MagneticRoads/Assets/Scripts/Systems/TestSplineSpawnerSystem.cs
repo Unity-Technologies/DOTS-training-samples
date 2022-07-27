@@ -64,8 +64,8 @@ namespace Systems
                 Length = Spline.EvaluateLength(Start, End)
             });
             
-            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.15f, Speed = 3f});
-            ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 3f});
+            ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 3f, LaneNumber = 1});
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 2});
             ecb.AddComponent(car, RandomColor() );
             ecb.AddComponent(car2, RandomColor() );
             

@@ -10,7 +10,7 @@ namespace Components
         public float SafeDistance;
         
         public Entity RoadSegment;
-        // ¿ lane ?
+        public int LaneNumber;
         public float T;
         
     }
