@@ -14,5 +14,6 @@ class WaterCellBaker : Baker<WaterCellAuthoring>
         float2 wsPosition = new float2(authoring.transform.position.x, authoring.transform.position.z);
         AddComponent(new Volume { Value = authoring.Volume });
         AddComponent(new Position { Value = wsPosition });
+        AddComponent(new Target { Value = new float2 { x = authoring.transform.position.x, y = authoring.transform.position.z - 6} });
     }
 }
