@@ -12,6 +12,8 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            // This system should not run before the Config singleton has been loaded.
+            state.RequireForUpdate<TestSplineConfig>();
         }
 
         [BurstCompile]
