@@ -20,7 +20,7 @@ namespace Systems
             carAspect.T = math.clamp(carAspect.T + (carAspect.Speed * DT), 0, 1);
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
 
-            carAspect.Position = Spline.Evaluate(rs.Start, rs.End, carAspect.T);
+            carAspect.Position = Spline.EvaluatePosition(rs.Start, rs.End, carAspect.T);
         }
     }
 
