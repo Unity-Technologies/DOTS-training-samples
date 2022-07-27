@@ -3,57 +3,71 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
-
-    public partial class MapCreationSystem : SystemBase
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+public partial struct MapCreationSystem : ISystem
     {
          EntityQuery cellQuery;
+ 
+         public void OnCreate(ref SystemState state)
+         {
+             state.RequireForUpdate<Map>();
+             
+             cellQuery = state.GetEntityQuery(ComponentType.ReadOnly<Cell>());
+               var entity = state.EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+              state.EntityManager.SetName(entity,"Grid");
+              state.EntityManager.AddBuffer<CellType>(entity);
+              state.EntityManager.AddBuffer<CellEntity>(entity);
+         }
 
-         protected override void OnCreate()
-        {
-            cellQuery = GetEntityQuery(ComponentType.ReadOnly<Cell>());
-            var entity = EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
-            EntityManager.SetName(entity, "Grid");
-            EntityManager.AddBuffer<CellType>(entity);
-            EntityManager.AddBuffer<CellEntity>(entity);
-        }
+         public void OnDestroy(ref SystemState state)
+         {
+         }
 
-      protected override void OnUpdate()
-      {
-            var entity = GetSingletonEntity<Grid>();
-            Entities
-                .WithStructuralChanges()
-                .ForEach((in Map map) =>
-                { 
-                    Grid grid = new Grid {size = map.mapSize};
-                EntityManager.SetComponentData(entity, grid);
-                EntityManager.DestroyEntity(cellQuery);
-                var cellCount = map.mapSize.x * map.mapSize.y;
-                var cellEntities = EntityManager.Instantiate(map.cellPrefab, cellCount, Allocator.Temp);
-                var typeBuffer = EntityManager.GetBuffer<CellType>(entity);
-                typeBuffer.ResizeUninitialized(cellCount);
-                for (var i = 0; i < cellCount; i++)
-                {
-                    typeBuffer[i] = new CellType(CellState.Raw);
-                }
+         public void OnUpdate(ref SystemState state)
+         {
+             var map = SystemAPI.GetSingleton<Map>();
+             
+             var entity = SystemAPI.GetSingletonEntity<Grid>();
+             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+             
+             var cells = CollectionHelper.CreateNativeArray<Entity>(map.mapSize.x*map.mapSize.y, Allocator.Temp);
+             ecb.Instantiate(map.cellPrefab, cells);
+             Grid grid = new Grid {size = map.mapSize};
+             foreach (var cell in cells)
+             {
+                  
+                 ecb.SetComponent(entity, grid);
+                  
+                 var cellCount = map.mapSize.x * map.mapSize.y;
+                 var typeBuffer = SystemAPI.GetSingletonBuffer<CellType>();
+                 typeBuffer.ResizeUninitialized(cellCount);
+                 for (var i = 0; i < cellCount; i++)
+                 {
+                     typeBuffer[i] = new CellType(CellState.Raw);
+                 }
+                 
+                 var entityBuffer = SystemAPI.GetSingletonBuffer<CellEntity>();
+                 entityBuffer.ResizeUninitialized(cellCount);
+                 for (var i = 0; i < cellCount; i++)
+                 {
+                     entityBuffer[i] = new CellEntity(cell);
+                 }
+                 
+             }
+             for (var x = 0; x < map.mapSize.x; x++)
+             {
+                 for (var y = 0; y < map.mapSize.y; y++)
+                 {
+                     var i = x * map.mapSize.y + y;
+                     ecb.SetComponent(cells[i], new Translation() { Value = math.float3(x, 0, y) + new float3(0.5f, 0, 0.5f)});
+                     ecb.SetComponent(cells[i], new CellPosition() { cellPosition = new int2(x, y)} );
+                 }
+             }
+             cells.Dispose();
 
-                var entityBuffer = EntityManager.GetBuffer<CellEntity>(entity);
-                entityBuffer.ResizeUninitialized(cellCount);
-                for (var i = 0; i < cellCount; i++)
-                {
-                    entityBuffer[i] = new CellEntity(cellEntities[i]);
-                }
-
-                for (var x = 0; x < map.mapSize.x; x++)
-                {
-                    for (var y = 0; y < map.mapSize.y; y++)
-                    {
-                        var i = x * map.mapSize.y + y;
-                        EntityManager.SetComponentData(cellEntities[i], new Translation() { Value = math.float3(x, 0, y) + new float3(0.5f, 0.0f, 0.5f)});
-                        EntityManager.SetComponentData(cellEntities[i], new CellPosition() { cellPosition = new int2(x, y)} );
-                    }
-                }
-                cellEntities.Dispose();
-            }).Run();
-        }
+             state.Enabled = false;
+         }
     }

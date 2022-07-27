@@ -6,13 +6,14 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(MapCreationSystem))]
 public partial struct RockSpawningSystem : ISystem
 {
     private Random m_Random;
     
     public void OnCreate(ref SystemState state)
     {
-        m_Random = new Random(12);
+        m_Random = new Random(40);
         state.RequireForUpdate<RockConfig>();
     }
 
@@ -32,16 +33,16 @@ public partial struct RockSpawningSystem : ISystem
         var entity = SystemAPI.GetSingletonEntity<Grid>();
         var typeBuffer = SystemAPI.GetSingletonBuffer<CellType>();
         Grid grid = SystemAPI.GetSingleton<Grid>();
-
-
+        grid.size = map.mapSize;
+        
         var rocks = CollectionHelper.CreateNativeArray<Entity>(config.NumRocks, Allocator.Temp);
         ecb.Instantiate(config.RockPrefab, rocks);
         foreach (var rock in rocks)
         {
             
             int2 size = new int2();
-            int2 position = new int2();
-            
+            int2 position = new int2(new float2(10,10));
+         
             for (int tries =  0; tries < 100; tries++)
             {
                 size = random.NextInt2(config.RandomSizeMin, config.RandomSizeMax);
