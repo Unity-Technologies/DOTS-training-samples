@@ -118,19 +118,18 @@ public partial struct BeeMovementSystem : ISystem
     {
         FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
 
-        if (MoveToTarget(t, ref bd, beeScale))
+        //check to see if resource is still valid, if not go back to idle
+        if (foodRes.State != FoodState.SETTLED)
+        {
+            bd.beeState = Bee.BEESTATE.IDLE;
+        }
+        else if (MoveToTarget(t, ref bd, beeScale))
         {
             bd.beeState = Bee.BEESTATE.CARRY;
             bd.Target = bd.SpawnPoint;
 
             foodRes.State = FoodState.CARRIED;
             sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
-        }
-        else
-        {
-            //check to see if resource is still valid, if not go back to idle
-            if (foodRes.State != FoodState.SETTLED)
-                bd.beeState = Bee.BEESTATE.IDLE;
         }
     }
 
