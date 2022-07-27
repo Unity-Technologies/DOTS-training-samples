@@ -39,6 +39,7 @@ namespace Systems
                 {
                     var xPositionOnSpline = m_CarDataFromEntity[entities[x]].T;
                     var xCarComponent = m_CarDataFromEntity[entities[x]];
+                    xCarComponent.Speed = 3f;
 
                     for (int y = 0; y < entities.Length; y++)
                     {
@@ -47,16 +48,12 @@ namespace Systems
 
                         var yPositionOnSpline = m_CarDataFromEntity[entities[y]].T;
 
-                        if (math.distance(xPositionOnSpline, yPositionOnSpline) < 0.2f)
+                        if (math.distance(xPositionOnSpline, yPositionOnSpline) < 0.4f)
                         {
-                            if (xPositionOnSpline - yPositionOnSpline > 0)
+                            if (yPositionOnSpline - xPositionOnSpline > 0)
                             {
                                 xCarComponent.Speed = 0;
                             }
-                        }
-                        else
-                        {
-                            xCarComponent.Speed = 10f;
                         }
                     }
 

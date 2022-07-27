@@ -44,6 +44,7 @@ namespace Systems
             var car2 = ecb.Instantiate(config.CarPrefab);
             var car3 = ecb.Instantiate(config.CarPrefab);
             var car4 = ecb.Instantiate(config.CarPrefab);
+            var car5 = ecb.Instantiate(config.CarPrefab);
             var rs = ecb.CreateEntity();
             
             ecb.AddComponent<RoadSegment>(rs);
@@ -57,7 +58,7 @@ namespace Systems
             {
                 Position = new float3(2, 0, 2),
                 Normal = new float3(0, 1, 0),
-                Tangent = new float3(1, 0, 0)
+                Tangent = new float3(1, 0, 0),
             };
             ecb.SetComponent(rs, new RoadSegment
             {
@@ -74,15 +75,27 @@ namespace Systems
             ecb.AddComponent(car3, RandomColor() );
             ecb.SetComponent(car4, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 4});
             ecb.AddComponent(car4, RandomColor() );
+            ecb.SetComponent(car5, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 1, T = 0.5f});
+            ecb.AddComponent(car5, RandomColor() );
             
-            var tempEntity = ecb.CreateEntity();
-            ecb.AddComponent<Lane>(tempEntity);
-            var buffer = ecb.AddBuffer<CarDynamicBuffer>(tempEntity).Reinterpret<Entity>();
+            var lane1 = ecb.CreateEntity();
+            ecb.AddComponent<Lane>(lane1);
+            var lane2 = ecb.CreateEntity();
+            ecb.AddComponent<Lane>(lane2);
+            var lane3 = ecb.CreateEntity();
+            ecb.AddComponent<Lane>(lane3);
+            var lane4 = ecb.CreateEntity();
+            ecb.AddComponent<Lane>(lane4);
+            var lane1Buffer = ecb.AddBuffer<CarDynamicBuffer>(lane1).Reinterpret<Entity>();
+            var lane2Buffer = ecb.AddBuffer<CarDynamicBuffer>(lane2).Reinterpret<Entity>();
+            var lane3Buffer = ecb.AddBuffer<CarDynamicBuffer>(lane3).Reinterpret<Entity>();
+            var lane4Buffer = ecb.AddBuffer<CarDynamicBuffer>(lane4).Reinterpret<Entity>();
             
-            buffer.Add(car);
-            buffer.Add(car2);
-            buffer.Add(car3);
-            buffer.Add(car4);
+            lane1Buffer.Add(car);
+            lane2Buffer.Add(car2);
+            lane3Buffer.Add(car3);
+            lane4Buffer.Add(car4);
+            lane1Buffer.Add(car5);
             
             state.Enabled = false;
         }
