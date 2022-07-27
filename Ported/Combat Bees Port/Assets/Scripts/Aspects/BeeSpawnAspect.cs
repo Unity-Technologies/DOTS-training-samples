@@ -8,11 +8,11 @@ readonly partial struct BeeSpawnAspect : IAspect<BeeSpawnAspect>
 {
     // This reference provides read only access to the Turret component.
     // Trying to use ValueRW (instead of ValueRO) on a read-only reference is an error.
-    readonly RefRO<BeeSpawnData> m_SpawnData;
+    readonly RefRO<InitialSpawn> m_SpawnData;
 
     // Note the use of ValueRO in the following properties.
     public Entity BlueBeePrefab => m_SpawnData.ValueRO.blueBeePrefab;
     public Entity YellowBeePrefab => m_SpawnData.ValueRO.yellowBeePrefab;
 
-    public int BeeCount => m_SpawnData.ValueRO.beeCount;
+    public int PulseSpawnCount => m_SpawnData.ValueRO.beePulseSpawnCount;
 }

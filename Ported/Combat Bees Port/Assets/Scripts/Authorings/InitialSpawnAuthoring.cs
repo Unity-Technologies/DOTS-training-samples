@@ -13,6 +13,7 @@ namespace Authorings
 
         public int beeCount;
         public int foodCount;
+        public int beePulseSpawnCount;
     }
 
     class InitialSpawnBaker : Baker<InitialSpawnAuthoring>
@@ -26,6 +27,7 @@ namespace Authorings
                 foodPrefab = GetEntity(authoring.foodPrefab),
                 beeCount = authoring.beeCount,
                 foodCount = authoring.foodCount,
+                beePulseSpawnCount = authoring.beePulseSpawnCount
             });
         }
     }

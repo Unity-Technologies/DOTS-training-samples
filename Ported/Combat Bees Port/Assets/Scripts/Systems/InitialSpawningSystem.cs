@@ -38,6 +38,9 @@ partial struct InitialSpawningSystem : ISystem
         var baseComponent = SystemAPI.GetSingleton<Base>();
         
         ecb.Instantiate(spawner.blueBeePrefab, blueBees);
+        ecb.Instantiate(spawner.yellowBeePrefab, yellowBees);
+        ecb.Instantiate(spawner.foodPrefab, food);
+
         var blueBaseCache = baseComponent.blueBase;
         
         foreach (var bee in blueBees)
@@ -49,8 +52,6 @@ partial struct InitialSpawningSystem : ISystem
                 Value = randomSpawn
             });
         }
-
-        ecb.Instantiate(spawner.yellowBeePrefab, yellowBees);
         
         var yellowBaseCache = baseComponent.yellowBase;
 
@@ -62,8 +63,6 @@ partial struct InitialSpawningSystem : ISystem
                 Value = randomSpawn
             });
         }
-        
-        ecb.Instantiate(spawner.foodPrefab, food);
         
         foreach (var foodNode in food)
         {

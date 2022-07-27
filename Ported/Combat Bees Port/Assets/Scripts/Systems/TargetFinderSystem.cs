@@ -27,13 +27,13 @@ partial class TargetFinderSystem : SystemBase
             var allocator = World.UpdateAllocator.ToAllocator;
             
             EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
-            _yellowBees = _yellowBeeQuery.ToEntityArray(allocator);
+            _yellowBees = _yellowBeeQuery.ToEntityArray(Allocator.Persistent);
             
             EntityQuery _blueBeesQuery = GetEntityQuery(typeof(BlueTeam));
-            _blueBees = _blueBeesQuery.ToEntityArray(allocator);
+            _blueBees = _blueBeesQuery.ToEntityArray(Allocator.Persistent);
             
             EntityQuery _foodQuery = GetEntityQuery(typeof(Food));
-            _food = _foodQuery.ToEntityArray(allocator);
+            _food = _foodQuery.ToEntityArray(Allocator.Persistent);
 
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
