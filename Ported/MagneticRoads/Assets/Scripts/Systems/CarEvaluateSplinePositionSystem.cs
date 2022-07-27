@@ -25,8 +25,9 @@ namespace Systems
         }
     }
 
+    [UpdateAfter(typeof(CarLaneSystem))]
     [BurstCompile]
-    partial struct CarTravelSystem : ISystem
+    partial struct CarEvaluateSplinePositionSystem : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentFromEntity;
 

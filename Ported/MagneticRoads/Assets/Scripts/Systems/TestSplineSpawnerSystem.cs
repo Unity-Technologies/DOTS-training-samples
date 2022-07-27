@@ -40,13 +40,13 @@ namespace Systems
                 EndTang = new float3(0,0,1),
             });
             
-            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.2f});
-            ecb.SetComponent(car, new Car { RoadSegment = rs });
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.5f, Speed = 0.7f});
+            ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 1f});
             
             var tempEntity = ecb.CreateEntity();
             ecb.AddComponent<Lane>(tempEntity);
             var buffer = ecb.AddBuffer<CarDynamicBuffer>(tempEntity).Reinterpret<Entity>();
-
+            
             buffer.Add(car);
             buffer.Add(car2);
             
