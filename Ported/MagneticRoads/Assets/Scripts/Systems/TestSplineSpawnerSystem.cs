@@ -42,6 +42,8 @@ namespace Systems
             
             var car = ecb.Instantiate(config.CarPrefab);
             var car2 = ecb.Instantiate(config.CarPrefab);
+            var car3 = ecb.Instantiate(config.CarPrefab);
+            var car4 = ecb.Instantiate(config.CarPrefab);
             var rs = ecb.CreateEntity();
             
             ecb.AddComponent<RoadSegment>(rs);
@@ -65,9 +67,13 @@ namespace Systems
             });
             
             ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 3f, LaneNumber = 1});
-            ecb.SetComponent(car2, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 2});
             ecb.AddComponent(car, RandomColor() );
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 2});
             ecb.AddComponent(car2, RandomColor() );
+            ecb.SetComponent(car3, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 3});
+            ecb.AddComponent(car3, RandomColor() );
+            ecb.SetComponent(car4, new Car{ RoadSegment = rs, Speed = 3f, LaneNumber = 4});
+            ecb.AddComponent(car4, RandomColor() );
             
             var tempEntity = ecb.CreateEntity();
             ecb.AddComponent<Lane>(tempEntity);
@@ -75,6 +81,8 @@ namespace Systems
             
             buffer.Add(car);
             buffer.Add(car2);
+            buffer.Add(car3);
+            buffer.Add(car4);
             
             state.Enabled = false;
         }
