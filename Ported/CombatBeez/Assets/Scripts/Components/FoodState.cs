@@ -3,5 +3,6 @@ public enum FoodState
     NULL,
     FALLING,
     SETTLED,
-    CARRIED
+    CARRIED,
+    DELIVERED
 }
