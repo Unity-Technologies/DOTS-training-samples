@@ -38,5 +38,15 @@ namespace Util
 
             return math.normalize(derivative);
         }
+
+        [BurstCompile]
+        public static float3 EvaluateNormal(RoadTerminator start, RoadTerminator end, float t)
+        {
+            var startQuart = quaternion.LookRotation(start.Tangent, start.Normal);
+            var endQuart = quaternion.LookRotation(end.Tangent, end.Normal);
+            var interpQuart =math.slerp(startQuart, endQuart, t);
+            // Should this be start.normal or float3(0,1,0) ?
+            return math.mul(interpQuart, start.Normal);
+        }
     }
 }
