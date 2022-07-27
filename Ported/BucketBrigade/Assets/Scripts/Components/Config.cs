@@ -5,4 +5,6 @@ struct Config : IComponentData
 {
     public int GridSize;
     public float FireThreshold;
+    public int FireFighterLinesCount;
+    public int FireFighterPerLineCount;
 }
