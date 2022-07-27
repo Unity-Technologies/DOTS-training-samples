@@ -10,7 +10,7 @@ partial struct BeeReturnJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
     [ReadOnly] public ComponentDataFromEntity<Translation> TargetTranslationComponentData;
-    [ReadOnly] public ComponentDataFromEntity<NonUniformScale> TargetNonUniformScaleComponentData;
+    // [ReadOnly] public ComponentDataFromEntity<NonUniformScale> TargetNonUniformScaleComponentData;
     public Config Config;
 
     void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, in NonUniformScale scale, in Translation position, in EntityOfInterest entityOfInterest)
@@ -40,13 +40,14 @@ partial struct BeeReturnJob : IJobEntity
 partial struct BeeReturnSystem : ISystem
 {
     private ComponentDataFromEntity<Translation> targetTranslationComponentData;
-    private ComponentDataFromEntity<NonUniformScale> targetNonUniformScaleComponentData;
+    // private ComponentDataFromEntity<NonUniformScale> targetNonUniformScaleComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
         targetTranslationComponentData = state.GetComponentDataFromEntity<Translation>();
-        targetNonUniformScaleComponentData = state.GetComponentDataFromEntity<NonUniformScale>();
+        // targetNonUniformScaleComponentData = state.GetComponentDataFromEntity<NonUniformScale>();
     }
 
     [BurstCompile]
@@ -63,16 +64,15 @@ partial struct BeeReturnSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
         targetTranslationComponentData.Update(ref state);
-        targetNonUniformScaleComponentData.Update(ref state);
+        // targetNonUniformScaleComponentData.Update(ref state);
 
         var returnJob = new BeeReturnJob()
         {
             ECB = ecb,
             TargetTranslationComponentData = targetTranslationComponentData,
-            TargetNonUniformScaleComponentData = targetNonUniformScaleComponentData,
+            // TargetNonUniformScaleComponentData = targetNonUniformScaleComponentData,
             Config = config
         };
-
         returnJob.ScheduleParallel();
     }
 }
