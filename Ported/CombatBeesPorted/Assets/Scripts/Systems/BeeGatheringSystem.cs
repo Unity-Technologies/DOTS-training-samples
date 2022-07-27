@@ -12,9 +12,12 @@ partial struct BeeGatherJob : IJobEntity
     public float GatherRadius;
     [ReadOnly] public StorageInfoFromEntity TargetStorageInfo;
     [ReadOnly] public ComponentDataFromEntity<Translation> TargetTranslationComponentData;
-    [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
     [ReadOnly] public ComponentDataFromEntity<BlueTeam> BlueTeamComponentData;
-    public EntityCommandBuffer ECB;
+    public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
+    public ComponentDataFromEntity<ResourceStateGrabbed> ResourceStateGrabbedComponentData;
+    public ComponentDataFromEntity<Gravity> GravityComponentData;
+    public ComponentDataFromEntity<BeeStateGathering> BeeStateGatheringComponentData;
+    public ComponentDataFromEntity<BeeStateReturning> BeeStateReturningComponentData;
     public Config config;
     public uint RandomSeed;
 
@@ -34,12 +37,13 @@ partial struct BeeGatherJob : IJobEntity
                     if (dist < GatherRadius)
                     {
                         // Set Resource states
-                        ECB.SetComponentEnabled<ResourceStateGrabbed>(targetEntity, true);
-                        ECB.SetComponentEnabled<ResourceStateGrabbable>(targetEntity, false);
+                        ResourceStateGrabbableComponentData.SetComponentEnabled(targetEntity, false);
+                        ResourceStateGrabbedComponentData.SetComponentEnabled(targetEntity, true);
+                        GravityComponentData.SetComponentEnabled(targetEntity, false);
 
                         // Set Bee states
-                        ECB.SetComponentEnabled<BeeStateGathering>(entity, false);
-                        ECB.SetComponentEnabled<BeeStateReturning>(entity, true);
+                        BeeStateGatheringComponentData.SetComponentEnabled(entity, false);
+                        BeeStateReturningComponentData.SetComponentEnabled(entity, true);
 
                         var rand = Random.CreateFromIndex(RandomSeed + (uint)entity.Index);
                         float randY = rand.NextFloat(position.Value.y + 1.5f, config.PlayVolume.y);
@@ -54,8 +58,8 @@ partial struct BeeGatherJob : IJobEntity
         else
         {
             // do busted state stuff
-            ECB.SetComponentEnabled<BeeStateGathering>(entity, false);
-            ECB.SetComponentEnabled<BeeStateIdle>(entity, true);
+            BeeStateGatheringComponentData.SetComponentEnabled(entity, false);
+            BeeStateReturningComponentData.SetComponentEnabled(entity, true);
 
             targetPosition.Value = position.Value;
         }
@@ -69,6 +73,10 @@ public partial struct BeeGatheringSystem : ISystem
     private ComponentDataFromEntity<Translation> translationComponentData;
     private ComponentDataFromEntity<ResourceStateGrabbable> resourceStateGrabbableComponentData;
     private ComponentDataFromEntity<BlueTeam> blueTeamComponentData;
+    private ComponentDataFromEntity<ResourceStateGrabbed> resourceStateGrabbedComponentData;
+    private ComponentDataFromEntity<Gravity> gravityComponentData;
+    private ComponentDataFromEntity<BeeStateGathering> beeStateGatheringComponentData;
+    private ComponentDataFromEntity<BeeStateReturning> beeStateReturningComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -77,8 +85,12 @@ public partial struct BeeGatheringSystem : ISystem
         translationComponentData = state.GetComponentDataFromEntity<Translation>();
         resourceStateGrabbableComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbable>();
         blueTeamComponentData = state.GetComponentDataFromEntity<BlueTeam>();
+        resourceStateGrabbedComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbed>();
+        gravityComponentData = state.GetComponentDataFromEntity<Gravity>();
+        beeStateGatheringComponentData = state.GetComponentDataFromEntity<BeeStateGathering>();
+        beeStateReturningComponentData = state.GetComponentDataFromEntity<BeeStateReturning>();
 
-        state.RequireForUpdate<Config>();
+    state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
@@ -96,9 +108,10 @@ public partial struct BeeGatheringSystem : ISystem
         translationComponentData.Update(ref state);
         resourceStateGrabbableComponentData.Update(ref state);
         blueTeamComponentData.Update(ref state);
-
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        resourceStateGrabbedComponentData.Update(ref state);
+        gravityComponentData.Update(ref state);
+        beeStateGatheringComponentData.Update(ref state);
+        beeStateReturningComponentData.Update(ref state); 
 
         var gatherJob = new BeeGatherJob()
         {
@@ -107,7 +120,10 @@ public partial struct BeeGatheringSystem : ISystem
             TargetTranslationComponentData = translationComponentData,
             ResourceStateGrabbableComponentData = resourceStateGrabbableComponentData,
             BlueTeamComponentData = blueTeamComponentData,
-            ECB = ecb,
+            ResourceStateGrabbedComponentData = resourceStateGrabbedComponentData,
+            GravityComponentData = gravityComponentData,
+            BeeStateGatheringComponentData = beeStateGatheringComponentData,
+            BeeStateReturningComponentData = beeStateReturningComponentData,
             config = config,
             RandomSeed = (uint)UnityEngine.Time.frameCount
         };
