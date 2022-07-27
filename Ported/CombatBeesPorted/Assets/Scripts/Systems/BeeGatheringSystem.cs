@@ -81,6 +81,8 @@ public partial struct BeeGatheringSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        
         storageInfo = state.GetStorageInfoFromEntity();
         translationComponentData = state.GetComponentDataFromEntity<Translation>();
         resourceStateGrabbableComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbable>();
@@ -89,8 +91,6 @@ public partial struct BeeGatheringSystem : ISystem
         gravityComponentData = state.GetComponentDataFromEntity<Gravity>();
         beeStateGatheringComponentData = state.GetComponentDataFromEntity<BeeStateGathering>();
         beeStateReturningComponentData = state.GetComponentDataFromEntity<BeeStateReturning>();
-
-    state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]

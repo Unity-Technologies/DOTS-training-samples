@@ -66,7 +66,7 @@ public partial struct RandomStateSetterSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
         var resources = _resourceQuery.ToEntityArray(state.WorldUpdateAllocator);

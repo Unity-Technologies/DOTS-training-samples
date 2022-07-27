@@ -45,6 +45,7 @@ partial struct BeeReturnSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
         targetTranslationComponentData = state.GetComponentDataFromEntity<Translation>();
         targetNonUniformScaleComponentData = state.GetComponentDataFromEntity<NonUniformScale>();
     }

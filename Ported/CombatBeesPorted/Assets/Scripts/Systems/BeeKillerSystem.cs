@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [WithAll(typeof(BeeStateDead))]
@@ -31,7 +32,7 @@ partial struct BeeKillerJob : IJobEntity
 }
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-[CreateAfter(typeof(BeeAttackingSystem))]
+[UpdateAfter(typeof(BeeAttackingSystem))]
 [BurstCompile]
 public partial struct BeeKillerSystem : ISystem
 {
@@ -56,9 +57,8 @@ public partial struct BeeKillerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        float attackRadius = config.InteractionDistance;
         
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
         storageInfo.Update(ref state);
@@ -66,6 +66,7 @@ public partial struct BeeKillerSystem : ISystem
 
         var beeKillerJob = new BeeKillerJob()
         {
+            RandomSeed = (uint)Time.frameCount,
             Config = config,
             ECB = ecb,
         };

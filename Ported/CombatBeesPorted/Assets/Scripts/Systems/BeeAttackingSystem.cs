@@ -76,7 +76,7 @@ public partial struct BeeAttackingSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         float attackRadius = config.InteractionDistance;
         
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
         storageInfo.Update(ref state);
