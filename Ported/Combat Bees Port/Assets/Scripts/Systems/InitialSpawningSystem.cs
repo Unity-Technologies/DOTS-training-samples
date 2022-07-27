@@ -38,11 +38,12 @@ partial struct InitialSpawningSystem : ISystem
         var baseComponent = SystemAPI.GetSingleton<Base>();
         
         ecb.Instantiate(spawner.blueBeePrefab, blueBees);
+        var blueBaseCache = baseComponent.blueBase;
+
         
         foreach (var bee in blueBees)
         {
-            var blueBaseCache = baseComponent.blueBase;
-            var randomSpawn = blueBaseCache.GetRandomPositionInBase(random);
+            var randomSpawn = random.NextFloat3(blueBaseCache.GetBaseLowerLeftCorner(), blueBaseCache.GetBaseRightCorner());
 
             ecb.SetComponent(bee, new Translation
             {
@@ -52,12 +53,12 @@ partial struct InitialSpawningSystem : ISystem
 
         ecb.Instantiate(spawner.yellowBeePrefab, yellowBees);
         
+        var yellowBaseCache = baseComponent.yellowBase;
+
         foreach (var bee in yellowBees)
         {
-            var yellowBaseCache = baseComponent.yellowBase;
-
-            var randomSpawn = yellowBaseCache.GetRandomPositionInBase(random);
-
+            var randomSpawn = random.NextFloat3(yellowBaseCache.GetBaseLowerLeftCorner(), yellowBaseCache.GetBaseRightCorner());
+            
             ecb.SetComponent(bee, new Translation
             {
                 Value = randomSpawn

@@ -27,7 +27,7 @@ namespace DefaultNamespace
             var offsetZ = 10;
             var offsetY = -10;
 
-            return new float3(position.x, offsetY, position.y - offsetZ);
+            return new float3(position.x, offsetY, position.z - offsetZ);
         }
         
         public float3 GetBaseRightCorner()
@@ -41,7 +41,7 @@ namespace DefaultNamespace
                 offsetX *= -1;
             }
 
-            return new float3(position.x - offsetX, offsetY, position.y + offsetZ);
+            return new float3(position.x - offsetX, offsetY, position.z + offsetZ);
         }
 
         public float3 GetRandomPositionInBase(Random random)
