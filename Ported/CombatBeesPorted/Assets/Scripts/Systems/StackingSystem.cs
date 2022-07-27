@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -6,6 +7,7 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct StackingJob : IJobEntity
 {
+    // public NativeArray<Entity> GrabbableResources;
     public float PlayVolumeFloor;
     public EntityCommandBuffer Ecb;
     void Execute(in Entity entity, ref Velocity vel, ref Translation trans)
@@ -19,14 +21,29 @@ partial struct StackingJob : IJobEntity
             // trans.Value.y += 1;
 
         }
+
+        // for (int i = 0; i < GrabbableResources.Length; ++i)
+        // {
+            // Do a bounds check
+            
+            //if it intersects
+                // Update resource below to target the intersect
+                // Update the resource below to be "stacked" state
+                // snap position of falling resource to be on top of the resource below
+                // Disable gravity
+                
+    // }
     }
 }
+
 [BurstCompile]
 public partial struct StackingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        
+        // _grabbableResourceQuery = state.GetEntityQuery(typeof(ResourceStateGrabbable));
     }
 
     public void OnDestroy(ref SystemState state)
