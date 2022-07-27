@@ -1,9 +1,16 @@
 using Unity.Collections;
 using Unity.Entities;
-public class DropFoodSystem : ISystem
+using Unity.Mathematics;
+using Unity.Transforms;
+partial struct DropFoodSystem : ISystem
 {
+    Random rand;
+
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+
+        rand = new Random(123);
     }
 
     public void OnDestroy(ref SystemState state)
@@ -14,15 +21,13 @@ public class DropFoodSystem : ISystem
     {
         int dropRatePerFrame = 1;
 
+        var config = SystemAPI.GetSingleton<Config>();
 
         NativeArray<Entity> newlyDroppedFoodResources = state.EntityManager.Instantiate(config.FoodResourcePrefab, dropRatePerFrame, Allocator.Temp);
-        Random rand = new Random(123);
-        //foreach(var foodResource in newlyDroppedFoodResources)
-        //{
-        //    foodResource.Index
-        //    state.EntityManager.
-        //}
-        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>().WithAll<FoodResource>())
+        // have default tag on newly generated entities
+        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
+        // Component type FoodResource is implicitly defined by the query so no WithAll is needed.
+        // WithAll puts ADDITIONAL requirements on the query.
         {
             if (foodResource.ValueRW.State == FoodState.NULL)
             {
