@@ -12,7 +12,10 @@ using Unity.Transforms;
          protected override void OnCreate()
         {
             cellQuery = GetEntityQuery(ComponentType.ReadOnly<Cell>());
-            EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+            var entity = EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
+            EntityManager.SetName(entity, "Grid");
+            EntityManager.AddBuffer<CellType>(entity);
+            EntityManager.AddBuffer<CellEntity>(entity);
         }
 
       protected override void OnUpdate()
@@ -27,6 +30,19 @@ using Unity.Transforms;
                 EntityManager.DestroyEntity(cellQuery);
                 var cellCount = map.mapSize.x * map.mapSize.y;
                 var cellEntities = EntityManager.Instantiate(map.cellPrefab, cellCount, Allocator.Temp);
+                var typeBuffer = EntityManager.GetBuffer<CellType>(entity);
+                typeBuffer.ResizeUninitialized(cellCount);
+                for (var i = 0; i < cellCount; i++)
+                {
+                    typeBuffer[i] = new CellType(CellState.Raw);
+                }
+
+                var entityBuffer = EntityManager.GetBuffer<CellEntity>(entity);
+                entityBuffer.ResizeUninitialized(cellCount);
+                for (var i = 0; i < cellCount; i++)
+                {
+                    entityBuffer[i] = new CellEntity(cellEntities[i]);
+                }
 
                 for (var x = 0; x < map.mapSize.x; x++)
                 {

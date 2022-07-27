@@ -181,7 +181,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1639902054}
-  - component: {fileID: 1639902053}
+  - component: {fileID: 1639902055}
   m_Layer: 0
   m_Name: RockConfig
   m_TagString: Untagged
@@ -189,29 +189,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1639902053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1639902052}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad49d6de4b309244aafc28753b34cc58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RockPrefab: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
-    type: 3}
-  NumRocks: 100
-  RandomSizeMin:
-    x: 0.1
-    y: 0.1
-  RandomSizeMax:
-    x: 1
-    y: 1
-  minHeight: 0.25
-  maxHeight: 0.5
 --- !u!4 &1639902054
 Transform:
   m_ObjectHideFlags: 0
@@ -227,3 +204,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1639902055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1639902052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8a849f6acba8e948a78b009fcdabbf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RockPrefab: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
+    type: 3}
+  NumRocks: 10
+  RandomSizeMin:
+    x: 1
+    y: 1
+  RandomSizeMax:
+    x: 5
+    y: 5
+  minHeight: 0.25
+  maxHeight: 0.8
