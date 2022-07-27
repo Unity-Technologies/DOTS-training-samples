@@ -8,7 +8,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int TeamBlueBeeCount;
     public int TeamYellowBeeCount;
     public int FoodResourceCount;
-    public float SafeZoneRadius;
+    public float FoodResourceDropRatePerSecond;
+    public float FallingSpeed;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -23,7 +24,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TeamBlueBeeCount = authoring.TeamBlueBeeCount,
             TeamYellowBeeCount = authoring.TeamYellowBeeCount,
             FoodResourceCount = authoring.FoodResourceCount,
-            SafeZoneRadius = authoring.SafeZoneRadius
+            FoodResourceDropRatePerSecond = authoring.FoodResourceDropRatePerSecond,
+            FallingSpeed = authoring.FallingSpeed
         });
     }
 }

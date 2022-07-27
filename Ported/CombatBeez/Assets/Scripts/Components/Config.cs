@@ -8,5 +8,6 @@ struct Config : IComponentData
     public int TeamBlueBeeCount;
     public int TeamYellowBeeCount;
     public int FoodResourceCount;
-    public float SafeZoneRadius;
+    public float FoodResourceDropRatePerSecond;
+    public float FallingSpeed;
 }
