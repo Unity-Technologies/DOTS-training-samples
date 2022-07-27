@@ -43,6 +43,9 @@ partial struct DropFoodSystem : ISystem
                 case FoodState.FALLING:
                     UpdatePositionOfFallingFood(ref state, ref config, foodResource, transform);
                     break;
+                case FoodState.SETTLED:
+                    MarkFoodSettleInHiveAsDelivered(ref state, foodResource, transform);
+                    break;
             }
         }
     }
@@ -64,5 +67,16 @@ partial struct DropFoodSystem : ISystem
             foodResource.ValueRW.State = FoodState.SETTLED;
         }
         transform.Position = position;
+    }
+
+    public void MarkFoodSettleInHiveAsDelivered(ref SystemState state, RefRW<FoodResource> foodResource, TransformAspect transform)
+    {
+        // if food position is in either hive (x and z)
+        if (((-50 <= transform.Position.x && transform.Position.x <= -40) && (-15 <= transform.Position.z && transform.Position.z <= 15)) ||
+            ((40 <= transform.Position.x && transform.Position.x <= 50) && (-15 <= transform.Position.z && transform.Position.z <= 15)))
+        {
+            // mark it as delivered
+            foodResource.ValueRW.State = FoodState.DELIVERED;
+        }
     }
 }
