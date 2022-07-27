@@ -2,7 +2,6 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.UIElements;
-using Random = Unity.Mathematics.Random;
 
 namespace DefaultNamespace
 {
@@ -42,11 +41,6 @@ namespace DefaultNamespace
             }
 
             return new float3(position.x - offsetX, offsetY, position.y + offsetZ);
-        }
-
-        public float3 GetRandomPositionInBase(Random random)
-        {
-            return random.NextFloat3(GetBaseLowerLeftCorner(), GetBaseRightCorner());
         }
     }
 }
