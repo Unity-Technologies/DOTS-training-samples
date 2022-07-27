@@ -4,13 +4,12 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Util;
 
 namespace Systems
 {
     [WithAll(typeof(Car))]
     [BurstCompile]
-    partial struct CarEvaluateSplinePositionJob : IJobEntity
+    public partial struct CarEvaluateSplinePositionJob : IJobEntity
     {
         [ReadOnly] public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
         public float DT;
@@ -19,13 +18,15 @@ namespace Systems
         {
             carAspect.T = math.clamp(carAspect.T + (carAspect.Speed * DT), 0, 1);
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
-
-            carAspect.Position = Spline.EvaluatePosition(rs.Start, rs.End, carAspect.T);
-        }
+            
+            var anchor1 = rs.Start.Position + rs.Start.Tangent;
+            var anchor2 = rs.End.Position - rs.End.Tangent;
+            carAspect.Position = rs.Start.Position * (1f - carAspect.T) * (1f - carAspect.T) * (1f - carAspect.T) + 3f * anchor1 * (1f - carAspect.T) * (1f - carAspect.T) * carAspect.T + 3f * anchor2 * (1f - carAspect.T) * carAspect.T * carAspect.T + rs.End.Position * carAspect.T * carAspect.T * carAspect.T;        }
     }
 
+    [UpdateAfter(typeof(CarLaneSystem))]
     [BurstCompile]
-    partial struct CarTravelSystem : ISystem
+    partial struct CarEvaluateSplinePositionSystem : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentFromEntity;
 

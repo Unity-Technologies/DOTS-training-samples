@@ -2,7 +2,6 @@ using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Util;
 
 namespace Systems
 {
@@ -12,6 +11,8 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            // This system should not run before the Config singleton has been loaded.
+            state.RequireForUpdate<TestSplineConfig>();
         }
 
         [BurstCompile]
@@ -33,28 +34,27 @@ namespace Systems
             ecb.AddComponent<RoadSegment>(rs);
             ecb.SetComponent(rs, new RoadSegment
             {
-                Start = new Spline.RoadTerminator
+                Start = new RoadTerminator
                 {
                     Position = new float3(0,0,0),
                     Normal = new float3(0,1,0),
                     Tangent = new float3(0,0,1)
                 },
-                End = new Spline.RoadTerminator
+                End = new RoadTerminator
                 {
                     Position = new float3(0,0,100),
                     Normal = new float3(0,1,0),
                     Tangent = new float3(0,0,1)
-                    
                 }
             });
             
-            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.2f});
-            ecb.SetComponent(car, new Car { RoadSegment = rs });
+            ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.5f, Speed = 0.7f});
+            ecb.SetComponent(car, new Car { RoadSegment = rs, Speed = 1f});
             
             var tempEntity = ecb.CreateEntity();
             ecb.AddComponent<Lane>(tempEntity);
             var buffer = ecb.AddBuffer<CarDynamicBuffer>(tempEntity).Reinterpret<Entity>();
-
+            
             buffer.Add(car);
             buffer.Add(car2);
             
