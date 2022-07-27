@@ -24,8 +24,6 @@ namespace Systems
         {
             m_CarDataFromEntity.Update(ref state);
 
-            var config = SystemAPI.GetSingleton<Config>();
-            
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -35,40 +33,40 @@ namespace Systems
                 var entities = buffer.AsNativeArray().Reinterpret<Entity>();
                 
                 // Sort entities
-                for (int i = 0; i < entities.Length; i++)
+                for (int x = 0; x < entities.Length; x++)
                 {
-                    var xPositionOnSpline = m_CarDataFromEntity[entities[i]].T;
+                    var xPositionOnSpline = m_CarDataFromEntity[entities[x]].T;
 
-                    for (int j = 0; j < entities.Length; j++)
+                    for (int y = 0; y < entities.Length; y++)
                     {
-                        if (i == j)
+                        if (x == y)
                             continue;
                         
-                        var yPositionOnSpline = m_CarDataFromEntity[entities[j]].T;
+                        var yPositionOnSpline = m_CarDataFromEntity[entities[y]].T;
                         
-                        var iCarComponent = m_CarDataFromEntity[entities[j]];
-                        var jCarComponent = m_CarDataFromEntity[entities[j]];
+                        var xCarComponent = m_CarDataFromEntity[entities[x]];
+                        var yCarComponent = m_CarDataFromEntity[entities[y]];
                         
-                        if (math.abs(math.distance(xPositionOnSpline, yPositionOnSpline)) < config.BrakingDistanceThreshold)
+                        if (math.abs(math.distance(xPositionOnSpline, yPositionOnSpline)) < 0.1f)
                         {
                             if (xPositionOnSpline - yPositionOnSpline > 0)
                             {
-                                iCarComponent.Speed = 0;
-                                ecb.SetComponent(entities[i], iCarComponent);
+                                xCarComponent.Speed = 0;
+                                ecb.SetComponent(entities[x], xCarComponent);
                             }
                             else
                             {
-                                jCarComponent.Speed = 0;
-                                ecb.SetComponent(entities[i], jCarComponent);
+                                yCarComponent.Speed = 0;
+                                ecb.SetComponent(entities[y], yCarComponent);
                             }
                         }
                         else
                         {
-                            iCarComponent.Speed = 1f;
-                            jCarComponent.Speed = 1f;
+                            xCarComponent.Speed = 1f;
+                            yCarComponent.Speed = 1f;
                             
-                            ecb.SetComponent(entities[i], iCarComponent);
-                            ecb.SetComponent(entities[i], jCarComponent);
+                            ecb.SetComponent(entities[x], xCarComponent);
+                            ecb.SetComponent(entities[y], yCarComponent);
                         }
                     }
                 }

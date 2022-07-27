@@ -9,25 +9,13 @@ namespace Systems
 {
     [WithAll(typeof(Car))]
     [BurstCompile]
-    partial struct CarPositionJob : IJobEntity
+    partial struct CarEvaluateSplinePositionJob : IJobEntity
     {
         [ReadOnly] public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
         public float DT;
 
         void Execute(ref CarAspect carAspect)
         {
-            float speedDelta = 0f;
-            // if (carAspect.IsBraking())
-            // {
-            //     speedDelta = -0.2f;
-            // }
-            // else
-            // {
-                speedDelta = 0.2f;
-            // }
-
-            carAspect.Speed = math.clamp(carAspect.Speed + (speedDelta * DT), 0f, 10f);
-
             carAspect.T = math.clamp(carAspect.T + (carAspect.Speed * DT), 0, 1);
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment track);
 
@@ -58,12 +46,12 @@ namespace Systems
 
             var dt = state.Time.DeltaTime;
 
-            var brakeJob = new CarPositionJob
+            var evaluatePositionOnSpline = new CarEvaluateSplinePositionJob
             {
                 DT = dt,
                 RoadSegmentFromEntity = m_RoadSegmentFromEntity
             };
-            brakeJob.ScheduleParallel();
+            evaluatePositionOnSpline.ScheduleParallel();
         }
     }
 }

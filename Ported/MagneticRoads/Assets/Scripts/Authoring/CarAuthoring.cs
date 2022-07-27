@@ -23,6 +23,5 @@ public class CarBaker : Baker<CarAuthoring>
             RoadSegment = Entity.Null,
             SafeDistance = authoring.SafeDistance
         });
-        
     }
 }
