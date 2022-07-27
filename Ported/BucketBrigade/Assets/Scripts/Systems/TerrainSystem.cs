@@ -37,7 +37,7 @@ partial struct TerrainSpawningSystem : ISystem
         foreach (var cell in waterCell)
         {
             ecb.SetComponent(cell, new Translation { Value = new float3((i % config.GridSize) * config.CellSize, 0.0f, Mathf.Ceil(i / config.GridSize) * config.CellSize) + offset });
-            ecb.SetComponent(cell, new NonUniformScale { Value = new float3( config.CellSize, 1.0f, config.CellSize) });
+            ecb.SetComponent(cell, new NonUniformScale { Value = new float3( config.CellSize, config.CellSize*2, config.CellSize) });
             ++i;
         }
 
