@@ -36,20 +36,16 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         foreach (var (foodPiece, translation) in SystemAPI.Query<Entity, RefRO<Translation>>().WithAll<Food>())
         {
             var position = translation.ValueRO.Value;
-            if (baseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -5)
+            if (baseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -8)
             {
-                ecb.DestroyEntity(foodPiece);
-                
-                var baseInfo = SystemAPI.GetSingleton<Base>();
                 var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
-                var randomSpawn = random.NextFloat3(baseInfo.blueBase.GetBaseLowerLeftCorner(), baseInfo.blueBase.GetBaseRightCorner());
         
                 ecb.Instantiate(beeSpawn.blueBeePrefab, newBeeArray);
 
                 foreach (var instance in newBeeArray)
                 {
-                    ecb.SetComponent(instance, new Translation { Value = randomSpawn});
+                    ecb.SetComponent(instance, new Translation { Value = position});
                     ecb.SetComponent(instance, new Bee
                     {
                         state = BeeState.Idle
@@ -57,22 +53,22 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         
                     ecb.AddComponent(instance, new BlueTeam());
                 }
+                
+                ecb.DestroyEntity(foodPiece);
             }
             
-            else if (baseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -5)
+            else if (baseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -8)
             {
                 ecb.DestroyEntity(foodPiece);
                 
-                var baseInfo = SystemAPI.GetSingleton<Base>();
                 var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
-                var randomSpawn = random.NextFloat3(baseInfo.yellowBase.GetBaseLowerLeftCorner(), baseInfo.yellowBase.GetBaseRightCorner());
         
                 ecb.Instantiate(beeSpawn.yellowBeePrefab, newBeeArray);
 
                 foreach (var instance in newBeeArray)
                 {
-                    ecb.SetComponent(instance, new Translation { Value = randomSpawn});
+                    ecb.SetComponent(instance, new Translation { Value = position});
                     ecb.SetComponent(instance, new Bee
                     {
                         state = BeeState.Idle
