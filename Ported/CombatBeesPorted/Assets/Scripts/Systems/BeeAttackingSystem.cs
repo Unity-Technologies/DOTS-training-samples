@@ -37,8 +37,6 @@ partial struct BeeAttackJob : IJobEntity
                     
                     ECB.SetComponentEnabled<BeeStateAttacking>(chunkIndex, entity, false);
                     ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, true);
-                    
-                    Debug.Log("Killed");
                 }
             }
         }
