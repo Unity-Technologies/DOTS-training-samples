@@ -98,6 +98,7 @@ partial class BeeMovementSystem : SystemBase
                     if (math.distancesq(position, target) < 0.25f)
                     {
                         bee.state = BeeState.Idle;
+                        
                         bee.target = Entity.Null;
                     }
                 }

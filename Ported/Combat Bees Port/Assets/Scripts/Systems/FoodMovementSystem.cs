@@ -21,9 +21,14 @@ partial class FoodMovementSystem : SystemBase
                 CheckBounds(ref translation.Value);
                 if (HasComponent<Bee>(food.target))
                 {
-                    var targetPos = GetComponent<LocalToWorld>(food.target).Position;
-                    food.targetPos = targetPos;
-                    translation.Value = food.targetPos;
+                    if (GetComponent<Bee>(food.target).state == BeeState.Hauling)
+                    {
+                        var targetPos = GetComponent<LocalToWorld>(food.target).Position;
+                        food.targetPos = targetPos;
+                        translation.Value = food.targetPos;
+                    }
+                    else translation.Value += gravity * dt;
+                    
                 }
                 else translation.Value += gravity * dt;
             }).Run();
