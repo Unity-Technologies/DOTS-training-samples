@@ -10,11 +10,8 @@ namespace JumpTheGun {
 		/// Raise player's origin this much above the top of a box.
 		/// </summary>
 		public const float Y_OFFSET = .3f;
-
 		public const float BOUNCE_HEIGHT = 2;
-
 		public const float BOUNCE_BASE_DURATION = .7f;
-
 		public Box startBox { get; private set; }
 		public Box endBox { get; private set; }
 
