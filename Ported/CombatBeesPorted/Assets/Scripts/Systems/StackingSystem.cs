@@ -11,10 +11,11 @@ partial struct StackingJob : IJobEntity
     void Execute(in Entity entity, ref Velocity vel, ref Translation trans)
     {
         Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, false);
-        if (trans.Value.y <= PlayVolumeFloor+1)
+        if (trans.Value.y <= PlayVolumeFloor + 1)
         {
             Ecb.SetComponentEnabled<Gravity>(entity, false);
             vel.Value.y = 0;
+            trans.Value.y = PlayVolumeFloor + 1;
             // trans.Value.y += 1;
 
         }
