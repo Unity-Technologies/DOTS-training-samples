@@ -20,8 +20,11 @@ partial struct StackingJob : IJobEntity
             Ecb.SetComponent(entity, new Velocity{Value = new Vector3(0,0,0) });
             Ecb.SetComponent(entity, new Translation{Value = 
                 new float3(trans.Value.x, PlayVolumeFloor+1, trans.Value.z)});
-            Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, false);
+            Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, true);
         }
+
+        // for (i = 0; GrabbableResources.Length; i++) ;
+
         // Iterate over resources and do some math logic. 
     }
 }
