@@ -7,17 +7,21 @@ using UnityEngine;
 namespace Systems
 {
     [UpdateAfter(typeof(TestSplineSpawnerSystem))]
+    [BurstCompile]
     partial struct CarSpeedSystem : ISystem
     {
         ComponentDataFromEntity<Car> m_CarDataFromEntity;
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_CarDataFromEntity = state.GetComponentDataFromEntity<Car>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state) { }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             m_CarDataFromEntity.Update(ref state);
@@ -56,8 +60,7 @@ namespace Systems
                         }
                     }
 
-                    Debug.Log(xCarComponent.T);
-                    ecb.SetComponent(entities[x], xCarComponent);
+                    // ecb.SetComponent(entities[x], xCarComponent);
                 }
             }
         }

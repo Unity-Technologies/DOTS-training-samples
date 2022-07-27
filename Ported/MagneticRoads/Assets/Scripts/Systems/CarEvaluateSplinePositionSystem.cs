@@ -18,8 +18,8 @@ namespace Systems
 
         void Execute(ref CarAspect carAspect)
         {
-            carAspect.T = math.clamp(carAspect.T + (carAspect.Speed * DT), 0, 1);
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
+            carAspect.T = math.clamp(carAspect.T + ((carAspect.Speed * DT) / rs.Length), 0, 1);
 
             var anchor1 = rs.Start.Position + rs.Start.Tangent;
             var anchor2 = rs.End.Position - rs.End.Tangent;
