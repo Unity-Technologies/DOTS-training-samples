@@ -10,10 +10,7 @@ class BlueBeeBaker : Baker<BlueBeeAuthoring>
 {
     public override void Bake(BlueBeeAuthoring authoring)
     {
-        AddComponent(new Bee
-        {
-            state = BeeState.Idle
-        });
+        AddComponent(new Bee { });
         AddComponent<BlueTeam>();
         AddComponent<Idle>();
     }
