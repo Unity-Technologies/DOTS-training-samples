@@ -10,11 +10,18 @@ namespace Aspects
     {
         readonly RefRW<Car> m_Car;
         readonly TransformAspect m_TransformAspect;
+        readonly RefRW<URPMaterialPropertyBaseColor> m_BaseColor;
 
         public float3 Position
         {
             get => m_TransformAspect.Position;
             set => m_TransformAspect.Position = value;
+        }
+
+        public float4 Color
+        {
+            get => m_BaseColor.ValueRO.Value;
+            set => m_BaseColor.ValueRW.Value = value;
         }
 
         public quaternion Rotation
