@@ -9,5 +9,9 @@ namespace Components
         [ReadOnly] public Spline.RoadTerminator Start;
         [ReadOnly] public Spline.RoadTerminator End;
         [ReadOnly] public float Length;
+
+        [ReadOnly] public Entity StartIntersection;
+        [ReadOnly] public Entity EndIntersection;
+
     }
 }
