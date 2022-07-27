@@ -170,3 +170,12 @@ MonoBehaviour:
   CarPrefab: {fileID: 7164266989985627703, guid: 94ec3e4018b084822997c96ee20fd0c3,
     type: 3}
   CarCount: 20
+  BrakingDistanceThreshold: 0.5
+  voxelCount: 60
+  voxelSize: 1
+  trisPerMesh: 4000
+  roadMaterial: {fileID: 2100000, guid: 969b6ac6926c8aa478e8b800d399aca1, type: 2}
+  intersectionMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  intersectionPreviewMesh: {fileID: 10210, guid: 0000000000000000e000000000000000,
+    type: 0}
+  carSpeed: 2
