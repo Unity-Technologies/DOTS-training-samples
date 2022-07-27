@@ -23,7 +23,7 @@ partial class FoodMovementSystem : SystemBase
                 CheckBounds(ref translation.Value);
                 
 
-            }).ScheduleParallel();
+            }).Run();
         
         void CheckBounds(ref float3 position)
         {

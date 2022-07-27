@@ -22,8 +22,6 @@ partial class TargetFinderSystem : SystemBase
             bool  aggression = rnd.NextBool();
 
 
-
-
             var allocator = World.UpdateAllocator.ToAllocator;
             
             EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
@@ -38,48 +36,35 @@ partial class TargetFinderSystem : SystemBase
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
-
-
                 if (aggression && !(_blueBees == null))
                 {
-                    Entity target = _blueBees[rnd.NextInt()];
-                    bee.target = target;
+                    bee.target = _blueBees[rnd.NextInt(_blueBees.Length)];
                     bee.state = BeeState.Attacking;
                 }
 
                 if (!aggression && !(_food == null))
                 {  
-                    Entity target = _food[rnd.NextInt()];
-                    bee.target = target;
+                    bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }
-                
                 
             }).Schedule();
             
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
-
-                
-
                 if (aggression && !(_yellowBees == null))
                 {
-                    
-                    Entity target = _yellowBees[rnd.NextInt()];
-                    bee.target = target;
+                    bee.target = _yellowBees[rnd.NextInt(_yellowBees.Length)];
                     bee.state = BeeState.Attacking;
                     
                 }
 
                 if (!aggression && !(_food == null))
                 {
-                    Entity target = _food[rnd.NextInt()];
-                    bee.target = target;
+                    bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }
-                
-            
                 
             }).Schedule();
     }
