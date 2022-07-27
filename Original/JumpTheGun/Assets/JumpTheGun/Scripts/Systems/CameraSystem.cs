@@ -4,8 +4,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
 
-// This system should run after the transform system has been updated, otherwise the camera
-// will lag one frame behind the tank and will jitter.
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial class CameraSystem : SystemBase
 {
@@ -45,8 +43,6 @@ partial class CameraSystem : SystemBase
             followHeightOffset += ySpeed * UnityEngine.Time.unscaledDeltaTime;
         else if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.UpArrow))
             followHeightOffset -= ySpeed * UnityEngine.Time.unscaledDeltaTime;
-
-
         cameraTransform.position = Follow(playerTransform, cameraTransform);
     }
 
@@ -58,11 +54,8 @@ partial class CameraSystem : SystemBase
 
         var config =  SystemAPI.GetSingleton<Config>();
         target = ApplyCameraRotationOffset(target, cameraTransform, config.maxTerrainHeight);
-
-        //float3 pos = smoothDamp(cameraTransform, target, camera.camVel, camera.cameraDampening, float.MaxValue, UnityEngine.Time.unscaledDeltaTime);
         float3 pos = math.lerp(cameraTransform.position, target, cameraDampening * UnityEngine.Time.unscaledDeltaTime);
         return pos; 
-
     }
 
     private float3 ApplyCameraRotationOffset(float3 pos, UnityEngine.Transform cameraTransform, float maxTerrainHeight){
