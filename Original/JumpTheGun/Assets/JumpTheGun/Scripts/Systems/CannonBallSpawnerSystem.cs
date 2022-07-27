@@ -4,45 +4,47 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using System.ComponentModel;
 
+
 [BurstCompile]
 partial class CannonBallSpawner : SystemBase
 {
-    public ComponentDataFromEntity<LocalToWorld> LocalToWorldFromEntity;
-    public EntityCommandBuffer ECB;
+    ComponentDataFromEntity<LocalToWorld> m_LocalToWorldFromEntity;
+    EndSimulationEntityCommandBufferSystem endSimulationBufferSystem;
+
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        endSimulationBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_LocalToWorldFromEntity = GetComponentDataFromEntity<LocalToWorld>(true);
+    }
+
     protected override void OnUpdate()
     {
-        float deltaTime = this.Time.DeltaTime;
-
-        // Check to make sure the target Entity still exists and has
-        // the needed component
-        if (!HasComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>()))
-            return;
-
-        // Look up the entity data
-        LocalToWorld targetTransform = GetComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>());
-       // Para para = GetComponent<Para>(CannonBall).paraA;
+        m_LocalToWorldFromEntity.Update(this);
+        float currentTime = UnityEngine.Time.realtimeSinceStartup;
+        var ecb = endSimulationBufferSystem.CreateCommandBuffer();
 
         Entities
-            .WithAll<Turret>()
-            .ForEach((TransformAspect transform, in Turret turret) =>
+            .WithoutBurst()
+            .ForEach((ref Turret turret) =>
             {
-               /* float3 targetPosition = targetTransform.Position;
+                /*if (config.tankLaunchPeriod> currentTime)
+                {
+                    return;
+                }*/
 
-                // Calculate the rotation
-                float3 displacement = targetPosition - transform.Position;
-                float3 upReference = new float3(0, 1, 0);
-                displacement.y = transform.Position.y;
-                quaternion lookRotation = quaternion.LookRotationSafe(displacement, upReference);
+               // config.tankLaunchPeriod = currentTime + (config.tankLaunchPeriod);
 
-                transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
+                var newEntity = ecb.Instantiate(turret.cannonBall);
+                var spawnPoint = m_LocalToWorldFromEntity[turret.cannonBallSpawn];
 
-                var instance = ECB.Instantiate(turret.cannonBall);
-                var spawnLocalToWorld = LocalToWorldFromEntity[turret.cannonBallSpawn];
-                ECB.SetComponent(instance, new Translation { Value = spawnLocalToWorld.Position });*/
-                
-             //   ParabolaCluster.Create(transform.Position.y,2,targetPosition.y,);
 
-            }).ScheduleParallel();
 
+                ecb.SetComponent<Translation>(newEntity, new Translation
+                {
+                    Value = spawnPoint.Position
+                }) ;
+               
+            }).Run();
     }
 }
