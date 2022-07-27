@@ -12,6 +12,7 @@ class YellowBeeBaker : Baker<YellowBeeAuthoring>
     {
         AddComponent(new Bee
         {
+            target = Entity.Null,
             state = BeeState.Idle
         });
         AddComponent<YellowTeam>();

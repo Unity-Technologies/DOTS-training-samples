@@ -12,6 +12,7 @@ class BlueBeeBaker : Baker<BlueBeeAuthoring>
     {
         AddComponent(new Bee
         {
+            target = Entity.Null,
             state = BeeState.Idle
         });
         AddComponent<BlueTeam>();

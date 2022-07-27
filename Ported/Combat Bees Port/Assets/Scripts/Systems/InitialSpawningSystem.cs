@@ -43,9 +43,7 @@ partial struct InitialSpawningSystem : ISystem
         foreach (var bee in blueBees)
         {
             var randomSpawn = random.NextFloat3(blueBaseCache.GetBaseLowerLeftCorner(), blueBaseCache.GetBaseUpperRightCorner());
-
-            // randomSpawn = blueBaseCache.GetRandomPositionInBase(random);
-
+            
             ecb.SetComponent(bee, new Translation
             {
                 Value = randomSpawn
@@ -58,9 +56,7 @@ partial struct InitialSpawningSystem : ISystem
 
         foreach (var bee in yellowBees)
         {
-            // random = Random.CreateFromIndex(state.GlobalSystemVersion);
             var randomSpawn = random.NextFloat3(yellowBaseCache.GetBaseLowerLeftCorner(), yellowBaseCache.GetBaseUpperRightCorner());
-            // var randomSpawn = yellowBaseCache.GetRandomPositionInBase(random);
             ecb.SetComponent(bee, new Translation
             {
                 Value = randomSpawn

@@ -13,7 +13,7 @@ class FoodBaker : Baker<FoodAuthoring>
     {
         AddComponent(new Food
         {
-            targetPos = float3.zero
+            target = Entity.Null,
         });
     }
 }
