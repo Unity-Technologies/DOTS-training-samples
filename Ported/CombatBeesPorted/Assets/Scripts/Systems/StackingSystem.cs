@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,6 +11,7 @@ using UnityEngine;
 partial struct StackingJob : IJobEntity
 {
     [ReadOnly] public NativeArray<Entity> GrabbableResources;
+    [ReadOnly] public ComponentDataFromEntity<Translation> GrabbableTranslation;
     public float PlayVolumeFloor;
     public EntityCommandBuffer Ecb;
     void Execute(in Entity entity, in Translation trans)
@@ -23,7 +25,26 @@ partial struct StackingJob : IJobEntity
             Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, true);
         }
 
-        // for (i = 0; GrabbableResources.Length; i++) ;
+        foreach (var grabbableResource in GrabbableResources)
+        {
+            // Debug.Log($"{GrabbableTranslation[grabbableResource].Value.y}");
+            if (Math.Round(trans.Value.x, 1) == Math.Round(GrabbableTranslation[grabbableResource].Value.x, 1))
+            {
+                if (Math.Round(trans.Value.z, 1) == Math.Round(GrabbableTranslation[grabbableResource].Value.z, 1))
+                {
+                    if (trans.Value.y < GrabbableTranslation[grabbableResource].Value.y)
+                    {
+                        Ecb.SetComponent(entity, new Translation
+                        {
+                            Value = 
+                            new float3(trans.Value.x, 
+                                GrabbableTranslation[grabbableResource].Value.y + 2, trans.Value.z)});
+                        Ecb.SetComponentEnabled<ResourceStateGrabbable>(grabbableResource, false);
+                        Debug.Log("test");
+                    }
+                }
+            }
+        }
 
         // Iterate over resources and do some math logic. 
     }
@@ -33,11 +54,14 @@ partial struct StackingJob : IJobEntity
 public partial struct StackingSystem : ISystem
 {
     private EntityQuery _grabbableResourceQuery;
+    private ComponentDataFromEntity<Translation> _translationGrabbableResource;
+    
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        
         _grabbableResourceQuery = state.GetEntityQuery(typeof(ResourceStateGrabbable));
+        _translationGrabbableResource = state.GetComponentDataFromEntity<Translation>();
+
     }
 
     public void OnDestroy(ref SystemState state)
@@ -50,12 +74,14 @@ public partial struct StackingSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var grabbableResource = _grabbableResourceQuery.ToEntityArray(state.WorldUpdateAllocator);
-    // TODO: Parallel schedule please. 
+        _translationGrabbableResource.Update(ref state);
+        // TODO: Parallel schedule please. 
         new StackingJob
             {
                 PlayVolumeFloor = playVolumeFloor, 
                 Ecb = ecb,
-                GrabbableResources = grabbableResource
+                GrabbableResources = grabbableResource,
+                GrabbableTranslation =_translationGrabbableResource 
             }.Schedule();
     }
 } 
