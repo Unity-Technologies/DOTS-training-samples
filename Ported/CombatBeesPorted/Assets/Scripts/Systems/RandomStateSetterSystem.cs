@@ -7,28 +7,28 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 partial struct RandomStateSetterJob : IJobEntity
 {
-    public EntityCommandBuffer Buffer;
+    public EntityCommandBuffer.ParallelWriter ECB;
     public float Aggressiveness;
-    public NativeArray<Entity> EnemyTeam;
-    public NativeArray<Entity> Resources;
+    [ReadOnly] public NativeArray<Entity> EnemyTeam;
+    [ReadOnly] public NativeArray<Entity> Resources;
     public uint RandomSeed;
 
-    void Execute(Entity entity)
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity)
     {
         Random rand = Random.CreateFromIndex((uint)(entity.Index) + RandomSeed);
         if (rand.NextFloat() < Aggressiveness && Resources.Length > 0)
         {
             var resourceIndex = rand.NextInt(0, Resources.Length);
-            Buffer.SetComponentEnabled<BeeStateIdle>(entity, false);
-            Buffer.SetComponentEnabled<BeeStateGathering>(entity, true);
-            Buffer.SetComponent(entity, new EntityOfInterest{ Value = Resources[resourceIndex] });
+            ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, false);
+            ECB.SetComponentEnabled<BeeStateGathering>(chunkIndex,entity, true);
+            ECB.SetComponent(chunkIndex, entity, new EntityOfInterest{ Value = Resources[resourceIndex] });
         }
         else if (EnemyTeam.Length > 0)
         {
             var enemyBeeIndex = rand.NextInt(0, EnemyTeam.Length);
-            Buffer.SetComponentEnabled<BeeStateIdle>(entity, false);
-            Buffer.SetComponentEnabled<BeeStateAttacking>(entity, true);
-            Buffer.SetComponent(entity, new EntityOfInterest{ Value = EnemyTeam[enemyBeeIndex] });
+            ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, false);
+            ECB.SetComponentEnabled<BeeStateAttacking>(chunkIndex, entity, true);
+            ECB.SetComponent(chunkIndex, entity, new EntityOfInterest{ Value = EnemyTeam[enemyBeeIndex] });
         }
     }
 }
@@ -46,6 +46,8 @@ public partial struct RandomStateSetterSystem : ISystem
     
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        
         _resourceQuery = state.GetEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[] { },
@@ -71,31 +73,30 @@ public partial struct RandomStateSetterSystem : ISystem
     {
         // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
-        var resources = _resourceQuery.ToEntityArray(Allocator.TempJob);
-        var blueTeam = _blueTeamAllQuery.ToEntityArray(Allocator.TempJob);
-        var yellowTeam = _yellowTeamAllQuery.ToEntityArray(Allocator.TempJob);
+        var resources = _resourceQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var blueTeam = _blueTeamAllQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var yellowTeam = _yellowTeamAllQuery.ToEntityArray(state.WorldUpdateAllocator);
         
-        // TODO - make this parallel
         var blueTeamRandomStateJob = new RandomStateSetterJob
         {
-            Buffer = ecb,
+            ECB = ecb,
             Aggressiveness = SystemAPI.GetSingleton<Config>().Aggressiveness,
-            RandomSeed = (uint)UnityEngine.Time.frameCount,
+            RandomSeed = (uint)Time.frameCount,
             Resources =  resources,
             EnemyTeam =  yellowTeam,
         };
-        blueTeamRandomStateJob.Schedule(_blueTeamIdleQuery);
+        blueTeamRandomStateJob.ScheduleParallel(_blueTeamIdleQuery);
         
         var yellowTeamRandomStateJob = new RandomStateSetterJob
         {
-            Buffer = ecb,
+            ECB = ecb,
             Aggressiveness = SystemAPI.GetSingleton<Config>().Aggressiveness,
-            RandomSeed = (uint)UnityEngine.Time.frameCount,
+            RandomSeed = (uint)Time.frameCount,
             Resources =  resources,
             EnemyTeam =  blueTeam,
         };
-        yellowTeamRandomStateJob.Schedule(_yellowTeamIdleQuery);
+        yellowTeamRandomStateJob.ScheduleParallel(_yellowTeamIdleQuery);
     }
 }

@@ -1,21 +1,22 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
-[WithAny(typeof(ResourceStateGrabbable), typeof(ResourceStateStacked), typeof(ResourceStateGrabbed))]
-[WithAll(typeof(Gravity))]
+
+[WithAll(typeof(Gravity), typeof(Resource))]
 [BurstCompile]
 partial struct StackingJob : IJobEntity
 {
     public float PlayVolumeFloor;
     public EntityCommandBuffer Ecb;
-    void Execute(in Entity entity, ref Velocity vel, in Translation trans)
+    void Execute(in Entity entity, ref Velocity vel, ref Translation trans)
     {
         Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, false);
-        if (trans.Value.y <= PlayVolumeFloor)
+        if (trans.Value.y <= PlayVolumeFloor+1)
         {
             Ecb.SetComponentEnabled<Gravity>(entity, false);
             vel.Value.y = 0;
-            
+            // trans.Value.y += 1;
+
         }
     }
 }
@@ -24,6 +25,7 @@ public partial struct StackingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
 
     public void OnDestroy(ref SystemState state)
