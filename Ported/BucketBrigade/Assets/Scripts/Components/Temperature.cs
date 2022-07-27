@@ -1,7 +1,6 @@
 using Unity.Entities;
 
-[BakingType]
-struct Temperature : IBufferElementData
+public struct Temperature : IBufferElementData
 {
     public float Value;
 }

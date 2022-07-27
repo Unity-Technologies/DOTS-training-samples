@@ -132,9 +132,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 880526326}
-  - component: {fileID: 880526328}
   - component: {fileID: 880526327}
   - component: {fileID: 880526329}
+  - component: {fileID: 880526330}
   m_Layer: 0
   m_Name: SingletonManager
   m_TagString: Untagged
@@ -204,18 +204,6 @@ MonoBehaviour:
   colour_bot_OMNIBOT: {r: 0, g: 0, b: 0, a: 0}
   colour_bucket_empty: {r: 0, g: 0, b: 0, a: 0}
   colour_bucket_full: {r: 0, g: 0, b: 0, a: 0}
---- !u!114 &880526328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880526325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5994b2e22d7c5a945b1260dfe13d5b82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &880526329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,7 +216,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dcdb7c06ab04a088be4ccdb09fe3e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSize: 0
-  FireThreshold: 0
+  GridSize: 10
+  FireThreshold: 0.5
   FireFighterLinesCount: 0
   FireFighterPerLineCount: 0
+--- !u!114 &880526330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880526325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5994b2e22d7c5a945b1260dfe13d5b82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

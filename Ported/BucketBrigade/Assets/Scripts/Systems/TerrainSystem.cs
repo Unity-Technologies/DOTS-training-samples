@@ -11,6 +11,7 @@ partial struct TerrainSpawningSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Temperature>();
     }
 
     [BurstCompile]
@@ -26,18 +27,22 @@ partial struct TerrainSpawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var waterCell = CollectionHelper.CreateNativeArray<Entity>(config.GridSize * config.GridSize, Allocator.Temp);
+        var terrainCell = CollectionHelper.CreateNativeArray<Entity>(config.GridSize * config.GridSize, Allocator.Temp);
 
 
-        ecb.Instantiate(config.Prefab, waterCell);
+        ecb.Instantiate(config.Prefab, terrainCell);
 
+        var HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
 
         int i = 0;
         var offset = new float3(-config.GridSize * config.CellSize * 0.5f, -1.0f, -config.GridSize * config.CellSize * 0.5f);
-        foreach (var cell in waterCell)
+        foreach (var cell in terrainCell)
         {
             ecb.SetComponent(cell, new Translation { Value = new float3((i % config.GridSize) * config.CellSize, 0.0f, Mathf.Ceil(i / config.GridSize) * config.CellSize) + offset });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3( config.CellSize, config.CellSize*2, config.CellSize) });
+
+            HeatMap.Add(new Temperature { Value = 0f });
+
             ++i;
         }
 
