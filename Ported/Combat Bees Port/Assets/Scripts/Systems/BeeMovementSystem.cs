@@ -81,9 +81,12 @@ partial class BeeMovementSystem : SystemBase
                         var component = GetComponent<Food>(bee.target);
 
                         component.target = beeEntity;
-                        target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
                         bee.target = baseEntity;
-                        bee.targetPos = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
+                        var randomPlaceInSpawn = HasComponent<YellowTeam>(beeEntity) ?
+                            random.NextFloat3(baseComponent.yellowBase.GetBaseLowerLeftCorner(), baseComponent.yellowBase.GetBaseUpperRightCorner()) 
+                            : random.NextFloat3(baseComponent.blueBase.GetBaseLowerLeftCorner(), baseComponent.blueBase.GetBaseUpperRightCorner());
+                        target = randomPlaceInSpawn;
+                        bee.targetPos = randomPlaceInSpawn;
                         bee.state = BeeState.Hauling;
                     }
                 }
