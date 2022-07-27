@@ -30,7 +30,6 @@ public partial struct BeeMovementSystem : ISystem
     {
         moveSpeed = 8f;
         ocilateMag = 20f;
-        stretchSpeed = 0.02f;
 
         //Resource entities
         var queryBuilder = new EntityQueryDescBuilder(Allocator.Temp);
