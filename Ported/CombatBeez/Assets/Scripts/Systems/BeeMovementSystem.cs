@@ -9,7 +9,6 @@ public partial struct BeeMovementSystem : ISystem
 {
     private float moveSpeed;
     private float ocilateMag;
-    private float stretchSpeed;
 
     private ComponentDataFromEntity<Translation> transLookup;
     private ComponentDataFromEntity<Bee> beeLookup;
