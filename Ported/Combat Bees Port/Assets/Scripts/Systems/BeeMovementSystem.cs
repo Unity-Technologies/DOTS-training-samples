@@ -16,21 +16,22 @@ partial class BeeMovementSystem : SystemBase
             var dt = Time.DeltaTime;
             var et = (float)Time.ElapsedTime;
             var speed = 10f;
-            float offsetValue = 1f;
-            Random random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
-            float3 target = new float3(5, 0, 0);
+            var offsetValue = 1f;
+            var random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
+            var target = new float3(5, 0, 0);
 
             var baseComponent = GetSingleton<Base>();
             var baseEntity = GetSingletonEntity<Base>();
-
-            float3 yellowBase = baseComponent.yellowBase.GetCenter();
-            float3 blueBase = baseComponent.blueBase.GetCenter();
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
         
             Entities
             .ForEach((ref Translation translation, ref Bee bee, ref Entity beeEntity,  ref Rotation rotation) =>
             {
+                var randomPlaceInSpawn = HasComponent<YellowTeam>(beeEntity) ?
+                    random.NextFloat3(baseComponent.yellowBase.GetBaseLowerLeftCorner(), baseComponent.yellowBase.GetBaseUpperRightCorner()) 
+                    : random.NextFloat3(baseComponent.blueBase.GetBaseLowerLeftCorner(), baseComponent.blueBase.GetBaseUpperRightCorner());
+                
                 var position = translation.Value;
                 
                 SpeedHandler(bee);
@@ -45,14 +46,17 @@ partial class BeeMovementSystem : SystemBase
                 {
                     target = bee.targetPos;
                 }
-                else if (bee.target != Entity.Null && HasComponent<LocalToWorld>(bee.target))
+                else if (bee.target != Entity.Null && Exists(bee.target))
                 {
                     target = GetComponent<LocalToWorld>(bee.target).Position;
                 }
                 else
                 {
                     bee.state = BeeState.Idle;
-                    target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
+                    bee.target = baseEntity;
+                    bee.targetPos = randomPlaceInSpawn;
+                    
+                    target = bee.targetPos;
                 }
                 
                 var direction = math.normalizesafe( target - translation.Value);
@@ -69,6 +73,7 @@ partial class BeeMovementSystem : SystemBase
                     {
                         bee.targetPos = position;
                         ecb.DestroyEntity(bee.target);
+                        
                         bee.target = Entity.Null;
                         bee.state = BeeState.Idle;
                     }
@@ -84,12 +89,11 @@ partial class BeeMovementSystem : SystemBase
                         SetComponent(bee.target, component);
 
                         bee.target = baseEntity;
-                        var randomPlaceInSpawn = HasComponent<YellowTeam>(beeEntity) ?
-                            random.NextFloat3(baseComponent.yellowBase.GetBaseLowerLeftCorner(), baseComponent.yellowBase.GetBaseUpperRightCorner()) 
-                            : random.NextFloat3(baseComponent.blueBase.GetBaseLowerLeftCorner(), baseComponent.blueBase.GetBaseUpperRightCorner());
-                        target = randomPlaceInSpawn;
                         bee.targetPos = randomPlaceInSpawn;
                         bee.state = BeeState.Hauling;
+                        
+                        target = bee.targetPos;
+
                     }
                 }
 
