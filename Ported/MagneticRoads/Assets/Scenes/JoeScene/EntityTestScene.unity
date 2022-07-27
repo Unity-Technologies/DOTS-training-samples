@@ -171,6 +171,13 @@ MonoBehaviour:
     type: 3}
   CarCount: 10
   BrakingDistanceThreshold: 0.5
+  voxelCount: 60
+  voxelSize: 1
+  trisPerMesh: 4000
+  roadMaterial: {fileID: 0}
+  intersectionMesh: {fileID: 0}
+  intersectionPreviewMesh: {fileID: 0}
+  carSpeed: 2
 --- !u!1 &1691441087
 GameObject:
   m_ObjectHideFlags: 0
