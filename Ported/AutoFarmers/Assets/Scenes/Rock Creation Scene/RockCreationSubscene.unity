@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &1325468003
+--- !u!1 &344806394
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,8 +131,57 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1325468005}
-  - component: {fileID: 1325468004}
+  - component: {fileID: 344806396}
+  - component: {fileID: 344806395}
+  m_Layer: 0
+  m_Name: Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &344806395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344806394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fec1447da3baa6449f18dda7ad3823b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapSize:
+    x: 100
+    y: 100
+  cellPrefab: {fileID: 8598844148813267235, guid: 6bd43cdc283d626478c7ca547237a78f,
+    type: 3}
+--- !u!4 &344806396
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344806394}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1639902052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1639902054}
+  - component: {fileID: 1639902053}
   m_Layer: 0
   m_Name: RockConfig
   m_TagString: Untagged
@@ -140,13 +189,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1325468004
+--- !u!114 &1639902053
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1325468003}
+  m_GameObject: {fileID: 1639902052}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad49d6de4b309244aafc28753b34cc58, type: 3}
@@ -154,22 +203,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RockPrefab: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
     type: 3}
-  NumRocks: 5
+  NumRocks: 100
   RandomSizeMin:
-    x: 0
-    y: 0
+    x: 0.1
+    y: 0.1
   RandomSizeMax:
-    x: 0
-    y: 0
-  minHeight: 0
-  maxHeight: 0
---- !u!4 &1325468005
+    x: 1
+    y: 1
+  minHeight: 0.25
+  maxHeight: 0.5
+--- !u!4 &1639902054
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1325468003}
+  m_GameObject: {fileID: 1639902052}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}

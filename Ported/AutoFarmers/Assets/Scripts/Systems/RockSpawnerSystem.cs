@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
 partial struct RockSpawningSystem : ISystem
 {
@@ -16,36 +17,38 @@ partial struct RockSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<RockConfig>();
+        var map = SystemAPI.GetSingleton<Map>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var rocks = CollectionHelper.CreateNativeArray<Entity>(100, Allocator.Temp);
+        var rocks = CollectionHelper.CreateNativeArray<Entity>(map.mapSize.x * map.mapSize.y, Allocator.Temp);
         ecb.Instantiate(config.RockPrefab, rocks);
-        foreach (var rockTransform in SystemAPI.Query<RefRO<RockConfig>>())
+
+        var mapSize = new int2(100, 100);
+
+        int i = 0;
+
+        foreach (var cell in SystemAPI.Query<TransformAspect>().WithAll<Cell>())
         {
-            for (int x = 0; x < rockTransform.ValueRO.NumRocks; x++)
+            ecb.SetComponent(rocks[i], new Translation
             {
-                var mapSize = new int2(100, 100);
+                Value = new float3(
+                cell.Position.x,
+                0,
+                cell.Position.z)
+            });
 
-                int width = UnityEngine.Random.Range(0, 100);
-                int height = UnityEngine.Random.Range(0, 100);
-                int rockX = UnityEngine.Random.Range(0, mapSize.x - width);
-                int rockY = UnityEngine.Random.Range(0, mapSize.y - height);
-                ecb.SetComponent(rocks[x], new Translation {Value = new float3(rockX, 0, rockY)});
-            }
+            ecb.SetComponent(rocks[i], new NonUniformScale
+            {
+                Value = new float3(
+                        UnityEngine.Random.Range(config.RandomSizeMin.x, config.RandomSizeMax.x),
+                        UnityEngine.Random.Range(config.minHeight, config.maxHeight),
+                        UnityEngine.Random.Range(config.RandomSizeMin.y, config.RandomSizeMax.y))
+            });
+
+            i++;
         }
-
-        // foreach (var scale in SystemAPI.Query<RefRW<NonUniformScale>>().WithAll<RockTag>())
-        // {
-        //     int width = UnityEngine.Random.Range(1, 4);
-        //     int length = UnityEngine.Random.Range(1, 4);
-        //
-        //     NonUniformScale s = new NonUniformScale { Value = new float3(width, 1, length) };
-        //
-        //     scale.ValueRW = s;
-        // }
-
         state.Enabled = false;
     }
 }
