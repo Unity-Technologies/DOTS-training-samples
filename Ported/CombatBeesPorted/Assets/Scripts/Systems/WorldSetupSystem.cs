@@ -82,6 +82,9 @@ partial struct WorldSetupSystem : ISystem
             ecb.SetComponentForLinkedEntityGroup(resource, queryColorMask, resourceColor);
             Vector3 startPos = new Vector3(minGridPos.x * .25f + UnityEngine.Random.value * field.x * .25f, UnityEngine.Random.value * 10f,
                 minGridPos.y + UnityEngine.Random.value * field.z);
+            ecb.SetComponentEnabled<ResourceStateGrabbed>(resource, false);
+            ecb.SetComponentEnabled<ResourceStateGrabbable>(resource, false);
+            ecb.SetComponentEnabled<ResourceStateStacked>(resource, false);
             ecb.SetComponentForLinkedEntityGroup(resource, queryTranslationMask, new Translation { Value = startPos});
         }
         
