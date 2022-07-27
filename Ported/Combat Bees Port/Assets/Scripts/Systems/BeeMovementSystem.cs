@@ -13,9 +13,10 @@ partial class BeeMovementSystem : SystemBase
     protected override void OnUpdate()
     {
             var dt = Time.DeltaTime;
+            var et = (float)Time.ElapsedTime;
             var speed = 5f;
             float offsetValue = 1f;
-            Random random = new Random(12344);
+            Random random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
             float3 target = new float3(5, 0, 0);
             float3 yellowBase = new float3(-45, 0, 0);
             float3 blueBase = new float3(45, 0, 0);
@@ -26,22 +27,31 @@ partial class BeeMovementSystem : SystemBase
             .ForEach((ref Translation translation, ref Bee bee, ref Entity beeEntity,  ref Rotation rotation) =>
             {
                 var position = translation.Value;
-                var offset = new float3(
+                /*var offset = new float3(
                     random.NextFloat(-1 * offsetValue, offsetValue),
                     random.NextFloat(-1 * offsetValue, offsetValue),
                     random.NextFloat(-1 * offsetValue, offsetValue)
+                );*/
+
+                var offset = new float3(
+                    noise.cnoise(new float2(et, offsetValue)),
+                    noise.cnoise(new float2(et, offsetValue)),
+                    noise.cnoise(new float2(et, offsetValue))
                 );
 
                 if (HasComponent<LocalToWorld>(bee.target))
                 {
                     target = GetComponent<LocalToWorld>(bee.target).Position;
                 }
+                else target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
                 
                 var direction = math.normalizesafe( target - translation.Value);
                 
                 rotation.Value = quaternion.LookRotationSafe(direction, new float3(0,1,0));
-                position +=  (offset +direction) * speed * dt;
+                position +=  (direction + offset) * speed * dt;
                 CheckBounds(ref position);
+                
+                translation.Value = position;
                 
                 if (bee.state == BeeState.Attacking)
                 {
@@ -62,17 +72,10 @@ partial class BeeMovementSystem : SystemBase
 
                         var component = GetComponent<Food>(bee.target);
                         component.target = beeEntity;
+                        target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
                     }
                 }
                 
-
-                if (HasComponent<YellowTeam>(beeEntity))
-                {
-                    
-                }
-                
-                translation.Value = position;
-
             }).Run();
             ecb.Playback(this.EntityManager);
             ecb.Dispose();
@@ -87,7 +90,7 @@ partial class BeeMovementSystem : SystemBase
                 if (position.z > 10) position.z = 10;
             }
 
-           
+            
             
             
     }
