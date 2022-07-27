@@ -6,8 +6,8 @@ struct RockConfig : IComponentData
 {
     public Entity RockPrefab;
     public int NumRocks;
-    public int2 RandomSizeMin;
-    public int2 RandomSizeMax;
+    public float2 RandomSizeMin;
+    public float2 RandomSizeMax;
     public float minHeight;
     public float maxHeight;
 }
