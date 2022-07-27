@@ -155,6 +155,7 @@ public class TrackSpline{
 			}
 		}
 		twistMode = bestTwistMode;
+		Debug.Log($"bestTwistMode: {bestTwistMode}");
 
 		// a road segment is a rectangle extruded along a spline - here's the rectangle:
 		Vector2 localPoint1 = new Vector2(-RoadGenerator.trackRadius,RoadGenerator.trackThickness*.5f);

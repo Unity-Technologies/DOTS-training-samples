@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Util;
 
 namespace Systems
 {
@@ -17,11 +18,9 @@ namespace Systems
         void Execute(ref CarAspect carAspect)
         {
             carAspect.T = math.clamp(carAspect.T + (carAspect.Speed * DT), 0, 1);
-            RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment track);
+            RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
 
-            var anchor1 = track.StartPos + track.StartTang;
-            var anchor2 = track.EndPos - track.EndTang;
-            carAspect.Position = track.StartPos * (1f - carAspect.T) * (1f - carAspect.T) * (1f - carAspect.T) + 3f * anchor1 * (1f - carAspect.T) * (1f - carAspect.T) * carAspect.T + 3f * anchor2 * (1f - carAspect.T) * carAspect.T * carAspect.T + track.EndPos * carAspect.T * carAspect.T * carAspect.T;
+            carAspect.Position = Spline.Evaluate(rs.Start, rs.End, carAspect.T);
         }
     }
 

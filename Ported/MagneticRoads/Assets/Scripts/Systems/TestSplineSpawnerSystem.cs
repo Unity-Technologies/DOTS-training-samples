@@ -2,6 +2,7 @@ using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Util;
 
 namespace Systems
 {
@@ -32,12 +33,19 @@ namespace Systems
             ecb.AddComponent<RoadSegment>(rs);
             ecb.SetComponent(rs, new RoadSegment
             {
-                StartPos = new float3(0,0,0),
-                StartNorm = new float3(0,1,0),
-                StartTang = new float3(0,0,1),
-                EndPos = new float3(0,0,100),
-                EndNorm = new float3(0,1,0),
-                EndTang = new float3(0,0,1),
+                Start = new Spline.RoadTerminator
+                {
+                    Position = new float3(0,0,0),
+                    Normal = new float3(0,1,0),
+                    Tangent = new float3(0,0,1)
+                },
+                End = new Spline.RoadTerminator
+                {
+                    Position = new float3(0,0,100),
+                    Normal = new float3(0,1,0),
+                    Tangent = new float3(0,0,1)
+                    
+                }
             });
             
             ecb.SetComponent(car2, new Car{ RoadSegment = rs, T = 0.2f});
