@@ -25,6 +25,7 @@ public partial struct StackingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
 
     public void OnDestroy(ref SystemState state)

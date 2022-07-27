@@ -42,6 +42,7 @@ public partial struct JitterSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
