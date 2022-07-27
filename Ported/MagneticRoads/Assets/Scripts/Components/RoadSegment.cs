@@ -1,19 +1,13 @@
 using Unity.Collections;
-using Unity.Mathematics;
 using Unity.Entities;
+using Util;
 
 namespace Components
 {
     public struct RoadSegment: IComponentData
     {
-        [ReadOnly] public RoadTerminator Start;
-        [ReadOnly] public RoadTerminator End;
+        [ReadOnly] public Spline.RoadTerminator Start;
+        [ReadOnly] public Spline.RoadTerminator End;
+        [ReadOnly] public float Length;
     }
-}
-
-public struct RoadTerminator
-{
-    public float3 Position;
-    public float3 Normal;
-    public float3 Tangent;
 }

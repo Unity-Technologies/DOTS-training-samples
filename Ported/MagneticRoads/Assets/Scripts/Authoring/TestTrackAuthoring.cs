@@ -1,6 +1,7 @@
 using Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Util;
 
 namespace Authoring
 {
@@ -14,23 +15,24 @@ namespace Authoring
     {
         public override void Bake(TestTrackAuthoring authoring)
         {
-            var start = authoring.Start.transform;
-            var end = authoring.End.transform;
+            var Start = new Spline.RoadTerminator
+            {
+                Position = new float3(0, 0, 0),
+                Normal = new float3(0, 1, 0),
+                Tangent = new float3(0, 0, 1)
+            };
+            var End = new Spline.RoadTerminator
+            {
+                Position = new float3(0, 0, 100),
+                Normal = new float3(0, 1, 0),
+                Tangent = new float3(0, 0, 1)
+            };
+
             AddComponent(new RoadSegment
             {
-                Start = new RoadTerminator()
-                {
-                    Position = new float3(0,0,0),
-                    Normal = new float3(0,1,0),
-                    Tangent = new float3(0,0,1)
-                },
-                End = new RoadTerminator
-                {
-                    Position = new float3(0,0,100),
-                    Normal = new float3(0,1,0),
-                    Tangent = new float3(0,0,1)
-                    
-                }
+                Start = Start,
+                End = End,
+                Length = Spline.EvaluateLength(Start, End)
             });
         }
     }
