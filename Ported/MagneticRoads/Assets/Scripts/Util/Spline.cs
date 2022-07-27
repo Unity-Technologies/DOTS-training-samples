@@ -6,7 +6,6 @@ namespace Util
 {
     public static class Spline
     {
-        [BurstCompile]
         public struct RoadTerminator
         {
             public float3 Position;
@@ -14,7 +13,6 @@ namespace Util
             public float3 Tangent;
         }
         
-        [BurstCompile]
         public static float3 EvaluatePosition(RoadTerminator start, RoadTerminator end, float t)
         {
             var anchor1 = start.Position + start.Tangent;
@@ -26,7 +24,6 @@ namespace Util
                    + end.Position * t * t * t;
         }
         
-        [BurstCompile]
         public static float3 EvaluateTangent(RoadTerminator start, RoadTerminator end, float t)
         {
             var anchor1 = start.Position + start.Tangent;
@@ -39,7 +36,6 @@ namespace Util
             return math.normalize(derivative);
         }
 
-        [BurstCompile]
         public static float3 EvaluateNormal(RoadTerminator start, RoadTerminator end, float t)
         {
             var startQuart = quaternion.LookRotation(start.Tangent, start.Normal);
