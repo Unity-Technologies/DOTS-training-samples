@@ -6,6 +6,8 @@ namespace Util
 {
     public static class Spline
     {
+        private const int SplineLengthResolution = 10;
+        
         public struct RoadTerminator
         {
             public float3 Position;
@@ -41,6 +43,22 @@ namespace Util
             var startQuart = quaternion.LookRotation(start.Tangent, start.Normal);
             var endQuart = quaternion.LookRotation(end.Tangent, end.Normal);
             return math.slerp(startQuart, endQuart, t);
+        }
+
+        public static float EvaluateLength(RoadTerminator start, RoadTerminator end)
+        {
+            // Approximate spline with {SplineLengthResolution} number of straight lines
+            // Sum all lengths
+            float length = 0;
+            for (int i = 0; i < SplineLengthResolution; i++)
+            {
+                float t0 = (float) i / SplineLengthResolution;
+                float t1 = (float)(i + 1) / SplineLengthResolution;
+                float3 pos0 = EvaluatePosition(start, end, t0);
+                float3 pos1 = EvaluatePosition(start, end, t1);
+                length += math.distance(pos0, pos1);
+            }
+            return length;
         }
     }
 }
