@@ -19,14 +19,8 @@ public partial struct FarmerManagerSystem: ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        EntityManager manager = World.DefaultGameObjectInjectionWorld.EntityManager;
         EntityCommandBuffer command = new EntityCommandBuffer(Allocator.Temp);
-        
-        EntityArchetype archetype = manager.CreateArchetype(
-            typeof(FarmerSpeed)
-            
-            );
-        
+
         foreach (var creator in SystemAPI.Query<RefRO<Ecsprefabcreator>>())
         {
            Entity ent= command.Instantiate(creator.ValueRO.prefab);
@@ -36,7 +30,7 @@ public partial struct FarmerManagerSystem: ISystem
             });
         }
         command.Playback(state.EntityManager);
-        
+        Debug.Log("Testing");
         state.Enabled = false;
     }
 }

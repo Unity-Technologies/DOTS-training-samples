@@ -7,6 +7,7 @@ partial struct RockSpawningSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<RockConfig>();
     }
 
     public void OnDestroy(ref SystemState state)

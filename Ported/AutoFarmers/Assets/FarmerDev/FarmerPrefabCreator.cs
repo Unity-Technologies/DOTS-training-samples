@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class FarmerPrefabCreator : MonoBehaviour
@@ -17,9 +18,6 @@ public class PrefabCreatorBaker : Baker<FarmerPrefabCreator>
         {
             prefab = GetEntity(authoring.m_prefab)
         });
-        AddComponent(new FarmerSpeed());
-        AddComponent(new Farmer());
-
     }
 }
 
