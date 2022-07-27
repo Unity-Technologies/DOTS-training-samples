@@ -22,6 +22,7 @@ partial class BeeMovementSystem : SystemBase
 
             var baseComponent = GetSingleton<Base>();
             var baseEntity = GetSingletonEntity<Base>();
+            var entityManager = new EntityManager();
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
         
@@ -35,6 +36,14 @@ partial class BeeMovementSystem : SystemBase
                 var position = translation.Value;
                 
                 SpeedHandler(bee);
+                var newScale = new LocalToWorld{
+                    Value = float4x4.TRS(
+                        translation:    position ,
+                        rotation:        rotation.Value ,
+                        scale:            new float3(speed, speed, speed)
+                    )
+                };
+                SetComponent(beeEntity, newScale);
 
                 var offset = new float3(
                     noise.cnoise(new float2(et, offsetValue)),
@@ -123,9 +132,9 @@ partial class BeeMovementSystem : SystemBase
 
             void SpeedHandler(Bee bee)
             {
-                if (bee.state == BeeState.Attacking) speed = 50f;
-                if (bee.state == BeeState.Collecting) speed = 25f;
-                if (bee.state == BeeState.Hauling) speed = 20f;
+                if (bee.state == BeeState.Attacking) speed = random.NextFloat(30f, 70f);
+                if (bee.state == BeeState.Collecting) speed = random.NextFloat(15f, 30f);
+                if (bee.state == BeeState.Hauling) speed = random.NextFloat(10f, 30f);;
             }
 
             
