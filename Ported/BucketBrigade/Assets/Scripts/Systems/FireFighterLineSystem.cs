@@ -28,7 +28,8 @@ partial struct FireFighterLineSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         float fireThreshold = config.FireThreshold;
-        int gridSize = config.GridSize; //20
+        var terrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
+        int gridSize = terrainConfig.GridSize; //20
 
         foreach (var fireFighterLine in SystemAPI.Query<RefRW<FireFighterLine>>())
         {

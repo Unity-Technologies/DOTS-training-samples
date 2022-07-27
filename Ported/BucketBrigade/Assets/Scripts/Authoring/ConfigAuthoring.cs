@@ -2,7 +2,6 @@
 
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    public int GridSize;
     public int InitialFireCount;
     public float FireThreshold;
     public int FireFighterLinesCount;
@@ -15,7 +14,6 @@ class ConfigBaker : Baker<ConfigAuthoring>
     {
         AddComponent(new Config
         {
-            GridSize = authoring.GridSize,
             InitialFireCount = authoring.InitialFireCount,
             FireThreshold = authoring.FireThreshold,
             FireFighterLinesCount = authoring.FireFighterLinesCount,
