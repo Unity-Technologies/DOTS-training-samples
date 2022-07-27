@@ -30,8 +30,10 @@ public partial class TankRotationSystem : SystemBase
                  quaternion lookRotation = quaternion.LookRotationSafe(displacement, upReference);
 
                 transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
+
                 
             }).ScheduleParallel();
+
                
     }
 }
