@@ -33,7 +33,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         {
             var position = translation.ValueRO.Value;
 
-            if (m_BaseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -8)
+            if (m_BaseComponent.blueBase.GetBaseUpperRightCorner().x < position.x && position.y < -8)
             {
                 var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
@@ -54,7 +54,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
                 ecb.DestroyEntity(foodPiece);
             }
             
-            else if (m_BaseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -8)
+            else if (m_BaseComponent.yellowBase.GetBaseUpperRightCorner().x > position.x && position.y < -8)
             {
                 ecb.DestroyEntity(foodPiece);
                 
@@ -89,7 +89,7 @@ partial struct YellowBeeSpawnJob : IJobEntity
     {
         var baseInfo = SystemAPI.GetSingleton<Base>();
         var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
-        var randomSpawn = random.NextFloat3(baseInfo.yellowBase.GetBaseLowerLeftCorner(), baseInfo.yellowBase.GetBaseRightCorner());
+        var randomSpawn = random.NextFloat3(baseInfo.yellowBase.GetBaseLowerLeftCorner(), baseInfo.yellowBase.GetBaseUpperRightCorner());
         
         ECB.Instantiate(beeSpawn.YellowBeePrefab, newBeeArray);
 
@@ -118,7 +118,7 @@ partial struct BlueBeeSpawnJob : IJobEntity
     {
         var baseInfo = SystemAPI.GetSingleton<Base>();
         var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
-        var randomSpawn = random.NextFloat3(baseInfo.blueBase.GetBaseLowerLeftCorner(), baseInfo.blueBase.GetBaseRightCorner());
+        var randomSpawn = random.NextFloat3(baseInfo.blueBase.GetBaseLowerLeftCorner(), baseInfo.blueBase.GetBaseUpperRightCorner());
         
         ECB.Instantiate(beeSpawn.BlueBeePrefab, newBeeArray);
 
