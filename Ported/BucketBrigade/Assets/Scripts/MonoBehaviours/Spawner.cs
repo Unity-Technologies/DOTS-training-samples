@@ -34,6 +34,7 @@ public class Spawner : MonoBehaviour
     [Header("FIRE")]
     [Tooltip("Terrain Cell Prefab")]
     public GameObject TerrainCellPrefab;
+    public GameObject BucketPrefab;
     public Entity PrefabTest;
     public Mesh TerrainCellMesh;
     public Material TerrainCellMaterial;
@@ -107,32 +108,32 @@ public class Spawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        var world = World.DefaultGameObjectInjectionWorld;
-        var entityManager = world.EntityManager;
+        //var world = World.DefaultGameObjectInjectionWorld;
+        //var entityManager = world.EntityManager;
+        //
+        //EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        //
+        ////Terrain cells description
+        //var renderer = TerrainCellPrefab.GetComponent<Renderer>();
+        //// public RenderMeshDescription(ShadowCastingMode shadowCastingMode, bool receiveShadows = false, MotionVectorGenerationMode motionVectorGenerationMode = MotionVectorGenerationMode.Camera, int layer = 0, uint renderingLayerMask = uint.MaxValue, LightProbeUsage lightProbeUsage = LightProbeUsage.Off, bool staticShadowCaster = false);
+        //var desc = new RenderMeshDescription(shadowCastingMode: ShadowCastingMode.Off, receiveShadows: true);
+        //
+        //// Create empty base entity
+        //var prototype = entityManager.CreateEntity();
 
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+        //RenderMesh rendermesh = new RenderMesh(TerrainCellPrefab.GetComponent<Renderer>(), TerrainCellMesh);
+            //RenderMesh rendermesh = new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial };
 
-        //Terrain cells description
-        var renderer = TerrainCellPrefab.GetComponent<Renderer>();
-        // public RenderMeshDescription(ShadowCastingMode shadowCastingMode, bool receiveShadows = false, MotionVectorGenerationMode motionVectorGenerationMode = MotionVectorGenerationMode.Camera, int layer = 0, uint renderingLayerMask = uint.MaxValue, LightProbeUsage lightProbeUsage = LightProbeUsage.Off, bool staticShadowCaster = false);
-        var desc = new RenderMeshDescription(shadowCastingMode: ShadowCastingMode.Off, receiveShadows: true);
-        
-        // Create empty base entity
-        var prototype = entityManager.CreateEntity();
-
-        RenderMesh rendermesh = new RenderMesh(TerrainCellPrefab.GetComponent<Renderer>(), TerrainCellMesh);
-        //RenderMesh rendermesh = new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial };
-
-        RenderMeshUtility.AddComponents(
-            prototype,
-            entityManager,
-            desc,
-            rendermesh);
-            //new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial });
-
-        entityManager.AddComponentData(prototype, new LocalToWorld());
-        NativeArray<Entity> array = new NativeArray<Entity>(rows * columns, Allocator.Persistent);
-        entityManager.Instantiate(prototype);
+        //RenderMeshUtility.AddComponents(
+        //    prototype,
+        //    entityManager,
+        //    desc,
+        //    rendermesh);
+        //    //new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial });
+        //
+        //entityManager.AddComponentData(prototype, new LocalToWorld());
+        //NativeArray<Entity> array = new NativeArray<Entity>(rows * columns, Allocator.Persistent);
+        //entityManager.Instantiate(prototype);
 
         //Spawn Terrain Cell
         //var spawnJob = new SpawnJob
@@ -150,12 +151,31 @@ public class Spawner : MonoBehaviour
         //
         //ecb.Playback(entityManager);
         //ecb.Dispose();
-        entityManager.DestroyEntity(prototype);
+        //entityManager.DestroyEntity(prototype);
     }
+}
 
-    // Update is called once per frame
-    void Update()
+class WaterSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
     {
-        
+        AddComponent(new WaterCellConfig
+        {
+            TerrainCellPrefab = GetEntity(authoring.TerrainCellPrefab),
+            CellCount = 10,
+        });
+    }
+}
+
+class BucketSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new BucketConfig
+        {
+            Prefab = GetEntity(authoring.BucketPrefab),
+            Count = 10,
+            GridSize = authoring.rows
+        });
     }
 }
