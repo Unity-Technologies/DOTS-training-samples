@@ -382,7 +382,7 @@ MonoBehaviour:
   maxTerrainHeight: 0.7
   boxCount: 10
   boxHeightDamage: 7
-  tankLaunchPeriod: 3
+  tankLaunchPeriod: 5
   collisionStepMultiplier: 0.39
   invPlayerParabolaPrecision: 0.49
   spacing: 1

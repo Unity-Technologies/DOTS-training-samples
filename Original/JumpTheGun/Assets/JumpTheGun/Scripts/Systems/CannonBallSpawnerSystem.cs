@@ -20,31 +20,36 @@ partial class CannonBallSpawner : SystemBase
 
     protected override void OnUpdate()
     {
-        m_LocalToWorldFromEntity.Update(this);
         float currentTime = UnityEngine.Time.realtimeSinceStartup;
+
+        m_LocalToWorldFromEntity.Update(this);
         var ecb = endSimulationBufferSystem.CreateCommandBuffer();
+        var config = SystemAPI.GetSingleton<Config>();
+
 
         Entities
             .WithoutBurst()
             .ForEach((ref Turret turret) =>
             {
-                /*if (config.tankLaunchPeriod> currentTime)
+
+                if (config.tankLaunchPeriod > currentTime)
                 {
                     return;
-                }*/
+                }
 
-               // config.tankLaunchPeriod = currentTime + (config.tankLaunchPeriod);
+                config.tankLaunchPeriod = currentTime + 2;
+                UnityEngine.Debug.Log("config.tankLaunchPeriod " + config.tankLaunchPeriod);
+                UnityEngine.Debug.Log("current time "+ currentTime);
 
                 var newEntity = ecb.Instantiate(turret.cannonBall);
                 var spawnPoint = m_LocalToWorldFromEntity[turret.cannonBallSpawn];
 
-
-
                 ecb.SetComponent<Translation>(newEntity, new Translation
                 {
                     Value = spawnPoint.Position
-                }) ;
-               
+                });
+
             }).Run();
+
     }
 }

@@ -1,18 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Entities;
 using UnityEngine;
+using Unity.Transforms;
 
-public class CannonBallMovementSystem : MonoBehaviour
+[BurstCompile]
+partial class CannonBallMovementSystem : SystemBase
 {
-    // Start is called before the first frame update
-    void Start()
+
+    protected override void OnUpdate()
     {
-        
+        float deltaTime = Time.DeltaTime;
+
+       LocalToWorld playerTransform = GetComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>());
+
+        Entities
+            .WithoutBurst()
+            .WithAll<CannonBall>()
+            .ForEach((ref CannonBall entity, ref TransformAspect transform) =>
+            {
+              ParabolaCluster.Create(transform.Position.y, 2.0f, playerTransform.Position.y,out entity.para.paraA, out entity.para.paraB, out entity.para.paraC);
+
+            }).Run();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   
 }
