@@ -14,7 +14,6 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        m_BaseComponent = SystemAPI.GetSingleton<Base>();
     }
 
     [BurstCompile]
@@ -25,6 +24,8 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        m_BaseComponent = SystemAPI.GetSingleton<Base>();
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
