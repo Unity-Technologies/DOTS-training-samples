@@ -7,10 +7,14 @@ using Unity.Entities;
 namespace Systems
 {
     [BurstCompile]
-    partial struct CarBootstrapSystem : ISystem
+    partial struct CarSpawningSystem : ISystem
     {
         [BurstCompile]
-        public void OnCreate(ref SystemState state) { }
+        public void OnCreate(ref SystemState state)
+        {
+            // This system should not run before the Config singleton has been loaded.
+            state.RequireForUpdate<Config>();
+        }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state) { }
