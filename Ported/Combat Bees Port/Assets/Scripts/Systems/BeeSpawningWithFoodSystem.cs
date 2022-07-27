@@ -1,6 +1,8 @@
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
@@ -31,29 +33,49 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         
         var baseComponent = SystemAPI.GetSingleton<Base>();
         
-        foreach (var foodPiece in SystemAPI.Query<Entity>().WithAll<Food>())
+        foreach (var (foodPiece, translation) in SystemAPI.Query<Entity, RefRO<Translation>>().WithAll<Food>())
         {
-            var position = state.EntityManager.GetComponentData<Translation>(foodPiece).Value;
-            if (baseComponent.blueBase.GetBaseRightCorner().x < position.x)
+            var position = translation.ValueRO.Value;
+            if (baseComponent.blueBase.GetBaseRightCorner().x < position.x && position.y < -8)
             {
-                var beeSpawnJob = new BlueBeeSpawnJob()
-                {
-                    ECB = ecb,
-                    random = random
-                };
+                var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
+                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
+        
+                ecb.Instantiate(beeSpawn.blueBeePrefab, newBeeArray);
 
-                beeSpawnJob.Schedule();
+                foreach (var instance in newBeeArray)
+                {
+                    ecb.SetComponent(instance, new Translation { Value = position});
+                    ecb.SetComponent(instance, new Bee
+                    {
+                        state = BeeState.Idle
+                    });
+        
+                    ecb.AddComponent(instance, new BlueTeam());
+                }
+                
+                ecb.DestroyEntity(foodPiece);
             }
             
-            if (baseComponent.yellowBase.GetBaseRightCorner().x > position.x)
+            else if (baseComponent.yellowBase.GetBaseRightCorner().x > position.x && position.y < -8)
             {
-                var beeSpawnJob = new YellowBeeSpawnJob()
-                {
-                    ECB = ecb,
-                    random = random
-                };
+                ecb.DestroyEntity(foodPiece);
+                
+                var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
+                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
+        
+                ecb.Instantiate(beeSpawn.yellowBeePrefab, newBeeArray);
 
-                beeSpawnJob.Schedule();
+                foreach (var instance in newBeeArray)
+                {
+                    ecb.SetComponent(instance, new Translation { Value = position});
+                    ecb.SetComponent(instance, new Bee
+                    {
+                        state = BeeState.Idle
+                    });
+        
+                    ecb.AddComponent(instance, new YellowTeam());
+                }
             }
         }
     }
@@ -66,20 +88,25 @@ partial struct YellowBeeSpawnJob : IJobEntity
     [ReadOnly]
     public Random random;
 
-    void Execute(in BeeSpawnAspect beeSpawn, in BaseAspect baseInfo)
+    void Execute(in BeeSpawnAspect beeSpawn)
     {
+        var baseInfo = SystemAPI.GetSingleton<Base>();
+        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
+        var randomSpawn = random.NextFloat3(baseInfo.yellowBase.GetBaseLowerLeftCorner(), baseInfo.yellowBase.GetBaseRightCorner());
         
-        
-        var instance = ECB.Instantiate(beeSpawn.YellowBeePrefab);
-        var randomSpawn = random.NextFloat3(baseInfo.YellowBase.GetBaseLowerLeftCorner(), baseInfo.YellowBase.GetBaseRightCorner());
-        
-        ECB.SetComponent(instance, new Translation { Value = randomSpawn});
-        ECB.SetComponent(instance, new Bee
+        ECB.Instantiate(beeSpawn.YellowBeePrefab, newBeeArray);
+
+        foreach (var instance in newBeeArray)
         {
-            state = BeeState.Idle
-        });
+            ECB.SetComponent(instance, new Translation { Value = randomSpawn});
+            ECB.SetComponent(instance, new Bee
+            {
+                state = BeeState.Idle
+            });
         
-        ECB.AddComponent(instance, new YellowTeam());
+            ECB.AddComponent(instance, new YellowTeam());
+        }
+        
     }
 }
 
@@ -90,17 +117,23 @@ partial struct BlueBeeSpawnJob : IJobEntity
     [ReadOnly]
     public Random random;
 
-    void Execute(in BeeSpawnAspect beeSpawn, in BaseAspect baseInfo)
+    void Execute(in BeeSpawnAspect beeSpawn)
     {
-        var instance = ECB.Instantiate(beeSpawn.BlueBeePrefab);
-        var randomSpawn = random.NextFloat3(baseInfo.BlueBase.GetBaseLowerLeftCorner(), baseInfo.BlueBase.GetBaseRightCorner());
+        var baseInfo = SystemAPI.GetSingleton<Base>();
+        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
+        var randomSpawn = random.NextFloat3(baseInfo.blueBase.GetBaseLowerLeftCorner(), baseInfo.blueBase.GetBaseRightCorner());
         
-        ECB.SetComponent(instance, new Translation { Value = randomSpawn});
-        ECB.SetComponent(instance, new Bee
+        ECB.Instantiate(beeSpawn.BlueBeePrefab, newBeeArray);
+
+        foreach (var instance in newBeeArray)
         {
-            state = BeeState.Idle
-        });
+            ECB.SetComponent(instance, new Translation { Value = randomSpawn});
+            ECB.SetComponent(instance, new Bee
+            {
+                state = BeeState.Idle
+            });
         
-        ECB.AddComponent(instance, new BlueTeam());
+            ECB.AddComponent(instance, new BlueTeam());
+        }
     }
 }

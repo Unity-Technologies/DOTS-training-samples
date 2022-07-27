@@ -8,9 +8,7 @@ namespace Components
     {
         public Entity yellowBeePrefab;
         public Entity blueBeePrefab;
-        public Entity foodPrefab;
 
         public int beeCount;
-        public int foodCount;
     }
 }
