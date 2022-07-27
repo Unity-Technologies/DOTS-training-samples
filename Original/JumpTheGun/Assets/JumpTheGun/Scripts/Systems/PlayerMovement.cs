@@ -1,83 +1,94 @@
+using Unity.Burst;
+using Unity.Transforms;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using Unity.Burst;
 
-
-partial class PlayerMovement : SystemBase
+[BurstCompile]
+partial struct PlayerComponentJob : IJobEntity
 {
-    protected override void OnUpdate()
-    {
-        var dt = Time.DeltaTime;
-        UnityEngine.Camera camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>(); 
-        UnityEngine.Ray ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
-        float3 rayOrigin = ray.origin;
-        float3 rayDirection = ray.direction; 
+    public EntityCommandBuffer.ParallelWriter ECB;
+    public float DeltaTime;
+    public Config config;
+    public float3 rayOrigin;
+    public float3 rayDirection;
+    public EntityManager entityManager;
 
-        //var system = World.GetExistingSystem<ComponentSystemBase>();
-        Config config = World.GetExistingSystem<ComponentSystemBase>().GetSingleton<Config>();
+    void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
+    { 
+        if (config.isPaused)
+            return;
 
-        Entities
-            .WithAll<PlayerComponent>() //ref and in
-            .ForEach((ref TransformAspect transform, ref PlayerComponent playerComponent) =>
-            {
-                if (config.isPaused)
-				    return;
-                Boxes startBox = GetComponent<Boxes>(playerComponent.startBox); 
-                Boxes endBox = GetComponent<Boxes>(playerComponent.endBox); 
-                var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
-                int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
-                 
-                bool occupied = false; 
-                foreach (var tank in SystemAPI.Query<Entity>().WithAll<Tank>()) { 
-                    var tankComponent =  GetComponent<Tank>(tank);
-                    if (tankComponent.column == movePos.x && tankComponent.row == movePos.y)
-                        occupied = true; 
-                }
-                if (occupied) 
-                    movePos = new int2(endBox.column, endBox.row);
-                playerComponent.time += dt;
-                
-                if (playerComponent.isBouncing){
-                    if (playerComponent.time >= playerComponent.duration) {
-                        transform.Position = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config, endBox.top + playerComponent.yOffset);
-                        playerComponent.isBouncing = false;
-                        playerComponent.time = 0;
-                    } else {
-                        transform.Position = bouncePosition(playerComponent.time / playerComponent.duration, playerComponent, config, startBox, endBox);
+        //var startBox = systemBase.GetComponentData<Boxes>(playerComponent.endBox);
+        //systemBase.GetEntityQuery<Boxes>(playerComponent.endBox);
+        //var boxes = systemBase.GetComponentDataFromEntity<Boxes>(true);
+
+
+        //Boxes startBox = GetComponent<Boxes>(playerComponent.startBox); 
+        Boxes startBox = entityManager.GetComponentData<Boxes>(playerComponent.endBox);
+        Boxes endBox = entityManager.GetComponentData<Boxes>(playerComponent.endBox); 
+        //ComponentDataFromEntity<Boxes> name = GetComponentDataFromEntity<Boxes>(true);
+
+
+        var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
+        int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
+            
+        bool occupied = false; 
+
+        /*
+        var tankQuery = entityManager.CreateEntityQuery(typeof(Tank)); 
+        ComponentTypeHandle<Tank> movementHandle = entityManager.GetComponentTypeHandle<Tank>(true);
+        NativeArray <ArchetypeChunk> chunks = tankQuery.ToArchetypeChunkArray(Unity.Collections.Allocator.Temp);
+        for (int i = 0; i < chunks.count; i++){
+            
+        }*/
+
+        foreach (var tank in SystemAPI.Query<Entity>().WithAll<Tank>()) { 
+            var tankComponent =  entityManager.GetComponentData<Tank>(tank);
+            if (tankComponent.column == movePos.x && tankComponent.row == movePos.y)
+                occupied = true; 
+        }
+        if (occupied) 
+            movePos = new int2(endBox.column, endBox.row);
+        playerComponent.time += DeltaTime;
+        
+        if (playerComponent.isBouncing){
+            if (playerComponent.time >= playerComponent.duration) {
+                transform.Position = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config, endBox.top + playerComponent.yOffset);
+                playerComponent.isBouncing = false;
+                playerComponent.time = 0;
+            } else {
+                transform.Position = bouncePosition(playerComponent.time / playerComponent.duration, playerComponent, config, startBox, endBox);
+            }
+
+        } else {
+            startBox = endBox;
+            if (movePos.x == startBox.column && movePos.y == startBox.row) // look for box to bounce to
+                endBox = startBox;  // don't go to new box
+            else {
+                //endBox = TerrainAreaClusters.GetBox(movePos.x, movePos.y, config);
+                foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
+                    Boxes newStartBox = entityManager.GetComponentData<Boxes>(box);
+                    if (newStartBox.row == movePos.x && newStartBox.column == movePos.y){
+                        endBox = newStartBox;
+                        break; 
                     }
-
-                } else {
-                    startBox = endBox;
-                    if (movePos.x == startBox.column && movePos.y == startBox.row) // look for box to bounce to
-                        endBox = startBox;  // don't go to new box
-                    else {
-                        //endBox = TerrainAreaClusters.GetBox(movePos.x, movePos.y, config);
-                        foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
-                            Boxes newStartBox = GetComponent<Boxes>(box);
-                            if (newStartBox.row == movePos.x && newStartBox.column == movePos.y){
-                                endBox = newStartBox;
-                                break; 
-                            }
-                        }
-                        //if (endBox == null) // failsafe
-                            //endBox = startBox;
-                    }
-
-                    Boxes boxRef1 = new Boxes();
-                    Boxes boxRef2 = new Boxes(); 
-                    foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
-                            Boxes newStartBox = GetComponent<Boxes>(box);
-                            if (newStartBox.row == startBox.column && newStartBox.column == endBox.row){
-                                boxRef1 = newStartBox;
-                            }else if (newStartBox.row == endBox.column && newStartBox.column == startBox.row){
-                                boxRef2 = newStartBox;
-                            }
-                        }
-                    Bounce(endBox, playerComponent, endBox, startBox, boxRef1, boxRef2);
                 }
-                
-            }).ScheduleParallel();
+                //if (endBox == null) // failsafe
+                    //endBox = startBox;
+            }
+
+            Boxes boxRef1 = new Boxes();
+            Boxes boxRef2 = new Boxes(); 
+            foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
+                    Boxes newStartBox = entityManager.GetComponentData<Boxes>(box);
+                    if (newStartBox.row == startBox.column && newStartBox.column == endBox.row){
+                        boxRef1 = newStartBox;
+                    }else if (newStartBox.row == endBox.column && newStartBox.column == startBox.row){
+                        boxRef2 = newStartBox;
+                    }
+                }
+            Bounce(endBox, playerComponent, endBox, startBox, boxRef1, boxRef2);
+        }
     }
     
     private static AABB GetBounds(float yOffset, float3 position){
@@ -87,11 +98,11 @@ partial class PlayerMovement : SystemBase
         return bounds; 
     }
 
-    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox){
+    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox, EntityManager entityManager){
         Boxes newStartBox; 
         Entity newStartBoxEntity = new Entity(); 
         foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
-            newStartBox = GetComponent<Boxes>(box);
+            newStartBox = entityManager.GetComponentData<Boxes>(box);
             if (newStartBox.row == row && newStartBox.column == col){
                 newStartBoxEntity = box;
                 break; 
@@ -144,8 +155,7 @@ partial class PlayerMovement : SystemBase
         int2 mouseBoxPos = TerrainAreaClusters.BoxFromLocalPosition(mouseLocalPos, config);
         return mouseBoxPos; 
     }
-
-    
+  
     public static void Bounce(Boxes boxTo, PlayerComponent playerComponent, Boxes endBox, Boxes startBox, Boxes box1, Boxes box2){
         if (playerComponent.isBouncing)
             return;
@@ -175,5 +185,43 @@ partial class PlayerMovement : SystemBase
         float dist = math.distance(startPos, endPos);
         playerComponent.duration = math.max(1, dist) * playerComponent.bounceDuration;
 
+    }
+}
+
+[BurstCompile]
+partial struct PlayerMovement : ISystem
+{
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+    }
+
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    {
+        var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
+        var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        World world = World.DefaultGameObjectInjectionWorld;
+        EntityManager entityManager = world.EntityManager;
+
+        var PlayerJob = new PlayerComponentJob
+        {
+            // Note the function call required to get a parallel writer for an EntityCommandBuffer.
+            ECB = ecb.AsParallelWriter(),
+            DeltaTime = state.Time.DeltaTime, // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
+            rayOrigin = ray.origin,
+            rayDirection = ray.direction, 
+            config = SystemAPI.GetSingleton<Config>(),
+            entityManager = entityManager, 
+        };
+        PlayerJob.Schedule();
     }
 }
