@@ -12,5 +12,7 @@ namespace Components
 
         public int beeCount;
         public int foodCount;
+
+        public int beePulseSpawnCount;
     }
 }

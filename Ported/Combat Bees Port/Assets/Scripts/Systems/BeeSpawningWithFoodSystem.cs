@@ -25,6 +25,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         m_BaseComponent = SystemAPI.GetSingleton<Base>();
+        var beeSpawn = SystemAPI.GetSingleton<InitialSpawn>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -35,8 +36,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
 
             if (m_BaseComponent.blueBase.GetBaseUpperRightCorner().x < position.x && position.y < -8)
             {
-                var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
-                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
+                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beePulseSpawnCount, Allocator.Temp);
         
                 ecb.Instantiate(beeSpawn.blueBeePrefab, newBeeArray);
 
@@ -56,10 +56,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
             
             else if (m_BaseComponent.yellowBase.GetBaseUpperRightCorner().x > position.x && position.y < -8)
             {
-                ecb.DestroyEntity(foodPiece);
-                
-                var beeSpawn = SystemAPI.GetSingleton<BeeSpawnData>();
-                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beeCount, Allocator.Temp);
+                var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beePulseSpawnCount, Allocator.Temp);
         
                 ecb.Instantiate(beeSpawn.yellowBeePrefab, newBeeArray);
 
@@ -73,6 +70,8 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         
                     ecb.AddComponent(instance, new YellowTeam());
                 }
+                
+                ecb.DestroyEntity(foodPiece);
             }
         }
     }
@@ -88,7 +87,7 @@ partial struct YellowBeeSpawnJob : IJobEntity
     void Execute(in BeeSpawnAspect beeSpawn)
     {
         var baseInfo = SystemAPI.GetSingleton<Base>();
-        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
+        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.PulseSpawnCount, Allocator.Temp);
         var randomSpawn = random.NextFloat3(baseInfo.yellowBase.GetBaseLowerLeftCorner(), baseInfo.yellowBase.GetBaseUpperRightCorner());
         
         ECB.Instantiate(beeSpawn.YellowBeePrefab, newBeeArray);
@@ -117,7 +116,7 @@ partial struct BlueBeeSpawnJob : IJobEntity
     void Execute(in BeeSpawnAspect beeSpawn)
     {
         var baseInfo = SystemAPI.GetSingleton<Base>();
-        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.BeeCount, Allocator.Temp);
+        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.PulseSpawnCount, Allocator.Temp);
         var randomSpawn = random.NextFloat3(baseInfo.blueBase.GetBaseLowerLeftCorner(), baseInfo.blueBase.GetBaseUpperRightCorner());
         
         ECB.Instantiate(beeSpawn.BlueBeePrefab, newBeeArray);
