@@ -21,7 +21,9 @@ public partial struct BeeMovementSystem : ISystem
     //Modified each update frame
     private float frameCount;
     private float dt;
+
     private Random rand;
+    private Config config;
 
     private bool tempAttackFlip;
 
@@ -180,6 +182,10 @@ public partial struct BeeMovementSystem : ISystem
                 foodResourceLookup[beeLookup[bd.TargetBee].TargetResource] = foodRes;
             }
 
+            Entity blood = entityCommandBuffer.Instantiate(config.BloodPrefab);
+            entityCommandBuffer.SetComponent<Translation>(blood, transLookup[bd.TargetBee]);
+            entityCommandBuffer.SetComponent<Blood>(blood, new Blood() { State = BloodState.FALLING });
+
             entityCommandBuffer.DestroyEntity(bd.TargetBee);
         }
         else
@@ -246,7 +252,8 @@ public partial struct BeeMovementSystem : ISystem
         // So we need to copy the value we need (DeltaTime) into a local variable.
         dt = state.Time.DeltaTime;
 
-        moveSpeed = SystemAPI.GetSingleton<Config>().BeeSpeed;
+        config = SystemAPI.GetSingleton<Config>();
+        moveSpeed = config.BeeSpeed;
         rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
         frameCount = UnityEngine.Time.frameCount;
         transLookup.Update(ref state);
