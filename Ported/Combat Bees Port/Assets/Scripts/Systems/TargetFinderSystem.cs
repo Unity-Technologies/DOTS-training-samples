@@ -1,3 +1,4 @@
+using System;
 using System.Security.Cryptography;
 using Unity.Burst;
 using Unity.Collections;
@@ -6,6 +7,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using Random = Unity.Mathematics.Random;
@@ -32,17 +34,20 @@ partial class TargetFinderSystem : SystemBase
             
             EntityQuery _foodQuery = GetEntityQuery(typeof(Food));
             _food = _foodQuery.ToEntityArray(allocator);
+
             
-            //Set Targets for all Blue bees.
+
+
+             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
-                if (aggression && !(_blueBees == null) && bee.state == BeeState.Idle)
+                if (aggression && _blueBees.Length != 0 && bee.state == BeeState.Idle)
                 {
                     bee.target = _blueBees[rnd.NextInt(_blueBees.Length)];
                     bee.state = BeeState.Attacking;
                 }
 
-                if (!aggression && !(_food == null) && bee.state == BeeState.Idle)
+                if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
                 {  
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
@@ -53,14 +58,14 @@ partial class TargetFinderSystem : SystemBase
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
-                if (aggression && !(_yellowBees == null) && bee.state == BeeState.Idle)
+                if (aggression && _yellowBees.Length != 0 && bee.state == BeeState.Idle)
                 {
                     bee.target = _yellowBees[rnd.NextInt(_yellowBees.Length)];
                     bee.state = BeeState.Attacking;
                     
                 }
 
-                if (!aggression && !(_food == null) && bee.state == BeeState.Idle)
+                if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
                 {
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
