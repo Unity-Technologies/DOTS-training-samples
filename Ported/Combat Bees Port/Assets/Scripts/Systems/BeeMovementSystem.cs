@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -18,8 +19,12 @@ partial class BeeMovementSystem : SystemBase
             float offsetValue = 1f;
             Random random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
             float3 target = new float3(5, 0, 0);
-            float3 yellowBase = new float3(-45, 0, 0);
-            float3 blueBase = new float3(45, 0, 0);
+
+            var baseComponent = GetSingleton<Base>();
+            var baseEntity = GetSingletonEntity<Base>();
+
+            float3 yellowBase = baseComponent.yellowBase.GetCenter();
+            float3 blueBase = baseComponent.blueBase.GetCenter();
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
         
@@ -36,7 +41,11 @@ partial class BeeMovementSystem : SystemBase
                     noise.cnoise(new float2(et, offsetValue))
                 );
 
-                if (HasComponent<LocalToWorld>(bee.target))
+                if (bee.target == baseEntity)
+                {
+                    target = bee.targetPos;
+                }
+                else if (bee.target != Entity.Null && HasComponent<LocalToWorld>(bee.target))
                 {
                     target = GetComponent<LocalToWorld>(bee.target).Position;
                 }
@@ -56,42 +65,40 @@ partial class BeeMovementSystem : SystemBase
                 
                 if (bee.state == BeeState.Attacking)
                 {
-                    if (math.distancesq(position, target) < 0.5f)
+                    if (math.distancesq(position, target) < 0.25f)
                     {
                         bee.targetPos = position;
                         ecb.DestroyEntity(bee.target);
+                        bee.target = Entity.Null;
                         bee.state = BeeState.Idle;
                     }
                 }
                 
                 if (bee.state == BeeState.Collecting)
                 {
-                    if (math.distancesq(position, target) < 0.5f)
+                    if (math.distancesq(position, target) < 0.25f)
                     {
-                        var component = new Food();
-                        if (HasComponent<Food>(bee.target))
-                        {
-                            component = GetComponent<Food>(bee.target);
-                        }
-                        
+                        var component = GetComponent<Food>(bee.target);
+
                         component.target = beeEntity;
-                        component.targetPos = translation.Value;
                         target = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
-                        bee.target = new Entity();
+                        bee.target = baseEntity;
+                        bee.targetPos = HasComponent<YellowTeam>(beeEntity) ? yellowBase : blueBase;
                         bee.state = BeeState.Hauling;
                     }
                 }
 
                 if (bee.state == BeeState.Hauling)
                 {
-                    if (math.distancesq(position, target) < 0.5f)
+                    if (math.distancesq(position, target) < 0.25f)
                     {
                         bee.state = BeeState.Idle;
+                        bee.target = Entity.Null;
                     }
                 }
                 
             }).Run();
-            ecb.Playback(this.EntityManager);
+            ecb.Playback(EntityManager);
             ecb.Dispose();
             
             void CheckBounds(ref float3 position)
