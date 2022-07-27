@@ -31,7 +31,14 @@ partial struct DropFoodSystem : ISystem
             timeSinceLastDrop = 0.0f;
         }
 
-        UpdatePositionOfFallingFood(ref state);
+        foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
+        {
+            if (foodResource.ValueRW.State == FoodState.FALLING)
+            {
+                UpdatePositionOfFallingFood(ref state, ref config, foodResource, transform);
+            }
+        }
+
     }
 
     public void RandomlyDropFoodInPlayArea(ref SystemState state)
@@ -54,22 +61,14 @@ partial struct DropFoodSystem : ISystem
         }
     }
 
-    public void UpdatePositionOfFallingFood(ref SystemState state)
-    {
-        var config = SystemAPI.GetSingleton<Config>();
-
         foreach (var (foodResource, transform) in SystemAPI.Query<RefRW<FoodResource>, TransformAspect>())
+    {
+        var position = new float3(transform.Position.x, transform.Position.y - config.FallingSpeed, transform.Position.z);
+        if (position.y <= 0.0f)
         {
-            if (foodResource.ValueRW.State == FoodState.FALLING)
-            {
-                var position = new float3(transform.Position.x, transform.Position.y - config.FallingSpeed, transform.Position.z);
-                if (position.y <= 0.0f)
-                {
-                    position.y = 0.0f;
-                    foodResource.ValueRW.State = FoodState.SETTLED;
-                }
-                transform.Position = position;
-            }
+            position.y = 0.0f;
+            foodResource.ValueRW.State = FoodState.SETTLED;
         }
+        transform.Position = position;
     }
 }
