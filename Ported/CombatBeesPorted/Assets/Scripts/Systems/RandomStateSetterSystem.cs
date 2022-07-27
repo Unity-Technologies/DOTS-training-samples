@@ -46,6 +46,8 @@ public partial struct RandomStateSetterSystem : ISystem
     
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        
         _resourceQuery = state.GetEntityQuery(new EntityQueryDesc
         {
             All = new ComponentType[] { },
