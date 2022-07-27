@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct Jitter : IComponentData, IEnableableComponent
+struct Bee : IComponentData, IEnableableComponent
 {
     public float JitterTime;
 }
