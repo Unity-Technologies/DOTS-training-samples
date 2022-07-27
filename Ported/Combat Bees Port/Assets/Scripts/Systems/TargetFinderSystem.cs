@@ -35,12 +35,15 @@ partial class TargetFinderSystem : SystemBase
             EntityQuery _foodQuery = GetEntityQuery(typeof(Food));
             _food = _foodQuery.ToEntityArray(allocator);
 
-            
-
-
-             //Set Targets for all Blue bees.
+            //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
             {
+                if (!Exists(bee.target))
+                {
+                    bee.state = BeeState.Idle;
+                    bee.target = Entity.Null;
+                }
+                
                 if (aggression && _blueBees.Length != 0 && bee.state == BeeState.Idle)
                 {
                     bee.target = _blueBees[rnd.NextInt(_blueBees.Length)];
@@ -58,6 +61,12 @@ partial class TargetFinderSystem : SystemBase
             //Set Targets for all Yellow bees.
             Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
             {
+                if (!Exists(bee.target))
+                {
+                    bee.state = BeeState.Idle;
+                    bee.target = Entity.Null;
+                }
+
                 if (aggression && _yellowBees.Length != 0 && bee.state == BeeState.Idle)
                 {
                     bee.target = _yellowBees[rnd.NextInt(_yellowBees.Length)];
