@@ -59,8 +59,9 @@ namespace Systems
                             xCarComponent.Speed = 1f;
                         }
                     }
-
-                    // ecb.SetComponent(entities[x], xCarComponent);
+                    
+                    // Debug.Log(xCarComponent.T);
+                    ecb.SetComponent(entities[x], xCarComponent);
                 }
             }
         }
