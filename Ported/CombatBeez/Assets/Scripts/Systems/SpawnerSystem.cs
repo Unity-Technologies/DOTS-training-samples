@@ -33,6 +33,7 @@ partial struct SpawnerSystem : ISystem
         {
             transform.Position = new float3(-45, 10, 0);
             bee.ValueRW.SpawnPoint = transform.Position;
+            bee.ValueRW.beeTeam = Team.BLUE;
         }
 
         state.EntityManager.Instantiate(config.YellowBeePrefab, config.TeamYellowBeeCount, Allocator.Temp);
@@ -40,6 +41,7 @@ partial struct SpawnerSystem : ISystem
         {
             transform.Position = new float3(45, 10, 0);
             bee.ValueRW.SpawnPoint = transform.Position;
+            bee.ValueRW.beeTeam = Team.YELLOW;
         }
 
         state.EntityManager.Instantiate(config.FoodResourcePrefab, config.FoodResourceCount, Allocator.Temp);
