@@ -1,6 +1,5 @@
 using Components;
 using Unity.Entities;
-using Util;
 using Unity.Mathematics;
 
 namespace Authoring
@@ -19,13 +18,13 @@ namespace Authoring
             var end = authoring.End.transform;
             AddComponent(new RoadSegment
             {
-                Start = new Spline.RoadTerminator()
+                Start = new RoadTerminator()
                 {
                     Position = new float3(0,0,0),
                     Normal = new float3(0,1,0),
                     Tangent = new float3(0,0,1)
                 },
-                End = new Spline.RoadTerminator
+                End = new RoadTerminator
                 {
                     Position = new float3(0,0,100),
                     Normal = new float3(0,1,0),
