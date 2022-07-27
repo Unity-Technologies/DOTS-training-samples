@@ -20,13 +20,23 @@ namespace Systems
         void Execute(ref CarAspect carAspect)
         {
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
-            var t = math.clamp(carAspect.T + ((carAspect.Speed * DT / rs.Length)), 0, 1);
+            var carT = math.clamp(carAspect.T + ((carAspect.Speed * DT / rs.Length)), 0, 1);
+            
+            // Cars in lane 2 and 4 go backwards alone the spline
+            var directionalT = carAspect.LaneNumber % 2 == 1 ? carT : -carT;
+            
+            // Center of the spline
+            var splinePos = Spline.EvaluatePosition(rs.Start, rs.End, directionalT);
 
-            var pos = Spline.EvaluatePosition(rs.Start, rs.End, t);
-            var rot = Spline.EvaluateRotation(rs.Start, rs.End, t);
+            // TODO: local2world
+            var offset = Spline.GetLocalCarOffset(carAspect.LaneNumber);
 
-            carAspect.T = t;
-            carAspect.Position = pos;
+            // TODO: spin rot if backwards
+            var rot = Spline.EvaluateRotation(rs.Start, rs.End, directionalT);
+            
+
+            carAspect.T = carT;
+            carAspect.Position = splinePos + offset;
             carAspect.Rotation = rot;
         }
     }

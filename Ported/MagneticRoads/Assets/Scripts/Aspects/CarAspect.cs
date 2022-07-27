@@ -35,6 +35,12 @@ namespace Aspects
             set => m_Car.ValueRW.T = value;
         }
         
+        public int LaneNumber
+        {
+            get => m_Car.ValueRO.LaneNumber;
+            set => m_Car.ValueRW.LaneNumber = value;
+        }
+        
         public Entity RoadSegment
         {
             get => m_Car.ValueRO.RoadSegment;
