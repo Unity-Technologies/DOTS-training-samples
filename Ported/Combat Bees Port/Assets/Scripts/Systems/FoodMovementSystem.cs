@@ -27,7 +27,11 @@ partial class FoodMovementSystem : SystemBase
                         food.targetPos = targetPos;
                         translation.Value = food.targetPos;
                     }
-                    else translation.Value += gravity * dt;
+                    else
+                    {
+                        translation.Value += gravity * dt;
+                        food.target = Entity.Null;
+                    }
                     
                 }
                 else translation.Value += gravity * dt;
