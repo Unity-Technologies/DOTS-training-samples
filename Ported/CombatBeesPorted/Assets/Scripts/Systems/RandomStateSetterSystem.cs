@@ -47,14 +47,8 @@ public partial struct RandomStateSetterSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        
-        _resourceQuery = state.GetEntityQuery(new EntityQueryDesc
-        {
-            All = new ComponentType[] { },
-            Any = new ComponentType[]
-                { typeof(ResourceStateGrabbable), typeof(ResourceStateGrabbed), typeof(ResourceStateStacked) },
-            None = new ComponentType[] { },
-        });
+
+        _resourceQuery = state.GetEntityQuery(typeof(Resource));
         
         _blueTeamAllQuery = state.GetEntityQuery(typeof(BlueTeam));
         _blueTeamIdleQuery = state.GetEntityQuery(typeof(BlueTeam), typeof(BeeStateIdle));

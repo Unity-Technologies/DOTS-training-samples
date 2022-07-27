@@ -3,44 +3,61 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Random = Unity.Mathematics.Random;
 
 [WithAll(typeof(BeeStateGathering))]
-[CreateAfter(typeof(WorldSetupSystem))]
 [BurstCompile]
 partial struct BeeGatherJob : IJobEntity
 {
     public float GatherRadius;
     [ReadOnly] public StorageInfoFromEntity TargetStorageInfo;
     [ReadOnly] public ComponentDataFromEntity<Translation> TargetTranslationComponentData;
-    public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
-    public ComponentDataFromEntity<ResourceStateGrabbed> ResourceStateGrabbedComponentData;
+    [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
+    [ReadOnly] public ComponentDataFromEntity<BlueTeam> BlueTeamComponentData;
+    public EntityCommandBuffer ECB;
+    public Config config;
+    public uint RandomSeed;
 
-    void Execute(Entity e, in Translation position, ref TargetPosition targetPosition, in EntityOfInterest entityOfInterest)
+    void Execute(Entity entity, in Translation position, ref TargetPosition targetPosition, in EntityOfInterest entityOfInterest)
     {
         Entity targetEntity = entityOfInterest.Value;
-
         if (TargetStorageInfo.Exists(targetEntity))
         {
-            if (ResourceStateGrabbableComponentData.IsComponentEnabled(targetEntity))
+            if (TargetTranslationComponentData.HasComponent(targetEntity))
             {
-                if (TargetTranslationComponentData.HasComponent(targetEntity))
+                targetPosition.Value = TargetTranslationComponentData[targetEntity].Value;
+                
+                if (ResourceStateGrabbableComponentData.IsComponentEnabled(targetEntity))
                 {
-                    targetPosition.Value = TargetTranslationComponentData[targetEntity].Value;
-
                     float dist = math.distance(position.Value, targetPosition.Value);
 
                     if (dist < GatherRadius)
                     {
-                        // 
+                        // Set Resource states
+                        ECB.SetComponentEnabled<ResourceStateGrabbed>(targetEntity, true);
+                        ECB.SetComponentEnabled<ResourceStateGrabbable>(targetEntity, false);
 
-                        // set states
+                        // Set Bee states
+                        ECB.SetComponentEnabled<BeeStateGathering>(entity, false);
+                        ECB.SetComponentEnabled<BeeStateReturning>(entity, true);
+
+                        var rand = Random.CreateFromIndex(RandomSeed + (uint)entity.Index);
+                        float randY = rand.NextFloat(position.Value.y + 1.5f, config.PlayVolume.y);
+                        float x = config.PlayVolume.x * 2;
+                        x *= BlueTeamComponentData.HasComponent(entity) ? -1f : 1f;
+                        targetPosition.Value = math.float3(x, randY, position.Value.z);
                     }
                 }
             }
+
         }
         else
         {
             // do busted state stuff
+            ECB.SetComponentEnabled<BeeStateGathering>(entity, false);
+            ECB.SetComponentEnabled<BeeStateIdle>(entity, true);
+
+            targetPosition.Value = position.Value;
         }
     }
 }
@@ -51,7 +68,7 @@ public partial struct BeeGatheringSystem : ISystem
     private StorageInfoFromEntity storageInfo;
     private ComponentDataFromEntity<Translation> translationComponentData;
     private ComponentDataFromEntity<ResourceStateGrabbable> resourceStateGrabbableComponentData;
-    private ComponentDataFromEntity<ResourceStateGrabbed> resourceStateGrabbedComponentData;
+    private ComponentDataFromEntity<BlueTeam> blueTeamComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -59,7 +76,7 @@ public partial struct BeeGatheringSystem : ISystem
         storageInfo = state.GetStorageInfoFromEntity();
         translationComponentData = state.GetComponentDataFromEntity<Translation>();
         resourceStateGrabbableComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbable>();
-        resourceStateGrabbedComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbed>();
+        blueTeamComponentData = state.GetComponentDataFromEntity<BlueTeam>();
 
         state.RequireForUpdate<Config>();
     }
@@ -78,7 +95,10 @@ public partial struct BeeGatheringSystem : ISystem
         storageInfo.Update(ref state);
         translationComponentData.Update(ref state);
         resourceStateGrabbableComponentData.Update(ref state);
-        resourceStateGrabbedComponentData.Update(ref state);
+        blueTeamComponentData.Update(ref state);
+
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var gatherJob = new BeeGatherJob()
         {
@@ -86,7 +106,10 @@ public partial struct BeeGatheringSystem : ISystem
             TargetStorageInfo = storageInfo,
             TargetTranslationComponentData = translationComponentData,
             ResourceStateGrabbableComponentData = resourceStateGrabbableComponentData,
-            ResourceStateGrabbedComponentData = resourceStateGrabbedComponentData
+            BlueTeamComponentData = blueTeamComponentData,
+            ECB = ecb,
+            config = config,
+            RandomSeed = (uint)UnityEngine.Time.frameCount
         };
 
         gatherJob.Schedule();
