@@ -7,19 +7,30 @@ using UnityEngine;
 [BurstCompile]
 partial class FoodMovementSystem : SystemBase
 {
+    ComponentDataFromEntity<NotCollected> _notCollected;
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        _notCollected = GetComponentDataFromEntity<NotCollected>();
+    }
+    
     [BurstCompile]
     protected override void OnUpdate()
     {
+        _notCollected.Update(this);
+        
+        var notCollected = _notCollected;
         var dt = Time.DeltaTime;
         float3 gravity = new float3(0f, -9.81f, 0f);
-        
+        var baseInfo = SystemAPI.GetSingleton<Base>();
         
         Entities
             .WithAll<Food>()
-            .ForEach((ref Translation translation, ref Food food) =>
+            .ForEach((ref Translation translation, ref Food food, ref Entity foodEntity) =>
             {
                 CheckBounds(ref translation.Value);
-                if (HasComponent<Bee>(food.target))
+                if (Exists(food.target))
                 {
                     if (GetComponent<Bee>(food.target).state == BeeState.Hauling)
                     {
@@ -32,9 +43,21 @@ partial class FoodMovementSystem : SystemBase
                         translation.Value += gravity * dt;
                         food.target = Entity.Null;
                     }
-                    
                 }
-                else translation.Value += gravity * dt;
+                else
+                {
+                    // notCollected.SetComponentEnabled(foodEntity, true);
+                    if (translation.Value.x > baseInfo.blueBase.GetBaseBorderX() || translation.Value.x < baseInfo.yellowBase.GetBaseBorderX())
+                    {
+                        notCollected.SetComponentEnabled(foodEntity, false);
+                    }
+                    else
+                    {
+                        notCollected.SetComponentEnabled(foodEntity, true);
+                    }
+                    
+                    translation.Value += gravity * dt;
+                }
             }).Run();
         
         void CheckBounds(ref float3 position)

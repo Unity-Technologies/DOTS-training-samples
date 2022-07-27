@@ -44,6 +44,17 @@ namespace DefaultNamespace
             return new float3(position.x - offsetX, offsetY, position.z + offsetZ);
         }
 
+        public float GetBaseBorderX()
+        {
+            var offset = 15;
+            if (position.x < 0)
+            {
+                offset *= -1;
+            }
+
+            return position.x - offset;
+        }
+
         [Obsolete]
         public float3 GetRandomPositionInBase(Random random)
         {

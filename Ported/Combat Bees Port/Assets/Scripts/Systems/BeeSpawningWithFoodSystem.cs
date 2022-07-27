@@ -8,14 +8,13 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct BeeSpawningWithFoodSystem : ISystem
 {
-    ComponentDataFromEntity<NotCollected> m_notCollected;
     Base m_BaseComponent;
     ComponentDataFromEntity<LocalToWorld> m_LocalToWorldFromEntity;
+
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        m_notCollected = SystemAPI.GetComponentDataFromEntity<NotCollected>();
     }
 
     [BurstCompile]
@@ -26,8 +25,6 @@ partial struct BeeSpawningWithFoodSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        m_notCollected.Update(ref state);
-        var notCollected = m_notCollected;
         m_BaseComponent = SystemAPI.GetSingleton<Base>();
         var beeSpawn = SystemAPI.GetSingleton<InitialSpawn>();
 
@@ -38,7 +35,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         {
             var position = translation.ValueRO.Value;
 
-            if (m_BaseComponent.blueBase.GetBaseUpperRightCorner().x < position.x && position.y < -8)
+            if (m_BaseComponent.blueBase.GetBaseUpperRightCorner().x <= position.x && position.y < -8)
             {
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beePulseSpawnCount, Allocator.Temp);
         
@@ -58,7 +55,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
                 ecb.DestroyEntity(foodPiece);
             }
             
-            else if (m_BaseComponent.yellowBase.GetBaseUpperRightCorner().x > position.x && position.y < -8)
+            else if (m_BaseComponent.yellowBase.GetBaseUpperRightCorner().x >= position.x && position.y < -8)
             {
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beePulseSpawnCount, Allocator.Temp);
         

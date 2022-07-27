@@ -11,7 +11,6 @@ using Random = Unity.Mathematics.Random;
 
 partial class BeeMovementSystem : SystemBase
 {
-    
     ComponentDataFromEntity<NotCollected> _notCollected;
     
     protected override void OnCreate()
@@ -19,6 +18,7 @@ partial class BeeMovementSystem : SystemBase
         base.OnCreate();
         _notCollected = GetComponentDataFromEntity<NotCollected>();
     }
+    
     protected override void OnUpdate()
     {
             _notCollected.Update(this);
