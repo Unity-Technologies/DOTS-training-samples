@@ -56,12 +56,12 @@ namespace Systems
                         }
                         else
                         {
-                            xCarComponent.Speed = 1f;
+                            xCarComponent.Speed = 10f;
                         }
                     }
                     
                     // Debug.Log(xCarComponent.T);
-                    ecb.SetComponent(entities[x], xCarComponent);
+                    // ecb.SetComponent(entities[x], xCarComponent);
                 }
             }
         }
