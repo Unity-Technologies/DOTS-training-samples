@@ -178,7 +178,7 @@ MonoBehaviour:
   bucketFillRate: 0.01
   bucketSize_EMPTY: 0.2
   bucketSize_FULL: 0.4
-  TerrainCellPrefab: {fileID: 1980673038591031170, guid: bec2e43f760876240848f9f24ddd1574,
+  TerrainCellPrefab: {fileID: 6197299267711999515, guid: 0028222f115edf64f872cd65c9725c33,
     type: 3}
   BucketPrefab: {fileID: 1022128548504865220, guid: 2ae136e6325a3a7478adda0ae3c70b95,
     type: 3}
@@ -187,7 +187,7 @@ MonoBehaviour:
   prefab_flameCell: {fileID: 0}
   startingFireCount: 1
   maxFlameHeight: 0.1
-  cellSize: 0.05
+  cellSize: 1
   rows: 20
   columns: 20
   flashpoint: 0.5
@@ -230,3 +230,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridSize: 0
   FireThreshold: 0
+  FireFighterLinesCount: 0
+  FireFighterPerLineCount: 0

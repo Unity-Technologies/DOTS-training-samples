@@ -155,17 +155,17 @@ public class Spawner : MonoBehaviour
     }
 }
 
-class WaterSpawnerBaker : Baker<Spawner>
-{
-    public override void Bake(Spawner authoring)
-    {
-        AddComponent(new WaterCellConfig
-        {
-            TerrainCellPrefab = GetEntity(authoring.TerrainCellPrefab),
-            CellCount = 10,
-        });
-    }
-}
+//class WaterSpawnerBaker : Baker<Spawner>
+//{
+//    public override void Bake(Spawner authoring)
+//    {
+//        AddComponent(new WaterCellConfig
+//        {
+//            TerrainCellPrefab = GetEntity(authoring.TerrainCellPrefab),
+//            CellCount = 10,
+//        });
+//    }
+//}
 
 class BucketSpawnerBaker : Baker<Spawner>
 {
@@ -175,6 +175,19 @@ class BucketSpawnerBaker : Baker<Spawner>
         {
             Prefab = GetEntity(authoring.BucketPrefab),
             Count = 10,
+            GridSize = authoring.rows
+        });
+    }
+}
+
+class TerrainCellSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new TerrainCellConfig
+        {
+            Prefab = GetEntity(authoring.TerrainCellPrefab),
+            CellSize = authoring.cellSize,
             GridSize = authoring.rows
         });
     }
