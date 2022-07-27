@@ -14,7 +14,15 @@ using Random = Unity.Mathematics.Random;
 
 partial class TargetFinderSystem : SystemBase
 {
-    [BurstCompile]
+    ComponentDataFromEntity<NotCollected> _notCollected;
+
+    
+    protected override void OnCreate()
+    {
+        base.OnCreate();
+        _notCollected = GetComponentDataFromEntity<NotCollected>();
+    }
+    
     protected override void OnUpdate()
     {
             NativeArray<Entity> _yellowBees;
@@ -27,13 +35,16 @@ partial class TargetFinderSystem : SystemBase
             var allocator = World.UpdateAllocator.ToAllocator;
             
             EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
-            _yellowBees = _yellowBeeQuery.ToEntityArray(Allocator.Persistent);
+            _yellowBees = _yellowBeeQuery.ToEntityArray(allocator);
             
             EntityQuery _blueBeesQuery = GetEntityQuery(typeof(BlueTeam));
-            _blueBees = _blueBeesQuery.ToEntityArray(Allocator.Persistent);
+            _blueBees = _blueBeesQuery.ToEntityArray(allocator);
             
-            EntityQuery _foodQuery = GetEntityQuery(typeof(Food));
-            _food = _foodQuery.ToEntityArray(Allocator.Persistent);
+            EntityQuery _foodQuery = GetEntityQuery(typeof(NotCollected));
+            _food = _foodQuery.ToEntityArray(allocator);
+            _notCollected.Update(this);
+
+            var notCollected = _notCollected;
 
             //Set Targets for all Blue bees.
             Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
@@ -51,7 +62,9 @@ partial class TargetFinderSystem : SystemBase
                 }
 
                 if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
-                {  
+                {
+                    Entity food = _food[rnd.NextInt(_food.Length)];
+                    notCollected.SetComponentEnabled(food, false);
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }
@@ -76,6 +89,8 @@ partial class TargetFinderSystem : SystemBase
 
                 if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
                 {
+                    Entity food = _food[rnd.NextInt(_food.Length)];
+                    notCollected.SetComponentEnabled(food, false);
                     bee.target = _food[rnd.NextInt(_food.Length)];
                     bee.state = BeeState.Collecting;
                 }

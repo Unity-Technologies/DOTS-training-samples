@@ -15,5 +15,6 @@ class FoodBaker : Baker<FoodAuthoring>
         {
             target = Entity.Null,
         });
+        AddComponent<NotCollected>();
     }
 }
