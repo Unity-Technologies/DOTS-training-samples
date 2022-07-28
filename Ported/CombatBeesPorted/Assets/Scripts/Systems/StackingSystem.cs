@@ -58,7 +58,6 @@ public partial struct StackingSystem : ISystem
     private EntityQuery _grabbableResourceQuery;
     private ComponentDataFromEntity<Translation> _translationGrabbableResource;
     
-    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
