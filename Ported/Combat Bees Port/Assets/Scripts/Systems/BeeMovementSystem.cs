@@ -112,12 +112,6 @@ partial struct BeeMovementSystem : ISystem
             
             for (int j = 0; j < chunk.Count; j++)
             {
-                _notCollected.Update(ref state);
-                _yellowTeam.Update(ref state);
-                localToWorld.Update(ref state);
-                food.Update(ref state);
-                _bee.Update(ref state);
-                
                 var entity = entities[j];
                 var translation = translations[j];
                 var bee = bees[j];
@@ -130,7 +124,7 @@ partial struct BeeMovementSystem : ISystem
 
                 var position = translation.Value;
 
-                SpeedHandler(bee, ref speed, ref state);
+                SpeedHandler(bee, ref speed, random);
 
                 var floatOne = new float3(0.45f, 0.5f, 1);
 
@@ -171,7 +165,7 @@ partial struct BeeMovementSystem : ISystem
                         bee.targetPos = randomPlaceInSpawn;
                         target = bee.targetPos;
                     }
-                    if (math.distance(position, target) < 0.25f)
+                    else if (math.distance(position, target) < 0.25f)
                     {
                         bee.targetPos = float3.zero;
                         ecb2.DestroyEntity(bee.target);
@@ -263,9 +257,8 @@ partial struct BeeMovementSystem : ISystem
         if (position.z > 10) position.z = 10;
     }
 
-    void SpeedHandler(Bee bee, ref float speed, ref SystemState state)
+    void SpeedHandler(in Bee bee, ref float speed, Random random)
     {
-        Random random = Random.CreateFromIndex(state.GlobalSystemVersion);
         if (bee.state == BeeState.Attacking) speed = random.NextFloat(30f, 45f);
         if (bee.state == BeeState.Collecting) speed = random.NextFloat(15f, 30f);
         if (bee.state == BeeState.Hauling) speed = random.NextFloat(10f, 30f);
