@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public partial struct FarmerTargetController : ISystem
@@ -25,8 +26,9 @@ public partial struct FarmerTargetController : ISystem
 
 public  partial struct FindTargetJob: IJobEntity
 {
-    public void Execute(TargetPosition targetPosition, ref Velocity velocity)
+    public void Execute(TargetPosition targetPosition, ref Velocity velocity, in TransformAspect farmerPosition)
     {
-        velocity.value = targetPosition.Target;
+        //if(farmerPosition.Position==targetPosition.Target)
+       // velocity.value = targetPosition.Target;
     }
 }
