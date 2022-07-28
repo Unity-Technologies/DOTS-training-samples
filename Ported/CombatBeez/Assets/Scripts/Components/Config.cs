@@ -14,4 +14,8 @@ struct Config : IComponentData
     public float FoodResourceDropRatePerSecond;
     public float FallingSpeed;
     public float BeeSpeed;
+
+    public uint RandomNumberSeed;
+    public int MinNumberOfBeesSpawned;
+    public int MaxNumberOfBeesSpawned;
 }

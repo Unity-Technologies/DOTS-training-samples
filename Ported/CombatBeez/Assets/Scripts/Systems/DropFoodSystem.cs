@@ -15,7 +15,7 @@ partial struct DropFoodSystem : ISystem
     {
         state.RequireForUpdate<Config>();
 
-        rand = new Random(123);
+        rand = new Random();
         timeSinceLastDrop = 0.0f;
     }
 
@@ -28,6 +28,11 @@ partial struct DropFoodSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+
+        if (rand.state == 0)
+        {
+            rand.InitState(config.RandomNumberSeed);
+        }
 
         // Create an EntityCommandBuffer.
         var ecb = new EntityCommandBuffer(state.WorldUpdateAllocator);
@@ -113,7 +118,7 @@ partial struct DropFoodSystem : ISystem
         }
 
         // spawn bees similar to spawner system
-        NativeArray<Entity> spawnedBees = state.EntityManager.Instantiate(beePrefab, 10, Allocator.Temp);
+        NativeArray<Entity> spawnedBees = state.EntityManager.Instantiate(beePrefab, rand.NextInt(config.MinNumberOfBeesSpawned, config.MaxNumberOfBeesSpawned), Allocator.Temp);
 
         // add tag for newly spawned stuff by default and remove it after initialization
 
