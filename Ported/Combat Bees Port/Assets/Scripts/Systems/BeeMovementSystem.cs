@@ -54,7 +54,6 @@ partial struct BeeMovementSystem : ISystem
         food.Update(ref state);
         _bee.Update(ref state);
         
-        var notCollected = _notCollected;
         var dt = Time.deltaTime;
         var et = (float)state.Time.ElapsedTime;
         var speed = 10f;
@@ -112,6 +111,12 @@ partial struct BeeMovementSystem : ISystem
             
             for (int j = 0; j < chunk.Count; j++)
             {
+                _notCollected.Update(ref state);
+                _yellowTeam.Update(ref state);
+                localToWorld.Update(ref state);
+                food.Update(ref state);
+                _bee.Update(ref state);
+                
                 var entity = entities[j];
                 var translation = translations[j];
                 var bee = bees[j];
@@ -156,8 +161,15 @@ partial struct BeeMovementSystem : ISystem
 
                 
 
-                if (bee.state == BeeState.Attacking && _bee.HasComponent(bee.target))
+                if (bee.state == BeeState.Attacking)
                 {
+                    if(!_bee.HasComponent(bee.target))
+                    {
+                        bee.state = BeeState.Idle;
+                        bee.target = baseEntity;
+                        bee.targetPos = randomPlaceInSpawn;
+                        target = bee.targetPos;
+                    }
                     if (math.distance(position, target) < 0.25f)
                     {
                         bee.targetPos = float3.zero;
@@ -167,14 +179,15 @@ partial struct BeeMovementSystem : ISystem
                         bee.state = BeeState.Idle;
                     }
                 } 
-                else if (bee.state == BeeState.Collecting)
+                else if (bee.state == BeeState.Collecting && food.HasComponent(bee.target))
                 {
-                    /*if (!notCollected.HasComponent(bee.target))
+                    if (bee.target == Entity.Null || !_notCollected.IsComponentEnabled(bee.target))
                     {
                         bee.state = BeeState.Idle;
                         bee.target = baseEntity;
                         bee.targetPos = randomPlaceInSpawn;
-                    }*/
+                        target = bee.targetPos;
+                    }
                     
                     if (math.distance(position, target) < 0.25f)
                     {
@@ -182,7 +195,7 @@ partial struct BeeMovementSystem : ISystem
                         component.target = entity;
                         ecb.SetComponent(bee.target, component);
                         
-                        notCollected.SetComponentEnabled(bee.target, false);
+                        _notCollected.SetComponentEnabled(bee.target, false);
 
                         bee.target = baseEntity;
                         bee.targetPos = randomPlaceInSpawn;
