@@ -46,7 +46,7 @@ partial class FoodMovementSystem : SystemBase
                 }
                 else
                 {
-                    if (translation.Value.x > baseInfo.blueBase.GetBaseBorderX() || translation.Value.x < baseInfo.yellowBase.GetBaseBorderX())
+                    if (translation.Value.x >= baseInfo.blueBase.GetBaseBorderX() || translation.Value.x <= baseInfo.yellowBase.GetBaseBorderX() || translation.Value.y > -9)
                     {
                         notCollected.SetComponentEnabled(foodEntity, false);
                     }
