@@ -23,13 +23,8 @@ partial struct WaterBringerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        
         var ffConfig = SystemAPI.GetSingleton<FireFighterConfig>();
-        
-        // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
+
         var allStartPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
         var allEndPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
         foreach (var fireFighterLine in SystemAPI.Query<RefRO<FireFighterLine>>())
@@ -43,7 +38,6 @@ partial struct WaterBringerSystem : ISystem
         {
             StartPositions = allStartPositions,
             EndPositions = allEndPositions,
-            ECB = ecb
         };
 
         // Schedule execution in a single thread, and do not block main thread.
@@ -65,15 +59,14 @@ partial struct WaterBringerFindNewTarget : IJobEntity
     [DeallocateOnJobCompletion]
     public NativeArray<float2> EndPositions;
     
-    public EntityCommandBuffer ECB;
-
     // Note that the TurretAspects parameter is "in", which declares it as read only.
     // Making it "ref" (read-write) would not make a difference in this case, but you
     // will encounter situations where potential race conditions trigger the safety system.
     // So in general, using "in" everywhere possible is a good principle.
-    void Execute(in Entity entity)
+    void Execute( ref LineId lineId, ref LineIndex lineIndex, ref Target target)
     {
-        
-        ECB.SetComponent(entity, new Target{ Value =  new float2 (10,10 )});
+        var multiplier = ((float)lineIndex.Value / (float)(StartPositions.Length - 1));
+        var pos = StartPositions[lineId.Value] + multiplier * (EndPositions[lineId.Value] - StartPositions[lineId.Value]);
+        target.Value = pos;
     }
 }

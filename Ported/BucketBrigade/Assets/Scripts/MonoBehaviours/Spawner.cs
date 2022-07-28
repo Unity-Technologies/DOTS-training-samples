@@ -66,6 +66,8 @@ public class Spawner : MonoBehaviour
 
     [Header("FIRE FIGHTER")]
     public GameObject FireFighterPrefab;
+    [Range(0, 10)]
+    public float Speed = 0.5f;
 
     [Header("LINE")]
     public int linesCount = 2;
@@ -252,7 +254,7 @@ class BrigadeSpawnerBaker : Baker<Spawner>
     {
         AddComponent(new BrigadeConfig
         {
-            Speed = 1.5f
+            Speed = authoring.Speed
         });
     }
 }

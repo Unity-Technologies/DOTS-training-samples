@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct Movement : ISystem
 {
     [BurstCompile]
@@ -36,8 +37,23 @@ public partial struct Movement : ISystem
         [BurstCompile]
         void Execute(ref Translation translation, in Target target)
         {
-            var direction = math.normalize(target.Value - translation.Value.xz);
+            var remaining = target.Value - translation.Value.xz;
+            var remainingDistance = math.length(remaining);
+            
+            // distance tolerance to avoid NaN on small vector calculations
+            if (remainingDistance < 0.001f)
+            {
+                return;
+            }
+
+            var direction = math.normalize(remaining);
             var displacement = direction * Speed * Time;
+
+            if (remainingDistance < math.length(displacement))
+            {
+                displacement = remaining;
+            }
+
             translation.Value += new float3 { xz = displacement };
         }
     }
