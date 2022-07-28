@@ -5,6 +5,10 @@ using Unity.Transforms;
 
 public partial class TankRotationSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate<PlayerComponent>();
+    }
     protected override void OnUpdate()
     {
         float deltaTime = this.Time.DeltaTime;

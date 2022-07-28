@@ -38,8 +38,8 @@ partial class CannonBallSpawner : SystemBase
                 }
 
                 config.tankLaunchPeriod = currentTime + 2;
-                UnityEngine.Debug.Log("config.tankLaunchPeriod " + config.tankLaunchPeriod);
-                UnityEngine.Debug.Log("current time "+ currentTime);
+                //UnityEngine.Debug.Log("config.tankLaunchPeriod " + config.tankLaunchPeriod);
+                //UnityEngine.Debug.Log("current time "+ currentTime);
 
                 var newEntity = ecb.Instantiate(turret.cannonBall);
                 var spawnPoint = m_LocalToWorldFromEntity[turret.cannonBallSpawn];
