@@ -123,83 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &437390310
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: yOffset
-      value: 0.36
-      objectReference: {fileID: 0}
-    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: duration
-      value: 0.33
-      objectReference: {fileID: 0}
-    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: bounceHeight
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: bounceDuration
-      value: 0.63
-      objectReference: {fileID: 0}
-    - target: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_Name
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4706935489534444, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
 --- !u!1001 &500808172
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -216,7 +139,7 @@ PrefabInstance:
     - target: {fileID: 4468126865560299953, guid: b1cfa6e50c592d44182a29d99ea2d696,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4468126865560299953, guid: b1cfa6e50c592d44182a29d99ea2d696,
         type: 3}
@@ -375,6 +298,8 @@ MonoBehaviour:
   tankPrefab: {fileID: 4468126865560299948, guid: b1cfa6e50c592d44182a29d99ea2d696,
     type: 3}
   boxPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
+  playerPrefab: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
+    type: 3}
   tankCount: 4
   terrainWidth: 0.41
   terrainLength: 11
@@ -402,5 +327,5 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

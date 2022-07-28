@@ -4,12 +4,11 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
-
+/*
 [BurstCompile]
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct PlayerSpawner : ISystem
 {
-    // Queries should not be created on the spot in OnUpdate, so they are cached in fields.
     EntityQuery playerQuery;
     EntityQuery boxQuery;
     ComponentDataFromEntity<Boxes> boxesFromEntity;
@@ -41,16 +40,16 @@ partial struct PlayerSpawner : ISystem
         var queryMask = playerQuery.GetEntityQueryMask();
 
         ecb.Instantiate(config.playerPrefab, players);
+        //ecb.Playback(state.WorldUnmanaged.EntityManager);
+
         boxesFromEntity.Update(ref state);
         
         pcFromEntity.Update(ref state);
 
         foreach (var player in players)
         {
-            UnityEngine.Debug.Log("This happens");
-            //PlayerComponent pc = pcFromEntity[player];
-            PlayerComponent pc = new PlayerComponent(); 
-            UnityEngine.Debug.Log("This does not happen");
+            PlayerComponent pc = pcFromEntity[config.playerPrefab];
+            UnityEngine.Debug.Log("Looping over players, but better");
             ecb.SetComponentForLinkedEntityGroup(player, queryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
         }
         state.Enabled = false;
@@ -58,9 +57,11 @@ partial struct PlayerSpawner : ISystem
 
     public static PlayerComponent PlayerProperties(ComponentDataFromEntity<Boxes> boxesFromEntity, Config config, NativeArray<Entity> boxes, PlayerComponent prefabData)
     {
+        UnityEngine.Debug.Log("we have a box");
         var pc = prefabData;
+        pc.para.paraA = 1;
         foreach (Entity box in boxes){
-            UnityEngine.Debug.Log("we have a box");
+            UnityEngine.Debug.Log("we have a better box");
             pc.startBox = box;
             Boxes boxRef = boxesFromEntity[box]; 
             float3 pcPos = Spawn(boxRef.row,boxRef.column, pc , config, boxRef, boxesFromEntity, boxes);
@@ -73,6 +74,7 @@ partial struct PlayerSpawner : ISystem
     Config config, Boxes startBox, ComponentDataFromEntity<Boxes> boxesFromEntity, NativeArray<Entity> boxes){
         Boxes newStartBox; 
         Entity newStartBoxEntity = new Entity(); 
+        UnityEngine.Debug.Log("we here");
         
         foreach (var box in boxes) { 
             newStartBox = boxesFromEntity[box];
@@ -88,4 +90,4 @@ partial struct PlayerSpawner : ISystem
         return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
     }
     
-}
+}*/

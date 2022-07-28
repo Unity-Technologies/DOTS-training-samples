@@ -21,17 +21,14 @@ partial struct PlayerComponentJob : IJobEntity
 
     void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
     { 
+        
         if (config.isPaused)
             return;
 
-        Boxes startBox = new Boxes(); 
-        Boxes endBox = new Boxes();
 
-        foreach (Entity box in boxes){
-            startBox = boxesFromEntity[box]; //box = playerComponent.endBox
-            endBox = boxesFromEntity[box];
-            break;
-        }
+        Boxes startBox = boxesFromEntity[playerComponent.startBox]; //box = playerComponent.endBox
+        Boxes endBox = boxesFromEntity[playerComponent.endBox];
+
 
         var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
         int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
@@ -258,5 +255,7 @@ partial struct PlayerMovement : ISystem
             entityManager = entityManager, 
         };
         PlayerJob.Schedule();
+
+        //PlayerJob.Complete(); 
     }
 }
