@@ -44,8 +44,8 @@ partial struct FireFighterLineSystem : ISystem
                     int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
                     int cellColumnIndex = cellIndex % gridSize;
                     var newPoint = new float2(cellRowIndex, cellColumnIndex);
-                    if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
-                        math.distance(fireFighterLine.ValueRO.StartPosition, newPoint))
+                    if (math.distancesq(fireFighterLine.ValueRO.StartPosition, closestPoint) >
+                        math.distancesq(fireFighterLine.ValueRO.StartPosition, newPoint))
                     {
                         closestPoint = newPoint;
                     }

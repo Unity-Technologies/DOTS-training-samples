@@ -13,6 +13,7 @@ partial struct BucketBringerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<FireFighterConfig>();
+        state.RequireForUpdate<TerrainCellConfig>();
     }
 
     [BurstCompile]
@@ -24,6 +25,7 @@ partial struct BucketBringerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var ffConfig = SystemAPI.GetSingleton<FireFighterConfig>();
+        var tConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         var allStartPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
         var allEndPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
@@ -38,7 +40,8 @@ partial struct BucketBringerSystem : ISystem
         {
             StartPositions = allStartPositions,
             EndPositions = allEndPositions,
-            FFCountPerLine = ffConfig.PerLinesCount
+            FFCountPerLine = ffConfig.PerLinesCount,
+            CellSize = tConfig.CellSize
         };
 
         // Schedule execution in a single thread, and do not block main thread.
@@ -61,6 +64,7 @@ partial struct BucketBringerFindNewTarget : IJobEntity
     public NativeArray<float2> EndPositions;
     
     public int FFCountPerLine;
+    public float CellSize;
     
     // Note that the TurretAspects parameter is "in", which declares it as read only.
     // Making it "ref" (read-write) would not make a difference in this case, but you
@@ -70,6 +74,6 @@ partial struct BucketBringerFindNewTarget : IJobEntity
     {
         var multiplier = ((float)lineIndex.Value / (float)(FFCountPerLine - 1));
         var pos = EndPositions[lineId.Value] + multiplier * (StartPositions[lineId.Value] - EndPositions[lineId.Value]);
-        target.Value = pos;
+        target.Value = pos*CellSize;
     }
 }
