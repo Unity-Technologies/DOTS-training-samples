@@ -211,7 +211,10 @@ class TerrainCellSpawnerBaker : Baker<Spawner>
         {
             Prefab = GetEntity(authoring.TerrainCellPrefab),
             CellSize = authoring.cellSize,
-            GridSize = authoring.rows
+            GridSize = authoring.rows,
+            NeutralCol = authoring.colour_fireCell_neutral,
+            CoolCol = authoring.colour_fireCell_cool,
+            HotCol = authoring.colour_fireCell_hot,
         });
     }
 }

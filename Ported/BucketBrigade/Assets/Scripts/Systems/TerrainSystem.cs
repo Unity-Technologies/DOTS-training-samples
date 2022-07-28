@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Rendering;
 
 [BurstCompile]
 partial struct TerrainSpawningSystem : ISystem
@@ -44,6 +45,8 @@ partial struct TerrainSpawningSystem : ISystem
         {
             ecb.SetComponent(cell, new Translation { Value = new float3((i % GridSize) * CellSize, 0.0f, Mathf.Ceil(i / GridSize) * CellSize) + offset });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3( CellSize, CellSize*2, CellSize) });
+            ecb.AddComponent<URPMaterialPropertyBaseColor>(cell);
+            ecb.SetComponent(cell, new Fire{ Index = i});
 
             HeatMap.Add(new Temperature { Value = 0f });
 
