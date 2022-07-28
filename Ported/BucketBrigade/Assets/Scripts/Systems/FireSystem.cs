@@ -89,10 +89,13 @@ partial struct FireSystem : ISystem
                                         1.0f);
 
                 var gap = 1 - ((1 - temperature) / (1 - threshold));
-                var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap;
+                var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap - TerrainConfig.FlickerRange;
+                height += (TerrainConfig.FlickerRange * 0.5f) + Mathf.PerlinNoise((Time.time - fire.ValueRO.Index) * TerrainConfig.FlickerRate - temperature, temperature) * TerrainConfig.FlickerRange;
+
                 translation.ValueRW.Value.y = height;
 
             }
+            
 
             color.ValueRW.Value = colorValue;
         }

@@ -63,6 +63,8 @@ public class Spawner : MonoBehaviour
     public int heatRadius = 1;
     [Tooltip("How fast will adjascent cells heat up?")]
     public float heatTransferRate = 0.7f;
+    public float flickerRate = 0.1f;
+    public float flickerRange = 0.1f;
 
     [Header("FIRE FIGHTER")]
     public GameObject FireFighterPrefab;
@@ -139,6 +141,8 @@ class TerrainCellSpawnerBaker : Baker<Spawner>
         {
             Prefab = GetEntity(authoring.TerrainCellPrefab),
             CellSize = authoring.cellSize,
+            FlickerRange = authoring.flickerRange,
+            FlickerRate = authoring.flickerRate,
             GridSize = authoring.rows,
             NeutralCol = authoring.colour_fireCell_neutral,
             CoolCol = authoring.colour_fireCell_cool,
