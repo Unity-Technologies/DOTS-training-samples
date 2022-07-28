@@ -6,7 +6,7 @@ using Unity.Collections;
 using Random = Unity.Mathematics.Random;
 
 [WithAll(typeof(BeeStateGathering))]
-//[BurstCompile]
+[BurstCompile]
 partial struct BeeGatherJob : IJobEntity
 {
     public float GatherRadius;

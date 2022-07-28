@@ -30,6 +30,11 @@ partial struct RandomStateSetterJob : IJobEntity
             ECB.SetComponentEnabled<BeeStateAttacking>(chunkIndex, entity, true);
             ECB.SetComponent(chunkIndex, entity, new EntityOfInterest{ Value = EnemyTeam[enemyBeeIndex] });
         }
+        else
+        {
+            // If there is no valid targets left, then all bees will hover in the middle.
+            ECB.SetComponent(chunkIndex, entity, new TargetPosition());
+        }
     }
 }
 
