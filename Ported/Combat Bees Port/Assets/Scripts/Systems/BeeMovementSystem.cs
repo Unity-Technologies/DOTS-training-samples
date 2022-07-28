@@ -47,9 +47,9 @@ partial class BeeMovementSystem : SystemBase
                 
                 SpeedHandler(bee);
 
-                var floatOne = new float3(1, 1, 1);
+                var floatOne = new float3(0.45f, 0.5f, 1);
                 
-                var scaleOffsetFloat = floatOne * (floatOne +new float3(speed, speed, speed) /100);
+                var scaleOffsetFloat = floatOne * (floatOne +new float3(1, 1, speed) / 30);
 
                 scaleComponent.Value = scaleOffsetFloat;
                 
