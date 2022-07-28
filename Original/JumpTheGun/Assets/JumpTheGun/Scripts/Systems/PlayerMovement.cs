@@ -15,8 +15,6 @@ partial struct PlayerComponentJob : IJobEntity
     
     public Unity.Collections.NativeArray<Entity> tanks; 
     public Unity.Collections.NativeArray<Entity> boxes; 
-    public Unity.Collections.NativeArray<Boxes> boxesComponent; 
-    public Unity.Collections.NativeArray<Tank> tankComponent; 
 
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Tank> tankFromEntity;
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity;
@@ -26,6 +24,7 @@ partial struct PlayerComponentJob : IJobEntity
         if (config.isPaused)
             return;
 
+        UnityEngine.Debug.Log("yo yo");
         Boxes startBox = boxesFromEntity[playerComponent.startBox];
         Boxes endBox = boxesFromEntity[playerComponent.endBox];
 
@@ -89,24 +88,6 @@ partial struct PlayerComponentJob : IJobEntity
         bounds.Center = position;
         bounds.Extents = new float3(yOffset * 2, yOffset * 2, yOffset * 2);
         return bounds; 
-    }
-
-    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox, ComponentDataFromEntity<Boxes> boxesFromEntity){
-        Boxes newStartBox; 
-        Entity newStartBoxEntity = new Entity(); 
-        foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
-            newStartBox = boxesFromEntity[box];
-            if (newStartBox.row == row && newStartBox.column == col){
-                newStartBoxEntity = box;
-                break; 
-            }
-        }
-
-        playerComponent.startBox = newStartBoxEntity;
-		playerComponent.endBox = playerComponent.startBox;
-
-        float top = startBox.top; 
-        return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
     }
 
     private static float3 bouncePosition(float t, PlayerComponent playerComponent, Config config, Boxes startBox, Boxes endBox){
@@ -182,21 +163,77 @@ partial struct PlayerComponentJob : IJobEntity
     }
 }
 
+
+[BurstCompile]
+partial struct PlayerComponentStartJob : IJobEntity
+{
+    public Config config;
+    public Unity.Collections.NativeArray<Entity> boxes; 
+
+     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity; 
+
+    void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
+    { 
+        foreach(Entity box in boxes){
+            var chosenBox = boxesFromEntity[box]; 
+            Spawn(chosenBox.row,chosenBox.column, playerComponent, config, chosenBox, boxesFromEntity);
+            break;
+        }
+    }
+
+    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox, ComponentDataFromEntity<Boxes> boxesFromEntity){
+        Boxes newStartBox; 
+        Entity newStartBoxEntity = new Entity(); 
+        foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
+            newStartBox = boxesFromEntity[box];
+            if (newStartBox.row == row && newStartBox.column == col){
+                newStartBoxEntity = box;
+                break; 
+            }
+        }
+
+        playerComponent.startBox = newStartBoxEntity;
+		playerComponent.endBox = playerComponent.startBox;
+
+        float top = startBox.top; 
+        return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
+    }
+}
+
 [BurstCompile]
 partial struct PlayerMovement : ISystem
 {
     private EntityQuery boxQuery;
     private EntityQuery tankQuery;
+
     ComponentDataFromEntity<Tank> tankFromEntity;
     ComponentDataFromEntity<Boxes> boxesFromEntity;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        UnityEngine.Debug.Log("This runs");
+        state.RequireForUpdate<Config>();
+        state.RequireForUpdate<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    [BurstCompile]
+    public void Start(ref SystemState state){
+        var config = SystemAPI.GetSingleton<Config>();
         tankFromEntity = state.GetComponentDataFromEntity<Tank>(true);
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
         boxQuery = state.GetEntityQuery(typeof(Boxes));
         tankQuery = state.GetEntityQuery(typeof(Tank));
+        boxesFromEntity.Update(ref state);
+        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+
+        var PlayerJob = new PlayerComponentStartJob
+        {
+            config = config,
+            boxesFromEntity = boxesFromEntity,
+            boxes = boxEntities,
+        };
+        PlayerJob.Schedule();
     }
 
     [BurstCompile]
@@ -208,32 +245,36 @@ partial struct PlayerMovement : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var boxBoxes = boxQuery.ToComponentDataArray<Boxes>(Unity.Collections.Allocator.TempJob);
-        var tankTank = tankQuery.ToComponentDataArray<Tank>(Unity.Collections.Allocator.TempJob);
+        var config = SystemAPI.GetSingleton<Config>();
+        UnityEngine.Debug.Log("This doesn't runs");
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+       // var boxBoxes = boxQuery.ToComponentDataArray<Boxes>(Unity.Collections.Allocator.TempJob);
+        //var tankTank = tankQuery.ToComponentDataArray<Tank>(Unity.Collections.Allocator.TempJob);
         var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var tankEntities = tankQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
         var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         World world = World.DefaultGameObjectInjectionWorld;
         EntityManager entityManager = world.EntityManager;
         tankFromEntity.Update(ref state);
         boxesFromEntity.Update(ref state);
 
+        UnityEngine.Debug.Log("Yoity yo");
+
         var PlayerJob = new PlayerComponentJob
         {
             tanks = tankEntities,
             boxes = boxEntities,
-            boxesComponent = boxBoxes,
-            tankComponent = tankTank,
+            //boxesComponent = boxBoxes,
+            //tankComponent = tankTank,
             tankFromEntity = tankFromEntity, 
             boxesFromEntity = boxesFromEntity,
             ECB = ecb.AsParallelWriter(),
             DeltaTime = state.Time.DeltaTime, // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
             rayOrigin = ray.origin,
             rayDirection = ray.direction, 
-            config = SystemAPI.GetSingleton<Config>(),
+            config = config,
             entityManager = entityManager, 
         };
         PlayerJob.Schedule();
