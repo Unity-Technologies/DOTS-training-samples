@@ -39,7 +39,7 @@ partial struct TerrainSpawningSystem : ISystem
         var HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
 
         int i = 0;
-        var offset = new float3(-GridSize * CellSize * 0.5f, -CellSize, -GridSize * CellSize * 0.5f);
+        var offset = new float3(-GridSize * CellSize * 0.5f + CellSize * 0.5f, -CellSize, -GridSize * CellSize * 0.5f + CellSize * 0.5f);
         foreach (var cell in terrainCell)
         {
             ecb.SetComponent(cell, new Translation { Value = new float3((i % GridSize) * CellSize, 0.0f, Mathf.Ceil(i / GridSize) * CellSize) + offset });

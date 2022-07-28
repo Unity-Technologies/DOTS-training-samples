@@ -30,10 +30,16 @@ public class Spawner : MonoBehaviour
     public float bucketSize_EMPTY = 0.2f;
     [Tooltip("Visual scale of bucket when FULL (no effect on water capacity)")]
     public float bucketSize_FULL = 0.4f;
+    [Range(0, 100)]
+    [Tooltip("Visual scale of bucket when FULL (no effect on water capacity)")]
+    public int waterCellCount = 10;
 
     [Header("FIRE")]
     [Tooltip("Terrain Cell Prefab")]
     public GameObject TerrainCellPrefab;
+    [Tooltip("Water Cell Prefab")]
+    public GameObject WaterCellPrefab;
+    [Tooltip("Bucket Prefab")]
     public GameObject BucketPrefab;
     public Entity PrefabTest;
     public Mesh TerrainCellMesh;
@@ -167,17 +173,19 @@ public class Spawner : MonoBehaviour
     //}
 }
 
-//class WaterSpawnerBaker : Baker<Spawner>
-//{
-//    public override void Bake(Spawner authoring)
-//    {
-//        AddComponent(new WaterCellConfig
-//        {
-//            TerrainCellPrefab = GetEntity(authoring.TerrainCellPrefab),
-//            CellCount = 10,
-//        });
-//    }
-//}
+class WaterSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new WaterCellConfig
+        {
+            WaterCellPrefab = GetEntity(authoring.WaterCellPrefab),
+            CellCount = authoring.waterCellCount,
+            CellSize = authoring.cellSize,
+            GridSize = authoring.rows
+        });
+    }
+}
 
 class BucketSpawnerBaker : Baker<Spawner>
 {
@@ -186,7 +194,7 @@ class BucketSpawnerBaker : Baker<Spawner>
         AddComponent(new BucketConfig
         {
             Prefab = GetEntity(authoring.BucketPrefab),
-            Count = 10,
+            Count = authoring.totalBuckets,
             GridSize = authoring.rows,
             CellSize = authoring.cellSize
         });

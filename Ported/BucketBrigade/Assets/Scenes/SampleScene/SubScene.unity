@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &880526325
+--- !u!1 &788859353
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,8 +131,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 880526326}
-  - component: {fileID: 880526327}
+  - component: {fileID: 880526332}
+  - component: {fileID: 880526331}
   - component: {fileID: 880526329}
   - component: {fileID: 880526330}
   m_Layer: 0
@@ -142,28 +142,42 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &880526326
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880526325}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &880526327
+--- !u!114 &880526329
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880526325}
+  m_GameObject: {fileID: 788859353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dcdb7c06ab04a088be4ccdb09fe3e45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitialFireCount: 2
+  FireThreshold: 0.5
+  FireUpdateRate: 0.5
+  FireFighterLinesCount: 0
+  FireFighterPerLineCount: 0
+--- !u!114 &880526330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788859353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5994b2e22d7c5a945b1260dfe13d5b82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &880526331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 788859353}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5885f9bc20a64c24982d5a9cb32208c8, type: 3}
@@ -173,12 +187,15 @@ MonoBehaviour:
   coolingStrength: 1
   coolingStrength_falloff: 0.75
   refillRate: 0.0001
-  totalBuckets: 3
+  totalBuckets: 10
   bucketCapacity: 3
   bucketFillRate: 0.01
   bucketSize_EMPTY: 0.2
   bucketSize_FULL: 0.4
+  waterCellCount: 20
   TerrainCellPrefab: {fileID: 6197299267711999515, guid: 0028222f115edf64f872cd65c9725c33,
+    type: 3}
+  WaterCellPrefab: {fileID: 1980673038591031170, guid: bec2e43f760876240848f9f24ddd1574,
     type: 3}
   BucketPrefab: {fileID: 1022128548504865220, guid: 2ae136e6325a3a7478adda0ae3c70b95,
     type: 3}
@@ -211,32 +228,18 @@ MonoBehaviour:
     type: 3}
   FireFighterLineCount: 4
   FireFightersPerLineCount: 10
---- !u!114 &880526329
-MonoBehaviour:
+--- !u!4 &880526332
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880526325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9dcdb7c06ab04a088be4ccdb09fe3e45, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  InitialFireCount: 2
-  FireThreshold: 0.5
-  FireUpdateRate: 0.5
-  FireFighterLinesCount: 0
-  FireFighterPerLineCount: 0
---- !u!114 &880526330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880526325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5994b2e22d7c5a945b1260dfe13d5b82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_GameObject: {fileID: 788859353}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

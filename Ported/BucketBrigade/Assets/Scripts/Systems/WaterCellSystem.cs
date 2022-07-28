@@ -50,13 +50,38 @@ partial struct WaterCellSpawningSystem : ISystem
         var waterCell = CollectionHelper.CreateNativeArray<Entity>(config.CellCount, Allocator.Temp);
 
         
-        ecb.Instantiate(config.TerrainCellPrefab, waterCell);
+        ecb.Instantiate(config.WaterCellPrefab, waterCell);
 
 
         int i = 0;
+        Unity.Mathematics.Random rand = new Unity.Mathematics.Random((uint)(config.CellSize * config.CellCount * config.GridSize));
+        float offset = config.GridSize * config.CellSize * 0.5f + 0.5f;
         foreach (var cell in waterCell)
         {
-            ecb.SetComponent(cell, new Translation { Value = new float3(i, 0, i) });
+            switch(i % 4)
+            {
+                case 0:
+                    {
+                        ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-offset, offset), 0, -offset) });
+                    }
+                    break;
+                case 1:
+                    {
+                        ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-offset, offset), 0, offset) });
+                    }
+                    break;
+                case 2:
+                    {
+                        ecb.SetComponent(cell, new Translation { Value = new float3(-offset, 0, rand.NextFloat(-offset, offset) ) });
+                    }
+                    break;
+                case 3:
+                default:
+                    {
+                        ecb.SetComponent(cell, new Translation { Value = new float3(offset, 0, rand.NextFloat(-offset, offset)) });
+                    }
+                    break;
+            }
             ++i;
         }
 

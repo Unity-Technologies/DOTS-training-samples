@@ -36,14 +36,6 @@ partial struct FireFighterSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<FireFighterConfig>();
 
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        //var entityArray = CollectionHelper.CreateNativeArray<Entity>((config.PerLinesCount * 2 + 2) * config.LinesCount , Allocator.Temp);
-
-
-        //ecb.Instantiate(config.FireFighterPrefab, entityArray);
-
         var WaterBringersEntity = InitFireFighter(ref state, config, new ComponentType[] { 
             typeof(WaterBringer), 
             typeof(Target), 
