@@ -27,27 +27,27 @@ public class MouseInput : MonoBehaviour
         raycastSphere = Instantiate(raycastPrefab);
         raycastSphere.SetActive(false);
 
-        viewDist = 70f;
+        viewDist = 150f;
         smoothViewDist = viewDist;
     }
 
     private void Update()
     {
-        //MouseOrbit();
+        MouseOrbit();
     }
 
     private void MouseOrbit()
     {
         if (Input.GetKey(KeyCode.Mouse1))
         {
-            viewAngles.x += Input.mousePosition.x * sensitivity / Screen.height;
-            viewAngles.y -= Input.mousePosition.y * sensitivity / Screen.height;
+            viewAngles.x += Input.GetAxis("Mouse X") * sensitivity / Screen.height;
+            viewAngles.y -= Input.GetAxis("Mouse Y") * sensitivity / Screen.height;
 
             viewAngles.y = Mathf.Clamp(viewAngles.y, -89f, 89f);
         }
 
-        viewDist -= Input.mouseScrollDelta.y * zoomSensitivity * viewDist;
-        viewDist = Mathf.Clamp(viewDist, 5f, 80f);
+        viewDist -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity * viewDist;
+        viewDist = Mathf.Clamp(viewDist, 5f, 150f);
 
         smoothViewAngles = Vector2.Lerp(smoothViewAngles, viewAngles, stiffness * Time.deltaTime);
         smoothViewDist = Mathf.Lerp(smoothViewDist, viewDist, stiffness * Time.deltaTime);
