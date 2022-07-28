@@ -2,9 +2,51 @@ using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 
 namespace Systems
 {
+    [BurstCompile]
+    partial struct LaneTrafficJob : IJobEntity
+    {
+        public EntityCommandBuffer.ParallelWriter ECB;
+        [ReadOnly] public ComponentDataFromEntity<Car> CarDataFromEntity;
+        [ReadOnly] public ComponentDataFromEntity<RoadSegment> RoadSegmentDataFromEntity;
+        public float MaxSpeed;
+        public float BrakingDistance;
+        
+        public void Execute([ChunkIndexInQuery] int chunkIndex, in DynamicBuffer<CarDynamicBuffer> buffer)
+        {
+            var entities = buffer.AsNativeArray().Reinterpret<Entity>();
+
+            for (int x = 0; x < entities.Length; x++)
+            {
+                var carX = CarDataFromEntity[entities[x]];
+                var road = RoadSegmentDataFromEntity[carX.RoadSegment];
+                    
+                var tValueX = CarDataFromEntity[entities[x]].T;
+                carX.Speed = MaxSpeed;
+
+                for (int y = 0; y < entities.Length; y++)
+                {
+                    var tValueY = CarDataFromEntity[entities[y]].T;
+
+                    // X is behind and must brake
+                    if (tValueY > tValueX)
+                    {
+                        var distance = (tValueY - tValueX) * road.Length;
+                        if (distance < BrakingDistance)
+                        {
+                            carX.Speed = 0;
+                        }
+                    }
+                }
+
+                ECB.SetComponent(chunkIndex, entities[x], carX);
+            }
+        }
+    }
+    
     [UpdateAfter(typeof(TestSplineSpawnerSystem))]
     [BurstCompile]
     partial struct CarSpeedSystem : ISystem
@@ -31,41 +73,18 @@ namespace Systems
             m_CarDataFromEntity.Update(ref state);
             m_RoadSegmentDataFromEntity.Update(ref state);
 
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-            // This can probably become a parrelel job
-            foreach (var buffer in SystemAPI.Query<DynamicBuffer<CarDynamicBuffer>>())
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            var trafficJob = new LaneTrafficJob
             {
-                var entities = buffer.AsNativeArray().Reinterpret<Entity>();
-
-                // Sort entities
-                for (int x = 0; x < entities.Length; x++)
-                {
-                    var carX = m_CarDataFromEntity[entities[x]];
-                    var road = m_RoadSegmentDataFromEntity[carX.RoadSegment];
-                    
-                    var tValueX = m_CarDataFromEntity[entities[x]].T;
-                    carX.Speed = MaxSpeed;
-
-                    for (int y = 0; y < entities.Length; y++)
-                    {
-                        var tValueY = m_CarDataFromEntity[entities[y]].T;
-
-                        // X is behind and must brake
-                        if (tValueY > tValueX)
-                        {
-                            var distance = (tValueY - tValueX) * road.Length;
-                            if (distance < BrakingDistance)
-                            {
-                                carX.Speed = 0;
-                            }
-                        }
-                    }
-
-                    ecb.SetComponent(entities[x], carX);
-                }
-            }
-
+                ECB = ecb.AsParallelWriter(),
+                CarDataFromEntity = m_CarDataFromEntity,
+                RoadSegmentDataFromEntity = m_RoadSegmentDataFromEntity,
+                MaxSpeed = MaxSpeed,
+                BrakingDistance = BrakingDistance
+            };
+            trafficJob.ScheduleParallel();
+            state.Dependency.Complete();
+            
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
         }
