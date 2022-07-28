@@ -34,17 +34,13 @@ partial struct DropFoodSystem : ISystem
             rand.InitState(config.RandomNumberSeed);
         }
 
-        // Create an EntityCommandBuffer.
-        var ecb = new EntityCommandBuffer(state.WorldUpdateAllocator);
-
-        timeSinceLastDrop += state.Time.DeltaTime;
-
-        if ((1.0f / config.FoodResourceDropRatePerSecond) <= timeSinceLastDrop)
+        if (config.FoodResourceDropRatePerSecond != 0)
         {
-            state.EntityManager.Instantiate(config.FoodResourcePrefab, 1, Allocator.Temp);
-            timeSinceLastDrop = 0.0f;
+            DropFoodInPlayArea(ref state, ref config);
         }
 
+        // Create an EntityCommandBuffer.
+        var ecb = new EntityCommandBuffer(state.WorldUpdateAllocator);
         // Component type FoodResource is implicitly defined by the query so no WithAll is needed.
         // WithAll puts ADDITIONAL requirements on the query.
         foreach (var (entity, foodResource, transform) in SystemAPI.Query<Entity, RefRW<FoodResource>, TransformAspect>())
@@ -66,10 +62,21 @@ partial struct DropFoodSystem : ISystem
                     break;
             }
         }
-
         // Playback and dispose the EntityCommandBuffer.
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
+    }
+
+    [BurstCompile]
+    public void DropFoodInPlayArea(ref SystemState state, ref Config config)
+    {
+        timeSinceLastDrop += state.Time.DeltaTime;
+
+        if (config.FoodResourceDropRatePerSecond != 0 && ((1.0f / config.FoodResourceDropRatePerSecond) <= timeSinceLastDrop))
+        {
+            state.EntityManager.Instantiate(config.FoodResourcePrefab, 1, Allocator.Temp);
+            timeSinceLastDrop = 0.0f;
+        }
     }
 
     [BurstCompile]
