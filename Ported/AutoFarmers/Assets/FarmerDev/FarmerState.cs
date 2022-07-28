@@ -6,5 +6,5 @@ public enum FarmerState
 {
     SearchingForTarget,
     GoingToTarget,
-    Working
+    HittingRock
 }

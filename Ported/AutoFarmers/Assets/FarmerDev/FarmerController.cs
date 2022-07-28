@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -23,6 +24,7 @@ public partial struct FarmerController : ISystem
     }
 }
 
+[BurstCompile]
 public partial struct FarmerJob : IJobEntity
 {
     public float deltaTime;

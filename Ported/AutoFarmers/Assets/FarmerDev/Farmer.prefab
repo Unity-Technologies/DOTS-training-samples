@@ -101,6 +101,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  Target:
+    x: 5.64
+    y: 0
+    z: 3.34
 --- !u!1 &8868837664730088111
 GameObject:
   m_ObjectHideFlags: 0
