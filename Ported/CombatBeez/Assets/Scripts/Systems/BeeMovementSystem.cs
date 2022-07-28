@@ -3,10 +3,30 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using Unity.Burst;
+using Unity.Profiling;
+
+[BurstCompile]
+partial struct MoveBeeJob : IJobEntity
+{
+    public float DeltaTime;
+
+    void Execute(ref Translation beeTranslation)
+    {
+
+    }
+}
 
 [BurstCompile]
 public partial struct BeeMovementSystem : ISystem
 {
+    static ProfilerMarker s_PreparePerfMarker_IDLE;
+    static ProfilerMarker s_PreparePerfMarker_CARRY;
+    static ProfilerMarker s_PreparePerfMarker_FORAGE;
+    static ProfilerMarker s_PreparePerfMarker_ATTACK;
+    static ProfilerMarker s_PreparePerfMarker_MOVINGTOTARGET;
+    static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_1;
+    static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_2;
+
     private float moveSpeed;
     private float ocilateMag;
 
@@ -31,6 +51,13 @@ public partial struct BeeMovementSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        s_PreparePerfMarker_IDLE = new ProfilerMarker("ExecuteIdleState");
+        s_PreparePerfMarker_CARRY = new ProfilerMarker("ExecuteCarryState");
+        s_PreparePerfMarker_FORAGE = new ProfilerMarker("ExecuteForageState");
+        s_PreparePerfMarker_ATTACK = new ProfilerMarker("ExecuteAttackState");
+        s_PreparePerfMarker_MOVINGTOTARGET = new ProfilerMarker("MovingToTarget");
+        s_PreparePerfMarker_ASSIGNMOVE_1 = new ProfilerMarker("AssigningMovement1");
+        s_PreparePerfMarker_ASSIGNMOVE_2 = new ProfilerMarker("AssigningMovement2");
 
         ocilateMag = 20f;
 
@@ -73,9 +100,7 @@ public partial struct BeeMovementSystem : ISystem
         NativeArray<Entity> resourceEntities,
         NativeArray<Translation> foodLocations,
         TransformAspect beeTransformAspect,
-        ref Bee bdata,
-        ref SystemState sState,
-        RefRW<NonUniformScale> beeScale)
+        ref Bee bdata)
     {
         //This state picks one of the other states to go to...
         //This function picks a resource/bee to move towards and then moves to the next state
@@ -107,8 +132,6 @@ public partial struct BeeMovementSystem : ISystem
         {
             if (frameCount % 15 == 0)
                 bdata.Target = beeTransformAspect.Position + rand.NextFloat3(-0.25f, 0.25f);
-
-            MoveToTarget(beeTransformAspect, ref bdata, beeScale);
         }
 
         //Calculate whether this bee's next move is to attack or not, based on the config.AttackChance value
@@ -133,7 +156,7 @@ public partial struct BeeMovementSystem : ISystem
                 bd.beeState = Bee.BEESTATE.IDLE;
                 MoveToTarget(t, ref bd, beeScale);
             }
-            else if (MoveToTarget(t, ref bd, beeScale))
+            else if (bd.AtTarget)
             {
                 bd.beeState = Bee.BEESTATE.CARRY;
                 bd.Target = bd.SpawnPoint;
@@ -151,15 +174,13 @@ public partial struct BeeMovementSystem : ISystem
     [BurstCompile]
     public void ExecuteCarryState(
         TransformAspect t,
-        NativeArray<Translation> foodLocations,
         ref Bee bd,
-        ref SystemState sState,
-        RefRW<NonUniformScale> beeScale)
+        ref SystemState sState)
     {
         FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
 
         //update food location in this state
-        if (MoveToTarget(t, ref bd, beeScale))
+        if (bd.AtTarget)
         {
             bd.beeState = Bee.BEESTATE.IDLE;
             foodRes.State = FoodState.FALLING;
@@ -178,12 +199,9 @@ public partial struct BeeMovementSystem : ISystem
     [BurstCompile]
     public void ExecuteAttackState(
         EntityCommandBuffer entityCommandBuffer,
-        TransformAspect t,
-        ref Bee bd,
-        ref SystemState sState,
-        RefRW<NonUniformScale> beeScale)
+        ref Bee bd)
     {
-        if (MoveToTarget(t, ref bd, beeScale))
+        if (bd.AtTarget)
         {
             //Reached the target bee and kill it, then return to the idle state
             bd.beeState = Bee.BEESTATE.IDLE;
@@ -223,14 +241,15 @@ public partial struct BeeMovementSystem : ISystem
     }
 
     [BurstCompile]
-    public bool MoveToTarget(TransformAspect transform, ref Bee beeData, RefRW<NonUniformScale> scale)
+    public void MoveToTarget(TransformAspect transform, ref Bee beeData, RefRW<NonUniformScale> scale)
     {
         var pos = transform.Position;
         var dir = beeData.Target - pos;
         float mag = (dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z);
         float dist = math.sqrt(mag);
         float localMoveSpeed = moveSpeed;
-        bool arrivedAtTarget = false;
+
+        beeData.AtTarget = false;
 
         transform.Rotation = quaternion.LookRotation(dir, new float3(0, 1, 0));
         dir += beeData.OcillateOffset;
@@ -238,12 +257,15 @@ public partial struct BeeMovementSystem : ISystem
         if (dist <= 8f && dist > 2f)
             localMoveSpeed *= 1.5f;
 
+        s_PreparePerfMarker_ASSIGNMOVE_1.Begin();
         if (dist > 0)
             transform.Position += (dir / dist) * dt * localMoveSpeed;
+        s_PreparePerfMarker_ASSIGNMOVE_1.End();
+
 
         if (dist <= 2f)
         {
-            arrivedAtTarget = true;
+            beeData.AtTarget = true;
         }
 
         if (frameCount % 30 == 0)
@@ -265,9 +287,9 @@ public partial struct BeeMovementSystem : ISystem
         clampPos.z = math.clamp(transform.Position.z, -15f, 15f);
         clampPos.x = math.clamp(transform.Position.x, -50f, 50f);
 
+        s_PreparePerfMarker_ASSIGNMOVE_2.Begin();
         transform.Position = clampPos;
-
-        return arrivedAtTarget;
+        s_PreparePerfMarker_ASSIGNMOVE_2.End();
     }
 
     [BurstCompile]
@@ -306,22 +328,34 @@ public partial struct BeeMovementSystem : ISystem
             if (bee.ValueRW.beeTeam == Team.YELLOW)
                 tempEnemyBeeEntities = blueBeeEntities;
 
+            s_PreparePerfMarker_MOVINGTOTARGET.Begin();
+            MoveToTarget(transform, ref bee.ValueRW, beeScale);
+            s_PreparePerfMarker_MOVINGTOTARGET.End();
+
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state, beeScale);
+                    s_PreparePerfMarker_IDLE.Begin();
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
+                    s_PreparePerfMarker_IDLE.End();
                     break;
                 case Bee.BEESTATE.FORAGE:
+                    s_PreparePerfMarker_FORAGE.Begin();
                     ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
+                    s_PreparePerfMarker_FORAGE.End();
                     break;
                 case Bee.BEESTATE.CARRY:
-                    ExecuteCarryState(transform, foodTranslations, ref bee.ValueRW, ref state, beeScale);
+                    s_PreparePerfMarker_CARRY.Begin();
+                    ExecuteCarryState(transform, ref bee.ValueRW, ref state);
+                    s_PreparePerfMarker_CARRY.End();
                     break;
                 case Bee.BEESTATE.ATTACK:
-                    ExecuteAttackState(cmdBuffer, transform, ref bee.ValueRW, ref state, beeScale);
+                    s_PreparePerfMarker_ATTACK.Begin();
+                    ExecuteAttackState(cmdBuffer,ref bee.ValueRW);
+                    s_PreparePerfMarker_ATTACK.End();
                     break;
                 default:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state, beeScale);
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
                     break;
             }
         }

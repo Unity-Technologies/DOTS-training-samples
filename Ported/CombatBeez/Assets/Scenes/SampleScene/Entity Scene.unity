@@ -175,15 +175,15 @@ MonoBehaviour:
     type: 3}
   BloodPrefab: {fileID: 7525053920817173293, guid: 184720c95cd7c4c298f37355f3320a91,
     type: 3}
-  TeamBlueBeeCount: 100
-  TeamYellowBeeCount: 100
-  FoodResourceCount: 10
-  FoodResourceDropRatePerSecond: 0.25
+  TeamBlueBeeCount: 50
+  TeamYellowBeeCount: 50
+  FoodResourceCount: 500
+  FoodResourceDropRatePerSecond: 0
   FallingSpeed: 0.1
   BeeSpeed: 15
-  AttackChance: 0.2
+  AttackChance: 0.5
   RandomNumberSeed: 8
-  MinNumberOfBeesSpawned: 5
-  MaxNumberOfBeesSpawned: 10
+  MinNumberOfBeesSpawned: 8
+  MaxNumberOfBeesSpawned: 8
   TimeBloodTakesToDry: 1
   Respawn: 1

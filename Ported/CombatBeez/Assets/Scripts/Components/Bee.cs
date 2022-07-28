@@ -10,6 +10,7 @@ public struct Bee : IComponentData
     public BEESTATE beeState;
     public Team beeTeam;
     public float3 SpawnPoint;
+    public bool AtTarget;
 
     public enum BEESTATE
     {
