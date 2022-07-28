@@ -16,6 +16,7 @@ public struct Config : IComponentData
     public float JitterTimeMax;
     public float JitterDistanceMax;
     public float BeeMoveSpeed;
+    public int BeesPerResource;
     
     public Entity BeePrefab;
     public Entity ResourcePrefab;

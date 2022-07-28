@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 using UnityEngine;
 using Unity.Collections;
 using Random = Unity.Mathematics.Random;
@@ -26,7 +27,7 @@ partial struct BeeKillerJob : IJobEntity
         {
             var bloodParticle = ECB.Instantiate(chunkIndex, Config.BloodPrefab);
             var particleVelocity = velocity.Value + rand.NextFloat3Direction() * 3f;
-            var particleScale = Vector3.one * rand.NextFloat(0.75f, 1.25f);
+            var particleScale = math.float3(1f,1f,1f) * rand.NextFloat(0.75f, 1.25f);
 
             ECB.SetComponent(chunkIndex, bloodParticle, new NonUniformScale { Value = particleScale });
             ECB.SetComponent(chunkIndex, bloodParticle, new Velocity { Value = particleVelocity });

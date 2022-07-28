@@ -18,6 +18,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float JitterTimeMax = 0.9f;
     public float JitterDistanceMax = 3f;
     public float BeeMoveSpeed = 6f;
+    public int BeesPerResource = 8;
     
     public UnityEngine.GameObject BeePrefab;
     public UnityEngine.GameObject ResourcePrefab;
@@ -44,6 +45,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             JitterTimeMax = authoring.JitterTimeMax,
             JitterDistanceMax = authoring.JitterDistanceMax,
             BeeMoveSpeed = authoring.BeeMoveSpeed,
+            BeesPerResource = authoring.BeesPerResource,
             
             BeePrefab = GetEntity(authoring.BeePrefab),
             ResourcePrefab = GetEntity(authoring.ResourcePrefab),
