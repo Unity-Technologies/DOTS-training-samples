@@ -12,6 +12,7 @@ namespace Components
         public Entity RoadSegment;
         public int LaneNumber;
         public float T;
-        
+        public Entity NextIntersection;
+
     }
 }

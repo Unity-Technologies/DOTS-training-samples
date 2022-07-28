@@ -5,5 +5,6 @@ namespace Components
 {
     partial struct Intersection:IComponentData
     {
+        public bool IsOccupied;
     }
 }
