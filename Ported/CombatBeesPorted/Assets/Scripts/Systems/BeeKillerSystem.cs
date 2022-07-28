@@ -78,7 +78,7 @@ public partial struct BeeKillerSystem : ISystem
         var beeKillerJob = new BeeKillerJob()
         {
             ResourceStateGrabbedComponentData = _resourceStateGrabbedComponentData,
-            RandomSeed = (uint)(Time.frameCount + System.DateTime.Now.Second),
+            RandomSeed = (uint)Time.frameCount,
             Config = config,
             ECB = ecb,
             TargetStorageInfo = _storageInfo,
