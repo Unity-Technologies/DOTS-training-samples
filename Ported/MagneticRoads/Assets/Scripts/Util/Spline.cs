@@ -7,7 +7,7 @@ namespace Util
     public static class Spline
     {
         private const int SplineLengthResolution = 10;
-        private const float SplineHandleLength = 1;
+        private const float SplineHandleLength = 2;
         
         public struct RoadTerminator
         {
@@ -31,10 +31,10 @@ namespace Util
         {
             var anchor1 = start.Position + start.Tangent * SplineHandleLength;
             var anchor2 = end.Position - end.Tangent * SplineHandleLength;
-            // F'(t) = 3(1-t)^2 (P1 - P0) + 6(1-t)(P2 - P1) + 3t^2(P3-P2)
+            // F'(t) = 3(1-t)^2 (P1 - P0) + 6(1-t)t(P2 - P1) + 3t^2(P3-P2)
             var derivative = 
                 3 * (1 - t) * (1 - t) * (anchor1 - start.Position)
-                + 6 * (1 - t) * (anchor2 - anchor1)
+                + 6 * (1 - t) * t * (anchor2 - anchor1)
                 + 3 * t * t * (end.Position - anchor2);
 
             return math.normalize(derivative);
