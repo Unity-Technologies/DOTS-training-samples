@@ -36,11 +36,10 @@ partial struct FireSystem : ISystem
         int gridSize = TerrainConfig.GridSize;
 
         
-         
         for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
         {
             float tempChange = 0f;
-            float currentTemperature = HeatMap.ElementAt(cellIndex).Value; // currentCell
+            float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
 
 
             int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
@@ -58,7 +57,7 @@ partial struct FireSystem : ISystem
                         {
 
                             float neighbourTemperature = HeatMap.ElementAt((currentRow * gridSize) + currentColumn).Value;
-                            if (neighbourTemperature >= threshold) // neighbour in fire
+                            if (neighbourTemperature >= threshold)
                             {
                                 tempChange += neighbourTemperature * heatTransferRate;
                             }
@@ -69,36 +68,52 @@ partial struct FireSystem : ISystem
 
             float newTemperature = Mathf.Clamp(currentTemperature + tempChange, -1f, 1f);
             HeatMap.ElementAt(cellIndex).Value = newTemperature;
-
-        
         }
 
-        foreach (var(color, translation,  fire) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<Translation>,RefRO<Fire>>())
+        var fireJob = new FireJob
         {
+            HeatMap = HeatMap,
+            Config = Config,
+            TerrainConfig = TerrainConfig,
+            time = Time.time,
+        };
+
+        fireJob.Schedule();
+    }
+}
+
+[BurstCompile]
+partial struct FireJob : IJobEntity
+{
+    public DynamicBuffer<Temperature> HeatMap;
+    public Config Config;
+    public TerrainCellConfig TerrainConfig;
+    public float time;
+
+    void Execute(ref URPMaterialPropertyBaseColor color, ref Translation translation, in Fire fire)
+    {
             float4 colorValue = new float4(TerrainConfig.NeutralCol.r, TerrainConfig.NeutralCol.g, TerrainConfig.NeutralCol.b, 1.0f);
-            var temperature = HeatMap.ElementAt(fire.ValueRO.Index).Value;
-            
-            if (temperature >= threshold)
+            var temperature = HeatMap.ElementAt(fire.Index).Value;
+
+            if (temperature >= Config.FireThreshold)
             {
-                var coolFact = (1 - temperature) / (1 - threshold);
+                var coolFact = (1 - temperature) / (1 - Config.FireThreshold);
                 var hotFact = 1 - coolFact;
 
                 colorValue = new float4(coolFact * TerrainConfig.CoolCol.r + hotFact * TerrainConfig.HotCol.r,
                                         coolFact * TerrainConfig.CoolCol.g + hotFact * TerrainConfig.HotCol.g,
-                                        coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b, 
+                                        coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b,
                                         1.0f);
 
-                var gap = 1 - ((1 - temperature) / (1 - threshold));
+                var gap = 1 - ((1 - temperature) / (1 - Config.FireThreshold));
                 var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap - TerrainConfig.FlickerRange;
-                height += (TerrainConfig.FlickerRange * 0.5f) + Mathf.PerlinNoise((Time.time - fire.ValueRO.Index) * TerrainConfig.FlickerRate - temperature, temperature) * TerrainConfig.FlickerRange;
+                height += (TerrainConfig.FlickerRange * 0.5f) + Mathf.PerlinNoise((time - fire.Index) * TerrainConfig.FlickerRate - temperature, temperature) * TerrainConfig.FlickerRange;
 
-                translation.ValueRW.Value.y = height;
+                translation.Value.y = height;
 
             }
-            
 
-            color.ValueRW.Value = colorValue;
-        }
-
+            color.Value = colorValue;
+        
     }
 }
