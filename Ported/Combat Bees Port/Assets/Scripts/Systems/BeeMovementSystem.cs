@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -174,6 +175,10 @@ partial struct BeeMovementSystem : ISystem
                     {
                         bee.targetPos = float3.zero;
                         ecb2.DestroyEntity(bee.target);
+                        
+                        var beeSpawn = SystemAPI.GetSingleton<InitialSpawn>();
+                        var instance = ecb.Instantiate(beeSpawn.bloodPrefab);
+                        ecb.SetComponent(instance, new Translation { Value = position});
 
                         bee.target = Entity.Null;
                         bee.state = BeeState.Idle;
