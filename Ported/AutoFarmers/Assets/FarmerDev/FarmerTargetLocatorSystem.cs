@@ -13,7 +13,7 @@ public partial struct FarmerTargetLocatorSystem : ISystem
     
     public void OnCreate(ref SystemState state)
     {
-        rockpositionQuery = state.GetEntityQuery(typeof(LocalToWorld), typeof(Rock));
+        rockpositionQuery = state.GetEntityQuery(typeof(LocalToWorld), typeof(RockTag));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -22,18 +22,12 @@ public partial struct FarmerTargetLocatorSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var test = rockpositionQuery.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
-        // float3[] RockPositionArray= new float3[999];
-        // int iterator=0;
-        // foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<Rock>())
-        // {
-        //     RockPositionArray[iterator] = transform.Position;
-        //    iterator++;
-        // }
+        var rockPositionArray = rockpositionQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
+        
             
         FarmerTargetSetterJob TargetJob = new FarmerTargetSetterJob
         {
-            rockPositionArray = test
+            rockPositionArray = rockPositionArray
         };
 
         TargetJob.ScheduleParallel();
@@ -42,7 +36,8 @@ public partial struct FarmerTargetLocatorSystem : ISystem
     [BurstCompile]
     public partial struct FarmerTargetSetterJob: IJobEntity
     {
-       public NativeArray<LocalToWorld> rockPositionArray;
+        [ReadOnly]
+        public NativeArray<LocalToWorld> rockPositionArray;
       
 
         public void Execute(TransformAspect farmersPosition, ref TargetPosition target)
@@ -53,10 +48,12 @@ public partial struct FarmerTargetLocatorSystem : ISystem
             for (int i = 0; i < rockPositionArray.Length; i++)
             {
                 float distance = math.distance(farmersPosition.Position, rockPositionArray[i].Position);
-                if (distance<shortestDistance)
                 {
-                    shortestDistance = distance;
-                    targetPos = rockPositionArray[i].Position;
+                    if (distance<shortestDistance)
+                    {
+                        shortestDistance = distance;
+                        targetPos = rockPositionArray[i].Position;
+                    }
                 }
             }
             
