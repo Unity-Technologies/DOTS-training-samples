@@ -13,7 +13,7 @@ partial struct BloodAnimJob : IJobEntity
     public float3 Bounds;
     public EntityCommandBuffer.ParallelWriter ECB;
 
-    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref NonUniformScale scale,
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity,
         ref AnimationTime animTime, in Translation pos, ref URPMaterialPropertyBaseColor color)
     {
         if (pos.Value.x <= -Bounds.x + 0.01f ||
@@ -34,11 +34,9 @@ partial struct BloodAnimJob : IJobEntity
         }
         else
         {
-            // TODO: Animate Material Alpha
-            var curColor = color.Value;
+            // Animate Material Alpha
             var newAlpha = math.lerp(0f, 1f, math.remap(0f, BloodDuration, 0f, 1f, animTime.Value));
-            color.Value = new float4(curColor.x, curColor.y, curColor.z, newAlpha);
-            // scale.Value = math.lerp(float3.zero, 1f, math.remap(0f, BloodDuration, 0f, 1f, animTime.Value));
+            color.Value = new float4(1f, 0f, 0f, newAlpha);
         }
     }
 }

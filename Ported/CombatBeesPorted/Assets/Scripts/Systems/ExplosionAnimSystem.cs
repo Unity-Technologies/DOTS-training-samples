@@ -1,6 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 [WithAll(typeof(ExplosionAnim))]
@@ -9,11 +10,10 @@ partial struct ExplosionAnimJob : IJobEntity
 {
     public float DeltaTime;
     public float ExplosionDuration;
-    public float3 Bounds;
     public EntityCommandBuffer.ParallelWriter ECB;
 
     void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref NonUniformScale scale,
-        ref AnimationTime animTime, in Translation pos)
+        ref AnimationTime animTime, ref URPMaterialPropertyBaseColor color)
     {
         animTime.Value -= DeltaTime;
         if (animTime.Value <= 0f)
@@ -24,6 +24,8 @@ partial struct ExplosionAnimJob : IJobEntity
         {
             scale.Value = math.lerp(float3.zero, new float3(1f, 1f, 1f),
                 math.remap(0f, ExplosionDuration, 0f, 1f, animTime.Value));
+            var newAlpha = math.lerp(0f, 1f, math.remap(0f, ExplosionDuration, 0f, 1f, animTime.Value));
+            color.Value = new float4(1f, 1f, 1f, newAlpha);
         }
     }
 }
@@ -54,8 +56,7 @@ public partial struct ExplosionAnimSystem : ISystem
         {
             DeltaTime = state.Time.DeltaTime,
             ExplosionDuration = config.ExplosionDuration,
-            ECB = ecb,
-            Bounds = config.PlayVolume
+            ECB = ecb
         };
         explosionAnimJob.ScheduleParallel();
     }
