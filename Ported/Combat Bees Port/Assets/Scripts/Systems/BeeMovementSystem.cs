@@ -28,7 +28,7 @@ partial class BeeMovementSystem : SystemBase
             var et = (float)Time.ElapsedTime;
             var speed = 10f;
             var offsetValue = 1f;
-            var random = Random.CreateFromIndex((uint)System.DateTime.Now.Millisecond);
+            var random = Random.CreateFromIndex(GlobalSystemVersion);
             var target = new float3(5, 0, 0);
 
             var baseComponent = GetSingleton<Base>();

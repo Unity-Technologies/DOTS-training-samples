@@ -20,7 +20,7 @@ partial class TargetFinderSystem : SystemBase
             NativeArray<Entity> _yellowBees;
             NativeArray<Entity> _blueBees;
             NativeArray<Entity> _food;
-            Random rnd = Random.CreateFromIndex((uint)Time.ElapsedTime);
+            Random rnd = Random.CreateFromIndex(GlobalSystemVersion);
             bool  aggression = rnd.NextBool();
 
 
