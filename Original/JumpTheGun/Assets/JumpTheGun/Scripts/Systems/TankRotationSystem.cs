@@ -3,8 +3,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[BurstCompile]
 public partial class TankRotationSystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        RequireForUpdate<PlayerComponent>();
+    }
     protected override void OnUpdate()
     {
         float deltaTime = this.Time.DeltaTime;

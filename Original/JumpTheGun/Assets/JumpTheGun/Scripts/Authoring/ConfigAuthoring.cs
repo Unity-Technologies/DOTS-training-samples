@@ -5,6 +5,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject tankPrefab;
     public UnityEngine.GameObject boxPrefab;
+    public UnityEngine.GameObject playerPrefab;
     public int tankCount;
 
     public float terrainWidth;
@@ -48,9 +49,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
             spacing = authoring.spacing,
 
+            playerPrefab = GetEntity(authoring.playerPrefab),
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
-            timeText = authoring.timeText
+            timeText = authoring.timeText,
         });
     }
 }
