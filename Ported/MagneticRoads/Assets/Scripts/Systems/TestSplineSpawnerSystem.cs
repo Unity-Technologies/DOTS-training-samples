@@ -56,7 +56,7 @@ namespace Systems
             };
             var End = new Spline.RoadTerminator
             {
-                Position = new float3(2, 0, 2),
+                Position = new float3(4, 0, 4),
                 Normal = new float3(0, 1, 0),
                 Tangent = new float3(1, 0, 0),
             };

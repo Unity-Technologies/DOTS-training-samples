@@ -2,8 +2,6 @@ using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using UnityEngine;
 
 namespace Systems
 {
@@ -11,12 +9,17 @@ namespace Systems
     [BurstCompile]
     partial struct CarSpeedSystem : ISystem
     {
+        public const float MaxSpeed = 3f;
+        public const float BrakingDistance = 1.5f;
+
         ComponentDataFromEntity<Car> m_CarDataFromEntity;
+        ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_CarDataFromEntity = state.GetComponentDataFromEntity<Car>();
+            m_RoadSegmentDataFromEntity = state.GetComponentDataFromEntity<RoadSegment>();
         }
 
         [BurstCompile]
@@ -26,6 +29,7 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             m_CarDataFromEntity.Update(ref state);
+            m_RoadSegmentDataFromEntity.Update(ref state);
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
@@ -37,27 +41,28 @@ namespace Systems
                 // Sort entities
                 for (int x = 0; x < entities.Length; x++)
                 {
-                    var xPositionOnSpline = m_CarDataFromEntity[entities[x]].T;
-                    var xCarComponent = m_CarDataFromEntity[entities[x]];
-                    xCarComponent.Speed = 3f;
+                    var carX = m_CarDataFromEntity[entities[x]];
+                    var road = m_RoadSegmentDataFromEntity[carX.RoadSegment];
+                    
+                    var tValueX = m_CarDataFromEntity[entities[x]].T;
+                    carX.Speed = MaxSpeed;
 
                     for (int y = 0; y < entities.Length; y++)
                     {
-                        if (x == y)
-                            continue;
+                        var tValueY = m_CarDataFromEntity[entities[y]].T;
 
-                        var yPositionOnSpline = m_CarDataFromEntity[entities[y]].T;
-
-                        if (math.distance(xPositionOnSpline, yPositionOnSpline) < 0.4f)
+                        // X is behind and must brake
+                        if (tValueY > tValueX)
                         {
-                            if (yPositionOnSpline - xPositionOnSpline > 0)
+                            var distance = (tValueY - tValueX) * road.Length;
+                            if (distance < BrakingDistance)
                             {
-                                xCarComponent.Speed = 0;
+                                carX.Speed = 0;
                             }
                         }
                     }
 
-                    ecb.SetComponent(entities[x], xCarComponent);
+                    ecb.SetComponent(entities[x], carX);
                 }
             }
 
