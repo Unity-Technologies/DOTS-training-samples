@@ -15,4 +15,8 @@ struct Config : IComponentData
     public float FallingSpeed;
     public float BeeSpeed;
     public float AttackChance;
+
+    public uint RandomNumberSeed;
+    public int MinNumberOfBeesSpawned;
+    public int MaxNumberOfBeesSpawned;
 }

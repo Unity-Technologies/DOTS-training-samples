@@ -15,6 +15,10 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float FallingSpeed;
     public float BeeSpeed;
     public float AttackChance;
+
+    public uint RandomNumberSeed;
+    public int MinNumberOfBeesSpawned;
+    public int MaxNumberOfBeesSpawned;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -33,7 +37,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
             FoodResourceDropRatePerSecond = authoring.FoodResourceDropRatePerSecond,
             FallingSpeed = authoring.FallingSpeed,
             BeeSpeed = authoring.BeeSpeed,
-            AttackChance = authoring.AttackChance
+            AttackChance = authoring.AttackChance,
+            RandomNumberSeed = authoring.RandomNumberSeed,
+            MinNumberOfBeesSpawned = authoring.MinNumberOfBeesSpawned,
+            MaxNumberOfBeesSpawned = authoring.MaxNumberOfBeesSpawned
         });
     }
 }
