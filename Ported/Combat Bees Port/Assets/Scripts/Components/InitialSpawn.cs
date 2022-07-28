@@ -10,6 +10,7 @@ namespace Components
         public Entity blueBeePrefab;
         public Entity foodPrefab;
         public Entity spawnFlashPrefab;
+        public Entity bloodPrefab;
 
         public int beeCount;
         public int foodCount;
