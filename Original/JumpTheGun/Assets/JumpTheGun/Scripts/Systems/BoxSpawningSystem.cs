@@ -19,6 +19,7 @@ partial struct BoxSpawningSystem : ISystem
     ComponentDataFromEntity<PlayerComponent> pcFromEntity;
 
 
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -93,7 +94,6 @@ partial struct BoxSpawningSystem : ISystem
         var pc = prefabData;
         pc.para.paraA = 1;
         foreach (Entity box in boxes){
-            UnityEngine.Debug.Log("we have a better box");
             pc.startBox = box;
             pc.endBox = box;
             Boxes boxRef = boxesFromEntity[box]; 
@@ -107,7 +107,6 @@ partial struct BoxSpawningSystem : ISystem
     Config config, Boxes startBox, ComponentDataFromEntity<Boxes> boxesFromEntity, NativeArray<Entity> boxes){
         Boxes newStartBox; 
         Entity newStartBoxEntity = new Entity(); 
-        UnityEngine.Debug.Log("we here");
         
         foreach (var box in boxes) { 
             newStartBox = boxesFromEntity[box];
@@ -117,7 +116,6 @@ partial struct BoxSpawningSystem : ISystem
             }
         }
         playerComponent.startBox = newStartBoxEntity;
-        UnityEngine.Debug.Log("We have an EndBox");
 		playerComponent.endBox = playerComponent.startBox;
 
         float top = startBox.top; 

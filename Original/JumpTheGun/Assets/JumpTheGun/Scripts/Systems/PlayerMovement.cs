@@ -25,10 +25,8 @@ partial struct PlayerComponentJob : IJobEntity
         if (config.isPaused)
             return;
 
-
-        Boxes startBox = boxesFromEntity[playerComponent.startBox]; //box = playerComponent.endBox
+        Boxes startBox = boxesFromEntity[playerComponent.startBox];
         Boxes endBox = boxesFromEntity[playerComponent.endBox];
-
 
         var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
         int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
@@ -42,6 +40,7 @@ partial struct PlayerComponentJob : IJobEntity
         }
         if (occupied) 
             movePos = new int2(endBox.column, endBox.row);
+
         playerComponent.time += DeltaTime;
         
         if (playerComponent.isBouncing){
@@ -50,7 +49,14 @@ partial struct PlayerComponentJob : IJobEntity
                 playerComponent.isBouncing = false;
                 playerComponent.time = 0;
             } else {
-                transform.Position = bouncePosition(playerComponent.time / playerComponent.duration, playerComponent, config, startBox, endBox);
+                var t = playerComponent.time / playerComponent.duration;
+                Para para = playerComponent.para; 
+                float y = ParabolaCluster.Solve(para.paraA, para.paraB, para.paraC, t);
+                float3 startPos = TerrainAreaClusters.LocalPositionFromBox(startBox.column, startBox.row, config);
+                float3 endPos = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config);
+                float x = math.lerp(startPos.x, endPos.x, t);
+                float z = math.lerp(startPos.z, endPos.z, t);
+                transform.Position = new float3(x, y, z);
             }
 
         } else {
@@ -67,6 +73,8 @@ partial struct PlayerComponentJob : IJobEntity
                 }
             }
 
+
+            // Get references for later
             Boxes boxRef1 = new Boxes();
             Boxes boxRef2 = new Boxes(); 
             foreach (var box in boxes) { 
@@ -77,7 +85,29 @@ partial struct PlayerComponentJob : IJobEntity
                     boxRef2 = newStartBox;
                 }
             }
-            Bounce(endBox, playerComponent, endBox, startBox, boxRef1, boxRef2);
+
+            // Bounce
+            if (playerComponent.isBouncing)
+                return;
+
+            float startY = startBox.top + playerComponent.yOffset;
+            float endY = endBox.top + playerComponent.yOffset;
+            float height = math.max(startY, endY);
+            if (startBox.column != endBox.column && startBox.row != endBox.row) {
+                height = math.max(math.max(height, boxRef1.top), boxRef2.top);
+            }
+            height += playerComponent.bounceHeight;
+
+            var para = playerComponent.para;
+            ParabolaCluster.Create(startY, height, endY, out para.paraA, out para.paraB, out para.paraC);
+
+            playerComponent.isBouncing = true;
+            playerComponent.time = 0;
+            float2 startPos = new float2(startBox.column, startBox.row);
+            float2 endPos = new float2(endBox.column, endBox.row);
+            float dist = math.distance(startPos, endPos);
+            playerComponent.duration = math.max(1, dist) * playerComponent.bounceDuration;
+
         } 
     }
     
@@ -88,21 +118,10 @@ partial struct PlayerComponentJob : IJobEntity
         return bounds; 
     }
 
-    private static float3 bouncePosition(float t, PlayerComponent playerComponent, Config config, Boxes startBox, Boxes endBox){
-        Para para = playerComponent.para; 
-        float y = ParabolaCluster.Solve(para.paraA, para.paraB, para.paraC, t);
-        float3 startPos = TerrainAreaClusters.LocalPositionFromBox(startBox.column, startBox.row, config);
-        float3 endPos = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config);
-        float x = math.lerp(startPos.x, endPos.x, t);
-        float z = math.lerp(startPos.z, endPos.z, t);
-        return new float3(x, y, z);
-    } 
-
     private static int2 GetMovePos(int2 mouseBoxPos, Config config, TransformAspect transform, Boxes endBox){
         int2 movePos = mouseBoxPos;
         int2 currentPos = TerrainAreaClusters.BoxFromLocalPosition(transform.Position, config);
         if (math.abs(mouseBoxPos.x - currentPos.x) > 1 || math.abs(mouseBoxPos.y - currentPos.y) > 1) {
-            // mouse position is too far away.  Find closest position
             movePos = currentPos;
             if (mouseBoxPos.x != currentPos.x) {
                 movePos.x += mouseBoxPos.x > currentPos.x ? 1 : -1;
@@ -122,78 +141,8 @@ partial struct PlayerComponentJob : IJobEntity
         mouseWorldPos.x = rayOrigin.x + t * rayDirection.x;
         mouseWorldPos.z = rayOrigin.z + t * rayDirection.z;
         float3 mouseLocalPos = mouseWorldPos;
-        /*if (transform.parent != null) {
-            mouseLocalPos = transform.parent.InverseTransformPoint(mouseWorldPos);
-        }*/
         int2 mouseBoxPos = TerrainAreaClusters.BoxFromLocalPosition(mouseLocalPos, config);
         return mouseBoxPos; 
-    }
-  
-    public static void Bounce(Boxes boxTo, PlayerComponent playerComponent, Boxes endBox, Boxes startBox, Boxes box1, Boxes box2){
-        if (playerComponent.isBouncing)
-            return;
-
-        // set start and end positions
-        endBox = boxTo;
-
-        // solving parabola path
-        float startY = startBox.top + playerComponent.yOffset;
-        float endY = endBox.top + playerComponent.yOffset;
-        float height = math.max(startY, endY);
-        // make height max of adjacent boxes when moving diagonally
-        if (startBox.column != endBox.column && startBox.row != endBox.row) {
-            height = math.max(math.max(height, box1.top), box2.top);
-        }
-        height += playerComponent.bounceHeight;
-
-        var para = playerComponent.para;
-        ParabolaCluster.Create(startY, height, endY, out para.paraA, out para.paraB, out para.paraC);
-
-        playerComponent.isBouncing = true;
-        playerComponent.time = 0;
-
-        // duration affected by distance to end box
-        float2 startPos = new float2(startBox.column, startBox.row);
-        float2 endPos = new float2(endBox.column, endBox.row);
-        float dist = math.distance(startPos, endPos);
-        playerComponent.duration = math.max(1, dist) * playerComponent.bounceDuration;
-
-    }
-}
-
-
-[BurstCompile]
-partial struct PlayerComponentStartJob : IJobEntity
-{
-    public Config config;
-    public Unity.Collections.NativeArray<Entity> boxes;
-     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity; 
-
-    void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
-    { 
-        foreach(Entity box in boxes){
-            var chosenBox = boxesFromEntity[box]; 
-            Spawn(chosenBox.row,chosenBox.column, playerComponent, config, chosenBox, boxesFromEntity);
-            break;
-        }
-    }
-
-    public float3 Spawn(int col, int row, PlayerComponent playerComponent, Config config, Boxes startBox, ComponentDataFromEntity<Boxes> boxesFromEntity){
-        Boxes newStartBox; 
-        Entity newStartBoxEntity = new Entity(); 
-        foreach (var box in SystemAPI.Query<Entity>().WithAll<Boxes>()) { 
-            newStartBox = boxesFromEntity[box];
-            if (newStartBox.row == row && newStartBox.column == col){
-                newStartBoxEntity = box;
-                break; 
-            }
-        }
-
-        playerComponent.startBox = newStartBoxEntity;
-		playerComponent.endBox = playerComponent.startBox;
-
-        float top = startBox.top; 
-        return TerrainAreaClusters.LocalPositionFromBox(col, row, config, top + playerComponent.yOffset);
     }
 }
 
