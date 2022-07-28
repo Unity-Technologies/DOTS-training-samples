@@ -97,82 +97,10 @@ public class Spawner : MonoBehaviour
     public int FireFighterLineCount;
     public int FireFightersPerLineCount;
     
-    // Example Burst job that creates many entities
-    [BurstCompatible]
-    public struct SpawnJob : IJobParallelFor
-    {
-        public Entity Prototype;
-        public int EntityCount;
-        public EntityCommandBuffer.ParallelWriter Ecb;
-        public float cellSize;
-        public int rows;
-        public int columns;
-
-        public void Execute(int index)
-        {
-            // Clone the Prototype entity to create a new entity.
-            var e = Ecb.Instantiate(index, Prototype);
-            // Prototype has all correct components up front, can use SetComponent to
-            // set values unique to the newly created entity, such as the transform.
-            Ecb.SetComponent(index, e, new LocalToWorld { Value = ComputeTransform(index, 1.0f) });
-        }
-
-        public float4x4 ComputeTransform(int index, float scale)
-        {
-            var transform = float4x4.TRS(new float3(Mathf.Ceil(index % rows) * cellSize, 0, Mathf.Ceil(index / rows) * cellSize), Quaternion.identity, new float3(scale, 1.0f, scale));
-            
-            return transform;
-        }
-    }
-
     // Start is called before the first frame update
-    //void Start()
-    //{
-    //    var world = World.DefaultGameObjectInjectionWorld;
-    //    var entityManager = world.EntityManager;
-    //    
-    //    EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
-    //    
-    //    //Terrain cells description
-    //    var renderer = TerrainCellPrefab.GetComponent<Renderer>();
-    //    // public RenderMeshDescription(ShadowCastingMode shadowCastingMode, bool receiveShadows = false, MotionVectorGenerationMode motionVectorGenerationMode = MotionVectorGenerationMode.Camera, int layer = 0, uint renderingLayerMask = uint.MaxValue, LightProbeUsage lightProbeUsage = LightProbeUsage.Off, bool staticShadowCaster = false);
-    //    var desc = new RenderMeshDescription(shadowCastingMode: ShadowCastingMode.Off, receiveShadows: true);
-    //    
-    //    // Create empty base entity
-    //    var prototype = entityManager.CreateEntity();
-    //
-    //    RenderMesh rendermesh = new RenderMesh(TerrainCellPrefab.GetComponent<Renderer>(), TerrainCellMesh);
-    //      //RenderMesh rendermesh = new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial };
-    //
-    //    RenderMeshUtility.AddComponents(
-    //        prototype,
-    //        entityManager,
-    //        desc,
-    //        rendermesh);
-    //        //new RenderMesh { mesh = TerrainCellMesh, material = TerrainCellMaterial });
-    //    
-    //    entityManager.AddComponentData(prototype, new LocalToWorld());
-    //    NativeArray<Entity> array = new NativeArray<Entity>(rows * columns, Allocator.Persistent);
-    //    entityManager.Instantiate(prototype);
-    //
-    //    //Spawn Terrain Cell
-    //    var spawnJob = new SpawnJob
-    //    {
-    //        Prototype = prototype,
-    //        Ecb = ecb.AsParallelWriter(),
-    //        EntityCount = rows * columns,
-    //        cellSize = cellSize,
-    //        rows = rows,
-    //        columns = columns
-    //    };
-    //    
-    //    var spawnHandle = spawnJob.Schedule(rows * columns, 128);
-    //    spawnHandle.Complete();
-    //    
-    //    ecb.Playback(entityManager);
-    //    ecb.Dispose();
-    //    entityManager.DestroyEntity(prototype);
-    //}
+    void Start()
+    {
+    }
 }
 
 class WaterSpawnerBaker : Baker<Spawner>
