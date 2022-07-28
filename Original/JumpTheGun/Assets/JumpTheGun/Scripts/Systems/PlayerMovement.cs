@@ -35,8 +35,9 @@ partial struct PlayerComponentJob : IJobEntity
 
         foreach (var tank in tanks) { 
             var tankComponent =  tankFromEntity[tank]; 
-            if (tankComponent.column == movePos.x && tankComponent.row == movePos.y)
+            if (tankComponent.column == movePos.x && tankComponent.row == movePos.y){
                 occupied = true; 
+            }
         }
         if (occupied) 
             movePos = new int2(endBox.column, endBox.row);
@@ -44,6 +45,7 @@ partial struct PlayerComponentJob : IJobEntity
         playerComponent.time += DeltaTime;
         
         if (playerComponent.isBouncing){
+
             if (playerComponent.time >= playerComponent.duration) {
                 transform.Position = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config, endBox.top + playerComponent.yOffset);
                 playerComponent.isBouncing = false;
@@ -51,7 +53,7 @@ partial struct PlayerComponentJob : IJobEntity
             } else {
                 var t = playerComponent.time / playerComponent.duration;
                 Para para = playerComponent.para; 
-                float y = ParabolaCluster.Solve(para.paraA, para.paraB, para.paraC, t);
+                float y = para.paraA * t * t + para.paraB * t + para.paraC;
                 float3 startPos = TerrainAreaClusters.LocalPositionFromBox(startBox.column, startBox.row, config);
                 float3 endPos = TerrainAreaClusters.LocalPositionFromBox(endBox.column, endBox.row, config);
                 float x = math.lerp(startPos.x, endPos.x, t);
@@ -72,7 +74,6 @@ partial struct PlayerComponentJob : IJobEntity
                     }
                 }
             }
-
 
             // Get references for later
             Boxes boxRef1 = new Boxes();
@@ -98,8 +99,13 @@ partial struct PlayerComponentJob : IJobEntity
             }
             height += playerComponent.bounceHeight;
 
-            var para = playerComponent.para;
-            ParabolaCluster.Create(startY, height, endY, out para.paraA, out para.paraB, out para.paraC);
+
+            //ParabolaCluster.Create(startY, height, endY, out para.paraA, out para.paraB, out para.paraC);
+            
+            playerComponent.para.paraC = startY;
+            float k = math.sqrt(math.abs(startY - height)) / (math.sqrt(math.abs(startY - height)) + math.sqrt(math.abs(endY - height)));
+            playerComponent.para.paraA = (height - startY - k * (endY - startY)) / (k * k - k);
+            playerComponent.para.paraB = endY - startY - playerComponent.para.paraA;
 
             playerComponent.isBouncing = true;
             playerComponent.time = 0;
