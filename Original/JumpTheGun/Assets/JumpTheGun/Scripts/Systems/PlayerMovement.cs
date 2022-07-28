@@ -214,16 +214,18 @@ partial struct PlayerMovement : ISystem
     {
         UnityEngine.Debug.Log("This runs");
         state.RequireForUpdate<Config>();
-        state.RequireForUpdate<EndSimulationEntityCommandBufferSystem>();
-    }
-
-    [BurstCompile]
-    public void Start(ref SystemState state){
-        var config = SystemAPI.GetSingleton<Config>();
         tankFromEntity = state.GetComponentDataFromEntity<Tank>(true);
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
         boxQuery = state.GetEntityQuery(typeof(Boxes));
         tankQuery = state.GetEntityQuery(typeof(Tank));
+        
+        //state.RequireForUpdate<EndSimulationEntityCommandBufferSystem>();
+    }
+
+    /*
+    [BurstCompile]
+    public void Start(ref SystemState state){
+        var config = SystemAPI.GetSingleton<Config>();
         boxesFromEntity.Update(ref state);
         var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
 
@@ -234,7 +236,7 @@ partial struct PlayerMovement : ISystem
             boxes = boxEntities,
         };
         PlayerJob.Schedule();
-    }
+    }*/
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
@@ -246,10 +248,8 @@ partial struct PlayerMovement : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        UnityEngine.Debug.Log("This doesn't runs");
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
        // var boxBoxes = boxQuery.ToComponentDataArray<Boxes>(Unity.Collections.Allocator.TempJob);
-        //var tankTank = tankQuery.ToComponentDataArray<Tank>(Unity.Collections.Allocator.TempJob);
         var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var tankEntities = tankQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
@@ -266,8 +266,6 @@ partial struct PlayerMovement : ISystem
         {
             tanks = tankEntities,
             boxes = boxEntities,
-            //boxesComponent = boxBoxes,
-            //tankComponent = tankTank,
             tankFromEntity = tankFromEntity, 
             boxesFromEntity = boxesFromEntity,
             ECB = ecb.AsParallelWriter(),
