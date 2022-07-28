@@ -31,33 +31,52 @@ partial struct FireFighterLineSystem : ISystem
         var terrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
         int gridSize = terrainConfig.GridSize; //20
 
-        foreach (var fireFighterLine in SystemAPI.Query<RefRW<FireFighterLine>>())
-        {
-            var closestPoint = new float2(999999, 999999);
+        DynamicBuffer<Temperature> heatMap = SystemAPI.GetSingletonBuffer<Temperature>();
 
-            DynamicBuffer<Temperature> HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
-            for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
+        var searcher = new FireSearcherJob
+        {
+            HeatMap = heatMap,
+            Config = config,
+            TerrainConfig = terrainConfig,
+        };
+        searcher.ScheduleParallel();
+       
+    }
+}
+
+[BurstCompile]
+partial struct FireSearcherJob : IJobEntity
+{
+    [ReadOnly] public DynamicBuffer<Temperature> HeatMap;
+    public Config Config;
+    public TerrainCellConfig TerrainConfig;
+
+    void Execute(ref FireFighterLine fireFighterLine)
+    {
+        var closestPoint = new float2(999999, 999999);
+
+        DynamicBuffer<Temperature> HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
+        for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
+        {
+            float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
+            if (currentTemperature >= Config.FireThreshold)
             {
-                float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
-                if (currentTemperature >= fireThreshold)
+                int cellRowIndex = Mathf.FloorToInt(cellIndex / TerrainConfig.GridSize);
+                int cellColumnIndex = cellIndex % TerrainConfig.GridSize;
+
+                var offset = new float2(-TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f, -TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f);
+
+                var newPoint = new float2((cellRowIndex) * TerrainConfig.CellSize, math.floor(cellColumnIndex) * TerrainConfig.CellSize) + offset;
+
+
+                if (math.distance(fireFighterLine.StartPosition, closestPoint) >
+                    math.distance(fireFighterLine.StartPosition, newPoint))
                 {
-                    int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
-                    int cellColumnIndex = cellIndex % gridSize;
-                    
-                    var offset = new float2(-terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f, -terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f);
-                    
-                    var newPoint = new float2((cellRowIndex ) * terrainConfig.CellSize, math.floor(cellColumnIndex) * terrainConfig.CellSize) + offset;
-                    
-                    
-                    if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
-                        math.distance(fireFighterLine.ValueRO.StartPosition, newPoint))
-                    {
-                        closestPoint = newPoint;
-                    }
+                    closestPoint = newPoint;
                 }
             }
-
-            fireFighterLine.ValueRW.EndPosition = closestPoint;
         }
+
+        fireFighterLine.EndPosition = closestPoint;
     }
 }

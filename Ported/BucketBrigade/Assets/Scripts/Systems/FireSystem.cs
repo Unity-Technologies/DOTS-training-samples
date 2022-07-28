@@ -39,7 +39,7 @@ partial struct FireSystem : ISystem
         for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
         {
             float tempChange = 0f;
-            float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
+            float currentTemperature = HeatMap[cellIndex].Value;
 
 
             int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
@@ -56,7 +56,7 @@ partial struct FireSystem : ISystem
                         if (currentColumn >= 0 && currentColumn < gridSize)
                         {
 
-                            float neighbourTemperature = HeatMap.ElementAt((currentRow * gridSize) + currentColumn).Value;
+                            float neighbourTemperature = HeatMap[(currentRow * gridSize) + currentColumn].Value;
                             if (neighbourTemperature >= threshold)
                             {
                                 tempChange += neighbourTemperature * heatTransferRate;
@@ -67,7 +67,7 @@ partial struct FireSystem : ISystem
             }
 
             float newTemperature = Mathf.Clamp(currentTemperature + tempChange, -1f, 1f);
-            HeatMap.ElementAt(cellIndex).Value = newTemperature;
+            HeatMap[cellIndex] = new Temperature { Value = newTemperature };
         }
 
         var fireJob = new FireJob
