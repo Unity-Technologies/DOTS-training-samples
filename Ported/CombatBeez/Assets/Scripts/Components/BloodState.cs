@@ -1,6 +1,6 @@
 public enum BloodState
 {
-    NULL,
-    FALLING,
-    POOLING
+    NULL = 0,
+    FALLING = 10,
+    POOLING = 70
 }
