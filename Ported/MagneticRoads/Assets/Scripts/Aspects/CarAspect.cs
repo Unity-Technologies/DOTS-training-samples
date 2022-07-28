@@ -18,6 +18,12 @@ namespace Aspects
             set => m_TransformAspect.Position = value;
         }
 
+        public Entity NextIntersection
+        {
+            get => m_Car.ValueRO.NextIntersection;
+            set => m_Car.ValueRW.NextIntersection = value;
+        }
+
         public float4 Color
         {
             get => m_BaseColor.ValueRO.Value;
