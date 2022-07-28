@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [WithAll(typeof(Gravity), typeof(Resource))]
 [BurstCompile]
@@ -32,22 +33,23 @@ partial struct StackingJob : IJobEntity
         {
             foreach (var grabbableResource in GrabbableResources)
             {
-                if (ResourceStateGrabbableComponentData.IsComponentEnabled(grabbableResource))
+                if (ResourceStateGrabbableComponentData.IsComponentEnabled(grabbableResource) 
+                    && !ResourceStateGrabbableComponentData.IsComponentEnabled(entity))
                 {
                     var translation = TranslationComponentData[grabbableResource];
                     // Debug.Log($"{GrabbableTranslation[grabbableResource].Value.y}");
-                    if (Math.Round(trans.Value.x, 1) == Math.Round(TranslationComponentData[grabbableResource].Value.x, 1))
+                    if (Math.Round(trans.Value.x, 1) == Math.Round(translation.Value.x, 1))
                     {
-                        if (Math.Round(trans.Value.z, 1) == Math.Round(TranslationComponentData[grabbableResource].Value.z, 1))
+                        if (Math.Round(trans.Value.z, 1) == Math.Round(translation.Value.z, 1))
                         {
-                            if (trans.Value.y < (TranslationComponentData[grabbableResource].Value.y + 1))
+                            if (trans.Value.y < (translation.Value.y + 1))
                             {
                                 trans = new Translation
                                 {
                                     Value =
-                                        new float3(TranslationComponentData[grabbableResource].Value.x,
-                                            TranslationComponentData[grabbableResource].Value.y + 2,
-                                            TranslationComponentData[grabbableResource].Value.z)
+                                        new float3(translation.Value.x,
+                                            translation.Value.y + 2,
+                                            translation.Value.z)
                                 };
                                 ResourceStateGrabbableComponentData.SetComponentEnabled(entity, true);
                                 GravityComponentData.SetComponentEnabled(entity, false);
