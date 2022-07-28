@@ -12,4 +12,5 @@ struct FireFighterConfig : IComponentData
     public float CellSize;
     public int LinesCount;
     public int PerLinesCount;
+    public float Speed;
 }
