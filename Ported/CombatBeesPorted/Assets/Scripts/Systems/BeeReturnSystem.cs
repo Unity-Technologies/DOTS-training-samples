@@ -37,6 +37,7 @@ partial struct BeeReturnJob : IJobEntity
 }
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+[BurstCompile]
 partial struct BeeReturnSystem : ISystem
 {
     private ComponentDataFromEntity<Translation> targetTranslationComponentData;
