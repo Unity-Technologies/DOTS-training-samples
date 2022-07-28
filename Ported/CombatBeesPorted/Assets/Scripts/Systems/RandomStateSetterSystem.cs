@@ -16,7 +16,7 @@ partial struct RandomStateSetterJob : IJobEntity
     void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity)
     {
         Random rand = Random.CreateFromIndex((uint)(entity.Index) + RandomSeed);
-        if (rand.NextFloat() < Aggressiveness && Resources.Length > 0)
+        if (rand.NextFloat() > Aggressiveness && Resources.Length > 0)
         {
             var resourceIndex = rand.NextInt(0, Resources.Length);
             ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, false);
