@@ -1,85 +1,68 @@
 using System;
-using System.Security.Cryptography;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs.LowLevel.Unsafe;
-using Unity.Mathematics;
-using Unity.Transforms;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 using Random = Unity.Mathematics.Random;
 
 partial class TargetFinderSystem : SystemBase
 {
-
     protected override void OnUpdate()
     {
-            NativeArray<Entity> _yellowBees;
-            NativeArray<Entity> _blueBees;
-            NativeArray<Entity> _food;
-            Random rnd = Random.CreateFromIndex(GlobalSystemVersion);
-            bool  aggression = rnd.NextBool();
+        var allocator = World.UpdateAllocator.ToAllocator;
+        var rnd = Random.CreateFromIndex(GlobalSystemVersion);
 
+        var yellowBees = GetEntityQuery(typeof(YellowTeam)).ToEntityArray(allocator);
 
-            var allocator = World.UpdateAllocator.ToAllocator;
-            
-            EntityQuery _yellowBeeQuery = GetEntityQuery(typeof(YellowTeam));
-            _yellowBees = _yellowBeeQuery.ToEntityArray(allocator);
-            
-            EntityQuery _blueBeesQuery = GetEntityQuery(typeof(BlueTeam));
-            _blueBees = _blueBeesQuery.ToEntityArray(allocator);
-            
-            EntityQuery _foodQuery = GetEntityQuery(typeof(NotCollected));
-            _food = _foodQuery.ToEntityArray(allocator);
+        var blueBees = GetEntityQuery(typeof(BlueTeam)).ToEntityArray(allocator);
 
-            //Set Targets for all Blue bees.
-            Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
+        var food = GetEntityQuery(typeof(NotCollected)).ToEntityArray(allocator);
+
+        //Set Targets for all Blue bees.
+        Entities.WithAll<YellowTeam>().ForEach((ref Bee bee) =>
+        {
+            var aggression = rnd.NextBool();
+            if (!Exists(bee.target))
             {
-                if (!Exists(bee.target))
-                {
-                    bee.state = BeeState.Idle;
-                    bee.target = Entity.Null;
-                }
-                
-                if (aggression && _blueBees.Length != 0 && bee.state == BeeState.Idle)
-                {
-                    bee.target = _blueBees[rnd.NextInt(_blueBees.Length)];
-                    bee.state = BeeState.Attacking;
-                }
+                bee.state = BeeState.Idle;
+                bee.target = Entity.Null;
+            }
 
-                if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
-                {
-                    bee.target = _food[rnd.NextInt(_food.Length)];
-                    bee.state = BeeState.Collecting;
-                }
-                
-            }).Schedule();
-            
-            //Set Targets for all Yellow bees.
-            Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
+            if (aggression && blueBees.Length != 0 && bee.state == BeeState.Idle)
             {
-                if (!Exists(bee.target))
-                {
-                    bee.state = BeeState.Idle;
-                    bee.target = Entity.Null;
-                }
+                bee.target = blueBees[rnd.NextInt(blueBees.Length)];
+                bee.state = BeeState.Attacking;
+            }
 
-                if (aggression && _yellowBees.Length != 0 && bee.state == BeeState.Idle)
-                {
-                    bee.target = _yellowBees[rnd.NextInt(_yellowBees.Length)];
-                    bee.state = BeeState.Attacking;
-                    
-                }
+            if (!aggression && food.Length != 0 && bee.state == BeeState.Idle)
+            {
+                bee.target = food[rnd.NextInt(food.Length)];
+                bee.state = BeeState.Collecting;
+            }
 
-                if (!aggression && _food.Length != 0 && bee.state == BeeState.Idle)
-                {
-                    bee.target = _food[rnd.NextInt(_food.Length)];
-                    bee.state = BeeState.Collecting;
-                }
-                
-            }).Schedule();
+        }).Schedule();
+        
+        //Set Targets for all Yellow bees.
+        Entities.WithAll<BlueTeam>().ForEach((ref Bee bee) =>
+        {
+            var aggression = rnd.NextBool();
+            if (!Exists(bee.target))
+            {
+                bee.state = BeeState.Idle;
+                bee.target = Entity.Null;
+            }
+
+            if (aggression && yellowBees.Length != 0 && bee.state == BeeState.Idle)
+            {
+                bee.target = yellowBees[rnd.NextInt(yellowBees.Length)];
+                bee.state = BeeState.Attacking;
+
+            }
+
+            if (!aggression && food.Length != 0 && bee.state == BeeState.Idle)
+            {
+                bee.target = food[rnd.NextInt(food.Length)];
+                bee.state = BeeState.Collecting;
+            }
+
+        }).Schedule();
     }
 }
