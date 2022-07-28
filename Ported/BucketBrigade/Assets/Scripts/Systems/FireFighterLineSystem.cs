@@ -55,37 +55,25 @@ partial struct FireSearcherJob : IJobEntity
     {
         var closestPoint = new float2(999999, 999999);
 
-        DynamicBuffer<Temperature> HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
         for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
         {
-            float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
+            float currentTemperature = HeatMap[cellIndex].Value;
             if (currentTemperature >= Config.FireThreshold)
             {
-                int cellRowIndex = Mathf.FloorToInt(cellIndex / TerrainConfig.GridSize);
-                int cellColumnIndex = cellIndex % TerrainConfig.GridSize;
-
-                var offset = new float2(-TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f, -TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f);
-
-                var newPoint = new float2((cellRowIndex) * TerrainConfig.CellSize, math.floor(cellColumnIndex) * TerrainConfig.CellSize) + offset;
-
-
-                if (math.distance(fireFighterLine.StartPosition, closestPoint) >
-                    math.distance(fireFighterLine.StartPosition, newPoint))
-                {
-                    int cellColumnIndex = Mathf.FloorToInt(cellIndex / gridSize);
-                    int cellRowIndex = cellIndex % gridSize;
+                    int cellColumnIndex = Mathf.FloorToInt(cellIndex / TerrainConfig.GridSize);
+                    int cellRowIndex = cellIndex % TerrainConfig.GridSize;
                     
-                    var offset = new float2(-terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f, -terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f);
+                    var offset = new float2(-TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f, -TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f);
                     
-                    var newPoint = new float2(cellRowIndex * terrainConfig.CellSize, cellColumnIndex * terrainConfig.CellSize) + offset;
+                    var newPoint = new float2(cellRowIndex * TerrainConfig.CellSize, cellColumnIndex * TerrainConfig.CellSize) + offset;
                     
                     
-                    if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
-                        math.distance(fireFighterLine.ValueRO.StartPosition, newPoint))
+                    if (math.distance(fireFighterLine.StartPosition, closestPoint) >
+                        math.distance(fireFighterLine.StartPosition, newPoint))
                     {
                         closestPoint = newPoint;
                     }
-                }
+                
             }
         }
 
