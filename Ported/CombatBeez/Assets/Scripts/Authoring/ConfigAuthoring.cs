@@ -19,6 +19,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public uint RandomNumberSeed;
     public int MinNumberOfBeesSpawned;
     public int MaxNumberOfBeesSpawned;
+
+    public bool Respawn;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -40,7 +42,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             AttackChance = authoring.AttackChance,
             RandomNumberSeed = authoring.RandomNumberSeed,
             MinNumberOfBeesSpawned = authoring.MinNumberOfBeesSpawned,
-            MaxNumberOfBeesSpawned = authoring.MaxNumberOfBeesSpawned
+            MaxNumberOfBeesSpawned = authoring.MaxNumberOfBeesSpawned,
+            Respawn = authoring.Respawn
         });
     }
 }

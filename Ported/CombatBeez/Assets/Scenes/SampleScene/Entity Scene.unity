@@ -185,3 +185,4 @@ MonoBehaviour:
   RandomNumberSeed: 8
   MinNumberOfBeesSpawned: 5
   MaxNumberOfBeesSpawned: 10
+  Respawn: 1

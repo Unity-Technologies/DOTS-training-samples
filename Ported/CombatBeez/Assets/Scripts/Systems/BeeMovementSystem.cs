@@ -78,12 +78,13 @@ public partial struct BeeMovementSystem : ISystem
         RefRW<NonUniformScale> beeScale)
     {
         //This state picks one of the other states to go to...
-        //This function picks a resource to move towards and then moves to the execute forage state
+        //This function picks a resource/bee to move towards and then moves to the next state
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
         if (!attack && foodLocations.Length > 0)
         {
+            //find nearest food resource instead of random?
             int foodResourceIndex = rand.NextInt(foodLocations.Length);
             Translation foodPoint = foodLocations[foodResourceIndex];
 
