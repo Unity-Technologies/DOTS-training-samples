@@ -75,6 +75,6 @@ partial struct WaterBringerFindNewTarget : IJobEntity
     {
         var multiplier = ((float)lineIndex.Value / (float)(FFCountPerLine - 1));
         var pos = StartPositions[lineId.Value] + multiplier * (EndPositions[lineId.Value] - StartPositions[lineId.Value]);
-        target.Value = pos*CellSize;
+        target.Value = pos;
     }
 }
