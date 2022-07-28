@@ -1,25 +1,32 @@
 ﻿using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
-class ConfigAuthoring : UnityEngine.MonoBehaviour
+class ConfigAuthoring : MonoBehaviour
 {
+    [Header("Setup")]
     public int StartingBeeCount = 10;
     public int StartingResourceCount = 100;
     
+    [Header("Animation")]
     public float BloodDuration = 3f;
     public float ExplosionDuration = 3f;
+    
+    [Header("Bees")]
     public float InteractionDistance = 1f;
-    public float GravityDown = 20f;
-    public float Aggressiveness;
-    public Vector3 PlayVolume;
-    public float HiveDepth = 10f;
     public float JitterTimeMin = 0.1f;
     public float JitterTimeMax = 0.9f;
     public float JitterDistanceMax = 3f;
     public float BeeMoveSpeed = 6f;
     public int BeesPerResource = 8;
+    [Range(0f, 1f)]
+    public float Aggressiveness;
     
+    [Header("World")]
+    public Vector3 PlayVolume;
+    public float HiveDepth = 10f;
+    public float GravityDown = 20f;
+    
+    [Header("Prefabs")]
     public UnityEngine.GameObject BeePrefab;
     public UnityEngine.GameObject ResourcePrefab;
     public UnityEngine.GameObject ExplosionPrefab;
