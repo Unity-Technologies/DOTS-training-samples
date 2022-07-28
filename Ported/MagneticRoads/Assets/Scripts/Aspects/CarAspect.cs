@@ -38,7 +38,7 @@ namespace Aspects
             get => m_TransformAspect.Rotation;
             set => m_TransformAspect.Rotation = value;
         }
-
+        
         public float Speed
         {
             get => m_Car.ValueRO.Speed;

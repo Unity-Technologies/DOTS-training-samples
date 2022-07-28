@@ -1,3 +1,4 @@
+using System;
 using Components;
 using Unity.Burst;
 using Unity.Collections;
@@ -25,6 +26,9 @@ namespace Systems
 
             // <index, entity>
             NativeHashMap<int, Entity> IndexToEntityHash = new NativeHashMap<int, Entity>(voxels.Length, Allocator.Temp);
+            
+            // <index, normal>
+            NativeHashMap<int, int3> IndexToNormalHash = new NativeHashMap<int, int3>(voxels.Length, Allocator.Temp);
 
             for (int i = 0; i < voxels.Length; i++)
             {
@@ -51,6 +55,9 @@ namespace Systems
                 ecb.AddComponent(entity, new Rotation {Value = quaternion.LookRotation(sumOfVoxels, normal)});
                 ecb.AddComponent<LocalToWorld>(entity);
                 ecb.AddComponent<Intersection>(entity);
+                
+                IndexToEntityHash.Add(i, entity);
+                IndexToNormalHash.Add(i, normal);
             }
 
             for (int i = 0; i < voxels.Length; i++)
@@ -68,27 +75,50 @@ namespace Systems
 
                     if (voxels[flatIndexOfNeighbor])
                     {
+                        if (!IndexToEntityHash.ContainsKey(i) || !IndexToEntityHash.ContainsKey(j))
+                            continue;
+                        
                         var entity = ecb.CreateEntity();
+                        
+                        var startNormal = IndexToNormalHash[i];
+                        var endNormal = IndexToNormalHash[j];
 
+                        var startTangent = startNormal.x == 0 ? new float3(0, 1, 0) : new float3(1, 0, 0);
+                        var endTangent = endNormal.x == 0 ? new float3(0, 1, 0) : new float3(1, 0, 0);
+                        
                         var Start = new Spline.RoadTerminator
                         {
                             Position = coords,
-                            Normal = new float3(0, 1, 0),
-                            Tangent = new float3(0, 0, 1)
+                            Normal = startNormal,
+                            Tangent = startTangent
                         };
                         var End = new Spline.RoadTerminator
                         {
                             Position = neighbors[j],
-                            Normal = new float3(0, 1, 0),
-                            Tangent = new float3(0, 0, 1),
+                            Normal = endNormal,
+                            Tangent = endTangent,
                         };
 
                         ecb.AddComponent(entity, new RoadSegment
                         {
                             Start = Start, 
                             End = End, 
-                            Length = Spline.EvaluateLength(Start, End)
+                            Length = Spline.EvaluateLength(Start, End),
+                            StartIntersection = IndexToEntityHash[i],
+                            EndIntersection = IndexToEntityHash[j]
                         });
+                        
+                        ecb.AddComponent<Lane>(entity);
+                        ecb.AddComponent<Lane>(entity);
+                        ecb.AddComponent<Lane>(entity);
+                        ecb.AddComponent<Lane>(entity);
+                        ecb.AddBuffer<CarDynamicBuffer>(entity).Reinterpret<Entity>();
+                        ecb.AddBuffer<CarDynamicBuffer>(entity).Reinterpret<Entity>();
+                        ecb.AddBuffer<CarDynamicBuffer>(entity).Reinterpret<Entity>();
+                        ecb.AddBuffer<CarDynamicBuffer>(entity).Reinterpret<Entity>();
+
+                        IndexToEntityHash.Remove(i);
+                        IndexToEntityHash.Remove(j);
                     }
                 }
             }
