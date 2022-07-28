@@ -49,7 +49,7 @@ namespace Util
             var voxelCount = WorldSize * WorldSize * WorldSize;
             // true indicates presence of an intersection
             var voxels = new bool[voxelCount];
-            // active voxels will be considered to have new neighbouring intersections
+            // active voxels will be considered to have new neighboring intersections
             var activeVoxels = new NativeList<int>();
 
             // Setup middle voxel
@@ -63,6 +63,8 @@ namespace Util
             {
                 attempts++;
                 var activeNode = activeVoxels[random.NextInt(activeVoxels.Length)];
+                
+
             }
                         
             return voxels;
@@ -82,6 +84,23 @@ namespace Util
             index /= WorldSize;
             pos.z = index;
             return pos;
+        }
+
+        public static NativeList<int3> GetCardinalNeighbors(int3 pos)
+        {
+            var neighbors = new NativeList<int3>();
+            foreach (var direction in CardinalDirections)
+            {
+                var possibleNeighbor = pos + direction;
+                if (possibleNeighbor.x > 0 && possibleNeighbor.x < WorldSize
+                    && possibleNeighbor.y > 0 && possibleNeighbor.y < WorldSize
+                    && possibleNeighbor.z > 0 && possibleNeighbor.z < WorldSize)
+                {
+                    neighbors.Add(possibleNeighbor);
+                }
+            }
+
+            return neighbors;
         }
     }
 }
