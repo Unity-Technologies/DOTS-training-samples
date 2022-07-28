@@ -155,7 +155,7 @@ MonoBehaviour:
   StartingBeeCount: 1000
   StartingResourceCount: 133
   BloodDuration: 4
-  ExplosionDuration: 1
+  ExplosionDuration: 4
   InteractionDistance: 1
   GravityDown: 9.81
   Aggressiveness: 0.5
@@ -165,6 +165,7 @@ MonoBehaviour:
   JitterTimeMax: 0.9
   JitterDistanceMax: 3
   BeeMoveSpeed: 6
+  BeesPerResource: 8
   BeePrefab: {fileID: 8665696998892792340, guid: d07d1cd71b8fad244ac63b5cac3aa95a,
     type: 3}
   ResourcePrefab: {fileID: 5050916762751225491, guid: 868422204a317b74dbd10f1266ce22b1,
