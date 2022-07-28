@@ -19,7 +19,7 @@ partial struct ResourceConsumerJob : IJobEntity
         Random rand = Random.CreateFromIndex((uint)entity.Index + RandomSeed);
 
         float3 pos = position.Value;
-        float targetX = Config.PlayVolume.x - (Config.HiveDepth * 0.5f);
+        float targetX = Config.PlayVolume.x - Config.HiveDepth;
         if (pos.x >= targetX || pos.x < -targetX)
         {
             for (int i = 0; i < 5; i++)

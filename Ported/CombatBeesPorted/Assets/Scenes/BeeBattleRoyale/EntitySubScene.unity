@@ -152,20 +152,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b9f0f479a634b2782a12ae2a5a658c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BloodDuration: 3.5
-  ExplosionDuration: 1.5
-  StartingBeeCount: 1000
-  StartingResourceCount: 133
+  StartingBeeCount: 0
+  StartingResourceCount: 10000
+  BloodDuration: 4
+  ExplosionDuration: 1
   InteractionDistance: 1
   GravityDown: 9.81
-  Aggressiveness: 0.3
+  Aggressiveness: 0.5
   PlayVolume: {x: 50, y: 10, z: 15}
   HiveDepth: 10
-  JitterTimeMin: 0.33
-  JitterTimeMax: 1
+  JitterTimeMin: 0.1
+  JitterTimeMax: 0.9
   JitterDistanceMax: 3
   BeeMoveSpeed: 6
-  BeesPerResource: 3
+  BeesPerResource: 8
   BeePrefab: {fileID: 8665696998892792340, guid: d07d1cd71b8fad244ac63b5cac3aa95a,
     type: 3}
   ResourcePrefab: {fileID: 5050916762751225491, guid: 868422204a317b74dbd10f1266ce22b1,

@@ -29,7 +29,7 @@ public partial struct SpawningSystem : ISystem
         var resourceColor = new URPMaterialPropertyBaseColor
             { Value = (Vector4) new Color(0.1572f, 0.4191f, 0.0739f, 1.0f) };
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var newResource = ecb.Instantiate(config.ResourcePrefab);
+        
         for (int i=0;i<3;i++) {
             for (int j=-1;j<=1;j+=2) {
                 Vector3 wallCenter = new Vector3();
@@ -61,11 +61,14 @@ public partial struct SpawningSystem : ISystem
         {
             if (Input.GetMouseButtonDown(0))
             {
-                ecb.SetComponentEnabled<Gravity>(newResource, true);
+                var newResource = ecb.Instantiate(config.ResourcePrefab);
                 ecb.SetComponent(newResource, new Resource());
                 Vector3 newResourceSpawnLocation = hitPoint;
                 ecb.SetComponent(newResource, new Translation { Value = newResourceSpawnLocation });
                 ecb.SetComponent(newResource, resourceColor);
+                ecb.SetComponentEnabled<ResourceStateGrabbed>(newResource, false);
+                ecb.SetComponentEnabled<ResourceStateGrabbable>(newResource, false);
+                ecb.SetComponentEnabled<ResourceStateStacked>(newResource, false);
             }
         }
     }

@@ -4,52 +4,61 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [WithAll(typeof(Gravity), typeof(Resource))]
 [BurstCompile]
 partial struct StackingJob : IJobEntity
 {
     [ReadOnly] public NativeArray<Entity> GrabbableResources;
-    [ReadOnly] public ComponentDataFromEntity<Translation> GrabbableTranslation;
-    [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
+    public ComponentDataFromEntity<Translation> TranslationComponentData;
+    public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
+    public ComponentDataFromEntity<ResourceBelow> ResourceBelowComponentData;
+    public ComponentDataFromEntity<ResourceStateStacked> ResourceStateStackedComponentData;
+    public ComponentDataFromEntity<Gravity> GravityComponentData;
+    public ComponentDataFromEntity<Velocity> VelocityComponentData;
+
     public float PlayVolumeFloor;
-    public EntityCommandBuffer Ecb;
-    void Execute(in Entity entity, in Translation trans)
+    void Execute(Entity entity, ref Translation trans)
     {
         if (trans.Value.y <= PlayVolumeFloor + 1)
         {
-            Ecb.SetComponentEnabled<Gravity>(entity, false);
-            Ecb.SetComponent(entity, new Velocity{Value = new Vector3(0,0,0) });
-            Ecb.SetComponent(entity, new Translation{Value = 
-                new float3(trans.Value.x, PlayVolumeFloor+1, trans.Value.z)});
-            Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, true);
+            GravityComponentData.SetComponentEnabled(entity, false);
+            VelocityComponentData[entity] = new Velocity{Value = new float3(0,0,0) };
+            TranslationComponentData[entity] = new Translation{Value = 
+                new float3(trans.Value.x, PlayVolumeFloor + 1, trans.Value.z)};
+            ResourceStateGrabbableComponentData.SetComponentEnabled(entity, true);
         }
-
-        foreach (var grabbableResource in GrabbableResources)
+        else
         {
-            if (ResourceStateGrabbableComponentData.IsComponentEnabled(grabbableResource))
+            foreach (var grabbableResource in GrabbableResources)
             {
-                // Debug.Log($"{GrabbableTranslation[grabbableResource].Value.y}");
-                if (Math.Round(trans.Value.x, 1) == Math.Round(GrabbableTranslation[grabbableResource].Value.x, 1))
+                if (ResourceStateGrabbableComponentData.IsComponentEnabled(grabbableResource))
                 {
-                    if (Math.Round(trans.Value.z, 1) == Math.Round(GrabbableTranslation[grabbableResource].Value.z, 1))
+                    var translation = TranslationComponentData[grabbableResource];
+                    // Debug.Log($"{GrabbableTranslation[grabbableResource].Value.y}");
+                    if (Math.Round(trans.Value.x, 1) == Math.Round(TranslationComponentData[grabbableResource].Value.x, 1))
                     {
-                        if (trans.Value.y < GrabbableTranslation[grabbableResource].Value.y)
+                        if (Math.Round(trans.Value.z, 1) == Math.Round(TranslationComponentData[grabbableResource].Value.z, 1))
                         {
-                            Ecb.SetComponent(entity, new Translation
+                            if (trans.Value.y < (TranslationComponentData[grabbableResource].Value.y + 1))
                             {
-                                Value =
-                                    new float3(GrabbableTranslation[grabbableResource].Value.x,
-                                        GrabbableTranslation[grabbableResource].Value.y + 2,
-                                        GrabbableTranslation[grabbableResource].Value.z)
-                            });
-                            Ecb.SetComponentEnabled<ResourceStateGrabbable>(entity, true);
-                            Ecb.SetComponentEnabled<Gravity>(entity, false);
-                            Ecb.SetComponent(entity, new Velocity { Value = new Vector3(0, 0, 0) });
-                            Ecb.SetComponentEnabled<ResourceStateGrabbable>(grabbableResource, false);
-                            Ecb.SetComponentEnabled<ResourceStateStacked>(grabbableResource, true);
-                            Ecb.SetComponent<ResourceBelow>(entity, new ResourceBelow { Value = grabbableResource });
+                                trans = new Translation
+                                {
+                                    Value =
+                                        new float3(TranslationComponentData[grabbableResource].Value.x,
+                                            TranslationComponentData[grabbableResource].Value.y + 2,
+                                            TranslationComponentData[grabbableResource].Value.z)
+                                };
+                                ResourceStateGrabbableComponentData.SetComponentEnabled(entity, true);
+                                GravityComponentData.SetComponentEnabled(entity, false);
+                                VelocityComponentData[entity] = new Velocity { Value = new float3(0, 0, 0) };
+
+                                ResourceStateGrabbableComponentData.SetComponentEnabled(grabbableResource, false);
+                                ResourceStateStackedComponentData.SetComponentEnabled(grabbableResource, true);
+
+                                ResourceBelowComponentData[entity] = new ResourceBelow { Value = grabbableResource };
+                                break;
+                            }
                         }
                     }
                 }
@@ -64,15 +73,24 @@ partial struct StackingJob : IJobEntity
 public partial struct StackingSystem : ISystem
 {
     private EntityQuery _grabbableResourceQuery;
-    private ComponentDataFromEntity<Translation> _translationGrabbableResource;
+    private ComponentDataFromEntity<Translation> _translationComponentData;
     private ComponentDataFromEntity<ResourceStateGrabbable> _resourceStateGrabbableComponentData;
+    private ComponentDataFromEntity<ResourceBelow> _resourceBelowComponentData;
+    private ComponentDataFromEntity<ResourceStateStacked> _resourceStateStackedComponentData;
+    private ComponentDataFromEntity<Gravity> _gravityComponentData;
+    private ComponentDataFromEntity<Velocity> _velocityComponentData;
     
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
         _grabbableResourceQuery = state.GetEntityQuery(typeof(ResourceStateGrabbable));
-        _translationGrabbableResource = state.GetComponentDataFromEntity<Translation>();
+        
+        _translationComponentData = state.GetComponentDataFromEntity<Translation>();
         _resourceStateGrabbableComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbable>();
+        _resourceBelowComponentData= state.GetComponentDataFromEntity<ResourceBelow>();
+        _resourceStateStackedComponentData= state.GetComponentDataFromEntity<ResourceStateStacked>();
+        _gravityComponentData= state.GetComponentDataFromEntity<Gravity>();
+        _velocityComponentData= state.GetComponentDataFromEntity<Velocity>();
     }
 
     [BurstCompile]
@@ -84,20 +102,25 @@ public partial struct StackingSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var playVolumeFloor = -SystemAPI.GetSingleton<Config>().PlayVolume.y;
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var grabbableResource = _grabbableResourceQuery.ToEntityArray(state.WorldUpdateAllocator);
         
+        _translationComponentData.Update(ref state);
         _resourceStateGrabbableComponentData.Update(ref state);
-        _translationGrabbableResource.Update(ref state);
+        _resourceBelowComponentData.Update(ref state);
+        _resourceStateStackedComponentData.Update(ref state);
+        _gravityComponentData.Update(ref state);
+        _velocityComponentData.Update(ref state);
 
         new StackingJob
             {
                 PlayVolumeFloor = playVolumeFloor, 
-                Ecb = ecb,
                 GrabbableResources = grabbableResource,
-                GrabbableTranslation =_translationGrabbableResource,
                 ResourceStateGrabbableComponentData = _resourceStateGrabbableComponentData,
-            }.Schedule();
+                ResourceStateStackedComponentData = _resourceStateStackedComponentData,
+                TranslationComponentData = _translationComponentData,
+                ResourceBelowComponentData = _resourceBelowComponentData,
+                GravityComponentData = _gravityComponentData,
+                VelocityComponentData = _velocityComponentData,
+            }.Run();
     }
 } 
