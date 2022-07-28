@@ -124,6 +124,14 @@ partial class BeeMovementSystem : SystemBase
                         bee.target = Entity.Null;
                     }
                 }
+
+                if (bee.state == BeeState.Idle)
+                {
+                    if (math.distancesq(position, target) < 0.25f)
+                    {
+                        bee.targetPos = randomPlaceInSpawn;
+                    }
+                }
                 
             }).Run();
             ecb.Playback(EntityManager);
