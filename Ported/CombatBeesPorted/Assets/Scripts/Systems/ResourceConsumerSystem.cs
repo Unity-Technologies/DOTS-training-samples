@@ -26,10 +26,13 @@ partial struct ResourceConsumerJob : IJobEntity
             for (int i = 0; i < 6; i++)
             {
                 var explosionParticle = ECB.Instantiate(chunkIndex, Config.ExplosionPrefab);
-                var particleVelocity = velocity.Value + rand.NextFloat3() * 5;
+                var randVel = rand.NextFloat3Direction() * 8f;
+                randVel.y = math.abs(randVel.y);
+                var particleVelocity = velocity.Value + randVel;
                 var particleScale = math.float3(1f, 1f, 1f) * rand.NextFloat(1f, 2f);
+                var randomDuration = rand.NextFloat(0.85f, 1.15f) * Config.ExplosionDuration;
 
-                ECB.SetComponent(chunkIndex, explosionParticle, new AnimationTime { Value = Config.ExplosionDuration });
+                ECB.SetComponent(chunkIndex, explosionParticle, new AnimationTime { Value = randomDuration });
                 ECB.SetComponent(chunkIndex, explosionParticle, new NonUniformScale { Value = particleScale });
                 ECB.SetComponent(chunkIndex, explosionParticle, new Velocity { Value = particleVelocity });
                 ECB.SetComponent(chunkIndex, explosionParticle, new Translation { Value = position.Value });
@@ -42,13 +45,14 @@ partial struct ResourceConsumerJob : IJobEntity
                 if (pos.x > targetX)
                 {
                     ECB.AddComponent<YellowTeam>(chunkIndex, beeEntity);
-                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.yellow });
-
+                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask,
+                        new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.yellow });
                 }
                 else
                 {
                     ECB.AddComponent<BlueTeam>(chunkIndex, beeEntity);
-                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.blue });
+                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask,
+                        new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.blue });
                 }
 
                 ECB.SetComponent<Translation>(chunkIndex, beeEntity, position);

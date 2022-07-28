@@ -26,8 +26,8 @@ partial struct BeeKillerJob : IJobEntity
         for (int i = 0; i < 6; ++i)
         {
             var bloodParticle = ECB.Instantiate(chunkIndex, Config.BloodPrefab);
-            var particleVelocity = velocity.Value + rand.NextFloat3Direction() * 3f;
-            var particleScale = math.float3(1f,1f,1f) * rand.NextFloat(0.75f, 1.25f);
+            var particleVelocity = velocity.Value + rand.NextFloat3Direction() * 4f;
+            var particleScale = math.float3(1f,1f,1f) * rand.NextFloat(0.33f, 1f);
 
             ECB.SetComponent(chunkIndex, bloodParticle, new NonUniformScale { Value = particleScale });
             ECB.SetComponent(chunkIndex, bloodParticle, new Velocity { Value = particleVelocity });
