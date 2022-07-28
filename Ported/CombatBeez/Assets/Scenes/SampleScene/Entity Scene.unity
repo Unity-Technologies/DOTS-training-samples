@@ -185,4 +185,5 @@ MonoBehaviour:
   RandomNumberSeed: 8
   MinNumberOfBeesSpawned: 5
   MaxNumberOfBeesSpawned: 10
+  TimeBloodTakesToDry: 1
   Respawn: 1
