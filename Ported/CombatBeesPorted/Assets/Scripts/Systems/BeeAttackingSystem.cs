@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
-using UnityEngine;
 
 [WithAll(typeof(BeeStateAttacking))]
 [BurstCompile]
@@ -53,16 +52,16 @@ partial struct BeeAttackJob : IJobEntity
 [BurstCompile]
 public partial struct BeeAttackingSystem : ISystem
 {
-    private StorageInfoFromEntity storageInfo;
-    private ComponentDataFromEntity<Translation> translationComponentData;
+    private StorageInfoFromEntity _storageInfo;
+    private ComponentDataFromEntity<Translation> _translationComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
         
-        storageInfo = state.GetStorageInfoFromEntity();
-        translationComponentData = state.GetComponentDataFromEntity<Translation>();
+        _storageInfo = state.GetStorageInfoFromEntity();
+        _translationComponentData = state.GetComponentDataFromEntity<Translation>();
     }
 
     [BurstCompile]
@@ -79,15 +78,15 @@ public partial struct BeeAttackingSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
-        storageInfo.Update(ref state);
-        translationComponentData.Update(ref state);
+        _storageInfo.Update(ref state);
+        _translationComponentData.Update(ref state);
 
         var attackJob = new BeeAttackJob()
         {
             ECB = ecb,
             AttackRadius = attackRadius,
-            TargetStorageInfo = storageInfo,
-            TargetTranslationComponentData = translationComponentData,
+            TargetStorageInfo = _storageInfo,
+            TargetTranslationComponentData = _translationComponentData,
         };
 
         attackJob.ScheduleParallel();
