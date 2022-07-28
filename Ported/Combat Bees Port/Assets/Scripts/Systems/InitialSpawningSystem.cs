@@ -15,7 +15,7 @@ partial struct InitialSpawningSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        random = Random.CreateFromIndex(1234);
+        random = Random.CreateFromIndex(state.GlobalSystemVersion);
     }
 
     [BurstCompile]
@@ -66,7 +66,7 @@ partial struct InitialSpawningSystem : ISystem
         
         foreach (var foodNode in food)
         {
-            var randomSpawn = random.NextFloat3(new float3(-5, 0, -10), new float3(5, 0, 10));
+            var randomSpawn = random.NextFloat3(new float3(-15, 0, -10), new float3(15, 0, 10));
 
             ecb.SetComponent(foodNode, new Translation
             {
