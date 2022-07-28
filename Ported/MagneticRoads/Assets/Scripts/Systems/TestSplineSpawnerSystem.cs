@@ -56,9 +56,9 @@ namespace Systems
             };
             var End = new Spline.RoadTerminator
             {
-                Position = new float3(4, 0, 4),
+                Position = new float3(3, 0, 3),
                 Normal = new float3(0, 1, 0),
-                Tangent = new float3(1, 0, 0),
+                Tangent = new float3(0, 0, 1),
             };
             ecb.SetComponent(rs, new RoadSegment
             {

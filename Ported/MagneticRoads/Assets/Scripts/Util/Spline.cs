@@ -7,6 +7,7 @@ namespace Util
     public static class Spline
     {
         private const int SplineLengthResolution = 10;
+        private const float SplineHandleLength = 1;
         
         public struct RoadTerminator
         {
@@ -17,8 +18,8 @@ namespace Util
         
         public static float3 EvaluatePosition(RoadTerminator start, RoadTerminator end, float t)
         {
-            var anchor1 = start.Position + start.Tangent;
-            var anchor2 = end.Position - end.Tangent;
+            var anchor1 = start.Position + start.Tangent * SplineHandleLength;
+            var anchor2 = end.Position - end.Tangent * SplineHandleLength;
             // F(t) = (1-t)^3 P0 + 3(1-t)^2t P1 + 3(1-t)t^2 P2 + t^3 P3
             return start.Position * (1 - t) * (1 - t) * (1 - t) 
                    + 3 * anchor1 * (1 - t) * (1 - t) * t 
@@ -28,10 +29,11 @@ namespace Util
         
         public static float3 EvaluateTangent(RoadTerminator start, RoadTerminator end, float t)
         {
-            var anchor1 = start.Position + start.Tangent;
-            var anchor2 = end.Position - end.Tangent;
+            var anchor1 = start.Position + start.Tangent * SplineHandleLength;
+            var anchor2 = end.Position - end.Tangent * SplineHandleLength;
             // F'(t) = 3(1-t)^2 (P1 - P0) + 6(1-t)(P2 - P1) + 3t^2(P3-P2)
-            var derivative = 3 * (1 - t) * (1 - t) * (anchor1 - start.Position)
+            var derivative = 
+                3 * (1 - t) * (1 - t) * (anchor1 - start.Position)
                 + 6 * (1 - t) * (anchor2 - anchor1)
                 + 3 * t * t * (end.Position - anchor2);
 
@@ -40,9 +42,17 @@ namespace Util
 
         public static quaternion EvaluateRotation(RoadTerminator start, RoadTerminator end, float t)
         {
+            var normal = EvaluateNormal(start, end, t);
+            var tangent = EvaluateTangent(start, end, t);
+            return quaternion.LookRotation(tangent, normal);
+        }
+
+        public static float3 EvaluateNormal(RoadTerminator start, RoadTerminator end, float t)
+        {
             var startQuart = quaternion.LookRotation(start.Tangent, start.Normal);
             var endQuart = quaternion.LookRotation(end.Tangent, end.Normal);
-            return math.slerp(startQuart, endQuart, t);
+
+            return math.mul(math.slerp(startQuart, endQuart, t), new float3(0, 1, 0));
         }
 
         public static float EvaluateLength(RoadTerminator start, RoadTerminator end)
