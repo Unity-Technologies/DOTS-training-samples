@@ -9,6 +9,7 @@ namespace Aspects
     public readonly partial struct CarAspect : IAspect<CarAspect>
     {
         readonly RefRW<Car> m_Car;
+        readonly RefRO<RoadSegment> m_RoadSegment;
         readonly TransformAspect m_TransformAspect;
         readonly RefRW<URPMaterialPropertyBaseColor> m_BaseColor;
 
@@ -60,6 +61,11 @@ namespace Aspects
         {
             get => m_Car.ValueRO.RoadSegment;
             set => m_Car.ValueRW.RoadSegment = value;
+        }
+
+        public RoadSegment RoadSegmentAspect
+        {
+            get => m_RoadSegment.ValueRO;
         }
     }
 }

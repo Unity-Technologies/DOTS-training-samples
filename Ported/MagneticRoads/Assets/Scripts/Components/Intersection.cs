@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Components
 {
-    public struct Intersection:IComponentData
+    public struct Intersection : IComponentData
     {
         public bool IsOccupied;
     }
