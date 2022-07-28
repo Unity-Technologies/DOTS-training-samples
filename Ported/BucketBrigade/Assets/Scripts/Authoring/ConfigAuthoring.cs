@@ -4,7 +4,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public int InitialFireCount;
     public float FireThreshold;
-    public float FireUpdateRate;
+    public float HeatTransferRate;
     public int FireFighterLinesCount;
     public int FireFighterPerLineCount;
 
@@ -18,7 +18,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
         {
             InitialFireCount = authoring.InitialFireCount,
             FireThreshold = authoring.FireThreshold,
-            FireUpdateRate = authoring.FireUpdateRate,  
+            HeatTransferRate = authoring.HeatTransferRate,  
             FireFighterLinesCount = authoring.FireFighterLinesCount,
             FireFighterPerLineCount = authoring.FireFighterPerLineCount
         });

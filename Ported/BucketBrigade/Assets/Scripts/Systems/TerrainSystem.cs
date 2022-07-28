@@ -57,7 +57,7 @@ partial struct TerrainSpawningSystem : ISystem
         for(int j = 0; j < config.InitialFireCount; ++j)
         {
             int rndIndex = UnityEngine.Random.Range(0, (GridSize * GridSize) - 1);
-            HeatMap.ElementAt(rndIndex).Value = config.FireThreshold;
+            HeatMap.ElementAt(rndIndex).Value = 0.90f;
         }  
 
         // This system should only run once at startup. So it disables itself after one update.

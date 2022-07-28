@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InitialFireCount: 2
   FireThreshold: 0.5
-  FireUpdateRate: 0.5
+  HeatTransferRate: 0.02
   FireFighterLinesCount: 0
   FireFighterPerLineCount: 0
 --- !u!114 &880526330
@@ -212,6 +212,7 @@ MonoBehaviour:
   heatTransferRate: 0.7
   FireFighterPrefab: {fileID: 7608572091806980845, guid: 1afad127379ec864396fd0399514c962,
     type: 3}
+  Speed: 0.5
   linesCount: 2
   PerLinesCount: 10
   fireSimUpdateRate: 0.5

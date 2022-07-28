@@ -30,15 +30,13 @@ partial struct FireSystem : ISystem
         TerrainCellConfig TerrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         int heatRadius = 1;
-        float heatTransferRate = 0.007f * Time.deltaTime;
-        float fireSimUpdateRate = 0.5f;
+        float heatTransferRate = Config.HeatTransferRate * Time.deltaTime;
 
         float threshold = Config.FireThreshold;
         int gridSize = TerrainConfig.GridSize;
 
         
          
-
         for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
         {
             float tempChange = 0f;
@@ -75,14 +73,13 @@ partial struct FireSystem : ISystem
         
         }
 
-        foreach (var(color, fire) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRO<Fire>>())
+        foreach (var(color, translation,  fire) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<Translation>,RefRO<Fire>>())
         {
             float4 colorValue = new float4(TerrainConfig.NeutralCol.r, TerrainConfig.NeutralCol.g, TerrainConfig.NeutralCol.b, 1.0f);
             var temperature = HeatMap.ElementAt(fire.ValueRO.Index).Value;
             
             if (temperature >= threshold)
             {
-                Debug.Log("fire");
                 var coolFact = (1 - temperature) / (1 - threshold);
                 var hotFact = 1 - coolFact;
 
@@ -91,8 +88,9 @@ partial struct FireSystem : ISystem
                                         coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b, 
                                         1.0f);
 
-                var height = 1; // TODO
-               // position.ValueRW.Value.y = height;
+                var gap = ((temperature - threshold) / threshold);
+                var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap;
+                translation.ValueRW.Value.y = height;
 
             }
 
