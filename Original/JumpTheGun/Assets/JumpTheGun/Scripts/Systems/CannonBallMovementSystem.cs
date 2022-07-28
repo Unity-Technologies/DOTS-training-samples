@@ -26,9 +26,14 @@ partial class CannonBallMovementSystem : SystemBase
                 float baseY = Mathf.Lerp(transform.Position.y, playerTransform.Position.y, (nextX - x0) / dist);
                 float arc = arcHeight * (nextX - x0) * (nextX - x1) / (-0.25f * dist * dist);
                 var nextPos = new Vector3(nextX, baseY + arc, transform.Position.z);
-                
                 transform.Position = nextPos;
-                
+
+                //ParabolaCluster.Create(transform.Position.y, 2.0f, playerTransform.Position.y,out entity.para.paraA, out entity.para.paraB, out entity.para.paraC);
+                //math.slerp(transform.Rotation, playerTransform.Rotation, 2.0f);
+                //translation.Value = translation.Value + playerTransform.Up * deltaTime;
+
+                transform.Position = nextPos;
+
             }).Run();
     }
 
