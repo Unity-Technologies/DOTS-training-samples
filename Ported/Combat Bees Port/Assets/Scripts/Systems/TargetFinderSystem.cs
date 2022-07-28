@@ -85,7 +85,7 @@ partial struct TargetFinderSystem : ISystem
 
                     aggressive = rnd.NextBool();
                     Entity bee = yellowBees[i];
-                    Bee beeComponent  = _beeComponent[bee];
+                    Bee beeComponent = _beeComponent[bee];
 
 
 
@@ -102,7 +102,7 @@ partial struct TargetFinderSystem : ISystem
                         else if (_foodExists && (!aggressive || !_blueBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
                         {
                             beeComponent.target = food[rnd.NextInt(food.Length)];
-                            beeComponent.state = BeeState.Hauling;
+                            beeComponent.state = BeeState.Collecting;
                             ecb.SetComponent(bee, beeComponent);
                         }
 
@@ -136,7 +136,7 @@ partial struct TargetFinderSystem : ISystem
                         else if (_foodExists && (!aggressive || !_blueBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
                         {
                             beeComponent.target = food[rnd.NextInt(food.Length)];
-                            beeComponent.state = BeeState.Hauling;
+                            beeComponent.state = BeeState.Collecting;
                             ecb.SetComponent(bee, beeComponent);
                         }
                     }
