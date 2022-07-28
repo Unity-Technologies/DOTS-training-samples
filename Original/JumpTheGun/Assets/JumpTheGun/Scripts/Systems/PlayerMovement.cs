@@ -78,7 +78,7 @@ partial struct PlayerComponentJob : IJobEntity
                 }
             }
             Bounce(endBox, playerComponent, endBox, startBox, boxRef1, boxRef2);
-        }
+        } 
     }
     
     private static AABB GetBounds(float yOffset, float3 position){
@@ -254,8 +254,9 @@ partial struct PlayerMovement : ISystem
             config = config,
             entityManager = entityManager, 
         };
-        PlayerJob.Schedule();
 
-        //PlayerJob.Complete(); 
+        //PlayerJob.Schedule();
+
+        PlayerJob.Run(); 
     }
 }
