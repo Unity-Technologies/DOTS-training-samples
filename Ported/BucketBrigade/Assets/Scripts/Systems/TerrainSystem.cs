@@ -42,7 +42,7 @@ partial struct TerrainSpawningSystem : ISystem
         var offset = new float3(-GridSize * CellSize * 0.5f + CellSize * 0.5f, -CellSize, -GridSize * CellSize * 0.5f + CellSize * 0.5f);
         foreach (var cell in terrainCell)
         {
-            ecb.SetComponent(cell, new Translation { Value = new float3((i % GridSize) * CellSize, 0.0f, Mathf.Ceil(i / GridSize) * CellSize) + offset });
+            ecb.SetComponent(cell, new Translation { Value = new float3((i % GridSize) * CellSize, 0.0f, math.floor(i / GridSize) * CellSize) + offset });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3( CellSize, CellSize*2, CellSize) });
 
             HeatMap.Add(new Temperature { Value = 0f });
