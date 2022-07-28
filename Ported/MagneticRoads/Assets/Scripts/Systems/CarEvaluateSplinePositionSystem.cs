@@ -1,3 +1,4 @@
+using System;
 using Aspects;
 using Components;
 using Unity.Burst;
@@ -38,9 +39,9 @@ namespace Systems
             carAspect.Position = splinePos + offset;
             carAspect.Rotation = rot;
 
-            if (carT >= 1)
+            if (Math.Abs(carT - 1) < 0.05f)
             {
-                ECB.SetComponentEnabled<TraversingIntersection>(chunkIndex, carAspect.Entity, true);
+                ECB.SetComponentEnabled<WaitingAtIntersection>(chunkIndex, carAspect.Entity, true);
             }
         }
     }
