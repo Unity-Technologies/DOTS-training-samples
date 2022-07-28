@@ -29,6 +29,7 @@ partial struct ResourceConsumerJob : IJobEntity
                 var particleVelocity = velocity.Value + rand.NextFloat3() * 5;
                 var particleScale = math.float3(1f, 1f, 1f) * rand.NextFloat(1f, 2f);
 
+                ECB.SetComponent(chunkIndex, explosionParticle, new AnimationTime { Value = Config.ExplosionDuration });
                 ECB.SetComponent(chunkIndex, explosionParticle, new NonUniformScale { Value = particleScale });
                 ECB.SetComponent(chunkIndex, explosionParticle, new Velocity { Value = particleVelocity });
                 ECB.SetComponent(chunkIndex, explosionParticle, new Translation { Value = position.Value });
