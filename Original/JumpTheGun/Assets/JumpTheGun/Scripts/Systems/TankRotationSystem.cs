@@ -37,7 +37,7 @@ public partial class TankRotationSystem : SystemBase
                 transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
 
                 
-            }).ScheduleParallel();
+            }).Schedule();
 
                
     }
