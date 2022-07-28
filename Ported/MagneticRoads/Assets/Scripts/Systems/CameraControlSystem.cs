@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    public struct CameraControlSystem : ISystem
+    public partial struct CameraControlSystem : ISystem
     {
         public void OnCreate(ref SystemState state) { }
         public void OnDestroy(ref SystemState state) { }
