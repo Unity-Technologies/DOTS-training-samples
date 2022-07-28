@@ -40,6 +40,7 @@ partial struct BucketSpawningSystem : ISystem
         {
             ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-gridRadius, gridRadius), configCell.CellSize * 0.25f, rand.NextFloat(-gridRadius, gridRadius)) });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3(configCell.CellSize * 0.5f, configCell.CellSize * 0.5f, configCell.CellSize * 0.5f) });
+            ecb.SetComponent(cell, new BucketId { Value = i });
             ++i;
         }
 

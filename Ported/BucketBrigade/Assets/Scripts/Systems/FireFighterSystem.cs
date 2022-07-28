@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
-partial struct FireFighterSystem : ISystem
+partial struct FireFighterSpawnSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)

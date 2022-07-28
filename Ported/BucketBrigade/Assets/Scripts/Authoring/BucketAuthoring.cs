@@ -17,6 +17,5 @@ class BucketBaker : Baker<BucketAuthoring>
         AddComponent(new BucketId { Value = 0 });
         AddComponent(new BucketInfo { IsTaken = false,
                                       Position = float2.zero });
-        AddComponent(new Target { Value = new float2 {x = 2, y = 2}});
     }
 }
