@@ -380,7 +380,7 @@ MonoBehaviour:
   terrainLength: 11
   minTerrainHeight: 0.72
   maxTerrainHeight: 0.7
-  boxCount: 1
+  boxCount: 10
   boxHeightDamage: 7
   tankLaunchPeriod: 5
   collisionStepMultiplier: 0.39
