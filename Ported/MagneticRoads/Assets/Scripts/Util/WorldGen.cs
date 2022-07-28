@@ -62,7 +62,8 @@ namespace Util
             while (attempts < MaxAttempts && activeVoxels.Length > 0)
             {
                 attempts++;
-                var activeNode = activeVoxels[random.NextInt(activeVoxels.Length)];
+                var index = random.NextInt(activeVoxels.Length);
+                var activeNode = activeVoxels[index];
 
                 // Select a cardinal neighbor
                 var neighborsOfActive = GetCardinalNeighbors(GetVoxelCoords(activeNode));
@@ -90,7 +91,7 @@ namespace Util
                 }
                 if (recountedNeighborsOldNode >= 3)
                 {
-                    //
+                    activeVoxels.RemoveAt(index);
                 }
 
             }
