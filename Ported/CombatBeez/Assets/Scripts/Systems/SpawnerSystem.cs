@@ -67,7 +67,7 @@ partial struct SpawnerSystem : ISystem
         state.EntityManager.Instantiate(config.FoodResourcePrefab, config.FoodResourceCount, Allocator.Temp);
         // food resource field is 20 by 20, 10 in each direction
         // random number generator for both dimension from -10 to 10
-        Random rand = new Random(123);
+        Random rand = new Random(config.RandomNumberSeed);
         foreach (var (foodResource, transform) in SystemAPI.Query< RefRW < FoodResource > , TransformAspect >().WithAll<FoodResource>())
         {
             foodResource.ValueRW.State = FoodState.SETTLED;
