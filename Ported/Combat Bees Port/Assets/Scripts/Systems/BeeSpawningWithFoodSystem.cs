@@ -31,7 +31,8 @@ partial struct BeeSpawningWithFoodSystem : ISystem
 
         foreach (var instance in particleArray)
         {
-            ecb.SetComponent(instance, new Translation { Value = spawnPosition + random.NextFloat3()});
+            ecb.SetComponent(instance, new Translation { Value = spawnPosition + random.NextFloat3(
+                new float3(-0.5f,-0.5f,-0.5f), new float3(0.5f,0.5f,0.5f))});
         }
     }
     
