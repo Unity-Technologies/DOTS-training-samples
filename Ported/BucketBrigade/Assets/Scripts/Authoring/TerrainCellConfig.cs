@@ -6,6 +6,8 @@ struct TerrainCellConfig : IComponentData
     public Entity Prefab;
     public int GridSize;
     public float CellSize;
+    public float FlickerRate;
+    public float FlickerRange;
     public Color NeutralCol;
     public Color CoolCol;
     public Color HotCol;

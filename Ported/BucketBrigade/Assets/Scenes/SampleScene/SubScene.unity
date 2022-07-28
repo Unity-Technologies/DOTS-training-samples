@@ -209,7 +209,9 @@ MonoBehaviour:
   columns: 20
   flashpoint: 0.5
   heatRadius: 1
-  heatTransferRate: 0.7
+  heatTransferRate: 0.3
+  flickerRate: 0.5
+  flickerRange: 0.2
   FireFighterPrefab: {fileID: 7608572091806980845, guid: 1afad127379ec864396fd0399514c962,
     type: 3}
   Speed: 0.5
