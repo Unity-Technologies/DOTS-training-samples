@@ -15,26 +15,28 @@ partial struct BeeKillerJob : IJobEntity
     public Config Config;
     [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbed> ResourceStateGrabbedComponentData;
 
-    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in Velocity velocity, in Translation position, in EntityOfInterest entityOfInterest)
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in Velocity velocity, in Translation position,
+        in EntityOfInterest entityOfInterest)
     {
         Random rand = Random.CreateFromIndex((uint)(entity.Index) + RandomSeed);
-        
+
         ECB.DestroyEntity(chunkIndex, entity);
-        
+
         for (int i = 0; i < 6; ++i)
         {
             var bloodParticle = ECB.Instantiate(chunkIndex, Config.BloodPrefab);
-            var particleVelocity = velocity.Value + rand.NextFloat3() * 2;
-            var particleScale = Vector3.one * rand.NextFloat(.1f, .2f);
-            
+            var particleVelocity = velocity.Value + rand.NextFloat3Direction() * 3f;
+            var particleScale = Vector3.one * rand.NextFloat(0.75f, 1.25f);
+
             ECB.SetComponent(chunkIndex, bloodParticle, new NonUniformScale { Value = particleScale });
             ECB.SetComponent(chunkIndex, bloodParticle, new Velocity { Value = particleVelocity });
             ECB.SetComponent(chunkIndex, bloodParticle, new Translation { Value = position.Value });
+            ECB.SetComponent(chunkIndex, bloodParticle, new AnimationTime() { Value = Config.BloodDuration });
         }
 
         // If the bee had a grabbed resource when it died, then we need to turn on gravity and re-enable it.
-        if (TargetStorageInfo.Exists(entityOfInterest.Value) 
-            && ResourceStateGrabbedComponentData.HasComponent(entityOfInterest.Value) 
+        if (TargetStorageInfo.Exists(entityOfInterest.Value)
+            && ResourceStateGrabbedComponentData.HasComponent(entityOfInterest.Value)
             && ResourceStateGrabbedComponentData.IsComponentEnabled(entityOfInterest.Value))
         {
             ECB.SetComponentEnabled<ResourceStateGrabbed>(chunkIndex, entityOfInterest.Value, false);
@@ -68,12 +70,12 @@ public partial struct BeeKillerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        
+
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-        
+
         _storageInfo.Update(ref state);
-        _resourceStateGrabbedComponentData.Update(ref state); 
+        _resourceStateGrabbedComponentData.Update(ref state);
 
         var beeKillerJob = new BeeKillerJob()
         {
@@ -85,6 +87,5 @@ public partial struct BeeKillerSystem : ISystem
         };
 
         beeKillerJob.ScheduleParallel();
-        
     }
 }

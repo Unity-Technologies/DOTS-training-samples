@@ -154,8 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StartingBeeCount: 1000
   StartingResourceCount: 137
-  BloodDuration: 0
-  ExplosionDuration: 0
+  BloodDuration: 4
+  ExplosionDuration: 1
   InteractionDistance: 1
   GravityDown: 9.81
   Aggressiveness: 0.5
