@@ -38,7 +38,7 @@ partial struct BucketSpawningSystem : ISystem
         int i = 0;
         foreach (var cell in buckets)
         {
-            ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-gridRadius, gridRadius), 0.0f, rand.NextFloat(-gridRadius, gridRadius)) });
+            ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-gridRadius, gridRadius), configCell.CellSize * 0.25f, rand.NextFloat(-gridRadius, gridRadius)) });
             ecb.SetComponent(cell, new NonUniformScale { Value = new float3(configCell.CellSize * 0.5f, configCell.CellSize * 0.5f, configCell.CellSize * 0.5f) });
             ++i;
         }
