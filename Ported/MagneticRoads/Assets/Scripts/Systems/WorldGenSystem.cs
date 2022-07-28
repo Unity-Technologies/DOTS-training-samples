@@ -1,7 +1,9 @@
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using Util;
 
 namespace Systems
@@ -9,39 +11,87 @@ namespace Systems
     [BurstCompile]
     partial struct WorldGenSystem : ISystem
     {
+        [BurstCompile]
+        public void OnCreate(ref SystemState state) { }
 
         [BurstCompile]
-        public void OnCreate(ref SystemState state)
-        {
-        }
-
-        [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        }
+        public void OnDestroy(ref SystemState state) { }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            NativeArray<int3> tempVoxels = new NativeArray<int3>(3, Allocator.Temp);
-            tempVoxels[0] = new int3(1, -1, 0);
-            tempVoxels[1] = new int3(0, 1, 0);
-            tempVoxels[0] = new int3(-1, 0, 0);
+            var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+            bool[] voxels = WorldGen.GenerateVoxels();
 
-            int3 sumOfVoxels = new int3();
-            foreach (var voxelSet in tempVoxels)
+            // <index, entity>
+            NativeHashMap<int, Entity> IndexToEntityHash = new NativeHashMap<int, Entity>(voxels.Length, Allocator.Temp);
+
+            for (int i = 0; i < voxels.Length; i++)
             {
-                sumOfVoxels += math.abs(voxelSet);
+                int3 coords = WorldGen.GetVoxelCoords(i);
+                var neighbors = WorldGen.GetCardinalNeighbors(coords);
+
+                int3 sumOfVoxels = new int3();
+                var normal = new int3();
+
+                foreach (var voxelSet in neighbors)
+                {
+                    sumOfVoxels += math.abs(voxelSet);
+                }
+
+                if (sumOfVoxels.x == 0)
+                    normal = new int3(1, 0, 0);
+                else if (sumOfVoxels.y == 0)
+                    normal = new int3(0, 1, 0);
+                else if (sumOfVoxels.z == 0)
+                    normal = new int3(0, 1, 0);
+
+                var entity = ecb.CreateEntity();
+                ecb.AddComponent<Translation>(entity);
+                ecb.AddComponent(entity, new Rotation {Value = quaternion.LookRotation(sumOfVoxels, normal)});
+                ecb.AddComponent<LocalToWorld>(entity);
+                ecb.AddComponent<Intersection>(entity);
             }
 
-            var normal = new int3();
+            for (int i = 0; i < voxels.Length; i++)
+            {
+                var voxelBeingEvaluated = voxels[i];
+                if (!voxelBeingEvaluated)
+                    continue;
 
-            if (sumOfVoxels.x == 0)
-                normal = new int3(1, 0, 0);
-            else if (sumOfVoxels.y == 0)
-                normal = new int3(0, 1, 0);
-            else if (sumOfVoxels.z == 0)
-                normal = new int3(0, 1, 0);
+                int3 coords = WorldGen.GetVoxelCoords(i);
+                var neighbors = WorldGen.GetCardinalNeighbors(coords);
+
+                for (int j = 0; j < neighbors.Length; j++)
+                {
+                    var flatIndexOfNeighbor = WorldGen.GetVoxelIndex(neighbors[j]);
+
+                    if (voxels[flatIndexOfNeighbor])
+                    {
+                        var entity = ecb.CreateEntity();
+
+                        var Start = new Spline.RoadTerminator
+                        {
+                            Position = coords,
+                            Normal = new float3(0, 1, 0),
+                            Tangent = new float3(0, 0, 1)
+                        };
+                        var End = new Spline.RoadTerminator
+                        {
+                            Position = neighbors[j],
+                            Normal = new float3(0, 1, 0),
+                            Tangent = new float3(0, 0, 1),
+                        };
+
+                        ecb.AddComponent(entity, new RoadSegment
+                        {
+                            Start = Start, 
+                            End = End, 
+                            Length = Spline.EvaluateLength(Start, End)
+                        });
+                    }
+                }
+            }
         }
     }
 }
