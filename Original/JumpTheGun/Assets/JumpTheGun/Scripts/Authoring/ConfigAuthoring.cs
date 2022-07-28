@@ -49,10 +49,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
             invPlayerParabolaPrecision = authoring.invPlayerParabolaPrecision,
             spacing = authoring.spacing,
 
+            playerPrefab = GetEntity(authoring.playerPrefab),
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
             timeText = authoring.timeText,
-            playerPrefab = GetEntity(authoring.playerPrefab)
         });
     }
 }
