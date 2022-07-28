@@ -10,12 +10,11 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 partial struct InitialSpawningSystem : ISystem
 {
-    Random random;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        random = Random.CreateFromIndex(state.GlobalSystemVersion);
+        state.RequireForUpdate<InitialSpawn>();
+        state.RequireForUpdate<Base>();
     }
 
     [BurstCompile]
@@ -26,6 +25,8 @@ partial struct InitialSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var random = Random.CreateFromIndex(state.GlobalSystemVersion);
+
         var spawner = SystemAPI.GetSingleton<InitialSpawn>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
