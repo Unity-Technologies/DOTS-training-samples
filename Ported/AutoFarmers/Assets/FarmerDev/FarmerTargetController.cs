@@ -36,7 +36,6 @@ public  partial struct FindTargetJob: IJobEntity
             float distance = math.length(delta);
             float finalSpeed = speed.MovementSpeed* math.clamp(distance, 0f, 1f);
             targetVelocity = direction * finalSpeed;
-
         }
         velocity.value = math.lerp(velocity.value, targetVelocity, 0.5f);
     }

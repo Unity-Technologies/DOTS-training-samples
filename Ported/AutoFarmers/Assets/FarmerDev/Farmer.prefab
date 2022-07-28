@@ -102,9 +102,9 @@ MonoBehaviour:
     y: 0
     z: 0
   Target:
-    x: 0
-    y: 5
-    z: 0
+    x: -9.4
+    y: 0
+    z: 6
   speed: 5
 --- !u!1 &8868837664730088111
 GameObject:
