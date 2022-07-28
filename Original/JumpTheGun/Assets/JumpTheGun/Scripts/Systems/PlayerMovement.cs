@@ -166,8 +166,7 @@ partial struct PlayerComponentJob : IJobEntity
 partial struct PlayerComponentStartJob : IJobEntity
 {
     public Config config;
-    public Unity.Collections.NativeArray<Entity> boxes; 
-
+    public Unity.Collections.NativeArray<Entity> boxes;
      [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity; 
 
     void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
@@ -223,7 +222,6 @@ partial struct PlayerMovement : ISystem
     public void OnDestroy(ref SystemState state)
     {
     }
-
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)

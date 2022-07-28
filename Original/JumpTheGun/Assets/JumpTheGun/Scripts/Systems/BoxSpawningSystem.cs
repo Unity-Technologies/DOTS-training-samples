@@ -19,7 +19,6 @@ partial struct BoxSpawningSystem : ISystem
     ComponentDataFromEntity<PlayerComponent> pcFromEntity;
 
 
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -44,7 +43,6 @@ partial struct BoxSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-
         var random = Random.CreateFromIndex(1234);
         var hue = random.NextFloat();
 
@@ -69,7 +67,6 @@ partial struct BoxSpawningSystem : ISystem
         }
         ecb.Playback(state.WorldUnmanaged.EntityManager);
 
-        
         var configPlayer = SystemAPI.GetSingleton<Config>();
         var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecbPlayer = ecbPlayerSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -81,7 +78,6 @@ partial struct BoxSpawningSystem : ISystem
         //ecb.Playback(state.WorldUnmanaged.EntityManager);
 
         boxesFromEntity.Update(ref state);
-        
         pcFromEntity.Update(ref state);
 
         foreach (var player in players)
