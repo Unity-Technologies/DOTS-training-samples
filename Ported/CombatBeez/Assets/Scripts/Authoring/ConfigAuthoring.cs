@@ -14,6 +14,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float FoodResourceDropRatePerSecond;
     public float FallingSpeed;
     public float BeeSpeed;
+    public float AttackChance;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -31,7 +32,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             FoodResourceCount = authoring.FoodResourceCount,
             FoodResourceDropRatePerSecond = authoring.FoodResourceDropRatePerSecond,
             FallingSpeed = authoring.FallingSpeed,
-            BeeSpeed = authoring.BeeSpeed
+            BeeSpeed = authoring.BeeSpeed,
+            AttackChance = authoring.AttackChance
         });
     }
 }

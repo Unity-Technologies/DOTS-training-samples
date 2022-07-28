@@ -25,7 +25,7 @@ public partial struct BeeMovementSystem : ISystem
     private Random rand;
     private Config config;
 
-    private bool tempAttackFlip;
+    private bool attack;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -74,14 +74,15 @@ public partial struct BeeMovementSystem : ISystem
         NativeArray<Translation> foodLocations,
         TransformAspect beeTransformAspect,
         ref Bee bdata,
-        ref SystemState sState)
+        ref SystemState sState,
+        RefRW<NonUniformScale> beeScale)
     {
         //This state picks one of the other states to go to...
         //This function picks a resource to move towards and then moves to the execute forage state
         //bee.beeState = BEESTATE.FORAGE;
         //this will need a foreach to get a resource to gather, then change states depending
 
-        if (!tempAttackFlip && foodLocations.Length > 0)
+        if (!attack && foodLocations.Length > 0)
         {
             int foodResourceIndex = rand.NextInt(foodLocations.Length);
             Translation foodPoint = foodLocations[foodResourceIndex];
@@ -91,7 +92,7 @@ public partial struct BeeMovementSystem : ISystem
             bdata.TargetResource = resourceEntities[foodResourceIndex];
             bdata.Target = foodPoint.Value;
         }
-        else if (tempAttackFlip && enemyBeeEntities.Length > 0)
+        else if (attack && enemyBeeEntities.Length > 0)
         {
             int enemyBeeIndex = rand.NextInt(enemyBeeEntities.Length);
             Translation enemyBeeTrans = transLookup[enemyBeeEntities[enemyBeeIndex]];
@@ -103,10 +104,15 @@ public partial struct BeeMovementSystem : ISystem
         }
         else
         {
-            bdata.Target = beeTransformAspect.Position;
+            if (frameCount % 15 == 0)
+                bdata.Target = beeTransformAspect.Position + rand.NextFloat3(-0.25f, 0.25f);
+
+            MoveToTarget(beeTransformAspect, ref bdata, beeScale);
         }
 
-        tempAttackFlip = rand.NextBool();
+        //Calculate whether this bee's next move is to attack or not, based on the config.AttackChance value
+        float atkPercent = rand.NextFloat(0f, 1f);
+        attack = (atkPercent <= config.AttackChance);
     }
 
     [BurstCompile]
@@ -116,21 +122,28 @@ public partial struct BeeMovementSystem : ISystem
         ref SystemState sState,
         RefRW<NonUniformScale> beeScale)
     {
-        FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
+        FoodResource foodRes;
 
-        //check to see if resource is still valid, if not go back to idle
-        if (foodRes.State != FoodState.SETTLED)
+        if (foodResourceLookup.TryGetComponent(bd.TargetResource, out foodRes))
+        {
+            //check to see if resource is still valid, if not go back to idle
+            if (foodRes.State != FoodState.SETTLED)
+            {
+                bd.beeState = Bee.BEESTATE.IDLE;
+                MoveToTarget(t, ref bd, beeScale);
+            }
+            else if (MoveToTarget(t, ref bd, beeScale))
+            {
+                bd.beeState = Bee.BEESTATE.CARRY;
+                bd.Target = bd.SpawnPoint;
+
+                foodRes.State = FoodState.CARRIED;
+                sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
+            }
+        }
+        else
         {
             bd.beeState = Bee.BEESTATE.IDLE;
-            MoveToTarget(t, ref bd, beeScale);
-        }
-        else if (MoveToTarget(t, ref bd, beeScale))
-        {
-            bd.beeState = Bee.BEESTATE.CARRY;
-            bd.Target = bd.SpawnPoint;
-
-            foodRes.State = FoodState.CARRIED;
-            sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
         }
     }
 
@@ -244,6 +257,15 @@ public partial struct BeeMovementSystem : ISystem
         stretchDir = math.clamp(stretchDir + 0.5f, 0.5f, 1.5f);
         scale.ValueRW.Value.z = stretchDir.z + 0.5f;
 
+        //Ensure bees don't leave their enclosure
+        float3 clampPos = transform.Position;
+
+        clampPos.y = math.clamp(transform.Position.y, 0.01f, 20f);
+        clampPos.z = math.clamp(transform.Position.z, -15f, 15f);
+        clampPos.x = math.clamp(transform.Position.x, -50f, 50f);
+
+        transform.Position = clampPos;
+
         return arrivedAtTarget;
     }
 
@@ -286,7 +308,7 @@ public partial struct BeeMovementSystem : ISystem
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state);
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state, beeScale);
                     break;
                 case Bee.BEESTATE.FORAGE:
                     ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
@@ -298,7 +320,7 @@ public partial struct BeeMovementSystem : ISystem
                     ExecuteAttackState(cmdBuffer, transform, ref bee.ValueRW, ref state, beeScale);
                     break;
                 default:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state);
+                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW, ref state, beeScale);
                     break;
             }
         }

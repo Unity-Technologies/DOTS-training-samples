@@ -178,6 +178,7 @@ MonoBehaviour:
   TeamBlueBeeCount: 15
   TeamYellowBeeCount: 15
   FoodResourceCount: 10
-  FoodResourceDropRatePerSecond: 0.1
+  FoodResourceDropRatePerSecond: 0.25
   FallingSpeed: 0.1
   BeeSpeed: 15
+  AttackChance: 0.2

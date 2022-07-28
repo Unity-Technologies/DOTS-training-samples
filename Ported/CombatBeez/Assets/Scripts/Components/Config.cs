@@ -14,4 +14,5 @@ struct Config : IComponentData
     public float FoodResourceDropRatePerSecond;
     public float FallingSpeed;
     public float BeeSpeed;
+    public float AttackChance;
 }
