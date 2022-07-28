@@ -30,7 +30,7 @@ partial struct SpawnerSystem : ISystem
         config = SystemAPI.GetSingleton<Config>();
 
         //Reset all entities
-        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.H))
+        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.R))
         {
             //destroy all entities and re-enable respawn
             config.Respawn = true;
