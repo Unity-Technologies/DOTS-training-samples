@@ -20,11 +20,31 @@ namespace Util
 
         public static int3[] AllDirections = new int3[26];
 
+        static void PopulateAllDirections()
+        {
+            int index = 0;
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    for (int z = -1; z <= 1; z++)
+                    {
+                        if (x != 0 || y != 0 || z != 0)
+                        {
+                            AllDirections[index] = new int3(x, y, z);
+                            index++;
+                        }
+                    }
+                }
+            }
+        }
+
         public static bool[] GenerateVoxels()
         {
             var random = new Random();
             
             // [ SETUP ]
+            PopulateAllDirections();
             // flattening 3-dimensional voxels
             var voxelCount = WorldSize * WorldSize * WorldSize;
             // true indicates presence of an intersection
@@ -55,7 +75,13 @@ namespace Util
 
         public static int3 GetVoxelCoords(int index)
         {
-            return int3.zero;
+            int3 pos;
+            pos.x = index % WorldSize;
+            index /= WorldSize;
+            pos.y = WorldSize;
+            index /= WorldSize;
+            pos.z = index;
+            return pos;
         }
     }
 }
