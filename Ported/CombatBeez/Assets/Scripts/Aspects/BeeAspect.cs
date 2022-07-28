@@ -1,3 +1,4 @@
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -9,7 +10,7 @@ readonly partial struct BeeAspect : IAspect<BeeAspect>
     public readonly Entity Self;
 
     // Aspects can contain other aspects.
-    readonly TransformAspect Transform;
+    public readonly TransformAspect Transform;
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
@@ -40,6 +41,13 @@ readonly partial struct BeeAspect : IAspect<BeeAspect>
     public float3 Target
     {
         get => _Bee.ValueRO.Target;
+        set => _Bee.ValueRW.Target = value;
+    }
+
+    public Entity TargetResource
+    {
+        get => _Bee.ValueRO.TargetResource;
+        set => _Bee.ValueRW.TargetResource = value;
     }
 
     public bool AtBeeTarget
@@ -48,9 +56,26 @@ readonly partial struct BeeAspect : IAspect<BeeAspect>
         set => _Bee.ValueRW.AtTarget = value;
     }
 
+    public Entity TargetBee
+    {
+        get => _Bee.ValueRO.TargetBee;
+        set => _Bee.ValueRW.TargetBee = value;
+    }
+
+    public float3 SpawnPoint
+    {
+        get => _Bee.ValueRO.SpawnPoint;
+    }
+
     public Bee Bee
     {
         get => _Bee.ValueRW;
+    }
+
+    public Bee.BEESTATE BeeState
+    {
+        get => _Bee.ValueRW.beeState;
+        set => _Bee.ValueRW.beeState = value;
     }
 
     public float3 OcillateOffset

@@ -3,7 +3,189 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using Unity.Burst;
+using Unity.Jobs;
 using Unity.Profiling;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Burst.Intrinsics;
+
+[BurstCompile]
+partial struct BeeBehaviorJob : IJobEntity
+{
+    public EntityCommandBuffer.ParallelWriter ECB;
+    public Random rand;
+    public Config config;
+
+    private bool attack;
+    public float frameCount;
+
+    [ReadOnly] public ComponentDataFromEntity<Translation> transLookup;
+    [ReadOnly] [NativeDisableContainerSafetyRestriction] public ComponentDataFromEntity<Bee> beeLookup;
+    [ReadOnly] public ComponentDataFromEntity<FoodResource> foodResourceLookup;
+
+    [ReadOnly] public NativeArray<Entity> enemyBeeEntities;
+    [ReadOnly] public NativeArray<Entity> resourceEntities;
+    [ReadOnly] public NativeArray<Translation> foodLocations;
+
+    [BurstCompile] 
+    public void ExecuteIdleState(ref BeeAspect beeAspect)
+    {
+        //This state picks one of the other states to go to...
+        //This function picks a resource/bee to move towards and then moves to the next state
+        //bee.beeState = BEESTATE.FORAGE;
+        //this will need a foreach to get a resource to gather, then change states depending
+
+        if (!attack && foodLocations.Length > 0)
+        {
+            //find nearest food resource instead of random?
+            int foodResourceIndex = rand.NextInt(foodLocations.Length);
+            Translation foodPoint = foodLocations[foodResourceIndex];
+
+            beeAspect.BeeState = Bee.BEESTATE.FORAGE;
+
+            beeAspect.TargetResource = resourceEntities[foodResourceIndex];
+            beeAspect.Target = foodPoint.Value;
+        }
+        else if (attack && enemyBeeEntities.Length > 0)
+        {
+            int enemyBeeIndex = rand.NextInt(enemyBeeEntities.Length);
+            Translation enemyBeeTrans = transLookup[enemyBeeEntities[enemyBeeIndex]];
+
+            beeAspect.BeeState = Bee.BEESTATE.ATTACK;
+
+            beeAspect.Target = enemyBeeTrans.Value;
+            beeAspect.TargetBee = enemyBeeEntities[enemyBeeIndex];
+        }
+        else
+        {
+            if (frameCount % 15 == 0)
+                beeAspect.Target = beeAspect.Position + rand.NextFloat3(-0.25f, 0.25f);
+        }
+
+        //Calculate whether this bee's next move is to attack or not, based on the config.AttackChance value
+        float atkPercent = rand.NextFloat(0f, 1f);
+        attack = (atkPercent <= config.AttackChance);
+    }
+
+    [BurstCompile]
+    public void ExecuteForageState(int chunkIndex, ref BeeAspect beeAspect)
+    {
+        FoodResource foodRes;
+
+        if (foodResourceLookup.TryGetComponent(beeAspect.TargetResource, out foodRes))
+        {
+            //check to see if resource is still valid, if not go back to idle
+            if (foodRes.State != FoodState.SETTLED)
+            {
+                beeAspect.BeeState = Bee.BEESTATE.IDLE;
+            }
+            else if (beeAspect.AtBeeTarget)
+            {
+                beeAspect.BeeState = Bee.BEESTATE.CARRY;
+                beeAspect.Target = beeAspect.SpawnPoint;
+
+                foodRes.State = FoodState.CARRIED;
+                ECB.SetComponent(chunkIndex, beeAspect.TargetResource, foodRes);
+            }
+        }
+        else
+        {
+            beeAspect.BeeState = Bee.BEESTATE.IDLE;
+        }
+    }
+
+    [BurstCompile]
+    public void ExecuteCarryState(int chunkIndex, ref BeeAspect beeAspect)
+    {
+        FoodResource foodRes = foodResourceLookup[beeAspect.TargetResource];
+
+        //update food location in this state
+        if (beeAspect.AtBeeTarget)
+        {
+            beeAspect.BeeState = Bee.BEESTATE.IDLE;
+            foodRes.State = FoodState.FALLING;
+
+            ECB.SetComponent(chunkIndex, beeAspect.TargetResource, foodRes);
+        }
+        else
+        {
+            Translation foodPos = transLookup[beeAspect.TargetResource];
+            foodPos.Value = beeAspect.Position + new float3(0, -2, 0);
+
+            ECB.SetComponent(chunkIndex, beeAspect.TargetResource, foodPos);
+        }
+    }
+
+    [BurstCompile]
+    public void ExecuteAttackState(int chunkIndex, ref BeeAspect beeAspect)
+    {
+        if (beeAspect.AtBeeTarget)
+        {
+            //Reached the target bee and kill it, then return to the idle state
+            beeAspect.BeeState = Bee.BEESTATE.IDLE;
+            Bee enemyBee;
+
+            if (beeLookup.TryGetComponent(beeAspect.TargetBee, out enemyBee))
+            {
+                if (enemyBee.beeState == Bee.BEESTATE.CARRY)
+                {
+                    FoodResource foodRes = foodResourceLookup[beeLookup[beeAspect.TargetBee].TargetResource];
+                    foodRes.State = FoodState.FALLING;
+
+                    ECB.SetComponent<FoodResource>(chunkIndex, beeLookup[beeAspect.TargetBee].TargetResource, foodRes);
+                }
+
+                Entity blood = ECB.Instantiate(chunkIndex, config.BloodPrefab);
+                ECB.SetComponent<Translation>(chunkIndex, blood, transLookup[beeAspect.TargetBee]);
+                ECB.SetComponent<Blood>(chunkIndex, blood, new Blood() { State = BloodState.FALLING });
+
+                ECB.DestroyEntity(chunkIndex, beeAspect.TargetBee);
+            }
+        }
+        else
+        {
+            Translation enemyBeeTrans;
+
+            if (transLookup.TryGetComponent(beeAspect.TargetBee, out enemyBeeTrans))
+            {
+                beeAspect.Target = transLookup[beeAspect.TargetBee].Value;
+            }
+            else
+            {
+                //Target bee died before we got there
+                beeAspect.BeeState = Bee.BEESTATE.IDLE;
+            }
+        }
+    }
+
+    void Execute([ChunkIndexInQuery] int chunkIndex, ref BeeAspect beeAspect)
+    {
+        switch (beeAspect.Bee.beeState)
+        {
+            case Bee.BEESTATE.IDLE:
+                //s_PreparePerfMarker_IDLE.Begin();
+                ExecuteIdleState(ref beeAspect);
+                //s_PreparePerfMarker_IDLE.End();
+                break;
+            case Bee.BEESTATE.FORAGE:
+                //s_PreparePerfMarker_FORAGE.Begin();
+                ExecuteForageState(chunkIndex, ref beeAspect);
+                //s_PreparePerfMarker_FORAGE.End();
+                break;
+            case Bee.BEESTATE.CARRY:
+                //s_PreparePerfMarker_CARRY.Begin();
+                ExecuteCarryState(chunkIndex, ref beeAspect);
+                //s_PreparePerfMarker_CARRY.End();
+                break;
+            case Bee.BEESTATE.ATTACK:
+                //s_PreparePerfMarker_ATTACK.Begin();
+                ExecuteAttackState(chunkIndex, ref beeAspect);
+                //s_PreparePerfMarker_ATTACK.End();
+                break;
+            default:
+                break;
+        }
+    }
+}
 
 [BurstCompile]
 partial struct MoveBeeJob : IJobEntity
@@ -140,151 +322,7 @@ public partial struct BeeMovementSystem : ISystem
     {
     }
 
-    [BurstCompile]
-    public void ExecuteIdleState(
-        NativeArray<Entity> enemyBeeEntities,
-        NativeArray<Entity> resourceEntities,
-        NativeArray<Translation> foodLocations,
-        TransformAspect beeTransformAspect,
-        ref Bee bdata)
-    {
-        //This state picks one of the other states to go to...
-        //This function picks a resource/bee to move towards and then moves to the next state
-        //bee.beeState = BEESTATE.FORAGE;
-        //this will need a foreach to get a resource to gather, then change states depending
-
-        if (!attack && foodLocations.Length > 0)
-        {
-            //find nearest food resource instead of random?
-            int foodResourceIndex = rand.NextInt(foodLocations.Length);
-            Translation foodPoint = foodLocations[foodResourceIndex];
-
-            bdata.beeState = Bee.BEESTATE.FORAGE;
-
-            bdata.TargetResource = resourceEntities[foodResourceIndex];
-            bdata.Target = foodPoint.Value;
-        }
-        else if (attack && enemyBeeEntities.Length > 0)
-        {
-            int enemyBeeIndex = rand.NextInt(enemyBeeEntities.Length);
-            Translation enemyBeeTrans = transLookup[enemyBeeEntities[enemyBeeIndex]];
-
-            bdata.beeState = Bee.BEESTATE.ATTACK;
-
-            bdata.Target = enemyBeeTrans.Value;
-            bdata.TargetBee = enemyBeeEntities[enemyBeeIndex];
-        }
-        else
-        {
-            if (frameCount % 15 == 0)
-                bdata.Target = beeTransformAspect.Position + rand.NextFloat3(-0.25f, 0.25f);
-        }
-
-        //Calculate whether this bee's next move is to attack or not, based on the config.AttackChance value
-        float atkPercent = rand.NextFloat(0f, 1f);
-        attack = (atkPercent <= config.AttackChance);
-    }
-
-    [BurstCompile]
-    public void ExecuteForageState(
-        TransformAspect t,
-        ref Bee bd,
-        ref SystemState sState,
-        RefRW<NonUniformScale> beeScale)
-    {
-        FoodResource foodRes;
-
-        if (foodResourceLookup.TryGetComponent(bd.TargetResource, out foodRes))
-        {
-            //check to see if resource is still valid, if not go back to idle
-            if (foodRes.State != FoodState.SETTLED)
-            {
-                bd.beeState = Bee.BEESTATE.IDLE;
-                MoveToTarget(t, ref bd, beeScale);
-            }
-            else if (bd.AtTarget)
-            {
-                bd.beeState = Bee.BEESTATE.CARRY;
-                bd.Target = bd.SpawnPoint;
-
-                foodRes.State = FoodState.CARRIED;
-                sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
-            }
-        }
-        else
-        {
-            bd.beeState = Bee.BEESTATE.IDLE;
-        }
-    }
-
-    [BurstCompile]
-    public void ExecuteCarryState(
-        TransformAspect t,
-        ref Bee bd,
-        ref SystemState sState)
-    {
-        FoodResource foodRes = sState.EntityManager.GetComponentData<FoodResource>(bd.TargetResource);
-
-        //update food location in this state
-        if (bd.AtTarget)
-        {
-            bd.beeState = Bee.BEESTATE.IDLE;
-            foodRes.State = FoodState.FALLING;
-
-            sState.EntityManager.SetComponentData<FoodResource>(bd.TargetResource, foodRes);
-        }
-        else
-        {
-            Translation foodPos = transLookup[bd.TargetResource];
-            foodPos.Value = t.Position + new float3(0, -2, 0);
-
-            transLookup[bd.TargetResource] = foodPos;
-        }
-    }
-
-    [BurstCompile]
-    public void ExecuteAttackState(
-        EntityCommandBuffer entityCommandBuffer,
-        ref Bee bd)
-    {
-        if (bd.AtTarget)
-        {
-            //Reached the target bee and kill it, then return to the idle state
-            bd.beeState = Bee.BEESTATE.IDLE;
-            Bee enemyBee;
-
-            if (beeLookup.TryGetComponent(bd.TargetBee, out enemyBee))
-            {
-                if (enemyBee.beeState == Bee.BEESTATE.CARRY)
-                {
-                    FoodResource foodRes = foodResourceLookup[beeLookup[bd.TargetBee].TargetResource];
-                    foodRes.State = FoodState.FALLING;
-
-                    foodResourceLookup[beeLookup[bd.TargetBee].TargetResource] = foodRes;
-                }
-
-                Entity blood = entityCommandBuffer.Instantiate(config.BloodPrefab);
-                entityCommandBuffer.SetComponent<Translation>(blood, transLookup[bd.TargetBee]);
-                entityCommandBuffer.SetComponent<Blood>(blood, new Blood() { State = BloodState.FALLING });
-
-                entityCommandBuffer.DestroyEntity(bd.TargetBee);
-            }
-        }
-        else
-        {
-            Translation enemyBeeTrans;
-
-            if (transLookup.TryGetComponent(bd.TargetBee, out enemyBeeTrans))
-            {
-                bd.Target = transLookup[bd.TargetBee].Value;
-            }
-            else
-            {
-                //Target bee died before we got there
-                bd.beeState = Bee.BEESTATE.IDLE;
-            }
-        }
-    }
+    
 
     [BurstCompile]
     public void MoveToTarget(TransformAspect transform, ref Bee beeData, RefRW<NonUniformScale> scale)
@@ -314,50 +352,42 @@ public partial struct BeeMovementSystem : ISystem
         var foodTranslations = foodEntityQuery.ToComponentDataArray<Translation>(state.WorldUpdateAllocator);
         var foodEntities = foodEntityQuery.ToEntityArray(Allocator.Temp);
 
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb_yellow = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var ecb_blue = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         var yellowBeeEntities = yellowEnemyBeeQuery.ToEntityArray(Allocator.Temp);
         var blueBeeEntities = blueEnemyBeeQuery.ToEntityArray(Allocator.Temp);
 
-        //create command buffer here to pass into attack state to properly destroy target enemy bees
-        EntityCommandBuffer cmdBuffer = new EntityCommandBuffer(state.WorldUpdateAllocator);
-
-        foreach (var(transform, bee, beeScale) in SystemAPI.Query<TransformAspect, RefRW<Bee>, RefRW<NonUniformScale>>().WithAny<BlueBee, YellowBee>())
+        var yellowBeeBehaviorJob = new BeeBehaviorJob
         {
-            var tempEnemyBeeEntities = yellowBeeEntities;
+            foodLocations = foodTranslations,
+            foodResourceLookup = foodResourceLookup,
+            enemyBeeEntities = blueBeeEntities,
+            ECB = ecb_yellow.AsParallelWriter(),
+            rand = rand,
+            config = config,
+            frameCount = frameCount,
+            beeLookup = beeLookup,
+            resourceEntities = foodEntities,
+            transLookup = transLookup
+        };
+        yellowBeeBehaviorJob.ScheduleParallel();
 
-            //Test if we are a yellow bee, if so set enemy bees to blue
-            if (bee.ValueRW.beeTeam == Team.YELLOW)
-                tempEnemyBeeEntities = blueBeeEntities;
-
-            switch (bee.ValueRW.beeState)
-            {
-                case Bee.BEESTATE.IDLE:
-                    //s_PreparePerfMarker_IDLE.Begin();
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
-                    //s_PreparePerfMarker_IDLE.End();
-                    break;
-                case Bee.BEESTATE.FORAGE:
-                    //s_PreparePerfMarker_FORAGE.Begin();
-                    ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
-                    //s_PreparePerfMarker_FORAGE.End();
-                    break;
-                case Bee.BEESTATE.CARRY:
-                    //s_PreparePerfMarker_CARRY.Begin();
-                    ExecuteCarryState(transform, ref bee.ValueRW, ref state);
-                    //s_PreparePerfMarker_CARRY.End();
-                    break;
-                case Bee.BEESTATE.ATTACK:
-                    //s_PreparePerfMarker_ATTACK.Begin();
-                    ExecuteAttackState(cmdBuffer,ref bee.ValueRW);
-                    //s_PreparePerfMarker_ATTACK.End();
-                    break;
-                default:
-                    ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
-                    break;
-            }
-        }
-
-        cmdBuffer.Playback(state.EntityManager);
-        cmdBuffer.Dispose();
+        var blueBeeBehaviorJob = new BeeBehaviorJob
+        {
+            foodLocations = foodTranslations,
+            foodResourceLookup = foodResourceLookup,
+            enemyBeeEntities = yellowBeeEntities,
+            ECB = ecb_blue.AsParallelWriter(),
+            rand = rand,
+            config = config,
+            frameCount = frameCount,
+            beeLookup = beeLookup,
+            resourceEntities = foodEntities,
+            transLookup = transLookup
+        };
+        //blueBeeBehaviorJob.ScheduleParallel();
 
         //Call the move to target IJob
         //s_PreparePerfMarker_MOVINGTOTARGET.Begin();
