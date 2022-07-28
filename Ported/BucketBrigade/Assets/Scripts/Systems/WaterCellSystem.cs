@@ -63,22 +63,26 @@ partial struct WaterCellSpawningSystem : ISystem
                 case 0:
                     {
                         ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-offset, offset), 0, -offset) });
+                        ecb.AddComponent<WaterCell>(cell);
                     }
                     break;
                 case 1:
                     {
                         ecb.SetComponent(cell, new Translation { Value = new float3(rand.NextFloat(-offset, offset), 0, offset) });
+                        ecb.AddComponent<WaterCell>(cell);
                     }
                     break;
                 case 2:
                     {
                         ecb.SetComponent(cell, new Translation { Value = new float3(-offset, 0, rand.NextFloat(-offset, offset) ) });
+                        ecb.AddComponent<WaterCell>(cell);
                     }
                     break;
                 case 3:
                 default:
                     {
                         ecb.SetComponent(cell, new Translation { Value = new float3(offset, 0, rand.NextFloat(-offset, offset)) });
+                        ecb.AddComponent<WaterCell>(cell);
                     }
                     break;
             }

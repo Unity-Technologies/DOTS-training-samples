@@ -43,9 +43,14 @@ partial struct FireFighterLineSystem : ISystem
                 {
                     int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
                     int cellColumnIndex = cellIndex % gridSize;
-                    var newPoint = new float2(cellRowIndex, cellColumnIndex);
-                    if (math.distancesq(fireFighterLine.ValueRO.StartPosition, closestPoint) >
-                        math.distancesq(fireFighterLine.ValueRO.StartPosition, newPoint))
+                    
+                    var offset = new float2(-terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f, -terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f);
+                    
+                    var newPoint = new float2((cellRowIndex % terrainConfig.GridSize) * terrainConfig.CellSize, math.floor(cellColumnIndex / terrainConfig.GridSize) * terrainConfig.CellSize) + offset;
+                    
+                    
+                    if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
+                        math.distance(fireFighterLine.ValueRO.StartPosition, newPoint))
                     {
                         closestPoint = newPoint;
                     }

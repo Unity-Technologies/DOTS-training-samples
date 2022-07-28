@@ -74,6 +74,6 @@ partial struct BucketBringerFindNewTarget : IJobEntity
     {
         var multiplier = ((float)lineIndex.Value / (float)(FFCountPerLine - 1));
         var pos = EndPositions[lineId.Value] + multiplier * (StartPositions[lineId.Value] - EndPositions[lineId.Value]);
-        target.Value = pos*CellSize;
+        target.Value = pos;
     }
 }
