@@ -24,7 +24,6 @@ partial struct PlayerComponentJob : IJobEntity
         if (config.isPaused)
             return;
 
-        UnityEngine.Debug.Log("yo yo");
         Boxes startBox = boxesFromEntity[playerComponent.startBox];
         Boxes endBox = boxesFromEntity[playerComponent.endBox];
 
@@ -212,7 +211,6 @@ partial struct PlayerMovement : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        UnityEngine.Debug.Log("This runs");
         state.RequireForUpdate<Config>();
         tankFromEntity = state.GetComponentDataFromEntity<Tank>(true);
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
@@ -221,22 +219,6 @@ partial struct PlayerMovement : ISystem
         
         //state.RequireForUpdate<EndSimulationEntityCommandBufferSystem>();
     }
-
-    /*
-    [BurstCompile]
-    public void Start(ref SystemState state){
-        var config = SystemAPI.GetSingleton<Config>();
-        boxesFromEntity.Update(ref state);
-        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
-
-        var PlayerJob = new PlayerComponentStartJob
-        {
-            config = config,
-            boxesFromEntity = boxesFromEntity,
-            boxes = boxEntities,
-        };
-        PlayerJob.Schedule();
-    }*/
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
@@ -249,18 +231,16 @@ partial struct PlayerMovement : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-       // var boxBoxes = boxQuery.ToComponentDataArray<Boxes>(Unity.Collections.Allocator.TempJob);
         var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var tankEntities = tankQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
         var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         World world = World.DefaultGameObjectInjectionWorld;
         EntityManager entityManager = world.EntityManager;
         tankFromEntity.Update(ref state);
         boxesFromEntity.Update(ref state);
-
-        UnityEngine.Debug.Log("Yoity yo");
 
         var PlayerJob = new PlayerComponentJob
         {
