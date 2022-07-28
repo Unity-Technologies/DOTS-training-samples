@@ -6,13 +6,8 @@ using UnityEngine;
 
 public partial struct Movement : ISystem
 {
-    public float Speed;
-
     [BurstCompile]
-    public void OnCreate(ref SystemState state)
-    {
-        Speed = 1;
-    }
+    public void OnCreate(ref SystemState state) { }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
@@ -21,11 +16,12 @@ public partial struct Movement : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var dt = Time.deltaTime;
+        var config = SystemAPI.GetSingleton<BrigadeConfig>();
 
         var moveJob = new Move
         {
             Time = dt,
-            Speed = Speed,
+            Speed = config.Speed,
         };
 
         moveJob.Schedule();
@@ -37,9 +33,12 @@ public partial struct Movement : ISystem
         public float Time;
         public float Speed;
 
-        void Execute(ref Translation position, in Target target)
+        [BurstCompile]
+        void Execute(ref Translation translation, in Target target)
         {
-            position.Value = math.lerp(position.Value, new float3 { xz = target.Value }, Time * Speed);
+            var direction = math.normalize(target.Value - translation.Value.xz);
+            var displacement = direction * Speed * Time;
+            translation.Value += new float3 { xz = displacement };
         }
     }
 }
