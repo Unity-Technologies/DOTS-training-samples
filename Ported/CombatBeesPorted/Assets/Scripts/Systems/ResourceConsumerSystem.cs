@@ -11,7 +11,6 @@ using Random = Unity.Mathematics.Random;
 partial struct ResourceConsumerJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
-    public EntityQueryMask QueryColorMask;
     public Config Config;
     public uint RandomSeed;
 
@@ -23,7 +22,7 @@ partial struct ResourceConsumerJob : IJobEntity
         float targetX = Config.PlayVolume.x - (Config.HiveDepth * 0.5f);
         if (pos.x >= targetX || pos.x < -targetX)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var explosionParticle = ECB.Instantiate(chunkIndex, Config.ExplosionPrefab);
                 var randVel = rand.NextFloat3Direction() * 8f;
@@ -45,14 +44,12 @@ partial struct ResourceConsumerJob : IJobEntity
                 if (pos.x > targetX)
                 {
                     ECB.AddComponent<YellowTeam>(chunkIndex, beeEntity);
-                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask,
-                        new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.yellow });
+                    ECB.SetComponent(chunkIndex, beeEntity, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.yellow });
                 }
                 else
                 {
                     ECB.AddComponent<BlueTeam>(chunkIndex, beeEntity);
-                    ECB.SetComponentForLinkedEntityGroup(chunkIndex, beeEntity, QueryColorMask,
-                        new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.blue });
+                    ECB.SetComponent(chunkIndex, beeEntity, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)Color.blue });
                 }
 
                 ECB.SetComponent<Translation>(chunkIndex, beeEntity, position);
@@ -71,14 +68,10 @@ partial struct ResourceConsumerJob : IJobEntity
 [BurstCompile]
 partial struct ResourceConsumerSystem : ISystem
 {
-    private EntityQuery _baseColorQuery;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-
-        _baseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
     }
 
     [BurstCompile]
@@ -94,12 +87,9 @@ partial struct ResourceConsumerSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
-        var queryColorMask = _baseColorQuery.GetEntityQueryMask();
-
         var resourceConsumerJob = new ResourceConsumerJob()
         {
             ECB = ecb,
-            QueryColorMask = queryColorMask,
             Config = config,
             RandomSeed = (uint)Time.frameCount
         };

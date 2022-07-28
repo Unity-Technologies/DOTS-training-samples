@@ -23,7 +23,7 @@ partial struct BeeKillerJob : IJobEntity
 
         ECB.DestroyEntity(chunkIndex, entity);
 
-        for (int i = 0; i < 6; ++i)
+        for (int i = 0; i < 5; ++i)
         {
             var bloodParticle = ECB.Instantiate(chunkIndex, Config.BloodPrefab);
             var particleVelocity = velocity.Value + rand.NextFloat3Direction() * 4f;
