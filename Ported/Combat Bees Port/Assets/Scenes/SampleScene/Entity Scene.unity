@@ -209,7 +209,7 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beeCount
-      value: 400
+      value: 100000
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
@@ -263,7 +263,7 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beePulseSpawnCount
-      value: 10
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 7979274586690963129, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
