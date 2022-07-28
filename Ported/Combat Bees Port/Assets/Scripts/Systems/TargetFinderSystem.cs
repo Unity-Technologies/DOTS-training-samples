@@ -111,11 +111,12 @@ partial struct TargetFinderSystem : ISystem
 
 
 
-        foreach (Entity bee in blueBees)
+        for (int i = 0; i < blueBees.Length; i++)
         {
             aggressive = rnd.NextBool();
+            Entity bee = blueBees[i];
             Bee beeComponent = _beeComponent[bee];
-
+        
 
 
             if (beeComponent.state == BeeState.Idle)
