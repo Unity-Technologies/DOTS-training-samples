@@ -46,7 +46,6 @@ partial class FoodMovementSystem : SystemBase
                 }
                 else
                 {
-                    // notCollected.SetComponentEnabled(foodEntity, true);
                     if (translation.Value.x > baseInfo.blueBase.GetBaseBorderX() || translation.Value.x < baseInfo.yellowBase.GetBaseBorderX())
                     {
                         notCollected.SetComponentEnabled(foodEntity, false);
@@ -55,8 +54,11 @@ partial class FoodMovementSystem : SystemBase
                     {
                         notCollected.SetComponentEnabled(foodEntity, true);
                     }
-                    
-                    translation.Value += gravity * dt;
+
+                    if (translation.Value.y >= -10)
+                    {
+                        translation.Value += gravity * dt;
+                    }
                 }
             }).Run();
         
