@@ -29,8 +29,13 @@ namespace Systems
 
             var cars = CollectionHelper.CreateNativeArray<Entity>(config.CarCount, Allocator.Temp);
 
-            ecb.Instantiate(config.CarPrefab, cars);
+            foreach (var car in cars )
+            {
+                ecb.SetComponentEnabled<WaitingAtIntersection>(car, false);
+            }
 
+            ecb.Instantiate(config.CarPrefab, cars);
+            
             var tempEntity = ecb.CreateEntity();
             ecb.AddComponent<Lane>(tempEntity);
             var buffer = ecb.AddBuffer<CarDynamicBuffer>(tempEntity).Reinterpret<Entity>();

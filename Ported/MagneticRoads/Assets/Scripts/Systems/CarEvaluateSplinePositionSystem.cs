@@ -16,9 +16,10 @@ namespace Systems
         [ReadOnly]
         public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
         public float DT;
-        public ComponentDataFromEntity<WaitingAtIntersection> CarAtIntersectionFromEntity;
 
-        void Execute(ref CarAspect carAspect)
+        public EntityCommandBuffer.ParallelWriter ECB;
+
+        void Execute([ChunkIndexInQuery] int chunkIndex, CarAspect carAspect)
         {
             RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
             var carT = math.clamp(carAspect.T + ((carAspect.Speed * DT / rs.Length)), 0, 1);
@@ -39,7 +40,7 @@ namespace Systems
 
             if (carT >= 1)
             {
-                CarAtIntersectionFromEntity.SetComponentEnabled(carAspect.Entity, true);
+                ECB.SetComponentEnabled<WaitingAtIntersection>(chunkIndex, carAspect.Entity, true);
             }
         }
     }
@@ -49,13 +50,11 @@ namespace Systems
     partial struct CarEvaluateSplinePositionSystem : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentFromEntity;
-        ComponentDataFromEntity<WaitingAtIntersection> m_CarAtIntersectionFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_RoadSegmentFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
-            m_CarAtIntersectionFromEntity = state.GetComponentDataFromEntity<WaitingAtIntersection>(false);
         }
 
         [BurstCompile]
@@ -65,15 +64,17 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             m_RoadSegmentFromEntity.Update(ref state);
-            m_CarAtIntersectionFromEntity.Update(ref state);
 
             var dt = state.Time.DeltaTime;
+            
+            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var evaluatePositionOnSpline = new CarEvaluateSplinePositionJob
             {
+                ECB = ecb.AsParallelWriter(),
                 DT = dt,
                 RoadSegmentFromEntity = m_RoadSegmentFromEntity,
-                CarAtIntersectionFromEntity = m_CarAtIntersectionFromEntity
                 
             };
             evaluatePositionOnSpline.ScheduleParallel();

@@ -9,8 +9,8 @@ namespace Systems
     
     partial struct IntersectionJob:IJobEntity
     {
-        public ComponentDataFromEntity<Occupied> IntersectionOccupiedFromEntity;
-        public ComponentDataFromEntity<Intersection> IntersectionData;
+        /*public ComponentDataFromEntity<Occupied> IntersectionOccupiedFromEntity;
+        public ComponentDataFromEntity<Intersection> IntersectionData;*/
 
         void Execute(ref CarAspect car)
         {
@@ -33,18 +33,18 @@ namespace Systems
         }
     }
     
-    //[BurstCompile]
+    [BurstCompile]
     partial struct IntersectionSystem:ISystem
     {
         
-        ComponentDataFromEntity<Occupied> m_IntersectionOccupiedFromEntity;
-        ComponentDataFromEntity<Intersection> m_IntersectionData;
+        /*ComponentDataFromEntity<Occupied> m_IntersectionOccupiedFromEntity;
+        ComponentDataFromEntity<Intersection> m_IntersectionData;*/
         
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            m_IntersectionOccupiedFromEntity = state.GetComponentDataFromEntity<Occupied>(false);
-            m_IntersectionData = state.GetComponentDataFromEntity<Intersection>(false);
+          /*  m_IntersectionOccupiedFromEntity = state.GetComponentDataFromEntity<Occupied>(false);
+            m_IntersectionData = state.GetComponentDataFromEntity<Intersection>(false);*/
         }
 
         [BurstCompile]
@@ -56,12 +56,12 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             
-            m_IntersectionOccupiedFromEntity.Update(ref state);
-            m_IntersectionData.Update(ref state);
+            /*m_IntersectionOccupiedFromEntity.Update(ref state);
+            m_IntersectionData.Update(ref state);*/
             var intersectionJob = new IntersectionJob()
             {
-                IntersectionOccupiedFromEntity = m_IntersectionOccupiedFromEntity,
-                IntersectionData = m_IntersectionData
+                /*IntersectionOccupiedFromEntity = m_IntersectionOccupiedFromEntity,
+                IntersectionData = m_IntersectionData*/
             };
             intersectionJob.ScheduleParallel();
         }
