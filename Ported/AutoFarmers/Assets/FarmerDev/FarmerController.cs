@@ -20,7 +20,15 @@ public partial struct FarmerController : ISystem
     {
         foreach (var (farmer,speed) in  SystemAPI.Query<TransformAspect, RefRO<FarmerSpeed>>().WithAll<Farmer>())
         {
-            farmer.Position += new float3(1, 0, 0)*state.Time.DeltaTime;
+            farmer.LookAt(new float3(4,0,4));
+            farmer.LocalPosition += farmer.Forward *state.Time.DeltaTime*speed.ValueRO.MovementSpeed;
+            
+            foreach (var cellposition in SystemAPI.Query<TransformAspect>().WithAll<Cell>())
+            {
+               // farmer.Position += cellposition.Position;
+               // farmer.LookAt(cellposition.Position+state.Time.DeltaTime);
+                break;
+            }
         }
 
       //  FarmerJob job = new FarmerJob{deltaTime = state.Time.DeltaTime};

@@ -30,7 +30,6 @@ public partial struct FarmerManagerSystem: ISystem
             });
         }
         command.Playback(state.EntityManager);
-        Debug.Log("Testing");
         state.Enabled = false;
     }
 }
