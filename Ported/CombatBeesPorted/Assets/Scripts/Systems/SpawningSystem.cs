@@ -68,9 +68,5 @@ public partial struct SpawningSystem : ISystem
                 ecb.SetComponent(newResource, resourceColor);
             }
         }
-        else
-        {
-            Debug.Log("Not Touching Field");
-        }
     }
 }
