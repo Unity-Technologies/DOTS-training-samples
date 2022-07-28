@@ -182,3 +182,6 @@ MonoBehaviour:
   FallingSpeed: 0.1
   BeeSpeed: 15
   AttackChance: 0.2
+  RandomNumberSeed: 8
+  MinNumberOfBeesSpawned: 5
+  MaxNumberOfBeesSpawned: 10
