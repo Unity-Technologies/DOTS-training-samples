@@ -9,6 +9,7 @@ public class FarmerAuthoring : MonoBehaviour
     public float3 velocity;
     public float3 Target;
 
+    public float speed;
     // Start is called before the first frame update
 }
 
@@ -17,7 +18,10 @@ public class FarmerComponentBaker : Baker<FarmerAuthoring>
     
     public override void Bake(FarmerAuthoring authoring)
     {
-        AddComponent(new FarmerSpeed());
+        AddComponent(new FarmerSpeed
+        {
+         MovementSpeed   = authoring.speed
+        });
         AddComponent(new Farmer());
         AddComponent(new TargetPosition
         {
