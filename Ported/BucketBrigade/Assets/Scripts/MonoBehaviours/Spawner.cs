@@ -230,7 +230,8 @@ class FiremanSpawnerBaker : Baker<Spawner>
             LinesCount = authoring.linesCount,
             PerLinesCount = authoring.PerLinesCount,
             GridSize = authoring.rows,
-            CellSize = authoring.cellSize
+            CellSize = authoring.cellSize,
+            Speed = authoring.Speed
         });
     }
 }
@@ -248,14 +249,4 @@ class FireFighterLineSpawnerBaker : Baker<Spawner>
     }
 }
 
-class BrigadeSpawnerBaker : Baker<Spawner>
-{
-    public override void Bake(Spawner authoring)
-    {
-        AddComponent(new BrigadeConfig
-        {
-            Speed = authoring.Speed
-        });
-    }
-}
 

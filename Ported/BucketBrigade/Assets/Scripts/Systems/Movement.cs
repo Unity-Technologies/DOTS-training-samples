@@ -17,7 +17,7 @@ public partial struct Movement : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var dt = Time.deltaTime;
-        var config = SystemAPI.GetSingleton<BrigadeConfig>();
+        var config = SystemAPI.GetSingleton<FireFighterConfig>();
 
         var moveJob = new Move
         {
