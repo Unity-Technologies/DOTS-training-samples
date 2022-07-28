@@ -16,6 +16,7 @@ partial struct FireFighterLineSpawnSystem : ISystem
     {
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<FireFighterLineConfig>();
+        state.RequireForUpdate<FireFighterConfig>();
     }
 
     [BurstCompile]
@@ -28,10 +29,11 @@ partial struct FireFighterLineSpawnSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<FireFighterLineConfig>();
+        var ffConfig = SystemAPI.GetSingleton<FireFighterConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var ffLines = CollectionHelper.CreateNativeArray<Entity>(config.Count, Allocator.Temp);
+        var ffLines = CollectionHelper.CreateNativeArray<Entity>(ffConfig.LinesCount, Allocator.Temp);
         ecb.Instantiate(config.Prefab, ffLines);
         int index = 0;
         // update ids
