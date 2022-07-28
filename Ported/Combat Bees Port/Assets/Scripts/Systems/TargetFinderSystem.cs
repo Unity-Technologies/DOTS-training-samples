@@ -29,6 +29,7 @@ partial struct TargetFinderSystem : ISystem
     Random rnd;
 
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
@@ -57,6 +58,7 @@ partial struct TargetFinderSystem : ISystem
     }
 
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         _beeComponent.Update(ref state);
