@@ -22,7 +22,8 @@ partial struct ExplosionAnimJob : IJobEntity
         }
         else
         {
-            scale.Value = math.lerp(float3.zero, 1f, math.remap(0f, ExplosionDuration, 0f, 1f, animTime.Value));
+            scale.Value = math.lerp(float3.zero, new float3(1f, 1f, 1f),
+                math.remap(0f, ExplosionDuration, 0f, 1f, animTime.Value));
         }
     }
 }

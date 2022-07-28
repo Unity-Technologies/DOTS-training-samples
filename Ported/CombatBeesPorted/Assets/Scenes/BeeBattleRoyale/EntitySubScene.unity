@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartingBeeCount: 1000
-  StartingResourceCount: 137
+  StartingResourceCount: 133
   BloodDuration: 4
   ExplosionDuration: 1
   InteractionDistance: 1
