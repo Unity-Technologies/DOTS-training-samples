@@ -13,11 +13,13 @@ partial struct MovementJob : IJobEntity
     {
         pos.Value += DeltaTime * vel.Value;
         if (pos.Value.x < -Bounds.x) pos.Value.x = -Bounds.x;
+        else if (pos.Value.x > Bounds.x) pos.Value.x = Bounds.x;
+
         if (pos.Value.y < -Bounds.y) pos.Value.y = -Bounds.y;
+        else if (pos.Value.y > Bounds.y) pos.Value.y = Bounds.y;
+
         if (pos.Value.z < -Bounds.z) pos.Value.z = -Bounds.z;
-        if (pos.Value.x > Bounds.x) pos.Value.x = Bounds.x;
-        if (pos.Value.y > Bounds.y) pos.Value.y = Bounds.y;
-        if (pos.Value.z > Bounds.z) pos.Value.z = Bounds.z;
+        else if (pos.Value.z > Bounds.z) pos.Value.z = Bounds.z;
     }
 }
 

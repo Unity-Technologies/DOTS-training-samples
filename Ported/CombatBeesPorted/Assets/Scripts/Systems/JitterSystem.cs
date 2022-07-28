@@ -24,21 +24,28 @@ partial struct JitterJob : IJobEntity
         bee.JitterTime -= DeltaTime;
         if (bee.JitterTime <= 0f)
         {
-            var distFactor = math.remap(0f, 12f * 0.67f, 0.1f, 1f, math.distance(targetPos.Value, pos.Value));
+            float3 targetDir;
+            var deltaPos = targetPos.Value - pos.Value;
+            var dist = math.length(deltaPos);
+            if (dist > math.EPSILON)
+            {
+                targetDir = math.normalize(deltaPos) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
+            }
+            else
+            {
+                targetDir = math.normalize(vel.Value);
+                dist = BeeMoveSpeed;
+            }
+
+            var distFactor = math.remap(0f, 12f * 0.67f, 0.1f, 1f, dist);
             distFactor = math.clamp(distFactor, 0f, 1f);
 
-            bee.JitterTime = rand.NextFloat(JitterTimeMin, JitterTimeMax) * distFactor;
+            bee.JitterTime = rand.NextFloat(JitterTimeMin, JitterTimeMax);
 
             var randomDir = rand.NextFloat2(-JitterDistanceMax, JitterDistanceMax);
             randomDir.y = math.abs(randomDir.y);
             var jitterDir = new float3(0f, randomDir.y * 2.5f, randomDir.x) * distFactor;
 
-            var diff = targetPos.Value - pos.Value;
-            var targetDir = math.normalize(vel.Value);
-            if (math.length(diff) > math.EPSILON)
-            {
-                targetDir = math.normalize(targetPos.Value - pos.Value) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
-            }
             vel.Value = targetDir + jitterDir;
         }
 
