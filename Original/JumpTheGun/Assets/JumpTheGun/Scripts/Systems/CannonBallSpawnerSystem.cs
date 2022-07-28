@@ -51,24 +51,19 @@ partial struct CannonBallSpawnerSystem : ISystem
             //UnityEngine.Debug.Log("inside if");
             config.tankLaunchPeriod = currentTime + 3;
 
-
             // Schedule execution in a single thread, and do not block main thread.
             CannonBallSpawningJob.Schedule();
             
         }
         else {
             //UnityEngine.Debug.Log("outside if");
-            config.tankLaunchPeriod = currentTime + 2;
             return;
 
-
         }
-
 
     }
 
     [BurstCompile]
-    [UpdateAfter(typeof(TankRotationSystem))]
     partial struct CannonBallSpawning : IJobEntity
     {
 
