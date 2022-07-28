@@ -175,9 +175,9 @@ MonoBehaviour:
     type: 3}
   BloodPrefab: {fileID: 7525053920817173293, guid: 184720c95cd7c4c298f37355f3320a91,
     type: 3}
-  TeamBlueBeeCount: 50
-  TeamYellowBeeCount: 50
-  FoodResourceCount: 500
+  TeamBlueBeeCount: 50000
+  TeamYellowBeeCount: 50000
+  FoodResourceCount: 25000
   FoodResourceDropRatePerSecond: 0
   FallingSpeed: 0.1
   BeeSpeed: 15

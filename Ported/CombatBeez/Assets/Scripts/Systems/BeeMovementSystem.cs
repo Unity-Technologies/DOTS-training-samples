@@ -9,23 +9,69 @@ using Unity.Profiling;
 partial struct MoveBeeJob : IJobEntity
 {
     public float DeltaTime;
+    public float beeSpeed;
+    public float fCount;
+    public float oMag;
+    public Random rand;
 
-    void Execute(ref Translation beeTranslation)
+    void Execute([ChunkIndexInQuery] int chunkIndex, ref BeeAspect beeAspect)
     {
+        var pos = beeAspect.Position;
+        var dir = beeAspect.Target - pos;
+        float mag = (dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z);
+        float dist = math.sqrt(mag);
+        float localMoveSpeed = beeSpeed;
 
+        beeAspect.AtBeeTarget = false;
+
+        beeAspect.Rotation = quaternion.LookRotation(dir, new float3(0, 1, 0));
+        dir += beeAspect.OcillateOffset;
+
+        if (dist <= 8f && dist > 2f)
+            localMoveSpeed *= 1.5f;
+
+        if (dist > 0)
+            beeAspect.Position += (dir / dist) * DeltaTime * localMoveSpeed;
+
+
+        if (dist <= 2f)
+        {
+            beeAspect.AtBeeTarget = true;
+        }
+
+        if (fCount % 30 == 0)
+        {
+            float absOcillate = oMag * mag;
+            float ocillateAmount = math.min(absOcillate, 10);
+            beeAspect.OcillateOffset = rand.NextFloat3(-ocillateAmount, ocillateAmount);
+        }
+
+        //Apply bee stretch
+        float3 stretchDir = math.abs(dir / dist);
+        stretchDir = math.clamp(stretchDir + 0.5f, 0.5f, 1.5f);
+        beeAspect.Scale = new float3(beeAspect.Scale.x, beeAspect.Scale.y, stretchDir.z + 0.5f);
+
+        //Ensure bees don't leave their enclosure
+        float3 clampPos = beeAspect.Position;
+
+        clampPos.y = math.clamp(beeAspect.Position.y, 0.01f, 20f);
+        clampPos.z = math.clamp(beeAspect.Position.z, -15f, 15f);
+        clampPos.x = math.clamp(beeAspect.Position.x, -50f, 50f);
+
+        beeAspect.Position = clampPos;
     }
 }
 
 [BurstCompile]
 public partial struct BeeMovementSystem : ISystem
 {
-    static ProfilerMarker s_PreparePerfMarker_IDLE;
-    static ProfilerMarker s_PreparePerfMarker_CARRY;
-    static ProfilerMarker s_PreparePerfMarker_FORAGE;
-    static ProfilerMarker s_PreparePerfMarker_ATTACK;
-    static ProfilerMarker s_PreparePerfMarker_MOVINGTOTARGET;
-    static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_1;
-    static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_2;
+    //static ProfilerMarker s_PreparePerfMarker_IDLE;
+    //static ProfilerMarker s_PreparePerfMarker_CARRY;
+    //static ProfilerMarker s_PreparePerfMarker_FORAGE;
+    //static ProfilerMarker s_PreparePerfMarker_ATTACK;
+    //static ProfilerMarker s_PreparePerfMarker_MOVINGTOTARGET;
+    //static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_1;
+    //static ProfilerMarker s_PreparePerfMarker_ASSIGNMOVE_2;
 
     private float moveSpeed;
     private float ocilateMag;
@@ -50,14 +96,14 @@ public partial struct BeeMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Config>();
-        s_PreparePerfMarker_IDLE = new ProfilerMarker("ExecuteIdleState");
-        s_PreparePerfMarker_CARRY = new ProfilerMarker("ExecuteCarryState");
-        s_PreparePerfMarker_FORAGE = new ProfilerMarker("ExecuteForageState");
-        s_PreparePerfMarker_ATTACK = new ProfilerMarker("ExecuteAttackState");
-        s_PreparePerfMarker_MOVINGTOTARGET = new ProfilerMarker("MovingToTarget");
-        s_PreparePerfMarker_ASSIGNMOVE_1 = new ProfilerMarker("AssigningMovement1");
-        s_PreparePerfMarker_ASSIGNMOVE_2 = new ProfilerMarker("AssigningMovement2");
+        //state.RequireForUpdate<Config>();
+        //s_PreparePerfMarker_IDLE = new ProfilerMarker("ExecuteIdleState");
+        //s_PreparePerfMarker_CARRY = new ProfilerMarker("ExecuteCarryState");
+        //s_PreparePerfMarker_FORAGE = new ProfilerMarker("ExecuteForageState");
+        //s_PreparePerfMarker_ATTACK = new ProfilerMarker("ExecuteAttackState");
+        //s_PreparePerfMarker_MOVINGTOTARGET = new ProfilerMarker("MovingToTarget");
+        //s_PreparePerfMarker_ASSIGNMOVE_1 = new ProfilerMarker("AssigningMovement1");
+        //s_PreparePerfMarker_ASSIGNMOVE_2 = new ProfilerMarker("AssigningMovement2");
 
         ocilateMag = 20f;
 
@@ -243,53 +289,7 @@ public partial struct BeeMovementSystem : ISystem
     [BurstCompile]
     public void MoveToTarget(TransformAspect transform, ref Bee beeData, RefRW<NonUniformScale> scale)
     {
-        var pos = transform.Position;
-        var dir = beeData.Target - pos;
-        float mag = (dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z);
-        float dist = math.sqrt(mag);
-        float localMoveSpeed = moveSpeed;
-
-        beeData.AtTarget = false;
-
-        transform.Rotation = quaternion.LookRotation(dir, new float3(0, 1, 0));
-        dir += beeData.OcillateOffset;
-
-        if (dist <= 8f && dist > 2f)
-            localMoveSpeed *= 1.5f;
-
-        s_PreparePerfMarker_ASSIGNMOVE_1.Begin();
-        if (dist > 0)
-            transform.Position += (dir / dist) * dt * localMoveSpeed;
-        s_PreparePerfMarker_ASSIGNMOVE_1.End();
-
-
-        if (dist <= 2f)
-        {
-            beeData.AtTarget = true;
-        }
-
-        if (frameCount % 30 == 0)
-        {
-            float absOcillate = ocilateMag * mag;
-            float ocillateAmount = math.min(absOcillate, 10);
-            beeData.OcillateOffset = rand.NextFloat3(-ocillateAmount, ocillateAmount);
-        }
-
-        //Apply bee stretch
-        float3 stretchDir = math.abs(dir / dist);
-        stretchDir = math.clamp(stretchDir + 0.5f, 0.5f, 1.5f);
-        scale.ValueRW.Value.z = stretchDir.z + 0.5f;
-
-        //Ensure bees don't leave their enclosure
-        float3 clampPos = transform.Position;
-
-        clampPos.y = math.clamp(transform.Position.y, 0.01f, 20f);
-        clampPos.z = math.clamp(transform.Position.z, -15f, 15f);
-        clampPos.x = math.clamp(transform.Position.x, -50f, 50f);
-
-        s_PreparePerfMarker_ASSIGNMOVE_2.Begin();
-        transform.Position = clampPos;
-        s_PreparePerfMarker_ASSIGNMOVE_2.End();
+        
     }
 
     [BurstCompile]
@@ -328,31 +328,27 @@ public partial struct BeeMovementSystem : ISystem
             if (bee.ValueRW.beeTeam == Team.YELLOW)
                 tempEnemyBeeEntities = blueBeeEntities;
 
-            s_PreparePerfMarker_MOVINGTOTARGET.Begin();
-            MoveToTarget(transform, ref bee.ValueRW, beeScale);
-            s_PreparePerfMarker_MOVINGTOTARGET.End();
-
             switch (bee.ValueRW.beeState)
             {
                 case Bee.BEESTATE.IDLE:
-                    s_PreparePerfMarker_IDLE.Begin();
+                    //s_PreparePerfMarker_IDLE.Begin();
                     ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
-                    s_PreparePerfMarker_IDLE.End();
+                    //s_PreparePerfMarker_IDLE.End();
                     break;
                 case Bee.BEESTATE.FORAGE:
-                    s_PreparePerfMarker_FORAGE.Begin();
+                    //s_PreparePerfMarker_FORAGE.Begin();
                     ExecuteForageState(transform, ref bee.ValueRW, ref state, beeScale);
-                    s_PreparePerfMarker_FORAGE.End();
+                    //s_PreparePerfMarker_FORAGE.End();
                     break;
                 case Bee.BEESTATE.CARRY:
-                    s_PreparePerfMarker_CARRY.Begin();
+                    //s_PreparePerfMarker_CARRY.Begin();
                     ExecuteCarryState(transform, ref bee.ValueRW, ref state);
-                    s_PreparePerfMarker_CARRY.End();
+                    //s_PreparePerfMarker_CARRY.End();
                     break;
                 case Bee.BEESTATE.ATTACK:
-                    s_PreparePerfMarker_ATTACK.Begin();
+                    //s_PreparePerfMarker_ATTACK.Begin();
                     ExecuteAttackState(cmdBuffer,ref bee.ValueRW);
-                    s_PreparePerfMarker_ATTACK.End();
+                    //s_PreparePerfMarker_ATTACK.End();
                     break;
                 default:
                     ExecuteIdleState(tempEnemyBeeEntities, foodEntities, foodTranslations, transform, ref bee.ValueRW);
@@ -362,5 +358,18 @@ public partial struct BeeMovementSystem : ISystem
 
         cmdBuffer.Playback(state.EntityManager);
         cmdBuffer.Dispose();
+
+        //Call the move to target IJob
+        //s_PreparePerfMarker_MOVINGTOTARGET.Begin();
+        var moveBeeJob = new MoveBeeJob
+        {
+            DeltaTime = state.Time.DeltaTime,
+            beeSpeed = moveSpeed,
+            fCount = frameCount,
+            oMag = ocilateMag,
+            rand = rand,
+        };
+        moveBeeJob.ScheduleParallel();
+        //s_PreparePerfMarker_MOVINGTOTARGET.End();
     }
 }

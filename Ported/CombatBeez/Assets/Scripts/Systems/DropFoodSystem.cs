@@ -24,7 +24,7 @@ partial struct DropFoodSystem : ISystem
     {
     }
 
-    [BurstCompile]
+    //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
@@ -88,7 +88,7 @@ partial struct DropFoodSystem : ISystem
         foodResource.ValueRW.State = FoodState.FALLING;
     }
 
-    [BurstCompile]
+    //[BurstCompile]
     public void UpdatePositionOfFallingFood(ref SystemState state, ref Config config, RefRW<FoodResource> foodResource, TransformAspect transform)
     {
         var position = new float3(transform.Position.x, transform.Position.y - config.FallingSpeed, transform.Position.z);
@@ -112,7 +112,7 @@ partial struct DropFoodSystem : ISystem
         }
     }
 
-    [BurstCompile]
+    //[BurstCompile]
     public void SpawnNewBeesWhereFoodIsDelivered(ref SystemState state, ref Config config, RefRW<FoodResource> foodResource, TransformAspect foodTransform)
     {
         // check which hive the food is in
