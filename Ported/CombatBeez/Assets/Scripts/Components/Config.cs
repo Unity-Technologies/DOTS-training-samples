@@ -20,5 +20,7 @@ struct Config : IComponentData
     public int MinNumberOfBeesSpawned;
     public int MaxNumberOfBeesSpawned;
 
+    public float TimeBloodTakesToDry;
+
     public bool Respawn;
 }

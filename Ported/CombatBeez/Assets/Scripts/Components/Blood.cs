@@ -4,4 +4,5 @@ using Unity.Entities;
 public struct Blood : IComponentData
 {
     public BloodState State;
+    public float TimePooling;
 }

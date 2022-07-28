@@ -20,6 +20,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int MinNumberOfBeesSpawned;
     public int MaxNumberOfBeesSpawned;
 
+    public float TimeBloodTakesToDry;
+
     public bool Respawn;
 }
 
@@ -43,6 +45,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             RandomNumberSeed = authoring.RandomNumberSeed,
             MinNumberOfBeesSpawned = authoring.MinNumberOfBeesSpawned,
             MaxNumberOfBeesSpawned = authoring.MaxNumberOfBeesSpawned,
+            TimeBloodTakesToDry = authoring.TimeBloodTakesToDry,
             Respawn = authoring.Respawn
         });
     }
