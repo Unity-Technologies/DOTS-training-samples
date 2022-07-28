@@ -58,6 +58,7 @@ public partial struct StackingSystem : ISystem
     private EntityQuery _grabbableResourceQuery;
     private ComponentDataFromEntity<Translation> _translationGrabbableResource;
     
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -66,10 +67,12 @@ public partial struct StackingSystem : ISystem
 
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var playVolumeFloor = -SystemAPI.GetSingleton<Config>().PlayVolume.y;
