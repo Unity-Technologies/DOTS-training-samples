@@ -238,3 +238,14 @@ class FireFighterLineSpawnerBaker : Baker<Spawner>
     }
 }
 
+class BrigadeSpawnerBaker : Baker<Spawner>
+{
+    public override void Bake(Spawner authoring)
+    {
+        AddComponent(new BrigadeConfig
+        {
+            Speed = 1.5f
+        });
+    }
+}
+
