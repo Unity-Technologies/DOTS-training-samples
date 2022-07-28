@@ -40,7 +40,7 @@ namespace Systems
 
             if (carT >= 1)
             {
-                ECB.SetComponentEnabled<WaitingAtIntersection>(chunkIndex, carAspect.Entity, true);
+                ECB.SetComponentEnabled<TraversingIntersection>(chunkIndex, carAspect.Entity, true);
             }
         }
     }

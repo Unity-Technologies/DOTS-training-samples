@@ -24,6 +24,6 @@ public class CarBaker : Baker<CarAuthoring>
             SafeDistance = authoring.SafeDistance
         });
 
-        AddComponent<WaitingAtIntersection>();
+        AddComponent<TraversingIntersection>();
     }
 }

@@ -9,8 +9,7 @@ namespace Systems
     [BurstCompile]
     partial struct LaneTrafficJob : IJobEntity
     {
-        public EntityCommandBuffer.ParallelWriter ECB;
-        [ReadOnly] public ComponentDataFromEntity<Car> CarDataFromEntity;
+        [NativeDisableParallelForRestriction] public ComponentDataFromEntity<Car> CarDataFromEntity;
         [ReadOnly] public ComponentDataFromEntity<RoadSegment> RoadSegmentDataFromEntity;
         public float MaxSpeed;
         public float BrakingDistance;
@@ -42,7 +41,7 @@ namespace Systems
                     }
                 }
 
-                ECB.SetComponent(chunkIndex, entities[x], carX);
+                CarDataFromEntity[entities[x]] = carX;
             }
         }
     }
@@ -73,20 +72,15 @@ namespace Systems
             m_CarDataFromEntity.Update(ref state);
             m_RoadSegmentDataFromEntity.Update(ref state);
 
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+            
             var trafficJob = new LaneTrafficJob
             {
-                ECB = ecb.AsParallelWriter(),
                 CarDataFromEntity = m_CarDataFromEntity,
                 RoadSegmentDataFromEntity = m_RoadSegmentDataFromEntity,
                 MaxSpeed = MaxSpeed,
                 BrakingDistance = BrakingDistance
             };
             trafficJob.ScheduleParallel();
-            state.Dependency.Complete();
-            
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
         }
     }
 }
