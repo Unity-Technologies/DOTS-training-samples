@@ -4,10 +4,9 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using Unity.Mathematics;
-using UnityEngine;
 
 [BurstCompile]
-partial struct WaterBringerSystem : ISystem
+partial struct BucketBringerSystem : ISystem
 {
 
     [BurstCompile]
@@ -35,7 +34,7 @@ partial struct WaterBringerSystem : ISystem
         }
 
         // Creating an instance of the job.
-        var waterBringerFindNewTarget = new WaterBringerFindNewTarget
+        var bucketBringerFindNewTarget = new BucketBringerFindNewTarget
         {
             StartPositions = allStartPositions,
             EndPositions = allEndPositions,
@@ -43,15 +42,15 @@ partial struct WaterBringerSystem : ISystem
         };
 
         // Schedule execution in a single thread, and do not block main thread.
-        waterBringerFindNewTarget.Schedule();
+        bucketBringerFindNewTarget.Schedule();
     }
 }
 
 // Requiring the Shooting tag component effectively prevents this job from running
 // for the tanks which are in the safe zone.
-[WithAll(typeof(WaterBringer))]
+[WithAll(typeof(BucketBringer))]
 [BurstCompile]
-partial struct WaterBringerFindNewTarget : IJobEntity
+partial struct BucketBringerFindNewTarget : IJobEntity
 {
     [ReadOnly]
     [DeallocateOnJobCompletion]
@@ -60,7 +59,7 @@ partial struct WaterBringerFindNewTarget : IJobEntity
     [ReadOnly]
     [DeallocateOnJobCompletion]
     public NativeArray<float2> EndPositions;
-
+    
     public int FFCountPerLine;
     
     // Note that the TurretAspects parameter is "in", which declares it as read only.
@@ -70,7 +69,7 @@ partial struct WaterBringerFindNewTarget : IJobEntity
     void Execute( ref LineId lineId, ref LineIndex lineIndex, ref Target target)
     {
         var multiplier = ((float)lineIndex.Value / (float)(FFCountPerLine - 1));
-        var pos = StartPositions[lineId.Value] + multiplier * (EndPositions[lineId.Value] - StartPositions[lineId.Value]);
-        //target.Value = pos;
+        var pos = EndPositions[lineId.Value] + multiplier * (StartPositions[lineId.Value] - EndPositions[lineId.Value]);
+        target.Value = pos;
     }
 }
