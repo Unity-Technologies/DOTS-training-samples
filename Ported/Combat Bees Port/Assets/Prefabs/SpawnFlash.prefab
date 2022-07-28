@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8765027666926465339}
   - component: {fileID: 6698999058849159197}
   - component: {fileID: 5888340937348690758}
-  - component: {fileID: 2168582250193901695}
+  - component: {fileID: 7109813237613041638}
   m_Layer: 0
   m_Name: SpawnFlash
   m_TagString: Untagged
@@ -84,17 +84,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2168582250193901695
-BoxCollider:
+--- !u!114 &7109813237613041638
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 121907338643686441}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b1993056cea455fb8fa944dcf12ddf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
