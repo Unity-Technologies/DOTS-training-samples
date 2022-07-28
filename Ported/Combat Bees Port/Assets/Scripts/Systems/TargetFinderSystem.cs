@@ -32,7 +32,7 @@ partial struct TargetFinderSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        
+
         var yellowQueryBuilder = new EntityQueryDescBuilder(Allocator.Temp);
         yellowQueryBuilder.AddAll(ComponentType.ReadWrite<YellowTeam>());
         yellowQueryBuilder.FinalizeQuery();
@@ -50,23 +50,24 @@ partial struct TargetFinderSystem : ISystem
 
         _beeComponent = state.GetComponentDataFromEntity<Bee>(false);
     }
+
     public void OnDestroy(ref SystemState state)
     {
-        throw new NotImplementedException();
+        
     }
 
-  
+
     public void OnUpdate(ref SystemState state)
     {
         _beeComponent.Update(ref state);
-        
+
         rnd = Random.CreateFromIndex(state.GlobalSystemVersion);
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         bool aggressive;
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-            
+
         NativeArray<Entity> yellowBees = _yellowQuery.ToEntityArray(allocator);
         NativeArray<Entity> blueBees = _blueQuery.ToEntityArray(allocator);
         NativeArray<Entity> food = _foodQuery.ToEntityArray(allocator);
@@ -77,79 +78,70 @@ partial struct TargetFinderSystem : ISystem
         _yellowBeeExists = food.Length != 0;
         _blueBeeExists = blueBees.Length != 0;
 
-        if (_yellowBeeExists) //Makes sure there are yellow Bees
+        for (int i = 0; i < yellowBees.Length; i++)
         {
-
-                for (int i = 0; i < yellowBees.Length; i++)
-                {
-
-                    aggressive = rnd.NextBool();
-                    Entity bee = yellowBees[i];
-                    Bee beeComponent = _beeComponent[bee];
+            aggressive = rnd.NextBool();
+            Entity bee = yellowBees[i];
+            Bee beeComponent = _beeComponent[bee];
 
 
 
 
-                    if (beeComponent.state == BeeState.Idle)
-                    {
-
-                        if (_blueBeeExists && (!_foodExists || aggressive)) //Checks if blue bees exist to attack, if so then check if aggressive or no food exists, then attack anyway.
-                        {
-                            beeComponent.target = blueBees[rnd.NextInt(blueBees.Length)];
-                            beeComponent.state = BeeState.Attacking;
-                            ecb.SetComponent(bee, beeComponent);
-                        }
-                        else if (_foodExists && (!aggressive || !_blueBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
-                        {
-                            beeComponent.target = food[rnd.NextInt(food.Length)];
-                            beeComponent.state = BeeState.Collecting;
-                            ecb.SetComponent(bee, beeComponent);
-                        }
-
-                    }
-                }
-        }
-
-
-        if (_blueBeeExists)
-        {
-
-
-            for (int i = 0; i < blueBees.Length; i++)
+            if (beeComponent.state == BeeState.Idle)
             {
 
-                    aggressive = rnd.NextBool();
-                    Entity bee = blueBees[i];
-                    Bee beeComponent  = _beeComponent[bee];
-
-                    
-
-                    if (beeComponent.state == BeeState.Idle)
-                    {
-
-                        if (_blueBeeExists && (!_foodExists || aggressive)) //Checks if blue bees exist to attack, if so then check if aggressive or no food exists, then attack anyway.
-                        {
-                            beeComponent.target = yellowBees[rnd.NextInt(yellowBees.Length)];
-                            beeComponent.state = BeeState.Attacking;
-                            ecb.SetComponent(bee, beeComponent);
-                        }
-                        else if (_foodExists && (!aggressive || !_blueBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
-                        {
-                            beeComponent.target = food[rnd.NextInt(food.Length)];
-                            beeComponent.state = BeeState.Collecting;
-                            ecb.SetComponent(bee, beeComponent);
-                        }
-                    }
-
+                if (_blueBeeExists && (!_foodExists || aggressive)) //Checks if blue bees exist to attack, if so then check if aggressive or no food exists, then attack anyway.
+                {
+                    beeComponent.target = blueBees[rnd.NextInt(blueBees.Length)];
+                    beeComponent.state = BeeState.Attacking;
+                    ecb.SetComponent(bee, beeComponent);
+                }
+                else if (_foodExists && (!aggressive || !_blueBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
+                {
+                    beeComponent.target = food[rnd.NextInt(food.Length)];
+                    beeComponent.state = BeeState.Collecting;
+                    ecb.SetComponent(bee, beeComponent);
+                }
 
             }
         }
+
+
+
+
+        foreach (Entity bee in blueBees)
+        {
+            aggressive = rnd.NextBool();
+            Bee beeComponent = _beeComponent[bee];
+
+
+
+            if (beeComponent.state == BeeState.Idle)
+            {
+
+                if (_yellowBeeExists && (!_foodExists || aggressive)) //Checks if blue bees exist to attack, if so then check if aggressive or no food exists, then attack anyway.
+                {
+                    beeComponent.target = yellowBees[rnd.NextInt(yellowBees.Length)];
+                    beeComponent.state = BeeState.Attacking;
+                    ecb.SetComponent(bee, beeComponent);
+                }
+                else if (_foodExists && (!aggressive || !_yellowBeeExists)) //Checks if not aggressivee or no blue bees to attack, then collect food if it exists
+                {
+                    beeComponent.target = food[rnd.NextInt(food.Length)];
+                    beeComponent.state = BeeState.Collecting;
+                    ecb.SetComponent(bee, beeComponent);
+                }
+            }
+
+
+        }
+
 
         yellowBees.Dispose();
         blueBees.Dispose();
         food.Dispose();
     }
-    
+
 }
 
 
