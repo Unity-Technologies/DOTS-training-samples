@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct CombatBeezParticleSystem : ISystem
+public struct ParticleSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
