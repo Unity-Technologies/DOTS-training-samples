@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InitialFireCount: 2
-  FireThreshold: 0.5
+  FireThreshold: 0.3
   HeatTransferRate: 0.02
   FireFighterLinesCount: 0
   FireFighterPerLineCount: 0

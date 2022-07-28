@@ -88,7 +88,7 @@ partial struct FireSystem : ISystem
                                         coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b, 
                                         1.0f);
 
-                var gap = ((temperature - threshold) / threshold);
+                var gap = 1 - ((1 - temperature) / (1 - threshold));
                 var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap;
                 translation.ValueRW.Value.y = height;
 
