@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Collections;
 
@@ -8,49 +9,57 @@ namespace Util
         public const int WorldSize = 10;
         public const int MaxAttempts = 1000;
 
-        public static int3[] CardinalDirections = new int3[]
+        public static readonly int3[] CardinalDirections =
         {
             new int3(1, 0, 0),
             new int3(-1, 0, 0),
             new int3(0, 1, 0),
             new int3(0, -1, 0),
             new int3(0, 0, 1),
-            new int3(0, 0, -1),
+            new int3(0, 0, -1)
         };
 
-        public static int3[] AllDirections = new int3[26];
-
-        static void PopulateAllDirections()
+        public static readonly int3[] AllDirections =
         {
-            int index = 0;
-            for (int x = -1; x <= 1; x++)
-            {
-                for (int y = -1; y <= 1; y++)
-                {
-                    for (int z = -1; z <= 1; z++)
-                    {
-                        if (x != 0 || y != 0 || z != 0)
-                        {
-                            AllDirections[index] = new int3(x, y, z);
-                            index++;
-                        }
-                    }
-                }
-            }
-        }
+            new int3(-1, -1, -1),
+            new int3(-1, -1, 0),
+            new int3(-1, -1, 1),
+            new int3(-1, 0, -1),
+            new int3(-1, 0, 0),
+            new int3(-1, 0, 1),
+            new int3(-1, 1, -1),
+            new int3(-1, 1, 0),
+            new int3(-1, 1, 1),
+            new int3(0, -1, -1),
+            new int3(0, -1, 0),
+            new int3(0, -1, 1),
+            new int3(0, 0, -1),
+            new int3(0, 0, 1),
+            new int3(0, 1, -1),
+            new int3(0, 1, 0),
+            new int3(0, 1, 1),
+            new int3(1, -1, -1),
+            new int3(1, -1, 0),
+            new int3(1, -1, 1),
+            new int3(1, 0, -1),
+            new int3(1, 0, 0),
+            new int3(1, 0, 1),
+            new int3(1, 1, -1),
+            new int3(1, 1, 0),
+            new int3(1, 1, 1),
+        };
 
-        public static bool[] GenerateVoxels()
+        public static NativeArray<bool> GenerateVoxels()
         {
-            var random = new Random();
+            var random = Random.CreateFromIndex(11111);
 
             // [ SETUP ]
-            PopulateAllDirections();
             // flattening 3-dimensional voxels
             var voxelCount = WorldSize * WorldSize * WorldSize;
             // true indicates presence of an intersection
-            var voxels = new bool[voxelCount];
+            var voxels = new NativeArray<bool>(voxelCount, Allocator.Temp);
             // active voxels will be considered to have new neighboring intersections
-            var activeVoxels = new NativeList<int>();
+            var activeVoxels = new NativeList<int>(Allocator.Temp);
 
             // Setup middle voxel
             var middle = GetVoxelIndex(WorldSize / 2, WorldSize / 2, WorldSize / 2);
@@ -75,13 +84,14 @@ namespace Util
                 {
                     if (voxels[GetVoxelIndex(n)]) possibleNewNeighborCount++;
                 }
+
                 if (possibleNewNeighborCount <= 2)
                 {
                     int newNodeIndex = GetVoxelIndex(possibleNewNode);
                     voxels[newNodeIndex] = true;
                     activeVoxels.Add(newNodeIndex);
                 }
-                
+
                 // Check if this new node has over-populated last node
                 // (and if we need to deactivate it)
                 int recountedNeighborsOldNode = 0;
@@ -89,6 +99,7 @@ namespace Util
                 {
                     if (voxels[GetVoxelIndex(n)]) recountedNeighborsOldNode++;
                 }
+
                 if (recountedNeighborsOldNode >= 3)
                 {
                     activeVoxels.RemoveAt(index);
@@ -122,7 +133,7 @@ namespace Util
 
         public static NativeList<int3> GetCardinalNeighbors(int3 pos)
         {
-            var neighbors = new NativeList<int3>();
+            var neighbors = new NativeList<int3>(Allocator.Temp);
             foreach (var direction in CardinalDirections)
             {
                 var possibleNeighbor = pos + direction;
@@ -140,7 +151,7 @@ namespace Util
 
         public static NativeList<int3> GetAllNeighbors(int3 pos)
         {
-            var neighbors = new NativeList<int3>();
+            var neighbors = new NativeList<int3>(Allocator.Temp);
             foreach (var direction in AllDirections)
             {
                 var possibleNeighbor = pos + direction;

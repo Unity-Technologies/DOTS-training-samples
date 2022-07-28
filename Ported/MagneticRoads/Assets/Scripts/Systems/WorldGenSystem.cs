@@ -22,9 +22,9 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            int worldScale = 5; // How large a voxel is in Unity world space
+            int worldScale = 10; // How large a voxel is in Unity world space
             var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-            bool[] voxels = WorldGen.GenerateVoxels();
+            var voxels = WorldGen.GenerateVoxels();
             var random = Random.CreateFromIndex(11111);
 
             // <index, entity>
