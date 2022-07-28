@@ -33,7 +33,12 @@ partial struct JitterJob : IJobEntity
             randomDir.y = math.abs(randomDir.y);
             var jitterDir = new float3(0f, randomDir.y * 2.5f, randomDir.x) * distFactor;
 
-            var targetDir = math.normalize(targetPos.Value - pos.Value) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
+            var diff = targetPos.Value - pos.Value;
+            var targetDir = math.normalize(vel.Value);
+            if (math.length(diff) > math.EPSILON)
+            {
+                targetDir = math.normalize(targetPos.Value - pos.Value) * BeeMoveSpeed * rand.NextFloat(0.85f, 1.15f);
+            }
             vel.Value = targetDir + jitterDir;
         }
 

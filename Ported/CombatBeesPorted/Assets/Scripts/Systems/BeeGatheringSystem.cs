@@ -6,7 +6,7 @@ using Unity.Collections;
 using Random = Unity.Mathematics.Random;
 
 [WithAll(typeof(BeeStateGathering))]
-[BurstCompile]
+//[BurstCompile]
 partial struct BeeGatherJob : IJobEntity
 {
     public float GatherRadius;
@@ -18,6 +18,9 @@ partial struct BeeGatherJob : IJobEntity
     public ComponentDataFromEntity<Gravity> GravityComponentData;
     public ComponentDataFromEntity<BeeStateGathering> BeeStateGatheringComponentData;
     public ComponentDataFromEntity<BeeStateReturning> BeeStateReturningComponentData;
+    public ComponentDataFromEntity<BeeStateIdle> BeeStateIdleComponentData;
+    public ComponentDataFromEntity<ResourceBelow> ResourceBelowComponentData;
+    public ComponentDataFromEntity<ResourceStateStacked> ResourceStateStackedComponentData;
     public Config config;
     public uint RandomSeed;
 
@@ -29,7 +32,7 @@ partial struct BeeGatherJob : IJobEntity
             if (TargetTranslationComponentData.HasComponent(targetEntity))
             {
                 targetPosition.Value = TargetTranslationComponentData[targetEntity].Value;
-                
+
                 if (ResourceStateGrabbableComponentData.IsComponentEnabled(targetEntity))
                 {
                     float dist = math.distance(position.Value, targetPosition.Value);
@@ -40,6 +43,16 @@ partial struct BeeGatherJob : IJobEntity
                         ResourceStateGrabbableComponentData.SetComponentEnabled(targetEntity, false);
                         ResourceStateGrabbedComponentData.SetComponentEnabled(targetEntity, true);
                         GravityComponentData.SetComponentEnabled(targetEntity, false);
+                        ResourceStateStackedComponentData.SetComponentEnabled(targetEntity, false);
+
+                        // Set Resource Below stuff
+                        Entity resourceBelow = ResourceBelowComponentData[targetEntity].Value;
+                        if (TargetStorageInfo.Exists(resourceBelow))
+                        {
+                            ResourceBelowComponentData[targetEntity] = new ResourceBelow();
+                            ResourceStateGrabbableComponentData.SetComponentEnabled(resourceBelow, true);
+                            ResourceStateStackedComponentData.SetComponentEnabled(resourceBelow, false);
+                        }
 
                         // Set Bee states
                         BeeStateGatheringComponentData.SetComponentEnabled(entity, false);
@@ -52,6 +65,13 @@ partial struct BeeGatherJob : IJobEntity
                         targetPosition.Value = math.float3(x, randY, position.Value.z);
                     }
                 }
+                else if (ResourceStateGrabbedComponentData.IsComponentEnabled(targetEntity) || ResourceStateStackedComponentData.IsComponentEnabled(targetEntity))
+                {
+                    BeeStateGatheringComponentData.SetComponentEnabled(entity, false);
+                    BeeStateIdleComponentData.SetComponentEnabled(entity, true);
+
+                    targetPosition.Value = position.Value;
+                }
             }
 
         }
@@ -59,7 +79,7 @@ partial struct BeeGatherJob : IJobEntity
         {
             // do busted state stuff
             BeeStateGatheringComponentData.SetComponentEnabled(entity, false);
-            BeeStateReturningComponentData.SetComponentEnabled(entity, true);
+            BeeStateIdleComponentData.SetComponentEnabled(entity, true);
 
             targetPosition.Value = position.Value;
         }
@@ -77,6 +97,9 @@ public partial struct BeeGatheringSystem : ISystem
     private ComponentDataFromEntity<Gravity> gravityComponentData;
     private ComponentDataFromEntity<BeeStateGathering> beeStateGatheringComponentData;
     private ComponentDataFromEntity<BeeStateReturning> beeStateReturningComponentData;
+    private ComponentDataFromEntity<BeeStateIdle> beeStateIdleComponentData;
+    private ComponentDataFromEntity<ResourceBelow> resourceBelowComponentData;
+    private ComponentDataFromEntity<ResourceStateStacked> resourceStateStackedComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -91,6 +114,9 @@ public partial struct BeeGatheringSystem : ISystem
         gravityComponentData = state.GetComponentDataFromEntity<Gravity>();
         beeStateGatheringComponentData = state.GetComponentDataFromEntity<BeeStateGathering>();
         beeStateReturningComponentData = state.GetComponentDataFromEntity<BeeStateReturning>();
+        beeStateIdleComponentData = state.GetComponentDataFromEntity<BeeStateIdle>();
+        resourceBelowComponentData = state.GetComponentDataFromEntity<ResourceBelow>();
+        resourceStateStackedComponentData = state.GetComponentDataFromEntity<ResourceStateStacked>();
     }
 
     [BurstCompile]
@@ -111,7 +137,10 @@ public partial struct BeeGatheringSystem : ISystem
         resourceStateGrabbedComponentData.Update(ref state);
         gravityComponentData.Update(ref state);
         beeStateGatheringComponentData.Update(ref state);
-        beeStateReturningComponentData.Update(ref state); 
+        beeStateReturningComponentData.Update(ref state);
+        beeStateIdleComponentData.Update(ref state);
+        resourceBelowComponentData.Update(ref state);
+        resourceStateStackedComponentData.Update(ref state);
 
         var gatherJob = new BeeGatherJob()
         {
@@ -124,6 +153,9 @@ public partial struct BeeGatheringSystem : ISystem
             GravityComponentData = gravityComponentData,
             BeeStateGatheringComponentData = beeStateGatheringComponentData,
             BeeStateReturningComponentData = beeStateReturningComponentData,
+            BeeStateIdleComponentData = beeStateIdleComponentData,
+            ResourceBelowComponentData = resourceBelowComponentData,
+            ResourceStateStackedComponentData = resourceStateStackedComponentData,
             config = config,
             RandomSeed = (uint)UnityEngine.Time.frameCount
         };
