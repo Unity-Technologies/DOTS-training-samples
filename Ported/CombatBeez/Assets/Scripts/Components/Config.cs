@@ -19,4 +19,6 @@ struct Config : IComponentData
     public uint RandomNumberSeed;
     public int MinNumberOfBeesSpawned;
     public int MaxNumberOfBeesSpawned;
+
+    public bool Respawn;
 }

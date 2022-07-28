@@ -8,6 +8,8 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct SpawnerSystem : ISystem
 {
+    Config config;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -25,7 +27,25 @@ partial struct SpawnerSystem : ISystem
         // The default world should not be used because the targeted EntityManager
         // may not be part of it.
         // var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        var config = SystemAPI.GetSingleton<Config>();
+        config = SystemAPI.GetSingleton<Config>();
+
+        //Reset all entities
+        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.H))
+        {
+            //destroy all entities and re-enable respawn
+            config.Respawn = true;
+
+            EntityQueryDescBuilder entityQueryBuilder = new EntityQueryDescBuilder(Allocator.Temp);
+            entityQueryBuilder.AddAny(ComponentType.ReadWrite<Bee>());
+            entityQueryBuilder.AddAny(ComponentType.ReadWrite<Blood>());
+            entityQueryBuilder.AddAny(ComponentType.ReadWrite<FoodResource>());
+            entityQueryBuilder.FinalizeQuery();
+
+            state.EntityManager.DestroyEntity(state.GetEntityQuery(entityQueryBuilder));
+        }
+
+        if (!config.Respawn)
+            return;
 
         //Instantiate our two bee teams...
         state.EntityManager.Instantiate(config.BlueBeePrefab, config.TeamBlueBeeCount, Allocator.Temp);
@@ -56,7 +76,7 @@ partial struct SpawnerSystem : ISystem
             transform.Position = position;
         }
 
-        // This system should only run once at startup. So it disables itself after one update.
-        state.Enabled = false;
+        config.Respawn = false;
+        SystemAPI.SetSingleton<Config>(config);
     }
 }

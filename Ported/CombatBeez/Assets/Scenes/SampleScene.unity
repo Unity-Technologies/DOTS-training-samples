@@ -386,6 +386,9 @@ MonoBehaviour:
     type: 3}
   raycastSphere: {fileID: 0}
   cam: {fileID: 0}
+  sensitivity: 0.5
+  zoomSensitivity: 0.2
+  stiffness: 12
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
