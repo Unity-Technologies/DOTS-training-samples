@@ -72,7 +72,19 @@ partial struct FireSearcherJob : IJobEntity
                 if (math.distance(fireFighterLine.StartPosition, closestPoint) >
                     math.distance(fireFighterLine.StartPosition, newPoint))
                 {
-                    closestPoint = newPoint;
+                    int cellColumnIndex = Mathf.FloorToInt(cellIndex / gridSize);
+                    int cellRowIndex = cellIndex % gridSize;
+                    
+                    var offset = new float2(-terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f, -terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f);
+                    
+                    var newPoint = new float2(cellRowIndex * terrainConfig.CellSize, cellColumnIndex * terrainConfig.CellSize) + offset;
+                    
+                    
+                    if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
+                        math.distance(fireFighterLine.ValueRO.StartPosition, newPoint))
+                    {
+                        closestPoint = newPoint;
+                    }
                 }
             }
         }
