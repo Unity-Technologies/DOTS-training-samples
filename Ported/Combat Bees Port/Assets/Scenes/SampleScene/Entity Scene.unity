@@ -256,6 +256,12 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
+      propertyPath: spawnFlashPrefab
+      value: 
+      objectReference: {fileID: 121907338643686441, guid: 1f0c6aabb6e1d2945ae31896b27e89ad,
+        type: 3}
+    - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
+        type: 3}
       propertyPath: beePulseSpawnCount
       value: 10
       objectReference: {fileID: 0}
