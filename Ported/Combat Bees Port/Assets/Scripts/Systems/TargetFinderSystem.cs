@@ -77,7 +77,7 @@ partial struct TargetFinderSystem : ISystem
 
 
         _foodExists = food.Length != 0;
-        _yellowBeeExists = food.Length != 0;
+        _yellowBeeExists = yellowBees.Length != 0;
         _blueBeeExists = blueBees.Length != 0;
 
         for (int i = 0; i < yellowBees.Length; i++)
