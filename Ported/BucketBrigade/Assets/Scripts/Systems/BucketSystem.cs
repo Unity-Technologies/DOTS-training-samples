@@ -70,12 +70,36 @@ partial struct BucketSystem : ISystem
         var config = SystemAPI.GetSingleton<BucketConfig>();
         var configCell = SystemAPI.GetSingleton<TerrainCellConfig>();
 
-        foreach (var (color, volume) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRO<Volume>>())
+        int bucketCount = 0;
+        foreach (var (color, volume) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRO<Volume>>().WithAll<BucketInfo>())
         {
-            if(volume.ValueRO.Value > 0)
-                color.ValueRW.Value = new float4(0,0,1,1);
+            if (volume.ValueRO.Value > 0)
+                color.ValueRW.Value = new float4(0, 0, 1, 1);
             else
                 color.ValueRW.Value = new float4(0, 0, 0, 1);
+
+            bucketCount++;
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                Debug.Log("Left mouse clicked");
+                var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+                Entity bucket = ecb.Instantiate(config.Prefab);
+
+                ecb.SetComponent(bucket, new Translation { Value = new float3(hit.point) });
+                ecb.SetComponent(bucket, new NonUniformScale { Value = new float3(configCell.CellSize * 0.5f, configCell.CellSize * 0.5f, configCell.CellSize * 0.5f) });
+                ecb.SetComponent(bucket, new BucketId { Value = bucketCount });
+                ecb.SetComponent(bucket, new Volume { Value = 1.0f });
+            }
+        }
+
     }
 }

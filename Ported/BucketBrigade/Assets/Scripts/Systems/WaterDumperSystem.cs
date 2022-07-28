@@ -72,29 +72,37 @@ partial struct WaterDumperSystem : ISystem
                         {
                             if (line.ValueRO.LineId == lineId.ValueRO.Value)
                             {
-                                if(math.distancesq(line.ValueRO.EndPosition, new float2(FireFighterPos.ValueRO.Value.x, FireFighterPos.ValueRO.Value.z)) < 0.01)
+                                if(math.distancesq(line.ValueRO.EndPosition, FireFighterPos.ValueRO.Value.xz) < 0.01f)
                                 {
-                                    foreach (var (bucketInfo, bucketPos, volume, bucketId) in SystemAPI.Query<RefRW<BucketInfo>, RefRO<Translation>, RefRW<Volume>, RefRO<BucketId>>())
+                                    if(FireFighterBucketId.ValueRO.Value != -1)
                                     {
-                                        if(FireFighterBucketId.ValueRO.Value == bucketId.ValueRO.Value)
+                                        foreach (var (bucketInfo, bucketPos, volume, bucketId) in SystemAPI.Query<RefRW<BucketInfo>, RefRO<Translation>, RefRW<Volume>, RefRO<BucketId>>())
                                         {
-                                            bucketInfo.ValueRW.IsTaken = false;
-                                            volume.ValueRW.Value = 0.0f;
-                                            FireFighterBucketId.ValueRW.Value = -1;
+                                            if (FireFighterBucketId.ValueRO.Value == bucketId.ValueRO.Value)
+                                            {
+                                                bucketInfo.ValueRW.IsTaken = false;
+                                                volume.ValueRW.Value = 0.0f;
+                                                FireFighterBucketId.ValueRW.Value = -1;
 
-                                            var coord = posToIndex(target.ValueRO.Value, GridSize, CellSize);
+                                                var coord = posToIndex(target.ValueRO.Value, GridSize, CellSize);
 
-                                            HeatMap.ElementAt(math.clamp(coord + 0, 0, GridSize * GridSize)).Value = 0.0f;
-                                            HeatMap.ElementAt(math.clamp(coord + 1, 0, GridSize * GridSize)).Value = 0.0f;
-                                            HeatMap.ElementAt(math.clamp(coord - 1, 0, GridSize * GridSize)).Value = 0.0f;
-                                            HeatMap.ElementAt(math.clamp(coord + GridSize, 0, GridSize * GridSize)).Value = 0.0f;
-                                            HeatMap.ElementAt(math.clamp(coord - GridSize, 0, GridSize * GridSize)).Value = 0.0f;
+                                                HeatMap.ElementAt(math.clamp(coord + 0, 0, GridSize * GridSize)).Value = 0.0f;
+                                                HeatMap.ElementAt(math.clamp(coord + 1, 0, GridSize * GridSize)).Value = 0.0f;
+                                                HeatMap.ElementAt(math.clamp(coord - 1, 0, GridSize * GridSize)).Value = 0.0f;
+                                                HeatMap.ElementAt(math.clamp(coord + GridSize, 0, GridSize * GridSize)).Value = 0.0f;
+                                                HeatMap.ElementAt(math.clamp(coord - GridSize, 0, GridSize * GridSize)).Value = 0.0f;
 
-                                            waterDumperState.ValueRW.state = WaterDumper.WaterDumperState.GoToBucket;
-                                            break;
+                                                waterDumperState.ValueRW.state = WaterDumper.WaterDumperState.GoToBucket;
+                                                break;
+                                            }
                                         }
                                     }
+                                    else
+                                    {
+                                        waterDumperState.ValueRW.state = WaterDumper.WaterDumperState.GoToBucket;
+                                    }
                                 }
+                                // Come back with the bucket
                                 else
                                 {
                                     target.ValueRW.Value = line.ValueRO.EndPosition;
