@@ -14,6 +14,7 @@ partial struct BeeLookRotationJob : IJobEntity
 }
 
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+[UpdateBefore(typeof(BeeKillerSystem))]
 [BurstCompile]
 public partial struct BeeLookRotationSystem : ISystem
 {

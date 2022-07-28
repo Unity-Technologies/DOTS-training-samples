@@ -3,12 +3,14 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using UnityEngine;
 
 [WithAll(typeof(BeeStateReturning))]
 [BurstCompile]
 partial struct BeeReturnJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
+    [ReadOnly] public StorageInfoFromEntity TargetStorageInfo;
     [ReadOnly] public ComponentDataFromEntity<Translation> TargetTranslationComponentData;
     // [ReadOnly] public ComponentDataFromEntity<NonUniformScale> TargetNonUniformScaleComponentData;
     public Config Config;
@@ -16,20 +18,30 @@ partial struct BeeReturnJob : IJobEntity
     void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, in NonUniformScale scale, in Translation position, in EntityOfInterest entityOfInterest)
     {
         Entity targetEntity = entityOfInterest.Value;
-        if (TargetTranslationComponentData.HasComponent(targetEntity))
+        if (TargetStorageInfo.Exists(targetEntity))
         {
-            float3 entityPos = position.Value;
-            float offset = (scale.Value.y * 0.5f) + 0.5f;// (TargetNonUniformScaleComponentData[targetEntity].Value.y * 0.5f);
-            entityPos.y -= offset;
-            ECB.SetComponent<Translation>(chunkIndex, targetEntity, new Translation { Value = entityPos });
+            if (TargetTranslationComponentData.HasComponent(targetEntity))
+            {
+                float3 entityPos = position.Value;
+                float
+                    offset = (scale.Value.y * 0.5f) +
+                             0.5f; // (TargetNonUniformScaleComponentData[targetEntity].Value.y * 0.5f);
+                entityPos.y -= offset;
+                ECB.SetComponent<Translation>(chunkIndex, targetEntity, new Translation { Value = entityPos });
+            }
+
+            float targetX = Config.PlayVolume.x - (Config.HiveDepth * 0.5f);
+            if (position.Value.x >= targetX || position.Value.x < -targetX)
+            {
+                ECB.SetComponentEnabled<ResourceStateGrabbed>(chunkIndex, targetEntity, false);
+                ECB.SetComponentEnabled<Gravity>(chunkIndex, targetEntity, true);
+
+                ECB.SetComponentEnabled<BeeStateReturning>(chunkIndex, entity, false);
+                ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, true);
+            }
         }
-
-        float targetX = Config.PlayVolume.x - (Config.HiveDepth * 0.5f);
-        if (position.Value.x >= targetX || position.Value.x < -targetX)
+        else
         {
-            ECB.SetComponentEnabled<ResourceStateGrabbed>(chunkIndex, targetEntity, false);
-            ECB.SetComponentEnabled<Gravity>(chunkIndex, targetEntity, true);
-
             ECB.SetComponentEnabled<BeeStateReturning>(chunkIndex, entity, false);
             ECB.SetComponentEnabled<BeeStateIdle>(chunkIndex, entity, true);
         }
@@ -41,6 +53,7 @@ partial struct BeeReturnJob : IJobEntity
 partial struct BeeReturnSystem : ISystem
 {
     private ComponentDataFromEntity<Translation> targetTranslationComponentData;
+    private StorageInfoFromEntity storageInfo;
     // private ComponentDataFromEntity<NonUniformScale> targetNonUniformScaleComponentData;
 
     [BurstCompile]
@@ -48,6 +61,7 @@ partial struct BeeReturnSystem : ISystem
     {
         state.RequireForUpdate<Config>();
         targetTranslationComponentData = state.GetComponentDataFromEntity<Translation>();
+        storageInfo = state.GetStorageInfoFromEntity();
         // targetNonUniformScaleComponentData = state.GetComponentDataFromEntity<NonUniformScale>();
     }
 
@@ -64,12 +78,14 @@ partial struct BeeReturnSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
+        storageInfo.Update(ref state);
         targetTranslationComponentData.Update(ref state);
         // targetNonUniformScaleComponentData.Update(ref state);
 
         var returnJob = new BeeReturnJob()
         {
             ECB = ecb,
+            TargetStorageInfo = storageInfo,
             TargetTranslationComponentData = targetTranslationComponentData,
             // TargetNonUniformScaleComponentData = targetNonUniformScaleComponentData,
             Config = config

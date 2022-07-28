@@ -43,7 +43,6 @@ partial struct BeeGatherJob : IJobEntity
                         ResourceStateGrabbableComponentData.SetComponentEnabled(targetEntity, false);
                         ResourceStateGrabbedComponentData.SetComponentEnabled(targetEntity, true);
                         GravityComponentData.SetComponentEnabled(targetEntity, false);
-                        ResourceStateStackedComponentData.SetComponentEnabled(targetEntity, false);
 
                         // Set Resource Below stuff
                         Entity resourceBelow = ResourceBelowComponentData[targetEntity].Value;
