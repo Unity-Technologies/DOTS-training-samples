@@ -15,12 +15,14 @@ partial struct BeeKillerJob : IJobEntity
     public uint RandomSeed;
     public Config Config;
     [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbed> ResourceStateGrabbedComponentData;
+    [ReadOnly] public ComponentDataFromEntity<ResourceStateGrabbable> ResourceStateGrabbableComponentData;
 
     void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in Velocity velocity, in Translation position,
         in EntityOfInterest entityOfInterest)
     {
         Random rand = Random.CreateFromIndex((uint)(entity.Index) + RandomSeed);
-
+        
+        ECB.SetComponent(chunkIndex, entity, new EntityOfInterest());
         ECB.DestroyEntity(chunkIndex, entity);
 
         for (int i = 0; i < 5; ++i)
@@ -35,11 +37,18 @@ partial struct BeeKillerJob : IJobEntity
             ECB.SetComponent(chunkIndex, bloodParticle, new AnimationTime() { Value = Config.BloodDuration });
         }
 
-        // If the bee had a grabbed resource when it died, then we need to turn on gravity and re-enable it.
-        if (TargetStorageInfo.Exists(entityOfInterest.Value)
-            && ResourceStateGrabbedComponentData.HasComponent(entityOfInterest.Value)
-            && ResourceStateGrabbedComponentData.IsComponentEnabled(entityOfInterest.Value))
+        bool isGrabbable = TargetStorageInfo.Exists(entityOfInterest.Value)
+                           && ResourceStateGrabbableComponentData.HasComponent(entityOfInterest.Value)
+                           && ResourceStateGrabbableComponentData.IsComponentEnabled(entityOfInterest.Value);
+
+        bool isGrabbed = TargetStorageInfo.Exists(entityOfInterest.Value) 
+                         && ResourceStateGrabbedComponentData.HasComponent(entityOfInterest.Value)
+                         && ResourceStateGrabbedComponentData.IsComponentEnabled(entityOfInterest.Value);
+        
+        if (isGrabbable || isGrabbed)
         {
+            ECB.SetComponentEnabled<ResourceStateStacked>(chunkIndex, entityOfInterest.Value, false);
+            ECB.SetComponentEnabled<ResourceStateGrabbable>(chunkIndex, entityOfInterest.Value, true);
             ECB.SetComponentEnabled<ResourceStateGrabbed>(chunkIndex, entityOfInterest.Value, false);
             ECB.SetComponentEnabled<Gravity>(chunkIndex, entityOfInterest.Value, true);
         }
@@ -53,6 +62,7 @@ public partial struct BeeKillerSystem : ISystem
 {
     private StorageInfoFromEntity _storageInfo;
     private ComponentDataFromEntity<ResourceStateGrabbed> _resourceStateGrabbedComponentData;
+    private ComponentDataFromEntity<ResourceStateGrabbable> _resourceStateGrabbableComponentData;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -60,6 +70,7 @@ public partial struct BeeKillerSystem : ISystem
         state.RequireForUpdate<Config>();
         _storageInfo = state.GetStorageInfoFromEntity();
         _resourceStateGrabbedComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbed>();
+        _resourceStateGrabbableComponentData = state.GetComponentDataFromEntity<ResourceStateGrabbable>();
     }
 
     [BurstCompile]
@@ -77,10 +88,12 @@ public partial struct BeeKillerSystem : ISystem
 
         _storageInfo.Update(ref state);
         _resourceStateGrabbedComponentData.Update(ref state);
+        _resourceStateGrabbableComponentData.Update(ref state);
 
         var beeKillerJob = new BeeKillerJob()
         {
             ResourceStateGrabbedComponentData = _resourceStateGrabbedComponentData,
+            ResourceStateGrabbableComponentData = _resourceStateGrabbableComponentData,
             RandomSeed = (uint)Time.frameCount,
             Config = config,
             ECB = ecb,

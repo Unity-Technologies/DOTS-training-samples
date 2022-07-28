@@ -152,8 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b9f0f479a634b2782a12ae2a5a658c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StartingBeeCount: 0
-  StartingResourceCount: 10000
+  StartingBeeCount: 5000
+  StartingResourceCount: 13370
   BloodDuration: 4
   ExplosionDuration: 1
   InteractionDistance: 1
