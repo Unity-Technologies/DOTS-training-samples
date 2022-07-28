@@ -10,8 +10,11 @@ namespace Aspects
     {
         readonly RefRW<Car> m_Car;
         readonly TransformAspect m_TransformAspect;
+        readonly RoadSegmentAspect m_RoadSegmentAspect;
         readonly RefRW<URPMaterialPropertyBaseColor> m_BaseColor;
 
+        public readonly Entity Entity;
+        
         public float3 Position
         {
             get => m_TransformAspect.Position;

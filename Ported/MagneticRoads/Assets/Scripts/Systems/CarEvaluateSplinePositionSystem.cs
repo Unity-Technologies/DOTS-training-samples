@@ -16,6 +16,7 @@ namespace Systems
         [ReadOnly]
         public ComponentDataFromEntity<RoadSegment> RoadSegmentFromEntity;
         public float DT;
+        public ComponentDataFromEntity<WaitingAtIntersection> CarAtIntersectionFromEntity;
 
         void Execute(ref CarAspect carAspect)
         {
@@ -35,6 +36,11 @@ namespace Systems
             carAspect.T = carT;
             carAspect.Position = splinePos + offset;
             carAspect.Rotation = rot;
+
+            if (carT >= 1)
+            {
+                CarAtIntersectionFromEntity.SetComponentEnabled(carAspect.Entity, true);
+            }
         }
     }
 
@@ -43,11 +49,13 @@ namespace Systems
     partial struct CarEvaluateSplinePositionSystem : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentFromEntity;
+        ComponentDataFromEntity<WaitingAtIntersection> m_CarAtIntersectionFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_RoadSegmentFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
+            m_CarAtIntersectionFromEntity = state.GetComponentDataFromEntity<WaitingAtIntersection>(false);
         }
 
         [BurstCompile]
@@ -57,13 +65,16 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             m_RoadSegmentFromEntity.Update(ref state);
+            m_CarAtIntersectionFromEntity.Update(ref state);
 
             var dt = state.Time.DeltaTime;
 
             var evaluatePositionOnSpline = new CarEvaluateSplinePositionJob
             {
                 DT = dt,
-                RoadSegmentFromEntity = m_RoadSegmentFromEntity
+                RoadSegmentFromEntity = m_RoadSegmentFromEntity,
+                CarAtIntersectionFromEntity = m_CarAtIntersectionFromEntity
+                
             };
             evaluatePositionOnSpline.ScheduleParallel();
         }
