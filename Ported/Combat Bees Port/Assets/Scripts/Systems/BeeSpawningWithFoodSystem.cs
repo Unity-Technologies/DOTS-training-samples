@@ -40,7 +40,7 @@ partial struct BeeSpawningWithFoodSystem : ISystem
                 var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(beeSpawn.beePulseSpawnCount, Allocator.Temp);
         
                 ecb.Instantiate(beeSpawn.blueBeePrefab, newBeeArray);
-
+                
                 foreach (var instance in newBeeArray)
                 {
                     ecb.SetComponent(instance, new Translation { Value = position});
@@ -51,6 +51,14 @@ partial struct BeeSpawningWithFoodSystem : ISystem
         
                     ecb.AddComponent(instance, new BlueTeam());
                 }
+                
+                var spawnFlashJob = new SpawnFlashSpawn
+                {
+                    ECB = ecb,
+                    random = Random.CreateFromIndex(12345),
+                    spawnPos = position
+                };
+                spawnFlashJob.Run();
                 
                 ecb.DestroyEntity(foodPiece);
             }
@@ -72,6 +80,14 @@ partial struct BeeSpawningWithFoodSystem : ISystem
                     ecb.AddComponent(instance, new YellowTeam());
                 }
                 
+                var spawnFlashJob = new SpawnFlashSpawn
+                {
+                    ECB = ecb,
+                    random = Random.CreateFromIndex(12345),
+                    spawnPos = position
+                };
+                spawnFlashJob.Run();
+
                 ecb.DestroyEntity(foodPiece);
             }
         }
@@ -132,5 +148,29 @@ partial struct BlueBeeSpawnJob : IJobEntity
         
             ECB.AddComponent(instance, new BlueTeam());
         }
+    }
+}
+
+[BurstCompile]
+partial struct SpawnFlashSpawn : IJobEntity
+{
+    public EntityCommandBuffer ECB;
+    [ReadOnly]
+    public Random random;
+
+    public float3 spawnPos;
+
+    void Execute(in InitialSpawn prefab)
+    {
+        var newBeeArray = CollectionHelper.CreateNativeArray<Entity>(4, Allocator.Temp);
+            
+        
+        ECB.Instantiate(prefab.spawnFlashPrefab, newBeeArray);
+
+        foreach (var instance in newBeeArray)
+        {
+            ECB.SetComponent(instance, new Translation { Value = spawnPos + random.NextFloat3()});
+        }
+        
     }
 }

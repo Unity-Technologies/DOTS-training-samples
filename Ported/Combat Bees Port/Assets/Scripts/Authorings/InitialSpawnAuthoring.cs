@@ -10,6 +10,7 @@ namespace Authorings
         public GameObject yellowBeePrefab;
         public GameObject blueBeePrefab;
         public GameObject foodPrefab;
+        public GameObject spawnFlashPrefab;
 
         public int beeCount;
         public int foodCount;
@@ -25,6 +26,7 @@ namespace Authorings
                 yellowBeePrefab = GetEntity(authoring.yellowBeePrefab),
                 blueBeePrefab = GetEntity(authoring.blueBeePrefab),
                 foodPrefab = GetEntity(authoring.foodPrefab),
+                spawnFlashPrefab = GetEntity(authoring.spawnFlashPrefab),
                 beeCount = authoring.beeCount,
                 foodCount = authoring.foodCount,
                 beePulseSpawnCount = authoring.beePulseSpawnCount
