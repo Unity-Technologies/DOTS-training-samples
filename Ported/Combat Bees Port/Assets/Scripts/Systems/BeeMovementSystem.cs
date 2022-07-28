@@ -33,12 +33,11 @@ partial class BeeMovementSystem : SystemBase
 
             var baseComponent = GetSingleton<Base>();
             var baseEntity = GetSingletonEntity<Base>();
-            var entityManager = new EntityManager();
 
             var ecb = new EntityCommandBuffer(Allocator.Temp);
         
             Entities
-            .ForEach((ref Translation translation, ref Bee bee, ref Entity beeEntity,  ref Rotation rotation) =>
+            .ForEach((ref Translation translation, ref Bee bee, ref Entity beeEntity, ref Rotation rotation, ref NonUniformScale scaleComponent) =>
             {
                 var randomPlaceInSpawn = HasComponent<YellowTeam>(beeEntity) ?
                     random.NextFloat3(baseComponent.yellowBase.GetBaseLowerLeftCorner(), baseComponent.yellowBase.GetBaseUpperRightCorner()) 
@@ -47,15 +46,13 @@ partial class BeeMovementSystem : SystemBase
                 var position = translation.Value;
                 
                 SpeedHandler(bee);
-                var newScale = new LocalToWorld{
-                    Value = float4x4.TRS(
-                        translation:    position ,
-                        rotation:        rotation.Value ,
-                        scale:            new float3(speed, speed, speed)
-                    )
-                };
-                SetComponent(beeEntity, newScale);
 
+                var floatOne = new float3(1, 1, 1);
+                
+                var scaleOffsetFloat = floatOne * (floatOne +new float3(speed, speed, speed) /100);
+
+                scaleComponent.Value = scaleOffsetFloat;
+                
                 var offset = new float3(
                     noise.cnoise(new float2(et, offsetValue)),
                     noise.cnoise(new float2(et, offsetValue)),
@@ -113,9 +110,8 @@ partial class BeeMovementSystem : SystemBase
                         bee.target = baseEntity;
                         bee.targetPos = randomPlaceInSpawn;
                         bee.state = BeeState.Hauling;
-                        
-                        target = bee.targetPos;
 
+                        target = bee.targetPos;
                     }
                 }
 
@@ -145,12 +141,10 @@ partial class BeeMovementSystem : SystemBase
 
             void SpeedHandler(Bee bee)
             {
-                if (bee.state == BeeState.Attacking) speed = random.NextFloat(30f, 70f);
+                if (bee.state == BeeState.Attacking) speed = random.NextFloat(30f, 45f);
                 if (bee.state == BeeState.Collecting) speed = random.NextFloat(15f, 30f);
                 if (bee.state == BeeState.Hauling) speed = random.NextFloat(10f, 30f);;
             }
-
-            
     }
 
     
