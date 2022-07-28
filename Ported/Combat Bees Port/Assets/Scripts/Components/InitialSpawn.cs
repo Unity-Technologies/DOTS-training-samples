@@ -9,6 +9,7 @@ namespace Components
         public Entity yellowBeePrefab;
         public Entity blueBeePrefab;
         public Entity foodPrefab;
+        public Entity spawnFlashPrefab;
 
         public int beeCount;
         public int foodCount;
