@@ -41,12 +41,12 @@ partial struct FireFighterLineSystem : ISystem
                 float currentTemperature = HeatMap.ElementAt(cellIndex).Value;
                 if (currentTemperature >= fireThreshold)
                 {
-                    int cellRowIndex = Mathf.FloorToInt(cellIndex / gridSize);
-                    int cellColumnIndex = cellIndex % gridSize;
+                    int cellColumnIndex = Mathf.FloorToInt(cellIndex / gridSize);
+                    int cellRowIndex = cellIndex % gridSize;
                     
                     var offset = new float2(-terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f, -terrainConfig.GridSize * terrainConfig.CellSize * 0.5f + terrainConfig.CellSize * 0.5f);
                     
-                    var newPoint = new float2((cellRowIndex ) * terrainConfig.CellSize, math.floor(cellColumnIndex) * terrainConfig.CellSize) + offset;
+                    var newPoint = new float2(cellRowIndex * terrainConfig.CellSize, cellColumnIndex * terrainConfig.CellSize) + offset;
                     
                     
                     if (math.distance(fireFighterLine.ValueRO.StartPosition, closestPoint) >
