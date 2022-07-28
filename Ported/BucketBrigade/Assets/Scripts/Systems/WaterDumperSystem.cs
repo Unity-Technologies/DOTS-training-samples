@@ -40,11 +40,14 @@ partial struct WaterDumperSystem : ISystem
             {
                 case WaterDumper.WaterDumperState.GoToBucket:
                     {
+                        bool hasBucket = false;
                         foreach (var (bucketInfo, bucketPos, volume, bucketId) in SystemAPI.Query<RefRW<BucketInfo>, RefRO<Translation>, RefRO<Volume>, RefRO<BucketId>>())
                         {
-                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0)
+                            var dist = math.distancesq(bucketPos.ValueRO.Value, FireFighterPos.ValueRO.Value);
+                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0 /*&& dist < 1.0f */)
                             {
-                                if (math.distancesq(bucketPos.ValueRO.Value, FireFighterPos.ValueRO.Value) < 0.1)
+                                hasBucket = true;
+                                if (dist < 0.1f)
                                 {
                                     FireFighterBucketId.ValueRW.Value = bucketId.ValueRO.Value;
                                     bucketInfo.ValueRW.IsTaken = true;
@@ -56,6 +59,10 @@ partial struct WaterDumperSystem : ISystem
                                 }
                                 break;
                             }
+                        }
+                        if(!hasBucket)
+                        {
+                            waterDumperState.ValueRW.state = WaterDumper.WaterDumperState.GoToFire;
                         }
                     }
                     break;
@@ -92,12 +99,15 @@ partial struct WaterDumperSystem : ISystem
                                 {
                                     target.ValueRW.Value = line.ValueRO.EndPosition;
 
-                                    foreach (var (bucketId, bucketPos, volume) in SystemAPI.Query<RefRW<BucketId>, RefRW<Translation>, RefRW<Volume>>())
+                                    if(FireFighterBucketId.ValueRO.Value != -1)
                                     {
-                                        if (FireFighterBucketId.ValueRO.Value == bucketId.ValueRO.Value)
+                                        foreach (var (bucketId, bucketPos, volume) in SystemAPI.Query<RefRW<BucketId>, RefRW<Translation>, RefRW<Volume>>())
                                         {
-                                            bucketPos.ValueRW.Value = FireFighterPos.ValueRO.Value;
-                                            break;
+                                            if (FireFighterBucketId.ValueRO.Value == bucketId.ValueRO.Value)
+                                            {
+                                                bucketPos.ValueRW.Value = FireFighterPos.ValueRO.Value;
+                                                break;
+                                            }
                                         }
                                     }
                                 }

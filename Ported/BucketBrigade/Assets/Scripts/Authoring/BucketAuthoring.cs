@@ -17,5 +17,6 @@ class BucketBaker : Baker<BucketAuthoring>
         AddComponent(new BucketId { Value = 0 });
         AddComponent(new BucketInfo { IsTaken = false,
                                       Position = float2.zero });
+        AddComponent<URPMaterialPropertyBaseColor>();
     }
 }

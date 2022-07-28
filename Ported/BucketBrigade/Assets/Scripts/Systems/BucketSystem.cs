@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -46,5 +47,35 @@ partial struct BucketSpawningSystem : ISystem
 
         // This system should only run once at startup. So it disables itself after one update.
         state.Enabled = false;
+    }
+}
+
+
+[BurstCompile]
+partial struct BucketSystem : ISystem
+{
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+    }
+
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    {
+        var config = SystemAPI.GetSingleton<BucketConfig>();
+        var configCell = SystemAPI.GetSingleton<TerrainCellConfig>();
+
+        foreach (var (color, volume) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRO<Volume>>())
+        {
+            if(volume.ValueRO.Value > 0)
+                color.ValueRW.Value = new float4(0,0,1,1);
+            else
+                color.ValueRW.Value = new float4(0, 0, 0, 1);
+        }
     }
 }
