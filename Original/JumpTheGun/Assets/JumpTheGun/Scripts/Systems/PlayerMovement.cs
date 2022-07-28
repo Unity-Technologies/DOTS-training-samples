@@ -24,14 +24,19 @@ partial struct PlayerComponentJob : IJobEntity
         if (config.isPaused)
             return;
 
-        Boxes startBox = boxesFromEntity[playerComponent.startBox];
-        Boxes endBox = boxesFromEntity[playerComponent.endBox];
+        Boxes startBox = new Boxes(); 
+        Boxes endBox = new Boxes();
+
+        foreach (Entity box in boxes){
+            startBox = boxesFromEntity[box]; //box = playerComponent.endBox
+            endBox = boxesFromEntity[box];
+            break;
+        }
 
         var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
         int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
             
         bool occupied = false; 
-
 
         foreach (var tank in tanks) { 
             var tankComponent =  tankFromEntity[tank]; 
@@ -56,7 +61,6 @@ partial struct PlayerComponentJob : IJobEntity
             if (movePos.x == startBox.column && movePos.y == startBox.row) // look for box to bounce to
                 endBox = startBox;  // don't go to new box
             else {
-                //endBox = TerrainAreaClusters.GetBox(movePos.x, movePos.y, config);
                 foreach (var box in boxes) { 
                     Boxes newStartBox = boxesFromEntity[box];
                     if (newStartBox.row == movePos.x && newStartBox.column == movePos.y){
@@ -64,8 +68,6 @@ partial struct PlayerComponentJob : IJobEntity
                         break; 
                     }
                 }
-                //if (endBox == null) // failsafe
-                    //endBox = startBox;
             }
 
             Boxes boxRef1 = new Boxes();

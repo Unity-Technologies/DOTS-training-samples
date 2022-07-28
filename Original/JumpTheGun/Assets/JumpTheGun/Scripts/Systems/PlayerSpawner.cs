@@ -13,13 +13,14 @@ partial struct PlayerSpawner : ISystem
     EntityQuery playerQuery;
     EntityQuery boxQuery;
     ComponentDataFromEntity<Boxes> boxesFromEntity;
-
+    ComponentDataFromEntity<PlayerComponent> pcFromEntity;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
+        pcFromEntity= state.GetComponentDataFromEntity<PlayerComponent>(true);
         boxQuery = state.GetEntityQuery(typeof(Boxes));
         playerQuery = state.GetEntityQuery(typeof(PlayerComponent));
     }
@@ -41,17 +42,23 @@ partial struct PlayerSpawner : ISystem
 
         ecb.Instantiate(config.playerPrefab, players);
         boxesFromEntity.Update(ref state);
+        
+        pcFromEntity.Update(ref state);
 
         foreach (var player in players)
         {
-            ecb.SetComponentForLinkedEntityGroup(player, queryMask, PlayerProperties(boxesFromEntity, config, boxEntities));
+            UnityEngine.Debug.Log("This happens");
+            //PlayerComponent pc = pcFromEntity[player];
+            PlayerComponent pc = new PlayerComponent(); 
+            UnityEngine.Debug.Log("This does not happen");
+            ecb.SetComponentForLinkedEntityGroup(player, queryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
         }
         state.Enabled = false;
     }
 
-    public static PlayerComponent PlayerProperties(ComponentDataFromEntity<Boxes> boxesFromEntity, Config config, NativeArray<Entity> boxes)
+    public static PlayerComponent PlayerProperties(ComponentDataFromEntity<Boxes> boxesFromEntity, Config config, NativeArray<Entity> boxes, PlayerComponent prefabData)
     {
-        var pc = new PlayerComponent();
+        var pc = prefabData;
         foreach (Entity box in boxes){
             UnityEngine.Debug.Log("we have a box");
             pc.startBox = box;

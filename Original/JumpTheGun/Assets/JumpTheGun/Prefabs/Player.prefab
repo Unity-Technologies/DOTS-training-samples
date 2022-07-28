@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83205f8e197fda54bb5a58fe98c76f5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bounceDuration: 0
-  bounceHeight: 0
-  yOffset: 0
-  duration: 0
+  bounceDuration: 1
+  bounceHeight: 1
+  yOffset: 1
+  duration: 1
