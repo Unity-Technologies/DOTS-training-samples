@@ -79,6 +79,7 @@ public partial struct BucketMovementSystem : ISystem
                         volume.Value = Capacity;
                         translation.Value.y = BaseBucketHeight;
                         bucketInfo.IsTaken = false;
+                        bucketInfo.IsFull = true;
                     }
                 }
             }

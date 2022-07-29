@@ -6,4 +6,5 @@ struct BucketInfo : IComponentData
 {
     public float2 Position;
     public bool IsTaken;
+    public bool IsFull;
 }

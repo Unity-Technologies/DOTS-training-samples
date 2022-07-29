@@ -8,15 +8,15 @@ using Unity.Transforms;
 public partial struct BucketFillerFetcherSystem : ISystem
 {
     EntityQuery m_BucketQuery;
-    EntityQuery m_fireLineQuery;
-    float m_deltaDistance;
+    EntityQuery m_FireLineQuery;
+    float m_DeltaDistance;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_BucketQuery = state.GetEntityQuery(typeof(BucketInfo), typeof(Translation), typeof(BucketId), typeof(Volume));
-        m_fireLineQuery = state.GetEntityQuery(typeof(FireFighterLine));
-        m_deltaDistance = 0.001f;
+        m_FireLineQuery = state.GetEntityQuery(typeof(FireFighterLine));
+        m_DeltaDistance = 0.001f;
     }
 
     [BurstCompile]
@@ -31,10 +31,9 @@ public partial struct BucketFillerFetcherSystem : ISystem
         {
             BucketTranslations = m_BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob),
             BucketIds = m_BucketQuery.ToComponentDataArray<BucketId>(Allocator.TempJob),
-            BucketVolumes = m_BucketQuery.ToComponentDataArray<Volume>(Allocator.TempJob),
             BucketInfos = m_BucketQuery.ToComponentDataArray<BucketInfo>(Allocator.TempJob),
-            FireLines = m_fireLineQuery.ToComponentDataArray<FireFighterLine>(Allocator.TempJob),
-            Delta = m_deltaDistance,
+            FireLines = m_FireLineQuery.ToComponentDataArray<FireFighterLine>(Allocator.TempJob),
+            Delta = m_DeltaDistance,
             Capacity = config.Capacity
         };
 
@@ -50,8 +49,6 @@ public partial struct BucketFillerFetcherSystem : ISystem
         public NativeArray<BucketId> BucketIds;
         [ReadOnly]
         public NativeArray<FireFighterLine> FireLines;
-        [ReadOnly]
-        public NativeArray<Volume> BucketVolumes;
         [ReadOnly]
         public NativeArray<BucketInfo> BucketInfos;
         public float Delta;
@@ -74,7 +71,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                 for (var i = 0; i < BucketTranslations.Length; i++)
                 {
                     // Ignore full and taken buckets
-                    if (BucketVolumes[i].Value > (Capacity - Delta) || BucketInfos[i].IsTaken)
+                    if (BucketInfos[i].IsFull || BucketInfos[i].IsTaken)
                     {
                         continue;
                     }
@@ -137,7 +134,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                 }
 
                 // Full bucket
-                if (BucketVolumes[bucketIndex].Value > (Capacity - Delta))
+                if (BucketInfos[bucketIndex].IsFull)
                 {
                     bucketFillerFetcher.state = BucketFillerFetcher.BucketFillerFetcherState.GoToBucket;
                 }
