@@ -70,6 +70,20 @@ partial struct FireSystem : ISystem
             HeatMap[cellIndex] = new Temperature { Value = newTemperature };
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                var pos = new float2(hit.point.x, hit.point.z);
+                pos += gridSize * TerrainConfig.CellSize * 0.5f;
+                int index =  (int)(math.floor(pos.x / (TerrainConfig.CellSize)) % gridSize + math.floor(pos.y / (TerrainConfig.CellSize)) * gridSize);
+                HeatMap.ElementAt(index).Value = 0.90f;
+            }
+        }
+
         var fireJob = new FireJob
         {
             HeatMap = HeatMap,
