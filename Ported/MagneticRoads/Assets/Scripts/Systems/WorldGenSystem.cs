@@ -86,6 +86,7 @@ namespace Systems
             }
 
             // Create RoadSegments between Intersections and populate them with cars and lane data
+            var createdRoadSegments = new NativeHashSet<FixedString32Bytes>(3 * WorldGen.WorldSize * WorldGen.WorldSize * WorldGen.WorldSize, Allocator.Temp);
             for (int voxelIndex = 0; voxelIndex < voxels.Length; voxelIndex++)
             {
                 if (!voxels[voxelIndex])
@@ -102,14 +103,18 @@ namespace Systems
                     // We have a pair of touching intersections
                     if (voxels[neighborIndex])
                     {
-                        // TODO: dedupe
-                        // if (!IndexToEntityHash.ContainsKey(voxelIndex) || !IndexToEntityHash.ContainsKey(neighborIndex))
-                        // continue;
+                        var fwdKey = new FixedString32Bytes($"{voxelIndex.ToString()},{neighborIndex.ToString()}");
+                        var bckKey = new FixedString32Bytes($"{neighborIndex.ToString()},{voxelIndex.ToString()}");
+
+                        if (createdRoadSegments.Contains(fwdKey) || createdRoadSegments.Contains(bckKey))
+                        {
+                            continue;
+                        }
+                        createdRoadSegments.Add(fwdKey);
 
                         var startNormal = IndexToNormalHash[voxelIndex];
                         var endNormal = IndexToNormalHash[neighborIndex];
-
-                        // TODO: determine RoadTerminator tangents from direction in voxel array
+                        
                         var startTangent = (neighborCoords - coords);
                         var endTangent = startTangent;
 
@@ -195,8 +200,6 @@ namespace Systems
                             }
                         }
 
-                        // IndexToEntityHash.Remove(voxelIndex);
-                        // IndexToEntityHash.Remove(j);
                     }
                 }
             }
