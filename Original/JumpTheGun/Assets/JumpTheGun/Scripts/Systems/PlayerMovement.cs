@@ -7,11 +7,10 @@ using Unity.Mathematics;
 partial struct PlayerComponentJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
-    public float DeltaTime;
+    [Unity.Collections.ReadOnly] public float DeltaTime;
     public Config config;
-    public float3 rayOrigin;
-    public float3 rayDirection;
-    public EntityManager entityManager;
+    [Unity.Collections.ReadOnly] public float3 rayOrigin;
+    [Unity.Collections.ReadOnly] public float3 rayDirection;
 
     
     [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> tanks; 
@@ -203,7 +202,6 @@ partial struct PlayerMovement : ISystem
             rayOrigin = ray.origin,
             rayDirection = ray.direction, 
             config = config,
-            entityManager = entityManager, 
         };
 
         //PlayerJob.Schedule();
