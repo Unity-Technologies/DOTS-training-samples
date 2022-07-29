@@ -36,12 +36,13 @@ partial struct BeeKillerJob : IJobEntity
             ECB.SetComponent(chunkIndex, bloodParticle, new Translation { Value = position.Value });
             ECB.SetComponent(chunkIndex, bloodParticle, new AnimationTime() { Value = Config.BloodDuration });
         }
-
-        bool isGrabbable = TargetStorageInfo.Exists(entityOfInterest.Value)
+        
+        bool exists = TargetStorageInfo.Exists(entityOfInterest.Value);
+        bool isGrabbable = exists
                            && ResourceStateGrabbableComponentData.HasComponent(entityOfInterest.Value)
                            && ResourceStateGrabbableComponentData.IsComponentEnabled(entityOfInterest.Value);
 
-        bool isGrabbed = TargetStorageInfo.Exists(entityOfInterest.Value) 
+        bool isGrabbed = exists
                          && ResourceStateGrabbedComponentData.HasComponent(entityOfInterest.Value)
                          && ResourceStateGrabbedComponentData.IsComponentEnabled(entityOfInterest.Value);
         
