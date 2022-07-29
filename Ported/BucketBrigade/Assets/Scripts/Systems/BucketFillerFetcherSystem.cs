@@ -99,7 +99,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
             }
             else
             {
-                // TODO
+                // TODO: wait for fill, go to different bucket
                 bucketFillerFetcher.state = BucketFillerFetcher.BucketFillerFetcherState.GoToBucket;
             }
 
