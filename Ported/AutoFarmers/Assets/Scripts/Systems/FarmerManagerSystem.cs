@@ -1,35 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
-public partial struct FarmerManagerSystem: ISystem
+public partial class FarmerManagerSystem : SystemBase
 {
-    public void OnCreate(ref SystemState state)
+    private EntityCommandBufferSystem m_CommandBufferSystem;
+
+    protected override void OnCreate()
     {
-        
+        m_CommandBufferSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        RequireForUpdate<Ecsprefabcreator>();
+
     }
 
-    public void OnDestroy(ref SystemState state)
+    protected override void OnUpdate()
     {
-    }
+        var ecb = m_CommandBufferSystem.CreateCommandBuffer();
 
-    public void OnUpdate(ref SystemState state)
-    {
-        EntityCommandBuffer command = new EntityCommandBuffer(Allocator.Temp);
+        var gameSetting = GetSingleton<Ecsprefabcreator>();
+        int farmerCost = gameSetting.FarmerCost;
+        Entity farmerPrefab = gameSetting.FarmerPrefab;
 
-        foreach (var creator in SystemAPI.Query<RefRO<Ecsprefabcreator>>())
-        {
-            Entity ent= command.Instantiate(creator.ValueRO.prefab);
-            command.SetComponent(ent,new FarmerSpeed
+        var pecb = ecb.AsParallelWriter();
+
+        Entities
+            .ForEach((int entityInQueryIndex, ref NumberOfDestroyedRocks destroyedRocks) =>
             {
-                MovementSpeed = 5f
-            });
-        }
-        command.Playback(state.EntityManager);
-        state.Enabled = false;
+                if (destroyedRocks.desRocks >= farmerCost)
+                { 
+                    Debug.Log("Prefab Created");
+                    pecb.Instantiate(entityInQueryIndex, farmerPrefab);
+                    destroyedRocks.desRocks -= farmerCost;
+                }
+                
+            }).ScheduleParallel();
+
+        m_CommandBufferSystem.AddJobHandleForProducer(Dependency);
     }
 }

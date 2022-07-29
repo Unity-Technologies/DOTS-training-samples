@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class FarmerPrefabCreator : MonoBehaviour
 {
-    public GameObject m_prefab;
+    public GameObject FarmerPrefab; 
+    public int FarmerCost;
     // Start is called before the first frame update
 }
 
@@ -16,12 +17,14 @@ public class PrefabCreatorBaker : Baker<FarmerPrefabCreator>
     {
         AddComponent(new Ecsprefabcreator
         {
-            prefab = GetEntity(authoring.m_prefab)
+            FarmerPrefab = GetEntity(authoring.FarmerPrefab),
+            FarmerCost = authoring.FarmerCost
         });
     }
 }
 
 public struct Ecsprefabcreator: IComponentData
 {
-    public Entity prefab;
+    public Entity FarmerPrefab;
+    public int FarmerCost;
 }

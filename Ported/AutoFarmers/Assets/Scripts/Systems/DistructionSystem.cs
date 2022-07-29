@@ -9,7 +9,6 @@ using UnityEngine;
 public partial class DistructionSystem : SystemBase
     {
         private EntityQuery attackingQuery;
-        private EntityQuery attackingQuery2;
         private EntityCommandBufferSystem ecbSystem;
 
         protected override void OnCreate()
@@ -27,6 +26,7 @@ public partial class DistructionSystem : SystemBase
             Dependency = JobHandle.CombineDependencies(Dependency, (attackingArrayDependency), attackingEntitiesDependency);
             
              var healthAccessor = GetComponentDataFromEntity<Health>();
+
             var deltaTime = Time.DeltaTime;
             var ecb = ecbSystem.CreateCommandBuffer();
            
@@ -62,9 +62,9 @@ public partial class DistructionSystem : SystemBase
                             // {
                             //     ecb.RemoveComponent<Distruction>(attackingEntities[j]);
                             // }
-
+                            // config.desRocks++;
                             ecb.DestroyEntity(target);
-                            
+                            // Debug.Log(config.desRocks);
                         }
                         else
                         {

@@ -168,8 +168,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSize:
-    x: 100
-    y: 100
+    x: 10
+    y: 10
   cellPrefab: {fileID: 8598844148813267235, guid: 6bd43cdc283d626478c7ca547237a78f,
     type: 3}
 --- !u!1 &1871949756
@@ -218,7 +218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SiloPrefab: {fileID: 4281438756169964563, guid: 06fc4e2b1b2d6468aa92898158429c0d,
     type: 3}
-  NumberSilos: 100
+  NumberSilos: 1
   resources: 0
 --- !u!1 &2062550884
 GameObject:
@@ -251,7 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RockPrefab: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
     type: 3}
-  NumRocks: 42
+  NumRocks: 4
   RandomSizeMin:
     x: 0
     y: 1

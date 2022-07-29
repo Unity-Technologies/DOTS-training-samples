@@ -28,7 +28,7 @@ public partial struct FarmerTargetLocatorSystem : ISystem
         FarmerTargetSetterJob TargetJob = new FarmerTargetSetterJob
         {
             rockPositionArray = rockPositionArray,
-            rockEntityArray = rockEntityArray
+            rockEntityArray = rockEntityArray,
         };
 
         TargetJob.ScheduleParallel();
@@ -41,6 +41,7 @@ public partial struct FarmerTargetLocatorSystem : ISystem
         public NativeArray<LocalToWorld> rockPositionArray;
 
         [ReadOnly] public NativeArray<Entity> rockEntityArray;
+
 
         public void Execute(TransformAspect farmersPosition, ref TargetPosition target, ref Distruction distruction)
         {
@@ -61,7 +62,6 @@ public partial struct FarmerTargetLocatorSystem : ISystem
                 }
             }
             target.Target = new float3(targetPos.x,1,targetPos.z);
-            Debug.Log(math.distance(farmersPosition.Position, target.Target));
             if (math.distance(farmersPosition.Position, target.Target) < 1)
             {
                 distruction.Target = targetEntity;
