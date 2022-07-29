@@ -24,7 +24,7 @@ partial struct DropFoodSystem : ISystem
     {
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
