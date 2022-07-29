@@ -4,8 +4,10 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Util;
 using Random = Unity.Mathematics.Random;
 
@@ -137,17 +139,17 @@ namespace Systems
                         var lane4Entity = ecb.CreateEntity();
 
                         // Add the buffers to the entities we just created
-                        // lanes[0] = ecb.AddBuffer<CarDynamicBuffer>(lane1Entity).Reinterpret<Entity>();
-                        // lanes[1] = ecb.AddBuffer<CarDynamicBuffer>(lane2Entity).Reinterpret<Entity>();
-                        // lanes[2] = ecb.AddBuffer<CarDynamicBuffer>(lane3Entity).Reinterpret<Entity>();
-                        // lanes[3] = ecb.AddBuffer<CarDynamicBuffer>(lane4Entity).Reinterpret<Entity>();
+                        lanes[0] = ecb.AddBuffer<CarDynamicBuffer>(lane1Entity).Reinterpret<Entity>();
+                        lanes[1] = ecb.AddBuffer<CarDynamicBuffer>(lane2Entity).Reinterpret<Entity>();
+                        lanes[2] = ecb.AddBuffer<CarDynamicBuffer>(lane3Entity).Reinterpret<Entity>();
+                        lanes[3] = ecb.AddBuffer<CarDynamicBuffer>(lane4Entity).Reinterpret<Entity>();
 
                         // Create a new buffer on the road entity that stores each of the lanes above
-                        // var laneBuffer = ecb.AddBuffer<LaneDynamicBuffer>(roadEntity).Reinterpret<Entity>();
-                        // laneBuffer.Add(lane1Entity);
-                        // laneBuffer.Add(lane2Entity);
-                        // laneBuffer.Add(lane3Entity);
-                        // laneBuffer.Add(lane4Entity);
+                        var laneBuffer = ecb.AddBuffer<LaneDynamicBuffer>(roadEntity).Reinterpret<Entity>();
+                        laneBuffer.Add(lane1Entity);
+                        laneBuffer.Add(lane2Entity);
+                        laneBuffer.Add(lane3Entity);
+                        laneBuffer.Add(lane4Entity);
 
                         ecb.AddComponent(roadEntity, new RoadSegment
                         {
@@ -158,16 +160,31 @@ namespace Systems
                             EndIntersection = IndexToEntityHash[neighborIndex]
                         });
 
+                        
+                        var randomCol = Random.CreateFromIndex(1234);
+                        var hue = randomCol.NextFloat();
+            
+                        URPMaterialPropertyBaseColor RandomColor()
+                        {
+                            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+                            hue = (hue + 0.618034005f) % 1;
+                            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+                            return new URPMaterialPropertyBaseColor {Value = (UnityEngine.Vector4) color};
+                        }
+                        
                         // Populate Dynamic buffers with random amount of cars
-                        // for (int laneNumber = 0; laneNumber < 4; laneNumber++)
-                        // {
-                        //     for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
-                        //     {
-                        //         var carEntity = ecb.Instantiate(config.CarPrefab);
-                        //         ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber}); 
-                        //         lanes[laneNumber].Add(carEntity); // Add cars to the car buffers
-                        //     }
-                        // }
+                        for (int laneNumber = 1; laneNumber < 5; laneNumber++)
+                        {
+                            for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
+                            {
+                                var carEntity = ecb.Instantiate(config.CarPrefab);
+                                ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber});
+                                ecb.AddComponent(carEntity, RandomColor());
+                                ecb.SetComponentEnabled<WaitingAtIntersection>(carEntity, false);
+                                ecb.SetComponentEnabled<TraversingIntersection>(carEntity, false);
+                                lanes[laneNumber-1].Add(carEntity); // Add cars to the car buffers
+                            }
+                        }
 
                         // IndexToEntityHash.Remove(voxelIndex);
                         // IndexToEntityHash.Remove(j);

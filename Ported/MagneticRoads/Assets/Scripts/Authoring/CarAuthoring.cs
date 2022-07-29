@@ -25,5 +25,6 @@ public class CarBaker : Baker<CarAuthoring>
         });
 
         AddComponent<TraversingIntersection>();
+        AddComponent<WaitingAtIntersection>();
     }
 }
