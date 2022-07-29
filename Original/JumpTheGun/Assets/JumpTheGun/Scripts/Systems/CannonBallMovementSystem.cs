@@ -13,12 +13,15 @@ partial class CannonBallMovementSystem : SystemBase
     protected override void OnCreate()
     {
         ecsSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
+        RequireForUpdate<PlayerComponent>();
     }
     protected override void OnUpdate()
     {
         var ecb = ecsSystem.CreateCommandBuffer();
         var ecbParallel = ecb.AsParallelWriter();
         float deltaTime = Time.DeltaTime;
+        if (!HasComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>()))
+            return;
         LocalToWorld playerTransform = GetComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>());
         Entities
             .WithoutBurst()
