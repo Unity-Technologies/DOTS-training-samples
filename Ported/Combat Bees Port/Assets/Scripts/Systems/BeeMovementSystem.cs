@@ -92,6 +92,8 @@ partial struct BeeMovementSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var ecbSingletonStart = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb2 = ecbSingletonStart.CreateCommandBuffer(state.WorldUnmanaged);
+        var ecbBloodSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb3 = ecbBloodSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
         NativeArray<ArchetypeChunk> chunks =
             myQuery.ToArchetypeChunkArray(Allocator.Temp);
@@ -174,9 +176,12 @@ partial struct BeeMovementSystem : ISystem
                         bee.targetPos = float3.zero;
                         ecb2.DestroyEntity(bee.target);
                         
-                        var beeSpawn = SystemAPI.GetSingleton<InitialSpawn>();
-                        var instance = ecb.Instantiate(beeSpawn.bloodPrefab);
-                        ecb.SetComponent(instance, new Translation { Value = position});
+                        var bloodSpawnJob = new BloodSpawn()
+                        {
+                            ECB = ecb3,
+                            position= position
+                        };
+                        bloodSpawnJob.Schedule();
 
                         bee.target = Entity.Null;
                         bee.state = BeeState.Idle;
@@ -270,4 +275,16 @@ partial struct BeeMovementSystem : ISystem
         
     }
     
+}
+
+partial struct BloodSpawn : IJobEntity
+{
+    public EntityCommandBuffer ECB;
+    public float3 position;
+
+    private void Execute(in InitialSpawn prefab)
+    {
+        var instance = ECB.Instantiate(prefab.bloodPrefab);
+        ECB.SetComponent(instance, new Translation{Value = position });
+    }
 }
