@@ -96,13 +96,28 @@ partial struct WaterDumperSystem : ISystem
                                                 volume.ValueRW.Value = 0.0f;
                                                 FireFighterBucketId.ValueRW.Value = -1;
 
-                                                var coord = posToIndex(target.ValueRO.Value, GridSize, CellSize);
+                                                var cellIndex = posToIndex(target.ValueRO.Value, GridSize, CellSize);
+                                                int cellRowIndex = Mathf.FloorToInt(cellIndex / GridSize);
+                                                int cellColumnIndex = cellIndex % GridSize;
 
-                                                HeatMap.ElementAt(math.clamp(coord + 0, 0, GridSize * GridSize)).Value = 0.0f;
-                                                HeatMap.ElementAt(math.clamp(coord + 1, 0, GridSize * GridSize)).Value = 0.0f;
-                                                HeatMap.ElementAt(math.clamp(coord - 1, 0, GridSize * GridSize)).Value = 0.0f;
-                                                HeatMap.ElementAt(math.clamp(coord + GridSize, 0, GridSize * GridSize)).Value = 0.0f;
-                                                HeatMap.ElementAt(math.clamp(coord - GridSize, 0, GridSize * GridSize)).Value = 0.0f;
+                                                var coolRadius = 3;
+
+                                                for (int rowIndex = -coolRadius; rowIndex <= coolRadius; rowIndex++)
+                                                {
+                                                    int currentRow = cellRowIndex - rowIndex;
+                                                    if (currentRow >= 0 && currentRow < GridSize)
+                                                    {
+                                                        for (int columnIndex = -coolRadius; columnIndex <= coolRadius; columnIndex++)
+                                                        {
+                                                            int currentColumn = cellColumnIndex + columnIndex;
+                                                            if (currentColumn >= 0 && currentColumn < GridSize)
+                                                            {
+
+                                                                HeatMap[(currentRow * GridSize) + currentColumn] = new Temperature { Value = 0f }; ;
+                                                            }
+                                                        }
+                                                    }
+                                                }
 
                                                 waterDumperState.ValueRW.state = WaterDumper.WaterDumperState.GoToBucket;
                                                 break;
