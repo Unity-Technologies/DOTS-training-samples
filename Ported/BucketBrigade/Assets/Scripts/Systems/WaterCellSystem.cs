@@ -55,7 +55,7 @@ partial struct WaterCellSpawningSystem : ISystem
 
         int i = 0;
         Unity.Mathematics.Random rand = new Unity.Mathematics.Random((uint)(config.CellSize * config.CellCount * config.GridSize));
-        float offset = config.GridSize * config.CellSize * 0.5f + 0.5f;
+        float offset = config.GridSize * config.CellSize * 0.5f + 2.5f;
         foreach (var cell in waterCell)
         {
             switch(i % 4)

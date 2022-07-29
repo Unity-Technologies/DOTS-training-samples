@@ -8,15 +8,15 @@ using Unity.Transforms;
 public partial struct BucketFillerFetcherSystem : ISystem
 {
     EntityQuery m_BucketQuery;
-    EntityQuery m_FireLineQuery;
-    float m_DeltaDistance;
+    EntityQuery m_fireLineQuery;
+    float m_deltaDistance;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_BucketQuery = state.GetEntityQuery(typeof(BucketInfo), typeof(Translation), typeof(BucketId), typeof(Volume));
-        m_FireLineQuery = state.GetEntityQuery(typeof(FireFighterLine));
-        m_DeltaDistance = 0.001f;
+        m_fireLineQuery = state.GetEntityQuery(typeof(FireFighterLine));
+        m_deltaDistance = 0.000001f;
     }
 
     [BurstCompile]
@@ -31,9 +31,10 @@ public partial struct BucketFillerFetcherSystem : ISystem
         {
             BucketTranslations = m_BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob),
             BucketIds = m_BucketQuery.ToComponentDataArray<BucketId>(Allocator.TempJob),
+            BucketVolumes = m_BucketQuery.ToComponentDataArray<Volume>(Allocator.TempJob),
             BucketInfos = m_BucketQuery.ToComponentDataArray<BucketInfo>(Allocator.TempJob),
-            FireLines = m_FireLineQuery.ToComponentDataArray<FireFighterLine>(Allocator.TempJob),
-            Delta = m_DeltaDistance,
+            FireLines = m_fireLineQuery.ToComponentDataArray<FireFighterLine>(Allocator.TempJob),
+            Delta = m_deltaDistance,
             Capacity = config.Capacity
         };
 
@@ -49,6 +50,8 @@ public partial struct BucketFillerFetcherSystem : ISystem
         public NativeArray<BucketId> BucketIds;
         [ReadOnly]
         public NativeArray<FireFighterLine> FireLines;
+        [ReadOnly]
+        public NativeArray<Volume> BucketVolumes;
         [ReadOnly]
         public NativeArray<BucketInfo> BucketInfos;
         public float Delta;
@@ -71,7 +74,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                 for (var i = 0; i < BucketTranslations.Length; i++)
                 {
                     // Ignore full and taken buckets
-                    if (BucketInfos[i].IsFull || BucketInfos[i].IsTaken)
+                    if (BucketVolumes[i].Value > (Capacity - Delta) || BucketInfos[i].IsTaken)
                     {
                         continue;
                     }
@@ -97,7 +100,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                 }
 
                 // Reached the bucket
-                if (minDistance < Delta)
+                if (minDistance < 0.1)
                 {
                     bucketFillerFetcher.state = BucketFillerFetcher.BucketFillerFetcherState.GoToLake;
                 }
@@ -114,7 +117,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                     target.Value = line.StartPosition;
 
                     // Reached lake
-                    if (math.length(target.Value - translation.Value.xz) < Delta)
+                    if (math.length(target.Value - translation.Value.xz) < 0.1)
                     {
                         bucketFillerFetcher.state = BucketFillerFetcher.BucketFillerFetcherState.FillBucket;
                     }
@@ -134,7 +137,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
                 }
 
                 // Full bucket
-                if (BucketInfos[bucketIndex].IsFull)
+                if (BucketVolumes[bucketIndex].Value > (Capacity - Delta))
                 {
                     bucketFillerFetcher.state = BucketFillerFetcher.BucketFillerFetcherState.GoToBucket;
                 }
