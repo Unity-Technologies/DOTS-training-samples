@@ -30,17 +30,25 @@ namespace Systems
             foreach (var roadSegment in SystemAPI.Query<RefRO<RoadSegment>>())
             {
                 var rs = roadSegment.ValueRO;
-                float3 prevPos = Spline.EvaluatePosition(rs.Start, rs.End, 0);
+                var prevPos = Spline.EvaluatePosition(rs.Start, rs.End, 0);
+                var prevRot = Spline.EvaluateRotation(rs.Start, rs.End, 0);
+                var prevRight2 = math.mul(prevRot, new float3(1, 0, 0)) * 2;
                 float3 nextPos;
+                quaternion nextRot;
+                float3 nextRight2;
 
                 for (int i = 0; i < DebugSplineResolution; i++)
                 {
                     var nextT = ((float)i + 1) / DebugSplineResolution;
                     nextPos = Spline.EvaluatePosition(rs.Start, rs.End, nextT);
+                    nextRot = Spline.EvaluateRotation(rs.Start, rs.End, nextT);
+                    nextRight2 = math.mul(nextRot, new float3(1, 0, 0)) * 2;
 
-                    UnityEngine.Debug.DrawLine(prevPos, nextPos);
+                    UnityEngine.Debug.DrawLine(prevPos - prevRight2, nextPos - nextRight2);
+                    UnityEngine.Debug.DrawLine(prevPos + prevRight2, nextPos + nextRight2);
 
                     prevPos = nextPos;
+                    prevRight2 = nextRight2;
                 }
             }
 
