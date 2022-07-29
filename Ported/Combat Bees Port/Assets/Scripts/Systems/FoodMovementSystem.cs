@@ -13,6 +13,8 @@ partial class FoodMovementSystem : SystemBase
     {
         base.OnCreate();
         _notCollected = GetComponentDataFromEntity<NotCollected>();
+        
+        RequireForUpdate<Base>();
     }
     
     [BurstCompile]
