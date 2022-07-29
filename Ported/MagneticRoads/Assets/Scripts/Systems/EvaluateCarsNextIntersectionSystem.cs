@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [UpdateAfter(typeof(CarEvaluateSplinePositionSystem))]
+    // [UpdateAfter(typeof(CarEvaluateSplinePositionSystem))]
     [BurstCompile]
     public partial struct EvaluateCarsNextIntersectionSystem : ISystem
     {

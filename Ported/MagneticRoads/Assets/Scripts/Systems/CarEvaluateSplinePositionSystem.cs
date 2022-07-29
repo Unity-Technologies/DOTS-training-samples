@@ -30,15 +30,15 @@ namespace Systems
             
             // Center of the spline
             var splinePos = Spline.EvaluatePosition(rs.Start, rs.End, directionalT);
-
+            
             // TODO: spin rot if backwards
             var rot = Spline.EvaluateRotation(rs.Start, rs.End, directionalT);
             var offset = math.mul(rot, Spline.GetLocalCarOffset(carAspect.LaneNumber));
-
+            
             carAspect.T = carT;
             carAspect.Position = splinePos + offset;
             carAspect.Rotation = rot;
-
+            
             if (Math.Abs(carT - 1) < 0.05f)
             {
                 // This needs to change because it needs to trigger for when the car is in an intersection

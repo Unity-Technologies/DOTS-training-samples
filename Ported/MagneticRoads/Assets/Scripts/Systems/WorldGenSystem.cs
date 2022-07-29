@@ -30,7 +30,7 @@ namespace Systems
         {
             var config = SystemAPI.GetSingleton<TestSplineConfig>();
 
-            int worldScale = 100; // How large a voxel is in Unity world space
+            int worldScale = config.WorldSize; // How large a voxel is in Unity world space
             var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                 .CreateCommandBuffer(state.WorldUnmanaged);
             var voxels = WorldGen.GenerateVoxels();
@@ -86,7 +86,7 @@ namespace Systems
             }
 
             // Create RoadSegments between Intersections and populate them with cars and lane data
-            var createdRoadSegments = new NativeHashSet<FixedString32Bytes>(3 * WorldGen.WorldSize * WorldGen.WorldSize * WorldGen.WorldSize, Allocator.Temp);
+            var createdRoadSegments = new NativeHashSet<double>(3 * WorldGen.WorldSize * WorldGen.WorldSize * WorldGen.WorldSize, Allocator.Temp);
             for (int voxelIndex = 0; voxelIndex < voxels.Length; voxelIndex++)
             {
                 if (!voxels[voxelIndex])
@@ -103,18 +103,19 @@ namespace Systems
                     // We have a pair of touching intersections
                     if (voxels[neighborIndex])
                     {
-                        var fwdKey = new FixedString32Bytes($"{voxelIndex.ToString()},{neighborIndex.ToString()}");
-                        var bckKey = new FixedString32Bytes($"{neighborIndex.ToString()},{voxelIndex.ToString()}");
+                        double forwards = (voxelIndex << 8) + neighborIndex;
+                        double backwards = (neighborIndex << 8) + voxelIndex;
 
-                        if (createdRoadSegments.Contains(fwdKey) || createdRoadSegments.Contains(bckKey))
+                        if (createdRoadSegments.Contains(forwards) || createdRoadSegments.Contains(backwards))
                         {
                             continue;
                         }
-                        createdRoadSegments.Add(fwdKey);
+
+                        createdRoadSegments.Add(forwards);
 
                         var startNormal = IndexToNormalHash[voxelIndex];
                         var endNormal = IndexToNormalHash[neighborIndex];
-                        
+
                         var startTangent = (neighborCoords - coords);
                         var endTangent = startTangent;
 
@@ -138,7 +139,7 @@ namespace Systems
 
                         // Okay so we need to store the lanes locally in this array so we can assign easier
                         NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Temp);
-                        
+
                         // Create the entities that will store the respective lane buffers on the road
                         var lane1Entity = ecb.CreateEntity();
                         var lane2Entity = ecb.CreateEntity();

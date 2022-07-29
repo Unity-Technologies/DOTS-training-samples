@@ -6,7 +6,7 @@ namespace Util
 {
     public static class WorldGen
     {
-        public const int WorldSize = 10;
+        public const int WorldSize = 300;
         public const int MaxAttempts = 10000;
 
         public static readonly int3[] CardinalDirections =
