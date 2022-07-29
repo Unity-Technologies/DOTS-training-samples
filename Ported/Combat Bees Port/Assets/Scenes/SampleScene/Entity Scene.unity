@@ -209,12 +209,12 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beeCount
-      value: 5000
+      value: 100000
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: foodCount
-      value: 100
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
@@ -269,7 +269,7 @@ PrefabInstance:
     - target: {fileID: 7278405310959272627, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
       propertyPath: beePulseSpawnCount
-      value: 50
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7979274586690963129, guid: d671dbabaae9f3a469ed943d9cc41b1a,
         type: 3}
