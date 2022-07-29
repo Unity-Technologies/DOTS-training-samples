@@ -61,6 +61,7 @@ public class Spawner : MonoBehaviour
     public float flashpoint = 0.5f;
     [Tooltip("How far does heat travel? Note: Higher heat radius significantly increases CPU usage")]
     public int heatRadius = 1;
+    public int coolRadius = 3;
     [Tooltip("How fast will adjascent cells heat up?")]
     public float heatTransferRate = 0.7f;
     public float flickerRate = 0.1f;
@@ -144,6 +145,7 @@ class TerrainCellSpawnerBaker : Baker<Spawner>
             CellSize = authoring.cellSize,
             FlickerRange = authoring.flickerRange,
             FlickerRate = authoring.flickerRate,
+            CoolRadius= authoring.coolRadius,
             GridSize = authoring.rows,
             NeutralCol = authoring.colour_fireCell_neutral,
             CoolCol = authoring.colour_fireCell_cool,

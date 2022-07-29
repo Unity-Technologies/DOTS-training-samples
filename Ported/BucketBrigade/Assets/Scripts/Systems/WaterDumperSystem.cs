@@ -100,7 +100,7 @@ partial struct WaterDumperSystem : ISystem
                                                 int cellRowIndex = Mathf.FloorToInt(cellIndex / GridSize);
                                                 int cellColumnIndex = cellIndex % GridSize;
 
-                                                var coolRadius = 3;
+                                                var coolRadius = terrainConfig.CoolRadius;
 
                                                 for (int rowIndex = -coolRadius; rowIndex <= coolRadius; rowIndex++)
                                                 {
