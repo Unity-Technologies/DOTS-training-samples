@@ -7,10 +7,10 @@ using UnityEngine;
 using Unity.Rendering;
 
 [BurstCompile]
+[UpdateAfter(typeof(BucketFillerFetcherSystem))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct FireSystem : ISystem
 {
-    public float updateTime;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {

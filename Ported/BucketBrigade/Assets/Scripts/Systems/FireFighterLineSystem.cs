@@ -10,6 +10,8 @@ struct heatmm
 }
 
 [BurstCompile]
+[UpdateAfter(typeof(FireSystem))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct FireFighterLineSystem : ISystem
 {
     [BurstCompile]
@@ -54,6 +56,7 @@ partial struct FireSearcherJob : IJobEntity
     void Execute(ref FireFighterLine fireFighterLine)
     {
         var closestPoint = new float2(999999, 999999);
+        var offset = new float2(-TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f, -TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f);
 
         for (int cellIndex = 0; cellIndex < HeatMap.Length; cellIndex++)
         {
@@ -63,17 +66,13 @@ partial struct FireSearcherJob : IJobEntity
                     int cellColumnIndex = Mathf.FloorToInt(cellIndex / TerrainConfig.GridSize);
                     int cellRowIndex = cellIndex % TerrainConfig.GridSize;
                     
-                    var offset = new float2(-TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f, -TerrainConfig.GridSize * TerrainConfig.CellSize * 0.5f + TerrainConfig.CellSize * 0.5f);
-                    
                     var newPoint = new float2(cellRowIndex * TerrainConfig.CellSize, cellColumnIndex * TerrainConfig.CellSize) + offset;
                     
-                    
-                    if (math.distance(fireFighterLine.StartPosition, closestPoint) >
-                        math.distance(fireFighterLine.StartPosition, newPoint))
+                    if (math.distancesq(fireFighterLine.StartPosition, closestPoint) >
+                        math.distancesq(fireFighterLine.StartPosition, newPoint))
                     {
                         closestPoint = newPoint;
                     }
-                
             }
         }
 
