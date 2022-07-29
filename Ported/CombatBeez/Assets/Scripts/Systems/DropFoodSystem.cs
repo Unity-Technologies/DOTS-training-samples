@@ -135,6 +135,7 @@ partial struct DropFoodSystem : ISystem
             //var beeTransform = SystemAPI.GetComponent<TransformAspect>(beeEntity);
             var beeTransform = state.EntityManager.GetComponentData<Translation>(beeEntity);
             beeTransform.Value = foodTransform.Position;
+            state.EntityManager.SetComponentData<Translation>(beeEntity, beeTransform);
 
             // make team color match hive
             //var beeComponent = SystemAPI.GetComponent<Bee>(beeEntity);
