@@ -5,8 +5,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(MapCreationSystem))]
+[UpdateBefore(typeof(FarmerManagerSystem))]
 public partial struct RockSpawningSystem : ISystem
 {
     private Random m_Random;

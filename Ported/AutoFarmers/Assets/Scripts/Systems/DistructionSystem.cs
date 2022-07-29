@@ -5,7 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
 
-
+[UpdateAfter(typeof(FarmerTargetLocatorSystem))]
 public partial class DistructionSystem : SystemBase
     {
         private EntityQuery attackingQuery;
@@ -15,15 +15,12 @@ public partial class DistructionSystem : SystemBase
         protected override void OnCreate()
         {
             attackingQuery = GetEntityQuery(ComponentType.ReadWrite<Distruction>());
-            attackingQuery2 = GetEntityQuery(ComponentType.ReadWrite<RockTag>());
             ecbSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
             
         }
 
         protected override void OnUpdate()
         {
-            var rockPositionArray = attackingQuery2.ToComponentDataArray<RockTag>(Allocator.TempJob);
-            Debug.Log(rockPositionArray.Length);
             var attackingEntities =
                 attackingQuery.ToEntityListAsync(Allocator.TempJob, out var attackingEntitiesDependency);
             var attackingArray = attackingQuery.ToComponentDataListAsync<Distruction>(Allocator.TempJob, out var attackingArrayDependency);
@@ -46,27 +43,33 @@ public partial class DistructionSystem : SystemBase
                 {
                     var firstIndex = i;
                     var target = attackingArray[i].Target;
-                    var attackers = 0;
-                    do
+                    i += 1;
+                    if (healthAccessor.HasComponent(target))
                     {
-                        attackers += 1;
-                        i += 1;
-                    } while (i < attackingArray.Length && attackingArray[i].Target == target);
-            
-                    var damage = attackers * deltaTime * 0.1f;
-                    var health = healthAccessor[target].Value - damage;
-                    
-                    if (health < 0f)
-                    {
-                        for (var j = firstIndex; j < i; j++)
+                        var attackers = 1;
+                        while (i < attackingArray.Length && attackingArray[i].Target == target)
                         {
-                             ecb.RemoveComponent<Distruction>(attackingEntities[j]);
+                            attackers += 1;
+                            i += 1;
                         }
-                        ecb.DestroyEntity(target);
-                    }
-                    else
-                    {
-                        healthAccessor[target] = new Health { Value = health };
+
+                        var damage = attackers * deltaTime * 0.1f;
+                        var health = healthAccessor[target].Value - damage;
+
+                        if (health < 0f)
+                        {
+                            for (var j = firstIndex; j < i; j++)
+                            {
+                                ecb.RemoveComponent<Distruction>(attackingEntities[j]);
+                            }
+
+                            ecb.DestroyEntity(target);
+                            
+                        }
+                        else
+                        {
+                            healthAccessor[target] = new Health {Value = health};
+                        }
                     }
                 }
             }).Run();
