@@ -67,7 +67,7 @@ partial struct InitialSpawningSystem : ISystem
         
         foreach (var foodNode in food)
         {
-            var randomSpawn = random.NextFloat3(new float3(-15, 0, -10), new float3(15, 0, 10));
+            var randomSpawn = random.NextFloat3(new float3(-15, -10, -10), new float3(15, -10, 10));
 
             ecb.SetComponent(foodNode, new Translation
             {
