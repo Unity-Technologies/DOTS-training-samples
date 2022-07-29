@@ -74,7 +74,7 @@ public partial struct RockSpawningSystem : ISystem
                 for (int i = 0; i < size.x; i++)
                 {
                     int idx = position.x + i * grid.size.x + position.y + j;
-                    typeBuffer[idx] = new CellType { Value = CellState.Raw };
+                    typeBuffer[idx] = new CellType { Value = CellState.Rock };
                 }
             }
 
