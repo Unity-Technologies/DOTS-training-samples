@@ -30,7 +30,7 @@ namespace Systems
         {
             var config = SystemAPI.GetSingleton<TestSplineConfig>();
 
-            int worldScale = 20; // How large a voxel is in Unity world space
+            int worldScale = 50; // How large a voxel is in Unity world space
             var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                 .CreateCommandBuffer(state.WorldUnmanaged);
             var voxels = WorldGen.GenerateVoxels();
@@ -181,7 +181,7 @@ namespace Systems
                         // Populate Dynamic buffers with random amount of cars
                         for (int laneNumber = 1; laneNumber < 5; laneNumber++)
                         {
-                            for (int carNumber = 0; carNumber < random.NextInt(0, 3); carNumber++)
+                            for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
                             {
                                 var carEntity = ecb.Instantiate(config.CarPrefab);
                                 ecb.SetComponent(carEntity, new Car
@@ -189,7 +189,7 @@ namespace Systems
                                     RoadSegment = roadEntity,
                                     Speed = 3f,
                                     LaneNumber = laneNumber,
-                                    T = random.NextFloat(0f, 0.5f),
+                                    T = random.NextFloat(0f, 0.8f),
                                     NextIntersection = laneNumber % 2 == 1 ? IndexToEntityHash[neighborIndex] : IndexToEntityHash[voxelIndex]
                                 });
 

@@ -38,40 +38,39 @@ namespace Systems
             foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
             {
                 // When this begins we need to remove the car from the buffer associated with the road segment it's leaving
-                var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
-                var leavingLanes = m_LaneDynamicBuffer[carAspect.RoadSegmentEntity];
-                
-                var leavingLane = leavingLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
-                var leavingCarBuffer = m_CarDynamicBuffer[leavingLane];
-                
-                var indexToRemove = 0;
-                if (leavingCarBuffer.Length > 0)
-                {
-                    for (int i = 0; i < leavingCarBuffer.Length; i++)
-                    {
-                        if (leavingCarBuffer[i].value == carAspect.Entity)
-                            indexToRemove = i;
-                    }
-                
-                    leavingCarBuffer.RemoveAt(indexToRemove); // Remove from buffer
-                }
-
-                // Add the car to the next roadsegment
-                foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
-                {
-                    if (carRoadSegment.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
-                    {
-                        var joiningLanes = m_LaneDynamicBuffer[rsAspect.Entity];
-                        
-                        var joinLane = joiningLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
-                        var carBuffer = m_CarDynamicBuffer[joinLane].Reinterpret<Entity>();
-                        
-                        carBuffer.Add(carAspect.Entity);
-                        carAspect.RoadSegmentEntity = rsAspect.Entity;
-                        ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
-                    }
-                }
-
+                // var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
+                // var leavingLanes = m_LaneDynamicBuffer[carAspect.RoadSegmentEntity];
+                //
+                // var leavingLane = leavingLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
+                // var leavingCarBuffer = m_CarDynamicBuffer[leavingLane];
+                //
+                // var indexToRemove = 0;
+                // if (leavingCarBuffer.Length > 0)
+                // {
+                //     for (int i = 0; i < leavingCarBuffer.Length; i++)
+                //     {
+                //         if (leavingCarBuffer[i].value == carAspect.Entity)
+                //             indexToRemove = i;
+                //     }
+                //
+                //     leavingCarBuffer.RemoveAt(indexToRemove); // Remove from buffer
+                // }
+                //
+                // // Add the car to the next roadsegment
+                // foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
+                // {
+                //     if (carRoadSegment.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
+                //     {
+                //         var joiningLanes = m_LaneDynamicBuffer[rsAspect.Entity];
+                //
+                //         var joinLane = joiningLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
+                //         var carBuffer = m_CarDynamicBuffer[joinLane].Reinterpret<Entity>();
+                //
+                //         carBuffer.Add(carAspect.Entity);
+                //         carAspect.RoadSegmentEntity = rsAspect.Entity;
+                //     }
+                // }
+                ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
                 carAspect.T = 0;
             }
 
