@@ -10,12 +10,8 @@ using UnityEngine;
 public partial struct FarmerTargetLocatorSystem : ISystem
 {
     EntityQuery rockpositionQuery;
-<<<<<<< HEAD
     ComponentDataFromEntity<RockConfig> m_RockConfigFromEntity;
 
-=======
-    
->>>>>>> dots-training-2022-07-eu-group2
     public void OnCreate(ref SystemState state)
     {
         rockpositionQuery = state.GetEntityQuery(typeof(LocalToWorld), typeof(RockTag), typeof(RockConfig));
@@ -34,24 +30,16 @@ public partial struct FarmerTargetLocatorSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var rockPositionArray = rockpositionQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob);
-<<<<<<< HEAD
         var rockEntitiesArray = rockpositionQuery.ToEntityArray(Allocator.TempJob);
         //var rockStateArray = rockpositionQuery.ToComponentDataArray<RockConfig>(Allocator.TempJob);
-=======
-        var rockEntityArray = rockpositionQuery.ToEntityArray(Allocator.TempJob);
->>>>>>> dots-training-2022-07-eu-group2
 
         FarmerTargetSetterJob TargetJob = new FarmerTargetSetterJob
         {
             rockPositionArray = rockPositionArray,
-<<<<<<< HEAD
             RockConfigFromEntity = m_RockConfigFromEntity,
             RockEntitiesArray = rockEntitiesArray,
             ECB = ecb
             //rockStateArray = rockStateArray
-=======
-            rockEntityArray = rockEntityArray
->>>>>>> dots-training-2022-07-eu-group2
         };
 
         TargetJob.Schedule();
@@ -67,45 +55,50 @@ public partial struct FarmerTargetLocatorSystem : ISystem
         public EntityCommandBuffer ECB;
         //public NativeArray<RockConfig> rockStateArray;
 
-        [ReadOnly] public NativeArray<Entity> rockEntityArray;
+        //[ReadOnly] public NativeArray<Entity> rockEntityArray;
 
-        public void Execute(TransformAspect farmersPosition, ref TargetPosition target, ref Distruction distruction)
+        public void Execute(TransformAspect farmersPosition, ref TargetPosition target, ref Distruction distruction, ref FarmerState state)
         {
-            var targetEntity = Entity.Null;
+            Entity targetEntity = Entity.Null;
             float shortestDistance=999f;
             float3 targetPos= new float3(5,0,5);
 
-            for (int i = 0; i < rockPositionArray.Length; i++)
-            {
-                float distance = math.distance(farmersPosition.Position, rockPositionArray[i].Position);
+           
+                for (int i = 0; i < rockPositionArray.Length; i++)
                 {
-                    if (distance < shortestDistance)
+                    float distance = math.distance(farmersPosition.Position, rockPositionArray[i].Position);
                     {
-                        shortestDistance = distance;
-                        targetPos = rockPositionArray[i].Position;
-<<<<<<< HEAD
-
-                        if (RockConfigFromEntity[RockEntitiesArray[i]].state == RockState.isUntargeted) 
+                        if (distance < shortestDistance)
                         {
-                            ECB.SetComponent(RockEntitiesArray[i], new RockConfig { state = RockState.isTargeted });
-                            //var rockCopy = rockStateArray[i];
-                            //rockCopy.state = RockState.isTargeted;
-                            //rockStateArray[i] = rockCopy;
-                            Debug.Log("state changed");
-                            targetEntity = rockEntityArray[i];
+                            if (RockConfigFromEntity[RockEntitiesArray[i]].state == RockState.isUntargeted)
+                            {
+                                shortestDistance = distance;
+                                targetPos = rockPositionArray[i].Position;
+                                targetEntity = RockEntitiesArray[i];
+                            }
                         }
-=======
-                        targetEntity = rockEntityArray[i];
->>>>>>> dots-training-2022-07-eu-group2
                     }
                 }
-            }
-            target.Target = new float3(targetPos.x,1,targetPos.z);
-            Debug.Log(math.distance(farmersPosition.Position, target.Target));
-            if (math.distance(farmersPosition.Position, target.Target) < 1)
+                Debug.Log(targetEntity.ToString());
+                if (!state.isWorking)
+                    if (targetEntity != Entity.Null) 
+                    ECB.SetComponent(targetEntity, new RockConfig { state = RockState.isTargeted });
+                target.Target = new float3(targetPos.x, 1, targetPos.z);
+                state.isWorking = true;
+
+            if (targetEntity == Entity.Null)
             {
-                distruction.Target = targetEntity;
+                state.isWorking = false;
+
+
             }
+
+            //Debug.Log(math.distance(farmersPosition.Position, target.Target));
+            if (math.distance(farmersPosition.Position, target.Target) < 1)
+                {
+                    distruction.Target = targetEntity;
+                }
+            
         }
     }
 }

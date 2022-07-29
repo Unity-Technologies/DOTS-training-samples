@@ -10,6 +10,7 @@ public class FarmerAuthoring : MonoBehaviour
     public float3 velocity;
     public float3 Target;
     public float speed;
+    public bool isWorking;
     // Start is called before the first frame update
 }
 
@@ -35,5 +36,9 @@ public class FarmerComponentBaker : Baker<FarmerAuthoring>
         {
             value = authoring.velocity
         });
+        AddComponent(new FarmerState()
+        {
+            isWorking = authoring.isWorking
+        }) ;
     }
 }

@@ -24,8 +24,10 @@ public partial class DistructionSystem : SystemBase
             var attackingEntities =
                 attackingQuery.ToEntityListAsync(Allocator.TempJob, out var attackingEntitiesDependency);
             var attackingArray = attackingQuery.ToComponentDataListAsync<Distruction>(Allocator.TempJob, out var attackingArrayDependency);
+            //var farmerStateArray = attackingQuery.ToComponentDataListAsync<FarmerState>(Allocator.TempJob, out var farmerStateDependency);
             Dependency = JobHandle.CombineDependencies(Dependency, (attackingArrayDependency), attackingEntitiesDependency);
-            
+        //Dependency = JobHandle.CombineDependencies(Dependency, farmerStateDependency);    
+
              var healthAccessor = GetComponentDataFromEntity<Health>();
             var deltaTime = Time.DeltaTime;
             var ecb = ecbSystem.CreateCommandBuffer();
@@ -58,6 +60,7 @@ public partial class DistructionSystem : SystemBase
 
                         if (health < 0f)
                         {
+                            //Debug.Log(farmerStateDependency.ToString());
                             // for (var j = firstIndex; j < i; j++)
                             // {
                             //     ecb.RemoveComponent<Distruction>(attackingEntities[j]);
