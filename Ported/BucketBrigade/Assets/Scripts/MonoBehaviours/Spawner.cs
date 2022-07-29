@@ -128,7 +128,8 @@ class BucketSpawnerBaker : Baker<Spawner>
             Prefab = GetEntity(authoring.BucketPrefab),
             Count = authoring.totalBuckets,
             GridSize = authoring.rows,
-            CellSize = authoring.cellSize
+            CellSize = authoring.cellSize,
+            Capacity = authoring.bucketCapacity
         });
     }
 }

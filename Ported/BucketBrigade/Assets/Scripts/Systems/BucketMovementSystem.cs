@@ -22,13 +22,16 @@ public partial struct BucketMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<BucketConfig>();
+
         var bucketMoveJob = new BucketTravel
         {
             BucketFetcherTranslations = m_BucketFillerFetcherQuery.ToComponentDataArray<Translation>(Allocator.TempJob),
             BucketFetchers = m_BucketFillerFetcherQuery.ToComponentDataArray<BucketFillerFetcher>(Allocator.TempJob),
             BucketIds = m_BucketFillerFetcherQuery.ToComponentDataArray<BucketId>(Allocator.TempJob),
             Time = Time.deltaTime,
-            FillSpeed = 1f
+            FillSpeed = 1f,
+            Capacity = config.Capacity
         };
 
         bucketMoveJob.Schedule();
@@ -45,6 +48,7 @@ public partial struct BucketMovementSystem : ISystem
         public NativeArray<BucketId> BucketIds;
         public float Time;
         public float FillSpeed;
+        public float Capacity;
 
         [BurstCompile]
         void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume)
@@ -64,6 +68,11 @@ public partial struct BucketMovementSystem : ISystem
                 else if (BucketFetchers[i].state == BucketFillerFetcher.BucketFillerFetcherState.FillBucket)
                 {
                     volume.Value += FillSpeed * Time;
+
+                    if (volume.Value > Capacity)
+                    {
+                        volume.Value = Capacity;
+                    }
                 }
             }
         }
