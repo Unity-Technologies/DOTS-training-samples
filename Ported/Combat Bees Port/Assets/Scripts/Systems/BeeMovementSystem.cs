@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -54,7 +55,6 @@ partial struct BeeMovementSystem : ISystem
         food.Update(ref state);
         _bee.Update(ref state);
         
-        var notCollected = _notCollected;
         var dt = Time.deltaTime;
         var et = (float)state.Time.ElapsedTime;
         var speed = 10f;
@@ -124,7 +124,7 @@ partial struct BeeMovementSystem : ISystem
 
                 var position = translation.Value;
 
-                SpeedHandler(bee, ref speed, ref state);
+                SpeedHandler(bee, ref speed, random);
 
                 var floatOne = new float3(0.45f, 0.5f, 1);
 
@@ -156,25 +156,37 @@ partial struct BeeMovementSystem : ISystem
 
                 
 
-                if (bee.state == BeeState.Attacking && _bee.HasComponent(bee.target))
+                if (bee.state == BeeState.Attacking)
                 {
-                    if (math.distance(position, target) < 0.25f)
+                    if(!_bee.HasComponent(bee.target))
+                    {
+                        bee.state = BeeState.Idle;
+                        bee.target = baseEntity;
+                        bee.targetPos = randomPlaceInSpawn;
+                        target = bee.targetPos;
+                    }
+                    else if (math.distance(position, target) < 0.25f)
                     {
                         bee.targetPos = float3.zero;
                         ecb2.DestroyEntity(bee.target);
+                        
+                        var beeSpawn = SystemAPI.GetSingleton<InitialSpawn>();
+                        var instance = ecb.Instantiate(beeSpawn.bloodPrefab);
+                        ecb.SetComponent(instance, new Translation { Value = position});
 
                         bee.target = Entity.Null;
                         bee.state = BeeState.Idle;
                     }
                 } 
-                else if (bee.state == BeeState.Collecting)
+                else if (bee.state == BeeState.Collecting && food.HasComponent(bee.target))
                 {
-                    /*if (!notCollected.HasComponent(bee.target))
+                    if (bee.target == Entity.Null || !_notCollected.IsComponentEnabled(bee.target))
                     {
                         bee.state = BeeState.Idle;
                         bee.target = baseEntity;
                         bee.targetPos = randomPlaceInSpawn;
-                    }*/
+                        target = bee.targetPos;
+                    }
                     
                     if (math.distance(position, target) < 0.25f)
                     {
@@ -182,7 +194,7 @@ partial struct BeeMovementSystem : ISystem
                         component.target = entity;
                         ecb.SetComponent(bee.target, component);
                         
-                        notCollected.SetComponentEnabled(bee.target, false);
+                        _notCollected.SetComponentEnabled(bee.target, false);
 
                         bee.target = baseEntity;
                         bee.targetPos = randomPlaceInSpawn;
@@ -245,9 +257,8 @@ partial struct BeeMovementSystem : ISystem
         if (position.z > 10) position.z = 10;
     }
 
-    void SpeedHandler(Bee bee, ref float speed, ref SystemState state)
+    void SpeedHandler(in Bee bee, ref float speed, Random random)
     {
-        Random random = Random.CreateFromIndex(state.GlobalSystemVersion);
         if (bee.state == BeeState.Attacking) speed = random.NextFloat(30f, 45f);
         if (bee.state == BeeState.Collecting) speed = random.NextFloat(15f, 30f);
         if (bee.state == BeeState.Hauling) speed = random.NextFloat(10f, 30f);
