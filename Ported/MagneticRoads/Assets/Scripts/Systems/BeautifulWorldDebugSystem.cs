@@ -27,6 +27,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            state.Enabled = false;
             foreach (var roadSegment in SystemAPI.Query<RefRO<RoadSegment>>())
             {
                 var rs = roadSegment.ValueRO;

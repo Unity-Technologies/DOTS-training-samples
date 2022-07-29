@@ -3,16 +3,16 @@ using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Systems
 {
+    [UpdateAfter(typeof(CarEvaluateSplinePositionSystem))]
     [BurstCompile]
     public partial struct EvaluateCarsNextIntersectionSystem : ISystem
     {
         [BurstCompile]
-        public void OnCreate(ref SystemState state)
-        {
-        }
+        public void OnCreate(ref SystemState state) { }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state) { }
@@ -22,22 +22,24 @@ namespace Systems
         {
             foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
             {
-                var nextIntersection = Entity.Null;
-                foreach (var roadSegment in SystemAPI.Query<RefRO<RoadSegment>>())
+                var nextIntersection = carAspect.NextIntersection;
+                foreach (var roadSegment in SystemAPI.Query<RoadSegmentAspect>())
                 {
-                    var roadSegmentRO = roadSegment.ValueRO;
-                    
-                    if (roadSegmentRO.StartIntersection == carAspect.NextIntersection)
+                    Debug.Log(carAspect.NextIntersection);
+                    if (roadSegment.StartIntersection == carAspect.NextIntersection)
                     {
-                        nextIntersection = roadSegmentRO.EndIntersection;
+                        nextIntersection = roadSegment.EndIntersection;
                     }
-                    else if (roadSegmentRO.EndIntersection == carAspect.NextIntersection)
+                    else if (roadSegment.EndIntersection == carAspect.NextIntersection)
                     {
-                        nextIntersection = roadSegmentRO.StartIntersection;
+                        nextIntersection = roadSegment.StartIntersection;
                     }
 
+                    // Debug.Log(nextIntersection);
                     carAspect.NextIntersection = nextIntersection;
                 }
+
+                state.Enabled = false;
             }
         }
     }

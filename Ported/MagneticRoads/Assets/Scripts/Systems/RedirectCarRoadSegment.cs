@@ -45,7 +45,7 @@ namespace Systems
 
                     if (rsAspect.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
                     {
-                        var lane = lanes[carAspect.LaneNumber].value; // this is the entity storing the car buffer
+                        var lane = lanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
                         var carBuffer = m_CarDynamicBuffer[lane];
 
                         var indexToRemove = 0;
@@ -83,7 +83,7 @@ namespace Systems
 
                         // Add the car to the correct buffer
                         var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
-                        var lane = lanes[carAspect.LaneNumber].value;
+                        var lane = lanes[carAspect.LaneNumber - 1].value;
                         var carBuffer = m_CarDynamicBuffer[lane].Reinterpret<Entity>();
                         carBuffer.Add(carAspect.Entity);
 
