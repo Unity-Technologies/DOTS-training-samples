@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dcdb7c06ab04a088be4ccdb09fe3e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialFireCount: 2
+  InitialFireCount: 10
   FireThreshold: 0.3
   HeatTransferRate: 0.02
   FireFighterLinesCount: 0
@@ -187,12 +187,12 @@ MonoBehaviour:
   coolingStrength: 1
   coolingStrength_falloff: 0.75
   refillRate: 0.0001
-  totalBuckets: 10
+  totalBuckets: 50
   bucketCapacity: 3
   bucketFillRate: 0.01
   bucketSize_EMPTY: 0.2
   bucketSize_FULL: 0.4
-  waterCellCount: 20
+  waterCellCount: 50
   TerrainCellPrefab: {fileID: 6197299267711999515, guid: 0028222f115edf64f872cd65c9725c33,
     type: 3}
   WaterCellPrefab: {fileID: 1980673038591031170, guid: bec2e43f760876240848f9f24ddd1574,
@@ -205,18 +205,19 @@ MonoBehaviour:
   startingFireCount: 1
   maxFlameHeight: 0.1
   cellSize: 0.5
-  rows: 20
-  columns: 20
+  rows: 50
+  columns: 50
   flashpoint: 0.5
   heatRadius: 1
+  coolRadius: 3
   heatTransferRate: 0.3
   flickerRate: 0.5
   flickerRange: 0.2
   FireFighterPrefab: {fileID: 7608572091806980845, guid: 1afad127379ec864396fd0399514c962,
     type: 3}
-  Speed: 0.5
+  Speed: 4
   linesCount: 2
-  PerLinesCount: 10
+  PerLinesCount: 15
   fireSimUpdateRate: 0.5
   colour_fireCell_neutral: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 1}
   colour_fireCell_cool: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
