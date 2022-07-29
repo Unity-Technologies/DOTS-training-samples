@@ -14,8 +14,8 @@ partial struct PlayerComponentJob : IJobEntity
     public EntityManager entityManager;
 
     
-    public Unity.Collections.NativeArray<Entity> tanks; 
-    public Unity.Collections.NativeArray<Entity> boxes; 
+    [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> tanks; 
+    [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> boxes; 
 
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Tank> tankFromEntity;
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity;
