@@ -10,12 +10,12 @@ namespace Systems
     [BurstCompile]
     partial struct BeautifulWorldDebugSystem : ISystem
     {
-        public const int DebugSplineResolution = 50;
+        public const int DebugSplineResolution = 5;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-
+            state.Enabled = false;
         }
 
         [BurstCompile]
