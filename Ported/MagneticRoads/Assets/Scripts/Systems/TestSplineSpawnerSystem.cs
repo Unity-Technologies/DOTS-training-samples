@@ -25,6 +25,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            /*
             var config = SystemAPI.GetSingleton<TestSplineConfig>();
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -97,6 +98,7 @@ namespace Systems
             lane4Buffer.Add(car4);
             lane1Buffer.Add(car5);
             
+            */
             state.Enabled = false;
         }
     }
