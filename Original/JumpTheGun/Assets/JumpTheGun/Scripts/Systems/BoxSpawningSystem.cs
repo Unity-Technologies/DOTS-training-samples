@@ -23,7 +23,6 @@ partial struct BoxSpawningSystem : ISystem
     {
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<Config>();
-        m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
 
         // Player values
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
@@ -41,55 +40,35 @@ partial struct BoxSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
         var config = SystemAPI.GetSingleton<Config>();
+        var ecbBoxSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
 
-        if (boxEntities.Length == 0){
-            var random = Random.CreateFromIndex(1234);
-            var hue = random.NextFloat();
+        var ecbBox = ecbBoxSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-            URPMaterialPropertyBaseColor RandomColor()
-            {
-                hue = (hue + 0.618034005f) % 1;
-                var color = UnityEngine.Color.HSVToRGB(hue, 5.0f, 2.3f);
-                return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
-            }
+        var boxes = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
 
-            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        ecbBox.Instantiate(config.boxPrefab, boxes);
+        ecbBox.Playback(state.WorldUnmanaged.EntityManager);
 
-            var boxes = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
-            ecb.Instantiate(config.boxPrefab, boxes);
+        var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbPlayer = ecbPlayerSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+        var players = CollectionHelper.CreateNativeArray<Entity>(1, Allocator.Temp);
+        var playerQueryMask = playerQuery.GetEntityQueryMask();
 
-            var queryMask = m_BaseColorQuery.GetEntityQueryMask();
-
-            foreach (var box in boxes)
-            {
-                ecb.SetComponentForLinkedEntityGroup(box, queryMask, RandomColor());
-            }
-        }
-        //ecb.Playback(state.WorldUnmanaged.EntityManager);
+        ecbPlayer.Instantiate(config.playerPrefab, players);
         //ecb.Playback(state.WorldUnmanaged.EntityManager);
 
-        boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+        boxesFromEntity.Update(ref state);
+        pcFromEntity.Update(ref state);
 
-        if (boxEntities.Length > 0){
-            var configPlayer = SystemAPI.GetSingleton<Config>();
-            var ecbPlayerSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecbPlayer = ecbPlayerSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-            var players = CollectionHelper.CreateNativeArray<Entity>(1, Allocator.Temp);
-            var playerQueryMask = playerQuery.GetEntityQueryMask();
-            ecbPlayer.Instantiate(configPlayer.playerPrefab, players);
-            boxesFromEntity.Update(ref state);
-            pcFromEntity.Update(ref state);
-
-            foreach (var player in players)
-            {
-                PlayerComponent pc = pcFromEntity[config.playerPrefab];
-                ecbPlayer.SetComponentForLinkedEntityGroup(player, playerQueryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
-            }
-            state.Enabled = false;
+        foreach (var player in players)
+        {
+            PlayerComponent pc = pcFromEntity[config.playerPrefab];
+            ecbPlayer.SetComponentForLinkedEntityGroup(player, playerQueryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
         }
+
+        state.Enabled = false;
     }
 
     public static PlayerComponent PlayerProperties(ComponentDataFromEntity<Boxes> boxesFromEntity, Config config, NativeArray<Entity> boxes, PlayerComponent prefabData)

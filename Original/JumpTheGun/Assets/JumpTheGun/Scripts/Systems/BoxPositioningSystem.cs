@@ -18,12 +18,6 @@ partial struct BoxPosJob : IJobEntity
         Random random;
         random = Random.CreateFromIndex((uint)entity.Index);
 
-        // Notice that this is a lambda being passed as parameter to ForEach.
-        //var pos = transform.Position;
-
-        //pos.x = random.NextFloat(0, 10);
-        //pos.z = random.NextFloat(0, 10);
-
         transform.Position = new float3(row * 1.2f, 0, col * 1.2f);
 
         if (row >= config.terrainWidth)
@@ -35,25 +29,29 @@ partial struct BoxPosJob : IJobEntity
         {
             row++;
         }
+
         boxes.row = row;
         boxes.column = col;
 
-
-        UnityEngine.Debug.Log("This row is: " + row + " " + "This column is: " + col);
-
-
-
         scale.Value = new float3(1, random.NextFloat(0, 5), 1);
 
-        //transform.Position = pos;
+        //UnityEngine.Debug.Log("The Y scale is: " + scale.Value.y);
 
-        if ((config.maxTerrainHeight - config.minTerrainHeight) < 0.5f)
+        boxes.top = scale.Value.y * Config.yOffset;
+
+        if (scale.Value.y <= 2f)
         {
             colour.Value = Config.minHeightColour;
         }
-        else
+
+        else if (scale.Value.y > 2)
         {
             colour.Value = Config.maxHeightColour;
+        }
+
+        else
+        {
+            colour.Value = math.lerp(Config.maxHeightColour, Config.minHeightColour, Config.minHeightColour / Config.maxHeightColour);
         }
     }
 }
@@ -77,12 +75,8 @@ partial struct BoxPositioningSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
 
-
-
         int row = 0;
         int column = 0;
-
-
 
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
