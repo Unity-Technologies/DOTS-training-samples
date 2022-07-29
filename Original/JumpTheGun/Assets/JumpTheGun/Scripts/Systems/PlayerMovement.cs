@@ -3,6 +3,8 @@ using Unity.Transforms;
 using Unity.Entities;
 using Unity.Mathematics;
 
+
+
 [BurstCompile]
 partial struct PlayerComponentJob : IJobEntity
 {
@@ -32,13 +34,13 @@ partial struct PlayerComponentJob : IJobEntity
         int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
             
         bool occupied = false; 
-
+        /*
         foreach (var tank in tanks) { 
             var tankComponent =  tankFromEntity[tank]; 
             if (tankComponent.column == movePos.x && tankComponent.row == movePos.y){
                 occupied = true; 
             }
-        }
+        }*/
         if (occupied) 
             movePos = new int2(endBox.column, endBox.row);
 
@@ -66,9 +68,12 @@ partial struct PlayerComponentJob : IJobEntity
             if (movePos.x == startBox.column && movePos.y == startBox.row) // look for box to bounce to
                 endBox = startBox;  // don't go to new box
             else {
+
+                UnityEngine.Debug.Log("Move pos" + movePos);
                 foreach (var box in boxes) { 
                     Boxes newStartBox = boxesFromEntity[box];
-                    if (newStartBox.row == movePos.x && newStartBox.column == movePos.y){
+                    UnityEngine.Debug.Log( "new box pos" + "(" + newStartBox.column + "," +  newStartBox.row + ")");
+                    if (newStartBox.row == movePos.y && newStartBox.column == movePos.x){
                         endBox = newStartBox;
                         break; 
                     }
@@ -86,11 +91,6 @@ partial struct PlayerComponentJob : IJobEntity
                     boxRef2 = newStartBox;
                 }
             }
-
-            // Bounce
-            if (playerComponent.isBouncing)
-                return;
-
             float startY = startBox.top + playerComponent.yOffset;
             float endY = endBox.top + playerComponent.yOffset;
             float height = math.max(startY, endY);
@@ -205,7 +205,6 @@ partial struct PlayerMovement : ISystem
         };
 
         //PlayerJob.Schedule();
-
         PlayerJob.Run(); 
     }
 }

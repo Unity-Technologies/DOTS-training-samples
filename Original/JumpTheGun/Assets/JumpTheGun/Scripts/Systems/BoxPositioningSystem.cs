@@ -18,7 +18,7 @@ partial struct BoxPosJob : IJobEntity
         Random random;
         random = Random.CreateFromIndex((uint)entity.Index);
 
-        transform.Position = new float3(row * 1.2f, 0, col * 1.2f);
+        transform.Position = new float3(row * config.spacing, 0, col * config.spacing);
 
         if (row >= config.terrainWidth)
         {
