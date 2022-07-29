@@ -28,6 +28,7 @@ partial struct WaterDumperSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var terrainConfig = SystemAPI.GetSingleton<TerrainCellConfig>();
+        var config = SystemAPI.GetSingleton<FireFighterConfig>();
         int GridSize = terrainConfig.GridSize;
         float CellSize = terrainConfig.CellSize;
         
@@ -36,7 +37,18 @@ partial struct WaterDumperSystem : ISystem
         var HeatMap = SystemAPI.GetSingletonBuffer<Temperature>();
         foreach (var (FireFighterPos, target, FireFighterBucketId, lineId, waterDumperState) in SystemAPI.Query<RefRO<Translation>, RefRW<Target>, RefRW<BucketId>, RefRO<LineId>, RefRW<WaterDumper>>().WithAll<WaterDumper>())
         {
-            switch(waterDumperState.ValueRO.state)
+            FireFighterLine fireFighterLine;
+            float distToNext = 1.0f;
+            foreach (var line in SystemAPI.Query<RefRO<FireFighterLine>>())
+            {
+                if (line.ValueRO.LineId == lineId.ValueRO.Value)
+                {
+                    fireFighterLine = line.ValueRO;
+                    distToNext = 0.25f * math.distancesq(fireFighterLine.StartPosition, fireFighterLine.EndPosition) / (config.PerLinesCount * config.PerLinesCount);
+                }
+            }
+
+            switch (waterDumperState.ValueRO.state)
             {
                 case WaterDumper.WaterDumperState.GoToBucket:
                     {
@@ -44,7 +56,7 @@ partial struct WaterDumperSystem : ISystem
                         foreach (var (bucketInfo, bucketPos, volume, bucketId) in SystemAPI.Query<RefRW<BucketInfo>, RefRO<Translation>, RefRO<Volume>, RefRO<BucketId>>())
                         {
                             var dist = math.distancesq(bucketPos.ValueRO.Value, FireFighterPos.ValueRO.Value);
-                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0 && dist < 1.0f )
+                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0 && dist < distToNext)
                             {
                                 hasBucket = true;
                                 if (dist < 0.1f)
