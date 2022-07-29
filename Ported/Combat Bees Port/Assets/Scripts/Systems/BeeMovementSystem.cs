@@ -21,13 +21,17 @@ partial struct BeeMovementSystem : ISystem
 
     private EntityQuery myQuery;
 
+    EntityTypeHandle entityHandle;
+    ComponentTypeHandle<Translation> translationHandle;
+    ComponentTypeHandle<Bee> beeHandle;
+    ComponentTypeHandle<Rotation> rotationHandle;
+    ComponentTypeHandle<NonUniformScale> scaleHandle;
+
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-     //   var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         state.RequireForUpdate<Base>();
-       // _notCollected = SystemAPI.GetComponentDataFromEntity<NotCollected>();
        _notCollected = state.GetComponentDataFromEntity<NotCollected>();
        _yellowTeam = state.GetComponentDataFromEntity<YellowTeam>(true);
        localToWorld = state.GetComponentDataFromEntity<LocalToWorld>(false);
@@ -40,6 +44,17 @@ partial struct BeeMovementSystem : ISystem
         queryBuilder.AddAll(ComponentType.ReadWrite<NonUniformScale>());
         queryBuilder.AddAll(ComponentType.ReadWrite<Rotation>());
         queryBuilder.FinalizeQuery();
+
+        entityHandle = state.GetEntityTypeHandle();
+
+        translationHandle = state.GetComponentTypeHandle<Translation>(false);
+        
+        beeHandle = state.GetComponentTypeHandle<Bee>(false);
+        
+        rotationHandle = state.GetComponentTypeHandle<Rotation>(false);
+        
+        scaleHandle = state.GetComponentTypeHandle<NonUniformScale>(false);
+        
         myQuery = state.GetEntityQuery(queryBuilder);
     }
 
@@ -54,6 +69,13 @@ partial struct BeeMovementSystem : ISystem
         localToWorld.Update(ref state);
         food.Update(ref state);
         _bee.Update(ref state);
+        
+        entityHandle.Update(ref state);
+        translationHandle.Update(ref state);
+        beeHandle.Update(ref state);
+        rotationHandle.Update(ref state);
+        scaleHandle.Update(ref state);
+        scaleHandle.Update(ref state);
         
         var dt = Time.deltaTime;
         var et = (float)state.Time.ElapsedTime;
@@ -71,26 +93,8 @@ partial struct BeeMovementSystem : ISystem
         var ecbSingletonStart = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb2 = ecbSingletonStart.CreateCommandBuffer(state.WorldUnmanaged);
         
-        
         NativeArray<ArchetypeChunk> chunks =
             myQuery.ToArchetypeChunkArray(Allocator.Temp);
-        
-        EntityTypeHandle entityHandle = state.GetEntityTypeHandle();
-        
-      
-        ComponentTypeHandle<Translation> translationHandle =
-            state.GetComponentTypeHandle<Translation>(false);
-        
-        ComponentTypeHandle<Bee> beeHandle =
-            state.GetComponentTypeHandle<Bee>(false);
-        
-        
-        ComponentTypeHandle<Rotation> rotationHandle =
-            state.GetComponentTypeHandle<Rotation>(false);
-        
-        ComponentTypeHandle<NonUniformScale> scaleHandle =
-            state.GetComponentTypeHandle<NonUniformScale>(false);
-
 
         for (int i = 0; i < chunks.Length; i++)
         {
