@@ -12,6 +12,7 @@ partial struct PlayerComponentJob : IJobEntity
     public float3 rayOrigin;
     public float3 rayDirection;
     public EntityManager entityManager;
+
     
     public Unity.Collections.NativeArray<Entity> tanks; 
     public Unity.Collections.NativeArray<Entity> boxes; 
@@ -99,9 +100,6 @@ partial struct PlayerComponentJob : IJobEntity
             }
             height += playerComponent.bounceHeight;
 
-
-            //ParabolaCluster.Create(startY, height, endY, out para.paraA, out para.paraB, out para.paraC);
-            
             playerComponent.para.paraC = startY;
             float k = math.sqrt(math.abs(startY - height)) / (math.sqrt(math.abs(startY - height)) + math.sqrt(math.abs(endY - height)));
             playerComponent.para.paraA = (height - startY - k * (endY - startY)) / (k * k - k);
