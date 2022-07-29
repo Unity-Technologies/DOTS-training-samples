@@ -16,7 +16,7 @@ public partial class TankRotationSystem : SystemBase
     {
         float deltaTime = this.Time.DeltaTime;
         var playerEntity = playerQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
-        
+
         if (playerEntity.Length == 0)
             return; 
 
@@ -41,7 +41,7 @@ public partial class TankRotationSystem : SystemBase
                 transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
 
                 
-            }).Schedule();
+            }).Run();
 
                
     }
