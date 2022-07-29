@@ -23,6 +23,7 @@ public partial struct BucketMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BucketConfig>();
+        var configCell = SystemAPI.GetSingleton<TerrainCellConfig>();
 
         var bucketMoveJob = new BucketTravel
         {
@@ -31,7 +32,8 @@ public partial struct BucketMovementSystem : ISystem
             BucketIds = m_BucketFillerFetcherQuery.ToComponentDataArray<BucketId>(Allocator.TempJob),
             Time = Time.deltaTime,
             FillSpeed = 1f,
-            Capacity = config.Capacity
+            Capacity = config.Capacity,
+            BaseBucketHeight = configCell.CellSize * 0.25f
         };
 
         bucketMoveJob.Schedule();
@@ -49,6 +51,7 @@ public partial struct BucketMovementSystem : ISystem
         public float Time;
         public float FillSpeed;
         public float Capacity;
+        public float BaseBucketHeight;
 
         [BurstCompile]
         void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume)
@@ -72,6 +75,7 @@ public partial struct BucketMovementSystem : ISystem
                     if (volume.Value > Capacity)
                     {
                         volume.Value = Capacity;
+                        translation.Value.y = BaseBucketHeight;
                     }
                 }
             }
