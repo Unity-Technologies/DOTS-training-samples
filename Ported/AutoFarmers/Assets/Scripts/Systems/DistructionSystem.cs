@@ -53,15 +53,15 @@ public partial class DistructionSystem : SystemBase
                             i += 1;
                         }
 
-                        var damage = attackers * deltaTime * 0.1f;
+                        var damage = attackers * deltaTime;//* 0.1f;
                         var health = healthAccessor[target].Value - damage;
 
                         if (health < 0f)
                         {
-                            for (var j = firstIndex; j < i; j++)
-                            {
-                                ecb.RemoveComponent<Distruction>(attackingEntities[j]);
-                            }
+                            // for (var j = firstIndex; j < i; j++)
+                            // {
+                            //     ecb.RemoveComponent<Distruction>(attackingEntities[j]);
+                            // }
 
                             ecb.DestroyEntity(target);
                             

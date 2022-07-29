@@ -60,8 +60,12 @@ public partial struct FarmerTargetLocatorSystem : ISystem
                     }
                 }
             }
-            target.Target = targetPos;
-            distruction.Target = targetEntity;
+            target.Target = new float3(targetPos.x,1,targetPos.z);
+            Debug.Log(math.distance(farmersPosition.Position, target.Target));
+            if (math.distance(farmersPosition.Position, target.Target) < 1)
+            {
+                distruction.Target = targetEntity;
+            }
         }
 
     }
