@@ -11,7 +11,7 @@ partial struct CannonBallSpawnerSystem : ISystem
     // A ComponentDataFromEntity provides random access to a component (looking up an entity).
     // We'll use it to extract the world space position and orientation of the spawn point (cannon nozzle).
     ComponentDataFromEntity<LocalToWorld> m_LocalToWorldFromEntity;
-
+    float tankLaunchDelay;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -20,6 +20,7 @@ partial struct CannonBallSpawnerSystem : ISystem
         // ComponentDataFromEntity structures have to be initialized once.
         // The parameter specifies if the lookups will be read only or if they should allow writes.
         m_LocalToWorldFromEntity = state.GetComponentDataFromEntity<LocalToWorld>(true);
+        tankLaunchDelay = 3.0f;
     }
 
     [BurstCompile]
@@ -36,7 +37,7 @@ partial struct CannonBallSpawnerSystem : ISystem
         // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var config = SystemAPI.GetSingleton<Config>();
+       
 
         var CannonBallSpawningJob = new CannonBallSpawning
         {
@@ -46,10 +47,10 @@ partial struct CannonBallSpawnerSystem : ISystem
 
          float currentTime = UnityEngine.Time.realtimeSinceStartup;
 
-        if (currentTime > config.tankLaunchPeriod)
+        if (currentTime > tankLaunchDelay)
         {
             //UnityEngine.Debug.Log("inside if");
-            config.tankLaunchPeriod = currentTime + 3;
+            tankLaunchDelay = currentTime + 0.5f;
 
             // Schedule execution in a single thread, and do not block main thread.
             CannonBallSpawningJob.Schedule();

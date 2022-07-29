@@ -7,17 +7,23 @@ using Unity.Mathematics;
 [BurstCompile]
 partial class CannonBallMovementSystem : SystemBase
 {
-    public float speed = 10;
-    public float arcHeight = 1;
-
+    public float speed = 5;
+    public float arcHeight = 0.2f;
+    private EntityCommandBufferSystem ecsSystem;
+    protected override void OnCreate()
+    {
+        ecsSystem = World.GetExistingSystem<BeginSimulationEntityCommandBufferSystem>();
+    }
     protected override void OnUpdate()
     {
+        var ecb = ecsSystem.CreateCommandBuffer();
+        var ecbParallel = ecb.AsParallelWriter();
         float deltaTime = Time.DeltaTime;
         LocalToWorld playerTransform = GetComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>());
         Entities
             .WithoutBurst()
             .WithAll<CannonBall>()
-            .ForEach((ref TransformAspect transform) =>
+            .ForEach((int entityInQueryIndex, Entity entity,ref TransformAspect transform) =>
             {
                 float x0 = transform.Position.x;
                 float x1 = playerTransform.Position.x;
@@ -28,11 +34,17 @@ partial class CannonBallMovementSystem : SystemBase
                 var nextPos = new Vector3(nextX, baseY + arc, transform.Position.z);
                 transform.Position = nextPos;
 
-                //ParabolaCluster.Create(transform.Position.y, 2.0f, playerTransform.Position.y,out entity.para.paraA, out entity.para.paraB, out entity.para.paraC);
-                //math.slerp(transform.Rotation, playerTransform.Rotation, 2.0f);
-                //translation.Value = translation.Value + playerTransform.Up * deltaTime;
+                if (nextPos.x == playerTransform.Position.x
+                  || nextPos.y == playerTransform.Position.y
+                  || nextPos.z == playerTransform.Position.z)
+                {
+                    //UnityEngine.Debug.Log("after destroy");
+                    ecbParallel.DestroyEntity(entityInQueryIndex, entity);
+                }
 
-                transform.Position = nextPos;
+
+
+
 
             }).Run();
     }
