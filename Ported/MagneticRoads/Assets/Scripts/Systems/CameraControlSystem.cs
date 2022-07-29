@@ -13,21 +13,21 @@ namespace Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            float3 targetPosition;
-            float3 cameraOffset;
-            int index = 0;
-
-            foreach (var carAspect in SystemAPI.Query<CarAspect>())
-            {
-                targetPosition = carAspect.Position;
-                
-                // Camera.main.transform.LookAt(targetPosition);
-            }
-            
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                index++;
-            }
+            // float3 targetPosition;
+            // float3 cameraOffset;
+            // int index = 0;
+            //
+            // foreach (var carAspect in SystemAPI.Query<CarAspect>())
+            // {
+            //     targetPosition = carAspect.Position;
+            //     
+            //     // Camera.main.transform.LookAt(targetPosition);
+            // }
+            //
+            // if (Input.GetKeyDown(KeyCode.UpArrow))
+            // {
+            //     index++;
+            // }
         }
     }
 }

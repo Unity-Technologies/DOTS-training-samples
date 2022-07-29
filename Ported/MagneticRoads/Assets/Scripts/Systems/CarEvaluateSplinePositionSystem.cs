@@ -41,6 +41,7 @@ namespace Systems
 
             if (Math.Abs(carT - 1) < 0.05f)
             {
+                // This needs to change because it needs to trigger for when the car is in an intersection
                 ECB.SetComponentEnabled<WaitingAtIntersection>(chunkIndex, carAspect.Entity, true);
             }
         }

@@ -6,6 +6,7 @@ using Unity.Entities;
 
 namespace Systems
 {
+    [UpdateAfter(typeof(IntersectionRoadGenerationSystem))]
     [BurstCompile]
     public partial struct RedirectCarRoadSegment : ISystem
     {
@@ -21,7 +22,7 @@ namespace Systems
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
             // This is for the cars that are about to start travelling on the intersection
-            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
+            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>().WithNone<TraversingIntersection>())
             {
                 // At this point they need to be removed from their RoadSegment Lane Buffer
                 foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
@@ -42,8 +43,6 @@ namespace Systems
                         }
 
                         carBuffer.RemoveAt(indexToRemove); // Remove from buffer
-
-                        // ecb.SetComponent(carAspect.RoadSegment, rsAspect.RoadSegment);
                     }
                 }
 
@@ -52,11 +51,11 @@ namespace Systems
                 {
                     carAspect.RoadSegmentEntity = rsAspect.Entity;
                     ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, true);
+                    ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
                 }
             }
 
-            // TODO: THIS NEEDS SOME LOGIC SO THAT IT ONLY WORKS WHEN THE CAR REACHES THE END OF THE INTERSECTION ROAD
-            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<TraversingIntersection>())
+            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<TraversingIntersection>().WithAll<WaitingAtIntersection>())
             {
                 // Look through all road segments that aren't intersections
                 foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
@@ -75,6 +74,7 @@ namespace Systems
                         carBuffer.Add(carAspect.Entity);
                         
                         ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, false);
+                        ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
                     }
                 }
             }
