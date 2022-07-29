@@ -9,10 +9,52 @@ partial struct BoxPosJob : IJobEntity
 {
     public Config config; 
     public EntityCommandBuffer.ParallelWriter ECB;
-    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale, ref Boxes boxes)
-    { 
+    public int row;
+    public int col;
+
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, Boxes boxes, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale)
+    {
+
+        Random random;
+        random = Random.CreateFromIndex((uint)entity.Index);
+
+        // Notice that this is a lambda being passed as parameter to ForEach.
+        //var pos = transform.Position;
+
+        //pos.x = random.NextFloat(0, 10);
+        //pos.z = random.NextFloat(0, 10);
+
+        transform.Position = new float3(row * 1.2f, 0, col * 1.2f);
+
+        if (row >= config.terrainWidth)
+        {
+            row = 0;
+            col++;
+        }
+        else
+        {
+            row++;
+        }
+        boxes.row = row;
+        boxes.column = col;
 
 
+        UnityEngine.Debug.Log("This row is: " + row + " " + "This column is: " + col);
+
+
+
+        scale.Value = new float3(1, random.NextFloat(0, 5), 1);
+
+        //transform.Position = pos;
+
+        if ((config.maxTerrainHeight - config.minTerrainHeight) < 0.5f)
+        {
+            colour.Value = Config.minHeightColour;
+        }
+        else
+        {
+            colour.Value = Config.maxHeightColour;
+        }
     }
 }
 
@@ -22,7 +64,9 @@ partial struct BoxPositioningSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
+
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
@@ -32,16 +76,27 @@ partial struct BoxPositioningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+
+
+
+        int row = 0;
+        int column = 0;
+
+
+
         var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         var BoxJob = new BoxPosJob
         {
             config = config,
+            row = row,
+            col = column,
             ECB = ecb.AsParallelWriter(),
         };
 
         BoxJob.Run(); 
-        state.Enabled = false; 
+        //state.Enabled = false; 
     }
 }
 
