@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace Components
 {
-    public struct CarDynamicBuffer : IBufferElementData
+    public struct LaneDynamicBuffer : IBufferElementData
     {
         public Entity value;
     }

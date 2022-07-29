@@ -22,7 +22,7 @@ namespace Systems
 
         void Execute([ChunkIndexInQuery] int chunkIndex, CarAspect carAspect)
         {
-            RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegment, out RoadSegment rs);
+            RoadSegmentFromEntity.TryGetComponent(carAspect.RoadSegmentEntity, out RoadSegment rs);
             var carT = math.clamp(carAspect.T + ((carAspect.Speed * DT / rs.Length)), 0, 1);
             
             // Cars in lane 2 and 4 go backwards alone the spline

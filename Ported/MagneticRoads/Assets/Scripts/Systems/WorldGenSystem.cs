@@ -104,25 +104,36 @@ namespace Systems
                             Tangent = endTangent,
                         };
 
+                        // Okay so we need to store the lanes locally in this array so we can assign easier
+                        NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Temp);
+                        
+                        // Create the entities that will store the respective lane buffers on the road
+                        var lane1Entity = ecb.CreateEntity();
+                        var lane2Entity = ecb.CreateEntity();
+                        var lane3Entity = ecb.CreateEntity();
+                        var lane4Entity = ecb.CreateEntity();
+
+                        // Add the buffers to the entities we just created
+                        lanes[0] = ecb.AddBuffer<CarDynamicBuffer>(lane1Entity).Reinterpret<Entity>();
+                        lanes[1] = ecb.AddBuffer<CarDynamicBuffer>(lane2Entity).Reinterpret<Entity>();
+                        lanes[2] = ecb.AddBuffer<CarDynamicBuffer>(lane3Entity).Reinterpret<Entity>();
+                        lanes[3] = ecb.AddBuffer<CarDynamicBuffer>(lane4Entity).Reinterpret<Entity>();
+
+                        // Create a new buffer on the road entity that stores each of the lanes above
+                        var laneBuffer = ecb.AddBuffer<LaneDynamicBuffer>(roadEntity).Reinterpret<Entity>();
+                        laneBuffer.Add(lane1Entity);
+                        laneBuffer.Add(lane2Entity);
+                        laneBuffer.Add(lane3Entity);
+                        laneBuffer.Add(lane4Entity);
+
                         ecb.AddComponent(roadEntity, new RoadSegment
                         {
                             Start = Start,
                             End = End,
                             Length = Spline.EvaluateLength(Start, End),
                             StartIntersection = IndexToEntityHash[i],
-                            EndIntersection = IndexToEntityHash[j]
+                            EndIntersection = IndexToEntityHash[j],
                         });
-
-                        ecb.AddComponent<Lane>(roadEntity);
-                        ecb.AddComponent<Lane>(roadEntity);
-                        ecb.AddComponent<Lane>(roadEntity);
-                        ecb.AddComponent<Lane>(roadEntity);
-                        
-                        NativeArray<DynamicBuffer<Entity>> carDynamicBuffers = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Temp);
-                        carDynamicBuffers[0] = ecb.AddBuffer<CarDynamicBuffer>(roadEntity).Reinterpret<Entity>();
-                        carDynamicBuffers[1] = ecb.AddBuffer<CarDynamicBuffer>(roadEntity).Reinterpret<Entity>();
-                        carDynamicBuffers[2] = ecb.AddBuffer<CarDynamicBuffer>(roadEntity).Reinterpret<Entity>();
-                        carDynamicBuffers[3] = ecb.AddBuffer<CarDynamicBuffer>(roadEntity).Reinterpret<Entity>();
 
                         // Populate Dynamic buffers with random amount of cars
                         for (int k = 0; k < 4; k++)
@@ -131,7 +142,7 @@ namespace Systems
                             {
                                 var carEntity = ecb.CreateEntity();
                                 ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = k}); // Give K as lane number
-                                carDynamicBuffers[k].Add(carEntity);
+                                lanes[k].Add(carEntity); // Add cars to the car buffers
                             }
                         }
 

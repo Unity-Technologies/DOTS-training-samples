@@ -12,6 +12,5 @@ namespace Components
 
         [ReadOnly] public Entity StartIntersection;
         [ReadOnly] public Entity EndIntersection;
-
     }
 }

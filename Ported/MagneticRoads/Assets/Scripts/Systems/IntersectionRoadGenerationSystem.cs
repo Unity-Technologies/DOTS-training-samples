@@ -36,7 +36,7 @@ namespace Systems
                 //even lanes are backwards
                 var isBackwards = (carAspect.LaneNumber % 2 == 0);
 
-                tempRoadSegmentStart = isBackwards ? carAspect.RoadSegmentAspect.End : carAspect.RoadSegmentAspect.Start;
+                tempRoadSegmentStart = isBackwards ? carAspect.RoadSegment.End : carAspect.RoadSegment.Start;
 
                 foreach (var roadSegment in SystemAPI.Query<RefRO<RoadSegment>>())
                 {
