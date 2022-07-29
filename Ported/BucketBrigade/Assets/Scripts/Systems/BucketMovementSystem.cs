@@ -54,7 +54,7 @@ public partial struct BucketMovementSystem : ISystem
         public float BaseBucketHeight;
 
         [BurstCompile]
-        void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume, ref BucketInfo bucketInfo)
+        void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume, ref BucketInfo bucketInfo, ref NonUniformScale scale)
         {
             for (var i = 0; i < BucketFetchers.Length; i++)
             {
@@ -72,6 +72,7 @@ public partial struct BucketMovementSystem : ISystem
                 else if (BucketFetchers[i].state == BucketFillerFetcher.BucketFillerFetcherState.FillBucket)
                 {
                     volume.Value += FillSpeed * Time;
+                    scale.Value = new float3 { x = 0.25f, y = 0.25f, z = 0.25f } * (1 + (volume.Value / Capacity));
 
                     if (volume.Value > Capacity)
                     {
