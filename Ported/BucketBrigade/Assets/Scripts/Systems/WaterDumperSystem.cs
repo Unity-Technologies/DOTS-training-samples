@@ -93,6 +93,7 @@ partial struct WaterDumperSystem : ISystem
                                             if (FireFighterBucketId.ValueRO.Value == bucketId.ValueRO.Value)
                                             {
                                                 bucketInfo.ValueRW.IsTaken = false;
+                                                bucketInfo.ValueRW.IsFull = false;
                                                 volume.ValueRW.Value = 0.0f;
                                                 FireFighterBucketId.ValueRW.Value = -1;
 
