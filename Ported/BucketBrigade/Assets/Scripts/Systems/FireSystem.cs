@@ -92,28 +92,27 @@ partial struct FireJob : IJobEntity
 
     void Execute(ref URPMaterialPropertyBaseColor color, ref Translation translation, in Fire fire)
     {
-            float4 colorValue = new float4(TerrainConfig.NeutralCol.r, TerrainConfig.NeutralCol.g, TerrainConfig.NeutralCol.b, 1.0f);
-            var temperature = HeatMap.ElementAt(fire.Index).Value;
+        float4 colorValue = new float4(TerrainConfig.NeutralCol.r, TerrainConfig.NeutralCol.g, TerrainConfig.NeutralCol.b, 1.0f);
+        var temperature = HeatMap.ElementAt(fire.Index).Value;
+        var height = -TerrainConfig.CellSize;
 
-            if (temperature >= Config.FireThreshold)
-            {
-                var coolFact = (1 - temperature) / (1 - Config.FireThreshold);
-                var hotFact = 1 - coolFact;
+        if (temperature >= Config.FireThreshold)
+        {
+            var coolFact = (1 - temperature) / (1 - Config.FireThreshold);
+            var hotFact = 1 - coolFact;
 
-                colorValue = new float4(coolFact * TerrainConfig.CoolCol.r + hotFact * TerrainConfig.HotCol.r,
-                                        coolFact * TerrainConfig.CoolCol.g + hotFact * TerrainConfig.HotCol.g,
-                                        coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b,
-                                        1.0f);
+            colorValue = new float4(coolFact * TerrainConfig.CoolCol.r + hotFact * TerrainConfig.HotCol.r,
+                                    coolFact * TerrainConfig.CoolCol.g + hotFact * TerrainConfig.HotCol.g,
+                                    coolFact * TerrainConfig.CoolCol.b + hotFact * TerrainConfig.HotCol.b,
+                                    1.0f);
 
-                var gap = 1 - ((1 - temperature) / (1 - Config.FireThreshold));
-                var height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap - TerrainConfig.FlickerRange;
-                height += (TerrainConfig.FlickerRange * 0.5f) + Mathf.PerlinNoise((time - fire.Index) * TerrainConfig.FlickerRate - temperature, temperature) * TerrainConfig.FlickerRange;
+            var gap = 1 - ((1 - temperature) / (1 - Config.FireThreshold));
+            height = -TerrainConfig.CellSize + 2 * TerrainConfig.CellSize * gap - TerrainConfig.FlickerRange;
+            height += (TerrainConfig.FlickerRange * 0.5f) + Mathf.PerlinNoise((time - fire.Index) * TerrainConfig.FlickerRate - temperature, temperature) * TerrainConfig.FlickerRange;
+        }
 
-                translation.Value.y = height;
+        translation.Value.y = height;
+        color.Value = colorValue;
 
-            }
-
-            color.Value = colorValue;
-        
     }
 }
