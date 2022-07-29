@@ -6,21 +6,25 @@ using Unity.Transforms;
 [BurstCompile]
 public partial class TankRotationSystem : SystemBase
 {
+    private EntityQuery playerQuery;
     protected override void OnCreate()
     {
         RequireForUpdate<PlayerComponent>();
+        playerQuery = GetEntityQuery(typeof(PlayerComponent));
     }
     protected override void OnUpdate()
     {
         float deltaTime = this.Time.DeltaTime;
+        var playerEntity = playerQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+        
+        if (playerEntity.Length == 0)
+            return; 
 
-        // Check to make sure the target Entity still exists and has
-        // the needed component
-        if (!HasComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>()))
+        if (!HasComponent<LocalToWorld>(playerEntity[0]))
             return;
 
         // Look up the entity data
-        LocalToWorld targetTransform = GetComponent<LocalToWorld>(GetSingletonEntity<PlayerComponent>());
+        LocalToWorld targetTransform = GetComponent<LocalToWorld>(playerEntity[0]);
 
         Entities
             .WithAll<Tank>()
