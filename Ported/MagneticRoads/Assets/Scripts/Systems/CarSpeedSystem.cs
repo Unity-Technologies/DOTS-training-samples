@@ -51,7 +51,7 @@ namespace Systems
     partial struct CarSpeedSystem : ISystem
     {
         public const float MaxSpeed = 3f;
-        public const float BrakingDistance = 1.5f;
+        public const float BrakingDistance = 2f;
 
         ComponentDataFromEntity<Car> m_CarDataFromEntity;
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;

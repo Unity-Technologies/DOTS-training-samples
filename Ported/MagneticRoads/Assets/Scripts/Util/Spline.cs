@@ -71,8 +71,8 @@ namespace Util
             return length;
         }
 
-        private const float HalfRoadThickness = 0.25f;
-        private const float HalfLaneWidth = 0.5f;
+        private const float HalfRoadThickness = 0.5f;
+        private const float HalfLaneWidth = 1f;
         public static float3 GetLocalCarOffset(int laneNumber)
         {
             switch (laneNumber)
