@@ -30,7 +30,7 @@ namespace Systems
         {
             var config = SystemAPI.GetSingleton<TestSplineConfig>();
 
-            int worldScale = 10; // How large a voxel is in Unity world space
+            int worldScale = 20; // How large a voxel is in Unity world space
             var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                 .CreateCommandBuffer(state.WorldUnmanaged);
             var voxels = WorldGen.GenerateVoxels();
@@ -178,7 +178,7 @@ namespace Systems
                             for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
                             {
                                 var carEntity = ecb.Instantiate(config.CarPrefab);
-                                ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber});
+                                ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber, T = random.NextFloat(0f, 0.5f)});
                                 ecb.AddComponent(carEntity, RandomColor());
                                 ecb.SetComponentEnabled<WaitingAtIntersection>(carEntity, false);
                                 ecb.SetComponentEnabled<TraversingIntersection>(carEntity, false);
