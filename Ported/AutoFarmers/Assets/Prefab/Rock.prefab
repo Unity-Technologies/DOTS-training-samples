@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1032762719067461690}
   - component: {fileID: 4986838633668536518}
   - component: {fileID: 8984603462952450347}
-  - component: {fileID: 4062836015415027830}
+  - component: {fileID: -3153524954217390695}
   m_Layer: 0
   m_Name: Rock
   m_TagString: Untagged
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 1
---- !u!114 &4062836015415027830
+--- !u!114 &-3153524954217390695
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -139,7 +139,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 5010331369718696545}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8d5ffcebd6f43e6b1d0d348d046a939, type: 3}
+  m_Script: {fileID: 11500000, guid: dfa800a45243b1a4daa32ce1739da1e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RockPrefab: {fileID: 5010331369718696545}
+  NumRocks: 100
+  RandomSizeMin:
+    x: 1
+    y: 1
+  RandomSizeMax:
+    x: 4
+    y: 4
+  minHeight: 1
+  maxHeight: 2
+  state: 0

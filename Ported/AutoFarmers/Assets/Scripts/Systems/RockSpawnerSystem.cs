@@ -23,7 +23,7 @@ public partial struct RockSpawningSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<RockConfig>();
+        var config = SystemAPI.GetSingleton<rockPrefabCreator>();
         var map = SystemAPI.GetSingleton<Map>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -36,7 +36,7 @@ public partial struct RockSpawningSystem : ISystem
         grid.size = map.mapSize;
         
         var rocks = CollectionHelper.CreateNativeArray<Entity>(config.NumRocks, Allocator.Temp);
-        ecb.Instantiate(config.RockPrefab, rocks);
+        ecb.Instantiate(config.prefab, rocks);
         foreach (var rock in rocks)
         {
             

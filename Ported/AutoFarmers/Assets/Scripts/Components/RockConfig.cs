@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 
-struct RockConfig : IComponentData
+public struct RockConfig : IComponentData
 {
     public Entity RockPrefab;
     public int NumRocks;
@@ -10,4 +10,6 @@ struct RockConfig : IComponentData
     public int2 RandomSizeMax;
     public float minHeight;
     public float maxHeight;
+
+    public RockState state;
 }
