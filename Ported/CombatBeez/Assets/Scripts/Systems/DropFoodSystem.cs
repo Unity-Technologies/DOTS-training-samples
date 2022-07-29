@@ -88,7 +88,7 @@ partial struct DropFoodSystem : ISystem
         foodResource.ValueRW.State = FoodState.FALLING;
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void UpdatePositionOfFallingFood(ref SystemState state, ref Config config, RefRW<FoodResource> foodResource, TransformAspect transform)
     {
         var position = new float3(transform.Position.x, transform.Position.y - config.FallingSpeed, transform.Position.z);
@@ -112,7 +112,7 @@ partial struct DropFoodSystem : ISystem
         }
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void SpawnNewBeesWhereFoodIsDelivered(ref SystemState state, ref Config config, RefRW<FoodResource> foodResource, TransformAspect foodTransform)
     {
         // check which hive the food is in
@@ -133,8 +133,8 @@ partial struct DropFoodSystem : ISystem
         {
             // spawn bee at position where food has been dropped
             //var beeTransform = SystemAPI.GetComponent<TransformAspect>(beeEntity);
-            var beeTransform = state.EntityManager.GetAspect<TransformAspect>(beeEntity);
-            beeTransform.Position = foodTransform.Position;
+            var beeTransform = state.EntityManager.GetComponentData<Translation>(beeEntity);
+            beeTransform.Value = foodTransform.Position;
 
             // make team color match hive
             //var beeComponent = SystemAPI.GetComponent<Bee>(beeEntity);
