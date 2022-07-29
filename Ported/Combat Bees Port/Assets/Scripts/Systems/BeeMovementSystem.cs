@@ -58,7 +58,7 @@ partial struct BeeMovementSystem : ISystem
         var dt = Time.deltaTime;
         var et = (float)state.Time.ElapsedTime;
         var speed = 10f;
-        var offsetValue = 1f;
+        var offsetValue = 0.25f;
         var random = Random.CreateFromIndex(state.GlobalSystemVersion);
         var target = new float3(50, 0, 0);
 
