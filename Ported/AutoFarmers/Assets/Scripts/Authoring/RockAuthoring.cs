@@ -10,12 +10,14 @@ class RockAuthoring : MonoBehaviour
     public int2 RandomSizeMax;
     public float minHeight;
     public float maxHeight;
+   
 }
 
 class RockBaker : Baker<RockAuthoring>
 {
     public override void Bake(RockAuthoring authoring)
     {
+       
         AddComponent(new RockConfig()
         {
             // By default, each authoring GameObject turns into an Entity.
@@ -26,6 +28,7 @@ class RockBaker : Baker<RockAuthoring>
             RandomSizeMax = authoring.RandomSizeMax,
             minHeight = authoring.minHeight,
             maxHeight = authoring.maxHeight,
+            
         });
     }
 }

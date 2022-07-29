@@ -23,8 +23,8 @@ public partial struct FarmerManagerSystem: ISystem
 
         foreach (var creator in SystemAPI.Query<RefRO<Ecsprefabcreator>>())
         {
-           Entity ent= command.Instantiate(creator.ValueRO.prefab);
-           command.SetComponent(ent,new FarmerSpeed
+            Entity ent= command.Instantiate(creator.ValueRO.prefab);
+            command.SetComponent(ent,new FarmerSpeed
             {
                 MovementSpeed = 5f
             });
