@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class FarmerAuthoring : MonoBehaviour
 {
+    public GameObject targetEntity;
     public float3 velocity;
     public float3 Target;
-
     public float speed;
     // Start is called before the first frame update
 }
@@ -21,6 +21,10 @@ public class FarmerComponentBaker : Baker<FarmerAuthoring>
         AddComponent(new FarmerSpeed
         {
          MovementSpeed   = authoring.speed
+        });
+        AddComponent(new Distruction
+        {
+            Target = GetEntity(authoring.targetEntity)
         });
         AddComponent(new Farmer());
         AddComponent(new TargetPosition

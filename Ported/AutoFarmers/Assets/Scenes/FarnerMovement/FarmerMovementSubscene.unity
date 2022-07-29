@@ -157,6 +157,11 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  Target:
+    x: 0
+    y: 0
+    z: 0
+  speed: 5
 --- !u!114 &7757261
 MonoBehaviour:
   m_ObjectHideFlags: 0

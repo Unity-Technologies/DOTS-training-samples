@@ -28,7 +28,7 @@ public  partial struct FindTargetJob: IJobEntity
     public void Execute(TransformAspect transformAspect, TargetPosition targetPosition, ref Velocity velocity,in FarmerSpeed speed)
     {
         float3 delta = targetPosition.Target - transformAspect.Position; 
-        Debug.Log(delta);
+//        Debug.Log(delta);
         float3 targetVelocity = 0.0f;
         if (math.lengthsq(delta) > 0.0001f)
         {

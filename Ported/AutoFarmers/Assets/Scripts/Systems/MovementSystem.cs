@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-public partial struct FarmerController : ISystem
+public partial struct MovementSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {

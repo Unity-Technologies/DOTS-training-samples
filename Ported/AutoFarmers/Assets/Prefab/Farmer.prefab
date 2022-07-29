@@ -97,6 +97,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 581920d77d5154746ad55ce47ef13474, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetEntity: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
+    type: 3}
   velocity:
     x: 0
     y: 0

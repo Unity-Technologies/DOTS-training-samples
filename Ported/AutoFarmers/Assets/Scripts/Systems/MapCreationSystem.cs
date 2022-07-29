@@ -16,7 +16,6 @@ public partial struct MapCreationSystem : ISystem
              
              cellQuery = state.GetEntityQuery(ComponentType.ReadOnly<Cell>());
                var entity = state.EntityManager.CreateEntity(ComponentType.ReadOnly<Grid>());
-              state.EntityManager.SetName(entity,"Grid");
               state.EntityManager.AddBuffer<CellType>(entity);
               state.EntityManager.AddBuffer<CellEntity>(entity);
          }
