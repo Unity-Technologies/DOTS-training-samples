@@ -38,17 +38,17 @@ namespace Systems
 
             // <index, entity>
             NativeHashMap<int, Entity> IndexToEntityHash =
-                new NativeHashMap<int, Entity>(voxels.Length, Allocator.Temp);
+                new NativeHashMap<int, Entity>(voxels.Length, Allocator.Persistent);
 
             // <index, normal>
-            NativeHashMap<int, int3> IndexToNormalHash = new NativeHashMap<int, int3>(voxels.Length, Allocator.Temp);
+            NativeHashMap<int, int3> IndexToNormalHash = new NativeHashMap<int, int3>(voxels.Length, Allocator.Persistent);
 
             // Get norms and create Intersections
-            for (int i = 0; i < voxels.Length; i++)
+            for (int voxelIndex = 0; voxelIndex < voxels.Length; voxelIndex++)
             {
-                if (voxels[i])
+                if (voxels[voxelIndex])
                 {
-                    int3 coords = WorldGen.GetVoxelCoords(i);
+                    int3 coords = WorldGen.GetVoxelCoords(voxelIndex);
                     var neighbors = WorldGen.GetCardinalNeighbors(coords);
 
                     int3 sumOfVoxels = new int3();
@@ -78,32 +78,34 @@ namespace Systems
                     ecb.AddComponent(entity, new Rotation { Value = quat });
                     ecb.AddComponent<LocalToWorld>(entity);
 
-                    IndexToEntityHash.Add(i, entity);
-                    IndexToNormalHash.Add(i, normal);
+                    IndexToEntityHash.Add(voxelIndex, entity);
+                    IndexToNormalHash.Add(voxelIndex, normal);
                 }
             }
 
             // Create RoadSegments between Intersections and populate them with cars and lane data
-            for (int i = 0; i < voxels.Length; i++)
+            for (int voxelIndex = 0; voxelIndex < voxels.Length; voxelIndex++)
             {
-                var voxelBeingEvaluated = voxels[i];
-                if (!voxelBeingEvaluated)
+                if (!voxels[voxelIndex])
                     continue;
 
-                int3 coords = WorldGen.GetVoxelCoords(i);
+                int3 coords = WorldGen.GetVoxelCoords(voxelIndex);
                 var neighbors = WorldGen.GetCardinalNeighbors(coords);
 
                 for (int j = 0; j < neighbors.Length; j++)
                 {
-                    var flatIndexOfNeighbor = WorldGen.GetVoxelIndex(neighbors[j]);
+                    var neighborCoords = neighbors[j];
+                    var neighborIndex = WorldGen.GetVoxelIndex(neighborCoords);
 
-                    if (voxels[flatIndexOfNeighbor])
+                    // We have a pair of touching intersections
+                    if (voxels[neighborIndex])
                     {
-                        if (!IndexToEntityHash.ContainsKey(i) || !IndexToEntityHash.ContainsKey(j))
-                            continue;
+                        // TODO: dedupe
+                        // if (!IndexToEntityHash.ContainsKey(voxelIndex) || !IndexToEntityHash.ContainsKey(neighborIndex))
+                            // continue;
 
-                        var startNormal = IndexToNormalHash[i];
-                        var endNormal = IndexToNormalHash[j];
+                        var startNormal = IndexToNormalHash[voxelIndex];
+                        var endNormal = IndexToNormalHash[neighborIndex];
 
                         // TODO: determine RoadTerminator tangents from direction in voxel array
                         var startTangent = startNormal.x == 0 ? new float3(0, 1, 0) : new float3(1, 0, 0);
@@ -125,7 +127,7 @@ namespace Systems
                         var roadEntity = ecb.CreateEntity();
                         
                         // Okay so we need to store the lanes locally in this array so we can assign easier
-                        NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Temp);
+                        NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Persistent);
                         
                         // Create the entities that will store the respective lane buffers on the road
                         var lane1Entity = ecb.CreateEntity();
@@ -134,41 +136,41 @@ namespace Systems
                         var lane4Entity = ecb.CreateEntity();
 
                         // Add the buffers to the entities we just created
-                        lanes[0] = ecb.AddBuffer<CarDynamicBuffer>(lane1Entity).Reinterpret<Entity>();
-                        lanes[1] = ecb.AddBuffer<CarDynamicBuffer>(lane2Entity).Reinterpret<Entity>();
-                        lanes[2] = ecb.AddBuffer<CarDynamicBuffer>(lane3Entity).Reinterpret<Entity>();
-                        lanes[3] = ecb.AddBuffer<CarDynamicBuffer>(lane4Entity).Reinterpret<Entity>();
+                        // lanes[0] = ecb.AddBuffer<CarDynamicBuffer>(lane1Entity).Reinterpret<Entity>();
+                        // lanes[1] = ecb.AddBuffer<CarDynamicBuffer>(lane2Entity).Reinterpret<Entity>();
+                        // lanes[2] = ecb.AddBuffer<CarDynamicBuffer>(lane3Entity).Reinterpret<Entity>();
+                        // lanes[3] = ecb.AddBuffer<CarDynamicBuffer>(lane4Entity).Reinterpret<Entity>();
 
                         // Create a new buffer on the road entity that stores each of the lanes above
-                        var laneBuffer = ecb.AddBuffer<LaneDynamicBuffer>(roadEntity).Reinterpret<Entity>();
-                        laneBuffer.Add(lane1Entity);
-                        laneBuffer.Add(lane2Entity);
-                        laneBuffer.Add(lane3Entity);
-                        laneBuffer.Add(lane4Entity);
+                        // var laneBuffer = ecb.AddBuffer<LaneDynamicBuffer>(roadEntity).Reinterpret<Entity>();
+                        // laneBuffer.Add(lane1Entity);
+                        // laneBuffer.Add(lane2Entity);
+                        // laneBuffer.Add(lane3Entity);
+                        // laneBuffer.Add(lane4Entity);
 
                         ecb.AddComponent(roadEntity, new RoadSegment
                         {
                             Start = Start,
                             End = End,
                             Length = Spline.EvaluateLength(Start, End),
-                            StartIntersection = IndexToEntityHash[i],
-                            EndIntersection = IndexToEntityHash[j],
+                            StartIntersection = IndexToEntityHash[voxelIndex],
+                            EndIntersection = IndexToEntityHash[neighborIndex]
                         });
 
                         // Populate Dynamic buffers with random amount of cars
-                        for (int laneNumber = 0; laneNumber < 4; laneNumber++)
-                        {
-                            for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
-                            {
-                                // TODO: ecb.Instantiate using prefab
-                                var carEntity = ecb.Instantiate(config.CarPrefab);
-                                ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber}); 
-                                lanes[laneNumber].Add(carEntity); // Add cars to the car buffers
-                            }
-                        }
+                        // for (int laneNumber = 0; laneNumber < 4; laneNumber++)
+                        // {
+                        //     for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
+                        //     {
+                        //         // TODO: ecb.Instantiate using prefab
+                        //         var carEntity = ecb.Instantiate(config.CarPrefab);
+                        //         ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber}); 
+                        //         lanes[laneNumber].Add(carEntity); // Add cars to the car buffers
+                        //     }
+                        // }
 
-                        IndexToEntityHash.Remove(i);
-                        IndexToEntityHash.Remove(j);
+                        // IndexToEntityHash.Remove(voxelIndex);
+                        // IndexToEntityHash.Remove(j);
                     }
                 }
             }
