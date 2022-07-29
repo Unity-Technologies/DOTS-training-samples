@@ -33,7 +33,7 @@ public partial class DistructionSystem : SystemBase
             var deltaTime = Time.DeltaTime;
             var ecb = ecbSystem.CreateCommandBuffer();
            
-            Job.WithCode<LambdaSingleJobDescription>(() =>
+            Job.WithCode(() =>
             {
                 // Debug.Log(attackingArray.Length);
                 if (attackingArray.Length == 0)
@@ -62,26 +62,14 @@ public partial class DistructionSystem : SystemBase
                         {
                              ecb.RemoveComponent<Distruction>(attackingEntities[j]);
                         }
-                        // //
-                        // var cellPosition = cellPositionAccessor[target].cellPosition;
-                        // var cellSize = cellSizeAccessor[target].Value;
-                        //
-                        // for (var x = cellPosition.x; x < cellSize.x; x++)
-                        // for (var y = cellPosition.y; y < cellSize.y; y++)
-                        // {
-                        //     var cellIndex = x * grid.size.y + y;
-                        //     cellTypeBuffer[cellIndex] = new CellType(CellState.Raw);
-                        // }
-                        
-                         ecb.DestroyEntity(target);
+                        ecb.DestroyEntity(target);
                     }
                     else
                     {
                         healthAccessor[target] = new Health { Value = health };
                     }
                 }
-            }).Run<LambdaSingleJobDescription>();
-            //
+            }).Run();
             Dependency = JobHandle.CombineDependencies(Dependency,
                 attackingArray.Dispose(Dependency),
                 attackingEntities.Dispose(Dependency));
