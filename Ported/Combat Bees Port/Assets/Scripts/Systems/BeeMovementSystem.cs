@@ -19,12 +19,6 @@ partial struct BeeMovementSystem : ISystem
     ComponentDataFromEntity<Food> food;
     ComponentDataFromEntity<Bee> _bee;
 
-    EntityTypeHandle entityHandle;
-    ComponentTypeHandle<Translation> translationHandle;
-    ComponentTypeHandle<Bee> beeHandle;
-    ComponentTypeHandle<Rotation> rotationHandle;
-    ComponentTypeHandle<NonUniformScale> scaleHandle;
-
     private EntityQuery myQuery;
 
 
@@ -47,17 +41,6 @@ partial struct BeeMovementSystem : ISystem
         queryBuilder.AddAll(ComponentType.ReadWrite<Rotation>());
         queryBuilder.FinalizeQuery();
         myQuery = state.GetEntityQuery(queryBuilder);
-        
-        entityHandle = state.GetEntityTypeHandle();
-
-        translationHandle = state.GetComponentTypeHandle<Translation>(false);
-        
-        beeHandle = state.GetComponentTypeHandle<Bee>(false);
-        
-        
-        rotationHandle = state.GetComponentTypeHandle<Rotation>(false);
-        
-        scaleHandle = state.GetComponentTypeHandle<NonUniformScale>(false);
     }
 
     public void OnDestroy(ref SystemState state) { }
@@ -71,13 +54,6 @@ partial struct BeeMovementSystem : ISystem
         localToWorld.Update(ref state);
         food.Update(ref state);
         _bee.Update(ref state);
-        
-        entityHandle.Update(ref state);
-        translationHandle.Update(ref state);
-        beeHandle.Update(ref state);
-        entityHandle.Update(ref state);
-        rotationHandle.Update(ref state);
-        scaleHandle.Update(ref state);
         
         var dt = Time.deltaTime;
         var et = (float)state.Time.ElapsedTime;
@@ -99,8 +75,23 @@ partial struct BeeMovementSystem : ISystem
         NativeArray<ArchetypeChunk> chunks =
             myQuery.ToArchetypeChunkArray(Allocator.Temp);
         
+        EntityTypeHandle entityHandle = state.GetEntityTypeHandle();
+        
+      
+        ComponentTypeHandle<Translation> translationHandle =
+            state.GetComponentTypeHandle<Translation>(false);
+        
+        ComponentTypeHandle<Bee> beeHandle =
+            state.GetComponentTypeHandle<Bee>(false);
         
         
+        ComponentTypeHandle<Rotation> rotationHandle =
+            state.GetComponentTypeHandle<Rotation>(false);
+        
+        ComponentTypeHandle<NonUniformScale> scaleHandle =
+            state.GetComponentTypeHandle<NonUniformScale>(false);
+
+
         for (int i = 0; i < chunks.Length; i++)
         {
            
