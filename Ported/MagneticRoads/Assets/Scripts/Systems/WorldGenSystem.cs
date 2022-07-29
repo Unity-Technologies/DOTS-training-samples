@@ -106,18 +106,21 @@ namespace Systems
                         var endNormal = IndexToNormalHash[neighborIndex];
 
                         // TODO: determine RoadTerminator tangents from direction in voxel array
-                        var startTangent = startNormal.x == 0 ? new float3(0, 1, 0) : new float3(1, 0, 0);
-                        var endTangent = endNormal.x == 0 ? new float3(0, 1, 0) : new float3(1, 0, 0);
+                        var startTangent = (neighborCoords - coords);
+                        var endTangent = startTangent;
 
+                        var startPos = coords * worldScale + startTangent * 2;
+                        var endPos = (neighborCoords * worldScale) - endTangent * 2;
+                        
                         var Start = new Spline.RoadTerminator
                         {
-                            Position = coords * worldScale,
+                            Position = startPos,
                             Normal = startNormal,
                             Tangent = startTangent
                         };
                         var End = new Spline.RoadTerminator
                         {
-                            Position = neighbors[j] * worldScale,
+                            Position = endPos,
                             Normal = endNormal,
                             Tangent = endTangent,
                         };
