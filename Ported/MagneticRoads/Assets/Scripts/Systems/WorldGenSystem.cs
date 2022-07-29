@@ -21,9 +21,7 @@ namespace Systems
         }
 
         [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        }
+        public void OnDestroy(ref SystemState state) { }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -38,10 +36,10 @@ namespace Systems
 
             // <index, entity>
             NativeHashMap<int, Entity> IndexToEntityHash =
-                new NativeHashMap<int, Entity>(voxels.Length, Allocator.Persistent);
+                new NativeHashMap<int, Entity>(voxels.Length, Allocator.Temp);
 
             // <index, normal>
-            NativeHashMap<int, int3> IndexToNormalHash = new NativeHashMap<int, int3>(voxels.Length, Allocator.Persistent);
+            NativeHashMap<int, int3> IndexToNormalHash = new NativeHashMap<int, int3>(voxels.Length, Allocator.Temp);
 
             // Get norms and create Intersections
             for (int voxelIndex = 0; voxelIndex < voxels.Length; voxelIndex++)
@@ -70,12 +68,12 @@ namespace Systems
                         normal = new int3(0, 0, 1);
 
                     var tangent = normal.x == 0 ? new int3(1, 0, 0) : new int3(0, 1, 0);
-                    var quat = quaternion.LookRotationSafe(tangent, normal); 
+                    var quat = quaternion.LookRotationSafe(tangent, normal);
 
                     var entity = ecb.CreateEntity();
                     ecb.AddComponent<Intersection>(entity);
-                    ecb.AddComponent(entity, new Translation { Value = coords * worldScale });
-                    ecb.AddComponent(entity, new Rotation { Value = quat });
+                    ecb.AddComponent(entity, new Translation {Value = coords * worldScale});
+                    ecb.AddComponent(entity, new Rotation {Value = quat});
                     ecb.AddComponent<LocalToWorld>(entity);
 
                     IndexToEntityHash.Add(voxelIndex, entity);
@@ -125,9 +123,9 @@ namespace Systems
                         };
 
                         var roadEntity = ecb.CreateEntity();
-                        
+
                         // Okay so we need to store the lanes locally in this array so we can assign easier
-                        NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Persistent);
+                        NativeArray<DynamicBuffer<Entity>> lanes = new NativeArray<DynamicBuffer<Entity>>(4, Allocator.Temp);
                         
                         // Create the entities that will store the respective lane buffers on the road
                         var lane1Entity = ecb.CreateEntity();
@@ -162,7 +160,6 @@ namespace Systems
                         // {
                         //     for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
                         //     {
-                        //         // TODO: ecb.Instantiate using prefab
                         //         var carEntity = ecb.Instantiate(config.CarPrefab);
                         //         ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber}); 
                         //         lanes[laneNumber].Add(carEntity); // Add cars to the car buffers

@@ -61,11 +61,24 @@ namespace Systems
 
                 var intersectionTransformAspect = SystemAPI.GetAspect<TransformAspect>(carAspect.NextIntersection);
 
+/*<<<<<<< Updated upstream
                 var rs = ecb.CreateEntity();
 
                 ecb.AddComponent<IntersectionSegment>(rs);
                 ecb.AddComponent<RoadSegment>(rs);
 
+=======*/
+                var intersectionRS = carAspect.NextIntersection;
+                
+                if (!SystemAPI.HasComponent<RoadSegment>(carAspect.NextIntersection))
+                {
+                    ecb.AddComponent<IntersectionSegment>(intersectionRS);
+                    ecb.AddComponent<RoadSegment>(intersectionRS);
+                }
+
+                //var rs = carAspect.NextIntersection;
+
+               
                 var Start = new Spline.RoadTerminator
                 {
                     Position = (intersectionTransformAspect.Position + tempRoadSegmentStart.Position) * 0.5f,
@@ -78,7 +91,7 @@ namespace Systems
                     Normal = intersectionTransformAspect.Up,
                     Tangent = math.round(math.normalize(intersectionTransformAspect.Position - tempRoadSegmentEnd.Position))
                 };
-                ecb.SetComponent(rs, new RoadSegment
+                ecb.SetComponent(intersectionRS, new RoadSegment
                 {
                     Start = Start,
                     End = End,
