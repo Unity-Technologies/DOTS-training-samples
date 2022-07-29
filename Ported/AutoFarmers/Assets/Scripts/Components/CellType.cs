@@ -10,7 +10,7 @@ using UnityEngine;
         Rock,
         Plant,
         HarvestablePlant,
-        Shop
+        Silo
     }
     
     struct CellType : IBufferElementData

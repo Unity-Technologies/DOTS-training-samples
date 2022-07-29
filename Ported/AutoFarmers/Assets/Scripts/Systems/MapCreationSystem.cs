@@ -5,7 +5,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct MapCreationSystem : ISystem
     {
          EntityQuery cellQuery;

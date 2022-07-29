@@ -5,8 +5,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(MapCreationSystem))]
+[UpdateBefore(typeof(FarmerManagerSystem))]
 public partial struct RockSpawningSystem : ISystem
 {
     private Random m_Random;
@@ -74,7 +74,7 @@ public partial struct RockSpawningSystem : ISystem
                 for (int i = 0; i < size.x; i++)
                 {
                     int idx = position.x + i * grid.size.x + position.y + j;
-                    typeBuffer[idx] = new CellType { Value = CellState.Raw };
+                    typeBuffer[idx] = new CellType { Value = CellState.Rock };
                 }
             }
 
