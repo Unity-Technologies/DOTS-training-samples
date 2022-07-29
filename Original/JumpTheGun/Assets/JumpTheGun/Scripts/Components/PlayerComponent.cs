@@ -3,14 +3,6 @@ using Unity.Mathematics;
 
 struct PlayerComponent : IComponentData
 {
-    public Entity playerEntity;
-    public enum State {
-			NONE,
-			IDLE,
-			BOUNCING
-		}
-        
-    public State playerState;
     public bool isBouncing;
     
     public float bounceDuration;
