@@ -2,6 +2,50 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using Unity.Burst;
+
+[BurstCompile]
+partial struct BoxPosJob : IJobEntity
+{
+    public Config config; 
+    public EntityCommandBuffer.ParallelWriter ECB;
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale, ref Boxes boxes)
+    { 
+
+
+    }
+}
+
+[BurstCompile]
+partial struct BoxPositioningSystem : ISystem
+{
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+    }
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    {
+        var config = SystemAPI.GetSingleton<Config>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var BoxJob = new BoxPosJob
+        {
+            config = config,
+            ECB = ecb.AsParallelWriter(),
+        };
+
+        BoxJob.Run(); 
+        state.Enabled = false; 
+    }
+}
+
+/*
 
 partial class BoxPositioningSystem : SystemBase
 {
@@ -41,13 +85,13 @@ partial class BoxPositioningSystem : SystemBase
 
                 transform.Position = pos;
 
-            }).ScheduleParallel();*/
+            }).ScheduleParallel();
 
         Entities
            .ForEach((Entity entity, TransformAspect transform, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale, ref Boxes boxes) =>
            {
                //var boxes = TerrainAreaClusters.BoxFromLocalPosition(translation.Value, config);
-               transform.Position = new float3(row + 0.3f, 0, column + 0.3f); 
+               transform.Position = new float3(row * 1.2f, 0, column * 1.2f); 
                if (row >= config.terrainWidth){
                     row = 0;
                     column ++;
@@ -59,16 +103,16 @@ partial class BoxPositioningSystem : SystemBase
 
                 
 
+               var boxLocalPos = TerrainAreaClusters.BoxFromLocalPosition(transform.Position, config);
 
+               
+               var index = boxLocalPos.x + boxLocalPos.y * config.terrainWidth;
 
-               /*
-               var index = boxes.x + boxes.y * terrainCluster.terrainWidth;
-
-               if ((terrainCluster.maxTerrainHeight - terrainCluster.minTerrainHeight) < 0.5f)
+               if ((config.maxTerrainHeight - config.minTerrainHeight) < 0.5f)
                {
                    colour.Value = Config.minHeightColour;
                }
-
+            /*
                else
                {
                    var brickHeight = heightBuffer[(int)index];
@@ -78,11 +122,11 @@ partial class BoxPositioningSystem : SystemBase
                    scale.Value = new float3(1, brickHeight, 1);
 
                    //translation.Value.y = brickHeight / 2 + Config.yOffset;
-               }*/
+               }
 
-           }).ScheduleParallel();
+           }).Schedule();
 
         
            //state.Enabled = false;
     }
-}
+}*/
