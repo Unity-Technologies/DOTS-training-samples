@@ -54,7 +54,7 @@ public partial struct BucketMovementSystem : ISystem
         public float BaseBucketHeight;
 
         [BurstCompile]
-        void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume)
+        void Execute(ref Translation translation, in BucketId bucketId, ref Volume volume, ref BucketInfo bucketInfo)
         {
             for (var i = 0; i < BucketFetchers.Length; i++)
             {
@@ -66,6 +66,7 @@ public partial struct BucketMovementSystem : ISystem
                 // fetcher has bucket
                 if (BucketFetchers[i].state == BucketFillerFetcher.BucketFillerFetcherState.GoToLake)
                 {
+                    bucketInfo.IsTaken = true;
                     translation.Value = BucketFetcherTranslations[i].Value + new float3 { y = 1 };
                 }
                 else if (BucketFetchers[i].state == BucketFillerFetcher.BucketFillerFetcherState.FillBucket)
@@ -76,6 +77,7 @@ public partial struct BucketMovementSystem : ISystem
                     {
                         volume.Value = Capacity;
                         translation.Value.y = BaseBucketHeight;
+                        bucketInfo.IsTaken = false;
                     }
                 }
             }

@@ -16,7 +16,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
     {
         m_BucketQuery = state.GetEntityQuery(typeof(BucketInfo), typeof(Translation), typeof(BucketId), typeof(Volume));
         m_fireLineQuery = state.GetEntityQuery(typeof(FireFighterLine));
-        m_deltaDistance = 0.0001f;
+        m_deltaDistance = 0.001f;
     }
 
     [BurstCompile]
@@ -32,6 +32,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
             BucketTranslations = m_BucketQuery.ToComponentDataArray<Translation>(Allocator.TempJob),
             BucketIds = m_BucketQuery.ToComponentDataArray<BucketId>(Allocator.TempJob),
             BucketVolumes = m_BucketQuery.ToComponentDataArray<Volume>(Allocator.TempJob),
+            BucketInfos = m_BucketQuery.ToComponentDataArray<BucketInfo>(Allocator.TempJob),
             FireLines = m_fireLineQuery.ToComponentDataArray<FireFighterLine>(Allocator.TempJob),
             Delta = m_deltaDistance,
             Capacity = config.Capacity
@@ -51,6 +52,8 @@ public partial struct BucketFillerFetcherSystem : ISystem
         public NativeArray<FireFighterLine> FireLines;
         [ReadOnly]
         public NativeArray<Volume> BucketVolumes;
+        [ReadOnly]
+        public NativeArray<BucketInfo> BucketInfos;
         public float Delta;
         public float Capacity;
 
@@ -69,8 +72,8 @@ public partial struct BucketFillerFetcherSystem : ISystem
 
                 for (var i = 0; i < BucketTranslations.Length; i++)
                 {
-                    // Ignore full buckets
-                    if (BucketVolumes[i].Value > (Capacity - Delta))
+                    // Ignore full and taken buckets
+                    if (BucketVolumes[i].Value > (Capacity - Delta) || BucketInfos[i].IsTaken)
                     {
                         continue;
                     }
