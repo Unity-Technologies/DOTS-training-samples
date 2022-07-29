@@ -93,7 +93,7 @@ partial struct TargetFinderSystem : ISystem
                         beeComponent.state = BeeState.Attacking;
                         ecb.SetComponent(bee, beeComponent);
                     }
-                    else if (foodExists && (!aggressive || !targetBeesExist)) 
+                    else if (foodExists) 
                     {
                         beeComponent.target = food[tempTFS.rnd.NextInt(food.Length)];
                         beeComponent.state = BeeState.Collecting;
