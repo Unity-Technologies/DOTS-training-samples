@@ -64,6 +64,7 @@ public partial struct BucketFillerFetcherSystem : ISystem
             {
                 var minDistance = float.MaxValue;
                 var minDistanceIndex = 0;
+                var validBucket = false;
 
                 if (BucketTranslations.Length < 1)
                 {
@@ -84,11 +85,19 @@ public partial struct BucketFillerFetcherSystem : ISystem
                     {
                         minDistance = distance;
                         minDistanceIndex = i;
+                        validBucket = true;
                     }
                 }
 
-                target.Value = BucketTranslations[minDistanceIndex].Value.xz;
-                bucketID.Value = BucketIds[minDistanceIndex].Value;
+                if (validBucket)
+                {
+                    target.Value = BucketTranslations[minDistanceIndex].Value.xz;
+                    bucketID.Value = BucketIds[minDistanceIndex].Value;
+                }
+                else
+                {
+                    target.Value = translation.Value.xz;
+                }
 
                 // Reached the bucket
                 if (minDistance < Delta)
