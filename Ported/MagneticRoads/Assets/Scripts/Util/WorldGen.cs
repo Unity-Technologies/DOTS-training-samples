@@ -6,8 +6,8 @@ namespace Util
 {
     public static class WorldGen
     {
-        public const int WorldSize = 10;
-        public const int MaxAttempts = 1000;
+        public const int WorldSize = 5;
+        public const int MaxAttempts = 100;
 
         public static readonly int3[] CardinalDirections =
         {
@@ -57,9 +57,9 @@ namespace Util
             // flattening 3-dimensional voxels
             var voxelCount = WorldSize * WorldSize * WorldSize;
             // true indicates presence of an intersection
-            var voxels = new NativeArray<bool>(voxelCount, Allocator.Temp);
+            var voxels = new NativeArray<bool>(voxelCount, Allocator.Persistent);
             // active voxels will be considered to have new neighboring intersections
-            var activeVoxels = new NativeList<int>(Allocator.Temp);
+            var activeVoxels = new NativeList<int>(Allocator.Persistent);
 
             // Setup middle voxel
             var middle = GetVoxelIndex(WorldSize / 2, WorldSize / 2, WorldSize / 2);
@@ -125,7 +125,7 @@ namespace Util
             int3 pos;
             pos.x = index % WorldSize;
             index /= WorldSize;
-            pos.y = WorldSize;
+            pos.y = index % WorldSize;
             index /= WorldSize;
             pos.z = index;
             return pos;
@@ -133,7 +133,7 @@ namespace Util
 
         public static NativeList<int3> GetCardinalNeighbors(int3 pos)
         {
-            var neighbors = new NativeList<int3>(Allocator.Temp);
+            var neighbors = new NativeList<int3>(Allocator.Persistent);
             foreach (var direction in CardinalDirections)
             {
                 var possibleNeighbor = pos + direction;
@@ -151,7 +151,7 @@ namespace Util
 
         public static NativeList<int3> GetAllNeighbors(int3 pos)
         {
-            var neighbors = new NativeList<int3>(Allocator.Temp);
+            var neighbors = new NativeList<int3>(Allocator.Persistent);
             foreach (var direction in AllDirections)
             {
                 var possibleNeighbor = pos + direction;
