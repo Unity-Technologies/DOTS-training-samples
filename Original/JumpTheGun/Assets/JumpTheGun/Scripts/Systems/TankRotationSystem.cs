@@ -28,15 +28,19 @@ public partial class TankRotationSystem : SystemBase
             {
                  float3 targetPosition = targetTransform.Position;
 
-                 // Calculate the rotation
-                 float3 displacement = targetPosition - transform.Position;
-                 float3 upReference = new float3(0, 1, 0);
-                 displacement.y = transform.Position.y;
-                 quaternion lookRotation = quaternion.LookRotationSafe(displacement, upReference);
+                              // Calculate the rotation
+                                 float3 displacement = targetPosition - transform.Position;
+                                 float3 upReference = new float3(0, 1, 0);
+                                 displacement.y = transform.Position.y;
+                                 quaternion lookRotation = quaternion.LookRotationSafe(displacement, upReference);
 
-                transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
+                                transform.Rotation = math.slerp(transform.Rotation, lookRotation, deltaTime);
 
-                
+              /*float3 diff = targetPosition - transform.Position;
+                float angle = math.atan2(diff.x, diff.z);
+                transform.Rotation = quaternion.Euler(0, angle * UnityEngine.Mathf.Rad2Deg, 0);*/
+
+
             }).Schedule();
 
                
