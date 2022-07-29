@@ -23,9 +23,10 @@ namespace Systems
             foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
             {
                 var nextIntersection = carAspect.NextIntersection;
+                
                 foreach (var roadSegment in SystemAPI.Query<RoadSegmentAspect>())
                 {
-                    Debug.Log(carAspect.NextIntersection);
+                    // Debug.Log(carAspect.NextIntersection);
                     if (roadSegment.StartIntersection == carAspect.NextIntersection)
                     {
                         nextIntersection = roadSegment.EndIntersection;
@@ -34,12 +35,10 @@ namespace Systems
                     {
                         nextIntersection = roadSegment.StartIntersection;
                     }
-
-                    // Debug.Log(nextIntersection);
-                    carAspect.NextIntersection = nextIntersection;
                 }
 
-                state.Enabled = false;
+                carAspect.NextIntersection = nextIntersection;
+
             }
         }
     }

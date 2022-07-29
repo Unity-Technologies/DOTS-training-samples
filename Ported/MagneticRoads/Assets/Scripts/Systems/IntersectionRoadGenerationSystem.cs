@@ -28,6 +28,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            state.Enabled = false;
             m_RoadSegmentDataFromEntity.Update(ref state);
             m_LocalToWorld.Update(ref state);
 

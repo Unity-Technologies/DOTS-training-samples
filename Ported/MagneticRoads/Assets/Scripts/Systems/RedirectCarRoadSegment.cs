@@ -35,63 +35,69 @@ namespace Systems
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
             // This is for the cars that are about to start travelling on the intersection
-            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>().WithNone<TraversingIntersection>())
+            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
             {
-                // At this point they need to be removed from their RoadSegment Lane Buffer
-                foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
+                // When this begins we need to remove the car from the buffer associated with the road segment it's leaving
+                var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
+                var leavingLanes = m_LaneDynamicBuffer[carAspect.RoadSegmentEntity];
+                
+                var leavingLane = leavingLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
+                var leavingCarBuffer = m_CarDynamicBuffer[leavingLane];
+                
+                var indexToRemove = 0;
+                if (leavingCarBuffer.Length > 0)
                 {
-                    // When this begins we need to remove the car from the buffer associated with the road segment it's leaving
-                    var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
-
-                    if (rsAspect.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
+                    for (int i = 0; i < leavingCarBuffer.Length; i++)
                     {
-                        var lane = lanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
-                        var carBuffer = m_CarDynamicBuffer[lane];
-
-                        var indexToRemove = 0;
-                        for (int i = 0; i < carBuffer.Length; i++)
-                        {
-                            if (carBuffer[i].value == carAspect.Entity)
-                                indexToRemove = i;
-                        }
-
-                        carBuffer.RemoveAt(indexToRemove); // Remove from buffer
+                        if (leavingCarBuffer[i].value == carAspect.Entity)
+                            indexToRemove = i;
                     }
+                
+                    leavingCarBuffer.RemoveAt(indexToRemove); // Remove from buffer
                 }
 
-                // Add the car to the intersection segment
-                foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithAll<IntersectionSegment>())
-                {
-                    carAspect.RoadSegmentEntity = rsAspect.Entity;
-                    ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, true);
-                    ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
-                }
-            }
-
-            foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<TraversingIntersection>().WithAll<WaitingAtIntersection>())
-            {
-                // Look through all road segments that aren't intersections
+                // Add the car to the next roadsegment
                 foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
                 {
-                    // Find the road segment that either has the start or the end marked the same as the cars current road segment
-                    // So we know it's connected
-                    var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
-                    if (rsAspect.StartPosition.Equals(carRoadSegment.End.Position) || rsAspect.EndPosition.Equals(carRoadSegment.End.Position))
+                    if (carRoadSegment.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
                     {
-                        // Set the new road segment
-                        ecb.SetComponent(carAspect.RoadSegmentEntity, rsAspect.RoadSegment);
-
-                        // Add the car to the correct buffer
-                        var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
-                        var lane = lanes[carAspect.LaneNumber - 1].value;
-                        var carBuffer = m_CarDynamicBuffer[lane].Reinterpret<Entity>();
+                        var joiningLanes = m_LaneDynamicBuffer[rsAspect.Entity];
+                        
+                        var joinLane = joiningLanes[carAspect.LaneNumber - 1].value; // this is the entity storing the car buffer
+                        var carBuffer = m_CarDynamicBuffer[joinLane].Reinterpret<Entity>();
+                        
                         carBuffer.Add(carAspect.Entity);
-
-                        ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, false);
+                        carAspect.RoadSegmentEntity = rsAspect.Entity;
                         ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
                     }
                 }
+
+                carAspect.T = 0;
             }
+
+            // foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<TraversingIntersection>().WithAll<WaitingAtIntersection>())
+            // {
+            //     // Look through all road segments that aren't intersections
+            //     foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
+            //     {
+            //         // Find the road segment that either has the start or the end marked the same as the cars current road segment
+            //         // So we know it's connected
+            //         var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
+            //         if (rsAspect.StartPosition.Equals(carRoadSegment.End.Position) || rsAspect.EndPosition.Equals(carRoadSegment.End.Position))
+            //         {
+            //             // Set the new road segment
+            //             ecb.SetComponent(carAspect.RoadSegmentEntity, rsAspect.RoadSegment);
+            //
+            //             // Add the car to the correct buffer
+            //             // var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
+            //             // var lane = lanes[carAspect.LaneNumber - 1].value;
+            //             // var carBuffer = m_CarDynamicBuffer[lane].Reinterpret<Entity>();
+            //             // carBuffer.Add(carAspect.Entity);
+            //
+            //             ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, false);
+            //             ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
+            //         }
+            //     }
         }
     }
 }

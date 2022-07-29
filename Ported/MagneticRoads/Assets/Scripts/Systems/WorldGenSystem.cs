@@ -199,7 +199,6 @@ namespace Systems
                                 lanes[laneNumber - 1].Add(carEntity); // Add cars to the car buffers
                             }
                         }
-
                     }
                 }
             }
