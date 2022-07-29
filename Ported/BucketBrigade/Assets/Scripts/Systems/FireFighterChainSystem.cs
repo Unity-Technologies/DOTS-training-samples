@@ -57,7 +57,7 @@ partial struct FireFighterChainSystem : ISystem
             {
                 case WaterBringer.WaterBringerState.GoToIdle:
                     {
-                        if (math.distancesq(idlePos, FireFighterPos.ValueRO.Value.xz) < 0.01f)
+                        if (math.distancesq(idlePos, FireFighterPos.ValueRO.Value.xz) < distToNext)
                         {
                             WaterBringerState.ValueRW.State = WaterBringer.WaterBringerState.GoToFullBucket;
                         }
