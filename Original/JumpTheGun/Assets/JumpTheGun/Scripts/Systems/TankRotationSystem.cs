@@ -41,7 +41,7 @@ public partial class TankRotationSystem : SystemBase
                 transform.Rotation = quaternion.Euler(0, angle * UnityEngine.Mathf.Rad2Deg, 0);*/
 
 
-            }).Schedule();
+            }).Run();
 
                
     }
