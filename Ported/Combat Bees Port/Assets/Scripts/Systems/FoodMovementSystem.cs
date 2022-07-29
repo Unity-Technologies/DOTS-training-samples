@@ -62,7 +62,7 @@ partial class FoodMovementSystem : SystemBase
                         translation.Value += gravity * dt;
                     }
                 }
-            }).Run();
+            }).Schedule();
         
         void CheckBounds(ref float3 position)
         {
