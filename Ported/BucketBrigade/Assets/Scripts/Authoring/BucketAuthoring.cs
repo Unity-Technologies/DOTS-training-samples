@@ -12,7 +12,7 @@ class BucketBaker : Baker<BucketAuthoring>
     public override void Bake(BucketAuthoring authoring)
     {
         float2 wsPosition = new float2(authoring.transform.position.x, authoring.transform.position.z);
-        AddComponent(new Position { Value = wsPosition });
+        ///AddComponent(new Position { Value = wsPosition });
         AddComponent(new Volume { Value = authoring.Volume });
         AddComponent(new BucketId { Value = 0 });
         AddComponent(new BucketInfo { IsTaken = false,

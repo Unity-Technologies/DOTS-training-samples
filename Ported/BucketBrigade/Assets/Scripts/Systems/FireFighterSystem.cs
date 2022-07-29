@@ -38,13 +38,15 @@ partial struct FireFighterSpawnSystem : ISystem
 
         var WaterBringersEntity = InitFireFighter(ref state, config, new ComponentType[] { 
             typeof(WaterBringer), 
+            typeof(Position),
             typeof(Target), 
             typeof(LineId), 
             typeof(LineIndex), 
             typeof(BucketId), 
             typeof(URPMaterialPropertyBaseColor) });
         var BucketBringerEntity = InitFireFighter(ref state, config, new ComponentType[] { 
-            typeof(BucketBringer), 
+            typeof(BucketBringer),
+            typeof(Position),
             typeof(Target), 
             typeof(LineId), 
             typeof(LineIndex), 
