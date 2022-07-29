@@ -3,6 +3,7 @@ using Aspects;
 using Components;
 using Unity.Burst;
 using Unity.Entities;
+using Random = UnityEngine.Random;
 
 namespace Systems
 {
@@ -10,8 +11,13 @@ namespace Systems
     [BurstCompile]
     public partial struct RedirectCarRoadSegment : ISystem
     {
+        ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;
+
         [BurstCompile]
-        public void OnCreate(ref SystemState state) { }
+        public void OnCreate(ref SystemState state)
+        {
+            m_RoadSegmentDataFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
+        }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state) { }
@@ -19,6 +25,8 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            m_RoadSegmentDataFromEntity.Update(ref state);
+            
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
             // This is for the cars that are about to start travelling on the intersection
@@ -62,7 +70,8 @@ namespace Systems
                 {
                     // Find the road segment that either has the start or the end marked the same as the cars current road segment
                     // So we know it's connected
-                    if (rsAspect.StartPosition.Equals(carAspect.RoadSegment.End.Position) || rsAspect.EndPosition.Equals(carAspect.RoadSegment.End.Position))
+                    var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
+                    if (rsAspect.StartPosition.Equals(carRoadSegment.End.Position) || rsAspect.EndPosition.Equals(carRoadSegment.End.Position))
                     {
                         // Set the new road segment
                         ecb.SetComponent(carAspect.RoadSegmentEntity, rsAspect.RoadSegment);

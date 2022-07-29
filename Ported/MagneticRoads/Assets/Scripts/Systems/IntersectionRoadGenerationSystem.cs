@@ -12,8 +12,13 @@ namespace Systems
     [BurstCompile]
     partial struct IntersectionRoadGenerationSystem : ISystem
     {
+        ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;
+
         [BurstCompile]
-        public void OnCreate(ref SystemState state) { }
+        public void OnCreate(ref SystemState state)
+        {
+            m_RoadSegmentDataFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
+        }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state) { }
@@ -21,6 +26,8 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            m_RoadSegmentDataFromEntity.Update(ref state);
+
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -34,8 +41,8 @@ namespace Systems
 
                 //even lanes are backwards
                 var isBackwards = (carAspect.LaneNumber % 2 == 0);
-
-                tempRoadSegmentStart = isBackwards ? carAspect.RoadSegment.End : carAspect.RoadSegment.Start;
+                var carRoadSegment = m_RoadSegmentDataFromEntity[carAspect.RoadSegmentEntity];
+                tempRoadSegmentStart = isBackwards ? carRoadSegment.End : carRoadSegment.Start;
 
                 foreach (var roadSegment in SystemAPI.Query<RefRO<RoadSegment>>())
                 {

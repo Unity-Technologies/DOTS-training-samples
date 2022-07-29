@@ -11,7 +11,6 @@ namespace Aspects
         readonly RefRW<Car> m_Car;
         readonly TransformAspect m_TransformAspect;
         readonly RefRW<URPMaterialPropertyBaseColor> m_BaseColor;
-        readonly RefRO<RoadSegment> m_RoadSegment;
 
         public readonly Entity Entity;
         
@@ -19,11 +18,6 @@ namespace Aspects
         {
             get => m_TransformAspect.Position;
             set => m_TransformAspect.Position = value;
-        }
-
-        public RoadSegment RoadSegment
-        {
-            get => m_RoadSegment.ValueRO;
         }
 
         public Entity NextIntersection

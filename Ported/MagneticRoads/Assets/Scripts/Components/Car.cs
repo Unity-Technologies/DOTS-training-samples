@@ -13,6 +13,5 @@ namespace Components
         public int LaneNumber;
         public float T;
         public Entity NextIntersection;
-
     }
 }
