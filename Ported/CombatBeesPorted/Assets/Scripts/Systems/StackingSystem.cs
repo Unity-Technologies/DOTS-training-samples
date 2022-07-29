@@ -16,17 +16,16 @@ partial struct StackingJob : IJobEntity
     public ComponentDataFromEntity<ResourceBelow> ResourceBelowComponentData;
     public ComponentDataFromEntity<ResourceStateStacked> ResourceStateStackedComponentData;
     public ComponentDataFromEntity<Gravity> GravityComponentData;
-    public ComponentDataFromEntity<Velocity> VelocityComponentData;
 
     public float PlayVolumeFloor;
-    void Execute(Entity entity, ref Translation trans)
+    void Execute(Entity entity, ref Velocity velocity)
     {
-        if (trans.Value.y <= PlayVolumeFloor + 1)
+        var resourceLocation = TranslationComponentData[entity].Value;
+        if (resourceLocation.y <= PlayVolumeFloor + 1)
         {
             GravityComponentData.SetComponentEnabled(entity, false);
-            VelocityComponentData[entity] = new Velocity{Value = new float3(0,0,0) };
-            TranslationComponentData[entity] = new Translation{Value = 
-                new float3(trans.Value.x, PlayVolumeFloor + 1, trans.Value.z)};
+            velocity = new Velocity{ Value = new float3(0,0,0) };
+            TranslationComponentData[entity] = new Translation{ Value = new float3(resourceLocation.x, PlayVolumeFloor + 1, resourceLocation.z)};
             ResourceStateGrabbableComponentData.SetComponentEnabled(entity, true);
         }
         else
@@ -36,24 +35,24 @@ partial struct StackingJob : IJobEntity
                 if (ResourceStateGrabbableComponentData.IsComponentEnabled(grabbableResource) 
                     && !ResourceStateGrabbableComponentData.IsComponentEnabled(entity))
                 {
-                    var translation = TranslationComponentData[grabbableResource];
+                    var translation = TranslationComponentData[grabbableResource].Value;
                     // Debug.Log($"{GrabbableTranslation[grabbableResource].Value.y}");
-                    if (Math.Round(trans.Value.x, 1) == Math.Round(translation.Value.x, 1))
+                    if (Math.Round(resourceLocation.x, 1) == Math.Round(translation.x, 1))
                     {
-                        if (Math.Round(trans.Value.z, 1) == Math.Round(translation.Value.z, 1))
+                        if (Math.Round(resourceLocation.z, 1) == Math.Round(translation.z, 1))
                         {
-                            if (trans.Value.y < (translation.Value.y + 1))
+                            if (resourceLocation.y < (translation.y + 1))
                             {
-                                trans = new Translation
+                                TranslationComponentData[entity] = new Translation
                                 {
                                     Value =
-                                        new float3(translation.Value.x,
-                                            translation.Value.y + 2,
-                                            translation.Value.z)
+                                        new float3(translation.x,
+                                            translation.y + 2,
+                                            translation.z)
                                 };
                                 ResourceStateGrabbableComponentData.SetComponentEnabled(entity, true);
                                 GravityComponentData.SetComponentEnabled(entity, false);
-                                VelocityComponentData[entity] = new Velocity { Value = new float3(0, 0, 0) };
+                                velocity = new Velocity { Value = new float3(0, 0, 0) };
 
                                 ResourceStateGrabbableComponentData.SetComponentEnabled(grabbableResource, false);
                                 ResourceStateStackedComponentData.SetComponentEnabled(grabbableResource, true);
@@ -80,7 +79,6 @@ public partial struct StackingSystem : ISystem
     private ComponentDataFromEntity<ResourceBelow> _resourceBelowComponentData;
     private ComponentDataFromEntity<ResourceStateStacked> _resourceStateStackedComponentData;
     private ComponentDataFromEntity<Gravity> _gravityComponentData;
-    private ComponentDataFromEntity<Velocity> _velocityComponentData;
     
     public void OnCreate(ref SystemState state)
     {
@@ -92,7 +90,6 @@ public partial struct StackingSystem : ISystem
         _resourceBelowComponentData= state.GetComponentDataFromEntity<ResourceBelow>();
         _resourceStateStackedComponentData= state.GetComponentDataFromEntity<ResourceStateStacked>();
         _gravityComponentData= state.GetComponentDataFromEntity<Gravity>();
-        _velocityComponentData= state.GetComponentDataFromEntity<Velocity>();
     }
 
     [BurstCompile]
@@ -111,7 +108,6 @@ public partial struct StackingSystem : ISystem
         _resourceBelowComponentData.Update(ref state);
         _resourceStateStackedComponentData.Update(ref state);
         _gravityComponentData.Update(ref state);
-        _velocityComponentData.Update(ref state);
 
         new StackingJob
             {
@@ -122,7 +118,6 @@ public partial struct StackingSystem : ISystem
                 TranslationComponentData = _translationComponentData,
                 ResourceBelowComponentData = _resourceBelowComponentData,
                 GravityComponentData = _gravityComponentData,
-                VelocityComponentData = _velocityComponentData,
-            }.Run();
+            }.Schedule();
     }
 } 
