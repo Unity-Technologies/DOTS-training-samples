@@ -44,7 +44,7 @@ partial struct WaterDumperSystem : ISystem
                         foreach (var (bucketInfo, bucketPos, volume, bucketId) in SystemAPI.Query<RefRW<BucketInfo>, RefRO<Translation>, RefRO<Volume>, RefRO<BucketId>>())
                         {
                             var dist = math.distancesq(bucketPos.ValueRO.Value, FireFighterPos.ValueRO.Value);
-                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0 /*&& dist < 1.0f */)
+                            if (!bucketInfo.ValueRO.IsTaken && volume.ValueRO.Value > 0 && dist < 1.0f )
                             {
                                 hasBucket = true;
                                 if (dist < 0.1f)

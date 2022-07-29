@@ -81,37 +81,41 @@ partial struct FireFighterSpawnSystem : ISystem
         }
 
         int index = 0;
-        foreach (var (color, lineId, LineIndex) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>>().WithAll<WaterBringer>())
+        foreach (var (color, lineId, LineIndex, bucketId) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>, RefRW<BucketId>>().WithAll<WaterBringer>())
         {
             color.ValueRW.Value = new float4(config.WaterBringersColor.r, config.WaterBringersColor.g, config.WaterBringersColor.b, 1.0f);
 
             lineId.ValueRW.Value = index / config.PerLinesCount;
             LineIndex.ValueRW.Value = index % config.PerLinesCount;
+            bucketId.ValueRW.Value = -1;
             ++index;
         }
         index = 0;
-        foreach (var (color, lineId, LineIndex) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>>().WithAll<BucketBringer>())
+        foreach (var (color, lineId, LineIndex, bucketId) in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>, RefRW<LineId>, RefRW<LineIndex>, RefRW<BucketId>>().WithAll<BucketBringer>())
         {
             color.ValueRW.Value = new float4(config.BucketBringersColor.r, config.BucketBringersColor.g, config.BucketBringersColor.b, 1.0f);
 
             lineId.ValueRW.Value = index / config.PerLinesCount;
             LineIndex.ValueRW.Value = index % config.PerLinesCount;
+            bucketId.ValueRW.Value = -1;
             ++index;
         }
         index = 0;
-        foreach (var (lineId, color) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<BucketFillerFetcher>())
+        foreach (var (lineId, color, bucketId) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>, RefRW<BucketId>>().WithAll<BucketFillerFetcher>())
         {
             color.ValueRW.Value = new float4(config.BucketFillerFetcherColor.r, config.BucketFillerFetcherColor.g, config.BucketFillerFetcherColor.b, 1.0f);
 
-            lineId.ValueRW.Value = index / config.PerLinesCount;
+            lineId.ValueRW.Value = index;
+            bucketId.ValueRW.Value = -1;
             ++index;
         }
         index = 0;
-        foreach (var (lineId, color) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<WaterDumper>())
+        foreach (var (lineId, color, bucketId) in SystemAPI.Query<RefRW<LineId>, RefRW<URPMaterialPropertyBaseColor>, RefRW<BucketId>>().WithAll<WaterDumper>())
         {
             color.ValueRW.Value = new float4(config.WaterDumperColor.r, config.WaterDumperColor.g, config.WaterDumperColor.b, 1.0f);
 
-            lineId.ValueRW.Value = index / config.PerLinesCount;
+            lineId.ValueRW.Value = index;
+            bucketId.ValueRW.Value = -1;
             ++index;
         }
 
