@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4366756, g: 0.48427194, b: 0.5645252, a: 1}
+  m_IndirectSpecularColor: {r: 0.43667564, g: 0.48427135, b: 0.56452316, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -356,10 +356,15 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 437390312, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1747708099}
   m_SourcePrefab: {fileID: 100100000, guid: fff4ec646178a4c4d887dcc2bf20e1a8, type: 3}
 --- !u!1 &191063730
 GameObject:
@@ -1189,7 +1194,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1817675139}
   m_HandleRect: {fileID: 1817675138}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 1.0000002
   m_Size: 0.63319355
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1682,7 +1687,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1238103647}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.9999999
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2426,6 +2431,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1f7e30e44b5d4dbfb57494c5d8f7743, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1747708094 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
+    type: 3}
+  m_PrefabInstance: {fileID: 133756261}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1747708099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1747708094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8c1a735e25924fe9aacd2b127af6180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1773135558
@@ -3260,6 +3283,7 @@ GameObject:
   - component: {fileID: 1954430604}
   - component: {fileID: 1954430603}
   - component: {fileID: 1954430607}
+  - component: {fileID: 1954430608}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3362,6 +3386,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ySpeed: 8
+--- !u!114 &1954430608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1954430602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!850595691 &1971464224
 LightingSettings:
   m_ObjectHideFlags: 0
