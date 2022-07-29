@@ -1,4 +1,4 @@
-﻿using Unity.Burst;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
@@ -30,10 +30,17 @@ partial struct WaterBringerSystem : ISystem
 
         var allStartPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
         var allEndPositions = new NativeArray<float2>(ffConfig.LinesCount, Allocator.TempJob);
+        var perpendicularVectors = new NativeArray<Vector2>(ffConfig.LinesCount, Allocator.TempJob);
+
         foreach (var fireFighterLine in SystemAPI.Query<RefRO<FireFighterLine>>())
         {
             allStartPositions[fireFighterLine.ValueRO.LineId] = fireFighterLine.ValueRO.StartPosition;
             allEndPositions[fireFighterLine.ValueRO.LineId] = fireFighterLine.ValueRO.EndPosition;
+            
+            // Calculate offsets
+            Vector2 s = fireFighterLine.ValueRO.StartPosition;
+            Vector2 e =   fireFighterLine.ValueRO.StartPosition + ((float)1 / (float)(ffConfig.PerLinesCount - 1)) * (fireFighterLine.ValueRO.EndPosition - fireFighterLine.ValueRO.StartPosition);
+            perpendicularVectors[fireFighterLine.ValueRO.LineId] = Vector2.Perpendicular(s - e);
         }
 
         // Creating an instance of the job.
@@ -42,7 +49,9 @@ partial struct WaterBringerSystem : ISystem
             StartPositions = allStartPositions,
             EndPositions = allEndPositions,
             FFCountPerLine = ffConfig.PerLinesCount,
-            CellSize = tConfig.CellSize
+            CellSize = tConfig.CellSize,
+            Perpendiculars = perpendicularVectors
+            
         };
 
         // Schedule execution in a single thread, and do not block main thread.
@@ -66,6 +75,10 @@ partial struct WaterBringerFindNewTarget : IJobEntity
 
     public int FFCountPerLine;
     public float CellSize;
+
+    [ReadOnly]
+    [DeallocateOnJobCompletion]
+    public NativeArray<Vector2> Perpendiculars;
     
     // Note that the TurretAspects parameter is "in", which declares it as read only.
     // Making it "ref" (read-write) would not make a difference in this case, but you
@@ -75,6 +88,9 @@ partial struct WaterBringerFindNewTarget : IJobEntity
     {
         var multiplier = ((float)lineIndex.Value / (float)(FFCountPerLine - 1));
         var pos = StartPositions[lineId.Value] + multiplier * (EndPositions[lineId.Value] - StartPositions[lineId.Value]);
-        target.Value = pos;
+        var offset = lineIndex.Value <= (FFCountPerLine / 2f) ? 
+                            ((float)lineIndex.Value / (float)(FFCountPerLine/2)) : 
+                            ((float)FFCountPerLine - (float)lineIndex.Value - 1f)/(float)(FFCountPerLine/2f);
+        target.Value = pos + new float2(Perpendiculars[lineId.Value].x * offset, Perpendiculars[lineId.Value].y * offset);
     }
 }
