@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &75705113
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -458,7 +458,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_prefab: {fileID: 5010331369718696545, guid: b80707839a268bb46862ddc415397a6f,
     type: 3}
-  NumRocks: 100
+  NumRocks: 50
   RandomSizeMin:
     x: 1
     y: 1

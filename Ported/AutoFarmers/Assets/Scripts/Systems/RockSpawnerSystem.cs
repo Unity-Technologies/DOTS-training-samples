@@ -14,7 +14,7 @@ public partial struct RockSpawningSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         m_Random = new Random(40);
-        state.RequireForUpdate<RockConfig>();
+        state.RequireForUpdate<rockPrefabCreator>();
     }
 
     public void OnDestroy(ref SystemState state)
