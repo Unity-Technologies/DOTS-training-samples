@@ -18,8 +18,6 @@ partial struct BoxSpawningSystem : ISystem
     ComponentDataFromEntity<Boxes> boxesFromEntity;
     ComponentDataFromEntity<PlayerComponent> pcFromEntity;
 
-
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {

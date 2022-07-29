@@ -9,9 +9,9 @@ public struct Boxes : IComponentData
     public int row;
     public int column;
 
-    //public MaterialColor minHeightColour;
+    public MaterialColor minHeightColour;
 
-    //public MaterialColor maxHeightColour;
+    public MaterialColor maxHeightColour;
 
     //public RenderMesh renderMesh;
 
