@@ -3,7 +3,6 @@ using Aspects;
 using Components;
 using Unity.Burst;
 using Unity.Entities;
-using Random = UnityEngine.Random;
 
 namespace Systems
 {
@@ -12,11 +11,15 @@ namespace Systems
     public partial struct RedirectCarRoadSegment : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;
+        BufferFromEntity<LaneDynamicBuffer> m_LaneDynamicBuffer;
+        BufferFromEntity<CarDynamicBuffer> m_CarDynamicBuffer;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_RoadSegmentDataFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
+            m_LaneDynamicBuffer = state.GetBufferFromEntity<LaneDynamicBuffer>();
+            m_CarDynamicBuffer = state.GetBufferFromEntity<CarDynamicBuffer>();
         }
 
         [BurstCompile]
@@ -26,7 +29,9 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             m_RoadSegmentDataFromEntity.Update(ref state);
-            
+            m_LaneDynamicBuffer.Update(ref state);
+            m_CarDynamicBuffer.Update(ref state);
+
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
             // This is for the cars that are about to start travelling on the intersection
@@ -36,12 +41,12 @@ namespace Systems
                 foreach (var rsAspect in SystemAPI.Query<RoadSegmentAspect>().WithNone<IntersectionSegment>())
                 {
                     // When this begins we need to remove the car from the buffer associated with the road segment it's leaving
-                    var lanes = SystemAPI.GetBuffer<LaneDynamicBuffer>(rsAspect.Entity);
+                    var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
 
                     if (rsAspect.EndIntersection == carAspect.NextIntersection || rsAspect.StartIntersection == carAspect.NextIntersection)
                     {
                         var lane = lanes[carAspect.LaneNumber].value; // this is the entity storing the car buffer
-                        var carBuffer = SystemAPI.GetBuffer<CarDynamicBuffer>(lane);
+                        var carBuffer = m_CarDynamicBuffer[lane];
 
                         var indexToRemove = 0;
                         for (int i = 0; i < carBuffer.Length; i++)
@@ -77,11 +82,11 @@ namespace Systems
                         ecb.SetComponent(carAspect.RoadSegmentEntity, rsAspect.RoadSegment);
 
                         // Add the car to the correct buffer
-                        var lanes = SystemAPI.GetBuffer<LaneDynamicBuffer>(rsAspect.Entity);
+                        var lanes = m_LaneDynamicBuffer[rsAspect.Entity];
                         var lane = lanes[carAspect.LaneNumber].value;
-                        var carBuffer = SystemAPI.GetBuffer<CarDynamicBuffer>(lane).Reinterpret<Entity>();
+                        var carBuffer = m_CarDynamicBuffer[lane].Reinterpret<Entity>();
                         carBuffer.Add(carAspect.Entity);
-                        
+
                         ecb.SetComponentEnabled<TraversingIntersection>(carAspect.Entity, false);
                         ecb.SetComponentEnabled<WaitingAtIntersection>(carAspect.Entity, false);
                     }

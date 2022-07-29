@@ -36,22 +36,22 @@ namespace Systems
                 float3 nextPos;
                 quaternion nextRot;
                 float3 nextRight2;
-
+            
                 for (int i = 0; i < DebugSplineResolution; i++)
                 {
                     var nextT = ((float)i + 1) / DebugSplineResolution;
                     nextPos = Spline.EvaluatePosition(rs.Start, rs.End, nextT);
                     nextRot = Spline.EvaluateRotation(rs.Start, rs.End, nextT);
                     nextRight2 = math.mul(nextRot, new float3(1, 0, 0)) * 2;
-
+            
                     UnityEngine.Debug.DrawLine(prevPos - prevRight2, nextPos - nextRight2);
                     UnityEngine.Debug.DrawLine(prevPos + prevRight2, nextPos + nextRight2);
-
+            
                     prevPos = nextPos;
                     prevRight2 = nextRight2;
                 }
             }
-
+            
             foreach (var intersection in SystemAPI.Query<TransformAspect>().WithAll<Intersection>())
             {
                 var pos = intersection.Position;

@@ -13,11 +13,13 @@ namespace Systems
     partial struct IntersectionRoadGenerationSystem : ISystem
     {
         ComponentDataFromEntity<RoadSegment> m_RoadSegmentDataFromEntity;
+        ComponentDataFromEntity<LocalToWorld> m_LocalToWorld;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             m_RoadSegmentDataFromEntity = state.GetComponentDataFromEntity<RoadSegment>(true);
+            m_LocalToWorld = state.GetComponentDataFromEntity<LocalToWorld>(true);
         }
 
         [BurstCompile]
@@ -27,15 +29,13 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             m_RoadSegmentDataFromEntity.Update(ref state);
+            m_LocalToWorld.Update(ref state);
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             foreach (var carAspect in SystemAPI.Query<CarAspect>().WithAll<WaitingAtIntersection>())
             {
-                var validIntersection = Entity.Null;
-                var nextRoadSegment = new RoadSegment();
-
                 Spline.RoadTerminator tempRoadSegmentStart = new Spline.RoadTerminator();
                 Spline.RoadTerminator tempRoadSegmentEnd = new Spline.RoadTerminator();
 
@@ -66,37 +66,21 @@ namespace Systems
                     }
                 }
 
-                var intersectionTransformAspect = SystemAPI.GetAspect<TransformAspect>(carAspect.NextIntersection);
-
-/*<<<<<<< Updated upstream
-                var rs = ecb.CreateEntity();
-
-                ecb.AddComponent<IntersectionSegment>(rs);
-                ecb.AddComponent<RoadSegment>(rs);
-
-=======*/
                 var intersectionRS = carAspect.NextIntersection;
                 
-                if (!SystemAPI.HasComponent<RoadSegment>(carAspect.NextIntersection))
-                {
-                    ecb.AddComponent<IntersectionSegment>(intersectionRS);
-                    ecb.AddComponent<RoadSegment>(intersectionRS);
-                }
-
-                //var rs = carAspect.NextIntersection;
-
+                var nextIntersection = m_LocalToWorld[carAspect.NextIntersection];
                
                 var Start = new Spline.RoadTerminator
                 {
-                    Position = (intersectionTransformAspect.Position + tempRoadSegmentStart.Position) * 0.5f,
-                    Normal = intersectionTransformAspect.Up,
-                    Tangent = math.round(math.normalize(intersectionTransformAspect.Position - tempRoadSegmentStart.Position))
+                    Position = (nextIntersection.Position + tempRoadSegmentStart.Position) * 0.5f,
+                    Normal = nextIntersection.Up,
+                    Tangent = math.round(math.normalize(nextIntersection.Position - tempRoadSegmentStart.Position))
                 };
                 var End = new Spline.RoadTerminator
                 {
-                    Position = (intersectionTransformAspect.Position + tempRoadSegmentEnd.Position) * 0.5f,
-                    Normal = intersectionTransformAspect.Up,
-                    Tangent = math.round(math.normalize(intersectionTransformAspect.Position - tempRoadSegmentEnd.Position))
+                    Position = (nextIntersection.Position + tempRoadSegmentEnd.Position) * 0.5f,
+                    Normal = nextIntersection.Up,
+                    Tangent = math.round(math.normalize(nextIntersection.Position - tempRoadSegmentEnd.Position))
                 };
                 ecb.SetComponent(intersectionRS, new RoadSegment
                 {

@@ -74,6 +74,8 @@ namespace Systems
 
                     var entity = ecb.CreateEntity();
                     ecb.AddComponent<Intersection>(entity);
+                    ecb.AddComponent<IntersectionSegment>(entity);
+                    ecb.AddComponent<RoadSegment>(entity);
                     ecb.AddComponent(entity, new Translation {Value = coords * worldScale});
                     ecb.AddComponent(entity, new Rotation {Value = quat});
                     ecb.AddComponent<LocalToWorld>(entity);
@@ -118,7 +120,7 @@ namespace Systems
 
                         var startPos = coords * worldScale + startTangent * 2;
                         var endPos = (neighborCoords * worldScale) - endTangent * 2;
-                        
+
                         var Start = new Spline.RoadTerminator
                         {
                             Position = startPos,
@@ -165,10 +167,9 @@ namespace Systems
                             EndIntersection = IndexToEntityHash[neighborIndex]
                         });
 
-                        
                         var randomCol = Random.CreateFromIndex(1234);
                         var hue = randomCol.NextFloat();
-            
+
                         URPMaterialPropertyBaseColor RandomColor()
                         {
                             // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
@@ -176,18 +177,26 @@ namespace Systems
                             var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
                             return new URPMaterialPropertyBaseColor {Value = (UnityEngine.Vector4) color};
                         }
-                        
+
                         // Populate Dynamic buffers with random amount of cars
                         for (int laneNumber = 1; laneNumber < 5; laneNumber++)
                         {
-                            for (int carNumber = 0; carNumber < random.NextInt(0, 10); carNumber++)
+                            for (int carNumber = 0; carNumber < random.NextInt(0, 3); carNumber++)
                             {
                                 var carEntity = ecb.Instantiate(config.CarPrefab);
-                                ecb.SetComponent(carEntity, new Car {RoadSegment = roadEntity, Speed = 3f, LaneNumber = laneNumber, T = random.NextFloat(0f, 0.5f)});
+                                ecb.SetComponent(carEntity, new Car
+                                {
+                                    RoadSegment = roadEntity,
+                                    Speed = 3f,
+                                    LaneNumber = laneNumber,
+                                    T = random.NextFloat(0f, 0.5f),
+                                    NextIntersection = laneNumber % 2 == 1 ? IndexToEntityHash[neighborIndex] : IndexToEntityHash[voxelIndex]
+                                });
+
                                 ecb.AddComponent(carEntity, RandomColor());
                                 ecb.SetComponentEnabled<WaitingAtIntersection>(carEntity, false);
                                 ecb.SetComponentEnabled<TraversingIntersection>(carEntity, false);
-                                lanes[laneNumber-1].Add(carEntity); // Add cars to the car buffers
+                                lanes[laneNumber - 1].Add(carEntity); // Add cars to the car buffers
                             }
                         }
 
