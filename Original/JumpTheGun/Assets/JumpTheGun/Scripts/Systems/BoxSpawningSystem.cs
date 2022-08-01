@@ -41,34 +41,65 @@ partial struct BoxSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        var ecbBoxSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        if (boxQuery.CalculateEntityCount() == 0){
+            
+            var ecbBoxSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+            var ecbBox = ecbBoxSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var boxes = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
 
-        var ecbBox = ecbBoxSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var boxQueryMask = boxQuery.GetEntityQueryMask();
 
-        var boxes = CollectionHelper.CreateNativeArray<Entity>(config.boxCount, Allocator.Temp);
+            ecbBox.Instantiate(config.boxPrefab, boxes);
 
-        ecbBox.Instantiate(config.boxPrefab, boxes);
-        ecbBox.Playback(state.WorldUnmanaged.EntityManager);
+            boxesFromEntity.Update(ref state);
 
-        var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecbPlayer = ecbPlayerSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
-        var players = CollectionHelper.CreateNativeArray<Entity>(1, Allocator.Temp);
-        var playerQueryMask = playerQuery.GetEntityQueryMask();
+            int row = 0;
+            int col = 0;
+            foreach (var box in boxes)
+            {
+                Boxes baseBox = boxesFromEntity[config.boxPrefab];
+                ecbBox.SetComponentForLinkedEntityGroup(box, boxQueryMask, BoxProperties(row, col, baseBox));
+                if (row >= config.terrainWidth)
+                {
+                    row = 0;
+                    col++;
+                }
+                else
+                    row++;
+            }
 
-        ecbPlayer.Instantiate(config.playerPrefab, players);
-        //ecb.Playback(state.WorldUnmanaged.EntityManager);
+        } else {
+            var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+            var ecbPlayer = ecbPlayerSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+            var players = CollectionHelper.CreateNativeArray<Entity>(1, Allocator.Temp);
+            var playerQueryMask = playerQuery.GetEntityQueryMask();
 
-        boxesFromEntity.Update(ref state);
-        pcFromEntity.Update(ref state);
+            ecbPlayer.Instantiate(config.playerPrefab, players);
+            //ecb.Playback(state.WorldUnmanaged.EntityManager);
 
-        foreach (var player in players)
-        {
-            PlayerComponent pc = pcFromEntity[config.playerPrefab];
-            ecbPlayer.SetComponentForLinkedEntityGroup(player, playerQueryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
+            boxesFromEntity.Update(ref state);
+            pcFromEntity.Update(ref state);
+
+            foreach (var player in players)
+            {
+                PlayerComponent pc = pcFromEntity[config.playerPrefab];
+                ecbPlayer.SetComponentForLinkedEntityGroup(player, playerQueryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
+            }
+
+            state.Enabled = false;
         }
 
-        state.Enabled = false;
+        //ecbBox.Playback(state.WorldUnmanaged.EntityManager);
+
+    }
+
+    public static Boxes BoxProperties(int row, int col, Boxes box){
+        //UnityEngine.Debug.Log(row);
+        Boxes newBox = box;
+        newBox.row = row; 
+        newBox.column = col;
+        return newBox; 
     }
 
     public static PlayerComponent PlayerProperties(ComponentDataFromEntity<Boxes> boxesFromEntity, Config config, NativeArray<Entity> boxes, PlayerComponent prefabData)

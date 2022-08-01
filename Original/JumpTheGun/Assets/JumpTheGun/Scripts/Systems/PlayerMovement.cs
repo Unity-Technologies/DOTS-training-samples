@@ -16,7 +16,7 @@ partial struct PlayerComponentJob : IJobEntity
 
     
     [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> tanks; 
-    [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> boxes; 
+    public Unity.Collections.NativeArray<Entity> boxes; 
 
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Tank> tankFromEntity;
     [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity;
@@ -32,15 +32,9 @@ partial struct PlayerComponentJob : IJobEntity
 
         var mouseBoxPos = MouseToFloat2(config, rayOrigin, rayDirection, transform);
         int2 movePos = GetMovePos(mouseBoxPos, config, transform, endBox);
-            
+
         bool occupied = false; 
-        /*
-        foreach (var tank in tanks) { 
-            var tankComponent =  tankFromEntity[tank]; 
-            if (tankComponent.column == movePos.x && tankComponent.row == movePos.y){
-                occupied = true; 
-            }
-        }*/
+
         if (occupied) 
             movePos = new int2(endBox.column, endBox.row);
 
@@ -65,16 +59,12 @@ partial struct PlayerComponentJob : IJobEntity
 
         } else {
             startBox = endBox;
-            if (movePos.x == startBox.column && movePos.y == startBox.row) // look for box to bounce to
-                endBox = startBox;  // don't go to new box
+            if (movePos.x == startBox.column && movePos.y == startBox.row) 
+                endBox = startBox;  
             else {
-
-                UnityEngine.Debug.Log("Move pos" + movePos);
                 foreach (var box in boxes) { 
-                    Boxes newStartBox = boxesFromEntity[box];
-                    UnityEngine.Debug.Log( "new box pos" + "(" + newStartBox.column + "," +  newStartBox.row + ")");
-                    if (newStartBox.row == movePos.y && newStartBox.column == movePos.x){
-                        endBox = newStartBox;
+                    if (boxesFromEntity[box].row == movePos.y && boxesFromEntity[box].column == movePos.x){
+                        endBox = boxesFromEntity[box];
                         break; 
                     }
                 }
@@ -110,8 +100,16 @@ partial struct PlayerComponentJob : IJobEntity
             float2 endPos = new float2(endBox.column, endBox.row);
             float dist = math.distance(startPos, endPos);
             playerComponent.duration = math.max(1, dist) * playerComponent.bounceDuration;
-
         } 
+        
+        foreach (Entity box in boxes){
+            Boxes newBox = boxesFromEntity[box];
+            if (newBox.row == startBox.row && newBox.column == startBox.column ){
+                playerComponent.startBox = box;
+            } else if (newBox.row == endBox.row && newBox.column == endBox.column ){
+                playerComponent.endBox = box;
+            }
+        }
     }
     
     private static AABB GetBounds(float yOffset, float3 position){

@@ -157,7 +157,7 @@ MonoBehaviour:
   boxPrefab: {fileID: 1408919642704132, guid: 623737ca6d75f431f82474133c8baee7, type: 3}
   playerPrefab: {fileID: 1659188881559534, guid: fff4ec646178a4c4d887dcc2bf20e1a8,
     type: 3}
-  tankCount: 10
+  tankCount: 1
   terrainWidth: 11
   terrainLength: 11
   minTerrainHeight: 0.72
@@ -168,6 +168,7 @@ MonoBehaviour:
   collisionStepMultiplier: 0.39
   invPlayerParabolaPrecision: 0.49
   spacing: 1
+  setUp: 0
   invincibility: 0
   isPaused: 0
   timeText: 

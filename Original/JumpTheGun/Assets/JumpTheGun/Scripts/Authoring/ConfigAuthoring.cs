@@ -19,6 +19,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float collisionStepMultiplier;
     public float invPlayerParabolaPrecision;
     public float spacing;
+    public bool setUp; 
 
     public bool invincibility;
     public bool isPaused;
@@ -52,6 +53,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             playerPrefab = GetEntity(authoring.playerPrefab),
             invincibility = authoring.invincibility,
             isPaused = authoring.isPaused,
+            isSetUp = authoring.setUp,
             timeText = authoring.timeText,
         });
     }

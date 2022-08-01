@@ -30,9 +30,6 @@ partial struct BoxPosJob : IJobEntity
             row++;
         }
 
-        boxes.row = row;
-        boxes.column = col;
-
         scale.Value = new float3(1, random.NextFloat(0, 5), 1);
 
         //UnityEngine.Debug.Log("The Y scale is: " + scale.Value.y);
@@ -53,8 +50,13 @@ partial struct BoxPosJob : IJobEntity
         {
             colour.Value = math.lerp(Config.maxHeightColour, Config.minHeightColour, Config.minHeightColour / Config.maxHeightColour);
         }
+        config.isSetUp = true;
+        //UnityEngine.Debug.Log(config.isSetUp);
     }
 }
+
+
+
 
 [BurstCompile]
 partial struct BoxPositioningSystem : ISystem
@@ -68,6 +70,7 @@ partial struct BoxPositioningSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+
     }
 
     [BurstCompile]
@@ -75,22 +78,23 @@ partial struct BoxPositioningSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
 
-        int row = 0;
-        int column = 0;
+        if (config.isSetUp == false){
+            int row = 0;
+            int column = 0;
 
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var BoxJob = new BoxPosJob
-        {
-            config = config,
-            row = row,
-            col = column,
-            ECB = ecb.AsParallelWriter(),
-        };
-
-        BoxJob.Run(); 
-        //state.Enabled = false; 
+            var BoxJob = new BoxPosJob
+            {
+                config = config,
+                row = row,
+                col = column,
+                ECB = ecb.AsParallelWriter(),
+            };
+            BoxJob.Run();
+        }
+     
     }
 }
 
