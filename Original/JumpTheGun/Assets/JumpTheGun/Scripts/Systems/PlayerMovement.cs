@@ -1,7 +1,10 @@
 using Unity.Burst;
-using Unity.Transforms;
+using Unity.Burst.Intrinsics;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
+using Unity.Jobs;
+using Unity.Transforms;
+using Unity.Mathematics; 
 
 
 
@@ -9,17 +12,12 @@ using Unity.Mathematics;
 partial struct PlayerComponentJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
-    [Unity.Collections.ReadOnly] public float DeltaTime;
+    [ReadOnly] public float DeltaTime;
     public Config config;
-    [Unity.Collections.ReadOnly] public float3 rayOrigin;
-    [Unity.Collections.ReadOnly] public float3 rayDirection;
+    [ReadOnly] public float3 rayOrigin, rayDirection;
 
-    
-    [Unity.Collections.ReadOnly] public Unity.Collections.NativeArray<Entity> tanks; 
-    public Unity.Collections.NativeArray<Entity> boxes; 
-
-    [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Tank> tankFromEntity;
-    [Unity.Collections.ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity;
+    [ReadOnly] public NativeArray<Entity> boxes;
+    [ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity; 
 
     void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
     { 
@@ -110,6 +108,10 @@ partial struct PlayerComponentJob : IJobEntity
                 playerComponent.endBox = box;
             }
         }
+
+        boxes.Dispose();
+
+
     }
     
     private static AABB GetBounds(float yOffset, float3 position){
@@ -151,21 +153,19 @@ partial struct PlayerComponentJob : IJobEntity
 partial struct PlayerMovement : ISystem
 {
     private EntityQuery boxQuery;
-    private EntityQuery tankQuery;
-
-    ComponentDataFromEntity<Tank> tankFromEntity;
     ComponentDataFromEntity<Boxes> boxesFromEntity;
 
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    public void OnCreate(ref SystemState state) 
     {
         state.RequireForUpdate<Config>();
-        tankFromEntity = state.GetComponentDataFromEntity<Tank>(true);
+        var queryBuilderBoxes = new EntityQueryDescBuilder(Allocator.Temp);
+        queryBuilderBoxes.AddAll(ComponentType.ReadWrite<Boxes>());
+        queryBuilderBoxes.FinalizeQuery(); 
+
+        boxQuery = state.GetEntityQuery(queryBuilderBoxes);
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
-        boxQuery = state.GetEntityQuery(typeof(Boxes));
-        tankQuery = state.GetEntityQuery(typeof(Tank));
-        
-        //state.RequireForUpdate<EndSimulationEntityCommandBufferSystem>();
+
+        queryBuilderBoxes.Dispose();
     }
 
     [BurstCompile]
@@ -176,24 +176,21 @@ partial struct PlayerMovement : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<Config>();
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var boxEntities = boxQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
-        var tankEntities = tankQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
+        var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
         var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        NativeArray<Entity> boxes = boxQuery.ToEntityArray(allocator);
+        //NativeArray<Boxes> boxesComponents = boxQuery.ToComponentDataArray<Boxes>(allocator);
 
-        World world = World.DefaultGameObjectInjectionWorld;
-        EntityManager entityManager = world.EntityManager;
-        tankFromEntity.Update(ref state);
-        boxesFromEntity.Update(ref state);
+        var config = SystemAPI.GetSingleton<Config>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
+        boxesFromEntity.Update(ref state);     
 
         var PlayerJob = new PlayerComponentJob
         {
-            tanks = tankEntities,
-            boxes = boxEntities,
-            tankFromEntity = tankFromEntity, 
+            boxes = boxes,
             boxesFromEntity = boxesFromEntity,
             ECB = ecb.AsParallelWriter(),
             DeltaTime = state.Time.DeltaTime, // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
@@ -204,5 +201,9 @@ partial struct PlayerMovement : ISystem
 
         //PlayerJob.Schedule();
         PlayerJob.Run(); 
+
+        //state.Dependency = PlayerJob.Schedule(state.Dependency);
+        boxes.Dispose();
+        
     }
 }

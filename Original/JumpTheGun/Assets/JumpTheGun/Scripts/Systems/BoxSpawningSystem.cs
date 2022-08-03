@@ -27,8 +27,19 @@ partial struct BoxSpawningSystem : ISystem
         // Player values
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
         pcFromEntity= state.GetComponentDataFromEntity<PlayerComponent>(true);
-        boxQuery = state.GetEntityQuery(typeof(Boxes));
-        playerQuery = state.GetEntityQuery(typeof(PlayerComponent));
+
+        var queryBuilderBoxes = new EntityQueryDescBuilder(Allocator.Temp);
+        queryBuilderBoxes.AddAll(ComponentType.ReadWrite<Boxes>());
+        queryBuilderBoxes.FinalizeQuery(); 
+        boxQuery = state.GetEntityQuery(queryBuilderBoxes);
+
+        var queryBuilderPlayer = new EntityQueryDescBuilder(Allocator.Temp);
+        queryBuilderPlayer.AddAll(ComponentType.ReadWrite<PlayerComponent>());
+        queryBuilderPlayer.FinalizeQuery(); 
+        playerQuery = state.GetEntityQuery(queryBuilderPlayer);
+
+        queryBuilderBoxes.Dispose();
+        queryBuilderPlayer.Dispose();
     }
 
     [BurstCompile]
@@ -41,6 +52,7 @@ partial struct BoxSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+
         if (boxQuery.CalculateEntityCount() == 0){
             
             var ecbBoxSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -67,6 +79,8 @@ partial struct BoxSpawningSystem : ISystem
                 else
                     row++;
             }
+            boxes.Dispose();
+
 
         } else {
             var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -88,8 +102,10 @@ partial struct BoxSpawningSystem : ISystem
             }
 
             state.Enabled = false;
-        }
 
+            players.Dispose();
+            boxEntities.Dispose();
+        }
         //ecbBox.Playback(state.WorldUnmanaged.EntityManager);
 
     }
