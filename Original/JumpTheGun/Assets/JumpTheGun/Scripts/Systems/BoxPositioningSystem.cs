@@ -20,7 +20,7 @@ partial struct BoxPosJob : IJobEntity
         random = Random.CreateFromIndex((uint)entity.Index);
         scale.Value = new float3(1, random.NextFloat(0, 5), 1);
         boxes.top = scale.Value.y * Config.yOffset;
-
+  
 
         transform.Position = new float3(row * config.spacing, 0, col * config.spacing);
 

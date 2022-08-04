@@ -141,11 +141,10 @@ partial struct PlayerComponentJob : IJobEntity
         mouseWorldPos.z = rayOrigin.z + t * rayDirection.z;
         float3 mouseLocalPos = mouseWorldPos;
         int2 mouseBoxPos = TerrainAreaClusters.BoxFromLocalPosition(mouseLocalPos, config);
-        return mouseBoxPos; 
+        return mouseBoxPos;    
     }
 }
 
-[BurstCompile]
 partial struct PlayerMovement : ISystem
 {
     private EntityQuery boxQuery;
@@ -164,12 +163,11 @@ partial struct PlayerMovement : ISystem
         queryBuilderBoxes.Dispose();
     }
 
-    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
-    [BurstCompile]
+
     public void OnUpdate(ref SystemState state)
     {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
