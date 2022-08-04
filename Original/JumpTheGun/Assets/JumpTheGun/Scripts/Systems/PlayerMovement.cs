@@ -1,12 +1,9 @@
 using Unity.Burst;
-using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Transforms;
 using Unity.Mathematics; 
-
-
+ 
 
 [BurstCompile]
 partial struct PlayerComponentJob : IJobEntity
@@ -20,8 +17,7 @@ partial struct PlayerComponentJob : IJobEntity
     [ReadOnly] public ComponentDataFromEntity<Boxes> boxesFromEntity; 
 
     void Execute([ChunkIndexInQuery] int chunkIndex, ref PlayerComponent playerComponent, ref TransformAspect transform)
-    { 
-        
+    {  
         if (config.isPaused)
             return;
 
@@ -177,8 +173,13 @@ partial struct PlayerMovement : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
-        var camera = CameraSingleton.Instance.GetComponent<UnityEngine.Camera>();
-        var ray = camera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+        
+        //var cameraSingleton = CameraSingleton.Instance; 
+        //var ray = cameraSingleton.ScreenPointToRay(UnityEngine.Input.mousePosition);
+
+        //float3 rayOrigin  = ray.origin; 
+        //float3 rayDirection = ray.direction;
+
         NativeArray<Entity> boxes = boxQuery.ToEntityArray(allocator);
         //NativeArray<Boxes> boxesComponents = boxQuery.ToComponentDataArray<Boxes>(allocator);
 
@@ -194,8 +195,8 @@ partial struct PlayerMovement : ISystem
             boxesFromEntity = boxesFromEntity,
             ECB = ecb.AsParallelWriter(),
             DeltaTime = state.Time.DeltaTime, // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-            rayOrigin = ray.origin,
-            rayDirection = ray.direction, 
+            rayOrigin = config.rayOrigin,
+            rayDirection = config.rayDirection,   
             config = config,
         };
 

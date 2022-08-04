@@ -9,9 +9,7 @@ using Unity.Rendering;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct BoxSpawningSystem : ISystem
 {
-    // Queries should not be created on the spot in OnUpdate, so they are cached in fields.
-    EntityQuery m_BaseColorQuery;
-
+    // Queries should not be created on the spot in OnUpdate, so they are cached in fields
     // Player Spawning
     EntityQuery playerQuery;
     EntityQuery boxQuery;
@@ -21,10 +19,8 @@ partial struct BoxSpawningSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<Config>();
 
-        // Player values
         boxesFromEntity = state.GetComponentDataFromEntity<Boxes>(true);
         pcFromEntity= state.GetComponentDataFromEntity<PlayerComponent>(true);
 
@@ -70,8 +66,8 @@ partial struct BoxSpawningSystem : ISystem
             foreach (var box in boxes)
             {
                 Boxes baseBox = boxesFromEntity[config.boxPrefab];
-                ecbBox.SetComponentForLinkedEntityGroup(box, boxQueryMask, BoxProperties(row, col, baseBox));
-                if (row >= config.terrainWidth)
+                ecbBox.SetComponentForLinkedEntityGroup(box, boxQueryMask, BoxProperties(row, col, baseBox, box));
+                if (row >= config.terrainLength)
                 {
                     row = 0;
                     col++;
@@ -80,7 +76,6 @@ partial struct BoxSpawningSystem : ISystem
                     row++;
             }
             boxes.Dispose();
-
 
         } else {
             var ecbPlayerSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -101,20 +96,23 @@ partial struct BoxSpawningSystem : ISystem
                 ecbPlayer.SetComponentForLinkedEntityGroup(player, playerQueryMask, PlayerProperties(boxesFromEntity, config, boxEntities, pc));
             }
 
-            state.Enabled = false;
-
             players.Dispose();
             boxEntities.Dispose();
+
+            state.Enabled = false;
         }
         //ecbBox.Playback(state.WorldUnmanaged.EntityManager);
 
     }
 
-    public static Boxes BoxProperties(int row, int col, Boxes box){
-        //UnityEngine.Debug.Log(row);
+    public static Boxes BoxProperties(int row, int col, Boxes box, Entity entity){
         Boxes newBox = box;
         newBox.row = row; 
         newBox.column = col;
+
+        var random = Random.CreateFromIndex((uint)0);
+        var scale = new float3(1, random.NextFloat(0, 5), 1);
+        newBox.top = scale.y * Config.yOffset;
         return newBox; 
     }
 

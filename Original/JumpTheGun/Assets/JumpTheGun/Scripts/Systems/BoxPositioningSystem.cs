@@ -9,32 +9,21 @@ partial struct BoxPosJob : IJobEntity
 {
     public Config config; 
     public EntityCommandBuffer.ParallelWriter ECB;
-    public int row;
-    public int col;
 
     void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, Boxes boxes, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale)
     {
 
+        var row = boxes.row; 
+        var col = boxes.column; 
         Random random;
+
         random = Random.CreateFromIndex((uint)entity.Index);
+        scale.Value = new float3(1, random.NextFloat(0, 5), 1);
+        boxes.top = scale.Value.y * Config.yOffset;
+
 
         transform.Position = new float3(row * config.spacing, 0, col * config.spacing);
 
-        if (row >= config.terrainWidth)
-        {
-            row = 0;
-            col++;
-        }
-        else
-        {
-            row++;
-        }
-
-        scale.Value = new float3(1, random.NextFloat(0, 5), 1);
-
-        //UnityEngine.Debug.Log("The Y scale is: " + scale.Value.y);
-
-        boxes.top = scale.Value.y * Config.yOffset;
 
         if (scale.Value.y <= 2f)
         {
@@ -79,8 +68,6 @@ partial struct BoxPositioningSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
 
         if (config.isSetUp == false){
-            int row = 0;
-            int column = 0;
 
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -88,8 +75,6 @@ partial struct BoxPositioningSystem : ISystem
             var BoxJob = new BoxPosJob
             {
                 config = config,
-                row = row,
-                col = column,
                 ECB = ecb.AsParallelWriter(),
             };
             BoxJob.Run();
