@@ -8,6 +8,7 @@ public struct Config : IComponentData
     public Entity boxPrefab;
     public Entity playerPrefab;
 
+
     public const float minHeight = 0.5f;
     public const float yOffset = 1f;
 
@@ -35,9 +36,6 @@ public struct Config : IComponentData
     public bool isSetUp; 
 
 
-    // Probably should be in a different script but I'm lazy :(( 
-    public float3 rayDirection;
-    public float3 rayOrigin; 
 
     public FixedString64Bytes timeText;
 }

@@ -1,7 +1,9 @@
-using Unity.Mathematics; 
+using Unity.Burst;
 using Unity.Entities;
-
-class CameraSingleton : UnityEngine.MonoBehaviour 
+using UnityEngine;
+using Unity.Transforms;
+using Unity.Mathematics;
+class CameraSingleton : MonoBehaviour
 {
     public static UnityEngine.Camera Instance;
 
@@ -11,11 +13,10 @@ class CameraSingleton : UnityEngine.MonoBehaviour
         //state.RequireForUpdate<Config>();
         Instance = GetComponent<UnityEngine.Camera>();
     }
+    
+    void OnUpdate()
+    {
 
-    void Update(){
-        var config = SystemAPI.GetSingleton<Config>();
-        config.rayDirection = ReturnRayDirection();
-        config.rayOrigin = ReturnRayOrigin();
     }
 
     public float3 ReturnRayOrigin(){

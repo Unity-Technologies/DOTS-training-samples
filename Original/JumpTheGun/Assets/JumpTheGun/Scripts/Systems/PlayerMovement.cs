@@ -174,11 +174,11 @@ partial struct PlayerMovement : ISystem
     {
         var allocator = state.WorldUnmanaged.UpdateAllocator.ToAllocator;
         
-        //var cameraSingleton = CameraSingleton.Instance; 
-        //var ray = cameraSingleton.ScreenPointToRay(UnityEngine.Input.mousePosition);
 
-        //float3 rayOrigin  = ray.origin; 
-        //float3 rayDirection = ray.direction;
+        var cameraSingleton = CameraSingleton.Instance; 
+        var ray = cameraSingleton.ScreenPointToRay(UnityEngine.Input.mousePosition);
+        float3 rayOrigin  = ray.origin; 
+        float3 rayDirection = ray.direction;
 
         NativeArray<Entity> boxes = boxQuery.ToEntityArray(allocator);
         //NativeArray<Boxes> boxesComponents = boxQuery.ToComponentDataArray<Boxes>(allocator);
@@ -195,8 +195,8 @@ partial struct PlayerMovement : ISystem
             boxesFromEntity = boxesFromEntity,
             ECB = ecb.AsParallelWriter(),
             DeltaTime = state.Time.DeltaTime, // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-            rayOrigin = config.rayOrigin,
-            rayDirection = config.rayDirection,   
+            rayOrigin = rayOrigin,
+            rayDirection = rayDirection,   
             config = config,
         };
 

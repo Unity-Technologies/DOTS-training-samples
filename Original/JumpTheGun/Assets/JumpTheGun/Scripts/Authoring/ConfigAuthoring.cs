@@ -6,6 +6,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public UnityEngine.GameObject tankPrefab;
     public UnityEngine.GameObject boxPrefab;
     public UnityEngine.GameObject playerPrefab;
+
     public int tankCount;
 
     public float terrainWidth;
@@ -55,6 +56,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             isPaused = authoring.isPaused,
             isSetUp = authoring.setUp,
             timeText = authoring.timeText,
+
         });
     }
 }
