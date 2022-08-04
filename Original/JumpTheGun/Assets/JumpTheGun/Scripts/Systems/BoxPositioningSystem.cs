@@ -10,7 +10,7 @@ partial struct BoxPosJob : IJobEntity
     public Config config; 
     public EntityCommandBuffer.ParallelWriter ECB;
 
-    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, Boxes boxes, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale)
+    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, ref Boxes boxes, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale)
     {
 
         var row = boxes.row; 

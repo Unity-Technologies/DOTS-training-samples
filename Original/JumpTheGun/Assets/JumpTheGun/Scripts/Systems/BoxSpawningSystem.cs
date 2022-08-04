@@ -109,10 +109,6 @@ partial struct BoxSpawningSystem : ISystem
         Boxes newBox = box;
         newBox.row = row; 
         newBox.column = col;
-
-        var random = Random.CreateFromIndex((uint)0);
-        var scale = new float3(1, random.NextFloat(0, 5), 1);
-        newBox.top = scale.y * Config.yOffset;
         return newBox; 
     }
 
