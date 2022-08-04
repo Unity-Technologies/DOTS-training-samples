@@ -13,8 +13,8 @@ partial struct BoxPosJob : IJobEntity
     void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, TransformAspect transform, ref Boxes boxes, ref URPMaterialPropertyBaseColor colour, ref NonUniformScale scale)
     {
 
-        var row = boxes.row; 
-        var col = boxes.column; 
+        var row = boxes.column; 
+        var col = boxes.row; 
         Random random;
 
         random = Random.CreateFromIndex((uint)entity.Index);

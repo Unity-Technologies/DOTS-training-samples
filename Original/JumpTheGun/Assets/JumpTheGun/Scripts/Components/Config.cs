@@ -10,7 +10,7 @@ public struct Config : IComponentData
 
 
     public const float minHeight = 0.5f;
-    public const float yOffset = 1f;
+    public const float yOffset = 0.5f;
 
     public float terrainWidth;
     public int terrainLength;
