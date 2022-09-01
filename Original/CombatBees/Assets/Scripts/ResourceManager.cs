@@ -100,72 +100,102 @@ public class ResourceManager : MonoBehaviour {
 		}
 	}
 
-	void Update() {
-		if (resources.Count < 1000 && MouseRaycaster.isMouseTouchingField) {
-			if (Input.GetKey(KeyCode.Mouse0)) {
+	void Update()
+	{
+		if (resources.Count < 1000 && MouseRaycaster.isMouseTouchingField)
+		{
+			if (Input.GetKey(KeyCode.Mouse0))
+			{
 				spawnTimer += Time.deltaTime;
-				while (spawnTimer > 1f/spawnRate) {
-					spawnTimer -= 1f/spawnRate;
+				while (spawnTimer > 1f / spawnRate)
+				{
+					spawnTimer -= 1f / spawnRate;
 					SpawnResource(MouseRaycaster.worldMousePosition);
 				}
 			}
 		}
 
-		for (int i=0;i<resources.Count;i++) {
+		for (int i = 0; i < resources.Count; i++)
+		{
 			Resource resource = resources[i];
-			if (resource.holder != null) {
-				if (resource.holder.dead) {
+			if (resource.holder != null)
+			{
+				if (resource.holder.dead)
+				{
 					resource.holder = null;
-				} else {
-					Vector3 targetPos = resource.holder.position - Vector3.up * (resourceSize + resource.holder.size)*.5f;
-					resource.position = Vector3.Lerp(resource.position,targetPos,carryStiffness * Time.deltaTime);
+				}
+				else
+				{
+					Vector3 targetPos = resource.holder.position -
+					                    Vector3.up * (resourceSize + resource.holder.size) * .5f;
+					resource.position = Vector3.Lerp(resource.position, targetPos, carryStiffness * Time.deltaTime);
 					resource.velocity = resource.holder.velocity;
 				}
-			} else if (resource.stacked == false) {
-				resource.position = Vector3.Lerp(resource.position,NearestSnappedPos(resource.position),snapStiffness * Time.deltaTime);
+			}
+			else if (resource.stacked == false)
+			{
+				resource.position = Vector3.Lerp(resource.position, NearestSnappedPos(resource.position),
+					snapStiffness * Time.deltaTime);
 				resource.velocity.y += Field.gravity * Time.deltaTime;
 				resource.position += resource.velocity * Time.deltaTime;
-				GetGridIndex(resource.position,out resource.gridX,out resource.gridY);
-				float floorY = GetStackPos(resource.gridX,resource.gridY,stackHeights[resource.gridX,resource.gridY]).y;
-				for (int j = 0; j < 3; j++) {
-					if (System.Math.Abs(resource.position[j]) > Field.size[j] * .5f) {
+				GetGridIndex(resource.position, out resource.gridX, out resource.gridY);
+				float floorY = GetStackPos(resource.gridX, resource.gridY, stackHeights[resource.gridX, resource.gridY])
+					.y;
+				for (int j = 0; j < 3; j++)
+				{
+					if (System.Math.Abs(resource.position[j]) > Field.size[j] * .5f)
+					{
 						resource.position[j] = Field.size[j] * .5f * Mathf.Sign(resource.position[j]);
 						resource.velocity[j] *= -.5f;
 						resource.velocity[(j + 1) % 3] *= .8f;
 						resource.velocity[(j + 2) % 3] *= .8f;
 					}
 				}
-				if (resource.position.y < floorY) {
+
+				if (resource.position.y < floorY)
+				{
 					resource.position.y = floorY;
-					if (Mathf.Abs(resource.position.x) > Field.size.x * .4f) {
+					if (Mathf.Abs(resource.position.x) > Field.size.x * .4f)
+					{
 						int team = 0;
-						if (resource.position.x > 0f) {
+						if (resource.position.x > 0f)
+						{
 							team = 1;
 						}
-						for (int j = 0; j < beesPerResource; j++) {
-							BeeManager.SpawnBee(resource.position,team);
+
+						for (int j = 0; j < beesPerResource; j++)
+						{
+							BeeManager.SpawnBee(resource.position, team);
 						}
-						ParticleManager.SpawnParticle(resource.position,ParticleType.SpawnFlash,Vector3.zero,6f,5);
+
+						ParticleManager.SpawnParticle(resource.position, ParticleType.SpawnFlash, Vector3.zero, 6f, 5);
 						DeleteResource(resource);
-					} else {
+					}
+					else
+					{
 						resource.stacked = true;
-						resource.stackIndex = stackHeights[resource.gridX,resource.gridY];
-						if ((resource.stackIndex + 1) * resourceSize < Field.size.y) {
-							stackHeights[resource.gridX,resource.gridY]++;
-						} else {
+						resource.stackIndex = stackHeights[resource.gridX, resource.gridY];
+						if ((resource.stackIndex + 1) * resourceSize < Field.size.y)
+						{
+							stackHeights[resource.gridX, resource.gridY]++;
+						}
+						else
+						{
 							DeleteResource(resource);
 						}
-						
+
 					}
 				}
 			}
 		}
 
-		Vector3 scale = new Vector3(resourceSize,resourceSize * .5f,resourceSize);
-		for (int i=0;i<resources.Count;i++) {
-			matrices[i] = Matrix4x4.TRS(resources[i].position,Quaternion.identity,scale);
+		Vector3 scale = new Vector3(resourceSize, resourceSize * .5f, resourceSize);
+		for (int i = 0; i < resources.Count; i++)
+		{
+			matrices[i] = Matrix4x4.TRS(resources[i].position, Quaternion.identity, scale);
 		}
-		Graphics.DrawMeshInstanced(resourceMesh,0,resourceMaterial,matrices);
+
+		Graphics.DrawMeshInstanced(resourceMesh, 0, resourceMaterial, matrices);
 	}
 
 	private void OnDrawGizmosSelected() {
