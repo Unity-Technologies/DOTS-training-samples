@@ -180,21 +180,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3bce44f702a2ba4bb354a426502c583, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FloorSizeX: 30
-  FloorSizeZ: 20
-  TeamFloorSizeX: 6
-  TeamZoneHeight: 10
-  StartResourcesCount: 300
-  StartBeesCountPerTeam: 100
+  FloorSizeX: 120
+  FloorSizeZ: 80
+  TeamFloorSizeX: 20
+  TeamZoneHeight: 20
+  StartResourcesCount: 3000
+  StartBeesCountPerTeam: 40000
   ResourcesSpawnBox:
     Center:
       x: 0
       y: 10
       z: 0
     Extents:
-      x: 3
+      x: 12
       y: 3
-      z: 3
+      z: 12
     Min:
       x: 0
       y: 0

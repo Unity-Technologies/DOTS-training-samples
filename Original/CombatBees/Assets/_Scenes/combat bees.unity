@@ -371,7 +371,7 @@ MonoBehaviour:
   attackForce: 500
   hitDistance: 0.5
   maxSpawnSpeed: 75
-  startBeeCount: 20000
+  startBeeCount: 80000
 --- !u!4 &374635490
 Transform:
   m_ObjectHideFlags: 0

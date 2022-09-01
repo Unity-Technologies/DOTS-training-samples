@@ -35,7 +35,8 @@ public partial class BeeSystem : SystemBase
         float time = (float)Time.ElapsedTime;
         GameGlobalData globalData = GetSingleton<GameGlobalData>();
         GameRuntimeData runtimeData = GetSingleton<GameRuntimeData>();
-        
+        ComponentDataFromEntity<Bee> beeFromEntity = GetComponentDataFromEntity<Bee>(false);
+
         // TODO: maybe this strategy of allocating tmp arrays isn't the best. But it needs less maintenance than persistent lists
         NativeArray<Entity> resourceEntities = FreeResourcesQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Entity> teamABeeEntities = TeamABeesQuery.ToEntityArray(Allocator.TempJob);
@@ -51,7 +52,8 @@ public partial class BeeSystem : SystemBase
             .ForEach((Entity entity, ref DynamicBuffer<BeeSpawnEvent> spawnEvents) =>
             {
                 float3 mapCenter = runtimeData.GridCharacteristics.GetMapCenter();
-                    
+                uint spawnCounter = 0;
+                
                 for (int i = 0; i < spawnEvents.Length; i++)
                 {
                     Entity newBee = ecb.Instantiate(globalData.BeePrefab);
@@ -60,7 +62,7 @@ public partial class BeeSystem : SystemBase
                     float3 directionToCenter = math.normalizesafe(mapCenter - evnt.Position);
 
                     Bee bee = GetComponent<Bee>(globalData.BeePrefab);
-                    bee.Random = Unity.Mathematics.Random.CreateFromIndex((uint)i);
+                    bee.Random = Unity.Mathematics.Random.CreateFromIndex(spawnCounter);
                     bee.Velocity =  bee.Random.NextFloat3Direction() * bee.Random.NextFloat(0f, bee.MaxSpawnSpeed);
                     
                     ecb.SetComponent(newBee, new Translation { Value = evnt.Position });
@@ -81,6 +83,7 @@ public partial class BeeSystem : SystemBase
                     }
                     
                     ecb.SetComponent(newBee, bee);
+                    spawnCounter++;
                 }
                 spawnEvents.Clear();
             }).Schedule(Dependency);
@@ -106,22 +109,13 @@ public partial class BeeSystem : SystemBase
                     enemyTeamEntities = teamABeeEntities;
                 }
 
-                if (enemyTeamEntities.IsCreated)
+                if (enemyTeamEntities.IsCreated && enemyTeamEntities.Length > 0 && bee.Random.NextFloat(0f, 1f) < bee.Aggression)
                 {
-                    if (bee.Random.NextFloat(0f, 1f) < bee.Aggression)
-                    {
-                        if (enemyTeamEntities.Length > 0)
-                        {
-                            ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetEnemy { Target = enemyTeamEntities[bee.Random.NextInt(0, enemyTeamEntities.Length - 1)] });
-                        }
-                    }
-                    else
-                    {
-                        if (resourceEntities.Length > 0)
-                        {
-                            ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetResource { Target = resourceEntities[bee.Random.NextInt(0, resourceEntities.Length - 1)] });
-                        }
-                    }
+                    ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetEnemy { Target = enemyTeamEntities[bee.Random.NextInt(0, enemyTeamEntities.Length - 1)] });
+                }
+                else if (resourceEntities.IsCreated && resourceEntities.Length > 0)
+                {
+                    ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetResource { Target = resourceEntities[bee.Random.NextInt(0, resourceEntities.Length - 1)] });
                 }
             }).ScheduleParallel(Dependency);
         
@@ -130,7 +124,7 @@ public partial class BeeSystem : SystemBase
         Dependency = Entities
             .WithName("BeeResourceBehaviourJob")
             .WithReadOnly(cellResourceStackCount)
-            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee, ref BeeTargetResource targetResource, in Translation translation) =>
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee, in BeeTargetResource targetResource, in Translation translation) =>
             {
                 bool resourceCarrierIsSelf = false;
                 bool resourceValid = true;
@@ -149,15 +143,13 @@ public partial class BeeSystem : SystemBase
                             }
                         }
 
-                        // invalid if resource is not top of stack
+                        // invalid if resource is settled but is not top of stack
                         if (HasComponent<ResourceSettled>(targetResource.Target))
                         {
                             ResourceSettled resourceSettled = GetComponent<ResourceSettled>(targetResource.Target);
-                            if (resourceSettled.StackIndex != cellResourceStackCount[resourceSettled.CellIndex] - 1)
+                            if (resourceSettled.StackIndex < cellResourceStackCount[resourceSettled.CellIndex] - 1)
                             {
-                                // TODO
-                                //UnityEngine.Debug.Log("INVALID stack");
-                                //resourceValid = false;
+                                resourceValid = false;
                             }
                         }
                     }
@@ -237,9 +229,41 @@ public partial class BeeSystem : SystemBase
         ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
         Dependency = Entities
             .WithName("BeeAttackBehaviourJob")
-            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee) => 
+            .WithNativeDisableParallelForRestriction(beeFromEntity)
+            .WithAll<Bee>()
+            .ForEach((Entity entity, int entityInQueryIndex, in BeeTargetEnemy targetEnemy) => 
             {
-                // TODO: if has enemy target, move toward is with chase force
+                // if has enemy target, move toward is with chase force
+                if (beeFromEntity.HasComponent(targetEnemy.Target))
+                { 
+                    Bee bee = beeFromEntity[entity];
+                    float3 selfTranslation = GetComponent<Translation>(entity).Value;
+                    
+                    float3 delta = GetComponent<Translation>(targetEnemy.Target).Value - selfTranslation;
+                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    if (sqrDist > bee.AttackDistance * bee.AttackDistance)
+                    {
+                        bee.Velocity += delta * (bee.ChaseForce * deltaTime / math.sqrt(sqrDist));
+                    }
+                    else
+                    {
+                        bee.Velocity += delta * (bee.AttackForce * deltaTime / math.sqrt(sqrDist));
+                        if (sqrDist < bee.HitDistance * bee.HitDistance)
+                        {
+                            // TODO: particles
+                            
+                            ecbParallel.AddComponent(entityInQueryIndex, targetEnemy.Target, new BeeDeath());
+                            ecbParallel.RemoveComponent<BeeTargetEnemy>(entityInQueryIndex, entity);
+                        }
+                    }
+
+                    beeFromEntity[entity] = bee;
+                }
+                else
+                {
+                    ecbParallel.RemoveComponent<BeeTargetEnemy>(entityInQueryIndex, entity);
+                }
+                
             }).ScheduleParallel(Dependency);
         
         // Movement with velocity

@@ -8,6 +8,7 @@ using UnityEngine.Serialization;
 [Serializable]
 public struct Bee : IComponentData
 {
+    // TODO: most of these could go in a global data asset, to save chunk space
     public float TeamAttraction;
     public float TeamRepulsion;
     public float Damping;
