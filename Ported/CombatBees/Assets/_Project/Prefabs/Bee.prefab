@@ -199,20 +199,14 @@ MonoBehaviour:
     Damping: 0.01
     FlightJitter: 10
     RotationSharpness: 10
-    Aggression: 0.5
-    ChaseForce: 1
+    Aggression: -2.2
+    ChaseForce: 10
     MinBeeSize: 0.5
     MaxBeeSize: 1
     SpeedStretch: 1
-    CarryForce: 1
-    GrabDistance: 0.5
+    CarryForce: 10
+    GrabDistance: 1
     AttackDistance: 0.5
     AttackForce: 1
     HitDistance: 0.5
     MaxSpawnSpeed: 10
-    Velocity:
-      x: 0
-      y: 0
-      z: 0
-    Random:
-      state: 0

@@ -8,7 +8,6 @@ public class ResourceAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
         dstManager.AddComponentData(entity, new Resource());
-        dstManager.AddComponentData(entity, new ResourceInitializeDrop());
         dstManager.AddComponentData(entity, new ConstrainToLevelBounds());
     }
 }

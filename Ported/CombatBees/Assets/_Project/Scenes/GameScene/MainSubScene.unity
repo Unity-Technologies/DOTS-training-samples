@@ -183,7 +183,7 @@ MonoBehaviour:
   FloorSizeX: 30
   FloorSizeZ: 20
   TeamFloorSizeX: 6
-  TeamZoneHeight: 5
+  TeamZoneHeight: 10
   StartResourcesCount: 300
   StartBeesCountPerTeam: 100
   ResourcesSpawnBox:

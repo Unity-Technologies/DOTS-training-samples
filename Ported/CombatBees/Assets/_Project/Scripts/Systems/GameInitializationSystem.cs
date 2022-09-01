@@ -123,7 +123,7 @@ public partial class GameInitializationSystem : SystemBase
                     beeSpawnEvents.Add(new BeeSpawnEvent
                     {
                         Position = isTeamB ? runtimeData.GridCharacteristics.TeamBBounds.Center : runtimeData.GridCharacteristics.TeamABounds.Center,
-                        Team = isTeamB ? (byte)2 : (byte)1,
+                        Team = isTeamB ? Team.TeamB : Team.TeamA,
                     });
                 }
                 SetSingleton(runtimeData);

@@ -24,8 +24,16 @@ public struct Box
     {
         Center = center;
         Extents = extents;
-        Min = center - extents;
-        Max = center + extents;
+        Min = default;
+        Max = default;
+        
+        Recalculate();
+    }
+
+    public void Recalculate()
+    {
+        Min = Center - Extents;
+        Max = Center + Extents;
     }
 
     public float3 GetClosestPoint(float3 pos)
@@ -122,19 +130,35 @@ public struct GridCharacteristics
 
     public int2 GetCellCoordinatesOfPosition(float3 pos)
     {
-        return new int2
+        int2 coords = new int2
         {
             x = (int)math.floor((pos.x - BottomCorner.x) / CellSize),
             y = (int)math.floor((pos.z - BottomCorner.z) / CellSize),
         };
+
+        // Clamp
+        if (coords.x < 0)
+        {
+            coords.x = 0;
+        }
+        if (coords.x >= CellCountX)
+        {
+            coords.x = CellCountX - 1;
+        }
+        if (coords.y < 0)
+        {
+            coords.y = 0;
+        }
+        if (coords.y >= CellCountZ)
+        {
+            coords.y = CellCountZ - 1;
+        }
+
+        return coords;
     }
 
     public int GetIndexOfCellCoordinates(int2 coords)
     {
-        if (!AreCellCoordinatesValid(coords))
-        {
-            return -1;
-        }
         return (coords.y * CellCountX) + coords.x;
     }
 
@@ -161,34 +185,18 @@ public struct GridCharacteristics
 
     public CellType GetTypeOfCell(int2 coords)
     {
-        if(!AreCellCoordinatesValid(coords))
-        {
-            return CellType.Invalid;
-        }
-
         if (coords.x >= TeamBStartX)
         {
             return CellType.TeamB;
         }
-        else if (coords.x >= FloorStartX)
+        else if (coords.x < FloorStartX)
         {
-            return CellType.Floor;
-        }
-        else
-        {            
             return CellType.TeamA;
         }
-    }
-
-    public bool AreCellCoordinatesValid(int2 coords)
-    {
-        if (coords.x < 0 || coords.x >= CellCountX ||
-            coords.y < 0 || coords.y >= CellCountZ)
-        {
-            return false;
+        else
+        {       
+            return CellType.Floor;
         }
-
-        return true;
     }
 
     public float3 GetMapCenter()
@@ -214,5 +222,5 @@ public struct ResourceSpawnEvent : IBufferElementData
 public struct BeeSpawnEvent : IBufferElementData
 {
     public float3 Position;
-    public byte Team;
+    public Team Team;
 }

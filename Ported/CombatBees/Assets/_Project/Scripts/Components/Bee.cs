@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -28,6 +29,8 @@ public struct Bee : IComponentData
     public float3 Velocity;
     [NonSerialized]
     public Unity.Mathematics.Random Random;
+    [NonSerialized]
+    public Team Team;
 }
 
 [Serializable]
@@ -43,12 +46,6 @@ public struct BeeTargetResource : IComponentData
 }
 
 [Serializable]
-public struct BeeCarryingResource : IComponentData
+public struct BeeDeath : IComponentData
 {
-}
-
-[Serializable]
-public struct BeeState : ISystemStateComponentData
-{
-    public Team Team;
 }

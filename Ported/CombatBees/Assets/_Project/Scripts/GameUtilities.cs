@@ -49,4 +49,10 @@ public static class GameUtilities
             z = random.NextFloat(box.Center.z - box.Extents.z, box.Center.z + box.Extents.z),
         };
     }
+
+    public static void DropResource(Entity resourceEntity, Entity carrierEntity, EntityCommandBuffer.ParallelWriter ecbParallel, int sortKey)
+    {
+        ecbParallel.RemoveComponent<ResourceCarrier>(sortKey, resourceEntity);
+        ecbParallel.RemoveComponent<BeeTargetResource>(sortKey, carrierEntity);
+    }
 }

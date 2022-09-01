@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateBefore(typeof(ConstrainToLevelBoundsSystem))]
 public partial class ResourceSystem : SystemBase
@@ -41,12 +42,15 @@ public partial class ResourceSystem : SystemBase
         float time = (float)Time.ElapsedTime;
         GameGlobalData globalData = GetSingleton<GameGlobalData>();
         GameRuntimeData runtimeData = GetSingleton<GameRuntimeData>();
+        Entity runtimeDataEntity = GetSingletonEntity<GameRuntimeData>();
         NativeArray<int> cellResourceStackCount = CellResourceStackCount;
         ComponentDataFromEntity<Translation> translationFromEntity = GetComponentDataFromEntity<Translation>(false);
+        BufferFromEntity<BeeSpawnEvent> beeSpawnBufferFromEntity = GetBufferFromEntity<BeeSpawnEvent>(false);
 
         // Resource spawning
         ecb = ECBSystem.CreateCommandBuffer();
         Entities
+            .WithName("ResourceSpawnJob")
             .ForEach((Entity entity, ref DynamicBuffer<ResourceSpawnEvent> spawnEvents) =>
             {
                 for (int i = 0; i < spawnEvents.Length; i++)
@@ -57,32 +61,81 @@ public partial class ResourceSystem : SystemBase
                 }
                 spawnEvents.Clear();
             }).Schedule();
-
-        // Init resource drops by making them remember which cell they are over
-        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        
+        // Make unsettled carrier-less resources fall with gravity
         Entities
-            .WithAll<ResourceInitializeDrop>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Resource resource, ref Translation translation) =>
+            .WithName("ResourceFallingJob")
+            .WithNone<ResourceCarrier>()
+            .WithNone<ResourceSettled>()
+            .ForEach((ref Translation translation, ref Resource resource) =>
             {
-                int2 cellCoords = runtimeData.GridCharacteristics.GetCellCoordinatesOfPosition(translation.Value);
-                float3 cellPos = runtimeData.GridCharacteristics.GetPositionOfCell(cellCoords);
-                resource.CellIndex = runtimeData.GridCharacteristics.GetIndexOfCellCoordinates(cellCoords);
-
-                if (resource.CellIndex < 0)
-                {
-                    // Destroy resource in case it's over an invalid cell index
-                    ecbParallel.DestroyEntity(entityInQueryIndex, entity);
-                }
-                else
-                {
-                    ecbParallel.RemoveComponent<ResourceInitializeDrop>(entityInQueryIndex, entity);
-                    ecbParallel.AddComponent(entityInQueryIndex, entity, new ResourceSnapToCell { SnapStartTime = time, StartPos = translation.Value, TargetPos = cellPos });
-                }
+                resource.Velocity += math.up() * globalData.Gravity * deltaTime;
+                translation.Value += resource.Velocity * deltaTime;
             }).ScheduleParallel();
+        
+        // Detect reaching ground or stacking or scoring
+        ecb = ECBSystem.CreateCommandBuffer();
+        Entities
+            .WithName("ResourceSettlingJob")
+            .WithNone<ResourceCarrier>()
+            .WithNone<ResourceSettled>()
+            .ForEach((Entity entity, ref Translation translation, ref Resource resource) =>
+            {
+                // Always constrain to bounds
+                translation.Value = runtimeData.GridCharacteristics.LevelBounds.GetClosestPoint(translation.Value);
+                
+                int2 cellCoords = runtimeData.GridCharacteristics.GetCellCoordinatesOfPosition(translation.Value);
+                int cellIndex = runtimeData.GridCharacteristics.GetIndexOfCellCoordinates(cellCoords);
+                int currentStackCount = cellResourceStackCount[cellIndex];
+                float expectedFloorHeight = currentStackCount * globalData.ResourceHeight;
+                
+                if (translation.Value.y <= expectedFloorHeight)
+                {
+                    float3 cellPos = runtimeData.GridCharacteristics.GetPositionOfCell(cellCoords);
+                    
+                    ecb.AddComponent(entity, new ResourceSettled { CellIndex = cellIndex, StackIndex = currentStackCount });
+                    ecb.AddComponent(entity, new ResourceSnapToCell { SnapStartTime = time, StartPos = translation.Value, TargetPos = cellPos });
+                    
+                    translation.Value.y = expectedFloorHeight;
+                    resource.Velocity = default;
+
+                    cellResourceStackCount[cellIndex] = currentStackCount + 1;
+                    
+                    // if landed in a team zone, destroy resources, spawn particles, and spawn bees
+                    CellType cellType = runtimeData.GridCharacteristics.GetTypeOfCell(cellCoords);
+                    if (cellType == CellType.TeamA || cellType == CellType.TeamB)
+                    {
+                        ecb.DestroyEntity(entity);
+                        
+                        // TODO
+                        Team selectedTeam = default;
+                        if (cellType == CellType.TeamA)
+                        {
+                            selectedTeam = Team.TeamA;
+                        }
+                        else
+                        {
+                            selectedTeam = Team.TeamB;
+                        }
+
+                        DynamicBuffer<BeeSpawnEvent> beeSpawnEvents = beeSpawnBufferFromEntity[runtimeDataEntity];
+                        for (int i = 0; i < globalData.BeeSpawnCountOnScore; i++)
+                        {
+                            beeSpawnEvents.Add(new BeeSpawnEvent
+                            {
+                                Position = translation.Value,
+                                Team = selectedTeam,
+                            });
+                        }
+                    }
+                }
+            }).Schedule(); // This one is not parallel because 2 resources may want to write to same index of NativeArray
         
         // Make resources snap to their cell lane over time
         ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
         Entities
+            .WithName("ResourceSnapToCellJob")
+            .WithAll<ResourceSettled>()
             .ForEach((Entity entity, int entityInQueryIndex, ref Translation translation, in Resource resource, in ResourceSnapToCell resourceSnap) =>
             {
                 float timeSinceSnapStart = time - resourceSnap.SnapStartTime;
@@ -100,42 +153,9 @@ public partial class ResourceSystem : SystemBase
                 }
             }).ScheduleParallel();
         
-        // Make unsettled carrier-less resources fall with gravity
-        Entities
-            .WithNone<ResourceCarrier>()
-            .WithNone<ResourceSettled>()
-            .ForEach((ref Translation translation, ref Resource resource) =>
-            {
-                resource.Velocity += math.up() * globalData.Gravity * deltaTime;
-                translation.Value += resource.Velocity * deltaTime;
-            }).ScheduleParallel();
-        
-        // Detect reaching ground or stacking
-        ecb = ECBSystem.CreateCommandBuffer();
-        Entities
-            .WithNone<ResourceCarrier>()
-            .WithNone<ResourceSettled>()
-            .ForEach((Entity entity, ref Translation translation, ref Resource resource) =>
-            {
-                int currentStackCount = cellResourceStackCount[resource.CellIndex];
-                float expectedFloorHeight = currentStackCount * globalData.ResourceHeight;
-                
-                if (translation.Value.y <= expectedFloorHeight)
-                {
-                    ecb.AddComponent(entity, new ResourceSettled());
-                    
-                    translation.Value.y = expectedFloorHeight;
-                    resource.Velocity = default;
-                    resource.StackIndex = currentStackCount;
-
-                    cellResourceStackCount[resource.CellIndex] = currentStackCount + 1;
-                    
-                    // TODO: if landed in a team zone, destroy resources, spawn particles, and spawn bees
-                }
-            }).Schedule(); // This one is not parallel because 2 resources may want to write to same index of NativeArray
-        
         // Make carried resources follow their carrier
         Entities
+            .WithName("ResourceFollowCarrierJob")
             .WithNativeDisableParallelForRestriction(translationFromEntity) // safe because we only ever write to self entity
             .ForEach((Entity entity, ref Resource resource, in ResourceCarrier carrier) => 
             {
@@ -156,24 +176,24 @@ public partial class ResourceSystem : SystemBase
         // Make settled resources remove themselves from stacks when carried
         ecb = ECBSystem.CreateCommandBuffer();
         Entities
+            .WithName("ResourceRemoveFromStackJob")
             .WithAll<ResourceCarrier>()
-            .WithAll<ResourceSettled>()
-            .ForEach((Entity entity, ref Resource resource) => 
+            .ForEach((Entity entity, ref Resource resource, in ResourceSettled resourceSettled) => 
             {
-                int currentStackCount = cellResourceStackCount[resource.CellIndex];
-                cellResourceStackCount[resource.CellIndex] = math.max(0, currentStackCount - 1);
+                int currentStackCount = cellResourceStackCount[resourceSettled.CellIndex];
+                cellResourceStackCount[resourceSettled.CellIndex] = math.max(0, currentStackCount - 1);
                 ecb.RemoveComponent<ResourceSettled>(entity);
             }).Schedule();
         
         // Drop resource if carrier died
         ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
         Entities
+            .WithName("ResourceDropWhenNullCarrierJob")
             .ForEach((Entity entity, int entityInQueryIndex, ref Resource resource, in ResourceCarrier carrier) => 
             {
                 if (!HasComponent<Bee>(carrier.Carrier))
                 {
-                    ecbParallel.RemoveComponent<ResourceCarrier>(entityInQueryIndex, entity);
-                    ecbParallel.AddComponent(entityInQueryIndex, entity, new ResourceInitializeDrop());
+                    GameUtilities.DropResource(entity, carrier.Carrier, ecbParallel, entityInQueryIndex);
                 }
             }).ScheduleParallel();
         

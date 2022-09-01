@@ -56,6 +56,7 @@ MonoBehaviour:
   Gravity: -9.81
   GridCellSize: 0.5
   ResourceHeight: 0.2
-  ResourceSnapTime: 0.5
-  ResourceCarryStiffness: 0
-  ResourceCarryOffset: 0
+  ResourceSnapTime: 0.15
+  ResourceCarryStiffness: 10
+  ResourceCarryOffset: 0.25
+  BeeSpawnCountOnScore: 3

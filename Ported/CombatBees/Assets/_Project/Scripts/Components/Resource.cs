@@ -7,27 +7,20 @@ using Unity.Mathematics;
 public struct Resource : IComponentData
 {
     public float3 Velocity;
-    public int CellIndex;
-    public int StackIndex;
 }
 
 [Serializable]
 public struct ResourceCarrier : IComponentData
 {
     public Entity Carrier;
-    public byte IsInitialized;
 }
 
 [Serializable]
 public struct ResourceSettled : IComponentData
 {
+    public int StackIndex;
+    public int CellIndex;
 }
-
-[Serializable]
-public struct ResourceInitializeDrop : IComponentData
-{
-}
-
 
 [Serializable]
 public struct ResourceSnapToCell : IComponentData

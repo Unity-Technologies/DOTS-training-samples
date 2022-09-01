@@ -22,4 +22,5 @@ public struct GameGlobalData : IComponentData
     public float ResourceSnapTime;
     public float ResourceCarryStiffness;
     public float ResourceCarryOffset;
+    public int BeeSpawnCountOnScore;
 }

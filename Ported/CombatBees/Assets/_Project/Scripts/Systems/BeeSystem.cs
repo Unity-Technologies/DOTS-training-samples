@@ -36,6 +36,7 @@ public partial class BeeSystem : SystemBase
         GameGlobalData globalData = GetSingleton<GameGlobalData>();
         GameRuntimeData runtimeData = GetSingleton<GameRuntimeData>();
         
+        // TODO: maybe this strategy of allocating tmp arrays isn't the best. But it needs less maintenance than persistent lists
         NativeArray<Entity> resourceEntities = FreeResourcesQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Entity> teamABeeEntities = TeamABeesQuery.ToEntityArray(Allocator.TempJob);
         NativeArray<Entity> teamBBeeEntities = TeamBBeesQuery.ToEntityArray(Allocator.TempJob);
@@ -45,7 +46,8 @@ public partial class BeeSystem : SystemBase
         
         // Bee spawning
         ecb = ECBSystem.CreateCommandBuffer();
-        Entities
+        Dependency = Entities
+            .WithName("BeeSpawnJob")
             .ForEach((Entity entity, ref DynamicBuffer<BeeSpawnEvent> spawnEvents) =>
             {
                 float3 mapCenter = runtimeData.GridCharacteristics.GetMapCenter();
@@ -60,103 +62,159 @@ public partial class BeeSystem : SystemBase
                     Bee bee = GetComponent<Bee>(globalData.BeePrefab);
                     bee.Random = Unity.Mathematics.Random.CreateFromIndex((uint)i);
                     bee.Velocity =  bee.Random.NextFloat3Direction() * bee.Random.NextFloat(0f, bee.MaxSpawnSpeed);
-                    ecb.SetComponent(newBee, bee);
                     
                     ecb.SetComponent(newBee, new Translation { Value = evnt.Position });
                     ecb.SetComponent(newBee, new NonUniformScale { Value = bee.Random.NextFloat(bee.MinBeeSize, bee.MaxBeeSize) });
                     ecb.SetComponent(newBee, new Rotation { Value = quaternion.LookRotationSafe(directionToCenter, math.up())});
 
-                    if (evnt.Team == 1)
+                    if (evnt.Team == Team.TeamA)
                     {
-                        ecb.AddComponent(newBee, new BeeState { Team = Team.TeamA });
+                        bee.Team = Team.TeamA;
                         ecb.AddComponent(newBee, new TeamA());
                         ecb.SetComponent(newBee, new OverridableMaterial_Color() { Value = GameUtilities.ColorToFloat4(globalData.TeamAColor) });
                     }
-                    else if (evnt.Team == 2)
+                    else if (evnt.Team == Team.TeamB)
                     {
-                        ecb.AddComponent(newBee, new BeeState { Team = Team.TeamB });
+                        bee.Team = Team.TeamB;
                         ecb.AddComponent(newBee, new TeamB());
                         ecb.SetComponent(newBee, new OverridableMaterial_Color() { Value = GameUtilities.ColorToFloat4(globalData.TeamBColor) });
                     }
-                    else
-                    {
-                        ecb.AddComponent(newBee, new BeeState { Team = Team.None });
-                    }
+                    
+                    ecb.SetComponent(newBee, bee);
                 }
                 spawnEvents.Clear();
-            }).Schedule();
+            }).Schedule(Dependency);
         
         // Selection of behaviour : If no enemy or resource targeted, choose one based on aggression
-        ecb = ECBSystem.CreateCommandBuffer();
-        Entities
+        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Dependency = Entities
+            .WithName("BeeBehaviourSelectJob")
+            .WithReadOnly(teamABeeEntities)
+            .WithReadOnly(teamBBeeEntities)
+            .WithReadOnly(resourceEntities)
             .WithNone<BeeTargetEnemy>()
             .WithNone<BeeTargetResource>()
-            .ForEach((Entity entity, ref Bee bee, in BeeState beeState) => 
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee) => 
             {
                 NativeArray<Entity> enemyTeamEntities = default;
-                if (beeState.Team == Team.TeamA)
+                if (bee.Team == Team.TeamA)
                 {
                     enemyTeamEntities = teamBBeeEntities;
                 }
-                else if (beeState.Team == Team.TeamB)
+                else if (bee.Team == Team.TeamB)
                 {
                     enemyTeamEntities = teamABeeEntities;
                 }
 
                 if (enemyTeamEntities.IsCreated)
                 {
-                    if (bee.Random.NextFloat(0f, 1f) > bee.Aggression)
+                    if (bee.Random.NextFloat(0f, 1f) < bee.Aggression)
                     {
-                        ecb.AddComponent(entity, new BeeTargetEnemy { Target = enemyTeamEntities[bee.Random.NextInt(0, enemyTeamEntities.Length - 1)] });
-                    }
-                    else
-                    {
-                        ecb.AddComponent(entity, new BeeTargetResource { Target = resourceEntities[bee.Random.NextInt(0, resourceEntities.Length - 1)] });
-                    }
-                }
-            }).Schedule();
-        
-        // Seek resource behaviour
-        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        Entities
-            .WithNone<BeeTargetEnemy>()
-            .WithNone<BeeCarryingResource>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee, ref BeeTargetResource targetResource, in Translation translation, in BeeState beeState) =>
-            {
-                Resource resource = default;
-                
-                // if resource is picked up, invalid, or not top of stack, cancel
-                bool resourceValid = true;
-                if (HasComponent<Resource>(targetResource.Target))
-                {
-                    // if resource has another carrier
-                    if (HasComponent<ResourceCarrier>(targetResource.Target) && GetComponent<ResourceCarrier>(targetResource.Target).Carrier != entity)
-                    {
-                        resourceValid = false;
-                    }
-                    else
-                    {
-                        // if resource is not top of stack
-                        resource = GetComponent<Resource>(targetResource.Target);
-                        if (resource.StackIndex == cellResourceStackCount[resource.CellIndex] - 1)
+                        if (enemyTeamEntities.Length > 0)
                         {
-                            resourceValid = false;
+                            ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetEnemy { Target = enemyTeamEntities[bee.Random.NextInt(0, enemyTeamEntities.Length - 1)] });
+                        }
+                    }
+                    else
+                    {
+                        if (resourceEntities.Length > 0)
+                        {
+                            ecbParallel.AddComponent(entityInQueryIndex, entity, new BeeTargetResource { Target = resourceEntities[bee.Random.NextInt(0, resourceEntities.Length - 1)] });
                         }
                     }
                 }
-                else
+            }).ScheduleParallel(Dependency);
+        
+        // Resource behaviour
+        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Dependency = Entities
+            .WithName("BeeResourceBehaviourJob")
+            .WithReadOnly(cellResourceStackCount)
+            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee, ref BeeTargetResource targetResource, in Translation translation) =>
+            {
+                bool resourceCarrierIsSelf = false;
+                bool resourceValid = true;
+
+                // Validate resource
                 {
-                    resourceValid = false;
+                    if (HasComponent<Resource>(targetResource.Target))
+                    {
+                        // invalid if resource has another carrier
+                        if (HasComponent<ResourceCarrier>(targetResource.Target))
+                        {
+                            resourceCarrierIsSelf = GetComponent<ResourceCarrier>(targetResource.Target).Carrier == entity;
+                            if (!resourceCarrierIsSelf)
+                            {
+                                resourceValid = false;
+                            }
+                        }
+
+                        // invalid if resource is not top of stack
+                        if (HasComponent<ResourceSettled>(targetResource.Target))
+                        {
+                            ResourceSettled resourceSettled = GetComponent<ResourceSettled>(targetResource.Target);
+                            if (resourceSettled.StackIndex != cellResourceStackCount[resourceSettled.CellIndex] - 1)
+                            {
+                                // TODO
+                                //UnityEngine.Debug.Log("INVALID stack");
+                                //resourceValid = false;
+                            }
+                        }
+                    }
+                    // invalid if resource is destroyed
+                    else
+                    {
+                        resourceValid = false;
+                    }
                 }
 
                 if (resourceValid)
                 {
-                    // if has non-grabbed resource target, move towards it
-                    if (targetResource.IsPickedUp == 0)
+                    // Bring resource back to base if we're the active carrier of that resource
+                    if (resourceCarrierIsSelf)
+                    {
+                        // Select our team zone
+                        Box selfTeamZone = default;
+                        bool validTeamZone = true;
+                        if (bee.Team == Team.TeamA)
+                        {
+                            selfTeamZone = runtimeData.GridCharacteristics.TeamABounds;
+                        }
+                        else if (bee.Team == Team.TeamB)
+                        {
+                            selfTeamZone = runtimeData.GridCharacteristics.TeamBBounds;
+                        }
+                        else
+                        {
+                            validTeamZone = false;
+                        }
+
+                        if (validTeamZone)
+                        {
+                            // Drop resource when inside our team zone
+                            if (selfTeamZone.IsInside(translation.Value))
+                            {
+                                GameUtilities.DropResource(targetResource.Target, entity, ecbParallel, entityInQueryIndex);
+                            }
+                            // Move towards team zone
+                            else
+                            {
+                                Box shrunkenTeamZone = selfTeamZone;
+                                shrunkenTeamZone.Extents.xz *= 0.8f;
+                                shrunkenTeamZone.Extents.y *= 0.4f;
+                                shrunkenTeamZone.Recalculate();
+
+                                float3 destination = shrunkenTeamZone.GetClosestPoint(translation.Value);
+                                bee.Velocity += (destination - translation.Value) * (bee.CarryForce * deltaTime / math.distance(translation.Value, destination));
+                            }
+                        }
+                    }
+                    // Seek out resource
+                    else
                     {
                         float3 delta = GetComponent<Translation>(targetResource.Target).Value - translation.Value;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-                        
+
                         // Move towards resource
                         if (sqrDist > (bee.GrabDistance * bee.GrabDistance))
                         {
@@ -168,66 +226,28 @@ public partial class BeeSystem : SystemBase
                             ecbParallel.AddComponent(entityInQueryIndex, targetResource.Target, new ResourceCarrier { Carrier = entity });
                         }
                     }
-                    // if has grabbed resource target, move back to base and drop
-                    else
-                    {
-                        // Select our team zone
-                        Box selfTeamZone = default;
-                        bool validTeamZone = true;
-                        if (beeState.Team == Team.TeamA)
-                        {
-                            selfTeamZone = runtimeData.GridCharacteristics.TeamABounds;
-                        }
-                        else if (beeState.Team == Team.TeamB)
-                        {
-                            selfTeamZone = runtimeData.GridCharacteristics.TeamBBounds;
-                        }
-                        else
-                        {
-                            validTeamZone = false;
-                        }
-
-                        // Drop resource when inside our team zone
-                        if (selfTeamZone.IsInside(translation.Value))
-                        {
-                            
-                        }
-                        // Move towards team zone
-                        else
-                        {
-                            
-                            
-                        }
-                    }
                 }
                 else
                 {
-                    ecb.RemoveComponent<BeeTargetResource>(entity);
+                    ecbParallel.RemoveComponent<BeeTargetResource>(entityInQueryIndex, entity);
                 }
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
         
-        // Bring back resource behaviour
+        // Attack behaviour
         ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        Entities
-            .WithNone<BeeTargetEnemy>()
-            .WithAll<BeeCarryingResource>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee, ref BeeTargetResource targetResource, in Translation translation, in BeeState beeState) =>
-            {
-            }).ScheduleParallel();
-        
-        // TargetEnemy behaviour
-        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
-        Entities
+        Dependency = Entities
+            .WithName("BeeAttackBehaviourJob")
             .ForEach((Entity entity, int entityInQueryIndex, ref Bee bee) => 
             {
                 // TODO: if has enemy target, move toward is with chase force
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
         
         // Movement with velocity
-        Entities
+        Dependency = Entities
+            .WithName("BeeMovementJob")
             .WithNativeDisableParallelForRestriction(teamABeeTranslations)
             .WithNativeDisableParallelForRestriction(teamBBeeTranslations)
-            .ForEach((ref Translation translation, ref Bee bee, ref Rotation rotation, in BeeState beeState) => 
+            .ForEach((ref Translation translation, ref Bee bee, ref Rotation rotation) => 
             {
                 // Jitter
                 bee.Velocity += bee.Random.NextFloat3Direction() * (bee.FlightJitter * deltaTime);
@@ -238,16 +258,16 @@ public partial class BeeSystem : SystemBase
                 // Attract / Repel
                 {
                     NativeArray<Translation> selfTeamTranslations = default;
-                    if (beeState.Team == Team.TeamA)
+                    if (bee.Team == Team.TeamA)
                     {
                         selfTeamTranslations = teamABeeTranslations;
                     }
-                    else if (beeState.Team == Team.TeamB)
+                    else if (bee.Team == Team.TeamB)
                     {
                         selfTeamTranslations = teamBBeeTranslations;
                     }
 
-                    if (selfTeamTranslations.IsCreated)
+                    if (selfTeamTranslations.IsCreated && selfTeamTranslations.Length > 0)
                     {
                         // Attractive Friend
                         {
@@ -277,25 +297,27 @@ public partial class BeeSystem : SystemBase
                 // Rotate towards vel
                 rotation.Value = math.slerp(rotation.Value, quaternion.LookRotationSafe(math.normalizesafe(bee.Velocity), math.up()), bee.RotationSharpness * deltaTime);
                 
-            }).ScheduleParallel();
+            }).ScheduleParallel(Dependency);
         
         // Squash & stretch
-        Entities
+        Dependency = Entities
+            .WithName("BeeStretchJob")
             .ForEach((ref NonUniformScale scale, in Bee bee) => 
             {
-                scale.Value.z = math.clamp(math.length(bee.Velocity) * bee.SpeedStretch, 0.5f, 3f);
-            }).ScheduleParallel();
+                scale.Value.z = math.clamp(math.length(bee.Velocity) * bee.SpeedStretch, 0.6f, 1.1f);
+            }).ScheduleParallel(Dependency);
         
         // Bee Death
-        ecb = ECBSystem.CreateCommandBuffer();
-        Entities
-            .WithNone<Bee>()
-            .ForEach((Entity entity, in BeeState beeState) => 
+        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        Dependency = Entities
+            .WithName("BeeDeathJob")
+            .WithAll<BeeDeath>()
+            .ForEach((Entity entity, int entityInQueryIndex, in Bee bee) => 
             {
                 // TODO: VFX
                 
-                ecb.RemoveComponent<BeeState>(entity);
-            }).Schedule();
+                ecbParallel.DestroyEntity(entityInQueryIndex, entity);
+            }).ScheduleParallel(Dependency);
 
         resourceEntities.Dispose(Dependency);
         teamABeeEntities.Dispose(Dependency);
