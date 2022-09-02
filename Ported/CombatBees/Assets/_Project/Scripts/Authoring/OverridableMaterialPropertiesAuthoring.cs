@@ -7,7 +7,7 @@ public class OverridableMaterialPropertiesAuthoring : MonoBehaviour, IConvertGam
 {
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        dstManager.AddComponentData(entity, new OverridableMaterial_Color{ Value = new float4(1f) });
+        dstManager.AddComponentData(entity, new OverridableMaterial_Color{ Value = GameUtilities.ColorToFloat4(Color.gray) });
         dstManager.AddComponentData(entity, new OverridableMaterial_Smoothness { Value = 0.5f });
     }
 }

@@ -107,25 +107,60 @@ public partial class ResourceSystem : SystemBase
                     {
                         ecb.DestroyEntity(entity);
                         
-                        // TODO
-                        Team selectedTeam = default;
-                        if (cellType == CellType.TeamA)
+                        // VFX
+                        DynamicBuffer<ParticleSpawnEvent> particleEventsBuffer = GetBuffer<ParticleSpawnEvent>(runtimeDataEntity);
+                        for (int i = 0; i < globalData.Particles_SparksCount; i++)
                         {
-                            selectedTeam = Team.TeamA;
-                        }
-                        else
-                        {
-                            selectedTeam = Team.TeamB;
-                        }
-
-                        DynamicBuffer<BeeSpawnEvent> beeSpawnEvents = beeSpawnBufferFromEntity[runtimeDataEntity];
-                        for (int i = 0; i < globalData.BeeSpawnCountOnScore; i++)
-                        {
-                            beeSpawnEvents.Add(new BeeSpawnEvent
+                            particleEventsBuffer.Add(new ParticleSpawnEvent
                             {
+                                ParticleType = ParticleType.Spark,
                                 Position = translation.Value,
-                                Team = selectedTeam,
+                                Rotation = quaternion.identity,
+                                LifetimeRandomization = 0.3f,
+                                SizeRandomization = 0.3f,
+                                VelocityDirection = math.up(),
+                                VelocityMagnitude = globalData.Particles_SparksVelocity,
+                                VelocityMagnitudeRandomization = 0.5f,
+                                VelocityDirectionRandomizationAngles = 90f,
                             });
+                        }
+                        for (int i = 0; i < globalData.Particles_SmokesCount; i++)
+                        {
+                            particleEventsBuffer.Add(new ParticleSpawnEvent
+                            {
+                                ParticleType = ParticleType.Smoke,
+                                Position = translation.Value,
+                                Rotation = quaternion.identity,
+                                LifetimeRandomization = 0.3f,
+                                SizeRandomization = 0.3f,
+                                VelocityDirection = math.up(),
+                                VelocityMagnitude = globalData.Particles_SmokesVelocity,
+                                VelocityMagnitudeRandomization = 0.5f,
+                                VelocityDirectionRandomizationAngles = 90f,
+                            });
+                        }
+                        
+                        // Spawn bees
+                        {
+                            Team selectedTeam = default;
+                            if (cellType == CellType.TeamA)
+                            {
+                                selectedTeam = Team.TeamA;
+                            }
+                            else
+                            {
+                                selectedTeam = Team.TeamB;
+                            }
+
+                            DynamicBuffer<BeeSpawnEvent> beeSpawnEvents = beeSpawnBufferFromEntity[runtimeDataEntity];
+                            for (int i = 0; i < globalData.BeeSpawnCountOnScore; i++)
+                            {
+                                beeSpawnEvents.Add(new BeeSpawnEvent
+                                {
+                                    Position = translation.Value,
+                                    Team = selectedTeam,
+                                });
+                            }
                         }
                     }
                 }

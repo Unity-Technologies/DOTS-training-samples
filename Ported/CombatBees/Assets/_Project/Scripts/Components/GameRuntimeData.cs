@@ -2,6 +2,7 @@ using System;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 public enum CellType
@@ -223,4 +224,26 @@ public struct BeeSpawnEvent : IBufferElementData
 {
     public float3 Position;
     public Team Team;
+}
+
+public enum ParticleType
+{
+    Spark,
+    Smoke,
+    BloodInFlight,
+    BloodSettled,
+}
+
+[Serializable]
+public struct ParticleSpawnEvent : IBufferElementData
+{
+    public ParticleType ParticleType;
+    public float3 Position;
+    public quaternion Rotation;
+    public float3 VelocityDirection;
+    public float VelocityDirectionRandomizationAngles;
+    public float VelocityMagnitude;
+    public float VelocityMagnitudeRandomization;
+    public float LifetimeRandomization;
+    public float SizeRandomization;
 }

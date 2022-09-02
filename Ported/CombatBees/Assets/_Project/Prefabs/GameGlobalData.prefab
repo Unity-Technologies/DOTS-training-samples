@@ -48,9 +48,17 @@ MonoBehaviour:
     type: 3}
   ResourcePrefab: {fileID: 1921058739005352678, guid: 13af615eabd834542a106072a6e81211,
     type: 3}
-  LevelCubePrefab: {fileID: 1139058369500724106, guid: 4f02d1387da1b6e4995d0005713a8d0a,
+  GenericCubePrefab: {fileID: 1139058369500724106, guid: 4f02d1387da1b6e4995d0005713a8d0a,
     type: 3}
-  FloorColor: {r: 0, g: 0, b: 0, a: 1}
+  ParticleSparkPrefab: {fileID: 1139058369500724106, guid: 588ec7dc202cf1140b5b687b0292047d,
+    type: 3}
+  ParticleSmokePrefab: {fileID: 1139058369500724106, guid: 358232c1d3f46c242adad69db18eb300,
+    type: 3}
+  ParticleBloodInFlightPrefab: {fileID: 1139058369500724106, guid: 88fd592bee3cbda42a30d14a85b912b4,
+    type: 3}
+  ParticleBloodSettledPrefab: {fileID: 1139058369500724106, guid: 69adb5bc748c0724586227977c441689,
+    type: 3}
+  FloorColor: {r: 0.064, g: 0.064, b: 0.064, a: 1}
   TeamAColor: {r: 1, g: 0.32040966, b: 0, a: 1}
   TeamBColor: {r: 0, g: 0.7420225, b: 1, a: 1}
   Gravity: -9.81
@@ -59,4 +67,10 @@ MonoBehaviour:
   ResourceSnapTime: 0.15
   ResourceCarryStiffness: 10
   ResourceCarryOffset: 0.25
-  BeeSpawnCountOnScore: 3
+  BeeSpawnCountOnScore: 9
+  Particles_SparksCount: 10
+  Particles_SparksVelocity: 50
+  Particles_SmokesCount: 6
+  Particles_SmokesVelocity: 3
+  Particles_BloodsCount: 6
+  Particles_BloodsVelocity: 3

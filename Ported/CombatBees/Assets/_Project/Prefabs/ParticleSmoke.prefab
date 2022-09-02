@@ -11,13 +11,13 @@ GameObject:
   - component: {fileID: 1139058369500724111}
   - component: {fileID: 1139058369500724110}
   - component: {fileID: 1139058369500724109}
-  - component: {fileID: -1188724431082284962}
+  - component: {fileID: -914464996009694968}
   m_Layer: 0
-  m_Name: LevelCube
+  m_Name: ParticleSmoke
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 126
   m_IsActive: 1
 --- !u!4 &1139058369500724111
 Transform:
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1139058369500724106}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2828, y: 1.2828, z: 1.2828}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -50,7 +50,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1139058369500724106}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 42dd86aa47235a346a05cd4dc9464fc4, type: 2}
+  - {fileID: 2100000, guid: f31f23af5faa1f040810da3743eceb45, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-1188724431082284962
+--- !u!114 &-914464996009694968
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1139058369500724106}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e33a7aea7c14fc46a23d86e65ee0e33, type: 3}
+  m_Script: {fileID: 11500000, guid: e7f00ab10ea3be246807ce27c77908e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Lifetime: 0.5
+  Drag: 0.2

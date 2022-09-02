@@ -184,17 +184,17 @@ MonoBehaviour:
   FloorSizeZ: 80
   TeamFloorSizeX: 20
   TeamZoneHeight: 20
-  StartResourcesCount: 3000
-  StartBeesCountPerTeam: 40000
+  StartResourcesCount: 5000
+  StartBeesCountPerTeam: 250
   ResourcesSpawnBox:
     Center:
       x: 0
       y: 10
       z: 0
     Extents:
-      x: 12
+      x: 14
       y: 3
-      z: 12
+      z: 14
     Min:
       x: 0
       y: 0
@@ -217,6 +217,59 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalData: {fileID: 412992544}
   SceneData: {fileID: 843814899}
+--- !u!1 &1920555692
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1920555693}
+  - component: {fileID: 1920555694}
+  m_Layer: 0
+  m_Name: EntityCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1920555693
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920555692}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1920555694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920555692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 787a8b375db44294596e5a185133f878, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RotationSpeed: 5
+  ZoomSpeed: 20
+  MinZoomDistance: 0
+  MaxZoomDistance: 100
+  CenterHeight: 1
+  IsInitialized: 0
+  CurrentZoomDistance: 0
+  PitchAngle: 0
+  YawAngle: 0
 --- !u!1001 &1681981357487755893
 PrefabInstance:
   m_ObjectHideFlags: 0

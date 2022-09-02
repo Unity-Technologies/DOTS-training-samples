@@ -35,6 +35,7 @@ public partial class BeeSystem : SystemBase
         float time = (float)Time.ElapsedTime;
         GameGlobalData globalData = GetSingleton<GameGlobalData>();
         GameRuntimeData runtimeData = GetSingleton<GameRuntimeData>();
+        Entity runtimeDataEntity = GetSingletonEntity<GameRuntimeData>();
         ComponentDataFromEntity<Bee> beeFromEntity = GetComponentDataFromEntity<Bee>(false);
 
         // TODO: maybe this strategy of allocating tmp arrays isn't the best. But it needs less maintenance than persistent lists
@@ -332,16 +333,31 @@ public partial class BeeSystem : SystemBase
             }).ScheduleParallel(Dependency);
         
         // Bee Death
-        ecbParallel = ECBSystem.CreateCommandBuffer().AsParallelWriter();
+        ecb = ECBSystem.CreateCommandBuffer();
         Dependency = Entities
             .WithName("BeeDeathJob")
             .WithAll<BeeDeath>()
-            .ForEach((Entity entity, int entityInQueryIndex, in Bee bee) => 
+            .ForEach((Entity entity, in Bee bee, in Translation translation) => 
             {
-                // TODO: VFX
+                //  VFX
+                DynamicBuffer<ParticleSpawnEvent> particleEventsBuffer = GetBuffer<ParticleSpawnEvent>(runtimeDataEntity);
+                for (int i = 0; i < globalData.Particles_BloodsCount; i++)
+                {
+                    particleEventsBuffer.Add(new ParticleSpawnEvent
+                    {
+                        ParticleType = ParticleType.BloodInFlight,
+                        Position = translation.Value,
+                        Rotation = quaternion.identity,
+                        SizeRandomization = 0.3f,
+                        VelocityDirection = math.up(),
+                        VelocityMagnitude = globalData.Particles_BloodsVelocity,
+                        VelocityMagnitudeRandomization = 0.5f,
+                        VelocityDirectionRandomizationAngles = 10f,
+                    });
+                }
                 
-                ecbParallel.DestroyEntity(entityInQueryIndex, entity);
-            }).ScheduleParallel(Dependency);
+                ecb.DestroyEntity(entity);
+            }).Schedule(Dependency);
 
         resourceEntities.Dispose(Dependency);
         teamABeeEntities.Dispose(Dependency);

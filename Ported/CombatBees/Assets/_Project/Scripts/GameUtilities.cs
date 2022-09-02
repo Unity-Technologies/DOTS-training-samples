@@ -50,6 +50,25 @@ public static class GameUtilities
         };
     }
 
+    // a and b must be [0 - 180]
+    public static float3 GetRandomInArcSphere(float innerDegrees, float outerDegrees, float3 aroundAxis, ref Unity.Mathematics.Random random)
+    {
+        var v = random.NextFloat(0f, 1f);
+        var a = math.cos(math.radians(innerDegrees));
+        var b = math.cos(math.radians(outerDegrees));
+
+        float azimuth = v * 2f * math.PI;
+        float cosDistFromZenith = random.NextFloat(math.min(a, b), math.max(a, b));
+        float sinDistFromZenith = math.sqrt(1f - cosDistFromZenith * cosDistFromZenith);
+        float3 pqr = new float3(math.cos(azimuth) * sinDistFromZenith, math.sin(azimuth) * sinDistFromZenith, cosDistFromZenith);
+        float3 pAxis = math.abs(aroundAxis.x) < 0.9f ? math.right() : math.up();
+        float3 qAxis = math.normalizesafe(math.cross(aroundAxis, pAxis));
+        pAxis = math.cross(qAxis, aroundAxis);
+        float3 position = (pqr.x * pAxis) + (pqr.y * qAxis) + (pqr.z * aroundAxis);
+        return position;
+    }
+
+
     public static void DropResource(Entity resourceEntity, Entity carrierEntity, EntityCommandBuffer.ParallelWriter ecbParallel, int sortKey)
     {
         ecbParallel.RemoveComponent<ResourceCarrier>(sortKey, resourceEntity);

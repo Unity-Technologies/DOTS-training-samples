@@ -9,5 +9,6 @@ public class GameObjectCamera : MonoBehaviour
     private void OnEnable()
     {
         GameObjectCameraSystem cameraSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<GameObjectCameraSystem>();
+        cameraSystem.GameObjectCameraTransform = this.transform;
     }
 }

@@ -58,6 +58,7 @@ public partial class GameInitializationSystem : SystemBase
                 // Add event buffers
                 EntityManager.AddBuffer<ResourceSpawnEvent>(tmpRuntimeDataEntity);
                 EntityManager.AddBuffer<BeeSpawnEvent>(tmpRuntimeDataEntity);
+                EntityManager.AddBuffer<ParticleSpawnEvent>(tmpRuntimeDataEntity);
                 
                 SetSingleton(tmpRuntimeData);
             }
@@ -70,7 +71,7 @@ public partial class GameInitializationSystem : SystemBase
                 int totalCellCount = runtimeData.GridCharacteristics.GetTotalCellCount();
 
                 NativeArray<Entity> levelCubes = new NativeArray<Entity>(totalCellCount, Allocator.Temp);
-                EntityManager.Instantiate(globalData.LevelCubePrefab, levelCubes);
+                EntityManager.Instantiate(globalData.GenericCubePrefab, levelCubes);
 
                 for (int i = 0; i < totalCellCount; i++)
                 {
