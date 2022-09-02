@@ -16,7 +16,7 @@ public partial class BeeSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        ECBSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
 
         TeamABeesQuery = GetEntityQuery(typeof(Bee), typeof(TeamA), typeof(Translation));
         TeamBBeesQuery = GetEntityQuery(typeof(Bee), typeof(TeamB), typeof(Translation));
@@ -352,7 +352,7 @@ public partial class BeeSystem : SystemBase
                         VelocityDirection = math.up(),
                         VelocityMagnitude = globalData.Particles_BloodsVelocity,
                         VelocityMagnitudeRandomization = 0.5f,
-                        VelocityDirectionRandomizationAngles = 10f,
+                        VelocityDirectionRandomizationAngles = 25f,
                     });
                 }
                 

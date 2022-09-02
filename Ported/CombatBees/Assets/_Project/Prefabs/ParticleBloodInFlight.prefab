@@ -101,3 +101,5 @@ MonoBehaviour:
     x: -0
     y: -10
     z: -0
+  StretchFactor: 5
+  StretchMax: 5

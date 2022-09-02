@@ -13,7 +13,7 @@ public partial class ParticleSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
-        ECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        ECBSystem = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
