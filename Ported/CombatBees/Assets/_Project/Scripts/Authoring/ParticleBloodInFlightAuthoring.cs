@@ -13,6 +13,7 @@ public class ParticleBloodInFlightAuthoring : MonoBehaviour, IConvertGameObjectT
     
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
+        dstManager.AddComponentData(entity, new Particle( ));
         dstManager.AddComponentData(entity, new ParticleSize { Size = transform.localScale });
         dstManager.AddComponentData(entity, new NonUniformScale { Value = 1f});
         dstManager.AddComponentData(entity, new ParticleLifetime { MaxLifetime = Lifetime });

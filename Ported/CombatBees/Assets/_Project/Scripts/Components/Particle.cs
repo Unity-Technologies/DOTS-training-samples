@@ -4,6 +4,11 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [Serializable]
+public struct Particle : IComponentData
+{
+}
+
+[Serializable]
 public struct ParticleVelocity : IComponentData
 {
     public float3 Velocity;

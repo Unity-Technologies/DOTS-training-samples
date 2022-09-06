@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine.Windows;
 
 [AlwaysUpdateSystem]
 [AlwaysSynchronizeSystem]
@@ -13,6 +14,13 @@ public partial class GameInitializationSystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        // Game reset
+        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.R))
+        {
+            Entity gameInitEntity = EntityManager.CreateEntity();
+            EntityManager.AddComponentData(gameInitEntity, new GameInitialization());
+        }
+        
         if (HasSingleton<GameInitialization>() &&
             HasSingleton<GameGlobalData>() &&
             HasSingleton<GameSceneData>())
@@ -24,8 +32,16 @@ public partial class GameInitializationSystem : SystemBase
             {
                 EntityQuery beesQuery = GetEntityQuery(ComponentType.ReadWrite(typeof(Bee)));
                 EntityQuery resourcesQuery = GetEntityQuery(ComponentType.ReadWrite(typeof(Resource)));
-                EntityManager.DestroyEntity(beesQuery);
+                EntityQuery particlesQuery = GetEntityQuery(ComponentType.ReadWrite(typeof(Particle)));
+
+                NativeArray<Entity> beeEntities = beesQuery.ToEntityArray(Allocator.Temp);
+                for (int i = 0; i < beeEntities.Length; i++)
+                {
+                    EntityManager.DestroyEntity(beeEntities[i]);
+                }
+                beeEntities.Dispose();
                 EntityManager.DestroyEntity(resourcesQuery);
+                EntityManager.DestroyEntity(particlesQuery);
 
                 if (HasSingleton<GameRuntimeData>())
                 {

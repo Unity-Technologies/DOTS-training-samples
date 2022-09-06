@@ -251,9 +251,7 @@ public partial class BeeSystem : SystemBase
                         bee.Velocity += delta * (bee.AttackForce * deltaTime / math.sqrt(sqrDist));
                         if (sqrDist < bee.HitDistance * bee.HitDistance)
                         {
-                            // TODO: particles
-                            
-                            ecbParallel.AddComponent(entityInQueryIndex, targetEnemy.Target, new BeeDeath());
+                            ecbParallel.AddComponent(entityInQueryIndex, targetEnemy.Target, new BeeDeath { KillerVelocity = bee.Velocity });
                             ecbParallel.RemoveComponent<BeeTargetEnemy>(entityInQueryIndex, entity);
                         }
                     }
@@ -336,8 +334,7 @@ public partial class BeeSystem : SystemBase
         ecb = ECBSystem.CreateCommandBuffer();
         Dependency = Entities
             .WithName("BeeDeathJob")
-            .WithAll<BeeDeath>()
-            .ForEach((Entity entity, in Bee bee, in Translation translation) => 
+            .ForEach((Entity entity, in Bee bee, in Translation translation, in BeeDeath beeDeath) => 
             {
                 //  VFX
                 DynamicBuffer<ParticleSpawnEvent> particleEventsBuffer = GetBuffer<ParticleSpawnEvent>(runtimeDataEntity);
@@ -349,8 +346,8 @@ public partial class BeeSystem : SystemBase
                         Position = translation.Value,
                         Rotation = quaternion.identity,
                         SizeRandomization = 0.3f,
-                        VelocityDirection = math.up(),
-                        VelocityMagnitude = globalData.Particles_BloodsVelocity,
+                        VelocityDirection = math.normalizesafe(beeDeath.KillerVelocity),
+                        VelocityMagnitude = globalData.Particles_BloodsVelocity * math.length(beeDeath.KillerVelocity),
                         VelocityMagnitudeRandomization = 0.5f,
                         VelocityDirectionRandomizationAngles = 25f,
                     });

@@ -49,4 +49,5 @@ public struct BeeTargetResource : IComponentData
 [Serializable]
 public struct BeeDeath : IComponentData
 {
+    public float3 KillerVelocity;
 }
