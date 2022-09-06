@@ -13,6 +13,7 @@
 * Handle logic of making a resource fall when its `ResourceCarrier` has died (is null)
 
 # Bees
+`BeeSystem` handles:
 * Processing a list of "bee spawn events" that other systems can use to spawn bees easily
 * Selecting the bee behaviour when there's no current behaviour (go for resources or go attack enemies)
 * Handling the resource-gathering behaviour
@@ -22,6 +23,7 @@
 * Handling what happens on death (VFX)
 
 # Particles
+`ParticleSystem` handles:
 * Processing a list of "particle spawn events" that other systems can use to spawn particles easily
 * Handling various particle properties depending on particle archetype (velocity, lifetime, stretch, scaling, etc...)
 
