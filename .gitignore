@@ -45,3 +45,5 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+
+Ported/CombatBees/UserSettings/
