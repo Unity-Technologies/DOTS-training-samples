@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.unity.collab-proxy": "1.15.18",
+    "com.unity.entities.graphics": "1.0.0-exp.2",
     "com.unity.ide.rider": "3.0.15",
     "com.unity.ide.visualstudio": "2.0.16",
     "com.unity.ide.vscode": "1.2.5",
@@ -41,5 +42,6 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+"registry": "https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-candidates"
 }
