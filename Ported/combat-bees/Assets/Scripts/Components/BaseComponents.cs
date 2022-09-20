@@ -2,5 +2,10 @@
 using Unity.Mathematics;
 struct Velocity : IComponentData
 {
-    public float3 velocity;
+    public float3 Value;
+}
+
+public struct Area : IComponentData
+{
+    public AABB Value;
 }
