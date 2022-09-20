@@ -14,9 +14,6 @@
         },
         {
             "m_Id": "057b35d6973d47a7b03b33f58d5d52bf"
-        },
-        {
-            "m_Id": "65364bba4e2f45ed80e45ae689e1db81"
         }
     ],
     "m_Keywords": [],
@@ -104,9 +101,6 @@
         },
         {
             "m_Id": "d0db97c109934f31b0571bc6971108aa"
-        },
-        {
-            "m_Id": "6ed38033812a473488dd60d59c52fd94"
         }
     ],
     "m_GroupDatas": [],
@@ -136,6 +130,20 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "5f9e16a3026642bc8a310f98eac8bb2a"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "0c9a0d62e825472e92b162fca9bb5d1b"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "dc868ff08f384442a81c06fff63d2018"
                 },
                 "m_SlotId": 0
             }
@@ -250,20 +258,6 @@
                     "m_Id": "1b1e19d519424c25b4b7457ff6163e09"
                 },
                 "m_SlotId": 1
-            }
-        },
-        {
-            "m_OutputSlot": {
-                "m_Node": {
-                    "m_Id": "6ed38033812a473488dd60d59c52fd94"
-                },
-                "m_SlotId": 0
-            },
-            "m_InputSlot": {
-                "m_Node": {
-                    "m_Id": "dc868ff08f384442a81c06fff63d2018"
-                },
-                "m_SlotId": 0
             }
         },
         {
@@ -1168,9 +1162,6 @@
         },
         {
             "m_Id": "057b35d6973d47a7b03b33f58d5d52bf"
-        },
-        {
-            "m_Id": "65364bba4e2f45ed80e45ae689e1db81"
         }
     ]
 }
@@ -1350,34 +1341,6 @@
 }
 
 {
-    "m_SGVersion": 1,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
-    "m_ObjectId": "65364bba4e2f45ed80e45ae689e1db81",
-    "m_Guid": {
-        "m_GuidSerialized": "5540f774-a7f7-4013-ac81-a68cd84ae230"
-    },
-    "m_Name": "Hive",
-    "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "Hive",
-    "m_DefaultReferenceName": "_Hive",
-    "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
-    "m_UseCustomSlotLabel": false,
-    "m_CustomSlotLabel": "",
-    "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
-    "m_Value": 0.0,
-    "m_FloatType": 1,
-    "m_RangeValues": {
-        "x": 0.0,
-        "y": 1.0
-    }
-}
-
-{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "657c06668ba94346a8d1c7e6a7980f6f",
@@ -1474,42 +1437,6 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
-    "m_ObjectId": "6ed38033812a473488dd60d59c52fd94",
-    "m_Group": {
-        "m_Id": ""
-    },
-    "m_Name": "Property",
-    "m_DrawState": {
-        "m_Expanded": true,
-        "m_Position": {
-            "serializedVersion": "2",
-            "x": -2265.3330078125,
-            "y": 313.99993896484377,
-            "width": 100.0,
-            "height": 36.000030517578128
-        }
-    },
-    "m_Slots": [
-        {
-            "m_Id": "7b7e514b07644bb4829eb22add394591"
-        }
-    ],
-    "synonyms": [],
-    "m_Precision": 0,
-    "m_PreviewExpanded": true,
-    "m_DismissedVersion": 0,
-    "m_PreviewMode": 0,
-    "m_CustomColors": {
-        "m_SerializableColors": []
-    },
-    "m_Property": {
-        "m_Id": "65364bba4e2f45ed80e45ae689e1db81"
-    }
-}
-
-{
-    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "70771688ebe8411ebc6813302af0a8e5",
     "m_Id": 3,
@@ -1582,21 +1509,6 @@
         "m_SerializableColors": []
     },
     "m_Space": 2
-}
-
-{
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
-    "m_ObjectId": "7b7e514b07644bb4829eb22add394591",
-    "m_Id": 0,
-    "m_DisplayName": "Hive",
-    "m_SlotType": 1,
-    "m_Hidden": false,
-    "m_ShaderOutputName": "Out",
-    "m_StageCapability": 3,
-    "m_Value": 0.0,
-    "m_DefaultValue": 0.0,
-    "m_Labels": []
 }
 
 {
