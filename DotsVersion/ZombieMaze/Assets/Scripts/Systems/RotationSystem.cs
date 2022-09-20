@@ -35,6 +35,7 @@ partial struct RotationSystem : ISystem
         // WithAll adds a constraint to the query, specifying that every entity should have such component.
         foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<RotationComponent>())
         {
+            
             transform.RotateWorld(rotation);
         }
     }

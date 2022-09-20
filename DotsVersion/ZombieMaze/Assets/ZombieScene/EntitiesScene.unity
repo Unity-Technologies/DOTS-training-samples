@@ -191,3 +191,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Width: 100
   Height: 100
+  PillsToSpawn: 20
+  ZombiesToSpawn: 100
