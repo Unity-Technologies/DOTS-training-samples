@@ -9,13 +9,9 @@ using UnityEngine;
 [BurstCompile]
 public partial struct TileCreationSystem : ISystem
 {
-    public int Width;
-    public int Height;
 
     public void OnCreate(ref SystemState state)
     {
-        Width = 100;
-        Height = 100;
         state.RequireForUpdate<PrefabConfig>();
     }
 
@@ -25,19 +21,21 @@ public partial struct TileCreationSystem : ISystem
 
 	public int Get1DIndex(int xIndex, int yIndex)
     {
-		return xIndex + yIndex * Width;
+		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
+		return xIndex + yIndex * mazeConfig.Width;
     }
 
 	public void CreateGround(ref SystemState state)
     {
 		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
+		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
 
 		Entity groundEntity = state.EntityManager.Instantiate(prefabConfig.TilePrefab);
 		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(groundEntity);
-		transformAspect.Position += new float3(Width * 0.5f - 0.5f, 0.0f, Height * 0.5f - 0.5f);
+		transformAspect.Position += new float3(mazeConfig.Width * 0.5f - 0.5f, 0.0f, mazeConfig.Height * 0.5f - 0.5f);
 
 		PostTransformMatrix postTransformMatrix = SystemAPI.GetComponent<PostTransformMatrix>(groundEntity);
-		postTransformMatrix.Value = float4x4.Scale(Width, postTransformMatrix.Value.c1.y, Height);
+		postTransformMatrix.Value = float4x4.Scale(mazeConfig.Width, postTransformMatrix.Value.c1.y, mazeConfig.Height);
 		SystemAPI.SetComponent<PostTransformMatrix>(groundEntity, postTransformMatrix);
 	}
 
@@ -46,10 +44,11 @@ public partial struct TileCreationSystem : ISystem
 		CreateGround(ref state);
 
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
-			
-        Entity entity = state.EntityManager.CreateEntity();
+		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
+
+		Entity entity = state.EntityManager.CreateEntity();
         DynamicBuffer<TileBufferElement> tiles = state.EntityManager.AddBuffer<TileBufferElement>(entity);
-        tiles.Capacity = Width * Height;
+        tiles.Capacity = mazeConfig.Width * mazeConfig.Height;
 
         TileBufferElement tileBufferElement = new TileBufferElement
         {
@@ -59,13 +58,13 @@ public partial struct TileCreationSystem : ISystem
             LeftWall = true
         };
 
-        for (int i = 0; i < Width * Height; ++i)
+        for (int i = 0; i < mazeConfig.Width * mazeConfig.Height; ++i)
         {
 			tiles.Add(tileBufferElement);
         }
 
 		Stack<Vector2Int> stack = new Stack<Vector2Int>();
-		Vector2Int current = new Vector2Int(UnityEngine.Random.Range(0, Width), UnityEngine.Random.Range(0, Height));
+		Vector2Int current = mazeConfig.GetRandomTilePosition();
 		TileBufferElement tempTile = tiles[Get1DIndex(current.x, current.y)];
 		tempTile.TempVisited = true;
 		tiles[Get1DIndex(current.x, current.y)] = tempTile;
@@ -79,9 +78,9 @@ public partial struct TileCreationSystem : ISystem
 				unvisitedNeighbors.Add(new Vector2Int(current.x - 1, current.y));
 			if (current.y > 0 && !tiles[Get1DIndex(current.x, current.y - 1)].TempVisited)
 				unvisitedNeighbors.Add(new Vector2Int(current.x, current.y - 1));
-			if (current.x < Width - 1 && !tiles[Get1DIndex(current.x + 1, current.y)].TempVisited)
+			if (current.x < mazeConfig.Width - 1 && !tiles[Get1DIndex(current.x + 1, current.y)].TempVisited)
 				unvisitedNeighbors.Add(new Vector2Int(current.x + 1, current.y));
-			if (current.y < Height - 1 && !tiles[Get1DIndex(current.x, current.y + 1)].TempVisited)
+			if (current.y < mazeConfig.Height - 1 && !tiles[Get1DIndex(current.x, current.y + 1)].TempVisited)
 				unvisitedNeighbors.Add(new Vector2Int(current.x, current.y + 1));
 
 			if (unvisitedNeighbors.Count > 0)
@@ -134,9 +133,9 @@ public partial struct TileCreationSystem : ISystem
 		//tileGameObjects.Add(groundTile);
 
 
-		for (int x = 0; x < Width; x++)
+		for (int x = 0; x < mazeConfig.Width; x++)
 		{
-			for (int y = 0; y < Height; y++)
+			for (int y = 0; y < mazeConfig.Height; y++)
 			{
 				TileBufferElement tile = tiles[Get1DIndex(x, y)];
 
@@ -154,14 +153,14 @@ public partial struct TileCreationSystem : ISystem
 					wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y - .5f);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 0, 0);
 				}
-				if (x == Width - 1)
+				if (x == mazeConfig.Width - 1)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3((x + .5f), wallTransform.LocalPosition.y, y);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 90, 0);
 				}
-				if (y == Height - 1)
+				if (y == mazeConfig.Height - 1)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
