@@ -28,16 +28,25 @@ public partial struct TileCreationSystem : ISystem
 		return xIndex + yIndex * Width;
     }
 
+	public void CreateGround(ref SystemState state)
+    {
+		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
+
+		Entity groundEntity = state.EntityManager.Instantiate(prefabConfig.TilePrefab);
+		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(groundEntity);
+		transformAspect.Position += new float3(Width * 0.5f - 0.5f, 0.0f, Height * 0.5f - 0.5f);
+
+		PostTransformMatrix postTransformMatrix = SystemAPI.GetComponent<PostTransformMatrix>(groundEntity);
+		postTransformMatrix.Value = float4x4.Scale(Width, postTransformMatrix.Value.c1.y, Height);
+		SystemAPI.SetComponent<PostTransformMatrix>(groundEntity, postTransformMatrix);
+	}
+
     public void OnUpdate(ref SystemState state)
     {
+		CreateGround(ref state);
+
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
-		/*
-        Entity groundEntity = state.EntityManager.Instantiate(prefabConfig.TilePrefab);
-        TransformAspect transform = SystemAPI.GetAspectRW<TransformAspect>(groundEntity);
-        UniformScaleTransform tempScaleTransform = transform.LocalToWorld;
-        tempScaleTransform.Scale = Width;
-        transform.LocalToWorld = tempScaleTransform;
-		*/
+			
         Entity entity = state.EntityManager.CreateEntity();
         DynamicBuffer<TileBufferElement> tiles = state.EntityManager.AddBuffer<TileBufferElement>(entity);
         tiles.Capacity = Width * Height;
