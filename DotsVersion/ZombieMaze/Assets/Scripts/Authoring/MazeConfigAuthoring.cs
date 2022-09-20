@@ -7,6 +7,8 @@ public class MazeConfigAuthoring : MonoBehaviour
     public int Height = 100;
     public int PillsToSpawn = 20;
     public int ZombiesToSpawn;
+    public int OpenStrips = 4;
+    public int MazeStrips = 4;
 }
 
 class MazeConfigBaker : Baker<MazeConfigAuthoring>
@@ -18,7 +20,9 @@ class MazeConfigBaker : Baker<MazeConfigAuthoring>
             Width = authoring.Width,
             Height = authoring.Height,
             PillsToSpawn = authoring.PillsToSpawn,
-            ZombiesToSpawn = authoring.ZombiesToSpawn
+            ZombiesToSpawn = authoring.ZombiesToSpawn,
+            OpenStrips = authoring.OpenStrips,
+            MazeStrips = authoring.MazeStrips
         });
     }
 }

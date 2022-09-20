@@ -127,10 +127,53 @@ public partial struct TileCreationSystem : ISystem
 			}
 		}
 
-	//	GameObject groundTile = Instantiate(tilePrefab, transform);
-	//	groundTile.transform.localPosition = new Vector3(TILE_SPACING * (width - 1) / 2, groundTile.transform.localPosition.y - .01f, TILE_SPACING * (length - 1) / 2);
-		//groundTile.transform.localScale = new Vector3(TILE_SPACING * width, groundTile.transform.localScale.y, TILE_SPACING * length);
-		//tileGameObjects.Add(groundTile);
+		TileBufferElement emptyTile = new TileBufferElement();
+		for(int x = mazeConfig.OpenStrips + mazeConfig.MazeStrips; x < mazeConfig.Width - mazeConfig.OpenStrips; x += mazeConfig.OpenStrips + mazeConfig.MazeStrips)
+        {
+			for (int i = 0; i < mazeConfig.OpenStrips; ++i)
+			{
+				for (int y = 0; y < mazeConfig.Height; ++y)
+				{
+					tiles[Get1DIndex(x + i, y)] = emptyTile;
+				}
+			}
+		}
+
+		// Clear out left border
+		for (int x = 0; x < mazeConfig.OpenStrips; ++x)
+        {
+			for (int y = 0; y < mazeConfig.Height; ++y)
+            {
+				tiles[Get1DIndex(x, y)] = emptyTile;
+			}
+		}
+
+		// Clear out right border
+		for (int x = mazeConfig.Width - 1; x > mazeConfig.Width - mazeConfig.OpenStrips; --x)
+		{
+			for (int y = 0; y < mazeConfig.Height; ++y)
+			{
+				tiles[Get1DIndex(x, y)] = emptyTile;
+			}
+		}
+
+		// Clear out bottom border
+		for (int y = 0; y < mazeConfig.OpenStrips; ++y)
+		{
+			for (int x = 0; x < mazeConfig.Width; ++x)
+			{
+				tiles[Get1DIndex(x, y)] = emptyTile;
+			}
+		}
+
+		// Clear out top border
+		for (int y = mazeConfig.Height - 1; y > mazeConfig.Height - mazeConfig.OpenStrips; --y)
+		{
+			for (int x = 0; x < mazeConfig.Width; ++x)
+			{
+				tiles[Get1DIndex(x, y)] = emptyTile;
+			}
+		}
 
 
 		for (int x = 0; x < mazeConfig.Width; x++)
@@ -139,14 +182,14 @@ public partial struct TileCreationSystem : ISystem
 			{
 				TileBufferElement tile = tiles[Get1DIndex(x, y)];
 
-				if (tile.LeftWall)
+				if (x == 0 || tile.LeftWall)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3((x - .5f), wallTransform.LocalPosition.y, y);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 90, 0);
 				}
-				if (tile.DownWall)
+				if (y == 0 || tile.DownWall)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
@@ -169,8 +212,6 @@ public partial struct TileCreationSystem : ISystem
 				}
 			}
 		}
-
-
 
 		// To Use
 		// SystemAPI.GetSingletonBuffer<TileBufferElement>();

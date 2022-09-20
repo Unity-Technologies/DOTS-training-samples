@@ -7,6 +7,8 @@ public struct MazeConfig : IComponentData
     public int Height;
     public int PillsToSpawn;
     public int ZombiesToSpawn;
+    public int OpenStrips;
+    public int MazeStrips;
 
     public Vector2Int GetRandomTilePosition()
     {

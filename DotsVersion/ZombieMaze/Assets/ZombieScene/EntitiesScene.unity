@@ -193,3 +193,5 @@ MonoBehaviour:
   Height: 100
   PillsToSpawn: 20
   ZombiesToSpawn: 100
+  OpenStrips: 3
+  MazeStrips: 6
