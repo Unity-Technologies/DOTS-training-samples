@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Burst.Intrinsics;
 using Unity.Entities;
@@ -11,7 +12,7 @@ using UnityEngine;
 public struct MovementJob : IJobChunk
 {
     public ComponentTypeHandle<LocalToWorldTransform> TransformHandle;
-    [ReadOnly] public ComponentTypeHandle<Velocity> VelocityHandle;
+    public ComponentTypeHandle<Velocity> VelocityHandle;
 
     [ReadOnly] public float TimeStep;
     [ReadOnly] public float Gravity;
@@ -24,14 +25,21 @@ public struct MovementJob : IJobChunk
         var gravityDt = TimeStep * Gravity; 
         for (int i = 0; i < chunk.Count; ++i)
         {
-            var tm = transforms[i];
-            var velOld = velocities[i];
-            var velNew = velOld.Value;
+            var tmComp = transforms[i];
+            var velComp = velocities[i];
+
+            var velNew = velComp.Value;
             velNew.y += gravityDt; 
-            var pos = tm.Value.Position;
+            var pos = tmComp.Value.Position;
             pos += TimeStep * velNew;
             // bounce off lower bottom
-            pos.y *= math.sign(pos.y);
+            pos.y *= Convert.ToSingle(pos.y > 0);
+
+            tmComp.Value.Position = pos;
+            velComp.Value = velNew;
+
+            transforms[i] = tmComp;
+            velocities[i] = velComp;
         }
     }
 }
@@ -41,14 +49,14 @@ partial struct MovementSystem : ISystem
 {
     private EntityQuery Query;
     public ComponentTypeHandle<LocalToWorldTransform> TransformHandle;
-    [ReadOnly] public ComponentTypeHandle<Velocity> VelocityHandle;
+    public ComponentTypeHandle<Velocity> VelocityHandle;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         Query = state.GetEntityQuery(typeof(LocalToWorldTransform), typeof(Velocity));
-        TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>(false);
-        VelocityHandle = state.GetComponentTypeHandle<Velocity>(true);
+        TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>();
+        VelocityHandle = state.GetComponentTypeHandle<Velocity>();
     }
 
     [BurstCompile]
