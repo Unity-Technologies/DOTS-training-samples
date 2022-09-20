@@ -54,8 +54,13 @@ partial struct FoodSpawnerSystem : ISystem
             InitTM = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food)
         };
 
-        JobHandle jobHandle = foodSpawnJob.Schedule(config.foodCount, 64);
-        jobHandle.Complete();
+        // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
+        // before the command buffer is played back.
+        state.Dependency = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
+        
+        // Note: use CombineDependencies in order to combine Jobs into a single node for the dependency graph,
+        // to ensure they can be executed in parallel and simultaneously.
+        // JobHandle.CombineDependencies(...)
 #endif
         // force disable system after the first update call
         state.Enabled = false;
