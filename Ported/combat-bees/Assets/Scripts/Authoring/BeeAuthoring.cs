@@ -1,8 +1,11 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-class BeeAuthoring : UnityEngine.MonoBehaviour
+[RequireComponent(typeof(MeshRenderer))]
+class BeeAuthoring : MonoBehaviour
 {
 }
 
@@ -10,6 +13,8 @@ class BeeBaker : Baker<BeeAuthoring>
 {
     public override void Bake(BeeAuthoring authoring)
     {
-        AddComponent<Velocity>();
+        MeshRenderer mesh = GetComponent<MeshRenderer>();
+        
+        AddComponent<Bounds>(new Bounds{ Value = AABBExtensions.ToAABB(mesh.bounds) });
     }
 }
