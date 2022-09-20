@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-struct SmoothDirectionComponent : IComponentData
+struct SmoothDirection : IComponentData
 {
     public float3 Value;
 }

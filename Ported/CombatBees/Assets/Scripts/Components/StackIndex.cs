@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct StackIndexComponent : IComponentData
+struct StackIndex : IComponentData
 {
     public int Value;
 }

@@ -4,7 +4,7 @@ partial struct MovementJob : IJobEntity {
 
     public float deltaTime;
 
-    void Execute(ref PositionComponent positionComponent, in VelocityComponent velocityComponent) {
-        positionComponent.Value += velocityComponent.Value * deltaTime;
+    void Execute(ref Position position, in Velocity velocity) {
+        position.Value += velocity.Value * deltaTime;
     }
 }

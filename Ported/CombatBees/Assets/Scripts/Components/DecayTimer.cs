@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct UniformScaleComponent : IComponentData
+struct DecayTimer : IComponentData
 {
     public float Value;
 }

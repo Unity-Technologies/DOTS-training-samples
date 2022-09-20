@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct HolderComponent : IComponentData
+struct Holder : IComponentData
 {
     public Entity Value;
 }
