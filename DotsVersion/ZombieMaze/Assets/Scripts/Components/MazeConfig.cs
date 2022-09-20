@@ -25,4 +25,9 @@ public struct MazeConfig : IComponentData
     {
         return new Vector2Int(Random.Range(width, Width - width), Random.Range(height, Height - height));
     }
+
+    public int Get1DIndex(int xIndex, int yIndex)
+    {
+        return xIndex + yIndex * Width;
+    }
 }
