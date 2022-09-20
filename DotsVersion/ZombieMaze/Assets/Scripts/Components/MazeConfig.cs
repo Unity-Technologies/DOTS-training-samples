@@ -11,6 +11,10 @@ public struct MazeConfig : IComponentData
     public int MazeStrips;
     public int MovingWallsToSpawn;
     public int MovingWallSize;
+    public float MovingWallMinMoveSpeedInSeconds;
+    public float MovingWallMaxMoveSpeedInSeconds;
+    public int MovingWallMinTilesToMove;
+    public int MovingWallMaxTilesToMove;
 
     public Vector2Int GetRandomTilePosition()
     {

@@ -195,3 +195,9 @@ MonoBehaviour:
   ZombiesToSpawn: 100
   OpenStrips: 3
   MazeStrips: 6
+  MovingWallsToSpawn: 15
+  MovingWallSize: 10
+  MovingWallMinMoveSpeedInSeconds: 0.2
+  MovingWallMaxMoveSpeedInSeconds: 1.5
+  MovingWallMinTilesToMove: 3
+  MovingWallMaxTilesToMove: 6

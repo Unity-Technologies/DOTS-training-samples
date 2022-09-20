@@ -40,6 +40,13 @@ public partial struct MovingWallCreationSystem : ISystem
             PostTransformMatrix postTransformMatrix = SystemAPI.GetComponent<PostTransformMatrix>(wallEntity);
             postTransformMatrix.Value = float4x4.Scale(mazeConfig.MovingWallSize, postTransformMatrix.Value.c1.y, postTransformMatrix.Value.c2.z);
             SystemAPI.SetComponent<PostTransformMatrix>(wallEntity, postTransformMatrix);
+
+            MovingWall movingWall = SystemAPI.GetComponent<MovingWall>(wallEntity);
+            movingWall.MoveSpeedInSeconds = UnityEngine.Random.Range(mazeConfig.MovingWallMinMoveSpeedInSeconds, mazeConfig.MovingWallMaxMoveSpeedInSeconds);
+            movingWall.NumberOfTilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
+            movingWall.StartXIndex = randomTile.x;
+            movingWall.CurrentXIndex = randomTile.x;
+            SystemAPI.SetComponent<MovingWall>(wallEntity, movingWall);
         }
 
         state.Enabled = false;

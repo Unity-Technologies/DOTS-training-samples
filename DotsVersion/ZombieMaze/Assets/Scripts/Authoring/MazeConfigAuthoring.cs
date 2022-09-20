@@ -11,6 +11,11 @@ public class MazeConfigAuthoring : MonoBehaviour
     public int MazeStrips = 4;
     public int MovingWallsToSpawn = 15;
     public int MovingWallSize = 10;
+
+    public float MovingWallMinMoveSpeedInSeconds = 0.2f;
+    public float MovingWallMaxMoveSpeedInSeconds = 2.0f;
+    public int MovingWallMinTilesToMove = 3;
+    public int MovingWallMaxTilesToMove = 6;
 }
 
 class MazeConfigBaker : Baker<MazeConfigAuthoring>
@@ -26,7 +31,11 @@ class MazeConfigBaker : Baker<MazeConfigAuthoring>
             OpenStrips = authoring.OpenStrips,
             MazeStrips = authoring.MazeStrips,
             MovingWallsToSpawn = authoring.MovingWallsToSpawn,
-            MovingWallSize = authoring.MovingWallSize
+            MovingWallSize = authoring.MovingWallSize,
+            MovingWallMinMoveSpeedInSeconds = authoring.MovingWallMinMoveSpeedInSeconds,
+            MovingWallMaxMoveSpeedInSeconds = authoring.MovingWallMaxMoveSpeedInSeconds,
+            MovingWallMinTilesToMove = authoring.MovingWallMinTilesToMove,
+            MovingWallMaxTilesToMove = authoring.MovingWallMaxTilesToMove
         });
     }
 }
