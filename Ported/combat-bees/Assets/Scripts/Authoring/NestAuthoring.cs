@@ -7,13 +7,14 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer))]
 public class NestAuthoring : MonoBehaviour
 {
+    public Factions factions;
 }
 class NestBaker : Baker<NestAuthoring>
 {
     public override void Bake(NestAuthoring authoring)
     {
         MeshRenderer mesh = GetComponent<MeshRenderer>();
-        
-        AddComponent<Bounds>(new Bounds{ Value = AABBExtensions.ToAABB(mesh.bounds) });
+        AddComponent<Faction>(new Faction{Value = (int)authoring.factions});
+        AddComponent<Area>(new Area{ Value = AABBExtensions.ToAABB(mesh.bounds) });
     }
 }

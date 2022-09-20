@@ -286,6 +286,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e513200e920543640bc6c0a89062d175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  factions: 1
 --- !u!65 &1596274664
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -404,6 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e513200e920543640bc6c0a89062d175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  factions: 0
 --- !u!65 &1739947195
 BoxCollider:
   m_ObjectHideFlags: 0
