@@ -154,14 +154,14 @@ public partial struct TileCreationSystem : ISystem
 					wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y - .5f);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 0, 0);
 				}
-				if (x == Width - 1 && tile.RightWall)
+				if (x == Width - 1)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3((x + .5f), wallTransform.LocalPosition.y, y);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 90, 0);
 				}
-				if (y == Height - 1 && tile.UpWall)
+				if (y == Height - 1)
 				{
 					Entity wall = state.EntityManager.Instantiate(prefabConfig.WallPrefab);
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
