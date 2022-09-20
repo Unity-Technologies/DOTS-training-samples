@@ -60,7 +60,7 @@ public partial struct ZombieCreationSystem : ISystem
 
             Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
             TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
-            wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y); //Todo Spawn in the floor
+            wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y); //Todo Spawn in the floor
         }
         
         state.Enabled = false;
