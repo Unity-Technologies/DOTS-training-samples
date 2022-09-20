@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -129,13 +130,16 @@ public partial struct TileCreationSystem : ISystem
 		}
 
 		TileBufferElement emptyTile = new TileBufferElement();
-		for(int x = mazeConfig.OpenStrips + mazeConfig.MazeStrips; x < mazeConfig.Width - mazeConfig.OpenStrips; x += mazeConfig.OpenStrips + mazeConfig.MazeStrips)
-        {
-			for (int i = 0; i < mazeConfig.OpenStrips; ++i)
+		if (mazeConfig.OpenStrips > 0 || mazeConfig.MazeStrips > 0)
+		{
+			for (int x = mazeConfig.OpenStrips + mazeConfig.MazeStrips; x < mazeConfig.Width - mazeConfig.OpenStrips; x += mazeConfig.OpenStrips + mazeConfig.MazeStrips)
 			{
-				for (int y = 0; y < mazeConfig.Height; ++y)
+				for (int i = 0; i < mazeConfig.OpenStrips; ++i)
 				{
-					tiles[Get1DIndex(x + i, y)] = emptyTile;
+					for (int y = 0; y < mazeConfig.Height; ++y)
+					{
+						tiles[Get1DIndex(x + i, y)] = emptyTile;
+					}
 				}
 			}
 		}
@@ -176,6 +180,55 @@ public partial struct TileCreationSystem : ISystem
 			}
 		}
 
+
+		NativeArray<MovingWall> spawnedMovingWalls = CollectionHelper.CreateNativeArray<MovingWall>(mazeConfig.MovingWallsToSpawn, Allocator.Temp);
+
+		float3 positionOffset = float3.zero;
+		if (mazeConfig.MovingWallSize % 2 == 0)
+		{
+			positionOffset -= new float3(0.5f, 0.0f, 0.0f);
+		}
+
+		// Spawn moving walls
+		for (int i = 0; i < mazeConfig.MovingWallsToSpawn; ++i)
+		{
+			int tilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
+			Entity wallEntity = state.EntityManager.Instantiate(prefabConfig.MovingWallPrefab);
+			TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(wallEntity);
+
+			Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(mazeConfig.MovingWallSize + tilesToMove, 1);
+			transformAspect.Position += new float3(randomTile.x, 0.0f, randomTile.y) + positionOffset;
+
+			PostTransformMatrix postTransformMatrix = SystemAPI.GetComponent<PostTransformMatrix>(wallEntity);
+			postTransformMatrix.Value = float4x4.Scale(mazeConfig.MovingWallSize, postTransformMatrix.Value.c1.y, postTransformMatrix.Value.c2.z);
+			SystemAPI.SetComponent<PostTransformMatrix>(wallEntity, postTransformMatrix);
+
+			MovingWall movingWall = SystemAPI.GetComponent<MovingWall>(wallEntity);
+			movingWall.MoveSpeedInSeconds = UnityEngine.Random.Range(mazeConfig.MovingWallMinMoveSpeedInSeconds, mazeConfig.MovingWallMaxMoveSpeedInSeconds);
+			movingWall.NumberOfTilesToMove = tilesToMove;
+			movingWall.StartXIndex = randomTile.x;
+			movingWall.CurrentXIndex = randomTile.x;
+			movingWall.StartYIndex = randomTile.y;
+			SystemAPI.SetComponent<MovingWall>(wallEntity, movingWall);
+
+			spawnedMovingWalls[i] = movingWall;
+		}
+
+		// clear out walls for moving walls
+		for(int i = 0; i < spawnedMovingWalls.Length; ++i)
+        {
+			int moveAndSize = spawnedMovingWalls[i].NumberOfTilesToMove + mazeConfig.MovingWallSize / 2;
+			for (int x = spawnedMovingWalls[i].StartXIndex - moveAndSize + 1; x < spawnedMovingWalls[i].StartXIndex + moveAndSize + 2; ++x)
+			{
+				TileBufferElement upTile = tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex + 1)];
+				upTile.DownWall = false;
+				tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex + 1)] = upTile;
+
+				TileBufferElement downTile = tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex)];
+				downTile.UpWall = false;
+				tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex)] = downTile;
+			}
+		}
 
 		for (int x = 0; x < mazeConfig.Width; x++)
 		{

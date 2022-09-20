@@ -3,10 +3,7 @@ using UnityEngine;
 
 public class MovingWallAuthoring : UnityEngine.MonoBehaviour
 {
-    public float MinMoveSpeedInSeconds = 0.2f;
-    public float MaxMoveSpeedInSeconds = 2.0f;
-    public int MinTilesToMove = 3;
-    public int MaxTilesToMove = 6;
+
 }
 
 class MovingWallComponentBaker : Baker<MovingWallAuthoring>
@@ -15,8 +12,6 @@ class MovingWallComponentBaker : Baker<MovingWallAuthoring>
     {
         AddComponent(new MovingWall
         {
-            MoveSpeedInSeconds = Random.Range(authoring.MinMoveSpeedInSeconds, authoring.MinMoveSpeedInSeconds),
-            NumberOfTilesToMove = Random.Range(authoring.MinTilesToMove, authoring.MaxTilesToMove)
         });
     }
 }
