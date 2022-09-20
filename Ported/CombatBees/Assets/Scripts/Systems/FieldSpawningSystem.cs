@@ -1,5 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 
 [BurstCompile]
 partial struct FieldSpawningSystem : ISystem
@@ -21,8 +23,17 @@ partial struct FieldSpawningSystem : ISystem
         var config = SystemAPI.GetSingleton<FieldConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        ecb.Instantiate(config.FieldMesh);
+        var postTransformMatrix = new PostTransformMatrix
+        {
+            Value = float4x4.TRS(float3.zero, quaternion.identity,
+                new float3(config.FieldScale.x, config.FieldScale.y, config.FieldScale.z))
+        };
 
+        var field = ecb.Instantiate(config.FieldMesh);
+        ecb.AddComponent(field, postTransformMatrix);
+        //TODO: Override "_HiveLocation" using MaterialPropertyOverride?
+        //TODO: Add Gravity Component??
+        
         //Run only once
         state.Enabled = false;
     }
