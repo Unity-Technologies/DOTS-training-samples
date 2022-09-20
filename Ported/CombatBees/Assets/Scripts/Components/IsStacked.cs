@@ -1,4 +1,4 @@
 ﻿using Unity.Entities;
 
-struct IsStacked : IComponentData
+struct IsStacked : IComponentData, IEnableableComponent
 {}

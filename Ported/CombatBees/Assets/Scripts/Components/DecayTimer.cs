@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct DecayTimer : IComponentData
+struct DecayTimer : IComponentData, IEnableableComponent
 {
     public float Value;
 }

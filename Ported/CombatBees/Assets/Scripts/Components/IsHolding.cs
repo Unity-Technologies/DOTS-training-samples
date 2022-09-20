@@ -1,4 +1,4 @@
 ﻿using Unity.Entities;
 
-struct IsHolding : IComponentData
+struct IsHolding : IComponentData, IEnableableComponent
 {}

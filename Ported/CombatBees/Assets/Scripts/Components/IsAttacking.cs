@@ -1,4 +1,4 @@
 ﻿using Unity.Entities;
 
-struct IsAttacking : IComponentData
+struct IsAttacking : IComponentData, IEnableableComponent
 {}
