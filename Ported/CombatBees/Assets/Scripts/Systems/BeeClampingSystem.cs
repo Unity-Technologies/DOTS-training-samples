@@ -20,10 +20,10 @@ partial struct BeeClampingSystem : ISystem
         if (!SystemAPI.TryGetSingleton<FieldConfig>(out var fieldConfig)) {
             return;
         }
-        new BeeClampingJob() {
+        state.Dependency = new BeeClampingJob() {
             fieldBounds = fieldConfig.FieldScale,
             scaleLookup = scaleLookup,
             hasHolding = hasHolding
-        }.ScheduleParallel();
+        }.ScheduleParallel(state.Dependency);
     }
 }

@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 
+[BurstCompile]
 partial struct MovementJob : IJobEntity {
 
     public float deltaTime;

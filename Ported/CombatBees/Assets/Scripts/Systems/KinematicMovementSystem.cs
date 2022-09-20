@@ -8,8 +8,8 @@ partial struct KinematicMovementSystem : ISystem {
     }
 
     public void OnUpdate(ref SystemState state) {
-        new MovementJob() {
+        state.Dependency = new MovementJob() {
             deltaTime = state.Time.DeltaTime
-        }.ScheduleParallel();
+        }.ScheduleParallel(state.Dependency);
     }
 }
