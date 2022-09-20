@@ -217,16 +217,18 @@ public partial struct TileCreationSystem : ISystem
 		// clear out walls for moving walls
 		for(int i = 0; i < spawnedMovingWalls.Length; ++i)
         {
-			int moveAndSize = spawnedMovingWalls[i].NumberOfTilesToMove + mazeConfig.MovingWallSize / 2;
-			for (int x = spawnedMovingWalls[i].StartXIndex - moveAndSize + 1; x < spawnedMovingWalls[i].StartXIndex + moveAndSize + 2; ++x)
-			{
-				TileBufferElement upTile = tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex + 1)];
-				upTile.DownWall = false;
-				tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex + 1)] = upTile;
+			int totalWidth = spawnedMovingWalls[i].NumberOfTilesToMove * 2 + mazeConfig.MovingWallSize;
+			int startIndex = spawnedMovingWalls[i].StartXIndex - mazeConfig.MovingWallSize / 2 - spawnedMovingWalls[i].NumberOfTilesToMove + 1;
 
-				TileBufferElement downTile = tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex)];
+			for (int w = 0; w < totalWidth; ++w)
+			{
+				TileBufferElement upTile = tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex + 1)];
+				upTile.DownWall = false;
+				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex + 1)] = upTile;
+
+				TileBufferElement downTile = tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)];
 				downTile.UpWall = false;
-				tiles[Get1DIndex(x, spawnedMovingWalls[i].StartYIndex)] = downTile;
+				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)] = downTile;
 			}
 		}
 
@@ -264,6 +266,23 @@ public partial struct TileCreationSystem : ISystem
 					wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y + .5f);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 0, 0);
 				}
+			}
+		}
+
+		// Use moving walls to re-set the tiles's walls
+		for (int i = 0; i < spawnedMovingWalls.Length; ++i)
+		{
+			int startIndex = spawnedMovingWalls[i].StartXIndex - mazeConfig.MovingWallSize / 2 + 1;
+
+			for (int w = 0; w < mazeConfig.MovingWallSize; ++w)
+			{
+				TileBufferElement upTile = tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex + 1)];
+				upTile.DownWall = true;
+				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex + 1)] = upTile;
+
+				TileBufferElement downTile = tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)];
+				downTile.UpWall = true;
+				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)] = downTile;
 			}
 		}
 
