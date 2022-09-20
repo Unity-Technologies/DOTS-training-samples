@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Random = System.Random;
@@ -24,7 +25,7 @@ public partial struct ZombieCreationSystem : ISystem
     {
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-
+        var Random = Unity.Mathematics.Random.CreateFromIndex(1234);
         int width = mazeConfig.Width - 1;
         int height = mazeConfig.Height - 1;
         int zombiesCount = mazeConfig.ZombiesToSpawn;
@@ -60,7 +61,10 @@ public partial struct ZombieCreationSystem : ISystem
 
             Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
             TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
-            wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y); //Todo Spawn in the floor
+            wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+
+            Target target = new Target() { Value = new int2(Random.NextInt(0, width), Random.NextInt(0, height)) };
+            SystemAPI.SetComponent(zombie, target);
         }
         
         state.Enabled = false;

@@ -22,7 +22,7 @@ partial struct ZombieElevationJob : IJobEntity
 [WithAll(typeof(ElevatingPosition))]
 partial struct ZombieElevationCheckJob : IJobEntity
 {
-    [NativeDisableParallelForRestriction] public ComponentLookup<ElevatingPosition> ElevatingPositionFromEntity;
+    public ComponentLookup<ElevatingPosition> ElevatingPositionFromEntity;
 
     public float Position;
 
@@ -56,12 +56,12 @@ public partial struct ZombieElevationSystem : ISystem
              ElevatingPositionFromEntity = m_ElevatingPositionFromEntity,
              Position = 0.3f
          };
-        elevationCheckJob.ScheduleParallel();//JobHandle?
+        elevationCheckJob.Schedule();
         
         var elevationJob = new ZombieElevationJob
         {
             DeltaTime = deltaTime
         };
-        elevationJob.ScheduleParallel();
+        elevationJob.Schedule();
     }
 }
