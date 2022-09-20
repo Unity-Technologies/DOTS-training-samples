@@ -9,6 +9,8 @@ public class MazeConfigAuthoring : MonoBehaviour
     public int ZombiesToSpawn;
     public int OpenStrips = 4;
     public int MazeStrips = 4;
+    public int MovingWallsToSpawn = 15;
+    public int MovingWallSize = 10;
 }
 
 class MazeConfigBaker : Baker<MazeConfigAuthoring>
@@ -22,7 +24,9 @@ class MazeConfigBaker : Baker<MazeConfigAuthoring>
             PillsToSpawn = authoring.PillsToSpawn,
             ZombiesToSpawn = authoring.ZombiesToSpawn,
             OpenStrips = authoring.OpenStrips,
-            MazeStrips = authoring.MazeStrips
+            MazeStrips = authoring.MazeStrips,
+            MovingWallsToSpawn = authoring.MovingWallsToSpawn,
+            MovingWallSize = authoring.MovingWallSize
         });
     }
 }

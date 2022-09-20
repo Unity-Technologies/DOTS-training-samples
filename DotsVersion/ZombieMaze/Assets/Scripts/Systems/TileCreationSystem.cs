@@ -13,7 +13,8 @@ public partial struct TileCreationSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PrefabConfig>();
-    }
+		state.RequireForUpdate<MazeConfig>();
+	}
 
     public void OnDestroy(ref SystemState state)
     {

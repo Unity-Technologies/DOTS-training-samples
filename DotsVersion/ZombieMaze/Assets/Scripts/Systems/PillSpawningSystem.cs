@@ -4,12 +4,16 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Collections;
 
+[BurstCompile]
 public partial struct PillSpawningSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<PrefabConfig>();
+        state.RequireForUpdate<MazeConfig>();
     }
 
     [BurstCompile]
@@ -23,9 +27,9 @@ public partial struct PillSpawningSystem : ISystem
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
 
-        List<Vector2Int> spawnedLocations = new List<Vector2Int>();
+        NativeArray<Vector2Int> spawnedLocations = CollectionHelper.CreateNativeArray<Vector2Int>(mazeConfig.PillsToSpawn, Allocator.Temp);
 
-        if(mazeConfig.PillsToSpawn >= mazeConfig.Width * mazeConfig.Height)
+        if (mazeConfig.PillsToSpawn >= mazeConfig.Width * mazeConfig.Height)
         {
             Debug.LogError("You're trying to spawn too many pills.... stop it");
             return;
@@ -42,7 +46,7 @@ public partial struct PillSpawningSystem : ISystem
                 randomTile = mazeConfig.GetRandomTilePosition();
             }
 
-            spawnedLocations.Add(randomTile);
+            spawnedLocations[i] = randomTile;
             transformAspect.Position = new float3(randomTile.x, transformAspect.Position.y, randomTile.y);
         }
 
