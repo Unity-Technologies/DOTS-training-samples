@@ -5,6 +5,7 @@ public class MazeConfigAuthoring : MonoBehaviour
 {
     public int Width = 100;
     public int Height = 100;
+    public int PillsToSpawn = 20;
 }
 
 class MazeConfigBaker : Baker<MazeConfigAuthoring>
@@ -14,7 +15,8 @@ class MazeConfigBaker : Baker<MazeConfigAuthoring>
         AddComponent(new MazeConfig
         {
             Width = authoring.Width,
-            Height = authoring.Height
+            Height = authoring.Height,
+            PillsToSpawn = authoring.PillsToSpawn
         });
     }
 }

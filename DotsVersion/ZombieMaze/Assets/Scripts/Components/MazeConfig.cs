@@ -5,9 +5,10 @@ public struct MazeConfig : IComponentData
 {
     public int Width;
     public int Height;
+    public int PillsToSpawn;
 
     public Vector2Int GetRandomTilePosition()
     {
-        return new Vector2Int(Random.Range(0, Width), Random.Range(0, Width));
+        return new Vector2Int(Random.Range(0, Width), Random.Range(0, Height));
     }
 }
