@@ -4,3 +4,8 @@ public struct Velocity : IComponentData
 {
     public float3 Value;
 }
+
+public struct Area : IComponentData
+{
+    public AABB Value;
+}
