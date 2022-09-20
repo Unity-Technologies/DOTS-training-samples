@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [BurstCompile]
-[WithAll(typeof(Team))]
+[WithAny(typeof(YellowTeam), typeof(BlueTeam))]
 partial struct BeeClampingJob : IJobEntity {
     public float3 fieldBounds;
     public ComponentLookup<UniformScale> scaleLookup;

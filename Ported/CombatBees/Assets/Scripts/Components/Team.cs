@@ -1,12 +1,9 @@
 ﻿using Unity.Entities;
 
-enum TeamName
+struct YellowTeam : IComponentData
 {
-    Yellow,
-    Blue
 }
 
-struct Team : IComponentData
+struct BlueTeam : IComponentData
 {
-    public TeamName Value;
 }

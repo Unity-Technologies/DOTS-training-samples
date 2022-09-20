@@ -1,19 +1,40 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
 
-partial struct BeeTractionPulsionSystem : ISystem
-{
-    public void OnCreate(ref SystemState state)
-    {
-        throw new System.NotImplementedException();
+partial struct BeeTractionPulsionSystem : ISystem {
+    private EntityQuery yellowTeamQuery;
+    private EntityQuery blueTeamQuery;
+    private ComponentLookup<Position> positionLookup;
+    
+    public void OnCreate(ref SystemState state) {
+        yellowTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(YellowTeam));
+        blueTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(BlueTeam));
+        positionLookup = state.GetComponentLookup<Position>();
     }
 
     public void OnDestroy(ref SystemState state)
     {
-        throw new System.NotImplementedException();
     }
 
-    public void OnUpdate(ref SystemState state)
-    {
-        throw new System.NotImplementedException();
+    public void OnUpdate(ref SystemState state) {
+        var yellowTeam = yellowTeamQuery.ToEntityArray(Allocator.TempJob);
+        var blueTeam = blueTeamQuery.ToEntityArray(Allocator.TempJob);
+
+        var yellowTeamPicked = new PickAttractionJob() {
+            allies = yellowTeam
+        }.ScheduleParallel(state.Dependency);
+        var blueTeamPicked = new PickAttractionJob() {
+            allies = blueTeam
+        }.ScheduleParallel(state.Dependency);
+
+        var teamsPicked = JobHandle.CombineDependencies(yellowTeamPicked, blueTeamPicked);
+        
+        state.Dependency = new AttractionJob() {
+            teamAttraction = 5,
+            teamRepulsion = 4,
+            deltaTime = state.Time.DeltaTime,
+            positionLookup = positionLookup
+        }.ScheduleParallel(teamsPicked);
     }
 }
