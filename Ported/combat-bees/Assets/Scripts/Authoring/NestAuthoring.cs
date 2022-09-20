@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MeshRenderer))]
 public class NestAuthoring : MonoBehaviour
 {
 }
@@ -11,6 +12,8 @@ class NestBaker : Baker<NestAuthoring>
 {
     public override void Bake(NestAuthoring authoring)
     {
-        AddComponent<Velocity>();
+        MeshRenderer mesh = GetComponent<MeshRenderer>();
+        
+        AddComponent<Bounds>(new Bounds{ Value = AABBExtensions.ToAABB(mesh.bounds) });
     }
 }
