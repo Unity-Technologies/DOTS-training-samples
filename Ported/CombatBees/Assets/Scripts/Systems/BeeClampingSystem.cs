@@ -1,19 +1,29 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
+using UnityEditor.VersionControl;
 
 partial struct BeeClampingSystem : ISystem
 {
-    public void OnCreate(ref SystemState state)
-    {
-        throw new System.NotImplementedException();
+    private ComponentLookup<UniformScale> scaleLookup;
+    private ComponentLookup<IsHolding> hasHolding;
+    
+    public void OnCreate(ref SystemState state) {
+        scaleLookup = state.GetComponentLookup<UniformScale>();
+        hasHolding = state.GetComponentLookup<IsHolding>();
     }
 
     public void OnDestroy(ref SystemState state)
     {
-        throw new System.NotImplementedException();
     }
 
-    public void OnUpdate(ref SystemState state)
-    {
-        throw new System.NotImplementedException();
+    public void OnUpdate(ref SystemState state) {
+        if (!SystemAPI.TryGetSingleton<FieldConfig>(out var fieldConfig)) {
+            return;
+        }
+        new BeeClampingJob() {
+            fieldBounds = fieldConfig.FieldScale,
+            scaleLookup = scaleLookup,
+            hasHolding = hasHolding
+        }.ScheduleParallel();
     }
 }
