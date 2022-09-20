@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
     
@@ -24,30 +25,21 @@ partial struct BeeSpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // Todo : Change all this, for proper behavior.
-        
         var config = SystemAPI.GetSingleton<BeeConfig>();
-        
-        // This system will only run once, so the random seed can be hard-coded.
-        // Using an arbitrary constant seed makes the behavior deterministic.
-        var random = Random.CreateFromIndex(1234);
-        
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
-        float radius = 10.0f;
-        
-        var beeArray = CollectionHelper.CreateNativeArray<Entity>(config.beeCount, Allocator.Temp);
-        ecb.Instantiate(config.bee, beeArray);
 
-        foreach (var bee in beeArray)
+        var beeSpawnJob = new SpawnJob
         {
-            var pos = random.NextFloat3();
-            pos *= radius;
-            var tm = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
-            tm.Value.Position = pos;
-            ecb.SetComponent<LocalToWorldTransform>(bee, tm);
-        }
+            // Note the function call required to get a parallel writer for an EntityCommandBuffer.
+            ECB = ecb.AsParallelWriter(),
+            Prefab = config.bee,
+            InitTM = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee)
+        };
+
+        JobHandle jobHandle = beeSpawnJob.Schedule(config.beeCount, 64);
+        jobHandle.Complete();
         
         // force disable system after the first update call
         state.Enabled = false;
