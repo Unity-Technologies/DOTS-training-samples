@@ -7,10 +7,12 @@ struct PlayerData : IComponentData
     public float3 position;
     public float2 direction;
     public float speed;
-    
-    
+    public int StartXIndex;
+    public int StartYIndex;
 
-    
+
+
+
 }
 
 readonly partial struct CharacterAspect : IAspect
@@ -28,5 +30,14 @@ readonly partial struct CharacterAspect : IAspect
     {
         get => transform.Position;
         set => transform.Position = value;
+    }
+    public int StartXIndex
+    {
+        get=> character.ValueRO.StartXIndex;
+        
+    }
+    public int StartYIndex
+    {
+        get => character.ValueRO.StartYIndex;
     }
 }

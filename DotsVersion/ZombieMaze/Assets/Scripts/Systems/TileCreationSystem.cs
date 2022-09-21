@@ -41,6 +41,18 @@ public partial struct TileCreationSystem : ISystem
 		SystemAPI.SetComponent<PostTransformMatrix>(groundEntity, postTransformMatrix);
 	}
 
+	public void CreateSpawnPoint(ref SystemState state)
+    {/*
+		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
+		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
+		int tilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
+		Entity wallEntity = state.EntityManager.Instantiate(prefabConfig.MovingWallPrefab);
+		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(wallEntity);
+
+		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(mazeConfig.MovingWallSize + tilesToMove, 1);
+		transformAspect.Position += new float3(randomTile.x, 0.0f, randomTile.y) + positionOffset;*/
+		
+	}
     public void OnUpdate(ref SystemState state)
     {
 		CreateGround(ref state);

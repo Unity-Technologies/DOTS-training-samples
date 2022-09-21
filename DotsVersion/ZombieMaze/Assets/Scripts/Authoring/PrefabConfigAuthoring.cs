@@ -10,6 +10,7 @@ public class PrefabConfigAuthoring : MonoBehaviour
     public GameObject MovingWallPrefab;
     public GameObject ZombiePrefab;
     public GameObject ZombieRandomPrefab;
+    public GameObject SpawnerPrefab;
 }
 
 class PrefabConfigBaker : Baker<PrefabConfigAuthoring>
@@ -25,6 +26,7 @@ class PrefabConfigBaker : Baker<PrefabConfigAuthoring>
             ZombiePrefab = GetEntity(authoring.ZombiePrefab),
             MovingWallPrefab = GetEntity(authoring.MovingWallPrefab),
             ZombieRandomPrefab = GetEntity(authoring.ZombieRandomPrefab),
+            SpawnerPrefab=GetEntity(authoring.SpawnerPrefab),
         });
     }
 }
