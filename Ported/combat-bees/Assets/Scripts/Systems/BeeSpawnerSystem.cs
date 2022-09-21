@@ -40,7 +40,12 @@ partial struct BeeSpawnerSystem : ISystem
 
         foreach (var nest in nestEntities)
         {
-            var nestTransform = state.EntityManager.GetComponentData<LocalToWorldTransform>(nest);
+            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
+            if (nestFaction.Value == (int)Factions.None)
+            {
+                continue;
+            }
+            
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
             var beeSpawnJob = new SpawnJob
             {
@@ -49,7 +54,6 @@ partial struct BeeSpawnerSystem : ISystem
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.bee,
-                //InitTM = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee),
                 InitFaction = state.EntityManager.GetComponentData<Faction>(nest).Value
             };
 
