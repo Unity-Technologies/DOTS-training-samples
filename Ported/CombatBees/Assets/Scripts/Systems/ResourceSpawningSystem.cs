@@ -43,6 +43,8 @@ partial struct ResourceSpawningSystem : ISystem
 
         ecb.Instantiate(resourceConfig.resourcePrefab, resources);
 
+        int[,] stackHeights = new int[m_GridCounts.x, m_GridCounts.y];
+
         foreach (var resource in resources)
         {
             float3 pos = new float3(m_MinGridPos.x * .25f + UnityEngine.Random.value * fieldConfig.FieldScale.x * .25f, UnityEngine.Random.value * 10f, m_MinGridPos.y + UnityEngine.Random.value * fieldConfig.FieldScale.z);
@@ -56,8 +58,14 @@ partial struct ResourceSpawningSystem : ISystem
             ecb.AddComponent(resource, gridPos);
 
             var stackIndex = new StackIndex();
-            //TODO: calculate stack index
+            stackIndex.Value = stackHeights[gridX, gridY];
+
             ecb.AddComponent(resource, stackIndex);
+
+            if ((stackIndex.Value + 1) * m_ResourceSize < fieldConfig.FieldScale.y)
+            {
+                stackHeights[gridX, gridY]++;
+            }
 
             float floorY = GetStackPos(gridX, gridY, stackIndex.Value).y;
             pos.y = floorY;
