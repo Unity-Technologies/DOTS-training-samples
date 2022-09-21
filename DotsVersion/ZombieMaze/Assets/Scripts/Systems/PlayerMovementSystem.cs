@@ -10,6 +10,10 @@ partial struct PlayerMovementSystem : ISystem
     {
         state.RequireForUpdate<MazeConfig>();
         state.RequireForUpdate<TileBufferElement>();
+        foreach(var character in SystemAPI.Query<CharacterAspect>())
+        {
+            character.position = character.spawnerPos;
+        }
     }
 
     public void OnDestroy(ref SystemState state)
@@ -29,7 +33,7 @@ partial struct PlayerMovementSystem : ISystem
 
             character.position += tempPos;
             int startIndex = character.StartXIndex;
-            Debug.Log(startIndex);
+            
             //TileBufferElement upTile = tiles[mazeConfig.Get1DIndex()]
 
         }
