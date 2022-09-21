@@ -40,7 +40,7 @@ public partial struct MovingWallMovement : ISystem
                     movingWall.CurrentXIndex--;
                     movingWall.Position -= new float3(1.0f, 0.0f, 0.0f);
 
-                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2;
+                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2 + 1;
                     int leftEndIndex = movingWall.CurrentXIndex - mazeConfig.MovingWallSize / 2;
 
                     TileBufferElement upTile = tiles[mazeConfig.Get1DIndex(leftEndIndex, movingWall.StartYIndex + 1)];
@@ -64,7 +64,7 @@ public partial struct MovingWallMovement : ISystem
                     movingWall.CurrentXIndex++;
                     movingWall.Position += new float3(1.0f, 0.0f, 0.0f);
 
-                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2;
+                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2 + 1;
                     int leftEndIndex = movingWall.CurrentXIndex - mazeConfig.MovingWallSize / 2;
 
                     TileBufferElement upTile = tiles[mazeConfig.Get1DIndex(leftEndIndex, movingWall.StartYIndex + 1)];
