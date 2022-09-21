@@ -1,7 +1,36 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[BurstCompile]
+[WithNone(typeof(TargetId))]
+partial struct TargetingJob : IJobEntity
+{
+    public EntityCommandBuffer ECB;
+    
+    public Random random;
+    public float aggression;
+
+    [ReadOnly] public NativeArray<Entity> enemies;
+    [ReadOnly] public NativeArray<Entity> resources;
+
+    void Execute(Entity bee)
+    {
+        if (random.NextFloat() < aggression && enemies.Length > 0)
+        {
+            // attacking
+            ECB.AddComponent<TargetId>(bee, new TargetId() { Value = enemies[random.NextInt(0, enemies.Length)] });
+        }
+        else if (resources.Length > 0)
+        {
+            // gathering
+            ECB.AddComponent<TargetId>(bee, new TargetId() { Value = resources[random.NextInt(0, resources.Length)] });
+        }
+    }
+}
+
+[BurstCompile]
 partial struct TargetingSystem : ISystem
 {
     private EntityQuery yellowTeam;

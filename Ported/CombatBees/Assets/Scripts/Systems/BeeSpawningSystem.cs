@@ -1,7 +1,8 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[BurstCompile]
 partial struct BeeSpawningJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
@@ -44,6 +45,7 @@ partial struct BeeSpawningJob : IJobEntity
     }
 }
 
+[BurstCompile]
 partial struct BeeSpawningSystem : ISystem
 {
     private EntityQuery m_prototypeBeesQuery;
