@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 33157124852056770}
   - component: {fileID: 23628869561912006}
   m_Layer: 0
-  m_Name: SpawnTile
+  m_Name: SpawnerTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b292b1425dc8b4ae7b4aa62276efed54, type: 2}
+  - {fileID: 2100000, guid: 9e916d6feb7c24b5d9d93912961cbf41, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
