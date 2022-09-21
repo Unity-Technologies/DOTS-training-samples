@@ -56,6 +56,25 @@ partial struct ZombieMoveJob : IJobEntity
     }
 }
 
+[BurstCompile]
+[WithNone(typeof(ElevatingPosition))]
+[WithAll(typeof(RandomMovement))]
+[WithAll(typeof(Zombie))]
+partial struct RandomZombieMoveJob : IJobEntity
+{
+    public int Width;
+    public int Height;
+    public float DeltaTime;
+    [ReadOnly] public DynamicBuffer<TileBufferElement> Tiles;
+    public uint RandomSeed;
+    public MazeConfig MazeConfig;
+
+    void Execute(Entity entity, TransformAspect transform, ref RandomMovement target)
+    {
+
+    }
+}
+
 
 [BurstCompile]
 public partial struct ZombieMovingSystem : ISystem
@@ -91,5 +110,16 @@ public partial struct ZombieMovingSystem : ISystem
             MazeConfig =mazeConfig
         };
         moveJob.ScheduleParallel();
+
+        var randomMoveJob = new RandomZombieMoveJob
+        {
+            Width = width,
+            Height = height,
+            Tiles = tiles,
+            DeltaTime = deltaTime,
+            RandomSeed = Random.NextUInt(),
+            MazeConfig = mazeConfig
+        };
+        randomMoveJob.ScheduleParallel();
     }
 }

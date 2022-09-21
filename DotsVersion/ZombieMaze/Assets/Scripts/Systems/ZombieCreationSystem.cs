@@ -59,12 +59,25 @@ public partial struct ZombieCreationSystem : ISystem
                     break;
             }
 
-            Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
-            TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
-            wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+            int zombieIndex = random.Next(0, 2);
+            if(zombieIndex == 0)
+            {
+                Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
+                TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
+                wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
 
-            Target target = new Target() { TargetPosition = new int2(Random.NextInt(0, width), Random.NextInt(0, height)) };
-            SystemAPI.SetComponent(zombie, target);
+                Target target = new Target() { TargetPosition = new int2(Random.NextInt(0, width), Random.NextInt(0, height)) };
+                SystemAPI.SetComponent(zombie, target);
+            }
+            else
+            {
+                Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombieRandomPrefab);
+                TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
+                wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+
+                RandomMovement randomMovement = new RandomMovement() { TargetPosition = new int2(x, y) };
+                SystemAPI.SetComponent(zombie, randomMovement);
+            }
         }
         
         state.Enabled = false;

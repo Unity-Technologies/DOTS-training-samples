@@ -6,6 +6,7 @@ public struct PrefabConfig : IComponentData
     public Entity PillPrefab;
     public Entity CharacterPrefab;
     public Entity TilePrefab;
-    public Entity ZombiePrefab;
     public Entity MovingWallPrefab;
+    public Entity ZombiePrefab;
+    public Entity ZombieRandomPrefab;
 }
