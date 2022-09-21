@@ -52,7 +52,7 @@ partial struct TargetingUpdateJob : IJobEntity
     public EntityCommandBuffer ECB;
 
     [ReadOnly] public ComponentLookup<Holder> holders;
-    [ReadOnly] public NativeHashSet<Entity> friends;
+    [ReadOnly] public NativeArray<Entity> friends;
 
     void Execute(Entity bee, TargetId target)
     {
@@ -116,31 +116,25 @@ partial struct TargetingSystem : ISystem
 
         if (!m_resourcesQuery.IsEmpty)
         {
+            var allResources = m_resourcesQuery.ToEntityArray(Allocator.TempJob);
             state.Dependency = new TargetingResourceJob()
             {
                 ECB = ecbWriter,
-                resources = m_resourcesQuery.ToEntityArray(Allocator.TempJob)
+                resources = allResources
             }.ScheduleParallel(targetEnemyJob);
-
-            // create hashsets for O(1) lookup in job
-            var yellowHashSet = new NativeHashSet<Entity>(allYellowBees.Length, Allocator.TempJob);
-            var blueHashSet = new NativeHashSet<Entity>(allBlueBees.Length, Allocator.TempJob);
-
-            foreach (var e in allYellowBees)
-                yellowHashSet.Add(e);
-            foreach (var e in allBlueBees)
-                blueHashSet.Add(e);
+            
+            allResources.Dispose(state.Dependency);
 
             // TODO revisit once we have resource pickup working...
             var yellowUpdatesJob = new TargetingUpdateJob()
             {
-                ECB = ecb, friends = yellowHashSet, holders = SystemAPI.GetComponentLookup<Holder>(true)
+                ECB = ecb, friends = allYellowBees, holders = SystemAPI.GetComponentLookup<Holder>(true)
             };
             yellowUpdatesJob.Schedule();
 
             var blueUpdatesJob = new TargetingUpdateJob()
             {
-                ECB = ecb, friends = blueHashSet, holders = SystemAPI.GetComponentLookup<Holder>(true)
+                ECB = ecb, friends = allBlueBees, holders = SystemAPI.GetComponentLookup<Holder>(true)
             };
             blueUpdatesJob.Schedule();
         }
@@ -148,5 +142,8 @@ partial struct TargetingSystem : ISystem
         {
             state.Dependency = targetEnemyJob;
         }
+
+        allBlueBees.Dispose(state.Dependency);
+        allYellowBees.Dispose(state.Dependency);
     }
 }
