@@ -58,7 +58,6 @@ partial struct ZombieMoveJob : IJobEntity
 
 [BurstCompile]
 [WithNone(typeof(ElevatingPosition))]
-[WithAll(typeof(RandomMovement))]
 [WithAll(typeof(Zombie))]
 partial struct RandomZombieMoveJob : IJobEntity
 {
@@ -71,7 +70,47 @@ partial struct RandomZombieMoveJob : IJobEntity
 
     void Execute(Entity entity, TransformAspect transform, ref RandomMovement target)
     {
+        float3 targetPosition = new float3(target.TargetPosition.x, 0.3f, target.TargetPosition.y);
 
+        var distance = math.distance(targetPosition, transform.Position);
+        if (distance > 0.1f)
+        {
+            transform.Position += math.normalize(targetPosition - transform.Position) * DeltaTime * 1; //Speed
+        }
+        else
+        {
+            Unity.Mathematics.Random r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
+            TileBufferElement currentTIle = Tiles[MazeConfig.Get1DIndex(target.TargetPosition.x, target.TargetPosition.y)];
+
+            int newDirection = r.NextInt(0, 4);
+            switch(newDirection)
+            {
+                case 0:
+                    if(!currentTIle.LeftWall && target.TargetPosition.x > 0)
+                    {
+                        target.TargetPosition += new int2(-1, 0);
+                    }
+                    break;
+                case 1:
+                    if (!currentTIle.RightWall && target.TargetPosition.x < Width)
+                    {
+                        target.TargetPosition += new int2(1, 0);
+                    }
+                    break;
+                case 2:
+                    if (!currentTIle.UpWall && target.TargetPosition.y < Height)
+                    {
+                        target.TargetPosition += new int2(0, 1);
+                    }
+                    break;
+                case 3:
+                    if (!currentTIle.DownWall && target.TargetPosition.y > 0)
+                    {
+                        target.TargetPosition += new int2(0, -1);
+                    }
+                    break;
+            }
+        }
     }
 }
 
@@ -84,6 +123,7 @@ public partial struct ZombieMovingSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<MazeConfig>();
+        state.RequireForUpdate<TileBufferElement>();
         Random = Unity.Mathematics.Random.CreateFromIndex(1234);
     }
 

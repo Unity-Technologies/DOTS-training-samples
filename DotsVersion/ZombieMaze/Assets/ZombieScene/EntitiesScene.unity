@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -158,9 +158,11 @@ MonoBehaviour:
   CharacterPrefab: {fileID: 1055949482644032, guid: ae4b76b97d1a142569998c4a69675d3d,
     type: 3}
   TilePrefab: {fileID: 1379298829275194, guid: 5ccb5558c59eb47b4b09a09c1816a9e3, type: 3}
+  MovingWallPrefab: {fileID: 1674865798949028, guid: 68445a35eb5d74c7193824cda6d857b9,
+    type: 3}
   ZombiePrefab: {fileID: 1428683352245202, guid: ec64f9227f03f4b5babd08976956f89e,
     type: 3}
-  MovingWallPrefab: {fileID: 1674865798949028, guid: 68445a35eb5d74c7193824cda6d857b9,
+  ZombieRandomPrefab: {fileID: 1428683352245202, guid: d03bac5b4a111f54aa5f5b735a0ac42f,
     type: 3}
 --- !u!4 &1770465256
 Transform:
