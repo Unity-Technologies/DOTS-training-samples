@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -8,8 +9,8 @@ using UnityEngine;
 [WithAny(typeof(YellowTeam), typeof(BlueTeam))]
 partial struct BeeClampingJob : IJobEntity {
     public float3 fieldBounds;
-    public ComponentLookup<UniformScale> scaleLookup;
-    public ComponentLookup<IsHolding> hasHolding;
+    [ReadOnly] public ComponentLookup<UniformScale> scaleLookup;
+    [ReadOnly] public ComponentLookup<IsHolding> hasHolding;
 
     void Execute(Entity entity, ref Position positionComponent, ref Velocity velocityComponent, in TargetId targetIdComponent) {
         ref var position = ref positionComponent.Value; 

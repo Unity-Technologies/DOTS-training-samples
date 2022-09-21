@@ -5,12 +5,10 @@ using Unity.Jobs;
 partial struct BeeTractionPulsionSystem : ISystem {
     private EntityQuery yellowTeamQuery;
     private EntityQuery blueTeamQuery;
-    private ComponentLookup<Position> positionLookup;
     
     public void OnCreate(ref SystemState state) {
         yellowTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(YellowTeam));
         blueTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(BlueTeam));
-        positionLookup = state.GetComponentLookup<Position>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -34,7 +32,7 @@ partial struct BeeTractionPulsionSystem : ISystem {
             teamAttraction = 5,
             teamRepulsion = 4,
             deltaTime = state.Time.DeltaTime,
-            positionLookup = positionLookup
+            positionLookup = state.GetComponentLookup<Position>()
         }.ScheduleParallel(teamsPicked);
     }
 }
