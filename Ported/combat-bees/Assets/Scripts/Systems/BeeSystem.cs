@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 partial struct BeePointToTargetJob : IJobEntity
 {
@@ -180,6 +179,8 @@ partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // TODO further breakup into separate jobs and only run the necessary ones. Before there was a check for valid food at this point which skipped job if none were found. Same concept, just better.
+        
         // Prepare bee action selection job
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
