@@ -100,8 +100,7 @@ partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var configEntity = SystemAPI.GetSingletonEntity<BeeConfig>();
-        var fieldArea = SystemAPI.GetComponent<Area>(configEntity);
+        var config = SystemAPI.GetSingleton<BeeConfig>();
         
         TransformHandle.Update(ref state);
         VelocityHandle.Update(ref state);
@@ -111,7 +110,7 @@ partial struct MovementSystem : ISystem
             VelocityHandle = VelocityHandle,
             TimeStep = state.Time.DeltaTime,
             Gravity = -9.81f,
-            FieldArea = fieldArea,
+            FieldArea = config.fieldArea
         };
 
         state.Dependency = job.ScheduleParallel(Query, state.Dependency);

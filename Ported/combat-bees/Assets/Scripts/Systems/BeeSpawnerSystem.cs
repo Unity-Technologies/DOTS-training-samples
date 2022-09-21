@@ -57,7 +57,8 @@ partial struct BeeSpawnerSystem : ISystem
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.bee,
                 InitTransform = transform,
-                InitFaction = nestFaction.Value
+                InitFaction = nestFaction.Value,
+                InitVel = config.initVel
             };
             var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
