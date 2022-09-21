@@ -6,7 +6,7 @@ public class PlayerMovementAuthoring : UnityEngine.MonoBehaviour
 {
     public float2 direction;
     public float speed = 15;
-    public float2 position;
+    public float3 position;
 
 }
 
