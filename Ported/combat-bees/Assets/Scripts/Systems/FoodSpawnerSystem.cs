@@ -30,29 +30,10 @@ partial struct FoodSpawnerSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-#if false
-        // This system will only run once, so the random seed can be hard-coded.
-        // Using an arbitrary constant seed makes the behavior deterministic.
-        var random = Random.CreateFromIndex(1234);
-        
-        float radius = 10.0f;
-
-        var foodArray = CollectionHelper.CreateNativeArray<Entity>(config.foodCount, Allocator.Temp);
-        ecb.Instantiate(config.food, foodArray);
-
-        foreach (var food in foodArray)
-        {
-            var pos = random.NextFloat3();
-            pos *= radius;
-            var tm = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
-            tm.Value.Position = pos;
-            ecb.SetComponent(food, tm);
-        }
-#else
         var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
+        var combinedJobHandle = new JobHandle();
         foreach (var nest in nestEntities)
         {
             var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
@@ -60,7 +41,9 @@ partial struct FoodSpawnerSystem : ISystem
             {
                 continue;
             }
-            
+
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
             var foodSpawnJob = new SpawnJob
@@ -72,16 +55,15 @@ partial struct FoodSpawnerSystem : ISystem
                 InitTransform = transform,
                 InitFaction = (int)Factions.None,
             };
+            var jobHandle = foodSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
+            combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
 
-            // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
-            // before the command buffer is played back.
-            state.Dependency = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
         }
-        
-        // Note: use CombineDependencies in order to combine Jobs into a single node for the dependency graph,
-        // to ensure they can be executed in parallel and simultaneously.
-        // JobHandle.CombineDependencies(...)
-#endif
+
+        // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
+        // before the command buffer is played back.
+        state.Dependency = combinedJobHandle;
+
         // force disable system after the first update call
         state.Enabled = false;
     }
