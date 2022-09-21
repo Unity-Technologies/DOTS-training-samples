@@ -8,7 +8,7 @@ using Unity.Mathematics;
 partial struct TargetingJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
-    
+
     public Random random;
     public float aggression;
 
@@ -25,6 +25,7 @@ partial struct TargetingJob : IJobEntity
         else if (resources.Length > 0)
         {
             // gathering
+            // TODO for now we are just grabbing a random resource, but the Original sample only sets this target if it is on the top of the stack 
             ECB.AddComponent<TargetId>(bee, new TargetId() { Value = resources[random.NextInt(0, resources.Length)] });
         }
     }
@@ -33,17 +34,17 @@ partial struct TargetingJob : IJobEntity
 [BurstCompile]
 partial struct TargetingSystem : ISystem
 {
-    private EntityQuery yellowTeam;
-    private EntityQuery blueTeam;
-    private EntityQuery resources;
+    private EntityQuery m_yellowTeamQuery;
+    private EntityQuery m_blueTeamQuery;
+    private EntityQuery m_resourcesQuery;
 
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
 
-        yellowTeam = state.GetEntityQuery(typeof(YellowTeam));
-        blueTeam = state.GetEntityQuery(typeof(BlueTeam));
-        resources = state.GetEntityQuery(typeof(GridPosition));
+        m_yellowTeamQuery = state.GetEntityQuery(typeof(YellowTeam));
+        m_blueTeamQuery = state.GetEntityQuery(typeof(BlueTeam));
+        m_resourcesQuery = state.GetEntityQuery(typeof(GridPosition));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -60,18 +61,18 @@ partial struct TargetingSystem : ISystem
         var blueTeamJob = new TargetingJob()
         {
             ECB = ecb, random = Random.CreateFromIndex((uint)state.Time.ElapsedTime), aggression = config.aggression,
-            enemies = yellowTeam.ToEntityArray(Allocator.TempJob),
-            resources = resources.ToEntityArray(Allocator.TempJob)
+            enemies = m_yellowTeamQuery.ToEntityArray(Allocator.TempJob),
+            resources = m_resourcesQuery.ToEntityArray(Allocator.TempJob)
         };
 
         var yellowTeamJob = new TargetingJob()
         {
             ECB = ecb, random = Random.CreateFromIndex((uint)state.Time.ElapsedTime), aggression = config.aggression,
-            enemies = blueTeam.ToEntityArray(Allocator.TempJob),
-            resources = resources.ToEntityArray(Allocator.TempJob)
+            enemies = m_blueTeamQuery.ToEntityArray(Allocator.TempJob),
+            resources = m_resourcesQuery.ToEntityArray(Allocator.TempJob)
         };
 
-        blueTeamJob.Schedule(blueTeam);
-        yellowTeamJob.Schedule(yellowTeam);
+        blueTeamJob.Schedule(m_blueTeamQuery);
+        yellowTeamJob.Schedule(m_yellowTeamQuery);
     }
 }
