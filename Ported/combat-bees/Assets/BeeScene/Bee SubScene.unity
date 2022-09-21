@@ -240,8 +240,6 @@ MonoBehaviour:
   BeeCount: 100
   FoodCount: 100
   Field: {fileID: 1462356859}
-  Team1Color: {r: 1, g: 1, b: 0, a: 1}
-  Team2Color: {r: 0, g: 1, b: 1, a: 1}
 --- !u!4 &1516531001
 Transform:
   m_ObjectHideFlags: 0
