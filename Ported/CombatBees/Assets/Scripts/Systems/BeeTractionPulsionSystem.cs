@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 
 partial struct BeeTractionPulsionSystem : ISystem {
     private EntityQuery yellowTeamQuery;
@@ -32,7 +33,7 @@ partial struct BeeTractionPulsionSystem : ISystem {
             teamAttraction = 5,
             teamRepulsion = 4,
             deltaTime = state.Time.DeltaTime,
-            positionLookup = state.GetComponentLookup<Position>()
+            positionLookup = state.GetComponentLookup<LocalToWorldTransform>()
         }.ScheduleParallel(teamsPicked);
 
         yellowTeam.Dispose(state.Dependency);
