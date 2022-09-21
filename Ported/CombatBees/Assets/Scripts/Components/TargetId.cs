@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-struct TargetId : IComponentData
+struct TargetId : IComponentData, IEnableableComponent
 {
     public Entity Value;
 }
