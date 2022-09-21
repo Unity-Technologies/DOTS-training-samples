@@ -20,11 +20,12 @@ public struct MovementJob : IJobChunk
 
     public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
     {
+        var chunkEntityEnumerator = new ChunkEntityEnumerator(useEnabledMask, chunkEnabledMask, chunk.ChunkEntityCount);
         var transforms = chunk.GetNativeArray(TransformHandle);
         var velocities = chunk.GetNativeArray(VelocityHandle);
 
         var gravityDt = TimeStep * Gravity;
-        for (int i = 0; i < chunk.Count; ++i)
+        while (chunkEntityEnumerator.NextEntityIndex(out var i))
         {
             var tmComp = transforms[i];
             var velComp = velocities[i];
@@ -84,7 +85,7 @@ partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        Query = state.GetEntityQuery(typeof(LocalToWorldTransform), typeof(Velocity));
+        Query = SystemAPI.QueryBuilder().WithAllRW<LocalToWorldTransform, Velocity>().Build();
         TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>();
         VelocityHandle = state.GetComponentTypeHandle<Velocity>();
         

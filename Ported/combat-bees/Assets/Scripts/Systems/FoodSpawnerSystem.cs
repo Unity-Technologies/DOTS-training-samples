@@ -13,7 +13,7 @@ partial struct FoodSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
+        NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
         
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();

@@ -14,7 +14,7 @@ partial struct BeeSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
+        NestQuery = SystemAPI.QueryBuilder().WithAll<Faction, Area>().Build();
         
         // Only need to update if there are any entities with a SpawnRequestQuery
         state.RequireForUpdate(NestQuery);
