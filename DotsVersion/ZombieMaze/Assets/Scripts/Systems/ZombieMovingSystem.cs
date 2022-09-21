@@ -25,7 +25,6 @@ partial struct ZombieMoveJob : IJobEntity
     //[BurstCompile]
     void Execute(Entity entity, TransformAspect transform, ref Target target)
     {
-        
         //Todo check for wall change
         if (target.PathIndex < 0 || target.TargetPath.IsEmpty)
         {
@@ -33,7 +32,8 @@ partial struct ZombieMoveJob : IJobEntity
             using (StaticMarker.Auto())
             {
                 p.Begin();
-                BreadthFirstSearch(ref entity, ref transform, ref target);
+                //BreadthFirstSearch(ref entity, ref transform, ref target);
+                BreadthFirstSearchArray(ref entity, ref transform, ref target);
                 p.End();
             }
         }
@@ -54,22 +54,29 @@ partial struct ZombieMoveJob : IJobEntity
         }
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     void BreadthFirstSearch(ref Entity entity, ref TransformAspect transform, ref Target target)
     {
         //Random location
+        var p1 = new ProfilerMarker("TestBurst Create");
+        p1.Begin();
         var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
         var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
 
-        NativeHashMap<int2, int2> visited =
-            new NativeHashMap<int2, int2>((Width + 1) * (Height + 1), Allocator.TempJob);
-        
+        NativeHashMap<int2, int2>
+            visited = new NativeHashMap<int2, int2>((Width + 1) * (Height + 1), Allocator.TempJob);
+
+
         NativeQueue<int2> toVisit = new NativeQueue<int2>(Allocator.TempJob);
         var currentPostion = target.TargetPosition;
         toVisit.Enqueue(currentPostion);
+
         visited.Add(currentPostion, currentPostion);
+
         var pathFound = false;
-        
+        p1.End();
+        var p2 = new ProfilerMarker("TestBurst Loop");
+        p2.Begin();
         while (!toVisit.IsEmpty())
         {
             var tileCoord = toVisit.Dequeue();
@@ -110,7 +117,10 @@ partial struct ZombieMoveJob : IJobEntity
             }
         }
 
-        
+        p2.End();
+
+        var p3 = new ProfilerMarker("TestBurst GenPath");
+        p3.Begin();
         //Generate the path
         var path = new NativeList<int2>(Allocator.Persistent);
         if (pathFound)
@@ -122,12 +132,102 @@ partial struct ZombieMoveJob : IJobEntity
                 path.Add(nextPosition);
                 nextPosition = visited[nextPosition];
             }
+
+            path.Add(currentPostion);
+        }
+
+        p3.End();
+        target.TargetPosition = newTarget;
+        target.TargetPath = path;
+        target.PathIndex = path.Length - 1;
+    }
+    
+    [BurstCompile]
+    void BreadthFirstSearchArray(ref Entity entity, ref TransformAspect transform, ref Target target)
+    {
+        //Random location
+        
+        var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
+        var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
+
+        NativeArray<int2> visited2 = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
+        NativeArray<bool> visited3 = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
+
+        NativeQueue<int2> toVisit = new NativeQueue<int2>(Allocator.TempJob);
+        var currentPostion = target.TargetPosition;
+        toVisit.Enqueue(currentPostion);
+
+        visited2[Get1DIndex(currentPostion)] = currentPostion;
+        visited3[Get1DIndex(currentPostion)] = true;
+
+        var pathFound = false;
+        while (!toVisit.IsEmpty())
+        {
+            var tileCoord = toVisit.Dequeue();
+            if (tileCoord.Equals(newTarget))
+            {
+                pathFound = true;
+                break;
+            }
+
+            var tile = Tiles[MazeConfig.Get1DIndex(tileCoord.x, tileCoord.y)];
+
+            var newTile = tileCoord - new int2(1, 0);
+            if (newTile.x >= 0 && !tile.LeftWall && !visited3[Get1DIndex(newTile)])
+            {
+                toVisit.Enqueue(newTile);
+                visited3[Get1DIndex(newTile)] = true;
+                visited2[Get1DIndex(newTile)] = tileCoord;
+            }
+
+            newTile = tileCoord + new int2(1, 0);
+            if (newTile.x <= Width && !tile.RightWall && !visited3[Get1DIndex(newTile)])
+            {
+                toVisit.Enqueue(newTile);
+                visited3[Get1DIndex(newTile)] = true;
+                visited2[Get1DIndex(newTile)] = tileCoord;
+            }
+
+            newTile = tileCoord + new int2(0, 1);
+            if (newTile.y <= Height && !tile.UpWall && !visited3[Get1DIndex(newTile)])
+            {
+                toVisit.Enqueue(newTile);
+                visited3[Get1DIndex(newTile)] = true;
+                visited2[Get1DIndex(newTile)] = tileCoord;
+            }
+
+            newTile = tileCoord - new int2(0, 1);
+            if (newTile.y >= 0 && !tile.DownWall && !visited3[Get1DIndex(newTile)])
+            {
+                toVisit.Enqueue(newTile);
+                visited3[Get1DIndex(newTile)] = true;
+                visited2[Get1DIndex(newTile)] = tileCoord;
+            }
+        }
+
+        //Generate the path
+        var path = new NativeList<int2>(Allocator.Persistent);
+        if (pathFound)
+        {
+            path.Add(newTarget);
+            var nextPosition = visited2[Get1DIndex(newTarget)];
+            while (!currentPostion.Equals(nextPosition))
+            {
+                path.Add(nextPosition);
+                nextPosition = visited2[Get1DIndex(nextPosition)];
+            }
+
             path.Add(currentPostion);
         }
 
         target.TargetPosition = newTarget;
         target.TargetPath = path;
         target.PathIndex = path.Length - 1;
+    }
+
+    public int Get1DIndex(int2 index)
+    {
+        return index.x + index.y * Width;
     }
 }
 
@@ -154,34 +254,39 @@ partial struct RandomZombieMoveJob : IJobEntity
         }
         else
         {
-            TileBufferElement currentTIle = Tiles[MazeConfig.Get1DIndex(target.TargetPosition.x, target.TargetPosition.y)];
+            TileBufferElement currentTIle =
+                Tiles[MazeConfig.Get1DIndex(target.TargetPosition.x, target.TargetPosition.y)];
 
             int newDirection = Rand.NextInt(0, 4);
-            switch(newDirection)
+            switch (newDirection)
             {
                 case 0:
-                    if(!currentTIle.LeftWall && target.TargetPosition.x > 0)
+                    if (!currentTIle.LeftWall && target.TargetPosition.x > 0)
                     {
                         target.TargetPosition += new int2(-1, 0);
                     }
+
                     break;
                 case 1:
                     if (!currentTIle.RightWall && target.TargetPosition.x < Width)
                     {
                         target.TargetPosition += new int2(1, 0);
                     }
+
                     break;
                 case 2:
                     if (!currentTIle.UpWall && target.TargetPosition.y < Height)
                     {
                         target.TargetPosition += new int2(0, 1);
                     }
+
                     break;
                 case 3:
                     if (!currentTIle.DownWall && target.TargetPosition.y > 0)
                     {
                         target.TargetPosition += new int2(0, -1);
                     }
+
                     break;
             }
         }
