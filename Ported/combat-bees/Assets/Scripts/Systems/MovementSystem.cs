@@ -70,7 +70,7 @@ public struct MovementJob : IJobChunk
             tmComp.Value.Rotation = math.mul(headingRot, pitchRot);
 
             transforms[i] = tmComp;
-            // velocities[i] = velComp;
+            velocities[i] = velComp;
         }
     }
 }
