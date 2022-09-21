@@ -21,10 +21,10 @@ partial struct BeeTractionPulsionSystem : ISystem {
 
         var yellowTeamPicked = new PickAttractionJob() {
             allies = yellowTeam
-        }.ScheduleParallel(state.Dependency);
+        }.ScheduleParallel(yellowTeamQuery, state.Dependency);
         var blueTeamPicked = new PickAttractionJob() {
             allies = blueTeam
-        }.ScheduleParallel(state.Dependency);
+        }.ScheduleParallel(blueTeamQuery, state.Dependency);
 
         var teamsPicked = JobHandle.CombineDependencies(yellowTeamPicked, blueTeamPicked);
         
@@ -34,5 +34,8 @@ partial struct BeeTractionPulsionSystem : ISystem {
             deltaTime = state.Time.DeltaTime,
             positionLookup = state.GetComponentLookup<Position>()
         }.ScheduleParallel(teamsPicked);
+
+        yellowTeam.Dispose(state.Dependency);
+        blueTeam.Dispose(state.Dependency);
     }
 }
