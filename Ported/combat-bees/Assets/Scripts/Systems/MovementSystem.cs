@@ -87,6 +87,8 @@ partial struct MovementSystem : ISystem
         Query = state.GetEntityQuery(typeof(LocalToWorldTransform), typeof(Velocity));
         TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>();
         VelocityHandle = state.GetComponentTypeHandle<Velocity>();
+        
+        state.RequireForUpdate<BeeConfig>();
     }
 
     [BurstCompile]
