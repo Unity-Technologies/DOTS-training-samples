@@ -6,6 +6,32 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+partial struct BeePointToTargetJob : IJobEntity
+{
+    [ReadOnly]
+    public EntityManager EntityManager;
+    
+    private void Execute([ChunkIndexInQuery] int chunkIndex, in Entity beeEntity, in LocalToWorldTransform transform,
+        ref BeeProperties beeProperties, ref Velocity velocity)
+    {
+        if (beeProperties.BeeMode != BeeMode.HeadTowardsResource)
+        {
+            return;
+        }
+
+        // Get latest position of target
+        var newPosition = EntityManager.GetComponentData<LocalToWorldTransform>(beeEntity).Value.Position;
+        beeProperties.TargetPosition = newPosition;
+        
+        // Compute new velocity
+        var deltaPosition = newPosition - transform.Value.Position;
+        velocity.Value = deltaPosition/math.sqrt(
+            deltaPosition.x * deltaPosition.x + 
+            deltaPosition.y * deltaPosition.y + 
+            deltaPosition.z * deltaPosition.z);
+    }
+}
+
 partial struct BeeActionProcessingJob : IJob
 {
     [ReadOnly]
@@ -90,19 +116,7 @@ partial struct BeeActionProcessingJob : IJob
         
         // Inverting index for food (temp hack, all bees spawn on food with match index)
         var foodIndex = FoodEntities.Length - (1 + i);
-            
-        var deltaPosition = FoodTransforms[foodIndex].Value.Position -
-                            BeeTransforms[i].Value.Position;
-        var velocity = deltaPosition/math.sqrt(
-            deltaPosition.x * deltaPosition.x + 
-            deltaPosition.y * deltaPosition.y + 
-            deltaPosition.z * deltaPosition.z);
-            
-        // Update bee velocity and target
-        ECB.AddComponent(BeeEntities[i], new Velocity
-        {
-            Value = velocity
-        });
+        
         ECB.AddComponent(BeeEntities[i], new BeeProperties
         {
             Aggressivity = BeeProperties[i].Aggressivity,
@@ -203,5 +217,11 @@ partial struct BeeSystem : ISystem
         state.Dependency = beeProperties.Dispose(state.Dependency);
         state.Dependency = beeEntities.Dispose(state.Dependency);
         state.Dependency = beeTransforms.Dispose(state.Dependency);
+
+        var beeTargetingJob = new BeePointToTargetJob
+        {
+            EntityManager = state.EntityManager
+        };
+        state.Dependency = beeTargetingJob.ScheduleParallel(state.Dependency);
     }
 }
