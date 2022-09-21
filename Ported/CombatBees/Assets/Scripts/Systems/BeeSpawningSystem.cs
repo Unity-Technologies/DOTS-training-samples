@@ -5,6 +5,7 @@ using Unity.Mathematics;
 partial struct BeeSpawningJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
+    public Random random;
 
     public float3 absSpawnOffset;
 
@@ -19,7 +20,6 @@ partial struct BeeSpawningJob : IJobEntity
         right.y = 0;
         right.z = 0;
         
-        var random = Random.CreateFromIndex(1234);
         if (random.NextBool())
         {
             ECB.AddComponent<BlueTeam>(bee);
@@ -31,7 +31,7 @@ partial struct BeeSpawningJob : IJobEntity
             ECB.AddComponent(bee, new Position() { Value = -right * (-absSpawnOffset * .4f + absSpawnOffset * .8f) });
         }
         
-        ECB.AddComponent(bee, new Velocity() { Value = random.NextFloat3Direction() });
+        ECB.AddComponent(bee, new Velocity() { Value = random.NextFloat3Direction() * random.NextFloat() * maxSpawnSpeed });
         ECB.AddComponent(bee, new SmoothDirection() { Value = float3.zero });
         ECB.AddComponent(bee, new SmoothPosition() { Value = float3.zero });
 
@@ -71,6 +71,7 @@ partial struct BeeSpawningSystem : ISystem
         new BeeSpawningJob()
         {
             ECB = ecb,
+            random = Random.CreateFromIndex((uint)state.Time.ElapsedTime*1000),
             absSpawnOffset = Field.size.x,
             minSize = config.minBeeSize,
             maxSize = config.maxBeeSize,
