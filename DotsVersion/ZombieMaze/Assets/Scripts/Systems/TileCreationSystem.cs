@@ -42,15 +42,15 @@ public partial struct TileCreationSystem : ISystem
 	}
 
 	public void CreateSpawnPoint(ref SystemState state)
-    {/*
+    {
 		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
 		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-		int tilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
-		Entity wallEntity = state.EntityManager.Instantiate(prefabConfig.MovingWallPrefab);
-		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(wallEntity);
+		//int tilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
+		Entity spawnerEntity= state.EntityManager.Instantiate(prefabConfig.SpawnerPrefab);
+		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(spawnerEntity);
 
-		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(mazeConfig.MovingWallSize + tilesToMove, 1);
-		transformAspect.Position += new float3(randomTile.x, 0.0f, randomTile.y) + positionOffset;*/
+		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(1, 1);
+		transformAspect.Position += new float3(randomTile.x, 0.01f, randomTile.y);
 		
 	}
     public void OnUpdate(ref SystemState state)
@@ -155,6 +155,9 @@ public partial struct TileCreationSystem : ISystem
 				}
 			}
 		}
+
+		//Create Spawner
+		CreateSpawnPoint(ref state);
 
 		// Clear out left border
 		for (int x = 0; x < mazeConfig.OpenStrips; ++x)
