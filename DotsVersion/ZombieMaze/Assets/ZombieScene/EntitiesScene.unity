@@ -164,6 +164,8 @@ MonoBehaviour:
     type: 3}
   ZombieRandomPrefab: {fileID: 1428683352245202, guid: d03bac5b4a111f54aa5f5b735a0ac42f,
     type: 3}
+  SpawnerPrefab: {fileID: 1379298829275194, guid: 171f242cf24f244bda1d08b61674c4a3,
+    type: 3}
 --- !u!4 &1770465256
 Transform:
   m_ObjectHideFlags: 0
