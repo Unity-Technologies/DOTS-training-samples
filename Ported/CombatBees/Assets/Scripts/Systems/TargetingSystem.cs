@@ -116,15 +116,15 @@ partial struct TargetingSystem : ISystem
 
         if (!m_resourcesQuery.IsEmpty)
         {
-            new TargetingResourceJob()
+            state.Dependency = new TargetingResourceJob()
             {
                 ECB = ecbWriter,
                 resources = m_resourcesQuery.ToEntityArray(Allocator.TempJob)
             }.ScheduleParallel(targetEnemyJob);
 
             // create hashsets for O(1) lookup in job
-            var yellowHashSet = new NativeHashSet<Entity>();
-            var blueHashSet = new NativeHashSet<Entity>();
+            var yellowHashSet = new NativeHashSet<Entity>(allYellowBees.Length, Allocator.TempJob);
+            var blueHashSet = new NativeHashSet<Entity>(allBlueBees.Length, Allocator.TempJob);
 
             foreach (var e in allYellowBees)
                 yellowHashSet.Add(e);
@@ -143,6 +143,10 @@ partial struct TargetingSystem : ISystem
                 ECB = ecb, friends = blueHashSet, holders = SystemAPI.GetComponentLookup<Holder>(true)
             };
             blueUpdatesJob.Schedule();
+        }
+        else
+        {
+            state.Dependency = targetEnemyJob;
         }
     }
 }
