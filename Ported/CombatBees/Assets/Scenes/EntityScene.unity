@@ -189,6 +189,8 @@ MonoBehaviour:
   hitDistance: 0.5
   maxSpawnSpeed: 75
   startBeeCount: 100
+  beePrefab: {fileID: 8110169288850077781, guid: 20f4d74ac530c3b4c87ba8ffcd3ae846,
+    type: 3}
 --- !u!4 &745530502
 Transform:
   m_ObjectHideFlags: 0

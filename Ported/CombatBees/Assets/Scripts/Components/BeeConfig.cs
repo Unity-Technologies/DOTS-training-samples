@@ -22,4 +22,6 @@ struct BeeConfig : IComponentData
     public float hitDistance;
     public float maxSpawnSpeed;
     public int startBeeCount;
+
+    public Entity beePrefab;
 }

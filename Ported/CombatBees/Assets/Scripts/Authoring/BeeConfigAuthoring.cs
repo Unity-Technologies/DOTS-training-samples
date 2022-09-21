@@ -24,6 +24,8 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public float hitDistance = 0.5f;
     public float maxSpawnSpeed = 75f;
     public int startBeeCount= 100;
+
+    public UnityEngine.GameObject beePrefab;
 }
 
 class BeeConfigBaker : Baker<BeeConfigAuthoring>
@@ -51,7 +53,8 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             attackForce = authoring.attackForce,
             hitDistance = authoring.hitDistance,
             maxSpawnSpeed = authoring.maxSpawnSpeed,
-            startBeeCount = authoring.startBeeCount
+            startBeeCount = authoring.startBeeCount,
+            beePrefab = GetEntity(authoring.beePrefab)
     });
     }
 }
