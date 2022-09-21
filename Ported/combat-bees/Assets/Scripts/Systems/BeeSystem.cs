@@ -64,8 +64,8 @@ partial struct FoodTargetingJob : IJob
             // Inverting index for food (temp, all bees spawn on food with match index)
             var foodIndex = FoodEntities.Length - (1 + i);
             
-            var deltaPosition = BeeTransforms[i].Value.Position -
-                                FoodTransforms[foodIndex].Value.Position;
+            var deltaPosition = FoodTransforms[foodIndex].Value.Position -
+                                BeeTransforms[i].Value.Position;
             var velocity = deltaPosition/math.sqrt(
                 deltaPosition.x * deltaPosition.x + 
                 deltaPosition.y * deltaPosition.y + 
@@ -74,7 +74,7 @@ partial struct FoodTargetingJob : IJob
             // Update bee velocity and target
             ECB.AddComponent(BeeEntities[i], new Velocity
             {
-                velocity = velocity
+                Value = velocity
             });
             ECB.AddComponent(BeeEntities[i], new BeeProperties
             {
