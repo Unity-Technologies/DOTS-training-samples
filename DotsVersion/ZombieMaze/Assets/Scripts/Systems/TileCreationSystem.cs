@@ -43,16 +43,25 @@ public partial struct TileCreationSystem : ISystem
 
 	public void CreateSpawnPoint(ref SystemState state)
     {
+		//Spawn Spawner
 		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
 		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-		//int tilesToMove = UnityEngine.Random.Range(mazeConfig.MovingWallMinTilesToMove, mazeConfig.MovingWallMaxTilesToMove);
 		Entity spawnerEntity= state.EntityManager.Instantiate(prefabConfig.SpawnerPrefab);
-		TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(spawnerEntity);
+		TransformAspect transformAspectSpawner = SystemAPI.GetAspectRW<TransformAspect>(spawnerEntity);
 
 		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(1, 1);
-		transformAspect.Position += new float3(randomTile.x, 0.01f, randomTile.y);
-		
+		transformAspectSpawner.Position += new float3(randomTile.x, 0.01f, randomTile.y);
+		foreach(var charPos in SystemAPI.Query<CharacterAspect>())
+		{
+			charPos.spawnerPos = transformAspectSpawner.Position;
+		}
+
+		//Spawn Character
+		Entity charEntity = state.EntityManager.Instantiate(prefabConfig.CharacterPrefab);
+		TransformAspect transformAspectCharacter = SystemAPI.GetAspectRW<TransformAspect>(charEntity);
+		transformAspectCharacter.Position += transformAspectSpawner.Position;
 	}
+
     public void OnUpdate(ref SystemState state)
     {
 		CreateGround(ref state);
