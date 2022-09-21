@@ -9,4 +9,5 @@ public struct PrefabConfig : IComponentData
     public Entity MovingWallPrefab;
     public Entity ZombiePrefab;
     public Entity ZombieRandomPrefab;
+    public Entity SpawnerPrefab;
 }
