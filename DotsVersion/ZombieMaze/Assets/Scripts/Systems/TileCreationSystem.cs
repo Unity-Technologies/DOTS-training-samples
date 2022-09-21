@@ -181,6 +181,7 @@ public partial struct TileCreationSystem : ISystem
 		}
 
 
+
 		NativeArray<MovingWall> spawnedMovingWalls = CollectionHelper.CreateNativeArray<MovingWall>(mazeConfig.MovingWallsToSpawn, Allocator.Temp);
 
 		float3 positionOffset = float3.zero;
@@ -229,6 +230,39 @@ public partial struct TileCreationSystem : ISystem
 				TileBufferElement downTile = tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)];
 				downTile.UpWall = false;
 				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)] = downTile;
+			}
+		}
+
+		// Fixing tile borders
+		for (int x = 0; x < mazeConfig.Width - 1; ++x)
+		{
+			for (int y = 0; y < mazeConfig.Height - 1; ++y)
+			{
+				TileBufferElement currentTile = tiles[Get1DIndex(x, y)];
+				TileBufferElement rightTile = tiles[Get1DIndex(x + 1, y)];
+				TileBufferElement upTile = tiles[Get1DIndex(x, y + 1)];
+
+				if(currentTile.RightWall && !rightTile.LeftWall)
+                {
+					rightTile.LeftWall = true;
+                }
+				if(!currentTile.RightWall && rightTile.LeftWall)
+                {
+					currentTile.RightWall = true;
+                }
+
+				if (currentTile.UpWall && !upTile.DownWall)
+				{
+					upTile.DownWall = true;
+				}
+				if (!currentTile.UpWall && upTile.DownWall)
+				{
+					currentTile.UpWall = true;
+				}
+
+				tiles[Get1DIndex(x, y)] = currentTile;
+				tiles[Get1DIndex(x + 1, y)] = rightTile;
+				tiles[Get1DIndex(x, y + 1)] = upTile;
 			}
 		}
 
