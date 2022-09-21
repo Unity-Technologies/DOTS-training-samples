@@ -5,8 +5,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 partial struct FoodTargetingJob : IJob
 {
@@ -15,9 +13,6 @@ partial struct FoodTargetingJob : IJob
 
     [ReadOnly]
     public NativeArray<Entity> FoodEntities;
-
-    [ReadOnly]
-    public float TimeElapsed;
 
     [ReadOnly]
     public NativeArray<LocalToWorldTransform> BeeTransforms;
@@ -30,7 +25,7 @@ partial struct FoodTargetingJob : IJob
 
     public EntityCommandBuffer ECB;
 
-    // Original parallel -> all bees in parallel, match to random food.
+    // [INFO/NICE TO SEE TRACES]Original parallel -> all bees in parallel, match to random food.
     // private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform, ref BeeProperties beeProperties, ref Velocity velocity)
     // {
     //     if (beeProperties.Target != Entity.Null)
@@ -141,7 +136,6 @@ partial struct BeeSystem : ISystem
         
         var foodTargetingJob = new FoodTargetingJob
         {
-            TimeElapsed = (float)(state.Time.ElapsedTime * 100000d),
             FoodTransforms = foodTransforms,
             FoodEntities = foodEntities,
             BeeProperties = beeProperties,
