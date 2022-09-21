@@ -34,10 +34,9 @@ partial struct BeeSpawnerSystem : ISystem
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
         var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
+        var combinedJobHandle = new JobHandle();
         foreach (var nest in nestEntities)
         {
             var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
@@ -46,6 +45,8 @@ partial struct BeeSpawnerSystem : ISystem
                 continue;
             }
             
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
             var beeSpawnJob = new SpawnJob
@@ -56,13 +57,15 @@ partial struct BeeSpawnerSystem : ISystem
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.bee,
                 InitTransform = transform,
-                InitFaction = state.EntityManager.GetComponentData<Faction>(nest).Value
+                InitFaction = nestFaction.Value
             };
-
-            //state.Dependency = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
-            JobHandle jobHandle = beeSpawnJob.Schedule(config.beeCount, 64);
-            jobHandle.Complete();
+            var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
+            combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
         }
+
+        // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
+        // before the command buffer is played back.
+        state.Dependency = combinedJobHandle;
         
         // force disable system after the first update call
         state.Enabled = false;
