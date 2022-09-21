@@ -2,7 +2,6 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -14,7 +13,7 @@ partial struct FoodSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
-        
+        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.Food});
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate(NestQuery);
@@ -30,18 +29,11 @@ partial struct FoodSpawnerSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-
         var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
         var combinedJobHandle = new JobHandle();
         foreach (var nest in nestEntities)
         {
-            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
-            if (nestFaction.Value != (int)Factions.None)
-            {
-                continue;
-            }
-
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
@@ -53,7 +45,7 @@ partial struct FoodSpawnerSystem : ISystem
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.food,
                 InitTransform = transform,
-                InitFaction = (int)Factions.None,
+                InitFaction = (int)Factions.Food,
             };
             var jobHandle = foodSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);

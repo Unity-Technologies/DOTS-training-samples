@@ -1,6 +1,4 @@
-﻿using System;
-using Unity.Burst;
-using Unity.Burst.Intrinsics;
+﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -20,7 +18,6 @@ struct SpawnJob : IJobParallelFor
     public LocalToWorldTransform InitTransform;
 
     public int InitFaction;
-
     public void Execute(int index)
     {
         var entity = ECB.Instantiate(index, Prefab);
@@ -31,6 +28,6 @@ struct SpawnJob : IJobParallelFor
         float3 position = Aabb.Center + Aabb.Extents * randomf3;
 
         ECB.SetComponent(index, entity, new LocalToWorldTransform{Value = UniformScaleTransform.FromPositionRotationScale(position, InitTransform.Value.Rotation, InitTransform.Value.Scale)});
-        ECB.SetComponent(index, entity, new Faction{Value = InitFaction});
+        ECB.AddSharedComponent(index, entity, new Faction{Value = InitFaction});
     }
 }
