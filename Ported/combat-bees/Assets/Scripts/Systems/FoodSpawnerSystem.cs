@@ -62,12 +62,14 @@ partial struct FoodSpawnerSystem : ISystem
             }
             
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
+            var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
             var foodSpawnJob = new SpawnJob
             {
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 Aabb = nestArea.Value,
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.food,
+                InitTransform = transform,
                 InitFaction = (int)Factions.None,
             };
 

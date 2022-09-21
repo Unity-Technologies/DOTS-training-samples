@@ -47,6 +47,7 @@ partial struct BeeSpawnerSystem : ISystem
             }
             
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
+            var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
             var beeSpawnJob = new SpawnJob
             {
                 Aabb = nestArea.Value,
@@ -54,6 +55,7 @@ partial struct BeeSpawnerSystem : ISystem
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.bee,
+                InitTransform = transform,
                 InitFaction = state.EntityManager.GetComponentData<Faction>(nest).Value
             };
 
