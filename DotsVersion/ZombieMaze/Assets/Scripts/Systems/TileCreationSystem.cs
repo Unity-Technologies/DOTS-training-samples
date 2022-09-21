@@ -318,7 +318,7 @@ public partial struct TileCreationSystem : ISystem
 		// Use moving walls to re-set the tiles's walls
 		for (int i = 0; i < spawnedMovingWalls.Length; ++i)
 		{
-			int startIndex = spawnedMovingWalls[i].StartXIndex - mazeConfig.MovingWallSize / 2 + 1;
+			int startIndex = spawnedMovingWalls[i].StartXIndex - mazeConfig.MovingWallSize / 2;
 
 			for (int w = 0; w < mazeConfig.MovingWallSize; ++w)
 			{
