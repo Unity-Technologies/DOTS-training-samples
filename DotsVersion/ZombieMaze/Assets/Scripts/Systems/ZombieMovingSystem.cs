@@ -3,8 +3,10 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Random = System.Random;
 
 [BurstCompile]
@@ -12,6 +14,7 @@ using Random = System.Random;
 [WithAll(typeof(Zombie))]
 partial struct ZombieMoveJob : IJobEntity
 {
+    private static readonly ProfilerMarker StaticMarker = new ProfilerMarker("TestStaticBurst");
     public int Width;
     public int Height;
     public float DeltaTime;
@@ -19,40 +22,112 @@ partial struct ZombieMoveJob : IJobEntity
     public uint RandomSeed;
     public MazeConfig MazeConfig;
 
+    //[BurstCompile]
     void Execute(Entity entity, TransformAspect transform, ref Target target)
     {
-        float3 targetPosition = new float3(target.TargetPosition.x, 0.3f, target.TargetPosition.y);
         
-        var distance = math.distance(targetPosition, transform.Position);
-        if (distance > 0.5f)
+        //Todo check for wall change
+        if (target.PathIndex < 0 || target.TargetPath.IsEmpty)
         {
-            transform.Position += math.normalize(targetPosition - transform.Position) * DeltaTime * 10; //Speed
+            var p = new ProfilerMarker("TestBurst");
+            using (StaticMarker.Auto())
+            {
+                p.Begin();
+                BreadthFirstSearch(ref entity, ref transform, ref target);
+                p.End();
+            }
         }
         else
         {
-            BreathFirstSearch(ref entity, ref transform, ref target);
-            
+            var nextPosition = target.TargetPath[target.PathIndex];
+            float3 targetPosition = new float3(nextPosition.x, 0.3f, nextPosition.y);
+
+            var distance = math.distance(targetPosition, transform.Position);
+            if (distance > 0.5f)
+            {
+                transform.Position += math.normalize(targetPosition - transform.Position) * DeltaTime * 2; //Speed
+            }
+            else
+            {
+                target.PathIndex--;
+            }
         }
     }
 
-    void BreathFirstSearch(ref Entity entity, ref TransformAspect transform, ref Target target)
+    //[BurstCompile]
+    void BreadthFirstSearch(ref Entity entity, ref TransformAspect transform, ref Target target)
     {
-        //Random
-        //Chasing player
         //Random location
         var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
         var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
 
-        var path = new DynamicBuffer<int2>();
-            
-        //Breath first search
+        NativeHashMap<int2, int2> visited =
+            new NativeHashMap<int2, int2>((Width + 1) * (Height + 1), Allocator.TempJob);
+        
+        NativeQueue<int2> toVisit = new NativeQueue<int2>(Allocator.TempJob);
+        var currentPostion = target.TargetPosition;
+        toVisit.Enqueue(currentPostion);
+        visited.Add(currentPostion, currentPostion);
+        var pathFound = false;
+        
+        while (!toVisit.IsEmpty())
+        {
+            var tileCoord = toVisit.Dequeue();
+            if (tileCoord.Equals(newTarget))
+            {
+                pathFound = true;
+                break;
+            }
 
-        MazeConfig.Get1DIndex(Width, Height);
-            
-        //NativeHashMap<int,float> result = new NativeHashMap<int,float>(1, Allocator.TempJob);
+            var tile = Tiles[MazeConfig.Get1DIndex(tileCoord.x, tileCoord.y)];
+
+            var newTile = tileCoord - new int2(1, 0);
+            if (newTile.x >= 0 && !tile.LeftWall && !visited.ContainsKey(newTile))
+            {
+                toVisit.Enqueue(newTile);
+                visited.Add(newTile, tileCoord);
+            }
+
+            newTile = tileCoord + new int2(1, 0);
+            if (newTile.x <= Width && !tile.RightWall && !visited.ContainsKey(newTile))
+            {
+                toVisit.Enqueue(newTile);
+                visited.Add(newTile, tileCoord);
+            }
+
+            newTile = tileCoord + new int2(0, 1);
+            if (newTile.y <= Height && !tile.UpWall && !visited.ContainsKey(newTile))
+            {
+                toVisit.Enqueue(newTile);
+                visited.Add(newTile, tileCoord);
+            }
+
+            newTile = tileCoord - new int2(0, 1);
+            if (newTile.y >= 0 && !tile.DownWall && !visited.ContainsKey(newTile))
+            {
+                toVisit.Enqueue(newTile);
+                visited.Add(newTile, tileCoord);
+            }
+        }
+
+        
+        //Generate the path
+        var path = new NativeList<int2>(Allocator.Persistent);
+        if (pathFound)
+        {
+            path.Add(newTarget);
+            var nextPosition = visited[newTarget];
+            while (!currentPostion.Equals(nextPosition))
+            {
+                path.Add(nextPosition);
+                nextPosition = visited[nextPosition];
+            }
+            path.Add(currentPostion);
+        }
+
         target.TargetPosition = newTarget;
         target.TargetPath = path;
-        target.PathIndex = 0;
+        target.PathIndex = path.Length - 1;
     }
 }
 
@@ -133,7 +208,7 @@ public partial struct ZombieMovingSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-        
+
         int width = mazeConfig.Width - 1;
         int height = mazeConfig.Height - 1;
         var tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
@@ -146,7 +221,7 @@ public partial struct ZombieMovingSystem : ISystem
             Tiles = tiles,
             DeltaTime = deltaTime,
             RandomSeed = Random.NextUInt(),
-            MazeConfig =mazeConfig
+            MazeConfig = mazeConfig
         };
         moveJob.ScheduleParallel();
 
