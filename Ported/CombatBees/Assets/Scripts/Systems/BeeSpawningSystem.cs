@@ -1,6 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -27,11 +28,13 @@ partial struct BeeSpawningJob : IJobEntity
         if (random.NextBool())
         {
             ECB.AddComponent<BlueTeam>(bee);
+            ECB.AddComponent(bee, new URPMaterialPropertyBaseColor{ Value = new float4(1,1,1,1)});
             localToWorld.Position = localToWorld.Right() * (-absSpawnOffset * .4f + absSpawnOffset * .8f);
         }
         else
         {
             ECB.AddComponent<YellowTeam>(bee);
+            ECB.AddComponent(bee, new URPMaterialPropertyBaseColor{ Value = new float4(0,0,0,1)});
             localToWorld.Position = -localToWorld.Right() * (-absSpawnOffset * .4f + absSpawnOffset * .8f);
         }
 
