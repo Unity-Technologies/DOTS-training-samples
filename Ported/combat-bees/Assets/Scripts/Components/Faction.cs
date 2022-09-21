@@ -2,6 +2,7 @@
 
 public enum Factions
 {
+    None,
     Team1,
     Team2
 }
