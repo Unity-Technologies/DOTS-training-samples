@@ -11,9 +11,9 @@ using UnityEngine;
 partial struct BeeClampingJob : IJobEntity {
     public float3 fieldBounds;
     [ReadOnly] public ComponentLookup<UniformScale> scaleLookup;
-    [ReadOnly] public ComponentLookup<IsHolding> hasHolding;
+    [ReadOnly] public ComponentLookup<TargetId> targetIDLookup;
 
-    void Execute(Entity entity, ref TransformAspect prs, ref Velocity velocityComponent, in TargetId targetIdComponent)
+    void Execute(Entity entity, ref TransformAspect prs, ref Velocity velocityComponent)
     {
         var localToWorld = prs.LocalToWorld; 
         ref var velocity = ref velocityComponent.Value; 
@@ -30,7 +30,7 @@ partial struct BeeClampingJob : IJobEntity {
             velocity.y *= .8f;
         }
         float resourceModifier = 0f;
-        if (hasHolding.HasComponent(entity)) {
+        if (targetIDLookup.TryGetComponent(entity, out TargetId targetIdComponent)) {
             if (scaleLookup.TryGetComponent(targetIdComponent.Value, out UniformScale resourceSize)) {
                 resourceModifier = resourceSize.Value;   
             }

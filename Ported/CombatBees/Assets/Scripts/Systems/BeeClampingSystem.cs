@@ -18,7 +18,7 @@ partial struct BeeClampingSystem : ISystem
         state.Dependency = new BeeClampingJob() {
             fieldBounds = fieldConfig.FieldScale,
             scaleLookup = state.GetComponentLookup<UniformScale>(),
-            hasHolding = state.GetComponentLookup<IsHolding>()
+            targetIDLookup = state.GetComponentLookup<TargetId>()
         }.ScheduleParallel(state.Dependency);
     }
 }
