@@ -39,9 +39,11 @@ partial struct BeeSpawningJob : IJobEntity
         ECB.AddComponent(bee, new UniformScale() { Value = minSize + (random.NextFloat() * (maxSize - minSize)) });
         ECB.AddComponent<IsAttacking>(bee);
         ECB.AddComponent<IsHolding>(bee);
+        ECB.AddComponent<TargetId>(bee);
 
         ECB.SetComponentEnabled<IsAttacking>(bee, false);
         ECB.SetComponentEnabled<IsHolding>(bee, false);
+        ECB.SetComponentEnabled<TargetId>(bee, false);
     }
 }
 
