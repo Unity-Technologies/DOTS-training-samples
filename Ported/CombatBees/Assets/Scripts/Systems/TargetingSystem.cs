@@ -8,8 +8,7 @@ using Unity.Mathematics;
 partial struct TargetingEnemyJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
-
-    public Random random;
+    
     public float aggression;
 
     [ReadOnly] public NativeArray<Entity> enemies;
@@ -20,7 +19,8 @@ partial struct TargetingEnemyJob : IJobEntity
         {
             return;
         }
-        
+
+        var random = Random.CreateFromIndex((uint)idx);
         if (random.NextFloat() < aggression)
         {
             ECB.SetComponentEnabled<TargetId>(idx, bee, true);
@@ -36,14 +36,30 @@ partial struct TargetingResourceJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
 
-    public Random random;
-
     [ReadOnly] public NativeArray<Entity> resources;
 
     void Execute(Entity bee, [EntityInQueryIndex] int idx)
     {
+        var random = Random.CreateFromIndex((uint)idx);
         ECB.SetComponentEnabled<TargetId>(idx, bee, true);
         ECB.SetComponent(idx, bee, new TargetId() { Value = resources[random.NextInt(0, resources.Length)] });
+    }
+}
+
+[WithNone(typeof(IsHolding))]
+partial struct TargetingUpdateJob : IJobEntity
+{
+    public EntityCommandBuffer ECB;
+
+    [ReadOnly] public ComponentLookup<Holder> holders;
+    [ReadOnly] public NativeHashSet<Entity> friends;
+
+    void Execute(Entity bee, TargetId target)
+    {
+        if (holders.TryGetComponent(target.Value, out Holder holder) && !friends.Contains(holder.Value))
+        {
+            ECB.SetComponent(bee, new TargetId() { Value = holder.Value });
+        }
     }
 }
 
@@ -79,29 +95,54 @@ partial struct TargetingSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var ecbWriter = ecb.AsParallelWriter();
 
+        var allBlueBees = m_blueTeamQuery.ToEntityArray(Allocator.TempJob);
+        var allYellowBees = m_yellowTeamQuery.ToEntityArray(Allocator.TempJob);
+
         var blueTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbWriter, random = Random.CreateFromIndex((uint)state.Time.ElapsedTime),
+            ECB = ecbWriter,
             aggression = config.aggression,
-            enemies = m_yellowTeamQuery.ToEntityArray(Allocator.TempJob)
+            enemies = allYellowBees
         }.ScheduleParallel(m_blueTeamIdleQuery, state.Dependency);
 
         var yellowTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbWriter, random = Random.CreateFromIndex((uint)state.Time.ElapsedTime),
+            ECB = ecbWriter,
             aggression = config.aggression,
-            enemies = m_blueTeamQuery.ToEntityArray(Allocator.TempJob)
+            enemies = allBlueBees
         }.ScheduleParallel(m_yellowTeamIdleQuery, state.Dependency);
 
-        var enemyJob = JobHandle.CombineDependencies(blueTeamJob, yellowTeamJob);
+        var targetEnemyJob = JobHandle.CombineDependencies(blueTeamJob, yellowTeamJob);
 
         if (!m_resourcesQuery.IsEmpty)
         {
             new TargetingResourceJob()
             {
-                ECB = ecbWriter, random = Random.CreateFromIndex((uint)state.Time.ElapsedTime),
+                ECB = ecbWriter,
                 resources = m_resourcesQuery.ToEntityArray(Allocator.TempJob)
-            }.ScheduleParallel(enemyJob);
+            }.ScheduleParallel(targetEnemyJob);
+
+            // create hashsets for O(1) lookup in job
+            var yellowHashSet = new NativeHashSet<Entity>();
+            var blueHashSet = new NativeHashSet<Entity>();
+
+            foreach (var e in allYellowBees)
+                yellowHashSet.Add(e);
+            foreach (var e in allBlueBees)
+                blueHashSet.Add(e);
+
+            // TODO revisit once we have resource pickup working...
+            var yellowUpdatesJob = new TargetingUpdateJob()
+            {
+                ECB = ecb, friends = yellowHashSet, holders = SystemAPI.GetComponentLookup<Holder>(true)
+            };
+            yellowUpdatesJob.Schedule();
+
+            var blueUpdatesJob = new TargetingUpdateJob()
+            {
+                ECB = ecb, friends = blueHashSet, holders = SystemAPI.GetComponentLookup<Holder>(true)
+            };
+            blueUpdatesJob.Schedule();
         }
     }
 }
