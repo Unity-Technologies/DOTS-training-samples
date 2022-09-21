@@ -12,5 +12,6 @@ class FoodBaker : Baker<FoodAuthoring>
     {
         AddComponent<Velocity>();
         AddComponent<Food>();
+        AddComponent<UnmatchedFood>();
     }
 }

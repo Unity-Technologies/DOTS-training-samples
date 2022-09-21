@@ -5,5 +5,5 @@
 /// </summary>
 struct Food : IComponentData
 {
-        
+    public Entity CarrierBee;
 }
