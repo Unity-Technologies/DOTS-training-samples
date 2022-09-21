@@ -2,9 +2,7 @@ using Unity.Entities;
 
 class ResourceConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    //public Mesh resourceMesh;
-    //public Material resourceMaterial;
-    //public UnityEngine.Color resourceColor;
+    public UnityEngine.GameObject resourcePrefab;
     public float resourceSize = 0.75f;
     public float snapStiffness = 2f;
     public float carryStiffness = 15f;
@@ -19,9 +17,7 @@ class ResourceConfigBaker : Baker<ResourceConfigAuthoring>
     {
         AddComponent(new ResourceConfig
         {
-            //resourceMesh = authoring.resourceMesh,
-            //resourceMaterial = authoring.resourceMaterial,
-            //resourceColor = authoring.resourceColor,
+            resourcePrefab = GetEntity(authoring.resourcePrefab),
             resourceSize = authoring.resourceSize,
             snapStiffness = authoring.snapStiffness,
             carryStiffness = authoring.carryStiffness,

@@ -2,9 +2,7 @@ using Unity.Entities;
 
 struct ResourceConfig : IComponentData
 {
-    //public Mesh resourceMesh;
-    //public Material resourceMaterial;
-    //public Color resourceColor;
+    public Entity resourcePrefab;
     public float resourceSize;
     public float snapStiffness;
     public float carryStiffness;
