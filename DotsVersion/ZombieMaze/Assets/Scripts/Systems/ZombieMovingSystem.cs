@@ -65,7 +65,7 @@ partial struct RandomZombieMoveJob : IJobEntity
     public int Height;
     public float DeltaTime;
     [ReadOnly] public DynamicBuffer<TileBufferElement> Tiles;
-    public uint RandomSeed;
+    public Unity.Mathematics.Random Rand;
     public MazeConfig MazeConfig;
 
     void Execute(Entity entity, TransformAspect transform, ref RandomMovement target)
@@ -79,10 +79,9 @@ partial struct RandomZombieMoveJob : IJobEntity
         }
         else
         {
-            Unity.Mathematics.Random r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
             TileBufferElement currentTIle = Tiles[MazeConfig.Get1DIndex(target.TargetPosition.x, target.TargetPosition.y)];
 
-            int newDirection = r.NextInt(0, 4);
+            int newDirection = Rand.NextInt(0, 4);
             switch(newDirection)
             {
                 case 0:
@@ -157,7 +156,7 @@ public partial struct ZombieMovingSystem : ISystem
             Height = height,
             Tiles = tiles,
             DeltaTime = deltaTime,
-            RandomSeed = Random.NextUInt(),
+            Rand = Random,
             MazeConfig = mazeConfig
         };
         randomMoveJob.ScheduleParallel();
