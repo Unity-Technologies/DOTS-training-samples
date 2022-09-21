@@ -63,7 +63,7 @@ public partial struct ZombieCreationSystem : ISystem
             TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
             wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
 
-            Target target = new Target() { Value = new int2(Random.NextInt(0, width), Random.NextInt(0, height)) };
+            Target target = new Target() { TargetPosition = new int2(Random.NextInt(0, width), Random.NextInt(0, height)) };
             SystemAPI.SetComponent(zombie, target);
         }
         

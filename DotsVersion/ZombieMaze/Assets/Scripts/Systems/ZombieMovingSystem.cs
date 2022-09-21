@@ -17,13 +17,12 @@ partial struct ZombieMoveJob : IJobEntity
     public float DeltaTime;
     [ReadOnly] public DynamicBuffer<TileBufferElement> Tiles;
     public uint RandomSeed;
+    public MazeConfig MazeConfig;
 
     void Execute(Entity entity, TransformAspect transform, ref Target target)
     {
-        float3 targetPosition = new float3(target.Value.x, 0.3f, target.Value.y);
-        //Tiles[Get1DIndex(target.Value.x, target.Value.y);
-
-
+        float3 targetPosition = new float3(target.TargetPosition.x, 0.3f, target.TargetPosition.y);
+        
         var distance = math.distance(targetPosition, transform.Position);
         if (distance > 0.5f)
         {
@@ -31,14 +30,29 @@ partial struct ZombieMoveJob : IJobEntity
         }
         else
         {
-            var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
-            target.Value = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
+            BreathFirstSearch(ref entity, ref transform, ref target);
+            
         }
+    }
+
+    void BreathFirstSearch(ref Entity entity, ref TransformAspect transform, ref Target target)
+    {
         //Random
-
         //Chasing player
-
         //Random location
+        var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
+        var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
+
+        var path = new DynamicBuffer<int2>();
+            
+        //Breath first search
+
+        MazeConfig.Get1DIndex(Width, Height);
+            
+        //NativeHashMap<int,float> result = new NativeHashMap<int,float>(1, Allocator.TempJob);
+        target.TargetPosition = newTarget;
+        target.TargetPath = path;
+        target.PathIndex = 0;
     }
 }
 
@@ -61,7 +75,7 @@ public partial struct ZombieMovingSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-
+        
         int width = mazeConfig.Width - 1;
         int height = mazeConfig.Height - 1;
         var tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
@@ -73,7 +87,8 @@ public partial struct ZombieMovingSystem : ISystem
             Height = height,
             Tiles = tiles,
             DeltaTime = deltaTime,
-            RandomSeed = Random.NextUInt()
+            RandomSeed = Random.NextUInt(),
+            MazeConfig =mazeConfig
         };
         moveJob.ScheduleParallel();
     }
