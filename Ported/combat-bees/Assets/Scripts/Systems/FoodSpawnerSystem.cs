@@ -49,9 +49,16 @@ partial struct FoodSpawnerSystem : ISystem
         var foodSpawnJob = new SpawnJob
         {
             // Note the function call required to get a parallel writer for an EntityCommandBuffer.
+            Aabb = new AABB()
+            {
+                // Todo : Food should use a neutral area to spawn, not hardcoded like that.
+                Center = new float3(0f, 0f, 0f),
+                Extents = new float3(5f, 5f, 5f)
+            },
+            
             ECB = ecb.AsParallelWriter(),
             Prefab = config.food,
-            InitTM = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food)
+            InitFaction = (int)Factions.None,
         };
 
         // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
