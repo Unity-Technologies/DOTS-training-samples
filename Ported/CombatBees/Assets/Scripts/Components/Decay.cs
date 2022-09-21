@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
 
-struct Decay : IComponentData
-{}
+struct Decay : IComponentData {
+    public float velocityChange;
+}

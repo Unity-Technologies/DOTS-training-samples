@@ -49,7 +49,7 @@ partial struct BeeSpawningJob : IJobEntity
 
         // TODO remove UniformScale once BeeClampingJob is updated
         ECB.AddComponent(bee, new UniformScale() { Value = minSize + (random.NextFloat() * (maxSize - minSize)) });
-        ECB.AddComponent<IsAttacking>(bee);
+        ECB.AddComponent<IsAttacking>(bee, new IsAttacking() {Value = false} );
         ECB.AddComponent<IsHolding>(bee);
         ECB.AddComponent<TargetId>(bee);
 
