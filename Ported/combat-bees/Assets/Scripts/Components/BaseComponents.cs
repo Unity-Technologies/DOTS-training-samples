@@ -1,7 +1,11 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-struct Velocity : IComponentData
+public struct Velocity : IComponentData
 {
-    // Should be Value by convention.
-    public float3 velocity;
+    public float3 Value;
+}
+
+public struct Area : IComponentData
+{
+    public AABB Value;
 }
