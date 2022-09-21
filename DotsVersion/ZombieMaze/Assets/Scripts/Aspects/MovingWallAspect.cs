@@ -41,6 +41,11 @@ readonly partial struct MovingWallAspect : IAspect
         get => MovingWall.ValueRO.StartXIndex;
     }
 
+    public int StartYIndex
+    {
+        get => MovingWall.ValueRO.StartYIndex;
+    }
+
     public int CurrentXIndex
     {
         get => MovingWall.ValueRO.CurrentXIndex;
