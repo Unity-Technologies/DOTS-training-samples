@@ -1,8 +1,11 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
+using Unity.Burst.Intrinsics;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 struct SpawnJob : IJobParallelFor
@@ -12,19 +15,22 @@ struct SpawnJob : IJobParallelFor
     
     public Entity Prefab;
 
-    public LocalToWorldTransform InitTM;
+    public AABB Aabb;
+    
+    public LocalToWorldTransform InitTransform;
+
+    public int InitFaction;
 
     public void Execute(int index)
     {
         var entity = ECB.Instantiate(index, Prefab);
         var random = Random.CreateFromIndex((uint) index);
 
-        float radius = 10.0f;
-        var pos = random.NextFloat3();
-        pos *= radius;
+        var randomf3 = (random.NextFloat3() - new float3(0.5f, 0.5f, 0.5f)) * 2.0f; // [-1;1]
 
-        var tm = InitTM;
-        tm.Value.Position = pos;
-        ECB.SetComponent(index, entity, tm);
+        float3 position = Aabb.Center + Aabb.Extents * randomf3;
+
+        ECB.AddComponent(index, entity, new LocalToWorldTransform{Value = UniformScaleTransform.FromPositionRotationScale(position, InitTransform.Value.Rotation, InitTransform.Value.Scale)});
+        ECB.AddComponent(index, entity, new Faction{Value = InitFaction});
     }
 }

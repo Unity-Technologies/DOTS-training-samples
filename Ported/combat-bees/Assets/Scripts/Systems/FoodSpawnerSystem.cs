@@ -8,11 +8,16 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct FoodSpawnerSystem : ISystem
 {
+    private EntityQuery NestQuery;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
+        
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
+        state.RequireForUpdate(NestQuery);
     }
 
     [BurstCompile]
@@ -46,17 +51,32 @@ partial struct FoodSpawnerSystem : ISystem
             ecb.SetComponent(food, tm);
         }
 #else
-        var foodSpawnJob = new SpawnJob
-        {
-            // Note the function call required to get a parallel writer for an EntityCommandBuffer.
-            ECB = ecb.AsParallelWriter(),
-            Prefab = config.food,
-            InitTM = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food)
-        };
+        var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
-        // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
-        // before the command buffer is played back.
-        state.Dependency = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
+        foreach (var nest in nestEntities)
+        {
+            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
+            if (nestFaction.Value != (int)Factions.None)
+            {
+                continue;
+            }
+            
+            var nestArea = state.EntityManager.GetComponentData<Area>(nest);
+            var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
+            var foodSpawnJob = new SpawnJob
+            {
+                // Note the function call required to get a parallel writer for an EntityCommandBuffer.
+                Aabb = nestArea.Value,
+                ECB = ecb.AsParallelWriter(),
+                Prefab = config.food,
+                InitTransform = transform,
+                InitFaction = (int)Factions.None,
+            };
+
+            // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
+            // before the command buffer is played back.
+            state.Dependency = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
+        }
         
         // Note: use CombineDependencies in order to combine Jobs into a single node for the dependency graph,
         // to ensure they can be executed in parallel and simultaneously.
