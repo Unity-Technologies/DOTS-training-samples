@@ -28,6 +28,9 @@ partial struct PlayerMovementSystem : ISystem
             float3 tempPos = new float3(Input.GetAxis("Horizontal"),0, Input.GetAxis("Vertical")) * character.speed * dt;
 
             character.position += tempPos;
+            int startIndex = character.StartXIndex;
+            Debug.Log(startIndex);
+            //TileBufferElement upTile = tiles[mazeConfig.Get1DIndex()]
 
         }
     }
