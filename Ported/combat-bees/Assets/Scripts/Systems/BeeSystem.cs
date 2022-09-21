@@ -5,13 +5,14 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 partial struct BeePointToTargetJob : IJobEntity
 {
     [ReadOnly]
-    public EntityManager EntityManager;
-    
-    private void Execute([ChunkIndexInQuery] int chunkIndex, in Entity beeEntity, in LocalToWorldTransform transform,
+    public ComponentLookup<LocalToWorldTransform> ComponentLookup;
+
+    private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform,
         ref BeeProperties beeProperties, ref Velocity velocity)
     {
         if (beeProperties.BeeMode != BeeMode.HeadTowardsResource)
@@ -20,7 +21,7 @@ partial struct BeePointToTargetJob : IJobEntity
         }
 
         // Get latest position of target
-        var newPosition = EntityManager.GetComponentData<LocalToWorldTransform>(beeEntity).Value.Position;
+        var newPosition = ComponentLookup.GetRefRO(beeProperties.Target).ValueRO.Value.Position;
         beeProperties.TargetPosition = newPosition;
         
         // Compute new velocity
@@ -154,6 +155,7 @@ partial struct BeeSystem : ISystem
 {
     private EntityQuery _foodQuery;
     private EntityQuery _beeQuery;
+    private ComponentLookup<LocalToWorldTransform> _transformComponentLookup;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -166,6 +168,8 @@ partial struct BeeSystem : ISystem
         var beeQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
         beeQueryBuilder.WithAll<BeeProperties, LocalToWorldTransform>();
         _beeQuery = state.GetEntityQuery(beeQueryBuilder);
+        
+        _transformComponentLookup = state.GetComponentLookup<LocalToWorldTransform>();
     }
 
     [BurstCompile]
@@ -176,13 +180,9 @@ partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // Prepare bee action selection job
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
-        if (foodEntities.Length == 0)
-        {
-            foodEntities.Dispose();
-            return;
-        }
         var foodTransforms = _foodQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
         
         // Bee structures
@@ -194,7 +194,7 @@ partial struct BeeSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
-        // BeeAction job
+        // BeeAction job instantiate and schedule
         var beeActionProcessingJob = new BeeActionProcessingJob
         {
             FoodTransforms = foodTransforms,
@@ -217,10 +217,13 @@ partial struct BeeSystem : ISystem
         state.Dependency = beeProperties.Dispose(state.Dependency);
         state.Dependency = beeEntities.Dispose(state.Dependency);
         state.Dependency = beeTransforms.Dispose(state.Dependency);
-
-        var beeTargetingJob = new BeePointToTargetJob
+        
+        
+        // Point towards target job
+        _transformComponentLookup.Update(ref state);
+        var beeTargetingJob = new BeePointToTargetJob // IJobEntity
         {
-            EntityManager = state.EntityManager
+            ComponentLookup = _transformComponentLookup
         };
         state.Dependency = beeTargetingJob.ScheduleParallel(state.Dependency);
     }
