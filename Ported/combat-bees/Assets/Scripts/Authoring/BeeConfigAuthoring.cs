@@ -12,8 +12,6 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int BeeCount;
     public int FoodCount;
     public GameObject Field;
-    public Color Team1Color;
-    public Color Team2Color;
 }
 
 [UpdateBefore(typeof(NestAuthoring))]
