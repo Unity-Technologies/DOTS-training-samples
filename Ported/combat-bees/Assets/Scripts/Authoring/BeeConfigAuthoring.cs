@@ -1,6 +1,9 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEditor.Build.CacheServer;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 class BeeConfigAuthoring : UnityEngine.MonoBehaviour
 {
@@ -8,8 +11,10 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public GameObject FoodPrefab;
     public int BeeCount;
     public int FoodCount;
+    public GameObject Field;
 }
 
+[UpdateBefore(typeof(NestAuthoring))]
 class BeeConfigBaker : Baker<BeeConfigAuthoring>
 {
     public override void Bake(BeeConfigAuthoring authoring)
@@ -21,5 +26,7 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             beeCount = authoring.BeeCount,
             foodCount = authoring.FoodCount
         });
+        var renderer = authoring.Field.GetComponent<Renderer>();
+        AddComponent<Area>(new Area{Value = AABBExtensions.ToAABB(renderer.bounds)});
     }
 }
