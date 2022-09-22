@@ -8,5 +8,6 @@ class ResourceBaker : Baker<ResourceAuthoring>
     public override void Bake(ResourceAuthoring authoring)
     {
         AddComponent<Holder>();
+        AddComponent<Velocity>();
     }
 }

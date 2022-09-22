@@ -10,7 +10,7 @@ partial struct JitterJob : IJobEntity {
     public float jitter;
     public float damping;
 
-    void Execute(ref Velocity velocity) {
+    void Execute(ref Velocity velocity, in TargetId targetId) {
         velocity.Value += random.NextFloat3Direction() * (jitter * deltaTime);
         velocity.Value *= (1f - (damping * deltaTime)) ;
     }
