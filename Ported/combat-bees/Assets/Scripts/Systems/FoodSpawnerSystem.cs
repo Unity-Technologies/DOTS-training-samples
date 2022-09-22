@@ -13,7 +13,7 @@ partial struct FoodSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
-        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.Food});
+        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.None});
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate(NestQuery);
@@ -45,7 +45,7 @@ partial struct FoodSpawnerSystem : ISystem
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.food,
                 InitTransform = transform,
-                InitFaction = (int)Factions.Food,
+                InitFaction = (int)Factions.None,
             };
             var jobHandle = foodSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
