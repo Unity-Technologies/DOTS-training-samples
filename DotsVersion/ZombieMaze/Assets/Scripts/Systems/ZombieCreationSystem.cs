@@ -87,7 +87,8 @@ public partial struct ZombieCreationSystem : ISystem
             }
 
         }
-        
-        state.Enabled = false;
+
+        mazeConfig.ZombiesToSpawn = 0;
+        SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
     }
 }
