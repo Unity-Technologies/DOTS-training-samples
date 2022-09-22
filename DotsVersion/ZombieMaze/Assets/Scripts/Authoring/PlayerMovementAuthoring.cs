@@ -5,7 +5,7 @@ using Unity.Mathematics;
 public class PlayerMovementAuthoring : UnityEngine.MonoBehaviour
 {
     public float2 direction;
-    public float speed = 15;
+    public float speed = 5;
     public float3 position;
     public float3 spawnerPos;
 
