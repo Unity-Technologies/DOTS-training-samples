@@ -10,7 +10,6 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 partial struct BeePointToTargetJob : IJobEntity
 {
-
     [ReadOnly]
     public ComponentLookup<LocalToWorldTransform> ComponentLookup;
 
@@ -191,9 +190,7 @@ partial struct BeeSystem : ISystem
     private long _tick;
     
     private EntityQuery _foodQuery;
-    
     private EntityQuery _nestQuery;
-    
     private EntityQuery _beeQuery;
     
     private ComponentLookup<LocalToWorldTransform> _transformComponentLookup;
@@ -216,11 +213,11 @@ partial struct BeeSystem : ISystem
         _beeQuery = state.GetEntityQuery(beeQueryBuilder);
 
         _transformComponentLookup = state.GetComponentLookup<LocalToWorldTransform>();
-
-        state.RequireForUpdate<BeeConfig>();
         _foodComponentLookup = state.GetComponentLookup<Food>();
 
         _tick = 0;
+        
+        state.RequireForUpdate<BeeConfig>();
     }
 
     [BurstCompile]
