@@ -36,16 +36,19 @@ partial struct ZombieElevationCheckJob : IJobEntity
 public partial struct ZombieElevationSystem : ISystem
 {
     ComponentLookup<ElevatingPosition> m_ElevatingPositionFromEntity;
-    
+
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_ElevatingPositionFromEntity = state.GetComponentLookup<ElevatingPosition>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var deltaTime = Time.deltaTime;

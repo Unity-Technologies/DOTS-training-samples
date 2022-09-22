@@ -11,16 +11,19 @@ using Random = System.Random;
 [BurstCompile]
 public partial struct ZombieCreationSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PrefabConfig>();
         state.RequireForUpdate<MazeConfig>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
