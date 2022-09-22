@@ -35,12 +35,11 @@ public partial struct MovingWallMovement : ISystem
             if (movingWall.MoveTimer >= movingWall.MoveSpeedInSeconds)
             {
                 movingWall.MoveTimer -= movingWall.MoveSpeedInSeconds;
-                if(movingWall.MovingLeft)
+                if (movingWall.MovingLeft)
                 {
-                    movingWall.CurrentXIndex--;
                     movingWall.Position -= new float3(1.0f, 0.0f, 0.0f);
 
-                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2 + 1;
+                    int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2;
                     int leftEndIndex = movingWall.CurrentXIndex - mazeConfig.MovingWallSize / 2;
 
                     TileBufferElement upTile = tiles[mazeConfig.Get1DIndex(leftEndIndex, movingWall.StartYIndex + 1)];
@@ -58,14 +57,15 @@ public partial struct MovingWallMovement : ISystem
                     downTile = tiles[mazeConfig.Get1DIndex(rightEndIndex, movingWall.StartYIndex)];
                     downTile.UpWall = false;
                     tiles[mazeConfig.Get1DIndex(rightEndIndex, movingWall.StartYIndex)] = downTile;
+
+                    movingWall.CurrentXIndex--;
                 }
                 else
                 {
-                    movingWall.CurrentXIndex++;
                     movingWall.Position += new float3(1.0f, 0.0f, 0.0f);
 
                     int rightEndIndex = movingWall.CurrentXIndex + mazeConfig.MovingWallSize / 2 + 1;
-                    int leftEndIndex = movingWall.CurrentXIndex - mazeConfig.MovingWallSize / 2;
+                    int leftEndIndex = movingWall.CurrentXIndex - mazeConfig.MovingWallSize / 2 + 1;
 
                     TileBufferElement upTile = tiles[mazeConfig.Get1DIndex(leftEndIndex, movingWall.StartYIndex + 1)];
                     upTile.DownWall = false;
@@ -83,9 +83,11 @@ public partial struct MovingWallMovement : ISystem
                     downTile = tiles[mazeConfig.Get1DIndex(rightEndIndex, movingWall.StartYIndex)];
                     downTile.UpWall = true;
                     tiles[mazeConfig.Get1DIndex(rightEndIndex, movingWall.StartYIndex)] = downTile;
+
+                    movingWall.CurrentXIndex++;
                 }
 
-                if(Mathf.Abs(movingWall.CurrentXIndex - movingWall.StartXIndex) >= movingWall.NumberOfTilesToMove)
+                if (Mathf.Abs(movingWall.CurrentXIndex - movingWall.StartXIndex) >= movingWall.NumberOfTilesToMove)
                 {
                     movingWall.MovingLeft = !movingWall.MovingLeft;
                 }

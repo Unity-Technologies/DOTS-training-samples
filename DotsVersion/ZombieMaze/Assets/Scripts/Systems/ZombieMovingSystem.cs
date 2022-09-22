@@ -199,9 +199,9 @@ partial struct ZombieMoveJob : IJobEntity
 
         NativeArray<int2> parentTile = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
         NativeArray<bool> visited = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
-
         NativeQueue<int2> toVisit = new NativeQueue<int2>(Allocator.TempJob);
-        var currentPostion = target.TargetPosition;
+        
+        var currentPostion = new int2((int)Math.Round(transform.Position.x), (int)Math.Round(transform.Position.z));
         toVisit.Enqueue(currentPostion);
 
         parentTile[Get1DIndex(currentPostion)] = currentPostion;
@@ -341,6 +341,8 @@ partial struct RandomZombieMoveJob : IJobEntity
 }
 
 
+[CreateAfter(typeof(TileCreationSystem))]
+[UpdateAfter(typeof(MovingWallMovement))]
 [BurstCompile]
 public partial struct ZombieMovingSystem : ISystem
 {
@@ -366,12 +368,12 @@ public partial struct ZombieMovingSystem : ISystem
         int height = mazeConfig.Height - 1;
         var tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
         var player = SystemAPI.GetSingletonEntity<PlayerData>();
-
+        
         //Draw Maze data to debug
         bool mazeDataDebug = true;
         if (mazeDataDebug)
         {
-            float drawHeight = 0.4f;
+            float drawHeight = 0.7f;
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
