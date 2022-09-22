@@ -22,17 +22,22 @@ public struct DetectFoodDeliveryJob : IJobChunk
         var transforms = chunk.GetNativeArray(TransformHandle);
         var entities = chunk.GetNativeArray(EntityHandle);
 
+        float k_eps = 1e-2f;
         while (chunkEntityEnumerator.NextEntityIndex(out var i))
         {
             var tmComp = transforms[i];
             // check if food has reached the ground.
             // if yes, remove it and issue a bee spawn request
-            bool onGround = tmComp.Value.Position.y < FieldArea.Min.y;
 
-            // todo: issue spawn request
-            // SpawningRequest.CreateBeeSpawnRequest( SomeStruct{ ECB, prefab, number, region } );
+            bool onGround = tmComp.Value.Position.y < FieldArea.Min.y + k_eps;
 
-            ECB.DestroyEntity(i, entities[i]);
+            if (onGround)
+            {
+                // todo: issue spawn request
+                // SpawningRequest.CreateBeeSpawnRequest( SomeStruct{ ECB, prefab, number, region } );
+
+                ECB.DestroyEntity(i, entities[i]);
+            }
         }
     }
 }
