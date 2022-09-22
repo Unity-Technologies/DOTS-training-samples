@@ -38,7 +38,7 @@ partial struct CannonBallJob : IJobEntity
     }
 }
 
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct CannonBallSystem : ISystem
 {
     [BurstCompile]
