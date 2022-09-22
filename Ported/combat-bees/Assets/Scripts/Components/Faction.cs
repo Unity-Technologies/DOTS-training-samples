@@ -12,5 +12,4 @@ public enum Factions
 public struct Faction : ISharedComponentData
 {
     public int Value;
-    public Color Color;
 }

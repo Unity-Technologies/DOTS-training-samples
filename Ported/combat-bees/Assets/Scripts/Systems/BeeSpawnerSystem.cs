@@ -13,7 +13,6 @@ partial struct BeeSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
     private EntityQuery MeshRendererQuery;
-    private EntityQuery NestMeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -53,6 +52,9 @@ partial struct BeeSpawnerSystem : ISystem
 
                 var nestArea = state.EntityManager.GetComponentData<Area>(nest);
                 var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
+                var nestMaterial = state.EntityManager.GetComponentData<MaterialMeshInfo>(nest);
+                var renderMeshArray = state.EntityManager.GetSharedComponentManaged<RenderMeshArray>(nest);
+                var faction = state.EntityManager.GetSharedComponent<Faction>(nest).Value;
                 
                 var beeSpawnJob = new SpawnJob
                 {
@@ -62,30 +64,13 @@ partial struct BeeSpawnerSystem : ISystem
                     ECB = ecb.AsParallelWriter(),
                     Prefab = config.bee,
                     InitTransform = transform,
-                    InitFaction = state.EntityManager.GetSharedComponent<Faction>(nest).Value,
+                    InitFaction = faction,
+                    InitColor = renderMeshArray.GetMaterial(nestMaterial).color,
+                    Mask = MeshRendererQuery.GetEntityQueryMask(),
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
             }
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-            var nestArea = state.EntityManager.GetComponentData<Area>(nest);
-            //var renderer = state.EntityManager.GetComponentData<>(nest);
-            var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
-            var beeSpawnJob = new SpawnJob
-            {
-                Aabb = nestArea.Value,
-            
-                // Note the function call required to get a parallel writer for an EntityCommandBuffer.
-                ECB = ecb.AsParallelWriter(),
-                Prefab = config.bee,
-                InitTransform = transform,
-                Mask = MeshRendererQuery.GetEntityQueryMask(),
-                InitFaction = nestFaction.Value,
-                InitColor = nestFaction.Color
-            };
-            var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
-            combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
         }
         
         // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed

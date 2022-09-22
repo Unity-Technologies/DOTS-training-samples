@@ -14,7 +14,7 @@ class NestBaker : Baker<NestAuthoring>
     public override void Bake(NestAuthoring authoring)
     {
         MeshRenderer mesh = GetComponent<MeshRenderer>();
-        AddSharedComponent<Faction>(new Faction{Value = (int)authoring.factions, Color = mesh.sharedMaterial.color});
+        AddSharedComponent<Faction>(new Faction{Value = (int)authoring.factions});
         AddComponent<Area>(new Area{ Value = AABBExtensions.ToAABB(mesh.bounds) });
     }
 }
