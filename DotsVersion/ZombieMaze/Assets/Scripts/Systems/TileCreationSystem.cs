@@ -321,6 +321,8 @@ public partial struct TileCreationSystem : ISystem
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3((x - .5f), wallTransform.LocalPosition.y, y);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 90, 0);
+
+					tile.LeftWall = true;
 				}
 				if (y == 0 || tile.DownWall)
 				{
@@ -328,6 +330,8 @@ public partial struct TileCreationSystem : ISystem
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y - .5f);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 0, 0);
+
+					tile.DownWall = true;
 				}
 				if (x == mazeConfig.Width - 1)
 				{
@@ -335,6 +339,8 @@ public partial struct TileCreationSystem : ISystem
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3((x + .5f), wallTransform.LocalPosition.y, y);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 90, 0);
+
+					tile.RightWall = true;
 				}
 				if (y == mazeConfig.Height - 1)
 				{
@@ -342,7 +348,11 @@ public partial struct TileCreationSystem : ISystem
 					TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(wall);
 					wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y, y + .5f);
 					wallTransform.LocalRotation = Quaternion.Euler(0, 0, 0);
+
+					tile.UpWall = true;
 				}
+
+				tiles[Get1DIndex(x, y)] = tile;
 			}
 		}
 
