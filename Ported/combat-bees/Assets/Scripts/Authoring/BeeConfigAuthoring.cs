@@ -27,8 +27,8 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             food = GetEntity(authoring.FoodPrefab),
             beeCount = authoring.BeeCount,
             foodCount = authoring.FoodCount,
-            fieldArea = new Area{Value = AABBExtensions.ToAABB(renderer.bounds)},
-            initVel = new Velocity{ Value = authoring.InitVel }
+            fieldArea = AABBExtensions.ToAABB(renderer.bounds),
+            initVel = authoring.InitVel
         });
     }
 }

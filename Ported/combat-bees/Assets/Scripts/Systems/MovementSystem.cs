@@ -14,7 +14,7 @@ public struct MovementJob : IJobChunk
 
     [ReadOnly] public float TimeStep;
     [ReadOnly] public float Gravity;
-    [ReadOnly] public Area FieldArea;
+    [ReadOnly] public AABB FieldArea;
 
     public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
     {
@@ -36,7 +36,7 @@ public struct MovementJob : IJobChunk
 
             velNew.y += gravityDt;
             pos += TimeStep * velNew;
-            bool notOnGround = pos.y < FieldArea.Value.Min.y;
+            bool notOnGround = pos.y < FieldArea.Min.y;
 
             if (notOnGround && velNew.y < -k_DeepImpactVel) // deep impact
             {
@@ -49,7 +49,7 @@ public struct MovementJob : IJobChunk
             }
 
             // clamp to field
-            pos = math.clamp(pos, FieldArea.Value.Min, FieldArea.Value.Max);
+            pos = math.clamp(pos, FieldArea.Min, FieldArea.Max);
 
             tmComp.Value.Position = pos;
             velComp.Value = velNew;

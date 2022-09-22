@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using Unity.Entities;
@@ -15,7 +16,7 @@ struct SpawnJob : IJobParallelFor
     public AABB Aabb;
     public LocalToWorldTransform InitTransform;
     public int InitFaction;
-    public Velocity InitVel;
+    public float3 InitVel;
 
     public void Execute(int index)
     {
@@ -28,6 +29,6 @@ struct SpawnJob : IJobParallelFor
 
         ECB.SetComponent(index, entity, new LocalToWorldTransform{Value = UniformScaleTransform.FromPositionRotationScale(position, InitTransform.Value.Rotation, InitTransform.Value.Scale)});
         ECB.SetComponent(index, entity, new Faction{Value = InitFaction});
-        ECB.SetComponent(index, entity, InitVel);
+        ECB.SetComponent(index, entity, new Velocity{Value = InitVel});
     }
 }
