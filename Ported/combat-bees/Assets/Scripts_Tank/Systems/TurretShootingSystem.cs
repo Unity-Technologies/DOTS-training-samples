@@ -155,7 +155,7 @@ partial struct TurretShoot_Step2 : IJobEntity
 #endregion
 
 #region step3
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct TurretShootingSystem : ISystem
 {
     ComponentLookup<LocalToWorldTransform> m_LocalToWorldTransformFromEntity;
