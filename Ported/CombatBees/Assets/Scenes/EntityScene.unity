@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -176,20 +176,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minBeeSize: 0.25
   maxBeeSize: 0.5
-  speedStretch: 0.08
+  speedStretch: 0.2
   rotationStiffness: 5
   aggression: 0.5
-  flightJitter: 200
+  flightJitter: 8
   teamAttraction: 5
   teamRepulsion: 4
-  damping: 0.1
-  chaseForce: 50
-  carryForce: 25
-  grabDistance: 0.5
+  damping: 0.6
+  chaseForce: 15
+  carryForce: 7.5
+  grabDistance: 5
   attackDistance: 4
   attackForce: 500
   hitDistance: 0.5
-  maxSpawnSpeed: 75
+  maxSpawnSpeed: 20
   startBeeCount: 100
   beePrefab: {fileID: 8110169288850077781, guid: 20f4d74ac530c3b4c87ba8ffcd3ae846,
     type: 3}
