@@ -2,9 +2,6 @@ using Unity.Entities;
 
 class BeeConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    //public UnityEngine.Mesh beeMesh;
-    //public UnityEngine.Material beeMaterial;
-    //public UnityEngine.Color[] teamColors;
     public float minBeeSize = 0.25f;
     public float maxBeeSize = 0.5f;
     public float speedStretch = 0.2f;
@@ -34,9 +31,6 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
     {
         AddComponent(new BeeConfig
         {
-            //beeMesh = authoring.beeMesh,
-            //beeMaterial = authoring.beeMaterial,
-            //teamColors = authoring.teamColors,
             minBeeSize = authoring.minBeeSize,
             maxBeeSize = authoring.maxBeeSize,
             speedStretch = authoring.speedStretch,
