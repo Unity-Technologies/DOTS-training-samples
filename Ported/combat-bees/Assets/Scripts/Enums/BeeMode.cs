@@ -3,5 +3,6 @@
     Idle = 0,
     Attack = 1,
     FindResource = 2,
-    MoveResource = 3
+    HeadTowardsResource = 3,
+    MoveResourceBackToNest = 4
 }

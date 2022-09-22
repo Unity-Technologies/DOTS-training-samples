@@ -3,17 +3,23 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct FoodSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
+        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.None});
+
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
         
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
@@ -30,18 +36,11 @@ partial struct FoodSpawnerSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-
         var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
         var combinedJobHandle = new JobHandle();
         foreach (var nest in nestEntities)
         {
-            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
-            if (nestFaction.Value != (int)Factions.None)
-            {
-                continue;
-            }
-
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
@@ -54,6 +53,8 @@ partial struct FoodSpawnerSystem : ISystem
                 Prefab = config.food,
                 InitTransform = transform,
                 InitFaction = (int)Factions.None,
+                InitColor = Color.green,
+                Mask = MeshRendererQuery.GetEntityQueryMask(),
             };
             var jobHandle = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
