@@ -2,9 +2,6 @@ using Unity.Entities;
 
 struct BeeConfig : IComponentData
 {
-    //public Mesh beeMesh;
-    //public Material beeMaterial;
-    //public Color[] teamColors;
     public float minBeeSize;
     public float maxBeeSize;
     public float speedStretch;
