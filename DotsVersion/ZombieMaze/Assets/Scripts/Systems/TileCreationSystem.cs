@@ -104,7 +104,7 @@ public partial struct TileCreationSystem : ISystem
 			tiles.Add(tileBufferElement);
         }
 
-		Stack<int2> stack = new Stack<int2>();
+		NativeList<int2> stack = new NativeList<int2>(Allocator.Temp);
 		int2 current = mazeConfig.GetRandomTilePosition();
 		TileBufferElement tempTile = tiles[Get1DIndex(current.x, current.y)];
 		tempTile.TempVisited = true;
@@ -128,7 +128,7 @@ public partial struct TileCreationSystem : ISystem
 			{
 				// visit neighbor
 				int2 next = unvisitedNeighbors[UnityEngine.Random.Range(0, unvisitedNeighbors.Count)];
-				stack.Push(current);
+				stack.Add(current);
 				// remove wall between tiles
 				TileBufferElement currentTile = tiles[Get1DIndex(current.x, current.y)];
 				TileBufferElement nextTile = tiles[Get1DIndex(next.x, next.y)];
@@ -161,9 +161,10 @@ public partial struct TileCreationSystem : ISystem
 			else
 			{
 				// backtrack if no unvisited neighboring tiles
-				if (stack.Count > 0)
+				if (stack.Length > 0)
 				{
-					current = stack.Pop();
+					current = stack[stack.Length - 1];
+					stack.RemoveAt(stack.Length - 1);
 				}
 			}
 		}
