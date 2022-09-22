@@ -44,6 +44,33 @@ partial struct ZombieMoveJob : IJobEntity
             float3 targetPosition = new float3(nextPosition.x, 0.3f, nextPosition.y);
             var distance = math.distance(targetPosition, transform.Position);
 
+            var currentTile = target.PathIndex == (target.TargetPath.Length - 1)
+                ? nextPosition
+                : target.TargetPath[target.PathIndex + 1];
+
+            var direction = nextPosition - currentTile;
+            var tile = Tiles[Get1DIndex(currentTile)];
+
+            if (direction.x > 0 && tile.RightWall)
+            {
+                return;
+            }
+
+            if (direction.x < 0 && tile.LeftWall)
+            {
+                return;
+            }
+
+            if (direction.y > 0 && tile.UpWall)
+            {
+                return;
+            }
+
+            if (direction.y < 0 && tile.DownWall)
+            {
+                return;
+            }
+
             if (distance > 0.1f)
             {
                 float speed = DeltaTime * 20;
@@ -240,7 +267,7 @@ partial struct ZombieMoveJob : IJobEntity
 
     public int Get1DIndex(int2 index)
     {
-        return index.x + index.y * Width;
+        return index.x + index.y * (Width + 1);
     }
 }
 
@@ -331,7 +358,38 @@ public partial struct ZombieMovingSystem : ISystem
         int height = mazeConfig.Height - 1;
         var tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
 
+        //Draw Maze data to debug
+        bool mazeDataDebug = true;
+        if (mazeDataDebug)
+        {
+            float drawHeight = 0.4f;
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    var tile = tiles[mazeConfig.Get1DIndex(i, j)];
+                    if (tile.LeftWall)
+                        UnityEngine.Debug.DrawLine(
+                            new Vector3(i - 0.5f, drawHeight, j - 0.5f),
+                            new Vector3(i - 0.5f, drawHeight, j + 0.5f));
+                    if (tile.RightWall)
+                        UnityEngine.Debug.DrawLine(
+                            new Vector3(i + 0.5f, drawHeight, j - 0.5f),
+                            new Vector3(i + 0.5f, drawHeight, j + 0.5f));
+                    if (tile.UpWall)
+                        UnityEngine.Debug.DrawLine(
+                            new Vector3(i - 0.5f, drawHeight, j + 0.5f),
+                            new Vector3(i + 0.5f, drawHeight, j + 0.5f));
+                    if (tile.DownWall)
+                        UnityEngine.Debug.DrawLine(
+                            new Vector3(i - 0.5f, drawHeight, j - 0.5f),
+                            new Vector3(i + 0.5f, drawHeight, j - 0.5f));
+                }
+            }
+        }
+
         var deltaTime = Time.deltaTime;
+
         var moveJob = new ZombieMoveJob
         {
             Width = width,
@@ -342,6 +400,7 @@ public partial struct ZombieMovingSystem : ISystem
             RandomSeed = Random.NextUInt(0, 9),
             MazeConfig = mazeConfig
         };
+
         moveJob.ScheduleParallel();
 
         var randomMoveJob = new RandomZombieMoveJob
@@ -353,6 +412,7 @@ public partial struct ZombieMovingSystem : ISystem
             Rand = Random,
             MazeConfig = mazeConfig
         };
+
         randomMoveJob.ScheduleParallel();
     }
 }
