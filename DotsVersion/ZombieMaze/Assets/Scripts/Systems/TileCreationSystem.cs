@@ -80,7 +80,7 @@ public partial struct TileCreationSystem : ISystem
 			return;
         }
 
-		mazeConfig.RebuildMaze = true;
+		mazeConfig.RebuildMaze = false;
 		SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
 
 		CreateGround(ref state);
@@ -114,7 +114,7 @@ public partial struct TileCreationSystem : ISystem
 		while (numVisited < tiles.Length)
 		{
 			// choose random adjacent unvisited tile
-			List<int2> unvisitedNeighbors = new List<int2>();
+			NativeList<int2> unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
 			if (current.x > 0 && !tiles[Get1DIndex(current.x - 1, current.y)].TempVisited)
 				unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
 			if (current.y > 0 && !tiles[Get1DIndex(current.x, current.y - 1)].TempVisited)
@@ -124,10 +124,10 @@ public partial struct TileCreationSystem : ISystem
 			if (current.y < mazeConfig.Height - 1 && !tiles[Get1DIndex(current.x, current.y + 1)].TempVisited)
 				unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
 
-			if (unvisitedNeighbors.Count > 0)
+			if (unvisitedNeighbors.Length > 0)
 			{
 				// visit neighbor
-				int2 next = unvisitedNeighbors[UnityEngine.Random.Range(0, unvisitedNeighbors.Count)];
+				int2 next = unvisitedNeighbors[UnityEngine.Random.Range(0, unvisitedNeighbors.Length)];
 				stack.Add(current);
 				// remove wall between tiles
 				TileBufferElement currentTile = tiles[Get1DIndex(current.x, current.y)];
@@ -362,10 +362,5 @@ public partial struct TileCreationSystem : ISystem
 				tiles[Get1DIndex(startIndex + w, spawnedMovingWalls[i].StartYIndex)] = downTile;
 			}
 		}
-
-		// To Use
-		// SystemAPI.GetSingletonBuffer<TileBufferElement>();
-
-		state.Enabled = false;
     }
 }
