@@ -48,18 +48,22 @@ public partial struct TileCreationSystem : ISystem
 		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
 		Entity spawnerEntity= state.EntityManager.Instantiate(prefabConfig.SpawnerPrefab);
 		TransformAspect transformAspectSpawner = SystemAPI.GetAspectRW<TransformAspect>(spawnerEntity);
-
+		
 		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(1, 1);
 		transformAspectSpawner.Position += new float3(randomTile.x, 0.01f, randomTile.y);
-		foreach(var charPos in SystemAPI.Query<CharacterAspect>())
-		{
-			charPos.spawnerPos = transformAspectSpawner.Position;
-		}
-
+		
+		
 		//Spawn Character
 		Entity charEntity = state.EntityManager.Instantiate(prefabConfig.CharacterPrefab);
 		TransformAspect transformAspectCharacter = SystemAPI.GetAspectRW<TransformAspect>(charEntity);
 		transformAspectCharacter.Position += transformAspectSpawner.Position;
+
+		//Assign the Spawner position to the CharacterAspect
+		foreach (var charPos in SystemAPI.Query<CharacterAspect>())
+		{
+			charPos.spawnerPos = transformAspectSpawner.Position;
+		}
+		
 	}
 
     public void OnUpdate(ref SystemState state)

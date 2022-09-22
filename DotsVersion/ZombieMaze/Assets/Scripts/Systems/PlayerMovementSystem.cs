@@ -10,10 +10,8 @@ partial struct PlayerMovementSystem : ISystem
     {
         state.RequireForUpdate<MazeConfig>();
         state.RequireForUpdate<TileBufferElement>();
-        foreach(var character in SystemAPI.Query<CharacterAspect>())
-        {
-            character.position = character.spawnerPos;
-        }
+        
+
     }
 
     public void OnDestroy(ref SystemState state)
@@ -27,16 +25,18 @@ partial struct PlayerMovementSystem : ISystem
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
         DynamicBuffer<TileBufferElement> tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
         float dt = state.Time.DeltaTime;
-        
-        foreach(var character in SystemAPI.Query<CharacterAspect>()){
-            float3 tempPos = new float3(Input.GetAxis("Horizontal"),0, Input.GetAxis("Vertical")) * character.speed * dt;
+        float3 startIndex;
+        foreach (var character in SystemAPI.Query<CharacterAspect>())
+        {
+            float3 tempPos = new float3(
+                Input.GetAxis("Horizontal"),
+                0,
+                Input.GetAxis("Vertical")) * character.speed * dt;
 
             character.position += tempPos;
-            int startIndex = character.StartXIndex;
-            
-            //TileBufferElement upTile = tiles[mazeConfig.Get1DIndex()]
-
         }
+       
+        
     }
 }
 

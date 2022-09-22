@@ -6,7 +6,7 @@ using Unity.Transforms;
 readonly partial struct CharacterAspect : IAspect
 {
     readonly RefRW<PlayerData> character;
-
+    public readonly Entity Self;
 
     readonly TransformAspect transform;
     public float speed
