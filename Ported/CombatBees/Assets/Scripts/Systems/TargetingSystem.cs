@@ -25,6 +25,7 @@ partial struct TargetingEnemyJob : IJobEntity
         {
             ECB.SetComponentEnabled<TargetId>(idx, bee, true);
             ECB.SetComponentEnabled<IsAttacking>(idx, bee, true);
+            ECB.SetComponentEnabled<IsHolding>(idx, bee, false);
             ECB.SetComponent(idx, bee, new TargetId() { Value = enemies[random.NextInt(0, enemies.Length)] });
         }
     }
@@ -43,6 +44,8 @@ partial struct TargetingResourceJob : IJobEntity
     {
         var random = Random.CreateFromIndex((uint)idx);
         ECB.SetComponentEnabled<TargetId>(idx, bee, true);
+        ECB.SetComponentEnabled<IsHolding>(idx, bee, true);
+        ECB.SetComponentEnabled<IsAttacking>(idx, bee, false);
         ECB.SetComponent(idx, bee, new TargetId() { Value = resources[random.NextInt(0, resources.Length)] });
     }
 }
