@@ -55,6 +55,6 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             maxSpawnSpeed = authoring.maxSpawnSpeed,
             startBeeCount = authoring.startBeeCount,
             beePrefab = GetEntity(authoring.beePrefab)
-    });
+        });
     }
 }
