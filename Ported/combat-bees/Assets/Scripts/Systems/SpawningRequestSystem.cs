@@ -29,32 +29,6 @@ public struct DestroySpawningRequestJob : IJobChunk
     }
 }
 
-[BurstCompile]
-public struct CreateSpawningRequestJob : IJobParallelFor
-{
-    // A regular EntityCommandBuffer cannot be used in parallel, a ParallelWriter has to be explicitly used.
-    public EntityCommandBuffer.ParallelWriter ECB;
-    
-    public Entity Prefab;
-    public int Faction;
-    public float3 InitVelocity;
-    public AABB Aabb;
-    public Color Color;
-
-    public void Execute(int index)
-    {
-        var entity = ECB.CreateEntity(index);
-        ECB.AddComponent<SpawningRequest>(index, entity, new SpawningRequest
-        {
-            Prefab = Prefab,
-            Faction = Faction,
-            InitVelocity = InitVelocity,
-            Aabb = Aabb,
-            Color = Color
-        });
-    }
-}
-
 partial struct SpawningRequestSystem : ISystem
 {
     private EntityQuery SpawningRequestQuery;
@@ -126,25 +100,19 @@ partial struct SpawningRequestSystem : ISystem
         public int Faction;
         public float3 InitVelocity;
         public AABB Aabb;
-        public int Count;
         public Color Color;
     }
     
-    static public void CreateSpawningRequest(EntityCommandBuffer ecb, ref SystemState state, SpawningRequestInfo info)
+    static public void CreateSpawningRequest(EntityCommandBuffer.ParallelWriter ECB, int sortKey, SpawningRequestInfo info)
     {
-        var combinedSpawningRequestJobHandle = new JobHandle();
-        var spawningRequestJob = new CreateSpawningRequestJob()
+        var entity = ECB.CreateEntity(sortKey);
+        ECB.AddComponent(sortKey, entity, new SpawningRequest
         {
-            // Note the function call required to get a parallel writer for an EntityCommandBuffer.
-            ECB = ecb.AsParallelWriter(),
-
             Prefab = info.Prefab,
             Faction = info.Faction,
             InitVelocity = info.InitVelocity,
             Aabb = info.Aabb,
             Color = info.Color
-        };
-        var spawnJobHandle = spawningRequestJob.Schedule(info.Count, 64, state.Dependency);
-        state.Dependency = JobHandle.CombineDependencies(spawnJobHandle, combinedSpawningRequestJobHandle);
+        });
     }
 }
