@@ -252,8 +252,12 @@ partial struct BeeSystem : ISystem
     {
         // Build queries
         var foodQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
-        foodQueryBuilder.WithAll<UnmatchedFood, Food, LocalToWorldTransform>();
+        foodQueryBuilder.WithAll<UnmatchedFood, Food, LocalToWorldTransform, Faction>();
         _foodQuery = state.GetEntityQuery(foodQueryBuilder);
+        _foodQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = 0
+        });
 
         var nestQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
         nestQueryBuilder.WithAll<Faction, Area, LocalToWorldTransform>();
