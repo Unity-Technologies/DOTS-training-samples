@@ -20,12 +20,12 @@ partial struct ZombieMoveJob : IJobEntity
     public float DeltaTime;
     [ReadOnly] public DynamicBuffer<TileBufferElement> Tiles;
     public Unity.Mathematics.Random Rand;
+    public uint RandomSeed;
     public MazeConfig MazeConfig;
 
-    //[BurstCompile]
+    [BurstCompile]
     void Execute(Entity entity, TransformAspect transform, ref Target target)
     {
-        //Todo check for wall change
         if (target.PathIndex < 0 || target.TargetPath.IsEmpty)
         {
             var p = new ProfilerMarker("TestBurst");
@@ -40,12 +40,22 @@ partial struct ZombieMoveJob : IJobEntity
         else
         {
             var nextPosition = target.TargetPath[target.PathIndex];
-            float3 targetPosition = new float3(nextPosition.x, 0.3f, nextPosition.y);
 
+            float3 targetPosition = new float3(nextPosition.x, 0.3f, nextPosition.y);
             var distance = math.distance(targetPosition, transform.Position);
-            if (distance > 0.5f)
+
+            if (distance > 0.1f)
             {
-                transform.Position += math.normalize(targetPosition - transform.Position) * DeltaTime * 2; //Speed
+                float speed = DeltaTime * 20;
+                if (speed > distance)
+                {
+                    transform.Position = targetPosition;
+                    target.PathIndex--;
+                }
+                else
+                {
+                    transform.Position += math.normalize(targetPosition - transform.Position) * speed;
+                }
             }
             else
             {
@@ -141,23 +151,27 @@ partial struct ZombieMoveJob : IJobEntity
         target.TargetPath = path;
         target.PathIndex = path.Length - 1;
     }
-    
+
     [BurstCompile]
     void BreadthFirstSearchArray(ref Entity entity, ref TransformAspect transform, ref Target target)
     {
         //Random location
-        
+        for (uint i = 0; i < RandomSeed; i++)
+        {
+            Rand.NextInt();
+        }
+
         var newTarget = new int2(Rand.NextInt(0, Width), Rand.NextInt(0, Height));
 
-        NativeArray<int2> visited2 = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
-        NativeArray<bool> visited3 = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
+        NativeArray<int2> parentTile = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
+        NativeArray<bool> visited = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
 
         NativeQueue<int2> toVisit = new NativeQueue<int2>(Allocator.TempJob);
         var currentPostion = target.TargetPosition;
         toVisit.Enqueue(currentPostion);
 
-        visited2[Get1DIndex(currentPostion)] = currentPostion;
-        visited3[Get1DIndex(currentPostion)] = true;
+        parentTile[Get1DIndex(currentPostion)] = currentPostion;
+        visited[Get1DIndex(currentPostion)] = true;
 
         var pathFound = false;
         while (!toVisit.IsEmpty())
@@ -172,35 +186,35 @@ partial struct ZombieMoveJob : IJobEntity
             var tile = Tiles[MazeConfig.Get1DIndex(tileCoord.x, tileCoord.y)];
 
             var newTile = tileCoord - new int2(1, 0);
-            if (newTile.x >= 0 && !tile.LeftWall && !visited3[Get1DIndex(newTile)])
+            if (newTile.x >= 0 && !tile.LeftWall && !visited[Get1DIndex(newTile)])
             {
                 toVisit.Enqueue(newTile);
-                visited3[Get1DIndex(newTile)] = true;
-                visited2[Get1DIndex(newTile)] = tileCoord;
+                visited[Get1DIndex(newTile)] = true;
+                parentTile[Get1DIndex(newTile)] = tileCoord;
             }
 
             newTile = tileCoord + new int2(1, 0);
-            if (newTile.x <= Width && !tile.RightWall && !visited3[Get1DIndex(newTile)])
+            if (newTile.x <= Width && !tile.RightWall && !visited[Get1DIndex(newTile)])
             {
                 toVisit.Enqueue(newTile);
-                visited3[Get1DIndex(newTile)] = true;
-                visited2[Get1DIndex(newTile)] = tileCoord;
+                visited[Get1DIndex(newTile)] = true;
+                parentTile[Get1DIndex(newTile)] = tileCoord;
             }
 
             newTile = tileCoord + new int2(0, 1);
-            if (newTile.y <= Height && !tile.UpWall && !visited3[Get1DIndex(newTile)])
+            if (newTile.y <= Height && !tile.UpWall && !visited[Get1DIndex(newTile)])
             {
                 toVisit.Enqueue(newTile);
-                visited3[Get1DIndex(newTile)] = true;
-                visited2[Get1DIndex(newTile)] = tileCoord;
+                visited[Get1DIndex(newTile)] = true;
+                parentTile[Get1DIndex(newTile)] = tileCoord;
             }
 
             newTile = tileCoord - new int2(0, 1);
-            if (newTile.y >= 0 && !tile.DownWall && !visited3[Get1DIndex(newTile)])
+            if (newTile.y >= 0 && !tile.DownWall && !visited[Get1DIndex(newTile)])
             {
                 toVisit.Enqueue(newTile);
-                visited3[Get1DIndex(newTile)] = true;
-                visited2[Get1DIndex(newTile)] = tileCoord;
+                visited[Get1DIndex(newTile)] = true;
+                parentTile[Get1DIndex(newTile)] = tileCoord;
             }
         }
 
@@ -209,11 +223,11 @@ partial struct ZombieMoveJob : IJobEntity
         if (pathFound)
         {
             path.Add(newTarget);
-            var nextPosition = visited2[Get1DIndex(newTarget)];
+            var nextPosition = parentTile[Get1DIndex(newTarget)];
             while (!currentPostion.Equals(nextPosition))
             {
                 path.Add(nextPosition);
-                nextPosition = visited2[Get1DIndex(nextPosition)];
+                nextPosition = parentTile[Get1DIndex(nextPosition)];
             }
 
             path.Add(currentPostion);
@@ -324,7 +338,8 @@ public partial struct ZombieMovingSystem : ISystem
             Height = height,
             Tiles = tiles,
             DeltaTime = deltaTime,
-            Rand= Random,
+            Rand = Random,
+            RandomSeed = Random.NextUInt(0, 9),
             MazeConfig = mazeConfig
         };
         moveJob.ScheduleParallel();
