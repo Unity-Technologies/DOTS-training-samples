@@ -35,6 +35,11 @@ partial struct ResourceReturningJob : IJobEntity {
                 ecb.SetComponentEnabled<IsHolding>(index, entity, false);
                 // TODO: do drop resource
             }
+            else
+            {
+                ecb.SetComponent<LocalToWorldTransform>(index, target.Value, new LocalToWorldTransform{ Value = prs.LocalToWorld });
+                ecb.SetComponent<Velocity>(index, target.Value, new Velocity{Value = float3.zero});
+            }
         }
     }
 }
