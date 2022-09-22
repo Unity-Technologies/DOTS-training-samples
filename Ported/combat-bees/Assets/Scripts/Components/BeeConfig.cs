@@ -9,4 +9,7 @@ public struct BeeConfig : IComponentData
     public int foodCount;
     public AABB fieldArea;
     public float3 initVel;
+    public float beeSpeed;
+    public float gravity;
+    public float objectSize;
 }

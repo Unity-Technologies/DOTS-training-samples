@@ -14,6 +14,9 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int FoodCount;
     public GameObject Field;
     public float3 InitVel;
+    public float BeeSpeed = 50;
+    public float Gravity = -9.81f;
+    public float ObjectSize = 0.1f;
 }
 
 [UpdateBefore(typeof(NestAuthoring))]
@@ -29,7 +32,10 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             beeCount = authoring.BeeCount,
             foodCount = authoring.FoodCount,
             fieldArea = AABBExtensions.ToAABB(renderer.bounds),
-            initVel = authoring.InitVel
+            initVel = authoring.InitVel,
+            beeSpeed = authoring.BeeSpeed,
+            gravity = authoring.Gravity,
+            objectSize = authoring.ObjectSize
         });
     }
 }

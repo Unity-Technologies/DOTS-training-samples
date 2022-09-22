@@ -5,6 +5,28 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+public class MovementUtilities
+{
+    [BurstCompile]
+    public static float3 ComputeTargetVelocity(in float3 currentPos, in float3 targetPos, in float gravityDt,
+        in float timeStep, in float maxSpeed)
+    {
+        var newPos = targetPos;
+
+        // Compute new velocity
+        var targetVelocity = (newPos - currentPos) / timeStep;
+        var desiredSpeed = math.length(targetVelocity);
+
+        // make sure bee doesn't fly faster than it can
+        var speed = math.min(desiredSpeed, maxSpeed);
+
+        targetVelocity = math.select(float3.zero, (speed / desiredSpeed) * targetVelocity, speed > 0);
+
+        targetVelocity.y -= gravityDt; // counter act gravity
+        return targetVelocity;
+    }
+}
+
 [BurstCompile]
 public struct MovementJob : IJobChunk
 {
@@ -12,7 +34,7 @@ public struct MovementJob : IJobChunk
     public ComponentTypeHandle<Velocity> VelocityHandle;
 
     [ReadOnly] public float TimeStep;
-    [ReadOnly] public float Gravity;
+    [ReadOnly] public float GravityDt;
     [ReadOnly] public AABB FieldArea;
 
     public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
@@ -21,7 +43,6 @@ public struct MovementJob : IJobChunk
         var transforms = chunk.GetNativeArray(TransformHandle);
         var velocities = chunk.GetNativeArray(VelocityHandle);
 
-        var gravityDt = TimeStep * Gravity;
         while (chunkEntityEnumerator.NextEntityIndex(out var i))
         {
             var tmComp = transforms[i];
@@ -33,18 +54,18 @@ public struct MovementJob : IJobChunk
             float k_Restitution = 0.4f;
             float k_FrictionDamping = 0.3f;
 
-            velNew.y += gravityDt;
+            velNew.y += GravityDt;
             pos += TimeStep * velNew;
-            bool notOnGround = pos.y < FieldArea.Min.y;
+            bool onGround = pos.y < FieldArea.Min.y;
 
-            if (notOnGround && velNew.y < -k_DeepImpactVel) // deep impact
+            if (onGround && velNew.y < -k_DeepImpactVel) // deep impact
             {
                 velNew.y = -velNew.y * k_Restitution;
                 velNew.xz *= k_FrictionDamping;
             }
             else
             {
-                velNew = math.select(velNew,float3.zero, notOnGround);
+                velNew = math.select(velNew,float3.zero, onGround);
             }
 
             // clamp to field
@@ -118,7 +139,7 @@ partial struct MovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
-        
+
         TransformHandle.Update(ref state);
         VelocityHandle.Update(ref state);
         var job = new MovementJob()
@@ -126,7 +147,7 @@ partial struct MovementSystem : ISystem
             TransformHandle = TransformHandle,
             VelocityHandle = VelocityHandle,
             TimeStep = state.Time.DeltaTime,
-            Gravity = -9.81f,
+            GravityDt = config.gravity * state.Time.DeltaTime,
             FieldArea = config.fieldArea
         };
 
