@@ -25,7 +25,7 @@ partial struct PlayerMovementSystem : ISystem
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
         DynamicBuffer<TileBufferElement> tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
         float dt = state.Time.DeltaTime;
-        float3 startIndex;
+        
         foreach (var character in SystemAPI.Query<CharacterAspect>())
         {
             float3 tempPos = new float3(
