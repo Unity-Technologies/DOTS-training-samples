@@ -36,7 +36,11 @@ partial struct PlayerMovementSystem : ISystem
             
             int2 pos = new int2((int)character.position.x, (int)character.position.z);
 
-            if (tempPos.x>=0.5f)
+            UnityEngine.Debug.DrawLine(
+                new Vector3(pos.x, 4, pos.y),
+                new Vector3(pos.x, 0, pos.y));
+            
+            if (tempPos.x>=0.1f)
             {
                 if (tiles[mazeConfig.Get1DIndex(pos.x,pos.y)].RightWall)
                 {
@@ -44,21 +48,21 @@ partial struct PlayerMovementSystem : ISystem
                     tempPos.x = 0;
                 }
             }
-            if (tempPos.x <= -0.5f)
+            if (tempPos.x <= -0.1f)
             {
                 if (tiles[mazeConfig.Get1DIndex(pos.x, pos.y)].LeftWall)
                 {
                     tempPos.x = 0;
                 }
             }
-            if (tempPos.z >= 0.5f)
+            if (tempPos.z >= 0.1f)
             {
                 if (tiles[mazeConfig.Get1DIndex(pos.x, pos.y)].UpWall)
                 {
                     tempPos.z = 0;
                 }
             }
-            if (tempPos.z <= -0.5f)
+            if (tempPos.z <= -0.1f)
             {
                 if (tiles[mazeConfig.Get1DIndex(pos.x, pos.y)].DownWall)
                 {
