@@ -481,6 +481,10 @@ MonoBehaviour:
   BeeCount: 1000
   FoodCount: 1000
   Field: {fileID: 1462356859}
+  InitVel:
+    x: 0
+    y: 0
+    z: 0
 --- !u!4 &1516531001
 Transform:
   m_ObjectHideFlags: 0

@@ -11,5 +11,6 @@ class BeeBaker : Baker<BeeAuthoring>
     {
         AddComponent<Velocity>();
         AddComponent<BeeProperties>();
+        AddSharedComponent(new Faction());
     }
 }

@@ -13,7 +13,7 @@ public struct MovementJob : IJobChunk
 
     [ReadOnly] public float TimeStep;
     [ReadOnly] public float Gravity;
-    [ReadOnly] public Area FieldArea;
+    [ReadOnly] public AABB FieldArea;
 
     public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
     {
@@ -35,7 +35,7 @@ public struct MovementJob : IJobChunk
 
             velNew.y += gravityDt;
             pos += TimeStep * velNew;
-            bool notOnGround = pos.y < FieldArea.Value.Min.y;
+            bool notOnGround = pos.y < FieldArea.Min.y;
 
             if (notOnGround && velNew.y < -k_DeepImpactVel) // deep impact
             {
@@ -48,23 +48,43 @@ public struct MovementJob : IJobChunk
             }
 
             // clamp to field
-            pos = math.clamp(pos, FieldArea.Value.Min, FieldArea.Value.Max);
+            pos = math.clamp(pos, FieldArea.Min, FieldArea.Max);
 
             tmComp.Value.Position = pos;
             velComp.Value = velNew;
 
             // derive heading of velocity
             var heading = math.atan2(velNew.x, velNew.z);
-            var headingRot = quaternion.AxisAngle(math.up(),math.degrees(heading));
+            var headingQ = quaternion.AxisAngle(math.up(), heading);
 
+#if true
             // derive pitch of velocity, by bringing velocity into local space of object (with z forward) and
             // calculating the angle of the velocity in the local yz plane of the object
-            var velForwardLocal = math.rotate(math.inverse(headingRot), velNew);
+            var velForwardLocal = math.rotate(math.inverse(headingQ), velNew);
             var pitch = math.atan2(velForwardLocal.y, velForwardLocal.z);
-            var pitchRot = quaternion.AxisAngle(math.left(),math.degrees(pitch));
+            var pitchQ = quaternion.AxisAngle(math.left(), pitch);
 
-            // final rotation by applying pitch first and then heading (right to left) 
-            tmComp.Value.Rotation = math.mul(headingRot, pitchRot);
+            // allow objects to have pitch and heading
+            var targetQ = math.mul(headingQ, pitchQ);
+#else
+            // allow objects to only have a heading 
+            var targetQ = headingQ;
+#endif
+            // Interpolate between target rotation and current rotation based on velocity on xz plane.
+            // Objects with close to zero velocity on xz plane will maintain their current orientation
+            var k_minVelForRotChangeSq = 0.001f;
+            var k_decayFactor = 2.0f;
+
+            // alpha drops to zero quickly with rising velocity and for a velocity close to zero, i.e., 
+            // smaller than sqrt(k_minVelForRotChangeSq), alpha is 1.
+            // The decay with increasing velocity can be controlled with k_decayFactor.
+            var alpha = math.min(1.0f,
+                -math.tanh((math.lengthsq(velNew.xz) - k_minVelForRotChangeSq) * k_decayFactor) + 1.0f);
+            var currentQ = tmComp.Value.Rotation;
+            // alpha = 0: target orientation, alpha = 1: current orientation
+            var newQ = math.slerp(targetQ, currentQ, alpha);
+
+            tmComp.Value.Rotation = newQ;
 
             transforms[i] = tmComp;
             velocities[i] = velComp;
@@ -97,8 +117,7 @@ partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var configEntity = SystemAPI.GetSingletonEntity<BeeConfig>();
-        var fieldArea = SystemAPI.GetComponent<Area>(configEntity);
+        var config = SystemAPI.GetSingleton<BeeConfig>();
         
         TransformHandle.Update(ref state);
         VelocityHandle.Update(ref state);
@@ -108,7 +127,7 @@ partial struct MovementSystem : ISystem
             VelocityHandle = VelocityHandle,
             TimeStep = state.Time.DeltaTime,
             Gravity = -9.81f,
-            FieldArea = fieldArea,
+            FieldArea = config.fieldArea
         };
 
         state.Dependency = job.ScheduleParallel(Query, state.Dependency);
