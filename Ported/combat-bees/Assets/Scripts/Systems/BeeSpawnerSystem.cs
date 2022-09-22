@@ -63,7 +63,8 @@ partial struct BeeSpawnerSystem : ISystem
                     InitFaction = faction,
                     InitColor = nestBaseColor.Value,
                     Mask = MeshRendererQuery.GetEntityQueryMask(),
-                    InitVel = config.initVel
+                    InitVel = config.initVel,
+                    Aggressivity = config.aggressivity,
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);

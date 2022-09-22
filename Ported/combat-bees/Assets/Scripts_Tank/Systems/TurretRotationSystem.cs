@@ -45,7 +45,7 @@ partial struct TurretRotationSystem_Step1 : ISystem
 #endregion
 
 #region step2
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct TurretRotationSystem : ISystem
 {
     [BurstCompile]

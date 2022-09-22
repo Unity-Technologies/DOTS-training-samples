@@ -51,6 +51,7 @@ partial class TankMovementSystem_Step1 : SystemBase
 #endregion
 
 #region step2
+[DisableAutoCreation]
 partial class TankMovementSystem : SystemBase
 {
     protected override void OnUpdate()

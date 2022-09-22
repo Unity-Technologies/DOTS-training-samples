@@ -481,7 +481,7 @@ MonoBehaviour:
   BeeCount: 100
   FoodCount: 1000
   Field: {fileID: 1462356859}
-  Aggressivity: 0
+  Aggressivity: 0.498
   InitVel:
     x: 0
     y: 0

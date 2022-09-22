@@ -13,6 +13,7 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int BeeCount;
     public int FoodCount;
     public GameObject Field;
+    [Range(0,1)]
     public float Aggressivity;
     public float3 InitVel;
     public float BeeSpeed = 50;

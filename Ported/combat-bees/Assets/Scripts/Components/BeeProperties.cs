@@ -11,6 +11,8 @@ public struct BeeProperties : IComponentData
     public float3 TargetPosition;
 
     public float Aggressivity;
+
+    public Entity CarriedFood;
 }
 
 public struct Dead : IComponentData, IEnableableComponent

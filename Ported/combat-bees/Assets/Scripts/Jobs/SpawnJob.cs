@@ -60,6 +60,7 @@ unsafe struct BeeSpawnJob : IJobParallelFor
     public int InitFaction;
     public float4 InitColor;
     public float3 InitVel;
+    public float Aggressivity;
 
     public void Execute(int index)
     {
@@ -69,7 +70,7 @@ unsafe struct BeeSpawnJob : IJobParallelFor
         ECB.SetComponentEnabled<Dead>(index, entity, false);
         ECB.SetComponent<BeeProperties>(index, entity, new BeeProperties
         {
-            Aggressivity = random.NextFloat(),
+            Aggressivity = Aggressivity,
             BeeMode = BeeMode.Idle,
             Target = Entity.Null,
             TargetPosition = float3.zero,
