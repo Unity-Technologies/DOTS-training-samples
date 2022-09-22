@@ -26,7 +26,7 @@ partial struct BeeRenderingSystem : ISystem
             attackingLookup = state.GetComponentLookup<IsAttacking>()
         }.ScheduleParallel();
 
-        new BeeScalingAndPositionJob()
+        new BeeScalingAndRotationJob()
         {
             speedStretch = beeConfig.speedStretch,
             isDeadLookup = state.GetComponentLookup<Decay>()

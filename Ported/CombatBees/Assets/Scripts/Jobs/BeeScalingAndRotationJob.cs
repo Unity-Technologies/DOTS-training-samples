@@ -7,7 +7,7 @@ using UnityEngine;
 
 [BurstCompile]
 [WithAny(typeof(YellowTeam), typeof(BlueTeam))]
-partial struct BeeScalingAndPositionJob : IJobEntity
+partial struct BeeScalingAndRotationJob : IJobEntity
 {
     public float speedStretch;
     [ReadOnly] public ComponentLookup<Decay> isDeadLookup;
