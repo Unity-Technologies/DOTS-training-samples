@@ -4,7 +4,7 @@ using Unity.Rendering;
 
 #region step1
 // Baking systems are similar to regular systems, so we need to explicitly declare them so.
-[WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
+[WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)][DisableAutoCreation]
 partial struct TankBakingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

@@ -8,7 +8,7 @@ using Unity.Transforms;
 #region step1
 // This system should run after the transform system has been updated, otherwise the camera
 // will lag one frame behind the tank and will jitter.
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))][DisableAutoCreation]
 partial class CameraSystem : SystemBase
 {
     Entity Target;
