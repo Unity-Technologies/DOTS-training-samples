@@ -56,7 +56,7 @@ partial struct BeeConstructionJob : IJobEntity
         ECB.AddComponent(bee, new IsAttacking() {Value = false} );
         ECB.AddComponent<IsHolding>(bee);
         ECB.AddComponent<TargetId>(bee);
-
+        ECB.AddComponent<PostTransformMatrix>(bee);
         ECB.SetComponentEnabled<IsAttacking>(bee, false);
         ECB.SetComponentEnabled<IsHolding>(bee, false);
         ECB.SetComponentEnabled<TargetId>(bee, false);

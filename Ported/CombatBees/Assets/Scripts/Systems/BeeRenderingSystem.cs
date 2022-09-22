@@ -1,19 +1,35 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
+using Unity.Jobs;
+using UnityEngine;
 
+[BurstCompile]
 partial struct BeeRenderingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        throw new System.NotImplementedException();
+        state.RequireForUpdate<BeeConfig>();
+        state.RequireForUpdate<FieldConfig>();
     }
 
     public void OnDestroy(ref SystemState state)
     {
-        throw new System.NotImplementedException();
     }
 
     public void OnUpdate(ref SystemState state)
     {
-        throw new System.NotImplementedException();
+        var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
+        
+        new SmoothPositionUpdateJob()
+        {
+            rotationAmount = Time.deltaTime * beeConfig.rotationStiffness,
+            attackingLookup = state.GetComponentLookup<IsAttacking>()
+        }.ScheduleParallel();
+
+        new BeeScalingAndPositionJob()
+        {
+            speedStretch = beeConfig.speedStretch,
+            isDeadLookup = state.GetComponentLookup<Decay>()
+        }.ScheduleParallel();
     }
 }

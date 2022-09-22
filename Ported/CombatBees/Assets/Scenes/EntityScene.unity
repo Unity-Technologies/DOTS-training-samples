@@ -176,7 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minBeeSize: 0.25
   maxBeeSize: 0.5
-  speedStretch: 0.2
+  speedStretch: 0.08
   rotationStiffness: 5
   aggression: 0.5
   flightJitter: 200
