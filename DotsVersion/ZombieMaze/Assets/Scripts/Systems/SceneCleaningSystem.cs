@@ -25,7 +25,7 @@ partial struct SceneCleaningSystem : ISystem
 {
     EntityQuery Query;
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PrefabConfig>();
@@ -54,7 +54,8 @@ partial struct SceneCleaningSystem : ISystem
             state.EntityManager.DestroyEntity(Query);
 
             mazeConfig.RebuildMaze = true;
-            mazeConfig.SpawnPills = true;            
+            mazeConfig.SpawnPills = true;     
+            
             SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
         }
     }
