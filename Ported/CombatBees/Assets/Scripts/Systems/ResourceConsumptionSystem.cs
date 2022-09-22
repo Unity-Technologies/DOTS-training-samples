@@ -21,6 +21,7 @@ partial struct ResourceConsumptionJob : IJobEntity
     }
 }
 
+[UpdateBefore(typeof(BeeConstructionSystem))]
 partial struct ResourceConsumptionSystem : ISystem
 {
     private double nextConsumptionTime;

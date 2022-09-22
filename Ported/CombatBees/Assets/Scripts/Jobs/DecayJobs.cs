@@ -9,18 +9,3 @@ partial struct DecayVelocityJob : IJobEntity {
         decay.velocityChange = 1.0f;
     }
 }
-
-[BurstCompile]
-partial struct DecayTimerJob : IJobEntity {
-
-    public float deltaTime;
-
-    public EntityCommandBuffer.ParallelWriter ecb;
-    
-    void Execute(Entity entity,[EntityInQueryIndex] int index, ref DecayTimer decay) {
-        decay.Value -= deltaTime;
-        if (decay.Value < 0) {
-            ecb.DestroyEntity(index, entity);
-        }
-    }
-}
