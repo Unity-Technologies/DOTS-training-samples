@@ -28,10 +28,10 @@ partial struct BeePointToTargetJob : IJobEntity
 
         // Get latest position of target
         var newPosition = ComponentLookup.GetRefRO(beeProperties.Target).ValueRO.Value.Position;
-        beeProperties.TargetPosition = newPosition;
-
         // work a small offset into the target position to account for object sizes
         newPosition.y += ObjectSize;
+
+        beeProperties.TargetPosition = newPosition;
 
         var vel = MovementUtilities.ComputeTargetVelocity(transform.Value.Position, newPosition, GravityDt, TimeStep, BeeSpeed);
         velocity.Value = vel;
@@ -138,7 +138,7 @@ partial struct BeeActionProcessingJob : IJob
     {
         // Check distance to target, if within a certain range, pickup the food.
         var deltaPosition = BeeProperties[i].TargetPosition - BeeTransforms[i].Value.Position;
-        if (math.length(deltaPosition) < 0.1f)
+        if (math.lengthsq(deltaPosition) < 0.01f)
         {
             ECB.SetComponent(BeeEntities[i], new BeeProperties
             {
