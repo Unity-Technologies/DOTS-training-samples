@@ -1,14 +1,15 @@
 ﻿using Unity.Entities;
 
-namespace Components
+public struct BeeProperties : IComponentData
 {
-    public struct BeeProperties : IComponentData
-    {
-        public BeeMode BeeMode;
+    public BeeMode BeeMode;
 
-        // Data sheet lists a TargetBee but no TargetFood, using a single target for now.
-        public Entity Target;
+    // Data sheet lists a TargetBee but no TargetFood, using a single target for now.
+    public Entity Target;
 
-        public float Aggressivity;
-    }
+    public float Aggressivity;
+}
+
+public struct Dead : IComponentData, IEnableableComponent
+{
 }

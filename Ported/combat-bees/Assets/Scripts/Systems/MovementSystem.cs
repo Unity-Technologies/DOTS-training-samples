@@ -82,7 +82,7 @@ partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        Query = SystemAPI.QueryBuilder().WithAllRW<LocalToWorldTransform, Velocity>().Build();
+        Query = SystemAPI.QueryBuilder().WithAllRW<LocalToWorldTransform, Velocity>().WithAll<Dead>().Build();
         TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>();
         VelocityHandle = state.GetComponentTypeHandle<Velocity>();
         

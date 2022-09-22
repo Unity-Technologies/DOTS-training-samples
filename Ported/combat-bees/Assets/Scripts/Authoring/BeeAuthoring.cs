@@ -1,5 +1,4 @@
-﻿using Components;
-using Unity.Entities;
+﻿using Unity.Entities;
 
 class BeeAuthoring : UnityEngine.MonoBehaviour
 {
@@ -11,5 +10,6 @@ class BeeBaker : Baker<BeeAuthoring>
     {
         AddComponent<Velocity>();
         AddComponent<BeeProperties>();
+        AddComponent<Dead>();
     }
 }

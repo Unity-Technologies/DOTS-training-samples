@@ -27,6 +27,7 @@ struct SpawnJob : IJobParallelFor
 
         float3 position = Aabb.Center + Aabb.Extents * randomf3;
 
+        ECB.SetComponentEnabled<Dead>(index, entity, true);
         ECB.SetComponent(index, entity, new LocalToWorldTransform{Value = UniformScaleTransform.FromPositionRotationScale(position, InitTransform.Value.Rotation, InitTransform.Value.Scale)});
         ECB.AddSharedComponent(index, entity, new Faction{Value = InitFaction});
     }
