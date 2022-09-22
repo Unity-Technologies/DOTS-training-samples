@@ -10,5 +10,6 @@ struct PlayerData : IComponentData
     public int StartXIndex;
     public int StartYIndex;
     public float3 spawnerPos;
+    public int PillsCollected;
 }
 
