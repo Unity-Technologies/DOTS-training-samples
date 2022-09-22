@@ -34,7 +34,7 @@ partial struct AttackingJob : IJobEntity {
                     // ParticleManager.SpawnParticle(bee.enemyTarget.position,ParticleType.Blood,bee.velocity * .35f,2f,6);
                     // this velocity change isn't a perfect impl, because the system ends up running it every time 
                     ecb.AddComponent(index, target.Value, new Decay() {velocityChange = 0.5f});
-                    ecb.AddComponent(index, target.Value, new DecayTimer() {Value = 10});
+                    ecb.AddComponent(index, target.Value, new DecayTimer() {Value = 1f});
                     ecb.SetComponentEnabled<IsAttacking>(index, entity, false);
                     ecb.SetComponentEnabled<TargetId>(index, entity, false);
                     target.Value = Entity.Null;

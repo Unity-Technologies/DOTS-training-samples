@@ -13,10 +13,9 @@ partial struct BeecaySystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         new DecayVelocityJob().ScheduleParallel();
+        
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-        new DecayTimerJob() {
-            deltaTime = state.Time.DeltaTime,
-            ecb = ecb
-        }.ScheduleParallel();
+        new BeeDespawnJob() { ECB = ecb, DeltaTime = state.Time.DeltaTime }.ScheduleParallel();
+        new ResourceDespawnJob() { ECB = ecb }.ScheduleParallel();
     }
 }
