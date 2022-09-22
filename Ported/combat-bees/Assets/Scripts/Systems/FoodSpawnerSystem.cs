@@ -47,7 +47,7 @@ partial struct FoodSpawnerSystem : ISystem
                 InitTransform = transform,
                 InitFaction = (int)Factions.None,
             };
-            var jobHandle = foodSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
+            var jobHandle = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
 
         }
