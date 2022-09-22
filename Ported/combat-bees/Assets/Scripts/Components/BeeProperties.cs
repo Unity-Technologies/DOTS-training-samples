@@ -14,9 +14,6 @@ namespace Components
 
         public float Aggressivity;
 
-        // Exact world space spawn location (guaranteed in nest)
-        public float3 Origin;
-
         public Entity CarriedFood;
     }
 }

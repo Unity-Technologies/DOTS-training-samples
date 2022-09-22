@@ -126,7 +126,10 @@ partial struct BeeActionProcessingJob : IJob
                     ECB.SetComponent(BeeEntities[i], new BeeProperties
                     {
                         BeeMode = BeeMode.FindResource,
-                        Target = Entity.Null
+                        Target = Entity.Null,
+                        Aggressivity = BeeProperties[i].Aggressivity,
+                        CarriedFood = Entity.Null,
+                        TargetPosition = float3.zero
                     });
                     break;
                 case BeeMode.FindResource:
@@ -170,7 +173,9 @@ partial struct BeeActionProcessingJob : IJob
         {
             BeeMode = BeeMode.Idle,
             Target = Entity.Null,
-            CarriedFood = BeeProperties[index].Target
+            CarriedFood = BeeProperties[index].Target,
+            Aggressivity = BeeProperties[index].Aggressivity,
+            TargetPosition = BeeProperties[index].TargetPosition
         });
     }
 
@@ -193,7 +198,8 @@ partial struct BeeActionProcessingJob : IJob
             Aggressivity = BeeProperties[index].Aggressivity,
             Target = FoodEntities[foodIndex],
             BeeMode = BeeMode.HeadTowardsResource,
-            TargetPosition = FoodTransforms[foodIndex].Value.Position
+            TargetPosition = FoodTransforms[foodIndex].Value.Position,
+            CarriedFood = BeeProperties[index].CarriedFood
         });
         
         ECB.RemoveComponent<UnmatchedFood>(FoodEntities[foodIndex]);
@@ -211,7 +217,8 @@ partial struct BeeActionProcessingJob : IJob
                 BeeMode = BeeMode.Idle,
                 Aggressivity = BeeProperties[index].Aggressivity,
                 Target = NestEntities[0],
-                TargetPosition = NestTransform[0].Value.Position
+                TargetPosition = NestTransform[0].Value.Position,
+                CarriedFood = Entity.Null
             });
             return;
         }
@@ -225,7 +232,8 @@ partial struct BeeActionProcessingJob : IJob
                 BeeMode = BeeMode.MoveResourceBackToNest,
                 TargetPosition = NestTransform[0].Value.Position,
                 CarriedFood = BeeProperties[index].Target,
-                Target = NestEntities[0]
+                Target = NestEntities[0],
+                Aggressivity = BeeProperties[index].Aggressivity
             });
             ECB.SetComponent(BeeProperties[index].Target, new Food
             {
