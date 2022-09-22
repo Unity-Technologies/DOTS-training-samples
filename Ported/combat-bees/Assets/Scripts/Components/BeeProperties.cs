@@ -13,5 +13,8 @@ namespace Components
         public float3 TargetPosition;
 
         public float Aggressivity;
+
+        // Exact world space spawn location (guaranteed in nest)
+        public float3 Origin;
     }
 }
