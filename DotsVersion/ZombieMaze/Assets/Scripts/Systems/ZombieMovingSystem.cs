@@ -22,6 +22,7 @@ partial struct ZombieMoveJob : IJobEntity
     public Unity.Mathematics.Random Rand;
     public uint RandomSeed;
     public MazeConfig MazeConfig;
+    public float3 PlayerPosition;
 
     [BurstCompile]
     void Execute(Entity entity, TransformAspect transform, ref Target target)
@@ -183,12 +184,18 @@ partial struct ZombieMoveJob : IJobEntity
     void BreadthFirstSearchArray(ref Entity entity, ref TransformAspect transform, ref Target target)
     {
         //Random location
-        for (uint i = 0; i < RandomSeed; i++)
+        var result = Rand.NextUInt(RandomSeed) % 2;
+        int2 newTarget = new int2();
+        switch (result)
         {
-            Rand.NextInt();
+            case 0:
+                newTarget = new int2(Rand.NextInt(0, Width), Rand.NextInt(0, Height));
+                break;
+            case 1:
+            default:
+                newTarget = new int2((int)Math.Round(PlayerPosition.x), (int)Math.Round(PlayerPosition.z));
+                break;
         }
-
-        var newTarget = new int2(Rand.NextInt(0, Width), Rand.NextInt(0, Height));
 
         NativeArray<int2> parentTile = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
         NativeArray<bool> visited = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
@@ -343,6 +350,7 @@ public partial struct ZombieMovingSystem : ISystem
     {
         state.RequireForUpdate<MazeConfig>();
         state.RequireForUpdate<TileBufferElement>();
+        state.RequireForUpdate<PlayerData>();
         Random = Unity.Mathematics.Random.CreateFromIndex(1234);
     }
 
@@ -357,6 +365,7 @@ public partial struct ZombieMovingSystem : ISystem
         int width = mazeConfig.Width - 1;
         int height = mazeConfig.Height - 1;
         var tiles = SystemAPI.GetSingletonBuffer<TileBufferElement>();
+        var player = SystemAPI.GetSingletonEntity<PlayerData>();
 
         //Draw Maze data to debug
         bool mazeDataDebug = true;
@@ -390,6 +399,7 @@ public partial struct ZombieMovingSystem : ISystem
 
         var deltaTime = Time.deltaTime;
 
+        var playerPos = SystemAPI.GetAspectRO<TransformAspect>(player);
         var moveJob = new ZombieMoveJob
         {
             Width = width,
@@ -398,7 +408,8 @@ public partial struct ZombieMovingSystem : ISystem
             DeltaTime = deltaTime,
             Rand = Random,
             RandomSeed = Random.NextUInt(0, 9),
-            MazeConfig = mazeConfig
+            MazeConfig = mazeConfig,
+            PlayerPosition = playerPos.Position
         };
 
         moveJob.ScheduleParallel();
