@@ -39,7 +39,7 @@ partial struct TankSpawningSystem_Step1 : ISystem
 #endregion
 
 #region step2
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct TankSpawningSystem : ISystem
 {
     // Queries should not be created on the spot in OnUpdate, so they are cached in fields.
