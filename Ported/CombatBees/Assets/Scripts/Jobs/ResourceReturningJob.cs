@@ -20,7 +20,7 @@ partial struct ResourceReturningJob : IJobEntity {
         if (transformLookup.TryGetComponent(target.Value, out var resourcePosition) && isHolding.Value)
         {
             var localToWorld = prs.LocalToWorld;
-            float3 spawnSide = Hive == BeeTeam.Blue ? localToWorld.Right() : -localToWorld.Right();
+            float3 spawnSide = Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();
             float3 targetPos = spawnSide * (-Field.size.x * .45f + Field.size.x * .9f);
             targetPos.y = 0;
             targetPos.z = prs.Position.z;
