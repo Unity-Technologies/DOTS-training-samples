@@ -3,7 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[BurstCompile]
+//[BurstCompile]
 [WithAll(typeof(BeeConfig))] // creative way to limit to 1 instance of job at a time!
 partial struct ResourceConsumptionJob : IJobEntity
 {

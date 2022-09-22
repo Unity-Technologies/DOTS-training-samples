@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Unity.Mathematics;
+using UnityEngine;
 
 public static class Field {
-	public static Vector3 size = new Vector3(100f,20f,30f);
-	public static float gravity = -20f;
+	public static readonly float3 size = new float3(100f,20f,30f);
+	public static readonly float gravity = -20f;
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[BurstCompile]
+//[BurstCompile]
 partial struct ResourceSpawningSystem : ISystem
 {
     Vector2Int m_GridCounts;
