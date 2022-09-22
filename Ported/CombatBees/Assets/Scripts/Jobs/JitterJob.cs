@@ -3,15 +3,16 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [BurstCompile]
+[WithAll(typeof(TargetId))]
 partial struct JitterJob : IJobEntity {
 
-    public Random random;
+    public int randomBase;
     public float deltaTime;
     public float jitter;
     public float damping;
 
-    void Execute(ref Velocity velocity, in TargetId targetId) {
-        velocity.Value += random.NextFloat3Direction() * (jitter * deltaTime);
+    void Execute([EntityInQueryIndex]int index, ref Velocity velocity) {
+        velocity.Value += Random.CreateFromIndex((uint) (randomBase * index)).NextFloat3Direction() * (jitter * deltaTime);
         velocity.Value *= (1f - (damping * deltaTime)) ;
     }
 }

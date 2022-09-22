@@ -20,10 +20,10 @@ partial struct KinematicMovementSystem : ISystem {
 
         state.Dependency = new JitterJob()
         {
-            random = Random.CreateFromIndex((uint)state.Time.ElapsedTime * 1000),
+            randomBase = (int) (state.Time.ElapsedTime * 10000),
             deltaTime = state.Time.DeltaTime,
             jitter = beeConfig.flightJitter,
             damping = beeConfig.damping
-        }.Schedule(state.Dependency);
+        }.ScheduleParallel(state.Dependency);
     }
 }
