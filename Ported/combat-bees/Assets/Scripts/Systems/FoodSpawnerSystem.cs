@@ -16,8 +16,10 @@ partial struct FoodSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
-        MeshRendererQuery = state.GetEntityQuery(typeof(RenderMeshArray));
+        NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
+        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.None});
+
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
         
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
@@ -34,18 +36,11 @@ partial struct FoodSpawnerSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-
         var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
         var combinedJobHandle = new JobHandle();
         foreach (var nest in nestEntities)
         {
-            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
-            if (nestFaction.Value != (int)Factions.None)
-            {
-                continue;
-            }
-
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);

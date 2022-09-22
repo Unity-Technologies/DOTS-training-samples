@@ -1,4 +1,3 @@
-using NUnit.Framework.Constraints;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -19,9 +18,9 @@ partial struct BeeSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
-        MeshRendererQuery = state.GetEntityQuery(typeof(RenderMeshArray));
-        
+        NestQuery = SystemAPI.QueryBuilder().WithAll<Faction, Area>().Build();
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
+    
         // Only need to update if there are any entities with a SpawnRequestQuery
         state.RequireForUpdate(NestQuery);
         
@@ -40,17 +39,34 @@ partial struct BeeSpawnerSystem : ISystem
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
 
         var combinedJobHandle = new JobHandle();
-        foreach (var nest in nestEntities)
+
+        for (int i = (int)Factions.Team1; i < (int)Factions.NumFactions; i++)
         {
-            var nestFaction = state.EntityManager.GetComponentData<Faction>(nest);
-            if (nestFaction.Value == (int)Factions.None)
+            NestQuery.SetSharedComponentFilter(new Faction { Value = i });
+            var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
+
+            foreach (var nest in nestEntities)
             {
-                continue;
+                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+                var nestArea = state.EntityManager.GetComponentData<Area>(nest);
+                var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
+                
+                var beeSpawnJob = new SpawnJob
+                {
+                    Aabb = nestArea.Value,
+
+                    // Note the function call required to get a parallel writer for an EntityCommandBuffer.
+                    ECB = ecb.AsParallelWriter(),
+                    Prefab = config.bee,
+                    InitTransform = transform,
+                    InitFaction = state.EntityManager.GetSharedComponent<Faction>(nest).Value,
+                };
+                var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
+                combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
             }
-            
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
@@ -71,11 +87,11 @@ partial struct BeeSpawnerSystem : ISystem
             var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
         }
-
+        
         // establish dependency between the spawn job and the command buffer to ensure the spawn job is completed
         // before the command buffer is played back.
         state.Dependency = combinedJobHandle;
-        
+
         // force disable system after the first update call
         state.Enabled = false;
     }
