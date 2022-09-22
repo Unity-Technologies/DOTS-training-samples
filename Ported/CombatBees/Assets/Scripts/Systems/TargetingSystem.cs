@@ -54,7 +54,7 @@ partial struct TargetingUpdateJob : IJobEntity
     [ReadOnly] public ComponentLookup<Holder> holders;
     [ReadOnly] public NativeArray<Entity> friends;
 
-    void Execute(Entity bee, TargetId target)
+    void Execute(Entity bee, in TargetId target)
     {
         if (holders.TryGetComponent(target.Value, out Holder holder) && !friends.Contains(holder.Value))
         {
@@ -76,10 +76,10 @@ partial struct TargetingSystem : ISystem
     {
         state.RequireForUpdate<BeeConfig>();
 
-        m_yellowTeamQuery = state.GetEntityQuery(typeof(YellowTeam));
-        m_yellowTeamIdleQuery = state.GetEntityQuery(typeof(YellowTeam), ComponentType.Exclude<TargetId>());
-        m_blueTeamQuery = state.GetEntityQuery(typeof(BlueTeam));
-        m_blueTeamIdleQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<TargetId>());
+        m_yellowTeamQuery = state.GetEntityQuery(typeof(YellowTeam), ComponentType.Exclude<Decay>());
+        m_yellowTeamIdleQuery = state.GetEntityQuery(typeof(YellowTeam), ComponentType.Exclude<TargetId>(), ComponentType.Exclude<Decay>());
+        m_blueTeamQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<Decay>());
+        m_blueTeamIdleQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<TargetId>(), ComponentType.Exclude<Decay>());
         m_resourcesQuery = state.GetEntityQuery(typeof(GridPosition));
     }
 
