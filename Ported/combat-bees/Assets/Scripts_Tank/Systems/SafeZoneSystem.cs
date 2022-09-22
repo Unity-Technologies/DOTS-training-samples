@@ -29,7 +29,7 @@ partial struct SafeZoneJob : IJobEntity
     }
 }
 
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct SafeZoneSystem : ISystem
 {
     // The ComponentLookup random accessors should not be created on the spot.

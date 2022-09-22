@@ -5,7 +5,7 @@ using Unity.Mathematics;
 // TODO - soon will be able to get DeltaTime via SystemAPI in IJE
 
 #region step1
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 // IJobEntity relies on source generation to implicitly define a query from the signature of the Execute function.
 partial struct CannonBallJob : IJobEntity
 {
@@ -38,7 +38,7 @@ partial struct CannonBallJob : IJobEntity
     }
 }
 
-[BurstCompile]
+[BurstCompile][DisableAutoCreation]
 partial struct CannonBallSystem : ISystem
 {
     [BurstCompile]
