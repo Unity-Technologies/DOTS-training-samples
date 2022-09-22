@@ -228,16 +228,17 @@ partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var factionUsed = (int)(_tick % 2L + 1L);
         _beeQuery.ResetFilter();
         _beeQuery.SetSharedComponentFilter(new Faction
         {
-            Value = _tick % 2L == 0L ? 1 : 2
+            Value = factionUsed
         });
         
         _nestQuery.ResetFilter();
         _nestQuery.SetSharedComponentFilter(new Faction
         {
-            Value = _tick % 2L == 0L ? 1 : 2
+            Value = factionUsed
         });
         
         // TODO further breakup into separate jobs and only run the necessary ones. Before there was a check for valid food at this point which skipped job if none were found. Same concept, just better.
