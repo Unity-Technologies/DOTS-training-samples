@@ -84,7 +84,7 @@ partial struct BeeActionProcessingJob : IJob
                     break;
                 case BeeMode.Idle:
                     // Switch to Attack or FindResource
-                    ECB.AddComponent(BeeEntities[i], new BeeProperties
+                    ECB.SetComponent(BeeEntities[i], new BeeProperties
                     {
                         BeeMode = BeeMode.FindResource,
                         Aggressivity = BeeProperties[i].Aggressivity,
@@ -117,7 +117,7 @@ partial struct BeeActionProcessingJob : IJob
         // Inverting index for food (temp hack, all bees spawn on food with match index)
         var foodIndex = FoodEntities.Length - (1 + i);
         
-        ECB.AddComponent(BeeEntities[i], new BeeProperties
+        ECB.SetComponent(BeeEntities[i], new BeeProperties
         {
             Aggressivity = BeeProperties[i].Aggressivity,
             Target = FoodEntities[foodIndex],
@@ -134,14 +134,14 @@ partial struct BeeActionProcessingJob : IJob
         var deltaPosition = BeeProperties[i].TargetPosition - BeeTransforms[i].Value.Position;
         if (math.length(deltaPosition) < 0.1f)
         {
-            ECB.AddComponent(BeeEntities[i], new BeeProperties
+            ECB.SetComponent(BeeEntities[i], new BeeProperties
             {
                 BeeMode = BeeMode.MoveResourceBackToNest,
                 Aggressivity = BeeProperties[i].Aggressivity,
                 Target = BeeProperties[i].Target,
                 TargetPosition = BeeTransforms[i].Value.Position
             });
-            ECB.AddComponent(BeeProperties[i].Target, new Food
+            ECB.SetComponent(BeeProperties[i].Target, new Food
             {
                 CarrierBee = BeeEntities[i]
             });
