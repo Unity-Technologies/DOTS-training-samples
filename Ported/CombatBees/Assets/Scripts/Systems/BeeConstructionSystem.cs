@@ -30,7 +30,7 @@ partial struct BeeConstructionJob : IJobEntity
         ECB.AddComponent(bee, new URPMaterialPropertyBaseColor{ Value = BeeSpawnHelper.GetTeamColor(prototype.Hive) });
 
         var localToWorld = prs.LocalToWorld;
-        float3 spawnSide = prototype.Hive == BeeTeam.Blue ? localToWorld.Right() : -localToWorld.Right();
+        float3 spawnSide = prototype.Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();
         if (prototype.GroundSpawnPosition.Equals(float2.zero))
         {
             localToWorld.Position = spawnSide * (-absSpawnOffset * .4f + absSpawnOffset * .8f);
