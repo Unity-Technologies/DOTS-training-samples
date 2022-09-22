@@ -24,6 +24,7 @@ partial struct BeeImpactJob : IJobEntity
     {}
 }
 
+[UpdateAfter(typeof(BallisticMovementSystem))]
 partial struct GroundImpactSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

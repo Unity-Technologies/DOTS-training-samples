@@ -66,6 +66,7 @@ partial struct BeeConstructionJob : IJobEntity
 }
 
 [BurstCompile]
+[UpdateAfter(typeof(InitialBeeSpawningSystem))]
 partial struct BeeConstructionSystem : ISystem
 {
     private EntityQuery m_prototypeBeesQuery;

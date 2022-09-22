@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(TargetingSystem))]
 partial struct AttackingSystem : ISystem {
     public static float chaseForce = 50f;
     public static float hitDistance = 0.5f;

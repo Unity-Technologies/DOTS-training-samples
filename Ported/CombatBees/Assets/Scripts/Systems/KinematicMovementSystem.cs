@@ -1,6 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(AttackingSystem))]
+[UpdateBefore(typeof(BeeClampingSystem))]
 partial struct KinematicMovementSystem : ISystem {
     public void OnCreate(ref SystemState state) {
         state.RequireForUpdate<BeeConfig>();

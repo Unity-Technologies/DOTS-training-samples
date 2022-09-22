@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(BeeConstructionSystem))]
+[UpdateBefore(typeof(KinematicMovementSystem))]
 partial struct BeeTractionPulsionSystem : ISystem {
     private EntityQuery yellowTeamQuery;
     private EntityQuery blueTeamQuery;

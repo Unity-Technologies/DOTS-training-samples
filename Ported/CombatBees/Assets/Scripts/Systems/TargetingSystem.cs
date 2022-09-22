@@ -85,6 +85,7 @@ partial struct DropTargetJob : IJobEntity {
 }
 
 //[BurstCompile]
+[UpdateAfter(typeof(BeeConstructionSystem))]
 partial struct TargetingSystem : ISystem
 {
     private EntityQuery m_yellowTeamQuery;

@@ -4,6 +4,7 @@ using Unity.Jobs;
 using UnityEngine;
 
 [BurstCompile]
+[UpdateAfter(typeof(BeeClampingSystem))]
 partial struct BeeRenderingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

@@ -22,6 +22,7 @@ partial struct ApplyGravityJob : IJobEntity
     }
 }
 
+[UpdateAfter(typeof(BeecaySystem))]
 [UpdateBefore(typeof(BeeClampingSystem))]
 partial struct BallisticMovementSystem : ISystem
 {

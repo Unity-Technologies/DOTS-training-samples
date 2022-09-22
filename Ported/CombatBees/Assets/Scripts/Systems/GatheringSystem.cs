@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(TargetingSystem))]
 partial struct GatheringSystem : ISystem
 {
     private EntityQuery m_GatheringBeesQuery;

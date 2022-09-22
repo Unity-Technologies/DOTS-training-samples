@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 
+[UpdateAfter(typeof(AttackingSystem))]
 partial struct BeecaySystem : ISystem
 {
     public void OnCreate(ref SystemState state)
