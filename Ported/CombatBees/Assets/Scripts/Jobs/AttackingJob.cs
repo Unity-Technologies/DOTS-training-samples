@@ -20,6 +20,7 @@ partial struct AttackingJob : IJobEntity {
     public EntityCommandBuffer.ParallelWriter ecb;
 
     void Execute(Entity entity, [EntityInQueryIndex] int index, in TransformAspect prs, ref Velocity velocity, ref TargetId target, ref IsAttacking isAttacking) {
+        isAttacking.Value = false;
         if (transformLookup.TryGetComponent(target.Value, out var enemyPosition)) {
             float3 delta = enemyPosition.Value.Position - prs.Position;
             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
@@ -35,6 +36,7 @@ partial struct AttackingJob : IJobEntity {
                     ecb.AddComponent(index, target.Value, new Decay() {velocityChange = 0.5f});
                     ecb.AddComponent(index, target.Value, new DecayTimer() {Value = 10});
                     ecb.SetComponentEnabled<IsAttacking>(index, entity, false);
+                    ecb.SetComponentEnabled<TargetId>(index, entity, false);
                     target.Value = Entity.Null;
                 }
             }

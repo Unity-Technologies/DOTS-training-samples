@@ -5,7 +5,7 @@ partial struct AttackingSystem : ISystem {
     public static float chaseForce = 50f;
     public static float hitDistance = 0.5f;
     public static float attackForce = 500f;
-    public static float attackDistance = 500f;
+    public static float attackDistance = 4f;
     
     public void OnCreate(ref SystemState state)
     {

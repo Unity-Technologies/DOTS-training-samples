@@ -24,6 +24,7 @@ partial struct TargetingEnemyJob : IJobEntity
         if (random.NextFloat() < aggression)
         {
             ECB.SetComponentEnabled<TargetId>(idx, bee, true);
+            ECB.SetComponentEnabled<IsAttacking>(idx, bee, true);
             ECB.SetComponent(idx, bee, new TargetId() { Value = enemies[random.NextInt(0, enemies.Length)] });
         }
     }
@@ -46,19 +47,36 @@ partial struct TargetingResourceJob : IJobEntity
     }
 }
 
+[WithNone(typeof(IsAttacking))]
 [WithNone(typeof(IsHolding))]
 partial struct TargetingUpdateJob : IJobEntity
 {
     public EntityCommandBuffer ECB;
 
     [ReadOnly] public ComponentLookup<Holder> holders;
-    [ReadOnly] public NativeArray<Entity> friends;
+    [ReadOnly] public ComponentLookup<BlueTeam> blueTeamLookup;
 
     void Execute(Entity bee, in TargetId target)
     {
-        if (holders.TryGetComponent(target.Value, out Holder holder) && !friends.Contains(holder.Value))
+        if (holders.TryGetComponent(target.Value, out Holder holder) && blueTeamLookup.HasComponent(bee) != blueTeamLookup.HasComponent(holder.Value))
         {
             ECB.SetComponent(bee, new TargetId() { Value = holder.Value });
+        }
+    }
+}
+
+[BurstCompile]
+partial struct DropTargetJob : IJobEntity {
+    
+    public EntityCommandBuffer.ParallelWriter ECB;
+
+    [ReadOnly] public ComponentLookup<DecayTimer> deadLookup;
+
+    void Execute(Entity entity, [ChunkIndexInQuery] int index, ref TargetId target) {
+        if (target.Value == Entity.Null || deadLookup.HasComponent(target.Value)) {
+            ECB.SetComponentEnabled<IsAttacking>(index, entity, false);
+            ECB.SetComponentEnabled<IsHolding>(index, entity, false);
+            ECB.SetComponentEnabled<TargetId>(index, entity, false);
         }
     }
 }
@@ -92,25 +110,28 @@ partial struct TargetingSystem : ISystem
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var ecbWriter = ecb.AsParallelWriter();
 
         var allBlueBees = m_blueTeamQuery.ToEntityArray(Allocator.TempJob);
         var allYellowBees = m_yellowTeamQuery.ToEntityArray(Allocator.TempJob);
-
+        
+        var dropTargetJob = new DropTargetJob() {
+            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+            deadLookup = state.GetComponentLookup<DecayTimer>()
+        }.ScheduleParallel(state.Dependency);
+        
         var blueTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbWriter,
+            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
             aggression = config.aggression,
             enemies = allYellowBees
-        }.ScheduleParallel(m_blueTeamIdleQuery, state.Dependency);
+        }.ScheduleParallel(m_blueTeamIdleQuery, dropTargetJob);
 
         var yellowTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbWriter,
+            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
             aggression = config.aggression,
             enemies = allBlueBees
-        }.ScheduleParallel(m_yellowTeamIdleQuery, state.Dependency);
+        }.ScheduleParallel(m_yellowTeamIdleQuery, dropTargetJob);
 
         var targetEnemyJob = JobHandle.CombineDependencies(blueTeamJob, yellowTeamJob);
 
@@ -119,24 +140,18 @@ partial struct TargetingSystem : ISystem
             var allResources = m_resourcesQuery.ToEntityArray(Allocator.TempJob);
             state.Dependency = new TargetingResourceJob()
             {
-                ECB = ecbWriter,
+                ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                 resources = allResources
             }.ScheduleParallel(targetEnemyJob);
             
             allResources.Dispose(state.Dependency);
-
+            
             // TODO revisit once we have resource pickup working...
             var yellowUpdatesJob = new TargetingUpdateJob()
             {
-                ECB = ecb, friends = allYellowBees, holders = SystemAPI.GetComponentLookup<Holder>(true)
+                ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged), blueTeamLookup = state.GetComponentLookup<BlueTeam>(), holders = SystemAPI.GetComponentLookup<Holder>(true)
             };
             yellowUpdatesJob.Schedule();
-
-            var blueUpdatesJob = new TargetingUpdateJob()
-            {
-                ECB = ecb, friends = allBlueBees, holders = SystemAPI.GetComponentLookup<Holder>(true)
-            };
-            blueUpdatesJob.Schedule();
         }
         else
         {
