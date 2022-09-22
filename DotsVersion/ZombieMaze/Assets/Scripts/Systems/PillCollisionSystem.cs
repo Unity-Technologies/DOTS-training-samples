@@ -1,41 +1,76 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
-partial class PillCollisionSystem : SystemBase
+[BurstCompile]
+partial struct PillCollisionSystem : ISystem
 {
     EntityQuery Query;
 
-    protected override void OnCreate()
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
     {
-        RequireForUpdate<PlayerData>();
+        state.RequireForUpdate<PlayerData>();
+
+        EntityQueryBuilder builder = new EntityQueryBuilder(Allocator.Temp);
+        builder.WithAny<RotationComponent>();
+        Query = state.GetEntityQuery(builder);
     }
 
-    protected override void OnUpdate()
+    // Every function defined by ISystem has to be implemented even if empty.
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
     {
+    }
+
+    // See note above regarding the [BurstCompile] attribute.
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    {
+        Entity mazeConfigEntity = SystemAPI.GetSingletonEntity<MazeConfig>();
+        MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
+
+
+        NativeArray<ArchetypeChunk> chunks = Query.ToArchetypeChunkArray(Allocator.Temp);
+
         Entity playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
         PlayerData playerData = SystemAPI.GetSingleton<PlayerData>();
-        TransformAspect playerTransform = SystemAPI.GetAspectRO<TransformAspect>(playerEntity);
-
-        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
-
+        TransformAspect playerTransform = SystemAPI.GetAspectRW<TransformAspect>(playerEntity);
         float3 playerPosition = playerTransform.Position;
-        Entities.WithAll<RotationComponent>().ForEach((Entity entity, TransformAspect transform) =>
+
+        ComponentTypeHandle<LocalToWorld> positionHandle = state.EntityManager.GetComponentTypeHandle<LocalToWorld>(true);
+        EntityTypeHandle entityHandle = state.EntityManager.GetEntityTypeHandle();
+        EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        for (int i = 0; i < chunks.Length; ++i)
         {
-            var distance = math.distancesq(playerPosition, transform.Position);
-            if(distance < 0.1f)
+            var chunk = chunks[i];
+            var positions = chunk.GetNativeArray(positionHandle);
+            var entities = chunk.GetNativeArray(entityHandle);
+
+            for (int j = 0; j < chunk.Count; ++j)
             {
-                ecb.DestroyEntity(entity);
-                playerData.PillsCollected++;
-                ecb.SetComponent<PlayerData>(playerEntity, playerData);
+                var distance = math.distancesq(playerPosition, positions[j].Position);
+                if (distance < 0.1f)
+                {
+                    if(++playerData.PillsCollected >= mazeConfig.PillsToSpawn)
+                    {
+                        playerData.PillsCollected = 0;
+                        playerTransform.Position = new float3(playerData.spawnerPos.x, playerTransform.Position.y, playerData.spawnerPos.z);
+
+                        mazeConfig.SpawnPills = true;
+                        ecb.SetComponent<MazeConfig>(mazeConfigEntity, mazeConfig);
+                    }
+                    ecb.SetComponent<PlayerData>(playerEntity, playerData);
+
+                    ecb.DestroyEntity(entities[j]);
+                }
             }
+        }
 
-        }).Schedule();
-
-        this.Dependency.Complete();
-        ecb.Playback(this.EntityManager);
+        ecb.Playback(state.EntityManager);
         ecb.Dispose();
     }
 }
