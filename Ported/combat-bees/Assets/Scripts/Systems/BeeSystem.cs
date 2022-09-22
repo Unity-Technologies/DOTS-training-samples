@@ -1,15 +1,16 @@
 ﻿using Components;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 partial struct BeePointToTargetJob : IJobEntity
 {
-
     [ReadOnly]
     public ComponentLookup<LocalToWorldTransform> ComponentLookup;
 
@@ -18,10 +19,12 @@ partial struct BeePointToTargetJob : IJobEntity
     [ReadOnly] public float BeeSpeed;
     [ReadOnly] public float ObjectSize;
 
+    public EntityCommandBuffer.ParallelWriter ECB;
+
     private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform,
         ref BeeProperties beeProperties, ref Velocity velocity)
     {
-        if (beeProperties.BeeMode != BeeMode.HeadTowardsResource)
+        if (beeProperties.BeeMode != BeeMode.HeadTowardsResource && beeProperties.BeeMode != BeeMode.MoveResourceBackToNest)
         {
             return;
         }
@@ -32,9 +35,18 @@ partial struct BeePointToTargetJob : IJobEntity
         newPosition.y += ObjectSize;
 
         beeProperties.TargetPosition = newPosition;
+        
 
         var vel = MovementUtilities.ComputeTargetVelocity(transform.Value.Position, newPosition, GravityDt, TimeStep, BeeSpeed);
         velocity.Value = vel;
+        
+        if (beeProperties.BeeMode == BeeMode.MoveResourceBackToNest)
+        {
+            ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Velocity
+            {
+                Value = vel
+            });
+        }
     }
 }
 
@@ -47,6 +59,9 @@ partial struct BeeActionProcessingJob : IJob
     public NativeArray<Entity> FoodEntities;
 
     [ReadOnly]
+    public NativeArray<Food> FoodProperties;
+
+    [ReadOnly]
     public NativeArray<LocalToWorldTransform> BeeTransforms;
     
     [ReadOnly]
@@ -54,6 +69,24 @@ partial struct BeeActionProcessingJob : IJob
     
     [ReadOnly]
     public NativeArray<Entity> BeeEntities;
+    
+    [ReadOnly]
+    public NativeArray<LocalToWorldTransform> NestTransform;
+    
+    [ReadOnly]
+    public NativeArray<Entity> NestEntities;
+
+    [ReadOnly]
+    public NativeArray<Area> NestAreas;
+
+    [ReadOnly]
+    public Random Random;
+    
+    [ReadOnly]
+    public ComponentLookup<Food> FoodComponentLookup;
+
+    [ReadOnly]
+    public int Faction;
 
     public EntityCommandBuffer ECB;
 
@@ -93,8 +126,10 @@ partial struct BeeActionProcessingJob : IJob
                     ECB.SetComponent(BeeEntities[i], new BeeProperties
                     {
                         BeeMode = BeeMode.FindResource,
+                        Target = Entity.Null,
                         Aggressivity = BeeProperties[i].Aggressivity,
-                        Target = Entity.Null
+                        CarriedFood = Entity.Null,
+                        TargetPosition = float3.zero
                     });
                     break;
                 case BeeMode.FindResource:
@@ -106,50 +141,103 @@ partial struct BeeActionProcessingJob : IJob
                     // Head towards targeted resource + pickup on reaching it
                     break;
                 case BeeMode.MoveResourceBackToNest:
+                    TryDropoffResource(i);
                     // Return to base with resource / No action
                     break;
             }
         }
     }
 
-    private void FindTargetForBee(int i)
+    private void TryDropoffResource(int index)
     {
-        // No more food: stop
-        if (i >= FoodEntities.Length)
+        // Check if in bounds of nest
+        if (!NestAreas[0].Value.Contains(BeeTransforms[index].Value.Position))
         {
             return;
         }
         
-        // Inverting index for food (temp hack, all bees spawn on food with match index)
-        var foodIndex = FoodEntities.Length - (1 + i);
-        
-        ECB.SetComponent(BeeEntities[i], new BeeProperties
+        ECB.SetComponent(BeeProperties[index].CarriedFood, new Velocity
         {
-            Aggressivity = BeeProperties[i].Aggressivity,
+            Value = float3.zero
+        });
+        ECB.SetComponent(BeeProperties[index].CarriedFood, new Food
+        {
+            CarrierBee = Entity.Null
+        });
+        ECB.SetSharedComponent(BeeProperties[index].CarriedFood, new Faction
+        {
+            Value = Faction
+        });
+        
+        ECB.SetComponent(BeeEntities[index], new BeeProperties
+        {
+            BeeMode = BeeMode.Idle,
+            Target = Entity.Null,
+            CarriedFood = BeeProperties[index].Target,
+            Aggressivity = BeeProperties[index].Aggressivity,
+            TargetPosition = BeeProperties[index].TargetPosition
+        });
+    }
+
+    private void FindTargetForBee(int index)
+    {
+        if (FoodProperties.Length == 0)
+        {
+            return;
+        }
+        
+        var foodIndex = Random.NextInt(0, FoodEntities.Length - 1);
+        // Food already spoken for, stop, retry next frame.
+        if (FoodProperties[foodIndex].CarrierBee != Entity.Null)
+        {
+            return;
+        }
+        
+        ECB.SetComponent(BeeEntities[index], new BeeProperties
+        {
+            Aggressivity = BeeProperties[index].Aggressivity,
             Target = FoodEntities[foodIndex],
             BeeMode = BeeMode.HeadTowardsResource,
-            TargetPosition = FoodTransforms[foodIndex].Value.Position
+            TargetPosition = FoodTransforms[foodIndex].Value.Position,
+            CarriedFood = BeeProperties[index].CarriedFood
         });
         
         ECB.RemoveComponent<UnmatchedFood>(FoodEntities[foodIndex]);
     }
 
-    private void TryPickupTargetResource(int i)
+    private void TryPickupTargetResource(int index)
     {
+        // [DECISION REQUIRED]Check this now or on close enough to pickup?
+        // If food is already spoken for, cancel, go back to idle
+        var foodCarrier = FoodComponentLookup.GetRefRO(BeeProperties[index].Target).ValueRO.CarrierBee;
+        if (foodCarrier != Entity.Null)
+        {
+            ECB.SetComponent(BeeEntities[index], new BeeProperties
+            {
+                BeeMode = BeeMode.Idle,
+                Aggressivity = BeeProperties[index].Aggressivity,
+                Target = NestEntities[0],
+                TargetPosition = NestTransform[0].Value.Position,
+                CarriedFood = Entity.Null
+            });
+            return;
+        }
+        
         // Check distance to target, if within a certain range, pickup the food.
-        var deltaPosition = BeeProperties[i].TargetPosition - BeeTransforms[i].Value.Position;
+        var deltaPosition = BeeProperties[index].TargetPosition - BeeTransforms[index].Value.Position;
         if (math.lengthsq(deltaPosition) < 0.01f)
         {
-            ECB.SetComponent(BeeEntities[i], new BeeProperties
+            ECB.SetComponent(BeeEntities[index], new BeeProperties
             {
                 BeeMode = BeeMode.MoveResourceBackToNest,
-                Aggressivity = BeeProperties[i].Aggressivity,
-                Target = BeeProperties[i].Target,
-                TargetPosition = BeeTransforms[i].Value.Position
+                TargetPosition = NestTransform[0].Value.Position,
+                CarriedFood = BeeProperties[index].Target,
+                Target = NestEntities[0],
+                Aggressivity = BeeProperties[index].Aggressivity
             });
-            ECB.SetComponent(BeeProperties[i].Target, new Food
+            ECB.SetComponent(BeeProperties[index].Target, new Food
             {
-                CarrierBee = BeeEntities[i]
+                CarrierBee = BeeEntities[index]
             });
         }
     }
@@ -158,24 +246,40 @@ partial struct BeeActionProcessingJob : IJob
 [BurstCompile]
 partial struct BeeSystem : ISystem
 {
+    private long _tick;
+    
     private EntityQuery _foodQuery;
+    private EntityQuery _nestQuery;
     private EntityQuery _beeQuery;
+    
     private ComponentLookup<LocalToWorldTransform> _transformComponentLookup;
+    private ComponentLookup<Food> _foodComponentLookup;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         // Build queries
         var foodQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
-        foodQueryBuilder.WithAll<UnmatchedFood, Food, LocalToWorldTransform>();
+        foodQueryBuilder.WithAll<UnmatchedFood, Food, LocalToWorldTransform, Faction>();
         _foodQuery = state.GetEntityQuery(foodQueryBuilder);
+        _foodQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = 0
+        });
 
+        var nestQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
+        nestQueryBuilder.WithAll<Faction, Area, LocalToWorldTransform>();
+        _nestQuery = state.GetEntityQuery(nestQueryBuilder);
+        
         var beeQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
-        beeQueryBuilder.WithAll<BeeProperties, LocalToWorldTransform>();
+        beeQueryBuilder.WithAll<BeeProperties, LocalToWorldTransform, Faction>();
         _beeQuery = state.GetEntityQuery(beeQueryBuilder);
 
         _transformComponentLookup = state.GetComponentLookup<LocalToWorldTransform>();
+        _foodComponentLookup = state.GetComponentLookup<Food>();
 
+        _tick = 0;
+        
         state.RequireForUpdate<BeeConfig>();
     }
 
@@ -187,35 +291,63 @@ partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // TODO further breakup into separate jobs and only run the necessary ones. Before there was a check for valid food at this point which skipped job if none were found. Same concept, just better.
-
+        // Set faction filters on relevant queries
+        var factionUsed = (int)(_tick % 2L + 1L);
+        _beeQuery.ResetFilter();
+        _beeQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = factionUsed
+        });
+        
+        _nestQuery.ResetFilter();
+        _nestQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = factionUsed
+        });
+        
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
         // Prepare bee action selection job
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
         var foodTransforms = _foodQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+        var foodProperties = _foodQuery.ToComponentDataArray<Food>(Allocator.TempJob);
         
         // Bee structures
         var beeProperties = _beeQuery.ToComponentDataArray<BeeProperties>(Allocator.TempJob);
         var beeTransforms = _beeQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
-        var beeEntities = _beeQuery.ToEntityArray(Allocator.TempJob);
+        var beeEntities =  _beeQuery.ToEntityArray(Allocator.TempJob);
+        
+        // Nests
+        var nestTransforms = _nestQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+        var nestAreas = _nestQuery.ToComponentDataArray<Area>(Allocator.TempJob);
+        var nestEntities = _nestQuery.ToEntityArray(Allocator.TempJob);
         
         // Command buffer
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
+        _foodComponentLookup.Update(ref state);
         // BeeAction job instantiate and schedule
         var beeActionProcessingJob = new BeeActionProcessingJob
         {
             FoodTransforms = foodTransforms,
             FoodEntities = foodEntities,
+            FoodProperties = foodProperties,
             BeeProperties = beeProperties,
             BeeTransforms = beeTransforms,
             BeeEntities = beeEntities,
+            NestTransform = nestTransforms,
+            NestEntities = nestEntities,
+            NestAreas = nestAreas,
+            Faction = factionUsed,
+            Random = new Random((uint)(_tick + 1)),
+            FoodComponentLookup = _foodComponentLookup,
             ECB = ecb
         };
         state.Dependency = beeActionProcessingJob.Schedule(state.Dependency);
+        state.Dependency.Complete();
+        
         // [IJobEntity only?]
         // NOTE: The following is the default pattern, you don't need to state it: (happens at line 57)
         // state.Dependency = foodTargetingJob.ScheduleParallel(state.Dependency);
@@ -225,10 +357,13 @@ partial struct BeeSystem : ISystem
         // [QUESTION]Changed from IJobEntity to IJob. Effect on auto-dependency management?
         state.Dependency = foodTransforms.Dispose(state.Dependency);
         state.Dependency = foodEntities.Dispose(state.Dependency);
+        state.Dependency = foodProperties.Dispose(state.Dependency);
         state.Dependency = beeProperties.Dispose(state.Dependency);
         state.Dependency = beeEntities.Dispose(state.Dependency);
         state.Dependency = beeTransforms.Dispose(state.Dependency);
-        
+        state.Dependency = nestTransforms.Dispose(state.Dependency);
+        state.Dependency = nestAreas.Dispose(state.Dependency);
+        state.Dependency = nestEntities.Dispose(state.Dependency);
         
         // Point towards target job
         _transformComponentLookup.Update(ref state);
@@ -238,8 +373,11 @@ partial struct BeeSystem : ISystem
             TimeStep = state.Time.DeltaTime,
             GravityDt = config.gravity * state.Time.DeltaTime,
             BeeSpeed = config.beeSpeed,
-            ObjectSize = config.objectSize
+            ObjectSize = config.objectSize,
+            ECB = ecb.AsParallelWriter()
         };
         state.Dependency = beeTargetingJob.ScheduleParallel(state.Dependency);
+
+        _tick++;
     }
 }
