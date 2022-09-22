@@ -31,7 +31,7 @@ partial struct PlayerMovementSystem : ISystem
             float3 tempPos = new float3(
                 Input.GetAxis("Horizontal"),
                 0,
-                Input.GetAxis("Vertical")) * character.speed * dt;
+                Input.GetAxis("Vertical"));
 
             
             int2 pos = new int2((int)character.position.x, (int)character.position.z);
@@ -58,14 +58,14 @@ partial struct PlayerMovementSystem : ISystem
                     tempPos.z = 0;
                 }
             }
-            if (tempPos.x <= -0.5f)
+            if (tempPos.z <= -0.5f)
             {
                 if (tiles[mazeConfig.Get1DIndex(pos.x, pos.y)].DownWall)
                 {
                     tempPos.z = 0;
                 }
             }
-            character.position += tempPos;
+            character.position += tempPos * character.speed * dt;
         }
 
         
