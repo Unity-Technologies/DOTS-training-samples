@@ -49,7 +49,7 @@ partial struct BeeConstructionJob : IJobEntity
         ECB.AddComponent(bee,
             new Velocity() { Value = random.NextFloat3Direction() * random.NextFloat() * maxSpawnSpeed });
         ECB.AddComponent(bee, new SmoothDirection() { Value = float3.zero });
-        ECB.AddComponent(bee, new SmoothPosition() { Value = float3.zero });
+        ECB.AddComponent(bee, new SmoothPosition() { Value = localToWorld.Right() * .01f });
 
         // TODO remove UniformScale once BeeClampingJob is updated
         ECB.AddComponent(bee, new UniformScale() { Value = scale });
