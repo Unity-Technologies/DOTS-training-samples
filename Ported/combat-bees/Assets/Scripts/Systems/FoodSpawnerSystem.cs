@@ -2,18 +2,25 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct FoodSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
         NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.None});
+
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
+        
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate(NestQuery);
@@ -46,6 +53,8 @@ partial struct FoodSpawnerSystem : ISystem
                 Prefab = config.food,
                 InitTransform = transform,
                 InitFaction = (int)Factions.None,
+                InitColor = Color.green,
+                Mask = MeshRendererQuery.GetEntityQueryMask(),
             };
             var jobHandle = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);

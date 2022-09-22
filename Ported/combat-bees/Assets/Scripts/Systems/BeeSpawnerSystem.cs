@@ -2,18 +2,21 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Rendering;
 using Unity.Transforms;
-    
+
 [BurstCompile]
 partial struct BeeSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Faction, Area>().Build();
-
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
+    
         // Only need to update if there are any entities with a SpawnRequestQuery
         state.RequireForUpdate(NestQuery);
         
@@ -46,6 +49,9 @@ partial struct BeeSpawnerSystem : ISystem
 
                 var nestArea = state.EntityManager.GetComponentData<Area>(nest);
                 var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
+                var nestMaterial = state.EntityManager.GetComponentData<MaterialMeshInfo>(nest);
+                var renderMeshArray = state.EntityManager.GetSharedComponentManaged<RenderMeshArray>(nest);
+                var faction = state.EntityManager.GetSharedComponent<Faction>(nest).Value;
                 
                 var beeSpawnJob = new SpawnJob
                 {
@@ -55,7 +61,10 @@ partial struct BeeSpawnerSystem : ISystem
                     ECB = ecb.AsParallelWriter(),
                     Prefab = config.bee,
                     InitTransform = transform,
-                    InitFaction = state.EntityManager.GetSharedComponent<Faction>(nest).Value,
+                    InitFaction = faction,
+                    InitColor = renderMeshArray.GetMaterial(nestMaterial).color,
+                    Mask = MeshRendererQuery.GetEntityQueryMask(),
+                    InitVel = config.initVel
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
