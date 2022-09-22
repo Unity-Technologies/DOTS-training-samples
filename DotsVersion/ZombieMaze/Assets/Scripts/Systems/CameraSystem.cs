@@ -28,8 +28,8 @@ partial class CameraSystem : SystemBase
         }
 
         var cameraTransform = CameraSingleton.Instance.transform;
-        var tankTransform = GetComponent<LocalToWorld>(Target);
-        cameraTransform.position = tankTransform.Position - 10.0f * tankTransform.Forward + new float3(0.0f, 5.0f, 0.0f);
-        cameraTransform.LookAt(tankTransform.Position, new float3(0.0f, 1.0f, 0.0f));
+        var charTransform = GetComponent<LocalToWorld>(Target);
+        cameraTransform.position = charTransform.Position - 50.0f * charTransform.Forward + new float3(0.0f, 20.0f, 0.0f);
+        cameraTransform.LookAt(charTransform.Position, new float3(0.0f, 1.0f, 0.2f));
     }
 }
