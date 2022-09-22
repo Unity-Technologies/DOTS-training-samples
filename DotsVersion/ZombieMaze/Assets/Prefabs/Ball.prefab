@@ -99,7 +99,12 @@ MonoBehaviour:
   direction:
     x: 0
     y: 0
-  speed: 15
+  speed: 5
   position:
     x: 0
     y: 0
+    z: 0
+  spawnerPos:
+    x: 0
+    y: 0
+    z: 0
