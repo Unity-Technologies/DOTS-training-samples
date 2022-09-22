@@ -19,7 +19,7 @@ partial struct ZombieMoveJob : IJobEntity
     public int Height;
     public float DeltaTime;
     [ReadOnly] public DynamicBuffer<TileBufferElement> Tiles;
-    public uint RandomSeed;
+    public Unity.Mathematics.Random Rand;
     public MazeConfig MazeConfig;
 
     //[BurstCompile]
@@ -60,8 +60,8 @@ partial struct ZombieMoveJob : IJobEntity
         //Random location
         var p1 = new ProfilerMarker("TestBurst Create");
         p1.Begin();
-        var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
-        var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
+
+        var newTarget = new int2(Rand.NextInt(0, Width), Rand.NextInt(0, Height));
 
         NativeHashMap<int2, int2>
             visited = new NativeHashMap<int2, int2>((Width + 1) * (Height + 1), Allocator.TempJob);
@@ -147,8 +147,7 @@ partial struct ZombieMoveJob : IJobEntity
     {
         //Random location
         
-        var r = Unity.Mathematics.Random.CreateFromIndex(RandomSeed);
-        var newTarget = new int2(r.NextInt(0, Width), r.NextInt(0, Height));
+        var newTarget = new int2(Rand.NextInt(0, Width), Rand.NextInt(0, Height));
 
         NativeArray<int2> visited2 = new NativeArray<int2>((Width + 1) * (Height + 1), Allocator.Temp);
         NativeArray<bool> visited3 = new NativeArray<bool>((Width + 1) * (Height + 1), Allocator.Temp);
@@ -325,7 +324,7 @@ public partial struct ZombieMovingSystem : ISystem
             Height = height,
             Tiles = tiles,
             DeltaTime = deltaTime,
-            RandomSeed = Random.NextUInt(),
+            Rand= Random,
             MazeConfig = mazeConfig
         };
         moveJob.ScheduleParallel();
