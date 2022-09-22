@@ -4,10 +4,11 @@ public enum Factions
 {
     None,
     Team1,
-    Team2
+    Team2,
+    NumFactions
 }
 
-public struct Faction : IComponentData
+public struct Faction : ISharedComponentData
 {
     public int Value;
 }
