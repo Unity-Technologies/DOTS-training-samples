@@ -9,6 +9,8 @@ class FoodBaker : Baker<FoodAuthoring>
     public override void Bake(FoodAuthoring authoring)
     {
         AddComponent<Velocity>();
+        AddComponent<Food>();
+        AddComponent<UnmatchedFood>();
         AddComponent<Dead>();
     }
 }

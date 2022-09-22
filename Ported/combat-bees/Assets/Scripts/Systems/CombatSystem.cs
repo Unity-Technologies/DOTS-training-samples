@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 
+[WithNone(typeof(Dead))]
 [BurstCompile]
 partial struct CombatJob : IJobEntity
 {
@@ -13,24 +14,37 @@ partial struct CombatJob : IJobEntity
     public float attackDistance;
     
     [BurstCompile]
-    void Execute([ChunkIndexInQuery] int chunkIndex, ref Velocity velocity, in BeeProperties beeProperties, in LocalToWorldTransform localToWorldTransform)
+    void Execute([ChunkIndexInQuery] int chunkIndex, ref Velocity velocity, ref BeeProperties beeProperties, in LocalToWorldTransform localToWorldTransform)
     {
-        if (beeProperties.BeeMode == BeeMode.Attack && beeProperties.Target != Entity.Null)
+        if (beeProperties.BeeMode == BeeMode.Attack)
         {
-            var beePosition = localToWorldTransform.Value.Position;
-            var targetPosition = transformLookup[beeProperties.Target].Value.Position;
-                    
-            if (math.distancesq(beePosition, targetPosition) < attackDistance)
+            if (!transformLookup.HasComponent(beeProperties.Target))
             {
-                velocity = new Velocity{Value = targetPosition - beePosition};
-                ECB.SetComponentEnabled<Dead>(chunkIndex, beeProperties.Target, true);
+                beeProperties = new BeeProperties
+                {
+                    BeeMode = BeeMode.Idle,
+                    Aggressivity = beeProperties.Aggressivity,
+                    Target = Entity.Null,
+                    TargetPosition = float3.zero,
+                };
+            }
+            else
+            {
+                var beePosition = localToWorldTransform.Value.Position;
+                var targetPosition = transformLookup[beeProperties.Target].Value.Position;
+
+                if (math.distancesq(beePosition, targetPosition) < attackDistance)
+                {
+                    velocity = new Velocity { Value = targetPosition - beePosition };
+                    ECB.SetComponentEnabled<Dead>(chunkIndex, beeProperties.Target, true);
+                }
             }
         }
     }
 }
 
 [UpdateBefore(typeof(MovementSystem))]
-[UpdateBefore(typeof(CombatTargetSystem))]
+[UpdateBefore(typeof(BeeSystem))]
 [BurstCompile]
 partial struct CombatSystem : ISystem
 {
@@ -56,6 +70,7 @@ partial struct CombatSystem : ISystem
         {
             ECB = ECB.AsParallelWriter(),
             transformLookup = transformLookup,
+            attackDistance = 4.0f
         };
         combatJob.ScheduleParallel();
     }

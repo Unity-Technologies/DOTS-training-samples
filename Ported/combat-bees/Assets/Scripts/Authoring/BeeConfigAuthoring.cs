@@ -13,6 +13,7 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int BeeCount;
     public int FoodCount;
     public GameObject Field;
+    public float Aggressivity;
 }
 
 [UpdateBefore(typeof(NestAuthoring))]
@@ -25,7 +26,8 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             bee = GetEntity(authoring.BeePrefab),
             food = GetEntity(authoring.FoodPrefab),
             beeCount = authoring.BeeCount,
-            foodCount = authoring.FoodCount
+            foodCount = authoring.FoodCount,
+            aggressivity = authoring.Aggressivity
         });
         var renderer = authoring.Field.GetComponent<Renderer>();
         AddComponent<Area>(new Area{Value = AABBExtensions.ToAABB(renderer.bounds)});

@@ -2,18 +2,25 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct FoodSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Area, Faction>().Build();
-        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.Food});
+        NestQuery.SetSharedComponentFilter(new Faction{Value = (int)Factions.None});
+
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
+        
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate(NestQuery);
@@ -38,16 +45,18 @@ partial struct FoodSpawnerSystem : ISystem
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
-            var foodSpawnJob = new SpawnJob
+            var foodSpawnJob = new FoodSpawnJob
             {
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 Aabb = nestArea.Value,
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.food,
                 InitTransform = transform,
-                InitFaction = (int)Factions.Food,
+                InitFaction = (int)Factions.None,
+                InitColor = new float4(0.0f,1.0f,0.0f,1.0f),
+                Mask = MeshRendererQuery.GetEntityQueryMask(),
             };
-            var jobHandle = foodSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
+            var jobHandle = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
 
         }

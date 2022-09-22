@@ -2,18 +2,24 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
-    
+using UnityEngine;
+using UnityEngine.UI;
+
 [BurstCompile]
 partial struct BeeSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = SystemAPI.QueryBuilder().WithAll<Faction, Area>().Build();
-
+        MeshRendererQuery = SystemAPI.QueryBuilder().WithAll<RenderMeshArray>().Build();
+    
         // Only need to update if there are any entities with a SpawnRequestQuery
         state.RequireForUpdate(NestQuery);
         
@@ -27,7 +33,7 @@ partial struct BeeSpawnerSystem : ISystem
     }
 
     [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    public unsafe void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
@@ -46,8 +52,10 @@ partial struct BeeSpawnerSystem : ISystem
 
                 var nestArea = state.EntityManager.GetComponentData<Area>(nest);
                 var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
+                var nestBaseColor = state.EntityManager.GetComponentData<URPMaterialPropertyBaseColor>(nest);
+                var faction = state.EntityManager.GetSharedComponent<Faction>(nest).Value;
                 
-                var beeSpawnJob = new SpawnJob
+                var beeSpawnJob = new BeeSpawnJob
                 {
                     Aabb = nestArea.Value,
 
@@ -55,7 +63,9 @@ partial struct BeeSpawnerSystem : ISystem
                     ECB = ecb.AsParallelWriter(),
                     Prefab = config.bee,
                     InitTransform = transform,
-                    InitFaction = state.EntityManager.GetSharedComponent<Faction>(nest).Value,
+                    InitFaction = faction,
+                    InitColor = nestBaseColor.Value,
+                    Mask = MeshRendererQuery.GetEntityQueryMask(),
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);

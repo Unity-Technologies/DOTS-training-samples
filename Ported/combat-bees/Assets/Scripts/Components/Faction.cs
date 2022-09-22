@@ -1,8 +1,9 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 public enum Factions
 {
-    Food,
+    None,
     Team1,
     Team2,
     NumFactions
