@@ -2,11 +2,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
-using UnityEngine.UI;
 
 [BurstCompile]
 partial struct BeeSpawnerSystem : ISystem
@@ -66,6 +63,7 @@ partial struct BeeSpawnerSystem : ISystem
                     InitFaction = faction,
                     InitColor = nestBaseColor.Value,
                     Mask = MeshRendererQuery.GetEntityQueryMask(),
+                    InitVel = config.initVel
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);

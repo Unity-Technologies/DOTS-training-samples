@@ -9,14 +9,14 @@ using Unity.Transforms;
 [BurstCompile]
 public partial struct BeeRemovalJob : IJobEntity
 {
-    [ReadOnly] public Area FieldArea;
+    [ReadOnly] public AABB FieldArea;
     public EntityCommandBuffer.ParallelWriter ECB;
 
     [BurstCompile]
     public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform)
     {
 
-        if (transform.Value.Position.y >= FieldArea.Value.Min.y)
+        if (transform.Value.Position.y >= FieldArea.Min.y)
         {
             ECB.DestroyEntity(chunkIndex, entity);
         }
@@ -41,14 +41,13 @@ partial struct BeeRemovalSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var configEntity = SystemAPI.GetSingletonEntity<BeeConfig>();
-        var fieldArea = SystemAPI.GetComponent<Area>(configEntity);
+        var config = SystemAPI.GetSingleton<BeeConfig>();
         
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
          
         var beeRemovalJob = new BeeRemovalJob
         {
-            FieldArea = fieldArea,
+            FieldArea = config.fieldArea,
             ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
         };
         beeRemovalJob.ScheduleParallel();

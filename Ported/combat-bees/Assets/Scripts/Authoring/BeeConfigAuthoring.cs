@@ -14,6 +14,10 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int FoodCount;
     public GameObject Field;
     public float Aggressivity;
+    public float3 InitVel;
+    public float BeeSpeed = 50;
+    public float Gravity = -9.81f;
+    public float ObjectSize = 0.1f;
 }
 
 [UpdateBefore(typeof(NestAuthoring))]
@@ -21,15 +25,19 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
 {
     public override void Bake(BeeConfigAuthoring authoring)
     {
+        var renderer = authoring.Field.GetComponent<Renderer>();
         AddComponent<BeeConfig>(new BeeConfig()
         {
             bee = GetEntity(authoring.BeePrefab),
             food = GetEntity(authoring.FoodPrefab),
             beeCount = authoring.BeeCount,
             foodCount = authoring.FoodCount,
-            aggressivity = authoring.Aggressivity
+            aggressivity = authoring.Aggressivity,
+            fieldArea = AABBExtensions.ToAABB(renderer.bounds),
+            initVel = authoring.InitVel,
+            beeSpeed = authoring.BeeSpeed,
+            gravity = authoring.Gravity,
+            objectSize = authoring.ObjectSize
         });
-        var renderer = authoring.Field.GetComponent<Renderer>();
-        AddComponent<Area>(new Area{Value = AABBExtensions.ToAABB(renderer.bounds)});
     }
 }

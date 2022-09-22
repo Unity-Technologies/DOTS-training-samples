@@ -11,7 +11,9 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 struct SpawnCommon
 {
-    public static void Spawn(int index, ref EntityCommandBuffer.ParallelWriter ECB, AABB Aabb, Entity Prefab, EntityQueryMask Mask, int InitFaction, LocalToWorldTransform InitTransform, float4 InitColor, out Entity entity)
+    public static void Spawn(int index, ref EntityCommandBuffer.ParallelWriter ECB, AABB Aabb, Entity Prefab, 
+        EntityQueryMask Mask, int InitFaction, LocalToWorldTransform InitTransform, float4 InitColor, out Entity entity, 
+        float3 InitVel)
     {
         entity = ECB.Instantiate(index, Prefab);
         var random = Random.CreateFromIndex((uint) index);
@@ -20,10 +22,10 @@ struct SpawnCommon
 
         float3 position = Aabb.Center + Aabb.Extents * randomf3;
 
-        ECB.SetComponentEnabled<Dead>(index, entity, false);
         ECB.SetComponent(index, entity, new LocalToWorldTransform{Value = UniformScaleTransform.FromPositionRotationScale(position, InitTransform.Value.Rotation, InitTransform.Value.Scale)});
-        ECB.AddSharedComponent(index, entity, new Faction{Value = InitFaction});
+        ECB.SetSharedComponent(index, entity, new Faction{Value = InitFaction});
         ECB.AddComponentForLinkedEntityGroup(index, entity, Mask, new URPMaterialPropertyBaseColor { Value = InitColor});
+		ECB.SetComponent(index, entity, new Velocity{Value = InitVel});
     }
 }
 
@@ -38,10 +40,11 @@ unsafe struct FoodSpawnJob : IJobParallelFor
     public EntityQueryMask Mask;
     public int InitFaction;
     public float4 InitColor;
+    public float3 InitVel;
 
     public void Execute(int index)
     {
-        SpawnCommon.Spawn(index, ref ECB, Aabb, Prefab, Mask, InitFaction, InitTransform, InitColor, out _);
+        SpawnCommon.Spawn(index, ref ECB, Aabb, Prefab, Mask, InitFaction, InitTransform, InitColor, out _, InitVel);
     }
 }
 
@@ -56,11 +59,14 @@ unsafe struct BeeSpawnJob : IJobParallelFor
     public EntityQueryMask Mask;
     public int InitFaction;
     public float4 InitColor;
+    public float3 InitVel;
 
     public void Execute(int index)
     {
-        SpawnCommon.Spawn(index, ref ECB, Aabb, Prefab, Mask, InitFaction, InitTransform, InitColor, out var entity);
+        SpawnCommon.Spawn(index, ref ECB, Aabb, Prefab, Mask, InitFaction, InitTransform, InitColor, out var entity, InitVel);
         var random = Random.CreateFromIndex((uint)index);
+        
+        ECB.SetComponentEnabled<Dead>(index, entity, false);
         ECB.SetComponent<BeeProperties>(index, entity, new BeeProperties
         {
             Aggressivity = random.NextFloat(),

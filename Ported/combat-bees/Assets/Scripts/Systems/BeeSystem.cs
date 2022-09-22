@@ -9,8 +9,14 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct BeePointToTargetJob : IJobEntity
 {
+
     [ReadOnly]
     public ComponentLookup<LocalToWorldTransform> ComponentLookup;
+
+    [ReadOnly] public float TimeStep;
+    [ReadOnly] public float GravityDt;
+    [ReadOnly] public float BeeSpeed;
+    [ReadOnly] public float ObjectSize;
 
     [BurstCompile]
     private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform,
@@ -21,14 +27,17 @@ partial struct BeePointToTargetJob : IJobEntity
         {
             case BeeMode.Attack:
             case BeeMode.HeadTowardsResource:
-            // Get latest position of target
+                // Get latest position of target
                 var newPosition = ComponentLookup.GetRefRO(beeProperties.Target).ValueRO.Value.Position;
+                // work a small offset into the target position to account for object sizes
+                newPosition.y += ObjectSize;
+
                 beeProperties.TargetPosition = newPosition;
 
-                // Compute new velocity
-                var deltaPosition = newPosition - transform.Value.Position;
-                velocity.Value = math.normalizesafe(deltaPosition) * 10.0f;
-            break;
+                var vel = MovementUtilities.ComputeTargetVelocity(
+                    transform.Value.Position, newPosition, GravityDt, TimeStep, BeeSpeed);
+                velocity.Value = vel;
+                break;
         }
 
     }
@@ -144,7 +153,7 @@ partial struct BeeActionProcessingJob : IJobEntity
     {
         // Check distance to target, if within a certain range, pickup the food.
         var deltaPosition = beeProperties.TargetPosition - beeTransform.Value.Position;
-        if (math.length(deltaPosition) < 0.1f)
+        if (math.lengthsq(deltaPosition) < 0.01f)
         {
             beeProperties = new BeeProperties
             {
@@ -181,9 +190,10 @@ partial struct BeeSystem : ISystem
         foodQueryBuilder.WithAll<UnmatchedFood, Food, LocalToWorldTransform>();
         _foodQuery = state.GetEntityQuery(foodQueryBuilder);
         _beeQuery = SystemAPI.QueryBuilder().WithAll<BeeProperties, Faction, LocalToWorldTransform>().Build();
-        
+
         _transformComponentLookup = state.GetComponentLookup<LocalToWorldTransform>();
         _foodComponentLookup = state.GetComponentLookup<Food>();
+        state.RequireForUpdate<BeeConfig>();
     }
 
     [BurstCompile]
@@ -195,7 +205,9 @@ partial struct BeeSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         // TODO further breakup into separate jobs and only run the necessary ones. Before there was a check for valid food at this point which skipped job if none were found. Same concept, just better.
-        
+
+        var config = SystemAPI.GetSingleton<BeeConfig>();
+
         // Prepare bee action selection job
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
@@ -233,7 +245,11 @@ partial struct BeeSystem : ISystem
         _transformComponentLookup.Update(ref state);
         var beeTargetingJob = new BeePointToTargetJob // IJobEntity
         {
-            ComponentLookup = _transformComponentLookup
+            ComponentLookup = _transformComponentLookup,
+            TimeStep = state.Time.DeltaTime,
+            GravityDt = config.gravity * state.Time.DeltaTime,
+            BeeSpeed = config.beeSpeed,
+            ObjectSize = config.objectSize
         };
         beeTargetingJob.ScheduleParallel();
     }
