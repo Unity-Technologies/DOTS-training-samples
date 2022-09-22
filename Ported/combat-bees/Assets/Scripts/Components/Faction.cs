@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using UnityEngine;
 
 public enum Factions
 {
@@ -10,4 +11,5 @@ public enum Factions
 public struct Faction : IComponentData
 {
     public int Value;
+    public Color Color;
 }

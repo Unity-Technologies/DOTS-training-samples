@@ -4,17 +4,23 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
-    
+using UnityEngine;
+using UnityEngine.UI;
+
 [BurstCompile]
 partial struct BeeSpawnerSystem : ISystem
 {
     private EntityQuery NestQuery;
+    private EntityQuery MeshRendererQuery;
+    private EntityQuery NestMeshRendererQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         NestQuery = state.GetEntityQuery(typeof(Faction), typeof(Area));
+        MeshRendererQuery = state.GetEntityQuery(typeof(RenderMeshArray));
         
         // Only need to update if there are any entities with a SpawnRequestQuery
         state.RequireForUpdate(NestQuery);
@@ -48,6 +54,7 @@ partial struct BeeSpawnerSystem : ISystem
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
+            //var renderer = state.EntityManager.GetComponentData<>(nest);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
             var beeSpawnJob = new SpawnJob
             {
@@ -57,7 +64,9 @@ partial struct BeeSpawnerSystem : ISystem
                 ECB = ecb.AsParallelWriter(),
                 Prefab = config.bee,
                 InitTransform = transform,
-                InitFaction = nestFaction.Value
+                Mask = MeshRendererQuery.GetEntityQueryMask(),
+                InitFaction = nestFaction.Value,
+                InitColor = nestFaction.Color
             };
             var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
             combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
