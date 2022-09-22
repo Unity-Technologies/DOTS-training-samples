@@ -25,31 +25,37 @@ public partial struct PillSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
-        PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
-
-        NativeArray<Vector2Int> spawnedLocations = CollectionHelper.CreateNativeArray<Vector2Int>(mazeConfig.PillsToSpawn, Allocator.Temp);
-
-        if (mazeConfig.PillsToSpawn >= mazeConfig.Width * mazeConfig.Height)
+        if (mazeConfig.SpawnPills)
         {
-            Debug.LogError("You're trying to spawn too many pills.... stop it");
-            return;
-        }
+            Entity mazeConfigEntity = SystemAPI.GetSingletonEntity<MazeConfig>();
+            mazeConfig.SpawnPills = false;
+            SystemAPI.SetComponent<MazeConfig>(mazeConfigEntity, mazeConfig);
 
-        for (int i = 0; i < mazeConfig.PillsToSpawn; ++i)
-        {
-            Entity pillEntity = state.EntityManager.Instantiate(prefabConfig.PillPrefab);
-            TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(pillEntity);
+            PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
 
-            Vector2Int randomTile = mazeConfig.GetRandomTilePosition();
-            while (spawnedLocations.Contains(randomTile))
+            NativeArray<int2> spawnedLocations = CollectionHelper.CreateNativeArray<int2>(mazeConfig.PillsToSpawn, Allocator.Temp);
+
+            if (mazeConfig.PillsToSpawn >= mazeConfig.Width * mazeConfig.Height)
             {
-                randomTile = mazeConfig.GetRandomTilePosition();
+                Debug.LogError("You're trying to spawn too many pills.... stop it");
+                return;
             }
 
-            spawnedLocations[i] = randomTile;
-            transformAspect.Position = new float3(randomTile.x, transformAspect.Position.y, randomTile.y);
-        }
+            for (int i = 0; i < mazeConfig.PillsToSpawn; ++i)
+            {
+                Entity pillEntity = state.EntityManager.Instantiate(prefabConfig.PillPrefab);
+                TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(pillEntity);
 
-        state.Enabled = false;
+                int2 randomTile = mazeConfig.GetRandomTilePosition();
+                while (spawnedLocations.Contains(randomTile))
+                {
+                    randomTile = mazeConfig.GetRandomTilePosition();
+                }
+
+                spawnedLocations[i] = randomTile;
+                transformAspect.Position = new float3(randomTile.x, transformAspect.Position.y, randomTile.y);
+            }
+
+        }
     }
 }

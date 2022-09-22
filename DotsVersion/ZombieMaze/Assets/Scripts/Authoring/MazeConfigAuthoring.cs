@@ -35,7 +35,9 @@ class MazeConfigBaker : Baker<MazeConfigAuthoring>
             MovingWallMinMoveSpeedInSeconds = authoring.MovingWallMinMoveSpeedInSeconds,
             MovingWallMaxMoveSpeedInSeconds = authoring.MovingWallMaxMoveSpeedInSeconds,
             MovingWallMinTilesToMove = authoring.MovingWallMinTilesToMove,
-            MovingWallMaxTilesToMove = authoring.MovingWallMaxTilesToMove
+            MovingWallMaxTilesToMove = authoring.MovingWallMaxTilesToMove,
+            RebuildMaze = true,
+            SpawnPills = true
         });
     }
 }

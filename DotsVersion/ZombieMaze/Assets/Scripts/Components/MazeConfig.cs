@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public struct MazeConfig : IComponentData
@@ -16,14 +17,18 @@ public struct MazeConfig : IComponentData
     public int MovingWallMinTilesToMove;
     public int MovingWallMaxTilesToMove;
 
-    public Vector2Int GetRandomTilePosition()
+    public bool DestroyAllToRemake;
+    public bool RebuildMaze;
+    public bool SpawnPills;
+
+    public int2 GetRandomTilePosition()
     {
-        return new Vector2Int(Random.Range(0, Width), Random.Range(0, Height));
+        return new int2(UnityEngine.Random.Range(0, Width), UnityEngine.Random.Range(0, Height));
     }
 
-    public Vector2Int GetRandomTilePositionInside(int width, int height)
+    public int2 GetRandomTilePositionInside(int width, int height)
     {
-        return new Vector2Int(Random.Range(width, Width - width), Random.Range(height, Height - height));
+        return new int2(UnityEngine.Random.Range(width, Width - width), UnityEngine.Random.Range(height, Height - height));
     }
 
     public int Get1DIndex(int xIndex, int yIndex)

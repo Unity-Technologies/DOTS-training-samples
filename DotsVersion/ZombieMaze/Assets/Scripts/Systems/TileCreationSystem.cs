@@ -11,22 +11,26 @@ using UnityEngine;
 public partial struct TileCreationSystem : ISystem
 {
 
-    public void OnCreate(ref SystemState state)
+	[BurstCompile]
+	public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PrefabConfig>();
 		state.RequireForUpdate<MazeConfig>();
 	}
 
-    public void OnDestroy(ref SystemState state)
+	[BurstCompile]
+	public void OnDestroy(ref SystemState state)
     {
     }
 
+	[BurstCompile]
 	public int Get1DIndex(int xIndex, int yIndex)
     {
 		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
 		return xIndex + yIndex * mazeConfig.Width;
     }
 
+	[BurstCompile]
 	public void CreateGround(ref SystemState state)
     {
 		PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
@@ -41,6 +45,7 @@ public partial struct TileCreationSystem : ISystem
 		SystemAPI.SetComponent<PostTransformMatrix>(groundEntity, postTransformMatrix);
 	}
 
+	[BurstCompile]
 	public void CreateSpawnPoint(ref SystemState state)
     {
 		//Spawn Spawner
@@ -49,7 +54,7 @@ public partial struct TileCreationSystem : ISystem
 		Entity spawnerEntity= state.EntityManager.Instantiate(prefabConfig.SpawnerPrefab);
 		TransformAspect transformAspectSpawner = SystemAPI.GetAspectRW<TransformAspect>(spawnerEntity);
 		
-		Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(1, 1);
+		int2 randomTile = mazeConfig.GetRandomTilePositionInside(1, 1);
 		transformAspectSpawner.Position += new float3(randomTile.x, 0.01f, randomTile.y);
 		
 		
@@ -66,12 +71,21 @@ public partial struct TileCreationSystem : ISystem
 		
 	}
 
-    public void OnUpdate(ref SystemState state)
+	[BurstCompile]
+	public void OnUpdate(ref SystemState state)
     {
+		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
+		if(!mazeConfig.RebuildMaze)
+        {
+			return;
+        }
+
+		mazeConfig.RebuildMaze = true;
+		SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
+
 		CreateGround(ref state);
 
         PrefabConfig prefabConfig = SystemAPI.GetSingleton<PrefabConfig>();
-		MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
 
 		Entity entity = state.EntityManager.CreateEntity();
         DynamicBuffer<TileBufferElement> tiles = state.EntityManager.AddBuffer<TileBufferElement>(entity);
@@ -90,8 +104,8 @@ public partial struct TileCreationSystem : ISystem
 			tiles.Add(tileBufferElement);
         }
 
-		Stack<Vector2Int> stack = new Stack<Vector2Int>();
-		Vector2Int current = mazeConfig.GetRandomTilePosition();
+		Stack<int2> stack = new Stack<int2>();
+		int2 current = mazeConfig.GetRandomTilePosition();
 		TileBufferElement tempTile = tiles[Get1DIndex(current.x, current.y)];
 		tempTile.TempVisited = true;
 		tiles[Get1DIndex(current.x, current.y)] = tempTile;
@@ -100,20 +114,20 @@ public partial struct TileCreationSystem : ISystem
 		while (numVisited < tiles.Length)
 		{
 			// choose random adjacent unvisited tile
-			List<Vector2Int> unvisitedNeighbors = new List<Vector2Int>();
+			List<int2> unvisitedNeighbors = new List<int2>();
 			if (current.x > 0 && !tiles[Get1DIndex(current.x - 1, current.y)].TempVisited)
-				unvisitedNeighbors.Add(new Vector2Int(current.x - 1, current.y));
+				unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
 			if (current.y > 0 && !tiles[Get1DIndex(current.x, current.y - 1)].TempVisited)
-				unvisitedNeighbors.Add(new Vector2Int(current.x, current.y - 1));
+				unvisitedNeighbors.Add(new int2(current.x, current.y - 1));
 			if (current.x < mazeConfig.Width - 1 && !tiles[Get1DIndex(current.x + 1, current.y)].TempVisited)
-				unvisitedNeighbors.Add(new Vector2Int(current.x + 1, current.y));
+				unvisitedNeighbors.Add(new int2(current.x + 1, current.y));
 			if (current.y < mazeConfig.Height - 1 && !tiles[Get1DIndex(current.x, current.y + 1)].TempVisited)
-				unvisitedNeighbors.Add(new Vector2Int(current.x, current.y + 1));
+				unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
 
 			if (unvisitedNeighbors.Count > 0)
 			{
 				// visit neighbor
-				Vector2Int next = unvisitedNeighbors[UnityEngine.Random.Range(0, unvisitedNeighbors.Count)];
+				int2 next = unvisitedNeighbors[UnityEngine.Random.Range(0, unvisitedNeighbors.Count)];
 				stack.Push(current);
 				// remove wall between tiles
 				TileBufferElement currentTile = tiles[Get1DIndex(current.x, current.y)];
@@ -225,7 +239,7 @@ public partial struct TileCreationSystem : ISystem
 			Entity wallEntity = state.EntityManager.Instantiate(prefabConfig.MovingWallPrefab);
 			TransformAspect transformAspect = SystemAPI.GetAspectRW<TransformAspect>(wallEntity);
 
-			Vector2Int randomTile = mazeConfig.GetRandomTilePositionInside(mazeConfig.MovingWallSize + tilesToMove, 1);
+			int2 randomTile = mazeConfig.GetRandomTilePositionInside(mazeConfig.MovingWallSize + tilesToMove, 1);
 			transformAspect.Position += new float3(randomTile.x, 0.0f, randomTile.y) + positionOffset;
 
 			PostTransformMatrix postTransformMatrix = SystemAPI.GetComponent<PostTransformMatrix>(wallEntity);
