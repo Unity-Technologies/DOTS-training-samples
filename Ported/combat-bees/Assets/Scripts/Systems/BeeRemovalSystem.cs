@@ -13,7 +13,7 @@ public partial struct BeeRemovalJob : IJobEntity
     [ReadOnly] public ComponentLookup<Food> FoodComponentLookup;
 
     [BurstCompile]
-    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform, in BeeProperties beeProperties)
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform, in Velocity velocity, in BeeProperties beeProperties)
     {
         if (beeProperties.CarriedFood != Entity.Null && FoodComponentLookup.HasComponent(beeProperties.CarriedFood))
         {
@@ -21,11 +21,12 @@ public partial struct BeeRemovalJob : IJobEntity
             ECB.AddComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
         }
 
-        if (transform.Value.Position.y >= FieldArea.Min.y)
+        float k_eps = 1e-2f;
+        var vel = velocity.Value;
+        if (math.lengthsq(vel) < k_eps)
         {
             ECB.DestroyEntity(chunkIndex, entity);
         }
-        
     }
 }
 
