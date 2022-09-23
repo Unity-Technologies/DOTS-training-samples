@@ -17,9 +17,9 @@ partial struct ResourceCollectingJob : IJobEntity {
 
     void Execute(Entity entity, [EntityInQueryIndex] int index, in TransformAspect prs, ref Velocity velocity, ref TargetId target, ref IsHolding isHolding) {
 
-        if (transformLookup.TryGetComponent(target.Value, out var resourcePosition) && !isHolding.Value)
+        if (transformLookup.TryGetComponent(target.Value, out var resourceTransform) && !isHolding.Value)
         {
-            float3 delta = resourcePosition.Value.Position - prs.Position;
+            float3 delta = resourceTransform.Value.Position - prs.Position;
             float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
             if (sqrDist > GrabDistanceSquared)
             {
