@@ -5,14 +5,10 @@ using Unity.Transforms;
 [BurstCompile]
 [UpdateAfter(typeof(TargetingSystem))]
 partial struct AttackingSystem : ISystem {
-    // readonly for burst
-    public static readonly float chaseForce = 50f;
-    public static readonly float hitDistance = 0.5f;
-    public static readonly float attackForce = 500f;
-    public static readonly float attackDistance = 4f;
     
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<BeeConfig>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -21,13 +17,14 @@ partial struct AttackingSystem : ISystem {
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state) {
+        var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         state.Dependency = new AttackingJob() {
             deltaTime = state.Time.DeltaTime,
-            chaseForce = chaseForce,
-            attackForce = attackForce,
-            attackDistanceSquared = attackDistance*attackDistance,
-            hitDistanceSquared = hitDistance * hitDistance,
+            chaseForce = beeConfig.chaseForce,
+            attackForce = beeConfig.attackForce,
+            attackDistanceSquared = beeConfig.attackDistance * beeConfig.attackDistance,
+            hitDistanceSquared = beeConfig.hitDistance * beeConfig.hitDistance,
             transformLookup = state.GetComponentLookup<LocalToWorldTransform>(),
             ecb = ecb
         }.ScheduleParallel(state.Dependency);

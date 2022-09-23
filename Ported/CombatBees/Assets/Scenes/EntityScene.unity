@@ -183,14 +183,14 @@ MonoBehaviour:
   teamAttraction: 5
   teamRepulsion: 4
   damping: 0.6
-  chaseForce: 15
-  carryForce: 7.5
-  grabDistance: 5
+  chaseForce: 20
+  carryForce: 10
+  grabDistance: 4
   attackDistance: 4
-  attackForce: 500
-  hitDistance: 0.5
+  attackForce: 50
+  hitDistance: 1
   maxSpawnSpeed: 20
-  startBeeCount: 100
+  startBeeCount: 1000
   beePrefab: {fileID: 8110169288850077781, guid: 20f4d74ac530c3b4c87ba8ffcd3ae846,
     type: 3}
 --- !u!4 &745530502
