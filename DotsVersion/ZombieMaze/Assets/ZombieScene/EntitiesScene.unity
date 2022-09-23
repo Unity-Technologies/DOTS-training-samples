@@ -162,6 +162,8 @@ MonoBehaviour:
     type: 3}
   ZombiePrefab: {fileID: 1428683352245202, guid: ec64f9227f03f4b5babd08976956f89e,
     type: 3}
+  ZombieChaserPrefab: {fileID: 1428683352245202, guid: fd01ae81d11f14627a090960171986ae,
+    type: 3}
   ZombieRandomPrefab: {fileID: 1428683352245202, guid: d03bac5b4a111f54aa5f5b735a0ac42f,
     type: 3}
   SpawnerPrefab: {fileID: 1379298829275194, guid: 171f242cf24f244bda1d08b61674c4a3,
