@@ -489,6 +489,7 @@ MonoBehaviour:
   BeeSpeed: 10
   Gravity: -9.81
   ObjectSize: 0.1
+  FoodBeeSpawnCount: 5
 --- !u!4 &1516531001
 Transform:
   m_ObjectHideFlags: 0
