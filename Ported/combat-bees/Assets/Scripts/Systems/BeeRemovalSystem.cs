@@ -17,7 +17,6 @@ public partial struct BeeRemovalJob : IJobEntity
     {
         if (beeProperties.CarriedFood != Entity.Null && FoodComponentLookup.HasComponent(beeProperties.CarriedFood))
         {
-            ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Food{CarrierBee = Entity.Null});
             ECB.AddComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
         }
 
