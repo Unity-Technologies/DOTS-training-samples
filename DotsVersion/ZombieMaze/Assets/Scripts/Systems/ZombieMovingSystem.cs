@@ -295,6 +295,7 @@ partial struct RandomZombieMoveJob : IJobEntity
     public Unity.Mathematics.Random Rand;
     public MazeConfig MazeConfig;
 
+    [BurstCompile]
     void Execute(Entity entity, TransformAspect transform, ref RandomMovement target)
     {
         float3 targetPosition = new float3(target.TargetPosition.x, 0.3f, target.TargetPosition.y);
@@ -353,6 +354,7 @@ public partial struct ZombieMovingSystem : ISystem
 {
     private Unity.Mathematics.Random Random;
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<MazeConfig>();
@@ -361,10 +363,12 @@ public partial struct ZombieMovingSystem : ISystem
         Random = Unity.Mathematics.Random.CreateFromIndex(1234);
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         MazeConfig mazeConfig = SystemAPI.GetSingleton<MazeConfig>();
