@@ -190,7 +190,7 @@ MonoBehaviour:
   attackForce: 50
   hitDistance: 1
   maxSpawnSpeed: 20
-  startBeeCount: 1000
+  startBeeCount: 100000
   beePrefab: {fileID: 8110169288850077781, guid: 20f4d74ac530c3b4c87ba8ffcd3ae846,
     type: 3}
 --- !u!4 &745530502

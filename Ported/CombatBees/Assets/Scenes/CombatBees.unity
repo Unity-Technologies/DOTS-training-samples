@@ -796,13 +796,8 @@ MonoBehaviour:
 
     Scroll: <i>Zoom in/out</i>
 
-    Left
-    Click: <i>Spawn resources</i>
-
-    R Key: <i>Restart</i>
-
-    H Key: <i>Show/hide
-    this info</i>'
+    H
+    Key: <i>Show/hide this info</i>'
 --- !u!222 &1523872851
 CanvasRenderer:
   m_ObjectHideFlags: 0

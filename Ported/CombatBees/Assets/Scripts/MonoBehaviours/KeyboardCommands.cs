@@ -15,7 +15,8 @@ public class KeyboardCommands : MonoBehaviour {
 			text.enabled = !text.enabled;
 		}
 		if (Input.GetKeyDown(KeyCode.R)) {
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			//TODO: Find a way to reload the sim without making EntityManager complain
+			//SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 	}
 }
