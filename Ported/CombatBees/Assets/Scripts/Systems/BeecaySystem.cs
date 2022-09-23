@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 
+[BurstCompile]
 [UpdateAfter(typeof(GroundImpactSystem))]
 partial struct BeecaySystem : ISystem
 {
@@ -11,6 +13,7 @@ partial struct BeecaySystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         new DecayVelocityJob().ScheduleParallel();

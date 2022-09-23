@@ -29,7 +29,10 @@ partial struct BeeConstructionJob : IJobEntity
             ECB.AddComponent<YellowTeam>(idx, bee);
         }
 
-        ECB.AddComponent(idx, bee, new URPMaterialPropertyBaseColor { Value = BeeSpawnHelper.GetTeamColor(prototype.Hive) });
+
+        float4 beeColor;
+        BeeSpawnHelper.GetTeamColor(prototype.Hive, out beeColor);
+        ECB.AddComponent(idx, bee, new URPMaterialPropertyBaseColor { Value =  beeColor});
 
         var localToWorld = prs.LocalToWorld;
         float3 spawnSide = prototype.Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();

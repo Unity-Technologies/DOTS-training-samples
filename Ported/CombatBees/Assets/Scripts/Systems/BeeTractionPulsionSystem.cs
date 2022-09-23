@@ -1,8 +1,10 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 
+[BurstCompile]
 [UpdateAfter(typeof(BeeConstructionSystem))]
 [UpdateBefore(typeof(KinematicMovementSystem))]
 partial struct BeeTractionPulsionSystem : ISystem {
@@ -18,6 +20,7 @@ partial struct BeeTractionPulsionSystem : ISystem {
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state) {
         var yellowTeam = yellowTeamQuery.ToEntityArray(Allocator.TempJob);
         var blueTeam = blueTeamQuery.ToEntityArray(Allocator.TempJob);

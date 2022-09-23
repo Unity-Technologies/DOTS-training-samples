@@ -1,7 +1,9 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 
+[BurstCompile]
 [UpdateAfter(typeof(TargetingSystem))]
 partial struct ResourceMovementSystem : ISystem
 {
@@ -14,23 +16,25 @@ partial struct ResourceMovementSystem : ISystem
         m_ResourceQuery = state.GetEntityQuery(typeof(Holder), ComponentType.Exclude<Falling>(), ComponentType.Exclude<Decay>());
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
         var resourceConfig = SystemAPI.GetSingleton<ResourceConfig>();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         
-        var resourceHoldingJob = new ResourceHoldingJob()
+        new ResourceHoldingJob()
         {
             DeltaTime = state.Time.DeltaTime,
             HolderSize = beeConfig.minBeeSize,
             CarryStiffness = resourceConfig.carryStiffness,
             TransformLookup = state.GetComponentLookup<LocalToWorldTransform>(),
             ecb = ecb
-        }.ScheduleParallel(state.Dependency);
+        }.ScheduleParallel();
     }
 }
