@@ -1,4 +1,5 @@
 ﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -10,6 +11,8 @@ partial struct ResourceReturningJob : IJobEntity {
     public float CarryForce;
     public float3 FieldSize;
     public BeeTeam Hive;
+
+    [ReadOnly] public ComponentLookup<Holder> holderLookup;
 
     public EntityCommandBuffer.ParallelWriter ecb;
 
@@ -30,10 +33,13 @@ partial struct ResourceReturningJob : IJobEntity {
             {
                 isHolding.Value = false;
                 ecb.SetComponentEnabled<IsHolding>(index, entity, false);
-                // TODO: do drop resource
-                ecb.SetComponent(index, target.Value, new Holder() { Value = Entity.Null });
-                ecb.AddComponent<Falling>(index, target.Value);
-                ecb.SetComponentEnabled<Falling>(index, target.Value, true);
+                // target.Value can be a deleted entity
+                if (holderLookup.TryGetComponent(target.Value, out var holder) && holder.Value == entity) {
+                    // TODO: do drop resource
+                    ecb.SetComponent(index, target.Value, new Holder() {Value = Entity.Null});
+                    ecb.AddComponent<Falling>(index, target.Value);
+                    ecb.SetComponentEnabled<Falling>(index, target.Value, true);
+                }
                 target.Value = Entity.Null;
             }
         }
