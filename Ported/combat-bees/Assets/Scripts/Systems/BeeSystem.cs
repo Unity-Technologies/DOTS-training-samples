@@ -198,10 +198,7 @@ partial struct BeeActionProcessingJob : IJobEntity
         {
             CarrierBee = Entity.Null
         });
-        ECB.SetSharedComponent(chunkIndex, beeProperties.CarriedFood, new Faction
-        {
-            Value = (int)Factions.None
-        });
+        ECB.SetSharedComponent(chunkIndex, beeProperties.CarriedFood, faction);
         
         ECB.RemoveComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
 
