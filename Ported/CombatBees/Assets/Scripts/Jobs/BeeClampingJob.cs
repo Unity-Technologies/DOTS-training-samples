@@ -31,11 +31,11 @@ partial struct BeeClampingJob : IJobEntity {
             velocity.y *= .8f;
         }
         float resourceModifier = 0f;
-        if (targetIDLookup.TryGetComponent(entity, out TargetId targetIdComponent)) {
-            if (scaleLookup.TryGetComponent(targetIdComponent.Value, out UniformScale resourceSize)) {
-                resourceModifier = resourceSize.Value;   
-            }
-        }
+        // if (targetIDLookup.TryGetComponent(entity, out TargetId targetIdComponent)) {
+        //     if (scaleLookup.TryGetComponent(targetIdComponent.Value, out UniformScale resourceSize)) {
+        //         resourceModifier = resourceSize.Value;   
+        //     }
+        // }
         if (Math.Abs(localToWorld.Position.y) > fieldBounds.y * .5f - resourceModifier) {
             localToWorld.Position.y = (fieldBounds.y * .5f - resourceModifier) * Mathf.Sign(localToWorld.Position.y);
             velocity.y *= -.5f;
