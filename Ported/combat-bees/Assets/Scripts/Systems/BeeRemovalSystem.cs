@@ -1,20 +1,25 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
-using Unity.Burst.Intrinsics;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
     
-[WithAll(typeof(Dead), typeof(BeeProperties))]
+[WithAll(typeof(Dead))]
 [BurstCompile]
 public partial struct BeeRemovalJob : IJobEntity
 {
     [ReadOnly] public AABB FieldArea;
     public EntityCommandBuffer.ParallelWriter ECB;
+    [ReadOnly] public ComponentLookup<Food> FoodComponentLookup;
 
     [BurstCompile]
-    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform)
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform, in BeeProperties beeProperties)
     {
+        if (beeProperties.CarriedFood != Entity.Null && FoodComponentLookup.HasComponent(beeProperties.CarriedFood))
+        {
+            ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Food{CarrierBee = Entity.Null});
+            ECB.AddComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
+        }
 
         if (transform.Value.Position.y >= FieldArea.Min.y)
         {
@@ -27,10 +32,13 @@ public partial struct BeeRemovalJob : IJobEntity
 [BurstCompile]
 partial struct BeeRemovalSystem : ISystem
 {
+    private ComponentLookup<Food> _foodComponentLookup;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
+        _foodComponentLookup = state.GetComponentLookup<Food>();
     }
 
     [BurstCompile]
@@ -45,10 +53,13 @@ partial struct BeeRemovalSystem : ISystem
         
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
          
+        _foodComponentLookup.Update(ref state);
+        
         var beeRemovalJob = new BeeRemovalJob
         {
             FieldArea = config.fieldArea,
-            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
+            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+            FoodComponentLookup = _foodComponentLookup,
         };
         beeRemovalJob.ScheduleParallel();
     }

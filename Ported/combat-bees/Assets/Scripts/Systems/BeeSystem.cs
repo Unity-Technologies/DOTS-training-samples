@@ -1,6 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -67,8 +68,6 @@ partial struct BeeActionProcessingJob : IJobEntity
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorldTransform> Team1Transforms;
 
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> FoodEntities;
-
-    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Food> FoodProperties;
 
     [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> Team1Entities;
 
@@ -177,7 +176,7 @@ partial struct BeeActionProcessingJob : IJobEntity
             TargetPosition = TargetTransforms[index].Value.Position
         };
 
-        ECB.RemoveComponent<UnmatchedFood>(chunkIndex, targetEntities[index]);
+        ECB.AddComponent<UnmatchedFood>(chunkIndex, targetEntities[index]);
     }
 
     private void TryDropoffResource(int chunkIndex, Entity beeEntity, LocalToWorldTransform transform,
@@ -201,8 +200,10 @@ partial struct BeeActionProcessingJob : IJobEntity
         });
         ECB.SetSharedComponent(chunkIndex, beeProperties.CarriedFood, new Faction
         {
-            Value = faction.Value
+            Value = (int)Factions.None
         });
+        
+        ECB.RemoveComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
 
         ECB.SetComponent(chunkIndex, beeEntity, new BeeProperties
         {
@@ -325,7 +326,6 @@ partial struct BeeSystem : ISystem
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
         var foodTransforms = _foodQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
-        var foodProperties = _foodQuery.ToComponentDataArray<Food>(Allocator.TempJob);
 
         _beeQuery.SetSharedComponentFilter(new Faction { Value = (int)Factions.Team1 });
         var team1Bees = _beeQuery.ToEntityArray(Allocator.TempJob);
@@ -358,7 +358,7 @@ partial struct BeeSystem : ISystem
         // Command buffer
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
+        var parallelWriter = ecb.AsParallelWriter();
         // BeeAction job instantiate and schedule
         var beeActionProcessingJob = new BeeActionProcessingJob
         {
@@ -366,7 +366,6 @@ partial struct BeeSystem : ISystem
             Team1Transforms = team1Transforms,
             Team2Transforms = team2Transforms,
             FoodEntities = foodEntities,
-            FoodProperties = foodProperties,
             Team1Entities = team1Bees,
             Team2Entities = team2Bees,
             Nest1Transform = nest1Transforms,
@@ -378,10 +377,10 @@ partial struct BeeSystem : ISystem
             Nest2Areas = nest2Areas,
             Tick = (uint)_tick,
             FoodComponentLookup = _foodComponentLookup,
-            ECB = ecb.AsParallelWriter(),
+            ECB = parallelWriter,
         };
-        beeActionProcessingJob.ScheduleParallel(state.Dependency).Complete();
-
+        beeActionProcessingJob.ScheduleParallel();
+        
         // Point towards target job
         var beeTargetingJob = new BeePointToTargetJob // IJobEntity
         {
@@ -390,9 +389,9 @@ partial struct BeeSystem : ISystem
             GravityDt = config.gravity * state.Time.DeltaTime,
             BeeSpeed = config.beeSpeed,
             ObjectSize = config.objectSize,
-            ECB = ecb.AsParallelWriter()
+            ECB = parallelWriter,
         };
-        state.Dependency = beeTargetingJob.ScheduleParallel(state.Dependency);
+        beeTargetingJob.ScheduleParallel();
         _tick++;
     }
 }

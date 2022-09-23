@@ -30,7 +30,7 @@ struct SpawnCommon
 }
 
 [BurstCompile]
-unsafe struct FoodSpawnJob : IJobParallelFor
+struct FoodSpawnJob : IJobParallelFor
 {
     // A regular EntityCommandBuffer cannot be used in parallel, a ParallelWriter has to be explicitly used.
     public EntityCommandBuffer.ParallelWriter ECB;
@@ -49,7 +49,7 @@ unsafe struct FoodSpawnJob : IJobParallelFor
 }
 
 [BurstCompile]
-unsafe struct BeeSpawnJob : IJobParallelFor
+struct BeeSpawnJob : IJobParallelFor
 {
     // A regular EntityCommandBuffer cannot be used in parallel, a ParallelWriter has to be explicitly used.
     public EntityCommandBuffer.ParallelWriter ECB;
