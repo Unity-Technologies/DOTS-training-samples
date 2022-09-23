@@ -25,18 +25,13 @@ partial struct ResourceReturningJob : IJobEntity {
             float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
             velocity.Value += (targetPos - prs.Position) * (CarryForce * DeltaTime / dist);
 
-            if (dist < 5f)
+            if (dist < 1f)
             {
-                target.Value = Entity.Null;
                 isHolding.Value = false;
                 ecb.SetComponentEnabled<IsHolding>(index, entity, false);
                 // TODO: do drop resource
-                //ecb.SetComponent(index, target.Value, new Holder());
-            }
-            else
-            {
-                ecb.SetComponent<LocalToWorldTransform>(index, target.Value, new LocalToWorldTransform{ Value = prs.LocalToWorld });
-                ecb.SetComponent<Velocity>(index, target.Value, new Velocity{Value = float3.zero});
+                ecb.SetComponent(index, target.Value, new Holder() { Value = Entity.Null });
+                target.Value = Entity.Null;
             }
         }
     }

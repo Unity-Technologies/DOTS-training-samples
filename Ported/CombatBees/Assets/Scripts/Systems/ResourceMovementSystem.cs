@@ -23,7 +23,7 @@ partial struct ResourceMovementSystem : ISystem
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
         var resourceConfig = SystemAPI.GetSingleton<ResourceConfig>();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-
+        
         var resourceHoldingJob = new ResourceHoldingJob()
         {
             DeltaTime = state.Time.DeltaTime,
