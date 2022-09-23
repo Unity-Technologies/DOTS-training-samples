@@ -11,11 +11,14 @@ using Random = System.Random;
 [BurstCompile]
 public partial struct ZombieCreationSystem : ISystem
 {
+    private Unity.Mathematics.Random Random;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PrefabConfig>();
         state.RequireForUpdate<MazeConfig>();
+        Random = Unity.Mathematics.Random.CreateFromIndex(1234);
     }
 
     [BurstCompile]
@@ -38,31 +41,30 @@ public partial struct ZombieCreationSystem : ISystem
         while (counter < zombiesCount)
         {
             counter++;
-            var random = new Random();
-            var side = random.Next(0, 4);
+            var side = Random.NextInt(0, 4);
             int x = 0, y = 0;
 
             switch (side)
             {
                 case 0: //Left
-                    y = random.Next(0, height);
+                    y = Random.NextInt(0, height);
                     x = 0;
                     break;
                 case 1: //Right
-                    y = random.Next(0, height);
+                    y = Random.NextInt(0, height);
                     x = width;
                     break;
                 case 2: //Top
-                    x = random.Next(0, width);
+                    x = Random.NextInt(0, width);
                     y = height;
                     break;
                 case 3: //Bottom
-                    x = random.Next(0, width);
+                    x = Random.NextInt(0, width);
                     y = 0;
                     break;
             }
 
-            int zombieIndex = random.Next(0, 3);
+            int zombieIndex = Random.NextInt(0, 3);
             switch (zombieIndex)
             {
                 case 0:
