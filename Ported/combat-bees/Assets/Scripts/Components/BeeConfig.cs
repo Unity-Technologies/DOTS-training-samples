@@ -13,4 +13,5 @@ public struct BeeConfig : IComponentData
     public float beeSpeed;
     public float gravity;
     public float objectSize;
+    public int FoodBeeSpawnCount;
 }

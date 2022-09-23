@@ -19,6 +19,7 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public float BeeSpeed = 50;
     public float Gravity = -9.81f;
     public float ObjectSize = 0.1f;
+    public int FoodBeeSpawnCount = 1;
 }
 
 [UpdateBefore(typeof(NestAuthoring))]
@@ -38,7 +39,8 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             initVel = authoring.InitVel,
             beeSpeed = authoring.BeeSpeed,
             gravity = authoring.Gravity,
-            objectSize = authoring.ObjectSize
+            objectSize = authoring.ObjectSize,
+            FoodBeeSpawnCount = authoring.FoodBeeSpawnCount
         });
     }
 }

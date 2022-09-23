@@ -33,6 +33,7 @@ partial struct SpawningRequestSystem : ISystem
 {
     private EntityQuery SpawningRequestQuery;
     private EntityQuery MeshRendererQuery;
+    public EntityTypeHandle EntityHandle;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -52,6 +53,7 @@ partial struct SpawningRequestSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<BeeConfig>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
 
         var combinedSpawnJobHandle = new JobHandle();
@@ -65,7 +67,7 @@ partial struct SpawningRequestSystem : ISystem
             var spawningRequest = state.EntityManager.GetComponentData<SpawningRequest>(spawningRequestEntity);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(spawningRequest.Prefab);
             
-            var beeSpawnJob = new SpawnJob
+            var beeSpawnJob = new BeeSpawnJob
             {
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 ECB = ecb.AsParallelWriter(),
@@ -76,16 +78,19 @@ partial struct SpawningRequestSystem : ISystem
                 InitFaction = spawningRequest.Faction,
                 InitColor = spawningRequest.Color,
                 Mask = MeshRendererQuery.GetEntityQueryMask(),
-                InitVel = spawningRequest.InitVelocity
+                InitVel = spawningRequest.InitVelocity,
+                Aggressivity= config.aggressivity
             };
             var spawnJobHandle = beeSpawnJob.Schedule(spawningRequest.Count, 64, state.Dependency);
             combinedSpawnJobHandle = JobHandle.CombineDependencies(spawnJobHandle, combinedSpawnJobHandle);
         }
         
+        EntityHandle.Update(ref state);
         var ecb2 = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var destroySpawningRequestJob = new DestroySpawningRequestJob
         {
             ECB = ecb2.AsParallelWriter(),
+            EntityHandle = EntityHandle
         };
         var destroySpawningRequestJobHandle = destroySpawningRequestJob.ScheduleParallel(SpawningRequestQuery, combinedSpawnJobHandle);
         
@@ -100,7 +105,8 @@ partial struct SpawningRequestSystem : ISystem
         public int Faction;
         public float3 InitVelocity;
         public AABB Aabb;
-        public Color Color;
+        public float4 Color;
+        public int Count;
     }
     
     static public void CreateSpawningRequest(EntityCommandBuffer.ParallelWriter ECB, int sortKey, SpawningRequestInfo info)
@@ -112,7 +118,8 @@ partial struct SpawningRequestSystem : ISystem
             Faction = info.Faction,
             InitVelocity = info.InitVelocity,
             Aabb = info.Aabb,
-            Color = info.Color
+            Color = info.Color,
+            Count = info.Count
         });
     }
 }
