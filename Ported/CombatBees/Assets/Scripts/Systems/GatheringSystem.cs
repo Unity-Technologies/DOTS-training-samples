@@ -12,6 +12,7 @@ partial struct GatheringSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
+        state.RequireForUpdate<FieldConfig>();
         m_GatheringBeesQuery = state.GetEntityQuery(typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
         m_YellowTeamQuery = state.GetEntityQuery(typeof(YellowTeam), typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
         m_BlueTeamQuery = state.GetEntityQuery(typeof(BlueTeam), typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
@@ -24,6 +25,7 @@ partial struct GatheringSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
+        var fieldConfig = SystemAPI.GetSingleton<FieldConfig>();
         var ecbs = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var collectJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         var blueReturnJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
@@ -43,7 +45,8 @@ partial struct GatheringSystem : ISystem
             DeltaTime = state.Time.DeltaTime,
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Blue,
-            ecb = blueReturnJobECB
+            ecb = blueReturnJobECB,
+            FieldSize = fieldConfig.FieldScale
         }.ScheduleParallel(m_BlueTeamQuery, state.Dependency);
 
         var yellowBeesReturnJob = new ResourceReturningJob()
@@ -51,6 +54,7 @@ partial struct GatheringSystem : ISystem
             DeltaTime = state.Time.DeltaTime,
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Yellow,
+            FieldSize = fieldConfig.FieldScale,
             ecb = yellowReturnJobECB
         }.ScheduleParallel(m_YellowTeamQuery, state.Dependency);
 

@@ -8,6 +8,7 @@ using UnityEngine;
 partial struct ResourceReturningJob : IJobEntity {
     public float DeltaTime;
     public float CarryForce;
+    public float3 FieldSize;
     public BeeTeam Hive;
 
     public EntityCommandBuffer.ParallelWriter ecb;
@@ -18,7 +19,7 @@ partial struct ResourceReturningJob : IJobEntity {
         {
             var localToWorld = prs.LocalToWorld;
             float3 spawnSide = Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();
-            float3 targetPos = spawnSide * (-Field.size.x * .45f + Field.size.x * .9f);
+            float3 targetPos = spawnSide * (-FieldSize.x * .45f + FieldSize.x * .9f);
             targetPos.y = 0;
             targetPos.z = prs.Position.z;
             float3 delta = targetPos - prs.Position;
