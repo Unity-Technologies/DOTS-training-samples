@@ -67,8 +67,7 @@ partial struct GroundImpactSystem : ISystem
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        new BeeImpactJob { ECB = ecb.AsParallelWriter(), FieldExtents = fieldConfig.FieldScale }.ScheduleParallel();
+        
         new ResourceImpactJob
             {
                 ECB = ecb.AsParallelWriter(), FieldExtents = fieldConfig.FieldScale * .8f / 2,
