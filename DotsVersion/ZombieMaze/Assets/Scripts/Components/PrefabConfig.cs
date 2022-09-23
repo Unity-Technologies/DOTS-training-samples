@@ -8,6 +8,7 @@ public struct PrefabConfig : IComponentData
     public Entity TilePrefab;
     public Entity MovingWallPrefab;
     public Entity ZombiePrefab;
+    public Entity ZombieChaserPrefab;
     public Entity ZombieRandomPrefab;
     public Entity SpawnerPrefab;
 }

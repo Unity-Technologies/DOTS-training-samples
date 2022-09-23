@@ -185,6 +185,11 @@ partial struct ZombieMoveJob : IJobEntity
     {
         //Random location
         var result = Rand.NextUInt(RandomSeed) % 2;
+        if (!target.TargetPlayer)
+        {
+            result = 0;
+        }
+
         int2 newTarget = new int2();
         switch (result)
         {

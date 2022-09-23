@@ -32,9 +32,9 @@ public partial struct ZombieCreationSystem : ISystem
         int width = mazeConfig.Width - 1;
         int height = mazeConfig.Height - 1;
         int zombiesCount = mazeConfig.ZombiesToSpawn;
-        
+
         int counter = 0;
-        
+
         while (counter < zombiesCount)
         {
             counter++;
@@ -62,33 +62,52 @@ public partial struct ZombieCreationSystem : ISystem
                     break;
             }
 
-            int zombieIndex = random.Next(0, 2);
-            if(zombieIndex == 0)
+            int zombieIndex = random.Next(0, 3);
+            switch (zombieIndex)
             {
-                Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
-                TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
-                wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
-
-                Target target = new Target()
+                case 0:
                 {
-                    TargetPosition = new int2(x, y),
-                    PathIndex = -1
-                };
-                SystemAPI.SetComponent(zombie, target);
-            }
-            else
-            {
-                Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombieRandomPrefab);
-                TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
-                wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+                    Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombiePrefab);
+                    TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
+                    wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
 
-                RandomMovement randomMovement = new RandomMovement() { TargetPosition = new int2(x, y) };
-                SystemAPI.SetComponent(zombie, randomMovement);
+                    Target target = new Target()
+                    {
+                        TargetPosition = new int2(x, y),
+                        PathIndex = -1
+                    };
+                    SystemAPI.SetComponent(zombie, target);
+                    break;
+                }
+                case 1:
+                {
+                    Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombieChaserPrefab);
+                    TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
+                    wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+
+                    Target target = new Target()
+                    {
+                        TargetPlayer = true,
+                        TargetPosition = new int2(x, y),
+                        PathIndex = -1
+                    };
+                    SystemAPI.SetComponent(zombie, target);
+                    break;
+                }
+                case 2:
+                {
+                    Entity zombie = state.EntityManager.Instantiate(prefabConfig.ZombieRandomPrefab);
+                    TransformAspect wallTransform = SystemAPI.GetAspectRW<TransformAspect>(zombie);
+                    wallTransform.LocalPosition = new Vector3(x, wallTransform.LocalPosition.y - 1, y);
+
+                    RandomMovement randomMovement = new RandomMovement() { TargetPosition = new int2(x, y) };
+                    SystemAPI.SetComponent(zombie, randomMovement);
+                    break;
+                }
             }
 
+            mazeConfig.ZombiesToSpawn = 0;
+            SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
         }
-
-        mazeConfig.ZombiesToSpawn = 0;
-        SystemAPI.SetSingleton<MazeConfig>(mazeConfig);
     }
 }
