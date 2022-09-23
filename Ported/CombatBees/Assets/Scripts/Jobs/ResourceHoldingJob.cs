@@ -14,15 +14,18 @@ partial struct ResourceHoldingJob : IJobEntity
 
     [ReadOnly] public ComponentLookup<LocalToWorldTransform> TransformLookup;
 
-    void Execute(ref TransformAspect prs, ref Velocity velocity, in Holder holder)
+    public EntityCommandBuffer.ParallelWriter ecb;
+
+    void Execute(Entity entity, [EntityInQueryIndex] int index, in TransformAspect prs, ref Velocity velocity, in Holder holder)
     {
-        Debug.Log("resource holding");
-        
         if (TransformLookup.TryGetComponent(holder.Value, out var holderTransform) && holder.Value != Entity.Null)
         {
-            Debug.Log("do holding");
             float3 targetPos = holderTransform.Value.Position - new float3(0, 1, 0) * (holderTransform.Value.Scale + HolderSize) * .5f;
-            prs.Position = math.lerp(prs.Position, targetPos, CarryStiffness * DeltaTime);
+            float3 lerpPos = math.lerp(prs.Position, targetPos, CarryStiffness * DeltaTime);
+            var scaleTransform = UniformScaleTransform.FromPosition(lerpPos);
+
+            ecb.SetComponent(index, entity, new LocalToWorldTransform() { Value = scaleTransform });
+
             velocity.Value = 0.0f;
         }
     }
