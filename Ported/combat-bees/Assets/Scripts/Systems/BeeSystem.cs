@@ -1,18 +1,17 @@
-﻿using Components;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[WithNone(typeof(Dead))]
 [BurstCompile]
 partial struct BeePointToTargetJob : IJobEntity
 {
-    [ReadOnly]
-    public ComponentLookup<LocalToWorldTransform> ComponentLookup;
+    [ReadOnly] public ComponentLookup<LocalToWorldTransform> ComponentLookup;
 
     [ReadOnly] public float TimeStep;
     [ReadOnly] public float GravityDt;
@@ -21,224 +20,252 @@ partial struct BeePointToTargetJob : IJobEntity
 
     public EntityCommandBuffer.ParallelWriter ECB;
 
+    [BurstCompile]
     private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform,
         ref BeeProperties beeProperties, ref Velocity velocity)
     {
-        if (beeProperties.BeeMode != BeeMode.HeadTowardsResource && beeProperties.BeeMode != BeeMode.MoveResourceBackToNest)
-        {
+        if (beeProperties.Target == Entity.Null)
             return;
-        }
-
-        // Get latest position of target
-        var newPosition = ComponentLookup.GetRefRO(beeProperties.Target).ValueRO.Value.Position;
-        // work a small offset into the target position to account for object sizes
-        newPosition.y += ObjectSize;
-
-        beeProperties.TargetPosition = newPosition;
         
-
-        var vel = MovementUtilities.ComputeTargetVelocity(transform.Value.Position, newPosition, GravityDt, TimeStep, BeeSpeed);
-        velocity.Value = vel;
-        
-        if (beeProperties.BeeMode == BeeMode.MoveResourceBackToNest)
+        switch (beeProperties.BeeMode)
         {
-            ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Velocity
-            {
-                Value = vel
-            });
+            case BeeMode.Attack:
+            case BeeMode.MoveResourceBackToNest:
+            case BeeMode.HeadTowardsResource:
+                // Get latest position of target
+                var newPosition = ComponentLookup.GetRefRO(beeProperties.Target).ValueRO.Value.Position;
+                // work a small offset into the target position to account for object sizes
+                newPosition.y += ObjectSize;
+
+                beeProperties.TargetPosition = newPosition;
+
+
+                var vel = MovementUtilities.ComputeTargetVelocity(
+                    transform.Value.Position, newPosition, GravityDt, TimeStep, BeeSpeed);
+                velocity.Value = vel;
+
+                if (beeProperties.BeeMode == BeeMode.MoveResourceBackToNest)
+                {
+                    ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Velocity
+                    {
+                        Value = vel
+                    });
+                }
+
+                break;
         }
     }
 }
 
-partial struct BeeActionProcessingJob : IJob
+[WithNone(typeof(Dead))]
+[BurstCompile]
+partial struct BeeActionProcessingJob : IJobEntity
 {
-    [ReadOnly]
-    public NativeArray<LocalToWorldTransform> FoodTransforms;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorldTransform> FoodTransforms;
 
-    [ReadOnly]
-    public NativeArray<Entity> FoodEntities;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorldTransform> Team2Transforms;
 
-    [ReadOnly]
-    public NativeArray<Food> FoodProperties;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<LocalToWorldTransform> Team1Transforms;
 
-    [ReadOnly]
-    public NativeArray<LocalToWorldTransform> BeeTransforms;
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> FoodEntities;
+
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> Team1Entities;
+
+    [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> Team2Entities;
+
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<LocalToWorldTransform> Nest1Transform;
+
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<Entity> Nest1Entities;
+
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<Area> Nest1Areas;
     
-    [ReadOnly]
-    public NativeArray<BeeProperties> BeeProperties;
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<LocalToWorldTransform> Nest2Transform;
+
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<Entity> Nest2Entities;
+
+    [DeallocateOnJobCompletion]
+    [ReadOnly] public NativeArray<Area> Nest2Areas;
+
+
+    [ReadOnly] public uint Tick;
+
+    [ReadOnly] public ComponentLookup<Food> FoodComponentLookup;
+
+    public EntityCommandBuffer.ParallelWriter ECB;
     
-    [ReadOnly]
-    public NativeArray<Entity> BeeEntities;
-    
-    [ReadOnly]
-    public NativeArray<LocalToWorldTransform> NestTransform;
-    
-    [ReadOnly]
-    public NativeArray<Entity> NestEntities;
-
-    [ReadOnly]
-    public NativeArray<Area> NestAreas;
-
-    [ReadOnly]
-    public Random Random;
-    
-    [ReadOnly]
-    public ComponentLookup<Food> FoodComponentLookup;
-
-    [ReadOnly]
-    public int Faction;
-
-    public EntityCommandBuffer ECB;
-
-    // [INFO/NICE TO SEE TRACES]Original parallel -> all bees in parallel, match to random food.
-    // private void Execute([ChunkIndexInQuery] int chunkIndex, in LocalToWorldTransform transform, ref BeeProperties beeProperties, ref Velocity velocity)
-    // {
-    //     if (beeProperties.Target != Entity.Null)
-    //     {
-    //         return;
-    //     }
-    //
-    //     var rand = new Random((uint)TimeElapsed);
-    //     var index = rand.NextInt(0, FoodTransforms.Length - 1);
-    //
-    //     var deltaPosition = transform.Value.Position -
-    //                         FoodTransforms[index].Value.Position;
-    //
-    //     velocity.velocity = deltaPosition/math.sqrt(
-    //         deltaPosition.x * deltaPosition.x + 
-    //         deltaPosition.y * deltaPosition.y + 
-    //         deltaPosition.z * deltaPosition.z);
-    //
-    //     beeProperties.Target = FoodEntities[index];
-    // }
-
-    public void Execute()
+    [BurstCompile]
+    public void Execute([EntityInQueryIndex] int entityInQueryIndex, [ChunkIndexInQuery] int chunkIndex,
+        Entity beeEntity, in LocalToWorldTransform transform, in Faction faction, ref BeeProperties beeProperties)
     {
-        for (int i = 0; i < BeeProperties.Length; i++)
+        switch (beeProperties.BeeMode)
         {
-            switch (BeeProperties[i].BeeMode)
-            {
-                case BeeMode.Attack:
-                    // Currently attacking a bee
-                    break;
-                case BeeMode.Idle:
-                    // Switch to Attack or FindResource
-                    ECB.SetComponent(BeeEntities[i], new BeeProperties
-                    {
-                        BeeMode = BeeMode.FindResource,
-                        Target = Entity.Null,
-                        Aggressivity = BeeProperties[i].Aggressivity,
-                        CarriedFood = Entity.Null,
-                        TargetPosition = float3.zero
-                    });
-                    break;
-                case BeeMode.FindResource:
-                    // Pick a target resource and switch to HeadTowardsResource mode
-                    FindTargetForBee(i);
-                    break;
-                case BeeMode.HeadTowardsResource:
-                    TryPickupTargetResource(i);
-                    // Head towards targeted resource + pickup on reaching it
-                    break;
-                case BeeMode.MoveResourceBackToNest:
-                    TryDropoffResource(i);
-                    // Return to base with resource / No action
-                    break;
-            }
+            case BeeMode.FindAttackTarget:
+                if (faction.Value == (int)Factions.Team1)
+                {
+                    FindTargetForBee(ref beeProperties, chunkIndex, entityInQueryIndex, Team2Entities,
+                        BeeMode.Attack,
+                        Team2Transforms);
+                }
+                else
+                {
+                    FindTargetForBee(ref beeProperties, chunkIndex, entityInQueryIndex, Team1Entities,
+                        BeeMode.Attack, Team1Transforms);
+                }
+
+                break;
+            case BeeMode.Idle:
+                var random = Random.CreateFromIndex((uint)entityInQueryIndex + Tick);
+
+                // Switch to Attack or FindResource
+                beeProperties = new BeeProperties
+                {
+                    BeeMode = random.NextFloat() < beeProperties.Aggressivity
+                        ? BeeMode.FindAttackTarget
+                        : BeeMode.FindResource,
+                    Target = Entity.Null,
+                    Aggressivity = beeProperties.Aggressivity,
+                    CarriedFood = Entity.Null,
+                    TargetPosition = float3.zero
+                };
+                break;
+            case BeeMode.FindResource:
+                // Pick a target resource and switch to HeadTowardsResource mode
+                FindTargetForBee(ref beeProperties, chunkIndex, entityInQueryIndex, FoodEntities,
+                    BeeMode.HeadTowardsResource, FoodTransforms);
+                break;
+            case BeeMode.HeadTowardsResource:
+                TryPickupTargetResource(ref beeProperties, transform, chunkIndex, beeEntity, faction);
+                // Head towards targeted resource + pickup on reaching it
+                break;
+            case BeeMode.MoveResourceBackToNest:
+                TryDropoffResource(chunkIndex, beeEntity, transform, beeProperties, faction);
+                // Return to base with resource / No action
+                break;
         }
     }
 
-    private void TryDropoffResource(int index)
+    private void FindTargetForBee(ref BeeProperties beeProperties, int chunkIndex, int entityInQueryIndex,
+        NativeArray<Entity> targetEntities, BeeMode nextMode, NativeArray<LocalToWorldTransform> TargetTransforms)
     {
+        if (targetEntities.Length == 0)
+        {
+            beeProperties = new BeeProperties
+            {
+                Aggressivity = beeProperties.Aggressivity,
+                Target = Entity.Null,
+                BeeMode = BeeMode.Idle,
+                TargetPosition = float3.zero
+            };
+            return;
+        }
+
+        var random = Random.CreateFromIndex((uint)entityInQueryIndex + Tick);
+
+        var index = random.NextInt(targetEntities.Length);
+
+        beeProperties = new BeeProperties
+        {
+            Aggressivity = beeProperties.Aggressivity,
+            Target = targetEntities[index],
+            BeeMode = nextMode,
+            TargetPosition = TargetTransforms[index].Value.Position
+        };
+
+        ECB.AddComponent<UnmatchedFood>(chunkIndex, targetEntities[index]);
+    }
+
+    private void TryDropoffResource(int chunkIndex, Entity beeEntity, LocalToWorldTransform transform,
+        BeeProperties beeProperties, Faction faction)
+    {
+        NativeArray<Area> NestAreas = faction.Value == (int)Factions.Team1 ? Nest1Areas : Nest2Areas;
         // Check if in bounds of nest
-        if (!NestAreas[0].Value.Contains(BeeTransforms[index].Value.Position))
+        if (!NestAreas[0].Value.Contains(transform.Value.Position))
         {
             return;
         }
-        
-        ECB.SetComponent(BeeProperties[index].CarriedFood, new Velocity
+
+        ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Velocity
         {
             Value = float3.zero
         });
-        ECB.SetComponent(BeeProperties[index].CarriedFood, new Food
+
+        ECB.SetComponent(chunkIndex, beeProperties.CarriedFood, new Food
         {
             CarrierBee = Entity.Null
         });
-        ECB.SetSharedComponent(BeeProperties[index].CarriedFood, new Faction
-        {
-            Value = Faction
-        });
+        ECB.SetSharedComponent(chunkIndex, beeProperties.CarriedFood, faction);
         
-        ECB.SetComponent(BeeEntities[index], new BeeProperties
+        ECB.RemoveComponent<UnmatchedFood>(chunkIndex, beeProperties.CarriedFood);
+
+        ECB.SetComponent(chunkIndex, beeEntity, new BeeProperties
         {
             BeeMode = BeeMode.Idle,
             Target = Entity.Null,
-            CarriedFood = BeeProperties[index].Target,
-            Aggressivity = BeeProperties[index].Aggressivity,
-            TargetPosition = BeeProperties[index].TargetPosition
+            CarriedFood = Entity.Null,
+            Aggressivity = beeProperties.Aggressivity,
+            TargetPosition = float3.zero
         });
     }
 
-    private void FindTargetForBee(int index)
+    private void TryPickupTargetResource(ref BeeProperties beeProperties, in LocalToWorldTransform beeTransform,
+        int chunkIndex, Entity beeEntity, Faction faction)
     {
-        if (FoodProperties.Length == 0)
+        if (!FoodComponentLookup.HasComponent(beeProperties.Target))
         {
-            return;
-        }
-        
-        var foodIndex = Random.NextInt(0, FoodEntities.Length - 1);
-        // Food already spoken for, stop, retry next frame.
-        if (FoodProperties[foodIndex].CarrierBee != Entity.Null)
-        {
-            return;
-        }
-        
-        ECB.SetComponent(BeeEntities[index], new BeeProperties
-        {
-            Aggressivity = BeeProperties[index].Aggressivity,
-            Target = FoodEntities[foodIndex],
-            BeeMode = BeeMode.HeadTowardsResource,
-            TargetPosition = FoodTransforms[foodIndex].Value.Position,
-            CarriedFood = BeeProperties[index].CarriedFood
-        });
-        
-        ECB.RemoveComponent<UnmatchedFood>(FoodEntities[foodIndex]);
-    }
-
-    private void TryPickupTargetResource(int index)
-    {
-        // [DECISION REQUIRED]Check this now or on close enough to pickup?
-        // If food is already spoken for, cancel, go back to idle
-        var foodCarrier = FoodComponentLookup.GetRefRO(BeeProperties[index].Target).ValueRO.CarrierBee;
-        if (foodCarrier != Entity.Null)
-        {
-            ECB.SetComponent(BeeEntities[index], new BeeProperties
+            beeProperties = new BeeProperties
             {
                 BeeMode = BeeMode.Idle,
-                Aggressivity = BeeProperties[index].Aggressivity,
-                Target = NestEntities[0],
-                TargetPosition = NestTransform[0].Value.Position,
+                Aggressivity = beeProperties.Aggressivity,
+                Target = Entity.Null,
+                TargetPosition = float3.zero,
                 CarriedFood = Entity.Null
-            });
+            };
+            return;
+        }
+            
+        var foodCarrier = FoodComponentLookup.GetRefRO(beeProperties.Target).ValueRO.CarrierBee;
+
+        NativeArray<Entity> NestEntities = faction.Value == (int)Factions.Team1 ? Nest1Entities : Nest2Entities;
+        NativeArray<LocalToWorldTransform> NestTransform = faction.Value == (int)Factions.Team1 ? Nest1Transform : Nest2Transform;
+            
+        if (foodCarrier != Entity.Null)
+        {
+            beeProperties = new BeeProperties
+            {
+                BeeMode = BeeMode.Idle,
+                Aggressivity = beeProperties.Aggressivity,
+                Target = Entity.Null,
+                TargetPosition = float3.zero,
+                CarriedFood = Entity.Null
+            };
             return;
         }
         
         // Check distance to target, if within a certain range, pickup the food.
-        var deltaPosition = BeeProperties[index].TargetPosition - BeeTransforms[index].Value.Position;
+        var deltaPosition = beeProperties.TargetPosition - beeTransform.Value.Position;
         if (math.lengthsq(deltaPosition) < 0.01f)
         {
-            ECB.SetComponent(BeeEntities[index], new BeeProperties
+            beeProperties = new BeeProperties
             {
                 BeeMode = BeeMode.MoveResourceBackToNest,
-                TargetPosition = NestTransform[0].Value.Position,
-                CarriedFood = BeeProperties[index].Target,
+                Aggressivity = beeProperties.Aggressivity,
                 Target = NestEntities[0],
-                Aggressivity = BeeProperties[index].Aggressivity
-            });
-            ECB.SetComponent(BeeProperties[index].Target, new Food
+                TargetPosition = NestTransform[0].Value.Position,
+                CarriedFood = beeProperties.Target
+            };
+
+            if (FoodComponentLookup.HasComponent(beeProperties.Target))
             {
-                CarrierBee = BeeEntities[index]
-            });
+                ECB.SetComponent(chunkIndex, beeProperties.Target, new Food
+                {
+                    CarrierBee = beeEntity,
+                });
+            }
         }
     }
 }
@@ -247,11 +274,11 @@ partial struct BeeActionProcessingJob : IJob
 partial struct BeeSystem : ISystem
 {
     private long _tick;
-    
+
     private EntityQuery _foodQuery;
     private EntityQuery _nestQuery;
     private EntityQuery _beeQuery;
-    
+
     private ComponentLookup<LocalToWorldTransform> _transformComponentLookup;
     private ComponentLookup<Food> _foodComponentLookup;
 
@@ -266,20 +293,16 @@ partial struct BeeSystem : ISystem
         {
             Value = 0
         });
-
         var nestQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
         nestQueryBuilder.WithAll<Faction, Area, LocalToWorldTransform>();
         _nestQuery = state.GetEntityQuery(nestQueryBuilder);
-        
-        var beeQueryBuilder = new EntityQueryBuilder(Allocator.Temp);
-        beeQueryBuilder.WithAll<BeeProperties, LocalToWorldTransform, Faction>();
-        _beeQuery = state.GetEntityQuery(beeQueryBuilder);
+
+        _beeQuery = SystemAPI.QueryBuilder().WithAll<BeeProperties, LocalToWorldTransform, Faction>().Build();
 
         _transformComponentLookup = state.GetComponentLookup<LocalToWorldTransform>();
         _foodComponentLookup = state.GetComponentLookup<Food>();
-
         _tick = 0;
-        
+
         state.RequireForUpdate<BeeConfig>();
     }
 
@@ -291,82 +314,71 @@ partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // Set faction filters on relevant queries
-        var factionUsed = (int)(_tick % 2L + 1L);
-        _beeQuery.ResetFilter();
-        _beeQuery.SetSharedComponentFilter(new Faction
-        {
-            Value = factionUsed
-        });
-        
-        _nestQuery.ResetFilter();
-        _nestQuery.SetSharedComponentFilter(new Faction
-        {
-            Value = factionUsed
-        });
-        
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
+        _foodComponentLookup.Update(ref state);
+        _transformComponentLookup.Update(ref state);
+        
         // Prepare bee action selection job
         // Food structures
         var foodEntities = _foodQuery.ToEntityArray(Allocator.TempJob);
         var foodTransforms = _foodQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
-        var foodProperties = _foodQuery.ToComponentDataArray<Food>(Allocator.TempJob);
+
+        _beeQuery.SetSharedComponentFilter(new Faction { Value = (int)Factions.Team1 });
+        var team1Bees = _beeQuery.ToEntityArray(Allocator.TempJob);
+        var team1Transforms = _beeQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+
+        _beeQuery.SetSharedComponentFilter(new Faction { Value = (int)Factions.Team2 });
+        var team2Bees = _beeQuery.ToEntityArray(Allocator.TempJob);
+        var team2Transforms = _beeQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+
+        _foodComponentLookup.Update(ref state);
+
+        _nestQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = (int)Factions.Team1
+        });
         
-        // Bee structures
-        var beeProperties = _beeQuery.ToComponentDataArray<BeeProperties>(Allocator.TempJob);
-        var beeTransforms = _beeQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
-        var beeEntities =  _beeQuery.ToEntityArray(Allocator.TempJob);
+        var nest1Transforms = _nestQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+        var nest1Areas = _nestQuery.ToComponentDataArray<Area>(Allocator.TempJob);
+        var nest1Entities = _nestQuery.ToEntityArray(Allocator.TempJob);
+
+        _nestQuery.SetSharedComponentFilter(new Faction
+        {
+            Value = (int)Factions.Team2
+        });
         
-        // Nests
-        var nestTransforms = _nestQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
-        var nestAreas = _nestQuery.ToComponentDataArray<Area>(Allocator.TempJob);
-        var nestEntities = _nestQuery.ToEntityArray(Allocator.TempJob);
-        
+        var nest2Transforms = _nestQuery.ToComponentDataArray<LocalToWorldTransform>(Allocator.TempJob);
+        var nest2Areas = _nestQuery.ToComponentDataArray<Area>(Allocator.TempJob);
+        var nest2Entities = _nestQuery.ToEntityArray(Allocator.TempJob);
+
         // Command buffer
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
-        _foodComponentLookup.Update(ref state);
+        var parallelWriter = ecb.AsParallelWriter();
         // BeeAction job instantiate and schedule
         var beeActionProcessingJob = new BeeActionProcessingJob
         {
             FoodTransforms = foodTransforms,
+            Team1Transforms = team1Transforms,
+            Team2Transforms = team2Transforms,
             FoodEntities = foodEntities,
-            FoodProperties = foodProperties,
-            BeeProperties = beeProperties,
-            BeeTransforms = beeTransforms,
-            BeeEntities = beeEntities,
-            NestTransform = nestTransforms,
-            NestEntities = nestEntities,
-            NestAreas = nestAreas,
-            Faction = factionUsed,
-            Random = new Random((uint)(_tick + 1)),
+            Team1Entities = team1Bees,
+            Team2Entities = team2Bees,
+            Nest1Transform = nest1Transforms,
+            Nest1Entities = nest1Entities,
+            Nest1Areas = nest1Areas,
+            
+            Nest2Transform = nest2Transforms,
+            Nest2Entities = nest2Entities,
+            Nest2Areas = nest2Areas,
+            Tick = (uint)_tick,
             FoodComponentLookup = _foodComponentLookup,
-            ECB = ecb
+            ECB = parallelWriter,
         };
-        state.Dependency = beeActionProcessingJob.Schedule(state.Dependency);
-        state.Dependency.Complete();
-        
-        // [IJobEntity only?]
-        // NOTE: The following is the default pattern, you don't need to state it: (happens at line 57)
-        // state.Dependency = foodTargetingJob.ScheduleParallel(state.Dependency);
-        
-        // NOTE: Implicitly contains dependency line 57
-        // [QUESTION]Combine dependencies + dispose once == better?
-        // [QUESTION]Changed from IJobEntity to IJob. Effect on auto-dependency management?
-        state.Dependency = foodTransforms.Dispose(state.Dependency);
-        state.Dependency = foodEntities.Dispose(state.Dependency);
-        state.Dependency = foodProperties.Dispose(state.Dependency);
-        state.Dependency = beeProperties.Dispose(state.Dependency);
-        state.Dependency = beeEntities.Dispose(state.Dependency);
-        state.Dependency = beeTransforms.Dispose(state.Dependency);
-        state.Dependency = nestTransforms.Dispose(state.Dependency);
-        state.Dependency = nestAreas.Dispose(state.Dependency);
-        state.Dependency = nestEntities.Dispose(state.Dependency);
+        beeActionProcessingJob.ScheduleParallel();
         
         // Point towards target job
-        _transformComponentLookup.Update(ref state);
         var beeTargetingJob = new BeePointToTargetJob // IJobEntity
         {
             ComponentLookup = _transformComponentLookup,
@@ -374,10 +386,9 @@ partial struct BeeSystem : ISystem
             GravityDt = config.gravity * state.Time.DeltaTime,
             BeeSpeed = config.beeSpeed,
             ObjectSize = config.objectSize,
-            ECB = ecb.AsParallelWriter()
+            ECB = parallelWriter,
         };
-        state.Dependency = beeTargetingJob.ScheduleParallel(state.Dependency);
-
+        beeTargetingJob.ScheduleParallel();
         _tick++;
     }
 }

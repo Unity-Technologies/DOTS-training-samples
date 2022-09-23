@@ -45,7 +45,7 @@ partial struct FoodSpawnerSystem : ISystem
 
             var nestArea = state.EntityManager.GetComponentData<Area>(nest);
             var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.food);
-            var foodSpawnJob = new SpawnJob
+            var foodSpawnJob = new FoodSpawnJob
             {
                 // Note the function call required to get a parallel writer for an EntityCommandBuffer.
                 Aabb = nestArea.Value,
@@ -53,7 +53,7 @@ partial struct FoodSpawnerSystem : ISystem
                 Prefab = config.food,
                 InitTransform = transform,
                 InitFaction = (int)Factions.None,
-                InitColor = Color.green,
+                InitColor = new float4(0.0f,1.0f,0.0f,1.0f),
                 Mask = MeshRendererQuery.GetEntityQueryMask(),
             };
             var jobHandle = foodSpawnJob.Schedule(config.foodCount, 64, state.Dependency);

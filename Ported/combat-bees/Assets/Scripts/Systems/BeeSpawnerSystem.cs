@@ -49,11 +49,10 @@ partial struct BeeSpawnerSystem : ISystem
 
                 var nestArea = state.EntityManager.GetComponentData<Area>(nest);
                 var transform = state.EntityManager.GetComponentData<LocalToWorldTransform>(config.bee);
-                var nestMaterial = state.EntityManager.GetComponentData<MaterialMeshInfo>(nest);
-                var renderMeshArray = state.EntityManager.GetSharedComponentManaged<RenderMeshArray>(nest);
+                var nestBaseColor = state.EntityManager.GetComponentData<URPMaterialPropertyBaseColor>(nest);
                 var faction = state.EntityManager.GetSharedComponent<Faction>(nest).Value;
                 
-                var beeSpawnJob = new SpawnJob
+                var beeSpawnJob = new BeeSpawnJob
                 {
                     Aabb = nestArea.Value,
 
@@ -62,9 +61,10 @@ partial struct BeeSpawnerSystem : ISystem
                     Prefab = config.bee,
                     InitTransform = transform,
                     InitFaction = faction,
-                    InitColor = renderMeshArray.GetMaterial(nestMaterial).color,
+                    InitColor = nestBaseColor.Value,
                     Mask = MeshRendererQuery.GetEntityQueryMask(),
-                    InitVel = config.initVel
+                    InitVel = config.initVel,
+                    Aggressivity = config.aggressivity,
                 };
                 var jobHandle = beeSpawnJob.Schedule(config.beeCount, 64, state.Dependency);
                 combinedJobHandle = JobHandle.CombineDependencies(jobHandle, combinedJobHandle);
