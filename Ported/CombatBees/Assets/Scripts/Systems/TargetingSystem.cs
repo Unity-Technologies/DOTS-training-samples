@@ -33,7 +33,7 @@ partial struct TargetingEnemyJob : IJobEntity
 
 [BurstCompile]
 [WithAny(typeof(YellowTeam), typeof(BlueTeam))]
-[WithNone(typeof(TargetId))]
+[WithNone(typeof(TargetId), typeof(Falling))]
 partial struct TargetingResourceJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;
@@ -119,36 +119,55 @@ partial struct TargetingSystem : ISystem
 
         var allBlueBees = m_blueTeamQuery.ToEntityArray(Allocator.TempJob);
         var allYellowBees = m_yellowTeamQuery.ToEntityArray(Allocator.TempJob);
+
+        var dropEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var blueEnemyEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var yellowEnemyEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
         var dropTargetJob = new DropTargetJob() {
-            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+            ECB = dropEcb.AsParallelWriter(),
             deadLookup = state.GetComponentLookup<DecayTimer>()
         }.ScheduleParallel(state.Dependency);
         
+        dropTargetJob.Complete();
+        dropEcb.Playback(state.EntityManager);
+        dropEcb.ShouldPlayback = false;
+
         var blueTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+            ECB = blueEnemyEcb.AsParallelWriter(),
             aggression = config.aggression,
             enemies = allYellowBees
         }.ScheduleParallel(m_blueTeamIdleQuery, dropTargetJob);
 
         var yellowTeamJob = new TargetingEnemyJob()
         {
-            ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+            ECB = yellowEnemyEcb.AsParallelWriter(),
             aggression = config.aggression,
             enemies = allBlueBees
         }.ScheduleParallel(m_yellowTeamIdleQuery, dropTargetJob);
 
         var targetEnemyJob = JobHandle.CombineDependencies(blueTeamJob, yellowTeamJob);
+        
+        targetEnemyJob.Complete();
+        blueEnemyEcb.Playback(state.EntityManager);
+        blueEnemyEcb.ShouldPlayback = false;
+        yellowEnemyEcb.Playback(state.EntityManager);
+        yellowEnemyEcb.ShouldPlayback = false;
 
         if (!m_resourcesQuery.IsEmpty)
         {
+            var resourceEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             var allResources = m_resourcesQuery.ToEntityArray(Allocator.TempJob);
-            state.Dependency = new TargetingResourceJob()
+            var resourceJob = state.Dependency = new TargetingResourceJob()
             {
-                ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                ECB = resourceEcb.AsParallelWriter(),
                 resources = allResources
             }.ScheduleParallel(targetEnemyJob);
+            
+            resourceJob.Complete();
+            resourceEcb.Playback(state.EntityManager);
+            resourceEcb.ShouldPlayback = false;
             
             allResources.Dispose(state.Dependency);
             
