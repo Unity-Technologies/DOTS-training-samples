@@ -10,7 +10,10 @@ partial struct GatheringSystem : ISystem
     private EntityQuery m_GatheringBeesQuery;
     private EntityQuery m_YellowTeamQuery;
     private EntityQuery m_BlueTeamQuery;
-
+    
+    private ComponentLookup<LocalToWorldTransform> transformLookup;
+    private ComponentLookup<Holder> holderLookup;
+    
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
@@ -18,6 +21,8 @@ partial struct GatheringSystem : ISystem
         m_GatheringBeesQuery = state.GetEntityQuery(typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
         m_YellowTeamQuery = state.GetEntityQuery(typeof(YellowTeam), typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
         m_BlueTeamQuery = state.GetEntityQuery(typeof(BlueTeam), typeof(IsHolding), ComponentType.Exclude<IsAttacking>(), ComponentType.Exclude<Decay>());
+        transformLookup = state.GetComponentLookup<LocalToWorldTransform>();
+        holderLookup = state.GetComponentLookup<Holder>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -34,11 +39,14 @@ partial struct GatheringSystem : ISystem
         var blueReturnJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         var yellowReturnJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
+        transformLookup.Update(ref state);
+        holderLookup.Update(ref state);
+        
         new ResourceCollectingJob()
         {
             DeltaTime = state.Time.DeltaTime,
             GrabDistanceSquared = beeConfig.grabDistance * beeConfig.grabDistance,
-            transformLookup = state.GetComponentLookup<LocalToWorldTransform>(),
+            transformLookup = transformLookup,
             ChaseForce = beeConfig.chaseForce,
             ecb = collectJobECB
         }.ScheduleParallel(m_GatheringBeesQuery);
@@ -50,7 +58,7 @@ partial struct GatheringSystem : ISystem
             Hive = BeeTeam.Blue,
             ecb = blueReturnJobECB,
             FieldSize = fieldConfig.FieldScale,
-            holderLookup = state.GetComponentLookup<Holder>()
+            holderLookup = holderLookup
         }.ScheduleParallel(m_BlueTeamQuery);
 
         new ResourceReturningJob()
@@ -60,7 +68,7 @@ partial struct GatheringSystem : ISystem
             Hive = BeeTeam.Yellow,
             FieldSize = fieldConfig.FieldScale,
             ecb = yellowReturnJobECB,
-            holderLookup = state.GetComponentLookup<Holder>()
+            holderLookup = holderLookup
         }.ScheduleParallel(m_YellowTeamQuery);
     }
 }

@@ -6,9 +6,12 @@ using Unity.Transforms;
 [UpdateAfter(typeof(TargetingSystem))]
 partial struct AttackingSystem : ISystem {
     
+    private ComponentLookup<LocalToWorldTransform> transformLookup;
+    
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
+        transformLookup = state.GetComponentLookup<LocalToWorldTransform>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -19,13 +22,14 @@ partial struct AttackingSystem : ISystem {
     public void OnUpdate(ref SystemState state) {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+        transformLookup.Update(ref state);
         state.Dependency = new AttackingJob() {
             deltaTime = state.Time.DeltaTime,
             chaseForce = beeConfig.chaseForce,
             attackForce = beeConfig.attackForce,
             attackDistanceSquared = beeConfig.attackDistance * beeConfig.attackDistance,
             hitDistanceSquared = beeConfig.hitDistance * beeConfig.hitDistance,
-            transformLookup = state.GetComponentLookup<LocalToWorldTransform>(),
+            transformLookup = transformLookup,
             ecb = ecb
         }.ScheduleParallel(state.Dependency);
     }

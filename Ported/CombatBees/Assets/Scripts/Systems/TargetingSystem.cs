@@ -95,6 +95,10 @@ partial struct TargetingSystem : ISystem
     private EntityQuery m_blueTeamIdleQuery;
     private EntityQuery m_resourcesQuery;
 
+    private ComponentLookup<DecayTimer> isDeadLookup;
+    private ComponentLookup<BlueTeam> blueTeamLookup;
+    private ComponentLookup<Holder> holderLookup;
+    
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
@@ -104,6 +108,10 @@ partial struct TargetingSystem : ISystem
         m_blueTeamQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<Decay>());
         m_blueTeamIdleQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<TargetId>(), ComponentType.Exclude<Decay>());
         m_resourcesQuery = state.GetEntityQuery(typeof(GridPosition), ComponentType.Exclude<Decay>(), ComponentType.Exclude<Falling>());
+
+        isDeadLookup = state.GetComponentLookup<DecayTimer>();
+        blueTeamLookup = state.GetComponentLookup<BlueTeam>();
+        holderLookup = state.GetComponentLookup<Holder>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -124,9 +132,13 @@ partial struct TargetingSystem : ISystem
         var blueEnemyEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var yellowEnemyEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
+        isDeadLookup.Update(ref state);
+        blueTeamLookup.Update(ref state);
+        holderLookup.Update(ref state);
+
         var dropTargetJob = new DropTargetJob() {
             ECB = dropEcb.AsParallelWriter(),
-            deadLookup = state.GetComponentLookup<DecayTimer>()
+            deadLookup = isDeadLookup
         }.ScheduleParallel(state.Dependency);
         
         dropTargetJob.Complete();
@@ -174,7 +186,7 @@ partial struct TargetingSystem : ISystem
             // TODO revisit once we have resource pickup working...
             var yellowUpdatesJob = new TargetingUpdateJob()
             {
-                ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged), blueTeamLookup = state.GetComponentLookup<BlueTeam>(), holders = SystemAPI.GetComponentLookup<Holder>(true)
+                ECB = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged), blueTeamLookup = blueTeamLookup, holders = holderLookup
             };
             yellowUpdatesJob.Schedule();
         }

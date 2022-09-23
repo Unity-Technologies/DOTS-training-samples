@@ -7,11 +7,14 @@ using UnityEngine;
 [UpdateAfter(typeof(BeeClampingSystem))]
 partial struct BeeRenderingSystem : ISystem
 {
+    private ComponentLookup<IsAttacking> isAttackingLookup;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate<FieldConfig>();
+        isAttackingLookup = state.GetComponentLookup<IsAttacking>();
     }
 
     [BurstCompile]
@@ -23,11 +26,12 @@ partial struct BeeRenderingSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
+        isAttackingLookup.Update(ref state);
         
         new SmoothPositionUpdateJob()
         {
             rotationAmount = Time.deltaTime * beeConfig.rotationStiffness,
-            attackingLookup = state.GetComponentLookup<IsAttacking>()
+            attackingLookup = isAttackingLookup
         }.ScheduleParallel();
 
         new BeeScalingAndRotationJob()

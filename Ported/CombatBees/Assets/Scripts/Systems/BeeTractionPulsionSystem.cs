@@ -10,10 +10,12 @@ using Unity.Transforms;
 partial struct BeeTractionPulsionSystem : ISystem {
     private EntityQuery yellowTeamQuery;
     private EntityQuery blueTeamQuery;
+    private ComponentLookup<LocalToWorldTransform> positionLookup;
     
     public void OnCreate(ref SystemState state) {
         yellowTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(YellowTeam));
         blueTeamQuery = state.GetEntityQuery(typeof(AttractionComponent), typeof(BlueTeam));
+        positionLookup = state.GetComponentLookup<LocalToWorldTransform>();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -34,11 +36,13 @@ partial struct BeeTractionPulsionSystem : ISystem {
 
         var teamsPicked = JobHandle.CombineDependencies(yellowTeamPicked, blueTeamPicked);
         
+        positionLookup.Update(ref state);
+        
         state.Dependency = new AttractionJob() {
             teamAttraction = 5,
             teamRepulsion = 4,
             deltaTime = state.Time.DeltaTime,
-            positionLookup = state.GetComponentLookup<LocalToWorldTransform>()
+            positionLookup = positionLookup
         }.ScheduleParallel(teamsPicked);
 
         yellowTeam.Dispose(state.Dependency);
