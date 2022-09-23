@@ -8,6 +8,7 @@ using UnityEngine;
 
 [BurstCompile]
 [WithAny(typeof(YellowTeam), typeof(BlueTeam))]
+[WithNone(typeof(Falling))]
 partial struct BeeClampingJob : IJobEntity {
     public float3 fieldBounds;
     [ReadOnly] public ComponentLookup<UniformScale> scaleLookup;
