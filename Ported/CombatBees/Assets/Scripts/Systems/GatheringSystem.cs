@@ -1,7 +1,9 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
 
+[BurstCompile]
 [UpdateAfter(typeof(TargetingSystem))]
 partial struct GatheringSystem : ISystem
 {
@@ -22,6 +24,7 @@ partial struct GatheringSystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
@@ -31,35 +34,31 @@ partial struct GatheringSystem : ISystem
         var blueReturnJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         var yellowReturnJobECB = ecbs.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
 
-        var collectJob = new ResourceCollectingJob()
+        new ResourceCollectingJob()
         {
             DeltaTime = state.Time.DeltaTime,
             GrabDistanceSquared = beeConfig.grabDistance * beeConfig.grabDistance,
             transformLookup = state.GetComponentLookup<LocalToWorldTransform>(),
             ChaseForce = beeConfig.chaseForce,
             ecb = collectJobECB
-        }.ScheduleParallel(m_GatheringBeesQuery, state.Dependency);
+        }.ScheduleParallel(m_GatheringBeesQuery);
 
-        var blueBeesReturnJob = new ResourceReturningJob()
+        new ResourceReturningJob()
         {
             DeltaTime = state.Time.DeltaTime,
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Blue,
             ecb = blueReturnJobECB,
             FieldSize = fieldConfig.FieldScale
-        }.ScheduleParallel(m_BlueTeamQuery, state.Dependency);
+        }.ScheduleParallel(m_BlueTeamQuery);
 
-        var yellowBeesReturnJob = new ResourceReturningJob()
+        new ResourceReturningJob()
         {
             DeltaTime = state.Time.DeltaTime,
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Yellow,
             FieldSize = fieldConfig.FieldScale,
             ecb = yellowReturnJobECB
-        }.ScheduleParallel(m_YellowTeamQuery, state.Dependency);
-
-        var combinedDependency = JobHandle.CombineDependencies(collectJob, blueBeesReturnJob, yellowBeesReturnJob);
-
-        state.Dependency = combinedDependency;
+        }.ScheduleParallel(m_YellowTeamQuery);
     }
 }

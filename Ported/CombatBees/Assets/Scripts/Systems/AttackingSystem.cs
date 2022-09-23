@@ -1,12 +1,15 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Transforms;
 
+[BurstCompile]
 [UpdateAfter(typeof(TargetingSystem))]
 partial struct AttackingSystem : ISystem {
-    public static float chaseForce = 50f;
-    public static float hitDistance = 0.5f;
-    public static float attackForce = 500f;
-    public static float attackDistance = 4f;
+    // readonly for burst
+    public static readonly float chaseForce = 50f;
+    public static readonly float hitDistance = 0.5f;
+    public static readonly float attackForce = 500f;
+    public static readonly float attackDistance = 4f;
     
     public void OnCreate(ref SystemState state)
     {
@@ -16,6 +19,7 @@ partial struct AttackingSystem : ISystem {
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state) {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
         state.Dependency = new AttackingJob() {

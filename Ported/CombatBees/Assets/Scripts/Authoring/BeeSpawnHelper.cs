@@ -4,12 +4,10 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [BurstCompile]
-static class BeeSpawnHelper
-{
-    public static Entity BeePrefab { get; set; }
+static class BeeSpawnHelper {
 
     [BurstCompile]
-    public static void SpawnBees(EntityCommandBuffer ecs, ref NativeArray<Entity> bees, BeeTeam team, float3 spawnPos)
+    public static void SpawnBees(in Entity BeePrefab, ref EntityCommandBuffer ecs, ref NativeArray<Entity> bees, BeeTeam team, in float3 spawnPos)
     {
         ecs.Instantiate(BeePrefab, bees);
         foreach (var newBee in bees)
@@ -19,7 +17,7 @@ static class BeeSpawnHelper
     }
     
     [BurstCompile]
-    public static void SpawnBees(EntityCommandBuffer.ParallelWriter ecs, int sortKey, ref NativeArray<Entity> bees, BeeTeam team, float3 spawnPos)
+    public static void SpawnBees(in Entity BeePrefab, ref EntityCommandBuffer.ParallelWriter ecs, int sortKey, ref NativeArray<Entity> bees, BeeTeam team, in float3 spawnPos)
     {
         ecs.Instantiate(sortKey, BeePrefab, bees);
         foreach (var newBee in bees)
@@ -29,16 +27,19 @@ static class BeeSpawnHelper
     }
 
     [BurstCompile]
-    public static float4 GetTeamColor(BeeTeam hive)
+    public static void GetTeamColor(BeeTeam hive, out float4 retVal)
     {
         switch (hive)
         {
             case BeeTeam.Blue:
-                return new float4(0, 0, 1, 1);
+                retVal = new float4(0, 0, 1, 1);
+                break;
             case BeeTeam.Yellow:
-                return new float4(1, 1, 0, 1);
+                retVal = new float4(1, 1, 0, 1);
+                break;
+            default:
+                retVal = new float4(1, 1, 1, 1); // white
+                break;
         }
-        
-        return new float4(1, 1, 1, 1); // white
     }
 }

@@ -50,6 +50,7 @@ partial struct TargetingResourceJob : IJobEntity
     }
 }
 
+[BurstCompile]
 [WithNone(typeof(IsAttacking))]
 [WithNone(typeof(IsHolding))]
 partial struct TargetingUpdateJob : IJobEntity
@@ -84,7 +85,7 @@ partial struct DropTargetJob : IJobEntity {
     }
 }
 
-//[BurstCompile]
+[BurstCompile]
 [UpdateAfter(typeof(BeeConstructionSystem))]
 partial struct TargetingSystem : ISystem
 {
@@ -109,6 +110,7 @@ partial struct TargetingSystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();

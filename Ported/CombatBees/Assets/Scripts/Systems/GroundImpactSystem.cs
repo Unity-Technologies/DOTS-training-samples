@@ -15,14 +15,16 @@ partial struct ResourceImpactJob : IJobEntity
     public float3 FieldExtents;
 
     public int numBeesToSpawn;
+    public Entity BeePrefab;
 
     void Execute(Entity resource, [EntityInQueryIndex] int idx, in TransformAspect prs)
     {
         if (math.abs(prs.LocalToWorld.Position.x) >= FieldExtents.x)
         {
             var newBees = CollectionHelper.CreateNativeArray<Entity>(numBeesToSpawn, Allocator.Temp);
-            BeeSpawnHelper.SpawnBees(ECB, idx, ref newBees,
-                prs.LocalToWorld.Position.x > 0 ? BeeTeam.Yellow : BeeTeam.Blue, prs.LocalToWorld.Position);
+            var pos = prs.LocalToWorld.Position;
+            BeeSpawnHelper.SpawnBees(BeePrefab, ref ECB, idx, ref newBees,
+                prs.LocalToWorld.Position.x > 0 ? BeeTeam.Yellow : BeeTeam.Blue, in pos);
         }
         else
         {
@@ -45,7 +47,7 @@ partial struct BeeImpactJob : IJobEntity
     }
 }
 
-[BurstCompile]
+// [BurstCompile]
 [UpdateAfter(typeof(BallisticMovementSystem))]
 partial struct GroundImpactSystem : ISystem
 {
@@ -72,7 +74,8 @@ partial struct GroundImpactSystem : ISystem
         new ResourceImpactJob
             {
                 ECB = ecb.AsParallelWriter(), FieldExtents = fieldConfig.FieldScale * .8f / 2,
-                numBeesToSpawn = resourceConfig.beesPerResource
+                numBeesToSpawn = resourceConfig.beesPerResource,
+                BeePrefab = InitialBeeSpawningSystem.BeePrefab // accessing this prevents burst
             }
             .ScheduleParallel();
     }

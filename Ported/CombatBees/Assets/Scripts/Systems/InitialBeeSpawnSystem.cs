@@ -3,10 +3,13 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 
-[BurstCompile]
+// [BurstCompile]
 [UpdateBefore(typeof(BeeConstructionSystem))]
 partial struct InitialBeeSpawningSystem : ISystem
 {
+    
+    public static Entity BeePrefab;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
@@ -20,9 +23,9 @@ partial struct InitialBeeSpawningSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
-        if (BeeSpawnHelper.BeePrefab == Entity.Null)
+        if (BeePrefab == Entity.Null)
         {
-            BeeSpawnHelper.BeePrefab = config.beePrefab;
+            BeePrefab = config.beePrefab;
         }
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -33,8 +36,8 @@ partial struct InitialBeeSpawningSystem : ISystem
 
         float3 blueSpawn = new float3 { x = -40f, y = 0f, z = 0f };
         float3 yellowSpawn = new float3 { x = 40f, y = 0f, z = 0f };
-        BeeSpawnHelper.SpawnBees(ecb, ref blueBees, BeeTeam.Blue, blueSpawn);
-        BeeSpawnHelper.SpawnBees(ecb, ref yellowBees, BeeTeam.Yellow, yellowSpawn);
+        BeeSpawnHelper.SpawnBees(BeePrefab, ref ecb, ref blueBees, BeeTeam.Blue, in blueSpawn);
+        BeeSpawnHelper.SpawnBees(BeePrefab, ref ecb, ref yellowBees, BeeTeam.Yellow, in yellowSpawn);
 
         state.Enabled = false;
     }
