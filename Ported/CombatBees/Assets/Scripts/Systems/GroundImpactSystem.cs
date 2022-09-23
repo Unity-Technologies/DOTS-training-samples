@@ -47,13 +47,14 @@ partial struct BeeImpactJob : IJobEntity
     }
 }
 
-// [BurstCompile]
+[BurstCompile]
 [UpdateAfter(typeof(BallisticMovementSystem))]
 partial struct GroundImpactSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<ResourceConfig>();
+        state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate<FieldConfig>();
     }
 
@@ -66,7 +67,8 @@ partial struct GroundImpactSystem : ISystem
     {
         var resourceConfig = SystemAPI.GetSingleton<ResourceConfig>();
         var fieldConfig = SystemAPI.GetSingleton<FieldConfig>();
-
+        var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
+        
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
@@ -74,7 +76,7 @@ partial struct GroundImpactSystem : ISystem
             {
                 ECB = ecb.AsParallelWriter(), FieldExtents = fieldConfig.FieldScale * .8f / 2,
                 numBeesToSpawn = resourceConfig.beesPerResource,
-                BeePrefab = InitialBeeSpawningSystem.BeePrefab // accessing this prevents burst
+                BeePrefab = beeConfig.beePrefab
             }
             .ScheduleParallel();
     }
