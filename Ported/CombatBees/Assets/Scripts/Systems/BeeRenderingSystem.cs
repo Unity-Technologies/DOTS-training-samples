@@ -1,22 +1,25 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
-using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 
 [BurstCompile]
 [UpdateAfter(typeof(BeeClampingSystem))]
 partial struct BeeRenderingSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate<FieldConfig>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
@@ -30,7 +33,7 @@ partial struct BeeRenderingSystem : ISystem
         new BeeScalingAndRotationJob()
         {
             speedStretch = beeConfig.speedStretch,
-            isDeadLookup = state.GetComponentLookup<Decay>()
+            up = math.up()
         }.ScheduleParallel();
     }
 }
