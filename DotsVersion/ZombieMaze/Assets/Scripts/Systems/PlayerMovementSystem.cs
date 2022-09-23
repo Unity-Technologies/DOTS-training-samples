@@ -1,11 +1,12 @@
 using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.Burst;
 
-// Contrarily to ISystem, SystemBase systems are classes.
-// They are not Burst compiled, and can use managed code.
+[BurstCompile]
 partial struct PlayerMovementSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<MazeConfig>();
@@ -14,11 +15,13 @@ partial struct PlayerMovementSystem : ISystem
 
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
         
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
 
