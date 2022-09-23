@@ -7,8 +7,8 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct BeeConstructionJob : IJobEntity
 {
-    public EntityCommandBuffer ECB;
-    public Random random;
+    public EntityCommandBuffer.ParallelWriter ECB;
+    public uint randomBase;
 
     public float3 absSpawnOffset;
 
@@ -16,18 +16,20 @@ partial struct BeeConstructionJob : IJobEntity
     public float maxSize;
     public float maxSpawnSpeed;
 
-    void Execute(Entity bee, in BeePrototype prototype, ref TransformAspect prs)
+    void Execute(Entity bee, [EntityInQueryIndex] int idx, in BeePrototype prototype, ref TransformAspect prs)
     {
+        var random = Random.CreateFromIndex((uint)idx * randomBase);
+        
         if (prototype.Hive == BeeTeam.Blue)
         {
-            ECB.AddComponent<BlueTeam>(bee);
+            ECB.AddComponent<BlueTeam>(idx, bee);
         }
         else
         {
-            ECB.AddComponent<YellowTeam>(bee);
+            ECB.AddComponent<YellowTeam>(idx, bee);
         }
-        
-        ECB.AddComponent(bee, new URPMaterialPropertyBaseColor{ Value = BeeSpawnHelper.GetTeamColor(prototype.Hive) });
+
+        ECB.AddComponent(idx, bee, new URPMaterialPropertyBaseColor { Value = BeeSpawnHelper.GetTeamColor(prototype.Hive) });
 
         var localToWorld = prs.LocalToWorld;
         float3 spawnSide = prototype.Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();
@@ -38,7 +40,7 @@ partial struct BeeConstructionJob : IJobEntity
         else
         {
             localToWorld.Position.x = prototype.GroundSpawnPosition.x;
-            localToWorld.Position.z = prototype.GroundSpawnPosition.y;   
+            localToWorld.Position.z = prototype.GroundSpawnPosition.y;
         }
 
         float scale = minSize + (random.NextFloat() * (maxSize - minSize));
@@ -46,22 +48,22 @@ partial struct BeeConstructionJob : IJobEntity
 
         prs.LocalToWorld = localToWorld;
 
-        ECB.AddComponent(bee,
+        ECB.AddComponent(idx, bee,
             new Velocity() { Value = random.NextFloat3Direction() * random.NextFloat() * maxSpawnSpeed });
-        ECB.AddComponent(bee, new SmoothDirection() { Value = float3.zero });
-        ECB.AddComponent(bee, new SmoothPosition() { Value = localToWorld.Right() * .01f });
+        ECB.AddComponent(idx, bee, new SmoothDirection() { Value = float3.zero });
+        ECB.AddComponent(idx, bee, new SmoothPosition() { Value = localToWorld.Right() * .01f });
 
         // TODO remove UniformScale once BeeClampingJob is updated
-        ECB.AddComponent(bee, new UniformScale() { Value = scale });
-        ECB.AddComponent(bee, new IsAttacking() {Value = false} );
-        ECB.AddComponent<IsHolding>(bee);
-        ECB.AddComponent<TargetId>(bee);
-        ECB.AddComponent<PostTransformMatrix>(bee);
-        ECB.SetComponentEnabled<IsAttacking>(bee, false);
-        ECB.SetComponentEnabled<IsHolding>(bee, false);
-        ECB.SetComponentEnabled<TargetId>(bee, false);
-        
-        ECB.RemoveComponent<BeePrototype>(bee);
+        ECB.AddComponent(idx, bee, new UniformScale() { Value = scale });
+        ECB.AddComponent(idx, bee, new IsAttacking() { Value = false });
+        ECB.AddComponent<IsHolding>(idx, bee);
+        ECB.AddComponent<TargetId>(idx, bee);
+        ECB.AddComponent<PostTransformMatrix>(idx, bee);
+        ECB.SetComponentEnabled<IsAttacking>(idx, bee, false);
+        ECB.SetComponentEnabled<IsHolding>(idx, bee, false);
+        ECB.SetComponentEnabled<TargetId>(idx, bee, false);
+
+        ECB.RemoveComponent<BeePrototype>(idx, bee);
     }
 }
 
@@ -89,12 +91,12 @@ partial struct BeeConstructionSystem : ISystem
 
         new BeeConstructionJob()
         {
-            ECB = ecb,
-            random = Random.CreateFromIndex((uint)state.Time.ElapsedTime * 1000),
+            ECB = ecb.AsParallelWriter(),
+            randomBase = (uint)state.Time.ElapsedTime * 1000,
             absSpawnOffset = Field.size.x,
             minSize = config.minBeeSize,
             maxSize = config.maxBeeSize,
             maxSpawnSpeed = config.maxSpawnSpeed
-        }.Schedule();
+        }.ScheduleParallel();
     }
 }
