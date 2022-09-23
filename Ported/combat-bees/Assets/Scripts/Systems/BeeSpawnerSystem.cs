@@ -30,7 +30,7 @@ partial struct BeeSpawnerSystem : ISystem
     }
 
     [BurstCompile]
-    public unsafe void OnUpdate(ref SystemState state)
+    public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
 
