@@ -12,7 +12,8 @@ partial struct ResourceSpawningSystem : ISystem
     Vector2 m_GridSize;
     Vector2 m_MinGridPos;
     float m_ResourceSize;
-
+    float m_FieldHeight;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -37,6 +38,7 @@ partial struct ResourceSpawningSystem : ISystem
         m_GridCounts = Vector2Int.RoundToInt(new Vector2(fieldConfig.FieldScale.x, fieldConfig.FieldScale.z) / resourceConfig.resourceSize);
         m_GridSize = new Vector2(fieldConfig.FieldScale.x / m_GridCounts.x, fieldConfig.FieldScale.z / m_GridCounts.y);
         m_MinGridPos = new Vector2((m_GridCounts.x - 1f) * -.5f * m_GridSize.x, (m_GridCounts.y - 1f) * -.5f * m_GridSize.y);
+        m_FieldHeight = fieldConfig.FieldScale.y;
         m_ResourceSize = resourceConfig.resourceSize;
 
         var resources = CollectionHelper.CreateNativeArray<Entity>(resourceConfig.startResourceCount, Allocator.Temp);
@@ -97,6 +99,6 @@ partial struct ResourceSpawningSystem : ISystem
 
     Vector3 GetStackPos(int x, int y, int height)
     {
-        return new Vector3(m_MinGridPos.x + x * m_GridSize.x, -Field.size.y * .5f + (height + .5f) * m_ResourceSize, m_MinGridPos.y + y * m_GridSize.y);
+        return new Vector3(m_MinGridPos.x + x * m_GridSize.x, -m_FieldHeight * .5f + (height + .5f) * m_ResourceSize, m_MinGridPos.y + y * m_GridSize.y);
     }
 }

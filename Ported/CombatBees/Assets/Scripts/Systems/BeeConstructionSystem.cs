@@ -15,6 +15,7 @@ partial struct BeeConstructionJob : IJobEntity
     public float minSize;
     public float maxSize;
     public float maxSpawnSpeed;
+    
 
     void Execute(Entity bee, [EntityInQueryIndex] int idx, in BeePrototype prototype, ref TransformAspect prs)
     {
@@ -85,6 +86,8 @@ partial struct BeeConstructionSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
+        var fieldConfig = SystemAPI.GetSingleton<FieldConfig>();
+        
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
 
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -93,7 +96,7 @@ partial struct BeeConstructionSystem : ISystem
         {
             ECB = ecb.AsParallelWriter(),
             randomBase = (uint)state.Time.ElapsedTime * 1000,
-            absSpawnOffset = Field.size.x,
+            absSpawnOffset = fieldConfig.FieldScale.x,
             minSize = config.minBeeSize,
             maxSize = config.maxBeeSize,
             maxSpawnSpeed = config.maxSpawnSpeed
