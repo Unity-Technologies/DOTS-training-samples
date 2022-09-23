@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,6 +19,8 @@ public struct DetectFoodDeliveryJob : IJobChunk
     [ReadOnly] public ComponentTypeHandle<LocalToWorldTransform> TransformHandle;
     [ReadOnly] public EntityTypeHandle EntityHandle;
     [ReadOnly] public AABB FieldArea;
+    [ReadOnly] public AABB NestArea;
+    [ReadOnly] public float4 NestColor;
 
     public Entity Prefab; 
     public int Faction; 
@@ -45,10 +48,9 @@ public struct DetectFoodDeliveryJob : IJobChunk
                 SpawningRequestSystem.CreateSpawningRequest(ECB, unfilteredChunkIndex, new SpawningRequestSystem.SpawningRequestInfo
                 {
                     Prefab = Prefab,
-                    // TOdo : This might not work, need to review to see 
                     Faction = faction,
-                    Aabb = new AABB{ Center = tmComp.Value.Position, Extents = new float3(0.1f, 0.1f, 0.1f)},
-                    Color = new float4(1.0f, 0.0f, 0.0f, 1.0f),
+                    Aabb = NestArea,
+                    Color = NestColor,
                     Count = Count
                 });
 
@@ -62,6 +64,7 @@ public struct DetectFoodDeliveryJob : IJobChunk
 partial struct FoodSystem : ISystem
 {
     private EntityQuery FoodQuery;
+    private EntityQuery NestQuery;
     public ComponentTypeHandle<LocalToWorldTransform> TransformHandle;
     public SharedComponentTypeHandle<Faction> FactionHandle;
     public EntityTypeHandle EntityHandle;
@@ -69,6 +72,7 @@ partial struct FoodSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         FoodQuery = SystemAPI.QueryBuilder().WithAll<Food, Faction, LocalToWorldTransform>().Build();
+        NestQuery = SystemAPI.QueryBuilder().WithAll<Faction, Area>().Build();
         TransformHandle = state.GetComponentTypeHandle<LocalToWorldTransform>();
         FactionHandle = state.GetSharedComponentTypeHandle<Faction>();
 
@@ -87,22 +91,33 @@ partial struct FoodSystem : ISystem
         TransformHandle.Update(ref state);
         EntityHandle.Update(ref state);
 
+        var nestEntities = NestQuery.ToEntityArray(Allocator.Temp);
         var combinedHandle = new JobHandle(); 
-        for (int i = (int) Factions.Team1; i < (int) Factions.NumFactions; i++)
+        foreach (var nestEntity in nestEntities)
         {
-            var faction = new Faction { Value = i };
-            FoodQuery.SetSharedComponentFilter( faction );
+            var nestFaction = state.EntityManager.GetSharedComponent<Faction>(nestEntity);
+            if(nestFaction.Value == (int)Factions.None)
+            {
+                continue;
+            }
+            
+            var nestArea = state.EntityManager.GetComponentData<Area>(nestEntity);
+            var nestBaseColor = state.EntityManager.GetComponentData<URPMaterialPropertyBaseColor>(nestEntity);
+            
+            FoodQuery.SetSharedComponentFilter( nestFaction );
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged); 
 
             var job = new DetectFoodDeliveryJob()
             {
-                Faction = faction.Value,
+                Faction = nestFaction.Value,
                 ECB = ecb.AsParallelWriter(),
                 TransformHandle = TransformHandle,
                 EntityHandle = EntityHandle,
                 FieldArea = config.fieldArea,
                 Prefab = config.bee,
-                Count = config.FoodBeeSpawnCount
+                Count = config.FoodBeeSpawnCount,
+                NestArea = nestArea.Value,
+                NestColor = nestBaseColor.Value
             };
 
             var jobHandle = job.ScheduleParallel(FoodQuery, state.Dependency);

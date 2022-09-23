@@ -79,7 +79,7 @@ partial struct SpawningRequestSystem : ISystem
                 InitColor = spawningRequest.Color,
                 Mask = MeshRendererQuery.GetEntityQueryMask(),
                 InitVel = spawningRequest.InitVelocity,
-                Aggressivity= config.aggressivity
+                Aggressivity= config.aggressivity,
             };
             var spawnJobHandle = beeSpawnJob.Schedule(spawningRequest.Count, 64, state.Dependency);
             combinedSpawnJobHandle = JobHandle.CombineDependencies(spawnJobHandle, combinedSpawnJobHandle);

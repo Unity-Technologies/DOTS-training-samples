@@ -16,7 +16,7 @@ struct SpawnCommon
         float3 InitVel)
     {
         entity = ECB.Instantiate(index, Prefab);
-        var random = Random.CreateFromIndex((uint) index);
+        var random = Random.CreateFromIndex((uint)index);
 
         var randomf3 = (random.NextFloat3() - new float3(0.5f, 0.5f, 0.5f)) * 2.0f; // [-1;1]
 
@@ -65,7 +65,6 @@ struct BeeSpawnJob : IJobParallelFor
     public void Execute(int index)
     {
         SpawnCommon.Spawn(index, ref ECB, Aabb, Prefab, Mask, InitFaction, InitTransform, InitColor, out var entity, InitVel);
-        var random = Random.CreateFromIndex((uint)index);
         
         ECB.SetComponentEnabled<Dead>(index, entity, false);
         ECB.SetComponent<BeeProperties>(index, entity, new BeeProperties
