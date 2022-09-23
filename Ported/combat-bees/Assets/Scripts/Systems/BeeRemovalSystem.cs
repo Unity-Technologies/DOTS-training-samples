@@ -13,7 +13,7 @@ public partial struct BeeRemovalJob : IJobEntity
     [ReadOnly] public ComponentLookup<Food> FoodComponentLookup;
 
     [BurstCompile]
-    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in LocalToWorldTransform transform, in Velocity velocity, in BeeProperties beeProperties)
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in Velocity velocity, in BeeProperties beeProperties)
     {
         if (beeProperties.CarriedFood != Entity.Null && FoodComponentLookup.HasComponent(beeProperties.CarriedFood))
         {
