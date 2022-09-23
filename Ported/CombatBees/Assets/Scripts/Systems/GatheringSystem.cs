@@ -49,7 +49,8 @@ partial struct GatheringSystem : ISystem
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Blue,
             ecb = blueReturnJobECB,
-            FieldSize = fieldConfig.FieldScale
+            FieldSize = fieldConfig.FieldScale,
+            holderLookup = state.GetComponentLookup<Holder>()
         }.ScheduleParallel(m_BlueTeamQuery);
 
         new ResourceReturningJob()
@@ -58,7 +59,8 @@ partial struct GatheringSystem : ISystem
             CarryForce = beeConfig.carryForce,
             Hive = BeeTeam.Yellow,
             FieldSize = fieldConfig.FieldScale,
-            ecb = yellowReturnJobECB
+            ecb = yellowReturnJobECB,
+            holderLookup = state.GetComponentLookup<Holder>()
         }.ScheduleParallel(m_YellowTeamQuery);
     }
 }
