@@ -478,9 +478,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 6296095612977022191, guid: 69f4e9553e79d0e4683ef4dc3df162e6, type: 3}
   FoodPrefab: {fileID: 8565854541113003289, guid: 36d1fd3de7da6ee4f8dc010088b25548, type: 3}
-  BeeCount: 10
-  FoodCount: 100
+  BeeCount: 1000
+  FoodCount: 1000
   Field: {fileID: 1462356859}
+  Aggressivity: 0.498
   InitVel:
     x: 0
     y: 0

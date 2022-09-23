@@ -13,6 +13,8 @@ class BeeConfigAuthoring : UnityEngine.MonoBehaviour
     public int BeeCount;
     public int FoodCount;
     public GameObject Field;
+    [Range(0,1)]
+    public float Aggressivity;
     public float3 InitVel;
     public float BeeSpeed = 50;
     public float Gravity = -9.81f;
@@ -31,6 +33,7 @@ class BeeConfigBaker : Baker<BeeConfigAuthoring>
             food = GetEntity(authoring.FoodPrefab),
             beeCount = authoring.BeeCount,
             foodCount = authoring.FoodCount,
+            aggressivity = authoring.Aggressivity,
             fieldArea = AABBExtensions.ToAABB(renderer.bounds),
             initVel = authoring.InitVel,
             beeSpeed = authoring.BeeSpeed,
