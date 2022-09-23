@@ -11,5 +11,5 @@ struct BeePrototype : IComponentData
 {
     public BeeTeam Hive;
     
-    public float2 GroundSpawnPosition;
+    public float3 SpawnPosition;
 }

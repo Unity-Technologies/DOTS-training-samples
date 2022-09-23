@@ -1,5 +1,7 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 
+[BurstCompile]
 [WithAll(typeof(Decay))]
 [WithNone(typeof(DecayTimer))]
 partial struct ResourceDespawnJob : IJobEntity
@@ -12,6 +14,8 @@ partial struct ResourceDespawnJob : IJobEntity
     }
 }
 
+[BurstCompile]
+[WithAll(typeof(Decay))]
 partial struct BeeDespawnJob : IJobEntity
 {
     public EntityCommandBuffer.ParallelWriter ECB;

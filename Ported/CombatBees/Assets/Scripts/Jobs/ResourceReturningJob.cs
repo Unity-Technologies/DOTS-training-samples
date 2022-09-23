@@ -32,6 +32,8 @@ partial struct ResourceReturningJob : IJobEntity {
                 ecb.SetComponentEnabled<IsHolding>(index, entity, false);
                 // TODO: do drop resource
                 ecb.SetComponent(index, target.Value, new Holder() { Value = Entity.Null });
+                ecb.AddComponent<Falling>(index, target.Value);
+                ecb.SetComponentEnabled<Falling>(index, target.Value, true);
                 target.Value = Entity.Null;
             }
         }

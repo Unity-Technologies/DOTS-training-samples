@@ -15,7 +15,6 @@ partial struct BeeConstructionJob : IJobEntity
     public float minSize;
     public float maxSize;
     public float maxSpawnSpeed;
-    
 
     void Execute(Entity bee, [EntityInQueryIndex] int idx, in BeePrototype prototype, ref TransformAspect prs)
     {
@@ -34,15 +33,7 @@ partial struct BeeConstructionJob : IJobEntity
 
         var localToWorld = prs.LocalToWorld;
         float3 spawnSide = prototype.Hive == BeeTeam.Blue ? -localToWorld.Right() : localToWorld.Right();
-        if (prototype.GroundSpawnPosition.Equals(float2.zero))
-        {
-            localToWorld.Position = spawnSide * (-absSpawnOffset * .4f + absSpawnOffset * .8f);
-        }
-        else
-        {
-            localToWorld.Position.x = prototype.GroundSpawnPosition.x;
-            localToWorld.Position.z = prototype.GroundSpawnPosition.y;
-        }
+        localToWorld.Position = prototype.SpawnPosition;
 
         float scale = minSize + (random.NextFloat() * (maxSize - minSize));
         localToWorld.Scale = scale;
@@ -60,6 +51,8 @@ partial struct BeeConstructionJob : IJobEntity
         ECB.AddComponent<IsHolding>(idx, bee);
         ECB.AddComponent<TargetId>(idx, bee);
         ECB.AddComponent<PostTransformMatrix>(idx, bee);
+        ECB.AddComponent<Falling>(idx, bee);
+        ECB.SetComponentEnabled<Falling>(idx, bee, false);
         ECB.SetComponentEnabled<IsAttacking>(idx, bee, false);
         ECB.SetComponentEnabled<IsHolding>(idx, bee, false);
         ECB.SetComponentEnabled<TargetId>(idx, bee, false);
@@ -83,6 +76,7 @@ partial struct BeeConstructionSystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();

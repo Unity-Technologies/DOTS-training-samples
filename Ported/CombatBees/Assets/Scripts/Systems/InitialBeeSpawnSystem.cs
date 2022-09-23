@@ -1,7 +1,9 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 
+[BurstCompile]
 [UpdateBefore(typeof(BeeConstructionSystem))]
 partial struct InitialBeeSpawningSystem : ISystem
 {
@@ -13,6 +15,7 @@ partial struct InitialBeeSpawningSystem : ISystem
     public void OnDestroy(ref SystemState state)
     {}
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<BeeConfig>();
@@ -27,9 +30,11 @@ partial struct InitialBeeSpawningSystem : ISystem
 
         var blueBees  = CollectionHelper.CreateNativeArray<Entity>(config.startBeeCount / 2, Allocator.Temp);
         var yellowBees  = CollectionHelper.CreateNativeArray<Entity>(config.startBeeCount / 2, Allocator.Temp);
-        
-        BeeSpawnHelper.SpawnBees(ecb, ref blueBees, BeeTeam.Blue, float2.zero);
-        BeeSpawnHelper.SpawnBees(ecb, ref yellowBees, BeeTeam.Yellow, float2.zero);
+
+        float3 blueSpawn = new float3 { x = -40f, y = 0f, z = 0f };
+        float3 yellowSpawn = new float3 { x = 40f, y = 0f, z = 0f };
+        BeeSpawnHelper.SpawnBees(ecb, ref blueBees, BeeTeam.Blue, blueSpawn);
+        BeeSpawnHelper.SpawnBees(ecb, ref yellowBees, BeeTeam.Yellow, yellowSpawn);
 
         state.Enabled = false;
     }

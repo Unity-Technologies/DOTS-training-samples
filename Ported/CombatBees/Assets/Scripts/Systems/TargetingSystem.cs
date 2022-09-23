@@ -102,7 +102,7 @@ partial struct TargetingSystem : ISystem
         m_yellowTeamIdleQuery = state.GetEntityQuery(typeof(YellowTeam), ComponentType.Exclude<TargetId>(), ComponentType.Exclude<Decay>());
         m_blueTeamQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<Decay>());
         m_blueTeamIdleQuery = state.GetEntityQuery(typeof(BlueTeam), ComponentType.Exclude<TargetId>(), ComponentType.Exclude<Decay>());
-        m_resourcesQuery = state.GetEntityQuery(typeof(GridPosition));
+        m_resourcesQuery = state.GetEntityQuery(typeof(GridPosition), ComponentType.Exclude<Decay>(), ComponentType.Exclude<Falling>());
     }
 
     public void OnDestroy(ref SystemState state)

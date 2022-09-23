@@ -11,7 +11,7 @@ partial struct ResourceMovementSystem : ISystem
     {
         state.RequireForUpdate<BeeConfig>();
         state.RequireForUpdate<ResourceConfig>();
-        m_ResourceQuery = state.GetEntityQuery(typeof(Holder));
+        m_ResourceQuery = state.GetEntityQuery(typeof(Holder), ComponentType.Exclude<Falling>(), ComponentType.Exclude<Decay>());
     }
 
     public void OnDestroy(ref SystemState state)

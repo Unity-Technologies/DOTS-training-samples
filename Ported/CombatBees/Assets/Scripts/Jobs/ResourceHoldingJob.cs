@@ -6,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[WithNone(typeof(Decay), typeof(Falling))]
 partial struct ResourceHoldingJob : IJobEntity
 {
     public float DeltaTime;
