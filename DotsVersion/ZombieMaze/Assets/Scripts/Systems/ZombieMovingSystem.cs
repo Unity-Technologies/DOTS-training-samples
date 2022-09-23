@@ -43,7 +43,7 @@ partial struct ZombieMoveJob : IJobEntity
             var nextPosition = target.TargetPath[target.PathIndex];
 
             float3 targetPosition = new float3(nextPosition.x, 0.3f, nextPosition.y);
-            var distance = math.distance(targetPosition, transform.Position);
+            var distance = math.distancesq(targetPosition, transform.Position);
 
             var currentTile = target.PathIndex == (target.TargetPath.Length - 1)
                 ? nextPosition
@@ -72,9 +72,9 @@ partial struct ZombieMoveJob : IJobEntity
                 return;
             }
 
-            if (distance > 0.1f)
+            if (distance > 0.01f)
             {
-                float speed = DeltaTime * 20;
+                float speed = DeltaTime * 5;
                 if (speed > distance)
                 {
                     transform.Position = targetPosition;
