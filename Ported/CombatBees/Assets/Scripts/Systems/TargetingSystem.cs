@@ -133,9 +133,7 @@ partial struct TargetingSystem : ISystem
         var yellowEnemyEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
         isDeadLookup.Update(ref state);
-        blueTeamLookup.Update(ref state);
-        holderLookup.Update(ref state);
-
+        
         var dropTargetJob = new DropTargetJob() {
             ECB = dropEcb.AsParallelWriter(),
             deadLookup = isDeadLookup
@@ -144,7 +142,7 @@ partial struct TargetingSystem : ISystem
         dropTargetJob.Complete();
         dropEcb.Playback(state.EntityManager);
         dropEcb.ShouldPlayback = false;
-
+        
         var blueTeamJob = new TargetingEnemyJob()
         {
             ECB = blueEnemyEcb.AsParallelWriter(),
@@ -182,6 +180,9 @@ partial struct TargetingSystem : ISystem
             resourceEcb.ShouldPlayback = false;
             
             allResources.Dispose(state.Dependency);
+            
+            holderLookup.Update(ref state);
+            blueTeamLookup.Update(ref state);
             
             // TODO revisit once we have resource pickup working...
             var yellowUpdatesJob = new TargetingUpdateJob()
