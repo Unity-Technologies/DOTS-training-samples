@@ -72,10 +72,11 @@ partial struct ResourceSpawningSystem : ISystem
             float floorY = GetStackPos(gridX, gridY, stackIndex.Value).y;
             pos.y = floorY;
 
-            var scaleTransform = UniformScaleTransform.FromPosition(pos);
-            scaleTransform.Scale = m_ResourceSize;
+            var scaleTransform = UniformScaleTransform.FromPositionRotationScale(pos, quaternion.identity, m_ResourceSize);
 
             ecb.SetComponent(resource, new LocalToWorldTransform() { Value = scaleTransform });
+            
+            ecb.AddComponent(resource, new PostTransformMatrix());
         }
 
         state.Enabled = false;

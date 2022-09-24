@@ -1,7 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
+using Unity.Mathematics;
 
 [BurstCompile]
 [WithAll(typeof(Falling))]
@@ -21,11 +21,13 @@ partial struct ApplyGravityJob : IJobEntity
         }
         else
         {
-            var localToWorld = t.LocalToWorld; 
-            
+            var localToWorld = t.LocalToWorld;
+
             v.Value.y = 0f;
-            localToWorld.Position.y = Floor + localToWorld.Scale / 2;
-            t.LocalToWorld = localToWorld;
+            localToWorld.Position.y = Floor + localToWorld.Scale / 2 + .5f;
+            t.LocalToWorld =
+                UniformScaleTransform.FromPositionRotationScale(localToWorld.Position, quaternion.identity,
+                    localToWorld.Scale);
 
             ECB.SetComponentEnabled<Falling>(idx, e, false);
             ECB.AddComponent<Decay>(idx, e);

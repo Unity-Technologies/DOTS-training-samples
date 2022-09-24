@@ -32,10 +32,10 @@ static class BeeSpawnHelper {
         switch (hive)
         {
             case BeeTeam.Blue:
-                retVal = new float4(0, 0, 1, 1);
+                retVal = new float4(.3088235f, .4279919f, 1, 1);
                 break;
             case BeeTeam.Yellow:
-                retVal = new float4(1, 1, 0, 1);
+                retVal = new float4(.9436232f, .9485294f, .5928309f, 1);
                 break;
             default:
                 retVal = new float4(1, 1, 1, 1); // white
