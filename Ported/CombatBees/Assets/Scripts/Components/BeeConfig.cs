@@ -1,4 +1,6 @@
 using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace Components
 {
@@ -8,5 +10,16 @@ namespace Components
         public int BeesToSpawn;
         public float MinBeeSize;
         public float MaxBeeSize;
+
+        public Team Team1;
+        public Team Team2;
+    }
+
+    [System.Serializable]
+    public struct Team 
+    {
+        public float3 MinBounds;
+        public float3 MaxBounds;
+        public float4 Color;
     }
 }

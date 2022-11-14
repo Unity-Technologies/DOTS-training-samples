@@ -10,6 +10,8 @@ namespace Authoring
         public int BeesToSpawn;
         public float MinBeeSize;
         public float MaxBeeSize;
+        public Team Team1;
+        public Team Team2;
     }
 
     public class BeeConfigBaker : Baker<BeeConfigAuthoring>
@@ -21,7 +23,9 @@ namespace Authoring
                 BeePrefab = GetEntity(authoring.BeePrefab),
                 BeesToSpawn = authoring.BeesToSpawn,
                 MinBeeSize = authoring.MinBeeSize,
-                MaxBeeSize = authoring.MaxBeeSize
+                MaxBeeSize = authoring.MaxBeeSize,
+                Team1 = authoring.Team1,
+                Team2 = authoring.Team2
             });
         }
     }
