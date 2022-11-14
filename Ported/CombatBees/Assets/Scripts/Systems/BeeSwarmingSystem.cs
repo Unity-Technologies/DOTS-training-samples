@@ -10,14 +10,12 @@ namespace Systems
 {
     [WithAll(typeof(Bee))]
     [BurstCompile]
-    partial struct SafeZoneJob : IJobEntity
+    partial struct SwarmJob : IJobEntity
     {
         [NativeDisableParallelForRestriction] public ComponentLookup<Bee> Bees;
         public EntityQuery BeeQuery;
         public Random Random;
         public float Dt;
-
-        public float SquaredRadius;
 
         void Execute(Entity entity, Bee currentBee)
         {
@@ -52,39 +50,13 @@ namespace Systems
         protected override void OnUpdate()
         {
             var dt = SystemAPI.Time.DeltaTime;
-            // var allBees = _beeQuery.ToEntityArray(Allocator.Temp);
-            // var teamAttraction = SystemAPI.GetSingleton<BeeConfig>().Team1.TeamAttraction;
-            //
-            
 
-            // Bee GetRandom()
-            // {
-            //     var targetEntity = allBees[_random.NextInt(allBees.Length)];
-            //     _bees.TryGetComponent(targetEntity, out var randomBee);
-            //     return randomBee;
-            // }
-            //
-            // Entities
-            //     .WithAll<Bee>()
-            //     .ForEach((ref Entity entity, ref Bee currentBee) =>
-            //     {
-            //         var randomBee = GetRandom();
-            //         
-            //         float3 delta = randomBee.Position - currentBee.Position;
-            //         float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-            //         if (dist > 0f)
-            //         {
-            //             currentBee.Velocity += delta * (teamAttraction * dt / dist);
-            //         }
-            //     })
-            //     .WithoutBurst()
-            //     .ScheduleParallel(Dependency);
-
-            var job = new SafeZoneJob()
+            var job = new SwarmJob()
             {
                 BeeQuery = _beeQuery,
                 Bees = _bees,
-                Dt = dt
+                Dt = dt,
+                Random = _random
             };
 
             job.ScheduleParallel();
