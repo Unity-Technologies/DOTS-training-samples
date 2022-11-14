@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Components
 {
@@ -21,5 +20,6 @@ namespace Components
         public float3 MinBounds;
         public float3 MaxBounds;
         public float4 Color;
+        public float TeamAttraction;
     }
 }
