@@ -52,6 +52,8 @@ public partial struct MazeGeneratorSystem : ISystem
                     cell.wallFlags |= (byte)WallFlags.East;
                 if (y == gameConfig.mazeSize - 1)
                     cell.wallFlags |= (byte)WallFlags.South;
+                if (x == gameConfig.mazeSize/2 && y > 2)
+                    cell.wallFlags |= (byte)WallFlags.East;
                 
                 grid[x + y * gameConfig.mazeSize] = cell;
             }
