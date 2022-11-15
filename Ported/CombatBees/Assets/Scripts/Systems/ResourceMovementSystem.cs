@@ -68,7 +68,6 @@ public partial struct ResourceMovementSystem : ISystem
             {
                 Value = uniformScaleTransform
             });
-
         }
 
         /// <summary>
@@ -85,5 +84,4 @@ public partial struct ResourceMovementSystem : ISystem
             return newPosition;
         }
     }
-    
 }

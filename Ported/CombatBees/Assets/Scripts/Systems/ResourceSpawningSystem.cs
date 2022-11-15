@@ -5,16 +5,20 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 partial struct ResourceSpawningSystem : ISystem
 {
+    bool _hasInitialized;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        _hasInitialized = false;
         // This system should not run before the Config singleton has been loaded.
-        state.RequireForUpdate<ResourceConfig>(); // TODO do we still want a singleton?
+        state.RequireForUpdate<ResourceConfig>(); 
     }
 
     [BurstCompile]
@@ -26,30 +30,47 @@ partial struct ResourceSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<ResourceConfig>();
-        
-        // This system will only run once, so the random seed can be hard-coded.
-        // Using an arbitrary constant seed makes the behavior deterministic.
-        var random = Random.CreateFromIndex(1234);
- 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        var initialSpawnJob = new SpawnResourceJob()
+        
+        if (!_hasInitialized)
         {
-            ECB = ecb,
-            ResourcePrefab = config.ResourcePrefab,
-            SpawnCount = config.InitialCount,
-            SpawnRadius = config.SpawnRadius,
-            Random = random
-        };
-        
-        var spawnHandle = initialSpawnJob.Schedule();
-        spawnHandle.Complete();
-        
-        state.Enabled = false;
+            // This system will only run once, so the random seed can be hard-coded.
+            // Using an arbitrary constant seed makes the behavior deterministic.
+            var random = Random.CreateFromIndex(1234);
+
+            var initialSpawnJob = new SpawnResourceJob()
+            {
+                ECB = ecb,
+                ResourcePrefab = config.ResourcePrefab,
+                SpawnCount = config.InitialCount,
+                Random = random,
+                IsPositionRandom = true
+            };
+
+            var spawnHandle = initialSpawnJob.Schedule();
+            spawnHandle.Complete();
+
+            _hasInitialized = true;
+        }
+
+        // Spawn on click
+        if (Input.GetKeyUp(KeyCode.Mouse0))
+        {
+            var spawnOnClickJob = new SpawnResourceJob()
+            {
+                ECB = ecb,
+                ResourcePrefab = config.ResourcePrefab,
+                SpawnCount = config.InitialCount,
+                Position = MouseRaycaster.worldMousePosition,
+                IsPositionRandom = false
+            };
+
+            var spawnHandle = spawnOnClickJob.Schedule();
+            spawnHandle.Complete();
+        }
     }
     
-    // TODO spawn on click too
     [BurstCompile]
     struct SpawnResourceJob : IJob
     {
@@ -57,8 +78,9 @@ partial struct ResourceSpawningSystem : ISystem
         public Entity ResourcePrefab;
         public int SpawnCount;
         public Random Random;
-        public float SpawnRadius;
-    
+        public bool IsPositionRandom;
+        public float3 Position;
+        
         public void Execute()
         {
             var resources = CollectionHelper.CreateNativeArray<Entity>(SpawnCount, Allocator.Temp);
@@ -66,26 +88,33 @@ partial struct ResourceSpawningSystem : ISystem
 
             foreach (var resource in resources)
             {
-                var uniformScaleTransform = new UniformScaleTransform
-                {
+                var position = IsPositionRandom
                     // ALX: now using Field bounds, but could cluster closer to the centre if desired
-                    // Position = Random.NextFloat3(new float3(-SpawnRadius, 0, -SpawnRadius), new float3(SpawnRadius, 0, SpawnRadius)),
-                    Position = Random.NextFloat3(Field.ResourceBoundsMin, Field.ResourceBoundsMax),
-                    Rotation = quaternion.identity,
-                    Scale = 1
-                };
-                
-                // Set object position to position
-                ECB.SetComponent(resource, new LocalToWorldTransform
-                {
-                    Value = uniformScaleTransform
-                });
-                // Set component data to position
-                ECB.AddComponent(resource, new Resource()
-                {
-                    Position = uniformScaleTransform.Position
-                });
+                    ? Random.NextFloat3(Field.ResourceBoundsMin, Field.ResourceBoundsMax)
+                    : Position;
+                Initialize(resource, position);
             }
+        }
+
+        void Initialize(Entity resource, float3 position)
+        {
+            var uniformScaleTransform = new UniformScaleTransform
+            {
+                Position = position,
+                Rotation = quaternion.identity,
+                Scale = 1
+            };
+                
+            // Set object position to position
+            ECB.SetComponent(resource, new LocalToWorldTransform
+            {
+                Value = uniformScaleTransform
+            });
+            // Set component data to position
+            ECB.AddComponent(resource, new Resource()
+            {
+                Position = uniformScaleTransform.Position
+            });
         }
     }
 }
