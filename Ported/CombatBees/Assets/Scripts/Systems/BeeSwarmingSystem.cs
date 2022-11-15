@@ -21,7 +21,7 @@ namespace Systems
             var randomBee = BeeComponents[newRandom.NextInt(BeeComponents.Length)];
 
             float3 delta = randomBee.Position - currentBee.Position;
-            float dist = Mathf.Sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+            float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
             if (dist > 0f)
             {
                 currentBee.Velocity += delta * (TeamAttraction * Dt / dist);
