@@ -7,6 +7,7 @@ public class GameConfigAuthoring : MonoBehaviour
 {
     public GameObject tileGO;
     public GameObject wallPrefab;
+    public GameObject playerSpawnPrefab;
 
     public int mazeSize;
 
@@ -21,6 +22,7 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
         {
             tile = GetEntity(authoring.tileGO),
             wallPrefab = GetEntity(authoring.wallPrefab),
+            playerSpawnPrefab = GetEntity(authoring.playerSpawnPrefab),
             mazeSize = authoring.mazeSize,
         });
     }

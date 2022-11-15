@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 public partial struct MazeGeneratorSystem : ISystem
@@ -23,6 +24,8 @@ public partial struct MazeGeneratorSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var random = Random.CreateFromIndex(123);
+        
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
         
@@ -100,6 +103,17 @@ public partial struct MazeGeneratorSystem : ISystem
                 }
             }
         }
+        
+        // spawn player spawn point
+        var playerSpawnPos = GridPositionToWorld(
+            random.NextInt(0, gameConfig.mazeSize - 1),
+            random.NextInt(0, gameConfig.mazeSize - 1)
+            );
+        var playerSpawnEntity = state.EntityManager.Instantiate(gameConfig.playerSpawnPrefab);
+        state.EntityManager.SetComponentData(playerSpawnEntity, new LocalToWorldTransform
+        {
+            Value = UniformScaleTransform.FromPositionRotation(playerSpawnPos + new float3(0, -0.4f, 0), quaternion.AxisAngle(Vector3.right, Mathf.Deg2Rad * 90.0f))
+        });
 
 
 
