@@ -24,12 +24,12 @@ public partial struct AntMovementSystem : ISystem
 
         var deltaTime = SystemAPI.Time.DeltaTime;
 
-        foreach ((TransformAspect transformAspect,  Ant ant) in SystemAPI.Query<TransformAspect,Ant>())
+        foreach ((TransformAspect transformAspect, RefRO<Ant> ant) in SystemAPI.Query<TransformAspect,RefRO<Ant>>())
         {
             var dir = float3.zero;
-            math.sincos(ant.Angle, out dir.x, out dir.y);
-            transformAspect.Position += dir * deltaTime * ant.Speed;
-            transformAspect.Rotation = quaternion.RotateY(ant.Angle);
+            math.sincos(ant.ValueRO.Angle, out dir.x, out dir.y);
+            transformAspect.Position += dir * deltaTime * ant.ValueRO.Speed;
+            transformAspect.Rotation = quaternion.RotateY(ant.ValueRO.Angle);
         }
     }
 }
