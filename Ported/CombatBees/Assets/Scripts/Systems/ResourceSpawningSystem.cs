@@ -80,8 +80,15 @@ partial struct ResourceSpawningSystem : ISystem
                 {
                     Value = uniformScaleTransform
                 });
-                // Set component data to position
+
+                // Start off with an alive resource
                 ECB.AddComponent(resource, new Resource()
+                {
+                    Dead = false
+                });
+
+                // Set component data to position
+                ECB.AddComponent(resource, new Physical()
                 {
                     Position = uniformScaleTransform.Position
                 });

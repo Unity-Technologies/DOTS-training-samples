@@ -16,7 +16,7 @@ namespace Systems
         public float DeltaTime;
         public float Gravity;
 
-        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Bee bee, ref Dead deadComponent)
+        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Bee bee, ref Dead deadComponent, ref Physical physical)
         {
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
             if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .5f)
@@ -25,7 +25,7 @@ namespace Systems
                 //Debug.Log($"I'm spawning blood particle!");
             }
             
-            bee.Velocity.y += Gravity * DeltaTime;
+            physical.Velocity.y += Gravity * DeltaTime;
             deadComponent.DeathTimer -= DeltaTime;
             
             if (deadComponent.DeathTimer < 0f)

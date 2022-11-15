@@ -11,23 +11,23 @@ namespace Systems
     [BurstCompile]
     partial struct SwarmJob : IJobEntity
     {
-        [ReadOnly] public NativeArray<Bee> BeeComponents;
+        [ReadOnly] public NativeArray<Physical> PhysicalComponents;
         public float TeamAttraction;
         public float Dt;
         public uint Seed;
 
-        void Execute([EntityInQueryIndex] int index, ref Bee currentBee)
+        void Execute([EntityInQueryIndex] int index, ref Bee currentBee, ref Physical currentPhysical)
         {
             var newRandom = Random.CreateFromIndex((uint)index + Seed);
-            var randomBee = BeeComponents[newRandom.NextInt(BeeComponents.Length)];
+            var randomBee = PhysicalComponents[newRandom.NextInt(PhysicalComponents.Length)];
 
-            float3 delta = randomBee.Position - currentBee.Position;
+            float3 delta = randomBee.Position - currentPhysical.Position;
             float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
             if (dist > 0f)
             {
-                var velocity = currentBee.Velocity;
+                var velocity = currentPhysical.Velocity;
                 velocity += delta * (TeamAttraction * Dt / dist);
-                currentBee.Velocity = velocity;
+                currentPhysical.Velocity = velocity;
             }
         }
     }
@@ -46,7 +46,7 @@ namespace Systems
             state.RequireForUpdate<Bee>();
             
             var builder = new EntityQueryBuilder(Allocator.Temp);
-            builder.WithAll<Bee, TeamIdentifier>();
+            builder.WithAll<Bee, TeamIdentifier, Physical>();
             _team1Bees = state.GetEntityQuery(builder);
             _team1Bees.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
             _team2Bees = state.GetEntityQuery(builder);
@@ -65,15 +65,13 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var dt = SystemAPI.Time.DeltaTime;
-            
             var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
-
-            var team1Bees = _team1Bees.ToComponentDataArray<Bee>(Allocator.TempJob);
-            var team2Bees = _team1Bees.ToComponentDataArray<Bee>(Allocator.TempJob);
+            var team1Bees = _team1Bees.ToComponentDataArray<Physical>(Allocator.TempJob);
+            var team2Bees = _team1Bees.ToComponentDataArray<Physical>(Allocator.TempJob);
 
             var team1Job = new SwarmJob
             {
-                BeeComponents = team1Bees,
+                PhysicalComponents = team1Bees,
                 Dt = dt,
                 Seed = _random.NextUInt(),
                 TeamAttraction = beeConfig.Team1.TeamAttraction
@@ -81,7 +79,7 @@ namespace Systems
 
             var team2Job = new SwarmJob
             {
-                BeeComponents = team2Bees,
+                PhysicalComponents = team2Bees,
                 Dt = dt,
                 Seed = _random.NextUInt(),
                 TeamAttraction = beeConfig.Team2.TeamAttraction
