@@ -25,7 +25,7 @@ public partial struct MazeGeneratorSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var random = Random.CreateFromIndex(123);
+        var random = new Random(42);
         
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
@@ -73,37 +73,32 @@ public partial struct MazeGeneratorSystem : ISystem
         while(numVisited < numCells)
         {
             // north, west, south, east
-            var unvisitedNeighbors = new NativeArray<int2>(4, Allocator.Temp);
-            var count = 0;
-            
+            var unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
+
             // west neighbor
             if (current.x > 0 && !cellVisited[(current.x - 1) + current.y * size])
             {
-                unvisitedNeighbors[1] = new int2(current.x - 1, current.y);
-                count++;
+                unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
             }
             // north
             if (current.y > 0 && !cellVisited[(current.x) + (current.y - 1) * size])
             {
-                unvisitedNeighbors[0] = new int2(current.x, current.y - 1);
-                count++;
+                unvisitedNeighbors.Add(new int2(current.x, current.y - 1));
             }
             // east
             if (current.x < size - 1 && !cellVisited[(current.x + 1) + current.y * size])
             {
-                unvisitedNeighbors[3] = new int2(current.x + 1, current.y);
-                count++;
+                unvisitedNeighbors.Add(new int2(current.x + 1, current.y));
             }
             // south
             if (current.y < size - 1 && !cellVisited[current.x + (current.y + 1) * size])
             {
-                unvisitedNeighbors[2] = new int2(current.x, current.y + 1);
-                count++;
+                unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
             }
 
-            if(count > 0)
+            if (unvisitedNeighbors.Length > 0)
             {
-                int2 next = unvisitedNeighbors[random.NextInt(0, count + 1)];
+                int2 next = unvisitedNeighbors[random.NextInt(0, unvisitedNeighbors.Length)];
                 // adds to end of list
                 stack.Add(current);
 
@@ -143,7 +138,7 @@ public partial struct MazeGeneratorSystem : ISystem
                 if(stack.Length > 0)
                 {
                     // get element at the end
-                    current = stack[^1];
+                    current = stack[stack.Length - 1];
                     // remove
                     stack.RemoveAt(stack.Length - 1);
                 }
