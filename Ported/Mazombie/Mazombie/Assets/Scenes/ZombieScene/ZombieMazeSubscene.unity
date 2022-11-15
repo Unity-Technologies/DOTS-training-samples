@@ -171,5 +171,7 @@ MonoBehaviour:
   wallPrefab: {fileID: 1812351511079818, guid: 22d5859ac894944eda49102813f47544, type: 3}
   playerSpawnPrefab: {fileID: 3161113561868982784, guid: 1054bf3edd24d904f87cec7b272bb65f,
     type: 3}
+  playerPrefab: {fileID: 1130627450907762, guid: 99e1dadff5ca5493786917e5f2f62a7c,
+    type: 3}
   mazeSize: 30
   cellSize: 1

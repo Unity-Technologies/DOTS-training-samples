@@ -8,6 +8,7 @@ public class GameConfigAuthoring : MonoBehaviour
     public GameObject tileGO;
     public GameObject wallPrefab;
     public GameObject playerSpawnPrefab;
+    public GameObject playerPrefab;
 
     public int mazeSize;
 
