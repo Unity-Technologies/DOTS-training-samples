@@ -9,4 +9,6 @@ public struct GameConfig : IComponentData
     public Entity playerPrefab;
     public Entity movingWallPrefab;
     public int mazeSize;
+    public int openStripWidth;
+    public int mazeStripWidth;
 }
