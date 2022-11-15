@@ -46,16 +46,18 @@ public partial struct PhysicalSystem : ISystem
         public EntityCommandBuffer ECB;
         public float Dt;
 
-        void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical)
+        void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, in LocalToWorldTransform localToWorld)
         {
             physical.Position += physical.Velocity * Dt;
 
+            var scale = localToWorld.Value.Scale;
+            
             var uniformScaleTransform = new UniformScaleTransform
             {
                 Position = physical.Position,
                 // Maybe we need something here to rotate in the direction of movement - TJA
                 Rotation = quaternion.identity,
-                Scale = 1
+                Scale = scale
             };
 
             ECB.SetComponent(entity, new LocalToWorldTransform
