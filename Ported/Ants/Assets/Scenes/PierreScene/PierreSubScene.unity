@@ -154,7 +154,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 645541311283172120, guid: 2eccf794aa1f14342906eae094269de0, type: 3}
   WallPrefab: {fileID: 2964114387935423343, guid: 442b29374ee8c422ea615d6af25a9091, type: 3}
-  Amount: 1000
+  Amount: 5
+  WallRingCount: 3
+  WallPercentage: 0.8
+  WallRadius: 3
+  MapSize: 128
 --- !u!4 &637551750
 Transform:
   m_ObjectHideFlags: 0
