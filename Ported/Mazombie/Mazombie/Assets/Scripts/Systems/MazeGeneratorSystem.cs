@@ -63,8 +63,6 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        var random = Random.CreateFromIndex(1234);
-
         var stack = new NativeList<int2>(Allocator.Temp);
         var current = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
         cellVisited[current.x + current.y * size] = true;
