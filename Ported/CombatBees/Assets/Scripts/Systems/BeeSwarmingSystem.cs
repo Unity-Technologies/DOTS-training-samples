@@ -44,12 +44,9 @@ namespace Systems
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Bee>();
-            
-            var builder = new EntityQueryBuilder(Allocator.Temp);
-            builder.WithAll<Bee, TeamIdentifier, Physical>();
-            _team1Bees = state.GetEntityQuery(builder);
+            _team1Bees = SystemAPI.QueryBuilder().WithAll<Bee, TeamIdentifier, Physical>().Build();
             _team1Bees.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
-            _team2Bees = state.GetEntityQuery(builder);
+            _team2Bees = SystemAPI.QueryBuilder().WithAll<Bee, TeamIdentifier, Physical>().Build();
             _team2Bees.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
 
             _random = Random.CreateFromIndex(4000);
