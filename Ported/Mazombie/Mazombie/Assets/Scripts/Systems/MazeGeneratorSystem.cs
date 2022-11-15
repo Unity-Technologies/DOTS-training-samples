@@ -34,7 +34,7 @@ public partial struct MazeGeneratorSystem : ISystem
         var floorEntity = state.EntityManager.Instantiate(gameConfig.tile);
         state.EntityManager.SetComponentData(floorEntity, new LocalToWorldTransform
         {
-            Value = UniformScaleTransform.FromScale(gameConfig.mazeSize)
+            Value = UniformScaleTransform.FromPositionRotationScale(new float3(gameConfig.mazeSize/2.0f, (-gameConfig.mazeSize/2.0f) * 0.1f - 0.5f, gameConfig.mazeSize/2.0f), quaternion.identity, gameConfig.mazeSize)
         });
 
         // generate the outer wall
@@ -81,11 +81,20 @@ public partial struct MazeGeneratorSystem : ISystem
                 }
                 if(cell.HasFlag(WallFlags.West))
                 {
+                    var outerWall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
+                    state.EntityManager.SetComponentData(outerWall, new LocalToWorldTransform
+                    {
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(-0.5f, 0, 0), quaternion.AxisAngle(Vector3.up, Mathf.Deg2Rad * 270))
+                    });
 
                 }
                 if(cell.HasFlag(WallFlags.East))
                 {
-
+                    var outerWall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
+                    state.EntityManager.SetComponentData(outerWall, new LocalToWorldTransform
+                    {
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(0.5f, 0, 0), quaternion.AxisAngle(Vector3.up, Mathf.Deg2Rad * 90))
+                    });
                 }
             }
         }
@@ -97,6 +106,6 @@ public partial struct MazeGeneratorSystem : ISystem
 
     public float3 GridPositionToWorld(int x, int y)
     {
-        return new float3(x, 0, y);
+        return new float3(x + 0.5f, 0, y + 0.5f);
     }
 }
