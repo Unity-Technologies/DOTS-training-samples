@@ -26,7 +26,8 @@ partial struct ResourceSpawningSystem : ISystem
     {
     }
 
-    [BurstCompile]
+    // [BurstCompile] disabled as it cannot access MouseCaster class. The method is only called once
+    // a frame though, so no biggy. TJA
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<ResourceConfig>();
