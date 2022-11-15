@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
@@ -15,7 +16,7 @@ namespace Systems
         public float Dt;
         public uint Seed;
 
-        void Execute([EntityInQueryIndex] int index, Entity entity, ref Bee currentBee)
+        void Execute([EntityInQueryIndex] int index, ref Bee currentBee)
         {
             var newRandom = Random.CreateFromIndex((uint)index + Seed);
             var randomBee = BeeComponents[newRandom.NextInt(BeeComponents.Length)];
@@ -24,52 +25,75 @@ namespace Systems
             float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
             if (dist > 0f)
             {
-                currentBee.Velocity += delta * (TeamAttraction * Dt / dist);
+                var velocity = currentBee.Velocity;
+                velocity += delta * (TeamAttraction * Dt / dist);
+                currentBee.Velocity = velocity;
             }
         }
     }
-
+    
+    [BurstCompile]
     public partial struct BeeSwarmingSystem : ISystem
     {
-        private EntityQuery _beeQuery;
-        private ComponentLookup<Bee> _bees;
         private Random _random;
         private uint _randomSeed;
+        private EntityQuery _team1Bees;
+        private EntityQuery _team2Bees;
 
-
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<Bee>();
+            
+            var builder = new EntityQueryBuilder(Allocator.Temp);
+            builder.WithAll<Bee, TeamIdentifier>();
+            _team1Bees = state.GetEntityQuery(builder);
+            _team1Bees.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
+            _team2Bees = state.GetEntityQuery(builder);
+            _team2Bees.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
+
             _random = Random.CreateFromIndex(4000);
-            _beeQuery = state.GetEntityQuery(typeof(Bee));
-            _bees = state.GetComponentLookup<Bee>();
             state.RequireForUpdate<BeeConfig>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var dt = SystemAPI.Time.DeltaTime;
-            _bees.Update(ref state);
             
-            var teamAttraction = SystemAPI.GetSingleton<BeeConfig>().Team1.TeamAttraction;
-            //var bees = _beeQuery.ToEntityArray(Allocator.TempJob);
-            var beeComponents = _beeQuery.ToComponentDataArray<Bee>(Allocator.TempJob);
+            var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
 
-            var job = new SwarmJob()
+            var team1Bees = _team1Bees.ToComponentDataArray<Bee>(Allocator.TempJob);
+            var team2Bees = _team1Bees.ToComponentDataArray<Bee>(Allocator.TempJob);
+
+            var team1Job = new SwarmJob
             {
-                //Entities = bees,
-                BeeComponents = beeComponents,
+                BeeComponents = team1Bees,
                 Dt = dt,
                 Seed = _random.NextUInt(),
-                TeamAttraction = teamAttraction
+                TeamAttraction = beeConfig.Team1.TeamAttraction
             };
 
-            job.Schedule();
+            var team2Job = new SwarmJob
+            {
+                BeeComponents = team2Bees,
+                Dt = dt,
+                Seed = _random.NextUInt(),
+                TeamAttraction = beeConfig.Team2.TeamAttraction
+            };
 
-            beeComponents.Dispose(state.Dependency);
+            var team1Handle = team1Job.ScheduleParallel(_team1Bees, state.Dependency);
+            var team2Handle =team2Job.ScheduleParallel(_team2Bees, team1Handle);
+            
+            team2Handle.Complete();
+
+            team1Bees.Dispose();
+            team2Bees.Dispose();
         }
     }
 }
