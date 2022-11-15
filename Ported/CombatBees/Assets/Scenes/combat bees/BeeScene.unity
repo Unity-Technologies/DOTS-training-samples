@@ -215,10 +215,11 @@ MonoBehaviour:
       y: 10
       z: -15
     Color:
-      x: 91
-      y: 96
-      z: 60
-      w: 255
+      x: 0.9436232
+      y: 0.9485294
+      z: 0.5928309
+      w: 1
+    TeamAttraction: 0
   Team2:
     MinBounds:
       x: -40
@@ -229,10 +230,11 @@ MonoBehaviour:
       y: 10
       z: -15
     Color:
-      x: 34
-      y: 51
-      z: 101
-      w: 255
+      x: 0.3088235
+      y: 0.4279919
+      z: 1
+      w: 1
+    TeamAttraction: 0
 --- !u!4 &804745685
 Transform:
   m_ObjectHideFlags: 0

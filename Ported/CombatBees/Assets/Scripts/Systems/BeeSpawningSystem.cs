@@ -6,6 +6,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 public partial struct BeeSpawningSystem : ISystem
@@ -32,26 +33,24 @@ public partial struct BeeSpawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var Team1SpawnJob = new SpawnBeeJob
+        var team1SpawnJob = new SpawnBeeJob
         {
             ECB = ecb,
-            BeePrefab = beeConfig.BeePrefab,
-            BeesToSpawn = beeConfig.BeesToSpawn,
+            BeeConfig = beeConfig,
             Random = Random,
             Team = beeConfig.Team1
         };
         
-        var Team2SpawnJob = new SpawnBeeJob
+        var team2SpawnJob = new SpawnBeeJob
         {
             ECB = ecb,
-            BeePrefab = beeConfig.BeePrefab,
-            BeesToSpawn = beeConfig.BeesToSpawn,
+            BeeConfig = beeConfig,
             Random = Random,
             Team = beeConfig.Team2
         };
-        
-        var team1Handle = Team1SpawnJob.Schedule(state.Dependency);
-        var team2Handle = Team2SpawnJob.Schedule(team1Handle);
+
+        var team1Handle = team1SpawnJob.Schedule(state.Dependency);
+        var team2Handle = team2SpawnJob.Schedule(team1Handle);
         team2Handle.Complete();
         
         state.Enabled = false;
@@ -62,15 +61,14 @@ public partial struct BeeSpawningSystem : ISystem
 public struct SpawnBeeJob : IJob
 {
     public EntityCommandBuffer ECB;
-    public Entity BeePrefab;
-    public int BeesToSpawn;
     public Team Team;
     public Random Random;
+    public BeeConfig BeeConfig;
     
     public void Execute()
     {
-        var bees = CollectionHelper.CreateNativeArray<Entity>(BeesToSpawn, Allocator.Temp);
-        ECB.Instantiate(BeePrefab, bees);
+        var bees = CollectionHelper.CreateNativeArray<Entity>(BeeConfig.BeesToSpawn, Allocator.Temp);
+        ECB.Instantiate(BeeConfig.BeePrefab, bees);
 
         foreach (var bee in bees)
         {
@@ -78,7 +76,7 @@ public struct SpawnBeeJob : IJob
             {
                 Position = Random.NextFloat3(Team.MinBounds, Team.MaxBounds),
                 Rotation = quaternion.identity,
-                Scale = Random.NextFloat()
+                Scale = Random.NextFloat(BeeConfig.MinBeeSize, BeeConfig.MaxBeeSize)
             };
             ECB.SetComponent(bee, new LocalToWorldTransform
             {
@@ -87,6 +85,12 @@ public struct SpawnBeeJob : IJob
             ECB.SetComponent(bee, new URPMaterialPropertyBaseColor
             {
                 Value = Team.Color
+            });
+            ECB.SetComponent(bee, new Bee
+            {
+                Position = uniformScaleTransform.Position,
+                Scale = uniformScaleTransform.Scale,
+                Team = Team
             });
         }
     }
