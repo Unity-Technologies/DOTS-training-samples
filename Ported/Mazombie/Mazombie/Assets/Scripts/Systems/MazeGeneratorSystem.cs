@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
 public partial struct MazeGeneratorSystem : ISystem
 {

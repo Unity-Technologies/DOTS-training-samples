@@ -26,6 +26,7 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             tile = GetEntity(authoring.tileGO),
             wallPrefab = GetEntity(authoring.wallPrefab),
             playerSpawnPrefab = GetEntity(authoring.playerSpawnPrefab),
+            playerPrefab = GetEntity(authoring.playerPrefab),
             mazeSize = authoring.mazeSize,
             num_zombies = authoring.num_zombies,
             zombiePrefab = GetEntity(authoring.zombiePrefab)
