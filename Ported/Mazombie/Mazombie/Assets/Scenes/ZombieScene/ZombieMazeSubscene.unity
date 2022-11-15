@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -173,5 +173,11 @@ MonoBehaviour:
     type: 3}
   playerPrefab: {fileID: 1130627450907762, guid: 99e1dadff5ca5493786917e5f2f62a7c,
     type: 3}
+  movingWallPrefab: {fileID: 1674865798949028, guid: 68445a35eb5d74c7193824cda6d857b9,
+    type: 3}
+  numMovingWalls: 5
+  movingWallsLength: 5
+  movingWallRangeMin: 5
+  movingWallRangeMax: 10
   mazeSize: 30
   cellSize: 1

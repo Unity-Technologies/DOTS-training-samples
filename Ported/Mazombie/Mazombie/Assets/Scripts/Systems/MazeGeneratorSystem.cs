@@ -180,6 +180,24 @@ public partial struct MazeGeneratorSystem : ISystem
         //            grid[x + y * gameConfig.mazeSize] = tmp_cell;
         //    }
         //}
+        
+        
+        //Setup Moving Walls
+
+        for (int i = 0; i < gameConfig.numMovingWalls; i++)
+        { 
+            var movingWallIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+
+            for (int j = 0; j < gameConfig.movingWallsLength; j++)
+            {
+                var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
+                state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
+                {
+                    Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(movingWallIndex.x + j, movingWallIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
+                });
+            }
+        }
+        
 
         // spawn walls
         for (int y = 0; y < size; y++)
