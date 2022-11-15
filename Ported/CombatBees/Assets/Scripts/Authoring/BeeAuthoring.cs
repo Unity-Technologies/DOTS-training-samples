@@ -6,9 +6,6 @@ namespace Authoring
 {
     public class BeeAuthoring : MonoBehaviour
     {
-        public float3 Velocity;
-        public int Team;
-        public float4 Color;
     }
 
     public class BeeBaker : Baker<BeeAuthoring>

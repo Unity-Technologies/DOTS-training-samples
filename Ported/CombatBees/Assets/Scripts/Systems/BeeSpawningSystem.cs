@@ -92,6 +92,10 @@ public struct SpawnBeeJob : IJob
                 Scale = uniformScaleTransform.Scale,
                 Team = Team
             });
+            ECB.AddSharedComponent(bee, new TeamIdentifier
+            {
+                TeamNumber = Team.TeamNumber
+            });
         }
     }
 }

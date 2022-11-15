@@ -15,8 +15,9 @@ namespace Components
     }
 
     [System.Serializable]
-    public struct Team 
+    public struct Team
     {
+        public int TeamNumber;
         public float3 MinBounds;
         public float3 MaxBounds;
         public float4 Color;
