@@ -21,7 +21,7 @@ public partial struct ResourceMovementSystem : ISystem
     public void OnDestroy(ref SystemState state)
     {
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -31,15 +31,16 @@ public partial struct ResourceMovementSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var gravityJob = new GravityJob()
-        {
-            Dt = dt,
-            ECB = ecb,
-        };
 
-        gravityJob.Schedule();
+        // Note currently there's nothing to do here any more because gravity has been moved to Physical.
 
-        // resourceComponents.Dispose(state.Dependency);
+        // var gravityJob = new GravityJob()
+        // {
+        //     Dt = dt,
+        //     ECB = ecb,
+        // };
+        //
+        // gravityJob.Schedule();
     }
 
     [BurstCompile]
@@ -52,17 +53,6 @@ public partial struct ResourceMovementSystem : ISystem
         {
             // TODO, if there's time make prettier looking animation that bobs with a slight delay
 
-            // For now, just zero velocity once resources hit the ground. TJA
-            // Ideally this should be handled in the PhysicalSystem.
-            if (physical.Position.y > Field.GroundLevel)
-            {
-                // ALX: using field from static class, consider using a baked entity config instead
-                physical.Velocity.y += Dt * Field.gravity;
-            }
-            else
-            {
-                physical.Velocity = float3.zero;
-            }
         }
     }
 }

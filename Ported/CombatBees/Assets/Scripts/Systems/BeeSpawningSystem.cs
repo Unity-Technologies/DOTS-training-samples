@@ -93,7 +93,10 @@ public struct SpawnBeeJob : IJob
             });
             ECB.AddComponent(bee, new Physical
             {
-                Position = uniformScaleTransform.Position
+                Position = uniformScaleTransform.Position,
+                Velocity = float3.zero,
+                IsFalling = false,
+                Collision = Physical.FieldCollisionType.Bounce,
             });
             ECB.AddSharedComponent(bee, new TeamIdentifier
             {

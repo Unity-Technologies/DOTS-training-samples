@@ -1,4 +1,5 @@
-﻿using Components;
+﻿using System;
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -23,7 +24,7 @@ namespace Systems
             var randomBee = PhysicalComponents[newRandom.NextInt(PhysicalComponents.Length)];
 
             float3 delta = randomBee.Position - currentPhysical.Position;
-            float dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+            float dist = math.length(delta);
             if (dist > 0f)
             {
                 var velocity = currentPhysical.Velocity;

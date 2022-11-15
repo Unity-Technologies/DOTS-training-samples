@@ -118,7 +118,10 @@ partial struct ResourceSpawningSystem : ISystem
             // Set component data to position
             ECB.AddComponent(resource, new Physical()
             {
-                Position = uniformScaleTransform.Position
+                Position = uniformScaleTransform.Position,
+                Velocity = float3.zero,
+                IsFalling = true,
+                Collision = Physical.FieldCollisionType.Slump,
             });
         }
     }

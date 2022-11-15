@@ -25,7 +25,8 @@ namespace Systems
                 //Debug.Log($"I'm spawning blood particle!");
             }
             
-            physical.Velocity.y += Gravity * DeltaTime;
+            physical.IsFalling = true;
+            physical.Collision = Physical.FieldCollisionType.Splat;
             deadComponent.DeathTimer -= DeltaTime;
             
             if (deadComponent.DeathTimer < 0f)
