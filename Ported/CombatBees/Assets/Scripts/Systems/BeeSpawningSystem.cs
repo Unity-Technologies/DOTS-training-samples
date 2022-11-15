@@ -96,6 +96,14 @@ public struct SpawnBeeJob : IJob
             {
                 TeamNumber = Team.TeamNumber
             });
+            
+            ECB.AddComponent(bee, new Dead()
+            {
+                DeathTimer = 2f
+            });
+            
+            ECB.SetComponentEnabled<Dead>(bee, false);
+
         }
     }
 }

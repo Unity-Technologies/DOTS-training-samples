@@ -1,10 +1,8 @@
-﻿using System;
-using Components;
+﻿using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
@@ -44,6 +42,7 @@ namespace Systems
             _random = Random.CreateFromIndex(4000);
             _beeQuery = state.GetEntityQuery(typeof(Bee));
             _bees = state.GetComponentLookup<Bee>();
+            state.RequireForUpdate<BeeConfig>();
         }
 
         public void OnDestroy(ref SystemState state)
