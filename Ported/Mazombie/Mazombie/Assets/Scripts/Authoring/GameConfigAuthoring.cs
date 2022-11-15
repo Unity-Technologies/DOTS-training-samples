@@ -9,10 +9,12 @@ public class GameConfigAuthoring : MonoBehaviour
     public GameObject wallPrefab;
     public GameObject playerSpawnPrefab;
     public GameObject playerPrefab;
-
+    public GameObject zombiePrefab;
+    
     public int mazeSize;
 
     public float cellSize = 1.0f;
+    public int num_zombies = 10;
 }
 
 public class GameConfigBaker : Baker<GameConfigAuthoring>
@@ -25,6 +27,8 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             wallPrefab = GetEntity(authoring.wallPrefab),
             playerSpawnPrefab = GetEntity(authoring.playerSpawnPrefab),
             mazeSize = authoring.mazeSize,
+            num_zombies = authoring.num_zombies,
+            zombiePrefab = GetEntity(authoring.zombiePrefab)
         });
     }
 }
