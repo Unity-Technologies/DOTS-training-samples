@@ -88,9 +88,12 @@ public struct SpawnBeeJob : IJob
             });
             ECB.SetComponent(bee, new Bee
             {
-                Position = uniformScaleTransform.Position,
                 Scale = uniformScaleTransform.Scale,
                 Team = Team
+            });
+            ECB.AddComponent(bee, new Physical
+            {
+                Position = uniformScaleTransform.Position
             });
             ECB.AddSharedComponent(bee, new TeamIdentifier
             {
