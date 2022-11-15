@@ -54,7 +54,7 @@ public partial struct AntSpawningSystem : ISystem
 
             var postTransform = new PostTransformMatrix()
             {
-                Value = float4x4.Scale(3f, 1f, 1f)
+                Value = float4x4.Scale(1f, 0.5f, 0.5f)
             };
             ecb.AddComponent(ant,postTransform);
         }
