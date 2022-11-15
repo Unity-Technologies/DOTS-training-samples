@@ -155,7 +155,6 @@ MonoBehaviour:
   ResourcePrefab: {fileID: 4117684478861434699, guid: c9aae27d9ee354843995f6c8ad06c73c,
     type: 3}
   InitialCount: 200
-  SpawnRadius: 10
 --- !u!4 &269090574
 Transform:
   m_ObjectHideFlags: 0
@@ -220,7 +219,7 @@ MonoBehaviour:
       y: 0.9485294
       z: 0.5928309
       w: 1
-    TeamAttraction: 0
+    TeamAttraction: 5
   Team2:
     TeamNumber: 1
     MinBounds:
@@ -236,7 +235,7 @@ MonoBehaviour:
       y: 0.4279919
       z: 1
       w: 1
-    TeamAttraction: 0
+    TeamAttraction: 5
 --- !u!4 &804745685
 Transform:
   m_ObjectHideFlags: 0
