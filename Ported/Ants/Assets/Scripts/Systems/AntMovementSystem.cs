@@ -27,9 +27,9 @@ public partial struct AntMovementSystem : ISystem
         foreach ((TransformAspect transformAspect,  Ant ant) in SystemAPI.Query<TransformAspect,Ant>())
         {
             var dir = float3.zero;
-            math.sincos(ant.Angle, out dir.x, out dir.z);
+            math.sincos(ant.Angle, out dir.x, out dir.y);
             transformAspect.Position += dir * deltaTime * ant.Speed;
-            transformAspect.Rotation = quaternion.RotateZ(ant.Angle);
+            transformAspect.Rotation = quaternion.RotateY(ant.Angle);
         }
     }
 }
