@@ -13,7 +13,7 @@ public partial struct ResourceMovementSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         // TODO filter out resources that are being carried by bees from gravity
-        _resourcesQuery = state.GetEntityQuery(typeof(Resource));
+        _resourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource>().Build();
         _resources = state.GetComponentLookup<Resource>();
     }
 
@@ -50,34 +50,19 @@ public partial struct ResourceMovementSystem : ISystem
 
         void Execute([EntityInQueryIndex] int index, Entity entity, ref Resource resource, ref Physical physical)
         {
-            // // TODO, if there's time make prettier looking animation that bobs with a slight delay
-            physical.Position = ApplyGravity(physical.Position, Dt);
-            var uniformScaleTransform = new UniformScaleTransform
-            {
-                // ALX: now using Field bounds, but could cluster closer to the centre if desired
-                Position = ApplyGravity(physical.Position, Dt),
-                Rotation = quaternion.identity,
-                Scale = 1
-            };
-            
-            ECB.SetComponent(entity, new LocalToWorldTransform
-            {
-                Value = uniformScaleTransform
-            });
-        }
+            // TODO, if there's time make prettier looking animation that bobs with a slight delay
 
-        /// <summary>
-        /// Only linear gravity right now. Potentially TODO have acceleration
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        static float3 ApplyGravity(float3 position, float dt)
-        {
-            var newPosition = position;
-            newPosition.y += dt * Field.gravity; // ALX: using field from static class, consider using a baked entity config instead
-            newPosition.y = math.max(newPosition.y, Field.GroundLevel);
-            return newPosition;
+            // For now, just zero velocity once resources hit the ground. TJA
+            // Ideally this should be handled in the PhysicalSystem.
+            if (physical.Position.y > Field.GroundLevel)
+            {
+                // ALX: using field from static class, consider using a baked entity config instead
+                physical.Velocity.y += Dt * Field.gravity;
+            }
+            else
+            {
+                physical.Velocity = float3.zero;
+            }
         }
     }
 }
