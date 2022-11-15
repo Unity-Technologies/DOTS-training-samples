@@ -51,7 +51,7 @@ partial struct ResourceSpawningSystem : ISystem
     
     // TODO spawn on click too
     [BurstCompile]
-    public struct SpawnResourceJob : IJob
+    struct SpawnResourceJob : IJob
     {
         public EntityCommandBuffer ECB;
         public Entity ResourcePrefab;
@@ -68,14 +68,22 @@ partial struct ResourceSpawningSystem : ISystem
             {
                 var uniformScaleTransform = new UniformScaleTransform
                 {
-                    Position = Random.NextFloat3(new float3(-SpawnRadius, 0, -SpawnRadius), new float3(SpawnRadius, 0, SpawnRadius)),
+                    // ALX: now using Field bounds, but could cluster closer to the centre if desired
+                    // Position = Random.NextFloat3(new float3(-SpawnRadius, 0, -SpawnRadius), new float3(SpawnRadius, 0, SpawnRadius)),
+                    Position = Random.NextFloat3(Field.ResourceBoundsMin, Field.ResourceBoundsMax),
                     Rotation = quaternion.identity,
                     Scale = 1
                 };
                 
+                // Set object position to position
                 ECB.SetComponent(resource, new LocalToWorldTransform
                 {
                     Value = uniformScaleTransform
+                });
+                // Set component data to position
+                ECB.AddComponent(resource, new Resource()
+                {
+                    Position = uniformScaleTransform.Position
                 });
             }
         }
