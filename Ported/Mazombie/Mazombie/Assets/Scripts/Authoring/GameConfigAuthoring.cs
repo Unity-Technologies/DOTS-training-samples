@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameConfigAuthoring : MonoBehaviour
 {
     public GameObject tileGO;
+    public GameObject wallPrefab;
 
     public int mazeSize;
 
@@ -19,8 +20,8 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
         AddComponent(new GameConfig
         {
             tile = GetEntity(authoring.tileGO),
+            wallPrefab = GetEntity(authoring.wallPrefab),
             mazeSize = authoring.mazeSize,
-            cellSize = authoring.cellSize
         });
     }
 }

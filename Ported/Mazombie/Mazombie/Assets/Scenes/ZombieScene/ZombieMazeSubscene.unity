@@ -168,5 +168,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tileGO: {fileID: 1379298829275194, guid: 5ccb5558c59eb47b4b09a09c1816a9e3, type: 3}
+  wallPrefab: {fileID: 1812351511079818, guid: 22d5859ac894944eda49102813f47544, type: 3}
   mazeSize: 15
   cellSize: 1
