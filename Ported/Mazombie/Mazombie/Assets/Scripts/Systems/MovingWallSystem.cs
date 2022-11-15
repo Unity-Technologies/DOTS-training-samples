@@ -13,7 +13,6 @@ public partial struct MovingWallSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        throw new System.NotImplementedException();
     }
 
     [BurstCompile]
