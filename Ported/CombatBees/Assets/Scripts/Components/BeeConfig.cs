@@ -23,5 +23,10 @@ namespace Components
         public float3 MaxBounds;
         public float4 Color;
         public float TeamAttraction;
+        public float TeamAggression;
+        public float AttackDistance;
+        public float ChaseForce;
+        public float AttackForce;
+        public float HitDistance;
     }
 }

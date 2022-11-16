@@ -111,7 +111,6 @@ public struct SpawnBeeJob : IJob
             });
             
             ECB.SetComponentEnabled<Dead>(bee, false);
-
         }
     }
 }

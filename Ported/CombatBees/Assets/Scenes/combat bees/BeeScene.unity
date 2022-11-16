@@ -221,6 +221,11 @@ MonoBehaviour:
       z: 0.5928309
       w: 1
     TeamAttraction: 5
+    TeamAggression: 5
+    AttackDistance: 5
+    ChaseForce: 2
+    AttackForce: 3
+    HitDistance: 5
   Team2:
     TeamNumber: 2
     MinBounds:
@@ -237,6 +242,11 @@ MonoBehaviour:
       z: 1
       w: 1
     TeamAttraction: 5
+    TeamAggression: 5
+    AttackDistance: 5
+    ChaseForce: 2
+    AttackForce: 3
+    HitDistance: 5
 --- !u!4 &804745685
 Transform:
   m_ObjectHideFlags: 0

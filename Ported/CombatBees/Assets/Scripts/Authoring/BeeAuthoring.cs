@@ -1,3 +1,5 @@
+using Components;
+using DefaultNamespace;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -12,7 +14,11 @@ namespace Authoring
     {
         public override void Bake(BeeAuthoring authoring)
         {
-            AddComponent<Bee>();
+            AddComponent(new Bee
+            {
+                State = Beehaviors.Idle
+            });
+
         }
     }
 }

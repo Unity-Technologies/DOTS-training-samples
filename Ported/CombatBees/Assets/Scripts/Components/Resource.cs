@@ -5,4 +5,5 @@ public struct Resource : IComponentData
 {
     public bool Dead;
     public bool IsTopOfStack;
+    public Entity Holder;
 }
