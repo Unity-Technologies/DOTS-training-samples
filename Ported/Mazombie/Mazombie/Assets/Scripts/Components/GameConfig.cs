@@ -13,4 +13,6 @@ public struct GameConfig : IComponentData
     public int movingWallRangeMin;
     public int movingWallRangeMax;
     public int mazeSize;
+    public int openStripWidth;
+    public int mazeStripWidth;
 }

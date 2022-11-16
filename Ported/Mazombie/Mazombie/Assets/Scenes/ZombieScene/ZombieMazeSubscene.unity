@@ -180,4 +180,6 @@ MonoBehaviour:
   movingWallRangeMin: 5
   movingWallRangeMax: 10
   mazeSize: 30
+  openStripWidth: 5
+  mazeStripWidth: 4
   cellSize: 1

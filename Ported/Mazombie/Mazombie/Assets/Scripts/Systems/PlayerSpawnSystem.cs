@@ -31,9 +31,8 @@ public partial struct PlayerSpawnSystem : ISystem
             var playerEntity = ecb.Instantiate(gameConfig.playerPrefab);
             ecb.SetComponent(playerEntity, new LocalToWorldTransform
             {
-                Value = UniformScaleTransform.FromPosition(localToWorld.ValueRO.Value.Position + math.up() * 0.5f)
+                Value = UniformScaleTransform.FromPosition(localToWorld.ValueRO.Value.Position + math.up() * 0.55f)
             });
-            ecb.AddComponent<Player>(playerEntity);
             break;
         }
         

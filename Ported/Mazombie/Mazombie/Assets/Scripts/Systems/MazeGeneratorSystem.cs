@@ -26,25 +26,25 @@ public partial struct MazeGeneratorSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var random = new Random(42);
-        
+
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
-        
+
         // create grid dynamic buffer
         var grid = state.EntityManager.AddBuffer<GridCell>(gameConfigEntity);
         grid.Resize(gameConfig.mazeSize * gameConfig.mazeSize, NativeArrayOptions.ClearMemory);
-        
+
         // spawn floor
         var floorEntity = state.EntityManager.Instantiate(gameConfig.tile);
         state.EntityManager.SetComponentData(floorEntity, new LocalToWorldTransform
         {
-            Value = UniformScaleTransform.FromPositionRotationScale(new float3(gameConfig.mazeSize/2.0f, (-gameConfig.mazeSize/2.0f) * 0.1f - 0.5f, gameConfig.mazeSize/2.0f), quaternion.identity, gameConfig.mazeSize)
+            Value = UniformScaleTransform.FromPositionRotationScale(new float3(gameConfig.mazeSize / 2.0f, (-gameConfig.mazeSize / 2.0f) * 0.1f - 0.5f, gameConfig.mazeSize / 2.0f), quaternion.identity, gameConfig.mazeSize)
         });
 
         var size = gameConfig.mazeSize;
         var numCells = size * size;
         bool[] cellVisited = new bool[numCells];
-        
+
         GridCell cell = new GridCell { wallFlags = (byte)WallFlags.None };
         cell.wallFlags |= (byte)WallFlags.North;
         cell.wallFlags |= (byte)WallFlags.East;
@@ -68,9 +68,9 @@ public partial struct MazeGeneratorSystem : ISystem
         cellVisited[current.x + current.y * size] = true;
 
         int numVisited = 1;
-        
+
         // TODO: move to a job
-        while(numVisited < numCells)
+        while (numVisited < numCells)
         {
             // north, west, south, east
             var unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
@@ -105,17 +105,17 @@ public partial struct MazeGeneratorSystem : ISystem
                 // remove wall between cells
                 var currentCell = grid[current.x + current.y * size];
                 var nextCell = grid[next.x + next.y * size];
-                if(next.x > current.x)
+                if (next.x > current.x)
                 {
                     currentCell.wallFlags &= (byte)~WallFlags.East;
                     nextCell.wallFlags &= (byte)~WallFlags.West;
                 }
-                else if(next.y > current.y)
+                else if (next.y > current.y)
                 {
                     currentCell.wallFlags &= (byte)~WallFlags.North;
                     nextCell.wallFlags &= (byte)~WallFlags.South;
                 }
-                else if(next.x < current.x)
+                else if (next.x < current.x)
                 {
                     currentCell.wallFlags &= (byte)~WallFlags.West;
                     nextCell.wallFlags &= (byte)~WallFlags.East;
@@ -135,7 +135,7 @@ public partial struct MazeGeneratorSystem : ISystem
             }
             else
             {
-                if(stack.Length > 0)
+                if (stack.Length > 0)
                 {
                     // get element at the end
                     current = stack[stack.Length - 1];
@@ -145,59 +145,80 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // override the border walls
-        //for (int y = 0; y < gameConfig.mazeSize; y++)
-        //{
-        //    for (int x = 0; x < gameConfig.mazeSize; x++)
-        //    {
-        //        GridCell tmp_cell = new GridCell { wallFlags = (byte)WallFlags.None };
-        //        bool update_cell = false;
-
-        //        if (x == 0)
-        //        {
-        //            tmp_cell.wallFlags |= (byte)WallFlags.West;
-        //            update_cell = true;
-        //        }
-        //        if (y == 0)
-        //        {
-        //            tmp_cell.wallFlags |= (byte)WallFlags.North;
-        //            update_cell = true;
-
-        //        }
-        //        if (x == gameConfig.mazeSize - 1)
-        //        {
-        //            tmp_cell.wallFlags |= (byte)WallFlags.East;
-        //            update_cell = true;
-
-        //        }
-        //        if (y == gameConfig.mazeSize - 1)
-        //        {
-        //            tmp_cell.wallFlags |= (byte)WallFlags.South;
-        //            update_cell = true;
-        //        }
-
-        //        if(update_cell)
-        //            grid[x + y * gameConfig.mazeSize] = tmp_cell;
-        //    }
-        //}
-        
-        
-        //Setup Moving Walls
-
-        for (int i = 0; i < gameConfig.numMovingWalls; i++)
-        { 
-            var movingWallIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-
-            for (int j = 0; j < gameConfig.movingWallsLength; j++)
+        if (gameConfig.openStripWidth + gameConfig.mazeStripWidth > 0)
+        {
+            int offset = 0;
+            for (; offset < size; offset += gameConfig.openStripWidth + gameConfig.mazeStripWidth)
             {
-                var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
-                state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
+                for (int y = offset; y < math.min(offset + gameConfig.openStripWidth, size); y++)
                 {
-                    Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(movingWallIndex.x + j, movingWallIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
-                });
+                    for (int x = 0; x < size; x++)
+                    {
+                        if (x > 0)
+                        {
+                            SetDownWall(x, y, ref grid, size);
+                        }
+                        if (y > offset)
+                        {
+                            SetLeftWall(x, y, ref grid, size);
+                        }
+                    }
+                }
             }
         }
-        
+
+        // remove walls around border
+        for (int y = 0; y < math.min(gameConfig.openStripWidth, size); y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                if (x > 0)
+                {
+                    SetDownWall(x, y, ref grid, size);
+                }
+                if (y > 0)
+                {
+                    SetLeftWall(x, y, ref grid, size);
+                }
+            }
+        }
+
+        for (int y = math.max(size - gameConfig.openStripWidth, 0); y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                if (x > 0)
+                {
+                    SetDownWall(x, y, ref grid, size);
+                }
+                if (y > 0)
+                {
+                    SetLeftWall(x, y, ref grid, size);
+                }
+            }
+        }
+
+        for (int x = 0; x < math.min(gameConfig.openStripWidth, size); x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                if (x > 0)
+                    SetDownWall(x, y, ref grid, size);
+                if (y > 0)
+                    SetLeftWall(x, y, ref grid, size);
+            }
+        }
+
+        for (int x = math.max(size - gameConfig.openStripWidth, 0); x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                if (x > 0)
+                    SetDownWall(x, y, ref grid, size);
+                if (y > 0)
+                    SetLeftWall(x, y, ref grid, size);
+            }
+        }
 
         // spawn walls
         for (int y = 0; y < size; y++)
@@ -210,7 +231,7 @@ public partial struct MazeGeneratorSystem : ISystem
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
                     {
-                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) - new float3(0, 0, 0.5f), quaternion.identity)
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.identity)
                     });
                 }
                 if (tmp_cell.HasFlag(WallFlags.South))
@@ -218,7 +239,7 @@ public partial struct MazeGeneratorSystem : ISystem
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
                     {
-                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) - new float3(0, 0, 0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
                     });
                 }
                 if (tmp_cell.HasFlag(WallFlags.West))
@@ -240,7 +261,7 @@ public partial struct MazeGeneratorSystem : ISystem
                 }
             }
         }
-        
+
         // spawn player spawn point
         var playerSpawnPos = GridPositionToWorld(
             random.NextInt(0, gameConfig.mazeSize - 1),
@@ -254,6 +275,44 @@ public partial struct MazeGeneratorSystem : ISystem
 
 
         state.Enabled = false;
+    }
+
+    void SetDownWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x - 1;
+        var c = y;
+        if (c < 0 || c >= size) return;
+        if (r >= 0 && r < size)
+        {
+            var tmp = grid[r + c * size];
+            tmp.wallFlags &= (byte)~WallFlags.North;
+            grid[r + c * size] = tmp;
+        }
+        if (r + 1 >= 0 && r + 1 < size)
+        {
+            var tmp = grid[r + 1 + c * size];
+            tmp.wallFlags &= (byte)~WallFlags.South;
+            grid[r + 1 + c * size] = tmp;
+        }
+    }
+
+    void SetLeftWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x;
+        var c = y - 1;
+        if (r < 0 || r >= size) return;
+        if (c >= 0 && c < size)
+        {
+            var tmp = grid[r + c * size];
+            tmp.wallFlags &= (byte)~WallFlags.East;
+            grid[r + c * size] = tmp;
+        }
+        if (c + 1 >= 0 && c + 1 < size)
+        {
+            var tmp = grid[r + (c + 1) * size];
+            tmp.wallFlags &= (byte)~WallFlags.West;
+            grid[r + (c + 1) * size] = tmp;
+        }
     }
 
     public int GetGridIndex(int x, int y, int size)
