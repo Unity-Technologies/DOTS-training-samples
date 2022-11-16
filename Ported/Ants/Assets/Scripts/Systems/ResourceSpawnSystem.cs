@@ -46,6 +46,7 @@ partial struct ResourceSpawnSystem : ISystem
         LocalToWorldTransform resourceTransform = new LocalToWorldTransform();
         resourceTransform.Value.Position = resourcePosition;
         resourceTransform.Value.Scale = config.WallRadius; // need to scale or it equals zero 
+        config.ResourcePoint = resourceTransform.Value.Position;
         ECB.SetComponent(resource, resourceTransform);
         ECB.AddComponent<Resource>(resource); // add the colony tag 
 

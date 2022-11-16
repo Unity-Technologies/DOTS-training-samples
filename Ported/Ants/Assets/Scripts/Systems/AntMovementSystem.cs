@@ -45,8 +45,15 @@ public partial struct AntMovementSystem : ISystem
             angle += angle * rand.NextFloat(-180, 180);
             var angleInRadians = math.radians(ant.ValueRO.Angle + angle);//ant.ValueRO.Angle
 
-            dir.x += math.cos(angleInRadians + config.ResourcePoint.x);// + rand.NextFloat(1f, 5f));
-            dir.y += math.sin(angleInRadians + config.ResourcePoint.y);
+            var resourceDir = float3.zero;
+            
+            // realtive
+            var relative = 
+            
+            var lookat = quaternion.LookRotationSafe(transformAspect.Position, )
+
+            dir.x += math.cos(angleInRadians);// + rand.NextFloat(1f, 5f));
+            dir.y += math.sin(angleInRadians + );
 
             transformAspect.Position += dir * deltaTime * ant.ValueRO.Speed;
             transformAspect.Rotation = quaternion.RotateZ(angleInRadians);
