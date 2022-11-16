@@ -145,7 +145,7 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // remove vertical strips of walls
+        // remove strips of walls
         if (gameConfig.openStripWidth + gameConfig.mazeStripWidth > 0)
         {
             int offset = 0;
