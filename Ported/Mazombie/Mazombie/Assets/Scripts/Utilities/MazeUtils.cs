@@ -15,13 +15,16 @@ public struct MazeUtils
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float3 GridPositionToWorld(int x, int y)
     {
-        return new float3(x + 0.5f, 0, y + 0.5f);
+        return new (x + 0.5f, 0, y + 0.5f);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int2 WorldPositionToGrid(float3 worldPos)
     {
-        return new int2((int)(worldPos.x), (int)(worldPos.z));
+        if (worldPos.x < 0) worldPos.x--;
+        if (worldPos.z < 0) worldPos.z--;
+        
+        return new ((int)worldPos.x, (int)worldPos.z);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,27 +39,28 @@ public struct MazeUtils
             Bottom = pos + math.back() * 0.5f
         };
     }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int CellIdxFromPos(int2 gridPos, int gridSize)
     {
         return gridPos.x + gridPos.y * gridSize;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int CellIdxFromPos(int x, int y, int gridSize)
     {
         return x + y * gridSize;
     }
-    
+
     public static void DrawGridCell(int2 gridPos, byte wallFlags = 0)
     {
         var bounds = GetGridCellWorldBounds(gridPos.x, gridPos.y);
 
         Vector3[] points =
         {
-           new Vector3(bounds.Left.x, -0.4f, bounds.Top.z),     //topleft
-           new Vector3(bounds.Right.x, -0.4f, bounds.Top.z),    //topright
-           new Vector3(bounds.Right.x, -0.4f, bounds.Bottom.z), //bottom right
-           new Vector3(bounds.Left.x, -0.4f, bounds.Bottom.z)   //bottom left
+           new (bounds.Left.x, -0.4f, bounds.Top.z),     //top left
+           new (bounds.Right.x, -0.4f, bounds.Top.z),    //top right
+           new (bounds.Right.x, -0.4f, bounds.Bottom.z), //bottom right
+           new (bounds.Left.x, -0.4f, bounds.Bottom.z)   //bottom left
         };
         int[] indices = {
             0, 1, // north

@@ -169,58 +169,61 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // remove walls around border
-        //for (int y = 0; y < math.min(gameConfig.openStripWidth, size); y++)
-        //{
-        //    for (int x = 0; x < size; x++)
-        //    {
-        //        if (x > 0)
-        //        {
-        //            SetDownWall(x, y, ref grid, size);
-        //        }
-        //        if (y > 0)
-        //        {
-        //            SetLeftWall(x, y, ref grid, size);
-        //        }
-        //    }
-        //}
+        // remove walls at west border running south to north
+        for (int y = 0; y < 0; y++)
+        {
+            for (int x = 0; x < math.min(gameConfig.openStripWidth, size); x++)
+            {
+                if (x > 0)
+                {
+                    RemoveEastWestWall(x, y, ref grid, size);
+                }
+                if (y > 0)
+                {
+                    RemoveNorthSouthWall(x, y, ref grid, size);
+                }
+            }
+        }
 
-        //for (int y = math.max(size - gameConfig.openStripWidth, 0); y < size; y++)
-        //{
-        //    for (int x = 0; x < size; x++)
-        //    {
-        //        if (x > 0)
-        //        {
-        //            SetDownWall(x, y, ref grid, size);
-        //        }
-        //        if (y > 0)
-        //        {
-        //            SetLeftWall(x, y, ref grid, size);
-        //        }
-        //    }
-        //}
+        // remove walls at east border running south to north
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = math.max(size - gameConfig.openStripWidth, 0); x < size; x++)
+            {
+                if (x > 0)
+                {
+                    RemoveEastWestWall(x, y, ref grid, size);
+                }
+                if (y > 0)
+                {
+                    RemoveNorthSouthWall(x, y, ref grid, size);
+                }
+            }
+        }
 
-        //for (int x = 0; x < math.min(gameConfig.openStripWidth, size); x++)
-        //{
-        //    for (int y = 0; y < size; y++)
-        //    {
-        //        if (x > 0)
-        //            SetDownWall(x, y, ref grid, size);
-        //        if (y > 0)
-        //            SetLeftWall(x, y, ref grid, size);
-        //    }
-        //}
+        // remove walls at south border running west to east
+        for (int y = 0; y < math.min(gameConfig.openStripWidth, size); y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                if (x > 0)
+                    RemoveEastWestWall(x, y, ref grid, size);
+                if (y > 0)
+                    RemoveNorthSouthWall(x, y, ref grid, size);
+            }
+        }
 
-        //for (int x = math.max(size - gameConfig.openStripWidth, 0); x < size; x++)
-        //{
-        //    for (int y = 0; y < size; y++)
-        //    {
-        //        if (x > 0)
-        //            SetDownWall(x, y, ref grid, size);
-        //        if (y > 0)
-        //            SetLeftWall(x, y, ref grid, size);
-        //    }
-        //}
+        // remove walls at north border running west to east
+        for (int y = math.max(size - gameConfig.openStripWidth, 0); y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                if (x > 0)
+                    RemoveEastWestWall(x, y, ref grid, size);
+                if (y > 0)
+                    RemoveNorthSouthWall(x, y, ref grid, size);
+            }
+        }
         
         
         //the amount of indices occupied by the moving walls.
@@ -235,17 +238,17 @@ public partial struct MazeGeneratorSystem : ISystem
 
             for (int j = 0; j < movingWallRange; j++)
             {
-                //Clear out overlapping WallFlags
-                var tmp_cell = grid[(wallStartIndex.x + j) + wallStartIndex.y * size];
-                tmp_cell.wallFlags &= (byte)~WallFlags.South;
 
-                grid[(wallStartIndex.x + j) + wallStartIndex.y * size] = tmp_cell;
+                //Clear out overlapping WallFlags
+                var tmp_cell = grid[i + j * size];
+                tmp_cell.wallFlags &= (byte)~WallFlags.South;
+                grid[i + j * size] = tmp_cell;
 
                 
                 //Spawn Wall for length
                 if (j < gameConfig.movingWallsLength)
                 {
-                    movingWallLocationStack.Add((wallStartIndex.x + j) + wallStartIndex.y * size);
+                    movingWallLocationStack.Add(i + j * size);
                     
                     //Create Segment for wall
                     var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
@@ -310,8 +313,7 @@ public partial struct MazeGeneratorSystem : ISystem
             movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
             
             var tmp_cell = grid[currentIndex];
-            tmp_cell.wallFlags |= (byte)~WallFlags.South;
-            
+            tmp_cell.wallFlags &= (byte)~WallFlags.South;
             grid[currentIndex] = tmp_cell;
         }
 

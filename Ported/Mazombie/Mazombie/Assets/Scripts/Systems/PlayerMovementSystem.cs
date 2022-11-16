@@ -37,23 +37,30 @@ public partial struct PlayerMovementSystem : ISystem
         float3 cameraRight = math.mul(cameraLTW.Value.Rotation, math.right());
         float3 cameraForwardOnUpPlane = math.normalizesafe(cameraFwd - math.projectsafe(cameraFwd, math.up()));
 
-        float3 moveVector = playerInput.movement.y * cameraForwardOnUpPlane + playerInput.movement.x * cameraRight;
-        moveVector = math.normalizesafe(moveVector);
+        float3 movementDir = playerInput.movement.y * cameraForwardOnUpPlane + playerInput.movement.x * cameraRight;
+        movementDir = math.normalizesafe(movementDir);
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         foreach (var playerAspect in SystemAPI.Query<PlayerAspect>())
         {
+            float playerRadius = 0.45f; // TODO: get from mesh half-size?
             float3 playerPosition = playerAspect.Transform.ValueRW.Value.Position;
-            float3 movementDelta = moveVector * playerAspect.Player.ValueRO.speed * SystemAPI.Time.DeltaTime;
-            float3 movementDir = math.normalizesafe(movementDelta);
+            
+            float3 movementDelta = movementDir
+                                   * playerAspect.Player.ValueRO.speed
+                                   * SystemAPI.Time.DeltaTime;
             
             int2 currCell = MazeUtils.WorldPositionToGrid(playerPosition);
-            int2 nextCell = MazeUtils.WorldPositionToGrid(playerPosition + movementDelta + 0.4f * movementDir);
+            int2 nextCell = MazeUtils.WorldPositionToGrid(
+                playerPosition
+                + movementDelta
+                + playerRadius * movementDir
+                );
             int2 cellDiff = nextCell - currCell;
-            
+
             var currCellWallFlags = grid[MazeUtils.CellIdxFromPos(currCell, gameConfig.mazeSize)].wallFlags;
-            var nextCellWallFlags = (byte) WallFlags.All;
+            var nextCellWallFlags = (byte)WallFlags.All;
             if(nextCell.x >= 0 && nextCell.x < gameConfig.mazeSize && nextCell.y >= 0 && nextCell.y < gameConfig.mazeSize)
                 nextCellWallFlags = grid[MazeUtils.CellIdxFromPos(nextCell, gameConfig.mazeSize)].wallFlags;
             
@@ -63,7 +70,7 @@ public partial struct PlayerMovementSystem : ISystem
             if (cellDiff.x < 0)
             {
                 if ((currCellWallFlags & (byte)WallFlags.West) != 0 
-                || (nextCellWallFlags & (byte)WallFlags.East) != 0)
+                    || (nextCellWallFlags & (byte)WallFlags.East) != 0)
                 {
                     movementDelta.x = 0;
                 }
@@ -71,8 +78,8 @@ public partial struct PlayerMovementSystem : ISystem
             // going right
             if (cellDiff.x > 0)
             {
-                if ((currCellWallFlags & (byte) WallFlags.East) != 0
-                || (nextCellWallFlags & (byte) WallFlags.West) != 0)
+                if ((currCellWallFlags & (byte)WallFlags.East) != 0
+                    || (nextCellWallFlags & (byte)WallFlags.West) != 0)
                 {
                     movementDelta.x = 0;
                 }
@@ -96,13 +103,14 @@ public partial struct PlayerMovementSystem : ISystem
                 }
             }
 
+            // Move & Rotate player based on updated movement vector
             playerAspect.Transform.ValueRW.Value.Position += movementDelta;
             if (math.lengthsq(movementDelta) > 0)
             {
                 playerAspect.Transform.ValueRW.Value.Rotation =
                     math.slerp(
                          playerAspect.Transform.ValueRW.Value.Rotation, 
-                         quaternion.LookRotationSafe(movementDelta, math.up()),
+                         quaternion.LookRotationSafe(movementDir, math.up()),
                          playerAspect.Player.ValueRO.speed * 2.0f * SystemAPI.Time.DeltaTime
                         );   
             }
