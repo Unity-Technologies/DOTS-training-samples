@@ -4,8 +4,6 @@ using Systems.Particles;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -30,13 +28,13 @@ namespace Systems
                 ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
                     physical.Position,
                     ParticleType.Blood, physical.Velocity, 6f);
-
+                
                 var shouldShowExtraGore = random.NextFloat() > 0.8f;
                 if (shouldShowExtraGore)
                 {
                     ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
                         physical.Position,
-                        ParticleType.Blood, physical.Velocity * 3, 16f, 3);
+                        ParticleType.Blood, physical.Velocity * 3, 16f);
                 }
             }
 
@@ -75,7 +73,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             if (Input.GetKeyDown(KeyCode.Space))

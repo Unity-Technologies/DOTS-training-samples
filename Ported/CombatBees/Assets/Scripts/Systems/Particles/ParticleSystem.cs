@@ -71,6 +71,10 @@ namespace Systems.Particles
                 }
             }
 
+            scale.x = math.min(scale.x, 2);
+            scale.y = math.min(scale.y, 2);
+            scale.z = math.min(scale.z, 2);
+            
             transformMatrix.Value = float4x4.Scale(scale);
             transform.Position = particle.position;
             
