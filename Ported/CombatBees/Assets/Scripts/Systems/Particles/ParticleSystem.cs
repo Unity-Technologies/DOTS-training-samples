@@ -59,12 +59,12 @@ namespace Systems.Particles
 
             const float speedStretch = 0.25f;
 
-            particle.color.w = particle.life;
-
-            Ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor
-            {
-                Value = particle.color
-            });
+            // particle.color.w = particle.life;
+            //
+            // Ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor
+            // {
+            //     Value = particle.color
+            // });
 
             if (!particle.stuck)
             {
