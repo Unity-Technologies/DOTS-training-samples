@@ -205,7 +205,7 @@ MonoBehaviour:
   MinBeeSize: 0.25
   MaxBeeSize: 0.5
   Team1:
-    TeamNumber: 0
+    TeamNumber: 1
     MinBounds:
       x: 40
       y: -10
@@ -221,7 +221,7 @@ MonoBehaviour:
       w: 1
     TeamAttraction: 5
   Team2:
-    TeamNumber: 1
+    TeamNumber: 2
     MinBounds:
       x: -40
       y: -10

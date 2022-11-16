@@ -45,6 +45,9 @@ public partial struct PhysicalSystem : ISystem
     {
         public EntityCommandBuffer ECB;
         public float Dt;
+        public static readonly float3 right = new float3(1, 0, 0);
+        public static readonly float3 up = new float3(0, 1, 0);
+        public static readonly float3 forward = new float3(0, 0, 1);
 
         void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, in LocalToWorldTransform localToWorld)
         {
@@ -77,21 +80,18 @@ public partial struct PhysicalSystem : ISystem
                         // Reflect velocity and excess
                         if (exceededX)
                         {
-                            var normal = new float3(1, 0, 0);
-                            excess = math.reflect(excess, normal);
-                            physical.Velocity = math.reflect(physical.Velocity, normal);
+                            excess = math.reflect(excess, right);
+                            physical.Velocity = math.reflect(physical.Velocity, right);
                         }
                         if (exceededY)
                         {
-                            var normal = new float3(0, 1, 0);
-                            excess = math.reflect(excess, normal);
-                            physical.Velocity = math.reflect(physical.Velocity, normal);
+                            excess = math.reflect(excess, up);
+                            physical.Velocity = math.reflect(physical.Velocity, up);
                         }
                         if (exceededZ)
                         {
-                            var normal = new float3(0, 0, 1);
-                            excess = math.reflect(excess, normal);
-                            physical.Velocity = math.reflect(physical.Velocity, normal);
+                            excess = math.reflect(excess, forward);
+                            physical.Velocity = math.reflect(physical.Velocity, forward);
                         }
                         physical.Position += excess;
                         break;
@@ -117,8 +117,7 @@ public partial struct PhysicalSystem : ISystem
             var uniformScaleTransform = new UniformScaleTransform
             {
                 Position = physical.Position,
-                // Maybe we need something here to rotate in the direction of movement - TJA
-                Rotation = quaternion.identity,
+                Rotation = quaternion.LookRotationSafe(physical.Velocity, up),
                 Scale = scale
             };
 

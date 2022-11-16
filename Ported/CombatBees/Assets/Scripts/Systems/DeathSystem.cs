@@ -50,7 +50,6 @@ namespace Systems
         {
             _random = Random.CreateFromIndex(999);
             _allEntities = state.GetEntityQuery(typeof(Bee), ComponentType.Exclude<Dead>());
-            _bees = state.GetComponentLookup<Dead>();
         }
 
         [BurstCompile]
@@ -61,19 +60,17 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            _bees.Update(ref state);
-
+            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 var allEntities = _allEntities.ToEntityArray(Allocator.Temp);
                 var target = allEntities[_random.NextInt(allEntities.Length)];
-                _bees.SetComponentEnabled(target, true);
+                ecb.SetComponentEnabled<Dead>(target, true);
             }
 
             var dt = SystemAPI.Time.DeltaTime;
-
-            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var playDeadJob = new PlayDeadJob()
             {
