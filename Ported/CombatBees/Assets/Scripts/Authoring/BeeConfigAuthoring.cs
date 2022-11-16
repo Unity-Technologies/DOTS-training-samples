@@ -7,6 +7,7 @@ namespace Authoring
     public class BeeConfigAuthoring : MonoBehaviour
     {
         public GameObject BeePrefab;
+        public GameObject BloodParticlePrefab;
         public int BeesToSpawn;
         public float MinBeeSize;
         public float MaxBeeSize;
@@ -27,7 +28,8 @@ namespace Authoring
                 MaxBeeSize = authoring.MaxBeeSize,
                 Stretch = authoring.Stretch,
                 Team1 = authoring.Team1,
-                Team2 = authoring.Team2
+                Team2 = authoring.Team2,
+                BloodParticlePrefab = GetEntity(authoring.BloodParticlePrefab)
             });
         }
     }

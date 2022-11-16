@@ -201,6 +201,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BeePrefab: {fileID: 3398400142594509394, guid: 44cc661f7636f584db7bf04636fd24a4,
     type: 3}
+  BloodParticlePrefab: {fileID: 8861728088394010741, guid: 65b518e4195678b418a13ad32259b733,
+    type: 3}
   BeesToSpawn: 100
   MinBeeSize: 0.25
   MaxBeeSize: 0.5

@@ -1,7 +1,11 @@
 ﻿using Components;
+using Helpers;
+using Systems.Particles;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -14,15 +18,31 @@ namespace Systems
         public EntityCommandBuffer.ParallelWriter Ecb;
         public uint RandomSeed;
         public float DeltaTime;
-        public float Gravity;
+        public Entity BloodParticlePrefab;
 
-        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Bee bee, ref Dead deadComponent, ref Physical physical)
+        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Dead deadComponent, ref Physical physical)
         {
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
             if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .5f)
             {
-                //ParticleManager.SpawnParticle(physical.Position,ParticleType.Blood,Vector3.zero);
-                //Debug.Log($"I'm spawning blood particle!");
+                var particleEntity = Ecb.Instantiate(chunkIndex, BloodParticlePrefab);
+                var uniformScaleTransform = new UniformScaleTransform
+                {
+                    Position = physical.Position,
+                    Rotation = quaternion.identity,
+                    Scale = 1f
+                };
+                
+                Ecb.SetComponent(chunkIndex, particleEntity, new LocalToWorldTransform
+                {
+                    Value = uniformScaleTransform
+                });
+
+                var particleComponent =
+                    ParticleBuilder.Create(physical.Position, ParticleType.Blood, float3.zero, 6f, random);
+                
+                Ecb.AddComponent(chunkIndex, particleEntity, new PostTransformMatrix());
+                Ecb.AddComponent(chunkIndex, particleEntity, particleComponent);
             }
 
             physical.IsFalling = true;
@@ -34,6 +54,8 @@ namespace Systems
                 Ecb.DestroyEntity(chunkIndex, entity);
             }
         }
+
+        
     }
 
     [BurstCompile]
@@ -62,7 +84,7 @@ namespace Systems
         {
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-            
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 var allEntities = _allEntities.ToEntityArray(Allocator.Temp);
@@ -71,13 +93,14 @@ namespace Systems
             }
 
             var dt = SystemAPI.Time.DeltaTime;
+            var config = SystemAPI.GetSingleton<BeeConfig>();
 
             var playDeadJob = new PlayDeadJob()
             {
-                Gravity = Field.gravity,
                 DeltaTime = dt,
                 Ecb = ecb.AsParallelWriter(),
-                RandomSeed = _random.NextUInt()
+                RandomSeed = _random.NextUInt(),
+                BloodParticlePrefab = config.BloodParticlePrefab
             };
 
             playDeadJob.ScheduleParallel();
