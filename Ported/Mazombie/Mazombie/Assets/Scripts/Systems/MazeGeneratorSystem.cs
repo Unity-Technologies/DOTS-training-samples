@@ -235,17 +235,17 @@ public partial struct MazeGeneratorSystem : ISystem
 
             for (int j = 0; j < movingWallRange; j++)
             {
-
                 //Clear out overlapping WallFlags
-                var tmp_cell = grid[i + j * size];
+                var tmp_cell = grid[(wallStartIndex.x + j) + wallStartIndex.y * size];
                 tmp_cell.wallFlags &= (byte)~WallFlags.South;
-                grid[i + j * size] = tmp_cell;
+
+                grid[(wallStartIndex.x + j) + wallStartIndex.y * size] = tmp_cell;
 
                 
                 //Spawn Wall for length
                 if (j < gameConfig.movingWallsLength)
                 {
-                    movingWallLocationStack.Add(i + j * size);
+                    movingWallLocationStack.Add((wallStartIndex.x + j) + wallStartIndex.y * size);
                     
                     //Create Segment for wall
                     var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
@@ -310,7 +310,8 @@ public partial struct MazeGeneratorSystem : ISystem
             movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
             
             var tmp_cell = grid[currentIndex];
-            tmp_cell.wallFlags &= (byte)~WallFlags.South;
+            tmp_cell.wallFlags |= (byte)~WallFlags.South;
+            
             grid[currentIndex] = tmp_cell;
         }
 
