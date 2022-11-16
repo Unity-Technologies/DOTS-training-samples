@@ -82,6 +82,7 @@ public struct SpawnBeeJob : IJob
             {
                 Value = uniformScaleTransform
             });
+            ECB.AddComponent(bee, new PostTransformMatrix());
             ECB.SetComponent(bee, new URPMaterialPropertyBaseColor
             {
                 Value = Team.Color
@@ -97,6 +98,7 @@ public struct SpawnBeeJob : IJob
                 Velocity = float3.zero,
                 IsFalling = false,
                 Collision = Physical.FieldCollisionType.Bounce,
+                Stretch = BeeConfig.Stretch,
             });
             ECB.AddSharedComponent(bee, new TeamIdentifier
             {

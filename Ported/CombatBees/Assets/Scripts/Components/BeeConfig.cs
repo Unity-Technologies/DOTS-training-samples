@@ -9,6 +9,7 @@ namespace Components
         public int BeesToSpawn;
         public float MinBeeSize;
         public float MaxBeeSize;
+        public float Stretch;
 
         public Team Team1;
         public Team Team2;

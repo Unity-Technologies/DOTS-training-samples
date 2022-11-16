@@ -111,7 +111,6 @@ public partial struct PhysicalSystem : ISystem
                 }
             }
 
-
             // Apply position to entity transform
             var scale = localToWorld.Value.Scale;
             var uniformScaleTransform = new UniformScaleTransform
@@ -120,12 +119,18 @@ public partial struct PhysicalSystem : ISystem
                 Rotation = quaternion.LookRotationSafe(physical.Velocity, up),
                 Scale = scale
             };
-
             ECB.SetComponent(entity, new LocalToWorldTransform
             {
                 Value = uniformScaleTransform
             });
 
+            // Calculate and apply stretch
+            float stretch = math.max(1f, math.length(physical.Velocity) * physical.Stretch);
+            float minorStretch = 1f; // + ((stretch - 1f) / 5f);
+            ECB.SetComponent(entity, new PostTransformMatrix
+            {
+                Value = float4x4.Scale(new float3(minorStretch, minorStretch, stretch))
+            });
         }
     }
 

@@ -14,4 +14,5 @@ public struct Physical : IComponentData
     public float3 Velocity;
     public bool IsFalling;
     public FieldCollisionType Collision;
+    public float Stretch;
 }
