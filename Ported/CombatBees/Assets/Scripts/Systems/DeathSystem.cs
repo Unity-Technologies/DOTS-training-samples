@@ -49,7 +49,7 @@ namespace Systems
         public void OnCreate(ref SystemState state)
         {
             _random = Random.CreateFromIndex(999);
-            _allEntities = state.GetEntityQuery(typeof(Bee), ComponentType.Exclude<Dead>());
+            _allEntities = SystemAPI.QueryBuilder().WithAll<Bee>().WithNone<Dead>().Build();
         }
 
         [BurstCompile]
