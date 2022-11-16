@@ -12,6 +12,11 @@ using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
+    public struct ResourceClaim
+    {
+        public Entity Resource;
+        public Entity Bee;
+    }
     
     [BurstCompile]
     partial struct SwarmJob : IJobEntity
@@ -23,6 +28,7 @@ namespace Systems
         [ReadOnly] public ComponentLookup<LocalToWorldTransform> TransformLookup;
         [ReadOnly] public ComponentLookup<ResourceGatherable> ResourceGatherableLookup;
         [ReadOnly] public ComponentLookup<Resource> ResourceLookup;
+        public NativeList<ResourceClaim>.ParallelWriter ResourceClaims;
         public EntityCommandBuffer.ParallelWriter ECB;
         public float Dt;
         public uint Seed;
@@ -114,8 +120,13 @@ namespace Systems
                     }
                     else
                     {
-                        bee.State = Beehaviors.ResourceGathering;
-                        targetResource.Holder = entity;
+                        // bee.State = Beehaviors.ResourceGathering;
+                        // targetResource.Holder = entity;
+                        ResourceClaims.AddNoResize(new ResourceClaim
+                        {
+                            Resource = bee.EntityTarget,
+                            Bee = entity,
+                        });
                     }
                     
                     // TODO if resource holder is enemy bee, become aggressive to it
@@ -160,7 +171,46 @@ namespace Systems
             }
         }
     }
-    
+
+    [BurstCompile]
+    public struct ClaimingJob : IJob
+    {
+        public NativeList<ResourceClaim> ResourceClaims1;
+        public NativeList<ResourceClaim> ResourceClaims2;
+        public ComponentLookup<Resource> ResourceLookup;
+        public ComponentLookup<Bee> BeeLookup;
+
+
+        private void TryClaimResourceFromList(NativeList<ResourceClaim> list, int i)
+        {
+            if (i < list.Length)
+            {
+                var claim = list[i];
+                var resource = ResourceLookup.GetRefRW(claim.Resource, isReadOnly:false);
+                if (resource.ValueRO.Holder == Entity.Null)
+                {
+                    // Debug.Log($"Bee {claim.Bee.Index} claimed resource {claim.Resource.Index}");
+                    var bee = BeeLookup.GetRefRW(claim.Bee, isReadOnly:false);
+                    bee.ValueRW.State = Beehaviors.ResourceGathering;
+                    resource.ValueRW.Holder = claim.Bee;
+                }
+                else
+                {
+                    // Debug.Log($"Bee {claim.Bee.Index} could not claim resource {claim.Resource.Index}");
+                }
+            }
+        }
+
+        public void Execute()
+        {
+            for (int i = 0; i < ResourceClaims1.Length || i < ResourceClaims2.Length; ++i)
+            {
+                TryClaimResourceFromList(ResourceClaims1, i);
+                TryClaimResourceFromList(ResourceClaims2, i);
+            }
+        }
+    }
+
     [BurstCompile]
     public partial struct BeeSwarmingSystem : ISystem
     {
@@ -172,6 +222,8 @@ namespace Systems
         [ReadOnly] private ComponentLookup<LocalToWorldTransform> _transformLookup;
         [ReadOnly] private ComponentLookup<ResourceGatherable> _resourceGatherableLookup;
         [ReadOnly] private ComponentLookup<Resource> _resourceLookup;
+        private ComponentLookup<Resource> _RWresourceLookup;
+        private ComponentLookup<Bee> _beeLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -192,6 +244,8 @@ namespace Systems
             _transformLookup = state.GetComponentLookup<LocalToWorldTransform>();
             _resourceGatherableLookup = state.GetComponentLookup<ResourceGatherable>();
             _resourceLookup = state.GetComponentLookup<Resource>();
+            _RWresourceLookup = state.GetComponentLookup<Resource>();
+            _beeLookup = state.GetComponentLookup<Bee>();
         }
 
         [BurstCompile]
@@ -206,7 +260,9 @@ namespace Systems
             _transformLookup.Update(ref state);
             _resourceGatherableLookup.Update(ref state);
             _resourceLookup.Update(ref state);
-            
+            _RWresourceLookup.Update(ref state);
+            _beeLookup.Update(ref state);
+
             var dt = SystemAPI.Time.DeltaTime;
             var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
             
@@ -224,6 +280,9 @@ namespace Systems
             
             var seed1 = _random.NextUInt();
             var seed2 = _random.NextUInt();
+
+            var resourceClaims1 = new NativeList<ResourceClaim>(beeConfig.BeesToSpawn, Allocator.TempJob);
+            var resourceClaims2 = new NativeList<ResourceClaim>(beeConfig.BeesToSpawn, Allocator.TempJob);
             
             var team1Job = new SwarmJob
             {
@@ -236,7 +295,8 @@ namespace Systems
                 Resources = resources,
                 ECB = parallelEcb,
                 ResourceLookup = _resourceLookup, 
-                ResourceGatherableLookup = _resourceGatherableLookup
+                ResourceGatherableLookup = _resourceGatherableLookup,
+                ResourceClaims = resourceClaims1.AsParallelWriter(),
             };
 
             ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -253,7 +313,8 @@ namespace Systems
                 Resources = resources,
                 ECB = parallelEcb,
                 ResourceLookup = _resourceLookup, 
-                ResourceGatherableLookup = _resourceGatherableLookup
+                ResourceGatherableLookup = _resourceGatherableLookup,
+                ResourceClaims = resourceClaims2.AsParallelWriter(),
             };
             
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 2});
@@ -262,7 +323,17 @@ namespace Systems
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team1Handle = team1Job.ScheduleParallel(beeQuery, state.Dependency);
 
-            state.Dependency = JobHandle.CombineDependencies(team1Handle, team2Handle);
+            var claimsJob = new ClaimingJob
+            {
+                ResourceClaims1 = resourceClaims1,
+                ResourceClaims2 = resourceClaims2,
+                ResourceLookup = _RWresourceLookup,
+                BeeLookup = _beeLookup,
+            };
+
+            var claimHandle = claimsJob.Schedule(JobHandle.CombineDependencies(team1Handle, team2Handle));
+
+            state.Dependency = claimHandle;
 
             team1Bees.Dispose(state.Dependency);
             team2Bees.Dispose(state.Dependency);

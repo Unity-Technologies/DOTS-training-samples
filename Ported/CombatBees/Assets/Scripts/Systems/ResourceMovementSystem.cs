@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
@@ -53,6 +55,13 @@ public partial struct ResourceMovementSystem : ISystem
 
         // JobHandle sortHandle = sortJob.Schedule();
 
+        var carryingJob = new CarriedJob()
+        {
+            PhysicalLookup = _physicaLookup
+        };
+
+        var carryHandle = carryingJob.Schedule(state.Dependency);
+
         var stackingJob = new StackingJob()
         {
             ECB = ecb,
@@ -62,7 +71,6 @@ public partial struct ResourceMovementSystem : ISystem
             PhysicalLookup = _physicaLookup
         };
 
-
         // Only try to fix stacking if there are falling resources in progress
         if (stackInProgress.Length > 0)
         {
@@ -70,7 +78,7 @@ public partial struct ResourceMovementSystem : ISystem
             // var stackHandle = stackingJob.Schedule(sortHandle);
             // stackHandle.Complete();
             
-             stackingJob.Schedule();
+             state.Dependency = stackingJob.Schedule(carryHandle);
         }
 
 
@@ -180,4 +188,27 @@ public partial struct ResourceMovementSystem : ISystem
             }
         }
     }
+
+    [WithAll(typeof(Resource), typeof(Physical))]
+    [BurstCompile]
+    partial struct CarriedJob : IJobEntity
+    {
+        [NativeDisableContainerSafetyRestriction]
+        [ReadOnly] public ComponentLookup<Physical> PhysicalLookup;
+
+        void Execute([EntityInQueryIndex] int index, ref Resource resource, ref Physical physical)
+        {
+            if (resource.Holder != Entity.Null)
+            {
+                var holderPhysical = PhysicalLookup[resource.Holder];
+
+                physical.Velocity = holderPhysical.Velocity;
+                var delta = holderPhysical.Position - physical.Position;
+                float attract = math.max(0, math.lengthsq(delta) - 1f);
+                physical.Velocity += delta * (attract * 0.01f);
+            }
+
+        }
+    }
+
 }
