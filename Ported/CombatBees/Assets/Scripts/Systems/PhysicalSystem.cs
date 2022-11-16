@@ -28,7 +28,7 @@ public partial struct PhysicalSystem : ISystem
         var dt = SystemAPI.Time.DeltaTime;
         _physicals.Update(ref state);
 
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var physicalJob = new PhysicalJob()

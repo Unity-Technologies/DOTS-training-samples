@@ -10,6 +10,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
+    [WithAll(typeof(Bee))]
     [BurstCompile]
     partial struct SwarmJob : IJobEntity
     {
@@ -18,17 +19,24 @@ namespace Systems
         public float Dt;
         public uint Seed;
 
-        void Execute([EntityInQueryIndex] int index, ref Bee currentBee, ref Physical currentPhysical)
+        void Execute([EntityInQueryIndex] int index, ref Physical currentPhysical)
         {
             var newRandom = Random.CreateFromIndex((uint)index + Seed);
-            var randomBee = PhysicalComponents[newRandom.NextInt(PhysicalComponents.Length)];
+            var randomBee1 = PhysicalComponents[newRandom.NextInt(PhysicalComponents.Length)];
+            var randomBee2 = PhysicalComponents[newRandom.NextInt(PhysicalComponents.Length)];
+            UpdateVelocity(ref currentPhysical, ref randomBee1, 1, 1f);
+            UpdateVelocity(ref currentPhysical, ref randomBee2, -1, 0.8f);
+        }
 
-            float3 delta = randomBee.Position - currentPhysical.Position;
+        void UpdateVelocity(ref Physical currentPhysical, ref Physical randomPhysical, int sign, float power)
+        {
+            float3 delta = randomPhysical.Position - currentPhysical.Position;
             float dist = math.length(delta);
             if (dist > 0f)
             {
                 var velocity = currentPhysical.Velocity;
-                velocity += delta * (TeamAttraction * Dt / dist);
+                velocity += delta * (TeamAttraction * power * Dt / dist) * sign;
+                
                 currentPhysical.Velocity = velocity;
             }
         }
@@ -47,7 +55,7 @@ namespace Systems
             state.RequireForUpdate<Bee>();
 
             var builder = new EntityQueryBuilder(Allocator.Temp);
-            builder.WithAll<Bee, TeamIdentifier, Physical>();
+            builder.WithAll<Bee, TeamIdentifier, Physical>().WithNone<Dead>();
             beeQuery = state.GetEntityQuery(builder);
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
             
@@ -71,11 +79,14 @@ namespace Systems
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team2Bees = beeQuery.ToComponentDataArray<Physical>(Allocator.TempJob);
 
+            var seed1 = _random.NextUInt();
+            var seed2 = _random.NextUInt();
+            
             var team1Job = new SwarmJob
             {
                 PhysicalComponents = team1Bees,
                 Dt = dt,
-                Seed = _random.NextUInt(),
+                Seed = seed1,
                 TeamAttraction = beeConfig.Team1.TeamAttraction
             };
 
@@ -83,19 +94,22 @@ namespace Systems
             {
                 PhysicalComponents = team2Bees,
                 Dt = dt,
-                Seed = _random.NextUInt(),
+                Seed = seed2,
                 TeamAttraction = beeConfig.Team2.TeamAttraction
             };
 
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team2Handle = team2Job.ScheduleParallel(beeQuery, state.Dependency);
+            team2Handle.Complete();
+            
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
             var team1Handle = team1Job.ScheduleParallel(beeQuery, state.Dependency);
+            team1Handle.Complete();
 
             state.Dependency = JobHandle.CombineDependencies(team1Handle, team2Handle);
 
-            team1Bees.Dispose(team1Handle);
-            team2Bees.Dispose(team2Handle);
+            team1Bees.Dispose(state.Dependency);
+            team2Bees.Dispose(state.Dependency);
         }
     }
 }

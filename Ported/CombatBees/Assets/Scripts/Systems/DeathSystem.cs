@@ -21,14 +21,14 @@ namespace Systems
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
             if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .5f)
             {
-                //ParticleManager.SpawnParticle(bee.position,ParticleType.Blood,Vector3.zero);
+                //ParticleManager.SpawnParticle(physical.Position,ParticleType.Blood,Vector3.zero);
                 //Debug.Log($"I'm spawning blood particle!");
             }
-            
+
             physical.IsFalling = true;
             physical.Collision = Physical.FieldCollisionType.Splat;
             deadComponent.DeathTimer -= DeltaTime;
-            
+
             if (deadComponent.DeathTimer < 0f)
             {
                 Ecb.DestroyEntity(chunkIndex, entity);
@@ -37,13 +37,15 @@ namespace Systems
     }
 
     [BurstCompile]
+    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+    [UpdateAfter(typeof(PhysicalSystem))]
     public partial struct DeathSystem : ISystem
     {
         private EntityQuery _allEntities;
         private ComponentLookup<Dead> _bees;
         private Random _random;
-        
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             _random = Random.CreateFromIndex(999);
@@ -51,23 +53,25 @@ namespace Systems
             _bees = state.GetComponentLookup<Dead>();
         }
 
+        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             _bees.Update(ref state);
-            
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 var allEntities = _allEntities.ToEntityArray(Allocator.Temp);
                 var target = allEntities[_random.NextInt(allEntities.Length)];
                 _bees.SetComponentEnabled(target, true);
             }
-            
+
             var dt = SystemAPI.Time.DeltaTime;
-            
+
             var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
