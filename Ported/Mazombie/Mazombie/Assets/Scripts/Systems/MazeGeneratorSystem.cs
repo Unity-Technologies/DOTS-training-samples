@@ -145,23 +145,23 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // remove strips of walls
+        // remove strips of walls from south to north
         if (gameConfig.openStripWidth + gameConfig.mazeStripWidth > 0)
         {
             int offset = 0;
             for (; offset < size; offset += gameConfig.openStripWidth + gameConfig.mazeStripWidth)
             {
-                // y goes along columns which is north to south
-                for (int y = offset; y < math.min(offset + gameConfig.openStripWidth, size); y++)
+                // y goes along columns from south to north
+                for (int y = 0; y < size; y++)
                 {
                     // x goes along rows from west to east
-                    for (int x = 0; x < size; x++)
+                    for (int x = offset; x < math.min(offset + gameConfig.openStripWidth, size); x++)
                     {
-                        if (x > 0)
+                        if (x > offset)
                         {
                             RemoveEastWestWall(x, y, ref grid, size);
                         }
-                        if (y > offset)
+                        if (y > 0)
                         {
                             RemoveNorthSouthWall(x, y, ref grid, size);
                         }
