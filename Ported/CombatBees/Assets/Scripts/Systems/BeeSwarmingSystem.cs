@@ -100,11 +100,9 @@ namespace Systems
 
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 2});
             var team2Handle = team2Job.ScheduleParallel(beeQuery, state.Dependency);
-            team2Handle.Complete();
             
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team1Handle = team1Job.ScheduleParallel(beeQuery, state.Dependency);
-            team1Handle.Complete();
 
             state.Dependency = JobHandle.CombineDependencies(team1Handle, team2Handle);
 
