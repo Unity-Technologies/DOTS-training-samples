@@ -227,7 +227,7 @@ public partial struct MazeGeneratorSystem : ISystem
         
         
         //the amount of indices occupied by the moving walls.
-        var movingWallLocationStack = new NativeList<int>(Allocator.Temp);
+        var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
 
         for (int i = 0; i < gameConfig.numMovingWalls; i++)
         {
@@ -239,16 +239,12 @@ public partial struct MazeGeneratorSystem : ISystem
             for (int j = 0; j < movingWallRange; j++)
             {
                 //Clear out overlapping WallFlags
-                var tmp_cell = grid[(wallStartIndex.x + j) + wallStartIndex.y * size];
-                tmp_cell.wallFlags &= (byte)~WallFlags.South;
+                RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, size);
 
-                grid[(wallStartIndex.x + j) + wallStartIndex.y * size] = tmp_cell;
-
-                
                 //Spawn Wall for length
                 if (j < gameConfig.movingWallsLength)
                 {
-                    movingWallLocationStack.Add((wallStartIndex.x + j) + wallStartIndex.y * size);
+                    movingWallLocationStack.Add(new int2(wallStartIndex.x + j, wallStartIndex.y));
                     
                     //Create Segment for wall
                     var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
@@ -305,18 +301,13 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
         
-        
-         
         //re add moving wall active segments
         while (movingWallLocationStack.IsEmpty != true)
         {
             var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
             movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
             
-            var tmp_cell = grid[currentIndex];
-            tmp_cell.wallFlags |= (byte)~WallFlags.South;
-            
-            grid[currentIndex] = tmp_cell;
+            AddNorthSouthWall(currentIndex.x, currentIndex.y,ref grid,size);            
         }
 
         // spawn player spawn point
@@ -333,6 +324,27 @@ public partial struct MazeGeneratorSystem : ISystem
 
 
         state.Enabled = false;
+    }
+    
+    void AddNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x;
+        var c = y - 1; // move north
+        if (r < 0 || r >= size) return;
+        if (c >= 0 && c < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c, size);
+            var tmp = grid[idx];
+            tmp.wallFlags |= (byte)WallFlags.North;
+            grid[idx] = tmp;
+        }
+        if (c + 1 >= 0 && c + 1 < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c + 1, size);
+            var tmp = grid[idx];
+            tmp.wallFlags |= (byte)WallFlags.South;
+            grid[idx] = tmp;
+        }
     }
 
     void RemoveNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
