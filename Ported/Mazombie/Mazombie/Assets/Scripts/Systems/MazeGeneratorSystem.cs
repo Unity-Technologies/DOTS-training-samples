@@ -25,9 +25,8 @@ public partial struct MazeGeneratorSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var random = new Random(42);
-
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
+        var random = new Random(gameConfig.seed);
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
 
         // create grid dynamic buffer

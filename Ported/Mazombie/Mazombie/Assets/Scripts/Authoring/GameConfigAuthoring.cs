@@ -18,6 +18,7 @@ public class GameConfigAuthoring : MonoBehaviour
 
     public float cellSize = 1.0f;
     public int num_zombies = 10;
+    public uint seed = 42;
 }
 
 public class GameConfigBaker : Baker<GameConfigAuthoring>
@@ -34,7 +35,8 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             openStripWidth = authoring.openStripWidth,
             mazeStripWidth = authoring.mazeStripWidth,
             num_zombies = authoring.num_zombies,
-            zombiePrefab = GetEntity(authoring.zombiePrefab)
+            zombiePrefab = GetEntity(authoring.zombiePrefab),
+            seed = authoring.seed
         });
     }
 }

@@ -13,4 +13,5 @@ public struct GameConfig : IComponentData
     public int openStripWidth;
     public int mazeStripWidth;
     public int num_zombies;
+    public uint seed;
 }

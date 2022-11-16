@@ -6,10 +6,6 @@ using Unity.Mathematics;
 [BurstCompile]
 public partial struct PathPlanning : ISystem
 {
-    private GameConfig _config;
-    private bool _initialized;
-    private DynamicBuffer<GridCell> _grid;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -20,32 +16,29 @@ public partial struct PathPlanning : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        if (!_initialized)
+        var config = SystemAPI.GetSingleton<GameConfig>();
+
+        var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
+
+        var grid = state.EntityManager.GetBuffer<GridCell>(gameConfigEntity);
+        
+        var gridArray = new NativeArray<byte>(grid.Length, Allocator.TempJob);
+
+        for (int i = 0; i < grid.Length; i++)
         {
-            _initialized = true;
-            _config = SystemAPI.GetSingleton<GameConfig>();
-
-            var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
-            
-            _grid = state.EntityManager.GetBuffer<GridCell>(gameConfigEntity);
-        }
-
-        var grid = new NativeArray<byte>(_grid.Length, Allocator.TempJob);
-
-        for (int i = 0; i < _grid.Length; i++)
-        {
-            grid[i] = _grid[i].wallFlags;
+            gridArray[i] = grid[i].wallFlags;
         }
 
         var jobHandle = new PathFindingJob()
         {
-            grid = grid,
-            gridSize = _config.mazeSize,
-            startPos = new int2(5, 5),
-            destinationPos = new int2(20, 20)
+            grid = gridArray,
+            gridSize = config.mazeSize,
+            startPos = new int2(0, 5),
+            destinationPos = new int2(15, 7)
         }.ScheduleParallel(state.Dependency);
         
         jobHandle.Complete();
+        gridArray.Dispose();
 
         var query = state.EntityManager.CreateEntityQuery(typeof(NeedUpdateTrajectory));
         
@@ -53,8 +46,6 @@ public partial struct PathPlanning : ISystem
         {
             state.EntityManager.SetComponentEnabled<NeedUpdateTrajectory>(entity, false);
         }
-
-        grid.Dispose();
     }
     
     [BurstCompile]
@@ -99,10 +90,10 @@ public partial struct PathFindingJob : IJobEntity
 
         var neighborOffsetArray = new NativeArray<int2>(new[]
         {
-            new int2(-1, 0), // Left
-            new int2(1, 0), // Right
-            new int2(0, -1), // Up
-            new int2(0, 1), // Down
+            new int2(0, -1), // up
+            new int2(0, 1), // down
+            new int2(1, 0), // right
+            new int2(-1, 0), // left
         }, Allocator.Temp);
 
         int destinationCellIndex = cellArray[destinationPos.x + destinationPos.y * gridSize].index;
@@ -154,11 +145,31 @@ public partial struct PathFindingJob : IJobEntity
 
                 if (!InBounds(neighborPosition, gridSize))
                     continue;
-
-                int neighborIndex = cellArray[neighborPosition.x + neighborPosition.y * gridSize].index;
                 
+                int neighborIndex = cellArray[neighborPosition.x + neighborPosition.y * gridSize].index;
                 if (closedList.Contains(neighborIndex))
                     continue;
+
+                //Check walls
+                switch (i)
+                {
+                    case 0: //up
+                        if ((grid[currentCellIndex] & (1 << 1)) != 0)
+                            continue;
+                        break;
+                    case 1: //down
+                        if ((grid[currentCellIndex] & (1 << 0)) != 0)
+                            continue;
+                        break;
+                    case 2: //right
+                        if ((grid[currentCellIndex] & (1 << 2)) != 0)
+                            continue;
+                        break;
+                    case 3: //left
+                        if ((grid[currentCellIndex] & (1 << 3)) != 0)
+                            continue;
+                        break;
+                }
 
                 var neighborCell = cellArray[neighborIndex];
 
@@ -199,7 +210,7 @@ public partial struct PathFindingJob : IJobEntity
             
             trajectory.Clear();
             
-            for (int i = path.Length-2; i >= 0; i--)
+            for (int i = path.Length-1; i >= 0; i--)
             {
                 trajectory.Add(path[i]);
             }

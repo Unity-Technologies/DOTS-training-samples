@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(MazeGeneratorSystem))]
 [BurstCompile]
 public partial struct ZombieSpawner : ISystem
 {
