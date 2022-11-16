@@ -3,14 +3,18 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 public partial struct AntMovementSystem : ISystem
 {
-    [BurstCompile]
+    
+    private uint time;
+    
     public void OnCreate(ref SystemState state)
     {
-     
+        time = (uint)System.DateTime.Now.Millisecond;
     }
 
     [BurstCompile]
@@ -21,6 +25,9 @@ public partial struct AntMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        
+        var config = SystemAPI.GetSingleton<Config>();
+        
         MapDataAspect mapAspect = default;
         foreach (MapDataAspect mapDataAspect in SystemAPI.Query<MapDataAspect>())
         {
@@ -33,9 +40,13 @@ public partial struct AntMovementSystem : ISystem
         foreach ((TransformAspect transformAspect, RefRO<Ant> ant) in SystemAPI.Query<TransformAspect,RefRO<Ant>>())
         {
             var dir = float3.zero;
-            var angleInRadians = math.radians(ant.ValueRO.Angle);
-            dir.x = math.cos(angleInRadians);
-            dir.y = math.sin(angleInRadians);
+            Random rand = Random.CreateFromIndex(time); // todo: figure out how to make this a random number 
+            var angle = (0.5f + noise.cnoise(transformAspect.Position / 10f)) * 4.0f * math.PI;
+            angle += angle * rand.NextFloat(-180, 180);
+            var angleInRadians = math.radians(ant.ValueRO.Angle + angle);//ant.ValueRO.Angle
+
+            dir.x += math.cos(angleInRadians + config.ResourcePoint.x);// + rand.NextFloat(1f, 5f));
+            dir.y += math.sin(angleInRadians + config.ResourcePoint.y);
 
             transformAspect.Position += dir * deltaTime * ant.ValueRO.Speed;
             transformAspect.Rotation = quaternion.RotateZ(angleInRadians);
