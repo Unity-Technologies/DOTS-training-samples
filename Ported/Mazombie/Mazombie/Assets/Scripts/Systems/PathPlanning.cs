@@ -32,13 +32,13 @@ public partial struct PathPlanning : ISystem
             _grid = state.EntityManager.GetBuffer<GridCell>(gameConfigEntity);
         }
 
-        new PathFindingJob()
-        {
-            //grid = _grid,
-            gridSize = _config.mazeSize,
-            startPos = new int2(5,5),
-            destinationPos = new int2(10,10)
-        }.ScheduleParallel();
+        // new PathFindingJob()
+        // {
+        //     //grid = _grid,
+        //     gridSize = _config.mazeSize,
+        //     startPos = new int2(5,5),
+        //     destinationPos = new int2(10,10)
+        // }.ScheduleParallel();
     }
     
     [BurstCompile]
@@ -101,18 +101,8 @@ public partial struct PathFindingJob : IJobEntity
         
         openList.Add(startCell.index);
 
-        int maxExecution = 1000;
-        int currentEx = 0;
-
         while (openList.Length > 0)
         {
-            currentEx++;
-            if (currentEx > maxExecution)
-            {
-                Debug.Log("Breaking from infinite loop");
-                break;   
-            }
-
             int currentCellIndex = GetLowestFScoreIndex(openList, cellArray);
             PathCell currentCell = cellArray[currentCellIndex];
 

@@ -32,7 +32,7 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             playerPrefab = GetEntity(authoring.playerPrefab),
             mazeSize = authoring.mazeSize,
             openStripWidth = authoring.openStripWidth,
-            mazeStripWidth = authoring.mazeStripWidth
+            mazeStripWidth = authoring.mazeStripWidth,
             num_zombies = authoring.num_zombies,
             zombiePrefab = GetEntity(authoring.zombiePrefab)
         });
