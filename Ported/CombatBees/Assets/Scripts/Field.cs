@@ -1,4 +1,6 @@
-﻿using Unity.Mathematics;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public static class Field {
@@ -15,8 +17,8 @@ public static class Field {
 	/// Get bounds for initial resource spawning assuming that the field container is at (0,0,0) with central pivot
 	/// </summary>
 	/// <remarks>Consider having a baked entity for config instead</remarks>
-	public static readonly float3 ResourceBoundsMin = new float3(-size.x/3, -size.y / 2, -size.z/2);
-	public static readonly float3 ResourceBoundsMax = new float3(size.x/3, size.y / 2, size.z/2);
+	public static readonly float3 ResourceBoundsMin = new float3(-size.x/6, -size.y / 2, -size.z/2);
+	public static readonly float3 ResourceBoundsMax = new float3(size.x/6, size.y / 2, size.z/2);
 	
 	public static readonly float GroundLevel = BoundsMin.y;
 }
