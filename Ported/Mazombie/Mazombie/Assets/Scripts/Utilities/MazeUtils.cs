@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
 
 public struct GridCellWorldBounds
@@ -49,6 +48,18 @@ public struct MazeUtils
     public static int CellIdxFromPos(int x, int y, int gridSize)
     {
         return x + y * gridSize;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float3 PositionFromIndex(int index, int gridSize)
+    {
+        return GridPositionToWorld(index % gridSize, index / gridSize);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int2 CellFromIndex(int index, int gridSize)
+    {
+        return new int2(index % gridSize, index / gridSize);
     }
 
     public static void DrawGridCell(int2 gridPos, byte wallFlags = 0)

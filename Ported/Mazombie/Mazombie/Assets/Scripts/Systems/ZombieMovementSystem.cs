@@ -1,12 +1,15 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
 public partial struct ZombieMovementSystem : ISystem
 {
+    private int _gridSize;
+    private bool _initialized;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -22,73 +25,54 @@ public partial struct ZombieMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<GameConfig>();
-
-        var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
-
-        var grid = state.EntityManager.GetBuffer<GridCell>(gameConfigEntity);
-        
-        var gridArray = new NativeArray<byte>(grid.Length, Allocator.TempJob);
-
-        for (int i = 0; i < grid.Length; i++)
+        if (!_initialized)
         {
-            gridArray[i] = grid[i].wallFlags;
+            _initialized = true;
+            var config = SystemAPI.GetSingleton<GameConfig>();
+            _gridSize = config.mazeSize;
         }
 
-        var jobHandle = new MoveZombieJob()
-        {
-            grid = gridArray,
-            gridSize = config.mazeSize
-        }.ScheduleParallel(state.Dependency);
-        
-        jobHandle.Complete();
+        float deltaTime = SystemAPI.Time.DeltaTime;
 
-        gridArray.Dispose();
+        new MoveZombieJob
+        {
+            deltaTime = deltaTime,
+            gridSize = _gridSize
+        }.ScheduleParallel();
     }
 }
 
+[WithAll(typeof(Speed))]
+[WithAll(typeof(PositionInPath))]
 [BurstCompile]
 public partial struct MoveZombieJob : IJobEntity
 {
-    [ReadOnly]
-    public NativeArray<byte> grid;
     public int gridSize;
-    
-    public void Execute(DynamicBuffer<Trajectory> trajectory)
+    public float deltaTime;
+
+    [BurstCompile]
+    public void Execute(Entity entity, DynamicBuffer<Trajectory> trajectory, TransformAspect transform, Speed speed, ref PositionInPath pathIndex)
     {
         if(trajectory.Length < 1)
             return;
+        
+        // Ignore starting position in path
+        if (pathIndex.currentIndex == 0)
+            pathIndex.currentIndex = 1;
 
-        NativeArray<float3> positionsPath = new NativeArray<float3>(trajectory.Length, Allocator.Temp); 
-        NativeArray<int2> gridPath = new NativeArray<int2>(trajectory.Length, Allocator.Temp); 
-
-        // Temporal debugging
-        for (int y = 0; y < gridSize; y++)
+        if (pathIndex.currentIndex < trajectory.Length)
         {
-            for (int x = 0; x < gridSize; x++)
-            {
-                int index = x + y * gridSize;
+            float3 targetPos = MazeUtils.PositionFromIndex(trajectory[pathIndex.currentIndex], gridSize);
 
-                for (int i = 0; i < trajectory.Length; i++)
-                {
-                    if (index == trajectory[i])
-                    {
-                        positionsPath[i] = MazeUtils.GridPositionToWorld(x, y);
-                        gridPath[i] = new int2(x, y);
-                    }
-                }
+            float3 direction = math.normalize(targetPos - transform.Position);
+
+            transform.Position += direction * speed.speed * deltaTime;
+
+            // TODO optimize
+            if (math.distancesq(transform.Position, targetPos) < 0.1f)
+            {
+                pathIndex.currentIndex++;
             }
         }
-
-        for (int i = 0; i < positionsPath.Length-1; i++)
-        {
-            Debug.DrawLine(positionsPath[i], positionsPath[i+1]);
-            //MazeUtils.DrawGridCell(gridPath[i], grid[trajectory[i]]);
-        }
-
-        positionsPath.Dispose();
-        gridPath.Dispose();
-        
-        //
     }
 }
