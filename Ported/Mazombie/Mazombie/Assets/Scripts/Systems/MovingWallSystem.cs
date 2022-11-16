@@ -1,6 +1,8 @@
 using Unity.Burst;
 using Unity.Entities;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateAfter(typeof(MazeGeneratorSystem))]
 [BurstCompile]
 public partial struct MovingWallSystem : ISystem
 {
@@ -8,12 +10,12 @@ public partial struct MovingWallSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameConfig>();
+        state.RequireForUpdate<MovingWall>();
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        throw new System.NotImplementedException();
     }
 
     [BurstCompile]
