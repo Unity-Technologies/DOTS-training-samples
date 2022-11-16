@@ -8,6 +8,7 @@ using Random = Unity.Mathematics.Random;
 
 
 [BurstCompile]
+[UpdateAfter(typeof(MapInitiationSystem))]
 public partial struct AntSpawningSystem : ISystem
 {
     [BurstCompile]

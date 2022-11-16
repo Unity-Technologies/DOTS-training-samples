@@ -21,7 +21,13 @@ public partial struct AntMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-
+        MapDataAspect mapAspect = default;
+        foreach (MapDataAspect mapDataAspect in SystemAPI.Query<MapDataAspect>())
+        {
+            mapAspect = mapDataAspect;
+            break;
+        }
+        
         var deltaTime = SystemAPI.Time.DeltaTime;
 
         foreach ((TransformAspect transformAspect, RefRO<Ant> ant) in SystemAPI.Query<TransformAspect,RefRO<Ant>>())
@@ -34,6 +40,7 @@ public partial struct AntMovementSystem : ISystem
             transformAspect.Position += dir * deltaTime * ant.ValueRO.Speed;
             transformAspect.Rotation = quaternion.RotateZ(angleInRadians);
             
+            mapAspect.AddStrength((int)transformAspect.Position.y, (int)transformAspect.Position.x, ant.ValueRO.Speed);
         }
     }
 }

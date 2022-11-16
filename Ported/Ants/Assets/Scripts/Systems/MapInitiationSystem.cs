@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,21 +7,19 @@ using Random = Unity.Mathematics.Random;
 
 public partial class MapInitiationSystem : SystemBase
 {
-    private const float DECAY_SPEED = 5f;
+    private const float DECAY_SPEED = 30f;
     private float decayCounter;
     
     private MapTextureManager quadSystem;
     protected override void OnCreate()
     {
-        var rows = 1024;
-        var cols = 1024;
-        var totalCells = rows * cols;
+        var totalCells = MapTextureManager.MAP_WIDTH * MapTextureManager.MAP_HEIGHT;
         NativeArray<TileType> tileTypes = new NativeArray<TileType>(totalCells, Allocator.Persistent);
         NativeArray<byte> strengthAtIndexMap = new NativeArray<byte>(totalCells, Allocator.Persistent);
         for (int i = 0; i < totalCells; i++)
         {
             tileTypes[i] = TileType.Road;
-            strengthAtIndexMap[i] = 255;
+            strengthAtIndexMap[i] = 0;
         }
 
         var gridEntity = EntityManager.CreateEntity();
@@ -28,8 +27,8 @@ public partial class MapInitiationSystem : SystemBase
         
         EntityManager.AddComponentData(gridEntity, new MapData
         {
-            Rows = rows,
-            Columns = cols,
+            Rows = MapTextureManager.MAP_WIDTH,
+            Columns = MapTextureManager.MAP_HEIGHT,
             TileTypes = tileTypes,
             StrengthList = strengthAtIndexMap
         });
@@ -46,7 +45,7 @@ public partial class MapInitiationSystem : SystemBase
     {
         if (quadSystem == null)
         {
-            quadSystem = GameObject.Find("Quad").GetComponent<MapTextureManager>();
+            quadSystem = GameObject.Find("PlayArea").GetComponent<MapTextureManager>();
         }
 
         if (quadSystem == null) return;
@@ -89,7 +88,7 @@ public partial class MapInitiationSystem : SystemBase
         
         Job.WithCode(() =>
         {
-            var rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            //var rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
         
             for (int i = 0; i < mapAspect.MapData.ValueRO.StrengthList.Length; i++)
             {

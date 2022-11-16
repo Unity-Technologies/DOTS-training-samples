@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public readonly partial struct MapDataAspect : IAspect
 {
@@ -13,7 +14,19 @@ public readonly partial struct MapDataAspect : IAspect
 
     public void SetStrength(int row, int col, float value)
     {
-        MapData.ValueRW.StrengthList[row * Columns + col] = (byte)(value * 255f);
+        byte currentValue = MapData.ValueRO.StrengthList[row * Columns + col];
+        byte nowValue = (byte)math.min(255, value);
+        MapData.ValueRW.StrengthList[row * Columns + col] = nowValue;
+    }
+    
+    public void AddStrength(int row, int col, float value, int radius = -1)
+    {
+        byte currentValue = MapData.ValueRO.StrengthList[row * Columns + col];
+        byte nowValue = (byte)math.min(255, currentValue + value);
+        MapData.ValueRW.StrengthList[row * Columns + col] = nowValue;
+        
+        //TODO - Integrate radius parameter...
+        
     }
 
     public TileType GetTileType(int row, int col)
