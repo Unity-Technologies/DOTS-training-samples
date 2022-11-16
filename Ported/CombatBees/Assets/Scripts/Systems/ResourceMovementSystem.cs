@@ -1,20 +1,31 @@
+using System;
+using System.Collections;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 public partial struct ResourceMovementSystem : ISystem
 {
-    private EntityQuery _resourcesQuery;
-    private ComponentLookup<Resource> _resources;
+    private EntityQuery _gatherableResourcesQuery;
+    private EntityQuery _stackInProgressQuery;
+    private ComponentLookup<Resource> _resourcesLookup;
+    private ComponentLookup<ResourceGatherable> _resourceGatherablesLookup;
+    private ComponentLookup<Physical> _physicaLookup;
+
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // TODO filter out resources that are being carried by bees from gravity
-        _resourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource>().Build();
-        _resources = state.GetComponentLookup<Resource>();
+        _gatherableResourcesQuery = SystemAPI.QueryBuilder().WithAll<ResourceGatherable>().Build();
+        _stackInProgressQuery = SystemAPI.QueryBuilder().WithAll<Resource, StackInProgress>().Build();
+
+        _resourcesLookup = state.GetComponentLookup<Resource>();
+        _resourceGatherablesLookup = state.GetComponentLookup<ResourceGatherable>();
+        _physicaLookup = state.GetComponentLookup<Physical>();
     }
 
     [BurstCompile]
@@ -26,33 +37,147 @@ public partial struct ResourceMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var dt = SystemAPI.Time.DeltaTime;
-        _resources.Update(ref state);
-        
+        _resourcesLookup.Update(ref state);
+        _resourceGatherablesLookup.Update(ref state);
+        _physicaLookup.Update(ref state);
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+        var gatherables = _gatherableResourcesQuery.ToEntityArray(Allocator.TempJob);
+        var stackInProgress = _stackInProgressQuery.ToEntityArray(Allocator.TempJob);
 
-        // Note currently there's nothing to do here any more because gravity has been moved to Physical.
+        // var comp = new AxesXZComparer();
+        // comp.SetLookupReadOnly(_physicaLookup);
+        // SortJob<Entity, AxesXZComparer> sortJob = gatherables.SortJob(comp);
 
-        // var gravityJob = new GravityJob()
-        // {
-        //     Dt = dt,
-        //     ECB = ecb,
-        // };
-        //
-        // gravityJob.Schedule();
+        // JobHandle sortHandle = sortJob.Schedule();
+
+        var stackingJob = new StackingJob()
+        {
+            ECB = ecb,
+            Gatherables = gatherables,
+            ResourceGatherablesLookup = _resourceGatherablesLookup,
+            ResourceLookup = _resourcesLookup,
+            PhysicalLookup = _physicaLookup
+        };
+
+
+        // Only try to fix stacking if there are falling resources in progress
+        if (stackInProgress.Length > 0)
+        {
+            // Todo Fix sorting
+            // var stackHandle = stackingJob.Schedule(sortHandle);
+            // stackHandle.Complete();
+            
+             stackingJob.Schedule();
+        }
+
+
+        gatherables.Dispose(state.Dependency);
+        stackInProgress.Dispose(state.Dependency);
     }
 
     [BurstCompile]
-    partial struct GravityJob : IJobEntity
+    partial struct SortJob : IJobEntity
     {
+    }
+
+    [WithAll(typeof(Resource), typeof(Physical))]
+    [BurstCompile]
+    partial struct StackingJob : IJobEntity
+    {
+        [ReadOnly] public NativeArray<Entity> Gatherables;
+
         public EntityCommandBuffer ECB;
-        public float Dt;
+        public ComponentLookup<ResourceGatherable> ResourceGatherablesLookup;
+        public ComponentLookup<Resource> ResourceLookup;
+        public ComponentLookup<Physical> PhysicalLookup;
 
-        void Execute([EntityInQueryIndex] int index, Entity entity, ref Resource resource, ref Physical physical)
+        void Execute([EntityInQueryIndex] int index, Entity entity, in StackInProgress stackInProgress)
         {
-            // TODO, if there's time make prettier looking animation that bobs with a slight delay
+            Physical thisPhysical = PhysicalLookup[entity];
+            Resource thisResource = ResourceLookup[entity];
 
+            if (thisPhysical.Position.y <= Field.GroundLevel && thisResource.IsTopOfStack
+                                                             && !ResourceGatherablesLookup.IsComponentEnabled(entity))
+            {
+                thisPhysical.IsFalling = false;
+                thisPhysical.Velocity = float3.zero;
+                thisPhysical.Position.y = Field.GroundLevel;
+                ECB.SetComponent(entity, thisPhysical);
+                ECB.SetComponentEnabled<ResourceGatherable>(entity, true);
+                ResourceGatherablesLookup.SetComponentEnabled(entity, true);
+                ECB.SetComponentEnabled<StackInProgress>(entity, false);
+
+                return;
+            }
+
+            if (!thisPhysical.IsFalling)
+            {
+                ECB.SetComponentEnabled<StackInProgress>(entity, false);
+            }
+
+            foreach (var gatherableEntity in Gatherables)
+            {
+                Physical otherPhysical = PhysicalLookup[gatherableEntity];
+
+                int compareX = math.round(thisPhysical.Position.x).CompareTo(math.round(otherPhysical.Position.x));
+                int compareZ = math.round(thisPhysical.Position.z).CompareTo(math.round(otherPhysical.Position.z));
+
+                // Todo fix
+                // Sorted so if we are past our desired comparison then stop looping
+                // if (compareX > 0 || compareZ > 0)
+                // {
+                //     break;
+                // }
+                // else
+                if (!(compareX == 0 && compareZ == 0))
+                {
+                    continue;
+                }
+
+                if (ResourceGatherablesLookup.IsComponentEnabled(gatherableEntity))
+                {
+                    if (!ResourceGatherablesLookup.IsComponentEnabled(entity)
+                        && thisPhysical.IsFalling)
+                    {
+                        Resource otherResource = ResourceLookup[gatherableEntity];
+                        if (thisPhysical.Position.y <
+                            otherPhysical.Position.y + ResourceSpawningSystem.RESOURCE_OBJ_HEIGHT)
+                        {
+                            thisPhysical.Position.y = otherPhysical.Position.y +
+                                                      ResourceSpawningSystem.RESOURCE_OBJ_HEIGHT;
+
+                            ResourceGatherablesLookup.SetComponentEnabled(entity, true);
+
+                            thisPhysical.IsFalling = false;
+                            thisPhysical.Velocity = float3.zero;
+                            ResourceGatherablesLookup.SetComponentEnabled(gatherableEntity, false);
+
+                            ECB.SetComponentEnabled<ResourceGatherable>(entity, true);
+                            ECB.SetComponentEnabled<ResourceGatherable>(gatherableEntity, false);
+                            ECB.SetComponent(entity, thisPhysical);
+
+                            otherResource.IsTopOfStack = false;
+                            ECB.SetComponent(gatherableEntity, otherResource);
+
+                            break;
+                        }
+                        // else if (ResourceGatherablesLookup.IsComponentEnabled(entity)
+                        //          && !thisPhysical.IsFalling
+                        //          && matchesGridCell
+                        //          && thisPhysical.Position.y <= otherPhysical.Position.y)
+                        // {
+                        //     ResourceGatherablesLookup.SetComponentEnabled(entity, false);
+                        //     thisResource.IsTopOfStack = false;
+                        //     ECB.SetComponentEnabled<ResourceGatherable>(entity, true);
+                        //     ECB.SetComponent(entity, thisResource);
+                        //     break;
+                        // }
+                    }
+                }
+            }
         }
     }
 }
