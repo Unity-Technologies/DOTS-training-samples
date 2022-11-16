@@ -173,10 +173,7 @@ MonoBehaviour:
     type: 3}
   playerPrefab: {fileID: 1130627450907762, guid: 99e1dadff5ca5493786917e5f2f62a7c,
     type: 3}
-  zombiePrefab: {fileID: 1428683352245202, guid: ec64f9227f03f4b5babd08976956f89e,
-    type: 3}
   mazeSize: 30
-  openStripWidth: 0
-  mazeStripWidth: 0
+  openStripWidth: 5
+  mazeStripWidth: 4
   cellSize: 1
-  num_zombies: 2
