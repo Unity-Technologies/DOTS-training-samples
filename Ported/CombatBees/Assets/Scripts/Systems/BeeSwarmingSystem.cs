@@ -131,7 +131,6 @@ namespace Systems
 
                     if (dist < 5f)
                     {
-                        Debug.Log("Gathering");
                         targetResource.Holder = Entity.Null;
                         bee.EntityTarget = Entity.Null;
                         bee.State = Beehaviors.Idle;
