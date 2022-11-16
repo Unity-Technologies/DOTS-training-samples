@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -272,7 +271,7 @@ public partial struct MazeGeneratorSystem : ISystem
             for (int x = 0; x < size; x++)
             {
                 var tmp_cell = (WallFlags)grid[x + y * size].wallFlags;
-                if (tmp_cell.HasFlag(WallFlags.West))
+                if(MazeUtils.HasFlag(tmp_cell, WallFlags.West))
                 {
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
@@ -280,7 +279,7 @@ public partial struct MazeGeneratorSystem : ISystem
                         Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(-0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(270)))
                     });
                 }
-                if (x == size - 1 && tmp_cell.HasFlag(WallFlags.East))
+                if (x == size - 1 && MazeUtils.HasFlag(tmp_cell, WallFlags.East))
                 {
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
@@ -288,7 +287,7 @@ public partial struct MazeGeneratorSystem : ISystem
                         Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(90)))
                     });
                 }
-                if (tmp_cell.HasFlag(WallFlags.South))
+                if (MazeUtils.HasFlag(tmp_cell, WallFlags.South))
                 {
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
@@ -296,7 +295,7 @@ public partial struct MazeGeneratorSystem : ISystem
                         Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0, 0, -0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
                     });
                 }
-                if (y == size - 1 && tmp_cell.HasFlag(WallFlags.North))
+                if (y == size - 1 && MazeUtils.HasFlag(tmp_cell, WallFlags.North))
                 {
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
@@ -325,7 +324,7 @@ public partial struct MazeGeneratorSystem : ISystem
         var playerSpawnEntity = state.EntityManager.Instantiate(gameConfig.playerSpawnPrefab);
         state.EntityManager.SetComponentData(playerSpawnEntity, new LocalToWorldTransform
         {
-            Value = UniformScaleTransform.FromPositionRotation(playerSpawnPos + new float3(0, -0.4f, 0), quaternion.AxisAngle(Vector3.right, Mathf.Deg2Rad * 90.0f))
+            Value = UniformScaleTransform.FromPositionRotation(playerSpawnPos + new float3(0, -0.4f, 0), quaternion.AxisAngle(math.right(), math.radians(90)))
         });
 
 

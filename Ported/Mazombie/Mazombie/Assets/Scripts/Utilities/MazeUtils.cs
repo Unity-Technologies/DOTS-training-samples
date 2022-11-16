@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
+using Unity.Collections;
 using Unity.Mathematics;
-using UnityEngine;
 
 public struct GridCellWorldBounds
 {
@@ -9,6 +9,7 @@ public struct GridCellWorldBounds
     public float3 Right;
     public float3 Bottom;
 }
+
 public struct MazeUtils
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -62,29 +63,35 @@ public struct MazeUtils
         return new int2(index % gridSize, index / gridSize);
     }
 
+    public static bool HasFlag(WallFlags flags, WallFlags flag)
+    {
+        return (flags & flag) != 0;
+    }
+
     public static void DrawGridCell(int2 gridPos, byte wallFlags = 0)
     {
         var bounds = GetGridCellWorldBounds(gridPos.x, gridPos.y);
 
-        Vector3[] points =
-        {
-           new (bounds.Left.x, -0.4f, bounds.Top.z),     //top left
-           new (bounds.Right.x, -0.4f, bounds.Top.z),    //top right
-           new (bounds.Right.x, -0.4f, bounds.Bottom.z), //bottom right
-           new (bounds.Left.x, -0.4f, bounds.Bottom.z)   //bottom left
-        };
-        int[] indices = {
-            0, 1, // north
-            2, 3, // south
-            1, 2, // east
-            3, 0,  // west
-        };
+        var points = new NativeArray<float3>(4, Allocator.Temp);
+        points[0] = new float3(bounds.Left.x, -0.4f, bounds.Top.z);
+        points[1] = new float3(bounds.Right.x, -0.4f, bounds.Top.z);
+        points[2] = new float3(bounds.Right.x, -0.4f, bounds.Bottom.z);
+        points[3] = new float3(bounds.Left.x, -0.4f, bounds.Bottom.z);
+
+        var indices = new NativeArray<int>(8, Allocator.Temp);
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 2;
+        indices[3] = 3;
+        indices[4] = 1;
+        indices[5] = 2;
+        indices[6] = 3;
+        indices[7] = 0;
 
         for (int i = 0; i < indices.Length; i += 2)
         {
             bool hasWall = (wallFlags & (1 << (i / 2))) != 0;
-            Debug.DrawLine(points[indices[i]], points[indices[i + 1]], hasWall ? Color.blue : Color.red, 0.4f);
+            UnityEngine.Debug.DrawLine(points[indices[i]], points[indices[i + 1]], hasWall ? UnityEngine.Color.blue : UnityEngine.Color.red, 0.4f);
         }
-
     }
 }

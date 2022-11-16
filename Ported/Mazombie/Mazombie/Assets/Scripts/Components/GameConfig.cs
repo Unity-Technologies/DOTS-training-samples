@@ -1,5 +1,9 @@
 ﻿
 using Unity.Entities;
+public struct CurrentGameState
+{
+    public int score;
+}
 
 public struct GameConfig : IComponentData
 {
@@ -9,6 +13,7 @@ public struct GameConfig : IComponentData
     public Entity playerPrefab;
     public Entity zombiePrefab;
     public Entity movingWallPrefab;
+    public Entity pillPrefab;
     public int numMovingWalls;
     public int movingWallsLength;
     public int movingWallRangeMin;
@@ -17,5 +22,8 @@ public struct GameConfig : IComponentData
     public int openStripWidth;
     public int mazeStripWidth;
     public int num_zombies;
+    public int numPills;
     public uint seed;
+
+    public CurrentGameState gameState;
 }
