@@ -56,34 +56,22 @@ namespace Systems.Particles
                     transformMatrix.Value = float4x4.Scale(particle.size);
                 }
             }
-
-            const float speedStretch = 0.25f;
-
-            // particle.color.w = particle.life;
-            //
-            // Ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor
-            // {
-            //     Value = particle.color
-            // });
-
+            
+            var scale = particle.size * particle.life;
+            
             if (!particle.stuck)
             {
-                var rotation = quaternion.identity;
-                float3 scale = particle.size * particle.life;
                 if (particle.type == ParticleType.Blood)
                 {
-                    rotation = quaternion.LookRotation(particle.velocity, new float3(0, 1, 0));
+                    var rotation = quaternion.LookRotation(particle.velocity, new float3(0, 1, 0));
+                    
+                    const float speedStretch = 0.25f;
                     scale.z *= 1f + math.length(particle.velocity) * speedStretch;
+                    transform.Rotation = rotation;
                 }
-
-                transform.Rotation = rotation;
-                transformMatrix.Value = float4x4.Scale(scale);
-            }
-            else
-            {
-                transformMatrix.Value = float4x4.Scale(particle.size * particle.life);
             }
 
+            transformMatrix.Value = float4x4.Scale(scale);
             transform.Position = particle.position;
             
             particle.life -= DeltaTime / particle.lifeDuration;
@@ -94,7 +82,6 @@ namespace Systems.Particles
         }
     }
 
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     [BurstCompile]
     partial struct ParticleSystem : ISystem
     {

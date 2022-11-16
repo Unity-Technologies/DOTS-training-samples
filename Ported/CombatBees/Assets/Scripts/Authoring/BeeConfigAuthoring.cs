@@ -29,7 +29,7 @@ namespace Authoring
                 Stretch = authoring.Stretch,
                 Team1 = authoring.Team1,
                 Team2 = authoring.Team2,
-                BloodParticlePrefab = GetEntity(authoring.BloodParticlePrefab)
+                BloodParticlePrefab = GetEntity(authoring.BloodParticlePrefab),
             });
         }
     }
