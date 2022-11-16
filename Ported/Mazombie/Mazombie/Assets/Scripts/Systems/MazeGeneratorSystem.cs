@@ -221,6 +221,45 @@ public partial struct MazeGeneratorSystem : ISystem
         //            SetLeftWall(x, y, ref grid, size);
         //    }
         //}
+        
+        
+        //the amount of indices occupied by the moving walls.
+        var movingWallLocationStack = new NativeList<int>(Allocator.Temp);
+
+        for (int i = 0; i < gameConfig.numMovingWalls; i++)
+        {
+            //select random start index
+            var wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+            //select for moving wall range
+            var movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
+
+            for (int j = 0; j < movingWallRange; j++)
+            {
+
+                //Clear out overlapping WallFlags
+                var tmp_cell = grid[i + j * size];
+                tmp_cell.wallFlags &= (byte)~WallFlags.South;
+                grid[i + j * size] = tmp_cell;
+
+                
+                //Spawn Wall for length
+                if (j < gameConfig.movingWallsLength)
+                {
+                    movingWallLocationStack.Add(i + j * size);
+                    
+                    //Create Segment for wall
+                    var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
+                    state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
+                    {
+                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(wallStartIndex.x + j, wallStartIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
+                    });
+                    state.EntityManager.SetComponentData(movingWallSegment, new MovingWall
+                    {
+                        movementRange = movingWallRange
+                    });
+                }
+            }
+        }
 
         // spawn walls
         for (int y = 0; y < size; y++)
@@ -262,6 +301,19 @@ public partial struct MazeGeneratorSystem : ISystem
                 }
             }
         }
+        
+        
+        //re add moving wall active segments
+        while (movingWallLocationStack.IsEmpty != true)
+        {
+            var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
+            movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
+            
+            var tmp_cell = grid[currentIndex];
+            tmp_cell.wallFlags &= (byte)~WallFlags.South;
+            grid[currentIndex] = tmp_cell;
+        }
+
 
         // spawn player spawn point
         var playerSpawnPos = MazeUtils.GridPositionToWorld(
