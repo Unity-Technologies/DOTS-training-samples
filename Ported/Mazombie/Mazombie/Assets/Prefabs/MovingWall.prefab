@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4988755712316498}
   - component: {fileID: 33546645730120766}
   - component: {fileID: 23642601691432688}
+  - component: {fileID: -2616719269406434548}
   m_Layer: 0
   m_Name: MovingWall
   m_TagString: Untagged
@@ -27,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1674865798949028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 1, y: 0.25, z: 0.55}
-  m_LocalScale: {x: 1, y: 0.5, z: 0.1}
+  m_LocalScale: {x: 1, y: 1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,3 +84,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-2616719269406434548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1674865798949028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a555bf44083e16a45b22102cb2041ec7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallMoveSpeed: 2

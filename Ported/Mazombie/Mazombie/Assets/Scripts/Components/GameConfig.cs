@@ -9,6 +9,10 @@ public struct GameConfig : IComponentData
     public Entity playerPrefab;
     public Entity zombiePrefab;
     public Entity movingWallPrefab;
+    public int numMovingWalls;
+    public int movingWallsLength;
+    public int movingWallRangeMin;
+    public int movingWallRangeMax;
     public int mazeSize;
     public int openStripWidth;
     public int mazeStripWidth;
