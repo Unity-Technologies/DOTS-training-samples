@@ -3,7 +3,9 @@
 struct Config : IComponentData
 {
     public Entity AntPrefab;
-    public Entity WallPrefab; 
+    public Entity WallPrefab;
+    public Entity ColonyPrefab;
+    public Entity ResourcePrefab; 
     public int Amount;
     
     // wall variables
