@@ -1,7 +1,8 @@
 ﻿using Components;
 using Helpers;
+using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
+using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems.Particles
@@ -11,11 +12,12 @@ namespace Systems.Particles
         public static BeeParticleComponent Create(float3 position, ParticleType type, float3 velocity,
             float velocityJitter, Random rand)
         {
-            BeeParticleComponent particle = new BeeParticleComponent();
-
-            particle.type = type;
-            particle.position = position;
-            particle.life = 1f;
+            var particle = new BeeParticleComponent
+            {
+                type = type,
+                position = position,
+                life = 1f
+            };
 
             if (type == ParticleType.Blood)
             {
@@ -23,20 +25,45 @@ namespace Systems.Particles
                 particle.velocity =
                     velocity + new float3(randVelocity.x, randVelocity.y, randVelocity.z) * velocityJitter;
                 particle.lifeDuration = rand.Range(3f, 5f);
-                particle.size = Vector3.one * rand.Range(.1f, .2f);
-
-                particle.color = new float4(0.5f + rand.NextFloat() * 0.5f, 0,0,1);
+                particle.size = new float3(1, 1, 1) * rand.Range(.1f, .2f);
+                particle.color = new float4(0.5f + rand.NextFloat() * 0.5f, 0, 0, 1);
             }
             else if (type == ParticleType.SpawnFlash)
             {
                 var randVelocity = rand.NextInsideSphere();
                 particle.velocity = randVelocity * 5f;
                 particle.lifeDuration = rand.Range(.25f, .5f);
-                particle.size = Vector3.one * rand.Range(1f, 2f); 
-                particle.color = new float4(1,1,1,1);
+                particle.size = new float3(1, 1, 1) * rand.Range(1f, 2f);
+                particle.color = new float4(1, 1, 1, 1);
             }
 
             return particle;
+        }
+
+        public static void SpawnParticleEntity(EntityCommandBuffer.ParallelWriter writer, int chunkIndex, Random random,
+            Entity prefab, float3 position, ParticleType type, float3 velocity,
+            float velocityJitter, int count = 1)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var particleComponent = Create(position, type, velocity, velocityJitter, random);
+
+                var particleEntity = writer.Instantiate(chunkIndex, prefab);
+
+                var uniformScaleTransform = new UniformScaleTransform
+                {
+                    Position = position,
+                    Rotation = quaternion.identity,
+                    Scale = 1f
+                };
+                writer.SetComponent(chunkIndex, particleEntity, new LocalToWorldTransform
+                {
+                    Value = uniformScaleTransform
+                });
+                
+                writer.AddComponent(chunkIndex, particleEntity, new PostTransformMatrix());
+                writer.AddComponent(chunkIndex, particleEntity, particleComponent);
+            }
         }
     }
 }

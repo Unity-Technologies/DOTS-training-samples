@@ -20,29 +20,14 @@ namespace Systems
         public float DeltaTime;
         public Entity BloodParticlePrefab;
 
-        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Dead deadComponent, ref Physical physical)
+        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Dead deadComponent,
+            ref Physical physical)
         {
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
             if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .5f)
             {
-                var particleEntity = Ecb.Instantiate(chunkIndex, BloodParticlePrefab);
-                var uniformScaleTransform = new UniformScaleTransform
-                {
-                    Position = physical.Position,
-                    Rotation = quaternion.identity,
-                    Scale = 1f
-                };
-                
-                Ecb.SetComponent(chunkIndex, particleEntity, new LocalToWorldTransform
-                {
-                    Value = uniformScaleTransform
-                });
-
-                var particleComponent =
-                    ParticleBuilder.Create(physical.Position, ParticleType.Blood, float3.zero, 6f, random);
-                
-                Ecb.AddComponent(chunkIndex, particleEntity, new PostTransformMatrix());
-                Ecb.AddComponent(chunkIndex, particleEntity, particleComponent);
+                ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random, BloodParticlePrefab, physical.Position,
+                    ParticleType.Blood, physical.Velocity, 6f);
             }
 
             physical.IsFalling = true;
@@ -54,8 +39,6 @@ namespace Systems
                 Ecb.DestroyEntity(chunkIndex, entity);
             }
         }
-
-        
     }
 
     [BurstCompile]
