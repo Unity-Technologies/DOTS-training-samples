@@ -41,6 +41,11 @@ public struct MazeUtils
     {
         return gridPos.x + gridPos.y * gridSize;
     }
+
+    public static int CellIdxFromPos(int x, int y, int gridSize)
+    {
+        return x + y * gridSize;
+    }
     
     public static void DrawGridCell(int2 gridPos, byte wallFlags = 0)
     {
