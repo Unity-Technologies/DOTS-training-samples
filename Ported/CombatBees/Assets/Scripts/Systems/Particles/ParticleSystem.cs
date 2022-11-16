@@ -14,6 +14,7 @@ namespace Systems.Particles
         public EntityCommandBuffer.ParallelWriter Ecb;
         public float DeltaTime;
 
+        [BurstCompile]
         public void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, ref BeeParticleComponent particle,
             ref TransformAspect transform, ref PostTransformMatrix transformMatrix)
         {
@@ -22,7 +23,7 @@ namespace Systems.Particles
                 particle.velocity += new float3(0, 1, 0) * (Field.gravity * DeltaTime);
                 particle.position += particle.velocity * DeltaTime;
 
-                if (System.Math.Abs(particle.position.x) > Field.size.x * .5f)
+                if (math.abs(particle.position.x) > Field.size.x * .5f)
                 {
                     particle.position.x = Field.size.x * .5f * math.sign(particle.position.x);
                     float splat = math.abs(particle.velocity.x * .3f) + 1f;
@@ -31,7 +32,7 @@ namespace Systems.Particles
                     particle.stuck = true;
                 }
 
-                if (System.Math.Abs(particle.position.y) > Field.size.y * .5f)
+                if (math.abs(particle.position.y) > Field.size.y * .5f)
                 {
                     particle.position.y = Field.size.y * .5f * math.sign(particle.position.y);
                     float splat = math.abs(particle.velocity.y * .3f) + 1f;
@@ -40,7 +41,7 @@ namespace Systems.Particles
                     particle.stuck = true;
                 }
 
-                if (System.Math.Abs(particle.position.z) > Field.size.z * .5f)
+                if (math.abs(particle.position.z) > Field.size.z * .5f)
                 {
                     particle.position.z = Field.size.z * .5f * math.sign(particle.position.z);
                     float splat = math.abs(particle.velocity.z * .3f) + 1f;
@@ -55,30 +56,22 @@ namespace Systems.Particles
                     transformMatrix.Value = float4x4.Scale(particle.size);
                 }
             }
-
-            const float speedStretch = 0.25f;
-
-            particle.color.w = particle.life;
-
-            Ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor
-            {
-                Value = particle.color
-            });
-
+            
+            var scale = particle.size * particle.life;
+            
             if (!particle.stuck)
             {
-                var rotation = quaternion.identity;
-                float3 scale = particle.size * particle.life;
                 if (particle.type == ParticleType.Blood)
                 {
-                    rotation = quaternion.LookRotation(particle.velocity, new float3(0, 1, 0));
+                    var rotation = quaternion.LookRotation(particle.velocity, new float3(0, 1, 0));
+                    
+                    const float speedStretch = 0.25f;
                     scale.z *= 1f + math.length(particle.velocity) * speedStretch;
+                    transform.Rotation = rotation;
                 }
-
-                transform.Rotation = rotation;
-                transformMatrix.Value = float4x4.Scale(scale);
             }
 
+            transformMatrix.Value = float4x4.Scale(scale);
             transform.Position = particle.position;
             
             particle.life -= DeltaTime / particle.lifeDuration;
@@ -89,7 +82,6 @@ namespace Systems.Particles
         }
     }
 
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     [BurstCompile]
     partial struct ParticleSystem : ISystem
     {
