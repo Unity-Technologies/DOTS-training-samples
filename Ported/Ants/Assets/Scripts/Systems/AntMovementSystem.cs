@@ -40,7 +40,7 @@ public partial struct AntMovementSystem : ISystem
             transformAspect.Position += dir * deltaTime * ant.ValueRO.Speed;
             transformAspect.Rotation = quaternion.RotateZ(angleInRadians);
             
-            mapAspect.AddStrength((int)transformAspect.Position.y, (int)transformAspect.Position.x, ant.ValueRO.Speed);
+            mapAspect.AddStrength((int)transformAspect.Position.x, (int)transformAspect.Position.y, ant.ValueRO.Speed);
         }
     }
 }

@@ -9,21 +9,21 @@ public readonly partial struct MapDataAspect : IAspect
     
     public float GetStrength(int row, int col)
     {
-        return MapData.ValueRO.StrengthList[row * Columns + col] / 255f;
+        return MapData.ValueRO.StrengthList[col * Rows + row] / 255f;
     }
 
     public void SetStrength(int row, int col, float value)
     {
-        byte currentValue = MapData.ValueRO.StrengthList[row * Columns + col];
+        byte currentValue = MapData.ValueRO.StrengthList[col * Rows + row];
         byte nowValue = (byte)math.min(255, value);
-        MapData.ValueRW.StrengthList[row * Columns + col] = nowValue;
+        MapData.ValueRW.StrengthList[col * Rows + row] = nowValue;
     }
     
     public void AddStrength(int row, int col, float value, int radius = -1)
     {
-        byte currentValue = MapData.ValueRO.StrengthList[row * Columns + col];
+        byte currentValue = MapData.ValueRO.StrengthList[col * Rows + row];
         byte nowValue = (byte)math.min(255, currentValue + value);
-        MapData.ValueRW.StrengthList[row * Columns + col] = nowValue;
+        MapData.ValueRW.StrengthList[col * Rows + row] = nowValue;
         
         //TODO - Integrate radius parameter...
         
@@ -31,12 +31,12 @@ public readonly partial struct MapDataAspect : IAspect
 
     public TileType GetTileType(int row, int col)
     {
-        return MapData.ValueRO.TileTypes[row * Columns + col];
+        return MapData.ValueRO.TileTypes[col * Rows + row];
     }
 
     public void SetTile(int row, int col, TileType tileType, int radius = -1)
     {
-        int tileIndex = row * Columns + col;
+        int tileIndex = col * Rows + row;
         MapData.ValueRW.TileTypes[tileIndex] = tileType;
 
         //TODO - Integrate radius parameter...
