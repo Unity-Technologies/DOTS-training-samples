@@ -231,7 +231,7 @@ public partial struct MazeGeneratorSystem : ISystem
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
                     {
-                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) - new float3(0, 0, 0.5f), quaternion.identity)
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.identity)
                     });
                 }
                 if (tmp_cell.HasFlag(WallFlags.South))
@@ -239,7 +239,7 @@ public partial struct MazeGeneratorSystem : ISystem
                     var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
                     state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
                     {
-                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
+                        Value = UniformScaleTransform.FromPositionRotation(GridPositionToWorld(x, y) - new float3(0, 0, 0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
                     });
                 }
                 if (tmp_cell.HasFlag(WallFlags.West))

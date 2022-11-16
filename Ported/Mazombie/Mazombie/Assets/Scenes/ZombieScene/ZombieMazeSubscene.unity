@@ -174,4 +174,6 @@ MonoBehaviour:
   playerPrefab: {fileID: 1130627450907762, guid: 99e1dadff5ca5493786917e5f2f62a7c,
     type: 3}
   mazeSize: 30
+  openStripWidth: 5
+  mazeStripWidth: 4
   cellSize: 1
