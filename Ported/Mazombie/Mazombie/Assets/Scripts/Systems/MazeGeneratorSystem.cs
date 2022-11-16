@@ -159,11 +159,11 @@ public partial struct MazeGeneratorSystem : ISystem
                     {
                         if (x > 0)
                         {
-                            TurnOffLeftWall(x, y, ref grid, size);
+                            RemoveEastWestWall(x, y, ref grid, size);
                         }
                         if (y > offset)
                         {
-                            TurnOffDownWall(x, y, ref grid, size);
+                            RemoveNorthSouthWall(x, y, ref grid, size);
                         }
                     }
                 }
@@ -281,7 +281,7 @@ public partial struct MazeGeneratorSystem : ISystem
         state.Enabled = false;
     }
 
-    void TurnOffDownWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    void RemoveNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
     {
         var r = x;
         var c = y - 1; // move north
@@ -302,7 +302,7 @@ public partial struct MazeGeneratorSystem : ISystem
         }
     }
 
-    void TurnOffLeftWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    void RemoveEastWestWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
     {
         var r = x - 1;
         var c = y;
