@@ -29,5 +29,8 @@ namespace Components
         public float ChaseForce;
         public float AttackForce;
         public float HitDistance;
+        public float GrabDistance;
+        public float3 HivePosition;
+        public float CarryForce;
     }
 }
