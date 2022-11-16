@@ -20,8 +20,14 @@ public partial struct CollisionSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
         foreach ((TransformAspect antTransform, RefRW<Ant> ant) in SystemAPI.Query<TransformAspect, RefRW<Ant>>())
         {
+            if (IsOutsideBounds(antTransform.Position.x, antTransform.Position.y, config.MapSize))
+            {
+                ant.ValueRW.Angle += 90f;
+                continue;
+            }
             foreach ((LocalToWorldTransform wallTransform, Wall wall ) in SystemAPI.Query<LocalToWorldTransform,Wall>())
             {
                 var sqrDistance =math.distancesq(wallTransform.Value.Position,antTransform.Position) ;
@@ -31,5 +37,14 @@ public partial struct CollisionSystem : ISystem
                 }
             }
         }
+    }
+
+    private bool IsOutsideBounds(float xPos, float yPos, int mapSize)
+    {
+        if (xPos < 1) return true;
+        if (yPos < 1) return true;
+        if (xPos >= mapSize - 1) return true;
+        if (yPos >= mapSize - 1) return true;
+        return false;
     }
 }
