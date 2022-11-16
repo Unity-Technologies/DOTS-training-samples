@@ -42,7 +42,7 @@ public partial struct MazeGeneratorSystem : ISystem
 
         var size = gameConfig.mazeSize;
         var numCells = size * size;
-        bool[] cellVisited = new bool[numCells];
+        var cellVisited = new NativeArray<bool>(numCells, Allocator.Temp);
 
         GridCell cell = new GridCell { wallFlags = (byte)WallFlags.None };
         cell.wallFlags |= (byte)WallFlags.North;
