@@ -57,7 +57,7 @@ namespace Systems
             var builder = new EntityQueryBuilder(Allocator.Temp);
             builder.WithAll<Bee, TeamIdentifier, Physical>().WithNone<Dead>();
             beeQuery = state.GetEntityQuery(builder);
-            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
+            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             
             _random = Random.CreateFromIndex(4000);
             state.RequireForUpdate<BeeConfig>();
@@ -73,10 +73,10 @@ namespace Systems
         {
             var dt = SystemAPI.Time.DeltaTime;
             var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
-            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
+            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team1Bees = beeQuery.ToComponentDataArray<Physical>(Allocator.TempJob);
             
-            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
+            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 2});
             var team2Bees = beeQuery.ToComponentDataArray<Physical>(Allocator.TempJob);
 
             var seed1 = _random.NextUInt();
@@ -98,11 +98,11 @@ namespace Systems
                 TeamAttraction = beeConfig.Team2.TeamAttraction
             };
 
-            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
+            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 2});
             var team2Handle = team2Job.ScheduleParallel(beeQuery, state.Dependency);
             team2Handle.Complete();
             
-            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 0});
+            beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team1Handle = team1Job.ScheduleParallel(beeQuery, state.Dependency);
             team1Handle.Complete();
 
