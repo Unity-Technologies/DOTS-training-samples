@@ -194,7 +194,7 @@ public partial struct ResourceMovementSystem : ISystem
     partial struct CarriedJob : IJobEntity
     {
         [NativeDisableContainerSafetyRestriction]
-        [ReadOnly] public ComponentLookup<Physical> PhysicalLookup;
+        public ComponentLookup<Physical> PhysicalLookup;
 
         void Execute([EntityInQueryIndex] int index, ref Resource resource, ref Physical physical)
         {
