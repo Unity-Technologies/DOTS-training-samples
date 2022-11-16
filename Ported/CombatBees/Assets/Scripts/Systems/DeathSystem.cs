@@ -4,6 +4,7 @@ using Systems.Particles;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -19,7 +20,7 @@ namespace Systems
         public Entity BloodParticlePrefab;
 
         [BurstCompile]
-        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Dead deadComponent,
+        public void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, ref Dead deadComponent,
             ref Physical physical)
         {
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
@@ -27,14 +28,14 @@ namespace Systems
             {
                 ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
                     physical.Position,
-                    ParticleType.Blood, physical.Velocity, 6f);
+                    ParticleType.Blood, float3.zero, 6f);
                 
                 var shouldShowExtraGore = random.NextFloat() > 0.8f;
                 if (shouldShowExtraGore)
                 {
                     ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
                         physical.Position,
-                        ParticleType.Blood, physical.Velocity * 3, 16f);
+                        ParticleType.Blood, float3.zero, 16f);
                 }
             }
 

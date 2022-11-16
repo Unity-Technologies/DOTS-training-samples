@@ -207,6 +207,7 @@ MonoBehaviour:
   MinBeeSize: 0.25
   MaxBeeSize: 0.5
   Stretch: 0.5
+  BeesPerResource: 3
   Team1:
     TeamNumber: 1
     MinBounds:
