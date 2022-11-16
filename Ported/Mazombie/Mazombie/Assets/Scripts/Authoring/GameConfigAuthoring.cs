@@ -48,7 +48,8 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             num_zombies = authoring.num_zombies,
             numPills = authoring.numPills,
             zombiePrefab = GetEntity(authoring.zombiePrefab),
-            seed = authoring.seed
+            seed = authoring.seed,
+            gameState = { score = 0 },
         });
     }
 }

@@ -1,5 +1,9 @@
 ﻿
 using Unity.Entities;
+public struct CurrentGameState
+{
+    public int score;
+}
 
 public struct GameConfig : IComponentData
 {
@@ -20,4 +24,6 @@ public struct GameConfig : IComponentData
     public int num_zombies;
     public int numPills;
     public uint seed;
+
+    public CurrentGameState gameState;
 }

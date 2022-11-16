@@ -11,10 +11,13 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 public partial struct PillSpawnSystem : ISystem
 {
+    private Random m_Random;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameConfig>();
+
     }
     
     [BurstCompile]
@@ -26,13 +29,14 @@ public partial struct PillSpawnSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
-        var random = Random.CreateFromIndex(gameConfig.seed);
-
+        if (m_Random.state == 0)
+            m_Random.InitState(gameConfig.seed);
+        
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         for (int i = 0; i < gameConfig.numPills; i++)
         {
-            var gridPosX = random.NextInt(0, gameConfig.mazeSize);
-            var gridPosY = random.NextInt(0, gameConfig.mazeSize);
+            var gridPosX = m_Random.NextInt(0, gameConfig.mazeSize);
+            var gridPosY = m_Random.NextInt(0, gameConfig.mazeSize);
             
             var pill = ecb.Instantiate(gameConfig.pillPrefab);
             ecb.SetComponent(pill, new LocalToWorldTransform
