@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
 public partial struct ZombieSpawner : ISystem
 {
@@ -23,19 +24,19 @@ public partial struct ZombieSpawner : ISystem
     {
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
 
-        // for (int i = 0; i < gameConfig.num_zombies; i++)
-        // {
-        //     var zombie = state.EntityManager.Instantiate(gameConfig.zombiePrefab);
-        //     state.EntityManager.SetComponentData(zombie, new LocalToWorldTransform
-        //     {
-        //         Value = UniformScaleTransform.FromPosition(5,0,5)
-        //     });
-        //     
-        //     // path
-        //     state.EntityManager.AddBuffer<Trajectory>(zombie);
-        //
-        //     state.EntityManager.AddComponent<NeedUpdateTrajectory>(zombie);
-        // }
+        for (int i = 0; i < gameConfig.num_zombies; i++)
+        {
+            var zombie = state.EntityManager.Instantiate(gameConfig.zombiePrefab);
+            state.EntityManager.SetComponentData(zombie, new LocalToWorldTransform
+            {
+                Value = UniformScaleTransform.FromPosition(5,0,5)
+            });
+            
+            // path
+            state.EntityManager.AddBuffer<Trajectory>(zombie);
+        
+            state.EntityManager.AddComponent<NeedUpdateTrajectory>(zombie);
+        }
         
         state.Enabled = false;
     }
