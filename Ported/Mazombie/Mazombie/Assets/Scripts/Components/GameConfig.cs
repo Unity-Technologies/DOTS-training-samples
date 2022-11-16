@@ -10,5 +10,7 @@ public struct GameConfig : IComponentData
     public Entity zombiePrefab;
     public Entity movingWallPrefab;
     public int mazeSize;
+    public int openStripWidth;
+    public int mazeStripWidth;
     public int num_zombies;
 }
