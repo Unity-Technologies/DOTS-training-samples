@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct NeedUpdateTrajectory : IComponentData
+public struct NeedUpdateTrajectory : IComponentData, IEnableableComponent
 {
 
 }

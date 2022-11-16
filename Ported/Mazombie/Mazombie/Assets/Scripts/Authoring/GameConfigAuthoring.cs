@@ -9,6 +9,8 @@ public class GameConfigAuthoring : MonoBehaviour
     public GameObject wallPrefab;
     public GameObject playerSpawnPrefab;
     public GameObject playerPrefab;
+    public GameObject zombiePrefab;
+
     public int mazeSize;
     public int openStripWidth;
     public int mazeStripWidth;
@@ -18,6 +20,8 @@ public class GameConfigAuthoring : MonoBehaviour
     public int movingWallRangeMin;
     public int movingWallRangeMax;
     public float cellSize = 1.0f;
+    public int num_zombies = 10;
+    public uint seed = 42;
 }
 
 public class GameConfigBaker : Baker<GameConfigAuthoring>
@@ -37,7 +41,10 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             movingWallRangeMax = authoring.movingWallRangeMax,
             mazeSize = authoring.mazeSize,
             openStripWidth = authoring.openStripWidth,
-            mazeStripWidth = authoring.mazeStripWidth
+            mazeStripWidth = authoring.mazeStripWidth,
+            num_zombies = authoring.num_zombies,
+            zombiePrefab = GetEntity(authoring.zombiePrefab),
+            seed = authoring.seed
         });
     }
 }
