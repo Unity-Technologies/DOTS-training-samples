@@ -12,8 +12,11 @@ public class GameConfigAuthoring : MonoBehaviour
     public int mazeSize;
     public int openStripWidth;
     public int mazeStripWidth;
-
-
+    public GameObject movingWallPrefab;
+    public int numMovingWalls;
+    public int movingWallsLength;
+    public int movingWallRangeMin;
+    public int movingWallRangeMax;
     public float cellSize = 1.0f;
 }
 
@@ -27,6 +30,11 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             wallPrefab = GetEntity(authoring.wallPrefab),
             playerSpawnPrefab = GetEntity(authoring.playerSpawnPrefab),
             playerPrefab = GetEntity(authoring.playerPrefab),
+            movingWallPrefab = GetEntity(authoring.movingWallPrefab),
+            numMovingWalls = authoring.numMovingWalls,
+            movingWallsLength = authoring.movingWallsLength,
+            movingWallRangeMin = authoring.movingWallRangeMin,
+            movingWallRangeMax = authoring.movingWallRangeMax,
             mazeSize = authoring.mazeSize,
             openStripWidth = authoring.openStripWidth,
             mazeStripWidth = authoring.mazeStripWidth
