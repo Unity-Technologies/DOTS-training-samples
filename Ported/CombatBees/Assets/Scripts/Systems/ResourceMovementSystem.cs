@@ -60,6 +60,7 @@ public partial struct ResourceMovementSystem : ISystem
     }
     
     [WithAll(typeof(Resource), typeof(Physical), typeof(ResourceGatherable))]
+    [WithNone(typeof(StackNeedsFix))]
     [BurstCompile]
     partial struct ResourceFallingJob : IJobEntity
     {
@@ -80,8 +81,8 @@ public partial struct ResourceMovementSystem : ISystem
                                         || Field.InTeamArea(physical.Position.x, HivePosition_Team2);
                 if (!withinTeamBounds)
                 {
-                    // Flag for stacking gatherable
-                    resource.StackState = StackState.NeedsFix;
+                    // Flag stack for needing fix
+                    ECB.SetComponentEnabled<StackNeedsFix>(index, entity, true);
                 }
                 else
                 {

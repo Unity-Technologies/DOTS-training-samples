@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -13,6 +11,7 @@ using UnityEngine;
 public partial struct StackingSystem : ISystem
 {
     private EntityQuery _gatherableResourcesQuery;
+    private EntityQuery _stacksToFixQuery;
     private ComponentLookup<Resource> _resourcesLookup;
     private ComponentLookup<Physical> _physicaLookup;
 
@@ -20,7 +19,8 @@ public partial struct StackingSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        _gatherableResourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, ResourceGatherable>().Build();
+        _gatherableResourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, ResourceGatherable>().WithNone<StackNeedsFix>().Build();
+        _stacksToFixQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, StackNeedsFix>().Build();
 
         _resourcesLookup = state.GetComponentLookup<Resource>();
         _physicaLookup = state.GetComponentLookup<Physical>();
@@ -39,28 +39,38 @@ public partial struct StackingSystem : ISystem
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
 
-        var gatherables = _gatherableResourcesQuery.ToEntityArray(Allocator.TempJob);
+        var stacksToFix = _stacksToFixQuery.ToEntityArray(Allocator.TempJob);
 
-        var fixStacksEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var fixStacksJob = new FixStacksJob()
+        // Early out if there are no stacks to fix
+        if (stacksToFix.Length > 0)
         {
-            ECB = fixStacksEcb,
-            Resources = gatherables,
-            ResourceLookup = _resourcesLookup,
-            PhysicalLookup = _physicaLookup,
-        };
+            var gatherables = _gatherableResourcesQuery.ToEntityArray(Allocator.TempJob);
 
-        JobHandle jobHandle = fixStacksJob.Schedule(state.Dependency);
-        state.Dependency = jobHandle;
-        jobHandle.Complete();
+            var fixStacksEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var fixStacksJob = new FixStacksJob()
+            {
+                ECB = fixStacksEcb,
+                Resources = gatherables,
+                StacksToFix = stacksToFix,
+                ResourceLookup = _resourcesLookup,
+                PhysicalLookup = _physicaLookup,
+            };
 
-        gatherables.Dispose(state.Dependency);
+            JobHandle jobHandle = fixStacksJob.Schedule(state.Dependency);
+            state.Dependency = jobHandle;
+            jobHandle.Complete();
+
+            gatherables.Dispose(state.Dependency);
+        }
+
+        stacksToFix.Dispose(state.Dependency);
     }
-    
+
     [BurstCompile]
     partial struct FixStacksJob : IJob
     {
         [ReadOnly] public NativeArray<Entity> Resources;
+        [ReadOnly] public NativeArray<Entity> StacksToFix;
         public EntityCommandBuffer ECB;
         public ComponentLookup<Resource> ResourceLookup;
         public ComponentLookup<Physical> PhysicalLookup;
@@ -92,18 +102,13 @@ public partial struct StackingSystem : ISystem
                 stackTopEntities[resource.GridIndex] = resourceEntity;
             }
             
-            NativeHashMap<int2, int> newStacks = new NativeHashMap<int2, int>(Field.GridSize, Allocator.Temp);
+            NativeHashMap<int2, int> newStacks = new NativeHashMap<int2, int>(StacksToFix.Length, Allocator.Temp);
             
-            foreach (var resourceToStack in Resources)
+            foreach (var resourceToStack in StacksToFix)
             {
                 var resource = ResourceLookup[resourceToStack];
                 var physical = PhysicalLookup[resourceToStack];
 
-                if (resource.StackState != StackState.NeedsFix)
-                {
-                    continue;
-                }
-                
                 if (newStacks.ContainsKey(resource.GridIndex))
                 {
                     newStacks[resource.GridIndex]++;
@@ -117,6 +122,7 @@ public partial struct StackingSystem : ISystem
                                       (newStacks[resource.GridIndex] * ResourceSpawningSystem.RESOURCE_OBJ_HEIGHT);
                 ECB.SetComponent(resourceToStack, physical);
                 resource.StackState = StackState.StackFixed;
+                ECB.SetComponentEnabled<StackNeedsFix>(resourceToStack, false);
 
                 /// The previous stack top is now underneath so disable the Resource Gatherable
                 /// and update the ResourceUnder reference
@@ -125,14 +131,14 @@ public partial struct StackingSystem : ISystem
                     Entity resourceUnder = stackTopEntities[resource.GridIndex];
                     ECB.SetComponentEnabled<ResourceGatherable>(resourceUnder, false);
                     resource.ResourceUnder = resourceUnder;
-                    ECB.SetComponent<Resource>(resourceToStack, resource);
                 }
+                ECB.SetComponent<Resource>(resourceToStack, resource);
             }
     
             stackTopEntities.Dispose();
             newStacks.Dispose();
         }
-          
+        
         float GetYOffset(NativeHashMap<int2, Entity> stackTopEntities, int2 gridIndex)
         {
             if (stackTopEntities.ContainsKey(gridIndex))

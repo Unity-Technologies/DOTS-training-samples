@@ -130,6 +130,8 @@ partial struct ResourceSpawningSystem : ISystem
             ECB.AddComponent(resource, new ResourceGatherable());
             // Resources are gatherable in air
             ECB.SetComponentEnabled<ResourceGatherable>(resource, true);
+            ECB.AddComponent(resource, new StackNeedsFix());
+            ECB.SetComponentEnabled<StackNeedsFix>(resource, false);
 
             ECB.AddComponent(resource, new Dead());
             ECB.SetComponentEnabled<Dead>(resource, false);

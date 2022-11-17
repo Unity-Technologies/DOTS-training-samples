@@ -16,7 +16,6 @@ public struct Resource : IComponentData
 public enum StackState
 {
     InProgress = 0,
-    NeedsFix,
     StackFixed
 }
 
