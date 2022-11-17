@@ -118,10 +118,14 @@ public partial struct StackingSystem : ISystem
                 ECB.SetComponentEnabled<StackInProgress>(resourceToStack, false);
 
                 
-                // The previous stack top is now underneath so disable the Resource Gatherable
+                /// The previous stack top is now underneath so disable the Resource Gatherable
+                /// and update the ResourceUnder reference
                 if (stackTopEntities.ContainsKey(resource.GridIndex))
                 {
-                    ECB.SetComponentEnabled<ResourceGatherable>(stackTopEntities[resource.GridIndex], false);
+                    Entity resourceUnder = stackTopEntities[resource.GridIndex];
+                    ECB.SetComponentEnabled<ResourceGatherable>(resourceUnder, false);
+                    resource.ResourceUnder = resourceUnder;
+                    ECB.SetComponent<Resource>(resourceToStack, resource);
                 }
             }
             

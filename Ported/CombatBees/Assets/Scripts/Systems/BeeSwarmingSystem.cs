@@ -258,6 +258,11 @@ namespace Systems
                     {
                         bee.ValueRW.State = Beehaviors.ResourceGathering;
                         resource.ValueRW.Holder = claim.Bee;
+                        //ALX: Set the resource underneath as claimable if applicable (stacks)
+                        if (resource.ValueRO.ResourceUnder != Entity.Null)
+                        {
+                            Ecb.SetComponentEnabled<ResourceGatherable>(resource.ValueRO.ResourceUnder, true);
+                        }
                     }
                 }
                 else
