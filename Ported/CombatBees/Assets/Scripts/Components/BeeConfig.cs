@@ -11,6 +11,7 @@ namespace Components
         public float MinBeeSize;
         public float MaxBeeSize;
         public float Stretch;
+        public int BeesPerResource;
 
         public Team Team1;
         public Team Team2;

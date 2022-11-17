@@ -12,6 +12,7 @@ namespace Authoring
         public float MinBeeSize;
         public float MaxBeeSize;
         public float Stretch;
+        public int BeesPerResource;
         public Team Team1;
         public Team Team2;
     }
@@ -30,6 +31,7 @@ namespace Authoring
                 Team1 = authoring.Team1,
                 Team2 = authoring.Team2,
                 BloodParticlePrefab = GetEntity(authoring.BloodParticlePrefab),
+                BeesPerResource = authoring.BeesPerResource
             });
         }
     }

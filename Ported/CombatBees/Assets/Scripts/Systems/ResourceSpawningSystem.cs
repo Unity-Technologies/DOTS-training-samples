@@ -129,6 +129,7 @@ partial struct ResourceSpawningSystem : ISystem
                 Collision = Physical.FieldCollisionType.Slump,
             });
             ECB.AddComponent(resource, new ResourceGatherable());
+            // ALX: Resources become gatherable when they land on floor
             ECB.SetComponentEnabled<ResourceGatherable>(resource, false);
             ECB.AddComponent(resource, new StackInProgress());
             ECB.SetComponentEnabled<StackInProgress>(resource, true);

@@ -49,7 +49,7 @@ public partial struct PhysicalSystem : ISystem
         public static readonly float3 up = new float3(0, 1, 0);
         public static readonly float3 forward = new float3(0, 0, 1);
 
-        void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, in LocalToWorldTransform localToWorld)
+        void Execute(in Entity entity, ref Physical physical, in LocalToWorldTransform localToWorld)
         {
             var previousPosition = physical.Position;
 
@@ -127,6 +127,8 @@ public partial struct PhysicalSystem : ISystem
             // Calculate and apply stretch
             float stretch = math.max(1f, math.length(physical.Velocity) * physical.Stretch);
             float minorStretch = 1f; // + ((stretch - 1f) / 5f);
+            stretch = math.min(3, stretch);
+            
             ECB.SetComponent(entity, new PostTransformMatrix
             {
                 Value = float4x4.Scale(new float3(minorStretch, minorStretch, stretch))

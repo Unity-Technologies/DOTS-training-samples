@@ -203,10 +203,11 @@ MonoBehaviour:
     type: 3}
   BloodParticlePrefab: {fileID: 8861728088394010741, guid: 65b518e4195678b418a13ad32259b733,
     type: 3}
-  BeesToSpawn: 100
+  BeesToSpawn: 50
   MinBeeSize: 0.25
   MaxBeeSize: 0.5
   Stretch: 0.5
+  BeesPerResource: 3
   Team1:
     TeamNumber: 1
     MinBounds:

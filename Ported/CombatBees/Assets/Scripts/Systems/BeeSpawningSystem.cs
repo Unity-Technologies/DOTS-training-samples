@@ -25,7 +25,7 @@ public partial struct BeeSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var Random = Unity.Mathematics.Random.CreateFromIndex(98);
+        var random = Random.CreateFromIndex(98);
         
         var beeConfigEntity = SystemAPI.GetSingletonEntity<BeeConfig>();
         var beeConfig = SystemAPI.GetComponent<BeeConfig>(beeConfigEntity);
@@ -35,40 +35,51 @@ public partial struct BeeSpawningSystem : ISystem
 
         var team1SpawnJob = new SpawnBeeJob
         {
-            ECB = ecb,
-            BeeConfig = beeConfig,
-            Random = Random,
+            ECB = ecb.AsParallelWriter(),
+            Stretch = beeConfig.Stretch,
+            BeePrefab = beeConfig.BeePrefab,
+            BeesToSpawn = beeConfig.BeesToSpawn,
+            MaxBeeSize = beeConfig.MaxBeeSize,
+            MinBeeSize = beeConfig.MinBeeSize,
+            Random = random,
             Team = beeConfig.Team1
         };
         
         var team2SpawnJob = new SpawnBeeJob
         {
-            ECB = ecb,
-            BeeConfig = beeConfig,
-            Random = Random,
+            ECB = ecb.AsParallelWriter(),
+            Stretch = beeConfig.Stretch,
+            BeePrefab = beeConfig.BeePrefab,
+            BeesToSpawn = beeConfig.BeesToSpawn,
+            MaxBeeSize = beeConfig.MaxBeeSize,
+            MinBeeSize = beeConfig.MinBeeSize,
+            Random = random,
             Team = beeConfig.Team2
         };
 
-        var team1Handle = team1SpawnJob.Schedule(state.Dependency);
-        var team2Handle = team2SpawnJob.Schedule(team1Handle);
-        team2Handle.Complete();
+        var team1Handle = team1SpawnJob.ScheduleParallel(state.Dependency);
+        state.Dependency = team2SpawnJob.ScheduleParallel(team1Handle);
         
         state.Enabled = false;
     }
 }
 
 [BurstCompile]
-public struct SpawnBeeJob : IJob
+partial struct SpawnBeeJob : IJobEntity
 {
-    public EntityCommandBuffer ECB;
+    public EntityCommandBuffer.ParallelWriter ECB;
     public Team Team;
     public Random Random;
-    public BeeConfig BeeConfig;
+    public Entity BeePrefab;
+    public int BeesToSpawn;
+    public float MinBeeSize;
+    public float MaxBeeSize;
+    public float Stretch;
     
-    public void Execute()
+    public void Execute([ChunkIndexInQuery] int index)
     {
-        var bees = CollectionHelper.CreateNativeArray<Entity>(BeeConfig.BeesToSpawn, Allocator.Temp);
-        ECB.Instantiate(BeeConfig.BeePrefab, bees);
+        var bees = CollectionHelper.CreateNativeArray<Entity>(BeesToSpawn, Allocator.Temp);
+        ECB.Instantiate(index, BeePrefab, bees);
 
         foreach (var bee in bees)
         {
@@ -76,41 +87,41 @@ public struct SpawnBeeJob : IJob
             {
                 Position = Random.NextFloat3(Team.MinBounds, Team.MaxBounds),
                 Rotation = quaternion.identity,
-                Scale = Random.NextFloat(BeeConfig.MinBeeSize, BeeConfig.MaxBeeSize)
+                Scale = Random.NextFloat(MinBeeSize, MaxBeeSize)
             };
-            ECB.SetComponent(bee, new LocalToWorldTransform
+            ECB.SetComponent(index, bee, new LocalToWorldTransform
             {
                 Value = uniformScaleTransform
             });
-            ECB.AddComponent(bee, new PostTransformMatrix());
-            ECB.SetComponent(bee, new URPMaterialPropertyBaseColor
+            ECB.AddComponent(index, bee, new PostTransformMatrix());
+            ECB.SetComponent(index, bee, new URPMaterialPropertyBaseColor
             {
                 Value = Team.Color
             });
-            ECB.SetComponent(bee, new Bee
+            ECB.SetComponent(index, bee, new Bee
             {
                 Scale = uniformScaleTransform.Scale,
                 Team = Team
             });
-            ECB.AddComponent(bee, new Physical
+            ECB.AddComponent(index, bee, new Physical
             {
                 Position = uniformScaleTransform.Position,
                 Velocity = float3.zero,
                 IsFalling = false,
                 Collision = Physical.FieldCollisionType.Bounce,
-                Stretch = BeeConfig.Stretch,
+                Stretch = Stretch,
             });
-            ECB.AddSharedComponent(bee, new TeamIdentifier
+            ECB.AddSharedComponent(index, bee, new TeamIdentifier
             {
                 TeamNumber = Team.TeamNumber
             });
             
-            ECB.AddComponent(bee, new Dead()
+            ECB.AddComponent(index, bee, new Dead()
             {
                 DeathTimer = 2f
             });
             
-            ECB.SetComponentEnabled<Dead>(bee, false);
+            ECB.SetComponentEnabled<Dead>(index, bee, false);
         }
     }
 }

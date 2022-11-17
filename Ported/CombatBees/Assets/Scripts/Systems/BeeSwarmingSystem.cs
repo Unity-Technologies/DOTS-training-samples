@@ -1,17 +1,25 @@
 ﻿using System;
 using Components;
 using DefaultNamespace;
+using Systems.Particles;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
+    public struct ResourceClaim
+    {
+        public Entity Resource;
+        public Entity Bee;
+        public bool IsClaiming;
+    }
     
     [BurstCompile]
     partial struct SwarmJob : IJobEntity
@@ -23,7 +31,9 @@ namespace Systems
         [ReadOnly] public ComponentLookup<LocalToWorldTransform> TransformLookup;
         [ReadOnly] public ComponentLookup<ResourceGatherable> ResourceGatherableLookup;
         [ReadOnly] public ComponentLookup<Resource> ResourceLookup;
+        public NativeList<ResourceClaim>.ParallelWriter ResourceClaims;
         public EntityCommandBuffer.ParallelWriter ECB;
+        public BeeConfig Config;
         public float Dt;
         public uint Seed;
 
@@ -85,8 +95,12 @@ namespace Systems
                         if (sqrDist < math.pow(bee.Team.HitDistance, 2))
                         {
                             //may need to set the resources holder to null here if they have one
-                            //spawn particle
+                            ParticleBuilder.SpawnParticleEntity(ECB, index, random.NextUInt(), Config.BloodParticlePrefab,
+                                physical.Position,
+                                ParticleType.Blood, -physical.Velocity, 6f, 10);
+                            
                             ECB.SetComponentEnabled<Dead>(index, bee.EntityTarget, true);
+                          
                             //TODO: Cause first run of death job to slow down the bees velocity by half
                             bee.EntityTarget = Entity.Null;
                             bee.State = Beehaviors.Idle;
@@ -104,7 +118,7 @@ namespace Systems
                         bee.State = Beehaviors.Idle;
                         return;
                     }
-                    
+
                     delta = TransformLookup[bee.EntityTarget].Value.Position - TransformLookup[entity].Value.Position;
                     sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
@@ -114,8 +128,12 @@ namespace Systems
                     }
                     else
                     {
-                        bee.State = Beehaviors.ResourceGathering;
-                        targetResource.Holder = entity;
+                        ResourceClaims.AddNoResize(new ResourceClaim
+                        {
+                            Resource = bee.EntityTarget,
+                            Bee = entity,
+                            IsClaiming = true,
+                        });
                     }
                     
                     // TODO if resource holder is enemy bee, become aggressive to it
@@ -129,18 +147,73 @@ namespace Systems
                     var dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                     UpdateVelocity(ref physical, bee.Team.HivePosition, 1, bee.Team.CarryForce, false);
 
-                    if (dist < 5f)
+                    if ((physical.Position.x / bee.Team.HivePosition.x) >= 1.0f)
                     {
-                        targetResource.Holder = Entity.Null;
-                        bee.EntityTarget = Entity.Null;
-                        bee.State = Beehaviors.Idle;
-                        //TODO spawn bees
+                        ResourceClaims.AddNoResize(new ResourceClaim
+                        {
+                            Resource = bee.EntityTarget,
+                            Bee = entity,
+                            IsClaiming = false,
+                        });
+                        
+                        // TJA - shouldn't this happen once the resource hits the ground?
+                        SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize, Config.MaxBeeSize, Config.Stretch, bee.Team, random);
                     }
 
                     break;
             
             }
             
+        }
+
+        private void SpawnSomeBees(EntityCommandBuffer.ParallelWriter ecb, 
+            int index, Entity beePrefab, int beesToSpawn, float minBeeSize, float maxBeeSize, float stretch, Team team, Random random)
+        {
+            var bees = CollectionHelper.CreateNativeArray<Entity>(beesToSpawn, Allocator.Temp);
+            ecb.Instantiate(index, beePrefab, bees);
+
+            foreach (var bee in bees)
+            {
+                var uniformScaleTransform = new UniformScaleTransform
+                {
+                    Position = random.NextFloat3(team.MinBounds, team.MaxBounds),
+                    Rotation = quaternion.identity,
+                    Scale = random.NextFloat(minBeeSize, maxBeeSize)
+                };
+                ecb.SetComponent(index, bee, new LocalToWorldTransform
+                {
+                    Value = uniformScaleTransform
+                });
+                ecb.AddComponent(index, bee, new PostTransformMatrix());
+                ecb.SetComponent(index, bee, new URPMaterialPropertyBaseColor
+                {
+                    Value = team.Color
+                });
+                ecb.SetComponent(index, bee, new Bee
+                {
+                    Scale = uniformScaleTransform.Scale,
+                    Team = team
+                });
+                ecb.AddComponent(index, bee, new Physical
+                {
+                    Position = uniformScaleTransform.Position,
+                    Velocity = float3.zero,
+                    IsFalling = false,
+                    Collision = Physical.FieldCollisionType.Bounce,
+                    Stretch = stretch,
+                });
+                ecb.AddSharedComponent(index, bee, new TeamIdentifier
+                {
+                    TeamNumber = team.TeamNumber
+                });
+            
+                ecb.AddComponent(index, bee, new Dead()
+                {
+                    DeathTimer = 2f
+                });
+            
+                ecb.SetComponentEnabled<Dead>(index, bee, false);
+            }
         }
 
         void UpdateVelocity(ref Physical originPhysical, float3 target, int sign, float power, bool sqrt)
@@ -160,7 +233,56 @@ namespace Systems
             }
         }
     }
-    
+
+    [BurstCompile]
+    public struct ClaimingJob : IJob
+    {
+        public NativeList<ResourceClaim> ResourceClaims1;
+        public NativeList<ResourceClaim> ResourceClaims2;
+        public ComponentLookup<Resource> ResourceLookup;
+        public ComponentLookup<Bee> BeeLookup;
+        public ComponentLookup<Physical> PhysicalLookup;
+        public EntityCommandBuffer Ecb;
+
+
+        private void ProcessResourceClaimFromList(NativeList<ResourceClaim> list, int i)
+        {
+            if (i < list.Length)
+            {
+                var claim = list[i];
+                var resource = ResourceLookup.GetRefRW(claim.Resource, isReadOnly: false);
+                var bee = BeeLookup.GetRefRW(claim.Bee, isReadOnly: false);
+                if (claim.IsClaiming)
+                {
+                    if (resource.ValueRO.Holder == Entity.Null)
+                    {
+                        bee.ValueRW.State = Beehaviors.ResourceGathering;
+                        resource.ValueRW.Holder = claim.Bee;
+                    }
+                }
+                else
+                {
+                    var resourcePhysical = PhysicalLookup.GetRefRW(claim.Resource, isReadOnly: false);
+                    bee.ValueRW.State = Beehaviors.Idle;
+                    bee.ValueRW.EntityTarget = Entity.Null;
+                    resource.ValueRW.Holder = Entity.Null;
+                    resourcePhysical.ValueRW.IsFalling = true;
+                    resourcePhysical.ValueRW.Velocity *= 0.5f;
+                    Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);
+                }
+            }
+        }
+
+        public void Execute()
+        {
+            for (int i = 0; i < ResourceClaims1.Length || i < ResourceClaims2.Length; ++i)
+            {
+                ProcessResourceClaimFromList(ResourceClaims1, i);
+                ProcessResourceClaimFromList(ResourceClaims2, i);
+            }
+        }
+    }
+
     [BurstCompile]
     public partial struct BeeSwarmingSystem : ISystem
     {
@@ -172,6 +294,9 @@ namespace Systems
         [ReadOnly] private ComponentLookup<LocalToWorldTransform> _transformLookup;
         [ReadOnly] private ComponentLookup<ResourceGatherable> _resourceGatherableLookup;
         [ReadOnly] private ComponentLookup<Resource> _resourceLookup;
+        private ComponentLookup<Resource> _RWresourceLookup;
+        private ComponentLookup<Bee> _beeLookup;
+        private ComponentLookup<Physical> _physicalLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -192,6 +317,9 @@ namespace Systems
             _transformLookup = state.GetComponentLookup<LocalToWorldTransform>();
             _resourceGatherableLookup = state.GetComponentLookup<ResourceGatherable>();
             _resourceLookup = state.GetComponentLookup<Resource>();
+            _RWresourceLookup = state.GetComponentLookup<Resource>();
+            _beeLookup = state.GetComponentLookup<Bee>();
+            _physicalLookup = state.GetComponentLookup<Physical>();
         }
 
         [BurstCompile]
@@ -206,7 +334,10 @@ namespace Systems
             _transformLookup.Update(ref state);
             _resourceGatherableLookup.Update(ref state);
             _resourceLookup.Update(ref state);
-            
+            _RWresourceLookup.Update(ref state);
+            _beeLookup.Update(ref state);
+            _physicalLookup.Update(ref state);
+
             var dt = SystemAPI.Time.DeltaTime;
             var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
             
@@ -224,6 +355,9 @@ namespace Systems
             
             var seed1 = _random.NextUInt();
             var seed2 = _random.NextUInt();
+
+            var resourceClaims1 = new NativeList<ResourceClaim>(beeConfig.BeesToSpawn, Allocator.TempJob);
+            var resourceClaims2 = new NativeList<ResourceClaim>(beeConfig.BeesToSpawn, Allocator.TempJob);
             
             var team1Job = new SwarmJob
             {
@@ -236,7 +370,9 @@ namespace Systems
                 Resources = resources,
                 ECB = parallelEcb,
                 ResourceLookup = _resourceLookup, 
-                ResourceGatherableLookup = _resourceGatherableLookup
+                ResourceGatherableLookup = _resourceGatherableLookup,
+                ResourceClaims = resourceClaims1.AsParallelWriter(),
+                Config = beeConfig
             };
 
             ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -253,7 +389,9 @@ namespace Systems
                 Resources = resources,
                 ECB = parallelEcb,
                 ResourceLookup = _resourceLookup, 
-                ResourceGatherableLookup = _resourceGatherableLookup
+                ResourceGatherableLookup = _resourceGatherableLookup,
+                ResourceClaims = resourceClaims2.AsParallelWriter(),
+                Config = beeConfig
             };
             
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 2});
@@ -262,11 +400,42 @@ namespace Systems
             beeQuery.SetSharedComponentFilter(new TeamIdentifier{TeamNumber = 1});
             var team1Handle = team1Job.ScheduleParallel(beeQuery, state.Dependency);
 
-            state.Dependency = JobHandle.CombineDependencies(team1Handle, team2Handle);
+            var claimsJob = new ClaimingJob
+            {
+                ResourceClaims1 = resourceClaims1,
+                ResourceClaims2 = resourceClaims2,
+                ResourceLookup = _RWresourceLookup,
+                BeeLookup = _beeLookup,
+                PhysicalLookup = _physicalLookup,
+                Ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged),
+            };
+
+            var claimHandle = claimsJob.Schedule(JobHandle.CombineDependencies(team1Handle, team2Handle));
+
+            state.Dependency = claimHandle;
 
             team1Bees.Dispose(state.Dependency);
             team2Bees.Dispose(state.Dependency);
             resources.Dispose(state.Dependency);
+            
+            state.Dependency.Complete();
+
+            // if (team1Job.SpawnJobs.Length > 0)
+            // {
+            //     foreach (var job in team1Job.SpawnJobs)
+            //     {
+            //         state.Dependency = job.ScheduleParallel(state.Dependency);
+            //     }
+            //     
+            // }
+            //
+            // if (team2Job.SpawnJobs.Length > 0)
+            // {
+            //     foreach (var job in team2Job.SpawnJobs)
+            //     {
+            //         state.Dependency = job.ScheduleParallel(state.Dependency);
+            //     }
+            // }
         }
     }
 }
