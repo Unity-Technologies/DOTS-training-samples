@@ -190,7 +190,7 @@ namespace Systems
                     var dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                     UpdateVelocity(ref physical, bee.Team.HivePosition, 1, bee.Team.CarryForce, false);
 
-                    if ((physical.Position.x / bee.Team.HivePosition.x) >= 1.0f)
+                    if (Field.InTeamArea(physical.Position.x, bee.Team.HivePosition))
                     {
                         ResourceClaims.AddNoResize(new ResourceClaim
                         {
@@ -315,10 +315,12 @@ namespace Systems
                     bee.ValueRW.State = Beehaviors.Idle;
                     bee.ValueRW.EntityTarget = Entity.Null;
                     resource.ValueRW.Holder = Entity.Null;
-                    resource.ValueRW.TeamNumber = -1;
                     resourcePhysical.ValueRW.IsFalling = true;
                     resourcePhysical.ValueRW.Velocity *= 0.5f;
                     Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);
+                    Ecb.SetComponentEnabled<StackInProgress>(claim.Resource, true);
+                    // ALX: Purposely not resetting TeamNumber so that we can eventually use it to spawn the right
+                    // bees when the resource lands in team area
                 }
             }
         }

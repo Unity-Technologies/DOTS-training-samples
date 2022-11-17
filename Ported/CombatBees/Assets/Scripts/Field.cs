@@ -22,4 +22,9 @@ public static class Field {
 	
 	public static readonly float GroundLevel = BoundsMin.y;
 	public static readonly int GridSize = (int) size.x * (int) size.z;
+	
+	public static bool InTeamArea(float xPos, float3 hivePos)
+	{
+		return (xPos / hivePos.x) >= 1.0f;
+	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Components;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -18,6 +19,8 @@ public partial struct ResourceMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<BeeConfig>();
+
         /// Only query for stacks that might be ready to land on floor
         _resourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, StackInProgress>().WithNone<ResourceGatherable>().Build();
         _physicaLookup = state.GetComponentLookup<Physical>();
@@ -31,7 +34,7 @@ public partial struct ResourceMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var dt = SystemAPI.Time.DeltaTime;
+        var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
         _physicaLookup.Update(ref state);
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -45,9 +48,11 @@ public partial struct ResourceMovementSystem : ISystem
 
         var carryHandle = carryingJob.Schedule(state.Dependency);
 
-        var parallelStackingJob = new ParallelStackingJob()
+        var parallelStackingJob = new ResourceFallingJob()
         {
             ECB = ecb.AsParallelWriter(),
+            HivePosition_Team1 = beeConfig.Team1.HivePosition,
+            HivePosition_Team2 = beeConfig.Team2.HivePosition
         };
 
         var parallelStackingJobHandle = parallelStackingJob.ScheduleParallel(_resourcesQuery, carryHandle);
@@ -57,17 +62,34 @@ public partial struct ResourceMovementSystem : ISystem
     [WithAll(typeof(Resource), typeof(Physical), typeof(StackInProgress))]
     [WithNone(typeof(ResourceGatherable))]
     [BurstCompile]
-    partial struct ParallelStackingJob : IJobEntity
+    partial struct ResourceFallingJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter ECB;
+        // ALX: Hard-set values for each team
+        public float3 HivePosition_Team1;
+        public float3 HivePosition_Team2;
+        
         void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, Resource resource)
         {
-            if (physical.Position.y <= Field.GroundLevel && resource.Holder == Entity.Null)
+            if (physical.Position.y <= Field.GroundLevel)
             {
                 physical.IsFalling = false;
                 physical.Velocity = float3.zero;
                 physical.Position.y = Field.GroundLevel;
-                ECB.SetComponentEnabled<ResourceGatherable>(index, entity, true);
+
+                bool withinTeamBounds = Field.InTeamArea(physical.Position.x, HivePosition_Team1)
+                                        || Field.InTeamArea(physical.Position.x, HivePosition_Team2);
+                if (!withinTeamBounds)
+                {
+                    // Flag as gatherable
+                    ECB.SetComponentEnabled<ResourceGatherable>(index, entity, true);
+                }
+                else
+                {
+                    // Mark resource as dead
+                    ECB.SetComponentEnabled<Dead>(index, entity, true);
+                    // ALX Todo spawn bees here instead of swarm system
+                }
             }
         }
     }

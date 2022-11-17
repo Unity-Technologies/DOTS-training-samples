@@ -115,7 +115,6 @@ partial struct ResourceSpawningSystem : ISystem
             // Start off with an alive resource
             var resourceData = new Resource()
             {
-                Dead = false,
                 GridIndex = GetGridIndex(position)
             };
 
@@ -133,6 +132,8 @@ partial struct ResourceSpawningSystem : ISystem
             ECB.SetComponentEnabled<ResourceGatherable>(resource, true);
             ECB.AddComponent(resource, new StackInProgress());
             ECB.SetComponentEnabled<StackInProgress>(resource, true);
+            ECB.AddComponent(resource, new Dead());
+            ECB.SetComponentEnabled<Dead>(resource, false);
         }
     
         int2 GetGridIndex(float3 pos) {
