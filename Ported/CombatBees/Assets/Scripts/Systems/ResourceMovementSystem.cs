@@ -85,7 +85,7 @@ public partial struct ResourceMovementSystem : ISystem
         {
             if (resource.Holder != Entity.Null)
             {
-                if (EM.Exists(resource.Holder))
+                if (!EM.Exists(resource.Holder))
                 {
                     resource.Holder = Entity.Null;
                     physical.IsFalling = true;
