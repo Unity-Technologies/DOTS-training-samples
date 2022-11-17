@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1381363236056155597}
   - component: {fileID: 5201663702768546614}
   - component: {fileID: 3701886199893082473}
+  - component: {fileID: 8656076622706561789}
   m_Layer: 0
   m_Name: Pill
   m_TagString: Untagged
@@ -107,3 +108,15 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8656076622706561789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115284119117411965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1656f577285c4d3a9ade62228253e1c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
