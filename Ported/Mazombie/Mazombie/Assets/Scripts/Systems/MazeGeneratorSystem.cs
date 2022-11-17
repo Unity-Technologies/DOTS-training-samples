@@ -378,7 +378,7 @@ public partial struct MazeGeneratorSystem : ISystem
             //select for moving wall range
             var movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
 
-            while (wallStartIndex.x + movingWallRange > gameConfig.mazeSize)
+            while (wallStartIndex.x + gameConfig.movingWallsLength + movingWallRange >= gameConfig.mazeSize)
             {
                 wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
                 movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
