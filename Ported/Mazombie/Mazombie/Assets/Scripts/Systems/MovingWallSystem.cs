@@ -26,7 +26,8 @@ public partial struct MovingWallSystem : ISystem
     {
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
-        
+        var grid = SystemAPI.GetBuffer<GridCell>(gameConfigEntity);
+
         var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         foreach (var movingWallAspect in SystemAPI.Query<MovingWallAspect>())
@@ -39,25 +40,27 @@ public partial struct MovingWallSystem : ISystem
 
              float3 movementDelta =
                  new float3( SystemAPI.Time.DeltaTime * wallSpeed, 0, 0);
-            //
-            // int2 currCell = MazeUtils.WorldPositionToGrid(movingWallPosition);
-            // int2 nextCell = MazeUtils.WorldPositionToGrid(
-            //     movingWallPosition
-            //     + movementDelta
-            //     + movingWallAspect.Transform.ValueRO.Value.Scale * movementDir
-            // );
+            
+             int2 currCell = MazeUtils.WorldPositionToGrid(movingWallPosition);
+             int2 nextCell = MazeUtils.WorldPositionToGrid(
+                 movingWallPosition
+                 + movementDelta
+                 + movingWallAspect.Transform.ValueRO.Value.Scale * movementDir
+             );
             
             movingWallAspect.Transform.ValueRW.Value.Position += movementDelta;
 
-            if (wallSpeed > 0 && Vector3.Distance(movingWallPosition, wallEndPosition) <= 0)
+            if (wallSpeed > 0 && (wallEndPosition.x - movingWallPosition.x) < 0)
             {
                 movingWallAspect.Speed.ValueRW.speed = -1 * wallSpeed;
             }
-            else if (wallSpeed < 0 && Vector3.Distance(movingWallPosition, wallStartPosition) <= 0)
+            else if (wallSpeed < 0 && (movingWallPosition.x - wallStartPosition.x) < 0)
             {
                 movingWallAspect.Speed.ValueRW.speed = -1 * wallSpeed;
             }
             
+            var currCellWallFlags = grid[MazeUtils.CellIdxFromPos(currCell, gameConfig.mazeSize)].wallFlags;
+            MazeUtils.DrawGridCell(currCell, currCellWallFlags);
         }
 
         ecb.Playback(state.EntityManager);
