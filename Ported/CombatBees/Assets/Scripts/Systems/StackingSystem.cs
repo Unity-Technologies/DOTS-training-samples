@@ -43,8 +43,6 @@ public partial struct StackingSystem : ISystem
 
         var gatherables = _gatherableResourcesQuery.ToEntityArray(Allocator.TempJob);
         var stacksToFix = _stacksToFixQuery.ToEntityArray(Allocator.TempJob);
-        
-        NativeMultiHashMap<int2, Entity> stackCells = new NativeMultiHashMap<int2, Entity>(Field.GridSize, Allocator.TempJob); // todo "multi"??
 
         var fixStacksEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var fixStacksJob = new FixStacksJob()
@@ -60,7 +58,6 @@ public partial struct StackingSystem : ISystem
         state.Dependency = jobHandle;
         jobHandle.Complete();
 
-        
         gatherables.Dispose(state.Dependency);
         stacksToFix.Dispose(state.Dependency);
     }
