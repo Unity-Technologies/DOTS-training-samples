@@ -428,9 +428,12 @@ namespace Systems
 
             state.Dependency = claimHandle;
 
-            team1Bees.Dispose(state.Dependency);
-            team2Bees.Dispose(state.Dependency);
+            resourceClaims2.Dispose(state.Dependency);
+            resourceClaims1.Dispose(state.Dependency);
             resources.Dispose(state.Dependency);
+            team2Bees.Dispose(state.Dependency);
+            team1Bees.Dispose(state.Dependency);
+
             
             state.Dependency.Complete();
 
