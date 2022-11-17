@@ -75,10 +75,29 @@ namespace Systems
                         if (Resources.Length == 0)
                             return;
                         
-                        var resource = Resources[random.NextInt(Resources.Length - 1)];
+                        var resourceEntity = Resources[random.NextInt(Resources.Length - 1)];
+
+                        var resource = ResourceLookup[resourceEntity];
             
-                        bee.State = Beehaviors.ResourceSeeking;
-                        bee.EntityTarget = resource;
+                        
+                        if (resource.Holder != Entity.Null)
+                        {
+                            if (resource.TeamNumber == bee.Team.TeamNumber)
+                            {
+                                bee.EntityTarget = Entity.Null;
+                                bee.State = Beehaviors.Idle;
+                            }
+                            else
+                            {
+                                bee.EntityTarget = resource.Holder;
+                                bee.State = Beehaviors.EnemySeeking;
+                            }
+                        }
+                        else
+                        {
+                            bee.State = Beehaviors.ResourceSeeking;
+                            bee.EntityTarget = resourceEntity;
+                        }
                     }
                     
                     break;
@@ -144,7 +163,7 @@ namespace Systems
                             IsClaiming = true,
                         });
                     }
-                    
+
                     // TODO if resource holder is enemy bee, become aggressive to it
                     // TODO if resource holder is ally bee, go to idle
 
@@ -267,6 +286,7 @@ namespace Systems
                     {
                         bee.ValueRW.State = Beehaviors.ResourceGathering;
                         resource.ValueRW.Holder = claim.Bee;
+                        resource.ValueRW.TeamNumber = bee.ValueRO.Team.TeamNumber;
                         //ALX: Set the resource underneath as claimable if applicable (stacks)
                         if (resource.ValueRO.ResourceUnder != Entity.Null)
                         {
@@ -280,6 +300,7 @@ namespace Systems
                     bee.ValueRW.State = Beehaviors.Idle;
                     bee.ValueRW.EntityTarget = Entity.Null;
                     resource.ValueRW.Holder = Entity.Null;
+                    resource.ValueRW.TeamNumber = -1;
                     resourcePhysical.ValueRW.IsFalling = true;
                     resourcePhysical.ValueRW.Velocity *= 0.5f;
                     Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);

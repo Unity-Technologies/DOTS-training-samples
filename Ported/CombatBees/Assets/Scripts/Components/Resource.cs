@@ -10,4 +10,5 @@ public struct Resource : IComponentData
     /// The resource directly underneath if it is in a stack
     /// </summary>
     public Entity ResourceUnder;
+    public int TeamNumber;
 }
