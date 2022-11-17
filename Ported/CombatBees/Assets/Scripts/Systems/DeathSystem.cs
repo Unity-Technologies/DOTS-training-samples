@@ -29,14 +29,6 @@ namespace Systems
                 ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
                     physical.Position,
                     ParticleType.Blood, float3.zero, 6f);
-                
-                var shouldShowExtraGore = random.NextFloat() > 0.8f;
-                if (shouldShowExtraGore)
-                {
-                    ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
-                        physical.Position,
-                        ParticleType.Blood, float3.zero, 16f);
-                }
             }
 
             if (!deadComponent.IsSlowed)
