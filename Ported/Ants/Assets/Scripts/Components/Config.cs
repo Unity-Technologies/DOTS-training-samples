@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Mathematics.Geometry;
 
@@ -16,4 +17,5 @@ struct Config : IComponentData
     public float WallPercentage; // obstacles per ring 
     public float WallRadius; // obstacle radius 
     public int MapSize; // mapSize 
+    public NativeArray<int> AntSpeeds;
 }

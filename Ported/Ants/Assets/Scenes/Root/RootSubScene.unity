@@ -161,6 +161,8 @@ MonoBehaviour:
   WallPercentage: 0.8
   WallRadius: 3
   MapSize: 128
+  CurrentAntSpeed: 5
+  AntSpeeds: 050000000a0000000f0000001400000019000000
 --- !u!4 &1065126038
 Transform:
   m_ObjectHideFlags: 0
