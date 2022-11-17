@@ -39,7 +39,8 @@ public partial struct ResourceMovementSystem : ISystem
 
         var carryingJob = new CarriedJob()
         {
-            PhysicalLookup = _physicaLookup
+            PhysicalLookup = _physicaLookup,
+            EM = state.EntityManager,
         };
 
         var carryHandle = carryingJob.Schedule(state.Dependency);
@@ -78,10 +79,18 @@ public partial struct ResourceMovementSystem : ISystem
         [NativeDisableContainerSafetyRestriction]
         public ComponentLookup<Physical> PhysicalLookup;
 
+        public EntityManager EM;
+
         void Execute([EntityInQueryIndex] int index, ref Resource resource, ref Physical physical)
         {
             if (resource.Holder != Entity.Null)
             {
+                if (EM.Exists(resource.Holder))
+                {
+                    resource.Holder = Entity.Null;
+                    physical.IsFalling = true;
+                    return;
+                }
                 var holderPhysical = PhysicalLookup[resource.Holder];
 
                 physical.Velocity = holderPhysical.Velocity;
