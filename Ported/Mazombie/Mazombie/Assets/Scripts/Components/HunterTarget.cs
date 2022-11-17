@@ -1,6 +1,7 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct HunterTarget : IComponentData
 {
-    public Entity target;
+    public float3 position;
 }

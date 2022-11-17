@@ -59,6 +59,7 @@ public partial struct PathPlanning : ISystem
 
 [WithAll(typeof(NeedUpdateTrajectory))]
 [WithAll(typeof(HunterTarget))]
+[WithAll(typeof(PositionInPath))]
 [BurstCompile]
 public partial struct PathFindingJob : IJobEntity
 {
@@ -69,9 +70,9 @@ public partial struct PathFindingJob : IJobEntity
     public int gridSize;
 
     [BurstCompile]
-    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target)
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target, ref PositionInPath positionInPath)
     {
-        var targetPosition = targetTransform[target.target].Value.Position;
+        var targetPosition = target.position;
         var unitPosition = targetTransform[entity].Value.Position;
         
         int2 startPos = MazeUtils.WorldPositionToGrid(unitPosition);
@@ -217,14 +218,16 @@ public partial struct PathFindingJob : IJobEntity
             {
                 trajectory.Add(path[i]);
             }
-
+            positionInPath.currentIndex = 0;
             path.Dispose();
         }
 
         cellArray.Dispose();
         openList.Dispose();
         closedList.Dispose();
-        Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
+        
+        //TODO re-enable this so the path isn't calculated every frame
+        //Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
     }
 
     [BurstCompile]
