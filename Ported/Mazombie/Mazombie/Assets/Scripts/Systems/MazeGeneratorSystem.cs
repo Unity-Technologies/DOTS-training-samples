@@ -58,7 +58,6 @@ struct SpawnWalls : IJobParallelFor
     }
 }
 
-[UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
 public struct MazeGenJob : IJob
 {
@@ -154,6 +153,45 @@ public struct MazeGenJob : IJob
     }
 }
 
+[BurstCompile]
+public struct ParallelMazeGenJob : IJobParallelFor
+{
+    [NativeDisableParallelForRestriction]
+    public NativeArray<GridCell> Grid;
+
+    [ReadOnly] public int MazeSize;
+    [ReadOnly] public Random Random;
+    
+    public void Execute(int index)
+    {
+        var cell = Grid[index];
+        int2 gridPos = MazeUtils.CellFromIndex(index, MazeSize);
+
+        NativeList<byte> dirs = new NativeList<byte>(2, Allocator.Temp);
+        if (gridPos.y < MazeSize) dirs.Add((byte)WallFlags.North);
+        if (gridPos.x < MazeSize) dirs.Add((byte)WallFlags.East);
+
+        var toRemove = dirs[Random.NextInt(0, dirs.Length)];
+        cell.wallFlags &= (byte)~toRemove;
+
+        if (gridPos.y > 0)
+        {
+            var cellBelow = Grid[MazeUtils.CellIdxFromPos(new int2(gridPos.x, gridPos.y - 1), MazeSize)];
+            if (!MazeUtils.HasFlag((WallFlags) cellBelow.wallFlags, WallFlags.North))
+                cell.wallFlags &= (byte) ~WallFlags.South;
+        }
+        if (gridPos.x > 0)
+        {
+            var cellLeft = Grid[MazeUtils.CellIdxFromPos(new int2(gridPos.x - 1, gridPos.y), MazeSize)];
+            if (!MazeUtils.HasFlag((WallFlags) cellLeft.wallFlags, WallFlags.East))
+                cell.wallFlags &= (byte) ~WallFlags.West;
+        }
+
+        Grid[index] = cell;
+    }
+}
+
+
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
@@ -210,26 +248,43 @@ public partial struct MazeGeneratorSystem : ISystem
         
         var cellVisited = new NativeArray<bool>(numCells, Allocator.TempJob);
 
-        // NOTE: currently does not work with seeds > 1
-        int numMazeGenSeeds = 1;
-        JobHandle prevJobHandle = default(JobHandle);
-        for (int i = 0; i < numMazeGenSeeds; i++)
+        if (!gameConfig.parallelMazeGen)
         {
-            var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-            
-            var job = new MazeGenJob
+            // NOTE: currently does not work with seeds > 1
+            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
+            int numMazeGenSeeds = 1;
+            JobHandle prevJobHandle = default(JobHandle);
+            for (int i = 0; i < numMazeGenSeeds; i++)
             {
-                VisitedCells = cellVisited,
-                Grid = grid,
+                var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+            
+                var job = new MazeGenJob
+                {
+                    VisitedCells = cellVisited,
+                    Grid = grid,
+                    Random = random,
+                    InitialCell = initialCell,
+                    MazeSize = size
+                };
+                prevJobHandle = JobHandle.CombineDependencies(prevJobHandle, job.Schedule());
+            }
+            prevJobHandle.Complete();
+            cellVisited.Dispose();
+            UnityEngine.Profiling.Profiler.EndSample();
+        }
+        else
+        {
+            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
+            var job = new ParallelMazeGenJob
+            {
+                Grid = grid.AsNativeArray(),
                 Random = random,
-                InitialCell = initialCell,
                 MazeSize = size
             };
-            prevJobHandle = JobHandle.CombineDependencies(prevJobHandle, job.Schedule());
+            var handle = job.Schedule(grid.Length, grid.Length / 32);
+            handle.Complete();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
-        prevJobHandle.Complete();
-        cellVisited.Dispose();
-
 
         // remove strips of walls from south to north
         if (gameConfig.openStripWidth + gameConfig.mazeStripWidth > 0)
