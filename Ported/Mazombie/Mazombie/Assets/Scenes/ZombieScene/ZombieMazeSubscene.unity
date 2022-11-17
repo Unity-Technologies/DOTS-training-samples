@@ -175,9 +175,11 @@ MonoBehaviour:
     type: 3}
   zombiePrefab: {fileID: 1428683352245202, guid: ec64f9227f03f4b5babd08976956f89e,
     type: 3}
+  pillPrefab: {fileID: 115284119117411965, guid: a7fdb986b03f2484791280101aca03e6,
+    type: 3}
   mazeSize: 30
-  openStripWidth: 5
-  mazeStripWidth: 4
+  openStripWidth: 3
+  mazeStripWidth: 5
   movingWallPrefab: {fileID: 1674865798949028, guid: 68445a35eb5d74c7193824cda6d857b9,
     type: 3}
   numMovingWalls: 5
@@ -186,4 +188,5 @@ MonoBehaviour:
   movingWallRangeMax: 10
   cellSize: 1
   num_zombies: 1
+  numPills: 10
   seed: 42

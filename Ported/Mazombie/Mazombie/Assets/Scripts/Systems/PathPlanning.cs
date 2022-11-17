@@ -1,16 +1,27 @@
+using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 [BurstCompile]
 public partial struct PathPlanning : ISystem
 {
+    private NativeArray<int2> neighborOffsetArray;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameConfig>();
         state.RequireForUpdate<GridCell>();
+        state.RequireForUpdate<HunterTarget>();
+
+        neighborOffsetArray = new NativeArray<int2>(4, Allocator.Persistent);
+        neighborOffsetArray[0] = new int2(0, -1);
+        neighborOffsetArray[1] = new int2(0, 1);
+        neighborOffsetArray[2] = new int2(1, 0);
+        neighborOffsetArray[3] = new int2(-1, 0);
     }
 
     [BurstCompile]
@@ -21,51 +32,51 @@ public partial struct PathPlanning : ISystem
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
 
         var grid = state.EntityManager.GetBuffer<GridCell>(gameConfigEntity);
+
+        var transformFromEntity = SystemAPI.GetComponentLookup<LocalToWorldTransform>(true);
         
-        var gridArray = new NativeArray<byte>(grid.Length, Allocator.TempJob);
+        // Get an EntityCommandBuffer from the BeginSimulationEntityCommandBufferSystem.
+        var ecbSingleton = SystemAPI.GetSingleton<
+            BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        for (int i = 0; i < grid.Length; i++)
+        new PathFindingJob()
         {
-            gridArray[i] = grid[i].wallFlags;
-        }
-
-        var jobHandle = new PathFindingJob()
-        {
-            grid = gridArray,
+            neighborOffsetArray = neighborOffsetArray,
+            Ecb = ecb.AsParallelWriter(),
+            targetTransform = transformFromEntity,
+            grid = grid,
             gridSize = config.mazeSize,
-            startPos = new int2(0, 5),
-            destinationPos = new int2(15, 7)
-        }.ScheduleParallel(state.Dependency);
-        
-        jobHandle.Complete();
-        gridArray.Dispose();
-
-        var query = state.EntityManager.CreateEntityQuery(typeof(NeedUpdateTrajectory));
-        
-        foreach (var entity in query.ToEntityArray(Allocator.Temp))
-        {
-            state.EntityManager.SetComponentEnabled<NeedUpdateTrajectory>(entity, false);
-        }
+        }.ScheduleParallel();
     }
     
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+        neighborOffsetArray.Dispose();
     }
 }
 
 [WithAll(typeof(NeedUpdateTrajectory))]
+[WithAll(typeof(HunterTarget))]
 [BurstCompile]
 public partial struct PathFindingJob : IJobEntity
 {
-    [ReadOnly]
-    public NativeArray<byte> grid;
+    [ReadOnly] public NativeArray<int2> neighborOffsetArray;
+    [ReadOnly] public DynamicBuffer<GridCell> grid;
+    [ReadOnly] public ComponentLookup<LocalToWorldTransform> targetTransform;
+    public EntityCommandBuffer.ParallelWriter Ecb;
     public int gridSize;
-    public int2 startPos;
-    public int2 destinationPos;
-    
-    public void Execute(DynamicBuffer<Trajectory> trajectory)
+
+    [BurstCompile]
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target)
     {
+        var targetPosition = targetTransform[target.target].Value.Position;
+        var unitPosition = targetTransform[entity].Value.Position;
+        
+        int2 startPos = MazeUtils.WorldPositionToGrid(unitPosition);
+        int2 destinationPos = MazeUtils.WorldPositionToGrid(targetPosition);
+        
         var cellArray = new NativeArray<PathCell>(gridSize * gridSize, Allocator.Temp);
         
         //Initialize cellArray
@@ -87,14 +98,6 @@ public partial struct PathFindingJob : IJobEntity
                 cellArray[cell.index] = cell;
             }
         }
-
-        var neighborOffsetArray = new NativeArray<int2>(new[]
-        {
-            new int2(0, -1), // up
-            new int2(0, 1), // down
-            new int2(1, 0), // right
-            new int2(-1, 0), // left
-        }, Allocator.Temp);
 
         int destinationCellIndex = cellArray[destinationPos.x + destinationPos.y * gridSize].index;
         
@@ -154,19 +157,19 @@ public partial struct PathFindingJob : IJobEntity
                 switch (i)
                 {
                     case 0: //up
-                        if ((grid[currentCellIndex] & (1 << 1)) != 0)
+                        if ((grid[currentCellIndex].wallFlags & (1 << 1)) != 0)
                             continue;
                         break;
                     case 1: //down
-                        if ((grid[currentCellIndex] & (1 << 0)) != 0)
+                        if ((grid[currentCellIndex].wallFlags & (1 << 0)) != 0)
                             continue;
                         break;
                     case 2: //right
-                        if ((grid[currentCellIndex] & (1 << 2)) != 0)
+                        if ((grid[currentCellIndex].wallFlags & (1 << 2)) != 0)
                             continue;
                         break;
                     case 3: //left
-                        if ((grid[currentCellIndex] & (1 << 3)) != 0)
+                        if ((grid[currentCellIndex].wallFlags & (1 << 3)) != 0)
                             continue;
                         break;
                 }
@@ -221,14 +224,16 @@ public partial struct PathFindingJob : IJobEntity
         cellArray.Dispose();
         openList.Dispose();
         closedList.Dispose();
-        neighborOffsetArray.Dispose();
+        Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
     }
 
+    [BurstCompile]
     private bool InBounds(int2 pos, int size)
     {
         return pos.x >= 0 && pos.x < size && pos.y >= 0 && pos.y < size;
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int CalculateHCost(int2 start, int2 end)
     {
         int dx = math.abs(start.x - end.x);
@@ -237,6 +242,7 @@ public partial struct PathFindingJob : IJobEntity
     }
 }
 
+[BurstCompile]
 public struct PathCell
 {
     public int x;

@@ -10,6 +10,7 @@ public class GameConfigAuthoring : MonoBehaviour
     public GameObject playerSpawnPrefab;
     public GameObject playerPrefab;
     public GameObject zombiePrefab;
+    public GameObject pillPrefab;
 
     public int mazeSize;
     public int openStripWidth;
@@ -21,6 +22,7 @@ public class GameConfigAuthoring : MonoBehaviour
     public int movingWallRangeMax;
     public float cellSize = 1.0f;
     public int num_zombies = 10;
+    public int numPills = 10;
     public uint seed = 42;
 }
 
@@ -35,6 +37,7 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             playerSpawnPrefab = GetEntity(authoring.playerSpawnPrefab),
             playerPrefab = GetEntity(authoring.playerPrefab),
             movingWallPrefab = GetEntity(authoring.movingWallPrefab),
+            pillPrefab = GetEntity(authoring.pillPrefab),
             numMovingWalls = authoring.numMovingWalls,
             movingWallsLength = authoring.movingWallsLength,
             movingWallRangeMin = authoring.movingWallRangeMin,
@@ -43,8 +46,10 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             openStripWidth = authoring.openStripWidth,
             mazeStripWidth = authoring.mazeStripWidth,
             num_zombies = authoring.num_zombies,
+            numPills = authoring.numPills,
             zombiePrefab = GetEntity(authoring.zombiePrefab),
-            seed = authoring.seed
+            seed = authoring.seed,
+            gameState = { score = 0 },
         });
     }
 }
