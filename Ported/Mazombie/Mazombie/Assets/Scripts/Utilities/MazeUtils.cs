@@ -50,6 +50,18 @@ public struct MazeUtils
     {
         return x + y * gridSize;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float3 PositionFromIndex(int index, int gridSize)
+    {
+        return GridPositionToWorld(index % gridSize, index / gridSize);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int2 CellFromIndex(int index, int gridSize)
+    {
+        return new int2(index % gridSize, index / gridSize);
+    }
 
     public static bool HasFlag(WallFlags flags, WallFlags flag)
     {

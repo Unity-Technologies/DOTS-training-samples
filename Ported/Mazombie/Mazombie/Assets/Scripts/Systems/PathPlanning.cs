@@ -2,6 +2,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 public partial struct PathPlanning : ISystem
@@ -11,6 +13,7 @@ public partial struct PathPlanning : ISystem
     {
         state.RequireForUpdate<GameConfig>();
         state.RequireForUpdate<GridCell>();
+        state.RequireForUpdate<HunterTarget>();
     }
 
     [BurstCompile]
@@ -29,23 +32,23 @@ public partial struct PathPlanning : ISystem
             gridArray[i] = grid[i].wallFlags;
         }
 
+        var transformFromEntity = SystemAPI.GetComponentLookup<LocalToWorldTransform>(true);
+        
+        // Get an EntityCommandBuffer from the BeginSimulationEntityCommandBufferSystem.
+        var ecbSingleton = SystemAPI.GetSingleton<
+            BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         var jobHandle = new PathFindingJob()
         {
+            Ecb = ecb.AsParallelWriter(),
+            targetTransform = transformFromEntity,
             grid = gridArray,
             gridSize = config.mazeSize,
-            startPos = new int2(0, 5),
-            destinationPos = new int2(15, 7)
         }.ScheduleParallel(state.Dependency);
-        
+
         jobHandle.Complete();
         gridArray.Dispose();
-
-        var query = state.EntityManager.CreateEntityQuery(typeof(NeedUpdateTrajectory));
-        
-        foreach (var entity in query.ToEntityArray(Allocator.Temp))
-        {
-            state.EntityManager.SetComponentEnabled<NeedUpdateTrajectory>(entity, false);
-        }
     }
     
     [BurstCompile]
@@ -55,17 +58,24 @@ public partial struct PathPlanning : ISystem
 }
 
 [WithAll(typeof(NeedUpdateTrajectory))]
+[WithAll(typeof(HunterTarget))]
 [BurstCompile]
 public partial struct PathFindingJob : IJobEntity
 {
-    [ReadOnly]
-    public NativeArray<byte> grid;
+    [ReadOnly] public NativeArray<byte> grid;
+    [ReadOnly] public ComponentLookup<LocalToWorldTransform> targetTransform;
+    public EntityCommandBuffer.ParallelWriter Ecb;
     public int gridSize;
-    public int2 startPos;
-    public int2 destinationPos;
-    
-    public void Execute(DynamicBuffer<Trajectory> trajectory)
+
+    [BurstCompile]
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target)
     {
+        var targetPosition = targetTransform[target.target].Value.Position;
+        var unitPosition = targetTransform[entity].Value.Position;
+        
+        int2 startPos = MazeUtils.WorldPositionToGrid(unitPosition);
+        int2 destinationPos = MazeUtils.WorldPositionToGrid(targetPosition);
+        
         var cellArray = new NativeArray<PathCell>(gridSize * gridSize, Allocator.Temp);
         
         //Initialize cellArray
@@ -88,13 +98,11 @@ public partial struct PathFindingJob : IJobEntity
             }
         }
 
-        var neighborOffsetArray = new NativeArray<int2>(new[]
-        {
-            new int2(0, -1), // up
-            new int2(0, 1), // down
-            new int2(1, 0), // right
-            new int2(-1, 0), // left
-        }, Allocator.Temp);
+        var neighborOffsetArray = new NativeArray<int2>(4, Allocator.Temp);
+        neighborOffsetArray[0] = new int2(0, -1);
+        neighborOffsetArray[1] = new int2(0, 1);
+        neighborOffsetArray[2] = new int2(1, 0);
+        neighborOffsetArray[3] = new int2(-1, 0);
 
         int destinationCellIndex = cellArray[destinationPos.x + destinationPos.y * gridSize].index;
         
@@ -222,13 +230,16 @@ public partial struct PathFindingJob : IJobEntity
         openList.Dispose();
         closedList.Dispose();
         neighborOffsetArray.Dispose();
+        Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
     }
 
+    [BurstCompile]
     private bool InBounds(int2 pos, int size)
     {
         return pos.x >= 0 && pos.x < size && pos.y >= 0 && pos.y < size;
     }
 
+    [BurstCompile]
     private int CalculateHCost(int2 start, int2 end)
     {
         int dx = math.abs(start.x - end.x);
@@ -237,6 +248,7 @@ public partial struct PathFindingJob : IJobEntity
     }
 }
 
+[BurstCompile]
 public struct PathCell
 {
     public int x;
