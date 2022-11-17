@@ -157,11 +157,11 @@ public partial struct MazeGeneratorSystem : ISystem
                     {
                         if (x > offset)
                         {
-                            RemoveEastWestWall(x, y, ref grid, size);
+                            MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
                         }
                         if (y > 0)
                         {
-                            RemoveNorthSouthWall(x, y, ref grid, size);
+                            MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
                         }
                     }
                 }
@@ -175,11 +175,11 @@ public partial struct MazeGeneratorSystem : ISystem
             {
                 if (x > 0)
                 {
-                    RemoveEastWestWall(x, y, ref grid, size);
+                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
                 }
                 if (y > 0)
                 {
-                    RemoveNorthSouthWall(x, y, ref grid, size);
+                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
                 }
             }
         }
@@ -191,11 +191,11 @@ public partial struct MazeGeneratorSystem : ISystem
             {
                 if (x > 0)
                 {
-                    RemoveEastWestWall(x, y, ref grid, size);
+                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
                 }
                 if (y > 0)
                 {
-                    RemoveNorthSouthWall(x, y, ref grid, size);
+                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
                 }
             }
         }
@@ -206,9 +206,9 @@ public partial struct MazeGeneratorSystem : ISystem
             for (int x = 0; x < size; x++)
             {
                 if (x > 0)
-                    RemoveEastWestWall(x, y, ref grid, size);
+                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
                 if (y > 0)
-                    RemoveNorthSouthWall(x, y, ref grid, size);
+                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
             }
         }
 
@@ -218,9 +218,9 @@ public partial struct MazeGeneratorSystem : ISystem
             for (int x = 0; x < size; x++)
             {
                 if (x > 0)
-                    RemoveEastWestWall(x, y, ref grid, size);
+                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
                 if (y > 0)
-                    RemoveNorthSouthWall(x, y, ref grid, size);
+                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
             }
         }
         
@@ -244,7 +244,7 @@ public partial struct MazeGeneratorSystem : ISystem
             for (int j = 0; j < movingWallRange; j++)
             {
                 //Clear out overlapping WallFlags
-                RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, size);
+                MazeUtils.RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, size);
 
                 //Spawn Wall for length
                 if (j < gameConfig.movingWallsLength)
@@ -319,7 +319,7 @@ public partial struct MazeGeneratorSystem : ISystem
             var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
             movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
             
-            AddNorthSouthWall(currentIndex.x, currentIndex.y,ref grid,size);            
+            MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y,ref grid,size);            
         }
 
         // spawn player spawn point
@@ -336,68 +336,5 @@ public partial struct MazeGeneratorSystem : ISystem
 
 
         state.Enabled = false;
-    }
-    
-    void AddNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
-    {
-        var r = x;
-        var c = y - 1; // move north
-        if (r < 0 || r >= size) return;
-        if (c >= 0 && c < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r, c, size);
-            var tmp = grid[idx];
-            tmp.wallFlags |= (byte)WallFlags.North;
-            grid[idx] = tmp;
-        }
-        if (c + 1 >= 0 && c + 1 < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r, c + 1, size);
-            var tmp = grid[idx];
-            tmp.wallFlags |= (byte)WallFlags.South;
-            grid[idx] = tmp;
-        }
-    }
-
-    void RemoveNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
-    {
-        var r = x;
-        var c = y - 1; // move north
-        if (r < 0 || r >= size) return;
-        if (c >= 0 && c < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r, c, size);
-            var tmp = grid[idx];
-            tmp.wallFlags &= (byte)~WallFlags.North;
-            grid[idx] = tmp;
-        }
-        if (c + 1 >= 0 && c + 1 < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r, c + 1, size);
-            var tmp = grid[idx];
-            tmp.wallFlags &= (byte)~WallFlags.South;
-            grid[idx] = tmp;
-        }
-    }
-
-    void RemoveEastWestWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
-    {
-        var r = x - 1;
-        var c = y;
-        if (c < 0 || c >= size) return;
-        if (r >= 0 && r < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r, c, size);
-            var tmp = grid[idx];
-            tmp.wallFlags &= (byte)~WallFlags.East;
-            grid[idx] = tmp;
-        }
-        if (r + 1 >= 0 && r + 1 < size)
-        {
-            var idx = MazeUtils.CellIdxFromPos(r + 1, c, size);
-            var tmp = grid[idx];
-            tmp.wallFlags &= (byte)~WallFlags.West;
-            grid[idx] = tmp;
-        }
     }
 }

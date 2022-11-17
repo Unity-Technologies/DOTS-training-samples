@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -94,6 +95,70 @@ public struct MazeUtils
         {
             bool hasWall = (wallFlags & (1 << (i / 2))) != 0;
             UnityEngine.Debug.DrawLine(points[indices[i]], points[indices[i + 1]], hasWall ? UnityEngine.Color.blue : UnityEngine.Color.red, 0.4f);
+        }
+    }
+    
+    
+    public static void AddNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x;
+        var c = y - 1; // move north
+        if (r < 0 || r >= size) return;
+        if (c >= 0 && c < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c, size);
+            var tmp = grid[idx];
+            tmp.wallFlags |= (byte)WallFlags.North;
+            grid[idx] = tmp;
+        }
+        if (c + 1 >= 0 && c + 1 < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c + 1, size);
+            var tmp = grid[idx];
+            tmp.wallFlags |= (byte)WallFlags.South;
+            grid[idx] = tmp;
+        }
+    }
+    
+    public static void RemoveNorthSouthWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x;
+        var c = y - 1; // move north
+        if (r < 0 || r >= size) return;
+        if (c >= 0 && c < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c, size);
+            var tmp = grid[idx];
+            tmp.wallFlags &= (byte)~WallFlags.North;
+            grid[idx] = tmp;
+        }
+        if (c + 1 >= 0 && c + 1 < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c + 1, size);
+            var tmp = grid[idx];
+            tmp.wallFlags &= (byte)~WallFlags.South;
+            grid[idx] = tmp;
+        }
+    }
+
+    public static void RemoveEastWestWall(int x, int y, ref DynamicBuffer<GridCell> grid, int size)
+    {
+        var r = x - 1;
+        var c = y;
+        if (c < 0 || c >= size) return;
+        if (r >= 0 && r < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r, c, size);
+            var tmp = grid[idx];
+            tmp.wallFlags &= (byte)~WallFlags.East;
+            grid[idx] = tmp;
+        }
+        if (r + 1 >= 0 && r + 1 < size)
+        {
+            var idx = MazeUtils.CellIdxFromPos(r + 1, c, size);
+            var tmp = grid[idx];
+            tmp.wallFlags &= (byte)~WallFlags.West;
+            grid[idx] = tmp;
         }
     }
 }
