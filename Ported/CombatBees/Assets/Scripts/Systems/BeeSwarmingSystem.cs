@@ -473,7 +473,7 @@ namespace Systems
             team1Bees.Dispose(state.Dependency);
 
 
-            state.Dependency.Complete();
+            // state.Dependency.Complete();
 
             // if (team1Job.SpawnJobs.Length > 0)
             // {

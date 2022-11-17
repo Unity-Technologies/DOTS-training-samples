@@ -28,28 +28,24 @@ public partial struct PhysicalSystem : ISystem
         var dt = SystemAPI.Time.DeltaTime;
         _physicals.Update(ref state);
 
-        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var physicalJob = new PhysicalJob()
         {
-            Dt = dt,
-            ECB = ecb,
+            Dt = dt
         };
 
-        physicalJob.Schedule();
+        physicalJob.ScheduleParallel();
     }
 
     [BurstCompile]
     partial struct PhysicalJob : IJobEntity
     {
-        public EntityCommandBuffer ECB;
         public float Dt;
         public static readonly float3 right = new float3(1, 0, 0);
         public static readonly float3 up = new float3(0, 1, 0);
         public static readonly float3 forward = new float3(0, 0, 1);
 
-        void Execute(in Entity entity, ref Physical physical, in LocalToWorldTransform localToWorld)
+        void Execute([EntityInQueryIndex] int index, in Entity entity, ref Physical physical, ref LocalToWorldTransform localToWorld, ref PostTransformMatrix postTransformMatrix)
         {
             var previousPosition = physical.Position;
 
@@ -119,19 +115,14 @@ public partial struct PhysicalSystem : ISystem
                 Rotation = quaternion.LookRotationSafe(physical.Velocity, up),
                 Scale = scale
             };
-            ECB.SetComponent(entity, new LocalToWorldTransform
-            {
-                Value = uniformScaleTransform
-            });
 
+            localToWorld.Value = uniformScaleTransform;
+            
             // Calculate and apply stretch
             float stretch = math.max(1f, math.length(physical.Velocity) * physical.Stretch);
             float minorStretch = 1f; // + ((stretch - 1f) / 5f);
-
-            ECB.SetComponent(entity, new PostTransformMatrix
-            {
-                Value = float4x4.Scale(new float3(minorStretch, minorStretch, stretch))
-            });
+            
+            postTransformMatrix.Value = float4x4.Scale(new float3(minorStretch, minorStretch, stretch));
         }
     }
 
