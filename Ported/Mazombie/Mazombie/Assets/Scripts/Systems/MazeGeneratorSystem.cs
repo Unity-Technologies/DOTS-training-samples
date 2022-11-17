@@ -7,6 +7,56 @@ using Unity.Jobs;
 
 using Random = Unity.Mathematics.Random;
 
+[BurstCompile]
+struct SpawnWalls : IJobParallelFor
+{
+    [ReadOnly]
+    public DynamicBuffer<GridCell> grid;
+    public EntityCommandBuffer.ParallelWriter ecb;
+    public Entity wallPrefab;
+    public int stride;
+
+    public void Execute(int index)
+    {
+        var x = index % stride;
+        var y = index / stride;
+
+        var cellFlags = (WallFlags)grid[index].wallFlags;
+        if(MazeUtils.HasFlag(cellFlags, WallFlags.West))
+        {
+            var wall = ecb.Instantiate(index, wallPrefab);
+            ecb.SetComponent(index, wall, new LocalToWorldTransform
+            {
+                Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(-0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(270)))
+            });
+        }
+        if(x == stride - 1 && MazeUtils.HasFlag(cellFlags, WallFlags.East))
+        {
+            var wall = ecb.Instantiate(index, wallPrefab);
+            ecb.SetComponent(index, wall, new LocalToWorldTransform
+            {
+                Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(90)))
+            });
+        }
+        if(MazeUtils.HasFlag(cellFlags, WallFlags.South))
+        {
+            var wall = ecb.Instantiate(index, wallPrefab);
+            ecb.SetComponent(index, wall, new LocalToWorldTransform
+            {
+                Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0, 0, -0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
+            });
+        }
+        if (y == stride - 1 && MazeUtils.HasFlag(cellFlags, WallFlags.North))
+        {
+            var wall = ecb.Instantiate(index, wallPrefab);
+            ecb.SetComponent(index, wall, new LocalToWorldTransform
+            {
+                Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.identity)
+            });
+        }
+    }
+}
+
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
 public partial struct MazeGeneratorSystem : ISystem
@@ -272,47 +322,19 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // spawn walls
-        for (int y = 0; y < size; y++)
+        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+
+        var spawnJob = new SpawnWalls
         {
-            for (int x = 0; x < size; x++)
-            {
-                var tmp_cell = (WallFlags)grid[x + y * size].wallFlags;
-                if(MazeUtils.HasFlag(tmp_cell, WallFlags.West))
-                {
-                    var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
-                    state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
-                    {
-                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(-0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(270)))
-                    });
-                }
-                if (x == size - 1 && MazeUtils.HasFlag(tmp_cell, WallFlags.East))
-                {
-                    var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
-                    state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
-                    {
-                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0.5f, 0, 0), quaternion.AxisAngle(math.up(), math.radians(90)))
-                    });
-                }
-                if (MazeUtils.HasFlag(tmp_cell, WallFlags.South))
-                {
-                    var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
-                    state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
-                    {
-                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0, 0, -0.5f), quaternion.AxisAngle(math.up(), math.radians(180)))
-                    });
-                }
-                if (y == size - 1 && MazeUtils.HasFlag(tmp_cell, WallFlags.North))
-                {
-                    var wall = state.EntityManager.Instantiate(gameConfig.wallPrefab);
-                    state.EntityManager.SetComponentData(wall, new LocalToWorldTransform
-                    {
-                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(x, y) + new float3(0, 0, 0.5f), quaternion.identity)
-                    });
-                }
-            }
-        }
-        
+            grid = grid,
+            ecb = ecb,
+            stride = size,
+            wallPrefab = gameConfig.wallPrefab
+        };
+
+        var spawnHandle = spawnJob.Schedule(numCells, 64);
+        spawnHandle.Complete();
+
         //re add moving wall active segments
         while (movingWallLocationStack.IsEmpty != true)
         {
