@@ -203,7 +203,7 @@ MonoBehaviour:
     type: 3}
   BloodParticlePrefab: {fileID: 8861728088394010741, guid: 65b518e4195678b418a13ad32259b733,
     type: 3}
-  BeesToSpawn: 1000
+  BeesToSpawn: 50000
   MinBeeSize: 0.25
   MaxBeeSize: 0.5
   Stretch: 0.2
@@ -228,15 +228,15 @@ MonoBehaviour:
     Damping: 0.1
     Jitter: 200
     AttackDistance: 4
-    ChaseForce: 50
+    ChaseForce: 200
     AttackForce: 500
-    HitDistance: 0.5
+    HitDistance: 2
     GrabDistance: 0.5
     HivePosition:
       x: 145
       y: 0
       z: 0
-    CarryForce: 25
+    CarryForce: 200
   Team2:
     TeamNumber: 2
     MinBounds:
@@ -257,15 +257,15 @@ MonoBehaviour:
     Damping: 0.1
     Jitter: 200
     AttackDistance: 4
-    ChaseForce: 50
+    ChaseForce: 200
     AttackForce: 500
-    HitDistance: 0.5
+    HitDistance: 2
     GrabDistance: 0.5
     HivePosition:
       x: -145
       y: 0
       z: 0
-    CarryForce: 25
+    CarryForce: 200
 --- !u!4 &804745685
 Transform:
   m_ObjectHideFlags: 0

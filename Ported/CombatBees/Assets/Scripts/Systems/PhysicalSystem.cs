@@ -45,10 +45,8 @@ public partial struct PhysicalSystem : ISystem
         public static readonly float3 up = new float3(0, 1, 0);
         public static readonly float3 forward = new float3(0, 0, 1);
 
-        void Execute([EntityInQueryIndex] int index, in Entity entity, ref Physical physical, ref LocalToWorldTransform localToWorld, ref PostTransformMatrix postTransformMatrix)
+        void Execute(ref Physical physical, ref LocalToWorldTransform localToWorld, ref PostTransformMatrix postTransformMatrix)
         {
-            var previousPosition = physical.Position;
-
             // Apply gravity if necessary
             if (physical.IsFalling)
             {
@@ -56,7 +54,7 @@ public partial struct PhysicalSystem : ISystem
             }
 
             // Move according to velocity
-            var delta = physical.Velocity * Dt;
+            var delta = physical.Velocity * Dt * physical.SpeedModifier;
             physical.Position += delta;
 
             // Handle the position having gone beyond the field limits

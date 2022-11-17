@@ -82,6 +82,8 @@ public struct SpawnBeeJob : IJob
         var bees = CollectionHelper.CreateNativeArray<Entity>(BeeConfig.BeesToSpawn, Allocator.Temp);
         ECB.Instantiate(BeeConfig.BeePrefab, bees);
 
+        var random = Random.CreateFromIndex(1234);
+
         foreach (var bee in bees)
         {
             var uniformScaleTransform = new UniformScaleTransform
@@ -111,6 +113,7 @@ public struct SpawnBeeJob : IJob
                 IsFalling = false,
                 Collision = Physical.FieldCollisionType.Bounce,
                 Stretch = BeeConfig.Stretch,
+                SpeedModifier = .5f + random.NextFloat() * .5f
             });
             ECB.AddSharedComponent(bee, new TeamIdentifier
             {

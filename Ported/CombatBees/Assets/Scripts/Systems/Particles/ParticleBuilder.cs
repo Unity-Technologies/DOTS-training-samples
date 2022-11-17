@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Components;
 using Helpers;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -41,7 +42,7 @@ namespace Systems.Particles
             return particle;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [BurstCompile]
         public static void SpawnParticleEntity(EntityCommandBuffer.ParallelWriter writer, int chunkIndex, uint randomSeed,
             Entity prefab, float3 position, ParticleType type, float3 velocity,
             float velocityJitter, int count = 1)

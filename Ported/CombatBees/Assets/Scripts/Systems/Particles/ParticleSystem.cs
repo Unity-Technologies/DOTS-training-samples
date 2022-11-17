@@ -66,15 +66,15 @@ namespace Systems.Particles
                     var rotation = quaternion.LookRotation(particle.velocity, new float3(0, 1, 0));
                     
                     const float speedStretch = 0.25f;
-                    scale.z *= 1f + math.length(particle.velocity) * speedStretch;
+                    scale.z *= 1f + math.lengthsq(particle.velocity) * speedStretch;
                     transform.Rotation = rotation;
                 }
             }
-
+            
             scale.x = math.min(scale.x, 2);
             scale.y = math.min(scale.y, 2);
             scale.z = math.min(scale.z, 2);
-            
+
             transformMatrix.Value = float4x4.Scale(scale);
             transform.Position = particle.position;
             
