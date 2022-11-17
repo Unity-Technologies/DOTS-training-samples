@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Mathematics;
+using UnityEngine;
 
 public struct GridCellWorldBounds
 {
@@ -63,11 +64,12 @@ public struct MazeUtils
         return new int2(index % gridSize, index / gridSize);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool HasFlag(WallFlags flags, WallFlags flag)
     {
         return (flags & flag) != 0;
     }
-
+    
     public static void DrawGridCell(int2 gridPos, byte wallFlags = 0)
     {
         var bounds = GetGridCellWorldBounds(gridPos.x, gridPos.y);
