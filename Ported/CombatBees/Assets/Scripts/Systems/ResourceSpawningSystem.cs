@@ -11,7 +11,7 @@ using Random = Unity.Mathematics.Random;
 [BurstCompile]
 partial struct ResourceSpawningSystem : ISystem
 {
-    public static readonly float RESOURCE_OBJ_HEIGHT = 0.5f;
+    public static readonly float RESOURCE_OBJ_HEIGHT = 2f;
 
     bool _hasInitialized;
 
@@ -60,15 +60,15 @@ partial struct ResourceSpawningSystem : ISystem
         // Spawn on click
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
+            var clickSpawnEcb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             var spawnOnClickJob = new SpawnResourceJob()
             {
-                ECB = ecb,
+                ECB = clickSpawnEcb,
                 ResourcePrefab = config.ResourcePrefab,
-                SpawnCount = config.InitialCount,
+                SpawnCount = 1,
                 Position = MouseRaycaster.worldMousePosition,
                 IsPositionRandom = false,
             };
-
             var spawnHandle = spawnOnClickJob.Schedule();
             spawnHandle.Complete();
         }
