@@ -5,5 +5,6 @@ namespace Components
     public struct Dead : IComponentData, IEnableableComponent
     {
         public float DeathTimer;
+        public bool IsSlowed;
     }
 }

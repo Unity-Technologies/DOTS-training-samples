@@ -100,8 +100,6 @@ namespace Systems
                                 ParticleType.Blood, -physical.Velocity, 6f, 10);
                             
                             ECB.SetComponentEnabled<Dead>(index, bee.EntityTarget, true);
-                          
-                            //TODO: Cause first run of death job to slow down the bees velocity by half
                             bee.EntityTarget = Entity.Null;
                             bee.State = Beehaviors.Idle;
                         }

@@ -39,6 +39,12 @@ namespace Systems
                 }
             }
 
+            if (!deadComponent.IsSlowed)
+            {
+                physical.Velocity *= .5f;
+                deadComponent.IsSlowed = true;
+            }
+
             physical.IsFalling = true;
             physical.Collision = Physical.FieldCollisionType.Splat;
             deadComponent.DeathTimer -= DeltaTime;
