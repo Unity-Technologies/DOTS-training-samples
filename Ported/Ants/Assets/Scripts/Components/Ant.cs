@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-struct Ant : IComponentData
+public struct Ant : IComponentData
 {
     public float2 Position;
     public float Speed;

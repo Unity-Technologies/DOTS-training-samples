@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Mathematics.Geometry;
 
-struct Config : IComponentData
+public struct Config : IComponentData
 {
     public Entity AntPrefab;
     public Entity WallPrefab;
