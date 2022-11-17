@@ -4,6 +4,6 @@ using Unity.Mathematics;
 public struct Resource : IComponentData
 {
     public bool Dead;
-    public bool IsTopOfStack;
     public Entity Holder;
+    public int2 GridIndex;
 }

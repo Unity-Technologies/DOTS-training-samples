@@ -21,4 +21,5 @@ public static class Field {
 	public static readonly float3 ResourceBoundsMax = new float3(size.x/6, size.y / 2, size.z/2);
 	
 	public static readonly float GroundLevel = BoundsMin.y;
+	public static readonly int GridSize = (int) size.x * (int) size.z;
 }

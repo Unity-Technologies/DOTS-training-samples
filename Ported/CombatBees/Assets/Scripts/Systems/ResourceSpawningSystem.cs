@@ -12,25 +12,15 @@ using Random = Unity.Mathematics.Random;
 partial struct ResourceSpawningSystem : ISystem
 {
     public static readonly float RESOURCE_OBJ_HEIGHT = 0.5f;
-    
+
     bool _hasInitialized;
-    
-    // Grid for stacking
-    int2 _gridCounts;
-    float2 _gridSize;
-    float2 _minGridPos;
-    
-    // [BurstCompile]
+
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<ResourceConfig>();
-        state.RequireForUpdate<ResourceConfig>();
         _hasInitialized = false;
-        
-        _gridCounts = new int2(new Vector2(Field.size.x,Field.size.z)/ RESOURCE_OBJ_HEIGHT);
-        _gridSize = new float2(Field.size.x/_gridCounts.x,Field.size.z/_gridCounts.y);
-        _minGridPos = new float2((_gridCounts.x-1f)*-.5f*_gridSize.x,(_gridCounts.y-1f)*-.5f*_gridSize.y);
     }
 
     [BurstCompile]
@@ -59,8 +49,6 @@ partial struct ResourceSpawningSystem : ISystem
                 SpawnCount = config.InitialCount,
                 Random = random,
                 IsPositionRandom = true,
-                MinGridPos = _minGridPos,
-                GridSize = _gridSize
             };
 
             var spawnHandle = initialSpawnJob.Schedule();
@@ -85,7 +73,7 @@ partial struct ResourceSpawningSystem : ISystem
             spawnHandle.Complete();
         }
     }
-    
+
     [BurstCompile]
     struct SpawnResourceJob : IJob
     {
@@ -95,9 +83,6 @@ partial struct ResourceSpawningSystem : ISystem
         public Random Random;
         public bool IsPositionRandom;
         public float3 Position;
-        public float2 MinGridPos;
-        public float2 GridSize;
-        public uint2 GridCounts;
         
         public void Execute()
         {
@@ -107,9 +92,7 @@ partial struct ResourceSpawningSystem : ISystem
             foreach (var resource in resources)
             {
                 var position = IsPositionRandom
-                    // ALX: now using Field bounds, but could cluster closer to the centre if desired
-                    // ? Random.NextFloat3(Field.ResourceBoundsMin, Field.ResourceBoundsMax)
-                    ? new float3(MinGridPos.x * .25f + Random.NextFloat() * Field.size.x * .25f,Random.NextFloat() * 10f,MinGridPos.y + Random.NextFloat() * Field.size.z)
+                    ? Random.NextFloat3(Field.ResourceBoundsMin, Field.ResourceBoundsMax)
                     : Position;
                 Initialize(resource, position);
             }
@@ -133,8 +116,9 @@ partial struct ResourceSpawningSystem : ISystem
             var resourceData = new Resource()
             {
                 Dead = false,
-                IsTopOfStack = true
+                GridIndex = GetGridIndex(position)
             };
+
             ECB.AddComponent(resource, resourceData);
             // Set component data to position
             ECB.AddComponent(resource, new Physical()
@@ -148,6 +132,12 @@ partial struct ResourceSpawningSystem : ISystem
             ECB.SetComponentEnabled<ResourceGatherable>(resource, false);
             ECB.AddComponent(resource, new StackInProgress());
             ECB.SetComponentEnabled<StackInProgress>(resource, true);
+        }
+    
+        int2 GetGridIndex(float3 pos) {
+            int gridX = (int) math.round(pos.x);
+            int gridZ = (int) math.round(pos.z);
+            return new int2(gridX, gridZ);
         }
     }
 }
