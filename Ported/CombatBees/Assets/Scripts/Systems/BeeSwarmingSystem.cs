@@ -202,6 +202,8 @@ namespace Systems
                     // TJA - shouldn't this happen once the resource hits the ground?
                     SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize,
                         Config.MaxBeeSize, Config.Stretch, bee.Team, random);
+
+                    bee.State = Beehaviors.Idle;
                     
                     physical.Velocity = 0f;
                 }
