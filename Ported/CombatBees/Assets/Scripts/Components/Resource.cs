@@ -10,4 +10,13 @@ public struct Resource : IComponentData
     /// </summary>
     public Entity ResourceUnder;
     public int TeamNumber;
+    public StackState StackState;
 }
+
+public enum StackState
+{
+    InProgress = 0,
+    NeedsFix,
+    StackFixed
+}
+

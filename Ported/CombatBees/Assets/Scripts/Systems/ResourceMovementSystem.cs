@@ -22,7 +22,7 @@ public partial struct ResourceMovementSystem : ISystem
         state.RequireForUpdate<BeeConfig>();
 
         /// Only query for stacks that might be ready to land on floor
-        _resourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, StackInProgress>().WithNone<ResourceGatherable>().Build();
+        _resourcesQuery = SystemAPI.QueryBuilder().WithAll<Resource, Physical, ResourceGatherable>().Build();
         _physicaLookup = state.GetComponentLookup<Physical>();
     }
 
@@ -59,8 +59,7 @@ public partial struct ResourceMovementSystem : ISystem
         parallelStackingJobHandle.Complete();
     }
     
-    [WithAll(typeof(Resource), typeof(Physical), typeof(StackInProgress))]
-    [WithNone(typeof(ResourceGatherable))]
+    [WithAll(typeof(Resource), typeof(Physical), typeof(ResourceGatherable))]
     [BurstCompile]
     partial struct ResourceFallingJob : IJobEntity
     {
@@ -69,9 +68,9 @@ public partial struct ResourceMovementSystem : ISystem
         public float3 HivePosition_Team1;
         public float3 HivePosition_Team2;
         
-        void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, Resource resource)
+        void Execute([EntityInQueryIndex] int index, Entity entity, ref Physical physical, ref Resource resource)
         {
-            if (physical.Position.y <= Field.GroundLevel)
+            if (resource.StackState == StackState.InProgress && physical.Position.y <= Field.GroundLevel && resource.Holder == Entity.Null)
             {
                 physical.IsFalling = false;
                 physical.Velocity = float3.zero;
@@ -81,8 +80,8 @@ public partial struct ResourceMovementSystem : ISystem
                                         || Field.InTeamArea(physical.Position.x, HivePosition_Team2);
                 if (!withinTeamBounds)
                 {
-                    // Flag as gatherable
-                    ECB.SetComponentEnabled<ResourceGatherable>(index, entity, true);
+                    // Flag for stacking gatherable
+                    resource.StackState = StackState.NeedsFix;
                 }
                 else
                 {
@@ -111,6 +110,7 @@ public partial struct ResourceMovementSystem : ISystem
                 {
                     resource.Holder = Entity.Null;
                     physical.IsFalling = true;
+                    resource.StackState = StackState.InProgress;
                     return;
                 }
                 var holderPhysical = PhysicalLookup[resource.Holder];

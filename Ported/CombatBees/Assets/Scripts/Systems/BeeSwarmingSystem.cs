@@ -318,7 +318,7 @@ namespace Systems
                     resourcePhysical.ValueRW.IsFalling = true;
                     resourcePhysical.ValueRW.Velocity *= 0.5f;
                     Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);
-                    Ecb.SetComponentEnabled<StackInProgress>(claim.Resource, true);
+                    resource.ValueRW.StackState = StackState.InProgress;
                     // ALX: Purposely not resetting TeamNumber so that we can eventually use it to spawn the right
                     // bees when the resource lands in team area
                 }
