@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Jobs;
 
 using Random = Unity.Mathematics.Random;
 
@@ -41,105 +42,104 @@ public partial struct MazeGeneratorSystem : ISystem
 
         var size = gameConfig.mazeSize;
         var numCells = size * size;
+        // defaults to clearing memory so false is default
         var cellVisited = new NativeArray<bool>(numCells, Allocator.Temp);
 
         GridCell cell = new GridCell { wallFlags = (byte)WallFlags.None };
-        cell.wallFlags |= (byte)WallFlags.North;
-        cell.wallFlags |= (byte)WallFlags.East;
-        cell.wallFlags |= (byte)WallFlags.South;
-        cell.wallFlags |= (byte)WallFlags.West;
-
-        // all cells get all walls
-        // TODO: jobify
-        for (int y = 0; y < size; y++)
+        cell.wallFlags = (byte)WallFlags.All;
+        for(int i = 0; i < numCells; i++)
         {
-            for (int x = 0; x < size; x++)
-            {
-
-                grid[x + y * size] = cell;
-                cellVisited[x + y * size] = false;
-            }
+            grid[i] = cell;
         }
 
-        var stack = new NativeList<int2>(Allocator.Temp);
-        var current = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-        cellVisited[current.x + current.y * size] = true;
 
-        int numVisited = 1;
+        // REFERENCE: https://en.wikipedia.org/wiki/Maze_generation_algorithm#:~:text=to%20the%20stack-,Randomized%20Kruskal%27s%20algorithm,-%5Bedit%5D
+        // 1. Choose initial cell, mark it as visited and push it to the stack
+        // 2. While the stack is not empty
+        //    1. Push the current cell to the stack
+        //    2. Choose on the the unvisited neighbors
+        //    3. Remove wall between current cell and chosen (next) cell
+        //    4. Mark chosen (next) as visited and push it to the stack.
+
+        var stack = new NativeList<int2>(Allocator.Temp);
+        var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+        cellVisited[MazeUtils.CellIdxFromPos(initialCell, size)] = true;
+
+        stack.Add(initialCell);
 
         // TODO: move to a job
-        while (numVisited < numCells)
+        while (stack.Length > 0)
         {
+            // pop
+            var current = stack[stack.Length - 1];
+            stack.RemoveAt(stack.Length - 1);
+            
             // north, west, south, east
             var unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
 
             // west neighbor
-            if (current.x > 0 && !cellVisited[(current.x - 1) + current.y * size])
+            if (current.x > 0 && !cellVisited[MazeUtils.CellIdxFromPos(current.x - 1, current.y, size)])
             {
                 unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
             }
-            // north
-            if (current.y > 0 && !cellVisited[(current.x) + (current.y - 1) * size])
+            // south
+            if (current.y > 0 && !cellVisited[MazeUtils.CellIdxFromPos(current.x, current.y - 1, size)])
             {
                 unvisitedNeighbors.Add(new int2(current.x, current.y - 1));
             }
             // east
-            if (current.x < size - 1 && !cellVisited[(current.x + 1) + current.y * size])
+            if (current.x < size - 1 && !cellVisited[MazeUtils.CellIdxFromPos(current.x + 1, current.y, size)])
             {
                 unvisitedNeighbors.Add(new int2(current.x + 1, current.y));
             }
-            // south
-            if (current.y < size - 1 && !cellVisited[current.x + (current.y + 1) * size])
+            // north
+            if (current.y < size - 1 && !cellVisited[MazeUtils.CellIdxFromPos(current.x, current.y + 1, size)])
             {
                 unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
             }
 
             if (unvisitedNeighbors.Length > 0)
             {
+                stack.Add(current);
                 int2 next = unvisitedNeighbors[random.NextInt(0, unvisitedNeighbors.Length)];
                 // adds to end of list
-                stack.Add(current);
 
                 // remove wall between cells
-                var currentCell = grid[current.x + current.y * size];
-                var nextCell = grid[next.x + next.y * size];
+                var currentCell = grid[MazeUtils.CellIdxFromPos(current, size)];
+                var nextCell = grid[MazeUtils.CellIdxFromPos(next, size)];
                 if (next.x > current.x)
                 {
+                    // next is to the east of current
                     currentCell.wallFlags &= (byte)~WallFlags.East;
                     nextCell.wallFlags &= (byte)~WallFlags.West;
                 }
                 else if (next.y > current.y)
                 {
+                    // next is to the north of current 
                     currentCell.wallFlags &= (byte)~WallFlags.North;
                     nextCell.wallFlags &= (byte)~WallFlags.South;
                 }
                 else if (next.x < current.x)
                 {
+                    // next is to the west of current
                     currentCell.wallFlags &= (byte)~WallFlags.West;
                     nextCell.wallFlags &= (byte)~WallFlags.East;
                 }
                 else
                 {
+                    // next is to the south of current
                     currentCell.wallFlags &= (byte)~WallFlags.South;
                     nextCell.wallFlags &= (byte)~WallFlags.North;
                 }
 
-                cellVisited[next.x + next.y * size] = true;
+                // update grid
                 grid[current.x + current.y * size] = currentCell;
                 grid[next.x + next.y * size] = nextCell;
 
-                numVisited++;
-                current = next;
-            }
-            else
-            {
-                if (stack.Length > 0)
-                {
-                    // get element at the end
-                    current = stack[stack.Length - 1];
-                    // remove
-                    stack.RemoveAt(stack.Length - 1);
-                }
+                // mark chosen as visited
+                cellVisited[next.x + next.y * size] = true;
+
+                stack.Add(next);
             }
         }
 
