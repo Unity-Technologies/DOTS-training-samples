@@ -20,7 +20,7 @@ public struct GameConfig : IComponentData
     public int movingWallRangeMax;
     public int mazeSize;
     public bool parallelMazeGen;
-    public int openStripWidth;
+    public int openStripCount;
     public int mazeStripWidth;
     public int num_zombies;
     public int numPills;

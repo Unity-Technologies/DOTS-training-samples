@@ -9,6 +9,29 @@ using Unity.Jobs;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
+struct ClearMazePerimeter : IJobParallelFor
+{
+    [NativeDisableContainerSafetyRestriction]
+    public DynamicBuffer<GridCell> grid;
+    public int stride;
+    public int stripWidth;
+
+    public void Execute(int index)
+    {
+        int y = index / stride;
+        int x = index % stride;
+
+        if (!((x > stripWidth && y > stripWidth) && (x < stride - stripWidth && y < stride - stripWidth)))
+        {
+            // outside the maze area
+            var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
+            tmp.wallFlags = (byte)WallFlags.None;
+            grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
+        }
+    }
+}
+
+[BurstCompile]
 struct SpawnWalls : IJobParallelFor
 {
     [ReadOnly]
@@ -286,17 +309,19 @@ public partial struct MazeGeneratorSystem : ISystem
             UnityEngine.Profiling.Profiler.EndSample();
         }
 
+
+
         // remove strips of walls from south to north
-        if (gameConfig.openStripWidth + gameConfig.mazeStripWidth > 0)
+        if (gameConfig.openStripCount + gameConfig.mazeStripWidth > 0)
         {
             int offset = 0;
-            for (; offset < size; offset += gameConfig.openStripWidth + gameConfig.mazeStripWidth)
+            for (; offset < size; offset += gameConfig.openStripCount + gameConfig.mazeStripWidth)
             {
                 // y goes along columns from south to north
                 for (int y = 0; y < size; y++)
                 {
                     // x goes along rows from west to east
-                    for (int x = offset; x < math.min(offset + gameConfig.openStripWidth, size); x++)
+                    for (int x = offset; x < math.min(offset + gameConfig.openStripCount, size); x++)
                     {
                         if (x > offset)
                         {
@@ -311,19 +336,15 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // can I do this to remove walls around border?
-        for (int y = 0; y < size; y++)
+        var clearPerimeterJob = new ClearMazePerimeter
         {
-            for (int x = 0; x < size; x++)
-            {
-                if ((x > gameConfig.openStripWidth && y > gameConfig.openStripWidth) && (x < size - gameConfig.openStripWidth && y < size - gameConfig.openStripWidth))
-                    continue;
-                
-                var tmp = grid[MazeUtils.CellIdxFromPos(x, y, size)];
-                tmp.wallFlags = (byte)WallFlags.None;
-                grid[MazeUtils.CellIdxFromPos(x, y, size)] = tmp;
-            }
-        }
+            grid = grid,
+            stride = gameConfig.mazeSize,
+            stripWidth = gameConfig.mazeStripWidth
+        };
+
+        var clearPerimeterHandle = clearPerimeterJob.Schedule(numCells, 64);
+        clearPerimeterHandle.Complete();
 
         //the amount of indices occupied by the moving walls.
         var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
