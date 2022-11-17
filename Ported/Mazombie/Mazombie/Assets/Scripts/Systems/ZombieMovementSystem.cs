@@ -47,22 +47,24 @@ public partial struct ZombieMovementSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<
             BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
-        var hunterPlayerJobHandle = new HunterPlayerJob
-        {
-            Ecb = ecb.AsParallelWriter(),
-            targetTransform = transformFromEntity,
-        }.ScheduleParallel(state.Dependency);
-        
-        hunterPlayerJobHandle.Complete();
-        
-        var pillHunterJobHandle = new PillHunterJob
-        {
-            Ecb = ecb.AsParallelWriter(),
-            targetTransform = transformFromEntity,
-        }.ScheduleParallel(state.Dependency);
 
-        pillHunterJobHandle.Complete();
+        var ecb2 = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
+        new HunterPlayerJob
+        {
+            Ecb = ecb.AsParallelWriter(),
+            targetTransform = transformFromEntity,
+        }.ScheduleParallel();
+        
+        //hunterPlayerJobHandle.Complete();
+        
+        new PillHunterJob
+        {
+            Ecb = ecb2.AsParallelWriter(),
+            targetTransform = transformFromEntity,
+        }.ScheduleParallel();
+
+        //pillHunterJobHandle.Complete();
     }
 }
 
