@@ -17,7 +17,7 @@ public partial struct PillPickupSystem : ISystem
     {
         state.RequireForUpdate<Player>();
         state.RequireForUpdate<Pill>();
-        m_PillSpawnSystemHandle = state.World.GetExistingSystem<PillSpawnSystem>();
+        m_PillSpawnSystemHandle = state.WorldUnmanaged.GetExistingUnmanagedSystem<PillSpawnSystem>();
     }
     
     [BurstCompile]
