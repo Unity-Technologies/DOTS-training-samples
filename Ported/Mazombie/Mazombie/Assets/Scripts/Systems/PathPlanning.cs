@@ -47,15 +47,8 @@ public partial struct PathPlanning : ISystem
             gridSize = config.mazeSize,
         }.ScheduleParallel(state.Dependency);
 
-        //jobHandle.Complete();
-        //gridArray.Dispose();
-
-        // var query = state.EntityManager.CreateEntityQuery(typeof(NeedUpdateTrajectory));
-        //
-        // foreach (var entity in query.ToEntityArray(Allocator.Temp))
-        // {
-        //     state.EntityManager.SetComponentEnabled<NeedUpdateTrajectory>(entity, false);
-        // }
+        jobHandle.Complete();
+        gridArray.Dispose();
     }
     
     [BurstCompile]
