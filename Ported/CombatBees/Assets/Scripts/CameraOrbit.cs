@@ -3,35 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraOrbit : MonoBehaviour {
-	public float sensitivity;
-	public float zoomSensitivity;
-	public float stiffness;
+    public float sensitivity;
+    public float zoomSensitivity;
+    public float stiffness;
+    public float nearLimit;
+    public float farLimit;
 
-	Vector2 viewAngles;
-	Vector2 smoothViewAngles;
-	float viewDist;
-	float smoothViewDist;
+    Vector2 viewAngles;
+    Vector2 smoothViewAngles;
+    float viewDist;
+    float smoothViewDist;
 
-	void Start () {
-		viewDist = 70f;
-		smoothViewDist = viewDist;
-	}
-	
-	void Update () {
-		if (Input.GetKey(KeyCode.Mouse1)) {
-			viewAngles.x += Input.GetAxis("Mouse X") * sensitivity/Screen.height;
-			viewAngles.y -= Input.GetAxis("Mouse Y") * sensitivity/Screen.height;
+    void Start () {
+        viewDist = 70f;
+        smoothViewDist = viewDist;
+    }
 
-			viewAngles.y = Mathf.Clamp(viewAngles.y,-89f,89f);
-		}
+    void Update () {
+        if (Input.GetKey(KeyCode.Mouse1)) {
+            viewAngles.x += Input.GetAxis("Mouse X") * sensitivity/Screen.height;
+            viewAngles.y -= Input.GetAxis("Mouse Y") * sensitivity/Screen.height;
 
-		viewDist -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity * viewDist;
-		viewDist = Mathf.Clamp(viewDist,5f,80f);
+            viewAngles.y = Mathf.Clamp(viewAngles.y,-89f,89f);
+        }
 
-		smoothViewAngles = Vector2.Lerp(smoothViewAngles,viewAngles,stiffness * Time.deltaTime);
-		smoothViewDist = Mathf.Lerp(smoothViewDist,viewDist,stiffness * Time.deltaTime);
+        viewDist -= Input.GetAxis("Mouse ScrollWheel") * zoomSensitivity * viewDist;
+        viewDist = Mathf.Clamp(viewDist,nearLimit,farLimit);
 
-		transform.rotation = Quaternion.Euler(smoothViewAngles.y,smoothViewAngles.x,0f);
-		transform.position = -transform.forward * smoothViewDist;
-	}
+        smoothViewAngles = Vector2.Lerp(smoothViewAngles,viewAngles,stiffness * Time.deltaTime);
+        smoothViewDist = Mathf.Lerp(smoothViewDist,viewDist,stiffness * Time.deltaTime);
+
+        transform.rotation = Quaternion.Euler(smoothViewAngles.y,smoothViewAngles.x,0f);
+        transform.position = -transform.forward * smoothViewDist;
+    }
 }

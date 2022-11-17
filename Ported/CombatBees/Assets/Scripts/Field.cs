@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 public static class Field {
-	public static readonly Vector3 size = new Vector3(100f,20f,30f);
+	public static readonly Vector3 size = new Vector3(300f,50f,100f);
 	public static readonly float gravity = -20f;
 
 	/// <summary>

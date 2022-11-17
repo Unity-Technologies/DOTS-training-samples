@@ -203,7 +203,7 @@ MonoBehaviour:
     type: 3}
   BloodParticlePrefab: {fileID: 8861728088394010741, guid: 65b518e4195678b418a13ad32259b733,
     type: 3}
-  BeesToSpawn: 50
+  BeesToSpawn: 1000
   MinBeeSize: 0.25
   MaxBeeSize: 0.5
   Stretch: 0.2
@@ -211,13 +211,13 @@ MonoBehaviour:
   Team1:
     TeamNumber: 1
     MinBounds:
-      x: 40
-      y: -10
-      z: 15
+      x: 140
+      y: -25
+      z: 50
     MaxBounds:
-      x: 50
-      y: 10
-      z: -15
+      x: 150
+      y: 25
+      z: -50
     Color:
       x: 0.9436232
       y: 0.9485294
@@ -233,20 +233,20 @@ MonoBehaviour:
     HitDistance: 0.5
     GrabDistance: 0.5
     HivePosition:
-      x: 45
+      x: 145
       y: 0
       z: 0
     CarryForce: 25
   Team2:
     TeamNumber: 2
     MinBounds:
-      x: -40
-      y: -10
-      z: 15
+      x: -140
+      y: -25
+      z: 50
     MaxBounds:
-      x: -50
-      y: 10
-      z: -15
+      x: -150
+      y: 25
+      z: -50
     Color:
       x: 0.3088235
       y: 0.4279919
@@ -262,7 +262,7 @@ MonoBehaviour:
     HitDistance: 0.5
     GrabDistance: 0.5
     HivePosition:
-      x: -45
+      x: -145
       y: 0
       z: 0
     CarryForce: 25
@@ -305,7 +305,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1082878461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -45, y: 0, z: 0}
+  m_LocalPosition: {x: -145, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -336,7 +336,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1714620454}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 45, y: 0, z: 0}
+  m_LocalPosition: {x: 145, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
