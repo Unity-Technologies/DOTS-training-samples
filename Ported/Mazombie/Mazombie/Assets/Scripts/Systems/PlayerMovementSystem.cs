@@ -59,49 +59,80 @@ public partial struct PlayerMovementSystem : ISystem
                 );
             int2 cellDiff = nextCell - currCell;
 
-            var currCellWallFlags = grid[MazeUtils.CellIdxFromPos(currCell, gameConfig.mazeSize)].wallFlags;
-            var nextCellWallFlags = (byte)WallFlags.All;
+            var currCellWallFlags = (WallFlags)grid[MazeUtils.CellIdxFromPos(currCell, gameConfig.mazeSize)].wallFlags;
+            var nextCellWallFlags = WallFlags.All;
             if(nextCell.x >= 0 && nextCell.x < gameConfig.mazeSize && nextCell.y >= 0 && nextCell.y < gameConfig.mazeSize)
-                nextCellWallFlags = grid[MazeUtils.CellIdxFromPos(nextCell, gameConfig.mazeSize)].wallFlags;
+                nextCellWallFlags = (WallFlags)grid[MazeUtils.CellIdxFromPos(nextCell, gameConfig.mazeSize)].wallFlags;
             
-            MazeUtils.DrawGridCell(currCell, currCellWallFlags);
+            MazeUtils.DrawGridCell(currCell, (byte)currCellWallFlags);
             
+            // todo: perform collision block in outside func
+            // **COLLISION**
             // going left
             if (cellDiff.x < 0)
             {
-                if ((currCellWallFlags & (byte)WallFlags.West) != 0 
-                    || (nextCellWallFlags & (byte)WallFlags.East) != 0)
+                var posPush = CellPushNS(playerPosition, playerRadius);
+                if (MazeUtils.HasFlag(currCellWallFlags, WallFlags.West) 
+                    || MazeUtils.HasFlag(nextCellWallFlags, WallFlags.East))
                 {
                     movementDelta.x = 0;
+                }
+                // if no west wall and walking into edge, add push
+                else if (posPush.z > 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.South) ||
+                         posPush.z < 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.North))
+                {
+                    movementDelta.z += posPush.z;
                 }
             }
             // going right
             if (cellDiff.x > 0)
             {
-                if ((currCellWallFlags & (byte)WallFlags.East) != 0
-                    || (nextCellWallFlags & (byte)WallFlags.West) != 0)
+                var posPush = CellPushNS(playerPosition, playerRadius);
+                if (MazeUtils.HasFlag(currCellWallFlags, WallFlags.East)
+                     || MazeUtils.HasFlag(nextCellWallFlags, WallFlags.West))
                 {
                     movementDelta.x = 0;
+                }
+                // if no east wall and walking into edge, add push
+                else if (posPush.z > 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.South) ||
+                         posPush.z < 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.North))
+                {
+                    movementDelta.z += posPush.z;
                 }
             }
             // going north
             if (cellDiff.y > 0)
             {
-                if ((currCellWallFlags & (byte)WallFlags.North) != 0
-                || (nextCellWallFlags & (byte)WallFlags.South) != 0)
+                var posPush = CellPushEW(playerPosition, playerRadius);
+                if (MazeUtils.HasFlag(currCellWallFlags, WallFlags.North)
+                     || MazeUtils.HasFlag(nextCellWallFlags, WallFlags.South))
                 {
                     movementDelta.z = 0;
+                }
+                // if no south wall and walking into edge, add push
+                else if (posPush.x > 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.West) ||
+                         posPush.x < 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.East))
+                {
+                    movementDelta.x += posPush.x;
                 }
             }
             // going south
             if (cellDiff.y < 0)
             {
-                if ((currCellWallFlags & (byte) WallFlags.South) != 0
-                || (nextCellWallFlags & (byte) WallFlags.North) != 0)
+                var posPush = CellPushEW(playerPosition, playerRadius);
+                if (MazeUtils.HasFlag(currCellWallFlags, WallFlags.South)
+                     || MazeUtils.HasFlag(nextCellWallFlags, WallFlags.North))
                 {
                     movementDelta.z = 0;
                 }
+                // if no north wall and walking into edge, add push
+                else if (posPush.x > 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.West) ||
+                         posPush.x < 0 && MazeUtils.HasFlag(nextCellWallFlags, WallFlags.East))
+                {
+                    movementDelta.x += posPush.x;
+                }
             }
+            // **END COLLISION**
 
             // Move & Rotate player based on updated movement vector
             playerAspect.Transform.ValueRW.Value.Position += movementDelta;
@@ -119,5 +150,37 @@ public partial struct PlayerMovementSystem : ISystem
 
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
+    }
+    
+    private float3 CellPushEW(float3 pos, float radius)
+    {
+        return CalcCellPush(pos, radius, math.right(), math.left());
+    }
+
+    private float3 CellPushNS(float3 pos, float radius)
+    {
+        return CalcCellPush(pos, radius, math.forward(), math.back());
+    }
+
+    private float3 CalcCellPush(float3 pos, float radius, float3 fwdCellDir, float3 backCellDir)
+    {
+        var gridPosBack = MazeUtils.WorldPositionToGrid(pos + backCellDir);
+        var gridPosFwd =  MazeUtils.WorldPositionToGrid(pos + fwdCellDir);
+        var backWorldPos = MazeUtils.GridPositionToWorld(gridPosBack.x, gridPosBack.y);
+        var fwdWorldPos =  MazeUtils.GridPositionToWorld(gridPosFwd.x, gridPosFwd.y);
+        var backDist = math.distancesq(backWorldPos, pos);
+        var fwdDist = math.distancesq(fwdWorldPos, pos);
+
+        var radiusPad = 1.7f; // check around middle 70% of character
+        var radiusPush = radius * (2 - radiusPad);
+        var paddedRadiusSquare = math.pow(radius * radiusPad, 2); 
+        
+        if (backDist < fwdDist && backDist < paddedRadiusSquare)
+            return fwdCellDir * radiusPush;
+        
+        if (fwdDist < backDist && fwdDist < paddedRadiusSquare)
+            return backCellDir * radius * 0.3f;
+
+        return float3.zero;
     }
 }
