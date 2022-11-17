@@ -130,7 +130,7 @@ partial struct ResourceSpawningSystem : ISystem
             });
             ECB.AddComponent(resource, new ResourceGatherable());
             // ALX: Resources become gatherable when they land on floor
-            ECB.SetComponentEnabled<ResourceGatherable>(resource, false);
+            ECB.SetComponentEnabled<ResourceGatherable>(resource, true);
             ECB.AddComponent(resource, new StackInProgress());
             ECB.SetComponentEnabled<StackInProgress>(resource, true);
         }
