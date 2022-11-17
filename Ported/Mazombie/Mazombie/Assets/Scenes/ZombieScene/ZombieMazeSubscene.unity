@@ -187,6 +187,6 @@ MonoBehaviour:
   movingWallRangeMin: 2
   movingWallRangeMax: 10
   cellSize: 1
-  num_zombies: 1
-  numPills: 10
+  num_zombies: 10
+  numPills: 3
   seed: 42

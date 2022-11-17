@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public class PillHunter : IComponentData
+public struct PillHunter : IComponentData
 {
 
 }

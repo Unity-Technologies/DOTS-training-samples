@@ -1,5 +1,6 @@
 using Unity.Entities;
 
-public class PlayerHunter : IComponentData
+public struct PlayerHunter : IComponentData
 {
+    public Entity player;
 }
