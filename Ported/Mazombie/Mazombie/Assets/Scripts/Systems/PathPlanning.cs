@@ -224,7 +224,7 @@ public partial struct PathFindingJob : IJobEntity
         cellArray.Dispose();
         openList.Dispose();
         closedList.Dispose();
-        //Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
+        Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
     }
 
     [BurstCompile]
