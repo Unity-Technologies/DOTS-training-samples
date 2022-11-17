@@ -77,21 +77,30 @@ public partial struct StackingSystem : ISystem
         
         public void Execute()
         {
+            // Chances are there are not a lot of stacks to fix
+            NativeHashMap<int2, Entity> stackTopEntities = new NativeHashMap<int2, Entity>(Field.GridSize, Allocator.Temp);
+
+            foreach (var resourceToStack in StacksToFix)
+            {
+                var resource = ResourceLookup[resourceToStack];
+                stackTopEntities[resource.GridIndex] = Entity.Null;
+            }
+
             /// Cache the top-most entity rather than the float y-value, so that we can disable the ResourceGatherable later
             /// if it doesn't end up being the top of stack anymore.
-            NativeHashMap<int2, Entity> stackTopEntities = new NativeHashMap<int2, Entity>(Field.GridSize, Allocator.Temp);
             foreach (var resourceEntity in Resources)
             {
                 var resource = ResourceLookup[resourceEntity];
-                var physical = PhysicalLookup[resourceEntity];
 
-                if (resource.StackState != StackState.StackFixed)
+                // Only get calculate high if this resource is relevant to new stack
+                if (!stackTopEntities.ContainsKey(resource.GridIndex) || resource.StackState != StackState.StackFixed)
                 {
                     continue;
                 }
-                
+
+                var physical = PhysicalLookup[resourceEntity];
                 float value = physical.Position.y;
-                if (stackTopEntities.ContainsKey(resource.GridIndex))
+                if (stackTopEntities.ContainsKey(resource.GridIndex) && stackTopEntities[resource.GridIndex] != Entity.Null)
                 {
                     var currentTallest = PhysicalLookup[stackTopEntities[resource.GridIndex]].Position.y;
                     if (value <= currentTallest)
@@ -103,7 +112,6 @@ public partial struct StackingSystem : ISystem
             }
             
             NativeHashMap<int2, int> newStacks = new NativeHashMap<int2, int>(StacksToFix.Length, Allocator.Temp);
-            
             foreach (var resourceToStack in StacksToFix)
             {
                 var resource = ResourceLookup[resourceToStack];
@@ -126,7 +134,7 @@ public partial struct StackingSystem : ISystem
 
                 /// The previous stack top is now underneath so disable the Resource Gatherable
                 /// and update the ResourceUnder reference
-                if (stackTopEntities.ContainsKey(resource.GridIndex))
+                if (stackTopEntities.ContainsKey(resource.GridIndex) && stackTopEntities[resource.GridIndex] != Entity.Null)
                 {
                     Entity resourceUnder = stackTopEntities[resource.GridIndex];
                     ECB.SetComponentEnabled<ResourceGatherable>(resourceUnder, false);
@@ -141,7 +149,7 @@ public partial struct StackingSystem : ISystem
         
         float GetYOffset(NativeHashMap<int2, Entity> stackTopEntities, int2 gridIndex)
         {
-            if (stackTopEntities.ContainsKey(gridIndex))
+            if (stackTopEntities.ContainsKey(gridIndex) && stackTopEntities[gridIndex] != Entity.Null)
             {
                 var physical = PhysicalLookup[stackTopEntities[gridIndex]];
                 return physical.Position.y;
