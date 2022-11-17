@@ -1,7 +1,9 @@
 using Unity.Entities;
 
-public struct GridPosition : IComponentData
+public struct GridPositions : IComponentData
 {
-    public int gridX;
-    public int gridY;
+    public int gridStartX;
+    public int gridStartY;
+    public int gridEndX;
+    public int gridEndY;
 }

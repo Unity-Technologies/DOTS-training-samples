@@ -1,5 +1,8 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(MazeGeneratorSystem))]
@@ -24,6 +27,41 @@ public partial struct MovingWallSystem : ISystem
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         var gameConfigEntity = SystemAPI.GetSingletonEntity<GameConfig>();
         
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+        foreach (var movingWallAspect in SystemAPI.Query<MovingWallAspect>())
+        {
+            float3 movementDir = new float3(1, 0, 0);
+            float3 movingWallPosition = movingWallAspect.Transform.ValueRW.Value.Position;
+            float3 wallStartPosition = MazeUtils.GridPositionToWorld(movingWallAspect.GridPositions.ValueRO.gridStartX, movingWallAspect.GridPositions.ValueRO.gridStartY) - new float3(0,0,0.5f);
+            float3 wallEndPosition = MazeUtils.GridPositionToWorld(movingWallAspect.GridPositions.ValueRO.gridEndX, movingWallAspect.GridPositions.ValueRO.gridEndY) - new float3(0,0,0.5f);
+            float wallSpeed = movingWallAspect.Speed.ValueRW.speed;
+
+             float3 movementDelta =
+                 new float3( SystemAPI.Time.DeltaTime * wallSpeed, 0, 0);
+            //
+            // int2 currCell = MazeUtils.WorldPositionToGrid(movingWallPosition);
+            // int2 nextCell = MazeUtils.WorldPositionToGrid(
+            //     movingWallPosition
+            //     + movementDelta
+            //     + movingWallAspect.Transform.ValueRO.Value.Scale * movementDir
+            // );
+            
+            movingWallAspect.Transform.ValueRW.Value.Position += movementDelta;
+
+            if (wallSpeed > 0 && Vector3.Distance(movingWallPosition, wallEndPosition) <= 0)
+            {
+                movingWallAspect.Speed.ValueRW.speed = -1 * wallSpeed;
+            }
+            else if (wallSpeed < 0 && Vector3.Distance(movingWallPosition, wallStartPosition) <= 0)
+            {
+                movingWallAspect.Speed.ValueRW.speed = -1 * wallSpeed;
+            }
+            
+        }
+
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
         
     }
 }

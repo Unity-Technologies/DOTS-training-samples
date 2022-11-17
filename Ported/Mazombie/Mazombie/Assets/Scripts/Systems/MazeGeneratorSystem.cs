@@ -262,6 +262,13 @@ public partial struct MazeGeneratorSystem : ISystem
                     {
                         movementRange = movingWallRange
                     });
+                    state.EntityManager.SetComponentData(movingWallSegment, new GridPositions()
+                    {
+                        gridStartX = wallStartIndex.x + j,
+                        gridStartY = wallStartIndex.y,
+                        gridEndX = wallStartIndex.x + j + movingWallRange,
+                        gridEndY = wallStartIndex.y
+                    });
                 }
             }
         }

@@ -22,10 +22,12 @@ public class MovingWallBaker : Baker<MovingWallAuthoring>
             speed = authoring.wallMoveSpeed
         });
 
-        AddComponent(new GridPosition
+        AddComponent(new GridPositions
         {
-            gridX = 0,
-            gridY = 0
+            gridStartX = 0,
+            gridStartY = 0,
+            gridEndX = 0,
+            gridEndY = 0
         });
     }
 }
