@@ -51,160 +51,160 @@ namespace Systems
                 var randomBee2 = AllyBees[random.NextInt(AllyBees.Length)];
 
                 //Attractive swarming
-                UpdateVelocity(ref physical, TransformLookup[randomBee1].Value.Position, 1, bee.Team.TeamAttraction,
-                    true);
+                UpdateVelocity(ref physical, TransformLookup[randomBee1].Value.Position, 1, bee.Team.TeamAttraction, false);
                 //Repelling swarming
                 UpdateVelocity(ref physical, TransformLookup[randomBee2].Value.Position, -1,
-                    0.8f * bee.Team.TeamAttraction, true);
+                    0.8f * bee.Team.TeamAttraction, false);
             }
 
-            switch (bee.State)
+            if (bee.State == Beehaviors.Idle)
             {
-                case Beehaviors.Idle:
-                    //Idle stuff
-                    var randomValue = random.NextFloat();
+                //Idle stuff
+                var randomValue = random.NextFloat();
 
-                    if (randomValue < bee.Team.TeamAggression)
-                    {
-                        if (EnemyBees.Length == 0)
-                            return;
-
-                        var enemyBee = EnemyBees[random.NextInt(EnemyBees.Length - 1)];
-
-                        bee.State = Beehaviors.EnemySeeking;
-                        bee.EntityTarget = enemyBee;
-                    }
-                    else
-                    {
-                        if (Resources.Length == 0)
-                            return;
-
-                        var resourceEntity = Resources[random.NextInt(Resources.Length - 1)];
-
-                        var resource = ResourceLookup[resourceEntity];
-
-                        if (resource.Holder != Entity.Null)
-                        {
-                            if (resource.TeamNumber == bee.Team.TeamNumber)
-                            {
-                                bee.EntityTarget = Entity.Null;
-                                bee.State = Beehaviors.Idle;
-                            }
-                            else
-                            {
-                                bee.EntityTarget = resource.Holder;
-                                bee.State = Beehaviors.EnemySeeking;
-                            }
-                        }
-                        else
-                        {
-                            bee.State = Beehaviors.ResourceSeeking;
-                            bee.EntityTarget = resourceEntity;
-                        }
-                    }
-
-                    break;
-                case Beehaviors.EnemySeeking:
-                    //Enemy seeking stuff
-                    var isTargetDead = !DeadLookup.TryGetComponent(bee.EntityTarget, out var asd) ||
-                                       DeadLookup.IsComponentEnabled(bee.EntityTarget);
-                    if (isTargetDead)
-                    {
-                        bee.State = Beehaviors.Idle;
-                        bee.EntityTarget = Entity.Null;
+                if (randomValue < bee.Team.TeamAggression)
+                {
+                    if (EnemyBees.Length == 0)
                         return;
-                    }
 
-                    var delta = TransformLookup[bee.EntityTarget].Value.Position -
-                                TransformLookup[entity].Value.Position;
-                    float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    var enemyBee = EnemyBees[random.NextInt(EnemyBees.Length - 1)];
 
-                    if (sqrDist > math.pow(bee.Team.AttackDistance, 2))
+                    bee.State = Beehaviors.EnemySeeking;
+                    bee.EntityTarget = enemyBee;
+                }
+                else
+                {
+                    if (Resources.Length == 0)
+                        return;
+
+                    var resourceEntity = Resources[random.NextInt(Resources.Length - 1)];
+
+                    var resource = ResourceLookup[resourceEntity];
+
+                    if (resource.Holder != Entity.Null)
                     {
-                        UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
-                            bee.Team.ChaseForce, true);
-                    }
-                    else
-                    {
-                        UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
-                            bee.Team.AttackForce, true);
-
-                        if (sqrDist < math.pow(bee.Team.HitDistance, 2))
+                        if (resource.TeamNumber == bee.Team.TeamNumber)
                         {
-                            //may need to set the resources holder to null here if they have one
-                            ParticleBuilder.SpawnParticleEntity(ECB, index, random.NextUInt(),
-                                Config.BloodParticlePrefab,
-                                physical.Position,
-                                ParticleType.Blood, -physical.Velocity, 6f, 2);
-
-                            ECB.SetComponentEnabled<Dead>(index, bee.EntityTarget, true);
                             bee.EntityTarget = Entity.Null;
                             bee.State = Beehaviors.Idle;
                         }
-                    }
-
-                    break;
-                case Beehaviors.ResourceSeeking:
-                    //Resource seeking state
-                    var gatherable = ResourceGatherableLookup.IsComponentEnabled(bee.EntityTarget);
-                    var targetResource = ResourceLookup[bee.EntityTarget];
-                    if (targetResource.Holder != Entity.Null)
-                    {
-                        bee.State = Beehaviors.Idle;
-                        return;
-                    }
-
-
-                    if (!gatherable)
-                    {
-                        bee.State = Beehaviors.Idle;
-                        return;
-                    }
-
-                    delta = TransformLookup[bee.EntityTarget].Value.Position - TransformLookup[entity].Value.Position;
-                    sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-
-                    if (sqrDist > math.pow(bee.Team.GrabDistance, 2))
-                    {
-                        UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
-                            bee.Team.ChaseForce, true);
+                        else
+                        {
+                            bee.EntityTarget = resource.Holder;
+                            bee.State = Beehaviors.EnemySeeking;
+                        }
                     }
                     else
                     {
-                        ResourceClaims.AddNoResize(new ResourceClaim
-                        {
-                            Resource = bee.EntityTarget,
-                            Bee = entity,
-                            IsClaiming = true,
-                        });
+                        bee.State = Beehaviors.ResourceSeeking;
+                        bee.EntityTarget = resourceEntity;
                     }
+                }
+            }
+            else if (bee.State == Beehaviors.EnemySeeking)
+            {
+                //Enemy seeking stuff
+                var isTargetDead = !DeadLookup.TryGetComponent(bee.EntityTarget, out var asd) ||
+                                   DeadLookup.IsComponentEnabled(bee.EntityTarget);
+                if (isTargetDead)
+                {
+                    bee.State = Beehaviors.Idle;
+                    bee.EntityTarget = Entity.Null;
+                    return;
+                }
 
-                    // TODO if resource holder is enemy bee, become aggressive to it
-                    // TODO if resource holder is ally bee, go to idle
+                var delta = TransformLookup[bee.EntityTarget].Value.Position -
+                            TransformLookup[entity].Value.Position;
+                float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-                    break;
-                case Beehaviors.ResourceGathering:
-                    targetResource = ResourceLookup[bee.EntityTarget];
+                if (sqrDist > bee.Team.AttackDistance * bee.Team.AttackDistance)
+                {
+                    UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
+                        bee.Team.ChaseForce);
+                }
+                else
+                {
+                    UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
+                        bee.Team.AttackForce);
 
-                    delta = bee.Team.HivePosition - TransformLookup[entity].Value.Position;
-                    var dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-                    UpdateVelocity(ref physical, bee.Team.HivePosition, 1, bee.Team.CarryForce, false);
-
-                    if (Field.InTeamArea(physical.Position.x, bee.Team.HivePosition))
+                    if (sqrDist < bee.Team.HitDistance * bee.Team.HitDistance)
                     {
-                        ResourceClaims.AddNoResize(new ResourceClaim
-                        {
-                            Resource = bee.EntityTarget,
-                            Bee = entity,
-                            IsClaiming = false,
-                        });
+                        //may need to set the resources holder to null here if they have one
+                        ParticleBuilder.SpawnParticleEntity(ECB, index, random.NextUInt(),
+                            Config.BloodParticlePrefab,
+                            physical.Position,
+                            ParticleType.Blood, -physical.Velocity, 20f, 5);
 
-                        // TJA - shouldn't this happen once the resource hits the ground?
-                        SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize,
-                            Config.MaxBeeSize, Config.Stretch, bee.Team, random);
+                        ECB.SetComponentEnabled<Dead>(index, bee.EntityTarget, true);
+                        bee.EntityTarget = Entity.Null;
+                        bee.State = Beehaviors.Idle;
+                        physical.Velocity = 0f;
                     }
+                }
+            }
+            else if (bee.State == Beehaviors.ResourceSeeking)
+            {
+                //Resource seeking state
 
-                    break;
+                if (!ResourceLookup.TryGetComponent(bee.EntityTarget, out var targetResource))
+                {
+                    bee.State = Beehaviors.Idle;
+                    return;
+                }
+
+                if (targetResource.Holder != Entity.Null)
+                {
+                    bee.State = Beehaviors.Idle;
+                    return;
+                }
+
+                var gatherable = ResourceGatherableLookup.TryGetComponent(bee.EntityTarget, out var _) ||
+                                 ResourceGatherableLookup.IsComponentEnabled(bee.EntityTarget);
+                if (!gatherable)
+                {
+                    bee.State = Beehaviors.Idle;
+                    return;
+                }
+
+                var delta = TransformLookup[bee.EntityTarget].Value.Position - TransformLookup[entity].Value.Position;
+                var sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+
+                if (sqrDist > bee.Team.GrabDistance * bee.Team.GrabDistance)
+                {
+                    UpdateVelocity(ref physical, TransformLookup[bee.EntityTarget].Value.Position, 1,
+                        bee.Team.ChaseForce);
+                }
+                else
+                {
+                    ResourceClaims.AddNoResize(new ResourceClaim
+                    {
+                        Resource = bee.EntityTarget,
+                        Bee = entity,
+                        IsClaiming = true,
+                    });
+                }
+                // TODO if resource holder is enemy bee, become aggressive to it
+                // TODO if resource holder is ally bee, go to idle
+            }
+            else if (bee.State == Beehaviors.ResourceGathering)
+            {
+                UpdateVelocity(ref physical, bee.Team.HivePosition, 1, bee.Team.CarryForce);
+
+                if (Field.InTeamArea(physical.Position.x, bee.Team.HivePosition))
+                {
+                    ResourceClaims.AddNoResize(new ResourceClaim
+                    {
+                        Resource = bee.EntityTarget,
+                        Bee = entity,
+                        IsClaiming = false,
+                    });
+
+                    // TJA - shouldn't this happen once the resource hits the ground?
+                    SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize,
+                        Config.MaxBeeSize, Config.Stretch, bee.Team, random);
+                    
+                    physical.Velocity = 0f;
+                }
             }
         }
 
@@ -244,6 +244,7 @@ namespace Systems
                     IsFalling = false,
                     Collision = Physical.FieldCollisionType.Bounce,
                     Stretch = stretch,
+                    SpeedModifier = .5f + random.NextFloat() * .5f
                 });
                 ecb.AddSharedComponent(index, bee, new TeamIdentifier
                 {
@@ -259,18 +260,18 @@ namespace Systems
             }
         }
 
-        void UpdateVelocity(ref Physical originPhysical, float3 target, int sign, float power, bool sqrt)
+        void UpdateVelocity(ref Physical originPhysical, float3 target, int sign, float power, bool normalize = true)
         {
             float3 delta = target - originPhysical.Position;
-            float dist = math.length(delta);
+            if (normalize)
+                delta = math.normalize(delta);
 
-            if (sqrt)
-                dist = math.sqrt(dist);
+            float dist = math.lengthsq(delta);
 
             if (dist > 0f)
             {
                 var velocity = originPhysical.Velocity;
-                velocity += delta * (power * Dt / dist) * sign;
+                velocity += delta * (power * Dt) * sign;
 
                 originPhysical.Velocity = velocity;
             }
@@ -293,8 +294,12 @@ namespace Systems
             if (i < list.Length)
             {
                 var claim = list[i];
-                var resource = ResourceLookup.GetRefRW(claim.Resource, isReadOnly: false);
-                var bee = BeeLookup.GetRefRW(claim.Bee, isReadOnly: false);
+                
+                //if(ResourceLookup)
+
+                var resource = ResourceLookup.GetRefRWOptional(claim.Resource, isReadOnly: false);
+                var bee = BeeLookup.GetRefRWOptional(claim.Bee, isReadOnly: false);
+ 
                 if (claim.IsClaiming)
                 {
                     if (resource.ValueRO.Holder == Entity.Null)
@@ -311,7 +316,10 @@ namespace Systems
                 }
                 else
                 {
-                    var resourcePhysical = PhysicalLookup.GetRefRW(claim.Resource, isReadOnly: false);
+                    var resourcePhysical = PhysicalLookup.GetRefRWOptional(claim.Resource, isReadOnly: false);
+                    if (resourcePhysical.IsValid)
+                        return;
+                    
                     bee.ValueRW.State = Beehaviors.Idle;
                     bee.ValueRW.EntityTarget = Entity.Null;
                     resource.ValueRW.Holder = Entity.Null;
@@ -321,6 +329,8 @@ namespace Systems
                     resource.ValueRW.StackState = StackState.InProgress;
                     // ALX: Purposely not resetting TeamNumber so that we can eventually use it to spawn the right
                     // bees when the resource lands in team area
+                    
+                    
                 }
             }
         }
@@ -471,26 +481,6 @@ namespace Systems
             resources.Dispose(state.Dependency);
             team2Bees.Dispose(state.Dependency);
             team1Bees.Dispose(state.Dependency);
-
-
-            // state.Dependency.Complete();
-
-            // if (team1Job.SpawnJobs.Length > 0)
-            // {
-            //     foreach (var job in team1Job.SpawnJobs)
-            //     {
-            //         state.Dependency = job.ScheduleParallel(state.Dependency);
-            //     }
-            //     
-            // }
-            //
-            // if (team2Job.SpawnJobs.Length > 0)
-            // {
-            //     foreach (var job in team2Job.SpawnJobs)
-            //     {
-            //         state.Dependency = job.ScheduleParallel(state.Dependency);
-            //     }
-            // }
         }
     }
 }

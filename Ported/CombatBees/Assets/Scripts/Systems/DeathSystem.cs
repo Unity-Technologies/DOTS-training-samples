@@ -19,17 +19,16 @@ namespace Systems
         public float DeltaTime;
         public Entity BloodParticlePrefab;
 
-        [BurstCompile]
         public void Execute([ChunkIndexInQuery] int chunkIndex, in Entity entity, ref Dead deadComponent,
             ref Physical physical)
         {
             var random = Random.CreateFromIndex(RandomSeed + (uint)chunkIndex);
-            if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .5f)
-            {
-                ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
-                    physical.Position,
-                    ParticleType.Blood, float3.zero, 6f);
-            }
+             if (random.NextFloat() < (deadComponent.DeathTimer - .5f) * .2f)
+             {
+                 ParticleBuilder.SpawnParticleEntity(Ecb, chunkIndex, random.NextUInt(), BloodParticlePrefab,
+                     physical.Position,
+                     ParticleType.Blood, float3.zero, 3f);
+             }
 
             if (!deadComponent.IsSlowed)
             {
@@ -76,13 +75,6 @@ namespace Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                var allEntities = _allEntities.ToEntityArray(Allocator.Temp);
-                var target = allEntities[_random.NextInt(allEntities.Length)];
-                ecb.SetComponentEnabled<Dead>(target, true);
-            }
-
             var dt = SystemAPI.Time.DeltaTime;
             var config = SystemAPI.GetSingleton<BeeConfig>();
 
@@ -94,7 +86,7 @@ namespace Systems
                 BloodParticlePrefab = config.BloodParticlePrefab,
             };
 
-            playDeadJob.ScheduleParallel();
+            state.Dependency = playDeadJob.ScheduleParallel(state.Dependency);
         }
     }
 }

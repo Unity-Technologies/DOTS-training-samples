@@ -126,6 +126,7 @@ partial struct ResourceSpawningSystem : ISystem
                 Velocity = float3.zero,
                 IsFalling = true,
                 Collision = Physical.FieldCollisionType.Slump,
+                SpeedModifier = 1f
             });
             ECB.AddComponent(resource, new ResourceGatherable());
             // Resources are gatherable in air
