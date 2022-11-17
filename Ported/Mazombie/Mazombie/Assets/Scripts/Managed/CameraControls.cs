@@ -1,4 +1,6 @@
 using Cinemachine;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 [RequireComponent(typeof(CinemachineVirtualCamera))]
@@ -16,7 +18,6 @@ public class CameraControls : MonoBehaviour
 
     void Update()
     {
-
         var framing = m_VCam.GetCinemachineComponent<CinemachineFramingTransposer>();
         if (Input.GetKey(KeyCode.UpArrow))
             framing.m_CameraDistance -= Time.deltaTime * zoomSpeed;
@@ -30,6 +31,6 @@ public class CameraControls : MonoBehaviour
         if (Input.GetKey(KeyCode.RightArrow))
             m_VCam.transform.Rotate(Vector3.up, Time.deltaTime * camDollySpeed, Space.World);
         
-        framing.m_CameraDistance = Mathf.Clamp(framing.m_CameraDistance, 5.0f, 25.0f);
+        framing.m_CameraDistance = Mathf.Clamp(framing.m_CameraDistance, 5.0f, 165.0f);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -57,6 +58,141 @@ struct SpawnWalls : IJobParallelFor
     }
 }
 
+[BurstCompile]
+public struct MazeGenJob : IJob
+{
+    public NativeArray<bool> VisitedCells;
+    public DynamicBuffer<GridCell> Grid;
+
+    [ReadOnly] public int MazeSize;
+    [ReadOnly] public Random Random;
+
+    [ReadOnly] public int2 InitialCell;
+    
+    public void Execute()
+    { 
+        var stack = new NativeList<int2>(Allocator.Temp);
+        stack.Add(InitialCell);
+        
+        VisitedCells[MazeUtils.CellIdxFromPos(InitialCell, MazeSize)] = true;
+        
+        while (stack.Length > 0)
+        {
+            // pop
+            var current = stack[stack.Length - 1];
+            stack.RemoveAt(stack.Length - 1);
+            
+            // north, west, south, east
+            var unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
+
+            // west neighbor
+            if (current.x > 0 && !VisitedCells[MazeUtils.CellIdxFromPos(current.x - 1, current.y, MazeSize)])
+            {
+                unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
+            }
+            // south
+            if (current.y > 0 && !VisitedCells[MazeUtils.CellIdxFromPos(current.x, current.y - 1, MazeSize)])
+            {
+                unvisitedNeighbors.Add(new int2(current.x, current.y - 1));
+            }
+            // east
+            if (current.x < MazeSize - 1 && !VisitedCells[MazeUtils.CellIdxFromPos(current.x + 1, current.y, MazeSize)])
+            {
+                unvisitedNeighbors.Add(new int2(current.x + 1, current.y));
+            }
+            // north
+            if (current.y < MazeSize - 1 && !VisitedCells[MazeUtils.CellIdxFromPos(current.x, current.y + 1, MazeSize)])
+            {
+                unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
+            }
+
+            if (unvisitedNeighbors.Length > 0)
+            {
+                stack.Add(current);
+                int2 next = unvisitedNeighbors[Random.NextInt(0, unvisitedNeighbors.Length)];
+                // adds to end of list
+
+                // remove wall between cells
+                var currentCell = Grid[MazeUtils.CellIdxFromPos(current, MazeSize)];
+                var nextCell = Grid[MazeUtils.CellIdxFromPos(next, MazeSize)];
+                if (next.x > current.x)
+                {
+                    // next is to the east of current
+                    currentCell.wallFlags &= (byte)~WallFlags.East;
+                    nextCell.wallFlags &= (byte)~WallFlags.West;
+                }
+                else if (next.y > current.y)
+                {
+                    // next is to the north of current 
+                    currentCell.wallFlags &= (byte)~WallFlags.North;
+                    nextCell.wallFlags &= (byte)~WallFlags.South;
+                }
+                else if (next.x < current.x)
+                {
+                    // next is to the west of current
+                    currentCell.wallFlags &= (byte)~WallFlags.West;
+                    nextCell.wallFlags &= (byte)~WallFlags.East;
+                }
+                else
+                {
+                    // next is to the south of current
+                    currentCell.wallFlags &= (byte)~WallFlags.South;
+                    nextCell.wallFlags &= (byte)~WallFlags.North;
+                }
+
+                // update grid
+                Grid[current.x + current.y * MazeSize] = currentCell;
+                Grid[next.x + next.y * MazeSize] = nextCell;
+
+                // mark chosen as visited
+                VisitedCells[next.x + next.y * MazeSize] = true;
+
+                stack.Add(next);
+            }
+        }
+    }
+}
+
+[BurstCompile]
+public struct ParallelMazeGenJob : IJobParallelFor
+{
+    [NativeDisableParallelForRestriction]
+    public NativeArray<GridCell> Grid;
+
+    [ReadOnly] public int MazeSize;
+    [ReadOnly] public Random Random;
+    
+    public void Execute(int index)
+    {
+        var cell = Grid[index];
+        int2 gridPos = MazeUtils.CellFromIndex(index, MazeSize);
+
+        NativeList<byte> dirs = new NativeList<byte>(2, Allocator.Temp);
+        if (gridPos.y < MazeSize) dirs.Add((byte)WallFlags.North);
+        if (gridPos.x < MazeSize) dirs.Add((byte)WallFlags.East);
+
+        var toRemove = dirs[Random.NextInt(0, dirs.Length)];
+        cell.wallFlags &= (byte)~toRemove;
+
+        if (gridPos.y > 0)
+        {
+            var cellBelow = Grid[MazeUtils.CellIdxFromPos(new int2(gridPos.x, gridPos.y - 1), MazeSize)];
+            if (!MazeUtils.HasFlag((WallFlags) cellBelow.wallFlags, WallFlags.North))
+                cell.wallFlags &= (byte) ~WallFlags.South;
+        }
+        if (gridPos.x > 0)
+        {
+            var cellLeft = Grid[MazeUtils.CellIdxFromPos(new int2(gridPos.x - 1, gridPos.y), MazeSize)];
+            if (!MazeUtils.HasFlag((WallFlags) cellLeft.wallFlags, WallFlags.East))
+                cell.wallFlags &= (byte) ~WallFlags.West;
+        }
+
+        Grid[index] = cell;
+    }
+}
+
+
+
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [BurstCompile]
 public partial struct MazeGeneratorSystem : ISystem
@@ -92,8 +228,6 @@ public partial struct MazeGeneratorSystem : ISystem
 
         var size = gameConfig.mazeSize;
         var numCells = size * size;
-        // defaults to clearing memory so false is default
-        var cellVisited = new NativeArray<bool>(numCells, Allocator.Temp);
 
         GridCell cell = new GridCell { wallFlags = (byte)WallFlags.None };
         cell.wallFlags = (byte)WallFlags.All;
@@ -110,87 +244,46 @@ public partial struct MazeGeneratorSystem : ISystem
         //    2. Choose on the the unvisited neighbors
         //    3. Remove wall between current cell and chosen (next) cell
         //    4. Mark chosen (next) as visited and push it to the stack.
+        
+        
+        var cellVisited = new NativeArray<bool>(numCells, Allocator.TempJob);
 
-        var stack = new NativeList<int2>(Allocator.Temp);
-        var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-        cellVisited[MazeUtils.CellIdxFromPos(initialCell, size)] = true;
-
-        stack.Add(initialCell);
-
-        // TODO: move to a job
-        while (stack.Length > 0)
+        if (!gameConfig.parallelMazeGen)
         {
-            // pop
-            var current = stack[stack.Length - 1];
-            stack.RemoveAt(stack.Length - 1);
+            // NOTE: currently does not work with seeds > 1
+            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
+            int numMazeGenSeeds = 1;
+            JobHandle prevJobHandle = default(JobHandle);
+            for (int i = 0; i < numMazeGenSeeds; i++)
+            {
+                var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
             
-            // north, west, south, east
-            var unvisitedNeighbors = new NativeList<int2>(Allocator.Temp);
-
-            // west neighbor
-            if (current.x > 0 && !cellVisited[MazeUtils.CellIdxFromPos(current.x - 1, current.y, size)])
-            {
-                unvisitedNeighbors.Add(new int2(current.x - 1, current.y));
-            }
-            // south
-            if (current.y > 0 && !cellVisited[MazeUtils.CellIdxFromPos(current.x, current.y - 1, size)])
-            {
-                unvisitedNeighbors.Add(new int2(current.x, current.y - 1));
-            }
-            // east
-            if (current.x < size - 1 && !cellVisited[MazeUtils.CellIdxFromPos(current.x + 1, current.y, size)])
-            {
-                unvisitedNeighbors.Add(new int2(current.x + 1, current.y));
-            }
-            // north
-            if (current.y < size - 1 && !cellVisited[MazeUtils.CellIdxFromPos(current.x, current.y + 1, size)])
-            {
-                unvisitedNeighbors.Add(new int2(current.x, current.y + 1));
-            }
-
-            if (unvisitedNeighbors.Length > 0)
-            {
-                stack.Add(current);
-                int2 next = unvisitedNeighbors[random.NextInt(0, unvisitedNeighbors.Length)];
-                // adds to end of list
-
-                // remove wall between cells
-                var currentCell = grid[MazeUtils.CellIdxFromPos(current, size)];
-                var nextCell = grid[MazeUtils.CellIdxFromPos(next, size)];
-                if (next.x > current.x)
+                var job = new MazeGenJob
                 {
-                    // next is to the east of current
-                    currentCell.wallFlags &= (byte)~WallFlags.East;
-                    nextCell.wallFlags &= (byte)~WallFlags.West;
-                }
-                else if (next.y > current.y)
-                {
-                    // next is to the north of current 
-                    currentCell.wallFlags &= (byte)~WallFlags.North;
-                    nextCell.wallFlags &= (byte)~WallFlags.South;
-                }
-                else if (next.x < current.x)
-                {
-                    // next is to the west of current
-                    currentCell.wallFlags &= (byte)~WallFlags.West;
-                    nextCell.wallFlags &= (byte)~WallFlags.East;
-                }
-                else
-                {
-                    // next is to the south of current
-                    currentCell.wallFlags &= (byte)~WallFlags.South;
-                    nextCell.wallFlags &= (byte)~WallFlags.North;
-                }
-
-                // update grid
-                grid[current.x + current.y * size] = currentCell;
-                grid[next.x + next.y * size] = nextCell;
-
-                // mark chosen as visited
-                cellVisited[next.x + next.y * size] = true;
-
-                stack.Add(next);
+                    VisitedCells = cellVisited,
+                    Grid = grid,
+                    Random = random,
+                    InitialCell = initialCell,
+                    MazeSize = size
+                };
+                prevJobHandle = JobHandle.CombineDependencies(prevJobHandle, job.Schedule());
             }
+            prevJobHandle.Complete();
+            cellVisited.Dispose();
+            UnityEngine.Profiling.Profiler.EndSample();
+        }
+        else
+        {
+            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
+            var job = new ParallelMazeGenJob
+            {
+                Grid = grid.AsNativeArray(),
+                Random = random,
+                MazeSize = size
+            };
+            var handle = job.Schedule(grid.Length, grid.Length / 32);
+            handle.Complete();
+            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         // remove strips of walls from south to north

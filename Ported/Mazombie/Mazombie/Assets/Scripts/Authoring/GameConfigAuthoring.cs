@@ -13,6 +13,7 @@ public class GameConfigAuthoring : MonoBehaviour
     public GameObject pillPrefab;
 
     public int mazeSize;
+    public bool parallelMazeGenAlgorithm = false;
     public int openStripWidth;
     public int mazeStripWidth;
     public GameObject movingWallPrefab;
@@ -43,6 +44,7 @@ public class GameConfigBaker : Baker<GameConfigAuthoring>
             movingWallRangeMin = authoring.movingWallRangeMin,
             movingWallRangeMax = authoring.movingWallRangeMax,
             mazeSize = authoring.mazeSize,
+            parallelMazeGen = authoring.parallelMazeGenAlgorithm,
             openStripWidth = authoring.openStripWidth,
             mazeStripWidth = authoring.mazeStripWidth,
             num_zombies = authoring.num_zombies,
