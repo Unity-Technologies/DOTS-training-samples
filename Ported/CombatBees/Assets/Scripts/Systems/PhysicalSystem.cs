@@ -127,8 +127,7 @@ public partial struct PhysicalSystem : ISystem
             // Calculate and apply stretch
             float stretch = math.max(1f, math.length(physical.Velocity) * physical.Stretch);
             float minorStretch = 1f; // + ((stretch - 1f) / 5f);
-            stretch = math.min(3, stretch);
-            
+
             ECB.SetComponent(entity, new PostTransformMatrix
             {
                 Value = float4x4.Scale(new float3(minorStretch, minorStretch, stretch))

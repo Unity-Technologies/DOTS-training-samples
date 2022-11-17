@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Components
 {
@@ -26,6 +27,9 @@ namespace Components
         public float4 Color;
         public float TeamAttraction;
         public float TeamAggression;
+        [Range(0f,1f)]
+        public float Damping;
+        public float Jitter;
         public float AttackDistance;
         public float ChaseForce;
         public float AttackForce;

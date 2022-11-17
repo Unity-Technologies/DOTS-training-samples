@@ -41,6 +41,10 @@ namespace Systems
         {
             var random = Random.CreateFromIndex((uint)index + Seed);
 
+            var randomInUnitSphere = random.NextFloat3Direction() * math.pow(random.NextFloat(), 1f / 3f);
+            physical.Velocity += randomInUnitSphere * (bee.Team.Jitter * Dt);
+            physical.Velocity *= (1f-bee.Team.Damping);
+
             if (AllyBees.Length != 0)
             {
                 var randomBee1 = AllyBees[random.NextInt(AllyBees.Length)];
