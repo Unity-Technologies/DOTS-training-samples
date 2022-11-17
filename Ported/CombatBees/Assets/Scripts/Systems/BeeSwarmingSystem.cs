@@ -18,6 +18,7 @@ namespace Systems
     {
         public Entity Resource;
         public Entity Bee;
+        public bool IsClaiming;
     }
     
     [BurstCompile]
@@ -117,7 +118,7 @@ namespace Systems
                         bee.State = Beehaviors.Idle;
                         return;
                     }
-                    
+
                     delta = TransformLookup[bee.EntityTarget].Value.Position - TransformLookup[entity].Value.Position;
                     sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
@@ -127,12 +128,11 @@ namespace Systems
                     }
                     else
                     {
-                        // bee.State = Beehaviors.ResourceGathering;
-                        // targetResource.Holder = entity;
                         ResourceClaims.AddNoResize(new ResourceClaim
                         {
                             Resource = bee.EntityTarget,
                             Bee = entity,
+                            IsClaiming = true,
                         });
                     }
                     
@@ -147,12 +147,16 @@ namespace Systems
                     var dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                     UpdateVelocity(ref physical, bee.Team.HivePosition, 1, bee.Team.CarryForce, false);
 
-                    if (dist < 5f)
+                    if ((physical.Position.x / bee.Team.HivePosition.x) >= 1.0f)
                     {
-                        targetResource.Holder = Entity.Null;
-                        bee.EntityTarget = Entity.Null;
-                        bee.State = Beehaviors.Idle;
-
+                        ResourceClaims.AddNoResize(new ResourceClaim
+                        {
+                            Resource = bee.EntityTarget,
+                            Bee = entity,
+                            IsClaiming = false,
+                        });
+                        
+                        // TJA - shouldn't this happen once the resource hits the ground?
                         SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize, Config.MaxBeeSize, Config.Stretch, bee.Team, random);
                     }
 
@@ -237,24 +241,34 @@ namespace Systems
         public NativeList<ResourceClaim> ResourceClaims2;
         public ComponentLookup<Resource> ResourceLookup;
         public ComponentLookup<Bee> BeeLookup;
+        public ComponentLookup<Physical> PhysicalLookup;
+        public EntityCommandBuffer Ecb;
 
 
-        private void TryClaimResourceFromList(NativeList<ResourceClaim> list, int i)
+        private void ProcessResourceClaimFromList(NativeList<ResourceClaim> list, int i)
         {
             if (i < list.Length)
             {
                 var claim = list[i];
-                var resource = ResourceLookup.GetRefRW(claim.Resource, isReadOnly:false);
-                if (resource.ValueRO.Holder == Entity.Null)
+                var resource = ResourceLookup.GetRefRW(claim.Resource, isReadOnly: false);
+                var bee = BeeLookup.GetRefRW(claim.Bee, isReadOnly: false);
+                if (claim.IsClaiming)
                 {
-                    // Debug.Log($"Bee {claim.Bee.Index} claimed resource {claim.Resource.Index}");
-                    var bee = BeeLookup.GetRefRW(claim.Bee, isReadOnly:false);
-                    bee.ValueRW.State = Beehaviors.ResourceGathering;
-                    resource.ValueRW.Holder = claim.Bee;
+                    if (resource.ValueRO.Holder == Entity.Null)
+                    {
+                        bee.ValueRW.State = Beehaviors.ResourceGathering;
+                        resource.ValueRW.Holder = claim.Bee;
+                    }
                 }
                 else
                 {
-                    // Debug.Log($"Bee {claim.Bee.Index} could not claim resource {claim.Resource.Index}");
+                    var resourcePhysical = PhysicalLookup.GetRefRW(claim.Resource, isReadOnly: false);
+                    bee.ValueRW.State = Beehaviors.Idle;
+                    bee.ValueRW.EntityTarget = Entity.Null;
+                    resource.ValueRW.Holder = Entity.Null;
+                    resourcePhysical.ValueRW.IsFalling = true;
+                    resourcePhysical.ValueRW.Velocity *= 0.5f;
+                    Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);
                 }
             }
         }
@@ -263,8 +277,8 @@ namespace Systems
         {
             for (int i = 0; i < ResourceClaims1.Length || i < ResourceClaims2.Length; ++i)
             {
-                TryClaimResourceFromList(ResourceClaims1, i);
-                TryClaimResourceFromList(ResourceClaims2, i);
+                ProcessResourceClaimFromList(ResourceClaims1, i);
+                ProcessResourceClaimFromList(ResourceClaims2, i);
             }
         }
     }
@@ -282,6 +296,7 @@ namespace Systems
         [ReadOnly] private ComponentLookup<Resource> _resourceLookup;
         private ComponentLookup<Resource> _RWresourceLookup;
         private ComponentLookup<Bee> _beeLookup;
+        private ComponentLookup<Physical> _physicalLookup;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -304,6 +319,7 @@ namespace Systems
             _resourceLookup = state.GetComponentLookup<Resource>();
             _RWresourceLookup = state.GetComponentLookup<Resource>();
             _beeLookup = state.GetComponentLookup<Bee>();
+            _physicalLookup = state.GetComponentLookup<Physical>();
         }
 
         [BurstCompile]
@@ -320,6 +336,7 @@ namespace Systems
             _resourceLookup.Update(ref state);
             _RWresourceLookup.Update(ref state);
             _beeLookup.Update(ref state);
+            _physicalLookup.Update(ref state);
 
             var dt = SystemAPI.Time.DeltaTime;
             var beeConfig = SystemAPI.GetSingleton<BeeConfig>();
@@ -389,6 +406,8 @@ namespace Systems
                 ResourceClaims2 = resourceClaims2,
                 ResourceLookup = _RWresourceLookup,
                 BeeLookup = _beeLookup,
+                PhysicalLookup = _physicalLookup,
+                Ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged),
             };
 
             var claimHandle = claimsJob.Schedule(JobHandle.CombineDependencies(team1Handle, team2Handle));

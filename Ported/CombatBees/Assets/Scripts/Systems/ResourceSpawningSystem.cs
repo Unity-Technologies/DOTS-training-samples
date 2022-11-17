@@ -145,7 +145,7 @@ partial struct ResourceSpawningSystem : ISystem
                 Collision = Physical.FieldCollisionType.Slump,
             });
             ECB.AddComponent(resource, new ResourceGatherable());
-            ECB.SetComponentEnabled<ResourceGatherable>(resource, false);
+            ECB.SetComponentEnabled<ResourceGatherable>(resource, true);
             ECB.AddComponent(resource, new StackInProgress());
             ECB.SetComponentEnabled<StackInProgress>(resource, true);
         }
