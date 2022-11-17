@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -6,15 +7,21 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 [UpdateAfter(typeof(MazeGeneratorSystem))]
 [UpdateAfter(typeof(PlayerSpawnSystem))]
+[UpdateAfter(typeof(PillSpawnSystem))]
 [BurstCompile]
 public partial struct ZombieSpawner : ISystem
 {
     private bool _zombiesSpawned;
+    private Random _random;
+    private EntityQuery _pillQuery;
+
+    private bool _initialized;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameConfig>();
+        _pillQuery = state.GetEntityQuery(ComponentType.ReadOnly<Pill>());
     }
 
     [BurstCompile]
@@ -26,19 +33,29 @@ public partial struct ZombieSpawner : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var gameConfig = SystemAPI.GetSingleton<GameConfig>();
+        
+        if (!_initialized)
+        {
+            _initialized = true;
+            _random = new Random(gameConfig.seed);
+        }
+
         if (!_zombiesSpawned)
         {
-            var gameConfig = SystemAPI.GetSingleton<GameConfig>();
-            var random = new Random(gameConfig.seed);
-            
             _zombiesSpawned = true;
+            
+            var player = SystemAPI.GetSingletonEntity<Player>();
+
+            var pillArray = _pillQuery.ToEntityArray(Allocator.Temp);
+            
             for (int i = 0; i < gameConfig.num_zombies; i++)
             {
                 if (gameConfig.zombiePrefab == Entity.Null) 
                     break;
             
-                var border = random.NextInt(0, 5);
-                var randomPos = random.NextInt(0, gameConfig.mazeSize);
+                var border = _random.NextInt(0, 5);
+                var randomPos = _random.NextInt(0, gameConfig.mazeSize);
                 
                 var randomBorderPosition = GetBorderPosition(border, randomPos, gameConfig.mazeSize);
 
@@ -50,23 +67,48 @@ public partial struct ZombieSpawner : ISystem
                     Value = UniformScaleTransform.FromPosition(pos)
                 });
 
-                var player = SystemAPI.GetSingletonEntity<Player>();
-
                 // path
                 state.EntityManager.AddBuffer<Trajectory>(zombie);
+                
+                // Select target
                 state.EntityManager.AddComponent<HunterTarget>(zombie);
-                state.EntityManager.SetComponentData(zombie, new HunterTarget()
+                
+                int capsuleIndex = (i % (gameConfig.numPills + 1)) - 1;
+                if (capsuleIndex == -1) // Hunt player
                 {
-                    target = player
-                });
+                    state.EntityManager.AddComponent<PlayerHunter>(zombie);
+                    state.EntityManager.SetComponentData(zombie, new PlayerHunter()
+                    {
+                        player = player
+                    });
+                    state.EntityManager.SetComponentData(zombie, new HunterTarget()
+                    {
+                        position = SystemAPI.GetComponent<LocalToWorldTransform>(player).Value.Position
+                    });
+                }
+                else // Hunt pill
+                {
+                    int pillIndex = _random.NextInt(0, pillArray.Length);
+                    
+                    state.EntityManager.AddComponent<PillHunter>(zombie);
+                    state.EntityManager.SetComponentData(zombie, new HunterTarget()
+                    {
+                        position = SystemAPI.GetComponent<LocalToWorldTransform>(pillArray[pillIndex]).Value.Position
+                    });
+                }
+                
                 state.EntityManager.AddComponent<NeedUpdateTrajectory>(zombie);
                 state.EntityManager.AddComponent<PositionInPath>(zombie);
                 state.EntityManager.AddComponent<Speed>(zombie);
+                state.EntityManager.AddComponent<NeedUpdateTarget>(zombie);
+                state.EntityManager.SetComponentEnabled<NeedUpdateTarget>(zombie, false);
                 state.EntityManager.SetComponentData(zombie, new Speed()
                 {
-                    speed = 1
+                    speed = 2
                 });
             }
+
+            pillArray.Dispose();
         }
         else
         {
