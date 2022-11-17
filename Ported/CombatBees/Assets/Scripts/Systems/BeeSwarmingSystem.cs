@@ -40,15 +40,20 @@ namespace Systems
         void Execute([EntityInQueryIndex] int index, in Entity entity, ref Bee bee, ref Physical physical)
         {
             var random = Random.CreateFromIndex((uint)index + Seed);
-            var randomBee1 = AllyBees[random.NextInt(AllyBees.Length)];
-            var randomBee2 = AllyBees[random.NextInt(AllyBees.Length)];
-            
-            
-            //Attractive swarming
-            UpdateVelocity(ref physical, TransformLookup[randomBee1].Value.Position, 1, bee.Team.TeamAttraction, true);
-            //Repelling swarming
-            UpdateVelocity(ref physical, TransformLookup[randomBee2].Value.Position, -1, 0.8f * bee.Team.TeamAttraction, true);
-            
+
+            if (AllyBees.Length != 0)
+            {
+                var randomBee1 = AllyBees[random.NextInt(AllyBees.Length)];
+                var randomBee2 = AllyBees[random.NextInt(AllyBees.Length)];
+                
+                //Attractive swarming
+                UpdateVelocity(ref physical, TransformLookup[randomBee1].Value.Position, 1, bee.Team.TeamAttraction,
+                    true);
+                //Repelling swarming
+                UpdateVelocity(ref physical, TransformLookup[randomBee2].Value.Position, -1,
+                    0.8f * bee.Team.TeamAttraction, true);
+            }
+
             switch (bee.State)
             {
                 case Beehaviors.Idle:
@@ -57,6 +62,9 @@ namespace Systems
             
                     if (randomValue < bee.Team.TeamAggression)
                     {
+                        if (EnemyBees.Length == 0)
+                            return;
+                        
                         var enemyBee  = EnemyBees[random.NextInt(EnemyBees.Length - 1)];
             
                         bee.State = Beehaviors.EnemySeeking;
@@ -64,6 +72,9 @@ namespace Systems
                     }
                     else
                     {
+                        if (Resources.Length == 0)
+                            return;
+                        
                         var resource = Resources[random.NextInt(Resources.Length - 1)];
             
                         bee.State = Beehaviors.ResourceSeeking;
