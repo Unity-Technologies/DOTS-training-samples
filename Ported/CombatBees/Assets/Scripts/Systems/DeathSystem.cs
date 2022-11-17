@@ -68,6 +68,7 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<BeeConfig>();
             _random = Random.CreateFromIndex(999);
             _allEntities = SystemAPI.QueryBuilder().WithAll<Bee>().WithNone<Dead>().Build();
         }
