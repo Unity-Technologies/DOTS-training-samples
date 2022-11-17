@@ -19,8 +19,8 @@ struct SpawnWalls : IJobParallelFor
 
     public void Execute(int index)
     {
-        var x = index % stride;
-        var y = index / stride;
+        int x = index % stride;
+        int y = index / stride;
 
         var cellFlags = (WallFlags)grid[index].wallFlags;
         if(MazeUtils.HasFlag(cellFlags, WallFlags.West))
@@ -311,63 +311,20 @@ public partial struct MazeGeneratorSystem : ISystem
             }
         }
 
-        // remove walls at west border running south to north
-        for (int y = 0; y < 0; y++)
-        {
-            for (int x = 0; x < math.min(gameConfig.openStripWidth, size); x++)
-            {
-                if (x > 0)
-                {
-                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
-                }
-                if (y > 0)
-                {
-                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
-                }
-            }
-        }
-
-        // remove walls at east border running south to north
+        // can I do this to remove walls around border?
         for (int y = 0; y < size; y++)
         {
-            for (int x = math.max(size - gameConfig.openStripWidth, 0); x < size; x++)
+            for (int x = 0; x < size; x++)
             {
-                if (x > 0)
-                {
-                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
-                }
-                if (y > 0)
-                {
-                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
-                }
+                if ((x > gameConfig.openStripWidth && y > gameConfig.openStripWidth) && (x < size - gameConfig.openStripWidth && y < size - gameConfig.openStripWidth))
+                    continue;
+                
+                var tmp = grid[MazeUtils.CellIdxFromPos(x, y, size)];
+                tmp.wallFlags = (byte)WallFlags.None;
+                grid[MazeUtils.CellIdxFromPos(x, y, size)] = tmp;
             }
         }
 
-        // remove walls at south border running west to east
-        for (int y = 0; y < math.min(gameConfig.openStripWidth, size); y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                if (x > 0)
-                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
-                if (y > 0)
-                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
-            }
-        }
-
-        // remove walls at north border running west to east
-        for (int y = math.max(size - gameConfig.openStripWidth, 0); y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                if (x > 0)
-                    MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
-                if (y > 0)
-                    MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
-            }
-        }
-        
-        
         //the amount of indices occupied by the moving walls.
         var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
 
@@ -433,8 +390,8 @@ public partial struct MazeGeneratorSystem : ISystem
         {
             var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
             movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
-            
-            MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y,ref grid,size);            
+
+            MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y, ref grid, size);
         }
 
         // spawn player spawn point
