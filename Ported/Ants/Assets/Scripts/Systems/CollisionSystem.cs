@@ -36,36 +36,8 @@ public partial struct CollisionSystem : ISystem
             wallTransforms = wallTransforms
         }.ScheduleParallel();
         
-        /*
-        foreach ((TransformAspect antTransform, RefRW<Ant> ant) in SystemAPI.Query<TransformAspect, RefRW<Ant>>())
-        {
-            if (IsOutsideBounds(antTransform.Position.x, antTransform.Position.y, config.MapSize))
-            {
-                ant.ValueRW.Angle += 90f;
-                continue;
-            }
-            
-            foreach (var (wallTransform, wall ) in SystemAPI.Query<RefRO<LocalToWorldTransform>,RefRO<Wall>>()
-                         .WithEntityQueryOptions(new WithEntityQueryOptionsAttribute()))
-            {
-                var sqrDistance =math.distancesq(wallTransform.ValueRO.Value.Position,antTransform.Position) ;
-                if (sqrDistance <= wallTransform.ValueRO.Value.Scale) //COLLIDED
-                {
-                    ant.ValueRW.Angle += 90f;
-                }
-            }
-        }
-        //*/
     }
-
-    private bool IsOutsideBounds(float xPos, float yPos, int mapSize)
-    {
-        if (xPos < 1) return true;
-        if (yPos < 1) return true;
-        if (xPos >= mapSize - 1) return true;
-        if (yPos >= mapSize - 1) return true;
-        return false;
-    }
+    
 }
 
 [BurstCompile]

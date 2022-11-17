@@ -156,12 +156,13 @@ MonoBehaviour:
   WallPrefab: {fileID: 2964114387935423343, guid: 442b29374ee8c422ea615d6af25a9091, type: 3}
   ColonyPrefab: {fileID: 2964114387935423343, guid: a2fbaf95dc56b470fa799c28f42de36d, type: 3}
   ResourcePrefab: {fileID: 2964114387935423343, guid: e0620c8e6425a4c55a292f1fbe3d50a5, type: 3}
-  Amount: 30000
-  WallRingCount: 3
+  Amount: 10000
+  WallRingCount: 2
   WallPercentage: 0.8
   WallRadius: 3
   MapSize: 128
   AntSpeeds: 050000000a0000000f0000001400000019000000
+  AntRandomMovementActivated: 0
 --- !u!4 &1065126038
 Transform:
   m_ObjectHideFlags: 0

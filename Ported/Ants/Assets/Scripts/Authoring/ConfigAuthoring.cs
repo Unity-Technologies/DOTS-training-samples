@@ -13,6 +13,8 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float WallRadius = 3f; 
     public int MapSize = 128;
     public int[] AntSpeeds;
+    public bool AntRandomMovementActivated; 
+
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -30,7 +32,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             WallPercentage = authoring.WallPercentage,
             WallRadius = authoring.WallRadius,
             MapSize = authoring.MapSize,
-            AntSpeeds = new NativeArray<int>(authoring.AntSpeeds, Allocator.Persistent)
+            AntSpeeds = new NativeArray<int>(authoring.AntSpeeds, Allocator.Persistent),
+            AntRandomMovementActivated = authoring.AntRandomMovementActivated
         });
     }
 }

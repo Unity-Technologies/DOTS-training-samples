@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-struct Resource : IComponentData
+public struct Resource : IComponentData
 {
     // position, radius 
 }

@@ -11,6 +11,7 @@ public struct Config : IComponentData
     public Entity ResourcePrefab;
     public float3 ResourcePoint;
     public int Amount;
+    public bool AntRandomMovementActivated; 
     
     // wall variables
     public int WallRingCount; // obstacle ring count 
