@@ -24,7 +24,6 @@ struct CreateMazeFreeZonesJob : IJobParallelFor
         int y = index / stride;
         int x = index % stride;
 
-
         if (!((x > stripWidth && y > stripWidth) && (x < stride - stripWidth && y < stride - stripWidth)))
         {
             // outside the maze area
@@ -284,30 +283,24 @@ public partial struct MazeGeneratorSystem : ISystem
         //    4. Mark chosen (next) as visited and push it to the stack.
         
         
-        var cellVisited = new NativeArray<bool>(numCells, Allocator.TempJob);
-        JobHandle mazeGen;
+        JobHandle mazeGenHandle = default(JobHandle);
 
+        var cellVisited = new NativeArray<bool>(numCells, Allocator.TempJob);
         if (!gameConfig.parallelMazeGen)
         {
             // NOTE: currently does not work with seeds > 1
-            int numMazeGenSeeds = 1;
-            JobHandle prevJobHandle = default(JobHandle);
-            for (int i = 0; i < numMazeGenSeeds; i++)
+            var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+
+            var job = new MazeGenJob
             {
-                var initialCell = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-            
-                var job = new MazeGenJob
-                {
-                    VisitedCells = cellVisited,
-                    Grid = grid,
-                    Random = random,
-                    InitialCell = initialCell,
-                    MazeSize = size
-                };
-                prevJobHandle = JobHandle.CombineDependencies(prevJobHandle, job.Schedule());
-            }
-            prevJobHandle.Complete();
-            cellVisited.Dispose();
+                VisitedCells = cellVisited,
+                Grid = grid,
+                Random = random,
+                InitialCell = initialCell,
+                MazeSize = size
+            };
+            mazeGenHandle = job.Schedule();
+            //cellVisited.Dispose();
         }
         else
         {
@@ -317,8 +310,7 @@ public partial struct MazeGeneratorSystem : ISystem
                 Random = random,
                 MazeSize = size
             };
-            var handle = job.Schedule(grid.Length, grid.Length / 32);
-            handle.Complete();
+            mazeGenHandle = job.Schedule(grid.Length, grid.Length / 32);
         }
 
         var mazeAreaLength = gameConfig.mazeSize - (2 * gameConfig.mazeStripWidth);
@@ -341,7 +333,21 @@ public partial struct MazeGeneratorSystem : ISystem
             halfPathWidth = halfPathWidth,
         };
 
-        var createMazeFreeZonesHandle = createMazeFreeZonesJob.Schedule(numCells, 64);
+        var createMazeFreeZonesHandle = createMazeFreeZonesJob.Schedule(numCells, 64, mazeGenHandle);        
+
+        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+
+        var spawnJob = new SpawnWalls
+        {
+            grid = grid,
+            ecb = ecb,
+            stride = size,
+            wallPrefab = gameConfig.wallPrefab
+        };
+
+        var spawnHandle = spawnJob.Schedule(numCells, 64, createMazeFreeZonesHandle);
+        spawnHandle.Complete();
+        cellVisited.Dispose();
 
         //the amount of indices occupied by the moving walls.
         var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
@@ -368,7 +374,7 @@ public partial struct MazeGeneratorSystem : ISystem
                 if (j < gameConfig.movingWallsLength)
                 {
                     movingWallLocationStack.Add(new int2(wallStartIndex.x + j, wallStartIndex.y));
-                    
+
                     //Create Segment for wall
                     var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
                     state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
@@ -389,19 +395,6 @@ public partial struct MazeGeneratorSystem : ISystem
                 }
             }
         }
-
-        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-
-        var spawnJob = new SpawnWalls
-        {
-            grid = grid,
-            ecb = ecb,
-            stride = size,
-            wallPrefab = gameConfig.wallPrefab
-        };
-
-        var spawnHandle = spawnJob.Schedule(numCells, 64, createMazeFreeZonesHandle);
-        spawnHandle.Complete();
 
         //re add moving wall active segments
         while (movingWallLocationStack.IsEmpty != true)
