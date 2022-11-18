@@ -153,22 +153,25 @@ public partial struct HunterPlayerJob : IJobEntity
     [BurstCompile]
     public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref HunterTarget target, PlayerHunter playerHunter, DynamicBuffer<Trajectory> trajectory, ref PlayerHunterDelay hunterDelay)
     {
-        target.position = targetTransform[playerHunter.player].Value.Position;
-
-        int2 playerGridPosition = MazeUtils.WorldPositionToGrid(target.position);
-        int2 finalPathPosition = MazeUtils.CellFromIndex(trajectory[trajectory.Length - 1], gridSize);
-
-        if (playerGridPosition.x != finalPathPosition.x || playerGridPosition.y != finalPathPosition.y)
+        if (trajectory.Length > 1)
         {
-            if (hunterDelay.currentDelay >= hunterDelay.maxDelay)
+            target.position = targetTransform[playerHunter.player].Value.Position;
+        
+            int2 playerGridPosition = MazeUtils.WorldPositionToGrid(target.position);
+            int2 finalPathPosition = MazeUtils.CellFromIndex(trajectory[trajectory.Length - 1], gridSize);
+
+            if (playerGridPosition.x != finalPathPosition.x || playerGridPosition.y != finalPathPosition.y)
             {
-                Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, true);
-                hunterDelay.currentDelay = 0;
-            }
-            else
-            {
-                hunterDelay.currentDelay++;   
-            }
+                if (hunterDelay.currentDelay >= hunterDelay.maxDelay)
+                {
+                    Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, true);
+                    hunterDelay.currentDelay = 0;
+                }
+                else
+                {
+                    hunterDelay.currentDelay++;   
+                }
+            }   
         }
     }
 }
