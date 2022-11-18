@@ -48,8 +48,7 @@ namespace Systems
     }
 
     [BurstCompile]
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-    [UpdateAfter(typeof(PhysicalSystem))]
+    [UpdateAfter(typeof(BeeSwarmingSystem))]
     public partial struct DeathSystem : ISystem
     {
         private EntityQuery _allEntities;

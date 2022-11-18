@@ -1,10 +1,11 @@
+using Systems;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 [BurstCompile]
+[UpdateAfter(typeof(DeathSystem))]
 public partial struct PhysicalSystem : ISystem
 {
     private EntityQuery _physicalQuery;
