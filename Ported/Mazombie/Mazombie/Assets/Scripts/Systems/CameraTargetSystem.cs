@@ -1,7 +1,8 @@
 ﻿using Unity.Entities;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateAfter(typeof(PlayerMovementSystem))]
 public partial class CameraTargetSystem : SystemBase
 {
     protected override void OnCreate()
