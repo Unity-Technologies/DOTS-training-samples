@@ -9,17 +9,21 @@ using Unity.Jobs;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
-struct ClearMazePerimeter : IJobParallelFor
+struct CreateMazeFreeZonesJob : IJobParallelFor
 {
     [NativeDisableContainerSafetyRestriction]
     public DynamicBuffer<GridCell> grid;
     public int stride;
     public int stripWidth;
+    [NativeDisableContainerSafetyRestriction]
+    public NativeArray<int> pathCenters;
+    public int halfPathWidth;
 
     public void Execute(int index)
     {
         int y = index / stride;
         int x = index % stride;
+
 
         if (!((x > stripWidth && y > stripWidth) && (x < stride - stripWidth && y < stride - stripWidth)))
         {
@@ -27,6 +31,17 @@ struct ClearMazePerimeter : IJobParallelFor
             var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
             tmp.wallFlags = (byte)WallFlags.None;
             grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
+        }
+
+        for (int i = 0; i < pathCenters.Length; i++)
+        {
+            if (x > stripWidth + (pathCenters[i] - halfPathWidth) && y > stripWidth && x < stripWidth + (pathCenters[i] + halfPathWidth) && y < stride - stripWidth)
+            {
+                // outside the maze area
+                var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
+                tmp.wallFlags = (byte)WallFlags.None;
+                grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
+            }
         }
     }
 }
@@ -309,42 +324,27 @@ public partial struct MazeGeneratorSystem : ISystem
             UnityEngine.Profiling.Profiler.EndSample();
         }
 
-
-
-        // remove strips of walls from south to north
-        if (gameConfig.openStripCount + gameConfig.mazeStripWidth > 0)
+        var mazeAreaLength = gameConfig.mazeSize - (2 * gameConfig.mazeStripWidth);
+        var strideToPathCenter = mazeAreaLength / (gameConfig.openStripCount + 1);
+        var halfPathWidth = gameConfig.openStripWidth / 2;
+        
+        var pathCenters = new NativeArray<int>(gameConfig.openStripCount, Allocator.Temp);
+        for (int i = 0; i < gameConfig.openStripCount; i++)
         {
-            int offset = 0;
-            for (; offset < size; offset += gameConfig.openStripCount + gameConfig.mazeStripWidth)
-            {
-                // y goes along columns from south to north
-                for (int y = 0; y < size; y++)
-                {
-                    // x goes along rows from west to east
-                    for (int x = offset; x < math.min(offset + gameConfig.openStripCount, size); x++)
-                    {
-                        if (x > offset)
-                        {
-                            MazeUtils.RemoveEastWestWall(x, y, ref grid, size);
-                        }
-                        if (y > 0)
-                        {
-                            MazeUtils.RemoveNorthSouthWall(x, y, ref grid, size);
-                        }
-                    }
-                }
-            }
+            // stride to the center
+            pathCenters[i] = (i + 1) * strideToPathCenter;
         }
 
-        var clearPerimeterJob = new ClearMazePerimeter
+        var createMazeFreeZonesJob = new CreateMazeFreeZonesJob
         {
             grid = grid,
             stride = gameConfig.mazeSize,
-            stripWidth = gameConfig.mazeStripWidth
+            stripWidth = gameConfig.mazeStripWidth,
+            pathCenters = new NativeArray<int>(pathCenters, Allocator.TempJob),
+            halfPathWidth = halfPathWidth,
         };
 
-        var clearPerimeterHandle = clearPerimeterJob.Schedule(numCells, 64);
-        clearPerimeterHandle.Complete();
+        var createMazeFreeZonesHandle = createMazeFreeZonesJob.Schedule(numCells, 64);
 
         //the amount of indices occupied by the moving walls.
         var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
@@ -403,7 +403,7 @@ public partial struct MazeGeneratorSystem : ISystem
             wallPrefab = gameConfig.wallPrefab
         };
 
-        var spawnHandle = spawnJob.Schedule(numCells, 64);
+        var spawnHandle = spawnJob.Schedule(numCells, 64, createMazeFreeZonesHandle);
         spawnHandle.Complete();
 
         //re add moving wall active segments

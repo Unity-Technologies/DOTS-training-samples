@@ -21,6 +21,7 @@ public struct GameConfig : IComponentData
     public int mazeSize;
     public bool parallelMazeGen;
     public int openStripCount;
+    public int openStripWidth;
     public int mazeStripWidth;
     public int num_zombies;
     public int numPills;
