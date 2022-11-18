@@ -38,10 +38,6 @@ public partial struct BeeSpawningSystem : ISystem
             ECB = ecb,
             BeeConfig = beeConfig,
             Random = Random,
-
-
-
-
             Team = beeConfig.Team1
         };
 
@@ -50,10 +46,6 @@ public partial struct BeeSpawningSystem : ISystem
             ECB = ecb,
             BeeConfig = beeConfig,
             Random = Random,
-
-
-
-
             Team = beeConfig.Team2
         };
 
@@ -72,10 +64,6 @@ public struct SpawnBeeJob : IJob
     public Team Team;
     public Random Random;
     public BeeConfig BeeConfig;
-
-
-
-
 
     public void Execute()
     {

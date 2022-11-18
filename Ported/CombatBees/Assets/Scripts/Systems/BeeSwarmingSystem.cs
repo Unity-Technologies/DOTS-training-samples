@@ -199,66 +199,10 @@ namespace Systems
                         IsClaiming = false,
                     });
 
-                    // TJA - shouldn't this happen once the resource hits the ground?
-                    SpawnSomeBees(ECB, index, Config.BeePrefab, Config.BeesPerResource, Config.MinBeeSize,
-                        Config.MaxBeeSize, Config.Stretch, bee.Team, random);
-
                     bee.State = Beehaviors.Idle;
                     
                     physical.Velocity = 0f;
                 }
-            }
-        }
-
-        private void SpawnSomeBees(EntityCommandBuffer.ParallelWriter ecb,
-            int index, Entity beePrefab, int beesToSpawn, float minBeeSize, float maxBeeSize, float stretch, Team team,
-            Random random)
-        {
-            var bees = CollectionHelper.CreateNativeArray<Entity>(beesToSpawn, Allocator.Temp);
-            ecb.Instantiate(index, beePrefab, bees);
-
-            foreach (var bee in bees)
-            {
-                var uniformScaleTransform = new UniformScaleTransform
-                {
-                    Position = random.NextFloat3(team.MinBounds, team.MaxBounds),
-                    Rotation = quaternion.identity,
-                    Scale = random.NextFloat(minBeeSize, maxBeeSize)
-                };
-                ecb.SetComponent(index, bee, new LocalToWorldTransform
-                {
-                    Value = uniformScaleTransform
-                });
-                ecb.AddComponent(index, bee, new PostTransformMatrix());
-                ecb.SetComponent(index, bee, new URPMaterialPropertyBaseColor
-                {
-                    Value = team.Color
-                });
-                ecb.SetComponent(index, bee, new Bee
-                {
-                    Scale = uniformScaleTransform.Scale,
-                    Team = team
-                });
-                ecb.AddComponent(index, bee, new Physical
-                {
-                    Position = uniformScaleTransform.Position,
-                    Velocity = float3.zero,
-                    IsFalling = false,
-                    Collision = Physical.FieldCollisionType.Bounce,
-                    Stretch = stretch,
-                    SpeedModifier = .5f + random.NextFloat() * .5f
-                });
-                ecb.AddSharedComponent(index, bee, new TeamIdentifier
-                {
-                    TeamNumber = team.TeamNumber
-                });
-
-                ecb.AddComponent(index, bee, new Dead()
-                {
-                    DeathTimer = 2f
-                });
-
-                ecb.SetComponentEnabled<Dead>(index, bee, false);
             }
         }
 
@@ -319,7 +263,7 @@ namespace Systems
                 else
                 {
                     var resourcePhysical = PhysicalLookup.GetRefRWOptional(claim.Resource, isReadOnly: false);
-                    if (resourcePhysical.IsValid)
+                    if (!resourcePhysical.IsValid)
                         return;
                     
                     bee.ValueRW.State = Beehaviors.Idle;
@@ -329,10 +273,8 @@ namespace Systems
                     resourcePhysical.ValueRW.Velocity *= 0.5f;
                     Ecb.SetComponentEnabled<ResourceGatherable>(claim.Resource, false);
                     resource.ValueRW.StackState = StackState.InProgress;
-                    // ALX: Purposely not resetting TeamNumber so that we can eventually use it to spawn the right
-                    // bees when the resource lands in team area
-                    
-                    
+                    resource.ValueRW.TeamNumber = -1;
+                    Ecb.SetComponentEnabled<Claimed>(claim.Resource, true);
                 }
             }
         }

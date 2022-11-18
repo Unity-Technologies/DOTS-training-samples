@@ -133,6 +133,8 @@ partial struct ResourceSpawningSystem : ISystem
             ECB.SetComponentEnabled<ResourceGatherable>(resource, true);
             ECB.AddComponent(resource, new StackNeedsFix());
             ECB.SetComponentEnabled<StackNeedsFix>(resource, false);
+            ECB.AddComponent(resource, new Claimed());
+            ECB.SetComponentEnabled<Claimed>(resource, false);
 
             ECB.AddComponent(resource, new Dead());
             ECB.SetComponentEnabled<Dead>(resource, false);
