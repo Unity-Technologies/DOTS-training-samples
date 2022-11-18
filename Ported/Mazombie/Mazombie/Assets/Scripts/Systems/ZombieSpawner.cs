@@ -80,6 +80,14 @@ public partial struct ZombieSpawner : ISystem
                     {
                         player = player
                     });
+                    
+                    state.EntityManager.AddComponent<PlayerHunterDelay>(zombie);
+                    state.EntityManager.SetComponentData(zombie, new PlayerHunterDelay()
+                    {
+                        maxDelay = 60,
+                        currentDelay = 0
+                    });
+                    
                     state.EntityManager.SetComponentData(zombie, new HunterTarget()
                     {
                         position = SystemAPI.GetComponent<LocalToWorldTransform>(player).Value.Position

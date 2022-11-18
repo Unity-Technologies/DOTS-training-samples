@@ -141,6 +141,7 @@ public partial struct PathFollowJob : IJobEntity
 }
 
 [WithAll(typeof(PlayerHunter))]
+[WithAll(typeof(PlayerHunterDelay))]
 [WithAll(typeof(HunterTarget))]
 [BurstCompile]
 public partial struct HunterPlayerJob : IJobEntity
@@ -150,7 +151,7 @@ public partial struct HunterPlayerJob : IJobEntity
     public int gridSize;
 
     [BurstCompile]
-    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref HunterTarget target, PlayerHunter playerHunter, DynamicBuffer<Trajectory> trajectory)
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref HunterTarget target, PlayerHunter playerHunter, DynamicBuffer<Trajectory> trajectory, ref PlayerHunterDelay hunterDelay)
     {
         target.position = targetTransform[playerHunter.player].Value.Position;
 
@@ -159,7 +160,15 @@ public partial struct HunterPlayerJob : IJobEntity
 
         if (playerGridPosition.x != finalPathPosition.x || playerGridPosition.y != finalPathPosition.y)
         {
-            Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, true);
+            if (hunterDelay.currentDelay >= hunterDelay.maxDelay)
+            {
+                Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, true);
+                hunterDelay.currentDelay = 0;
+            }
+            else
+            {
+                hunterDelay.currentDelay++;   
+            }
         }
     }
 }
