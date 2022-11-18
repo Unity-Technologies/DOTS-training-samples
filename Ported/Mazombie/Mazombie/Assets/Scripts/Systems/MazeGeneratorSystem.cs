@@ -9,6 +9,78 @@ using Unity.Jobs;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
+struct SpawnMovingWallsJob : IJob
+{
+    public DynamicBuffer<GridCell> grid;
+    public EntityCommandBuffer ecb;
+    public Entity movingWallPrefab;
+    public int numMovingWalls;
+    public int movingWallRangeMin;
+    public int movingWallRangeMax;
+    public int movingWallsLength;
+    public int stride;
+    public Random random;
+    
+    public void Execute()
+    {
+        var movingWallLocationStack = new NativeList<int2>(Allocator.TempJob);
+
+        for (int i = 0; i < numMovingWalls; i++)
+        {
+            //select random start index
+            var wallStartIndex = new int2(random.NextInt(0, stride + 1), random.NextInt(0, stride));
+            //select for moving wall range
+            var movingWallRange = random.NextInt(movingWallRangeMin, movingWallRangeMax);
+
+            while (wallStartIndex.x + movingWallsLength + movingWallRange >= stride)
+            {
+                wallStartIndex = new int2(random.NextInt(0, stride + 1), random.NextInt(0, stride + 1));
+                movingWallRange = random.NextInt(movingWallRangeMin, movingWallRangeMax);
+            }
+
+            for (int j = 0; j < movingWallRange; j++)
+            {
+                //Clear out overlapping WallFlags
+                MazeUtils.RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, stride);
+
+                //Spawn Wall for length
+                if (j < movingWallsLength)
+                {
+                    movingWallLocationStack.Add(new int2(wallStartIndex.x + j, wallStartIndex.y));
+
+                    //Create Segment for wall
+                    var movingWallSegment = ecb.Instantiate(movingWallPrefab);
+                    ecb.SetComponent(movingWallSegment, new LocalToWorldTransform
+                    {
+                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(wallStartIndex.x + j, wallStartIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
+                    });
+                    ecb.SetComponent(movingWallSegment, new MovingWall
+                    {
+                        movementRange = movingWallRange
+                    });
+                    ecb.SetComponent(movingWallSegment, new GridPositions()
+                    {
+                        gridStartX = wallStartIndex.x + j,
+                        gridStartY = wallStartIndex.y,
+                        gridEndX = wallStartIndex.x + j + movingWallRange,
+                        gridEndY = wallStartIndex.y
+                    });
+                }
+            }
+        }
+
+        //re add moving wall active segments
+        while (movingWallLocationStack.IsEmpty != true)
+        {
+            var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
+            movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
+
+            MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y, ref grid, stride);
+        }
+    }
+}
+
+[BurstCompile]
 struct CreateMazeFreeZonesJob : IJobParallelFor
 {
     [NativeDisableContainerSafetyRestriction]
@@ -335,75 +407,91 @@ public partial struct MazeGeneratorSystem : ISystem
 
         var createMazeFreeZonesHandle = createMazeFreeZonesJob.Schedule(numCells, 64, mazeGenHandle);        
 
-        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+        var ecbWriter = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
 
-        var spawnJob = new SpawnWalls
+
+        var spawnWallsJob = new SpawnWalls
         {
             grid = grid,
-            ecb = ecb,
+            ecb = ecbWriter,
             stride = size,
             wallPrefab = gameConfig.wallPrefab
         };
 
-        var spawnHandle = spawnJob.Schedule(numCells, 64, createMazeFreeZonesHandle);
-        spawnHandle.Complete();
+
+        var movingWallsJob = new SpawnMovingWallsJob
+        {
+            grid = grid,
+            ecb = ecb,
+            movingWallPrefab = gameConfig.movingWallPrefab,
+            movingWallRangeMin = gameConfig.movingWallRangeMin,
+            movingWallRangeMax = gameConfig.movingWallRangeMax,
+            movingWallsLength = gameConfig.movingWallsLength,
+            stride = size,
+            random = random
+        };
+
+
+        var spawnWallsHandle = spawnWallsJob.Schedule(numCells, 64, createMazeFreeZonesHandle);
+        var movingWallsHandle = movingWallsJob.Schedule(spawnWallsHandle);
+        movingWallsHandle.Complete();
         cellVisited.Dispose();
+        ////the amount of indices occupied by the moving walls.
+        //var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
 
-        //the amount of indices occupied by the moving walls.
-        var movingWallLocationStack = new NativeList<int2>(Allocator.Temp);
+        //for (int i = 0; i < gameConfig.numMovingWalls; i++)
+        //{
+        //    //select random start index
+        //    var wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size));
+        //    //select for moving wall range
+        //    var movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
 
-        for (int i = 0; i < gameConfig.numMovingWalls; i++)
-        {
-            //select random start index
-            var wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size));
-            //select for moving wall range
-            var movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
+        //    while (wallStartIndex.x + gameConfig.movingWallsLength + movingWallRange >= gameConfig.mazeSize)
+        //    {
+        //        wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
+        //        movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
+        //    }
 
-            while (wallStartIndex.x + gameConfig.movingWallsLength + movingWallRange >= gameConfig.mazeSize)
-            {
-                wallStartIndex = new int2(random.NextInt(0, size + 1), random.NextInt(0, size + 1));
-                movingWallRange = random.NextInt(gameConfig.movingWallRangeMin, gameConfig.movingWallRangeMax);
-            }
+        //    for (int j = 0; j < movingWallRange; j++)
+        //    {
+        //        //Clear out overlapping WallFlags
+        //        MazeUtils.RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, size);
 
-            for (int j = 0; j < movingWallRange; j++)
-            {
-                //Clear out overlapping WallFlags
-                MazeUtils.RemoveNorthSouthWall(wallStartIndex.x + j, wallStartIndex.y, ref grid, size);
+        //        //Spawn Wall for length
+        //        if (j < gameConfig.movingWallsLength)
+        //        {
+        //            movingWallLocationStack.Add(new int2(wallStartIndex.x + j, wallStartIndex.y));
 
-                //Spawn Wall for length
-                if (j < gameConfig.movingWallsLength)
-                {
-                    movingWallLocationStack.Add(new int2(wallStartIndex.x + j, wallStartIndex.y));
+        //            //Create Segment for wall
+        //            var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
+        //            state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
+        //            {
+        //                Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(wallStartIndex.x + j, wallStartIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
+        //            });
+        //            state.EntityManager.SetComponentData(movingWallSegment, new MovingWall
+        //            {
+        //                movementRange = movingWallRange
+        //            });
+        //            state.EntityManager.SetComponentData(movingWallSegment, new GridPositions()
+        //            {
+        //                gridStartX = wallStartIndex.x + j,
+        //                gridStartY = wallStartIndex.y,
+        //                gridEndX = wallStartIndex.x + j + movingWallRange,
+        //                gridEndY = wallStartIndex.y
+        //            });
+        //        }
+        //    }
+        //}
 
-                    //Create Segment for wall
-                    var movingWallSegment = state.EntityManager.Instantiate(gameConfig.movingWallPrefab);
-                    state.EntityManager.SetComponentData(movingWallSegment, new LocalToWorldTransform
-                    {
-                        Value = UniformScaleTransform.FromPositionRotation(MazeUtils.GridPositionToWorld(wallStartIndex.x + j, wallStartIndex.y) - new float3(0, 0, 0.5f), quaternion.identity)
-                    });
-                    state.EntityManager.SetComponentData(movingWallSegment, new MovingWall
-                    {
-                        movementRange = movingWallRange
-                    });
-                    state.EntityManager.SetComponentData(movingWallSegment, new GridPositions()
-                    {
-                        gridStartX = wallStartIndex.x + j,
-                        gridStartY = wallStartIndex.y,
-                        gridEndX = wallStartIndex.x + j + movingWallRange,
-                        gridEndY = wallStartIndex.y
-                    });
-                }
-            }
-        }
+        ////re add moving wall active segments
+        //while (movingWallLocationStack.IsEmpty != true)
+        //{
+        //    var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
+        //    movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
 
-        //re add moving wall active segments
-        while (movingWallLocationStack.IsEmpty != true)
-        {
-            var currentIndex = movingWallLocationStack[movingWallLocationStack.Length - 1];
-            movingWallLocationStack.RemoveAt(movingWallLocationStack.Length - 1);
-
-            MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y, ref grid, size);
-        }
+        //    MazeUtils.AddNorthSouthWall(currentIndex.x, currentIndex.y, ref grid, size);
+        //}
 
         // spawn player spawn point
         var playerSpawnPos = MazeUtils.GridPositionToWorld(
