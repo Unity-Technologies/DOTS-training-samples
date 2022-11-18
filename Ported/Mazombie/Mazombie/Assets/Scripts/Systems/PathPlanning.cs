@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -68,44 +69,29 @@ public partial struct PathFindingJob : IJobEntity
     [ReadOnly] public ComponentLookup<LocalToWorldTransform> targetTransform;
     public EntityCommandBuffer.ParallelWriter Ecb;
     public int gridSize;
+    private ProfilerMarker JobMarker;
 
     [BurstCompile]
     public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target, ref PositionInPath positionInPath)
     {
+        JobMarker = new ProfilerMarker("PathfindingJob");
+        JobMarker.Begin();
+        
         var targetPosition = target.position;
         var unitPosition = targetTransform[entity].Value.Position;
         
         int2 startPos = MazeUtils.WorldPositionToGrid(unitPosition);
         int2 destinationPos = MazeUtils.WorldPositionToGrid(targetPosition);
-        
-        var cellArray = new NativeArray<PathCell>(gridSize * gridSize, Allocator.Temp);
-        
-        //Initialize cellArray
-        for (int y = 0; y < gridSize; y++)
-        {
-            for (int x = 0; x < gridSize; x++)
-            {
-                var cell = new PathCell
-                {
-                    x = x,
-                    y = y,
-                    index = x + y * gridSize,
-                    gCost = int.MaxValue,
-                    hCost = CalculateHCost(new int2(x, y), destinationPos),
-                    cameFrom = -1
-                };
-                cell.CalculateFCost();
 
-                cellArray[cell.index] = cell;
-            }
-        }
+        var cellArray = new NativeParallelHashMap<int, PathCell>(128, Allocator.Temp);
 
-        int destinationCellIndex = cellArray[destinationPos.x + destinationPos.y * gridSize].index;
+        int destinationCellIndex = destinationPos.x + destinationPos.y * gridSize;
+        cellArray.Add(destinationCellIndex, CreateNewCell(destinationPos,destinationCellIndex, startPos, destinationPos));
         
-        var startCell = cellArray[startPos.x + startPos.y * gridSize];
+        var startCell = CreateNewCell(startPos, startPos.x + startPos.y * gridSize, startPos, destinationPos);
         startCell.gCost = 0;
         startCell.CalculateFCost();
-        cellArray[startCell.index] = startCell;
+        cellArray.TryAdd(startCell.index, startCell);
 
         var openList = new NativeList<int>(Allocator.Temp);
         var closedList = new NativeList<int>(Allocator.Temp);
@@ -118,9 +104,8 @@ public partial struct PathFindingJob : IJobEntity
             var lowestCost = cellArray[openList[0]];
             for (int i = 0; i < openList.Length; i++)
             {
-                var testCell = cellArray[openList[i]];
-                if (testCell.fCost < lowestCost.fCost)
-                    lowestCost = testCell;
+                if (cellArray[openList[i]].fCost < lowestCost.fCost)
+                    lowestCost = cellArray[openList[i]];
             }
 
             int currentCellIndex = lowestCost.index;
@@ -150,8 +135,28 @@ public partial struct PathFindingJob : IJobEntity
                 if (!InBounds(neighborPosition, gridSize))
                     continue;
                 
-                int neighborIndex = cellArray[neighborPosition.x + neighborPosition.y * gridSize].index;
-                if (closedList.Contains(neighborIndex))
+                int neighborIndex = neighborPosition.x + neighborPosition.y * gridSize;
+                if (cellArray.TryGetValue(neighborIndex, out PathCell cell))
+                {
+                    neighborIndex = cell.index;   
+                }
+                else
+                {
+                    PathCell newNeighborCell = CreateNewCell(neighborPosition, neighborIndex, startPos, destinationPos);
+                    cellArray.Add(neighborIndex, newNeighborCell);
+                }
+
+                bool inClosedList = false;
+                for (int j = 0; j < closedList.Length; j++)
+                {
+                    if (closedList[j] == neighborIndex)
+                    {
+                        inClosedList = true;
+                        break;
+                    }
+                }
+                
+                if (inClosedList)
                     continue;
 
                 //Check walls
@@ -188,7 +193,15 @@ public partial struct PathFindingJob : IJobEntity
                 neighborCell.CalculateFCost();
                 cellArray[neighborIndex] = neighborCell;
 
-                if(!openList.Contains(neighborIndex))
+                bool inOpenList = false;
+
+                for (int j = 0; j < openList.Length; j++)
+                {
+                    if (openList[j] == neighborIndex)
+                        inOpenList = true;
+                }
+                
+                if(!inOpenList)
                     openList.Add(neighborIndex);
             }
         }
@@ -226,8 +239,24 @@ public partial struct PathFindingJob : IJobEntity
         openList.Dispose();
         closedList.Dispose();
         
-        //TODO re-enable this so the path isn't calculated every frame
-        //Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
+        JobMarker.End();
+        
+        Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
+    }
+
+    private PathCell CreateNewCell(int2 gridPos, int index, int2 start, int2 end)
+    {
+        PathCell cell = new PathCell
+        {
+            x = gridPos.x,
+            y = gridPos.y,
+            index = index,
+            gCost = int.MaxValue,
+            cameFrom = -1,
+            hCost = CalculateHCost(new int2(gridPos.x, gridPos.y), end)
+        };
+        cell.CalculateFCost();
+        return cell;
     }
 
     [BurstCompile]

@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -14,14 +15,15 @@ public partial struct ZombieSpawner : ISystem
     private bool _zombiesSpawned;
     private Random _random;
     private EntityQuery _pillQuery;
-
     private bool _initialized;
+    private ProfilerMarker _zombieSpawnMarker;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameConfig>();
         _pillQuery = state.GetEntityQuery(ComponentType.ReadOnly<Pill>());
+        _zombieSpawnMarker = new ProfilerMarker("ZombieSpawn");
     }
 
     [BurstCompile]
@@ -33,6 +35,8 @@ public partial struct ZombieSpawner : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        _zombieSpawnMarker.Begin();
+        
         var gameConfig = SystemAPI.GetSingleton<GameConfig>();
         
         if (!_initialized)
@@ -115,6 +119,8 @@ public partial struct ZombieSpawner : ISystem
             
             
         }
+        
+        _zombieSpawnMarker.End();
     }
 
     [BurstCompile]

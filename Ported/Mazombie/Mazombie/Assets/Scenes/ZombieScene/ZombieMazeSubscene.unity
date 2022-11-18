@@ -177,16 +177,16 @@ MonoBehaviour:
     type: 3}
   pillPrefab: {fileID: 115284119117411965, guid: a7fdb986b03f2484791280101aca03e6,
     type: 3}
-  mazeSize: 30
-  openStripWidth: 3
-  mazeStripWidth: 5
+  mazeSize: 70
+  openStripWidth: 4
+  mazeStripWidth: 4
   movingWallPrefab: {fileID: 1674865798949028, guid: 68445a35eb5d74c7193824cda6d857b9,
     type: 3}
-  numMovingWalls: 5
+  numMovingWalls: 15
   movingWallsLength: 4
   movingWallRangeMin: 2
   movingWallRangeMax: 10
   cellSize: 1
-  num_zombies: 10
-  numPills: 3
+  num_zombies: 100
+  numPills: 50
   seed: 42

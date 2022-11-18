@@ -59,6 +59,7 @@ public partial struct UpdateTargetSystem : ISystem
             var position = SystemAPI.GetComponent<LocalToWorldTransform>(pillArray[randomIndex]).Value.Position;
             state.EntityManager.SetComponentData(entityArray[i], new HunterTarget{position = position});
             ecb.SetComponentEnabled<NeedUpdateTarget>(entityArray[i], false);
+            ecb.SetComponentEnabled<NeedUpdateTrajectory>(entityArray[i], true);
         }
         
         entityArray.Dispose();

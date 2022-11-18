@@ -29,19 +29,19 @@ public partial struct PlayerMovementSystem : ISystem
         var playerInput = SystemAPI.GetSingleton<PlayerInput>();
         var activeCamEntity = SystemAPI.GetSingletonEntity<ActiveCamera>();
         var grid = SystemAPI.GetBuffer<GridCell>(gameConfigEntity);
-
+        
         var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorldTransform>();
         var cameraLTW = ltwLookup[activeCamEntity];
         
         float3 cameraFwd = math.mul(cameraLTW.Value.Rotation, math.forward());
         float3 cameraRight = math.mul(cameraLTW.Value.Rotation, math.right());
         float3 cameraForwardOnUpPlane = math.normalizesafe(cameraFwd - math.projectsafe(cameraFwd, math.up()));
-
+        
         float3 movementDir = playerInput.movement.y * cameraForwardOnUpPlane + playerInput.movement.x * cameraRight;
         movementDir = math.normalizesafe(movementDir);
         
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
+        
         foreach (var playerAspect in SystemAPI.Query<PlayerAspect>())
         {
             float playerRadius = 0.45f; // TODO: get from mesh half-size?
@@ -58,7 +58,7 @@ public partial struct PlayerMovementSystem : ISystem
                 + playerRadius * movementDir
                 );
             int2 cellDiff = nextCell - currCell;
-
+        
             var currCellWallFlags = (WallFlags)grid[MazeUtils.CellIdxFromPos(currCell, gameConfig.mazeSize)].wallFlags;
             var nextCellWallFlags = WallFlags.All;
             if(nextCell.x >= 0 && nextCell.x < gameConfig.mazeSize && nextCell.y >= 0 && nextCell.y < gameConfig.mazeSize)
@@ -133,7 +133,7 @@ public partial struct PlayerMovementSystem : ISystem
                 }
             }
             // **END COLLISION**
-
+        
             // Move & Rotate player based on updated movement vector
             playerAspect.Transform.ValueRW.Value.Position += movementDelta;
             if (math.lengthsq(movementDelta) > 0)
@@ -145,9 +145,9 @@ public partial struct PlayerMovementSystem : ISystem
                          playerAspect.Player.ValueRO.speed * 2.0f * SystemAPI.Time.DeltaTime
                         );   
             }
-
+        
         }
-
+        
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
     }
