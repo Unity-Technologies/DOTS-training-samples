@@ -15,7 +15,7 @@ struct CreateMazeFreeZonesJob : IJobParallelFor
     public DynamicBuffer<GridCell> grid;
     public int stride;
     public int stripWidth;
-    [NativeDisableContainerSafetyRestriction]
+    [ReadOnly]
     public NativeArray<int> pathCenters;
     public int halfPathWidth;
 
@@ -285,11 +285,11 @@ public partial struct MazeGeneratorSystem : ISystem
         
         
         var cellVisited = new NativeArray<bool>(numCells, Allocator.TempJob);
+        JobHandle mazeGen;
 
         if (!gameConfig.parallelMazeGen)
         {
             // NOTE: currently does not work with seeds > 1
-            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
             int numMazeGenSeeds = 1;
             JobHandle prevJobHandle = default(JobHandle);
             for (int i = 0; i < numMazeGenSeeds; i++)
@@ -308,11 +308,9 @@ public partial struct MazeGeneratorSystem : ISystem
             }
             prevJobHandle.Complete();
             cellVisited.Dispose();
-            UnityEngine.Profiling.Profiler.EndSample();
         }
         else
         {
-            UnityEngine.Profiling.Profiler.BeginSample("Maze Gen");
             var job = new ParallelMazeGenJob
             {
                 Grid = grid.AsNativeArray(),
@@ -321,7 +319,6 @@ public partial struct MazeGeneratorSystem : ISystem
             };
             var handle = job.Schedule(grid.Length, grid.Length / 32);
             handle.Complete();
-            UnityEngine.Profiling.Profiler.EndSample();
         }
 
         var mazeAreaLength = gameConfig.mazeSize - (2 * gameConfig.mazeStripWidth);
