@@ -3,7 +3,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Profiling;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -69,14 +68,11 @@ public partial struct PathFindingJob : IJobEntity
     [ReadOnly] public ComponentLookup<LocalToWorldTransform> targetTransform;
     public EntityCommandBuffer.ParallelWriter Ecb;
     public int gridSize;
-    private ProfilerMarker JobMarker;
 
     [BurstCompile]
     public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, DynamicBuffer<Trajectory> trajectory, HunterTarget target, ref PositionInPath positionInPath)
     {
-        JobMarker = new ProfilerMarker("PathfindingJob");
-        JobMarker.Begin();
-        
+
         var targetPosition = target.position;
         var unitPosition = targetTransform[entity].Value.Position;
         
@@ -238,9 +234,7 @@ public partial struct PathFindingJob : IJobEntity
         cellArray.Dispose();
         openList.Dispose();
         closedList.Dispose();
-        
-        JobMarker.End();
-        
+
         Ecb.SetComponentEnabled<NeedUpdateTrajectory>(chunkIndex, entity, false);
     }
 
