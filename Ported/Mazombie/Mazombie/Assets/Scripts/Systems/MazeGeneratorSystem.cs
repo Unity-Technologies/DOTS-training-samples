@@ -24,22 +24,22 @@ struct CreateMazeFreeZonesJob : IJobParallelFor
         int y = index / stride;
         int x = index % stride;
 
-        var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
         if (!((x > stripWidth && y > stripWidth) && (x < stride - stripWidth && y < stride - stripWidth)))
         {
-            tmp.wallFlags = (byte)WallFlags.None;
-            grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
+            MazeUtils.RemoveEastWestWall(x, y, ref grid, stride);
+            MazeUtils.RemoveNorthSouthWall(x, y, ref grid, stride);
         }
 
         for (int i = 0; i < pathCenters.Length; i++)
         {
             if (x > stripWidth + (pathCenters[i] - halfPathWidth) && y > stripWidth && x < stripWidth + (pathCenters[i] + halfPathWidth) && y < stride - stripWidth)
             {
-                tmp.wallFlags = (byte)WallFlags.None;
-                grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
+                MazeUtils.RemoveEastWestWall(x, y, ref grid, stride);
+                MazeUtils.RemoveNorthSouthWall(x, y, ref grid, stride);
             }
         }
 
+        var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
         if(x == 0)
             tmp.wallFlags |= (byte)WallFlags.West;
         if(y == 0)
@@ -309,7 +309,6 @@ public partial struct MazeGeneratorSystem : ISystem
                 MazeSize = size
             };
             mazeGenHandle = job.Schedule();
-            //cellVisited.Dispose();
         }
         else
         {
