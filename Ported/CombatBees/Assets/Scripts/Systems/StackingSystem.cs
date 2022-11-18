@@ -83,6 +83,16 @@ public partial struct StackingSystem : ISystem
             foreach (var resourceToStack in StacksToFix)
             {
                 var resource = ResourceLookup[resourceToStack];
+                var physical = PhysicalLookup[resourceToStack];
+
+                // Check if actual position matches GridIndex and update it otherwise
+                // This handles edge case where a bee is killed and drops the resource elsewhere
+                int2 actualGridIndex = ResourceSpawningSystem.GetGridIndex(physical.Position);
+                if (!resource.GridIndex.Equals(actualGridIndex))
+                {
+                    resource.GridIndex = actualGridIndex;
+                }
+                
                 stackTopEntities[resource.GridIndex] = Entity.Null;
             }
 
@@ -125,7 +135,7 @@ public partial struct StackingSystem : ISystem
                 {
                     newStacks[resource.GridIndex] = 1;
                 }
-                
+
                 physical.Position.y = GetYOffset(stackTopEntities, resource.GridIndex) +
                                       (newStacks[resource.GridIndex] * ResourceSpawningSystem.RESOURCE_OBJ_HEIGHT);
                 ECB.SetComponent(resourceToStack, physical);

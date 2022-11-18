@@ -314,7 +314,7 @@ namespace Systems
             beeQuery = state.GetEntityQuery(builder);
             beeQuery.SetSharedComponentFilter(new TeamIdentifier { TeamNumber = 1 });
 
-            resourceQuery = SystemAPI.QueryBuilder().WithAll<Resource>().WithNone<Dead>().Build();
+            resourceQuery = SystemAPI.QueryBuilder().WithAll<ResourceGatherable>().WithNone<Dead>().Build();
 
             _random = Random.CreateFromIndex(4000);
             state.RequireForUpdate<BeeConfig>();

@@ -139,11 +139,11 @@ partial struct ResourceSpawningSystem : ISystem
             ECB.AddComponent(resource, new Dead());
             ECB.SetComponentEnabled<Dead>(resource, false);
         }
+    }
     
-        int2 GetGridIndex(float3 pos) {
-            int gridX = (int) math.round(pos.x);
-            int gridZ = (int) math.round(pos.z);
-            return new int2(gridX, gridZ);
-        }
+    public static int2 GetGridIndex(float3 pos) {
+        int gridX = (int) math.round(pos.x);
+        int gridZ = (int) math.round(pos.z);
+        return new int2(gridX, gridZ);
     }
 }
