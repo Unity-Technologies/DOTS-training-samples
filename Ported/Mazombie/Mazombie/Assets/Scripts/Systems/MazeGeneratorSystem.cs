@@ -24,10 +24,9 @@ struct CreateMazeFreeZonesJob : IJobParallelFor
         int y = index / stride;
         int x = index % stride;
 
+        var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
         if (!((x > stripWidth && y > stripWidth) && (x < stride - stripWidth && y < stride - stripWidth)))
         {
-            // outside the maze area
-            var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
             tmp.wallFlags = (byte)WallFlags.None;
             grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
         }
@@ -36,12 +35,22 @@ struct CreateMazeFreeZonesJob : IJobParallelFor
         {
             if (x > stripWidth + (pathCenters[i] - halfPathWidth) && y > stripWidth && x < stripWidth + (pathCenters[i] + halfPathWidth) && y < stride - stripWidth)
             {
-                // outside the maze area
-                var tmp = grid[MazeUtils.CellIdxFromPos(x, y, stride)];
                 tmp.wallFlags = (byte)WallFlags.None;
                 grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
             }
         }
+
+        if(x == 0)
+            tmp.wallFlags |= (byte)WallFlags.West;
+        if(y == 0)
+            tmp.wallFlags |= (byte)(WallFlags.South);
+        if(x == stride - 1)
+            tmp.wallFlags |= (byte)(WallFlags.East);
+        if(y == stride - 1)
+            tmp.wallFlags |= (byte)(WallFlags.North);
+
+
+        grid[MazeUtils.CellIdxFromPos(x, y, stride)] = tmp;
     }
 }
 
