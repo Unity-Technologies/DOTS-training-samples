@@ -23,6 +23,6 @@ public partial class MovementSystem : SystemBase
    // }
    protected override void OnUpdate()
    {
-      throw new System.NotImplementedException();
+      // throw new System.NotImplementedException();
    }
 }
