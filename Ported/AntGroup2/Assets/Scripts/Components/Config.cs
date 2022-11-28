@@ -5,5 +5,7 @@ using UnityEngine;
 
 struct Config : IComponentData
 {
-    //const config data
+    public Entity AntPrefab;
+
+    public int TotalAmountOfAnts;
 }
