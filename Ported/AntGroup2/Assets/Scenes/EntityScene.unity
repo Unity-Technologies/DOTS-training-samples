@@ -164,8 +164,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1679339396}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e858ee7393be3aa43922772a865256aa, type: 3}
+  m_Script: {fileID: 11500000, guid: fc96c61caa1b9e94fafc50ef4b71cadb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  WallPrefab: {fileID: 2766197264496371128, guid: 84310baf1cd35b248b6c9f6ab5fb5936,
+    type: 3}
   AntPrefab: {fileID: 2931871202031339990, guid: 9e57938802a7b9b4cbf95ce729796b1d,
     type: 3}
+  TotalAmountOfAnts: 5

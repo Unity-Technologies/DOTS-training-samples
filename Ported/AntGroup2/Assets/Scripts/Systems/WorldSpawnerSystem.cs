@@ -12,7 +12,7 @@ partial struct WorldSpawnerSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        
+        //SpawnWalls(ref state);
     }
 
     public void OnDestroy(ref SystemState state)
