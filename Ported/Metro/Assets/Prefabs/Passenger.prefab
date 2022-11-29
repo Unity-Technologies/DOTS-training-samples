@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4444447928485422}
   - component: {fileID: 33796318538386480}
   - component: {fileID: 23156920457431662}
+  - component: {fileID: 8014089495211627368}
   m_Layer: 0
   m_Name: body
   m_TagString: Untagged
@@ -83,6 +84,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8014089495211627368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1440858331162574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
 --- !u!1 &1598512793004306
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,8 +110,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4137138444318108}
+  - component: {fileID: 6248348042401861981}
   m_Layer: 0
-  m_Name: Commuter
+  m_Name: Passenger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,3 +134,15 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6248348042401861981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1598512793004306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 698507ff1164d408d8c02dee2dd75e15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
