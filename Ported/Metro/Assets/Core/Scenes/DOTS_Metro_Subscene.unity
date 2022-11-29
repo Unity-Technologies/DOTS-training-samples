@@ -156,6 +156,8 @@ MonoBehaviour:
     type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: d03628e1d0dbfcd4eb56147c30533dd8,
     type: 3}
+  TrainPrefab: {fileID: 1005656507454012, guid: 88ce44996df55004d8ff9f52d8c5e707,
+    type: 3}
   RailsPrefab: {fileID: 4859176959073742380, guid: 57087f743a92c4d4fb62d34aa25e8df0,
     type: 3}
   PersonCount: 100

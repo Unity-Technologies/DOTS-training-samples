@@ -35,10 +35,7 @@ partial struct SpawnerSystem : ISystem
         {
             Entity platform = state.EntityManager.Instantiate(config.PlatformPrefab);
 
-            var spawnLocalToWorld = new LocalTransform();
-            spawnLocalToWorld.Scale = 1;
-            spawnLocalToWorld.Position = new Unity.Mathematics.float3(9*i, 0, 0);
-            spawnLocalToWorld.Rotation = Unity.Mathematics.quaternion.EulerXYZ(0, 0, 0);
+            var spawnLocalToWorld = LocalTransform.FromPosition(9 * i, 0, 0);
 
             ecb.SetComponent<LocalTransform>(platform, spawnLocalToWorld);
 
@@ -53,14 +50,15 @@ partial struct SpawnerSystem : ISystem
                 return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
             }
 
+            Entity train = state.EntityManager.Instantiate(config.TrainPrefab);
+            ecb.SetComponent<LocalTransform>(train, spawnLocalToWorld);
+
             Entity person = state.EntityManager.Instantiate(config.PersonPrefab);
             ecb.SetComponent<LocalTransform>(person, spawnLocalToWorld);
             var queryMask = m_BaseColorQuery.GetEntityQueryMask();
             ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());
         }
 
-      //  var persons = CollectionHelper.CreateNativeArray<Entity>(config.PersonCount, Allocator.Temp);
-      //  ecb.Instantiate(config.PersonPrefab, persons);
         state.Enabled = false;
     }
 }
