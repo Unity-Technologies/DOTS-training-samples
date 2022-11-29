@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 
+[UpdateAfter(typeof(PheromoneSpawningSystem))]
 [BurstCompile]
 public partial struct PheromoneDecaySystem : ISystem
 {
