@@ -58,7 +58,7 @@ partial struct WorldSpawnerSystem : ISystem
         int WallRingCount = config.WallCount;
         float MinWallGap = 25.0f;
         float MaxWallGap = 80.0f;
-        float WallSpacing = config.PlaySize / (WallRingCount + 3);
+        float WallSpacing = config.PlaySize / (WallRingCount + 5);
         float distanceBetweenWalls = 0.5f;
 
         int MinGapCount = 1;
