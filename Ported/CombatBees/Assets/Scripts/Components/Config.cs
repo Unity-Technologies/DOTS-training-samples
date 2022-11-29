@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
 
 public struct Config : IComponentData
 {
@@ -8,4 +9,6 @@ public struct Config : IComponentData
     public int beesPerResource;
     public float minimumBeeSize;
     public float maximumBeeSize;
+    public float3 gravity;
+    public float3 fieldSize;
 }

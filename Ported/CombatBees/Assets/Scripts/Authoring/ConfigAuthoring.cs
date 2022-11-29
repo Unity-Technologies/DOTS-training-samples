@@ -9,6 +9,8 @@ class ConfigAuthoring : MonoBehaviour
     public int beesPerResource;
     public float minimumBeeSize;
     public float maximumBeeSize;
+    public Vector3 gravity = new Vector3(0f, -9.81f, 0f);
+    public Vector3 fieldSize = new Vector3(35f, 10f, 15f);
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -22,7 +24,9 @@ class ConfigBaker : Baker<ConfigAuthoring>
             startBeeCount = authoring.startBeeCount,
             beesPerResource = authoring.beesPerResource,
             minimumBeeSize = authoring.minimumBeeSize,
-            maximumBeeSize = authoring.maximumBeeSize
+            maximumBeeSize = authoring.maximumBeeSize,
+            gravity = authoring.gravity,
+            fieldSize = authoring.fieldSize
         });
     }
 }
