@@ -11,4 +11,14 @@ readonly partial struct ConfigAspect : IAspect
     {
         get => Config.ValueRO.WallPrefab;
     }
+
+    public int PlaySize
+    {
+        get => Config.ValueRO.PlaySize;
+    }
+
+    public int WallCount
+    {
+        get => Config.ValueRO.AmountOfWalls;
+    }
 }

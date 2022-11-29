@@ -10,4 +10,6 @@ struct Config : IComponentData
     public Entity AntPrefab;
 
     public int TotalAmountOfAnts;
+    public int PlaySize;
+    public int AmountOfWalls;
 }

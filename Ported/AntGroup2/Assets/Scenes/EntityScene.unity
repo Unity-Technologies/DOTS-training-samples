@@ -172,3 +172,5 @@ MonoBehaviour:
   AntPrefab: {fileID: 2931871202031339990, guid: 9e57938802a7b9b4cbf95ce729796b1d,
     type: 3}
   TotalAmountOfAnts: 5
+  PlaySize: 70
+  AmountOfWalls: 3

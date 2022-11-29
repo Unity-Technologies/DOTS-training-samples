@@ -12,7 +12,7 @@ partial struct WorldSpawnerSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        //SpawnWalls(ref state);
+        hasSpawnedWalls = false;
     }
 
     public void OnDestroy(ref SystemState state)
@@ -20,14 +20,23 @@ partial struct WorldSpawnerSystem : ISystem
 
     }
 
+    private bool hasSpawnedWalls;
     public void OnUpdate(ref SystemState state)
     {
-        if(UnityEngine.Input.GetKeyDown(KeyCode.Space))
+        if(UnityEngine.Input.GetKeyDown(KeyCode.Space) || !hasSpawnedWalls)
             SpawnWalls(ref state);
+
+        foreach (var wall in SystemAPI.Query<TransformAspect, WorldTransform>().WithAll<Obstacle>())
+        {
+            wall.Item1.WorldPosition = wall.Item2._Position;
+            wall.Item1.WorldScale = wall.Item2.Scale;
+        }
     }
 
     void SpawnWalls(ref SystemState state)
     {
+        hasSpawnedWalls = true;
+        
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -44,10 +53,10 @@ partial struct WorldSpawnerSystem : ISystem
 
         float currentDistance = 0;
         
-        int WallRingCount = 3;
+        int WallRingCount = config.WallCount;
         float MinWallGap = 15.0f;
         float MaxWallGap = 40.0f;
-        float WallSpacing = 20.0f;
+        float WallSpacing = config.PlaySize / (WallRingCount + 2);
         float distanceBetweenWalls = 0.5f;
 
         //int MinGapCount = 1;
@@ -87,8 +96,10 @@ partial struct WorldSpawnerSystem : ISystem
                 pos.y = math.sin(currentAngle) * currentDistance;
                 
                 var wall = ecb.Instantiate(config.WallPrefab);
-                var o = new Obstacle { position = pos };
-                ecb.SetComponent(wall , o);
+                
+                var trans = new WorldTransform{_Position = new float3(pos.x, 0, pos.y), _Scale = 1.0f};
+                ecb.SetComponent(wall , trans);
+                ecb.SetComponent(wall, new Obstacle());
                 currentAngle += angleBetweenWalls;
             }
 
@@ -96,9 +107,6 @@ partial struct WorldSpawnerSystem : ISystem
         }
 
 
-        foreach (var wall in SystemAPI.Query<Obstacle, TransformAspect>())
-        {
-            wall.Item2.WorldPosition = new float3(wall.Item1.position.x, 0, wall.Item1.position.y);
-        }
+        
     }
 }
