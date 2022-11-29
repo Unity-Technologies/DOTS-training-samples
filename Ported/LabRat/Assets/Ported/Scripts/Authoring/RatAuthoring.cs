@@ -12,6 +12,6 @@ class RatBaker : Baker<RatAuthoring>
     {
         AddComponent<IsAliveComponent>();
         AddComponent<PositionComponent>();
-        AddComponent<UnitMovementComponent>();
+        AddComponent(new UnitMovementComponent(){ direction = MovementDirection.East, speed = 1.0f });
     }
 }
