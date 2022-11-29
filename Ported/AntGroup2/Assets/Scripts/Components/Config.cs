@@ -8,9 +8,12 @@ struct Config : IComponentData
     //const config data
     public Entity WallPrefab;
     public Entity AntPrefab;
+    public Entity FoodPrefab;
+    public Entity ColonyPrefab;
 
     public int TotalAmountOfAnts;
     public int PlaySize;    // Size of play area edge, area center at origin.
     public int AmountOfWalls;
     public float TimeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
+    public float RandomSteeringAmount;
 }
