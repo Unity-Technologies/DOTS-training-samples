@@ -21,11 +21,11 @@ partial struct AntMovementSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var ant in SystemAPI.Query<TransformAspect, TargetDirection>().WithAll<Ant>())
+        foreach (var (tranform, direction, target) in SystemAPI.Query<TransformAspect, RefRW<CurrentDirection>, TargetDirection>().WithAll<Ant>())
         {
-            float2 normalizedDir = ant.Item2.Direction;
-            Debug.Log(normalizedDir);
-            ant.Item1.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
+            float2 normalizedDir = math.normalize(direction.ValueRO.Direction + target.Direction);
+            tranform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
+            direction.ValueRW.Direction = normalizedDir;
         }
     }
 }
