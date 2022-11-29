@@ -28,5 +28,6 @@ class TrainBaker : Baker<TrainAuthoring>
             Value = new float2(0f, 1f)
         });
         AddComponent<TargetPosition>();
+        AddComponent<Waypoint>();
     }
 }
