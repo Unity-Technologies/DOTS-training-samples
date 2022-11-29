@@ -178,3 +178,5 @@ MonoBehaviour:
   TotalAmountOfAnts: 5
   PlaySize: 70
   AmountOfWalls: 3
+  TimeScale: 60
+  RandomSteeringAmount: 0.14
