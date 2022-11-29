@@ -34,12 +34,6 @@ partial struct WorldSpawnerSystem : ISystem
         if(UnityEngine.Input.GetKeyDown(KeyCode.Space) || !hasSpawnedWalls)
             SpawnWalls(ref state);
 
-        foreach (var wall in SystemAPI.Query<TransformAspect, WorldTransform>())
-        {
-            wall.Item1.WorldPosition = wall.Item2._Position;
-            wall.Item1.WorldScale = wall.Item2.Scale;
-        }
-
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
@@ -132,7 +126,7 @@ partial struct WorldSpawnerSystem : ISystem
 
             while (currentAngle < math.PI*2.0f)
             {
-                var pos = new float2();
+                var pos = new float3();
 
                 float angleSkip = 0;
                 for (int s = 0; s + 1 < Gaps.Length; s += 2)
@@ -144,11 +138,11 @@ partial struct WorldSpawnerSystem : ISystem
                 }
 
                 pos.x = math.cos(currentAngle) * currentDistance;
-                pos.y = math.sin(currentAngle) * currentDistance;
+                pos.z = math.sin(currentAngle) * currentDistance;
                 
                 var wall = ecb.Instantiate(config.WallPrefab);
                 
-                var trans = new WorldTransform{_Position = new float3(pos.x, 0, pos.y), _Scale = 1.0f};
+                var trans = new LocalTransform{_Position = pos, _Scale = 1.0f};
                 ecb.SetComponent(wall , trans);
                 ecb.SetComponent(wall, new Obstacle());
                 currentAngle += angleBetweenWalls + angleSkip;
@@ -163,12 +157,12 @@ partial struct WorldSpawnerSystem : ISystem
         float spawnAngle = random.NextFloat(0, math.PI * 2.0f);
         float3 spawnLocation = new float3(math.cos(spawnAngle), 0, math.sin(spawnAngle));
         spawnLocation *= (WallSpacing * 4.0f);
-        var transform = new WorldTransform { _Position = spawnLocation, _Scale = 1.0f };
+        var transform = new LocalTransform{_Position = spawnLocation, _Scale = 1.0f};
         ecb.SetComponent(food, transform);
         ecb.SetComponent(food, new Food());
 
         var colony = ecb.Instantiate(config.ColonyPrefab);
-        transform = new WorldTransform { _Position = new float3(0, 0, 0), _Scale = 1.0f };
+        transform = new LocalTransform{_Scale = 1.0f};
         ecb.SetComponent(colony, transform);
         ecb.SetComponent(colony, new Colony());
 
