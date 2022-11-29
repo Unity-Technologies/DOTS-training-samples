@@ -11,20 +11,6 @@ partial struct BeeBehaviourSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        aggressiveThreshold = 0.6f; // Some hard-coded value. If the bee's scale is above it, the bee will be aggressive and attack.
-
-        foreach (var (transform, entity) in SystemAPI.Query<TransformAspect>().WithAll<BeeState>().WithEntityAccess())
-        {
-            EntityManager em = state.EntityManager;
-            if(transform.WorldScale > aggressiveThreshold)
-            {
-                em.SetComponentData(entity, new BeeState { beeState = BeeStateEnumerator.Attacking });
-            }
-            else
-            {
-                em.SetComponentData(entity, new BeeState { beeState = BeeStateEnumerator.Gathering });
-            }
-        }
     }
 
     [BurstCompile]
