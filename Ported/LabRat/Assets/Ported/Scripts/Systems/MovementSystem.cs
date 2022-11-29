@@ -18,21 +18,26 @@ public partial struct MovementSystem : ISystem
    {
    }
 
-   // [BurstCompile]
+   [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
-      foreach (var (unit, pos, entity) in SystemAPI.Query<RefRO<UnitMovementComponent>, RefRW<PositionComponent>>()
-                  .WithEntityAccess())
-      {
-         var direction = unit.ValueRO.direction;
-         var speed = unit.ValueRO.speed;
+       int numUpdatedEntities = 0;
 
-         RatLabHelper.DirectionToVector(out var dir, direction);
+       foreach (var (unit, pos, entity) in SystemAPI.Query<RefRO<UnitMovementComponent>, RefRW<PositionComponent>>()
+                    .WithEntityAccess())
+       {
+           numUpdatedEntities++;
+           var direction = unit.ValueRO.direction;
+           var speed = unit.ValueRO.speed;
 
-         pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
+           RatLabHelper.DirectionToVector(out var dir, direction);
 
-         // todo : check if possible to continue moving?
-         // if(!CanMoveInDirection(...)) rotate(...)
-      }
+           pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
+
+           // todo : check if possible to continue moving?
+           // if(!CanMoveInDirection(...)) rotate(...)
+       }
+
+       Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
    }
 }
