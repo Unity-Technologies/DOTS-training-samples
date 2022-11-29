@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 6985221466441376104}
   - component: {fileID: 7835590983473454502}
   - component: {fileID: 446213354709601742}
+  - component: {fileID: -858883374961043097}
+  - component: {fileID: 8267319630914354184}
   m_Layer: 0
   m_Name: Bee
   m_TagString: Untagged
@@ -115,3 +117,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 0
+--- !u!114 &-858883374961043097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6985221466441376106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 460d0263e2970704587171a60b989b6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8267319630914354184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6985221466441376106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74a0c07fbbbbba14f90fc10622a68fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

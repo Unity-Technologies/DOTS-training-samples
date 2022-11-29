@@ -9,10 +9,13 @@ using UnityEngine;
 [BurstCompile]
 partial struct BeeSpawnSystem : ISystem
 {
-    
+    float aggressiveThreshold;
+
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
         state.RequireForUpdate<Config>();
     }
 
@@ -58,7 +61,13 @@ partial struct BeeSpawnSystem : ISystem
                 ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
-                    Scale = scale
+                    Scale = scale,
+                    Rotation = quaternion.identity
+                });
+
+                ecb.SetComponent(bee, new BeeState
+                {
+                    beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering
                 });
             }
         }
