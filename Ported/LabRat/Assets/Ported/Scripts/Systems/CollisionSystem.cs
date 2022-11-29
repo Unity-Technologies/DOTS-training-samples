@@ -4,6 +4,7 @@ using Ported.Scripts.Components;
 using Ported.Scripts.Utils;
 using Unity.Burst;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Ported.Scripts.Systems
 {
@@ -24,6 +25,8 @@ namespace Ported.Scripts.Systems
         public void OnUpdate(ref SystemState state)
         {
             // List<Tuple<Entity, Entity>> collisions = new List<Tuple<Entity, Entity>>(); // CatEntity, RatEntity // todo : remove ...
+            var beginBuffer = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);            
+            int numCollisions = 0;
             
             foreach (var (positionComponentCat, _, catEntity) in SystemAPI.Query<RefRO<PositionComponent>,RefRO<CatComponent>>()
                          .WithEntityAccess())
@@ -31,7 +34,7 @@ namespace Ported.Scripts.Systems
                 // detection
                 var catPos = positionComponentCat.ValueRO.position;
                 var catSize = 1.0f;
-
+                
                 foreach (var (positionComponentRat, _, ratEntity) in SystemAPI
                              .Query<RefRO<PositionComponent>, RefRO<RatComponent>>()
                              .WithEntityAccess())
@@ -42,10 +45,14 @@ namespace Ported.Scripts.Systems
                     // todo : need 'bounds/size' of an object
                     if (RatLabHelper.CollidesAABB(catPos, ratPos, catSize, ratSize))
                     {
-                        // collisions.Add(new Tuple<Entity, Entity>(catEntity, ratEntity));
+                        numCollisions++;
+                        // beginBuffer.DestroyEntity(ratEntity); // todo
+                        // cat ate rat : todo
                     }
                 }
             }
+
+            Debug.Log($"[CollisionSystem] destroyed entities: {numCollisions}");
         }
     }
 }

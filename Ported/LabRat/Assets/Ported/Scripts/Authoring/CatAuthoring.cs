@@ -10,6 +10,7 @@ class CatBaker : Baker<CatAuthoring>
 {
     public override void Bake(CatAuthoring authoring)
     {
-        AddComponent<UnitMovementComponent>();
+        AddComponent<PositionComponent>();
+        AddComponent(new UnitMovementComponent(){ direction = MovementDirection.East, speed = 0.65f });
     }
 }

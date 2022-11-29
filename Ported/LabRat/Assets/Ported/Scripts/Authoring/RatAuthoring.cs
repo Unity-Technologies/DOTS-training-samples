@@ -11,6 +11,7 @@ class RatBaker : Baker<RatAuthoring>
     public override void Bake(RatAuthoring authoring)
     {
         AddComponent<IsAliveComponent>();
-        AddComponent<UnitMovementComponent>();
+        AddComponent<PositionComponent>();
+        AddComponent(new UnitMovementComponent(){ direction = MovementDirection.East, speed = 1.0f });
     }
 }
