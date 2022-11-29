@@ -29,10 +29,10 @@ partial struct AntMovementSystem : ISystem
 
         foreach (var (ant, transform) in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
-            float pheromoneWeight = 1.0f;
+            float pheromoneWeight = 0.0f;
             float WallWeight = 1.0f;
             float TargetWeight = 0.0f;
-            float RandomWeight = 1.0f;
+            float RandomWeight = .8f;
             
             
             float newDirection = 0;
@@ -59,7 +59,9 @@ partial struct AntMovementSystem : ISystem
             ant.CurrentDirection = newDirection;
             if (ant.CurrentDirection > Math.PI * 2.0f)
                 ant.CurrentDirection -= (float)(Math.PI * 2.0f);
-
+            if (ant.CurrentDirection < 0)
+                ant.CurrentDirection -= (float)(math.PI * 2.0f);
+            
             ant.WallDirection = 0;
         }
     }
