@@ -18,6 +18,10 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
             Current = 0.1f,
             Max = 1f
         });
+        AddComponent(new MetroLineID
+        {
+            ID = 0
+        });
         AddComponent<URPMaterialPropertyBaseColor>();
         AddComponent(new Train
         {

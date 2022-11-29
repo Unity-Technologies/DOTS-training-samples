@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -13,9 +12,10 @@ public enum TrainState
 
 public struct Train : IComponentData
 {
+    public int Index;
+
     public float3 Destination;
     public float DistanceToNextTrain;
-    public float3 Direction;
     public TrainState State;
 }
 

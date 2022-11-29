@@ -33,11 +33,5 @@ readonly partial struct TrainAspect : IAspect
         set => Train.ValueRW.Destination = value;
     }
 
-    public float3 TrainDirection
-    {
-        get => Train.ValueRO.Direction;
-        set => Train.ValueRW.Direction = value;
-    }
-
     public float CurrentSpeed => SpeedComponent.ValueRO.Current;
 }

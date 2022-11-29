@@ -1,9 +1,18 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace Systems
 {
+    [BurstCompile]
+    [WithAll(typeof(Train))]
+
+    partial struct SpeedController : IJobEntity
+    {
+        
+    }
     
     [BurstCompile]
     [WithAll(typeof(Train))]
@@ -27,6 +36,8 @@ namespace Systems
     [BurstCompile]
     public partial struct TrainMovementSystem : ISystem
     {
+        [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformFromEntity;
+        
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
