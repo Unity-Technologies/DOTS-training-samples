@@ -28,8 +28,8 @@ partial struct BeeSpawnSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        var beeSizeRange = config.maximumBeeSize - config.minimumBeeSize;
-        var beeSizeMiddle = config.minimumBeeSize + beeSizeRange * .5f;
+        var beeSizeHalfRange = (config.maximumBeeSize - config.minimumBeeSize) * .5f;
+        var beeSizeMiddle = config.minimumBeeSize + beeSizeHalfRange;
         foreach(var (hive, team) in SystemAPI.Query<RefRO<Hive>, Team>())
         {
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -54,13 +54,15 @@ partial struct BeeSpawnSystem : ISystem
                 position.x += noise.cnoise(pos / 10f) * hiveValue.boundsExtents.x;
                 position.y += noise.cnoise(pos / 11f) * hiveValue.boundsExtents.y;
                 position.z += noise.cnoise(pos / 12f) * hiveValue.boundsExtents.z;
-
-                var scale = math.clamp(noise.cnoise(pos / 13f) * 2f * beeSizeRange, config.minimumBeeSize, config.maximumBeeSize) + beeSizeMiddle;
-
+                var scaleRandom = math.clamp(noise.cnoise(pos / 13f) * 2f, -1f, 1f);
+                var scaleDelta = scaleRandom * beeSizeHalfRange;
+                var scale = math.clamp(scaleDelta + beeSizeMiddle,
+                    config.minimumBeeSize, config.maximumBeeSize);
+                Debug.Log($"scaledelta {scaleDelta}, scale {scale}, halfrange {beeSizeHalfRange}, middle {beeSizeMiddle}");
                 ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
-                    Scale = math.clamp(noise.cnoise(pos / 13f) * 2f * beeSizeRange, config.minimumBeeSize, config.maximumBeeSize) + beeSizeMiddle
+                    Scale = scale
                 });
 
                 ecb.SetComponent(bee, new BeeState
