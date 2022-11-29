@@ -30,13 +30,22 @@ partial struct AntSpawningSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            var arr = antQuery.ToEntityArray(Allocator.Temp);
+            foreach (var ant in arr)
+            {
+                ecb.DestroyEntity(ant);
+            }
+        }
+        
         var config = SystemAPI.GetSingleton<Config>();
 
         if (config.TotalAmountOfAnts < antQuery.CalculateEntityCount())
             return;
-
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var randomAngle = 2.0f * math.PI * random.NextFloat();
 

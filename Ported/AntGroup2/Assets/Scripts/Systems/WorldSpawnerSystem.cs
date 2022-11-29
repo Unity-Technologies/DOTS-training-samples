@@ -11,9 +11,16 @@ using Random = Unity.Mathematics.Random;
 
 partial struct WorldSpawnerSystem : ISystem
 {
+    private EntityQuery wallQuery;
+    private EntityQuery foodQuery;
+    private EntityQuery colonyQuery;
+    
     public void OnCreate(ref SystemState state)
     {
         hasSpawnedWalls = false;
+        wallQuery = state.GetEntityQuery(typeof(Obstacle));
+        foodQuery = state.GetEntityQuery(typeof(Food));
+        colonyQuery = state.GetEntityQuery(typeof(Colony));
     }
 
     public void OnDestroy(ref SystemState state)
@@ -32,7 +39,32 @@ partial struct WorldSpawnerSystem : ISystem
             wall.Item1.WorldPosition = wall.Item2._Position;
             wall.Item1.WorldScale = wall.Item2.Scale;
         }
+
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            var arr = wallQuery.ToEntityArray(Allocator.Temp);
+            foreach (var wall in arr)
+            {
+                ecb.DestroyEntity(wall);
+            }
+
+            arr = foodQuery.ToEntityArray(Allocator.Temp);
+            foreach (var food in arr)
+            {
+                ecb.DestroyEntity(food);
+            }
+            
+            arr = colonyQuery.ToEntityArray(Allocator.Temp);
+            foreach (var colony in arr)
+            {
+                ecb.DestroyEntity(colony);
+            }
+
+            hasSpawnedWalls = false;
+        }
     }
     
     void SpawnWalls(ref SystemState state)
