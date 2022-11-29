@@ -38,6 +38,6 @@ public partial struct MovementSystem : ISystem
            // if(!CanMoveInDirection(...)) rotate(...)
        }
 
-       Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
+       //Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
    }
 }
