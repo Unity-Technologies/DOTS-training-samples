@@ -154,10 +154,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   beePrefab: {fileID: 6985221466441376106, guid: 7d109ecba53d1cb4aa5d5f382079998f,
     type: 3}
+  particlePrefab: {fileID: 8770857147939673906, guid: 20a07487b8f454d4eb5f8fcc561aa5ff,
+    type: 3}
   startBeeCount: 100
-  beesPerResource: 0
+  beesPerResource: 5
   minimumBeeSize: 0.5
   maximumBeeSize: 1.25
+  gravity: {x: 0, y: -9.81, z: 0}
+  fieldSize: {x: 35, y: 10, z: 15}
 --- !u!4 &338505779
 Transform:
   m_ObjectHideFlags: 0

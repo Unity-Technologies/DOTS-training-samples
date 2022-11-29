@@ -1,11 +1,9 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 [BurstCompile]
 partial struct ResourceBeeSpawnSystem : ISystem
@@ -44,14 +42,42 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 var resourceBottom = trans.ValueRO.Position.y - resource.ValueRO.boundsExtents.y;
                 if (resourceBottom <= hiveBottom && resourcePosition.x >= hiveLeft && resourcePosition.x <= hiveRight)
                 {
-                    SpawnBees(config, ecb, team, hive, beeSizeHalfRange, beeSizeMiddle, trans);
+                    SpawnBees(config, ecb, team, hive, beeSizeHalfRange, beeSizeMiddle, resourcePosition);
+                    SpawnParticles(config, ecb, resourcePosition, 5);
                     ecb.DestroyEntity(entity);
                 }
             }
         }
     }
 
-    private static void SpawnBees(Config config, EntityCommandBuffer ecb, Team team, RefRO<Hive> hive, float beeSizeHalfRange, float beeSizeMiddle, RefRO<LocalTransform> trans)
+    private static void SpawnParticles(Config config, EntityCommandBuffer ecb, float3 position, int count)
+    {
+        var particles = new NativeArray<Entity>(count, Allocator.Temp);
+        ecb.Instantiate(config.particlePrefab, particles);
+        var color = new URPMaterialPropertyBaseColor { Value = new float4(1f, 1f, 1f, 1f) };
+        var random = new Random();
+        random.InitState((uint)position.GetHashCode());
+        foreach (var particle in particles)
+        {
+            ecb.SetComponent(particle, color);
+            var scale = random.NextFloat(.25f, .5f);
+            ecb.SetComponent(particle, new LocalTransform
+            {
+                Position = position,
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
+            ecb.SetComponent(particle, new Particle()
+            {
+                life = 1f,
+                lifeTime = random.NextFloat(.25f, .5f),
+                velocity = random.NextFloat3Direction() * 5f,
+                size = scale
+            });
+        }
+    }
+
+    private static void SpawnBees(Config config, EntityCommandBuffer ecb, Team team, RefRO<Hive> hive, float beeSizeHalfRange, float beeSizeMiddle, float3 position)
     {
         var bees = new NativeArray<Entity>(config.beesPerResource, Allocator.Temp);
         ecb.Instantiate(config.beePrefab, bees);
@@ -60,12 +86,12 @@ partial struct ResourceBeeSpawnSystem : ISystem
             number = team.number
         });
         var hiveValue = hive.ValueRO;
-        var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hiveValue.color };
+        var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
         foreach (var bee in bees)
         {
             ecb.SetComponent(bee, color);
-            var pos = trans.ValueRO.Position;
+            var pos = position;
             pos.y = bee.Index;
             var scaleRandom = math.clamp(noise.cnoise(pos / 13f) * 2f, -1f, 1f);
             var scaleDelta = scaleRandom * beeSizeHalfRange;
@@ -73,7 +99,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 config.minimumBeeSize, config.maximumBeeSize);
             ecb.SetComponent(bee, new LocalTransform
             {
-                Position = trans.ValueRO.Position,
+                Position = position,
                 Scale = scale
             });
         }

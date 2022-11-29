@@ -43,7 +43,7 @@ partial struct BeeSpawnSystem : ISystem
                 number = team.number
             });
             var hiveValue = hive.ValueRO;
-            var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hiveValue.color };
+            var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
             foreach (var bee in bees)
             {
