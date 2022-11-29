@@ -18,18 +18,20 @@ partial struct PlatformSpawner : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<PlatformConfig>();
-
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        foreach (var (railwayPoint, rpTransform) in SystemAPI.Query<RailwayPoint, TransformAspect>().WithAll<RailwayPoint>())
+        foreach (var metroLine in SystemAPI.Query<MetroLine>())
         {
-            if (railwayPoint.RailwayPointType != RailwayPointType.Platform)
-                continue;
-            
-            var instance = ecb.Instantiate(config.PlatformPrefab);
-            ecb.SetComponent(instance, LocalTransform.FromPositionRotation(rpTransform.WorldPosition, rpTransform.WorldTransform.Rotation));
+            var config = SystemAPI.GetSingleton<PlatformConfig>();
+            var counter = metroLine.RailwayPositions.Length;
+            for (int i = 0; i < counter; i++)
+            {
+                if(metroLine.RailwayType[i] != RailwayPointType.Platform)
+                    continue;
+                var instance = ecb.Instantiate(config.PlatformPrefab);
+                ecb.SetComponent(instance, LocalTransform.FromPositionRotation(metroLine.RailwayPositions[i], metroLine.RailwayRotations[i]));
+            }
         }
         
         state.Enabled = false;
