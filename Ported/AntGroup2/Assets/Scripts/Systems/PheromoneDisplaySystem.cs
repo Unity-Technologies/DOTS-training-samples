@@ -7,8 +7,8 @@ using Random = UnityEngine.Random;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial class PheromoneDisplaySystem : SystemBase
 {
-    public const int PheromoneTextureSizeX = 64;
-    public const int PheromoneTextureSizeY = 64;
+    public const int PheromoneTextureSizeX = 256;
+    public const int PheromoneTextureSizeY = 256;
         
     public GameObject displayPlane;
     private Material displayMaterial;
@@ -72,6 +72,10 @@ partial class PheromoneDisplaySystem : SystemBase
 
                 int x = i % PheromoneTextureSizeX;
                 int y = i / PheromoneTextureSizeX;
+                
+                // TODO: figure out it needs a flip.
+                x = PheromoneTextureSizeY - 1 - x;
+                y = PheromoneTextureSizeY - 1 - y;
                 
                 pheromoneTexture.SetPixel(x, y, new Color(math.saturate(amount), 0, 0, 1));
             }
