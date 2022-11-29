@@ -50,6 +50,8 @@ public class Spawner : MonoBehaviour {
     }
 
 	void Spawn(GameObject prefab) {
+		return; //We disregard the gameObj spawning now
+		
 		var parent = targetParent;
 		if (!parent)
 			parent = transform;
