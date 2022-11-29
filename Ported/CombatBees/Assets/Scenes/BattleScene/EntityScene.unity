@@ -188,7 +188,7 @@ GameObject:
   - component: {fileID: 1351536906}
   - component: {fileID: 1351536905}
   m_Layer: 0
-  m_Name: Field
+  m_Name: FieldFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 1542372860}
   - component: {fileID: 1542372859}
   m_Layer: 0
-  m_Name: Field (1)
+  m_Name: FieldWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
