@@ -48,7 +48,6 @@ partial struct WallAvoidanceSystem : ISystem
                         var dist = math.sqrt(sqrDist);
                         dx /= dist;
                         dy /= dist;
-                        //ant.Item1.WallDirection = math.atan2(wall.WorldPosition.x + dx * /*ObstacleRadius*/2f, wall.WorldPosition.z + dy * /*ObstacleRadius*/ 2f);
                         wallBounce = true;
                     }
                 }

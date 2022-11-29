@@ -178,9 +178,9 @@ MonoBehaviour:
   TotalAmountOfAnts: 5
   PlaySize: 70
   AmountOfWalls: 3
-  TimeScale: 30
+  TimeScale: 8
   RandomSteeringAmount: 0.14
   PheromoneSampleDistPixels: 5
   PheromoneSpawnDistPixels: 6
   PheromoneSpawnAmount: 0.1
-  PheromoneDecayRateSec: 0.1
+  PheromoneDecayRateSec: 0.01
