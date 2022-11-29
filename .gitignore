@@ -45,3 +45,4 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+/Ported/LabRat/UserSettings/Layouts/default-2022.dwlt
