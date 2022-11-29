@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 
 [UpdateAfter(typeof(PheromoneSpawningSystem))]
 [BurstCompile]
@@ -14,13 +15,15 @@ public partial struct PheromoneDecaySystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach( var map in SystemAPI.Query<DynamicBuffer<PheromoneMap>>())
+        var config = SystemAPI.GetSingleton<Config>();
+        
+        float pheromoneDecayAmount = config.PheromoneDecayRateSec * config.TimeScale * SystemAPI.Time.DeltaTime;
+
+        var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
+        for (int i = 0; i < pheromoneMap.Length; i++)
         {
-            for (int i = 0; i < map.Length; i++)
-            {
-                ref var cellRef = ref map.ElementAt(i);
-                cellRef.amount *= 0.99f /* dt*/; // TODO: Decay config? time from config? Time component?
-            }
+            ref var cellRef = ref pheromoneMap.ElementAt(i);
+            cellRef.amount = math.max(cellRef.amount - pheromoneDecayAmount, 0);
         }
     }
 }

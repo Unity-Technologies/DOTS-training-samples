@@ -13,6 +13,11 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int AmountOfWalls = 3;
     public float TimeScale = 1.0f;
     public float RandomSteeringAmount = 0.14f;
+    
+    public int PheromoneSampleDistPixels = 5;
+    public int PheromoneSpawnDistPixels = 5;
+    public float PheromoneSpawnAmount = 0.1f;
+    public float PheromoneDecayRateSec = 0.1f;
 
 }
 
@@ -30,7 +35,11 @@ class ConfigBaker : Baker<ConfigAuthoring>
             FoodPrefab = GetEntity(authoring.FoodPrefab),
             ColonyPrefab = GetEntity(authoring.ColonyPrefab),
             TimeScale = authoring.TimeScale,
-            RandomSteeringAmount = authoring.RandomSteeringAmount
+            RandomSteeringAmount = authoring.RandomSteeringAmount,
+            PheromoneSampleDistPixels = authoring.PheromoneSampleDistPixels,
+            PheromoneSpawnDistPixels = authoring.PheromoneSpawnDistPixels,
+            PheromoneSpawnAmount = authoring.PheromoneSpawnAmount,
+            PheromoneDecayRateSec = authoring.PheromoneDecayRateSec
         });
     }
 }

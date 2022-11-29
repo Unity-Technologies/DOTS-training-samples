@@ -24,10 +24,6 @@ partial class PheromoneDisplaySystem : SystemBase
         
         if (displayPlane.TryGetComponent<Renderer>(out var displayRenderer))
             displayMaterial = displayRenderer.material;
-
-        // TEMP: Dummy Add a single entity.
-        //var e = EntityManager.CreateEntity();
-        //EntityManager.AddComponent<PheromoneMap>(e);
     }
 
     protected override void OnUpdate()
@@ -41,12 +37,7 @@ partial class PheromoneDisplaySystem : SystemBase
         // Assume there's only one PheromoneMap
         Entities.ForEach((Entity ent, in DynamicBuffer<PheromoneMap> map) =>
         {
-            //DynamicBuffer<PheromoneMap> mapBuffer = EntityManager.GetBuffer<PheromoneMap>(ent);
             // TODO...
-            
-            //Debug.Log("Foo");
-
-            int2 texSize = new int2(pheromoneTexture.width, pheromoneTexture.height);
             
             // Clear
             for (int i = 0; i < PheromoneTextureSizeX; i++)

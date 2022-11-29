@@ -16,4 +16,9 @@ struct Config : IComponentData
     public int AmountOfWalls;
     public float TimeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
     public float RandomSteeringAmount;
+
+    public int PheromoneSampleDistPixels;   // Neighborhood size, -pixels < x < pixels
+    public int PheromoneSpawnDistPixels;
+    public float PheromoneSpawnAmount;      // + amount per iteration
+    public float PheromoneDecayRateSec;     // - amount per iteration per dT
 }

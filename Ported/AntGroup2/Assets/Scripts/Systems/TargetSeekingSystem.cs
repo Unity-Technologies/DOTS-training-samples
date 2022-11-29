@@ -25,7 +25,7 @@ partial struct TargetSeekingSystem : ISystem
             if (!Physics.Linecast(ant.Item2.WorldPosition, new float3(7.4f, 0f, 10f)))
             {
                 float angle = Vector3.Angle(new float3(7.4f, 0f, 10f) - ant.Item2.WorldPosition, Vector3.right);
-                Debug.Log(angle);
+                //Debug.Log(angle);
                 ant.Item1.Direction = angle;
             }
             

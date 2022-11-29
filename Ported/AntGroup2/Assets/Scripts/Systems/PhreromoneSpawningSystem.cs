@@ -28,22 +28,29 @@ public partial struct PheromoneSpawningSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         
-        float2 planeExtent = new float2(config.PlaySize); // TODO: get from the game object??
-        float2 planeHalfExtent = planeExtent / 2;
-        int2 textureSize = new int2(PheromoneDisplaySystem.PheromoneTextureSizeX, PheromoneDisplaySystem.PheromoneTextureSizeX); // TODO: Config???
+        // TODO: config
+        float pheromoneSpawnAmount = config.PheromoneSpawnAmount * config.TimeScale * SystemAPI.Time.DeltaTime;
+        
+        // Pheromone Distance
+        int sdx = config.PheromoneSpawnDistPixels;
+        int sdy = config.PheromoneSpawnDistPixels;
+        
+        // Use straight edge to fit sphere influence, diagonal max dist would clip.
+        float maxDist = sdx * sdx;                  
         
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
         foreach( var (transform, ant) in SystemAPI.Query<TransformAspect, Ant>())
         {
-            float2 pos = transform.LocalPosition.xz;
-            float2 posNormalized = (pos + planeHalfExtent) / planeExtent;
-            int2 posTex = new int2(posNormalized * textureSize);
-            
-            if ((uint)posTex.x < textureSize.x && (uint)posTex.y < textureSize.y)
+            int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));
+
+            for (int y = -sdy; y < sdy + 1; y++)
             {
-                int bufIndex = posTex.x + posTex.y * textureSize.x;
-                ref var cell = ref pheromoneMap.ElementAt(bufIndex);
-                cell.amount += 0.1f; // TODO: config
+                for (int x = -sdx; x < sdx + 1; x++)
+                {
+                    int d = x * x + y * y;
+                    float strength = math.max(1.0f - d / maxDist, 0);
+                    PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * pheromoneSpawnAmount);
+                }    
             }
         }
     }
