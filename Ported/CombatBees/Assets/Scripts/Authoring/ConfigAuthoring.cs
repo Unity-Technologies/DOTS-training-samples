@@ -5,6 +5,7 @@ class ConfigAuthoring : MonoBehaviour
 {
     public GameObject beePrefab;
     public int startBeeCount;
+    public int beesPerResource;
     public float minimumBeeSize;
     public float maximumBeeSize;
 }
@@ -17,6 +18,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
         {
             beePrefab = GetEntity(authoring.beePrefab),
             startBeeCount = authoring.startBeeCount,
+            beesPerResource = authoring.beesPerResource,
             minimumBeeSize = authoring.minimumBeeSize,
             maximumBeeSize = authoring.maximumBeeSize
         });

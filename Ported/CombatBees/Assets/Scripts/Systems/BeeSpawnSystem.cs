@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -14,6 +13,7 @@ partial struct BeeSpawnSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
@@ -27,11 +27,11 @@ partial struct BeeSpawnSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var beeSizeHalfRange = (config.maximumBeeSize - config.minimumBeeSize) * .5f;
         var beeSizeMiddle = config.minimumBeeSize + beeSizeHalfRange;
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         foreach(var (hive, team) in SystemAPI.Query<RefRO<Hive>, Team>())
         {
-            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
             var bees = new NativeArray<Entity>(config.startBeeCount, Allocator.Temp);
             ecb.Instantiate(config.beePrefab, bees);
             
@@ -55,7 +55,6 @@ partial struct BeeSpawnSystem : ISystem
                 var scaleDelta = scaleRandom * beeSizeHalfRange;
                 var scale = math.clamp(scaleDelta + beeSizeMiddle,
                     config.minimumBeeSize, config.maximumBeeSize);
-                Debug.Log($"scaledelta {scaleDelta}, scale {scale}, halfrange {beeSizeHalfRange}, middle {beeSizeMiddle}");
                 ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
