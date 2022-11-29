@@ -19,9 +19,14 @@ class TrainBaker : Baker<TrainAuthoring>
         {
             Value = authoring.MaxSpeed
         });
+        AddComponent(new Position
+        {
+            Value = new float2(0f, 0f)
+        });
         AddComponent(new Direction
         {
             Value = new float2(0f, 1f)
         });
+        AddComponent<TargetPosition>();
     }
 }
