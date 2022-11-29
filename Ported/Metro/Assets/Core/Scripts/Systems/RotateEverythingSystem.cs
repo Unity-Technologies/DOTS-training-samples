@@ -1,7 +1,9 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 // Unmanaged systems based on ISystem can be Burst compiled, but this is not yet the default.
 // So we have to explicitly opt into Burst compilation with the [BurstCompile] attribute.
@@ -22,10 +24,21 @@ partial struct RotateEverythingSystem : ISystem
     {
     }
 
+    bool spawned;
     // See note above regarding the [BurstCompile] attribute.
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        if (!spawned)
+        {
+            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var config = SystemAPI.GetSingleton<Config>();
+            var persons = CollectionHelper.CreateNativeArray<Entity>(config.PersonCount, Allocator.Temp);
+            Debug.Log("persons: " + persons.Length);
+            ecb.Instantiate(config.PersonPrefab, persons);
+            spawned = true;
+        }
         // The amount of rotation around Y required to do 360 degrees in 2 seconds.
         var rotation = quaternion.RotateY(SystemAPI.Time.DeltaTime * math.PI);
 
