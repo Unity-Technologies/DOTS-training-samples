@@ -5,9 +5,12 @@ using Unity.Entities;
 [BurstCompile]
 public partial struct MovementSystem : ISystem
 {
+   private int frameCounter;
+   
    [BurstCompile]
    public void OnCreate(ref SystemState state)
    {
+      frameCounter = 0;
    }
 
    [BurstCompile]
@@ -17,7 +20,9 @@ public partial struct MovementSystem : ISystem
 
    [BurstCompile]
    public void OnUpdate(ref SystemState state)
-   { 
+   {
+      frameCounter++;
+      
       foreach (var (unit, pos, entity) in SystemAPI.Query<RefRO<UnitMovementComponent>, RefRW<PositionComponent>>()
                   .WithEntityAccess())
       {
