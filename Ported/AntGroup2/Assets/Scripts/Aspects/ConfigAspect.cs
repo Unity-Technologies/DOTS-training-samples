@@ -21,4 +21,14 @@ readonly partial struct ConfigAspect : IAspect
     {
         get => Config.ValueRO.AmountOfWalls;
     }
+
+    public Entity FoodPrefab
+    {
+        get => Config.ValueRO.FoodPrefab;
+    }
+
+    public Entity ColonyPrefab
+    {
+        get => Config.ValueRO.ColonyPrefab;
+    }
 }

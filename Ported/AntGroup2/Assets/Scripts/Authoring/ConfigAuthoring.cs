@@ -6,6 +6,8 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject WallPrefab;
     public UnityEngine.GameObject AntPrefab;
+    public UnityEngine.GameObject FoodPrefab;
+    public UnityEngine.GameObject ColonyPrefab;
     public int TotalAmountOfAnts = 5;
     public int PlaySize = 10;
     public int AmountOfWalls = 3;
@@ -21,7 +23,9 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TotalAmountOfAnts = authoring.TotalAmountOfAnts,
             WallPrefab = GetEntity(authoring.WallPrefab),
             PlaySize = authoring.PlaySize,
-            AmountOfWalls = authoring.AmountOfWalls
+            AmountOfWalls = authoring.AmountOfWalls,
+            FoodPrefab = GetEntity(authoring.FoodPrefab),
+            ColonyPrefab = GetEntity(authoring.ColonyPrefab)
         });
     }
 }

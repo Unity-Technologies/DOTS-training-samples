@@ -171,6 +171,10 @@ MonoBehaviour:
     type: 3}
   AntPrefab: {fileID: 2931871202031339990, guid: 9e57938802a7b9b4cbf95ce729796b1d,
     type: 3}
+  FoodPrefab: {fileID: 3876139463150916045, guid: 09cf0a8591b8a8742b60697e179ea1cd,
+    type: 3}
+  ColonyPrefab: {fileID: 14412920256834417, guid: ec211ac0882f9324392f65cba1676342,
+    type: 3}
   TotalAmountOfAnts: 5
   PlaySize: 70
   AmountOfWalls: 3

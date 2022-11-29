@@ -27,11 +27,12 @@ partial struct WorldSpawnerSystem : ISystem
         if(UnityEngine.Input.GetKeyDown(KeyCode.Space) || !hasSpawnedWalls)
             SpawnWalls(ref state);
 
-        foreach (var wall in SystemAPI.Query<TransformAspect, WorldTransform>().WithAll<Obstacle>())
+        foreach (var wall in SystemAPI.Query<TransformAspect, WorldTransform>())
         {
             wall.Item1.WorldPosition = wall.Item2._Position;
             wall.Item1.WorldScale = wall.Item2.Scale;
         }
+        
     }
     
     void SpawnWalls(ref SystemState state)
@@ -125,7 +126,19 @@ partial struct WorldSpawnerSystem : ISystem
             Gaps.Clear();
         }
 
+        //spawn colony and food
+        var food = ecb.Instantiate(config.FoodPrefab);
+        float spawnAngle = random.NextFloat(0, math.PI * 2.0f);
+        float3 spawnLocation = new float3(math.cos(spawnAngle), 0, math.sin(spawnAngle));
+        spawnLocation *= (WallSpacing * 4.0f);
+        var transform = new WorldTransform { _Position = spawnLocation, _Scale = 1.0f };
+        ecb.SetComponent(food, transform);
+        ecb.SetComponent(food, new Food());
 
-        
+        var colony = ecb.Instantiate(config.ColonyPrefab);
+        transform = new WorldTransform { _Position = new float3(0, 0, 0), _Scale = 1.0f };
+        ecb.SetComponent(colony, transform);
+        ecb.SetComponent(colony, new Colony());
+
     }
 }
