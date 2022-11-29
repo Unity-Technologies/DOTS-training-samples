@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
@@ -32,7 +33,7 @@ partial struct WorldSpawnerSystem : ISystem
             wall.Item1.WorldScale = wall.Item2.Scale;
         }
     }
-
+    
     void SpawnWalls(ref SystemState state)
     {
         hasSpawnedWalls = true;
@@ -54,42 +55,59 @@ partial struct WorldSpawnerSystem : ISystem
         float currentDistance = 0;
         
         int WallRingCount = config.WallCount;
-        float MinWallGap = 15.0f;
-        float MaxWallGap = 40.0f;
+        float MinWallGap = 25.0f;
+        float MaxWallGap = 80.0f;
         float WallSpacing = config.PlaySize / (WallRingCount + 3);
         float distanceBetweenWalls = 0.5f;
 
-        //int MinGapCount = 1;
-        //int MaxGapCount = 3;
-        //var random = Random.CreateFromIndex(123456);
-//
-        //NativeList<float> Gaps = new NativeList<float>();
-//
+        int MinGapCount = 1;
+        int MaxGapCount = 3;
+        var random = Random.CreateFromIndex(12);
+
+        NativeList<float> Gaps = new NativeList<float>(Allocator.Temp);
         for (int i = 1; i <= WallRingCount; ++i)
         {
             currentDistance += WallSpacing;
             angleBetweenWalls = distanceBetweenWalls / currentDistance;
             
             
-            //var gapCount = random.NextInt(MinGapCount, MaxGapCount);
+            var gapCount = random.NextInt(MinGapCount, MaxGapCount);
 
             int createdGaps = 0;
-            //while (createdGaps < gapCount)
-            //{
-            //    var startPos = random.NextFloat(0, math.PI * 2.0f);
-            //    Gaps.Add(startPos);
-            //    var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
-            //    Gaps.Add(endPos);
-            //    ++createdGaps;
-            //}
+            while (createdGaps < gapCount)
+            {
+                var startPos = random.NextFloat(0, math.PI * 2.0f);
+              
+                var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
+
+                if (endPos > math.PI * 2.0f)
+                {
+                    Gaps.Add(startPos);
+                    Gaps.Add(math.PI * 2.0f);
+                    
+                    Gaps.Add(0);
+                    Gaps.Add(endPos - math.PI * 2.0f);
+                }
+                else
+                {
+                    Gaps.Add(startPos);
+                    Gaps.Add(endPos);
+                }
+                
+                ++createdGaps;
+            }
 
             while (currentAngle < math.PI*2.0f)
             {
                 var pos = new float2();
 
-                if (currentAngle > 1.0f && currentAngle < 1.4f)
+                float angleSkip = 0;
+                for (int s = 0; s + 1 < Gaps.Length; s += 2)
                 {
-                    currentAngle += 0.4f;
+                    if (currentAngle > Gaps[s] && currentAngle < Gaps[s + 1])
+                    {
+                        angleSkip = Gaps[s + 1] - currentAngle;
+                    }
                 }
 
                 pos.x = math.cos(currentAngle) * currentDistance;
@@ -100,10 +118,11 @@ partial struct WorldSpawnerSystem : ISystem
                 var trans = new WorldTransform{_Position = new float3(pos.x, 0, pos.y), _Scale = 1.0f};
                 ecb.SetComponent(wall , trans);
                 ecb.SetComponent(wall, new Obstacle());
-                currentAngle += angleBetweenWalls;
+                currentAngle += angleBetweenWalls + angleSkip;
             }
 
             currentAngle = 0;
+            Gaps.Clear();
         }
 
 
