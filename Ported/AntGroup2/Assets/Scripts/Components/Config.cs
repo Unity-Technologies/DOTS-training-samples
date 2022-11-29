@@ -12,5 +12,5 @@ struct Config : IComponentData
     public int TotalAmountOfAnts;
     public int PlaySize;    // Size of play area edge, area center at origin.
     public int AmountOfWalls;
-    public float timeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
+    public float TimeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
 }
