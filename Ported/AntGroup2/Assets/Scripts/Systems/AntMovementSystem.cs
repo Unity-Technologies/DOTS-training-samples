@@ -22,7 +22,7 @@ partial struct AntMovementSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (ant, tranform) in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
+        foreach (var (ant, transform) in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
             float newDirection = ant.CurrentDirection;
             
@@ -31,7 +31,9 @@ partial struct AntMovementSystem : ISystem
             newDirection += ant.PheromoneDirection;
 
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
-            tranform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
+            transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
+            Quaternion rotation = quaternion.RotateY(newDirection);
+            transform.WorldRotation = rotation;
             ant.CurrentDirection = newDirection;
         }
     }
