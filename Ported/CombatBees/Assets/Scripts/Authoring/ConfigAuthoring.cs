@@ -4,6 +4,7 @@ using UnityEngine;
 class ConfigAuthoring : MonoBehaviour
 {
     public GameObject beePrefab;
+    public GameObject particlePrefab;
     public int startBeeCount;
     public int beesPerResource;
     public float minimumBeeSize;
@@ -17,6 +18,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
         AddComponent(new Config()
         {
             beePrefab = GetEntity(authoring.beePrefab),
+            particlePrefab = GetEntity(authoring.particlePrefab),
             startBeeCount = authoring.startBeeCount,
             beesPerResource = authoring.beesPerResource,
             minimumBeeSize = authoring.minimumBeeSize,

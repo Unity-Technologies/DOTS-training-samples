@@ -1,11 +1,10 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
+//using UnityEngine;
 
 [BurstCompile]
 partial struct ResourceBeeSpawnSystem : ISystem
@@ -46,8 +45,33 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 {
                     SpawnBees(config, ecb, team, hive, beeSizeHalfRange, beeSizeMiddle, trans);
                     ecb.DestroyEntity(entity);
+                    SpawnParticles(config, ecb, trans.ValueRO.Position, 5);
                 }
             }
+        }
+    }
+
+    private static void SpawnParticles(Config config, EntityCommandBuffer ecb, float3 position, int count)
+    {
+        var particles = new NativeArray<Entity>(count, Allocator.Temp);
+        ecb.Instantiate(config.particlePrefab, particles);
+        var color = new URPMaterialPropertyBaseColor { Value = new float4(1f, 1f, 1f, 1f) };
+        var random = new Random();
+        random.InitState((uint)position.GetHashCode());
+        foreach (var particle in particles)
+        {
+            ecb.SetComponent(particle, color);
+            ecb.SetComponent(particle, new LocalTransform
+            {
+                Position = position,
+                Scale = random.NextFloat(.25f, .5f),
+                Rotation = quaternion.identity
+            });
+            ecb.SetComponent(particle, new Particle()
+            {
+                lifeTime = random.NextFloat(.25f, .5f),
+                velocity = random.NextFloat3Direction() * 5f
+            });
         }
     }
 
@@ -60,7 +84,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
             number = team.number
         });
         var hiveValue = hive.ValueRO;
-        var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hiveValue.color };
+        var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
         foreach (var bee in bees)
         {
