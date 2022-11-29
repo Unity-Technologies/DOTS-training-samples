@@ -45,3 +45,4 @@ sysinfo.txt
 *.unitypackage
 
 *.DS_Store
+*.meta
