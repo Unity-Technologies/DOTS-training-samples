@@ -7,9 +7,9 @@ readonly partial struct TargetDirectionAspect : IAspect
 {
     readonly RefRW<TargetDirection> TargetDirection;
     
-    public float2 Direction
+    public float Direction
     {
-        get => TargetDirection.ValueRO.Direction;
-        set => TargetDirection.ValueRW.Direction = value;
+        get => TargetDirection.ValueRO.Angle;
+        set => TargetDirection.ValueRW.Angle = value;
     }
 }

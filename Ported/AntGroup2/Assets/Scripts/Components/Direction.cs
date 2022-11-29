@@ -5,20 +5,20 @@ using Unity.Mathematics;
 
 struct CurrentDirection : IComponentData
 {
-    public float2 Direction;
+    public float Angle;
 }
 
 struct PheromoneDirection : IComponentData
 {
-    public float2 Direction;
+    public float Angle;
 }
 
 struct TargetDirection : IComponentData
 {
-    public float2 Direction;
+    public float Angle;
 }
 
 struct WallDirection : IComponentData
 {
-    public float2 Direction;
+    public float Angle;
 }

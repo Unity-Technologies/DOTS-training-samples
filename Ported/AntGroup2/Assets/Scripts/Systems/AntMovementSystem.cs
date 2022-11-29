@@ -6,6 +6,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateAfter(typeof(AntSpawningSystem))]
 partial struct AntMovementSystem : ISystem
 {
 
@@ -21,11 +22,17 @@ partial struct AntMovementSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (tranform, direction, target) in SystemAPI.Query<TransformAspect, RefRW<CurrentDirection>, TargetDirection>().WithAll<Ant>())
+        foreach (var (ant, tranform) in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
-            float2 normalizedDir = math.normalize(direction.ValueRO.Direction + target.Direction);
+            float newDirection = ant.CurrentDirection;
+            
+            newDirection += ant.TargetDirection;
+            newDirection += ant.WallDirection;
+            newDirection += ant.PheromoneDirection;
+
+            float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
             tranform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
-            direction.ValueRW.Direction = normalizedDir;
+            ant.CurrentDirection = newDirection;
         }
     }
 }
