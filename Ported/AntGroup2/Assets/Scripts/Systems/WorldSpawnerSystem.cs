@@ -63,7 +63,7 @@ partial struct WorldSpawnerSystem : ISystem
 
         int MinGapCount = 1;
         int MaxGapCount = 3;
-        var random = Random.CreateFromIndex(12);
+        var random = Random.CreateFromIndex((uint)(Time.realtimeSinceStartup*1000.0f));
 
         NativeList<float> Gaps = new NativeList<float>(Allocator.Temp);
         for (int i = 1; i <= WallRingCount; ++i)
