@@ -1,0 +1,43 @@
+﻿using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
+
+readonly partial struct TrainAspect : IAspect
+{
+    // An Entity field in an aspect provides access to the entity itself.
+    // This is required for registering commands in an EntityCommandBuffer for example.
+    public readonly Entity Self;
+
+    // Aspects can contain other aspects.
+    readonly TransformAspect Transform;
+
+    // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
+    // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
+    readonly RefRW<Train> Train;
+
+    // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
+    // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
+    readonly RefRO<SpeedComponent> SpeedComponent;
+
+    // Properties like this are not mandatory, the Transform field could just have been made public instead.
+    // But they improve readability by avoiding chains of "aspect.aspect.aspect.component.value.value".
+    public float3 Position
+    {
+        get => Transform.LocalPosition;
+        set => Transform.LocalPosition = value;
+    }
+
+    public float2 TrainDestination
+    {
+        get => Train.ValueRO.Destination;
+        set => Train.ValueRW.Destination = value;
+    }
+
+    public float2 TrainDirection
+    {
+        get => Train.ValueRO.Direction;
+        set => Train.ValueRW.Direction = value;
+    }
+
+    public float CurrentSpeed => SpeedComponent.ValueRO.Current;
+}
