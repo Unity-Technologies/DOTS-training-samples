@@ -15,6 +15,8 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float RandomSteeringAmount = 0.14f;
     
     public int PheromoneSampleDistPixels = 5;
+    public int PheromoneSampleStepAngle = 15;
+    public int PheromoneSampleStepCount = 2;
     public int PheromoneSpawnDistPixels = 5;
     public float PheromoneSpawnAmount = 0.1f;
     public float PheromoneDecayRateSec = 0.1f;
@@ -37,6 +39,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             TimeScale = authoring.TimeScale,
             RandomSteeringAmount = authoring.RandomSteeringAmount,
             PheromoneSampleDistPixels = authoring.PheromoneSampleDistPixels,
+            PheromoneSampleStepAngle = authoring.PheromoneSampleStepAngle,
+            PheromoneSampleStepCount = authoring.PheromoneSampleStepCount,
             PheromoneSpawnDistPixels = authoring.PheromoneSpawnDistPixels,
             PheromoneSpawnAmount = authoring.PheromoneSpawnAmount,
             PheromoneDecayRateSec = authoring.PheromoneDecayRateSec

@@ -36,7 +36,7 @@ public partial struct PheromoneSpawningSystem : ISystem
         int sdy = config.PheromoneSpawnDistPixels;
         
         // Use straight edge to fit sphere influence, diagonal max dist would clip.
-        float maxDist = sdx * sdx;                  
+        float maxDist = math.max(sdx * sdx, 1);                  
         
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
         foreach( var (transform, ant) in SystemAPI.Query<TransformAspect, Ant>())

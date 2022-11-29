@@ -22,46 +22,33 @@ public partial struct PheromoneSamplingSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
 
-        // Search distance
-        int sdx = config.PheromoneSampleDistPixels;
-        int sdy = config.PheromoneSampleDistPixels;
+        float sampleDist = config.PheromoneSampleDistPixels * config.TimeScale * SystemAPI.Time.DeltaTime;
+        float steerAngleRad = math.radians(15.0f);
+        int stepCount = 2;
         
         foreach (var (transform, currentDirection, pheromoneDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRW<PheromoneDirection>, Ant>())
         {
-            int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));
-
-            int dirX = 0;
-            int dirY = 0;
-            float dirAmount = 0.0f;
-            for (int y = -sdy; y < sdy + 1; y++)
+            float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz);
+            float curAngle = currentDirection.ValueRO.Angle;    
+            
+            float stepAmount = 0.0f;
+            float bestStep = 0;
+            for (int s = -stepCount; s < stepCount + 1; s++)
             {
-                for (int x = -sdx; x < sdx + 1; x++)
+                float2 dir = new float2(math.sin(curAngle - steerAngleRad * s), math.cos(curAngle - steerAngleRad * s));
+                int2 texPos = new int2(mapPos + dir * sampleDist);
+                float amount = PheromoneMapUtil.GetAmount(ref pheromoneMap, texPos.x, texPos.y);
+                //Debug.Log($"Step:{s}, SteerAngleDeg:{math.degrees(s * steerAngleRad)}, texPos:{texPos}");
+                if (amount > stepAmount)
                 {
-                    float amount = PheromoneMapUtil.GetAmount(ref pheromoneMap, posTex.x + x, posTex.y + y);
-                    if (amount > dirAmount)
-                    {
-                        dirAmount = amount;
-                        dirX = x;
-                        dirY = y;
-                    }
-                }    
+                    stepAmount = amount;
+                    bestStep = s;
+                }
             }
+            
+            //Debug.Log($"Best step:{bestStep}, SteerAngleDeg:{math.degrees(bestStep * steerAngleRad)}");
 
-            if (dirX != 0 && dirY != 0)
-            {
-                var pDir = math.normalize(new float2(dirX, dirY));
-                var pAngle = math.dot(pDir, new float2(1, 0));
-                pheromoneDirection.ValueRW.Angle = pAngle - currentDirection.ValueRO.Angle;  // It this correct??
-                pheromoneDirection.ValueRW.Strength = dirAmount;
-                
-                //Debug.Log( $"Sample: {dirX},{dirY}, pheromoneDir {pheromoneDir}, pAngle {angle}, Result:{pheromoneDirection.ValueRW.Angle}, Current:{currentDirection.ValueRO.Angle}");
-            }
-            else
-            {
-                pheromoneDirection.ValueRW.Angle = 0;
-                
-                //Debug.Log( $"Sample: {dirX},{dirY}");
-            }
+            pheromoneDirection.ValueRW.Angle = bestStep * steerAngleRad;
         }
     }
 }

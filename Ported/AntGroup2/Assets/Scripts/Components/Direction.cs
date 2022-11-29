@@ -11,7 +11,6 @@ struct CurrentDirection : IComponentData
 struct PheromoneDirection : IComponentData
 {
     public float Angle;
-    public float Strength;
 }
 
 struct TargetDirection : IComponentData
