@@ -1,5 +1,5 @@
 using Unity.Entities;
 
-struct RidingTag : IComponentData
+struct QueueingTag : IComponentData
 {
 }
