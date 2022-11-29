@@ -8,7 +8,7 @@ using Unity.Transforms;
 // It has to be added on BOTH the struct AND the OnCreate/OnDestroy/OnUpdate functions to be
 // effective.
 [BurstCompile]
-partial struct TurretRotationSystem : ISystem
+partial struct RotateEverythingSystem : ISystem
 {
     // Every function defined by ISystem has to be implemented even if empty.
     [BurstCompile]
