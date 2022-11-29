@@ -29,6 +29,9 @@ namespace Ported.Scripts.Utils
                     output.x = -1;
                     output.y = 0;
                     break;
+                default:
+                    output = float2.zero;
+                    break;
             }
         }
         
