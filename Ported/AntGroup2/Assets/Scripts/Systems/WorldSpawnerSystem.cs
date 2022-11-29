@@ -50,33 +50,38 @@ partial struct WorldSpawnerSystem : ISystem
         float WallSpacing = 20.0f;
         float distanceBetweenWalls = 0.5f;
 
-        int MinGapCount = 1;
-        int MaxGapCount = 3;
-        var random = Random.CreateFromIndex(123456);
-
-        NativeList<float> Gaps = new NativeList<float>();
-
+        //int MinGapCount = 1;
+        //int MaxGapCount = 3;
+        //var random = Random.CreateFromIndex(123456);
+//
+        //NativeList<float> Gaps = new NativeList<float>();
+//
         for (int i = 1; i <= WallRingCount; ++i)
         {
             currentDistance += WallSpacing;
             angleBetweenWalls = distanceBetweenWalls / currentDistance;
             
             
-            var gapCount = random.NextInt(MinGapCount, MaxGapCount);
+            //var gapCount = random.NextInt(MinGapCount, MaxGapCount);
 
             int createdGaps = 0;
-            while (createdGaps < gapCount)
-            {
-                var startPos = random.NextFloat(0, math.PI * 2.0f);
-                Gaps.Add(startPos);
-                var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
-                Gaps.Add(endPos);
-                ++createdGaps;
-            }
+            //while (createdGaps < gapCount)
+            //{
+            //    var startPos = random.NextFloat(0, math.PI * 2.0f);
+            //    Gaps.Add(startPos);
+            //    var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
+            //    Gaps.Add(endPos);
+            //    ++createdGaps;
+            //}
 
             while (currentAngle < math.PI*2.0f)
             {
                 var pos = new float2();
+
+                if (currentAngle > 1.0f && currentAngle < 1.4f)
+                {
+                    currentAngle += 0.4f;
+                }
 
                 pos.x = math.cos(currentAngle) * currentDistance;
                 pos.y = math.sin(currentAngle) * currentDistance;

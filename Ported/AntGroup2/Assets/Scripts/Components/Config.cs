@@ -6,4 +6,5 @@ using UnityEngine;
 struct Config : IComponentData
 {
     //const config data
+    public Entity WallPrefab;
 }
