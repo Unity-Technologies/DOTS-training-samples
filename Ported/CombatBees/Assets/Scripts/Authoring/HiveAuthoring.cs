@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using UnityEngine;
 
 class HiveAuthoring : MonoBehaviour
@@ -15,7 +16,10 @@ class HiveBaker : Baker<HiveAuthoring>
         {
             color = (Vector4)authoring.beeColor,
             boundsPosition = bounds.center,
-            boundsExtents = bounds.extents
-        });
+            boundsExtents = bounds.extents,
+        }) ;
+
+        AddBuffer<EnemyBees>();
+        AddBuffer<AvailableResources>();
     }
 }

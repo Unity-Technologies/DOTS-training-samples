@@ -2,12 +2,11 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct BeeBehaviourSystem : ISystem
 {
-    float aggressiveThreshold;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -21,28 +20,67 @@ partial struct BeeBehaviourSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        /*EntityCommandBuffer ecb = new EntityCommandBuffer(Unity.Collections.Allocator.TempJob);
-        EntityCommandBuffer.ParallelWriter parallelEcb = ecb.AsParallelWriter();*/
-        //parallelEcb.set
-        
-        
-        // The amount of rotation around Y required to do 360 degrees in 2 seconds.
-        var rotation = quaternion.RotateY(SystemAPI.Time.DeltaTime * math.PI);
+        DynamicBuffer<EnemyBees> hive0EnemyBees = new DynamicBuffer<EnemyBees>();
+        DynamicBuffer<EnemyBees> hive1EnemyBees = new DynamicBuffer<EnemyBees>();
+        DynamicBuffer<AvailableResources> hive01AvailableResources;
 
-
-
-
-
-        // The classic C# foreach is what we often refer to as "Idiomatic foreach" (IFE).
-        // Aspects provide a higher level interface than directly accessing component data.
-        // Using IFE with aspects is a powerful and expressive way of writing main thread code.
-        foreach (var (transform, entity) in SystemAPI.Query<TransformAspect>().WithAll<BeeState>().WithEntityAccess())
+        foreach (var (hiveEnemyBees, hiveAvailableResources, team) in SystemAPI.Query<DynamicBuffer<EnemyBees>, DynamicBuffer<AvailableResources>, Team>())
         {
-            EntityManager em = state.EntityManager;
-            //em.SetComponentData(entity, new BeeState { beeState = (BeeStateEnumerator)UnityEngine.Random.Range(0, 3) });
+            if(team.number == 0)
+            {
+                hive0EnemyBees = hiveEnemyBees;
+            }
+            else
+            {
+                hive1EnemyBees = hiveEnemyBees;
+            }
 
-            transform.RotateWorld(rotation);
-            //parallelEcb.SetComponent<BeeState>(entity, new BeeState { beeState = (BeeStateEnumerator)UnityEngine.Random.Range(0, 3) };)
+            hive01AvailableResources = hiveAvailableResources;
+        }
+
+        var rotationStrength = Mathf.Min(.5f * Time.deltaTime, 1); // Some arbitrary value for speed of rotation
+
+        foreach (var (transform, beeState, team, target, entity) in SystemAPI.Query<TransformAspect, RefRW<BeeState>, Team, RefRW<BeeTarget>>().WithEntityAccess())
+        {
+            switch (beeState.ValueRO.beeState)
+            {
+                case BeeStateEnumerator.Attacking:
+
+                    if(target.ValueRW.target == Entity.Null)
+                    {
+                        var enemyBees = team.number == 0 ? hive1EnemyBees : hive0EnemyBees;
+
+                        // Workaround (disabling this functionality for one team) for issue noted in HiveSystem.cs
+                        if (team.number == 0) { return; }
+
+                        var randomIndex = UnityEngine.Random.Range(0, enemyBees.Length);
+                        target.ValueRW.target = enemyBees[randomIndex].enemy;
+                        target.ValueRW.targetPosition = enemyBees[randomIndex].enemyPosition;
+                    }
+                    else
+                    {
+
+                        // Placeholder. TODO smooth rotation to face target, rather than snapping. The code below just results in jittering.
+                        transform.LookAt(target.ValueRW.targetPosition);
+
+
+                        /*var targetRotation = Quaternion.LookRotation(target.ValueRW.targetPosition);
+                        transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, SystemAPI.Time.DeltaTime));
+                        //transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, rotationStrength));*/
+                    }
+
+
+                    break;
+                case BeeStateEnumerator.Gathering:
+                    //
+                    break;
+                case BeeStateEnumerator.CarryBack:
+                    //
+                    break;
+                case BeeStateEnumerator.Dying:
+                    //
+                    break;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ partial struct BeeSpawnSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        aggressiveThreshold = 0.6f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
+        aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
     }
 
     [BurstCompile]
@@ -62,7 +62,8 @@ partial struct BeeSpawnSystem : ISystem
                 ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
-                    Scale = scale
+                    Scale = scale,
+                    Rotation = quaternion.identity
                 });
 
                 ecb.SetComponent(bee, new BeeState
