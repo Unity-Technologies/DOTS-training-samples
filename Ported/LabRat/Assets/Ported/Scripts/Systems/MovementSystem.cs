@@ -3,6 +3,7 @@ using Ported.Scripts.Utils;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
@@ -23,7 +24,7 @@ public partial struct MovementSystem : ISystem
    {
        int numUpdatedEntities = 0;
 
-       foreach (var (unit, pos, entity) in SystemAPI.Query<RefRW<UnitMovementComponent>, RefRW<PositionComponent>>()
+       foreach (var (unit, pos, transform, entity) in SystemAPI.Query<RefRW<UnitMovementComponent>, RefRW<PositionComponent>, RefRW<WorldTransform>>()
                     .WithEntityAccess())
        {
            numUpdatedEntities++;
@@ -45,6 +46,9 @@ public partial struct MovementSystem : ISystem
            {
                unit.ValueRW.direction = MovementDirection.East;
            }
+
+           transform.ValueRW.Position.x = pos.ValueRW.position.x;
+           transform.ValueRW.Position.y = pos.ValueRW.position.y;
        }
 
        //Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");

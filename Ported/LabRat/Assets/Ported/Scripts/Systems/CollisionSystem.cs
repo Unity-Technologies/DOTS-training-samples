@@ -52,7 +52,7 @@ namespace Ported.Scripts.Systems
                 }
             }
 
-            Debug.Log($"[CollisionSystem] destroyed entities: {numCollisions}");
+            // Debug.Log($"[CollisionSystem] destroyed entities: {numCollisions}");
         }
     }
 }
