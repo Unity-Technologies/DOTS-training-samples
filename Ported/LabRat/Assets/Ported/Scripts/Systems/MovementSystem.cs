@@ -47,6 +47,6 @@ public partial struct MovementSystem : ISystem
            }
        }
 
-       Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
+       //Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
    }
 }

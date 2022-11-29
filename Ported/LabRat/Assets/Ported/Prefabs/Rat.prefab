@@ -10,9 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4850903069467796696}
   - component: {fileID: 6438795241752434826}
-  - component: {fileID: 3695332324271201214}
   - component: {fileID: 1440784106558131775}
-  - component: {fileID: 1548357099793604206}
   m_Layer: 9
   m_Name: Body
   m_TagString: Untagged
@@ -44,27 +42,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2751989472970064997}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!135 &3695332324271201214
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2751989472970064997}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1440784106558131775
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -107,25 +84,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1548357099793604206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2751989472970064997}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df78dae776b8f4cd9ad5fb1d87ea3f38, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RandomScale:
-    minVal: 0.9
-    maxVal: 1.27
-  myScale: 0.9756564
-  mode: 0
-  color: {r: 1, g: 1, b: 1, a: 1}
-  SetColor: 0
 --- !u!1 &3263514187355884622
 GameObject:
   m_ObjectHideFlags: 0
@@ -157,7 +115,7 @@ Transform:
   m_Children:
   - {fileID: 4850903069467796696}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3086950724667592124
 MonoBehaviour:

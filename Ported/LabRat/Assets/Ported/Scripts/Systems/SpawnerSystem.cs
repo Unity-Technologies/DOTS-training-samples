@@ -15,12 +15,13 @@ partial struct SpawnerSystem : ISystem
 {
     // A ComponentLookup provides random access to a component (looking up an entity).
     // We'll use it to extract the world space position and orientation of the spawn point (cannon nozzle).
-    //ComponentLookup<Unity.Transforms.LocalToWorld> m_LocalToWorldTransformFromEntity;
+    ComponentLookup<Unity.Transforms.LocalToWorld> m_LocalToWorldTransformFromEntity;
 
     // Every function defined by ISystem has to be implemented even if empty.
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        m_LocalToWorldTransformFromEntity = state.GetComponentLookup<LocalToWorld>(true);
     }
 
     // Every function defined by ISystem has to be implemented even if empty.
@@ -33,6 +34,10 @@ partial struct SpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        //Instead of caching (as an option)
+        //SystemAPI.GetComponentLookup<LocalTransform>();
+        m_LocalToWorldTransformFromEntity.Update(ref state);
+        
         //Debug.Log("SpawnerSystem OnUpdate");
         
         float dt = SystemAPI.Time.DeltaTime;
@@ -55,7 +60,7 @@ partial struct SpawnerSystem : ISystem
                     
                     var spawnJob = new SpawnUnit
                     {
-                        //LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
+                        LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
                         ECB = ecb
                     };
                     array.Add(spawnJob);
@@ -70,6 +75,8 @@ partial struct SpawnerSystem : ISystem
             var job = array[i];
             job.Schedule();
         }
+        
+        
     }
 }
 
@@ -79,27 +86,19 @@ partial struct SpawnerSystem : ISystem
 [BurstCompile]
 partial struct SpawnUnit : IJobEntity
 {
-    //[ReadOnly] public ComponentLookup<Unity.Transforms.LocalToWorld> LocalToWorldTransformFromEntity;
+    [ReadOnly] public ComponentLookup<Unity.Transforms.LocalToWorld> LocalToWorldTransformFromEntity;
     public EntityCommandBuffer ECB;
 
     void Execute(in UnitSpawnerComponent unit)
     {
         var instance = ECB.Instantiate(unit.spawnObject);
-        //Unity.Transforms.LocalToWorld
-        //var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint];
-        //var spawnTransform = Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
-        //Unity.Transforms.WorldTransform
-        //var spawnTransform = Unity.Transforms.UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
-        
-        
-        /*
-        ECB.SetComponent(instance, new LocalToWorld
-        {
-            Value = spawnTransform//spawnLocalToWorld.Value
-        });
-        */
-        
-        
+        var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint].Position;
+        var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld); //Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
+
+        ECB.SetComponent(instance, spawnTransform);
+
+
+
         /*
         var cannonBallTransform = UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
 
