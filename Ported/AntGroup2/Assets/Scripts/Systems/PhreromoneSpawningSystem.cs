@@ -17,7 +17,7 @@ public partial struct PheromoneSpawningSystem : ISystem
 
         var e = state.EntityManager.CreateSingletonBuffer<PheromoneMap>();
         var map = state.EntityManager.GetBuffer<PheromoneMap>(e);
-        map.Resize( 64 * 64, NativeArrayOptions.ClearMemory);
+        map.Resize( PheromoneDisplaySystem.PheromoneTextureSizeX * PheromoneDisplaySystem.PheromoneTextureSizeY, NativeArrayOptions.ClearMemory);
     }
 
     //[BurstCompile]
@@ -26,9 +26,9 @@ public partial struct PheromoneSpawningSystem : ISystem
     //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // TODO: config
-        float2 planePosition = new float2(10, -10);
-        float2 planeExtent = new float2(10, 10); // TODO: get from the game object??
+        var config = SystemAPI.GetSingleton<Config>();
+        
+        float2 planeExtent = new float2(config.PlaySize); // TODO: get from the game object??
         float2 planeHalfExtent = planeExtent / 2;
         int2 textureSize = new int2(PheromoneDisplaySystem.PheromoneTextureSizeX, PheromoneDisplaySystem.PheromoneTextureSizeX); // TODO: Config???
         
@@ -36,7 +36,7 @@ public partial struct PheromoneSpawningSystem : ISystem
         foreach( var (transform, ant) in SystemAPI.Query<TransformAspect, Ant>())
         {
             float2 pos = transform.LocalPosition.xz;
-            float2 posNormalized = (pos - planePosition + planeHalfExtent) / planeExtent;
+            float2 posNormalized = (pos + planeHalfExtent) / planeExtent;
             int2 posTex = new int2(posNormalized * textureSize);
             
             if ((uint)posTex.x < textureSize.x && (uint)posTex.y < textureSize.y)

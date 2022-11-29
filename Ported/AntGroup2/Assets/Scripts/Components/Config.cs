@@ -10,6 +10,7 @@ struct Config : IComponentData
     public Entity AntPrefab;
 
     public int TotalAmountOfAnts;
-    public int PlaySize;
+    public int PlaySize;    // Size of play area edge, area center at origin.
     public int AmountOfWalls;
+    public float timeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
 }

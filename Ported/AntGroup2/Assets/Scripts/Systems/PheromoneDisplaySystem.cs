@@ -32,6 +32,12 @@ partial class PheromoneDisplaySystem : SystemBase
 
     protected override void OnUpdate()
     {
+        var config = SystemAPI.GetSingleton<Config>();
+
+        // Resize the display plane to cover the play area
+        float planeScale = config.PlaySize / 10.0f;
+        displayPlane.transform.localScale = new Vector3(planeScale,planeScale,planeScale);
+        
         // Assume there's only one PheromoneMap
         Entities.ForEach((Entity ent, in DynamicBuffer<PheromoneMap> map) =>
         {
@@ -43,9 +49,9 @@ partial class PheromoneDisplaySystem : SystemBase
             int2 texSize = new int2(pheromoneTexture.width, pheromoneTexture.height);
             
             // Clear
-            for (int i = 0; i < 64; i++)
+            for (int i = 0; i < PheromoneTextureSizeX; i++)
             {
-                for (int j = 0; j < 64; j++)
+                for (int j = 0; j < PheromoneTextureSizeY; j++)
                 {
                     pheromoneTexture.SetPixel(i, j, Color.black);
                 }    
@@ -63,12 +69,11 @@ partial class PheromoneDisplaySystem : SystemBase
             for (int i = 0; i < map.Length; i++)
             {
                 float amount = map[i].amount;
-                int colorAmount = (int)(math.saturate(amount) * 255);
 
                 int x = i % PheromoneTextureSizeX;
                 int y = i / PheromoneTextureSizeX;
-
-                pheromoneTexture.SetPixel(x, y, new Color(colorAmount, 0, 0, 255));
+                
+                pheromoneTexture.SetPixel(x, y, new Color(math.saturate(amount), 0, 0, 1));
             }
             pheromoneTexture.Apply();
             
