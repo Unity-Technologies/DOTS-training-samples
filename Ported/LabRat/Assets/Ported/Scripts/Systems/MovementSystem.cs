@@ -24,7 +24,7 @@ public partial struct MovementSystem : ISystem
          var direction = unit.ValueRO.direction;
          var speed = unit.ValueRO.speed;
 
-         var dir = RatLabHelper.DirectionToVector(direction);
+         RatLabHelper.DirectionToVector(out var dir ,direction);
 
          pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
          

@@ -9,10 +9,8 @@ namespace Ported.Scripts.Utils
     {
         [BurstCompile]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void DirectionToVector(MovementDirection direction)
+        public static void DirectionToVector(out float2 output, MovementDirection direction)
         {
-            float2 output = float2.zero;
-
             switch (direction)
             {
                 case MovementDirection.North:
@@ -32,8 +30,6 @@ namespace Ported.Scripts.Utils
                     output.y = 0;
                     break;
             }
-
-            return output;
         }
         
         [BurstCompile]
