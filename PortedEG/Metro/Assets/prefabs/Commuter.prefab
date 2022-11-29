@@ -93,6 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4137138444318108}
   - component: {fileID: 114133879905857612}
+  - component: {fileID: 3192765592598478964}
   m_Layer: 0
   m_Name: Commuter
   m_TagString: Untagged
@@ -137,3 +138,15 @@ MonoBehaviour:
   FinalDestination: {fileID: 0}
   currentTrainDoor: {fileID: 0}
   currentSeat: {fileID: 0}
+--- !u!114 &3192765592598478964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1598512793004306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58c3a9dd6886b704d8c282bba4e3e53b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
