@@ -1,4 +1,6 @@
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public enum PassengerState
 {
@@ -11,4 +13,5 @@ public enum PassengerState
 public struct Passenger : IComponentData
 {
     public PassengerState State;
+    public NativeArray<float3> Pathway;
 }
