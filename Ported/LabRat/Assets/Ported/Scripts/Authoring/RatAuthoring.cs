@@ -11,6 +11,7 @@ class RatBaker : Baker<RatAuthoring>
     public override void Bake(RatAuthoring authoring)
     {
         AddComponent<IsAliveComponent>();
+        AddComponent<PositionComponent>();
         AddComponent<UnitMovementComponent>();
     }
 }

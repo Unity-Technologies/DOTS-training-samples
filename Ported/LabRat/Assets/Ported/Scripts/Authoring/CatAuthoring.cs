@@ -11,5 +11,6 @@ class CatBaker : Baker<CatAuthoring>
     public override void Bake(CatAuthoring authoring)
     {
         AddComponent<UnitMovementComponent>();
+        AddComponent<PositionComponent>();
     }
 }

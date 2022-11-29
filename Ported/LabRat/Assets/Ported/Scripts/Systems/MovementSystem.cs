@@ -18,7 +18,7 @@ public partial struct MovementSystem : ISystem
    {
    }
 
-   [BurstCompile]
+   // [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
        int numUpdatedEntities = 0;
@@ -32,7 +32,8 @@ public partial struct MovementSystem : ISystem
 
            RatLabHelper.DirectionToVector(out var dir, direction);
 
-           pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
+           // pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
+           pos.ValueRW.position.x += 0.01f;
 
            // todo : check if possible to continue moving?
            // if(!CanMoveInDirection(...)) rotate(...)
