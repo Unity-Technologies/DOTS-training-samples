@@ -5,7 +5,11 @@ using UnityEngine;
 
 struct Config : IComponentData
 {
+    //const config data
+    public Entity WallPrefab;
     public Entity AntPrefab;
 
     public int TotalAmountOfAnts;
+    public int PlaySize;
+    public int AmountOfWalls;
 }
