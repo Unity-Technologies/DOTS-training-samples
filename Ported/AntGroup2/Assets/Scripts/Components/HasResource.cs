@@ -5,5 +5,5 @@ using UnityEngine;
 
 struct HasResource : IComponentData
 {
-    private bool Value;
+    public bool Value;
 }
