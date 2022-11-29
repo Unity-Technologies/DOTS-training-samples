@@ -8,7 +8,6 @@ public struct UnitSpawnerComponent : IComponentData
     public int max;
     public float frequency;
     public float counter;
-
-
-    //public Prefab spawnObject;
+    public Entity spawnObject;
+    public Entity spawnPoint;
 }

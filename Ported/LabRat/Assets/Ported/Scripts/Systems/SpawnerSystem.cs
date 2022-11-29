@@ -4,6 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Transforms;
+using UnityEngine.UI;
 
 // Unmanaged systems based on ISystem can be Burst compiled, but this is not yet the default.
 // So we have to explicitly opt into Burst compilation with the [BurstCompile] attribute.
@@ -14,8 +15,8 @@ partial struct SpawnerSystem : ISystem
 {
     // A ComponentLookup provides random access to a component (looking up an entity).
     // We'll use it to extract the world space position and orientation of the spawn point (cannon nozzle).
-    //ComponentLookup<LocalToWorldTransform> m_LocalToWorldTransformFromEntity;
-    
+    //ComponentLookup<Unity.Transforms.LocalToWorld> m_LocalToWorldTransformFromEntity;
+
     // Every function defined by ISystem has to be implemented even if empty.
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -35,56 +36,39 @@ partial struct SpawnerSystem : ISystem
         //Debug.Log("SpawnerSystem OnUpdate");
         
         float dt = SystemAPI.Time.DeltaTime;
+
+        NativeList<SpawnUnit> array = new NativeList<SpawnUnit>(state.WorldUpdateAllocator);
+
         
         foreach (var unitSpawner in SystemAPI.Query<RefRW<UnitSpawnerComponent>>())
         {
-            Debug.Log("Updating Unit Spawner");
-            
             unitSpawner.ValueRW.counter += dt;
             
             if (unitSpawner.ValueRO.counter > unitSpawner.ValueRO.frequency)
             {
                 //Registering jobs for the entities to spawn
-
                 var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-                var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-                
+
                 for (int i = 0; i < unitSpawner.ValueRO.max; i++)
                 {
+                    var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
                     
                     var spawnJob = new SpawnUnit
                     {
                         //LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
                         ECB = ecb
                     };
-
-                    // Schedule execution in a single thread, and do not block main thread.
-                    spawnJob.Schedule();    
-                    
-                    
-                    /*
-                     * // ComponentLookup structures have to be updated every frame.
-        m_LocalToWorldTransformFromEntity.Update(ref state);
-
-        // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
-        
-
-        // Creating an instance of the job.
-        // Passing it the ComponentLookup required to get the world transform of the spawn point.
-        // And the entity command buffer the job can write to.
-        var turretShootJob = new TurretShoot
-        {
-            LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
-            ECB = ecb
-        };
-
-        // Schedule execution in a single thread, and do not block main thread.
-        turretShootJob.Schedule();
-                     */
+                    array.Add(spawnJob);
                 }
 
                 unitSpawner.ValueRW.counter = 0.0f;
             }
+        }
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            var job = array[i];
+            job.Schedule();
         }
     }
 }
@@ -95,11 +79,39 @@ partial struct SpawnerSystem : ISystem
 [BurstCompile]
 partial struct SpawnUnit : IJobEntity
 {
-    //[ReadOnly] public ComponentLookup<LocalToWorldTransform> LocalToWorldTransformFromEntity;
+    //[ReadOnly] public ComponentLookup<Unity.Transforms.LocalToWorld> LocalToWorldTransformFromEntity;
     public EntityCommandBuffer ECB;
 
     void Execute(in UnitSpawnerComponent unit)
     {
+        var instance = ECB.Instantiate(unit.spawnObject);
+        //Unity.Transforms.LocalToWorld
+        //var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint];
+        //var spawnTransform = Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
+        //Unity.Transforms.WorldTransform
+        //var spawnTransform = Unity.Transforms.UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
+        
+        
+        /*
+        ECB.SetComponent(instance, new LocalToWorld
+        {
+            Value = spawnTransform//spawnLocalToWorld.Value
+        });
+        */
+        
+        
+        /*
+        var cannonBallTransform = UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
+
+        // We are about to overwrite the transform of the new instance. If we didn't explicitly
+        // copy the scale it would get reset to 1 and we'd have oversized cannon balls.
+        cannonBallTransform.Scale = LocalToWorldTransformFromEntity[turret.CannonBallPrefab].Value.Scale;
+        ECB.SetComponent(instance, new LocalToWorldTransform
+        {
+            Value = cannonBallTransform
+        });
+        */
+        
         Debug.Log("Execute me");
     }
     
