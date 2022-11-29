@@ -19,17 +19,17 @@ partial struct TargetSeekingSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var ant in SystemAPI.Query<TargetDirectionAspect, TransformAspect>().WithAll<Ant>())
+        foreach (var ant in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
             //Checks if there is anything between the ant and the goal
             if (!Physics.Linecast(ant.Item2.WorldPosition, new float3(7.4f, 0f, 10f)))
             {
                 float angle = Vector3.Angle(new float3(7.4f, 0f, 10f) - ant.Item2.WorldPosition, Vector3.right);
                 //Debug.Log(angle);
-                ant.Item1.Direction = angle;
+                ant.Item1.TargetDirection = angle;
             }
             
-            ant.Item1.Direction = 0.3f;
+            ant.Item1.TargetDirection = 0.3f;
         }
     }
 }

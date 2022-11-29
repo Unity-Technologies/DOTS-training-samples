@@ -6,19 +6,39 @@ using Unity.Mathematics;
 
 readonly partial struct DirectionAspect : IAspect
 {
-    readonly RefRO<TargetDirection> targetDirection;
-    readonly RefRO<PheromoneDirection> pheromoneDirection;
-    readonly RefRO<WallDirection> wallDirection;
+    readonly RefRW<TargetDirection> targetDirection;
+    readonly RefRW<PheromoneDirection> pheromoneDirection;
+    readonly RefRW<WallDirection> wallDirection;
 
     readonly RefRW<CurrentDirection> currentDirection;
-
-    public float TargetDirection => targetDirection.ValueRO.Angle;
-    public float PheromoneDirection => pheromoneDirection.ValueRO.Angle;
-    public float WallDirection => wallDirection.ValueRO.Angle;
-
+    
     public float CurrentDirection
     {
         get => currentDirection.ValueRO.Angle;
         set => currentDirection.ValueRW.Angle = value;
+    }
+
+    public float TargetDirection
+    {
+        get => targetDirection.ValueRO.Angle;
+        set => targetDirection.ValueRW.Angle = value;
+    }
+
+    public float PheromoneDirection
+    {
+        get => pheromoneDirection.ValueRO.Angle;
+        set => pheromoneDirection.ValueRW.Angle = value;
+    }
+
+    public float WallDirection
+    {
+        get => wallDirection.ValueRO.Angle;
+        set => wallDirection.ValueRW.Angle = value;
+    }
+
+    public bool WallBounce
+    {
+        get => wallDirection.ValueRO.Reverse;
+        set => wallDirection.ValueRW.Reverse = value;
     }
 }

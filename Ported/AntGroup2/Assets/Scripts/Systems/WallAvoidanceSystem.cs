@@ -18,29 +18,28 @@ partial struct WallAvoidanceSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var ant in SystemAPI.Query<TargetDirectionAspect, TransformAspect>().WithAll<Ant>())
+        foreach (var ant in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
+            bool wallBounce = false;
             foreach (var wall in SystemAPI.Query<TransformAspect>().WithAll<Obstacle>())
             {
+                for (float antStepSize = 0.5f; antStepSize < 3.0f; antStepSize += 0.5f)
+                {
+                    float3 antStep = ant.Item2.WorldPosition + new float3(math.sin(ant.Item1.CurrentDirection),0, math.cos(ant.Item1.CurrentDirection)) * antStepSize;
+
+                    if (antStep.x - wall.WorldPosition.x <= 2.0f || antStep.z - wall.WorldPosition.z <= 2.0f)
+                    {
+                        var dx = antStep.x - wall.WorldPosition.x;
+                        var dy = antStep.z - wall.WorldPosition.z;
+                        float sqrDist = dx * dx + dy * dy;
+                        
+                        if(sqrDist < 2f * 2f)
+                            ant.Item1.WallDirection = (math.PI / 4.0f) * math.pow((antStepSize / 3.0f), 3.0f);
+                    }
+                }
+
                 if (ant.Item2.WorldPosition.x - wall.WorldPosition.x <= 2f || ant.Item2.WorldPosition.z - wall.WorldPosition.z <= 2f)
                 {
-                    /* Original code 
-                    
-                    dx = ant.position.x - obstacle.position.x;
-				    dy = ant.position.y - obstacle.position.y;
-				    float sqrDist = dx * dx + dy * dy;
-				    if (sqrDist<obstacleRadius*obstacleRadius) {
-				    	dist = Mathf.Sqrt(sqrDist);
-				    	dx /= dist;
-				    	dy /= dist;
-				    	ant.position.x = obstacle.position.x + dx * obstacleRadius;
-				    	ant.position.y = obstacle.position.y + dy * obstacleRadius;
-
-				    	vx -= dx * (dx * vx + dy * vy) * 1.5f;
-				    	vy -= dy * (dx * vx + dy * vy) * 1.5f;
-				    }
-                    */
-
                     var dx = ant.Item2.WorldPosition.x - wall.WorldPosition.x;
                     var dy = ant.Item2.WorldPosition.z - wall.WorldPosition.z;
                     float sqrDist = dx * dx + dy * dy;
@@ -49,9 +48,12 @@ partial struct WallAvoidanceSystem : ISystem
                         var dist = math.sqrt(sqrDist);
                         dx /= dist;
                         dy /= dist;
-                        ant.Item1.Direction = math.atan2(wall.WorldPosition.x + dx * /*ObstacleRadius*/2f, wall.WorldPosition.z + dy * /*ObstacleRadius*/ 2f);
+                        //ant.Item1.WallDirection = math.atan2(wall.WorldPosition.x + dx * /*ObstacleRadius*/2f, wall.WorldPosition.z + dy * /*ObstacleRadius*/ 2f);
+                        wallBounce = true;
                     }
                 }
+
+                ant.Item1.WallBounce = wallBounce;
             }
         }
     }

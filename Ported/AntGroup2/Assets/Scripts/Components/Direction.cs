@@ -22,4 +22,5 @@ struct TargetDirection : IComponentData
 struct WallDirection : IComponentData
 {
     public float Angle;
+    public bool Reverse;
 }
