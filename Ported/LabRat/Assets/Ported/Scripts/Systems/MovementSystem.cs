@@ -1,28 +1,35 @@
+using Ported.Scripts.Utils;
+using Unity.Burst;
 using Unity.Entities;
-using UnityEngine;
 
-public partial class MovementSystem : SystemBase
+[BurstCompile]
+public partial struct MovementSystem : ISystem
 {
-   // protected override void OnUpdate()
-   // {
-   //     // Local variable captured in ForEach
-   //     float dT = Time.DeltaTime;
-   //
-   //     Entities
-   //         .WithName("Update_Displacement")
-   //         .ForEach(
-   //             (ref Position position, in Velocity velocity) =>
-   //             {
-   //                 position = new Position()
-   //                 {
-   //                     Value = position.Value + velocity.Value * dT
-   //                 };
-   //             }
-   //         )
-   //         .ScheduleParallel();
-   // }
-   protected override void OnUpdate()
+   [BurstCompile]
+   public void OnCreate(ref SystemState state)
    {
-      // throw new System.NotImplementedException();
+   }
+
+   [BurstCompile]
+   public void OnDestroy(ref SystemState state)
+   {
+   }
+
+   [BurstCompile]
+   public void OnUpdate(ref SystemState state)
+   { 
+      foreach (var (unit, pos, entity) in SystemAPI.Query<RefRO<UnitMovementComponent>, RefRW<PositionComponent>>()
+                  .WithEntityAccess())
+      {
+         var direction = unit.ValueRO.direction;
+         var speed = unit.ValueRO.speed;
+
+         var dir = RatLabHelper.DirectionToVector(direction);
+
+         pos.ValueRW.position += (dir * speed * SystemAPI.Time.DeltaTime);
+         
+         // todo : check if possible to continue moving?
+         // if(!CanMoveInDirection(...)) rotate(...)
+      }
    }
 }
