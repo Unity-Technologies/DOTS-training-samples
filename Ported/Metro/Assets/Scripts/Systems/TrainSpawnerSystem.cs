@@ -29,8 +29,8 @@ namespace Systems
                 var carriages = CollectionHelper.CreateNativeArray<Entity>(trainSpawn.CarriageCount, Allocator.Temp);
                 ecb.Instantiate(trainSpawn.CarriageSpawn, carriages);
 
-                var train = SystemAPI.GetComponent<Train>(entity);
-                var trainTransform = SystemAPI.GetComponent<WorldTransform>(entity);
+                /*var train = SystemAPI.GetComponent<Train>(entity);
+                var trainTransform = SystemAPI.GetComponent<LocalTransform>(entity);*/
 
                 for (int i = 0; i < carriages.Length; i++)
                 {
@@ -38,13 +38,16 @@ namespace Systems
                     var carriage = new Carriage
                     {
                         Index = i,
-                        Train = train,
-                        TrainTransform = trainTransform,
+                        Train = entity,
+                        /*TrainComponent = train,
+                        TrainTransform = trainTransform,*/
                     };
                     ecb.AddComponent(carriageEntity, carriage);
                 }
-                
+
+                var spawnerEntity = trainSpawn.CarriageSpawn;
                 ecb.RemoveComponent<TrainSpawn>(entity);
+                ecb.DestroyEntity(spawnerEntity);
                 carriages.Dispose();
             }
 

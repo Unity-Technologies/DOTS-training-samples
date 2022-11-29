@@ -1,21 +1,30 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Systems
 {
     [BurstCompile]
     [WithAll(typeof(Carriage))]
-    partial struct CarriageJob : IJobEntity
+    partial struct CopyTrainTransformations : IJobEntity
     {
+        [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformFromEntity;
+        void Execute(ref CopyTrainCarriageAspect carriage)
+        {
+            var trainTransform = WorldTransformFromEntity[carriage.Train];
+            carriage.TrainPosition = trainTransform.Position;
+            carriage.TrainDirection = trainTransform.Forward();
+        }
+    }
+    
+    [BurstCompile]
+    [WithAll(typeof(Carriage))]
+    partial struct CarriageJob : IJobEntity
+    {        
         void Execute(ref CarriageAspect carriage)
         {
-            var trainTransform = carriage.TrainTransform;
-            var trainPosition = trainTransform.Position;
-            var direction = trainTransform.Forward();
-
-            carriage.Position = trainPosition + direction * carriage.Width * carriage.Index;
+            carriage.Position = carriage.TrainPosition - carriage.TrainDirection * carriage.Width * carriage.Index;
         }
     }
 
@@ -25,14 +34,14 @@ namespace Systems
     {
         // A ComponentLookup provides random access to a component (looking up an entity).
         // We'll use it to extract the world space position and orientation of the spawn point (cannon nozzle).
-        //ComponentLookup<WorldTransform> m_WorldTransformFromEntity;
+        ComponentLookup<WorldTransform> m_WorldTransformFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             // ComponentLookup structures have to be initialized once.
             // The parameter specifies if the lookups will be read only or if they should allow writes.
-            //m_WorldTransformFromEntity = state.GetComponentLookup<WorldTransform>(true);
+            m_WorldTransformFromEntity = state.GetComponentLookup<WorldTransform>(true);
         }
 
         [BurstCompile]
@@ -43,14 +52,17 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            //m_WorldTransformFromEntity.Update(ref state);
+            m_WorldTransformFromEntity.Update(ref state);
 
-
-            var CarriageJob = new CarriageJob
+            var copyTrainCarriageJob = new CopyTrainTransformations
             {
-                //WorldTransformFromEntity = m_WorldTransformFromEntity
+                WorldTransformFromEntity = m_WorldTransformFromEntity
             };
-            CarriageJob.ScheduleParallel();
+            var carriageJob = new CarriageJob();
+            
+            var copyTrainTransformationsHandle = copyTrainCarriageJob.ScheduleParallel(state.Dependency);
+            carriageJob.ScheduleParallel(copyTrainTransformationsHandle).Complete();
+            
         }
     }
 }

@@ -27,13 +27,13 @@ readonly partial struct TrainAspect : IAspect
         set => Transform.LocalPosition = value;
     }
 
-    public float2 TrainDestination
+    public float3 TrainDestination
     {
         get => Train.ValueRO.Destination;
         set => Train.ValueRW.Destination = value;
     }
 
-    public float2 TrainDirection
+    public float3 TrainDirection
     {
         get => Train.ValueRO.Direction;
         set => Train.ValueRW.Direction = value;

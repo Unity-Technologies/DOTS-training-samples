@@ -13,9 +13,9 @@ public enum TrainState
 
 public struct Train : IComponentData
 {
-    public float2 Destination;
+    public float3 Destination;
     public float DistanceToNextTrain;
-    public float2 Direction;
+    public float3 Direction;
     public TrainState State;
 }
 

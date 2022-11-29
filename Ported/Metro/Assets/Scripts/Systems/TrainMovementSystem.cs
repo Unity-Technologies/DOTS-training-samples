@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Systems
 {
@@ -13,7 +14,12 @@ namespace Systems
     
         void Execute(ref TrainAspect train)
         {
-            train.TrainDirection = train.TrainDestination - train.Position.xz;
+            var direction = train.TrainDestination - train.Position;
+            var distanceToThePoint = math.lengthsq(direction);
+            if (distanceToThePoint > 0.001f)
+            {
+                train.Position += math.normalize(direction) * (DeltaTime * train.CurrentSpeed);
+            }
         }
     }
 
@@ -34,11 +40,11 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var TrainMovementJob = new TrainMovementJob
+            var trainMovementJob = new TrainMovementJob
             {
                 DeltaTime = SystemAPI.Time.DeltaTime
             };
-            TrainMovementJob.ScheduleParallel();
+            trainMovementJob.ScheduleParallel();
         }
     }
 }

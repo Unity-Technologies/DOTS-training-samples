@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -14,12 +13,16 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
 {
     public override void Bake(TrainAuthoring authoring)
     {
-        AddComponent<SpeedComponent>();
+        AddComponent(new SpeedComponent
+        {
+            Current = 0.1f,
+            Max = 1f
+        });
         AddComponent<URPMaterialPropertyBaseColor>();
         AddComponent(new Train
         {
             State = TrainState.EnRoute,
-            Destination = new float2(0,1)
+            Destination = new float3(0, 0, 10),
         });
         AddComponent(new TrainSpawn
         {
@@ -28,4 +31,3 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
         });
     }
 }
- 

@@ -21,10 +21,16 @@ readonly partial struct CarriageAspect : IAspect
         set => Transform.LocalPosition = value;
     }
     
+    public float3 TrainPosition
+    {
+        get => CarriageComponent.ValueRO.TrainPosition;
+    }
     
-
-    public Train Train => CarriageComponent.ValueRO.Train;
-    public WorldTransform TrainTransform => CarriageComponent.ValueRO.TrainTransform;
+    public float3 TrainDirection
+    {
+        get => CarriageComponent.ValueRO.TrainDirection;
+    }
+    
     public int Index => CarriageComponent.ValueRO.Index;
     public float Width => ObjectBounds.ValueRO.Width;
 }
