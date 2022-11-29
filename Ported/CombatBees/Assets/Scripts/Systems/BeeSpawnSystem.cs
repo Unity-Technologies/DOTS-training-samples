@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System.Security.Cryptography.X509Certificates;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,14 +10,10 @@ using UnityEngine;
 [BurstCompile]
 partial struct BeeSpawnSystem : ISystem
 {
-    EntityQuery baseColorQuery;
-    private EntityQuery transformQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        baseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
-        transformQuery = state.GetEntityQuery(ComponentType.ReadOnly<LocalTransform>());
     }
 
     [BurstCompile]
@@ -27,32 +24,37 @@ partial struct BeeSpawnSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach(var hive in SystemAPI.Query<Hive>())
+        var config = SystemAPI.GetSingleton<Config>();
+        var beeSizeRange = config.maximumBeeSize - config.minimumBeeSize;
+        var beeSizeMiddle = config.minimumBeeSize + beeSizeRange * .5f;
+        foreach(var (hive, team) in SystemAPI.Query<RefRO<Hive>, Team>())
         {
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-            var bees = CollectionHelper.CreateNativeArray<Entity>(hive.startBeeCount, Allocator.Temp);
-            ecb.Instantiate(hive.beePrefab, bees);
+            var bees = new NativeArray<Entity>(config.startBeeCount, Allocator.Temp);
+            ecb.Instantiate(config.beePrefab, bees);
             
-            var colorQueryMask = baseColorQuery.GetEntityQueryMask();
-            var transformQueryMask = transformQuery.GetEntityQueryMask();
+            ecb.SetSharedComponent(bees, new Team()
+            {
+                number = team.number
+            });
+            var hiveValue = hive.ValueRO;
+            var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hiveValue.color };
 
-            var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hive.color };
             foreach (var bee in bees)
             {
-                ecb.SetComponentForLinkedEntityGroup(bee, colorQueryMask, color);
-                var pos = hive.boundsPosition;
+                ecb.SetComponent(bee, color);
+                var pos = hiveValue.boundsPosition;
                 pos.y = bee.Index;
-
-                var noiseValue = noise.cnoise(pos / 10f);
-                var position = hive.boundsPosition + noiseValue * 2f * hive.boundsExtents;
-                position.y = hive.boundsPosition.y - hive.boundsExtents.y;
-                var trans = WorldTransform.FromPosition(position);
-                ecb.SetComponentForLinkedEntityGroup(bee, transformQueryMask, new LocalTransform()
+                var position = hiveValue.boundsPosition;
+                position.x += noise.cnoise(pos / 10f) * hiveValue.boundsExtents.x;
+                position.y += noise.cnoise(pos / 11f) * hiveValue.boundsExtents.y;
+                position.z += noise.cnoise(pos / 12f) * hiveValue.boundsExtents.z;
+                ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
-                    Scale = 1f
+                    Scale = math.clamp(noise.cnoise(pos / 13f) * 2f * beeSizeRange, config.minimumBeeSize, config.maximumBeeSize) + beeSizeMiddle
                 });
             }
         }

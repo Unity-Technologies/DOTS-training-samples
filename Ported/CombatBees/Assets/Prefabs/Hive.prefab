@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 6448292046997996046}
   - component: {fileID: 2534877977820952175}
   - component: {fileID: 1640158488276166928}
+  - component: {fileID: 1747821135634073634}
+  - component: {fileID: 1747821135634073638}
   m_Layer: 0
   m_Name: Hive
   m_TagString: Untagged
@@ -31,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2534877977820952175
 MeshFilter:
@@ -83,3 +85,32 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1747821135634073634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4578790116238824449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b9556cf49704e358862222f0b1433fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  beePrefab: {fileID: 6985221466441376106, guid: 7d109ecba53d1cb4aa5d5f382079998f,
+    type: 3}
+  startBeeCount: 100
+  beeColor: {r: 0.06666667, g: 0, b: 0.5568628, a: 1}
+--- !u!114 &1747821135634073638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4578790116238824449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee2b102738a243ba8d4f50c58d683d3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 0

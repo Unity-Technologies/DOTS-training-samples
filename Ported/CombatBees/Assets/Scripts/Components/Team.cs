@@ -2,5 +2,5 @@
 
 public struct Team : ISharedComponentData
 {
-   public int number;
+   public uint number;
 }
