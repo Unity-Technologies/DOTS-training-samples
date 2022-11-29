@@ -14,5 +14,6 @@ class AntBaker : Baker<AntAuthoring>
         AddComponent(new TargetDirection() { Angle = 0 });
         AddComponent(new PheromoneDirection() { Angle = 0 });
         AddComponent(new WallDirection() { Angle = 0 });
+        AddComponent(new HasResource() { Value = false });
     }
 }
