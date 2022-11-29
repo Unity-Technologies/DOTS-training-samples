@@ -5,10 +5,8 @@ using Unity.Mathematics;
 namespace Ported.Scripts.Utils
 {
     [BurstCompile]
-    public static class RatLabHelper
+    public struct RatLabHelper
     {
-        [BurstCompile]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void DirectionToVector(out float2 output, MovementDirection direction)
         {
             switch (direction)
@@ -35,8 +33,6 @@ namespace Ported.Scripts.Utils
             }
         }
         
-        [BurstCompile]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CollidesAABB(in float2 a, in float2 b, in float2 aSize, in float2 bSize)
         {
             float2 aHalfSize = aSize / 2;
