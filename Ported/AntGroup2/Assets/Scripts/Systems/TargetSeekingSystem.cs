@@ -69,10 +69,11 @@ partial struct TargetSeekingSystem : ISystem
             }
             if(lineOfSight)
             {
-                Debug.Log(math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z));
+                //Debug.Log(math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z));
                 ant.Item2.TargetDirection = math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z);
                 ant.Item2.TargetDirection = ant.Item2.TargetDirection - ant.Item2.CurrentDirection;
             }
+            Debug.DrawLine(foodPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
         }
 
         //foreach (var ant in SystemAPI.Query<TargetDirectionAspect, TransformAspect>().WithAll<Ant>())
