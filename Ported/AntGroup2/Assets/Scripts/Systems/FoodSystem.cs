@@ -5,9 +5,10 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
-using Unity.Collections;
+using Unity.Rendering;
 
 [UpdateBefore(typeof(AntMovementSystem))]
+[UpdateAfter(typeof(WorldSpawnerSystem))]
 partial struct FoodSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -29,7 +30,7 @@ partial struct FoodSystem : ISystem
 
         //foreach (var foodTransform in SystemAPI.Query<TransformAspect>().WithAll<Food>())
         {
-            foreach (var (transform, hasResource) in SystemAPI.Query<TransformAspect, RefRW<HasResource>>().WithAll<Ant>())
+            foreach (var (transform, hasResource, color) in SystemAPI.Query<TransformAspect, RefRW<HasResource>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<Ant>())
             {
                 bool currentlyHasResource = hasResource.ValueRO.Value;
                 float3 targetPosition = currentlyHasResource ? colonyLocation : foodLocation;
@@ -37,6 +38,7 @@ partial struct FoodSystem : ISystem
                 {
                     hasResource.ValueRW.Value = !currentlyHasResource;
                     hasResource.ValueRW.Trigger = true;
+                    color.ValueRW.Value = currentlyHasResource ? new float4(1.0f, 1.0f, 1.0f, 1.0f) : new float4(0.0f, 1.0f, 1.0f, 1.0f);
                 }
                 else
                 {

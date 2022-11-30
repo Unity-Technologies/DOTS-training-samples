@@ -44,7 +44,7 @@ partial struct AntMovementSystem : ISystem
             }
             else if (hasResource.Trigger)
             {
-                newDirection = math.PI;
+                newDirection = ant.CurrentDirection + math.PI;
             }
             else
             {
