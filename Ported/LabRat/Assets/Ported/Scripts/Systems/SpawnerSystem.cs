@@ -96,7 +96,7 @@ partial struct SpawnUnit : IJobEntity
         var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint].Position;
         var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld); //Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
 
-        var random = Unity.Mathematics.Random.CreateFromIndex((uint)instance.Index);
+        var random = Unity.Mathematics.Random.CreateFromIndex(1234/*(uint)unit.GetHashCode()(uint)instance.*/);
         
         ECB.SetComponent(instance, spawnTransform);
 
