@@ -27,7 +27,7 @@ partial struct FoodSystem : ISystem
         {
             foreach (var (transform, hasResource) in SystemAPI.Query<TransformAspect, RefRW<HasResource>>().WithAll<Ant>())
             {
-                if (math.distance(transform.WorldPosition, foodTransform.WorldPosition) < 0.1f)
+                if (math.distance(transform.LocalPosition, foodTransform.LocalPosition) < 1.0f) // TODO Hard coded food radius of 1 m
                     hasResource.ValueRW.Value = true;
             }
         }
