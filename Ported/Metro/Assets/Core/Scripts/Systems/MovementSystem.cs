@@ -19,14 +19,15 @@ partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (transform, /*position, direction,*/ speed, target) in 
+        foreach (var (transform, /*position, direction,*/ speed, target, waypointMovement) in 
                  SystemAPI.Query<
                      TransformAspect,
                      //Direction, 
                      
                      //Position,
                      RefRO<Speed>,
-                     RefRO<TargetPosition>> ())
+                     RefRO<TargetPosition>,
+                     WaypointMovementTag> ())
         {
             var dt = SystemAPI.Time.DeltaTime;
             var vectorToTarget = target.ValueRO.Value - transform.WorldPosition.xz;

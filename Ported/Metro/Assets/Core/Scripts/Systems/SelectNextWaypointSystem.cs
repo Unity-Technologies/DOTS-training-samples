@@ -19,11 +19,11 @@ partial struct SelectNextWaypointSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (transform, waypoint, target) in
+        foreach (var (transform, waypoint, target, waypointtag) in
                  SystemAPI.Query <
                      TransformAspect,
                      RefRW<Waypoint>,
-                     RefRW<TargetPosition>> ())
+                     RefRW<TargetPosition>, WaypointMovementTag> ())
         {
             if (math.distancesq(target.ValueRW.Value, transform.WorldPosition.xz) <= Utility.kStopDistance)
             {
