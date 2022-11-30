@@ -13,7 +13,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
         AddComponent(new Config
         {
             CommuterPrefab = GetEntity(authoring.CommuterPrefab),
-            CommuterCount = authoring.CommuterCount,
+            CommuterCount = authoring.CommuterCount
         });
     }
 }
