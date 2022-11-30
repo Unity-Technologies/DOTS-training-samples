@@ -26,5 +26,5 @@ struct TargetDirection : IComponentData
 struct WallDirection : IComponentData
 {
     public float Angle;
-    public bool Reverse;
+    public int WallBounceDirection; // 0 == no bounce, 1 bounce outside of the circle, -1 inside of the circle
 }

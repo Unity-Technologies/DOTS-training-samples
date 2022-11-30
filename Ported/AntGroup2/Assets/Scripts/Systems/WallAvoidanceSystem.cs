@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEditor.Overlays;
 
 partial struct WallAvoidanceSystem : ISystem
 {
@@ -42,7 +41,7 @@ partial struct WallAvoidanceSystem : ISystem
         foreach (var ant in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
             //bool lineOfSight = true;
-            bool wallBounce = false;
+            int wallBounce = 0;
             foreach (var wall in SystemAPI.Query<TransformAspect>().WithAll<Obstacle>())
             {
                 //check if wall in nearby line of sight
@@ -80,11 +79,17 @@ partial struct WallAvoidanceSystem : ISystem
                         var dist = math.sqrt(sqrDist);
                         dx /= dist;
                         dy /= dist;
-                        wallBounce = true;
+
+                        // Determine if teh ant hit from inside (-1) or outside (1) of the wall circle 
+                        float2 wallPos = wall.WorldPosition.xz;
+                        float2 antPos = ant.Item2.WorldPosition.xz;
+                        var wallSqDist = math.lengthsq(wallPos);
+                        var antSqDist = math.lengthsq(antPos);
+                        wallBounce = wallSqDist > antSqDist ? -1 : 1;
                     }
                 }
 
-                ant.Item1.WallBounce = wallBounce;
+                ant.Item1.WallBounceDirection = wallBounce;
             }
         }
     }

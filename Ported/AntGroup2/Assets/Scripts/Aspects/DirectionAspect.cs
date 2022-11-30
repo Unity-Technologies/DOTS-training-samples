@@ -43,9 +43,9 @@ readonly partial struct DirectionAspect : IAspect
         set => wallDirection.ValueRW.Angle = value;
     }
 
-    public bool WallBounce
+    public int WallBounceDirection
     {
-        get => wallDirection.ValueRO.Reverse;
-        set => wallDirection.ValueRW.Reverse = value;
+        get => wallDirection.ValueRO.WallBounceDirection;
+        set => wallDirection.ValueRW.WallBounceDirection = value;
     }
 }

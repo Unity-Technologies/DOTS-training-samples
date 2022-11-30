@@ -37,9 +37,12 @@ partial struct AntMovementSystem : ISystem
             float antSpeed = 1.0f;
             float newDirection = 0;
 
-            if (ant.WallBounce)
+            if (ant.WallBounceDirection != 0)
             {
-                float2 reflect = math.reflect(new float2(transform.Forward.x, transform.Forward.z),new float2(transform.WorldPosition.x, transform.WorldPosition.z));
+                float2 forward = new float2(transform.Forward.x, transform.Forward.z);
+                float2 wallNormal = math.normalize(new float2(transform.WorldPosition.x, transform.WorldPosition.z)) * ant.WallBounceDirection;
+                float2 reflect = math.reflect(forward, wallNormal);
+                //Debug.Log($"WallBounce incident:{forward}, normal: {wallNormal}, reflect: {reflect}");
                 newDirection = math.atan2(reflect.x, reflect.y);
 
                 if (math.abs(math.abs(newDirection - ant.CurrentDirection) - math.PI) < 0.05f)
@@ -54,6 +57,8 @@ partial struct AntMovementSystem : ISystem
             else if (hasResource.Trigger)
             {
                 newDirection = ant.CurrentDirection + math.PI;
+                
+                //Debug.Log($"Trigger");
             }
             else
             {
@@ -65,6 +70,7 @@ partial struct AntMovementSystem : ISystem
                 newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
                 newDirection = math.clamp(newDirection, -math.PI / 2.0f, math.PI / 2.0f);
 
+                //Debug.Log($"Steer {math.degrees((newDirection))}");
                 antSpeed -= math.abs(newDirection / (math.PI/2.0f));
                 newDirection += ant.CurrentDirection;
             }
