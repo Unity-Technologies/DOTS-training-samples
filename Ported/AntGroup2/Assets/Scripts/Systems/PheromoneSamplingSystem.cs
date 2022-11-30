@@ -23,32 +23,27 @@ public partial struct PheromoneSamplingSystem : ISystem
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
 
         float sampleDist = config.PheromoneSampleDistPixels * config.TimeScale * SystemAPI.Time.DeltaTime;
-        float steerAngleRad = math.radians(15.0f);
-        int stepCount = 2;
+        float steerAngleRad = config.PheromoneSampleStepAngle;
+        int stepCount = config.PheromoneSampleStepCount;
         
         foreach (var (transform, currentDirection, pheromoneDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRW<PheromoneDirection>, Ant>())
         {
             float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz);
-            float curAngle = currentDirection.ValueRO.Angle;    
-            
-            float stepAmount = 0.0f;
-            float bestStep = 0;
+            float curAngle = currentDirection.ValueRO.Angle;
+
+            float angle = 0;
             for (int s = -stepCount; s < stepCount + 1; s++)
             {
-                float2 dir = new float2(math.sin(curAngle - steerAngleRad * s), math.cos(curAngle - steerAngleRad * s));
+                float2 dir = new float2(math.sin(curAngle + steerAngleRad * s), math.cos(curAngle + steerAngleRad * s));
                 int2 texPos = new int2(mapPos + dir * sampleDist);
                 float amount = PheromoneMapUtil.GetAmount(ref pheromoneMap, texPos.x, texPos.y);
+                
                 //Debug.Log($"Step:{s}, SteerAngleDeg:{math.degrees(s * steerAngleRad)}, texPos:{texPos}");
-                if (amount > stepAmount)
-                {
-                    stepAmount = amount;
-                    bestStep = s;
-                }
+                angle += steerAngleRad * s * amount;
             }
             
             //Debug.Log($"Best step:{bestStep}, SteerAngleDeg:{math.degrees(bestStep * steerAngleRad)}");
-
-            pheromoneDirection.ValueRW.Angle = bestStep * steerAngleRad;
+            pheromoneDirection.ValueRW.Angle = angle;
         }
     }
 }

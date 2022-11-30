@@ -25,7 +25,7 @@ struct PheromoneMapUtil
         {
             int bufIndex = x + y * PheromoneDisplaySystem.PheromoneTextureSizeX;
             ref var cell = ref buffer.ElementAt(bufIndex);
-            cell.amount += amount;
+            cell.amount = math.saturate(cell.amount + amount);
         }   
     }
     

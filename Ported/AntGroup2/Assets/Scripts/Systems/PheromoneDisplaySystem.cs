@@ -7,8 +7,8 @@ using Random = UnityEngine.Random;
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial class PheromoneDisplaySystem : SystemBase
 {
-    public const int PheromoneTextureSizeX = 256;
-    public const int PheromoneTextureSizeY = 256;
+    public const int PheromoneTextureSizeX = 128;
+    public const int PheromoneTextureSizeY = 128;
         
     public GameObject displayPlane;
     private Material displayMaterial;
