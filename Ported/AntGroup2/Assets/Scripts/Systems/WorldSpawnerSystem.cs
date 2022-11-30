@@ -82,46 +82,51 @@ partial struct WorldSpawnerSystem : ISystem
         float currentDistance = 0;
         
         int WallRingCount = config.WallCount;
-        float MinWallGap = 35.0f;
+        float MinWallGap = 40.0f;
         float MaxWallGap = 80.0f;
         float WallSpacing = config.PlaySize / (WallRingCount + 5);
-        float distanceBetweenWalls = 0.5f;
+        float distanceBetweenWalls = 0.8f;
 
         int MinGapCount = 2;
         int MaxGapCount = 4;
         var random = Random.CreateFromIndex((uint)(Time.realtimeSinceStartup*1000.0f));
 
         NativeList<float> Gaps = new NativeList<float>(Allocator.Temp);
-        for (int i = 1; i <= WallRingCount; ++i)
+        for (int i = 1; i <= WallRingCount + 1; ++i)
         {
             currentDistance += WallSpacing;
+            if(i == WallRingCount + 1)
+                currentDistance += WallSpacing;
             angleBetweenWalls = distanceBetweenWalls / currentDistance;
             
             
             var gapCount = random.NextInt(MinGapCount, MaxGapCount);
 
-            int createdGaps = 0;
-            while (createdGaps < gapCount)
+            if (i < WallRingCount + 1)
             {
-                var startPos = random.NextFloat(0, math.PI * 2.0f);
-              
-                var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
+                int createdGaps = 0;
+                while (createdGaps < gapCount)
+                {
+                    var startPos = random.NextFloat(0, math.PI * 2.0f);
 
-                if (endPos > math.PI * 2.0f)
-                {
-                    Gaps.Add(startPos);
-                    Gaps.Add(math.PI * 2.0f);
-                    
-                    Gaps.Add(0);
-                    Gaps.Add(endPos - math.PI * 2.0f);
+                    var endPos = startPos + math.radians(random.NextFloat(MinWallGap, MaxWallGap));
+
+                    if (endPos > math.PI * 2.0f)
+                    {
+                        Gaps.Add(startPos);
+                        Gaps.Add(math.PI * 2.0f);
+
+                        Gaps.Add(0);
+                        Gaps.Add(endPos - math.PI * 2.0f);
+                    }
+                    else
+                    {
+                        Gaps.Add(startPos);
+                        Gaps.Add(endPos);
+                    }
+
+                    ++createdGaps;
                 }
-                else
-                {
-                    Gaps.Add(startPos);
-                    Gaps.Add(endPos);
-                }
-                
-                ++createdGaps;
             }
 
             while (currentAngle < math.PI*2.0f)
