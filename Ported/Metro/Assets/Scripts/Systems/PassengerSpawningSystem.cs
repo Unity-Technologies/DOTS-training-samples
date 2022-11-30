@@ -7,7 +7,6 @@ using Unity.Transforms;
 
 [BurstCompile]
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-[RequireMatchingQueriesForUpdate]
 partial struct PassengerSpawningSystem : ISystem
 {
     EntityQuery m_BaseColorQuery;
@@ -17,6 +16,7 @@ partial struct PassengerSpawningSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PassengersConfig>();
+        state.RequireForUpdate<PlatformQueue>();
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
     }
 
