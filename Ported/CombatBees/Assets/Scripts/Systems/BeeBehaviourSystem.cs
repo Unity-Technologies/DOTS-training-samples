@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 partial struct BeeBehaviourSystem : ISystem
@@ -28,6 +29,11 @@ partial struct BeeBehaviourSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        return;
+        var random = Random.CreateFromIndex((uint)state.WorldUnmanaged.Time.ElapsedTime * 10);
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         DynamicBuffer<EnemyBees> hive0EnemyBees = new DynamicBuffer<EnemyBees>();
         DynamicBuffer<EnemyBees> hive1EnemyBees = new DynamicBuffer<EnemyBees>();
         DynamicBuffer<AvailableResources> hive01AvailableResources;
@@ -88,10 +94,13 @@ partial struct BeeBehaviourSystem : ISystem
                 case BeeStateEnumerator.Gathering:
                     if (target.ValueRW.target != Entity.Null && SystemAPI.HasComponent<Resource>(target.ValueRW.target))
                     {
-                        var targetResource = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target);
-                        if (math.distancesq(transform.WorldPosition, targetResource.Position) < 0.5)
+                        var targetResourceTransform = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target);
+                        var targetResource = SystemAPI.GetComponent<Resource>(target.ValueRW.target);
+                        if (math.distancesq(transform.WorldPosition, targetResourceTransform.Position) < 0.5)
                         {
                             beeState.ValueRW.beeState = BeeStateEnumerator.CarryBack;
+                            targetResource.ownerBee = entity;
+                            SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, true);
                             break;
                         }
                         
@@ -103,24 +112,12 @@ partial struct BeeBehaviourSystem : ISystem
                         break;
                     }
                     
-                    float dist = float.MaxValue;
-
-                    foreach (var (resourceTransform, resourceData, resourceEntity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
+                    foreach (var (resource, resourceEntity) in SystemAPI.Query<Resource>().WithNone<ResourceCarried>().WithNone<ResourceDropped>().WithEntityAccess())
                     {
-                        if (resourceData.ValueRW.ownerBee != Entity.Null)
+                        if (random.NextFloat(0f, 1f) > .8f)
                         {
-                            // we probably want to check if the owner bee is friendly or not
-                            // and set ourselves to attacking if yes. The resourceData.ownerBee
-                            // would become the targetBee for the current bee
-                            break;
-                        }
-
-                        var distToCurrent = math.distancesq(transform.WorldPosition, resourceTransform.Position);
-                        if (distToCurrent < dist)
-                        {
-                            dist = distToCurrent;
-                            resourceData.ValueRW.ownerBee = entity;
                             target.ValueRW.target = resourceEntity;
+                            break;
                         }
                     }
                     break;
@@ -133,6 +130,8 @@ partial struct BeeBehaviourSystem : ISystem
                             var bottomLeft = hive.ValueRO.boundsPosition - hive.ValueRO.boundsExtents;
                             if (CheckBoundingBox(topRight, bottomLeft, transform.WorldPosition))
                             {
+                                ecb.SetComponentEnabled<ResourceDropped>(target.ValueRW.target, true);
+                                ecb.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, false);
                                 target.ValueRW.target = Entity.Null;
                                 beeState.ValueRW.beeState = BeeStateEnumerator.Attacking;
                                 break;
@@ -155,9 +154,6 @@ partial struct BeeBehaviourSystem : ISystem
                     if(transform.LocalPosition.y <= floorY)
                     {
                         var config = SystemAPI.GetSingleton<Config>();
-                        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-                        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
                         SpawnParticles(config, ecb, transform.LocalPosition, 5);
 
                         entitiesToDestroy.Add(entity);

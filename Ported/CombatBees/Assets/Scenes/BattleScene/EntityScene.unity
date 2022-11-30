@@ -150,7 +150,7 @@ Transform:
   m_GameObject: {fileID: 156210969}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 35, y: 10, z: 15}
+  m_LocalScale: {x: 100, y: 20, z: 30}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 338505779}
@@ -239,16 +239,29 @@ MonoBehaviour:
     type: 3}
   particlePrefab: {fileID: 8770857147939673906, guid: 20a07487b8f454d4eb5f8fcc561aa5ff,
     type: 3}
-  startBeeCount: 100
+  startBeeCount: 1000
   beesPerResource: 5
   minimumBeeSize: 0.5
   maximumBeeSize: 1.25
-  gravity: {x: 0, y: -9.81, z: 0}
+  gravity: {x: 0, y: -20, z: 0}
   fieldRenderer: {fileID: 156210971}
-  ResourcePrefab: {fileID: 4156149791848588294, guid: b9e6c9a5026db8f43bb7b58f02d5a7bd,
+  resourcePrefab: {fileID: 4156149791848588294, guid: b9e6c9a5026db8f43bb7b58f02d5a7bd,
     type: 3}
-  ResourceSpawn: {fileID: 156210970}
-  ResourceCount: 100
+  resourceCount: 2000
+  carryStiffness: 15
+  speedStretch: 0.2
+  rotationStiffness: 5
+  aggression: 0.5
+  flightJitter: 200
+  teamAttraction: 5
+  teamRepulsion: 4
+  damping: 0.1
+  chaseForce: 50
+  carryForce: 25
+  grabDistance: 0.5
+  attackDistance: 4
+  attackForce: 500
+  hitDistance: 0.5
 --- !u!4 &338505779
 Transform:
   m_ObjectHideFlags: 0
@@ -328,22 +341,22 @@ PrefabInstance:
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
-        type: 3}
-      propertyPath: m_LocalScale.y
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
+      propertyPath: m_LocalScale.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
+        type: 3}
       propertyPath: m_LocalScale.z
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
@@ -442,22 +455,22 @@ PrefabInstance:
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
-        type: 3}
-      propertyPath: m_LocalScale.y
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
+      propertyPath: m_LocalScale.y
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
+        type: 3}
       propertyPath: m_LocalScale.z
-      value: 15
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -15
+      value: -45
       objectReference: {fileID: 0}
     - target: {fileID: 6448292046997996046, guid: 1c1badbae12d7944397c748c84f7db0e,
         type: 3}
