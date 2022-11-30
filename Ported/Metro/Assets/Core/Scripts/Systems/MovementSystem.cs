@@ -6,9 +6,6 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct MovementSystem : ISystem
 {
-    // todo: move to a config
-    public const float kStopDistance = 0.4f;
-    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -34,7 +31,8 @@ partial struct MovementSystem : ISystem
             var dt = SystemAPI.Time.DeltaTime;
             var vectorToTarget = target.ValueRO.Value - transform.WorldPosition.xz;
             
-            if (math.lengthsq(vectorToTarget) > kStopDistance)
+
+            if (math.lengthsq(vectorToTarget) > Utility.kStopDistance)
             {
                 var direction = math.normalize(vectorToTarget);
                 
