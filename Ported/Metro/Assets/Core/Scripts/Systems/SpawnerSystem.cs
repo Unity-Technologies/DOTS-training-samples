@@ -32,14 +32,17 @@ partial struct SpawnerSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
+        var configEntity = SystemAPI.GetSingletonEntity<Config>();
+        DynamicBuffer<TrainPositionsBuffer> trainPositions = state.EntityManager.AddBuffer<TrainPositionsBuffer>(configEntity);
+        
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
-
+        trainPositions.Length = config.PlatformCountPerStation;
 
         for (int i = 0; i < config.PlatformCountPerStation; i++)
         {
             LocalTransform railTransform = LocalTransform.FromPosition(9 * i, 0, 0);
             SpawnRail(ref state, ecb, railTransform, config.RailsPrefab);
-            SpawnTrain(ref state, ecb, railTransform, config.TrainPrefab, config);
+            SpawnTrain(ref state, ecb, railTransform, config.TrainPrefab, config, i);
 
             for (int n = 0; n < config.NumberOfStations; n++)
             {
@@ -57,7 +60,7 @@ partial struct SpawnerSystem : ISystem
         state.Enabled = false;
     }
 
-    private void SpawnTrain(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab, Config config)
+    private void SpawnTrain(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab, Config config, int index)
     {
         LocalTransform trainTransform = LocalTransform.FromPosition(spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y, random.NextInt(-(int)Globals.RailSize/2, (int)Globals.RailSize / 2));
         Entity train = state.EntityManager.Instantiate(prefab);
@@ -69,6 +72,9 @@ partial struct SpawnerSystem : ISystem
         IdleTime idleTime = new IdleTime();
         idleTime.Value = 0f;
         ecb.SetComponent(train, idleTime);
+        TrainInfo trainInfo = new TrainInfo();
+        trainInfo.Id = index;
+        ecb.SetComponent(train, trainInfo);
     }
 
     private void SpawnRail(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)

@@ -30,7 +30,7 @@ class TrainBaker : Baker<TrainAuthoring>
         AddComponent<TargetPosition>();
 
         AddComponent<Waypoint>();
-        AddComponent<TrainTag>();
+        AddComponent<TrainInfo>();
 
     }
 }

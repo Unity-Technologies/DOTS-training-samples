@@ -10,6 +10,8 @@ partial struct TrainSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        state.RequireForUpdate<TrainPositionsBuffer>();
     }
     
     [BurstCompile]
@@ -20,10 +22,10 @@ partial struct TrainSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        if (!SystemAPI.HasSingleton<Config>()) return;
         var config = SystemAPI.GetSingleton<Config>();
+        var trainPositions = SystemAPI.GetSingletonBuffer<TrainPositionsBuffer>();
 
-        foreach (var (transform, speed, waypoint, time, tag) in SystemAPI.Query<TransformAspect, Speed, RefRW<Waypoint>, RefRW<IdleTime>, TrainTag>())
+        foreach (var (transform, speed, waypoint, time, trainInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<Waypoint>, RefRW<IdleTime>, TrainInfo>())
         {
             if (time.ValueRO.Value > 0)
             {
@@ -33,7 +35,7 @@ partial struct TrainSystem : ISystem
 
             float nextWaypointZ = -Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.WaypointID + 1) - Globals.PlatformSize*0.5f;
 
-            if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.WaypointID < config.PlatformCountPerStation)
+            if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.WaypointID < config.NumberOfStations)
             {
                 time.ValueRW.Value = Globals.TrainWaitTime;
                 waypoint.ValueRW.WaypointID++;
@@ -47,6 +49,7 @@ partial struct TrainSystem : ISystem
                 waypoint.ValueRW.WaypointID = 0;
                 transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, -Globals.RailSize * 0.5f);
             }
+            trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { positionZ = transform.LocalPosition.z };
         }
     }
 }

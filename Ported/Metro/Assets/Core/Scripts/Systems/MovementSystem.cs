@@ -29,6 +29,7 @@ partial struct MovementSystem : ISystem
                      RefRO<TargetPosition>,
                      WaypointMovementTag> ())
         {
+            
             var dt = SystemAPI.Time.DeltaTime;
             var vectorToTarget = target.ValueRO.Value - transform.WorldPosition.xz;
             
