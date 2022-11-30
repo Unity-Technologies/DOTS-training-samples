@@ -6,12 +6,12 @@ public struct Resource : IComponentData
     public float3 boundsExtents;
 }
 
-public struct ResourceCarried : IComponentData
+public struct ResourceCarried : IComponentData, IEnableableComponent
 {
     
 }
 
-public struct ResourceDropped : IComponentData
+public struct ResourceDropped : IComponentData, IEnableableComponent
 {
     
 }

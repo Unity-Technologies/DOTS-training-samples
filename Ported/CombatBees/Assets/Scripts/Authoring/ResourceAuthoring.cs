@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 public class ResourceAuthoring : UnityEngine.MonoBehaviour
@@ -16,5 +17,6 @@ class ResourceBaker : Baker<ResourceAuthoring>
         });
         AddComponent<ResourceCarried>();
         AddComponent<ResourceDropped>();
+        AddComponent<LocalToWorld>();
     }
 }
