@@ -5360,6 +5360,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6189254107010166287, guid: ec2ecc5349b9348b0bf38504489f4ff2,
         type: 3}
+      propertyPath: max
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189254107010166287, guid: ec2ecc5349b9348b0bf38504489f4ff2,
+        type: 3}
       propertyPath: startDirection
       value: 3
       objectReference: {fileID: 0}
@@ -7600,6 +7605,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CatSpawner (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1235060732852868407, guid: 1708d246a51504390817b8cca5a8fc25,
+        type: 3}
+      propertyPath: max
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1235060732852868407, guid: 1708d246a51504390817b8cca5a8fc25,
         type: 3}
@@ -21907,6 +21917,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1235060732852868407, guid: 1708d246a51504390817b8cca5a8fc25,
         type: 3}
+      propertyPath: max
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1235060732852868407, guid: 1708d246a51504390817b8cca5a8fc25,
+        type: 3}
       propertyPath: startDirection
       value: 2
       objectReference: {fileID: 0}
@@ -21923,6 +21938,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5262023}
     m_Modifications:
+    - target: {fileID: 6189254107010166287, guid: ec2ecc5349b9348b0bf38504489f4ff2,
+        type: 3}
+      propertyPath: max
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6189254107010166287, guid: ec2ecc5349b9348b0bf38504489f4ff2,
         type: 3}
       propertyPath: startDirection
