@@ -1,4 +1,6 @@
 using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,9 +9,15 @@ using UnityEngine;
 [BurstCompile]
 partial struct BeeBehaviourSystem : ISystem
 {
+    EntityQuery resourceQuery;
+    ComponentLookup<Resource> resourceLookup;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        resourceQuery = new EntityQueryBuilder(Allocator.Persistent).WithAll<Resource>().Build(ref state);
+
+        resourceLookup = state.GetComponentLookup<Resource>();
     }
 
     [BurstCompile]
@@ -70,17 +78,67 @@ partial struct BeeBehaviourSystem : ISystem
 
                         transform.LocalPosition += transform.Forward * deltaTime * 3f;
                     }
-
-
                     break;
                 case BeeStateEnumerator.Gathering:
-                    //
+                    if (target.ValueRW.target != Entity.Null && SystemAPI.HasComponent<Resource>(target.ValueRW.target))
+                    {
+                        var targetResource = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target);
+                        if (math.distancesq(transform.WorldPosition, targetResource.Position) < 0.5)
+                        {
+                            beeState.ValueRW.beeState = BeeStateEnumerator.CarryBack;
+                            break;
+                        }
+                        
+                        var resourcePosition = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target).Position;
+                        var targetRotation = Quaternion.LookRotation(resourcePosition);
+                        transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 100);
+                        transform.LocalPosition = math.lerp(transform.LocalPosition, resourcePosition, SystemAPI.Time.DeltaTime);
+                        
+                        break;
+                    }
+                    
+                    float dist = float.MaxValue;
+
+                    foreach (var (resourceTransform, resourceData, resourceEntity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
+                    {
+                        if (resourceData.ValueRW.ownerBee != Entity.Null)
+                        {
+                            // we probably want to check if the owner bee is friendly or not
+                            // and set ourselves to attacking if yes. The resourceData.ownerBee
+                            // would become the targetBee for the current bee
+                            break;
+                        }
+
+                        var distToCurrent = math.distancesq(transform.WorldPosition, resourceTransform.Position);
+                        if (distToCurrent < dist)
+                        {
+                            dist = distToCurrent;
+                            resourceData.ValueRW.ownerBee = entity;
+                            target.ValueRW.target = resourceEntity;
+                        }
+                    }
                     break;
                 case BeeStateEnumerator.CarryBack:
-                    //
+                    foreach (var (hive, hiveTeam) in SystemAPI.Query<RefRO<Hive>, Team>())
+                    {
+                        if (hiveTeam.number == team.number)
+                        {
+                            var topRight = hive.ValueRO.boundsPosition + hive.ValueRO.boundsExtents;
+                            var bottomLeft = hive.ValueRO.boundsPosition - hive.ValueRO.boundsExtents;
+                            if (CheckBoundingBox(topRight, bottomLeft, transform.WorldPosition))
+                            {
+                                target.ValueRW.target = Entity.Null;
+                                beeState.ValueRW.beeState = BeeStateEnumerator.Attacking;
+                                break;
+                            }
+                            var hivePosition = hive.ValueRO.boundsPosition;
+                            var targetRotation = Quaternion.LookRotation(hivePosition);
+                            transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 100);
+                            transform.LocalPosition = math.lerp(transform.LocalPosition, hivePosition, SystemAPI.Time.DeltaTime);  
+                        }
+                    }
                     break;
                 case BeeStateEnumerator.Dying:
-
                     jittering = false;
 
                     break;
@@ -91,5 +149,11 @@ partial struct BeeBehaviourSystem : ISystem
                 transform.LocalPosition += (float3)UnityEngine.Random.insideUnitSphere * (1f * deltaTime);
             }
         }
+    }
+    
+    bool CheckBoundingBox(float3 topRight, float3 bottomLeft, float3 beePosition)
+    {
+        return (topRight.x <= beePosition.x && beePosition.x <= bottomLeft.x
+                                            && topRight.z <= beePosition.x && beePosition.x <= bottomLeft.z);
     }
 }

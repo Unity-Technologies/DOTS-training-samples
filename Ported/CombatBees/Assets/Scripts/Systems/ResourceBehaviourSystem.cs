@@ -66,6 +66,9 @@ partial struct ResourceBehaviourSystem : ISystem
                 {
                     transform.Position = GetFallingPos(transform.Position, floorY, gravity);
                 }
+
+                transform.LocalPosition = new float3((float)math.sin(SystemAPI.Time.ElapsedTime),
+                    transform.LocalPosition.y, (float)math.cos(SystemAPI.Time.ElapsedTime));
             }
 
             if (beeEntities.Length == 0)
@@ -75,6 +78,7 @@ partial struct ResourceBehaviourSystem : ISystem
         }
     }
     
+    // TODO: remove this
     bool CheckBoundingBox(float3 topLeft, float3 bottomRight, float3 beePosition)
     {
         return (topLeft.x <= beePosition.x && beePosition.x <= bottomRight.x
