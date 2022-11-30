@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile, RequireMatchingQueriesForUpdate]
-partial struct PlatformSpawner : ISystem
+partial struct PlatformSpawnerSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)

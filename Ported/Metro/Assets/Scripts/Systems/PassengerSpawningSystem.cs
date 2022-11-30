@@ -6,6 +6,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 
 [BurstCompile]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+[RequireMatchingQueriesForUpdate]
 partial struct PassengerSpawningSystem : ISystem
 {
     EntityQuery m_BaseColorQuery;
@@ -26,7 +28,19 @@ partial struct PassengerSpawningSystem : ISystem
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
-    {
+    { 
+        int queueCount = 0;
+        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PlatformQueue>())
+            queueCount++;
+        
+        var queues = CollectionHelper.CreateNativeArray<float3>(queueCount, Allocator.Temp);
+        int i = 0;
+        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PlatformQueue>())
+        {
+            queues[i] = transform.WorldPosition;
+            i++;
+        }
+        
         var config = SystemAPI.GetSingleton<PassengersConfig>();
 
         var random = Random.CreateFromIndex(1234);
@@ -49,14 +63,17 @@ partial struct PassengerSpawningSystem : ISystem
 
         foreach (var passenger in passengers)
         {
-            float3 pos = new float3(random.NextFloat(-50, 50),
+            int queueIndex = random.NextInt(0,  (queueCount == 0)? 0 : queueCount - 1);
+            float3 pos = new float3(random.NextFloat(-1, 1),
                 0,
-                random.NextFloat(-50.0f, 50.0f));
+                random.NextFloat(-1.0f, 1.0f)) 
+                         + queues[queueIndex];
             ecb.SetComponent<LocalTransform>(passenger, LocalTransform.FromPosition(pos));
             ecb.SetComponentForLinkedEntityGroup(passenger, queryMask, RandomColor());
             var pts = new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) };
             ecb.SetComponent(passenger, pts);
         }
+        
 
         state.Enabled = false;
     }
