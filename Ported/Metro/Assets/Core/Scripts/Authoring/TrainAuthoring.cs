@@ -31,19 +31,18 @@ class TrainBaker : Baker<TrainAuthoring>
         {
             Value = new float2(0f, 1f)
         });
+        /*
         var initTarget = authoring.InitWaypoint.position;
         AddComponent(new TargetPosition
         {
             Value = new float2(initTarget.x, initTarget.z)
         });
         //AddComponent<Waypoint>();
-        
+        */
         AddComponent(new Agent
         {
             CurrentWaypoint = GetEntity(authoring.InitWaypoint)
         });
-        
-        AddComponent<TrainInfo>();
         
         AddComponent<TrainInfo>();
     }

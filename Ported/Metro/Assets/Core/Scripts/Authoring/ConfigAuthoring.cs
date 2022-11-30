@@ -6,6 +6,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public UnityEngine.GameObject PlatformPrefab;
     public UnityEngine.GameObject TrainPrefab;
     public UnityEngine.GameObject RailsPrefab;
+    public UnityEngine.GameObject PathPrefab;
     
     public int PersonCount;
     public int PlatformCountPerStation;
@@ -23,6 +24,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             PlatformPrefab = GetEntity(authoring.PlatformPrefab),
             RailsPrefab = GetEntity(authoring.RailsPrefab),
             TrainPrefab = GetEntity(authoring.TrainPrefab),
+            PathPrefab = GetEntity(authoring.PathPrefab),
             PersonCount = authoring.PersonCount,
             PlatformCountPerStation = authoring.PlatformCountPerStation,
             NumberOfStations = authoring.NumberOfStations,

@@ -31,7 +31,7 @@ partial struct MovementSystem : ISystem
         {
             
             var dt = SystemAPI.Time.DeltaTime;
-            var vectorToTarget = target.ValueRO.Value - transform.WorldPosition.xz;
+            var vectorToTarget = target.ValueRO.Value - transform.WorldPosition;
             
 
             //if (math.lengthsq(vectorToTarget) > Utility.kStopDistance)
@@ -40,7 +40,8 @@ partial struct MovementSystem : ISystem
                 
                 var look = new float3(direction.x, 0.0f, direction.y);
                 transform.WorldRotation = quaternion.LookRotation(look, math.up());
-                transform.WorldPosition += look * speed.ValueRO.Value * dt;
+                
+                transform.WorldPosition += direction * speed.ValueRO.Value * dt;
             }
         }
     }

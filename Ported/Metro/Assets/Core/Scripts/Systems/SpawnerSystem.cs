@@ -4,6 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 
 [BurstCompile]
@@ -46,17 +48,24 @@ partial struct SpawnerSystem : ISystem
 
             for (int n = 0; n < config.NumberOfStations; n++)
             {
+                var platformID = i * config.NumberOfStations + n;
+                
                 LocalTransform spawnLocalToWorld = LocalTransform.FromPosition(9 * i, 0, -Globals.RailSize*0.5f+(Globals.RailSize / (config.NumberOfStations+1)) * (n+1));
                 SpawnPlatform(ref state, ecb, spawnLocalToWorld, config.PlatformPrefab);
-
+                var path = SpawnPath(ref state, ecb, spawnLocalToWorld, config.PathPrefab, platformID);
+                var pathCom = SystemAPI.GetComponent<Path>(path);
+                var defaultWaypoint = pathCom.Default;
+                var waypointTransf = SystemAPI.GetComponent<WorldTransform>(defaultWaypoint);
+                var waypointPos = waypointTransf.Position;
+                
                 for (int c = 0; c < 10; c++)
                 {
                     LocalTransform personSpawn = LocalTransform.FromPosition(2 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + 2 * c);
-                    SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab);
+                    SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab, platformID, defaultWaypoint, waypointPos);
                 }
             }
         }
-
+        
         state.Enabled = false;
     }
 
@@ -88,8 +97,17 @@ partial struct SpawnerSystem : ISystem
         Entity platform = state.EntityManager.Instantiate(prefab);
         ecb.SetComponent<LocalTransform>(platform, spawnLocalToWorld);
     }
+    
+    private Entity SpawnPath(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab, int index)
+    {
+        Entity path = state.EntityManager.Instantiate(prefab);
+        ecb.SetComponent(path, spawnLocalToWorld);
+        ecb.SetComponent(path, new PathID { Value = index });
 
-    private void SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
+        return path;
+    }
+
+    private Entity SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab, int platformID, Entity defaultWaypoint, float3 waypointPos)
     {
         var hue = random.NextFloat();
         URPMaterialPropertyBaseColor RandomColor()
@@ -103,5 +121,13 @@ partial struct SpawnerSystem : ISystem
         ecb.SetComponent<LocalTransform>(person, spawnLocalToWorld);
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
         ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());
+        
+        ecb.AddComponent(person, new DestinationPlatform{ Value = platformID});
+        ecb.AddComponent(person, new Agent{ CurrentWaypoint = defaultWaypoint});
+        ecb.AddComponent(person, new TargetPosition{ Value = waypointPos});
+        ecb.AddComponent(person, new Speed { Value = 5f });
+        ecb.AddComponent(person, new WaypointMovementTag());
+
+        return person;
     }
 }

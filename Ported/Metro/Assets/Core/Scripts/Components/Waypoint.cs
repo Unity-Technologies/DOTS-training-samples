@@ -3,8 +3,8 @@ using Unity.Entities;
 
 struct Waypoint : IComponentData
 {
-    public int PathID;
     public int WaypointID;
-    public Entity WaypointEntity;
+    public Entity PathEntity;
     public Entity NextWaypointEntity;
+    public Entity Connection;
 }
