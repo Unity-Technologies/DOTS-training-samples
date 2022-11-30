@@ -3,7 +3,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEditor.Search;
 
 [BurstCompile, RequireMatchingQueriesForUpdate]
 partial struct StationSpawnerSystem : ISystem

@@ -23,11 +23,7 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
             ID = 0
         });
         AddComponent<URPMaterialPropertyBaseColor>();
-        AddComponent(new Train
-        {
-            State = TrainState.EnRoute,
-            Destination = new float3(10, 0, 0),
-        });
+        AddComponent<Train>();
         AddComponent(new TrainSpawn
         {
             CarriageSpawn = GetEntity(authoring.carriagePrefab),

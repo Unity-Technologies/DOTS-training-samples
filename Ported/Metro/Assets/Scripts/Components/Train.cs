@@ -15,6 +15,7 @@ public struct Train : IComponentData
     public int Index;
 
     public float3 Destination;
+    public RailwayPointType DestinationType;
     public float DistanceToNextTrain;
     public TrainState State;
 

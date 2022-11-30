@@ -29,4 +29,5 @@ readonly partial struct TrainSpeedControllerAspect : IAspect
     public float3 Position => Transform.ValueRO.Position;
 
     public float3 Destination => Train.ValueRO.Destination;
+    public RailwayPointType DestinationType => Train.ValueRO.DestinationType;
 }

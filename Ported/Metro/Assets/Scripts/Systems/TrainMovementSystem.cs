@@ -24,9 +24,10 @@ namespace Systems
             else
             {
                 var distanceToDestination = math.distance(train.Destination, train.Position);
-                train.Speed = distanceToDestination > train.Speed * 10f ? 
-                    math.max(train.Speed + 0.95f * train.MaxSpeed, train.MaxSpeed) : 
-                    math.min(train.Speed - 0.95f * train.MaxSpeed, 0.1f);
+                if (distanceToDestination > train.Speed * 10f)
+                    train.Speed = math.max(train.Speed + 0.95f * train.MaxSpeed, train.MaxSpeed);
+                else if(train.DestinationType == RailwayPointType.Platform)
+                    train.Speed = math.min(train.Speed - 0.95f * train.MaxSpeed, 0.1f);
             }
         }
     }
