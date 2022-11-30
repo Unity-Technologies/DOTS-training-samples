@@ -32,7 +32,7 @@ partial struct MovementSystem : ISystem
             var vectorToTarget = target.ValueRO.Value - transform.WorldPosition.xz;
             
 
-            if (math.lengthsq(vectorToTarget) > Utility.kStopDistance)
+            //if (math.lengthsq(vectorToTarget) > Utility.kStopDistance)
             {
                 var direction = math.normalize(vectorToTarget);
                 

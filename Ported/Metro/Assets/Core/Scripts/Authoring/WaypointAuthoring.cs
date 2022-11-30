@@ -3,8 +3,10 @@ using UnityEngine;
 
 class WaypointAuthoring : MonoBehaviour
 {
-    public int PathID;
+    //public int PathID;
     public int WaypointID;
+
+    public Transform NextWaypoint;
 
     private void OnDrawGizmos()
     {
@@ -28,8 +30,11 @@ class WaypointBaker : Baker<WaypointAuthoring>
     {
         AddComponent(new Waypoint
         {
-            PathID = authoring.PathID,
-            WaypointID = authoring.WaypointID
+            //PathID = authoring.PathID,
+            WaypointID = authoring.WaypointID,
+            //Connections = new NativeArray<int>();
+            WaypointEntity = GetEntity(authoring.transform),
+            NextWaypointEntity = GetEntity(authoring.NextWaypoint)
         });
     }
 }
