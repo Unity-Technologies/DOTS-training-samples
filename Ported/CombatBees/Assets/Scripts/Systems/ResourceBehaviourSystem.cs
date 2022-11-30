@@ -75,10 +75,4 @@ partial struct ResourceBehaviourSystem : ISystem
             }
         }
     }
-    
-    bool CheckBoundingBox(float3 topLeft, float3 bottomRight, float3 beePosition)
-    {
-        return (topLeft.x <= beePosition.x && beePosition.x <= bottomRight.x
-                                           && topLeft.z <= beePosition.x && beePosition.x <= bottomRight.z);
-    }
 }
