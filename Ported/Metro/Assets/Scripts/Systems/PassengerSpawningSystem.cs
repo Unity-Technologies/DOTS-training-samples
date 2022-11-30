@@ -54,6 +54,8 @@ partial struct PassengerSpawningSystem : ISystem
                 random.NextFloat(-50.0f, 50.0f));
             ecb.SetComponent<LocalTransform>(passenger, LocalTransform.FromPosition(pos));
             ecb.SetComponentForLinkedEntityGroup(passenger, queryMask, RandomColor());
+            var pts = new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) };
+            ecb.SetComponent(passenger, pts);
         }
 
         state.Enabled = false;
