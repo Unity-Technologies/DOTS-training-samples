@@ -53,7 +53,7 @@ partial struct ResourceSpawningSystem : ISystem
 
         foreach (var resource in resources)
         {
-            ecb.SetComponentEnabled<ResourceDropped>(resource, true);
+            ecb.SetComponentEnabled<ResourceCarried>(resource, false);
             var position = center;
 
             //Random, but nothing random about it really

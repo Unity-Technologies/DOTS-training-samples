@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24d6bb251d5884c3592adc1ceb578812, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ResourcePrefab: {fileID: 3930620999657893860, guid: 6f82ee1427f984247b6cd63fd60347a7,
+  ResourcePrefab: {fileID: 4156149791848588294, guid: b9e6c9a5026db8f43bb7b58f02d5a7bd,
     type: 3}
   ResourceSpawn: {fileID: 223122519}
   ResourceCount: 100
