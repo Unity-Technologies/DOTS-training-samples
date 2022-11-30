@@ -33,8 +33,8 @@ partial struct AntMovementSystem : ISystem
             float WallWeight = 2.0f;
             float TargetWeight = 1.0f;
             float RandomWeight = 0.8f;
-            
-            
+
+            float antSpeed = 1.0f;
             float newDirection = 0;
 
             if (ant.WallBounce)
@@ -55,16 +55,20 @@ partial struct AntMovementSystem : ISystem
 
                 newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
                 newDirection = math.clamp(newDirection, -math.PI / 2.0f, math.PI / 2.0f);
+
+                antSpeed -= math.abs(newDirection / (math.PI/2.0f));
                 newDirection += ant.CurrentDirection;
             }
-            
+                        
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
-            normalizedDir *= config.TimeScale * SystemAPI.Time.DeltaTime;
+            normalizedDir *= config.TimeScale * SystemAPI.Time.DeltaTime * antSpeed;
+
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
             if(ant.WallBounce)
                 transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
             Quaternion rotation = quaternion.RotateY(newDirection);
             transform.WorldRotation = rotation;
+            
             ant.PreviousDirection = ant.CurrentDirection;
             ant.CurrentDirection = newDirection;
             if (ant.CurrentDirection > math.PI * 2.0f)
