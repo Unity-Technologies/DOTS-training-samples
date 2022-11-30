@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,10 +9,14 @@ using UnityEngine;
 [BurstCompile]
 partial struct BeeSpawnSystem : ISystem
 {
-    
+    float aggressiveThreshold;
+
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
+        state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
@@ -27,11 +30,11 @@ partial struct BeeSpawnSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var beeSizeHalfRange = (config.maximumBeeSize - config.minimumBeeSize) * .5f;
         var beeSizeMiddle = config.minimumBeeSize + beeSizeHalfRange;
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         foreach(var (hive, team) in SystemAPI.Query<RefRO<Hive>, Team>())
         {
-            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
             var bees = new NativeArray<Entity>(config.startBeeCount, Allocator.Temp);
             ecb.Instantiate(config.beePrefab, bees);
             
@@ -40,7 +43,7 @@ partial struct BeeSpawnSystem : ISystem
                 number = team.number
             });
             var hiveValue = hive.ValueRO;
-            var color = new URPMaterialPropertyBaseColor { Value = (Vector4)hiveValue.color };
+            var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
             foreach (var bee in bees)
             {
@@ -55,11 +58,16 @@ partial struct BeeSpawnSystem : ISystem
                 var scaleDelta = scaleRandom * beeSizeHalfRange;
                 var scale = math.clamp(scaleDelta + beeSizeMiddle,
                     config.minimumBeeSize, config.maximumBeeSize);
-                Debug.Log($"scaledelta {scaleDelta}, scale {scale}, halfrange {beeSizeHalfRange}, middle {beeSizeMiddle}");
                 ecb.SetComponent(bee, new LocalTransform
                 {
                     Position = position,
-                    Scale = scale
+                    Scale = scale,
+                    Rotation = quaternion.identity
+                });
+
+                ecb.SetComponent(bee, new BeeState
+                {
+                    beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering
                 });
             }
         }
