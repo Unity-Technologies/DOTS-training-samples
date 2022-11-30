@@ -9,7 +9,8 @@ public struct MetroLine : IComponentData
     
     public NativeArray<float3> RailwayPositions;
     public NativeArray<quaternion> RailwayRotations;
-    public NativeArray<RailwayPointType> RailwayType;
+    public NativeArray<RailwayPointType> RailwayTypes;
+    public NativeArray<int> StationIds;
 
     public float4 Color;
 }

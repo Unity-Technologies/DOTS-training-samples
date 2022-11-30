@@ -9,4 +9,5 @@ public enum RailwayPointType
 public struct RailwayPoint : IComponentData
 {
     public RailwayPointType RailwayPointType;
+    //public int StationId;
 }

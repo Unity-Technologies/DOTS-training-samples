@@ -13,25 +13,30 @@ class MetroLineBaker : Baker<MetroLineAuthoring>
 {
     public override void Bake(MetroLineAuthoring authoring)
     {
-        AddComponent(new MetroLineID
-        {
-            ID = authoring.ID
-        });
+        AddComponent(new MetroLineID { ID = authoring.ID });
+        
         var points = authoring.GetComponentsInChildren<RailwayPointAuthoring>();
         var pointPositions = new NativeArray<float3>(points.Length, Allocator.Persistent);
         var pointRotations = new NativeArray<quaternion>(points.Length, Allocator.Persistent);
         var pointTypes = new NativeArray<RailwayPointType>(points.Length, Allocator.Persistent);
+        var stationIds = new NativeArray<int>(points.Length, Allocator.Persistent);
+        
         for (int i = 0; i < points.Length; i++)
         {
-            pointPositions[i] = points[i].transform.position;
-            pointRotations[i] = points[i].transform.rotation;
-            pointTypes[i] = points[i].RailwayPointType;
+            var point = points[i];
+            var pointTransform = point.transform;
+            pointPositions[i] = pointTransform.position;
+            pointRotations[i] = pointTransform.rotation;
+            pointTypes[i] = point.RailwayPointType;
+            stationIds[i] = point.StationId;
         }
+        
         AddComponent(new MetroLine
         {
             RailwayPositions = pointPositions,
             RailwayRotations= pointRotations,
-            RailwayType = pointTypes,
+            RailwayTypes = pointTypes,
+            StationIds = stationIds,
             Color = new float4(authoring.Color.r, authoring.Color.g, authoring.Color.b, authoring.Color.a)
         });
     }

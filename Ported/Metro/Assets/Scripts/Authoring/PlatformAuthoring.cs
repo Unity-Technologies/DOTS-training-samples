@@ -16,7 +16,7 @@ class PlatformBaker : Baker<PlatformAuthoring>
         AddComponent(new Platform
         {
             // TODO - Hard coding the amount of queues? Do we need to initialize this data here?
-            PlatformQueues = new NativeArray<Entity>(authoring.PlatformQueues.Length, Allocator.Persistent)
+            //PlatformQueues = new NativeArray<Entity>(authoring.PlatformQueues.Length, Allocator.Persistent)
         });
     }
 }
