@@ -42,12 +42,12 @@ namespace Systems
         void Execute(ref TrainAspect train)
         {
             var direction = train.TrainDestination - train.Position;
-            //train.Train.ValueRW.DestinationDirection = direction;
+            train.Train.ValueRW.DestinationDirection = direction;
             var trainDirection = train.Forward;
-            //train.Train.ValueRW.Forward = trainDirection;
-            var angle = Utility.Angle(trainDirection, direction);
-            //train.Train.ValueRW.Angle = angle;
-            if (angle > 0.01f)
+            train.Train.ValueRW.Forward = trainDirection;
+            var angle = Utility.SignedAngle(trainDirection, direction, math.up());
+            train.Train.ValueRW.Angle = angle;
+            if (math.abs(angle) > 0.001f)
                 train.Rotation = quaternion.RotateY(angle);
 
 

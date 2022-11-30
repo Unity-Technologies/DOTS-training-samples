@@ -33,7 +33,7 @@ namespace Systems
                         continue;
                     var train = ecb.Instantiate(trainConfig.TrainPrefab);
                     ecb.SetComponent(train, LocalTransform.FromPositionRotation(metroLine.RailwayPositions[i], metroLine.RailwayRotations[i]));
-                    var nextIndex = i - 1 < 0 ? metroLine.RailwayPositions.Length : i - 1;
+                    var nextIndex = i - 1 < 0 ? metroLine.RailwayPositions.Length - 1 : i - 1;
                     ecb.SetComponent(train, new Train
                     {
                         Destination = metroLine.RailwayPositions[nextIndex],

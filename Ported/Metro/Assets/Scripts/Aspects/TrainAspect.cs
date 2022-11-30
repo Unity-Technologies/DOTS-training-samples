@@ -13,7 +13,7 @@ readonly partial struct TrainAspect : IAspect
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
-     readonly RefRW<Train> Train;
+    public readonly RefRW<Train> Train;
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.

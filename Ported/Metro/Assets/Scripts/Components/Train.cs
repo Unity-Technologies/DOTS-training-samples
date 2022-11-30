@@ -21,13 +21,7 @@ public struct Train : IComponentData
 
     public Entity MetroLine;
 
-    //public float Angle;
-    //public float3 Forward;
-    //public float3 DestinationDirection;
-}
-
-public struct TrainSpawn : IComponentData
-{
-    public Entity CarriageSpawn;
-    public int CarriageCount;
+    public float Angle;
+    public float3 Forward;
+    public float3 DestinationDirection;
 }

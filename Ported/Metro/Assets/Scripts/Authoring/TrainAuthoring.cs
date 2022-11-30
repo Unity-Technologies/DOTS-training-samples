@@ -24,10 +24,5 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
         });
         AddComponent<URPMaterialPropertyBaseColor>();
         AddComponent<Train>();
-        AddComponent(new TrainSpawn
-        {
-            CarriageSpawn = GetEntity(authoring.carriagePrefab),
-            CarriageCount = authoring.carriageAmount
-        });
     }
 }
