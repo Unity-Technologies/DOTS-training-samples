@@ -1,17 +1,18 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine.Apple;
 
 public enum PassengerState
 {
-    Walk,
-    GetOnTheTrain,
-    GetOffTheTrain,
-    Queue
+    Walking,
+    Waiting,
+    InQueue,
+    OnBoard
 }
 
 public struct Passenger : IComponentData
 {
     public PassengerState State;
-    public NativeArray<float3> Pathway;
+    public float3 Destination;
 }
