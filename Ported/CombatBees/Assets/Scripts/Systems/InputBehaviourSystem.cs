@@ -1,4 +1,6 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 partial struct InputBehaviourSystem : ISystem
@@ -17,7 +19,6 @@ partial struct InputBehaviourSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        var timeData = state.WorldUnmanaged.Time;
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var halfFieldSize = config.fieldSize * .5f;
@@ -52,7 +53,7 @@ partial struct InputBehaviourSystem : ISystem
 
                             if (insideField)
                             {
-                                SpawnResource();
+                                SpawnResource(ecb, config, (float3)hitPoint);
                                 break;
                             }
                         }
@@ -62,8 +63,13 @@ partial struct InputBehaviourSystem : ISystem
         }
     }
 
-    private void SpawnResource()
+    private void SpawnResource(EntityCommandBuffer ecb, Config config, float3 position)
     {
-        
+        var entity = ecb.Instantiate(config.resourcePrefab);
+        ecb.SetComponent(entity, new LocalTransform
+        {
+            Position = position,
+            Scale = 1f
+        });
     }
 }

@@ -60,7 +60,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
         foreach (var particle in particles)
         {
             ecb.SetComponent(particle, color);
-            var scale = random.NextFloat(.25f, .5f);
+            var scale = random.NextFloat(.3f, .6f);
             ecb.SetComponent(particle, new LocalTransform
             {
                 Position = position,
@@ -70,7 +70,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
             ecb.SetComponent(particle, new Particle()
             {
                 life = 1f,
-                lifeTime = random.NextFloat(.75f, 1f),
+                lifeTime = random.NextFloat(.5f, 75f),
                 velocity = random.NextFloat3Direction() * 5f,
                 size = scale
             });
