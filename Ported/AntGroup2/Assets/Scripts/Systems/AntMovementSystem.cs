@@ -41,13 +41,14 @@ partial struct AntMovementSystem : ISystem
             {
                 float2 reflect = math.reflect(new float2(transform.Forward.x, transform.Forward.z),new float2(transform.WorldPosition.x, transform.WorldPosition.z));
                 newDirection = math.atan2(reflect.x, reflect.y);
-                //Debug.Log(math.abs(math.abs(newDirection - ant.CurrentDirection) - math.PI));
+
                 if (math.abs(math.abs(newDirection - ant.CurrentDirection) - math.PI) < 0.05f)
                 {
                     var correction = new float3(-transform.WorldPosition.x, 0, -transform.WorldPosition.x);
                     correction = math.normalize(correction);
 
                     transform.WorldPosition += correction * 0.3f;
+                    newDirection = ant.CurrentDirection;
                 }
             }
             else if (hasResource.Trigger)
