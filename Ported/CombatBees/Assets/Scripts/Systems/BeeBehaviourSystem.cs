@@ -39,7 +39,6 @@ partial struct BeeBehaviourSystem : ISystem
         }
 
         var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
-        var rotationStrength = Mathf.Min(.5f * deltaTime, 1); // Some arbitrary value for speed of rotation
 
         foreach (var (transform, beeState, team, target, entity) in SystemAPI.Query<TransformAspect, RefRW<BeeState>, Team, RefRW<BeeTarget>>().WithEntityAccess())
         {
@@ -61,17 +60,11 @@ partial struct BeeBehaviourSystem : ISystem
                         var enemyBees = team.number == 0 ? hive0EnemyBees : hive1EnemyBees;
                         target.ValueRW.targetPosition = state.EntityManager.GetAspectRO<TransformAspect>(target.ValueRW.target).LocalPosition;
 
-                        // Placeholder. TODO smooth rotation to face target, rather than snapping. The code below just results in jittering.
-                        transform.LookAt(target.ValueRO.targetPosition);
-
-                        /*var targetRotation = Quaternion.LookRotation(target.ValueRW.targetPosition);
-                        transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, rotationStrength));
-                        //transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, rotationStrength));*/
-
-                        transform.LocalPosition += transform.Forward * deltaTime * 3f;
+                        var targetPosition = target.ValueRO.targetPosition;
+                        var targetRotation = Quaternion.LookRotation(targetPosition - transform.LocalPosition);
+                        transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 2); // last value is arbitrary. Just found something that looks the nicest.
+                        transform.LocalPosition += transform.Forward * deltaTime * 5f;
                     }
-
-
                     break;
                 case BeeStateEnumerator.Gathering:
                     //
