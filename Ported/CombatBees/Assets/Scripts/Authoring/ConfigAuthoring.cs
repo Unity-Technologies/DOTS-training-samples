@@ -11,6 +11,9 @@ class ConfigAuthoring : MonoBehaviour
     public float maximumBeeSize;
     public Vector3 gravity = new Vector3(0f, -9.81f, 0f);
     public Renderer fieldRenderer;
+    public GameObject ResourcePrefab;
+    public Transform ResourceSpawn;
+    public int ResourceCount = 100;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -26,7 +29,10 @@ class ConfigBaker : Baker<ConfigAuthoring>
             minimumBeeSize = authoring.minimumBeeSize,
             maximumBeeSize = authoring.maximumBeeSize,
             gravity = authoring.gravity,
-            fieldSize = authoring.fieldRenderer.bounds.extents * 2f
+            fieldSize = authoring.fieldRenderer.bounds.extents * 2f,
+            resourceSpawn = GetEntity(authoring.ResourceSpawn),
+            resourcePrefab = GetEntity(authoring.ResourcePrefab),
+            resourceCount = authoring.ResourceCount,
         });
     }
 }

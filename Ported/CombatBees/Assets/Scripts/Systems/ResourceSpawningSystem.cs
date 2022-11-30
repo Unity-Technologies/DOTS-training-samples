@@ -14,7 +14,7 @@ partial struct ResourceSpawningSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<ResourceSpawner>();
+        state.RequireForUpdate<Config>();
 
         var builder = new EntityQueryBuilder(Allocator.Temp);
         builder.WithAll<Hive>();
@@ -29,13 +29,13 @@ partial struct ResourceSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var resourceSpawner = SystemAPI.GetSingleton<ResourceSpawner>();
+        var config = SystemAPI.GetSingleton<Config>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var resources = CollectionHelper.CreateNativeArray<Entity>(resourceSpawner.ResourceCount, Allocator.Temp);
-        ecb.Instantiate(resourceSpawner.ResourcePrefab, resources);
+        var resources = CollectionHelper.CreateNativeArray<Entity>(config.resourceCount, Allocator.Temp);
+        ecb.Instantiate(config.resourcePrefab, resources);
 
         //Find the middle of all possible hives
         NativeArray<Hive> hives = myQuery.ToComponentDataArray<Hive>(Allocator.Temp);
@@ -49,25 +49,26 @@ partial struct ResourceSpawningSystem : ISystem
             totalY += hive.boundsPosition.y;
             totalZ += hive.boundsPosition.z;
         }
-        float3 center = new float3 { x = totalX / hives.Length, y = totalY / hives.Length, z = totalZ / hives.Length };
+
+        float3 center = float3.zero; //new float3 { x = totalX / hives.Length, y = totalY / hives.Length, z = totalZ / hives.Length };
 
         foreach (var resource in resources)
         {
-            ecb.SetComponentEnabled<ResourceDropped>(resource, true);
+            ecb.SetComponentEnabled<ResourceCarried>(resource, false);
             var position = center;
 
             //Random, but nothing random about it really
             var random = Unity.Mathematics.Random.CreateFromIndex((uint)-resource.Index);
-            var randomInt = random.NextInt(0, resourceSpawner.ResourceCount);
+            var randomInt = random.NextInt(0, config.resourceCount);
             position.x += -5 + (randomInt % 10);
 
-            randomInt = random.NextInt(0, resourceSpawner.ResourceCount);
+            randomInt = random.NextInt(0, config.resourceCount);
             position.z += 5 - (randomInt / 10);
 
-            randomInt = random.NextInt(0, resourceSpawner.ResourceCount);
+            randomInt = random.NextInt(0, config.resourceCount);
             position.y += 0.025f * randomInt;
 
-            ecb.SetComponent(resource, new WorldTransform
+            ecb.SetComponent(resource, new LocalTransform()
             {
                 Position = position,
                 Scale = 1 //If prefab scale is non-uniform, must use value of 1 to keep the original scale.

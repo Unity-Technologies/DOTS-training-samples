@@ -8,7 +8,7 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct ResourceBeeSpawnSystem : ISystem
 {
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -60,7 +60,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
         foreach (var particle in particles)
         {
             ecb.SetComponent(particle, color);
-            var scale = random.NextFloat(.25f, .5f);
+            var scale = random.NextFloat(.3f, .6f);
             ecb.SetComponent(particle, new LocalTransform
             {
                 Position = position,
@@ -70,7 +70,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
             ecb.SetComponent(particle, new Particle()
             {
                 life = 1f,
-                lifeTime = random.NextFloat(.75f, 1f),
+                lifeTime = random.NextFloat(.5f, 75f),
                 velocity = random.NextFloat3Direction() * 5f,
                 size = scale
             });
@@ -85,10 +85,15 @@ partial struct ResourceBeeSpawnSystem : ISystem
     {
         var bees = new NativeArray<Entity>(config.beesPerResource, Allocator.Temp);
         ecb.Instantiate(config.beePrefab, bees);
-        ecb.SetSharedComponent(bees, new Team()
+
+        if (team.number != 0)
         {
-            number = team.number
-        });
+            ecb.SetSharedComponent(bees, new Team()
+            {
+                number = team.number
+            });
+        }
+
         var hiveValue = hive.ValueRO;
         var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
@@ -104,7 +109,15 @@ partial struct ResourceBeeSpawnSystem : ISystem
             ecb.SetComponent(bee, new LocalTransform
             {
                 Position = position,
-                Scale = scale
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
+
+            float aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
+
+            ecb.SetComponent(bee, new BeeState
+            {
+                beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering
             });
         }
     }

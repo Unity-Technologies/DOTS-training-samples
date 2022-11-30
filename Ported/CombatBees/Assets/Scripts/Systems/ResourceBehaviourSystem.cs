@@ -15,12 +15,10 @@ partial struct ResourceBehaviourSystem : ISystem
     NativeArray<Entity> beeEntities;
     EntityQuery beeQuery;
 
-    private const float floorY = -5f;
-    private const float gravity = 0.01f;
-    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
         resourceCarriedLookup = state.GetComponentLookup<ResourceCarried>();
         resourceDroppedLookup = state.GetComponentLookup<ResourceDropped>();
         resourceLookup = state.GetComponentLookup<LocalTransform>(false);
@@ -33,9 +31,13 @@ partial struct ResourceBehaviourSystem : ISystem
     {
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
+        var timeData = state.WorldUnmanaged.Time;
+        var halfFieldSize = config.fieldSize * .5f;
+        var floorY = -1f * halfFieldSize.y;
         resourceCarriedLookup.Update(ref state);
         resourceDroppedLookup.Update(ref state);
         resourceLookup.Update(ref state);
@@ -45,8 +47,8 @@ partial struct ResourceBehaviourSystem : ISystem
         
         foreach (var (transform, resourceComponent, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
         {
-            float3 topLeft = transform.Position - 0.2f;
-            float3 bottomRight = transform.Position + 0.2f;
+            var topLeft = transform.WorldPosition - resourceComponent.ValueRO.boundsExtents;
+            var bottomRight = transform.WorldPosition + resourceComponent.ValueRO.boundsExtents;
             
             for (int i = 0; i < beeEntities.Length; i++)
             {
@@ -54,44 +56,23 @@ partial struct ResourceBehaviourSystem : ISystem
 
                 // we also need a check if ResourceCarriedComponent is disabled here, but since nothing disables it yet
                 // this check is left alone for now
-                if (CheckBoundingBox(topLeft, bottomRight, beePosition))
+                /*if (CheckBoundingBox(topLeft, bottomRight, beePosition))
                 {
                     SystemAPI.SetComponentEnabled<ResourceCarried>(entity, true);
+                    break;
                 }
-                else if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity))
+                if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity))
                 {
-                    transform.Position = new float3(beePosition.x, beePosition.y - 0.5f, beePosition.z);
-                }
-                else
-                {
-                    transform.Position = GetFallingPos(transform.Position, floorY, gravity);
-                }
-
-                transform.LocalPosition = new float3((float)math.sin(SystemAPI.Time.ElapsedTime),
-                    transform.LocalPosition.y, (float)math.cos(SystemAPI.Time.ElapsedTime));
+                    transform.WorldPosition = new float3(beePosition.x, beePosition.y - 0.5f, beePosition.z);
+                    break;
+                }*/
             }
 
-            if (beeEntities.Length == 0)
+            if (SystemAPI.IsComponentEnabled<ResourceDropped>(entity) && transform.WorldPosition.y > floorY)
             {
-                transform.Position = GetFallingPos(transform.Position, floorY, gravity);
+                resourceComponent.ValueRW.velocity += config.gravity * timeData.DeltaTime;
+                transform.TranslateWorld(resourceComponent.ValueRW.velocity * timeData.DeltaTime);
             }
         }
-    }
-    
-    // TODO: remove this
-    bool CheckBoundingBox(float3 topLeft, float3 bottomRight, float3 beePosition)
-    {
-        return (topLeft.x <= beePosition.x && beePosition.x <= bottomRight.x
-                                           && topLeft.z <= beePosition.x && beePosition.x <= bottomRight.z);
-    }
-
-    float3 GetFallingPos(float3 position, float floor, float gravity)
-    {
-        if (position.y > floor)
-        {
-            position = new float3(position.x, position.y - gravity /*fake gravity for now*/, position.z);
-        }
-
-        return position;
     }
 }

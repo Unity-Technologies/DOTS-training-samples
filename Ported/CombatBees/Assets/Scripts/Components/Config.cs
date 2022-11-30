@@ -11,4 +11,7 @@ public struct Config : IComponentData
     public float maximumBeeSize;
     public float3 gravity;
     public float3 fieldSize;
+    public Entity resourceSpawn;
+    public Entity resourcePrefab;
+    public int resourceCount;
 }

@@ -29,9 +29,12 @@ partial struct HiveSystem : ISystem
             enemyBees.Clear();
             resources.Clear();
 
-            foreach (var (transform, beeEntity) in SystemAPI.Query<TransformAspect>().WithAll<BeeState>().WithEntityAccess().WithSharedComponentFilter(enemyTeam))
+            foreach (var (transform, beeState, beeEntity) in SystemAPI.Query<TransformAspect, RefRO<BeeState>>().WithEntityAccess().WithSharedComponentFilter(enemyTeam))
             {
-                enemyBees.Add(new EnemyBees { enemy = beeEntity, enemyPosition = transform.LocalPosition });
+                if (beeState.ValueRO.beeState != BeeStateEnumerator.Dying)
+                {
+                    enemyBees.Add(new EnemyBees { enemy = beeEntity, enemyPosition = transform.LocalPosition });
+                }
             }
 
             // For resources, pretty much same as above, but without shared components
