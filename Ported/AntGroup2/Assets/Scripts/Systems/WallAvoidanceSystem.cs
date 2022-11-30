@@ -41,7 +41,7 @@ partial struct WallAvoidanceSystem : ISystem
     {
         foreach (var ant in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
         {
-            bool lineOfSight = true;
+            //bool lineOfSight = true;
             bool wallBounce = false;
             foreach (var wall in SystemAPI.Query<TransformAspect>().WithAll<Obstacle>())
             {

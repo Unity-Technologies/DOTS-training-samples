@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
+using UnityEngine;
 
 [UpdateAfter(typeof(AntMovementSystem))]
 //[BurstCompile]
@@ -39,6 +40,12 @@ public partial struct PheromoneSpawningSystem : ISystem
         float maxDist = math.max(sdx * sdx, 1);                  
         
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            for (int i = 0; i < pheromoneMap.Length; i++)
+                pheromoneMap.ElementAt(i).amount = 0;
+        }
+
         foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
         {
             int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));

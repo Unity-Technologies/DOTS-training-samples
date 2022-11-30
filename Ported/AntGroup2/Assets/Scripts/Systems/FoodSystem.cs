@@ -13,6 +13,7 @@ partial struct FoodSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Food>();
     }
 
 
@@ -23,7 +24,7 @@ partial struct FoodSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<Config>();
+        //var config = SystemAPI.GetSingleton<Config>();
 
         var colonyLocation = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Colony>()).Position;
         var foodLocation = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Food>()).Position;
