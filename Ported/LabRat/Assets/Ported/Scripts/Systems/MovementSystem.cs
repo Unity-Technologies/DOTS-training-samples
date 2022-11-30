@@ -23,44 +23,6 @@ public partial struct MovementSystem : ISystem
    [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
-       /*
-       var dt = SystemAPI.Time.DeltaTime;
-       
-       int numUpdatedEntities = 0;
-
-       foreach (var (unit, pos, transform, entity) in SystemAPI.Query<RefRW<UnitMovementComponent>, RefRW<LocalToWorld>, RefRW<WorldTransform>>()
-                    .WithEntityAccess())
-       {
-           numUpdatedEntities++;
-           var direction = unit.ValueRO.direction;
-           var speed = unit.ValueRO.speed;
-
-           RatLabHelper.DirectionToVector(out var dir, direction);
-
-           var dir3d = new float3(dir[0], 0.0f, dir[1]);
-           
-           var posTmp = pos.ValueRW.Position; 
-           
-            posTmp += (dir3d * speed * SystemAPI.Time.DeltaTime * 100.0f);
-           // pos.ValueRW.position.x += 0.01f;
-
-           // todo : check if possible to continue moving?
-           // if(!CanMoveInDirection(...)) rotate(...)
-           if (pos.ValueRO.Position.x > 10)
-           {
-               unit.ValueRW.direction = MovementDirection.West;
-           }
-           else if (pos.ValueRO.Position.x < -10)
-           {
-               unit.ValueRW.direction = MovementDirection.East;
-           }
-
-           transform.ValueRW.Position.x = posTmp.x;//pos.ValueRW.Position.x;
-           transform.ValueRW.Position.y = posTmp.y; //pos.ValueRW.Position.y;
-       }
-       */
-       
-       
        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
        var moveUnitJob = new MoveUnitJob()

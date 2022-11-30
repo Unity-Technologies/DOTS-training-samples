@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Unity.Burst;
 using Unity.Entities;
@@ -6,6 +7,8 @@ using Unity.Collections;
 using Unity.Transforms;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using Unity.Burst.Intrinsics;
+using Random = Unity.Mathematics.Random;
 
 // Unmanaged systems based on ISystem can be Burst compiled, but this is not yet the default.
 // So we have to explicitly opt into Burst compilation with the [BurstCompile] attribute.
@@ -45,24 +48,30 @@ partial struct SpawnerSystem : ISystem
 
         NativeList<SpawnUnit> array = new NativeList<SpawnUnit>(state.WorldUpdateAllocator);
 
+        uint numIterations = 1;
         
         foreach (var unitSpawner in SystemAPI.Query<RefRW<UnitSpawnerComponent>>())
         {
+            numIterations++;
             unitSpawner.ValueRW.counter += dt;
             
             if (unitSpawner.ValueRO.counter > unitSpawner.ValueRO.frequency)
             {
                 //Registering jobs for the entities to spawn
                 var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-
+                
                 for (int i = 0; i < unitSpawner.ValueRO.max; i++)
                 {
+                    numIterations++;
+                
+                    var random = Unity.Mathematics.Random.CreateFromIndex(numIterations);
                     var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-                    
+
                     var spawnJob = new SpawnUnit
                     {
                         LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
-                        ECB = ecb
+                        ECB = ecb,
+                        randomSeed = random.NextUInt(0, UInt32.MaxValue),
                     };
                     array.Add(spawnJob);
                 }
@@ -89,14 +98,27 @@ partial struct SpawnUnit : IJobEntity
 {
     [ReadOnly] public ComponentLookup<Unity.Transforms.LocalToWorld> LocalToWorldTransformFromEntity;
     public EntityCommandBuffer ECB;
+    public uint randomSeed;
+    
+    /*
+    bool OnChunkBegin(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
+    {
+        Debug.Log("on chunk begin");
 
-    void Execute(in UnitSpawnerComponent unit)
+        return true;
+    }
+    */
+    
+    void Execute([ChunkIndexInQuery] int chunkIndex, in UnitSpawnerComponent unit)
     {
         var instance = ECB.Instantiate(unit.spawnObject);
         var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint].Position;
         var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld); //Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
 
-        var random = Unity.Mathematics.Random.CreateFromIndex(1234/*(uint)unit.GetHashCode()(uint)instance.*/);
+        //var random = Unity.Mathematics.Random.CreateFromIndex((uint)instance.Index);
+        //Debug.Log($"Getting random seed with with idx={randomSeed}");
+        
+        var random = Unity.Mathematics.Random.CreateFromIndex((uint)randomSeed);
         
         ECB.SetComponent(instance, spawnTransform);
 

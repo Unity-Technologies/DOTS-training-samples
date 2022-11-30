@@ -7,6 +7,23 @@ namespace Ported.Scripts.Utils
     [BurstCompile]
     public struct RatLabHelper
     {
+        public static MovementDirection NextDirection(MovementDirection currentDirection)
+        {
+            switch (currentDirection)
+            {
+                case MovementDirection.North:
+                    return MovementDirection.East;
+                case MovementDirection.South:
+                    return MovementDirection.West;
+                case MovementDirection.East:
+                    return MovementDirection.South;
+                case MovementDirection.West:
+                    return MovementDirection.North;
+            }
+
+            return MovementDirection.North;
+        }
+        
         public static void DirectionToVector(out float2 output, MovementDirection direction)
         {
             switch (direction)
