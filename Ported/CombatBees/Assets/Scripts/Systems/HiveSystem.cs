@@ -29,9 +29,7 @@ partial struct HiveSystem : ISystem
             enemyBees.Clear();
             resources.Clear();
 
-            // Issue: Only one of the SharedComponents' buffers is accessed, while it should be both. So only one hive is populated with references to enemy bees.
-            // Nested foreach support has only recently been introduced, so this might not be an issue with the code. Regardless, we'll need a different solution.
-            foreach (var (beeState, transform, beeEntity) in SystemAPI.Query<BeeState, TransformAspect>().WithEntityAccess().WithSharedComponentFilter(enemyTeam))
+            foreach (var (transform, beeEntity) in SystemAPI.Query<TransformAspect>().WithAll<BeeState>().WithEntityAccess().WithSharedComponentFilter(enemyTeam))
             {
                 enemyBees.Add(new EnemyBees { enemy = beeEntity, enemyPosition = transform.LocalPosition });
             }
