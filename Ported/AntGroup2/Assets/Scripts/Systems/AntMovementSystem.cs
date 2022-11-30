@@ -41,6 +41,14 @@ partial struct AntMovementSystem : ISystem
             {
                 float2 reflect = math.reflect(new float2(transform.Forward.x, transform.Forward.z),new float2(transform.WorldPosition.x, transform.WorldPosition.z));
                 newDirection = math.atan2(reflect.x, reflect.y);
+                //Debug.Log(math.abs(math.abs(newDirection - ant.CurrentDirection) - math.PI));
+                if (math.abs(math.abs(newDirection - ant.CurrentDirection) - math.PI) < 0.05f)
+                {
+                    var correction = new float3(-transform.WorldPosition.x, 0, -transform.WorldPosition.x);
+                    correction = math.normalize(correction);
+
+                    transform.WorldPosition += correction * 0.3f;
+                }
             }
             else if (hasResource.Trigger)
             {
@@ -64,8 +72,6 @@ partial struct AntMovementSystem : ISystem
             normalizedDir *= config.TimeScale * SystemAPI.Time.DeltaTime * antSpeed;
 
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
-            if(ant.WallBounce)
-                transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
             Quaternion rotation = quaternion.RotateY(newDirection);
             transform.WorldRotation = rotation;
             
