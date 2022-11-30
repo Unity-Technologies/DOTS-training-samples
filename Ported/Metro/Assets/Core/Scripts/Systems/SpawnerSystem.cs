@@ -28,6 +28,7 @@ partial struct SpawnerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         if (!SystemAPI.HasSingleton<Config>()) return;
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
@@ -38,38 +39,39 @@ partial struct SpawnerSystem : ISystem
         {
             LocalTransform spawnLocalToWorld = LocalTransform.FromPosition(9 * i, 0, 0);
 
-            SpawnPlatform(ref state, ecb, spawnLocalToWorld, config);
-            SpawnRail(ref state, ecb, spawnLocalToWorld, config);
-            SpawnTrain(ref state, ecb, spawnLocalToWorld, config);
+            SpawnPlatform(ref state, ecb, spawnLocalToWorld, config.PlatformPrefab);
+            SpawnRail(ref state, ecb, spawnLocalToWorld, config.RailsPrefab);
+            SpawnTrain(ref state, ecb, spawnLocalToWorld, config.TrainPrefab);
             for(int c = 0; c < 10; c++)
             {
                 LocalTransform personSpawn = LocalTransform.FromPosition(2+9 * i, -0.1f, -22+2*c);
-                SpawnPerson(ref state, ecb, personSpawn, config);
+                SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab);
             }
         }
 
         state.Enabled = false;
     }
 
-    private void SpawnTrain(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Config config)
+    private void SpawnTrain(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
     {
-        Entity train = state.EntityManager.Instantiate(config.TrainPrefab);
-        ecb.SetComponent<LocalTransform>(train, spawnLocalToWorld);
+        LocalTransform trainTransform = LocalTransform.FromPosition(spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y, spawnLocalToWorld.Position.z + random.NextInt(-50, 50));
+        Entity train = state.EntityManager.Instantiate(prefab);
+        ecb.SetComponent<LocalTransform>(train, trainTransform);
     }
 
-    private void SpawnRail(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Config config)
+    private void SpawnRail(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
     {
-        Entity rail = ecb.Instantiate(config.RailsPrefab);
+        Entity rail = ecb.Instantiate(prefab);
         ecb.SetComponent<LocalTransform>(rail, spawnLocalToWorld);
     }
 
-    private void SpawnPlatform(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Config config)
+    private void SpawnPlatform(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
     {
-        Entity platform = state.EntityManager.Instantiate(config.PlatformPrefab);
+        Entity platform = state.EntityManager.Instantiate(prefab);
         ecb.SetComponent<LocalTransform>(platform, spawnLocalToWorld);
     }
 
-    private void SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Config config)
+    private void SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
     {
         var hue = random.NextFloat();
         URPMaterialPropertyBaseColor RandomColor()
@@ -79,7 +81,7 @@ partial struct SpawnerSystem : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
-        Entity person = state.EntityManager.Instantiate(config.PersonPrefab);
+        Entity person = state.EntityManager.Instantiate(prefab);
         ecb.SetComponent<LocalTransform>(person, spawnLocalToWorld);
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
         ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());

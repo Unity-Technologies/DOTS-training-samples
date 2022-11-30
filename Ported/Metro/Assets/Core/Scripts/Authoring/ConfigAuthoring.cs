@@ -21,8 +21,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
         {
             PersonPrefab = GetEntity(authoring.PersonPrefab),
             PlatformPrefab = GetEntity(authoring.PlatformPrefab),
-            RailsPrefab = GetEntity(authoring.TrainPrefab),
-            TrainPrefab = GetEntity(authoring.RailsPrefab),
+            RailsPrefab = GetEntity(authoring.RailsPrefab),
+            TrainPrefab = GetEntity(authoring.TrainPrefab),
             PersonCount = authoring.PersonCount,
             PlatformCountPerStation = authoring.PlatformCountPerStation,
             NumberOfStations = authoring.NumberOfStations,
