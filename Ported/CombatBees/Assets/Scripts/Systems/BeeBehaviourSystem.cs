@@ -77,11 +77,16 @@ partial struct BeeBehaviourSystem : ISystem
                         transform.LocalPosition += transform.Forward * deltaTime * 7f;
 
                         float distanceToTarget = Vector3.Distance(transform.LocalPosition, targetPosition);
-                        if (distanceToTarget < 1f)
+
+                        if (distanceToTarget < 3f)
                         {
-                            BeeState dyingState = new BeeState() { beeState = BeeStateEnumerator.Dying };
-                            state.EntityManager.SetComponentData<BeeState>(target.ValueRW.target, dyingState);
-                            target.ValueRW.target = Entity.Null;
+                            transform.LocalPosition += transform.Forward * deltaTime * 7f;
+                            if (distanceToTarget < 1f)
+                            {
+                                BeeState dyingState = new BeeState() { beeState = BeeStateEnumerator.Dying };
+                                state.EntityManager.SetComponentData<BeeState>(target.ValueRW.target, dyingState);
+                                target.ValueRW.target = Entity.Null;
+                            }
                         }
                     }
                     break;
