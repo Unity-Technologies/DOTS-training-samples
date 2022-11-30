@@ -6,4 +6,5 @@ using UnityEngine;
 struct HasResource : IComponentData
 {
     public bool Value;
+    public bool Trigger;
 }

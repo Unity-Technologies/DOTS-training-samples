@@ -27,7 +27,7 @@ partial struct AntMovementSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
 
-        foreach (var (ant, transform) in SystemAPI.Query<DirectionAspect, TransformAspect>().WithAll<Ant>())
+        foreach (var (ant, hasResource, transform) in SystemAPI.Query<DirectionAspect, HasResource, TransformAspect>().WithAll<Ant>())
         {
             float pheromoneWeight = 0.0f;
             float WallWeight = 1.0f;
@@ -41,6 +41,10 @@ partial struct AntMovementSystem : ISystem
             {
                 float straight = math.atan2(transform.WorldPosition.x, transform.WorldPosition.z);
                 newDirection = ant.CurrentDirection - straight;
+            }
+            else if (hasResource.Trigger)
+            {
+                newDirection = math.PI;
             }
             else
             {
