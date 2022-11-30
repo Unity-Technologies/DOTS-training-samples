@@ -17,6 +17,24 @@ partial struct TargetSeekingSystem : ISystem
 
     }
 
+    private bool Intersect(float2 p1, float2 p2, float2 center, float radius)
+    {
+        //  get the distance between X and Z on the segment
+        float2 dp = p2 - p1;
+
+        float a = math.dot(dp, dp);
+        float b = 2 * math.dot(dp, p1 - center);
+        float c = math.dot(center, center) - 2 * math.dot(center, p1) + math.dot(p1, p1) - radius * radius;
+        float bb4ac = b * b - 4 * a * c;
+        if (math.abs(a) < float.Epsilon || bb4ac < 0)
+        {
+            //  line does not intersect
+            return false;
+        }
+
+        return true;
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         /*
@@ -38,42 +56,36 @@ partial struct TargetSeekingSystem : ISystem
 			}
         */
         float3 foodPos = new();
-        float3 stepDirection;
+        float3 colonyPos = new();
         bool lineOfSight;
         foreach (var food in SystemAPI.Query<TransformAspect>().WithAll<Food>())
         {
             foodPos = food.WorldPosition;
         }
-        foreach (var ant in SystemAPI.Query<TransformAspect, DirectionAspect>().WithAll<Ant>())
+        foreach (var colony in SystemAPI.Query<TransformAspect>().WithAll<Colony>())
+        {
+            colonyPos = colony.WorldPosition;
+        }
+        foreach (var ant in SystemAPI.Query<TransformAspect, DirectionAspect, HasResource>().WithAll<Ant>())
         {
             lineOfSight = true;
+
+            float3 targetPos = ant.Item3.Value ? colonyPos : foodPos;
+
             foreach (var wall in SystemAPI.Query<TransformAspect>().WithAll<Obstacle>())
             {
-                for(float stepSize = 0.5f; stepSize < 100f; stepSize += 0.5f)
-                {
-                    
-                    stepDirection = new float3(foodPos.x - ant.Item1.WorldPosition.x, 0, foodPos.z - ant.Item1.WorldPosition.z);
-                    float3 stepPosition = ant.Item1.WorldPosition + math.normalize(stepDirection) * stepSize;
 
-                    if (stepPosition.x - wall.WorldPosition.x <= 2.0f || stepPosition.z - wall.WorldPosition.z <= 2.0f)
-                    {
-                        var dx = stepPosition.x - wall.WorldPosition.x;
-                        var dy = stepPosition.z - wall.WorldPosition.z;
-                        float sqrDist = dx * dx + dy * dy;
-
-                        if (sqrDist < 2f * 2f)
-                            lineOfSight = false;
-                    }
-                }
-                
+                if (Intersect(ant.Item1.WorldPosition.xz, targetPos.xz, wall.LocalPosition.xz, 2.0f))
+                    lineOfSight = false;
+               
             }
             if(lineOfSight)
             {
                 //Debug.Log(math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z));
-                ant.Item2.TargetDirection = math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z);
+                ant.Item2.TargetDirection = math.atan2(targetPos.x - ant.Item1.WorldPosition.x, targetPos.z - ant.Item1.WorldPosition.z);
                 ant.Item2.TargetDirection = ant.Item2.TargetDirection - ant.Item2.CurrentDirection;
             }
-            Debug.DrawLine(foodPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
+            Debug.DrawLine(targetPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
         }
 
         //foreach (var ant in SystemAPI.Query<TargetDirectionAspect, TransformAspect>().WithAll<Ant>())
