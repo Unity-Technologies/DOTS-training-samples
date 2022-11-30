@@ -13,8 +13,7 @@ public struct Carriage : IComponentData
 
     public float3 TrainPosition;
     public float3 TrainDirection;
+    public quaternion TrainRotation;
 
     public Entity Train;
-    /*public Train TrainComponent;
-    public LocalTransform TrainTransform;*/
 }

@@ -11,6 +11,12 @@ readonly partial struct CopyTrainCarriageAspect : IAspect
         set => CarriageComponent.ValueRW.TrainPosition = value;
     }
     
+    public quaternion TrainRotation
+    {
+        get => CarriageComponent.ValueRO.TrainRotation;
+        set => CarriageComponent.ValueRW.TrainRotation = value;
+    }
+    
     public float3 TrainDirection
     {
         get => CarriageComponent.ValueRO.TrainDirection;

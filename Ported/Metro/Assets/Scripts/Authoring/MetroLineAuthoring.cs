@@ -6,6 +6,7 @@ using UnityEngine;
 public class MetroLineAuthoring : MonoBehaviour
 {
     public int ID = 0;
+    public Color Color = Color.white;
 }
 
 class MetroLineBaker : Baker<MetroLineAuthoring>
@@ -30,7 +31,8 @@ class MetroLineBaker : Baker<MetroLineAuthoring>
         {
             RailwayPositions = pointPositions,
             RailwayRotations= pointRotations,
-            RailwayType = pointTypes
+            RailwayType = pointTypes,
+            Color = new float4(authoring.Color.r, authoring.Color.g, authoring.Color.b, authoring.Color.a)
         });
     }
 }
