@@ -27,6 +27,7 @@ partial struct ParticleSystem : ISystem
         var timeData = state.WorldUnmanaged.Time;
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var halfFieldSize = config.fieldSize * .5f;
 
         foreach(var (particle, colorProp, transform, entity) in SystemAPI.Query<RefRW<Particle>, RefRW<URPMaterialPropertyBaseColor>, TransformAspect>().WithEntityAccess())
         {
@@ -45,6 +46,17 @@ partial struct ParticleSystem : ISystem
                 var color = colorProp.ValueRW.Value;
                 color.w = particle.ValueRW.life;
                 colorProp.ValueRW.Value = color;
+                
+                if (math.abs(transform.WorldPosition.x) > halfFieldSize.x)
+                {
+                    var worldX = config.fieldSize.x * .5f * math.sign(transform.WorldPosition.x);
+                    transform.WorldPosition = new float3(worldX, transform.WorldPosition.y, transform.WorldPosition.z);
+                    float splat = math.abs(particle.ValueRW.velocity.x * .3f) + 1f;
+                    //particle.ValueRW.size.y *= splat;
+                    //particle.ValueRW.size.z *= splat;
+                    particle.ValueRW.stuck = true;
+                    ecb.SetCom
+                }
             }
         }
     }
