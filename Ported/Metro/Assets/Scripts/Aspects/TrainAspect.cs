@@ -35,13 +35,23 @@ readonly partial struct TrainAspect : IAspect
 
     public float3 Forward => Transform.Forward;
 
-    public float3 TrainDestination
+    public float3 Destination
     {
         get => Train.ValueRO.Destination;
         set => Train.ValueRW.Destination = value;
     }
 
-    public float CurrentSpeed => SpeedComponent.ValueRO.Current;
+    public RailwayPointType DestinationType
+    {
+        get => Train.ValueRO.DestinationType;
+        set => Train.ValueRW.DestinationType = value;
+    }
     
-     
+    public int DestinationIndex
+    {
+        get => Train.ValueRO.DestinationIndex;
+        set => Train.ValueRW.DestinationIndex = value;
+    }
+
+    public float CurrentSpeed => SpeedComponent.ValueRO.Current;
 }

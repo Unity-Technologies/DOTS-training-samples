@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
 
@@ -7,6 +6,7 @@ public class TrainAuthoring : MonoBehaviour
 {
     public int carriageAmount = 5;
     public GameObject carriagePrefab;
+    public float MaxSpeed = 1;
 }
 
 class TrainAuthoringBaker : Baker<TrainAuthoring>
@@ -15,8 +15,8 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
     {
         AddComponent(new SpeedComponent
         {
-            Current = 0.1f,
-            Max = 1f
+            Current = 0.1f * authoring.MaxSpeed,
+            Max = authoring.MaxSpeed
         });
         AddComponent(new MetroLineID
         {

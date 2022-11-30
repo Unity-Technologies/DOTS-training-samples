@@ -12,8 +12,10 @@ public enum TrainState
 
 public struct Train : IComponentData
 {
-    public int Index;
+    public int UniqueTrainID;
+    public int AmountOfTrainsOnMetroLine;
 
+    public int DestinationIndex;
     public float3 Destination;
     public RailwayPointType DestinationType;
     public float DistanceToNextTrain;
@@ -21,7 +23,8 @@ public struct Train : IComponentData
 
     public Entity MetroLine;
 
-    public float Angle;
+    /*public float Angle;
     public float3 Forward;
     public float3 DestinationDirection;
+    public float DistanceToDestination;*/
 }

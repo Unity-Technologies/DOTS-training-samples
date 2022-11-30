@@ -18,5 +18,6 @@ class TrainConfigBaker : Baker<TrainConfigAuthoring>
             CarriagePrefab = GetEntity(authoring.CarriagePrefab),
             CarriageCount = authoring.CarriageCount
         });
+        AddComponent<TrainPositions>();
     }
 }

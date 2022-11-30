@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
+    /*[UpdateInGroup(typeof(LateSimulationSystemGroup))]
     partial class DrawRailwayPointsGizmos : SystemBase
     {
         private Color c = Color.green;
@@ -39,5 +39,5 @@ namespace Systems
                 Debug.DrawLine(point4, point8, c);
             }
         }
-    }
+    }*/
 }

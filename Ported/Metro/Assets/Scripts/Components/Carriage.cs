@@ -11,9 +11,6 @@ public struct Carriage : IComponentData
     public NativeList<Entity> Passengers;
     public int Index;
 
-    public float3 TrainPosition;
-    public float3 TrainDirection;
-    public quaternion TrainRotation;
-
     public Entity Train;
+    public int uniqueTrainID;
 }

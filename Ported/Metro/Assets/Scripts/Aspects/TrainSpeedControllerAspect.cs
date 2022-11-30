@@ -16,7 +16,10 @@ readonly partial struct TrainSpeedControllerAspect : IAspect
 
     public Entity MetroLine => Train.ValueRO.MetroLine;
 
-    public int Index => Train.ValueRO.Index;
+    public int MetroLineID => LineID.ValueRO.ID;
+    public int AmountOfTrains => Train.ValueRO.AmountOfTrainsOnMetroLine;
+
+    public int UniqueTrainID => Train.ValueRO.UniqueTrainID;
 
     public float Speed
     {
