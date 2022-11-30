@@ -13,7 +13,7 @@ readonly partial struct TrainAspect : IAspect
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
-    readonly RefRW<Train> Train;
+     readonly RefRW<Train> Train;
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
@@ -26,6 +26,14 @@ readonly partial struct TrainAspect : IAspect
         get => Transform.LocalPosition;
         set => Transform.LocalPosition = value;
     }
+    
+    public quaternion Rotation
+    {
+        get => Transform.LocalRotation;
+        set => Transform.LocalRotation = value;
+    }
+
+    public float3 Forward => Transform.Forward;
 
     public float3 TrainDestination
     {
@@ -34,4 +42,6 @@ readonly partial struct TrainAspect : IAspect
     }
 
     public float CurrentSpeed => SpeedComponent.ValueRO.Current;
+    
+     
 }

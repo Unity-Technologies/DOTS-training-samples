@@ -14,6 +14,7 @@ namespace Systems
         {
             var trainTransform = WorldTransformFromEntity[carriage.Train];
             carriage.TrainPosition = trainTransform.Position;
+            carriage.TrainRotation = trainTransform.Rotation;
             carriage.TrainDirection = trainTransform.Forward();
         }
     }
@@ -25,6 +26,7 @@ namespace Systems
         void Execute(ref CarriageAspect carriage)
         {
             carriage.Position = carriage.TrainPosition - carriage.TrainDirection * carriage.Width * carriage.Index;
+            carriage.Rotation = carriage.TrainRotation;
         }
     }
 

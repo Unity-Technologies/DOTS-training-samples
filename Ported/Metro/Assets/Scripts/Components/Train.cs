@@ -17,6 +17,10 @@ public struct Train : IComponentData
     public float3 Destination;
     public float DistanceToNextTrain;
     public TrainState State;
+
+    //public float Angle;
+    //public float3 Forward;
+    //public float3 DestinationDirection;
 }
 
 public struct TrainSpawn : IComponentData

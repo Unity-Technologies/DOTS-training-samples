@@ -26,7 +26,7 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
         AddComponent(new Train
         {
             State = TrainState.EnRoute,
-            Destination = new float3(0, 0, 10),
+            Destination = new float3(10, 0, 0),
         });
         AddComponent(new TrainSpawn
         {
