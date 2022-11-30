@@ -31,7 +31,7 @@ partial struct AntMovementSystem : ISystem
         {
             float pheromoneWeight = 0.0f;
             float WallWeight = 1.0f;
-            float TargetWeight = 0.0f;
+            float TargetWeight = 1.0f;
             float RandomWeight = .8f;
             
             
@@ -63,6 +63,7 @@ partial struct AntMovementSystem : ISystem
                 ant.CurrentDirection -= (float)(math.PI * 2.0f);
             
             ant.WallDirection = 0;
+            ant.TargetDirection = 0;
         }
     }
 }
