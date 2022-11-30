@@ -8,6 +8,11 @@ struct CurrentDirection : IComponentData
     public float Angle;
 }
 
+struct PreviousDirection : IComponentData
+{
+    public float Angle;
+}
+
 struct PheromoneDirection : IComponentData
 {
     public float Angle;

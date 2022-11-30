@@ -5,7 +5,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
 
-[UpdateBefore(typeof(PheromoneSpawningSystem))]
+[UpdateBefore(typeof(AntMovementSystem))]
 //[BurstCompile]
 public partial struct PheromoneSamplingSystem : ISystem
 {

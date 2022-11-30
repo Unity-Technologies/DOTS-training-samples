@@ -51,5 +51,6 @@ partial struct AntSpawningSystem : ISystem
 
         Entity newAnt = ecb.Instantiate(config.AntPrefab);
         ecb.AddComponent<CurrentDirection>(newAnt, new CurrentDirection { Angle = randomAngle });
+        ecb.AddComponent<PreviousDirection>(newAnt, new PreviousDirection { Angle = randomAngle });
     }
 }

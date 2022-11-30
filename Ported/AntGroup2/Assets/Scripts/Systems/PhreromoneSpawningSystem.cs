@@ -39,9 +39,11 @@ public partial struct PheromoneSpawningSystem : ISystem
         float maxDist = math.max(sdx * sdx, 1);                  
         
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
-        foreach( var (transform, ant) in SystemAPI.Query<TransformAspect, Ant>())
+        foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
         {
             int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));
+            float turnAngle = math.abs(curDirection.ValueRO.Angle - prevDirection.ValueRO.Angle);
+            float spawnTurnStrength = 1.0f - math.saturate(turnAngle / (math.PI/2));
 
             for (int y = -sdy; y < sdy + 1; y++)
             {
@@ -49,7 +51,7 @@ public partial struct PheromoneSpawningSystem : ISystem
                 {
                     int d = x * x + y * y;
                     float strength = math.max(1.0f - d / maxDist, 0);
-                    PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * pheromoneSpawnAmount);
+                    PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * spawnTurnStrength * pheromoneSpawnAmount);
                 }    
             }
         }

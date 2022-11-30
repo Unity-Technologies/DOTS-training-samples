@@ -56,9 +56,10 @@ partial struct AntMovementSystem : ISystem
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
             Quaternion rotation = quaternion.RotateY(newDirection);
             transform.WorldRotation = rotation;
+            ant.PreviousDirection = ant.CurrentDirection;
             ant.CurrentDirection = newDirection;
-            if (ant.CurrentDirection > Math.PI * 2.0f)
-                ant.CurrentDirection -= (float)(Math.PI * 2.0f);
+            if (ant.CurrentDirection > math.PI * 2.0f)
+                ant.CurrentDirection -= (float)(math.PI * 2.0f);
             if (ant.CurrentDirection < 0)
                 ant.CurrentDirection -= (float)(math.PI * 2.0f);
             

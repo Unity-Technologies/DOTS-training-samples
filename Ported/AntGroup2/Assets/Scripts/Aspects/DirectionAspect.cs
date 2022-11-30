@@ -11,11 +11,18 @@ readonly partial struct DirectionAspect : IAspect
     readonly RefRW<WallDirection> wallDirection;
 
     readonly RefRW<CurrentDirection> currentDirection;
+    readonly RefRW<PreviousDirection> previousDirection;
     
     public float CurrentDirection
     {
         get => currentDirection.ValueRO.Angle;
         set => currentDirection.ValueRW.Angle = value;
+    }
+    
+    public float PreviousDirection
+    {
+        get => previousDirection.ValueRO.Angle;
+        set => previousDirection.ValueRW.Angle = value;
     }
 
     public float TargetDirection

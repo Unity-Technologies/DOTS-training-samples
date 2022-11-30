@@ -17,7 +17,7 @@ public partial struct PheromoneDecaySystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         
-        float pheromoneDecayAmount = config.PheromoneDecayRateSec * config.TimeScale * SystemAPI.Time.DeltaTime;
+        float pheromoneDecayAmount = math.max(config.PheromoneDecayRateSec * config.TimeScale * SystemAPI.Time.DeltaTime,0.0001f);
 
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
         for (int i = 0; i < pheromoneMap.Length; i++)
