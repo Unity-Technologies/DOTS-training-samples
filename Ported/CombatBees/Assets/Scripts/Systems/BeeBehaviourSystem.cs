@@ -38,20 +38,19 @@ partial struct BeeBehaviourSystem : ISystem
             hive01AvailableResources = hiveAvailableResources;
         }
 
-        var rotationStrength = Mathf.Min(.5f * Time.deltaTime, 1); // Some arbitrary value for speed of rotation
+        var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
+        var rotationStrength = Mathf.Min(.5f * deltaTime, 1); // Some arbitrary value for speed of rotation
 
         foreach (var (transform, beeState, team, target, entity) in SystemAPI.Query<TransformAspect, RefRW<BeeState>, Team, RefRW<BeeTarget>>().WithEntityAccess())
         {
+            bool jittering = true;
+
             switch (beeState.ValueRO.beeState)
             {
                 case BeeStateEnumerator.Attacking:
-
                     if(target.ValueRW.target == Entity.Null)
                     {
-                        var enemyBees = team.number == 0 ? hive1EnemyBees : hive0EnemyBees;
-
-                        // Workaround (disabling this functionality for one team) for issue noted in HiveSystem.cs
-                        if (team.number == 0) { return; }
+                        var enemyBees = team.number == 0 ? hive0EnemyBees : hive1EnemyBees;
 
                         var randomIndex = UnityEngine.Random.Range(0, enemyBees.Length);
                         target.ValueRW.target = enemyBees[randomIndex].enemy;
@@ -59,14 +58,17 @@ partial struct BeeBehaviourSystem : ISystem
                     }
                     else
                     {
+                        var enemyBees = team.number == 0 ? hive0EnemyBees : hive1EnemyBees;
+                        target.ValueRW.targetPosition = state.EntityManager.GetAspectRO<TransformAspect>(target.ValueRW.target).LocalPosition;
 
                         // Placeholder. TODO smooth rotation to face target, rather than snapping. The code below just results in jittering.
-                        transform.LookAt(target.ValueRW.targetPosition);
-
+                        transform.LookAt(target.ValueRO.targetPosition);
 
                         /*var targetRotation = Quaternion.LookRotation(target.ValueRW.targetPosition);
-                        transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, SystemAPI.Time.DeltaTime));
+                        transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, rotationStrength));
                         //transform.RotateLocal(Quaternion.Lerp(transform.LocalRotation, targetRotation, rotationStrength));*/
+
+                        transform.LocalPosition += transform.Forward * deltaTime * 3f;
                     }
 
 
@@ -78,8 +80,15 @@ partial struct BeeBehaviourSystem : ISystem
                     //
                     break;
                 case BeeStateEnumerator.Dying:
-                    //
+
+                    jittering = false;
+
                     break;
+            }
+
+            if (jittering)
+            {
+                transform.LocalPosition += (float3)UnityEngine.Random.insideUnitSphere * (1f * deltaTime);
             }
         }
     }

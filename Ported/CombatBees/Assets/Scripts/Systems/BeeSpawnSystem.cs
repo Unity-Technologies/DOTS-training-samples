@@ -37,11 +37,14 @@ partial struct BeeSpawnSystem : ISystem
         {
             var bees = new NativeArray<Entity>(config.startBeeCount, Allocator.Temp);
             ecb.Instantiate(config.beePrefab, bees);
-            
-            ecb.SetSharedComponent(bees, new Team()
+
+            if (team.number != 0)
             {
-                number = team.number
-            });
+                ecb.SetSharedComponent(bees, new Team()
+                {
+                    number = team.number
+                });
+            }
             var hiveValue = hive.ValueRO;
             var color = new URPMaterialPropertyBaseColor { Value = hiveValue.color };
 
