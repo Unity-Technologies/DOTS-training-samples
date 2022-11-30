@@ -181,6 +181,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -250,6 +255,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -981,6 +991,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -1248,6 +1263,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -1460,6 +1480,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -1663,6 +1688,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -1878,6 +1908,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -1950,6 +1985,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -2019,6 +2059,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -2295,6 +2340,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -2367,6 +2417,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -2436,6 +2491,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -2569,6 +2629,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -3060,6 +3125,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -3394,6 +3464,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -3463,6 +3538,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -3742,6 +3822,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -4285,6 +4370,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -4348,6 +4438,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -4679,6 +4774,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -4815,6 +4915,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -5091,6 +5196,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -5154,6 +5264,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
@@ -5509,6 +5624,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -5727,6 +5847,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
+      propertyPath: StationId
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
       propertyPath: RailwayPointType
       value: 0
       objectReference: {fileID: 0}
@@ -5863,6 +5988,11 @@ PrefabInstance:
     - target: {fileID: 4490955199913206, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
+        type: 3}
+      propertyPath: StationId
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3705153189013463999, guid: ad4e2bd5e53bd4fbe9738ef01e7ad504,
         type: 3}
