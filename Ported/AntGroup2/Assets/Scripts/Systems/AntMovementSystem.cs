@@ -38,7 +38,10 @@ partial struct AntMovementSystem : ISystem
             float newDirection = 0;
 
             if (ant.WallBounce)
-                newDirection = ant.CurrentDirection;
+            {
+                float straight = math.atan2(transform.WorldPosition.x, transform.WorldPosition.z);
+                newDirection = ant.CurrentDirection - straight;
+            }
             else
             {
                 newDirection += ant.WallDirection * WallWeight;
@@ -54,6 +57,8 @@ partial struct AntMovementSystem : ISystem
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
             normalizedDir *= config.TimeScale * SystemAPI.Time.DeltaTime;
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
+            if(ant.WallBounce)
+                transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
             Quaternion rotation = quaternion.RotateY(newDirection);
             transform.WorldRotation = rotation;
             ant.PreviousDirection = ant.CurrentDirection;
@@ -61,7 +66,7 @@ partial struct AntMovementSystem : ISystem
             if (ant.CurrentDirection > math.PI * 2.0f)
                 ant.CurrentDirection -= (float)(math.PI * 2.0f);
             if (ant.CurrentDirection < 0)
-                ant.CurrentDirection -= (float)(math.PI * 2.0f);
+                ant.CurrentDirection += (float)(math.PI * 2.0f);
             
             ant.WallDirection = 0;
             ant.TargetDirection = 0;
