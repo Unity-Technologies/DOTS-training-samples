@@ -13,4 +13,12 @@ public struct MetroLine : IComponentData
     public NativeArray<int> StationIds;
 
     public float4 Color;
+
+    public Entity GetNextTrain(int index)
+    {
+        var nextIndex = index - 1;
+        if (nextIndex < 0)
+            nextIndex = Trains.Length - 1;
+        return Trains[nextIndex];
+    }
 }

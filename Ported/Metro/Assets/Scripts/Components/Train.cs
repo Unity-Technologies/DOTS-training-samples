@@ -18,6 +18,8 @@ public struct Train : IComponentData
     public float DistanceToNextTrain;
     public TrainState State;
 
+    public Entity MetroLine;
+
     //public float Angle;
     //public float3 Forward;
     //public float3 DestinationDirection;

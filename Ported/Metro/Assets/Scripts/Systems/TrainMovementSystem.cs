@@ -10,6 +10,25 @@ namespace Systems
     [WithAll(typeof(Train))]
     partial struct SpeedController : IJobEntity
     {
+        [ReadOnly] public ComponentLookup<MetroLine> m_MetroLine;
+        [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformFromEntity;
+
+        void Execute(ref TrainSpeedControllerAspect train)
+        {
+            var metroLine = m_MetroLine[train.MetroLine];
+            var nextTrain = metroLine.GetNextTrain(train.Index);
+            var nextTrainPosition = WorldTransformFromEntity[nextTrain].Position;
+            var distancesqr = math.distancesq(train.Position, nextTrainPosition);
+            if (distancesqr < train.Speed * 10f)
+                train.Speed = math.min(train.Speed - 0.95f * train.MaxSpeed, 0.1f);
+            else
+            {
+                var distanceToDestination = math.distance(train.Destination, train.Position);
+                train.Speed = distanceToDestination > train.Speed * 10f ? 
+                    math.max(train.Speed + 0.95f * train.MaxSpeed, train.MaxSpeed) : 
+                    math.min(train.Speed - 0.95f * train.MaxSpeed, 0.1f);
+            }
+        }
     }
 
     [BurstCompile]
@@ -27,10 +46,10 @@ namespace Systems
             //train.Train.ValueRW.Forward = trainDirection;
             var angle = Utility.Angle(trainDirection, direction);
             //train.Train.ValueRW.Angle = angle;
-            if(angle > 0.01f)
+            if (angle > 0.01f)
                 train.Rotation = quaternion.RotateY(angle);
-            
-            
+
+
             var distanceToThePoint = math.lengthsq(direction);
             if (distanceToThePoint > 0.001f)
             {
@@ -43,7 +62,8 @@ namespace Systems
     [BurstCompile]
     public partial struct TrainMovementSystem : ISystem
     {
-        [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformFromEntity;
+        ComponentLookup<MetroLine> m_MetroLine;
+        ComponentLookup<WorldTransform> WorldTransformFromEntity;
 
         [BurstCompile]
         public void OnCreate(ref SystemState state)
