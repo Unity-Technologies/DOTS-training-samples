@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Transforms;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 // Unmanaged systems based on ISystem can be Burst compiled, but this is not yet the default.
 // So we have to explicitly opt into Burst compilation with the [BurstCompile] attribute.
@@ -95,8 +96,11 @@ partial struct SpawnUnit : IJobEntity
         var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint].Position;
         var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld); //Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
 
+        var random = Unity.Mathematics.Random.CreateFromIndex((uint)instance.Index);
+        
         ECB.SetComponent(instance, spawnTransform);
 
+        ECB.SetComponent(instance, new UnitMovementComponent { speed = random.NextFloat(unit.minSpeed, unit.maxSpeed), direction = unit.startDirection } );
 
 
         /*
@@ -111,7 +115,7 @@ partial struct SpawnUnit : IJobEntity
         });
         */
         
-        Debug.Log("Execute me");
+        //Debug.Log("Execute me");
     }
     
     // Note that the TurretAspects parameter is "in", which declares it as read only.

@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class RatAuthoring : MonoBehaviour
 {
-
+    public float minSpeed = 3.0f;
+    public float maxSpeed = 5.0f;
 }
 
 class RatBaker : Baker<RatAuthoring>
@@ -12,6 +13,6 @@ class RatBaker : Baker<RatAuthoring>
     {
         AddComponent<IsAliveComponent>();
         AddComponent<PositionComponent>();
-        AddComponent(new UnitMovementComponent(){ direction = MovementDirection.East, speed = 1.0f });
+        AddComponent(new UnitMovementComponent(){ direction = MovementDirection.East, speed = Random.Range(authoring.minSpeed, authoring.maxSpeed) });
     }
 }

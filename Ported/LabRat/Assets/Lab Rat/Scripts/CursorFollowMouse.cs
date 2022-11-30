@@ -27,6 +27,10 @@ public class CursorFollowMouse : MonoBehaviour {
         playerCursor.SetScreenPosition(screenPos);
 
         Direction dir;
+        if (board == null)
+        {
+            return;
+        }
         var cell = board.RaycastCellDirection(screenPos, out dir);
 
         if (cell)

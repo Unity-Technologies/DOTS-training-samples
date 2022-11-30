@@ -10,4 +10,7 @@ public struct UnitSpawnerComponent : IComponentData
     public float counter;
     public Entity spawnObject;
     public Entity spawnPoint;
+    public MovementDirection startDirection;
+    public float minSpeed;
+    public float maxSpeed;
 }
