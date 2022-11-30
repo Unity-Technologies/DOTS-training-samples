@@ -55,10 +55,9 @@ partial struct AntMovementSystem : ISystem
 
                 newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
                 newDirection = math.clamp(newDirection, -math.PI / 2.0f, math.PI / 2.0f);
+                newDirection += ant.CurrentDirection;
             }
             
-            newDirection += ant.CurrentDirection;
-
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
             normalizedDir *= config.TimeScale * SystemAPI.Time.DeltaTime;
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
