@@ -1,9 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
-using Unity.Mathematics;
-using Random = UnityEngine.Random;
 
-//[UpdateAfter(typeof(PheromoneDecaySystem))]
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial class PheromoneDisplaySystem : SystemBase
 {
@@ -20,7 +17,7 @@ partial class PheromoneDisplaySystem : SystemBase
         
         displayPlane = GameObject.Find("DisplayPlane");
         
-        pheromoneTexture = new Texture2D(PheromoneTextureSizeX, PheromoneTextureSizeY);   // TEMP: Hardcoded size
+        pheromoneTexture = new Texture2D(PheromoneTextureSizeX, PheromoneTextureSizeY, TextureFormat.R8, false);   // TEMP: Hardcoded size
         
         if (displayPlane.TryGetComponent<Renderer>(out var displayRenderer))
             displayMaterial = displayRenderer.material;
@@ -33,7 +30,8 @@ partial class PheromoneDisplaySystem : SystemBase
         // Resize the display plane to cover the play area
         float planeScale = config.PlaySize / 10.0f;
         displayPlane.transform.localScale = new Vector3(planeScale,planeScale,planeScale);
-        
+
+        #if false
         // Assume there's only one PheromoneMap
         Entities.ForEach((Entity ent, in DynamicBuffer<PheromoneMap> map) =>
         {
@@ -56,6 +54,7 @@ partial class PheromoneDisplaySystem : SystemBase
             
                 pheromoneTexture.SetPixel((int)(x*(texSize.x-1)), (int)(y*(texSize.x-1)), Color.red);
             }*/
+
             
             for (int i = 0; i < map.Length; i++)
             {
@@ -70,10 +69,30 @@ partial class PheromoneDisplaySystem : SystemBase
                 
                 pheromoneTexture.SetPixel(x, y, new Color(math.saturate(amount), 0, 0, 1));
             }
+
             pheromoneTexture.Apply();
             
             displayMaterial.mainTexture = pheromoneTexture;
         }).WithAll<PheromoneMap>().WithoutBurst().Run();
+        #else
+        // Upload pheromone map buffer to the texture
+        {
+            var map = SystemAPI.GetSingletonBuffer<PheromoneMap>();
+            var pixels = pheromoneTexture.GetPixelData<byte>(0);
+            int len = map.Length;
+            for (int i = 0; i < len; i++)
+            {
+                float a = map[i].amount;
+                byte b = (byte)(a * 255.0f);
+
+                // X & Y flip // TODO: investigate why it's needed.
+                int dstIndex = len - i - 1;
+                pixels[dstIndex] = b;
+            }
+            pheromoneTexture.Apply();
+            displayMaterial.mainTexture = pheromoneTexture;
+        }
+        #endif
     }
 
 }
