@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -40,6 +41,8 @@ partial struct BeeBehaviourSystem : ISystem
 
         var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
 
+        NativeList<Entity> entitiesToDestroy = new NativeList<Entity>(Allocator.TempJob);
+
         foreach (var (transform, beeState, team, target, entity) in SystemAPI.Query<TransformAspect, RefRW<BeeState>, Team, RefRW<BeeTarget>>().WithEntityAccess())
         {
             bool jittering = true;
@@ -47,9 +50,10 @@ partial struct BeeBehaviourSystem : ISystem
             switch (beeState.ValueRO.beeState)
             {
                 case BeeStateEnumerator.Attacking:
-                    if(target.ValueRW.target == Entity.Null)
+                    if (target.ValueRW.target == Entity.Null || !state.EntityManager.Exists(target.ValueRW.target))
                     {
                         var enemyBees = team.number == 0 ? hive0EnemyBees : hive1EnemyBees;
+                        if(enemyBees.Length == 0) { break; }
 
                         var randomIndex = UnityEngine.Random.Range(0, enemyBees.Length);
                         target.ValueRW.target = enemyBees[randomIndex].enemy;
@@ -62,8 +66,16 @@ partial struct BeeBehaviourSystem : ISystem
 
                         var targetPosition = target.ValueRO.targetPosition;
                         var targetRotation = Quaternion.LookRotation(targetPosition - transform.LocalPosition);
-                        transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 2); // last value is arbitrary. Just found something that looks the nicest.
-                        transform.LocalPosition += transform.Forward * deltaTime * 5f;
+                        transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 10); // last value is arbitrary. Just found something that looks the nicest.
+                        transform.LocalPosition += transform.Forward * deltaTime * 7f;
+
+                        float distanceToTarget = Vector3.Distance(transform.LocalPosition, targetPosition);
+                        if (distanceToTarget < 1f)
+                        {
+                            BeeState dyingState = new BeeState() { beeState = BeeStateEnumerator.Dying };
+                            state.EntityManager.SetComponentData<BeeState>(target.ValueRW.target, dyingState);
+                            target.ValueRW.target = Entity.Null;
+                        }
                     }
                     break;
                 case BeeStateEnumerator.Gathering:
@@ -76,6 +88,18 @@ partial struct BeeBehaviourSystem : ISystem
 
                     jittering = false;
 
+                    float floorY = -5f;
+                    float gravity = 0.1f;
+
+                    transform.LocalPosition = GetFallingPos(transform.LocalPosition, floorY, gravity);
+
+                    if(transform.LocalPosition.y <= floorY)
+                    {
+                        // Blood particle logic
+
+                        entitiesToDestroy.Add(entity);
+                    }
+
                     break;
             }
 
@@ -84,5 +108,21 @@ partial struct BeeBehaviourSystem : ISystem
                 transform.LocalPosition += (float3)UnityEngine.Random.insideUnitSphere * (1f * deltaTime);
             }
         }
+
+        // Destroying entities of all bees that have fallen to the floor
+        foreach(Entity entity in entitiesToDestroy)
+        {
+            state.EntityManager.DestroyEntity(entity);
+        }
+    }
+
+    float3 GetFallingPos(float3 position, float floor, float gravity)
+    {
+        if (position.y > floor)
+        {
+            position = new float3(position.x, position.y - gravity /*fake gravity for now*/, position.z);
+        }
+
+        return position;
     }
 }
