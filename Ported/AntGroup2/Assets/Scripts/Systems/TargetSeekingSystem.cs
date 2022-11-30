@@ -32,7 +32,10 @@ partial struct TargetSeekingSystem : ISystem
             return false;
         }
 
-        return true;
+        float t1 = (-b + math.sqrt(bb4ac)) / (2 * a);
+        float t2 = (-b - math.sqrt(bb4ac)) / (2 * a);
+
+        return (t1 > 0.0f && t1 < 1.0f) || (t2 > 0.0f && t2 < 1.0f);
     }
 
     public void OnUpdate(ref SystemState state)
@@ -75,8 +78,12 @@ partial struct TargetSeekingSystem : ISystem
             foreach (var wall in SystemAPI.Query<TransformAspect>().WithAll<Obstacle>())
             {
 
-                if (Intersect(ant.Item1.WorldPosition.xz, targetPos.xz, wall.LocalPosition.xz, 2.0f))
+                if (Intersect(ant.Item1.WorldPosition.xz, targetPos.xz, wall.LocalPosition.xz, 1.0f))
+                {
                     lineOfSight = false;
+                    // Draw line to the obstacle
+                    // Debug.DrawLine(ant.Item1.WorldPosition, new float3(wall.LocalPosition.x, 0, wall.LocalPosition.z), lineOfSight ? Color.green : Color.red);
+                }
                
             }
             if(lineOfSight)
@@ -84,6 +91,8 @@ partial struct TargetSeekingSystem : ISystem
                 //Debug.Log(math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z));
                 ant.Item2.TargetDirection = math.atan2(targetPos.x - ant.Item1.WorldPosition.x, targetPos.z - ant.Item1.WorldPosition.z);
                 ant.Item2.TargetDirection = ant.Item2.TargetDirection - ant.Item2.CurrentDirection;
+            } else {
+                ant.Item2.TargetDirection = 0;
             }
             Debug.DrawLine(targetPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
         }
