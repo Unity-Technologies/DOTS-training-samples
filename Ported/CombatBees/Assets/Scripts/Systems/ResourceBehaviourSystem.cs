@@ -3,12 +3,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct ResourceBehaviourSystem : ISystem
 {
-    ComponentLookup<ResourceCarriedComponent> resourceCarriedLookup;
-    ComponentLookup<ResourceDroppedComponent> resourceDroppedLookup;
+    ComponentLookup<ResourceCarried> resourceCarriedLookup;
+    ComponentLookup<ResourceDropped> resourceDroppedLookup;
     ComponentLookup<LocalTransform> resourceLookup;
     ComponentLookup<LocalTransform> beeTransformLookup;
     NativeArray<Entity> beeEntities;
@@ -20,11 +21,11 @@ partial struct ResourceBehaviourSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        resourceCarriedLookup = state.GetComponentLookup<ResourceCarriedComponent>();
-        resourceDroppedLookup = state.GetComponentLookup<ResourceDroppedComponent>();
+        resourceCarriedLookup = state.GetComponentLookup<ResourceCarried>();
+        resourceDroppedLookup = state.GetComponentLookup<ResourceDropped>();
         resourceLookup = state.GetComponentLookup<LocalTransform>(false);
         beeTransformLookup = state.GetComponentLookup<LocalTransform>();
-        beeQuery = new EntityQueryBuilder(Allocator.Persistent).WithAll<BeeTempComponent>().Build(ref state); 
+        beeQuery = new EntityQueryBuilder(Allocator.Persistent).WithAll<BeeState>().Build(ref state); 
     }
 
     [BurstCompile]
@@ -42,7 +43,7 @@ partial struct ResourceBehaviourSystem : ISystem
         beeTransformLookup.Update(ref state);
         beeEntities = beeQuery.ToEntityArray(state.WorldUpdateAllocator);
         
-        foreach (var (transform, resourceComponent, entity) in SystemAPI.Query<TransformAspect, RefRW<ResourceComponent>>().WithEntityAccess())
+        foreach (var (transform, resourceComponent, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
         {
             float3 topLeft = transform.Position - 0.2f;
             float3 bottomRight = transform.Position + 0.2f;
@@ -55,9 +56,9 @@ partial struct ResourceBehaviourSystem : ISystem
                 // this check is left alone for now
                 if (CheckBoundingBox(topLeft, bottomRight, beePosition))
                 {
-                    SystemAPI.SetComponentEnabled<ResourceCarriedComponent>(entity, true);
+                    SystemAPI.SetComponentEnabled<ResourceCarried>(entity, true);
                 }
-                else if (SystemAPI.IsComponentEnabled<ResourceCarriedComponent>(entity))
+                else if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity))
                 {
                     transform.Position = new float3(beePosition.x, beePosition.y - 0.5f, beePosition.z);
                 }

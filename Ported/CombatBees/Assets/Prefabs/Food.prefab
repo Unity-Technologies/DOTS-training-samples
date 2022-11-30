@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2427138854847058552}
   - component: {fileID: 2427138854847058553}
   - component: {fileID: 2427138854847058554}
-  - component: {fileID: 2427138854847058555}
+  - component: {fileID: 1056159084002961500}
   m_Layer: 0
   m_Name: Food
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2427138854847058553
 MeshFilter:
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &2427138854847058555
+--- !u!114 &1056159084002961500
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2427138854847058556}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67f05019a56eb4e0385e7565c0a1a102, type: 3}
+  m_Script: {fileID: 11500000, guid: 1cf4a3555363419e8492401ec27b2aac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

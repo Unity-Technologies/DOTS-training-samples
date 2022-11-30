@@ -8,9 +8,9 @@ public readonly partial struct ResourceAspect : IAspect
 
     readonly TransformAspect Transform;
     
-    readonly RefRW<ResourceComponent> resourceComponent;
-    readonly RefRW<ResourceCarriedComponent> resourceCarriedState;
-    readonly RefRW<ResourceDroppedComponent> resourceDroppedState;
+    readonly RefRW<Resource> resourceComponent;
+    readonly RefRW<ResourceCarried> resourceCarriedState;
+    readonly RefRW<ResourceDropped> resourceDroppedState;
     
     public float3 Position
     {
