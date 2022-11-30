@@ -244,7 +244,7 @@ MonoBehaviour:
   minimumBeeSize: 0.5
   maximumBeeSize: 1.25
   gravity: {x: 0, y: -9.81, z: 0}
-  fieldSize: {x: 35, y: 10, z: 15}
+  fieldRenderer: {fileID: 156210971}
 --- !u!4 &338505779
 Transform:
   m_ObjectHideFlags: 0
