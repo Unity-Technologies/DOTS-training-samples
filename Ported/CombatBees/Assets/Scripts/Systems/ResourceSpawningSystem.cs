@@ -7,6 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[UpdateBefore(typeof(BeeBehaviourSystem))]
 partial struct ResourceSpawningSystem : ISystem
 {
     private EntityQuery myQuery;
@@ -55,6 +56,7 @@ partial struct ResourceSpawningSystem : ISystem
         foreach (var resource in resources)
         {
             ecb.SetComponentEnabled<ResourceCarried>(resource, false);
+            ecb.SetComponentEnabled<ResourceHiveReached>(resource, false);
             var position = center;
 
             //Random, but nothing random about it really

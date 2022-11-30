@@ -47,28 +47,17 @@ partial struct ResourceBehaviourSystem : ISystem
         
         foreach (var (transform, resourceComponent, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
         {
-            var topLeft = transform.WorldPosition - resourceComponent.ValueRO.boundsExtents;
-            var bottomRight = transform.WorldPosition + resourceComponent.ValueRO.boundsExtents;
-            
-            for (int i = 0; i < beeEntities.Length; i++)
+            if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && resourceComponent.ValueRW.ownerBee != Entity.Null)
             {
-                var beePosition = beeTransformLookup[beeEntities[i]].Position;
-
-                // we also need a check if ResourceCarriedComponent is disabled here, but since nothing disables it yet
-                // this check is left alone for now
-                /*if (CheckBoundingBox(topLeft, bottomRight, beePosition))
-                {
-                    SystemAPI.SetComponentEnabled<ResourceCarried>(entity, true);
-                    break;
-                }
-                if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity))
-                {
-                    transform.WorldPosition = new float3(beePosition.x, beePosition.y - 0.5f, beePosition.z);
-                    break;
-                }*/
+                var beePos = SystemAPI.GetComponent<LocalTransform>(resourceComponent.ValueRW.ownerBee);
+                transform.WorldPosition = new float3(beePos.Position.x, beePos.Position.y - 0.2f, beePos.Position.z);
             }
-
-            if (SystemAPI.IsComponentEnabled<ResourceDropped>(entity) && transform.WorldPosition.y > floorY)
+            else if (SystemAPI.IsComponentEnabled<ResourceDropped>(entity) && transform.WorldPosition.y > floorY)
+            {
+                resourceComponent.ValueRW.velocity += config.gravity * timeData.DeltaTime;
+                transform.TranslateWorld(resourceComponent.ValueRW.velocity * timeData.DeltaTime);
+            }
+            else if (SystemAPI.IsComponentEnabled<ResourceHiveReached>(entity) && transform.WorldPosition.y > floorY)
             {
                 resourceComponent.ValueRW.velocity += config.gravity * timeData.DeltaTime;
                 transform.TranslateWorld(resourceComponent.ValueRW.velocity * timeData.DeltaTime);

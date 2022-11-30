@@ -17,6 +17,7 @@ class ResourceBaker : Baker<ResourceAuthoring>
         });
         AddComponent<ResourceCarried>();
         AddComponent<ResourceDropped>();
+        AddComponent<ResourceHiveReached>();
         AddComponent<LocalToWorld>();
     }
 }

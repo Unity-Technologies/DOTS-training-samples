@@ -17,3 +17,8 @@ public struct ResourceDropped : IComponentData, IEnableableComponent
 {
     
 }
+
+public struct ResourceHiveReached : IComponentData, IEnableableComponent
+{
+    
+}

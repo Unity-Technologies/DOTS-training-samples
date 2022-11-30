@@ -41,6 +41,7 @@ partial struct ParticleSystem : ISystem
             // color.w = particle.ValueRW.life;
             // colorProp.ValueRW.Value = color;
             transform.LocalScale = particle.ValueRW.size * particle.ValueRW.life;
+            
             if (!particle.ValueRW.stuck)
             {
                 particle.ValueRW.velocity += config.gravity * timeData.DeltaTime;

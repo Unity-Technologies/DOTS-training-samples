@@ -36,7 +36,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
             var hiveBottom = hiveVal.boundsPosition.y - hiveVal.boundsExtents.y;
             var hiveLeft = hiveVal.boundsPosition.x - hiveVal.boundsExtents.x;
             var hiveRight = hiveVal.boundsPosition.x + hiveVal.boundsExtents.x;
-            foreach (var (resource, trans, entity) in SystemAPI.Query<RefRO<Resource>, RefRO<LocalTransform>>().WithAny<ResourceDropped>().WithEntityAccess())
+            foreach (var (resource, trans, entity) in SystemAPI.Query<RefRO<Resource>, RefRO<LocalTransform>>().WithAny<ResourceHiveReached>().WithAny<ResourceDropped>().WithEntityAccess())
             {
                 var resourcePosition = trans.ValueRO.Position;
                 var resourceBottom = trans.ValueRO.Position.y - resource.ValueRO.boundsExtents.y;
