@@ -1,22 +1,35 @@
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class PlatformAuthoring : MonoBehaviour
 {
-    public GameObject[] PlatformQueues;
-    public GameObject LeftWalkway;
-    public GameObject RightWalkway;
+    public Transform[] PlatformQueues;
+    public Transform WalkwayFrontLower;
+    public Transform WalkwayFrontUpper;
+    public Transform WalkwayBackLower;
+    public Transform WalkwayBackUpper;
 }
 
 class PlatformBaker : Baker<PlatformAuthoring>
 {
     public override void Bake(PlatformAuthoring authoring)
     {
+        var queueCount = authoring.PlatformQueues.Length;
+        var queuesPosRotations = new NativeArray<float3x2>(queueCount, Allocator.Persistent);
+        for (int i = 0; i < queueCount; i++)
+        {
+            queuesPosRotations[i] = new float3x2(authoring.PlatformQueues[i].position, authoring.PlatformQueues[i].forward);
+        }
+
         AddComponent(new Platform
         {
-            // TODO - Hard coding the amount of queues? Do we need to initialize this data here?
-            //PlatformQueues = new NativeArray<Entity>(authoring.PlatformQueues.Length, Allocator.Persistent)
+            PlatformQueues = queuesPosRotations,
+            WalkwayFrontLower = authoring.WalkwayFrontLower.position,
+            WalkwayFrontUpper = authoring.WalkwayFrontUpper.position,
+            WalkwayBackLower = authoring.WalkwayBackLower.position,
+            WalkwayBackUpper = authoring.WalkwayBackUpper.position
         });
     }
 }

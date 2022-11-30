@@ -3,5 +3,5 @@ using Unity.Entities;
 
 public struct Station : IComponentData
 {
-    public NativeArray<Entity> Platforms;
+    //public NativeArray<Entity> Platforms;
 }

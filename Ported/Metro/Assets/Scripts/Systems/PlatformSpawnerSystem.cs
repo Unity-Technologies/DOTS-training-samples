@@ -8,12 +8,14 @@ using Unity.Transforms;
 partial struct PlatformSpawnerSystem : ISystem
 {
     EntityQuery _baseColorQuery;
+    EntityQuery _platformIdQuery;
     EntityQuery _stationIdQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         _baseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
+        _platformIdQuery = state.GetEntityQuery(ComponentType.ReadOnly<PlatformId>());
         _stationIdQuery = state.GetEntityQuery(ComponentType.ReadOnly<StationId>());
     }
     
@@ -31,6 +33,8 @@ partial struct PlatformSpawnerSystem : ISystem
         
         var baseColorQueryMask = _baseColorQuery.GetEntityQueryMask();
         var stationIdQueryMask = _stationIdQuery.GetEntityQueryMask();
+        var platformIdQueryMask = _platformIdQuery.GetEntityQueryMask();
+        int platformId = 0;
         
         foreach (var (metroLine, entity) in SystemAPI.Query<MetroLine>().WithEntityAccess())
         {
@@ -43,8 +47,10 @@ partial struct PlatformSpawnerSystem : ISystem
                 var platform = ecb.Instantiate(platformConfig.PlatformPrefab);
                 ecb.SetComponent(platform, LocalTransform.FromPositionRotation(metroLine.RailwayPositions[i], metroLine.RailwayRotations[i]));
                 ecb.SetComponentForLinkedEntityGroup(platform, baseColorQueryMask, metroLineColor);
+                ecb.SetComponentForLinkedEntityGroup(platform, platformIdQueryMask, new PlatformId{ Value = platformId });
                 ecb.SetComponentForLinkedEntityGroup(platform, stationIdQueryMask, new StationId{ Value = metroLine.StationIds[i] });
                 platforms[i] = platform;
+                platformId++;
             }
             
             //Sorry I have been lazy to add ids... Let's do it tomorrow.
