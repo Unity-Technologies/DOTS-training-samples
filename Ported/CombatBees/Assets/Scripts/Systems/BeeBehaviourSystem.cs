@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -95,7 +96,11 @@ partial struct BeeBehaviourSystem : ISystem
 
                     if(transform.LocalPosition.y <= floorY)
                     {
-                        // Blood particle logic
+                        var config = SystemAPI.GetSingleton<Config>();
+                        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+                        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+                        SpawnParticles(config, ecb, transform.LocalPosition, 5);
 
                         entitiesToDestroy.Add(entity);
                     }
@@ -124,5 +129,36 @@ partial struct BeeBehaviourSystem : ISystem
         }
 
         return position;
+    }
+
+    private static void SpawnParticles(Config config, EntityCommandBuffer ecb, float3 position, int count)
+    {
+        var particles = new NativeArray<Entity>(count, Allocator.Temp);
+        ecb.Instantiate(config.particlePrefab, particles);
+        var color = new URPMaterialPropertyBaseColor { Value = new float4(0.8f, 0f, 0f, 1f) };
+        var random = new Unity.Mathematics.Random();
+        random.InitState((uint)position.GetHashCode());
+        foreach (var particle in particles)
+        {
+            ecb.SetComponent(particle, color);
+            var scale = random.NextFloat(.25f, .4f);
+            ecb.SetComponent(particle, new LocalTransform
+            {
+                Position = position,
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
+            ecb.SetComponent(particle, new Particle()
+            {
+                life = 1f,
+                lifeTime = random.NextFloat(.75f, 1f),
+                velocity = random.NextFloat3Direction() * 5f,
+                size = scale
+            });
+            ecb.AddComponent(particle, new PostTransformScale()
+            {
+                Value = float3x3.Scale(scale)
+            });
+        }
     }
 }
