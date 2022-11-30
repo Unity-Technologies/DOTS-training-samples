@@ -31,11 +31,12 @@ partial struct SelectNextWaypointSystem : ISystem
         //var job = new TraverseTreeJob();
         //state.Dependency = job.Schedule(state.Dependency);
         
-        foreach (var (transform, agent, target) in
+        foreach (var (transform, agent, target, waypointtag) in
                  SystemAPI.Query <
                      TransformAspect,
                      RefRW<Agent>,
-                     RefRW<TargetPosition>
+                     RefRW<TargetPosition>,
+                     WaypointMovementTag
                      > ())
         {
             var distance = math.distancesq(target.ValueRO.Value, transform.WorldPosition.xz);
