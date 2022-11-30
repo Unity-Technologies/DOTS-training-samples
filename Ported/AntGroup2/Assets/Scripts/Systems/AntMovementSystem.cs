@@ -30,17 +30,17 @@ partial struct AntMovementSystem : ISystem
         foreach (var (ant, hasResource, transform) in SystemAPI.Query<DirectionAspect, HasResource, TransformAspect>().WithAll<Ant>())
         {
             float pheromoneWeight = 0.0f;
-            float WallWeight = 1.0f;
+            float WallWeight = 2.0f;
             float TargetWeight = 1.0f;
-            float RandomWeight = .8f;
+            float RandomWeight = 0.8f;
             
             
             float newDirection = 0;
 
             if (ant.WallBounce)
             {
-                float straight = math.atan2(transform.WorldPosition.x, transform.WorldPosition.z);
-                newDirection = ant.CurrentDirection - straight;
+                float2 reflect = math.reflect(new float2(transform.Forward.x, transform.Forward.z),new float2(transform.WorldPosition.x, transform.WorldPosition.z));
+                newDirection = math.atan2(reflect.x, reflect.y);
             }
             else if (hasResource.Trigger)
             {
@@ -54,8 +54,9 @@ partial struct AntMovementSystem : ISystem
                 newDirection += random.NextFloat(-config.RandomSteeringAmount, config.RandomSteeringAmount) * RandomWeight;
 
                 newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
+                newDirection = math.clamp(newDirection, -math.PI / 2.0f, math.PI / 2.0f);
             }
-
+            
             newDirection += ant.CurrentDirection;
 
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));

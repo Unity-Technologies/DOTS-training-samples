@@ -91,6 +91,10 @@ partial struct TargetSeekingSystem : ISystem
                 //Debug.Log(math.atan2(foodPos.x - ant.Item1.WorldPosition.x, foodPos.z - ant.Item1.WorldPosition.z));
                 ant.Item2.TargetDirection = math.atan2(targetPos.x - ant.Item1.WorldPosition.x, targetPos.z - ant.Item1.WorldPosition.z);
                 ant.Item2.TargetDirection = ant.Item2.TargetDirection - ant.Item2.CurrentDirection;
+                if (ant.Item2.TargetDirection > math.PI)
+                    ant.Item2.TargetDirection -= (float)(math.PI * 2.0f);
+                if (ant.Item2.TargetDirection < - math.PI)
+                    ant.Item2.TargetDirection += (float)(math.PI * 2.0f);
             } else {
                 ant.Item2.TargetDirection = 0;
             }

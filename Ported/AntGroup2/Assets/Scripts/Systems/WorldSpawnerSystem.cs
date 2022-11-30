@@ -82,13 +82,13 @@ partial struct WorldSpawnerSystem : ISystem
         float currentDistance = 0;
         
         int WallRingCount = config.WallCount;
-        float MinWallGap = 25.0f;
+        float MinWallGap = 35.0f;
         float MaxWallGap = 80.0f;
         float WallSpacing = config.PlaySize / (WallRingCount + 5);
         float distanceBetweenWalls = 0.5f;
 
-        int MinGapCount = 1;
-        int MaxGapCount = 3;
+        int MinGapCount = 2;
+        int MaxGapCount = 4;
         var random = Random.CreateFromIndex((uint)(Time.realtimeSinceStartup*1000.0f));
 
         NativeList<float> Gaps = new NativeList<float>(Allocator.Temp);

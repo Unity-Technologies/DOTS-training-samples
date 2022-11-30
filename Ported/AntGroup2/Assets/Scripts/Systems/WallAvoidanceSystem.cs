@@ -55,12 +55,18 @@ partial struct WallAvoidanceSystem : ISystem
                     float sqrDist = dx * dx + dy * dy;
 
                     float dir = 1.0f;
-                    if (math.atan2(ant.Item2.WorldPosition.z, ant.Item2.WorldPosition.z) < ant.Item1.CurrentDirection)
-                    {
-                        dir = -1.0f;
-                    }
+                    float2 reflect = math.reflect(new float2(ant.Item2.Forward.x, ant.Item2.Forward.z), new float2(ant.Item2.WorldPosition.x, ant.Item2.WorldPosition.z));
+                    float target = math.atan2(reflect.x, reflect.y);
 
+                    target -= ant.Item1.CurrentDirection;
+                    if (target < 0)
+                        dir = -1.0f;
+                    
                     ant.Item1.WallDirection = (math.PI / 4.0f) * (math.pow((range*range - sqrDist)/(range*range ), 1.0f)) * dir;
+                    if (ant.Item1.WallDirection > math.PI)
+                        ant.Item1.WallDirection -= (float)(math.PI * 2.0f);
+                    if (ant.Item1.WallDirection < -math.PI)
+                        ant.Item1.WallDirection += (float)(math.PI * 2.0f);
                 }
                 
                 //check if inside wall
