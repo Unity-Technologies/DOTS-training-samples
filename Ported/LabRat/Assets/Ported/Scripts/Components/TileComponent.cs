@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public class TileComponent : IComponentData
+public struct TileComponent : IComponentData
 {
     public float2 position;
 }
