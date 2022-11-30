@@ -37,15 +37,15 @@ partial struct ParticleSystem : ISystem
                 ecb.DestroyEntity(entity);
                 continue;
             }
-            var color = colorProp.ValueRW.Value;
-            color.w = particle.ValueRW.life;
-            colorProp.ValueRW.Value = color;
+            // var color = colorProp.ValueRW.Value;
+            // color.w = particle.ValueRW.life;
+            // colorProp.ValueRW.Value = color;
+            transform.LocalScale = particle.ValueRW.size * particle.ValueRW.life;
             if (!particle.ValueRW.stuck)
             {
                 particle.ValueRW.velocity += config.gravity * timeData.DeltaTime;
                 transform.TranslateWorld(particle.ValueRW.velocity * timeData.DeltaTime);
                 transform.LookAt(transform.WorldPosition + particle.ValueRW.velocity);
-                transform.LocalScale = particle.ValueRW.size * particle.ValueRW.life;
                 
                 if (math.abs(transform.WorldPosition.x) > halfFieldSize.x)
                 {

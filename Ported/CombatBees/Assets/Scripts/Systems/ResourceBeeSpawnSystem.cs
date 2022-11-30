@@ -70,7 +70,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
             ecb.SetComponent(particle, new Particle()
             {
                 life = 1f,
-                lifeTime = random.NextFloat(.5f, 75f),
+                lifeTime = random.NextFloat(.5f, .75f),
                 velocity = random.NextFloat3Direction() * 5f,
                 size = scale
             });
