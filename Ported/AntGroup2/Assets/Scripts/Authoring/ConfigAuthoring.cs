@@ -18,7 +18,7 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int PheromoneSampleStepAngle = 15;
     public int PheromoneSampleStepCount = 2;
     public int PheromoneSpawnDistPixels = 5;
-    public float PheromoneSpawnAmount = 0.1f;
+    public float PheromoneSpawnRateSec = 0.1f;
     public float PheromoneDecayRateSec = 0.1f;
 
 }
@@ -42,7 +42,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
             PheromoneSampleStepAngle = authoring.PheromoneSampleStepAngle,
             PheromoneSampleStepCount = authoring.PheromoneSampleStepCount,
             PheromoneSpawnDistPixels = authoring.PheromoneSpawnDistPixels,
-            PheromoneSpawnAmount = authoring.PheromoneSpawnAmount,
+            PheromoneSpawnRateSec = authoring.PheromoneSpawnRateSec,
             PheromoneDecayRateSec = authoring.PheromoneDecayRateSec
         });
     }

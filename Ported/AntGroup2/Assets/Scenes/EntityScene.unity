@@ -184,5 +184,5 @@ MonoBehaviour:
   PheromoneSampleStepAngle: 15
   PheromoneSampleStepCount: 2
   PheromoneSpawnDistPixels: 1
-  PheromoneSpawnAmount: 0.1
-  PheromoneDecayRateSec: 0.01
+  PheromoneSpawnRateSec: 0.1
+  PheromoneDecayRateSec: 0.005

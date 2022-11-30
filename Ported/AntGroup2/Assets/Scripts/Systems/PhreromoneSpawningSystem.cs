@@ -29,7 +29,7 @@ public partial struct PheromoneSpawningSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         
         // TODO: config
-        float pheromoneSpawnAmount = config.PheromoneSpawnAmount * config.TimeScale * SystemAPI.Time.DeltaTime;
+        float pheromoneSpawnAmount = config.PheromoneSpawnRateSec * config.TimeScale * SystemAPI.Time.DeltaTime;
         
         // Pheromone Distance
         int sdx = config.PheromoneSpawnDistPixels;

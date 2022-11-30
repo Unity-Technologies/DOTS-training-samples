@@ -21,6 +21,6 @@ struct Config : IComponentData
     public int PheromoneSampleStepAngle;
     public int PheromoneSampleStepCount;
     public int PheromoneSpawnDistPixels;
-    public float PheromoneSpawnAmount;      // + amount per iteration
+    public float PheromoneSpawnRateSec;      // + amount per iteration
     public float PheromoneDecayRateSec;     // - amount per iteration per dT
 }
