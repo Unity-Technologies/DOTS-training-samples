@@ -1,10 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 class TrainAuthoring : UnityEngine.MonoBehaviour
 {
     public float MaxSpeed;
     public float StopTime;
+    public Transform InitWaypoint;
 }
  
 class TrainBaker : Baker<TrainAuthoring>
@@ -15,6 +17,7 @@ class TrainBaker : Baker<TrainAuthoring>
         {
             Value = authoring.StopTime
         });
+        
         AddComponent(new Speed
         {
             Value = authoring.MaxSpeed
@@ -27,11 +30,22 @@ class TrainBaker : Baker<TrainAuthoring>
         {
             Value = new float2(0f, 1f)
         });
-        AddComponent<TargetPosition>();
-
-        AddComponent<Waypoint>();
+        /*
+        var initTarget = authoring.InitWaypoint.position;
+        AddComponent(new TargetPosition
+        {
+            Value = new float2(initTarget.x, initTarget.z)
+        });
+         */
+        
+       // AddComponent<Waypoint>();
+       /*
+        AddComponent(new Agent
+        {
+            CurrentWaypoint = GetEntity(authoring.InitWaypoint)
+        });
+        */
         AddComponent<TrainInfo>();
         AddComponent<LocationInfo>();
-
     }
 }
