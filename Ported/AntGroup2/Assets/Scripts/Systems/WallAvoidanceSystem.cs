@@ -41,23 +41,38 @@ partial struct WallAvoidanceSystem : ISystem
 
         return (t1 > 0.0f && t1 < 1.0f) || (t2 > 0.0f && t2 < 1.0f);
     }
-
+    
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var walls = wallQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
-        var job = new WallAvoidanceJob { wallPositions = walls };
+        bool sort = true;
+        if (sort)
+        {
+            walls.Sort(new WallSort());
+        }
+
+        var job = new WallAvoidanceJob { wallPositions = walls, ArrayIsSorted = sort};
         job.ScheduleParallel();
         
     }
- 
-    [BurstCompile]
+
+    struct WallSort : IComparer<LocalTransform>
+    {
+        public int Compare(LocalTransform a, LocalTransform b)
+        {
+            return a.Position.x.CompareTo(b.Position.x);
+        }
+    }
+
     [WithAll(typeof(Ant))]
+    [BurstCompile]
     partial struct WallAvoidanceJob : IJobEntity
     {
         [ReadOnly]
         public NativeArray<LocalTransform> wallPositions;
-        
+
+        public bool ArrayIsSorted;
         private bool Intersect(float2 p1, float2 p2, float2 center, float radius, out float distance)
         {
             //  get the distance between X and Z on the segment
@@ -79,17 +94,70 @@ partial struct WallAvoidanceSystem : ISystem
             distance = (t1 > 0.0f && t1 < 1.0f) ? t1 : t2;
             return (t1 > 0.0f && t1 < 1.0f) || (t2 > 0.0f && t2 < 1.0f);
         }
-
+        
+        [BurstCompile]
         public void Execute(ref WallDirection wallDirection, in CurrentDirection currentDirection, in LocalTransform transformAspect)
         {
+            if(wallPositions.Length == 0)
+                return;
             //bool lineOfSight = true;
             int wallBounce = 0;
-            for(int i = 0; i < wallPositions.Length; ++i)
+            
+            //Find wall range
+            float range = 3.0f;
+            int index = wallPositions.Length / 2;
+            int prevIndex = wallPositions.Length;
+            float currentX = wallPositions[index].Position.x;
+            int leftIndex = 0;
+            int rightIndex = wallPositions.Length;
+
+            if (ArrayIsSorted)
+            {
+                int x = 0;
+                while (!(currentX > transformAspect.Position.x + range &&
+                         currentX < transformAspect.Position.x - range) && x < 6)
+                {
+                    if (currentX > transformAspect.Position.x)
+                    {
+                        int prev = prevIndex;
+                        prevIndex = index;
+                        index -= math.abs(prev - index) / 2;
+                    }
+                    else
+                    {
+                        int prev = prevIndex;
+                        prevIndex = index;
+                        index += math.abs(prev - index) / 2;
+                    }
+
+                    ++x;
+                    currentX = wallPositions[index].Position.x;
+                }
+
+                leftIndex = index;
+                while (currentX > transformAspect.Position.x - range && leftIndex != 0)
+                {
+                    leftIndex -= 5;
+                    leftIndex = math.max(leftIndex, 0);
+                    currentX = wallPositions[leftIndex].Position.x;
+                }
+
+                rightIndex = index;
+                currentX = wallPositions[index].Position.x;
+                while (currentX < transformAspect.Position.x + range && rightIndex != wallPositions.Length - 1)
+                {
+                    rightIndex += 5;
+                    rightIndex = math.min(rightIndex, wallPositions.Length - 1);
+                    currentX = wallPositions[rightIndex].Position.x;
+                }
+
+                //Debug.Log(rightIndex - leftIndex + "  " + leftIndex + "  " + index + "  " + rightIndex);
+            }
+
+            for(int i = leftIndex; i < rightIndex; ++i)
             {
                 var wall = wallPositions[i];
                 //check if wall in nearby line of sight
-                float range = 3.0f;
-               
 
                 for (float checkDir = -0.3f; checkDir <= 0.3f; checkDir += 0.6f)
                 {
@@ -98,7 +166,6 @@ partial struct WallAvoidanceSystem : ISystem
                     
                     if (Intersect(transformAspect.Position.xz, antStep.xz, wall.Position.xz, 1.0f, out distance))
                     {
-
                         float dir = -1.0f;
                         if (checkDir < 0)
                             dir = 1.0f;
