@@ -116,7 +116,7 @@ partial struct PassengerSystem : ISystem
         [ReadOnly] public NativeArray<Path> paths;
         [ReadOnly] public NativeArray<float3> initWaypointTransforms;
 
-        public void Execute(Agent agent, TargetPosition target, in LocationInfo info)
+        public void Execute(ref Agent agent, ref TargetPosition target, in LocationInfo info)
         {
             if (info.CurrentPlatform >= 0)
             {
