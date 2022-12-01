@@ -14,7 +14,7 @@ class PassengerBaker : Baker<PassengerAuthoring>
 {
     public override void Bake(PassengerAuthoring authoring)
     {
-        AddComponent(new Passenger { State = PassengerState.WalkingToQueue });
+        AddComponent(new Passenger { State = PassengerState.Idle });
         AddComponent(new PlatformId());
         AddComponent(new PlatformQueueId());
         AddBuffer<Waypoint>();
