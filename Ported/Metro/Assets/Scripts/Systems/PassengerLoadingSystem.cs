@@ -51,6 +51,15 @@ namespace Systems
                     }
                     case TrainState.Loading:
                     {
+                        var metroLine = SystemAPI.GetComponent<MetroLine>(train.MetroLine);
+                        var platformID = metroLine.Platforms[train.DestinationIndex];
+                        foreach (var (passenger,platformId,passengerEntity) in SystemAPI.Query<Passenger, PlatformId>().WithEntityAccess())
+                        {
+                            if (platformId.Value == platformID && passenger.State == PassengerState.InQueue)
+                            {
+                                SystemAPI.SetComponent(passengerEntity, new Passenger{State = PassengerState.OnBoarding});
+                            }
+                        }
                         SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.WaitingOnPlatform });
                         break;
                     }
