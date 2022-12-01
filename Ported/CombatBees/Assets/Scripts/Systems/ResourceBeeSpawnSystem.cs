@@ -119,11 +119,9 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 Rotation = quaternion.identity
             });
 
-            float aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
-
             ecb.SetComponent(bee, new BeeState
             {
-                beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering,
+                beeState = BeeStateEnumerator.Idle,
                 velocity = float3.zero
             });
         }

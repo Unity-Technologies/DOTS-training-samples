@@ -76,7 +76,7 @@ partial struct BeeSpawnSystem : ISystem
 
                 ecb.SetComponent(bee, new BeeState
                 {
-                    beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering,
+                    beeState = BeeStateEnumerator.Idle,
                     velocity = float3.zero
                 });
                 ecb.SetComponent<LocalToWorld>(bee, new LocalToWorld());
