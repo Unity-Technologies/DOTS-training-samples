@@ -1,8 +1,10 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 // TODO - Move to different file!
 readonly partial struct PassengerDecisionAspect : IAspect
@@ -213,8 +215,18 @@ partial struct PassengerBrainSystem : ISystem
                     var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(entity);
                     platformWaypoints.Add(new Waypoint { Value = math.rotate(currentPlatformTransform.Rotation, currentPlatform.WalkwayBackLower) + currentPlatformTransform.Position });
                     platformWaypoints.Add(new Waypoint { Value = math.rotate(currentPlatformTransform.Rotation, currentPlatform.WalkwayBackUpper) + currentPlatformTransform.Position });
-                    platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, currentPlatform.WalkwayFrontUpper) + destinationTransform.Position });
-                    platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, currentPlatform.WalkwayFrontLower) + destinationTransform.Position });
+                    
+                    if (math.dot(destinationTransform.Forward(), currentPlatformTransform.Forward()) < 0)
+                    {
+                        platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, destinationPlatform.WalkwayFrontUpper) + destinationTransform.Position });
+                        platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, destinationPlatform.WalkwayFrontLower) + destinationTransform.Position });
+                    }
+                    else
+                    {
+                        platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, destinationPlatform.WalkwayBackUpper) + destinationTransform.Position });
+                        platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, destinationPlatform.WalkwayBackLower) + destinationTransform.Position });
+
+                    }
 
                     // Updates the component values
                     ecb.SetComponent(entity, new PlatformId { Value = destinationPlatformId });
