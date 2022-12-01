@@ -29,6 +29,8 @@ partial struct TrainSystem : ISystem
 
         foreach (var (transform, speed, waypoint, time, trainInfo, locationInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<WaypointID>, RefRW<IdleTime>, TrainInfo, LocationInfo>())
         {
+            trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { position = transform.LocalPosition };
+
             if (time.ValueRO.Value > 0)
             {
                 time.ValueRW.Value -= Time.deltaTime;
@@ -57,7 +59,6 @@ partial struct TrainSystem : ISystem
                 waypoint.ValueRW.Value = 0;
                 transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, -Globals.RailSize * 0.5f);
             }
-            trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { position = transform.LocalPosition };
         }
     }
 }
