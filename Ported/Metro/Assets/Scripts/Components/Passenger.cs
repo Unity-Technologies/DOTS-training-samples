@@ -10,8 +10,10 @@ public enum PassengerState
     ChoosingQueue,
     WalkingToQueue,
     InQueue,
+    ReadyToEnterTrain,
     OnBoarding,
-    OnTrain,
+    Seated,
+    ReadyToExitTrain,
     OffBoarding
 }
 
