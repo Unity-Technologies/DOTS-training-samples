@@ -39,13 +39,12 @@ struct PheromoneMapUtil
         }   
     }
     
-    public static float GetAmount(ref DynamicBuffer<PheromoneMap> buffer, int x, int y)
+    public static float GetAmount(in DynamicBuffer<PheromoneMap> buffer, int x, int y)
     {
         if ((uint)x < PheromoneDisplaySystem.PheromoneTextureSizeX && (uint)y < PheromoneDisplaySystem.PheromoneTextureSizeY)
         {
             int bufIndex = x + y * PheromoneDisplaySystem.PheromoneTextureSizeX;
-            ref var cell = ref buffer.ElementAt(bufIndex);
-            return cell.amount;
+            return buffer[bufIndex].amount;
         }
 
         return 0.0f;

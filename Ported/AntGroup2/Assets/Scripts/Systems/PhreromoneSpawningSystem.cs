@@ -30,7 +30,7 @@ public partial struct PheromoneSpawningSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         
         // TODO: config
-        float pheromoneSpawnAmount = config.PheromoneSpawnRateSec * config.TimeScale * SystemAPI.Time.DeltaTime;
+        float spawnAmount = config.PheromoneSpawnRateSec * config.TimeScale * SystemAPI.Time.DeltaTime;
         
         // Pheromone Distance
         int sdx = config.PheromoneSpawnDistPixels;
@@ -59,15 +59,16 @@ public partial struct PheromoneSpawningSystem : ISystem
                 {
                     int d = x * x + y * y;
                     float strength = math.max(1.0f - d / maxDist, 0);
-                    PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * spawnTurnStrength * pheromoneSpawnAmount);
+                    PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * spawnTurnStrength * spawnAmount);
                 }    
             }
         }
     #else
         var job = new PheromoneSpawnJob()
         {
+            pheromoneMap = pheromoneMap,
             playAreaSize = config.PlaySize, 
-            pheromoneSpawnAmount = pheromoneSpawnAmount,
+            pheromoneSpawnAmount = spawnAmount,
             spawnDistanceMax = maxDist,
             spawnDistanceX = sdx,
             spawnDistanceY = sdy
@@ -82,13 +83,15 @@ public partial struct PheromoneSpawningSystem : ISystem
 [WithAll(typeof(Ant))]
 partial struct PheromoneSpawnJob : IJobEntity
 {
+    public DynamicBuffer<PheromoneMap> pheromoneMap;
+    
     public int playAreaSize;
     public float pheromoneSpawnAmount;
     
     public float spawnDistanceMax;
     public int spawnDistanceX;
     public int spawnDistanceY;
-    public void Execute(in TransformAspect transform, ref DynamicBuffer<PheromoneMap> pheromoneMap, in CurrentDirection curDirection, in PreviousDirection prevDirection)
+    public void Execute(in TransformAspect transform, in CurrentDirection curDirection, in PreviousDirection prevDirection)
     {
         int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, transform.LocalPosition.xz));
         float turnAngle = math.abs(curDirection.Angle - prevDirection.Angle);
