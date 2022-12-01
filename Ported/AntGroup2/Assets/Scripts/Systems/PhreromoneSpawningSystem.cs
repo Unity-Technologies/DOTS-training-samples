@@ -6,10 +6,10 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [UpdateAfter(typeof(AntMovementSystem))]
-//[BurstCompile]
+[BurstCompile]
 public partial struct PheromoneSpawningSystem : ISystem
 {
-    //[BurstCompile]
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -21,10 +21,10 @@ public partial struct PheromoneSpawningSystem : ISystem
         map.Resize( PheromoneDisplaySystem.PheromoneTextureSizeX * PheromoneDisplaySystem.PheromoneTextureSizeY, NativeArrayOptions.ClearMemory);
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) {}
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
