@@ -19,6 +19,7 @@ partial struct LocationDetectionSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        if (!SystemAPI.HasSingleton<Config>()) return;
         var config = SystemAPI.GetSingleton<Config>();
         LocationJob locationJob = new LocationJob();
         locationJob.config = config;
