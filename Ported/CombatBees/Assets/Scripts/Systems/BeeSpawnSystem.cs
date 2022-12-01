@@ -54,9 +54,9 @@ partial struct BeeSpawnSystem : ISystem
                 var pos = hiveValue.boundsPosition;
                 pos.y = bee.Index;
                 var position = hiveValue.boundsPosition;
-                position.x += noise.cnoise(pos / 10f) * hiveValue.boundsExtents.x;
-                position.y += noise.cnoise(pos / 11f) * hiveValue.boundsExtents.y;
-                position.z += noise.cnoise(pos / 12f) * hiveValue.boundsExtents.z;
+                // position.x += noise.cnoise(pos / 10f) * hiveValue.boundsExtents.x;
+                // position.y += noise.cnoise(pos / 11f) * hiveValue.boundsExtents.y;
+                // position.z += noise.cnoise(pos / 12f) * hiveValue.boundsExtents.z;
                 var scaleRandom = math.clamp(noise.cnoise(pos / 13f) * 2f, -1f, 1f);
                 var scaleDelta = scaleRandom * beeSizeHalfRange;
                 var scale = math.clamp(scaleDelta + beeSizeMiddle,
@@ -67,11 +67,19 @@ partial struct BeeSpawnSystem : ISystem
                     Scale = scale,
                     Rotation = quaternion.identity
                 });
+                ecb.SetComponent(bee, new WorldTransform()
+                {
+                    Position = position,
+                    Scale = scale,
+                    Rotation = quaternion.identity
+                });
 
                 ecb.SetComponent(bee, new BeeState
                 {
-                    beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering
+                    beeState = BeeStateEnumerator.Idle,
+                    velocity = float3.zero
                 });
+                ecb.SetComponent<LocalToWorld>(bee, new LocalToWorld());
             }
         }
 

@@ -33,11 +33,19 @@ partial struct HiveSystem : ISystem
             {
                 if (beeState.ValueRO.beeState != BeeStateEnumerator.Dying)
                 {
-                    enemyBees.Add(new EnemyBees { enemy = beeEntity, enemyPosition = transform.LocalPosition });
+                    enemyBees.Add(new EnemyBees { enemy = beeEntity, enemyPosition = transform.WorldPosition });
                 }
             }
 
             // For resources, pretty much same as above, but without shared components
+            foreach (var (transform, resource, entity) in SystemAPI.Query<TransformAspect, RefRO<Resource>>().WithNone<ResourceCarried, ResourceDropped>().WithEntityAccess())
+            {
+                resources.Add(new AvailableResources()
+                {
+                    resource = entity,
+                    resourcePosition = transform.WorldPosition
+                });
+            }
         }
     }
 }

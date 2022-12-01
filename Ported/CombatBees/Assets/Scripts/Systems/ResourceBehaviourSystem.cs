@@ -1,29 +1,15 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [BurstCompile]
 partial struct ResourceBehaviourSystem : ISystem
 {
-    ComponentLookup<ResourceCarried> resourceCarriedLookup;
-    ComponentLookup<ResourceDropped> resourceDroppedLookup;
-    ComponentLookup<LocalTransform> resourceLookup;
-    ComponentLookup<LocalTransform> beeTransformLookup;
-    NativeArray<Entity> beeEntities;
-    EntityQuery beeQuery;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        resourceCarriedLookup = state.GetComponentLookup<ResourceCarried>();
-        resourceDroppedLookup = state.GetComponentLookup<ResourceDropped>();
-        resourceLookup = state.GetComponentLookup<LocalTransform>(false);
-        beeTransformLookup = state.GetComponentLookup<LocalTransform>();
-        beeQuery = new EntityQueryBuilder(Allocator.Persistent).WithAll<BeeState>().Build(ref state); 
     }
 
     [BurstCompile]
@@ -38,30 +24,52 @@ partial struct ResourceBehaviourSystem : ISystem
         var timeData = state.WorldUnmanaged.Time;
         var halfFieldSize = config.fieldSize * .5f;
         var floorY = -1f * halfFieldSize.y;
-        resourceCarriedLookup.Update(ref state);
-        resourceDroppedLookup.Update(ref state);
-        resourceLookup.Update(ref state);
-
-        beeTransformLookup.Update(ref state);
-        beeEntities = beeQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var up = new float3(0f, 1f, 0f);
         
-        foreach (var (transform, resourceComponent, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
+        foreach (var (transform, resource, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
         {
-            if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && resourceComponent.ValueRW.ownerBee != Entity.Null)
+            if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && resource.ValueRO.ownerBee != Entity.Null)
             {
-                var beePos = SystemAPI.GetComponent<LocalTransform>(resourceComponent.ValueRW.ownerBee);
-                transform.WorldPosition = new float3(beePos.Position.x, beePos.Position.y - 0.2f, beePos.Position.z);
+                var ownerTransform = SystemAPI.GetAspectRO<TransformAspect>(resource.ValueRO.ownerBee);
+                var ownerBeeState = SystemAPI.GetComponent<BeeState>(resource.ValueRO.ownerBee);
+                var targetPos = ownerTransform.WorldPosition - (up * 5f);
+                transform.WorldPosition = math.lerp(ownerTransform.WorldPosition, targetPos, config.carryStiffness * timeData.DeltaTime);
+                resource.ValueRW.velocity = ownerBeeState.velocity;
+                // var beeTransform = SystemAPI.GetAspectRW<TransformAspect>(resourceComponent.ValueRO.ownerBee);
+                // transform.WorldPosition = beeTransform.WorldPosition - new float3(0f, .4f, 0f);
             }
-            else if (SystemAPI.IsComponentEnabled<ResourceDropped>(entity) && transform.WorldPosition.y > floorY)
+
+            if (!SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && transform.WorldPosition.y > floorY)
             {
-                resourceComponent.ValueRW.velocity += config.gravity * timeData.DeltaTime;
-                transform.TranslateWorld(resourceComponent.ValueRW.velocity * timeData.DeltaTime);
+                resource.ValueRW.velocity += config.gravity * timeData.DeltaTime;
+                transform.TranslateWorld(resource.ValueRW.velocity * timeData.DeltaTime);
             }
-            else if (SystemAPI.IsComponentEnabled<ResourceHiveReached>(entity) && transform.WorldPosition.y > floorY)
-            {
-                resourceComponent.ValueRW.velocity += config.gravity * timeData.DeltaTime;
-                transform.TranslateWorld(resourceComponent.ValueRW.velocity * timeData.DeltaTime);
+
+            var velocity = resource.ValueRW.velocity;
+            var worldPosition = transform.WorldPosition;
+            if (math.abs(worldPosition.x) > config.fieldSize.x * .5f) {
+                worldPosition.x = (config.fieldSize.x * .5f) * math.sign(transform.WorldPosition.x);
+                velocity.x *= -.5f;
+                velocity.y *= .8f;
+                velocity.z *= .8f;
             }
+            if (math.abs(worldPosition.z) > config.fieldSize.z * .5f) {
+                worldPosition.z = (config.fieldSize.z * .5f) * math.sign(worldPosition.z);
+                velocity.z *= -.5f;
+                velocity.x *= .8f;
+                velocity.y *= .8f;
+            }
+            if (math.abs(worldPosition.y) > config.fieldSize.y * .5f) {
+                worldPosition.y = (config.fieldSize.y * .5f) * math.sign(worldPosition.y);
+                //velocity.y *= -.5f;
+                velocity.z *= .8f;
+                velocity.x *= .8f;
+                SystemAPI.SetComponentEnabled<ResourceDropped>(entity, false);
+            }
+            
+            transform.WorldPosition = worldPosition;
+            transform.WorldPosition += velocity * timeData.DeltaTime;
+            resource.ValueRW.velocity = velocity;
         }
     }
 }

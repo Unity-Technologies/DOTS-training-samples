@@ -71,5 +71,7 @@ partial struct InputBehaviourSystem : ISystem
             Position = position,
             Scale = 1f
         });
+        ecb.SetComponentEnabled<ResourceCarried>(entity, false);
+        ecb.SetComponentEnabled<ResourceDropped>(entity, true);
     }
 }

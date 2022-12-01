@@ -11,7 +11,22 @@ public struct Config : IComponentData
     public float maximumBeeSize;
     public float3 gravity;
     public float3 fieldSize;
-    public Entity resourceSpawn;
     public Entity resourcePrefab;
     public int resourceCount;
+    public float carryStiffness;
+
+    // Bee parameters
+    public float speedStretch;
+    public float rotationStiffness;
+    public float aggression;
+    public float flightJitter;
+    public float teamAttraction;
+    public float teamRepulsion;
+    public float damping;
+    public float chaseForce;
+    public float carryForce;
+    public float grabDistance;
+    public float attackDistance;
+    public float attackForce;
+    public float hitDistance;
 }

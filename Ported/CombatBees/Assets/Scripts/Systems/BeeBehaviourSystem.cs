@@ -1,4 +1,3 @@
-using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 partial struct BeeBehaviourSystem : ISystem
@@ -29,8 +29,14 @@ partial struct BeeBehaviourSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        return;
+        var random = Random.CreateFromIndex((uint)state.WorldUnmanaged.Time.ElapsedTime * 10);
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
         DynamicBuffer<EnemyBees> hive0EnemyBees = new DynamicBuffer<EnemyBees>();
         DynamicBuffer<EnemyBees> hive1EnemyBees = new DynamicBuffer<EnemyBees>();
+        DynamicBuffer<AvailableResources> hive01AvailableResources;
 
         foreach (var (hiveEnemyBees, hiveAvailableResources, team) in SystemAPI.Query<DynamicBuffer<EnemyBees>, DynamicBuffer<AvailableResources>, Team>())
         {
@@ -42,6 +48,8 @@ partial struct BeeBehaviourSystem : ISystem
             {
                 hive1EnemyBees = hiveEnemyBees;
             }
+
+            hive01AvailableResources = hiveAvailableResources;
         }
 
         var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
@@ -75,73 +83,39 @@ partial struct BeeBehaviourSystem : ISystem
                         transform.LocalPosition += transform.Forward * deltaTime * 7f;
 
                         float distanceToTarget = Vector3.Distance(transform.LocalPosition, targetPosition);
-
-                        if (distanceToTarget < 3f)
+                        if (distanceToTarget < 1f)
                         {
-                            transform.LocalPosition += transform.Forward * deltaTime * 7f;
-                            if (distanceToTarget < 1f)
-                            {
-                                BeeState dyingState = new BeeState() { beeState = BeeStateEnumerator.Dying };
-                                state.EntityManager.SetComponentData<BeeState>(target.ValueRW.target, dyingState);
-                                target.ValueRW.target = Entity.Null;
-                            }
+                            BeeState dyingState = new BeeState() { beeState = BeeStateEnumerator.Dying };
+                            state.EntityManager.SetComponentData<BeeState>(target.ValueRW.target, dyingState);
+                            target.ValueRW.target = Entity.Null;
                         }
                     }
                     break;
                 case BeeStateEnumerator.Gathering:
-                    if (target.ValueRW.target != Entity.Null)
+                    if (target.ValueRW.target != Entity.Null && SystemAPI.HasComponent<Resource>(target.ValueRW.target))
                     {
-                        if (SystemAPI.HasComponent<Resource>(target.ValueRW.target))
+                        var targetResourceTransform = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target);
+                        var targetResource = SystemAPI.GetComponent<Resource>(target.ValueRW.target);
+                        if (math.distancesq(transform.WorldPosition, targetResourceTransform.Position) < 0.5)
                         {
-                            var targetResource = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target);
-                            if (math.distance(transform.LocalPosition, targetResource.Position) < 0.5)
-                            {
-                                beeState.ValueRW.beeState = BeeStateEnumerator.CarryBack;
-                                SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, true);
-                                SystemAPI.SetComponentEnabled<ResourceDropped>(target.ValueRW.target, false);
-                            }
-                            else
-                            {
-                                var resourcePosition = targetResource.Position;
-                                var targetRotation = Quaternion.LookRotation(resourcePosition);
-                                transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 100);
-                                transform.LocalPosition = math.lerp(transform.LocalPosition, resourcePosition, SystemAPI.Time.DeltaTime);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        float minDist = float.MaxValue;
-
-                        foreach (var (resourceTransform, resource, resourceDropped, resourceEntity) in SystemAPI.Query<TransformAspect, RefRW<Resource>,ResourceDropped>().WithEntityAccess())
-                        {
-                            if (resource.ValueRW.ownerBee != Entity.Null)
-                                continue;
-                            
-                            var distToCurrent = math.distance(transform.WorldPosition, resourceTransform.Position);
-                            
-                            if (minDist > distToCurrent)
-                                minDist = distToCurrent;
-                        }
-
-                        // If no close target was found
-                        if (Math.Abs(minDist - float.MaxValue) < math.EPSILON)
+                            beeState.ValueRW.beeState = BeeStateEnumerator.CarryBack;
+                            targetResource.ownerBee = entity;
+                            SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, true);
                             break;
+                        }
                         
-                        // :) idk how to access a RW component differently (:
-                        foreach (var (resourceTransform, resourceData, resourceEntity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
+                        var resourcePosition = SystemAPI.GetComponent<LocalTransform>(target.ValueRW.target).Position;
+                        var targetRotation = Quaternion.LookRotation(resourcePosition);
+                        transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 100);
+                        transform.LocalPosition = math.lerp(transform.LocalPosition, resourcePosition, SystemAPI.Time.DeltaTime);
+                        
+                        break;
+                    }
+                    
+                    foreach (var (resource, resourceEntity) in SystemAPI.Query<Resource>().WithNone<ResourceCarried>().WithNone<ResourceDropped>().WithEntityAccess())
+                    {
+                        if (random.NextFloat(0f, 1f) > .8f)
                         {
-                            var distToCurrent = math.distance(transform.LocalPosition, resourceTransform.Position);
-                            if (math.abs(minDist - distToCurrent) > math.EPSILON)
-                                continue;
-
-                            var odds = 0.5f;
-                            var roll = UnityEngine.Random.Range(0f, 1f);
-
-                            if (odds < roll)
-                                break;
-                            
-                            resourceData.ValueRW.ownerBee = entity;
                             target.ValueRW.target = resourceEntity;
                             break;
                         }
@@ -150,20 +124,18 @@ partial struct BeeBehaviourSystem : ISystem
                 case BeeStateEnumerator.CarryBack:
                     foreach (var (hive, hiveTeam) in SystemAPI.Query<RefRO<Hive>, Team>())
                     {
-                        if (hiveTeam.number != team.number) 
-                            continue;
-                        
-                        if (math.distance(hive.ValueRO.boundsPosition, transform.LocalPosition) < 0.5f)
+                        if (hiveTeam.number == team.number)
                         {
-                            SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, false);
-                            SystemAPI.SetComponentEnabled<ResourceDropped>(target.ValueRW.target, false);
-                            SystemAPI.SetComponentEnabled<ResourceHiveReached>(target.ValueRW.target, true);
-                            
-                            target.ValueRW.target = Entity.Null;
-                            beeState.ValueRW.beeState = BeeStateEnumerator.Gathering;
-                        }
-                        else
-                        {
+                            var topRight = hive.ValueRO.boundsPosition + hive.ValueRO.boundsExtents;
+                            var bottomLeft = hive.ValueRO.boundsPosition - hive.ValueRO.boundsExtents;
+                            if (CheckBoundingBox(topRight, bottomLeft, transform.WorldPosition))
+                            {
+                                ecb.SetComponentEnabled<ResourceDropped>(target.ValueRW.target, true);
+                                ecb.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, false);
+                                target.ValueRW.target = Entity.Null;
+                                beeState.ValueRW.beeState = BeeStateEnumerator.Attacking;
+                                break;
+                            }
                             var hivePosition = hive.ValueRO.boundsPosition;
                             var targetRotation = Quaternion.LookRotation(hivePosition);
                             transform.LocalRotation = Quaternion.RotateTowards(transform.LocalRotation, targetRotation, 100);
@@ -179,30 +151,11 @@ partial struct BeeBehaviourSystem : ISystem
 
                     transform.LocalPosition = GetFallingPos(transform.LocalPosition, floorY, gravity);
 
-                    if (transform.LocalPosition.y <= floorY)
+                    if(transform.LocalPosition.y <= floorY)
                     {
                         var config = SystemAPI.GetSingleton<Config>();
-                        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-                        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
                         SpawnParticles(config, ecb, transform.LocalPosition, 5);
-                        
-                        if (target.ValueRW.target != Entity.Null && SystemAPI.HasComponent<Resource>(target.ValueRW.target))
-                        {
-                            SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRW.target, false);
-                            SystemAPI.SetComponentEnabled<ResourceDropped>(target.ValueRW.target, true);
-                            
-                            // :) idk how to access a RW component differently (:
-                            foreach (var (resource, resourceEntity) in SystemAPI.Query<RefRW<Resource>>().WithEntityAccess())
-                            {
-                                if (resourceEntity != target.ValueRO.target)
-                                    continue;
-                                
-                                resource.ValueRW.ownerBee = Entity.Null;
-                                break;
-                            }
-                            
-                        }
+
                         entitiesToDestroy.Add(entity);
                     }
 
@@ -261,5 +214,11 @@ partial struct BeeBehaviourSystem : ISystem
                 Value = float3x3.Scale(scale)
             });
         }
+    }
+    
+    bool CheckBoundingBox(float3 topRight, float3 bottomLeft, float3 beePosition)
+    {
+        return (topRight.x <= beePosition.x && beePosition.x <= bottomLeft.x
+                                            && topRight.z <= beePosition.x && beePosition.x <= bottomLeft.z);
     }
 }

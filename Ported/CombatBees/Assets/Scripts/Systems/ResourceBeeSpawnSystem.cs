@@ -60,7 +60,7 @@ partial struct ResourceBeeSpawnSystem : ISystem
         foreach (var particle in particles)
         {
             ecb.SetComponent(particle, color);
-            var scale = random.NextFloat(.3f, .6f);
+            var scale = random.NextFloat(.8f, 1.2f);
             ecb.SetComponent(particle, new LocalTransform
             {
                 Position = position,
@@ -112,12 +112,17 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 Scale = scale,
                 Rotation = quaternion.identity
             });
-
-            float aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
+            ecb.SetComponent(bee, new WorldTransform()
+            {
+                Position = position,
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
 
             ecb.SetComponent(bee, new BeeState
             {
-                beeState = scale > aggressiveThreshold ? BeeStateEnumerator.Attacking : BeeStateEnumerator.Gathering
+                beeState = BeeStateEnumerator.Idle,
+                velocity = float3.zero
             });
         }
     }

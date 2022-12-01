@@ -46,7 +46,7 @@ partial struct ParticleSystem : ISystem
             {
                 particle.ValueRW.velocity += config.gravity * timeData.DeltaTime;
                 transform.TranslateWorld(particle.ValueRW.velocity * timeData.DeltaTime);
-                transform.LookAt(transform.WorldPosition + particle.ValueRW.velocity);
+                //transform.LookAt(transform.WorldPosition + particle.ValueRW.velocity);
                 
                 if (math.abs(transform.WorldPosition.x) > halfFieldSize.x)
                 {

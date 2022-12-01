@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
-[UpdateBefore(typeof(BeeBehaviourSystem))]
 partial struct ResourceSpawningSystem : ISystem
 {
     private EntityQuery myQuery;
@@ -31,6 +30,7 @@ partial struct ResourceSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+        var halfFieldSize = config.fieldSize * .5f;
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -51,24 +51,23 @@ partial struct ResourceSpawningSystem : ISystem
             totalZ += hive.boundsPosition.z;
         }
 
-        float3 center = float3.zero; //new float3 { x = totalX / hives.Length, y = totalY / hives.Length, z = totalZ / hives.Length };
-
         foreach (var resource in resources)
         {
             ecb.SetComponentEnabled<ResourceCarried>(resource, false);
-            ecb.SetComponentEnabled<ResourceHiveReached>(resource, false);
-            var position = center;
+            ecb.SetComponentEnabled<ResourceDropped>(resource, true);
+            var position = float3.zero;
 
             //Random, but nothing random about it really
             var random = Unity.Mathematics.Random.CreateFromIndex((uint)-resource.Index);
-            var randomInt = random.NextInt(0, config.resourceCount);
-            position.x += -5 + (randomInt % 10);
+            var randomFloat = random.NextFloat(-1f, 1f);
+            position.x = halfFieldSize.x * .4f * randomFloat;
 
-            randomInt = random.NextInt(0, config.resourceCount);
-            position.z += 5 - (randomInt / 10);
+            randomFloat = random.NextFloat(-1f, 1f);
+            position.z = halfFieldSize.z * .8f * randomFloat;
 
-            randomInt = random.NextInt(0, config.resourceCount);
-            position.y += 0.025f * randomInt;
+            randomFloat = random.NextFloat(-1f, 1f);
+            position.y = halfFieldSize.y * .3f * randomFloat;
+
 
             ecb.SetComponent(resource, new LocalTransform()
             {
