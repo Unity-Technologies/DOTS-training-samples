@@ -12,6 +12,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int PlatformCountPerStation;
     public int NumberOfStations;
     public float SafeZoneRadius;
+    public int QueueLength;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -28,7 +29,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
             PersonCount = authoring.PersonCount,
             PlatformCountPerStation = authoring.PlatformCountPerStation,
             NumberOfStations = authoring.NumberOfStations,
-            SafeZoneRadius = authoring.SafeZoneRadius
+            SafeZoneRadius = authoring.SafeZoneRadius,
+            QueueLength = authoring.QueueLength
         });
     }
 }

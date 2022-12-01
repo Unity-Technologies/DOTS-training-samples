@@ -11,4 +11,5 @@ struct Config : IComponentData
     public int PlatformCountPerStation;
     public int NumberOfStations;
     public float SafeZoneRadius;
+    public int QueueLength;
 }
