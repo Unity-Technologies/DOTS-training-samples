@@ -42,7 +42,6 @@ partial struct PassengerMovementJob : IJobEntity
         else
         {
             waypoints.RemoveAt(0);
-            passenger.State = PassengerState.Idle;
         }
     }
 }
