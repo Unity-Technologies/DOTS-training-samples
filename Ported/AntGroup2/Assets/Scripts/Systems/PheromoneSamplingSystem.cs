@@ -23,7 +23,7 @@ public partial struct PheromoneSamplingSystem : ISystem
         var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
         
         float sampleDist = config.PheromoneSampleDistPixels * config.TimeScale * SystemAPI.Time.DeltaTime;
-        float steerAngleRad = config.PheromoneSampleStepAngle;
+        float steerAngleRad = math.radians(config.PheromoneSampleStepAngle);
         int stepCount = config.PheromoneSampleStepCount;
         
     #if false
