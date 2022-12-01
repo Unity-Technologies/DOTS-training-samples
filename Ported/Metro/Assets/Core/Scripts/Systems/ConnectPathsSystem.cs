@@ -5,20 +5,18 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 using UnityEngine;
 
 [UpdateAfter(typeof(SpawnerSystem))]
 [BurstCompile]
 partial struct ConnectPathsSystem : ISystem
 {
-    private EntityQuery myQuery;
+    private EntityQuery m_BaseColorQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        var builder = new EntityQueryBuilder(Allocator.Temp);
-        builder.WithAll<Path>();
-        myQuery = state.GetEntityQuery(builder);
     }
     
     [BurstCompile]
@@ -61,6 +59,10 @@ partial struct ConnectPathsSystem : ISystem
             paths[pathID.Value] = path;
         }
         
+        var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
+        
         for (int i = 0; i < pathsCount; i++)
         {
             if (i >= (config.PlatformCountPerStation - 1) * config.NumberOfStations)
@@ -72,18 +74,25 @@ partial struct ConnectPathsSystem : ISystem
             var exitWaypointLeft = paths[i].Exit;
             var exitWaypointRight = paths[i + config.NumberOfStations].Exit;
 
-            Connect(ref state, entryWaypointLeft, exitWaypointRight);
-            Connect(ref state, entryWaypointRight, exitWaypointLeft);
+            Connect(ref state, entryWaypointLeft, exitWaypointRight, ecb);
+            Connect(ref state, entryWaypointRight, exitWaypointLeft, ecb);
         }
 
         paths.Dispose();
     }
     
-    private void Connect(ref SystemState state, Entity entry, Entity exit)
+    private void Connect(ref SystemState state, Entity entry, Entity exit, EntityCommandBuffer ecb)
     {
         var entryWaypoint = SystemAPI.GetComponent<Waypoint>(entry);
         entryWaypoint.Connection = exit;
         SystemAPI.SetComponent(entry, entryWaypoint);
+        
+        var queryMask = m_BaseColorQuery.GetEntityQueryMask();
+        
+        // entry green
+        ecb.SetComponentForLinkedEntityGroup(entry, queryMask, new URPMaterialPropertyBaseColor { Value = new float4(0f,1f,0f,1f) });
+        // exit red
+        ecb.SetComponentForLinkedEntityGroup(exit, queryMask, new URPMaterialPropertyBaseColor { Value = new float4(1f,0f,0f,1f) });
     }
 
  /* 
