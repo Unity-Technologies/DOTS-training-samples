@@ -130,10 +130,13 @@ partial struct BeeBehaviourSystem2 : ISystem
                                 if (enemyState.beeState == BeeStateEnumerator.CarryBack)
                                 {
                                     var enemyTarget = SystemAPI.GetComponent<BeeTarget>(target.ValueRO.target);
-                                    var resource = SystemAPI.GetComponent<Resource>(enemyTarget.target);
-                                    resource.ownerBee = Entity.Null;
-                                    SystemAPI.SetComponent(enemyTarget.target, resource);
-                                    SystemAPI.SetComponentEnabled<ResourceCarried>(enemyTarget.target, false);
+                                    if (enemyTarget.target != Entity.Null && SystemAPI.HasComponent<Resource>(enemyTarget.target))
+                                    {
+                                        var resource = SystemAPI.GetComponent<Resource>(enemyTarget.target);
+                                        resource.ownerBee = Entity.Null;
+                                        SystemAPI.SetComponent(enemyTarget.target, resource);
+                                        SystemAPI.SetComponentEnabled<ResourceCarried>(enemyTarget.target, false);
+                                    }
                                 }
                                 enemyState.beeState = BeeStateEnumerator.Dying;
                                 enemyState.velocity *= .5f;
@@ -192,11 +195,15 @@ partial struct BeeBehaviourSystem2 : ISystem
                     velocity += (targetPos - transform.WorldPosition) * (config.carryForce * deltaTime / dist);
                     if (dist < 1f)
                     {
-                        var resource = SystemAPI.GetComponent<Resource>(target.ValueRO.target);
-                        resource.ownerBee = Entity.Null;
-                        SystemAPI.SetComponent(target.ValueRO.target, resource);
-                        SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRO.target, false);
-                        SystemAPI.SetComponentEnabled<ResourceDropped>(target.ValueRO.target, true);
+                        if (target.IsValid && SystemAPI.HasComponent<Resource>(target.ValueRO.target))
+                        {
+                            var resource = SystemAPI.GetComponent<Resource>(target.ValueRO.target);
+                            resource.ownerBee = Entity.Null;
+                            SystemAPI.SetComponent(target.ValueRO.target, resource);
+                            SystemAPI.SetComponentEnabled<ResourceCarried>(target.ValueRO.target, false);
+                            SystemAPI.SetComponentEnabled<ResourceDropped>(target.ValueRO.target, true);
+                        }
+
                         bee.ValueRW.beeState = BeeStateEnumerator.Idle;
                     }
 
