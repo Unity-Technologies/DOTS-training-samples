@@ -55,7 +55,7 @@ public partial struct PheromoneSamplingSystem : ISystem
             stepSteerAngleRad = steerAngleRad,
             sampleDistance = sampleDist
         };
-        job.Schedule();
+        job.ScheduleParallel();
 #endif
     }
 }

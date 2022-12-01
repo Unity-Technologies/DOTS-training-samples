@@ -47,9 +47,9 @@ public partial struct PheromoneSpawningSystem : ISystem
         }
 
     #if false
-        foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
+        foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
         {
-            int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));
+            int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.ValueRO.Position.xz));
             float turnAngle = math.abs(curDirection.ValueRO.Angle - prevDirection.ValueRO.Angle);
             float spawnTurnStrength = 1.0f - math.saturate(turnAngle / (math.PI/2));
 
@@ -91,9 +91,9 @@ partial struct PheromoneSpawnJob : IJobEntity
     public float spawnDistanceMax;
     public int spawnDistanceX;
     public int spawnDistanceY;
-    public void Execute(in TransformAspect transform, in CurrentDirection curDirection, in PreviousDirection prevDirection)
+    public void Execute(in LocalTransform localTransform, in CurrentDirection curDirection, in PreviousDirection prevDirection)
     {
-        int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, transform.LocalPosition.xz));
+        int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, localTransform.Position.xz));
         float turnAngle = math.abs(curDirection.Angle - prevDirection.Angle);
         float spawnTurnStrength = 1.0f - math.saturate(turnAngle / (math.PI/2));
 
