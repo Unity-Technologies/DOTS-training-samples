@@ -45,6 +45,14 @@ public partial struct PheromoneSpawningSystem : ISystem
             for (int i = 0; i < pheromoneMap.Length; i++)
                 pheromoneMap.ElementAt(i).amount = 0;
         }
+        
+        // DebugFill with a couple X-lines
+        /*for(int i = 0; i < 5; i++)
+        for (int x = 0; x < PheromoneDisplaySystem.PheromoneTextureSizeX; x++)
+        {
+            int y = PheromoneDisplaySystem.PheromoneTextureSizeY / 5 * i;
+            PheromoneMapUtil.SetAmount(ref pheromoneMap, x, y, 1);
+        }*/
 
     #if false
         foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
@@ -93,6 +101,8 @@ partial struct PheromoneSpawnJob : IJobEntity
     public int spawnDistanceY;
     public void Execute(in LocalTransform localTransform, in CurrentDirection curDirection, in PreviousDirection prevDirection)
     {
+        //return; // TODO: temp disable
+        
         int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, localTransform.Position.xz));
         float turnAngle = math.abs(curDirection.Angle - prevDirection.Angle);
         float spawnTurnStrength = 1.0f - math.saturate(turnAngle / (math.PI/2));

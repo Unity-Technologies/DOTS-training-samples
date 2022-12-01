@@ -179,10 +179,13 @@ MonoBehaviour:
   PlaySize: 70
   AmountOfWalls: 3
   TimeScale: 8
-  RandomSteeringAmount: 0.4
-  PheromoneSampleDistPixels: 1
-  PheromoneSampleStepAngle: 15
-  PheromoneSampleStepCount: 2
-  PheromoneSpawnDistPixels: 1
-  PheromoneSpawnRateSec: 0.3
-  PheromoneDecayRateSec: 0.01
+  RandomSteeringAmount: 0.5
+  MoveTargetWeight: 0.25
+  MoveRandomWeight: 0.8
+  MovePheromoneWeight: 0.1
+  PheromoneSampleDistPixels: 8
+  PheromoneSampleStepAngle: 10
+  PheromoneSampleStepCount: 6
+  PheromoneSpawnDistPixels: 0
+  PheromoneSpawnRateSec: 0.01
+  PheromoneDecayRateSec: 0.04

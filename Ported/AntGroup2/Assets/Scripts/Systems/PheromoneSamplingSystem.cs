@@ -32,19 +32,54 @@ public partial struct PheromoneSamplingSystem : ISystem
             float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.ValueRO.Position.xz);
             float curAngle = currentDirection.ValueRO.Angle;
 
-            float angle = 0;
+            #if true
+            float bestAmount;
+            float bestStep = 0;
+            {
+                float2 dir = new float2(math.sin(curAngle ), math.cos(curAngle ));
+                int2 texPos = new int2(mapPos + dir * sampleDist);
+                bestAmount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
+                bestStep = 0;
+            }
+            
             for (int s = -stepCount; s < stepCount + 1; s++)
             {
                 float2 dir = new float2(math.sin(curAngle + steerAngleRad * s), math.cos(curAngle + steerAngleRad * s));
                 int2 texPos = new int2(mapPos + dir * sampleDist);
                 float amount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
-                
-                //Debug.Log($"Step:{s}, SteerAngleDeg:{math.degrees(s * steerAngleRad)}, texPos:{texPos}");
-                angle += steerAngleRad * s * amount;
+
+                if (amount > bestAmount)
+                {
+                    bestAmount = amount;
+                    bestStep = s;
+                }
             }
+            pheromoneDirection.ValueRW.Angle = steerAngleRad * bestStep;// * bestAmount;
+            #else
             
-            //Debug.Log($"Best step:{bestStep}, SteerAngleDeg:{math.degrees(bestStep * steerAngleRad)}");
+            
+            float angle = 0;
+            float totalAmount = 0;
+            for (int s = -stepCount; s < stepCount + 1; s++)
+            {
+                float2 dir = new float2(math.sin(curAngle + steerAngleRad * s), math.cos(curAngle + steerAngleRad * s));
+                int2 texPos = new int2(mapPos + dir * sampleDist);
+                float amount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
+
+                angle = steerAngleRad * s * amount;
+                totalAmount += amount;
+            }
+
+            
+            Debug.Log($"angle:{math.degrees(angle)}, totalAmount:{totalAmount}");
+            angle /= math.max(totalAmount, 0.0001f);
             pheromoneDirection.ValueRW.Angle = angle;
+            Debug.Log($"SteerAngleDeg:{math.degrees(angle)}");
+            #endif
+
+            //Debug.Log($"Best step:{bestStep}, SteerAngleDeg:{math.degrees(bestStep * steerAngleRad)}");
+
+            
         }
     #else
         var job = new PheromoneSamplingJob()
@@ -77,6 +112,8 @@ partial struct PheromoneSamplingJob : IJobEntity
         float curAngle = currentDirection.Angle;
 
         float angle = 0;
+        #if false
+        // Sum sampled angles weighted with the pheromone
         for (int s = -stepCount; s < stepCount + 1; s++)
         {
             float2 dir = new float2(math.sin(curAngle + stepSteerAngleRad * s), math.cos(curAngle + stepSteerAngleRad * s));
@@ -86,8 +123,53 @@ partial struct PheromoneSamplingJob : IJobEntity
             //Debug.Log($"Step:{s}, SteerAngleDeg:{math.degrees(s * steerAngleRad)}, texPos:{texPos}");
             angle += stepSteerAngleRad * s * amount;
         }
+        #elif true
+        // Try to step with different angles and choose the best.
+        
+        // Init with straight value to go straight by default
+        float bestAmount;
+        float bestStep = 0;
+        {
+            float2 dir = new float2(math.sin(curAngle ), math.cos(curAngle ));
+            int2 texPos = new int2(mapPos + dir * sampleDistance);
+            bestAmount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
+            bestStep = 0;
+        }
             
-        //Debug.Log($"Best step:{bestStep}, SteerAngleDeg:{math.degrees(bestStep * steerAngleRad)}");
+        for (int s = -stepCount; s < stepCount + 1; s++)
+        {
+            if (s == 0)
+                continue;
+            
+            float2 dir = new float2(math.sin(curAngle + stepSteerAngleRad * s), math.cos(curAngle + stepSteerAngleRad * s));
+            int2 texPos = new int2(mapPos + dir * sampleDistance);
+            float amount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
+
+            if (amount > bestAmount)
+            {
+                bestAmount = amount;
+                bestStep = s;
+            }
+        }
+        angle = stepSteerAngleRad * bestStep;
+        #else
+        // Average sampled direction angles weighted by pheromone
+        float totalAmount = 0;
+        for (int s = -stepCount; s < stepCount + 1; s++)
+        {
+            float2 dir = new float2(math.sin(curAngle + stepSteerAngleRad * s), math.cos(curAngle + stepSteerAngleRad * s));
+            int2 texPos = new int2(mapPos + dir * sampleDistance);
+            float amount = PheromoneMapUtil.GetAmount(in pheromoneMap, texPos.x, texPos.y);
+
+            angle = stepSteerAngleRad * s * amount;
+            totalAmount += amount;
+        }
+
+            
+        angle /= math.max(totalAmount, 0.0001f);
+        angle = -angle;
+        #endif
+            
         pheromoneDirection.Angle = angle;
     }
 }

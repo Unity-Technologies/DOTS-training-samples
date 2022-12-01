@@ -17,7 +17,7 @@ public partial struct PheromoneDecaySystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         
-        float pheromoneDecayAmount = math.max(config.PheromoneDecayRateSec * config.TimeScale * SystemAPI.Time.DeltaTime,0.0001f);
+        float pheromoneDecayAmount = 1.0f - math.max(config.PheromoneDecayRateSec * config.TimeScale * SystemAPI.Time.DeltaTime,0.0001f);
 
         #if false
             var pheromoneMap = SystemAPI.GetSingletonBuffer<PheromoneMap>();
@@ -44,7 +44,7 @@ partial struct PheromoneDecayJob : IJobEntity
         for (int i = 0; i < pheromoneMap.Length; i++)
         {
             ref var cellRef = ref pheromoneMap.ElementAt(i);
-            cellRef.amount = math.max(cellRef.amount - pheromoneDecayAmount, 0);
+            cellRef.amount *= pheromoneDecayAmount;
         }
     }
 
