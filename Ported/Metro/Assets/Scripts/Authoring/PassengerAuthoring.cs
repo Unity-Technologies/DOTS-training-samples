@@ -16,7 +16,8 @@ class PassengerBaker : Baker<PassengerAuthoring>
     {
         AddComponent(new Passenger { State = PassengerState.Idle });
         AddComponent(new PlatformId());
-        var waypoints = AddBuffer<Waypoint>();
+        AddComponent(new PlatformQueueId());
+        AddBuffer<Waypoint>();
     }
 }
 
