@@ -27,14 +27,28 @@ partial struct AntUnspawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        foreach (var (transform, entity) in SystemAPI.Query<TransformAspect>().WithAll<Ant>().WithEntityAccess())
+        var job = new UnspawnJob
         {
-            float halfSize = config.PlaySize * 0.5f;
+            halfSize = config.PlaySize * 0.5f,
+            Ecb = ecb.AsParallelWriter()
+        };
+
+        job.ScheduleParallel();
+    }
+
+    [BurstCompile]
+    [WithAll(typeof(Ant))]
+    partial struct UnspawnJob : IJobEntity
+    {
+        public float halfSize;
+        public EntityCommandBuffer.ParallelWriter Ecb;
+
+        public void Execute([ChunkIndexInQuery]int index, TransformAspect transform, Entity entity)
+        {
             if (math.abs(transform.WorldPosition.x) > halfSize || math.abs(transform.WorldPosition.z) > halfSize)
             {
-                ecb.DestroyEntity(entity);
+                Ecb.DestroyEntity(index, entity);
             }
         }
-
     }
 }
